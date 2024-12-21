@@ -10,4 +10,6 @@ https://github.com/SebaKrk/StepTrackerTCA
     * A: Add TCA package dependency
     
 ### IOS-00002 Dependency Injection with Factory
-    * A: Container-Based Dependency Factory Package  
+    * A: Container-Based Dependency Factory Package
+    
+### IOS-0003 DashboardFeature
