@@ -7,5 +7,5 @@ https://github.com/SebaKrk/StepTrackerTCA
 ******************************************************************
 
 ### IOS-00001 The Composable Architecture
-    * A: The Composable Architecture
+    * A: Add TCA package dependency
     
