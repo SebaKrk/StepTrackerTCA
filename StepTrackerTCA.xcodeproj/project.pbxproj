@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 930DCF402D16A3D900F1A5E4 /* Factory */; };
 		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */,
+				930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +73,7 @@
 			name = StepTrackerTCA;
 			packageProductDependencies = (
 				93CE767C2D16A13F006D5A4A /* ComposableArchitecture */,
+				930DCF402D16A3D900F1A5E4 /* Factory */,
 			);
 			productName = StepTrackerTCA;
 			productReference = 93CE75352D1699CA006D5A4A /* StepTrackerTCA.app */;
@@ -102,6 +105,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 93CE75362D1699CA006D5A4A /* Products */;
@@ -335,6 +339,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hmlongco/Factory.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.3;
+			};
+		};
 		93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
@@ -346,6 +358,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		930DCF402D16A3D900F1A5E4 /* Factory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = Factory;
+		};
 		93CE767C2D16A13F006D5A4A /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
