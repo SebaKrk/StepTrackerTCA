@@ -13,3 +13,6 @@ https://github.com/SebaKrk/StepTrackerTCA
     * A: Container-Based Dependency Factory Package
     
 ### IOS-0003 DashboardFeature
+    * A: Create basic `DashboardFeature`
+        - remove ContentView
+        - create basic DashboardView
