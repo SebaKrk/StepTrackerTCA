@@ -22,8 +22,13 @@ struct HealthDataListFeature {
                 return .none
                 
                 // MARK: - View actions
+                
             case .view(.viewDidAppear):
                 print("view did appear")
+                return .none
+                
+            case .view(.addDataButtonPressed):
+                print("test")
                 return .none
                 
             default: return .none

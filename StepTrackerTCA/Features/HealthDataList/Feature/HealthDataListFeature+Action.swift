@@ -11,7 +11,7 @@ import ComposableArchitecture
 extension HealthDataListFeature {
     
     @CasePathable
-    enum Action {
+    enum Action: ViewAction {
         
         // MARK: - Actions
         
@@ -24,6 +24,9 @@ extension HealthDataListFeature {
         case view(View)
      
         enum View {
+            
+            /// Action for pressing the "AddData" button.
+            case addDataButtonPressed
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
