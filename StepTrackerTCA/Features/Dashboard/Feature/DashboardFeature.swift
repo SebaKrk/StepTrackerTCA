@@ -18,19 +18,30 @@ struct DashboardFeature {
             switch action {
                 
                 // MARK: - Actions
+                
             case let .selectedPickerChange(item):
                 state.healthMetric = item
                 return .none
-            
+                
                 // MARK: - View actions
+                
             case .view(.viewDidAppear):
                 print("view did appear")
                 return .none
                 
-            default: return .none
-
+                // MARK: - Path
+                
+            case let .path(action):
+                switch action {
+                case .element(id: _, action: .healthDataListFeature(.navigateToHealthDataList)):
+                    state.path.append(.healthDataListFeature(HealthDataListFeature.State(healthMetric: state.healthMetric)))
+                    return .none
+                    
+                default: return .none
+                }
             }
         }
+        .forEach(\.path, action: \.path)
     }
     
 }

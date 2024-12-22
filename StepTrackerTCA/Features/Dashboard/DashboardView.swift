@@ -18,14 +18,21 @@ struct DashboardView: View {
     // MARK: - View
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ScrollView {
                 healthMetricContextPicker
                 groupBoxWalkView
                 groupBoxCalendarView
             }
             .navigationTitle("Dashboard")
+            
+        } destination: { store in
+            switch store.case {
+            case let .healthDataListFeature(store):
+                HealthDataListView(store: store)
+            }
         }
+        .tint(store.healthMetric == .steps ? .pink : .indigo)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -45,18 +52,22 @@ struct DashboardView: View {
 
     @ViewBuilder
     private var groupBoxWalkView: some View {
-        GroupBox {
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(.secondary)
-                .frame(height: 150)
-        } label: {
-            groupBoxTitle(
-                "Steps",
-                "figure.walk",
-                "Avg: 10K Steps"
-            )
+        NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
+            GroupBox {
+                RoundedRectangle(cornerRadius: 12)
+                    .foregroundStyle(.secondary)
+                    .frame(height: 150)
+            } label: {
+                groupBoxTitle(
+                    "Steps",
+                    "figure.walk",
+                    "Avg: 10K Steps"
+                )
+            }
+            .padding([.leading, .trailing], 8)
         }
-        .padding([.leading, .trailing], 8)
+        .foregroundStyle(.secondary)
+
     }
     
     @ViewBuilder

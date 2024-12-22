@@ -22,4 +22,7 @@ https://github.com/SebaKrk/StepTrackerTCA
         - Created HealthMetricContext to represent health metrics
         - Added a Picker in DashboardView to allow the user to switch between health metrics.
         - handle state and action in `DashboardFeature`
+    * D: HealthDataListFeature
+        - create HealthDataListFeature
+        - add navigation/path
     
