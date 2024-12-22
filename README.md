@@ -16,3 +16,5 @@ https://github.com/SebaKrk/StepTrackerTCA
     * A: Create basic `DashboardFeature`
         - remove ContentView
         - create basic DashboardView
+    * B: Add initial DashboardView layout with mock data
+        - create basic GroupBoxView for Walki and Calendar container
