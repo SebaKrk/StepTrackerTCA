@@ -18,3 +18,8 @@ https://github.com/SebaKrk/StepTrackerTCA
         - create basic DashboardView
     * B: Add initial DashboardView layout with mock data
         - create basic GroupBoxView for Walki and Calendar container
+    * C: HealthMetricContext
+        - Created HealthMetricContext to represent health metrics
+        - Added a Picker in DashboardView to allow the user to switch between health metrics.
+        - handle state and action in `DashboardFeature`
+    

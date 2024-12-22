@@ -13,13 +13,14 @@ struct DashboardView: View {
     
     // MARK: - Properties
     
-    var store: StoreOf<DashboardFeature>
+    @Bindable var store: StoreOf<DashboardFeature>
     
     // MARK: - View
     
     var body: some View {
         NavigationStack {
             ScrollView {
+                healthMetricContextPicker
                 groupBoxWalkView
                 groupBoxCalendarView
             }
@@ -30,6 +31,18 @@ struct DashboardView: View {
         }
     }
     
+    @ViewBuilder
+    private var healthMetricContextPicker: some View {
+        Picker("HealthMetric", selection: $store.healthMetric.sending(\.selectedPickerChange)) {
+            ForEach(HealthMetricContext.allCases, id: \.self) { item in
+                    Text(item.title)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding([.leading, .trailing], 6)
+    }
+
     @ViewBuilder
     private var groupBoxWalkView: some View {
         GroupBox {
@@ -43,7 +56,7 @@ struct DashboardView: View {
                 "Avg: 10K Steps"
             )
         }
-        .padding()
+        .padding([.leading, .trailing], 8)
     }
     
     @ViewBuilder
@@ -58,7 +71,7 @@ struct DashboardView: View {
                           "Last 28 Days",
                           destination: false)
         }
-        .padding()
+        .padding([.leading, .trailing], 8)
     }
         
     
@@ -78,7 +91,6 @@ struct DashboardView: View {
             }
         }
     }
-    
 }
 
 #Preview {
