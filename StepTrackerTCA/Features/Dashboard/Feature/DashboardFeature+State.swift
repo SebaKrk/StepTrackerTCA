@@ -7,15 +7,18 @@
 
 import ComposableArchitecture
 
+/// Implementation of `DashboardFeature` state
 extension DashboardFeature {
     
     @ObservableState
-    struct State: Equatable {
+    struct State {
         
         /// The currently selected health metric to display on the dashboard.
         /// - Default: `.steps`
         var healthMetric: HealthMetricContext = .steps
         
+        /// Path
+        var path = StackState<Path.State>()
     }
     
 }

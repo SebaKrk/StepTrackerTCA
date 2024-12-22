@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 
+/// Implementation of `DashboardFeature` action
 extension DashboardFeature {
     
     @CasePathable
@@ -18,6 +19,9 @@ extension DashboardFeature {
         ///
         /// - Parameter: `HealthMetricContext` representing the selected metric.
         case selectedPickerChange(HealthMetricContext)
+        
+        /// Path
+        case path(StackActionOf<Path>)
         
         // MARK: - View actions
         
