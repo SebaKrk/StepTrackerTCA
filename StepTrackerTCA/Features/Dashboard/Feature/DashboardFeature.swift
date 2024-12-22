@@ -16,6 +16,11 @@ struct DashboardFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+                
+                // MARK: - Actions
+            case let .selectedPickerChange(item):
+                state.healthMetric = item
+                return .none
             
                 // MARK: - View actions
             case .view(.viewDidAppear):
@@ -23,6 +28,7 @@ struct DashboardFeature {
                 return .none
                 
             default: return .none
+
             }
         }
     }

@@ -14,7 +14,13 @@ extension DashboardFeature {
         
         // MARK: - Actions
         
+        /// Action triggered when the user changes the picker selection.
+        ///
+        /// - Parameter: `HealthMetricContext` representing the selected metric.
+        case selectedPickerChange(HealthMetricContext)
+        
         // MARK: - View actions
+        
         /// Used for view actions.
         case view(View)
         
