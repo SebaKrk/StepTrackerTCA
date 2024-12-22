@@ -27,13 +27,16 @@ struct HealthDataListFeature {
                 print("view did appear")
                 return .none
                 
+                // MARK: - View destination
+                
             case .view(.addDataButtonPressed):
-                print("test")
+                state.destination = .openAddMetricData(AddMetricDataFeature.State())
                 return .none
                 
             default: return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }

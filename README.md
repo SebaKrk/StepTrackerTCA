@@ -25,4 +25,6 @@ https://github.com/SebaKrk/StepTrackerTCA
     * D: HealthDataListFeature
         - create HealthDataListFeature
         - add navigation/path
-    
+    * E: AddMetricDataFeature
+        - create AddMetricDataFeature
+        - add destination

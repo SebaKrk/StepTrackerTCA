@@ -16,6 +16,10 @@ extension HealthDataListFeature {
         /// This value represents the health metric to display
         var healthMetric: HealthMetricContext
         
+        // MARK: - Destination
+        
+        /// destination from HealthDataListFeature
+        @Presents var destination: Destination.State?
     }
     
 }

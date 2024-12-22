@@ -31,6 +31,12 @@ extension HealthDataListFeature {
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
         }
+        
+        // MARK: - Destination
+        
+        /// destination case for navigation
+        case destination(PresentationAction<Destination.Action>)
+        
     }
     
 }

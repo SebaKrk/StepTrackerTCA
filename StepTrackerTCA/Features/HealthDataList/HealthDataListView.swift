@@ -13,7 +13,7 @@ struct HealthDataListView: View {
     
     // MARK: - Properties
     
-    var store: StoreOf<HealthDataListFeature>
+    @Bindable var store: StoreOf<HealthDataListFeature>
     
     // MARK: - View
     
@@ -22,6 +22,10 @@ struct HealthDataListView: View {
             testCell()
         }
         .navigationTitle(store.healthMetric.title)
+        .sheet(item: $store.scope(state: \.destination?.openAddMetricData,
+                                  action: \.destination.openAddMetricData)) { store in
+            AddMetricDataView(store: store)
+        }
         .toolbar {
             toolbarButton
         }
