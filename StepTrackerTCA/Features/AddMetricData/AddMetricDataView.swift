@@ -25,6 +25,7 @@ struct AddMetricDataView: View {
                 .toolbar {
                     toolbarButton
                 }
+                .alert(store: store.scope(state: \.$alert, action: \.alert))
             }
         } else {
             ProgressView()

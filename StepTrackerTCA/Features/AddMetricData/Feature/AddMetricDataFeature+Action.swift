@@ -21,6 +21,9 @@ extension AddMetricDataFeature {
         
         // MARK: - Actions
         
+        /// Presents an alert in the view.
+        case presentAlert
+        
         // MARK: - View Actions
         
         case view(View)
@@ -32,6 +35,17 @@ extension AddMetricDataFeature {
             
             /// Action triggered when the "Dismiss" button is pressed.
             case dismissButtonPressed
+        }
+        
+        // MARK: - Alert
+        
+        /// Actions related to alert presentation and handling.
+        case alert(PresentationAction<Alert>)
+        
+        enum Alert: Equatable {
+            
+            /// Represents a simple informational alert.
+            case showMessage
         }
     }
     

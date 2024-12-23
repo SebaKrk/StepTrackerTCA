@@ -28,4 +28,7 @@ https://github.com/SebaKrk/StepTrackerTCA
     * E: AddMetricDataFeature
         - create `AddMetricDataFeature`
         - add destination
+        - create UI
+        - handle basic validation
+        - present Alert
 

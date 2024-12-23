@@ -14,6 +14,8 @@ extension AddMetricDataFeature {
     @ObservableState
     struct State: Equatable {
         
+        // MARK: - Properties
+        
         /// This value represents the health metric to display
         var healthMetric: HealthMetricContext?
         
@@ -23,6 +25,14 @@ extension AddMetricDataFeature {
         
         /// The value to add for the selected health metric, entered as a string.
         var valueToAdd: String = ""
+        
+        // MARK: - Alert
+        
+        /// Optional alert message to be displayed.
+        var alertMessage: String? = nil
+        
+        /// State of the alert presentation.
+        @Presents var alert: AlertState<Action.Alert>?
         
     }
     

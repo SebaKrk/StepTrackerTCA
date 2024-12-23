@@ -28,6 +28,15 @@ struct AddMetricDataFeature {
                     // MARK: - View Actions
                     
                 case .view(.addDataButtonPressed):
+                    
+                    guard !state.valueToAdd.isEmpty else {
+                        let alertMessage = "Podaj wartość"
+                        state.alertMessage = alertMessage
+                        return .run { send in
+                            await send(.presentAlert)
+                        }
+                    }
+                    
                     return .run { [date = state.addDataDate , value = state.valueToAdd] send in
                         print("date - \(date)")
                         print("value - \(value)")
@@ -37,6 +46,18 @@ struct AddMetricDataFeature {
                     return .run { send in
                         await self.dismiss()
                     }
+                    
+                    // MARK: - Alert actions
+                    
+                case .presentAlert:
+                    guard let alertMessage = state.alertMessage else { return .none }
+                    state.alert = .infoAlert(with: alertMessage)
+                    state.alertMessage = nil
+                    return .none
+                    
+                case .alert(.dismiss):
+                    state.alert = nil
+                    return .none
                     
                 default: return .none
                 }
