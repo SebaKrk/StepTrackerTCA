@@ -10,8 +10,8 @@ The goal of this project is to gain a deep understanding of TCA by implementing 
 The results of my work and the details of each step can be found on GitHub: [StepTrackerTCA](https://github.com/SebaKrk/StepTrackerTCA).
 This project is not only a technical exercise but also an exploration of possibilities and best practices in the context of modern iOS app development.
 
-[Sean Allen](https://github.com/sallen0400)
-[Sean Allen Teachable - Portfolio Project](https://seanallen.teachable.com/p/portfolio-project)
+[Sean Allen](https://github.com/sallen0400) - Sean’s GitHub profile.
+[Sean Allen Teachable - Portfolio Project](https://seanallen.teachable.com/p/portfolio-project) - direct link to the course.
 
 ******************************************************************
 
