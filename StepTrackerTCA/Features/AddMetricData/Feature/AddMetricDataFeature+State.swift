@@ -12,6 +12,11 @@ import Foundation
 extension AddMetricDataFeature {
     
     @ObservableState
-    struct State: Equatable { }
+    struct State: Equatable {
+        
+        /// This value represents the health metric to display
+        var healthMetric: HealthMetricContext?
+        
+    }
     
 }

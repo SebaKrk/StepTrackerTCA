@@ -18,16 +18,20 @@ struct HealthDataListView: View {
     // MARK: - View
     
     var body: some View {
-        List(0..<28) { i in
-            testCell()
-        }
-        .navigationTitle(store.healthMetric.title)
-        .sheet(item: $store.scope(state: \.destination?.openAddMetricData,
-                                  action: \.destination.openAddMetricData)) { store in
-            AddMetricDataView(store: store)
-        }
-        .toolbar {
-            toolbarButton
+        if let healthMetric = store.healthMetric {
+            List(0..<28) { i in
+                testCell()
+            }
+            .navigationTitle(healthMetric.title)
+            .sheet(item: $store.scope(state: \.destination?.openAddMetricData,
+                                      action: \.destination.openAddMetricData)) { store in
+                AddMetricDataView(store: store)
+            }
+            .toolbar {
+                toolbarButton
+            }
+        } else {
+            ProgressView()
         }
     }
     

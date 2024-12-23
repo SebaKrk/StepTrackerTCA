@@ -22,6 +22,11 @@ extension AddMetricDataFeature {
         
         enum View {
             
+            ///
+            case addDataButtonPressed
+            
+            ///
+            case dismissButtonPressed
         }
     }
     

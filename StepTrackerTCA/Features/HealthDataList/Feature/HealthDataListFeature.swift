@@ -14,7 +14,9 @@ struct HealthDataListFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
                 // MARK: - Actions
                 
@@ -30,7 +32,9 @@ struct HealthDataListFeature {
                 // MARK: - View destination
                 
             case .view(.addDataButtonPressed):
-                state.destination = .openAddMetricData(AddMetricDataFeature.State())
+                state.destination = .openAddMetricData(
+                    AddMetricDataFeature.State(healthMetric: state.healthMetric)
+                )
                 return .none
                 
             default: return .none

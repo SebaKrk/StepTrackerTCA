@@ -13,14 +13,44 @@ struct AddMetricDataView: View {
     
     // MARK: - Properties
     
-    var store: StoreOf<AddMetricDataFeature>
+    @Bindable var store: StoreOf<AddMetricDataFeature>
     
     // MARK: - View
     
     var body: some View {
-        Text("AddMetricDataView")
+        if let healthMetric = store.healthMetric {
+            NavigationStack {
+                VStack {
+                    Text(healthMetric.title)
+                }
+                .navigationTitle(healthMetric.title)
+                .toolbar {
+                    toolbarButton
+                }
+            }
+        } else {
+            ProgressView()
+        }
     }
     
     // MARK: - SubView
+    
+    @ToolbarContentBuilder
+    var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.addDataButtonPressed)
+            } label: {
+                Text("Add Data")
+            }
+        }
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                send(.dismissButtonPressed)
+            } label: {
+                Text("Dismiss")
+            }
+        }
+    }
     
 }
