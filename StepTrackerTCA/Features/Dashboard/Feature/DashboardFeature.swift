@@ -39,6 +39,8 @@ struct DashboardFeature {
                     
                 default: return .none
                 }
+                
+            default: return .none
             }
         }
         .forEach(\.path, action: \.path)

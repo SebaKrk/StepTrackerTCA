@@ -14,7 +14,9 @@ struct HealthDataListFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
                 // MARK: - Actions
                 
@@ -27,13 +29,18 @@ struct HealthDataListFeature {
                 print("view did appear")
                 return .none
                 
+                // MARK: - View destination
+                
             case .view(.addDataButtonPressed):
-                print("test")
+                state.destination = .openAddMetricData(
+                    AddMetricDataFeature.State(healthMetric: state.healthMetric)
+                )
                 return .none
                 
             default: return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }

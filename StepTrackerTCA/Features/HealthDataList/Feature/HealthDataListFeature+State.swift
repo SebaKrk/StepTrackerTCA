@@ -14,8 +14,12 @@ extension HealthDataListFeature {
     struct State: Equatable {
         
         /// This value represents the health metric to display
-        var healthMetric: HealthMetricContext
+        var healthMetric: HealthMetricContext?
         
+        // MARK: - Destination
+        
+        /// destination from HealthDataListFeature
+        @Presents var destination: Destination.State?
     }
     
 }

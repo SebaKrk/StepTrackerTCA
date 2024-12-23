@@ -12,7 +12,7 @@ https://github.com/SebaKrk/StepTrackerTCA
 ### IOS-00002 Dependency Injection with Factory
     * A: Container-Based Dependency Factory Package
     
-### IOS-0003 DashboardFeature
+### IOS-0003 Basic UI and Features
     * A: Create basic `DashboardFeature`
         - remove ContentView
         - create basic DashboardView
@@ -23,6 +23,12 @@ https://github.com/SebaKrk/StepTrackerTCA
         - Added a Picker in DashboardView to allow the user to switch between health metrics.
         - handle state and action in `DashboardFeature`
     * D: HealthDataListFeature
-        - create HealthDataListFeature
+        - create `HealthDataListFeature`
         - add navigation/path
-    
+    * E: AddMetricDataFeature
+        - create `AddMetricDataFeature`
+        - add destination
+        - create UI
+        - handle basic validation
+        - present Alert
+
