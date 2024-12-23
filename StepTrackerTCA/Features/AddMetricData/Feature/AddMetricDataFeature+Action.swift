@@ -12,7 +12,12 @@ import Foundation
 extension AddMetricDataFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
         
         // MARK: - Actions
         
@@ -22,10 +27,10 @@ extension AddMetricDataFeature {
         
         enum View {
             
-            ///
+            /// Action triggered when the "Add Data" button is pressed.
             case addDataButtonPressed
             
-            ///
+            /// Action triggered when the "Dismiss" button is pressed.
             case dismissButtonPressed
         }
     }

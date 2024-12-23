@@ -18,27 +18,30 @@ struct AddMetricDataFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-                
-                // MARK: - Actions
-                
-                // MARK: - View Actions
-                
-            case .view(.addDataButtonPressed):
-                print("addDataButtonPressed")
-                return .none
-                
-            case .view(.dismissButtonPressed):
-                print("dismissButtonPressed")
-                
-                return .run { send in
-                    await self.dismiss()
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                    
+                    // MARK: - Actions
+                    
+                    // MARK: - View Actions
+                    
+                case .view(.addDataButtonPressed):
+                    return .run { [date = state.addDataDate , value = state.valueToAdd] send in
+                        print("date - \(date)")
+                        print("value - \(value)")
+                    }
+                    
+                case .view(.dismissButtonPressed):
+                    return .run { send in
+                        await self.dismiss()
+                    }
+                    
+                default: return .none
                 }
-                
-            default: return .none
             }
         }
-        
     }
+    
 }

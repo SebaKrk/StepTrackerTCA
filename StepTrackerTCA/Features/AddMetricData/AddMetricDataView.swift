@@ -20,9 +20,7 @@ struct AddMetricDataView: View {
     var body: some View {
         if let healthMetric = store.healthMetric {
             NavigationStack {
-                VStack {
-                    Text(healthMetric.title)
-                }
+                formView(healthMetric)
                 .navigationTitle(healthMetric.title)
                 .toolbar {
                     toolbarButton
@@ -53,4 +51,31 @@ struct AddMetricDataView: View {
         }
     }
     
-}
+    @ViewBuilder
+    private func formView(_ healthMetric: HealthMetricContext) -> some View {
+        VStack {
+            Form {
+                datePicker
+                metricTextField(healthMetric)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var datePicker: some View {
+        DatePicker("Date", selection: $store.addDataDate, displayedComponents: .date)
+    }
+    
+    @ViewBuilder
+    private func metricTextField(_ healthMetric: HealthMetricContext) -> some View {
+        HStack {
+            Text(healthMetric.title)
+            Spacer()
+            TextField("Value", text: $store.valueToAdd)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 140)
+                .keyboardType(healthMetric == .steps ?.numberPad : .decimalPad)
+        }
+    }
+    
+} 
