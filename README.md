@@ -41,3 +41,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - handle basic validation
         - present Alert
 
+### IOS-0004 HealthKit
+    * A: Signing & Capabilities
+        - add healthKit
+        - add privacy description
