@@ -45,3 +45,6 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: Signing & Capabilities
         - add healthKit
         - add privacy description
+    * B: HealthKitManager
+        - create `DefaultHealthKitManager`
+        - create container for application dependencies.
