@@ -23,6 +23,9 @@ extension HealthKitPermissionFeature {
      
         enum View {
             
+            ///
+            case appleHealthButtonPressed
+            
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
         }

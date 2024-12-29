@@ -11,6 +11,14 @@ import ComposableArchitecture
 extension HealthKitPermissionFeature {
     
     @ObservableState
-    struct State: Equatable { }
+    struct State: Equatable {
+        
+        // MARK: - Properties
+        
+        var isShowingHealthKitPermissions: Bool = false
+        
+        var hasSeen: Bool = false
+        
+    }
     
 }
