@@ -15,8 +15,10 @@ extension HealthKitPermissionFeature {
         
         // MARK: - Properties
         
+        ///
         var isShowingHealthKitPermissions: Bool = false
         
+        ///
         var hasSeen: Bool = false
         
     }

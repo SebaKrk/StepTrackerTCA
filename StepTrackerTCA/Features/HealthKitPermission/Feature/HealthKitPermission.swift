@@ -7,11 +7,14 @@
 
 import ComposableArchitecture
 import Foundation
+import Factory
 
 @Reducer
 struct HealthKitPermissionFeature {
     
     // MARK: - Dependency
+    
+    @Injected(\.healthKitManager) private var healthKitManager
     
     @Dependency(\.dismiss) var dismiss
     
@@ -22,11 +25,25 @@ struct HealthKitPermissionFeature {
             switch action {
                 // MARK: - Actions
                 
+            case .healthKitAuthorizationSuccess:
+                return .run { send in
+                    await self.dismiss()
+                }
+                
                 // MARK: - View actions
                 
             case .view(.appleHealthButtonPressed):
                 state.isShowingHealthKitPermissions = true
-                return .none
+                return .run { send in
+                    let result = await self.healthKitManager.requestAuthorization()
+                    switch result {
+                    case .success:
+                        await send(.healthKitAuthorizationSuccess)
+                        
+                    case .failure(let error):
+                        print("Authorization failed with error: \(error.localizedDescription)")
+                    }
+                }
                 
             case .view(.viewDidAppear):
                 state.hasSeen = true

@@ -22,4 +22,11 @@ protocol HealthKitManager {
     /// A set of object types that the manager requests read access to.
     var readTypes: Set<HKObjectType> { get }
     
+    /// Requests authorization to access HealthKit data.
+     ///
+     /// This method triggers the HealthKit authorization flow, asking the user
+     /// for permission to access the specified `shareTypes` and `readTypes`.
+     ///
+     /// - Returns: A result of type `Result<Bool, Error>` indicating success or an authorization error.
+    func requestAuthorization() async -> Result<Bool, Error>
 }

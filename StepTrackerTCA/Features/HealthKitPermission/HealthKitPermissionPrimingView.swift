@@ -8,17 +8,12 @@
 import ComposableArchitecture
 import HealthKitUI
 import SwiftUI
+import Factory
 
 @ViewAction(for: HealthKitPermissionFeature.self)
 struct HealthKitPermissionPrimingView: View {
     
-    // MARK: - Dependency
-    
-    @Environment(\.dismiss) private var dismiss
-    
     // MARK: - Properties
-    
-    let healthKitManager: HealthKitManager
     
     @Bindable var store: StoreOf<HealthKitPermissionFeature>
     
@@ -30,9 +25,7 @@ struct HealthKitPermissionPrimingView: View {
     
     // MARK: - Lifecycle
     
-    init(healthKitManager: HealthKitManager,
-         store: StoreOf<HealthKitPermissionFeature>) {
-        self.healthKitManager = healthKitManager
+    init(store: StoreOf<HealthKitPermissionFeature>) {
         self.store = store
     }
     
@@ -53,19 +46,6 @@ struct HealthKitPermissionPrimingView: View {
         .onAppear {
             send(.viewDidAppear)
         }
-        .healthDataAccessRequest(
-            store: healthKitManager.store,
-            shareTypes: healthKitManager.shareTypes,
-            readTypes: healthKitManager.readTypes,
-            trigger: store.isShowingHealthKitPermissions) { result in
-                switch result {
-                case .success(_):
-                    dismiss()
-                case .failure(_):
-                    // handle the error later
-                    dismiss()
-                }
-            }
     }
     
     // MARK: - Subview
