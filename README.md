@@ -48,3 +48,5 @@ This project is not only a technical exercise but also an exploration of possibi
     * B: HealthKitManager
         - create `DefaultHealthKitManager`
         - create container for application dependencies.
+    * C: HealthKitPermissionFeatures
+        - create Feature and view

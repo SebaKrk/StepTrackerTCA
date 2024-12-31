@@ -11,7 +11,12 @@ import ComposableArchitecture
 extension DashboardFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
         
         // MARK: - Actions
         
@@ -20,8 +25,15 @@ extension DashboardFeature {
         /// - Parameter: `HealthMetricContext` representing the selected metric.
         case selectedPickerChange(HealthMetricContext)
         
+        // MARK: - Path
+        
         /// Path
         case path(StackActionOf<Path>)
+        
+        // MARK: - Destination
+        
+        /// destination case for navigation
+        case destination(PresentationAction<Destination.Action>)
         
         // MARK: - View actions
         

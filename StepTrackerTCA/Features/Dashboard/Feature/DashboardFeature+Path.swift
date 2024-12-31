@@ -14,7 +14,7 @@ extension DashboardFeature {
     @Reducer
     enum Path {
         
-        ///
+        /// path to HealthDataListFeature
         case healthDataListFeature(HealthDataListFeature)
     }
     

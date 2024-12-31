@@ -39,4 +39,15 @@ class DefaultHealthKitManager: HealthKitManager {
         HKQuantityType(.bodyMass)
     ]
     
+    /// Requests authorization to access HealthKit data.
+    ///
+    /// - Returns: A result of type `Result<Bool, Error>` indicating success or an authorization error.
+    func requestAuthorization() async -> Result<Bool, Error> {
+        do {
+            try await store.requestAuthorization(toShare: shareTypes, read: readTypes)
+            return .success(true)
+        } catch {
+            return .failure(error)
+        }
+    }
 }

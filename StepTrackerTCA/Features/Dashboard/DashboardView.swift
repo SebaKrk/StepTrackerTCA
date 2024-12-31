@@ -36,20 +36,26 @@ struct DashboardView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        .sheet(item: $store.scope(state: \.destination?.openHealthKitPermissionScreen,
+                                  action: \.destination.openHealthKitPermissionScreen)) { store in
+            HealthKitPermissionPrimingView(store: store)
+        }
     }
+    
+    // MARK: - Subview
     
     @ViewBuilder
     private var healthMetricContextPicker: some View {
         Picker("HealthMetric", selection: $store.healthMetric.sending(\.selectedPickerChange)) {
             ForEach(HealthMetricContext.allCases, id: \.self) { item in
-                    Text(item.title)
+                Text(item.title)
                     .tag(item)
             }
         }
         .pickerStyle(.segmented)
         .padding([.leading, .trailing], 6)
     }
-
+    
     @ViewBuilder
     private var groupBoxWalkView: some View {
         NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
@@ -67,7 +73,7 @@ struct DashboardView: View {
             .padding([.leading, .trailing], 8)
         }
         .foregroundStyle(.secondary)
-
+        
     }
     
     @ViewBuilder
@@ -84,7 +90,7 @@ struct DashboardView: View {
         }
         .padding([.leading, .trailing], 8)
     }
-        
+    
     
     @ViewBuilder
     private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {

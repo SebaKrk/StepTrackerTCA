@@ -17,8 +17,21 @@ extension DashboardFeature {
         /// - Default: `.steps`
         var healthMetric: HealthMetricContext = .steps
         
-        /// Path
+        ///
+        var hasSeenPermissionPriming: Bool = false
+        
+        ///
+        var isShowingPermissionPrimingSheet: Bool = false
+        
+        // MARK: - Path
+        
+        /// Path from DashboardFeature
         var path = StackState<Path.State>()
+        
+        // MARK: - Destination
+        
+        /// destination from DashboardFeature
+        @Presents var destination: Destination.State?
     }
     
 }
