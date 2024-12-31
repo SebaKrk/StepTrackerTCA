@@ -84,8 +84,8 @@ struct HealthKitPermissionPrimingView: View {
     
 }
 
-//#Preview {
-//    HealthKitPermissionPrimingView(store: Store(initialState: HealthKitPermissionFeature.State(), reducer: {
-//        HealthKitPermissionFeature()
-//    }))
-//}
+#Preview {
+    HealthKitPermissionPrimingView(store: Store(initialState: HealthKitPermissionFeature.State(), reducer: {
+        HealthKitPermissionFeature()
+    }))
+}

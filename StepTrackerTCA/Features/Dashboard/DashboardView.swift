@@ -15,9 +15,6 @@ struct DashboardView: View {
     
     @Bindable var store: StoreOf<DashboardFeature>
     
-    //    @AppStorage("hasSeenPermissionPriming") private var hasSeenPermissionPriming = false
-    //    @State private var isShowingPermissionPrimingSheet = false
-    
     // MARK: - View
     
     var body: some View {

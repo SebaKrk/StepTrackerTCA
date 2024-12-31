@@ -18,7 +18,7 @@ extension DashboardFeature {
         var healthMetric: HealthMetricContext = .steps
         
         ///
-        //var hasSeenPermissionPriming: Bool = false
+        var hasSeenPermissionPriming: Bool = false
         
         ///
         var isShowingPermissionPrimingSheet: Bool = false
