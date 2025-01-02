@@ -112,6 +112,6 @@ struct DashboardView: View {
 
 #Preview {
     DashboardView(store: Store(initialState: DashboardFeature.State(), reducer: {
-        DashboardFeature()
+        DashboardFeature(service: DefaultDashboardFeatureService())
     }))
 }

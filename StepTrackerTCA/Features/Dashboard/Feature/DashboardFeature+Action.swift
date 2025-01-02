@@ -20,6 +20,8 @@ extension DashboardFeature {
         
         // MARK: - Actions
         
+        case changeIsFirstAppearance
+        
         /// Action triggered when the user changes the picker selection.
         ///
         /// - Parameter: `HealthMetricContext` representing the selected metric.
@@ -31,6 +33,9 @@ extension DashboardFeature {
         case path(StackActionOf<Path>)
         
         // MARK: - Destination
+        
+        /// Trigger this action when the user needs to review or modify app permissions.
+        case openPermissionScreen
         
         /// destination case for navigation
         case destination(PresentationAction<Destination.Action>)

@@ -6,10 +6,21 @@
 //
 
 import ComposableArchitecture
+import Factory
 import Foundation
 
 @Reducer
 struct DashboardFeature {
+    
+    // MARK: - Properties
+    
+    var dashboardFeatureService: DashboardFeatureService
+    
+    // MARK: - Lifecycle
+    
+    init(service: DashboardFeatureService) {
+        self.dashboardFeatureService = dashboardFeatureService
+    }
     
     // MARK: - Reducer
     
@@ -25,10 +36,22 @@ struct DashboardFeature {
                     state.healthMetric = item
                     return .none
                     
+                case .changeIsFirstAppearance:
+                    state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
+                    return .none
+                    
                     // MARK: - View actions
                     
                 case .view(.viewDidAppear):
-                   // state.isShowingPermissionPrimingSheet = true
+                    if !dashboardFeatureService.hasSeenPermissionPriming {
+                        return .run { send in
+                            await send(.openPermissionScreen)
+                        }
+                    }
+                    return .none
+                    
+                case .openPermissionScreen:
+                    dashboardFeatureService.markPermissionPrimingAsSeen()
                     state.destination = .openHealthKitPermissionScreen(HealthKitPermissionFeature.State())
                     return .none
                     

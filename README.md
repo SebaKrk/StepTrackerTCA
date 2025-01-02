@@ -50,3 +50,6 @@ This project is not only a technical exercise but also an exploration of possibi
         - create container for application dependencies.
     * C: HealthKitPermissionFeatures
         - create Feature and view
+    * D: UserDefaults
+        - create `UserDefaultsServiceManager`
+        - add DashboardFeatureService
