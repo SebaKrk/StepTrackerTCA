@@ -19,7 +19,7 @@ struct DashboardFeature {
     // MARK: - Lifecycle
     
     init(service: DashboardFeatureService) {
-        self.dashboardFeatureService = dashboardFeatureService
+        self.dashboardFeatureService = service
     }
     
     // MARK: - Reducer
