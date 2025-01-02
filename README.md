@@ -41,3 +41,15 @@ This project is not only a technical exercise but also an exploration of possibi
         - handle basic validation
         - present Alert
 
+### IOS-0004 HealthKit
+    * A: Signing & Capabilities
+        - add healthKit
+        - add privacy description
+    * B: HealthKitManager
+        - create `DefaultHealthKitManager`
+        - create container for application dependencies.
+    * C: HealthKitPermissionFeatures
+        - create Feature and view
+    * D: UserDefaults
+        - create `UserDefaultsServiceManager`
+        - add DashboardFeatureService

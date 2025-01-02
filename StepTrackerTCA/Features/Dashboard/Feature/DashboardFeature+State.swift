@@ -17,8 +17,19 @@ extension DashboardFeature {
         /// - Default: `.steps`
         var healthMetric: HealthMetricContext = .steps
         
-        /// Path
+        /// Indicates whether the user has seen the permission priming screen.
+        /// This flag is used to determine if the app should display a primer before requesting permissions.
+        var hasSeenPermissionPriming: Bool = false
+        
+        // MARK: - Path
+        
+        /// Path from DashboardFeature
         var path = StackState<Path.State>()
+        
+        // MARK: - Destination
+        
+        /// destination from DashboardFeature
+        @Presents var destination: Destination.State?
     }
     
 }

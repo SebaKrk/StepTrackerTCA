@@ -13,7 +13,7 @@ struct StepTrackerTCAApp: App {
     var body: some Scene {
         WindowGroup {
             DashboardView(store: Store(initialState: DashboardFeature.State(), reducer: {
-                DashboardFeature()
+                DashboardFeature(service: DefaultDashboardFeatureService())
             }))
         }
     }
