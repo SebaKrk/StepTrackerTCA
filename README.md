@@ -52,3 +52,4 @@ This project is not only a technical exercise but also an exploration of possibi
         - create Feature and view
     * D: UserDefaults
         - create `UserDefaultsServiceManager`
+        - add DashboardFeatureService
