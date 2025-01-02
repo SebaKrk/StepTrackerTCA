@@ -22,4 +22,12 @@ extension Container {
         Factory(self) { DefaultHealthKitManager() }.singleton
     }
     
+    /// A factory that provides a shared instance of the `UserDefaultsService`.
+    ///
+    /// - This factory ensures that a shared instance of `UserDefaultsServiceManager` is
+    ///   used to manage user preferences and settings stored in UserDefaults.
+    var userDefaultsService: Factory<UserDefaultsService> {
+        Factory(self) { UserDefaultsServiceManager() }.shared
+    }
+    
 }
