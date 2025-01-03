@@ -56,3 +56,4 @@ This project is not only a technical exercise but also an exploration of possibi
         
 ### IOS-00005 HealthData
     * A: Get mock HealthData
+    * B: Fetch HealthKit data
