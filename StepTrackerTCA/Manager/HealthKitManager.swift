@@ -29,4 +29,22 @@ protocol HealthKitManager {
      ///
      /// - Returns: A result of type `Result<Bool, Error>` indicating success or an authorization error.
     func requestAuthorization() async -> Result<Bool, Error>
+    
+    
+    /// Adds simulated HealthKit data for testing purposes.
+    ///
+    /// This method generates mock step count and body mass samples for the last 28 days
+    /// and saves them to the HealthKit store. Each day's data includes random values for
+    /// step count (ranging from 4,000 to 20,000) and body mass (incrementally increasing
+    /// within a specific range).
+    ///
+    /// - Important: Use this function only in debug or testing environments, as it populates
+    /// HealthKit with dummy data.
+    ///
+    /// - Throws: An error if saving the data to the HealthKit store fails.
+    ///
+    /// - Precondition: Ensure that the app has proper authorization to write the required
+    /// HealthKit data types (`HKQuantityType.stepCount` and `HKQuantityType.bodyMass`).
+    func addSimulatorData() async throws
+    
 }
