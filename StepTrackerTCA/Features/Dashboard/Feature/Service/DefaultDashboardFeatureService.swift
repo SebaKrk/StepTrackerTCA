@@ -13,6 +13,7 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
     // MARK: - Dependency
     
     @Injected(\.userDefaultsService) private var userDefaultsService
+    @Injected(\.healthKitManager) private var healthKitManager
     
     // MARK: - Properties
     
@@ -24,5 +25,8 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
         userDefaultsService.set(true, forKey: .hasSeenPermissionPriming)
     }
     
+    func getDummyData() async throws {
+        try await healthKitManager.addSimulatorData()
+    }
 }
 

@@ -47,6 +47,10 @@ struct DashboardFeature {
                         return .run { send in
                             await send(.openPermissionScreen)
                         }
+                    } else {
+                        Task {
+                            try await dashboardFeatureService.getDummyData()
+                        }
                     }
                     return .none
                     

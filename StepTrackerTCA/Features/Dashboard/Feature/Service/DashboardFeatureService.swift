@@ -20,4 +20,7 @@ protocol DashboardFeatureService {
     /// - Saves this information in a persistent source, such as UserDefaults.
     func markPermissionPrimingAsSeen()
     
+    /// Generates and saves mock HealthKit data for testing purposes.
+    func getDummyData() async throws
+    
 }

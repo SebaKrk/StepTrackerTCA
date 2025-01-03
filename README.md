@@ -53,3 +53,6 @@ This project is not only a technical exercise but also an exploration of possibi
     * D: UserDefaults
         - create `UserDefaultsServiceManager`
         - add DashboardFeatureService
+        
+### IOS-00005 HealthData
+    * A: Get mock HealthData
