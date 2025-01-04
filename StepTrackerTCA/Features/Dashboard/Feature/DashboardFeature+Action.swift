@@ -27,6 +27,16 @@ extension DashboardFeature {
         /// - Parameter: `HealthMetricContext` representing the selected metric.
         case selectedPickerChange(HealthMetricContext)
         
+        /// Triggers the fetching of health data.
+        /// This action starts the process of retrieving health-related metrics from an external source.
+        case fetchHealthData
+        
+        /// Updates the step chart data with the result of a health data fetch.
+        ///
+        /// - Parameter result: A `Result` containing an array of `HealthData` on success
+        /// or an `Error` on failure.
+        case updateStepChartData(Result<[HealthData], Error>)
+        
         // MARK: - Path
         
         /// Path

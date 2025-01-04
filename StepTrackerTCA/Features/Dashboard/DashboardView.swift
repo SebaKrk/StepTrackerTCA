@@ -60,9 +60,7 @@ struct DashboardView: View {
     private var groupBoxWalkView: some View {
         NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
             GroupBox {
-                RoundedRectangle(cornerRadius: 12)
-                    .foregroundStyle(.secondary)
-                    .frame(height: 150)
+                stepChart
             } label: {
                 groupBoxTitle(
                     "Steps",

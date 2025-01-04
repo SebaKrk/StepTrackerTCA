@@ -21,6 +21,9 @@ extension DashboardFeature {
         /// This flag is used to determine if the app should display a primer before requesting permissions.
         var hasSeenPermissionPriming: Bool = false
         
+        /// The data for steps, used to populate charts and other visualizations on the dashboard.
+        var stepData: [HealthData] = []
+        
         // MARK: - Path
         
         /// Path from DashboardFeature

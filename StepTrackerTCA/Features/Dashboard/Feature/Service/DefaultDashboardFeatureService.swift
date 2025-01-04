@@ -25,8 +25,14 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
         userDefaultsService.set(true, forKey: .hasSeenPermissionPriming)
     }
     
+    func getStepsData() async throws -> [HealthData] {
+        return try await healthKitManager.fetchHealthData(for: .stepCount,
+                                                   days: 28,
+                                                   unit: .count())
+    }
+    
     func getDummyData() async throws {
         try await healthKitManager.addSimulatorData()
     }
+    
 }
-

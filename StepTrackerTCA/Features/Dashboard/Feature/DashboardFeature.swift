@@ -39,6 +39,25 @@ struct DashboardFeature {
                 case .changeIsFirstAppearance:
                     state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
                     return .none
+                
+                case .fetchHealthData:
+                    return .run { send in
+                        await send(.updateStepChartData(
+                            Result {
+                                try await dashboardFeatureService.getStepsData()
+                            }
+                        ))
+                    }
+                    
+                case let .updateStepChartData(.success(data)):
+                    state.stepData = data
+                    return .none
+                    
+                    // TODO: Error handling
+                    /// Add failure handling to the fetchHealthData
+                case let .updateStepChartData(.failure(error)):
+                    print(error.localizedDescription)
+                    return .none
                     
                     // MARK: - View actions
                     
@@ -48,11 +67,11 @@ struct DashboardFeature {
                             await send(.openPermissionScreen)
                         }
                     } else {
-                        Task {
+                        return .run { send in
                             try await dashboardFeatureService.getDummyData()
+                            await send(.fetchHealthData)
                         }
                     }
-                    return .none
                     
                 case .openPermissionScreen:
                     dashboardFeatureService.markPermissionPrimingAsSeen()
