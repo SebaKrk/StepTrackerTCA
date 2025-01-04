@@ -20,6 +20,14 @@ protocol DashboardFeatureService {
     /// - Saves this information in a persistent source, such as UserDefaults.
     func markPermissionPrimingAsSeen()
     
+    /// Fetches step data asynchronously.
+    ///
+    /// Shown in the step chart on the dashboard after successful retrieval of data.
+    ///
+    /// - Returns: An array of `HealthData` objects representing step metrics.
+    /// - Throws: An error if data retrieval fails.
+    func getStepsData() async throws -> [HealthData]
+    
     /// Generates and saves mock HealthKit data for testing purposes.
     func getDummyData() async throws
     
