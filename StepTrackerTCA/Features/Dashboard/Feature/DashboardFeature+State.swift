@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 /// Implementation of `DashboardFeature` state
 extension DashboardFeature {
@@ -27,6 +28,14 @@ extension DashboardFeature {
         /// The average step count calculated from `stepData`.
         /// This value is derived to provide quick insights to the user, such as the average number of steps taken over a days
         var avgStepCount: Double = 0
+        
+        /// The currently selected date for health data.
+        /// Used to filter and display health metrics for a specific day.
+        var rawSelectedDate: Date?
+
+        /// The health metric corresponding to the selected date.
+        /// This value is derived by matching `rawSelectedDate` with the `stepData` entries.
+        var selectedHealthMetric: HealthData?
         
         // MARK: - Path
         
