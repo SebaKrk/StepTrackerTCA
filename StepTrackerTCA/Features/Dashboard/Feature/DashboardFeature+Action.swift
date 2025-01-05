@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 /// Implementation of `DashboardFeature` action
 extension DashboardFeature {
@@ -27,6 +28,19 @@ extension DashboardFeature {
         /// - Parameter: `HealthMetricContext` representing the selected metric.
         case selectedPickerChange(HealthMetricContext)
         
+        /// Triggers the fetching of health data.
+        /// This action starts the process of retrieving health-related metrics from an external source.
+        case fetchHealthData
+        
+        /// Updates the step chart data with the result of a health data fetch.
+        ///
+        /// - Parameter result: A `Result` containing an array of `HealthData` on success
+        /// or an `Error` on failure.
+        case updateStepChartData(Result<[HealthData], Error>)
+        
+        /// Action triggered when the user selects a date on the step chart.
+        case selectedStepChartDateChange(Date?)
+        
         // MARK: - Path
         
         /// Path
@@ -46,7 +60,7 @@ extension DashboardFeature {
         case view(View)
         
         enum View {
-            
+                        
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
         }

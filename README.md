@@ -53,3 +53,11 @@ This project is not only a technical exercise but also an exploration of possibi
     * D: UserDefaults
         - create `UserDefaultsServiceManager`
         - add DashboardFeatureService
+        
+### IOS-00005 HealthData
+    * A: Get mock HealthData
+    * B: Fetch HealthKit data
+        - fetch steps data
+        - steps charts basic UI
+    * C: Step Bar Chart customizations
+        - add chartXAxis and chartYAxis customizations

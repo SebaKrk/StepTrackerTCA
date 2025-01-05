@@ -30,7 +30,24 @@ struct DashboardFeature {
             Reduce { state, action in
                 switch action {
                     
+                    // MARK: - Binding
+                case .binding(_):
+                    return .run { [date = state.rawSelectedDate] send  in
+                        if let date = date {
+                            await send(.selectedStepChartDateChange(date))
+                        } else {
+                            await send(.selectedStepChartDateChange(nil))
+                        }
+                    }
+                    
                     // MARK: - Actions
+                case let .selectedStepChartDateChange(date):
+                    if date == nil {
+                        state.selectedHealthMetric = nil
+                    } else {
+                        state.selectedHealthMetric = dashboardFeatureService.selectedHealthMetric(from: state.stepData, with: date)
+                    }
+                    return .none
                     
                 case let .selectedPickerChange(item):
                     state.healthMetric = item
@@ -40,23 +57,47 @@ struct DashboardFeature {
                     state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
                     return .none
                     
-                    // MARK: - View actions
+                case .fetchHealthData:
+                    return .run { send in
+                        await send(.updateStepChartData(
+                            Result {
+                                try await dashboardFeatureService.getStepsData()
+                            }
+                        ))
+                    }
                     
+                case let .updateStepChartData(.success(data)):
+                    state.stepData = data
+                    state.avgStepCount = dashboardFeatureService.calculateAverageStepCount(from: data)
+                    return .none
+                    
+                    // TODO: Error handling
+                    /// Add failure handling to the fetchHealthData
+                case let .updateStepChartData(.failure(error)):
+                    print(error.localizedDescription)
+                    return .none
+                    
+                    // MARK: - View actions
                 case .view(.viewDidAppear):
                     if !dashboardFeatureService.hasSeenPermissionPriming {
                         return .run { send in
                             await send(.openPermissionScreen)
                         }
+                    } else {
+                        return .run { send in
+                            /// use only first time
+                            //try await dashboardFeatureService.getDummyData()
+                            await send(.fetchHealthData)
+                        }
                     }
-                    return .none
                     
+                    // MARK: - Destination
                 case .openPermissionScreen:
                     dashboardFeatureService.markPermissionPrimingAsSeen()
                     state.destination = .openHealthKitPermissionScreen(HealthKitPermissionFeature.State())
                     return .none
                     
                     // MARK: - Path
-                    
                 case let .path(action):
                     switch action {
                     case .element(id: _, action: .healthDataListFeature(.navigateToHealthDataList)):
