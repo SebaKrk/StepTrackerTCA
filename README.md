@@ -61,3 +61,4 @@ This project is not only a technical exercise but also an exploration of possibi
         - steps charts basic UI
     * C: Step Bar Chart customizations
         - add chartXAxis and chartYAxis customizations
+        - add chartXSelection &  RuleMark for selected x data chart
