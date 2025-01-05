@@ -58,20 +58,19 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxWalkView: some View {
-        NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
-            GroupBox {
-                stepChart
-            } label: {
+        GroupBox {
+            stepChart
+        } label: {
+            NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
                 groupBoxTitle(
                     "Steps",
                     "figure.walk",
-                    "Avg: 10K Steps"
+                    "Avg: \(Int(store.avgStepCount)) steps"
                 )
             }
-            .padding([.leading, .trailing], 8)
         }
+        .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
-        
     }
     
     @ViewBuilder
@@ -105,6 +104,25 @@ struct DashboardView: View {
                 Image(systemName: "chevron.right")
             }
         }
+    }
+    
+    @ViewBuilder
+    var annotationView: some View {
+        VStack(alignment: .leading) {
+            Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
+                .font(.footnote.bold())
+                .foregroundStyle(.secondary)
+
+            Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(0)))
+                .fontWeight(.heavy)
+                .foregroundStyle(.pink)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
+        )
     }
 }
 
