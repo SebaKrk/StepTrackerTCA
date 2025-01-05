@@ -58,4 +58,6 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: Get mock HealthData
     * B: Fetch HealthKit data
         - fetch steps data
-        - steps charts basic UI    
+        - steps charts basic UI
+    * C: Step Bar Chart customizations
+        - add chartXAxis and chartYAxis customizations

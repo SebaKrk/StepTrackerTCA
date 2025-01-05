@@ -51,6 +51,7 @@ struct DashboardFeature {
                     
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
+                    state.avgStepCount = dashboardFeatureService.calculateAverageStepCount(from: data)
                     return .none
                     
                     // TODO: Error handling

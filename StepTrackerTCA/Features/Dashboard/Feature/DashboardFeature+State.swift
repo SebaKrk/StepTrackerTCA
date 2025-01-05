@@ -24,6 +24,10 @@ extension DashboardFeature {
         /// The data for steps, used to populate charts and other visualizations on the dashboard.
         var stepData: [HealthData] = []
         
+        /// The average step count calculated from `stepData`.
+        /// This value is derived to provide quick insights to the user, such as the average number of steps taken over a days
+        var avgStepCount: Double = 0
+        
         // MARK: - Path
         
         /// Path from DashboardFeature

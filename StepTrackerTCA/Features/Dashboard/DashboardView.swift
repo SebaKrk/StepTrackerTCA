@@ -65,7 +65,7 @@ struct DashboardView: View {
                 groupBoxTitle(
                     "Steps",
                     "figure.walk",
-                    "Avg: 10K Steps"
+                    "Avg: \(Int(store.avgStepCount)) steps"
                 )
             }
             .padding([.leading, .trailing], 8)

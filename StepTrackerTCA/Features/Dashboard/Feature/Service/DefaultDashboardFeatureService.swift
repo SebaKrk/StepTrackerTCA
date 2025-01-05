@@ -31,6 +31,11 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
                                                    unit: .count())
     }
     
+    func calculateAverageStepCount(from data: [HealthData]) -> Double {
+        guard !data.isEmpty else { return 0 }
+        return data.reduce(0) { $0 + $1.value } / Double(data.count)
+    }
+    
     func getDummyData() async throws {
         try await healthKitManager.addSimulatorData()
     }
