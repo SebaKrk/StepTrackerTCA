@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 28/12/2024.
 //
 
+import Algorithms
 import HealthKit
 import Observation
 
@@ -65,6 +66,24 @@ class DefaultHealthKitManager: HealthKitManager {
         let query = buildQuery(for: quantityType, startDate: startDate, endDate: endDate)
         let results = try await query.result(for: store)
         return processHealthData(results.statistics(), unit: unit)
+    }
+    
+    /// Calculates the average value of health data for each weekday.
+    func averageWeekdayCount(for healthData: [HealthData]) -> [WeekdayChartData] {
+        let sortedByWeekday = healthData.sorted { $0.date.weekdayInt < $1.date.weekdayInt }
+        let weekdayArray = sortedByWeekday.chunked { $0.date.weekdayInt == $1.date.weekdayInt }
+
+        var weekdayChartData: [WeekdayChartData] = []
+
+        for array in weekdayArray {
+            guard let firstValue = array.first else { continue }
+            let total = array.reduce(0) { $0 + $1.value }
+            let avgSteps = total/Double(array.count)
+
+            weekdayChartData.append(.init(date: firstValue.date, value: avgSteps))
+        }
+
+        return weekdayChartData
     }
     
     // MARK: - Private Helpers
@@ -133,10 +152,3 @@ class DefaultHealthKitManager: HealthKitManager {
     }
     
 }
-
-//struct HealthMetric: Identifiable {
-//    let id = UUID()
-//    let date: Date
-//    let value: Double
-//}
-

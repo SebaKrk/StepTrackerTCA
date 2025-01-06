@@ -50,6 +50,18 @@ protocol DashboardFeatureService {
     ///   The `HealthData` object matching the selected date, or `nil` if no match is found or the `rawSelectedDate` is `nil`.
     func selectedHealthMetric(from healthData: [HealthData], with rawSelectedDate: Date?) -> HealthData?
     
+    /// Retrieves the health metric that corresponds to the selected date.
+    ///
+    /// This method searches through an array of `HealthData` objects to find a record
+    /// that matches the provided date. If no match is found, it returns `nil`.
+    ///
+    /// - Parameters:
+    ///   - healthData: An array of `HealthData` objects representing health metrics, each associated with a specific date.
+    ///   - rawSelectedDate: An optional `Date` object representing the date for which to fetch the corresponding health metric.
+    /// - Returns:
+    ///   The `HealthData` object matching the selected date, or `nil` if no match is found or the `rawSelectedDate` is `nil`.
+    func calculateAverageHealthDataPerWeekday( _ healthData: [HealthData]) -> [WeekdayChartData]
+    
     /// Generates and saves mock HealthKit data for testing purposes.
     func getDummyData() async throws
     
