@@ -43,6 +43,10 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
         }    
     }
     
+    func calculateAverageHealthDataPerWeekday( _ healthData: [HealthData]) -> [WeekdayChartData] {
+        healthKitManager.averageWeekdayCount(for: healthData)
+    }
+    
     func getDummyData() async throws {
         try await healthKitManager.addSimulatorData()
     }

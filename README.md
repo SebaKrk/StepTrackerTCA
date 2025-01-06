@@ -64,4 +64,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - add chartXSelection &  RuleMark for selected x data chart
 
 ### IOS-00006 PieChart
-    * A: Swift Algorithms  
+    * A: Swift Algorithms
+    * B: Average steps count calculation
+        - create extension for weekdayInt 
+        - calculate average health data per weekday
