@@ -1,5 +1,5 @@
 {
-  "originHash" : "f12e94a08eef25075f3fe6b242bfee8b4cc397b1231b9002ee8789b35bf90439",
+  "originHash" : "a394fd337680099fda5c5cfe43c03da82e648d6b2322d4e88e0dfc25b53142b6",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "fb04a8918848e413d3921d346a23bae7f81088d9",
         "version" : "2.4.3"
+      }
+    },
+    {
+      "identity" : "swift-algorithms",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-algorithms.git",
+      "state" : {
+        "revision" : "f6919dfc309e7f1b56224378b11e28bab5bccc42",
+        "version" : "1.2.0"
       }
     },
     {
@@ -98,6 +107,15 @@
       "state" : {
         "revision" : "e28911721538fa0c2439e92320bad13e3200866f",
         "version" : "2.2.3"
+      }
+    },
+    {
+      "identity" : "swift-numerics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-numerics.git",
+      "state" : {
+        "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
+        "version" : "1.0.2"
       }
     },
     {
