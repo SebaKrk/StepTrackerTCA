@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 930DCF402D16A3D900F1A5E4 /* Factory */; };
 		9332A8C62D1809FD00DA426E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9332A8C52D1809FD00DA426E /* README.md */; };
+		93622F162D2C81B000E9863B /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 93622F152D2C81B000E9863B /* Algorithms */; };
 		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93622F162D2C81B000E9863B /* Algorithms in Frameworks */,
 				93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */,
 				930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */,
 			);
@@ -77,6 +79,7 @@
 			packageProductDependencies = (
 				93CE767C2D16A13F006D5A4A /* ComposableArchitecture */,
 				930DCF402D16A3D900F1A5E4 /* Factory */,
+				93622F152D2C81B000E9863B /* Algorithms */,
 			);
 			productName = StepTrackerTCA;
 			productReference = 93CE75352D1699CA006D5A4A /* StepTrackerTCA.app */;
@@ -109,6 +112,7 @@
 			packageReferences = (
 				93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */,
+				93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 93CE75362D1699CA006D5A4A /* Products */;
@@ -357,6 +361,14 @@
 				minimumVersion = 2.4.3;
 			};
 		};
+		93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 		93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
@@ -372,6 +384,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
 			productName = Factory;
+		};
+		93622F152D2C81B000E9863B /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
 		};
 		93CE767C2D16A13F006D5A4A /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
