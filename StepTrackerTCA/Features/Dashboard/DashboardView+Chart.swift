@@ -51,4 +51,18 @@ extension DashboardView {
         }
     }
     
+    @ViewBuilder
+    var stepsPieChart: some View {
+        Chart {
+            ForEach(store.stepDataPerWeekDay) { weekday in
+                SectorMark(angle: .value("Average Steps", weekday.value),
+                           innerRadius: .ratio(0.618),
+                           angularInset: 1)
+                .foregroundStyle(.pink.gradient)
+                .cornerRadius(6)
+            }
+        }
+        .frame(height: 240)
+    }
+    
 }

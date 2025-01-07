@@ -26,4 +26,20 @@ extension Date {
         Calendar.current.component(.weekday, from: self)
     }
     
+    /// Returns the full name of the weekday for the current date.
+    ///
+    /// - The name is localized based on the user's current locale and settings.
+    /// - Example:
+    ///     - "Sunday"
+    ///     - "Monday"
+    ///     - "Saturday"
+    ///
+    /// - Note: This uses the `.formatted` method with `.dateTime.weekday(.wide)`
+    ///   to ensure the full weekday name is returned in a user-friendly format.
+    ///
+    /// - Returns: A `String` representing the full name of the weekday.
+    var weekdayTitle: String {
+        self.formatted(.dateTime.weekday(.wide))
+    }
+    
 }

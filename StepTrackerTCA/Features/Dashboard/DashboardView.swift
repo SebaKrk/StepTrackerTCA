@@ -76,9 +76,7 @@ struct DashboardView: View {
     @ViewBuilder
     private var groupBoxCalendarView: some View {
         GroupBox {
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(.secondary)
-                .frame(height: 240)
+            stepsPieChart
         } label: {
             groupBoxTitle("Averages",
                           "calendar",
@@ -98,6 +96,7 @@ struct DashboardView: View {
                     .foregroundStyle(.pink)
                 Text(secondaryText)
                     .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
             if destination {

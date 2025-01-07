@@ -69,8 +69,7 @@ struct DashboardFeature {
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
                     state.avgStepCount = dashboardFeatureService.calculateAverageStepCount(from: data)
-                    let stepDataPerWeekDay = dashboardFeatureService.calculateAverageHealthDataPerWeekday(state.stepData)
-                    print(stepDataPerWeekDay)
+                    state.stepDataPerWeekDay = dashboardFeatureService.calculateAverageHealthDataPerWeekday(state.stepData)
                     return .none
                     
                     // TODO: Error handling
