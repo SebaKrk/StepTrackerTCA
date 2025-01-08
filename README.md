@@ -68,3 +68,7 @@ This project is not only a technical exercise but also an exploration of possibi
     * B: Average steps count calculation
         - create extension for weekdayInt 
         - calculate average health data per weekday
+    * C: PieChart basic UI
+        - create basic UI
+        - pie chart interactivity
+        - calculate total steps form 28 days

@@ -76,9 +76,7 @@ struct DashboardView: View {
     @ViewBuilder
     private var groupBoxCalendarView: some View {
         GroupBox {
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(.secondary)
-                .frame(height: 240)
+            stepsPieChart
         } label: {
             groupBoxTitle("Averages",
                           "calendar",
@@ -98,6 +96,7 @@ struct DashboardView: View {
                     .foregroundStyle(.pink)
                 Text(secondaryText)
                     .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
             if destination {
@@ -123,6 +122,20 @@ struct DashboardView: View {
                 .fill(Color(.secondarySystemBackground))
                 .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
         )
+    }
+    
+    @ViewBuilder
+    func pieTextView(_ title: String, _ value: Double) -> some View {
+        VStack {
+            Text(title)
+                .font(.title3.bold())
+                .contentTransition(.identity)
+            
+            Text(value, format: .number.precision(.fractionLength(0)))
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
+                .contentTransition(.numericText())
+        }
     }
 }
 

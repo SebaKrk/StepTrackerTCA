@@ -32,11 +32,17 @@ struct DashboardFeature {
                     
                     // MARK: - Binding
                 case .binding(_):
-                    return .run { [date = state.rawSelectedDate] send  in
+                    return .run { [date = state.rawSelectedDate, value = state.rawSelectedChartValue] send  in
                         if let date = date {
                             await send(.selectedStepChartDateChange(date))
                         } else {
                             await send(.selectedStepChartDateChange(nil))
+                        }
+                        
+                        if let value = value {
+                            await send(.rawSelectedChartValueChange(value))
+                        } else {
+                            await send(.rawSelectedChartValueChange(nil))
                         }
                     }
                     
@@ -45,7 +51,17 @@ struct DashboardFeature {
                     if date == nil {
                         state.selectedHealthMetric = nil
                     } else {
-                        state.selectedHealthMetric = dashboardFeatureService.selectedHealthMetric(from: state.stepData, with: date)
+                        state.selectedHealthMetric = dashboardFeatureService.selectedHealthMetric(from: state.stepData,
+                                                                                                  with: date)
+                    }
+                    return .none
+                    
+                case let .rawSelectedChartValueChange(value):
+                    if value == nil {
+                        state.selectedChartValue = nil
+                    } else {
+                        state.selectedChartValue = dashboardFeatureService.selectedWeekday(from: state.stepDataPerWeekDay,
+                                                                                           with: value)
                     }
                     return .none
                     
@@ -69,8 +85,9 @@ struct DashboardFeature {
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
                     state.avgStepCount = dashboardFeatureService.calculateAverageStepCount(from: data)
-                    let stepDataPerWeekDay = dashboardFeatureService.calculateAverageHealthDataPerWeekday(state.stepData)
-                    print(stepDataPerWeekDay)
+                    state.stepDataPerWeekDay = dashboardFeatureService.calculateAverageHealthDataPerWeekday(state.stepData)
+                    state.selectedChartValue = state.stepDataPerWeekDay.first
+                    state.totalStepsFrom28Days = dashboardFeatureService.calculateTotalSteps(from: data)
                     return .none
                     
                     // TODO: Error handling
