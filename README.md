@@ -70,3 +70,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - calculate average health data per weekday
     * C: PieChart basic UI
         - create basic UI
+        - pie chart interactivity
+        - calculate total steps form 28 days

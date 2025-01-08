@@ -41,6 +41,16 @@ extension DashboardFeature {
         /// This value is derived by matching `rawSelectedDate` with the `stepData` entries.
         var selectedHealthMetric: HealthData?
         
+        /// Represents the raw value of the selected chart data.
+        var rawSelectedChartValue: Double? = 0
+
+        /// The structured representation of the selected chart value.
+        /// Used to display detailed information about the user's activity or health data for the selected day.
+        var selectedChartValue: WeekdayChartData?
+        
+        /// The total number of steps calculated from the last 28 days.
+        var totalStepsFrom28Days: Double = 0
+        
         // MARK: - Path
         
         /// Path from DashboardFeature

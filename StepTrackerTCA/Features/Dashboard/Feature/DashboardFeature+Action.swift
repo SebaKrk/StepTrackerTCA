@@ -41,6 +41,9 @@ extension DashboardFeature {
         /// Action triggered when the user selects a date on the step chart.
         case selectedStepChartDateChange(Date?)
         
+        /// Handles changes to the raw value of the selected chart data.
+        case rawSelectedChartValueChange(Double?)
+        
         // MARK: - Path
         
         /// Path

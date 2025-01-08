@@ -123,6 +123,20 @@ struct DashboardView: View {
                 .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
         )
     }
+    
+    @ViewBuilder
+    func pieTextView(_ title: String, _ value: Double) -> some View {
+        VStack {
+            Text(title)
+                .font(.title3.bold())
+                .contentTransition(.identity)
+            
+            Text(value, format: .number.precision(.fractionLength(0)))
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
+                .contentTransition(.numericText())
+        }
+    }
 }
 
 #Preview {
