@@ -36,11 +36,29 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
         return data.reduce(0) { $0 + $1.value } / Double(data.count)
     }
     
+    func calculateTotalSteps(from data: [HealthData]) -> Double {
+        return data.reduce(0) { $0 + $1.value }
+    }
+    
     func selectedHealthMetric(from healthData: [HealthData], with rawSelectedDate: Date?) -> HealthData? {
         guard let rawSelectedDate else { return nil }
         return healthData.first {
             Calendar.current.isDate(rawSelectedDate, inSameDayAs: $0.date)
         }    
+    }
+    
+    func selectedWeekday(from healthData: [WeekdayChartData], with rawSelectedChartValue: Double?) -> WeekdayChartData? {
+        guard let rawSelectedChartValue else { return nil }
+        var total = 0.0
+        
+        return healthData.first {
+            total += $0.value
+            return rawSelectedChartValue <= total
+        }
+    }
+    
+    func calculateAverageHealthDataPerWeekday( _ healthData: [HealthData]) -> [WeekdayChartData] {
+        healthKitManager.averageWeekdayCount(for: healthData)
     }
     
     func getDummyData() async throws {

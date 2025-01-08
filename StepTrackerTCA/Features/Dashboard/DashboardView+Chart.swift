@@ -51,4 +51,37 @@ extension DashboardView {
         }
     }
     
+    @ViewBuilder
+    var stepsPieChart: some View {
+        Chart {
+            ForEach(store.stepDataPerWeekDay) { weekday in
+                SectorMark(angle: .value("Average Steps", weekday.value),
+                           innerRadius: .ratio(0.618),
+                           outerRadius: store.selectedChartValue?.date.weekdayInt == weekday.date.weekdayInt ? 140 : 110,
+                           angularInset: 1)
+                .foregroundStyle(.pink.gradient)
+                .cornerRadius(6)
+                .opacity(store.selectedChartValue?.date.weekdayInt == weekday.date.weekdayInt ? 1.0 : 0.3)
+            }
+        }
+        .chartAngleSelection(value: $store.rawSelectedChartValue.animation(.easeInOut))
+        .frame(height: 240)
+        .chartBackground { proxy in
+            GeometryReader { geo in
+                if let plotFrame = proxy.plotFrame {
+                    let frame = geo[plotFrame]
+                    Group {
+                        if let selectedWeekday = store.selectedChartValue {
+                            pieTextView(selectedWeekday.date.weekdayTitle,
+                                        selectedWeekday.value)
+                        } else {
+                            pieTextView("Total Steps", store.totalStepsFrom28Days)
+                        }
+                    }
+                    .position(x: frame.midX, y: frame.midY)
+                }
+            }
+        }
+    }
+    
 }

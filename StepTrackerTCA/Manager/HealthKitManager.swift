@@ -51,6 +51,16 @@ protocol HealthKitManager {
     /// - Throws: An error if the HealthKit query fails, such as lack of permissions or unsupported types.
     func fetchHealthData(for quantityType: HKQuantityTypeIdentifier, days: Int, unit: HKUnit) async throws -> [HealthData]
     
+    /// Calculates the average value of health data for each weekday.
+    ///
+    /// The function groups health data by weekdays, computes the average value
+    /// for each day, and returns the results as an array.
+    ///
+    /// - Parameter healthData: An array of `HealthData` objects, each containing a date and a value (e.g., step count).
+    /// - Returns: An array of `WeekdayChartData` objects, where each entry represents the average value
+    ///            of the data for a specific weekday.
+    func averageWeekdayCount(for healthData: [HealthData]) -> [WeekdayChartData]
+    
     /// Adds simulated HealthKit data for testing purposes.
     ///
     /// This method generates mock step count and body mass samples for the last 28 days

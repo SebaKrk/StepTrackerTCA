@@ -62,3 +62,13 @@ This project is not only a technical exercise but also an exploration of possibi
     * C: Step Bar Chart customizations
         - add chartXAxis and chartYAxis customizations
         - add chartXSelection &  RuleMark for selected x data chart
+
+### IOS-00006 PieChart
+    * A: Swift Algorithms
+    * B: Average steps count calculation
+        - create extension for weekdayInt 
+        - calculate average health data per weekday
+    * C: PieChart basic UI
+        - create basic UI
+        - pie chart interactivity
+        - calculate total steps form 28 days
