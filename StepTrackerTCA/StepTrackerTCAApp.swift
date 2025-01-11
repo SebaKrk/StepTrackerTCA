@@ -10,11 +10,20 @@ import SwiftUI
 
 @main
 struct StepTrackerTCAApp: App {
+    
     var body: some Scene {
         WindowGroup {
-            DashboardView(store: Store(initialState: DashboardFeature.State(), reducer: {
-                DashboardFeature(service: DefaultDashboardFeatureService())
-            }))
+            AppTabView(
+                store: Store(initialState: AppTabFeature.State()) {
+                    AppTabFeature()
+                }
+            )
         }
     }
+    
 }
+
+//            DashboardView(store: Store(initialState: DashboardFeature.State(), reducer: {
+//                DashboardFeature(service: DefaultDashboardFeatureService())
+//            }))
+//._printChanges()
