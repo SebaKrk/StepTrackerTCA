@@ -76,7 +76,4 @@ This project is not only a technical exercise but also an exploration of possibi
 ### IOS-0007 Tree-based navigation TCA
     * A: Create AppScreen
         - add appScreen 
-        - create `AppTabFeature`
-
-IOS-0007 Tree-based navigation TCA
-IOS-0007A Create AppScreen
+    * B: create `AppTabFeature`
