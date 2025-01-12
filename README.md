@@ -77,3 +77,6 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: Create AppScreen
         - add appScreen 
     * B: create `AppTabFeature`
+    * C: create `ActivityFeature` and `WorkoutFeature`
+        - folder reorganizations
+        - create two empty feature for test purposes
