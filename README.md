@@ -21,7 +21,7 @@ This project is not only a technical exercise but also an exploration of possibi
 ### IOS-00002 Dependency Injection with Factory
     * A: Container-Based Dependency Factory Package
     
-### IOS-0003 Basic UI and Features
+### IOS-00003 Basic UI and Features
     * A: Create basic `DashboardFeature`
         - remove ContentView
         - create basic DashboardView
@@ -41,7 +41,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - handle basic validation
         - present Alert
 
-### IOS-0004 HealthKit
+### IOS-00004 HealthKit
     * A: Signing & Capabilities
         - add healthKit
         - add privacy description
