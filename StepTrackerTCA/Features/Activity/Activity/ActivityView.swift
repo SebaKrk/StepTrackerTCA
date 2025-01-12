@@ -15,29 +15,36 @@ struct ActivityView: View {
     
     @Bindable var store: StoreOf<ActivityFeature>
     
+    var withoutNavigationDestination = false
+    
     // MARK: - View
     
     public var body: some View {
+        if withoutNavigationDestination {
+            activityBody
+        } else {
+            activityBody
+                .navigationDestination(
+                    item: $store.scope(
+                        state: \.destination?.detailItem,
+                        action: \.destination.detailItem)) { store in
+                            ActivityDetailsView(store: store)
+                        }
+        }
+    }
+    
+    // MARK: - Subview
+    
+    private var activityBody: some View {
         VStack(spacing: 0) {
             activityPeriodPicker
             activityList
         }
         .navigationTitle("Activity")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(
-            item: $store.scope(
-                state: \.destination?.detailItem,
-                action: \.destination.detailItem
-            )
-        ) { store in
-            ActivityDetailsView(store: store)
-        }
         .onAppear {
             send(.viewDidAppear)
         }
     }
-    
-    // MARK: - Subview
     
     @ViewBuilder
     private var activityPeriodPicker: some View {
