@@ -80,4 +80,7 @@ This project is not only a technical exercise but also an exploration of possibi
     * C: create `ActivityFeature` and `WorkoutFeature`
         - folder reorganizations
         - create two empty feature for test purposes
-    * D: Connect new features to `AppTabFeature`    
+    * D: Connect new features to `AppTabFeature`
+    * E: Navigation `ActivityFeature`
+        - create `ActivityDetailsFeature`
+        - add destination

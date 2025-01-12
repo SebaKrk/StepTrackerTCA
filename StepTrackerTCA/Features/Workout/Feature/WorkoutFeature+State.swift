@@ -8,7 +8,6 @@
 import ComposableArchitecture
 import Foundation
 
-
 /// Implementation of `WorkoutFeature` state
 extension WorkoutFeature {
     

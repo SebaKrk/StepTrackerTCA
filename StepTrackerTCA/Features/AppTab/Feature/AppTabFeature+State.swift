@@ -24,7 +24,7 @@ extension AppTabFeature {
         /// The currently selected tab in the application.
         ///
         /// Default value is `.summary`.
-        var selectedTab: AppScreen = .summary
+        var selectedTab: AppScreen = .activity
         
         // MARK: - Children states
         
