@@ -30,7 +30,7 @@ extension AppTabFeature {
         // MARK: - Children actions
         
         /// Stores the actions of the summaryTab: `DashboardFeature`
-        case  summaryTab(DashboardFeature.Action)
+        case summaryTab(DashboardFeature.Action)
     }
     
 }

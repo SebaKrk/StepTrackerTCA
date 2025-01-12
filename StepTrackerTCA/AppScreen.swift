@@ -15,6 +15,7 @@ enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     
     case summary
     case workout
+    case activity
     case fuel
     case community
     case settings
@@ -40,6 +41,12 @@ extension AppScreen {
                 String(localized: "Workout",
                        comment: "The Workout Tab provides access to timers and activity tracking."),
                 systemImage: "figure.run"
+            )
+        case .activity:
+            Label(
+                String(localized: "activity",
+                       comment: "The Activity Tab provides access to today's and monthly training logs."),
+                systemImage: "calendar"
             )
         case .fuel:
             Label(
