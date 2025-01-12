@@ -25,6 +25,12 @@ struct AppTabFeature {
                 
             case .summaryTab:
                 return .none
+
+            case .workoutTab:
+                return .none
+                
+            case .activityTab:
+                return .none
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
@@ -33,6 +39,12 @@ struct AppTabFeature {
         }
         Scope(state: \.summaryTab, action: \.summaryTab) {
             DashboardFeature(service: DefaultDashboardFeatureService())
+        }
+        Scope(state: \.workoutTab, action: \.workoutTab) {
+            WorkoutFeature()
+        }
+        Scope(state: \.activityTab, action: \.activityTab) {
+            ActivityFeature()
         }
     }
     

@@ -37,9 +37,9 @@ struct AppTabView: View {
         case .summary:
             DashboardView(store: store.scope(state: \.summaryTab, action: \.summaryTab))
         case .workout:
-            Text("workout")
+            WorkoutView(store: store.scope(state: \.workoutTab, action: \.workoutTab))
         case .activity:
-            Text("activity")
+            ActivityView(store: store.scope(state: \.activityTab, action: \.activityTab))
         case .fuel:
             Text("fuel")
         case .community:
