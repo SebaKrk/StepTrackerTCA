@@ -31,6 +31,12 @@ extension AppTabFeature {
         /// Stores the information contained in the summaryTab: `DashboardFeature`.
         var summaryTab = DashboardFeature.State()
         
+        /// Stores the information contained in the summaryTab: `WorkoutFeature`.
+        var workoutTab = WorkoutFeature.State()
+        
+        /// Stores the information contained in the summaryTab: `ActivityFeature`.
+        var activityTab = ActivityFeature.State()
+        
     }
     
 }
