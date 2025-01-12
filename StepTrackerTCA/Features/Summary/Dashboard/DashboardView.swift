@@ -25,6 +25,7 @@ struct DashboardView: View {
                 groupBoxCalendarView
             }
             .navigationTitle("Dashboard")
+            .navigationBarTitleDisplayMode(.inline)
             
         } destination: { store in
             switch store.case {
