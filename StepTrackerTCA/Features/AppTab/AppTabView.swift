@@ -39,7 +39,7 @@ struct AppTabView: View {
         case .workout:
             WorkoutView(store: store.scope(state: \.workoutTab, action: \.workoutTab))
         case .activity:
-            ActivityView(store: store.scope(state: \.activityTab, action: \.activityTab))
+            NavigationStack { ActivityView(store: store.scope(state: \.activityTab, action: \.activityTab)) }
         case .fuel:
             Text("fuel")
         case .community:

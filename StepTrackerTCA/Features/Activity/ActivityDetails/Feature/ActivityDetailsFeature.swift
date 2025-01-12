@@ -1,5 +1,5 @@
 //
-//  ActivityFeature.swift
+//  ActivityDetailsFeature.swift
 //  StepTrackerTCA
 //
 //  Created by Sebastian Sciuba on 12/01/2025.
@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct ActivityFeature {
+struct ActivityDetailsFeature {
     
     // MARK: - Reducer
     
@@ -21,7 +21,7 @@ struct ActivityFeature {
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                print("ActivityFeature - viewDidAppear")
+                print("ActivityDetailsFeature - viewDidAppear")
                 return .none
             }
         }

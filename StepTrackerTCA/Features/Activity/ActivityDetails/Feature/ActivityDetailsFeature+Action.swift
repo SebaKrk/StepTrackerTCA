@@ -1,5 +1,5 @@
 //
-//  ActivityFeature+Action.swift
+//  ActivityDetailsFeature+Action.swift
 //  StepTrackerTCA
 //
 //  Created by Sebastian Sciuba on 12/01/2025.
@@ -8,8 +8,8 @@
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `ActivityFeature` action
-extension ActivityFeature {
+/// Implementation of `ActivityDetailsFeature` action
+extension ActivityDetailsFeature {
     
     @CasePathable
     enum Action: ViewAction {
