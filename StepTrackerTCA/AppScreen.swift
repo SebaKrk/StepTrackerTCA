@@ -44,7 +44,7 @@ extension AppScreen {
             )
         case .activity:
             Label(
-                String(localized: "activity",
+                String(localized: "Activity",
                        comment: "The Activity Tab provides access to today's and monthly training logs."),
                 systemImage: "calendar"
             )
