@@ -73,7 +73,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - pie chart interactivity
         - calculate total steps form 28 days
 
-### IOS-0007 Tree-based navigation TCA
+### IOS-00007 Tree-based navigation TCA
     * A: Create AppScreen
         - add appScreen 
     * B: create `AppTabFeature`
