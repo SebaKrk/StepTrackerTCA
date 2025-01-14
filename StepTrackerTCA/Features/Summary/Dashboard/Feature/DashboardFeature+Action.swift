@@ -44,6 +44,12 @@ extension DashboardFeature {
         /// Handles changes to the raw value of the selected chart data.
         case rawSelectedChartValueChange(Double?)
         
+        /// Updates the weight data with the result of a health data fetch.
+        ///
+        /// - Parameter result: A `Result` containing an array of `HealthData` on success
+        /// or an `Error` on failure.
+        case updateWeightChartData(Result<[HealthData], Error>)
+        
         // MARK: - Path
         
         /// Path

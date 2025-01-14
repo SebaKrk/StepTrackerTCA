@@ -89,3 +89,8 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: Add AppTabContent to handle NavigationSplitView for adaptive layout support.
     
 ### IOS-00009 Weight Chart
+    * A: Weight chart basic UI
+    - added a switch in DashboardView to dynamically display content based on the selected health metric i
+    - implemented updateWeightChartData to handle the retrieval of weight-related data and update the state to display the processed information in the chart
+    - chart basic UI
+    - change unit to kilo

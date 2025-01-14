@@ -21,8 +21,13 @@ struct DashboardView: View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ScrollView {
                 healthMetricContextPicker
-                groupBoxWalkView
-                groupBoxCalendarView
+                switch store.healthMetric {
+                case .steps:
+                    groupBoxWalkView
+                    groupBoxCalendarView
+                case .weight:
+                    groupBoxWeightView
+                }
             }
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.inline)
@@ -87,6 +92,22 @@ struct DashboardView: View {
         .padding([.leading, .trailing], 8)
     }
     
+    @ViewBuilder
+    private var groupBoxWeightView: some View {
+        GroupBox {
+            weightLineChart
+        } label: {
+            NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
+                groupBoxTitle(
+                    "Weight",
+                    "figure",
+                    "Avg: \(store.averageWeight) kg"
+                )
+            }
+        }
+        .padding([.leading, .trailing], 8)
+        .foregroundStyle(.secondary)
+    }
     
     @ViewBuilder
     private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
@@ -94,7 +115,7 @@ struct DashboardView: View {
             VStack(alignment: .leading) {
                 Label(title, systemImage: systemImage)
                     .font(.title3.bold())
-                    .foregroundStyle(.pink)
+                    .foregroundStyle(store.healthMetric == .steps ? .pink : .indigo)
                 Text(secondaryText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
