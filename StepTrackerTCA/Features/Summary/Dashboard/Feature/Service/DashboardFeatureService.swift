@@ -20,6 +20,7 @@ protocol DashboardFeatureService {
     /// - Saves this information in a persistent source, such as UserDefaults.
     func markPermissionPrimingAsSeen()
     
+    // Steps
     /// Fetches step data asynchronously.
     ///
     /// Shown in the step chart on the dashboard after successful retrieval of data.
@@ -70,6 +71,9 @@ protocol DashboardFeatureService {
     /// Retrieves the weekday chart data corresponding to the selected chart value.
     ///
     /// This method maps a raw chart value (e.g., step count) to the appropriate weekday data,
+    /// Retrieves the weekday chart data corresponding to the selected chart value.
+    ///
+    /// This method maps a raw chart value (e.g., step count) to the appropriate weekday data,
     /// typically for display or further processing.
     ///
     /// - Parameters:
@@ -79,7 +83,39 @@ protocol DashboardFeatureService {
     ///   The `WeekdayChartData` object matching the selected chart value, or `nil` if no match is found.
     func selectedWeekday(from healthData: [WeekdayChartData], with rawSelectedChartValue: Double?) -> WeekdayChartData?
     
+    // Weight
+    /// Fetches body mass data asynchronously.
+    ///
+    /// Shown in the step chart on the dashboard after successful retrieval of data.
+    ///
+    /// - Returns: An array of `HealthData` objects representing step metrics.
+    /// - Throws: An error if data retrieval fails.
+    func getWeightData() async throws -> [HealthData]
+    
+    /// Calculates the average weight  from the given data.
+    ///
+    /// This utility method processes an array of `HealthData` and computes the average step count.
+    /// It is used to provide quick insights to the user, such as the average number of steps over
+    /// a given period.
+    ///
+    /// - Parameter data: An array of `HealthData` objects containing step metrics.
+    /// - Returns: The average weight as a `Double`. Returns `0` if the input data is empty.
+    func calculateWeightAverage(from data: [HealthData]) -> Double
+    
+    
+    /// Calculates the minimum value from the provided health data.
+    ///
+    /// This method iterates through an array of `HealthData` to determine the lowest value.
+    /// For instance, it can be used to find the minimum recorded weight over a set of days.
+    ///
+    /// - Parameter healthData: An array of `HealthData` objects, where each object represents
+    ///   health-related data for a specific day, including a date and a value (e.g., weight).
+    ///
+    /// - Returns: The smallest value from the array of health data. If the array is empty,
+    ///   the function returns `0.0`.
+    func calculateMinValue(from healthData: [HealthData]) -> Double
+    
+    // Mock
     /// Generates and saves mock HealthKit data for testing purposes.
     func getDummyData() async throws
-    
 }

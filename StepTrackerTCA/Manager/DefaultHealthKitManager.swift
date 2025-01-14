@@ -60,12 +60,13 @@ class DefaultHealthKitManager: HealthKitManager {
     func fetchHealthData(
         for quantityType: HKQuantityTypeIdentifier,
         days: Int = 28,
-        unit: HKUnit
+        unit: HKUnit,
+        options: HKStatisticsOptions
     ) async throws -> [HealthData] {
         let (startDate, endDate) = calculateDateRange(for: days)
-        let query = buildQuery(for: quantityType, startDate: startDate, endDate: endDate)
+        let query = buildQuery(for: quantityType, startDate: startDate, endDate: endDate, options: options)
         let results = try await query.result(for: store)
-        return processHealthData(results.statistics(), unit: unit)
+        return processHealthData(results.statistics(), unit: unit, options: options)
     }
     
     /// Calculates the average value of health data for each weekday.
@@ -86,6 +87,11 @@ class DefaultHealthKitManager: HealthKitManager {
         return weekdayChartData
     }
     
+    /// Calculates the minimum value from the provided health data.
+    func calculateMinValue(from healthData: [HealthData]) -> Double {
+        healthData.map { $0.value }.min() ?? 0
+    }
+    
     // MARK: - Private Helpers
 
     /// Calculates the date range for the last `days` days.
@@ -101,23 +107,33 @@ class DefaultHealthKitManager: HealthKitManager {
     private func buildQuery(
         for quantityType: HKQuantityTypeIdentifier,
         startDate: Date,
-        endDate: Date
+        endDate: Date,
+        options: HKStatisticsOptions
     ) -> HKStatisticsCollectionQueryDescriptor {
         let type = HKQuantityType(quantityType)
         let queryPredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate)
         let samplePredicate = HKSamplePredicate.quantitySample(type: type, predicate: queryPredicate)
         return HKStatisticsCollectionQueryDescriptor(
             predicate: samplePredicate,
-            options: .cumulativeSum,
+            options: options,
             anchorDate: endDate,
             intervalComponents: .init(day: 1)
         )
     }
-
+    
     /// Processes the raw statistics into health data.
-    private func processHealthData(_ statistics: [HKStatistics], unit: HKUnit) -> [HealthData] {
+    private func processHealthData(_ statistics: [HKStatistics], unit: HKUnit, options: HKStatisticsOptions) -> [HealthData] {
         statistics.map {
-            .init(date: $0.startDate, value: $0.sumQuantity()?.doubleValue(for: unit) ?? 0)
+            let value: Double
+            switch options {
+            case .discreteAverage:
+                value = $0.averageQuantity()?.doubleValue(for: unit) ?? 0
+            case .cumulativeSum:
+                value = $0.sumQuantity()?.doubleValue(for: unit) ?? 0
+            default:
+                value = 0
+            }
+            return .init(date: $0.startDate, value: value)
         }
     }
     
@@ -128,7 +144,7 @@ class DefaultHealthKitManager: HealthKitManager {
 
         for i in 0..<28 {
             let stepQuantity = HKQuantity(unit: .count(), doubleValue: .random(in: 4_000...20_000))
-            let weightQuantity = HKQuantity(unit: .pound(), doubleValue: .random(in: (160 + Double(i / 3)...165 + Double(i / 3))))
+            let weightQuantity = HKQuantity(unit: .gramUnit(with: .kilo), doubleValue: .random(in: (98 + Double(i / 3)...101 + Double(i / 3))))
 
             guard let startDate = Calendar.current.date(byAdding: .day, value: -i, to: .now),
                   let endDate = Calendar.current.date(byAdding: .second, value: 1, to: startDate) else {

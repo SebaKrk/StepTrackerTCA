@@ -84,4 +84,51 @@ extension DashboardView {
         }
     }
     
+    @ViewBuilder
+    var weightLineChart: some View {
+        Chart {
+            // TODO: - dodać opcje wprowadzania swojego gola
+            RuleMark(y: .value("Goal", 98))
+                .foregroundStyle(.mint)
+                .lineStyle(.init(lineWidth: 1, dash: [5]))
+                .annotation(alignment: .bottomLeading) {
+                    Text("Weight goal")
+                        .bold()
+                        .foregroundStyle(.mint)
+                        .font(.caption)
+                }
+            ForEach(store.weightData) { weight in
+                AreaMark(
+                    x: .value("Day", weight.date, unit: .day),
+                    yStart: .value("Value", weight.value),
+                    yEnd: .value("Min value", store.weightMinValue)
+                )
+                .foregroundStyle(Gradient(colors: [.indigo.opacity(0.5), .clear]))
+                .interpolationMethod(.catmullRom)
+                
+                LineMark(
+                    x: .value("Day", weight.date, unit: .day),
+                    y: .value("Value", weight.value)
+                )
+                .foregroundStyle(.indigo)
+                .interpolationMethod(.catmullRom)
+                .symbol(.circle)
+            }
+        }
+        .frame(height: 150)
+        .chartYScale(domain: .automatic(includesZero: false))
+        .chartXAxis {
+            AxisMarks {
+                AxisValueLabel(format: .dateTime.month(.defaultDigits).day())
+            }
+        }
+        .chartYAxis {
+            AxisMarks { value in
+                AxisGridLine()
+                    .foregroundStyle(Color.secondary.opacity(0.3))
+                AxisValueLabel()
+            }
+        }
+    }
+    
 }

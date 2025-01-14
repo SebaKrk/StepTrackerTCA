@@ -25,10 +25,14 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
         userDefaultsService.set(true, forKey: .hasSeenPermissionPriming)
     }
     
+    // TODO: - Refactor
+    // Steps
+
     func getStepsData() async throws -> [HealthData] {
         return try await healthKitManager.fetchHealthData(for: .stepCount,
                                                           days: 28,
-                                                          unit: .count())
+                                                          unit: .count(),
+                                                          options: .cumulativeSum)
     }
     
     func calculateAverageStepCount(from data: [HealthData]) -> Double {
@@ -59,6 +63,26 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
     
     func calculateAverageHealthDataPerWeekday( _ healthData: [HealthData]) -> [WeekdayChartData] {
         healthKitManager.averageWeekdayCount(for: healthData)
+    }
+    
+    // TODO: - Refactor
+    // Weight
+    
+    func getWeightData() async throws -> [HealthData] {
+        return try await healthKitManager.fetchHealthData(for: .bodyMass,
+                                                          days: 28,
+                                                          unit: .gramUnit(with: .kilo),
+                                                          options: .discreteAverage)
+    }
+    
+    func calculateWeightAverage(from data: [HealthData]) -> Double {
+        guard !data.isEmpty else { return 0 }
+        let average = data.reduce(0) { $0 + $1.value } / Double(data.count)
+        return (average * 100).rounded() / 100
+    }
+    
+    func calculateMinValue(from healthData: [HealthData]) -> Double {
+        healthKitManager.calculateMinValue(from: healthData)
     }
     
     func getDummyData() async throws {
