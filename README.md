@@ -84,5 +84,8 @@ This project is not only a technical exercise but also an exploration of possibi
     * E: Navigation `ActivityFeature`
         - create `ActivityDetailsFeature`
         - add destination
+        
 ### IOS-00008 AppTabContent
     * A: Add AppTabContent to handle NavigationSplitView for adaptive layout support.
+    
+### IOS-00009 Weight Chart
