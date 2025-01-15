@@ -80,6 +80,13 @@ struct DashboardFeature {
                                 try await dashboardFeatureService.getStepsData()
                             }
                         ))
+                        
+                        await send(.updateWeightChartData(
+                            Result {
+                                try await dashboardFeatureService.getWeightData()
+                            }
+                        ))
+                        
                     }
                     
                 case let .updateStepChartData(.success(data)):
@@ -93,6 +100,16 @@ struct DashboardFeature {
                     // TODO: Error handling
                     /// Add failure handling to the fetchHealthData
                 case let .updateStepChartData(.failure(error)):
+                    print(error.localizedDescription)
+                    return .none
+                    
+                case let .updateWeightChartData(.success(data)):
+                    state.weightData = data
+                    state.weightMinValue = dashboardFeatureService.calculateMinValue(from: data)
+                    state.averageWeight = dashboardFeatureService.calculateWeightAverage(from: data)
+                    return .none
+                    
+                case let .updateWeightChartData(.failure(error)):
                     print(error.localizedDescription)
                     return .none
                     
