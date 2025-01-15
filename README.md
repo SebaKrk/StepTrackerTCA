@@ -94,4 +94,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - implemented updateWeightChartData to handle the retrieval of weight-related data and update the state to display the processed information in the chart
         - chart basic UI
         - change unit to kilo
+    * B: WeightChart Interactivity
     

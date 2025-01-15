@@ -146,6 +146,24 @@ struct DashboardView: View {
         )
     }
     
+    var weightAnnotationView: some View {
+        VStack(alignment: .leading) {
+            Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
+                .font(.footnote.bold())
+                .foregroundStyle(.secondary)
+
+            Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(1)))
+                .fontWeight(.heavy)
+                .foregroundStyle(.indigo)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
+        )
+    }
+    
     @ViewBuilder
     func pieTextView(_ title: String, _ value: Double) -> some View {
         VStack {
