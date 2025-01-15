@@ -87,6 +87,16 @@ extension DashboardView {
     @ViewBuilder
     var weightLineChart: some View {
         Chart {
+            if let selectedHealthMetric = store.selectedHealthMetric {
+                RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
+                    .foregroundStyle(Color.secondary.opacity(0.3))
+                    .offset(y: -10)
+                    .annotation(position: .top,
+                                spacing: 0,
+                                overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
+                        weightAnnotationView
+                    }
+            }
             // TODO: - dodać opcje wprowadzania swojego gola
             RuleMark(y: .value("Goal", 98))
                 .foregroundStyle(.mint)
@@ -115,7 +125,8 @@ extension DashboardView {
                 .symbol(.circle)
             }
         }
-        .frame(height: 150)
+        .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
+        .frame(height: 200)
         .chartYScale(domain: .automatic(includesZero: false))
         .chartXAxis {
             AxisMarks {
