@@ -95,13 +95,20 @@ struct DashboardView: View {
     @ViewBuilder
     private var groupBoxWeightView: some View {
         GroupBox {
-            weightLineChart
+            let service = DefaultWeightGoalWidgetService()
+            WeightGoalWidgetView(store: Store(initialState: WeightGoalWidgetFeature.State(weightData: store.weightData), reducer: {
+                WeightGoalWidgetFeature(service: service)
+            }))
+            
+//            WeightGoalWidgetView(store: store.scope(state: \.weightGoalWidget, action: \.weightGoalWidget))
+                
         } label: {
             NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
                 groupBoxTitle(
                     "Weight",
                     "figure",
-                    "Avg: \(store.averageWeight) kg"
+                    "Avg: \(store.scope(state: \.weightGoalWidget, action: \.weightGoalWidget).averageWeight) kg"
+                    //"Avg: \(store.averageWeight) kg"
                 )
             }
         }
@@ -137,24 +144,6 @@ struct DashboardView: View {
             Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(0)))
                 .fontWeight(.heavy)
                 .foregroundStyle(.pink)
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        )
-    }
-    
-    var weightAnnotationView: some View {
-        VStack(alignment: .leading) {
-            Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-
-            Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(1)))
-                .fontWeight(.heavy)
-                .foregroundStyle(.indigo)
         }
         .padding(12)
         .background(

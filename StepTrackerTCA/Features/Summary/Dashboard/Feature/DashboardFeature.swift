@@ -105,8 +105,8 @@ struct DashboardFeature {
                     
                 case let .updateWeightChartData(.success(data)):
                     state.weightData = data
-                    state.weightMinValue = dashboardFeatureService.calculateMinValue(from: data)
-                    state.averageWeight = dashboardFeatureService.calculateWeightAverage(from: data)
+//                    state.weightMinValue = dashboardFeatureService.calculateMinValue(from: data)
+//                    state.averageWeight = dashboardFeatureService.calculateWeightAverage(from: data)
                     return .none
                     
                 case let .updateWeightChartData(.failure(error)):
@@ -149,6 +149,10 @@ struct DashboardFeature {
         }
         .forEach(\.path, action: \.path)
         .ifLet(\.$destination, action: \.destination)
+        
+        Scope(state: \.weightGoalWidget, action: \.weightGoalWidget) {
+            WeightGoalWidgetFeature(service: DefaultWeightGoalWidgetService())
+        }
     }
     
 }

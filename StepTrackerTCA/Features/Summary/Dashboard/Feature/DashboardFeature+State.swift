@@ -51,17 +51,18 @@ extension DashboardFeature {
         /// The total number of steps calculated from the last 28 days.
         var totalStepsFrom28Days: Double = 0
         
+        
         /// The data for weight data, used to populate charts and other visualizations on the dashboard.
         var weightData: [HealthData] = []
         
         /// The minimum recorded weight value.
         /// - This value is derived from `weightData`.
         /// - Purpose: Used to display the lowest weight value within the recorded data.
-        var weightMinValue: Double = 0
+        //var weightMinValue: Double = 0
         
         /// The average weight calculated from `weightData`.
         /// - Purpose: Provides an insight into the average weight trend over time.
-        var averageWeight: Double = 0
+        //var averageWeight: Double = 0
         
         // MARK: - Path
         
@@ -72,6 +73,11 @@ extension DashboardFeature {
         
         /// destination from DashboardFeature
         @Presents var destination: Destination.State?
+        
+        // MARK: - Children states
+        
+        /// Stores the information contained in the summaryTab: `WeightGoalWidgetFeature`.
+        var weightGoalWidget = WeightGoalWidgetFeature.State()
     }
     
 }
