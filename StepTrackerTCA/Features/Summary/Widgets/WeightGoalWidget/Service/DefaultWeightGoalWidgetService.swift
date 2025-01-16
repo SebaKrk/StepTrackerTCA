@@ -16,7 +16,7 @@ final class DefaultWeightGoalWidgetService: WeightGoalWidgetService {
         healthData.map { $0.value }.min() ?? 0
     }
     
-    ///
+    /// Retrieves the health metric that corresponds to the selected date.
     func selectedHealthMetric(from healthData: [HealthData], with rawSelectedDate: Date?) -> HealthData? {
         guard let rawSelectedDate else { return nil }
         return healthData.first {
@@ -24,7 +24,7 @@ final class DefaultWeightGoalWidgetService: WeightGoalWidgetService {
         }
     }
     
-    ///
+    /// Calculates the average weight  from the given data.
     func calculateWeightAverage(from data: [HealthData]) -> Double {
         guard !data.isEmpty else { return 0 }
         let average = data.reduce(0) { $0 + $1.value } / Double(data.count)
