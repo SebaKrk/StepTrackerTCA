@@ -12,12 +12,23 @@ import Foundation
 extension WeightGoalWidgetFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
         
         // MARK: - Actions
         
+        ///
+        case updateWeightChartData([HealthData])
+        
         // MARK: - View Actions
         case view(View)
+        
+        /// Action triggered when the user selects a date on the chart.
+        case selectedChartDateChange(Date?)
         
         enum View {
             /// The action responsible for completing tasks as soon as the view is displayed.

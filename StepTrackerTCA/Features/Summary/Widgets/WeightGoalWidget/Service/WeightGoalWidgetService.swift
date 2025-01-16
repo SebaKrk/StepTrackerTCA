@@ -41,7 +41,6 @@ protocol WeightGoalWidgetService {
     ///
     /// - Parameter data: An array of `HealthData` objects containing step metrics.
     /// - Returns: The average weight as a `Double`. Returns `0` if the input data is empty.
-
     func calculateWeightAverage(from data: [HealthData]) -> Double
     
 }
