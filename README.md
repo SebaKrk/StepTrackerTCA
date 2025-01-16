@@ -96,3 +96,6 @@ This project is not only a technical exercise but also an exploration of possibi
         - change unit to kilo
     * B: WeightChart Interactivity
     
+### IOS-00010 WidgetFeature
+    * A: New independent Features for each Chart 
+        - create empty chart widget feature 
