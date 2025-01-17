@@ -57,7 +57,6 @@ struct StepPieWidgetFeature {
                     
                     // MARK: - View Actions
                 case .view(.viewDidAppear):
-                    print("2 StepPieWidgetFeature")
                     return .run { [stepData = state.stepData] send in
                         await send(.updatePieChartData(stepData))
                     }

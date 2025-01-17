@@ -21,6 +21,7 @@ extension DashboardFeature {
         
         // MARK: - Actions
         
+        /// The action responsible for changing the information on whether the view is displayed for the first time.
         case changeIsFirstAppearance
         
         /// Action triggered when the user changes the picker selection.

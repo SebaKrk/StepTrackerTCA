@@ -35,12 +35,13 @@ struct DashboardFeature {
                     return .none
                     
                     // MARK: - Actions
-                case let .selectedPickerChange(item):
-                    state.healthMetric = item
+                case .changeIsFirstAppearance:
+                    state.isFirstAppearance = false
+                    state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
                     return .none
                     
-                case .changeIsFirstAppearance:
-                    state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
+                case let .selectedPickerChange(item):
+                    state.healthMetric = item
                     return .none
                     
                 case .fetchHealthData:
@@ -63,7 +64,7 @@ struct DashboardFeature {
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
                     return .none
-
+                    
                 case let .updateStepChartData(.failure(error)):
                     print(error.localizedDescription)
                     return .none
@@ -79,16 +80,18 @@ struct DashboardFeature {
                     
                     // MARK: - View actions
                 case .view(.viewDidAppear):
-                    print("1 DashboardFeature")
                     if !dashboardFeatureService.hasSeenPermissionPriming {
                         return .run { send in
                             await send(.openPermissionScreen)
                         }
                     } else {
-                        return .run { send in
-                            /// use only first time
-                            //try await dashboardFeatureService.getDummyData()
-                            await send(.fetchHealthData)
+                        return .run { [state] send in
+                            if state.isFirstAppearance {
+                                /// use only first time
+                                //try await dashboardFeatureService.getDummyData()
+                                await send(.fetchHealthData)
+                                await send(.changeIsFirstAppearance)
+                            }
                         }
                     }
                     
@@ -97,7 +100,7 @@ struct DashboardFeature {
                     dashboardFeatureService.markPermissionPrimingAsSeen()
                     state.destination = .openHealthKitPermissionScreen(HealthKitPermissionFeature.State())
                     return .none
-                                        
+                    
                 default: return .none
                 }
             }

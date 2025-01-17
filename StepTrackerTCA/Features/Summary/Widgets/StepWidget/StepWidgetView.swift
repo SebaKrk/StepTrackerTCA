@@ -80,7 +80,6 @@ struct StepWidgetView: View {
                 .opacity(store.rawSelectedDate == nil || steps.date == store.selectedHealthMetric?.date ? 1.0 : 0.3)
             }
         }
-        .frame(height: 200)
         .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
         .foregroundStyle(.pink)
         .chartXAxis {

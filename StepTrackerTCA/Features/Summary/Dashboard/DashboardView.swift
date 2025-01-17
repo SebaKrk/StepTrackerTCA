@@ -37,10 +37,10 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 healthMetricContextPicker
+                
                 switch store.healthMetric {
                 case .steps:
                     groupBoxWalkView
-                    Spacer().frame(height: 40)
                     groupBoxCalendarView
                 case .weight:
                     groupBoxWeightView
