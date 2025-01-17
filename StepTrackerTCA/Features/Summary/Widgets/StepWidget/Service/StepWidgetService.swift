@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// A protocol for processing and retrieving step data for `StepWidget`.
 protocol StepWidgetService {
     
     /// Retrieves the health metric that corresponds to the selected date.

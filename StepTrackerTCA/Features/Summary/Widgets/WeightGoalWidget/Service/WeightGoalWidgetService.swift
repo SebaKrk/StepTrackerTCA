@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// A protocol for processing and retrieving weight data for `WeightGoalWidget`
 protocol WeightGoalWidgetService {
     
     /// Calculates the minimum value from the provided health data.

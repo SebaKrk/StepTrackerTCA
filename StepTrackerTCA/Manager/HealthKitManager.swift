@@ -51,28 +51,6 @@ protocol HealthKitManager {
     /// - Throws: An error if the HealthKit query fails, such as lack of permissions or unsupported types.
     func fetchHealthData(for quantityType: HKQuantityTypeIdentifier, days: Int, unit: HKUnit, options: HKStatisticsOptions) async throws -> [HealthData]
     
-    /// Calculates the average value of health data for each weekday.
-    ///
-    /// The function groups health data by weekdays, computes the average value
-    /// for each day, and returns the results as an array.
-    ///
-    /// - Parameter healthData: An array of `HealthData` objects, each containing a date and a value (e.g., step count).
-    /// - Returns: An array of `WeekdayChartData` objects, where each entry represents the average value
-    ///            of the data for a specific weekday.
-    func averageWeekdayCount(for healthData: [HealthData]) -> [WeekdayChartData]
-    
-    /// Calculates the minimum value from the provided health data.
-    ///
-    /// This method iterates through an array of `HealthData` to determine the lowest value.
-    /// For instance, it can be used to find the minimum recorded weight over a set of days.
-    ///
-    /// - Parameter healthData: An array of `HealthData` objects, where each object represents
-    ///   health-related data for a specific day, including a date and a value (e.g., weight).
-    ///
-    /// - Returns: The smallest value from the array of health data. If the array is empty,
-    ///   the function returns `0.0`.
-    func calculateMinValue(from healthData: [HealthData]) -> Double 
-    
     /// Adds simulated HealthKit data for testing purposes.
     ///
     /// This method generates mock step count and body mass samples for the last 28 days

@@ -69,29 +69,6 @@ class DefaultHealthKitManager: HealthKitManager {
         return processHealthData(results.statistics(), unit: unit, options: options)
     }
     
-    /// Calculates the average value of health data for each weekday.
-    func averageWeekdayCount(for healthData: [HealthData]) -> [WeekdayChartData] {
-        let sortedByWeekday = healthData.sorted { $0.date.weekdayInt < $1.date.weekdayInt }
-        let weekdayArray = sortedByWeekday.chunked { $0.date.weekdayInt == $1.date.weekdayInt }
-
-        var weekdayChartData: [WeekdayChartData] = []
-
-        for array in weekdayArray {
-            guard let firstValue = array.first else { continue }
-            let total = array.reduce(0) { $0 + $1.value }
-            let avgSteps = total/Double(array.count)
-
-            weekdayChartData.append(.init(date: firstValue.date, value: avgSteps))
-        }
-
-        return weekdayChartData
-    }
-    
-    /// Calculates the minimum value from the provided health data.
-    func calculateMinValue(from healthData: [HealthData]) -> Double {
-        healthData.map { $0.value }.min() ?? 0
-    }
-    
     // MARK: - Private Helpers
 
     /// Calculates the date range for the last `days` days.

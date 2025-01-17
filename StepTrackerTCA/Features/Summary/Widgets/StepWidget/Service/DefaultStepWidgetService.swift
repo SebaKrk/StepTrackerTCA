@@ -9,6 +9,9 @@ import Foundation
 
 final class DefaultStepWidgetService: StepWidgetService {
     
+    // MARK: - API
+    
+    /// Retrieves the health metric that corresponds to the selected date.
     func selectedHealthMetric(from healthData: [HealthData], with rawSelectedDate: Date?) -> HealthData? {
         guard let rawSelectedDate else { return nil }
         return healthData.first {
@@ -16,6 +19,7 @@ final class DefaultStepWidgetService: StepWidgetService {
         }
     }
     
+    /// Calculates the average step count from the given data.
     func calculateAverageStepCount(from data: [HealthData]) -> Double {
         guard !data.isEmpty else { return 0 }
         return data.reduce(0) { $0 + $1.value } / Double(data.count)
