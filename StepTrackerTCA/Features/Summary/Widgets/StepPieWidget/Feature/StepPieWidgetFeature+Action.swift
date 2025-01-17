@@ -13,10 +13,21 @@ import Foundation
 extension StepPieWidgetFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
         
         // MARK: - Actions
         
+        /// Handles changes to the raw value of the selected chart data.
+        case rawSelectedChartValueChange(Double?)
+        
+        /// Updates the chart data with the given health data set.
+        case updatePieChartData([HealthData])
+  
         // MARK: - View Actions
         case view(View)
         

@@ -32,17 +32,11 @@ struct DashboardFeature {
                     
                     // MARK: - Binding
                 case .binding(_):
-                    return .run { [date = state.rawSelectedDate, value = state.rawSelectedChartValue] send  in
+                    return .run { [date = state.rawSelectedDate]  send  in
                         if let date = date {
                             await send(.selectedStepChartDateChange(date))
                         } else {
                             await send(.selectedStepChartDateChange(nil))
-                        }
-                        
-                        if let value = value {
-                            await send(.rawSelectedChartValueChange(value))
-                        } else {
-                            await send(.rawSelectedChartValueChange(nil))
                         }
                     }
                     
@@ -53,15 +47,6 @@ struct DashboardFeature {
                     } else {
                         state.selectedHealthMetric = dashboardFeatureService.selectedHealthMetric(from: state.stepData,
                                                                                                   with: date)
-                    }
-                    return .none
-                    
-                case let .rawSelectedChartValueChange(value):
-                    if value == nil {
-                        state.selectedChartValue = nil
-                    } else {
-                        state.selectedChartValue = dashboardFeatureService.selectedWeekday(from: state.stepDataPerWeekDay,
-                                                                                           with: value)
                     }
                     return .none
                     
@@ -89,24 +74,18 @@ struct DashboardFeature {
                         
                     }
                     
+                    // StepData
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
                     state.avgStepCount = dashboardFeatureService.calculateAverageStepCount(from: data)
-                    state.stepDataPerWeekDay = dashboardFeatureService.calculateAverageHealthDataPerWeekday(state.stepData)
-                    state.selectedChartValue = state.stepDataPerWeekDay.first
-                    state.totalStepsFrom28Days = dashboardFeatureService.calculateTotalSteps(from: data)
                     return .none
-                    
-                    // TODO: Error handling
-                    /// Add failure handling to the fetchHealthData
+
                 case let .updateStepChartData(.failure(error)):
                     print(error.localizedDescription)
                     return .none
-                    
+                    // WeightData
                 case let .updateWeightChartData(.success(data)):
                     state.weightData = data
-//                    state.weightMinValue = dashboardFeatureService.calculateMinValue(from: data)
-//                    state.averageWeight = dashboardFeatureService.calculateWeightAverage(from: data)
                     return .none
                     
                 case let .updateWeightChartData(.failure(error)):
@@ -115,6 +94,7 @@ struct DashboardFeature {
                     
                     // MARK: - View actions
                 case .view(.viewDidAppear):
+                    print("1 DashboardFeature")
                     if !dashboardFeatureService.hasSeenPermissionPriming {
                         return .run { send in
                             await send(.openPermissionScreen)
@@ -149,10 +129,6 @@ struct DashboardFeature {
         }
         .forEach(\.path, action: \.path)
         .ifLet(\.$destination, action: \.destination)
-        
-        Scope(state: \.weightGoalWidget, action: \.weightGoalWidget) {
-            WeightGoalWidgetFeature(service: DefaultWeightGoalWidgetService())
-        }
     }
     
 }

@@ -151,7 +151,6 @@ struct WeightGoalWidgetView: View {
                 } label: {
                     Image(systemName: "chevron.right")
                 }
-                
             }
         }
     }

@@ -41,9 +41,6 @@ extension DashboardFeature {
         /// Action triggered when the user selects a date on the step chart.
         case selectedStepChartDateChange(Date?)
         
-        /// Handles changes to the raw value of the selected chart data.
-        case rawSelectedChartValueChange(Double?)
-        
         /// Updates the weight data with the result of a health data fetch.
         ///
         /// - Parameter result: A `Result` containing an array of `HealthData` on success
@@ -73,11 +70,6 @@ extension DashboardFeature {
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
         }
-        
-        // MARK: - Children actions
-        
-        /// Stores the actions of the summaryTab: `WeightGoalWidgetFeature`
-        case weightGoalWidget(WeightGoalWidgetFeature.Action)
     }
     
 }

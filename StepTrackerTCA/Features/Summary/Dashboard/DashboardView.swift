@@ -18,12 +18,29 @@ struct DashboardView: View {
     // MARK: - View
     
     var body: some View {
+        Group {
+            if store.stepData.isEmpty && store.weightData.isEmpty {
+                ProgressView()
+            } else {
+                dashboardView
+            }
+        }
+        .onAppear {
+            send(.viewDidAppear)
+        }
+    }
+
+    // MARK: - Subview
+    
+    @ViewBuilder
+    private var dashboardView: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ScrollView {
                 healthMetricContextPicker
                 switch store.healthMetric {
                 case .steps:
                     groupBoxWalkView
+                    Spacer().frame(height: 40)
                     groupBoxCalendarView
                 case .weight:
                     groupBoxWeightView
@@ -47,8 +64,6 @@ struct DashboardView: View {
             HealthKitPermissionPrimingView(store: store)
         }
     }
-    
-    // MARK: - Subview
     
     @ViewBuilder
     private var healthMetricContextPicker: some View {
@@ -81,15 +96,10 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxCalendarView: some View {
-        GroupBox {
-            stepsPieChart
-        } label: {
-            groupBoxTitle("Averages",
-                          "calendar",
-                          "Last 28 Days",
-                          destination: false)
-        }
-        .padding([.leading, .trailing], 8)
+        let service = DefaultStepPieWidget()
+        StepPieWidgetView(store: Store(initialState: StepPieWidgetFeature.State(stepData: store.stepData), reducer: {
+            StepPieWidgetFeature(service: service)
+        }))
     }
     
     @ViewBuilder
