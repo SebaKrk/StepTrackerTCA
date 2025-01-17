@@ -108,4 +108,6 @@ This project is not only a technical exercise but also an exploration of possibi
         - extract all necessary code to StepWidgetFeature
         - refactor Dashboard feature and view
         - remove path form DashboardFeature
+        - add struct and create mock data
         - add Preview to all charts
+        
