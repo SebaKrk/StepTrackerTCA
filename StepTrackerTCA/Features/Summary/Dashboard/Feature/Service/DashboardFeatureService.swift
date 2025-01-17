@@ -92,29 +92,6 @@ protocol DashboardFeatureService {
     /// - Throws: An error if data retrieval fails.
     func getWeightData() async throws -> [HealthData]
     
-    /// Calculates the average weight  from the given data.
-    ///
-    /// This utility method processes an array of `HealthData` and computes the average step count.
-    /// It is used to provide quick insights to the user, such as the average number of steps over
-    /// a given period.
-    ///
-    /// - Parameter data: An array of `HealthData` objects containing step metrics.
-    /// - Returns: The average weight as a `Double`. Returns `0` if the input data is empty.
-    func calculateWeightAverage(from data: [HealthData]) -> Double
-    
-    
-    /// Calculates the minimum value from the provided health data.
-    ///
-    /// This method iterates through an array of `HealthData` to determine the lowest value.
-    /// For instance, it can be used to find the minimum recorded weight over a set of days.
-    ///
-    /// - Parameter healthData: An array of `HealthData` objects, where each object represents
-    ///   health-related data for a specific day, including a date and a value (e.g., weight).
-    ///
-    /// - Returns: The smallest value from the array of health data. If the array is empty,
-    ///   the function returns `0.0`.
-    func calculateMinValue(from healthData: [HealthData]) -> Double
-    
     // Mock
     /// Generates and saves mock HealthKit data for testing purposes.
     func getDummyData() async throws

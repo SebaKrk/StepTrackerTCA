@@ -73,6 +73,11 @@ extension DashboardFeature {
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
         }
+        
+        // MARK: - Children actions
+        
+        /// Stores the actions of the summaryTab: `WeightGoalWidgetFeature`
+        case weightGoalWidget(WeightGoalWidgetFeature.Action)
     }
     
 }
