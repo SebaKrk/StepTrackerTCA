@@ -14,6 +14,9 @@ extension DashboardFeature {
     @ObservableState
     struct State {
         
+        /// It is responsible for making sure that certain actions are executed only the first time this view is displayed.
+        var isFirstAppearance = true
+        
         /// The currently selected health metric to display on the dashboard.
         /// - Default: `.steps`
         var healthMetric: HealthMetricContext = .steps

@@ -26,7 +26,7 @@ struct StepPieWidgetView: View {
                 stepPieGroupBox
             }
         }
-        .frame(height: 250)
+        .frame(height: 300)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -62,7 +62,6 @@ struct StepPieWidgetView: View {
             }
         }
         .chartAngleSelection(value: $store.rawSelectedChartValue.animation(.easeInOut))
-        .frame(height: 240)
         .chartBackground { proxy in
             GeometryReader { geo in
                 if let plotFrame = proxy.plotFrame {

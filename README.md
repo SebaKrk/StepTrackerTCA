@@ -110,4 +110,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - remove path form DashboardFeature
         - add struct and create mock data
         - add Preview to all charts
-        
+    * E: Optimized Data Loading in Widgets
+        - Introduced a state flag (isFirstAppearance) to ensure data is loaded only on the initial appearance of the view.
