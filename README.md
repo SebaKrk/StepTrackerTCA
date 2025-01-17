@@ -102,3 +102,5 @@ This project is not only a technical exercise but also an exploration of possibi
     * B: WeightGoalWidget chart & feature
         - extract all necessary code to WeightGoalWidgetFeature
         - refactor destination
+    * C: StepPieWidget chart & feature
+        - extract all necessary code to StepPieWidgetFeature

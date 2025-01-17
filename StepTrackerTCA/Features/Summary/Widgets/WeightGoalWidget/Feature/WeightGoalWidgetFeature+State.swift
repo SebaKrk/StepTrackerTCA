@@ -41,5 +41,6 @@ extension WeightGoalWidgetFeature {
         /// destination from ActivityFeature
         @Presents var destination: Destination.State?
     }
+    
 }
 
