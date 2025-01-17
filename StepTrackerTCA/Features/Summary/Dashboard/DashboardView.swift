@@ -37,13 +37,13 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 healthMetricContextPicker
-                
                 switch store.healthMetric {
                 case .steps:
                     groupBoxWalkView
                     groupBoxCalendarView
                 case .weight:
                     groupBoxWeightView
+                    groupBoxWeightDiffView
                 }
             }
             .navigationTitle("Dashboard")
@@ -92,6 +92,14 @@ struct DashboardView: View {
         let service = DefaultWeightGoalWidgetService()
         WeightGoalWidgetView(store: Store(initialState: WeightGoalWidgetFeature.State(weightData: store.weightData), reducer: {
             WeightGoalWidgetFeature(service: service)
+        }))
+    }
+    
+    @ViewBuilder
+    private var groupBoxWeightDiffView: some View {
+        let service = DefaultWeightDiffService()
+        WeightDiffWidgetView(store: Store(initialState: WeightDiffWidgetFeature.State(weightData: store.weightData), reducer: {
+            WeightDiffWidgetFeature(service: service)
         }))
     }
 

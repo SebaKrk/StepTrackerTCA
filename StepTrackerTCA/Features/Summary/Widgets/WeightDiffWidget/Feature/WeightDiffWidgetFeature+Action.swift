@@ -1,15 +1,15 @@
 //
-//  WeightGoalWidgetFeature+Action.swift
+//  WeightBarWidgetFeature+Action.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 16/01/2025.
+//  Created by Sebastian Sciuba on 17/01/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `WeightGoalWidgetFeature` action
-extension WeightGoalWidgetFeature {
+/// Implementation of `WeightDiffWidgetFeature` action
+extension WeightDiffWidgetFeature {
     
     @CasePathable
     enum Action: ViewAction, BindableAction {
@@ -28,26 +28,14 @@ extension WeightGoalWidgetFeature {
         case selectedChartDateChange(Date?)
         
         // MARK: - View Actions
-        
         case view(View)
         
         enum View {
-            
-            /// Triggered when navigating to a destination.
-            case tapDestination
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
             
         }
-        
-        // MARK: - Destination
-        
-        /// Displays detailed information about the data from chart
-        case show
-        
-        /// destination case for navigation
-        case destination(PresentationAction<Destination.Action>)
     }
-                    
+    
 }
