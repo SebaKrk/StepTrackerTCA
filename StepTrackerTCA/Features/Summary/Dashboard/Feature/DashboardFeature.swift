@@ -32,24 +32,9 @@ struct DashboardFeature {
                     
                     // MARK: - Binding
                 case .binding(_):
-                    return .run { [date = state.rawSelectedDate]  send  in
-                        if let date = date {
-                            await send(.selectedStepChartDateChange(date))
-                        } else {
-                            await send(.selectedStepChartDateChange(nil))
-                        }
-                    }
-                    
-                    // MARK: - Actions
-                case let .selectedStepChartDateChange(date):
-                    if date == nil {
-                        state.selectedHealthMetric = nil
-                    } else {
-                        state.selectedHealthMetric = dashboardFeatureService.selectedHealthMetric(from: state.stepData,
-                                                                                                  with: date)
-                    }
                     return .none
                     
+                    // MARK: - Actions
                 case let .selectedPickerChange(item):
                     state.healthMetric = item
                     return .none
@@ -77,12 +62,12 @@ struct DashboardFeature {
                     // StepData
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
-                    state.avgStepCount = dashboardFeatureService.calculateAverageStepCount(from: data)
                     return .none
 
                 case let .updateStepChartData(.failure(error)):
                     print(error.localizedDescription)
                     return .none
+                    
                     // WeightData
                 case let .updateWeightChartData(.success(data)):
                     state.weightData = data
@@ -112,22 +97,11 @@ struct DashboardFeature {
                     dashboardFeatureService.markPermissionPrimingAsSeen()
                     state.destination = .openHealthKitPermissionScreen(HealthKitPermissionFeature.State())
                     return .none
-                    
-                    // MARK: - Path
-                case let .path(action):
-                    switch action {
-                    case .element(id: _, action: .healthDataListFeature(.navigateToHealthDataList)):
-                        state.path.append(.healthDataListFeature(HealthDataListFeature.State(healthMetric: state.healthMetric)))
-                        return .none
-                        
-                    default: return .none
-                    }
-                    
+                                        
                 default: return .none
                 }
             }
         }
-        .forEach(\.path, action: \.path)
         .ifLet(\.$destination, action: \.destination)
     }
     

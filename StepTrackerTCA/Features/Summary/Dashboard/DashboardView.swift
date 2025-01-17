@@ -34,7 +34,7 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var dashboardView: some View {
-        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        NavigationStack {
             ScrollView {
                 healthMetricContextPicker
                 switch store.healthMetric {
@@ -48,12 +48,6 @@ struct DashboardView: View {
             }
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.inline)
-            
-        } destination: { store in
-            switch store.case {
-            case let .healthDataListFeature(store):
-                HealthDataListView(store: store)
-            }
         }
         .tint(store.healthMetric == .steps ? .pink : .indigo)
         .onAppear {
@@ -79,19 +73,10 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxWalkView: some View {
-        GroupBox {
-            stepChart
-        } label: {
-            NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
-                groupBoxTitle(
-                    "Steps",
-                    "figure.walk",
-                    "Avg: \(Int(store.avgStepCount)) steps"
-                )
-            }
-        }
-        .padding([.leading, .trailing], 8)
-        .foregroundStyle(.secondary)
+        let service = DefaultStepWidgetService()
+        StepWidgetView(store: Store(initialState: StepWidgetFeature.State(stepData: store.stepData), reducer: {
+            StepWidgetFeature(service: service)
+        }))
     }
     
     @ViewBuilder
@@ -109,61 +94,13 @@ struct DashboardView: View {
             WeightGoalWidgetFeature(service: service)
         }))
     }
-    
-    @ViewBuilder
-    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Label(title, systemImage: systemImage)
-                    .font(.title3.bold())
-                    .foregroundStyle(store.healthMetric == .steps ? .pink : .indigo)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            if destination {
-                Image(systemName: "chevron.right")
-            }
-        }
-    }
-    
-    @ViewBuilder
-    var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
 
-            Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(0)))
-                .fontWeight(.heavy)
-                .foregroundStyle(.pink)
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        )
-    }
-    
-    @ViewBuilder
-    func pieTextView(_ title: String, _ value: Double) -> some View {
-        VStack {
-            Text(title)
-                .font(.title3.bold())
-                .contentTransition(.identity)
-            
-            Text(value, format: .number.precision(.fractionLength(0)))
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .contentTransition(.numericText())
-        }
-    }
 }
 
 #Preview {
-    DashboardView(store: Store(initialState: DashboardFeature.State(), reducer: {
-        DashboardFeature(service: DefaultDashboardFeatureService())
-    }))
+    NavigationStack {
+        DashboardView(store: Store(initialState: DashboardFeature.State(stepData: MockData.steps, weightData: MockData.weights), reducer: {
+            DashboardFeature(service: DefaultDashboardFeatureService())
+        }))
+    }
 }

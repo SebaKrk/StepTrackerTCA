@@ -157,3 +157,10 @@ struct WeightGoalWidgetView: View {
     
 }
 
+#Preview {
+    NavigationStack {
+        WeightGoalWidgetView(store: Store(initialState: WeightGoalWidgetFeature.State(weightData: MockData.weights), reducer: {
+            WeightGoalWidgetFeature(service: DefaultWeightGoalWidgetService() )
+        }))
+    }
+}
