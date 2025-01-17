@@ -23,17 +23,38 @@ struct WeightGoalWidgetView: View {
             if store.weightData.isEmpty {
                 ProgressView()
             } else {
-                weightGoalChart
-                
+                weightGroupBox
             }
         }
-        .frame(height: 200)
+        .frame(height: 250)
         .onAppear {
             send(.viewDidAppear)
         }
+        .navigationDestination(
+            item: $store.scope(
+                state: \.destination?.detailList,
+                action: \.destination.detailList)) { store in
+                    HealthDataListView(store: store)
+                }
     }
     
     // MARK: - Subview
+    
+    @ViewBuilder
+    var weightGroupBox: some View {
+        GroupBox {
+            weightGoalChart
+        } label: {
+            groupBoxTitle(
+                "Weight",
+                "figure",
+                "Avg \(store.averageWeight) kg",
+                destination: true
+            )
+        }
+        .padding([.leading, .trailing], 8)
+        .foregroundStyle(.secondary)
+    }
     
     @ViewBuilder
     var weightGoalChart: some View {
@@ -110,6 +131,29 @@ struct WeightGoalWidgetView: View {
                 .fill(Color(.secondarySystemBackground))
                 .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
         )
+    }
+    
+    @ViewBuilder
+    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Label(title, systemImage: systemImage)
+                    .font(.title3.bold())
+                    .foregroundStyle(.indigo)
+                Text(secondaryText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            if destination {
+                Button {
+                    send(.tapDestination)
+                } label: {
+                    Image(systemName: "chevron.right")
+                }
+                
+            }
+        }
     }
     
 }

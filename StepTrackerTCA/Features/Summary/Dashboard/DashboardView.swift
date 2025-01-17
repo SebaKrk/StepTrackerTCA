@@ -94,26 +94,10 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxWeightView: some View {
-        GroupBox {
-            let service = DefaultWeightGoalWidgetService()
-            WeightGoalWidgetView(store: Store(initialState: WeightGoalWidgetFeature.State(weightData: store.weightData), reducer: {
-                WeightGoalWidgetFeature(service: service)
-            }))
-            
-//            WeightGoalWidgetView(store: store.scope(state: \.weightGoalWidget, action: \.weightGoalWidget))
-                
-        } label: {
-            NavigationLink(state: DashboardFeature.Path.State.healthDataListFeature(HealthDataListFeature.State(healthMetric: store.healthMetric))) {
-                groupBoxTitle(
-                    "Weight",
-                    "figure",
-                    "Avg: \(store.scope(state: \.weightGoalWidget, action: \.weightGoalWidget).averageWeight) kg"
-                    //"Avg: \(store.averageWeight) kg"
-                )
-            }
-        }
-        .padding([.leading, .trailing], 8)
-        .foregroundStyle(.secondary)
+        let service = DefaultWeightGoalWidgetService()
+        WeightGoalWidgetView(store: Store(initialState: WeightGoalWidgetFeature.State(weightData: store.weightData), reducer: {
+            WeightGoalWidgetFeature(service: service)
+        }))
     }
     
     @ViewBuilder

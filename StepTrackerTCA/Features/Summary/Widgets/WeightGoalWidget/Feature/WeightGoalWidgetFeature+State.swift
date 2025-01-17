@@ -36,6 +36,10 @@ extension WeightGoalWidgetFeature {
         /// This value is derived by matching `rawSelectedDate` with the `stepData` entries.
         var selectedHealthMetric: HealthData?
         
+        // MARK: - Destination
+        
+        /// destination from ActivityFeature
+        @Presents var destination: Destination.State?
     }
 }
 

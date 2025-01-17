@@ -52,17 +52,29 @@ struct WeightGoalWidgetFeature {
                     state.weightData = weightData
                     state.weightMinValue = weightGoalWidgetService.calculateMinValue(from: weightData)
                     state.averageWeight = weightGoalWidgetService.calculateWeightAverage(from: weightData)
-                    print(state.averageWeight)
                     return .none
                     
                     // MARK: - View Actions
+                case .view(.tapDestination):
+                    // tu przekaz obiekt w późniejszych zadaniach
+                    return .send(.show)
+                    
                 case .view(.viewDidAppear):
                     return .run { [weightData = state.weightData] send in
                         await send(.updateWeightChartData(weightData))
                     }
+                    
+                    // MARK: - Destination
+                case .show:
+                    state.destination = .detailList(HealthDataListFeature.State(healthMetric: .weight))
+                    return .none
+                    
+                case .destination:
+                    return .none
                 }
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }

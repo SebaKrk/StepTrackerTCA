@@ -100,3 +100,5 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: New independent Features for each Chart 
         - create empty chart widget feature
     * B: WeightGoalWidget chart & feature
+        - extract all necessary code to WeightGoalWidgetFeature
+        - refactor destination
