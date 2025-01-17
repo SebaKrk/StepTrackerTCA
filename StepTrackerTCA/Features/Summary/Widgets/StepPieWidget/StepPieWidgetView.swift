@@ -114,3 +114,11 @@ struct StepPieWidgetView: View {
     }
     
 }
+
+#Preview {
+    NavigationStack {
+        StepPieWidgetView(store: Store(initialState: StepPieWidgetFeature.State(stepData: MockData.steps), reducer: {
+            StepPieWidgetFeature(service: DefaultStepPieWidget() )
+        }))
+    }
+}

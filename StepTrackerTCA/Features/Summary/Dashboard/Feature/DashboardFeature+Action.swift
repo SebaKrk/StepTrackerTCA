@@ -38,19 +38,11 @@ extension DashboardFeature {
         /// or an `Error` on failure.
         case updateStepChartData(Result<[HealthData], Error>)
         
-        /// Action triggered when the user selects a date on the step chart.
-        case selectedStepChartDateChange(Date?)
-        
         /// Updates the weight data with the result of a health data fetch.
         ///
         /// - Parameter result: A `Result` containing an array of `HealthData` on success
         /// or an `Error` on failure.
         case updateWeightChartData(Result<[HealthData], Error>)
-        
-        // MARK: - Path
-        
-        /// Path
-        case path(StackActionOf<Path>)
         
         // MARK: - Destination
         

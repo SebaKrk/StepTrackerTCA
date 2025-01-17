@@ -104,3 +104,10 @@ This project is not only a technical exercise but also an exploration of possibi
         - refactor destination
     * C: StepPieWidget chart & feature
         - extract all necessary code to StepPieWidgetFeature
+    * D: StepWidget chart & feature. Dashboard Feature and View refactor
+        - extract all necessary code to StepWidgetFeature
+        - refactor Dashboard feature and view
+        - remove path form DashboardFeature
+        - add struct and create mock data
+        - add Preview to all charts
+        
