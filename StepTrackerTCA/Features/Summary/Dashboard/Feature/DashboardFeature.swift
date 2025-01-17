@@ -32,45 +32,16 @@ struct DashboardFeature {
                     
                     // MARK: - Binding
                 case .binding(_):
-                    return .run { [date = state.rawSelectedDate, value = state.rawSelectedChartValue] send  in
-                        if let date = date {
-                            await send(.selectedStepChartDateChange(date))
-                        } else {
-                            await send(.selectedStepChartDateChange(nil))
-                        }
-                        
-                        if let value = value {
-                            await send(.rawSelectedChartValueChange(value))
-                        } else {
-                            await send(.rawSelectedChartValueChange(nil))
-                        }
-                    }
-                    
-                    // MARK: - Actions
-                case let .selectedStepChartDateChange(date):
-                    if date == nil {
-                        state.selectedHealthMetric = nil
-                    } else {
-                        state.selectedHealthMetric = dashboardFeatureService.selectedHealthMetric(from: state.stepData,
-                                                                                                  with: date)
-                    }
                     return .none
                     
-                case let .rawSelectedChartValueChange(value):
-                    if value == nil {
-                        state.selectedChartValue = nil
-                    } else {
-                        state.selectedChartValue = dashboardFeatureService.selectedWeekday(from: state.stepDataPerWeekDay,
-                                                                                           with: value)
-                    }
+                    // MARK: - Actions
+                case .changeIsFirstAppearance:
+                    state.isFirstAppearance = false
+                    state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
                     return .none
                     
                 case let .selectedPickerChange(item):
                     state.healthMetric = item
-                    return .none
-                    
-                case .changeIsFirstAppearance:
-                    state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
                     return .none
                     
                 case .fetchHealthData:
@@ -89,24 +60,18 @@ struct DashboardFeature {
                         
                     }
                     
+                    // StepData
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
-                    state.avgStepCount = dashboardFeatureService.calculateAverageStepCount(from: data)
-                    state.stepDataPerWeekDay = dashboardFeatureService.calculateAverageHealthDataPerWeekday(state.stepData)
-                    state.selectedChartValue = state.stepDataPerWeekDay.first
-                    state.totalStepsFrom28Days = dashboardFeatureService.calculateTotalSteps(from: data)
                     return .none
                     
-                    // TODO: Error handling
-                    /// Add failure handling to the fetchHealthData
                 case let .updateStepChartData(.failure(error)):
                     print(error.localizedDescription)
                     return .none
                     
+                    // WeightData
                 case let .updateWeightChartData(.success(data)):
                     state.weightData = data
-                    state.weightMinValue = dashboardFeatureService.calculateMinValue(from: data)
-                    state.averageWeight = dashboardFeatureService.calculateWeightAverage(from: data)
                     return .none
                     
                 case let .updateWeightChartData(.failure(error)):
@@ -120,10 +85,13 @@ struct DashboardFeature {
                             await send(.openPermissionScreen)
                         }
                     } else {
-                        return .run { send in
-                            /// use only first time
-                            //try await dashboardFeatureService.getDummyData()
-                            await send(.fetchHealthData)
+                        return .run { [state] send in
+                            if state.isFirstAppearance {
+                                /// use only first time
+                                //try await dashboardFeatureService.getDummyData()
+                                await send(.fetchHealthData)
+                                await send(.changeIsFirstAppearance)
+                            }
                         }
                     }
                     
@@ -133,21 +101,10 @@ struct DashboardFeature {
                     state.destination = .openHealthKitPermissionScreen(HealthKitPermissionFeature.State())
                     return .none
                     
-                    // MARK: - Path
-                case let .path(action):
-                    switch action {
-                    case .element(id: _, action: .healthDataListFeature(.navigateToHealthDataList)):
-                        state.path.append(.healthDataListFeature(HealthDataListFeature.State(healthMetric: state.healthMetric)))
-                        return .none
-                        
-                    default: return .none
-                    }
-                    
                 default: return .none
                 }
             }
         }
-        .forEach(\.path, action: \.path)
         .ifLet(\.$destination, action: \.destination)
     }
     

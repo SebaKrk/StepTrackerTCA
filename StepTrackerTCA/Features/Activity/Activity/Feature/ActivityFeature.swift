@@ -60,6 +60,3 @@ struct ActivityFeature {
     }
     
 }
-//case .show(let author):
-//    state.destination = .detailItem(AuthorDetailsFeature.State(author: author))
-//    return .none

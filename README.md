@@ -96,3 +96,19 @@ This project is not only a technical exercise but also an exploration of possibi
         - change unit to kilo
     * B: WeightChart Interactivity
     
+### IOS-00010 WidgetFeature
+    * A: New independent Features for each Chart 
+        - create empty chart widget feature
+    * B: WeightGoalWidget chart & feature
+        - extract all necessary code to WeightGoalWidgetFeature
+        - refactor destination
+    * C: StepPieWidget chart & feature
+        - extract all necessary code to StepPieWidgetFeature
+    * D: StepWidget chart & feature. Dashboard Feature and View refactor
+        - extract all necessary code to StepWidgetFeature
+        - refactor Dashboard feature and view
+        - remove path form DashboardFeature
+        - add struct and create mock data
+        - add Preview to all charts
+    * E: Optimized Data Loading in Widgets
+        - Introduced a state flag (isFirstAppearance) to ensure data is loaded only on the initial appearance of the view.

@@ -21,6 +21,7 @@ extension DashboardFeature {
         
         // MARK: - Actions
         
+        /// The action responsible for changing the information on whether the view is displayed for the first time.
         case changeIsFirstAppearance
         
         /// Action triggered when the user changes the picker selection.
@@ -38,22 +39,11 @@ extension DashboardFeature {
         /// or an `Error` on failure.
         case updateStepChartData(Result<[HealthData], Error>)
         
-        /// Action triggered when the user selects a date on the step chart.
-        case selectedStepChartDateChange(Date?)
-        
-        /// Handles changes to the raw value of the selected chart data.
-        case rawSelectedChartValueChange(Double?)
-        
         /// Updates the weight data with the result of a health data fetch.
         ///
         /// - Parameter result: A `Result` containing an array of `HealthData` on success
         /// or an `Error` on failure.
         case updateWeightChartData(Result<[HealthData], Error>)
-        
-        // MARK: - Path
-        
-        /// Path
-        case path(StackActionOf<Path>)
         
         // MARK: - Destination
         
