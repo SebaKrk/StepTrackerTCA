@@ -11,6 +11,10 @@ import Foundation
 @Reducer
 struct AddMetricDataFeature {
     
+    // MARK: - Properties
+    // MARK: - TODO czy na pewno chce tu to inicializować ?
+    var addMetricDataService = DefaultAddMetricService()
+    
     // MARK: - Dependency
     
     @Dependency(\.dismiss) var dismiss
@@ -20,7 +24,9 @@ struct AddMetricDataFeature {
     var body: some Reducer<State, Action> {
         CombineReducers {
             BindingReducer()
-            Reduce { state, action in
+            Reduce {
+                state,
+                action in
                 switch action {
                     
                     // MARK: - Actions
@@ -36,10 +42,28 @@ struct AddMetricDataFeature {
                             await send(.presentAlert)
                         }
                     }
-                    
-                    return .run { [date = state.addDataDate , value = state.valueToAdd] send in
-                        print("date - \(date)")
-                        print("value - \(value)")
+                
+                    return .run { [metric = state.healthMetric, date = state.addDataDate, value = state.valueToAdd] send in
+                        switch metric {
+                        case .steps:
+                            try await addMetricDataService.addHealthData(
+                                for: date,
+                                value: Double(value) ?? 0,
+                                type: .stepCount,
+                                unit: .count()
+                            )
+                        case .weight:
+                            try await addMetricDataService.addHealthData(
+                                for: date,
+                                value: Double(value) ?? 0,
+                                type: .bodyMass,
+                                unit: .gramUnit(with: .kilo)
+                            )
+                        default:
+                            print("Unsupported metric type")
+                        }
+                        // TODO: -
+                        await send(.view(.dismissButtonPressed))
                     }
                     
                 case .view(.dismissButtonPressed):

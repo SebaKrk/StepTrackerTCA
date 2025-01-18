@@ -51,6 +51,28 @@ protocol HealthKitManager {
     /// - Throws: An error if the HealthKit query fails, such as lack of permissions or unsupported types.
     func fetchHealthData(for quantityType: HKQuantityTypeIdentifier, days: Int, unit: HKUnit, options: HKStatisticsOptions) async throws -> [HealthData]
     
+    /// Adds health data to the HealthKit store for a specific date, value, and type.
+    ///
+    /// This method saves a single sample of health data, such as step count or body mass,
+    /// to the HealthKit store. The data is defined by the specified quantity type, value, and unit.
+    ///
+    /// - Parameters:
+    ///   - date: The date and time associated with the health data.
+    ///           This is both the start and end time for the sample.
+    ///   - value: The numeric value of the health data (e.g., 5000 for step count or 70.5 for body mass).
+    ///   - type: The `HKQuantityTypeIdentifier` representing the type of data to be saved,
+    ///           such as `.stepCount` or `.bodyMass`.
+    ///   - unit: The `HKUnit` used to represent the value, such as `.count()` for step count
+    ///           or `.kilogram()` for body mass.
+    ///
+    /// - Throws: An error if the HealthKit sample cannot be saved, such as due to lack of
+    ///           permissions or invalid parameters.
+    ///
+    /// - Precondition: Ensure that the app has proper authorization to write the specified
+    ///                 `HKQuantityTypeIdentifier` to HealthKit using the `requestAuthorization` method.
+    ///
+    func addHealthData(for date: Date, value: Double, type: HKQuantityTypeIdentifier, unit: HKUnit) async throws
+    
     /// Adds simulated HealthKit data for testing purposes.
     ///
     /// This method generates mock step count and body mass samples for the last 28 days
