@@ -19,8 +19,8 @@ struct HealthDataListView: View {
     
     var body: some View {
         if let healthMetric = store.healthMetric {
-            List(0..<28) { i in
-                testCell()
+            List(store.healthData) { data in
+                testCell(data)
             }
             .navigationTitle(healthMetric.title)
             .sheet(item: $store.scope(state: \.destination?.openAddMetricData,
@@ -47,11 +47,11 @@ struct HealthDataListView: View {
     }
     
     @ViewBuilder
-    private func testCell() -> some View {
+    private func testCell(_ data: HealthData) -> some View {
         HStack {
-            Text(Date(), format: .dateTime.month().day().year())
+            Text(data.date, format: .dateTime.month().day().year())
             Spacer()
-            Text(10000, format: .number.precision(.fractionLength(store.healthMetric == .steps ? 0 : 1)))
+            Text(data.value, format: .number.precision(.fractionLength(store.healthMetric == .steps ? 0 : 1)))
         }
     }
     

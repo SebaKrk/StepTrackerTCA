@@ -63,7 +63,7 @@ struct StepWidgetFeature {
                     
                     // MARK: - Destination
                 case .show:
-                    state.destination = .detailList(HealthDataListFeature.State(healthMetric: .steps))
+                    state.destination = .detailList(HealthDataListFeature.State(healthData: state.stepData, healthMetric: .steps))
                     return .none
                     
                 case .destination:
