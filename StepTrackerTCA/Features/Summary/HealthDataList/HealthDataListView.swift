@@ -19,7 +19,7 @@ struct HealthDataListView: View {
     
     var body: some View {
         if let healthMetric = store.healthMetric {
-            List(store.healthData) { data in
+            List(Array(store.healthData.reversed())) { data in
                 testCell(data)
             }
             .navigationTitle(healthMetric.title)

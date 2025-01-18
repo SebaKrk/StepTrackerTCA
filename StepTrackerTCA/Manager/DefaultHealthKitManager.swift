@@ -69,6 +69,24 @@ class DefaultHealthKitManager: HealthKitManager {
         return processHealthData(results.statistics(), unit: unit, options: options)
     }
     
+    /// Adds health data to the HealthKit store for a specific date, value, and type.
+    func addHealthData(for date: Date, value: Double, type: HKQuantityTypeIdentifier, unit: HKUnit) async throws {
+        guard let quantityType = HKQuantityType.quantityType(forIdentifier: type) else {
+            throw NSError(domain: "HealthDataError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid HealthKit data"])
+        }
+        
+        let quantity = HKQuantity(unit: unit, doubleValue: value)
+        let sample = HKQuantitySample(type: quantityType, quantity: quantity, start: date, end: date)
+        
+        do {
+            try await store.save(sample)
+            print("✅ Successfully saved \(type.rawValue) data for date \(date): value = \(value) \(unit.unitString)")
+        } catch {
+            print("❌ Failed to save \(type.rawValue) data for date \(date): \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
     // MARK: - Private Helpers
 
     /// Calculates the date range for the last `days` days.

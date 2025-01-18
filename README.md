@@ -120,3 +120,4 @@ This project is not only a technical exercise but also an exploration of possibi
 
 ### IOS-00012 HealthDataListFeature
     * A: Displaying correct data passed to the list
+    * B: Write Step & Weight Data to HealthKit 
