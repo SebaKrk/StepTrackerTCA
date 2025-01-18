@@ -13,6 +13,8 @@ extension HealthDataListFeature {
     @ObservableState
     struct State: Equatable {
         
+        var healthData: [HealthData] 
+        
         /// This value represents the health metric to display
         var healthMetric: HealthMetricContext?
         

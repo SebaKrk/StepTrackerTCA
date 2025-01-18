@@ -118,3 +118,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - WeightBarFeature    
         - WeightDiffBarChart
 
+### IOS-00012 HealthDataListFeature
+    * A: Displaying correct data passed to the list
