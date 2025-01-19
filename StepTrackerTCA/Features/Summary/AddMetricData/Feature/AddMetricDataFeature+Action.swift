@@ -47,6 +47,11 @@ extension AddMetricDataFeature {
             /// Represents a simple informational alert.
             case showMessage
         }
+        
+        // MARK: - Delegate
+        /// Actions to communicate with parent features or modules.
+        case delegate(Delegate)
+        
     }
     
 }

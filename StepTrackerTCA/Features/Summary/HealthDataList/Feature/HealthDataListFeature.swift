@@ -36,8 +36,13 @@ struct HealthDataListFeature {
                     AddMetricDataFeature.State(healthMetric: state.healthMetric)
                 )
                 return .none
+               
+            case let .destination(.presented(.openAddMetricData(.delegate(.save(data))))):
+                state.healthData.append(data)
+                return .none
                 
-            default: return .none
+            default:
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
