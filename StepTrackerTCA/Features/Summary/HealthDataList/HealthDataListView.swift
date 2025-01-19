@@ -19,8 +19,8 @@ struct HealthDataListView: View {
     
     var body: some View {
         if let healthMetric = store.healthMetric {
-            List(Array(store.healthData.reversed())) { data in
-                testCell(data)
+            List(store.healthData.sorted(by: { $0.date > $1.date })) { data in
+                cell(data)
             }
             .navigationTitle(healthMetric.title)
             .sheet(item: $store.scope(state: \.destination?.openAddMetricData,
@@ -47,7 +47,7 @@ struct HealthDataListView: View {
     }
     
     @ViewBuilder
-    private func testCell(_ data: HealthData) -> some View {
+    private func cell(_ data: HealthData) -> some View {
         HStack {
             Text(data.date, format: .dateTime.month().day().year())
             Spacer()

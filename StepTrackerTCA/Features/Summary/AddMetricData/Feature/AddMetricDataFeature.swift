@@ -30,7 +30,7 @@ struct AddMetricDataFeature {
                 switch action {
                     
                     // MARK: - Actions
-                    
+                 
                     // MARK: - View Actions
                     
                 case .view(.addDataButtonPressed):
@@ -46,24 +46,21 @@ struct AddMetricDataFeature {
                     return .run { [metric = state.healthMetric, date = state.addDataDate, value = state.valueToAdd] send in
                         switch metric {
                         case .steps:
-                            try await addMetricDataService.addHealthData(
+                            try await addMetricDataService.addSteps(
                                 for: date,
-                                value: Double(value) ?? 0,
-                                type: .stepCount,
-                                unit: .count()
+                                value: Double(value) ?? 0
                             )
                         case .weight:
-                            try await addMetricDataService.addHealthData(
+                            try await addMetricDataService.addWeight(
                                 for: date,
-                                value: Double(value) ?? 0,
-                                type: .bodyMass,
-                                unit: .gramUnit(with: .kilo)
+                                value: Double(value) ?? 0
                             )
                         default:
                             print("Unsupported metric type")
                         }
-                        // TODO: -
-                        await send(.view(.dismissButtonPressed))
+                        
+                        await send(.delegate(.save(HealthData(date: date, value: Double(value) ?? 0))))
+                        await self.dismiss()
                     }
                     
                 case .view(.dismissButtonPressed):

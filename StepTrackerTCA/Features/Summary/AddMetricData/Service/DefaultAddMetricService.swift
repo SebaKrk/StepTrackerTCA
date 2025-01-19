@@ -17,8 +17,14 @@ final class DefaultAddMetricService: AddMetricService {
     
     // MARK: - API
     
-    func addHealthData(for date: Date, value: Double, type: HKQuantityTypeIdentifier, unit: HKUnit) async throws {
-        try await healthKitManager.addHealthData(for: date, value: value, type: type, unit: unit)
+    /// Adds step count data to the HealthKit store for a specific date and value.
+    func addSteps(for date: Date, value: Double) async throws {
+        try await healthKitManager.addHealthData(for: date, value: value, type: .stepCount, unit: .count())
+    }
+    
+    /// Adds body weight data to the HealthKit store for a specific date and value.
+    func addWeight(for date: Date, value: Double) async throws {
+        try await healthKitManager.addHealthData(for: date, value: value, type: .bodyMass, unit:  .gramUnit(with: .kilo))
     }
 }
 
