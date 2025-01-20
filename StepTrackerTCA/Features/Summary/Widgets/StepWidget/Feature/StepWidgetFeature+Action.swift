@@ -27,6 +27,9 @@ extension StepWidgetFeature {
         /// Updates the chart data with the given health data set.
         case updateStepChartData([HealthData])
         
+        /// Responsible for refreshing dashboard data
+        case refresh
+        
         // MARK: - View Actions
         case view(View)
         

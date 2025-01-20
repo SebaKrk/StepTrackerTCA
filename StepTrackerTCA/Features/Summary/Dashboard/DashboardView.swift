@@ -53,6 +53,9 @@ struct DashboardView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        .refreshable {
+            send(.userPulledToRefresh)
+        }
         .sheet(item: $store.scope(state: \.destination?.openHealthKitPermissionScreen,
                                   action: \.destination.openHealthKitPermissionScreen)) { store in
             HealthKitPermissionPrimingView(store: store)
@@ -73,34 +76,22 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxWalkView: some View {
-        let service = DefaultStepWidgetService()
-        StepWidgetView(store: Store(initialState: StepWidgetFeature.State(stepData: store.stepData), reducer: {
-            StepWidgetFeature(service: service)
-        }))
+        StepWidgetView(store: store.scope(state: \.stepWidget, action: \.stepWidget))
     }
     
     @ViewBuilder
     private var groupBoxCalendarView: some View {
-        let service = DefaultStepPieWidget()
-        StepPieWidgetView(store: Store(initialState: StepPieWidgetFeature.State(stepData: store.stepData), reducer: {
-            StepPieWidgetFeature(service: service)
-        }))
+        StepPieWidgetView(store: store.scope(state: \.stepPieWidget, action: \.stepPieWidget))
     }
     
     @ViewBuilder
     private var groupBoxWeightView: some View {
-        let service = DefaultWeightGoalWidgetService()
-        WeightGoalWidgetView(store: Store(initialState: WeightGoalWidgetFeature.State(weightData: store.weightData), reducer: {
-            WeightGoalWidgetFeature(service: service)
-        }))
+        WeightGoalWidgetView(store: store.scope(state: \.weightGoalWidget, action: \.weightGoalWidget))
     }
     
     @ViewBuilder
     private var groupBoxWeightDiffView: some View {
-        let service = DefaultWeightDiffService()
-        WeightDiffWidgetView(store: Store(initialState: WeightDiffWidgetFeature.State(weightData: store.weightData), reducer: {
-            WeightDiffWidgetFeature(service: service)
-        }))
+        WeightDiffWidgetView(store: store.scope(state: \.weightDiffWidget, action: \.weightDiffWidget))
     }
 
 }

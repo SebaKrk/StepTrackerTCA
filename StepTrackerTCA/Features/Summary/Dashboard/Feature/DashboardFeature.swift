@@ -57,13 +57,15 @@ struct DashboardFeature {
                                 try await dashboardFeatureService.getWeightData()
                             }
                         ))
-                        
                     }
                     
                     // StepData
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
-                    return .none
+                    return .run { send in
+                        await send(.stepPieWidget(.updatePieChartData(data)))
+                        await send(.stepWidget(.updateStepChartData(data)))
+                    }
                     
                 case let .updateStepChartData(.failure(error)):
                     print(error.localizedDescription)
@@ -72,7 +74,10 @@ struct DashboardFeature {
                     // WeightData
                 case let .updateWeightChartData(.success(data)):
                     state.weightData = data
-                    return .none
+                    return .run { send in
+                        await send(.weightDiffWidget(.updateWeightChartData(data)))
+                        await send(.weightGoalWidget(.updateWeightChartData(data)))
+                    }
                     
                 case let .updateWeightChartData(.failure(error)):
                     print(error.localizedDescription)
@@ -95,6 +100,15 @@ struct DashboardFeature {
                         }
                     }
                     
+                case .view(.userPulledToRefresh):
+                    return .run { send in
+                        await send(.fetchHealthData)
+                        await send(.stepPieWidget(.refresh))
+                        await send(.stepWidget(.refresh))
+                        await send(.weightDiffWidget(.refresh))
+                        await send(.weightGoalWidget(.refresh))
+                    }
+                    
                     // MARK: - Destination
                 case .openPermissionScreen:
                     dashboardFeatureService.markPermissionPrimingAsSeen()
@@ -106,6 +120,22 @@ struct DashboardFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        
+        Scope(state: \.stepPieWidget, action: \.stepPieWidget) {
+            StepPieWidgetFeature(service: DefaultStepPieWidget())
+        }
+        
+        Scope(state: \.stepWidget, action: \.stepWidget) {
+            StepWidgetFeature(service: DefaultStepWidgetService())
+        }
+        
+        Scope(state: \.weightDiffWidget, action: \.weightDiffWidget) {
+            WeightDiffWidgetFeature(service: DefaultWeightDiffService())
+        }
+        
+        Scope(state: \.weightGoalWidget, action: \.weightGoalWidget) {
+            WeightGoalWidgetFeature(service: DefaultWeightGoalWidgetService())
+        }
     }
     
 }

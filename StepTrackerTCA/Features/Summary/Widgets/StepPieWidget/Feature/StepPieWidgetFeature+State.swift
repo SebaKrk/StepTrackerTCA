@@ -17,7 +17,7 @@ extension StepPieWidgetFeature {
         // MARK: - Properties
         
         /// The data for steps, used to populate charts and other visualizations on the dashboard.
-        var stepData: [HealthData]
+        var stepData: [HealthData]?
         
         /// Contains step data aggregated per weekday.
         /// This is used to display weekly step trends, such as average steps taken on each day of the week.

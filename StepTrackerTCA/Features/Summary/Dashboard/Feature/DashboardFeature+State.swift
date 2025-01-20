@@ -36,6 +36,20 @@ extension DashboardFeature {
         /// destination from DashboardFeature
         @Presents var destination: Destination.State?
         
+        // MARK: - Child actions
+        
+        /// Stores the information contained in the `StepPieWidgetFeature`
+        var stepPieWidget = StepPieWidgetFeature.State()
+        
+        /// Stores the information contained in the `StepWidgetFeature`
+        var stepWidget = StepWidgetFeature.State()
+        
+        /// Stores the information contained in the `WeightDiffWidgetFeature`
+        var weightDiffWidget = WeightDiffWidgetFeature.State()
+        
+        /// Stores the information contained in the `WeightGoalWidgetFeature`
+        var weightGoalWidget = WeightGoalWidgetFeature.State()
+        
     }
     
 }
