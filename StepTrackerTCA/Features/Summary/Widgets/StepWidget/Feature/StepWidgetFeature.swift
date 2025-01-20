@@ -43,7 +43,7 @@ struct StepWidgetFeature {
                     if date == nil {
                         state.selectedHealthMetric = nil
                     } else {
-                        state.selectedHealthMetric = stepWidgetService.selectedHealthMetric(from: state.stepData,with: date)
+                        state.selectedHealthMetric = stepWidgetService.selectedHealthMetric(from: state.stepData, with: date)
                     }
                     return .none
                     
@@ -52,14 +52,17 @@ struct StepWidgetFeature {
                     state.avgStepCount = stepWidgetService.calculateAverageStepCount(from: stepData)
                     return .none
                     
+                case .refresh:
+                    return .run { [stepData = state.stepData] send in
+                        await send(.updateStepChartData(stepData))
+                    }
+                    
                     // MARK: - View Actions
                 case .view(.tapDestination):
                     return .send(.show)
                     
                 case .view(.viewDidAppear):
-                    return .run { [stepData = state.stepData] send in
-                        await send(.updateStepChartData(stepData))
-                    }
+                    return .none
                     
                     // MARK: - Destination
                 case .show:

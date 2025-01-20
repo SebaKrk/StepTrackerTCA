@@ -123,3 +123,11 @@ This project is not only a technical exercise but also an exploration of possibi
     * B: Write Step & Weight Data to HealthKit 
     * C: Save and reload data
         - Add delegate enum to handle events related to `AddMetricDataFeature`.
+
+### IOS-00013 Integrate Scope in `DashboardFeature`
+    * A: Add scope and refreshable
+        - add Refreshable to DashboardFeature
+        - refactor StepPieWidgetFeature
+        - refactor StepWidgetFeature
+        - refactor WeightDiffWidgetFeature
+        - refactor WeightGoalWidgetFeature

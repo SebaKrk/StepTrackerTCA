@@ -27,6 +27,9 @@ extension WeightDiffWidgetFeature {
         /// Action triggered when the user selects a date on the chart.
         case selectedChartDateChange(Date?)
         
+        /// Responsible for refreshing dashboard data
+        case refresh
+        
         // MARK: - View Actions
         case view(View)
         
