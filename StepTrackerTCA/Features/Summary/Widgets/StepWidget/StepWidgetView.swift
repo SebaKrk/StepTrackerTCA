@@ -20,10 +20,10 @@ struct StepWidgetView: View {
     
     var body: some View {
         Group {
-            if store.stepData.isEmpty {
-                ProgressView()
+            if !store.stepData.isEmpty {
+                stepsWalkGroupBox { stepWalkChart }
             } else {
-                stepsWalkGroupBox
+                stepsWalkGroupBox { contentUnavailable }
             }
         }
         .frame(height: 250)
@@ -41,9 +41,9 @@ struct StepWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    var stepsWalkGroupBox: some View {
+    func stepsWalkGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
-            stepWalkChart
+            content()
         } label: {
             groupBoxTitle(
                 "Steps",
@@ -102,7 +102,7 @@ struct StepWidgetView: View {
             Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .font(.footnote.bold())
                 .foregroundStyle(.secondary)
-
+            
             Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(0)))
                 .fontWeight(.heavy)
                 .foregroundStyle(.pink)
@@ -135,6 +135,16 @@ struct StepWidgetView: View {
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    private var contentUnavailable: some View {
+        ContentUnavailableView("Brak danych",
+                               systemImage: "exclamationmark.triangle",
+                               description: Text("Nie znaleziono żadnych danych. Dodaj nowe dane, aby je zobaczyć."))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(.secondary)
+        .padding()
     }
     
 }

@@ -76,10 +76,7 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxWalkView: some View {
-        let service = DefaultStepWidgetService()
-        StepWidgetView(store: Store(initialState: StepWidgetFeature.State(stepData: store.stepData), reducer: {
-            StepWidgetFeature(service: service)
-        }))
+        StepWidgetView(store: store.scope(state: \.stepWidget, action: \.stepWidget))
     }
     
     @ViewBuilder

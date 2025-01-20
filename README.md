@@ -128,3 +128,5 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: Add scope and refreshable
         - add Refreshable to DashboardFeature
         - refactor StepPieWidgetFeature
+        - refactor StepWidgetFeature
+        

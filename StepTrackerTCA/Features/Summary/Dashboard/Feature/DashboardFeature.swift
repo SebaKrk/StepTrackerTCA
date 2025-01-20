@@ -64,6 +64,7 @@ struct DashboardFeature {
                     state.stepData = data
                     return .run { send in
                         await send(.stepPieWidget(.updatePieChartData(data)))
+                        await send(.stepWidget(.updateStepChartData(data)))
                     }
                     
                 case let .updateStepChartData(.failure(error)):
@@ -100,6 +101,7 @@ struct DashboardFeature {
                     return .run { send in
                         await send(.fetchHealthData)
                         await send(.stepPieWidget(.refresh))
+                        await send(.stepWidget(.refresh))
                     }
                     
                     // MARK: - Destination
@@ -116,6 +118,10 @@ struct DashboardFeature {
         
         Scope(state: \.stepPieWidget, action: \.stepPieWidget) {
             StepPieWidgetFeature(service: DefaultStepPieWidget())
+        }
+        
+        Scope(state: \.stepWidget, action: \.stepWidget) {
+            StepWidgetFeature(service: DefaultStepWidgetService())
         }
     }
     

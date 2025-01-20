@@ -72,6 +72,8 @@ extension DashboardFeature {
         /// Stores the actions of the `StepPieWidgetFeature`
         case stepPieWidget(StepPieWidgetFeature.Action)
         
+        /// Stores the actions of the `StepWidgetFeature`
+        case stepWidget(StepWidgetFeature.Action)
     }
     
 }

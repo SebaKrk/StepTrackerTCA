@@ -40,6 +40,9 @@ extension DashboardFeature {
         
         /// Stores the information contained in the `StepPieWidgetFeature`
         var stepPieWidget = StepPieWidgetFeature.State()
+        
+        /// Stores the information contained in the `StepWidgetFeature`
+        var stepWidget = StepWidgetFeature.State()
     }
     
 }
