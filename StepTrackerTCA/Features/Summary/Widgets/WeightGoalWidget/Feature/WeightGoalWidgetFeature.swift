@@ -56,7 +56,6 @@ struct WeightGoalWidgetFeature {
                     
                     // MARK: - View Actions
                 case .view(.tapDestination):
-                    // tu przekaz obiekt w późniejszych zadaniach
                     return .send(.show)
                     
                 case .view(.viewDidAppear):
@@ -66,7 +65,7 @@ struct WeightGoalWidgetFeature {
                     
                     // MARK: - Destination
                 case .show:
-                    state.destination = .detailList(HealthDataListFeature.State(healthMetric: .weight))
+                    state.destination = .detailList(HealthDataListFeature.State(healthData: state.weightData, healthMetric: .weight))
                     return .none
                     
                 case .destination:

@@ -118,3 +118,8 @@ This project is not only a technical exercise but also an exploration of possibi
         - WeightBarFeature    
         - WeightDiffBarChart
 
+### IOS-00012 HealthDataListFeature
+    * A: Displaying correct data passed to the list
+    * B: Write Step & Weight Data to HealthKit 
+    * C: Save and reload data
+        - Add delegate enum to handle events related to `AddMetricDataFeature`.
