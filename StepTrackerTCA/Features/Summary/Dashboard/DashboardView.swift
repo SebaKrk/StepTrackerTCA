@@ -53,6 +53,9 @@ struct DashboardView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        .refreshable {
+            send(.userPulledToRefresh)
+        }
         .sheet(item: $store.scope(state: \.destination?.openHealthKitPermissionScreen,
                                   action: \.destination.openHealthKitPermissionScreen)) { store in
             HealthKitPermissionPrimingView(store: store)
@@ -81,10 +84,7 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxCalendarView: some View {
-        let service = DefaultStepPieWidget()
-        StepPieWidgetView(store: Store(initialState: StepPieWidgetFeature.State(stepData: store.stepData), reducer: {
-            StepPieWidgetFeature(service: service)
-        }))
+        StepPieWidgetView(store: store.scope(state: \.stepPieWidget, action: \.stepPieWidget))
     }
     
     @ViewBuilder

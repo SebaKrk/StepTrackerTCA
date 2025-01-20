@@ -55,11 +55,16 @@ struct StepPieWidgetFeature {
                     }
                     return .none
                     
+                case .refresh:
+                    return .run { [stepData = state.stepData] send in
+                        if let stepData = stepData {
+                            await send(.updatePieChartData(stepData))
+                        }
+                    }
+                      
                     // MARK: - View Actions
                 case .view(.viewDidAppear):
-                    return .run { [stepData = state.stepData] send in
-                        await send(.updatePieChartData(stepData))
-                    }
+                    return .none
                 }
             }
         }

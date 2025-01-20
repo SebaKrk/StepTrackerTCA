@@ -20,10 +20,14 @@ struct StepPieWidgetView: View {
     
     var body: some View {
         Group {
-            if store.stepData.isEmpty {
-                ProgressView()
+            if let stepData = store.stepData {
+                if stepData.isEmpty {
+                    stepPieGroupBox { contentUnavailable }
+                } else {
+                    stepPieGroupBox { stepsPieChart }
+                }
             } else {
-                stepPieGroupBox
+                ProgressView()
             }
         }
         .frame(height: 300)
@@ -35,9 +39,9 @@ struct StepPieWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    var stepPieGroupBox: some View {
+    func stepPieGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
-            stepsPieChart
+            content()
         } label: {
             groupBoxTitle("Averages",
                           "calendar",
@@ -110,6 +114,16 @@ struct StepPieWidgetView: View {
                 .foregroundStyle(.secondary)
                 .contentTransition(.numericText())
         }
+    }
+    
+    @ViewBuilder
+    private var contentUnavailable: some View {
+        ContentUnavailableView("Brak danych",
+                               systemImage: "exclamationmark.triangle",
+                               description: Text("Nie znaleziono żadnych danych. Dodaj nowe dane, aby je zobaczyć."))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(.secondary)
+        .padding()
     }
     
 }

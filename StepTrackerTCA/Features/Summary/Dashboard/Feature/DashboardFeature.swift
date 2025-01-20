@@ -57,13 +57,14 @@ struct DashboardFeature {
                                 try await dashboardFeatureService.getWeightData()
                             }
                         ))
-                        
                     }
                     
                     // StepData
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
-                    return .none
+                    return .run { send in
+                        await send(.stepPieWidget(.updatePieChartData(data)))
+                    }
                     
                 case let .updateStepChartData(.failure(error)):
                     print(error.localizedDescription)
@@ -95,6 +96,12 @@ struct DashboardFeature {
                         }
                     }
                     
+                case .view(.userPulledToRefresh):
+                    return .run { send in
+                        await send(.fetchHealthData)
+                        await send(.stepPieWidget(.refresh))
+                    }
+                    
                     // MARK: - Destination
                 case .openPermissionScreen:
                     dashboardFeatureService.markPermissionPrimingAsSeen()
@@ -106,6 +113,10 @@ struct DashboardFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        
+        Scope(state: \.stepPieWidget, action: \.stepPieWidget) {
+            StepPieWidgetFeature(service: DefaultStepPieWidget())
+        }
     }
     
 }

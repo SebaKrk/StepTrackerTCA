@@ -27,14 +27,17 @@ extension StepPieWidgetFeature {
         
         /// Updates the chart data with the given health data set.
         case updatePieChartData([HealthData])
+        
+        /// Responsible for refreshing dashboard data
+        case refresh
   
         // MARK: - View Actions
         case view(View)
         
         enum View {
+            
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
-            
         }
     }
                     

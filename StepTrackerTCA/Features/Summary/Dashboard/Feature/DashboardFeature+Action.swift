@@ -62,7 +62,16 @@ extension DashboardFeature {
                         
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            /// Represents an action triggered when the user pull to refresh.
+            case userPulledToRefresh
         }
+        
+        // MARK: - Child actions
+        
+        /// Stores the actions of the `StepPieWidgetFeature`
+        case stepPieWidget(StepPieWidgetFeature.Action)
+        
     }
     
 }
