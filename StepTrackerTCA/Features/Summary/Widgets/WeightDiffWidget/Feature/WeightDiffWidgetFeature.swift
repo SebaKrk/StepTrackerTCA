@@ -53,11 +53,14 @@ struct WeightDiffWidgetFeature {
                     state.weightDataPerWeekDay = weightDiffWidgetService.averageDailyWeightDiffs(for: weightData)
                     return .none
                     
-                    // MARK: - View Actions
-                case .view(.viewDidAppear):
+                case .refresh:
                     return .run { [weightData = state.weightData] send in
                         await send(.updateWeightChartData(weightData))
                     }
+                    
+                    // MARK: - View Actions
+                case .view(.viewDidAppear):
+                    return .none
                 }
             }
         }

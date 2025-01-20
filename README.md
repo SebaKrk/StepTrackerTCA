@@ -129,4 +129,4 @@ This project is not only a technical exercise but also an exploration of possibi
         - add Refreshable to DashboardFeature
         - refactor StepPieWidgetFeature
         - refactor StepWidgetFeature
-        
+        - refactor WeightDiffWidgetFeature

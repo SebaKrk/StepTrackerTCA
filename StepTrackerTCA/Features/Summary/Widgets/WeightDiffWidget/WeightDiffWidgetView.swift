@@ -20,10 +20,10 @@ struct WeightDiffWidgetView: View {
     
     var body: some View {
         Group {
-            if store.weightData.isEmpty {
-                ProgressView()
+            if !store.weightData.isEmpty {
+                weightDiffGroupBox { weightDiffBarChart }
             } else {
-                weightDiffGroupBox
+                weightDiffGroupBox { contentUnavailable }
             }
         }
         .frame(height: 300)
@@ -35,9 +35,9 @@ struct WeightDiffWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    var weightDiffGroupBox: some View {
+    func weightDiffGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
-            weightDiffBarChart
+            content()
         } label: {
             groupBoxTitle(
                 "Steps",
@@ -117,6 +117,11 @@ struct WeightDiffWidgetView: View {
             }
             Spacer()
         }
+    }
+    
+    @ViewBuilder
+    private var contentUnavailable: some View {
+        ChartContentUnavailable()
     }
     
 }

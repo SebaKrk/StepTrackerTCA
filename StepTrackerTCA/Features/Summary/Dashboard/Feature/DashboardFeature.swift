@@ -65,6 +65,7 @@ struct DashboardFeature {
                     return .run { send in
                         await send(.stepPieWidget(.updatePieChartData(data)))
                         await send(.stepWidget(.updateStepChartData(data)))
+                        await send(.weightDiffWidget(.updateWeightChartData(data)))
                     }
                     
                 case let .updateStepChartData(.failure(error)):
@@ -102,6 +103,7 @@ struct DashboardFeature {
                         await send(.fetchHealthData)
                         await send(.stepPieWidget(.refresh))
                         await send(.stepWidget(.refresh))
+                        await send(.weightDiffWidget(.refresh))
                     }
                     
                     // MARK: - Destination
@@ -122,6 +124,10 @@ struct DashboardFeature {
         
         Scope(state: \.stepWidget, action: \.stepWidget) {
             StepWidgetFeature(service: DefaultStepWidgetService())
+        }
+        
+        Scope(state: \.weightDiffWidget, action: \.weightDiffWidget) {
+            WeightDiffWidgetFeature(service: DefaultWeightDiffService())
         }
     }
     

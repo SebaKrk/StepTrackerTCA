@@ -43,6 +43,9 @@ extension DashboardFeature {
         
         /// Stores the information contained in the `StepWidgetFeature`
         var stepWidget = StepWidgetFeature.State()
+        
+        /// Stores the information contained in the `WeightDiffWidgetFeature`
+        var weightDiffWidget = WeightDiffWidgetFeature.State()
     }
     
 }

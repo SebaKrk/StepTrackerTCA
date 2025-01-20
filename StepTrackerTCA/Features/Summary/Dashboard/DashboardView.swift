@@ -94,10 +94,7 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxWeightDiffView: some View {
-        let service = DefaultWeightDiffService()
-        WeightDiffWidgetView(store: Store(initialState: WeightDiffWidgetFeature.State(weightData: store.weightData), reducer: {
-            WeightDiffWidgetFeature(service: service)
-        }))
+        WeightDiffWidgetView(store: store.scope(state: \.weightDiffWidget, action: \.weightDiffWidget))
     }
 
 }

@@ -118,12 +118,7 @@ struct StepPieWidgetView: View {
     
     @ViewBuilder
     private var contentUnavailable: some View {
-        ContentUnavailableView("Brak danych",
-                               systemImage: "exclamationmark.triangle",
-                               description: Text("Nie znaleziono żadnych danych. Dodaj nowe dane, aby je zobaczyć."))
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .foregroundStyle(.secondary)
-        .padding()
+        ChartContentUnavailable()
     }
     
 }
