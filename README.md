@@ -130,3 +130,4 @@ This project is not only a technical exercise but also an exploration of possibi
         - refactor StepPieWidgetFeature
         - refactor StepWidgetFeature
         - refactor WeightDiffWidgetFeature
+        - refactor WeightGoalWidgetFeature

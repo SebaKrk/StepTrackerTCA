@@ -20,10 +20,10 @@ struct WeightGoalWidgetView: View {
     
     var body: some View {
         Group {
-            if store.weightData.isEmpty {
-                ProgressView()
+            if !store.weightData.isEmpty {
+                weightGroupBox { weightGoalChart }
             } else {
-                weightGroupBox
+                weightGroupBox { contentUnavailable }
             }
         }
         .frame(height: 250)
@@ -41,9 +41,9 @@ struct WeightGoalWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    var weightGroupBox: some View {
+    func weightGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
-            weightGoalChart
+            content()
         } label: {
             groupBoxTitle(
                 "Weight",
@@ -155,6 +155,10 @@ struct WeightGoalWidgetView: View {
         }
     }
     
+    @ViewBuilder
+    private var contentUnavailable: some View {
+        ChartContentUnavailable()
+    }
 }
 
 #Preview {

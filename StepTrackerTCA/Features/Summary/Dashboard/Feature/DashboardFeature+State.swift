@@ -46,6 +46,10 @@ extension DashboardFeature {
         
         /// Stores the information contained in the `WeightDiffWidgetFeature`
         var weightDiffWidget = WeightDiffWidgetFeature.State()
+        
+        /// Stores the information contained in the `WeightGoalWidgetFeature`
+        var weightGoalWidget = WeightGoalWidgetFeature.State()
+        
     }
     
 }

@@ -86,10 +86,7 @@ struct DashboardView: View {
     
     @ViewBuilder
     private var groupBoxWeightView: some View {
-        let service = DefaultWeightGoalWidgetService()
-        WeightGoalWidgetView(store: Store(initialState: WeightGoalWidgetFeature.State(weightData: store.weightData), reducer: {
-            WeightGoalWidgetFeature(service: service)
-        }))
+        WeightGoalWidgetView(store: store.scope(state: \.weightGoalWidget, action: \.weightGoalWidget))
     }
     
     @ViewBuilder

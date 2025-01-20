@@ -75,8 +75,11 @@ extension DashboardFeature {
         /// Stores the actions of the `StepWidgetFeature`
         case stepWidget(StepWidgetFeature.Action)
         
-        /// Stores the actions of the `WeightDiffWidgetFeature`
+        /// Stores the actions of the `WeightGoalWidgetFeature`
         case weightDiffWidget(WeightDiffWidgetFeature.Action)
+        
+        /// Stores the actions of the `WeightDiffWidgetFeature`
+        case weightGoalWidget(WeightGoalWidgetFeature.Action)
     }
     
 }
