@@ -49,13 +49,7 @@ struct StepPieWidgetView: View {
     private var stepsPieChart: some View {
         Chart {
             ForEach(store.stepDataPerWeekDay) { weekday in
-                SectorMark(angle: .value("Average Steps", weekday.value),
-                           innerRadius: .ratio(0.618),
-                           outerRadius: store.selectedChartValue?.date.weekdayInt == weekday.date.weekdayInt ? 140 : 110,
-                           angularInset: 1)
-                .foregroundStyle(.pink.gradient)
-                .cornerRadius(6)
-                .opacity(store.selectedChartValue?.date.weekdayInt == weekday.date.weekdayInt ? 1.0 : 0.3)
+                createPieChart(for: weekday)
             }
         }
         .chartAngleSelection(value: $store.rawSelectedChartValue.animation(.easeInOut))
@@ -73,24 +67,6 @@ struct StepPieWidgetView: View {
                     }
                     .position(x: frame.midX, y: frame.midY)
                 }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Label(title, systemImage: systemImage)
-                    .font(.title3.bold())
-                    .foregroundStyle(.pink)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            if destination {
-                Image(systemName: "chevron.right")
             }
         }
     }

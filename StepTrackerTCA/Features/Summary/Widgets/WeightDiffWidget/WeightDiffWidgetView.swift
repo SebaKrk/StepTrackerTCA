@@ -49,20 +49,10 @@ struct WeightDiffWidgetView: View {
     private var weightDiffBarChart: some View {
         Chart {
             if let selectedHealthMetric = store.selectedHealthMetric {
-                RuleMark(x: .value("Selected Data", selectedHealthMetric.date, unit: .day))
-                    .foregroundStyle(Color.secondary.opacity(0.3))
-                    .offset(y: -10)
-                    .annotation(position: .top,
-                                spacing: 0,
-                                overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) { annotationView }
+                createRuleMark(with: selectedHealthMetric) { annotationView }
             }
-            
             ForEach(store.weightDataPerWeekDay) { weightDiff in
-                BarMark(
-                    x: .value("Date", weightDiff.date, unit: .day),
-                    y: .value("Weight Diff", weightDiff.value)
-                )
-                .foregroundStyle(weightDiff.value >= 0 ? Color.indigo.gradient : Color.mint.gradient)
+                createWeightDiffBarMark(with: weightDiff)
             }
         }
         .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
@@ -83,20 +73,10 @@ struct WeightDiffWidgetView: View {
     }
     
     private var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(2)))
-                .fontWeight(.heavy)
-                .foregroundStyle((store.selectedHealthMetric?.value ?? 0) >= 0 ? .indigo : .mint)
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
+        ChartAnnotationView(
+            date: store.selectedHealthMetric?.date ?? .now,
+            value: store.selectedHealthMetric?.value ?? 0,
+            color: (store.selectedHealthMetric?.value ?? 0) >= 0 ? .indigo : .mint
         )
     }
     

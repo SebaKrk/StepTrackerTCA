@@ -124,7 +124,7 @@ This project is not only a technical exercise but also an exploration of possibi
     * C: Save and reload data
         - Add delegate enum to handle events related to `AddMetricDataFeature`.
 
-### IOS-00013 Integrate Scope in `DashboardFeature`
+### IOS-00013 Integrate Scope in `DashboardFeature` and UI optimization
     * A: Add scope and refreshable
         - add Refreshable to DashboardFeature
         - refactor StepPieWidgetFeature
@@ -133,3 +133,8 @@ This project is not only a technical exercise but also an exploration of possibi
         - refactor WeightGoalWidgetFeature
     * B: ChartGroupBoxHeader View
         - create new view and cleanup the code
+    * C: ChartContent
+        - WeightGoalWidgetView+ChartContent
+        - WeightDiffWidget+ChartContent
+        - StepWidget+ChartContent
+        - StepPieWidget+ChartContent
