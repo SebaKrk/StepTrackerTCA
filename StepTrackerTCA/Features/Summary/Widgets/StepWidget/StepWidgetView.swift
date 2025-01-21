@@ -55,24 +55,12 @@ struct StepWidgetView: View {
     private var stepWalkChart: some View {
         Chart {
             if let selectedHealthMetric = store.selectedHealthMetric {
-                RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
-                    .foregroundStyle(Color.secondary.opacity(0.3))
-                    .offset(y: -10)
-                    .annotation(position: .top,
-                                spacing: 0,
-                                overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) { annotationView }
+                createRuleMark(with: selectedHealthMetric) { annotationView }
             }
-            
-            RuleMark(y: .value("Average", store.avgStepCount))
-                .foregroundStyle(Color.secondary)
-                .lineStyle(.init(lineWidth: 1, dash: [5]))
+            createStepRuleMark()
             
             ForEach(store.stepData) { steps in
-                BarMark(
-                    x: .value("Date", steps.date, unit: .day),
-                    y: .value("Steps", steps.value)
-                )
-                .opacity(store.rawSelectedDate == nil || steps.date == store.selectedHealthMetric?.date ? 1.0 : 0.3)
+                createStepBarMark(for: steps)
             }
         }
         .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
@@ -93,20 +81,10 @@ struct StepWidgetView: View {
     
     @ViewBuilder
     private var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(0)))
-                .fontWeight(.heavy)
-                .foregroundStyle(.pink)
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
+        ChartAnnotationView(
+            date: store.selectedHealthMetric?.date ?? .now,
+            value: store.selectedHealthMetric?.value ?? 0,
+            color: .pink
         )
     }
     

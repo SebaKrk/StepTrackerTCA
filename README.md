@@ -136,4 +136,5 @@ This project is not only a technical exercise but also an exploration of possibi
     * C: ChartContent
         - WeightGoalWidgetView+ChartContent
         - WeightDiffWidget+ChartContent
-        
+        - StepWidget+ChartContent
+        - StepPieWidget+ChartContent

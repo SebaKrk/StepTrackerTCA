@@ -11,7 +11,7 @@ import SwiftUI
 extension WeightGoalWidgetView {
     
     func createRuleMark<Content: View>(with selectedHealthMetric: HealthData,
-        annotationView: @escaping () -> Content
+                                       annotationView: @escaping () -> Content
     ) -> some ChartContent {
         RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
             .foregroundStyle(Color.secondary.opacity(0.3))
@@ -55,5 +55,5 @@ extension WeightGoalWidgetView {
         .interpolationMethod(.catmullRom)
         .symbol(.circle)
     }
-
+    
 }
