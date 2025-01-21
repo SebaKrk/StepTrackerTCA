@@ -135,3 +135,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - create new view and cleanup the code
     * C: ChartContent
         - WeightGoalWidgetView+ChartContent
+        - WeightDiffWidget+ChartContent
+        
