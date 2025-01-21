@@ -41,23 +41,18 @@ struct WeightGoalWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    func weightGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    private func weightGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
             content()
         } label: {
-            groupBoxTitle(
-                "Weight",
-                "figure",
-                "Avg \(store.averageWeight) kg",
-                destination: true
-            )
+            headerTitle
         }
         .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
     }
     
     @ViewBuilder
-    var weightGoalChart: some View {
+    private var weightGoalChart: some View {
         Chart {
             if let selectedHealthMetric = store.selectedHealthMetric {
                 RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
@@ -115,7 +110,7 @@ struct WeightGoalWidgetView: View {
     }
     
     @ViewBuilder
-    var weightAnnotationView: some View {
+    private var weightAnnotationView: some View {
         VStack(alignment: .leading) {
             Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .font(.footnote.bold())
@@ -134,25 +129,15 @@ struct WeightGoalWidgetView: View {
     }
     
     @ViewBuilder
-    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Label(title, systemImage: systemImage)
-                    .font(.title3.bold())
-                    .foregroundStyle(.indigo)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+    private var headerTitle: some View {
+        ChartGroupBoxHeader(
+            title: "Weight",
+            systemImage: "figure",
+            secondaryText:  "Avg \(store.averageWeight) kg",
+            color: .indigo,
+            destination: true) {
+                send(.tapDestination)
             }
-            Spacer()
-            if destination {
-                Button {
-                    send(.tapDestination)
-                } label: {
-                    Image(systemName: "chevron.right")
-                }
-            }
-        }
     }
     
     @ViewBuilder
