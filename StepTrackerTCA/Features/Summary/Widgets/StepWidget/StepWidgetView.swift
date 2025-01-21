@@ -41,23 +41,18 @@ struct StepWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    func stepsWalkGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    private func stepsWalkGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
             content()
         } label: {
-            groupBoxTitle(
-                "Steps",
-                "figure.walk",
-                "Avg: \(Int(store.avgStepCount)) steps",
-                destination: true
-            )
+            headerTitle
         }
         .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
     }
     
     @ViewBuilder
-    var stepWalkChart: some View {
+    private var stepWalkChart: some View {
         Chart {
             if let selectedHealthMetric = store.selectedHealthMetric {
                 RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
@@ -97,7 +92,7 @@ struct StepWidgetView: View {
     }
     
     @ViewBuilder
-    var annotationView: some View {
+    private var annotationView: some View {
         VStack(alignment: .leading) {
             Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .font(.footnote.bold())
@@ -116,25 +111,15 @@ struct StepWidgetView: View {
     }
     
     @ViewBuilder
-    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Label(title, systemImage: systemImage)
-                    .font(.title3.bold())
-                    .foregroundStyle(.pink)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+    private var headerTitle: some View {
+        ChartGroupBoxHeader(
+            title: "Steps",
+            systemImage: "figure.walk",
+            secondaryText: "Avg: \(Int(store.avgStepCount)) steps",
+            color: .pink,
+            destination: true) {
+                send(.tapDestination)
             }
-            Spacer()
-            if destination {
-                Button {
-                    send(.tapDestination)
-                } label: {
-                    Image(systemName: "chevron.right")
-                }
-            }
-        }
     }
     
     @ViewBuilder

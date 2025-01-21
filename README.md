@@ -131,3 +131,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - refactor StepWidgetFeature
         - refactor WeightDiffWidgetFeature
         - refactor WeightGoalWidgetFeature
+    * B: ChartGroupBoxHeader View
+        - create new view and cleanup the code

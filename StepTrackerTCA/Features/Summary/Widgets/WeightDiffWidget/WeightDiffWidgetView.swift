@@ -35,22 +35,18 @@ struct WeightDiffWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    func weightDiffGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    private func weightDiffGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
             content()
         } label: {
-            groupBoxTitle(
-                "Steps",
-                "figure.walk",
-                "Per Weekday (Last 28 Days)"
-            )
+            headerTitle
         }
         .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
     }
     
     @ViewBuilder
-    var weightDiffBarChart: some View {
+    private var weightDiffBarChart: some View {
         Chart {
             if let selectedHealthMetric = store.selectedHealthMetric {
                 RuleMark(x: .value("Selected Data", selectedHealthMetric.date, unit: .day))
@@ -86,7 +82,7 @@ struct WeightDiffWidgetView: View {
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
     }
     
-    var annotationView: some View {
+    private var annotationView: some View {
         VStack(alignment: .leading) {
             Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .font(.footnote.bold())
@@ -105,18 +101,13 @@ struct WeightDiffWidgetView: View {
     }
     
     @ViewBuilder
-    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Label(title, systemImage: systemImage)
-                    .font(.title3.bold())
-                    .foregroundStyle(.indigo)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-        }
+    private var headerTitle: some View {
+        ChartGroupBoxHeader(
+            title: "Average Weight Change",
+            systemImage: "figure",
+            secondaryText: "Per Weekday (Last 28 Days)",
+            color: .indigo
+        )
     }
     
     @ViewBuilder

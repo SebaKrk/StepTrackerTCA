@@ -57,9 +57,7 @@ struct StepPieWidgetFeature {
                     
                 case .refresh:
                     return .run { [stepData = state.stepData] send in
-                        if let stepData = stepData {
-                            await send(.updatePieChartData(stepData))
-                        }
+                        await send(.updatePieChartData(stepData))
                     }
                       
                     // MARK: - View Actions
