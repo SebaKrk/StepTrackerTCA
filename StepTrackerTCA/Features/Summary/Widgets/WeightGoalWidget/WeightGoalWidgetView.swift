@@ -55,41 +55,14 @@ struct WeightGoalWidgetView: View {
     private var weightGoalChart: some View {
         Chart {
             if let selectedHealthMetric = store.selectedHealthMetric {
-                RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
-                    .foregroundStyle(Color.secondary.opacity(0.3))
-                    .offset(y: -10)
-                    .annotation(position: .top,
-                                spacing: 0,
-                                overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
-                        weightAnnotationView
-                    }
-            }
-            //TODO: - dodać opcje wprowadzania swojego gola
-            RuleMark(y: .value("Goal", 98))
-                .foregroundStyle(.mint)
-                .lineStyle(.init(lineWidth: 1, dash: [5]))
-                .annotation(alignment: .bottomLeading) {
-                    Text("Weight goal")
-                        .bold()
-                        .foregroundStyle(.mint)
-                        .font(.caption)
+                createRuleMark(with: selectedHealthMetric) {
+                    weightAnnotationView
                 }
+            }
+            createGoalRuleMark()
             ForEach(store.weightData) { weight in
-                AreaMark(
-                    x: .value("Day", weight.date, unit: .day),
-                    yStart: .value("Value", weight.value),
-                    yEnd: .value("Min value", store.weightMinValue)
-                )
-                .foregroundStyle(Gradient(colors: [.indigo.opacity(0.5), .clear]))
-                .interpolationMethod(.catmullRom)
-                
-                LineMark(
-                    x: .value("Day", weight.date, unit: .day),
-                    y: .value("Value", weight.value)
-                )
-                .foregroundStyle(.indigo)
-                .interpolationMethod(.catmullRom)
-                .symbol(.circle)
+                createWeightAreaMark(with: weight)
+                createWeightLineMark(with: weight)
             }
         }
         .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
