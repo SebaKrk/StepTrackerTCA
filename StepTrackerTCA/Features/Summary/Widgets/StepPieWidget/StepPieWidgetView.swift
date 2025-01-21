@@ -20,14 +20,10 @@ struct StepPieWidgetView: View {
     
     var body: some View {
         Group {
-            if let stepData = store.stepData {
-                if stepData.isEmpty {
-                    stepPieGroupBox { contentUnavailable }
-                } else {
-                    stepPieGroupBox { stepsPieChart }
-                }
+            if !store.stepData.isEmpty {
+                stepPieGroupBox { stepsPieChart }
             } else {
-                ProgressView()
+                stepPieGroupBox { contentUnavailable }
             }
         }
         .frame(height: 300)
@@ -39,30 +35,21 @@ struct StepPieWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    func stepPieGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    private func stepPieGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
             content()
         } label: {
-            groupBoxTitle("Averages",
-                          "calendar",
-                          "Last 28 Days",
-                          destination: false)
+            headerTitle
         }
         .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
     }
     
     @ViewBuilder
-    var stepsPieChart: some View {
+    private var stepsPieChart: some View {
         Chart {
             ForEach(store.stepDataPerWeekDay) { weekday in
-                SectorMark(angle: .value("Average Steps", weekday.value),
-                           innerRadius: .ratio(0.618),
-                           outerRadius: store.selectedChartValue?.date.weekdayInt == weekday.date.weekdayInt ? 140 : 110,
-                           angularInset: 1)
-                .foregroundStyle(.pink.gradient)
-                .cornerRadius(6)
-                .opacity(store.selectedChartValue?.date.weekdayInt == weekday.date.weekdayInt ? 1.0 : 0.3)
+                createPieChart(for: weekday)
             }
         }
         .chartAngleSelection(value: $store.rawSelectedChartValue.animation(.easeInOut))
@@ -85,25 +72,7 @@ struct StepPieWidgetView: View {
     }
     
     @ViewBuilder
-    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Label(title, systemImage: systemImage)
-                    .font(.title3.bold())
-                    .foregroundStyle(.pink)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            if destination {
-                Image(systemName: "chevron.right")
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func pieTextView(_ title: String, _ value: Double) -> some View {
+    private func pieTextView(_ title: String, _ value: Double) -> some View {
         VStack {
             Text(title)
                 .font(.title3.bold())
@@ -114,6 +83,16 @@ struct StepPieWidgetView: View {
                 .foregroundStyle(.secondary)
                 .contentTransition(.numericText())
         }
+    }
+    
+    @ViewBuilder
+    private var headerTitle: some View {
+        ChartGroupBoxHeader(
+            title: "Averages",
+            systemImage: "calendar",
+            secondaryText: "Last 28 Days",
+            color: .pink
+        )
     }
     
     @ViewBuilder

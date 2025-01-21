@@ -41,60 +41,26 @@ struct WeightGoalWidgetView: View {
     // MARK: - Subview
     
     @ViewBuilder
-    func weightGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    private func weightGroupBox<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         GroupBox {
             content()
         } label: {
-            groupBoxTitle(
-                "Weight",
-                "figure",
-                "Avg \(store.averageWeight) kg",
-                destination: true
-            )
+            headerTitle
         }
         .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
     }
     
     @ViewBuilder
-    var weightGoalChart: some View {
+    private var weightGoalChart: some View {
         Chart {
             if let selectedHealthMetric = store.selectedHealthMetric {
-                RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
-                    .foregroundStyle(Color.secondary.opacity(0.3))
-                    .offset(y: -10)
-                    .annotation(position: .top,
-                                spacing: 0,
-                                overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
-                        weightAnnotationView
-                    }
+                createRuleMark(with: selectedHealthMetric) { weightAnnotationView }
             }
-            //TODO: - dodać opcje wprowadzania swojego gola
-            RuleMark(y: .value("Goal", 98))
-                .foregroundStyle(.mint)
-                .lineStyle(.init(lineWidth: 1, dash: [5]))
-                .annotation(alignment: .bottomLeading) {
-                    Text("Weight goal")
-                        .bold()
-                        .foregroundStyle(.mint)
-                        .font(.caption)
-                }
+            createGoalRuleMark()
             ForEach(store.weightData) { weight in
-                AreaMark(
-                    x: .value("Day", weight.date, unit: .day),
-                    yStart: .value("Value", weight.value),
-                    yEnd: .value("Min value", store.weightMinValue)
-                )
-                .foregroundStyle(Gradient(colors: [.indigo.opacity(0.5), .clear]))
-                .interpolationMethod(.catmullRom)
-                
-                LineMark(
-                    x: .value("Day", weight.date, unit: .day),
-                    y: .value("Value", weight.value)
-                )
-                .foregroundStyle(.indigo)
-                .interpolationMethod(.catmullRom)
-                .symbol(.circle)
+                createWeightAreaMark(with: weight)
+                createWeightLineMark(with: weight)
             }
         }
         .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
@@ -115,44 +81,22 @@ struct WeightGoalWidgetView: View {
     }
     
     @ViewBuilder
-    var weightAnnotationView: some View {
-        VStack(alignment: .leading) {
-            Text(store.selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            Text(store.selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(1)))
-                .fontWeight(.heavy)
-                .foregroundStyle(.indigo)
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        )
+    private var weightAnnotationView: some View {
+        ChartAnnotationView(date: store.selectedHealthMetric?.date ?? .now,
+                            value: store.selectedHealthMetric?.value ?? 0,
+                            color: .indigo)
     }
     
     @ViewBuilder
-    private func groupBoxTitle(_ title: String, _ systemImage: String, _ secondaryText: String, destination: Bool = true) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Label(title, systemImage: systemImage)
-                    .font(.title3.bold())
-                    .foregroundStyle(.indigo)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+    private var headerTitle: some View {
+        ChartGroupBoxHeader(
+            title: "Weight",
+            systemImage: "figure",
+            secondaryText:  "Avg \(store.averageWeight) kg",
+            color: .indigo,
+            destination: true) {
+                send(.tapDestination)
             }
-            Spacer()
-            if destination {
-                Button {
-                    send(.tapDestination)
-                } label: {
-                    Image(systemName: "chevron.right")
-                }
-            }
-        }
     }
     
     @ViewBuilder
