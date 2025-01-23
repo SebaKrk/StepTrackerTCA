@@ -26,7 +26,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - remove ContentView
         - create basic DashboardView
     * B: Add initial DashboardView layout with mock data
-        - create basic GroupBoxView for Walki and Calendar container
+        - create basic GroupBoxView for Walk and Calendar container
     * C: HealthMetricContext
         - Created HealthMetricContext to represent health metrics
         - Added a Picker in DashboardView to allow the user to switch between health metrics.
@@ -138,3 +138,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - WeightDiffWidget+ChartContent
         - StepWidget+ChartContent
         - StepPieWidget+ChartContent
+        
+### IOS-00014 Personal Records Feature
