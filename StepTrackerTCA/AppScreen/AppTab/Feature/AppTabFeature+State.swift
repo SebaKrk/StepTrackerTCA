@@ -19,7 +19,7 @@ extension AppTabFeature {
         /// List of available tabs in the application.
         ///
         /// The order of tabs determines their placement in the UI.
-        var tabs: [AppScreen] = [.workout, .activity, .summary, .fuel, .community, .personData, .settings]
+        var tabs: [AppScreen] = [.workout, .activity, .summary, .personData, .fuel, .community, .settings]
         
         /// The currently selected tab in the application.
         ///
@@ -36,6 +36,9 @@ extension AppTabFeature {
         
         /// Stores the information contained in the summaryTab: `ActivityFeature`.
         var activityTab = ActivityFeature.State()
+        
+        /// Stores the information contained in the summaryTab: `PersonDataFeature`.
+        var personDataTab = PersonDataFeature.State()
         
     }
     
