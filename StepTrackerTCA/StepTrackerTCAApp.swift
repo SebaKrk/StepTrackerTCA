@@ -23,7 +23,4 @@ struct StepTrackerTCAApp: App {
     
 }
 
-//            DashboardView(store: Store(initialState: DashboardFeature.State(), reducer: {
-//                DashboardFeature(service: DefaultDashboardFeatureService())
-//            }))
 //._printChanges()

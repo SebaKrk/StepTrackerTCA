@@ -47,7 +47,7 @@ struct AppTabView: View {
         case .settings:
             Text("settings")
         case .personData:
-            Text("personData")
+            PersonDataView(store: store.scope(state: \.personDataTab, action: \.personDataTab))
         }
     }
     

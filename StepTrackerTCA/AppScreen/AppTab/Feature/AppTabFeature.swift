@@ -32,6 +32,9 @@ struct AppTabFeature {
             case .activityTab:
                 return .none
                 
+            case .personDataTab:
+                return .none
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .none
@@ -45,6 +48,9 @@ struct AppTabFeature {
         }
         Scope(state: \.activityTab, action: \.activityTab) {
             ActivityFeature()
+        }
+        Scope(state: \.personDataTab, action: \.personDataTab) {
+            PersonDataFeature()
         }
     }
     
