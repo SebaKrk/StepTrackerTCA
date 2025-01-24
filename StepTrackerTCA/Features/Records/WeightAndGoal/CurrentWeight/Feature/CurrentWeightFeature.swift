@@ -1,15 +1,15 @@
 //
-//  PersonDataFeature.swift
+//  CurrentWeightFeature.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 23/01/2025.
+//  Created by Sebastian Sciuba on 24/01/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct PersonDataFeature {
+struct CurrentWeightFeature {
     
     // MARK: - Reducer
     
@@ -20,16 +20,10 @@ struct PersonDataFeature {
                 
                 // MARK: - View Actions
             case .view(.viewDidAppear):
-                print("PersonDataFeature")
+                print("CurrentWeightFeature")
                 return .none
-                
-                // MARK: - Destination
-            case .destination:
-                return .none
-                
             }
         }
-        .ifLet(\.$destination, action: \.destination)
     }
     
 }

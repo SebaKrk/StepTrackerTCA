@@ -1,15 +1,15 @@
 //
-//  PersonDataFeature+Action.swift
+//  WeightGoalFeature+Action.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 23/01/2025.
+//  Created by Sebastian Sciuba on 24/01/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `PersonDataFeature` action
-extension PersonDataFeature {
+/// Implementation of `WeightGoalFeature` action
+extension WeightGoalFeature {
     
     @CasePathable
     enum Action: ViewAction {
@@ -24,11 +24,16 @@ extension PersonDataFeature {
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            /// test
+            case testButtonTapped
         }
-        
         // MARK: - Destination
         
-        /// destination case for navigation
+        ///
+        case show
+        
+        /// Destination case for navigation
         case destination(PresentationAction<Destination.Action>)
     }
     

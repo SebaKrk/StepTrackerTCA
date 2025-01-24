@@ -19,7 +19,7 @@ extension AppTabFeature {
         /// List of available tabs in the application.
         ///
         /// The order of tabs determines their placement in the UI.
-        var tabs: [AppScreen] = [.workout, .activity, .summary, .personData, .fuel, .community, .settings]
+        var tabs: [AppScreen] = [.workout, .activity, .summary, .records, .fuel, .community, .settings]
         
         /// The currently selected tab in the application.
         ///
