@@ -6,7 +6,7 @@
 //
 
 import ComposableArchitecture
-import SwiftUI
+
 
 /// Implementation of `PersonDataFeature` destination
 extension PersonDataFeature {

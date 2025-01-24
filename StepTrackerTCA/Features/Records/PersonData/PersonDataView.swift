@@ -29,12 +29,22 @@ struct PersonDataView: View {
     private var personDataBody: some View {
         NavigationStack {
             ScrollView {
-                Text("Person data records")
-                    
+                currentWeightView
+                weightGoalView
             }
             .navigationTitle("Person records")
             .navigationBarTitleDisplayMode(.inline)
         }
+    }
+    
+    @ViewBuilder
+    private var currentWeightView: some View {
+        CurrentWeightView(store: store.scope(state: \.currentWeight, action: \.currentWeight))
+    }
+    
+    @ViewBuilder
+    private var weightGoalView: some View {
+        WeightGoalView(store: store.scope(state: \.weightGoal, action: \.weightGoal))
     }
     
 }
