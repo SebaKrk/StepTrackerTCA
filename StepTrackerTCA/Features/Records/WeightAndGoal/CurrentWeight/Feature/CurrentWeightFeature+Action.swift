@@ -16,6 +16,9 @@ extension CurrentWeightFeature {
         
         // MARK: - Actions
         
+        /// Updates the chart data with the given health data set.
+        case updateWeightData([HealthData])
+        
         // MARK: - View Actions
         
         case view(View)

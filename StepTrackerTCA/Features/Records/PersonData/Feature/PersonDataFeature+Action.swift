@@ -16,6 +16,16 @@ extension PersonDataFeature {
         
         // MARK: - Actions
         
+        /// Triggers the fetching of health data.
+        /// This action starts the process of retrieving health-related metrics from an external source.
+        case fetchHealthData
+        
+        /// Updates the weight data with the result of a health data fetch.
+        ///
+        /// - Parameter result: A `Result` containing an array of `HealthData` on success
+        /// or an `Error` on failure.
+        case updateWeightData(Result<[HealthData], Error>)
+                
         // MARK: - View Actions
         
         case view(View)

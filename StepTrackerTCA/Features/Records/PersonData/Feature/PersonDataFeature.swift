@@ -11,6 +11,16 @@ import Foundation
 @Reducer
 struct PersonDataFeature {
     
+    // MARK: - Properties
+    
+    var personDataFeatureService: PersonDataFeatureService
+    
+    // MARK: - Lifecycle
+    
+    init(service: PersonDataFeatureService) {
+        self.personDataFeatureService = service
+    }
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -18,10 +28,30 @@ struct PersonDataFeature {
             switch action {
                 // MARK: - Actions
                 
+            case .fetchHealthData:
+                return .run { send in
+                    await send(.updateWeightData(
+                        Result {
+                            try await personDataFeatureService.getWeightData()
+                        }
+                    ))
+                }
+                
+            case let .updateWeightData(.success(data)):
+                state.weightData = data
+                return .run { send in
+                    await send(.currentWeight(.updateWeightData(data)))
+                }
+                
+            case let .updateWeightData(.failure(error)):
+                print(error.localizedDescription)
+                return .none
+                
                 // MARK: - View Actions
             case .view(.viewDidAppear):
-                print("PersonDataFeature")
-                return .none
+                return .run { send in
+                    await send(.fetchHealthData)
+                }
                 
                 // MARK: - Destination
             case .destination:
@@ -38,12 +68,11 @@ struct PersonDataFeature {
         .ifLet(\.$destination, action: \.destination)
         
         Scope(state: \.currentWeight, action: \.currentWeight) {
-            CurrentWeightFeature()
+            CurrentWeightFeature(service: DefaultCurrentWeightService())
         }
         Scope(state: \.weightGoal, action: \.weightGoal) {
             WeightGoalFeature()
         }
-        
     }
     
 }
