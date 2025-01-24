@@ -30,18 +30,90 @@ struct WeightGoalView: View {
     // MARK: - Subview
     
     private var weightGoalBody: some View {
+        weightGoalWidget(store.weightGoal)
+    }
+    
+    private func weightGoalWidget(_ data: HealthData?) -> some View {
         GroupBox {
-            Button {
-                send(.testButtonTapped)
-            } label: {
-                VStack {
-                    Spacer()
-                    Text("Current Weight Goal")
-                    Spacer()
-                }
-            }
+            weightGoalContent(data)
+        } label: {
+            weightGoalTitleHeader(data)
         }
         .frame(width: 200, height: 200)
     }
     
+    private func weightGoalTitleHeader( _ data: HealthData?) -> some View {
+        VStack {
+            HStack {
+                Group {
+                    Label("Goal", systemImage: "trophy")
+                    Spacer()
+                    actionButton()
+                }
+                .foregroundStyle(.green)
+                .bold()
+            }
+            Divider()
+        }
+    }
+    
+    private func weightGoalContent(_ data: HealthData?) -> some View {
+        VStack {
+            Spacer()
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Weight Goal")
+                        .foregroundStyle(.secondary)
+                    if let data {
+                        Text("\(data.value, format: .number.precision(.fractionLength(1))) kg")
+                            .font(.largeTitle)
+                            .bold()
+                    } else {
+                        Button {
+                            send(.navigationButtonTapped)
+                        } label: {
+                            Text("Set your goal")
+                                .foregroundStyle(.red)
+                                .font(.title3)
+                        }
+                    }
+                }
+                Spacer()
+            }
+            Spacer()
+            weightGoalTitleFooter(data)
+        }
+    }
+    
+    private func weightGoalTitleFooter( _ data: HealthData?) -> some View {
+        HStack {
+            Spacer()
+            if let data {
+                Text("\(data.date, format: .dateTime.month(.defaultDigits).day().year(.twoDigits))")
+                    .foregroundStyle(.green)
+                    .font(.caption)
+                    .bold()
+            }
+        }
+    }
+    
+    private func actionButton() -> some View {
+        Button {
+            send(.navigationButtonTapped)
+        } label: {
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.green)
+        }
+    }
+    
 }
+
+#Preview {
+    let weightGoal = HealthData(date: .now, value: 95)
+    NavigationStack {
+        WeightGoalView(store: Store(initialState: WeightGoalFeature.State(weightGoal: weightGoal), reducer: {
+            WeightGoalFeature()
+        }))
+    }
+}
+

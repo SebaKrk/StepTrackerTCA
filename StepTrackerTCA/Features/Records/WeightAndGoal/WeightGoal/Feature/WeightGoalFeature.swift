@@ -20,7 +20,7 @@ struct WeightGoalFeature {
                 
                 // MARK: - View Actions
                 
-            case .view(.testButtonTapped):
+            case .view(.navigationButtonTapped):
                 return .send(.show)
                 
             case .view(.viewDidAppear):

@@ -26,7 +26,7 @@ extension WeightGoalFeature {
             case viewDidAppear
             
             /// test
-            case testButtonTapped
+            case navigationButtonTapped
         }
         // MARK: - Destination
         
