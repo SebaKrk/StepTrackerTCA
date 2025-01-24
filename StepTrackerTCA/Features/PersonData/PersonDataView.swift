@@ -19,17 +19,22 @@ struct PersonDataView: View {
     
     var body: some View {
         personDataBody
+            .onAppear {
+                send(.viewDidAppear)
+            }
     }
     
     // MARK: - Subview
     
     private var personDataBody: some View {
-        ScrollView {
-            Text("PersonDataView")
-        }
-        .navigationTitle("Person Data")
-        .onAppear {
-            send(.viewDidAppear)
+        NavigationStack {
+            ScrollView {
+                Text("Person data records")
+                    
+            }
+            .navigationTitle("Person records")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
+    
 }

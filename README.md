@@ -141,3 +141,5 @@ This project is not only a technical exercise but also an exploration of possibi
         
 ### IOS-00014 Personal Records 
     * A: PersonDataFeature (parent)
+    * B: Change to Records tab
+ 
