@@ -28,7 +28,7 @@ struct CurrentWeightFeature {
             switch action {
                 // MARK: - Actions
             case let .updateWeightData(data):
-                state.latestWeight = currentWeightService.getLatestWeightData(from: data) 
+                state.latestWeight = currentWeightService.getLatestWeightData(from: data)
                 return .none
                 
                 // MARK: - View Actions

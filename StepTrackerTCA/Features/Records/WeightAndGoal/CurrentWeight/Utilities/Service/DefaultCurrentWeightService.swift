@@ -17,7 +17,6 @@ final class DefaultCurrentWeightService: CurrentWeightService {
             print("No body mass data available.")
             return nil
         }
-        print("Fetched latest body mass: \(latestWeight.value) kg")
         return latestWeight
     }
     

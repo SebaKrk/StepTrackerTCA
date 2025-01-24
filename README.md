@@ -150,3 +150,5 @@ This project is not only a technical exercise but also an exploration of possibi
     * C: WeightGoal
         - Pass the date through the feature to handle time-specific data.
         - Implement a service to manage weight goals effectively.
+        - Design and develop the user interface.
+ 
