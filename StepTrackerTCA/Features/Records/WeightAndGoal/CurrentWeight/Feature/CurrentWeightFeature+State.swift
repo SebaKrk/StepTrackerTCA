@@ -13,7 +13,15 @@ extension CurrentWeightFeature {
     
     @ObservableState
     struct State {
+        
         // MARK: - Properties
+        
+        /// The data for weight data
+        var weightData: [HealthData] = []
+        
+        /// The most recent health data entry, representing the user's latest recorded weight.
+        /// If no data is available, this value will be `nil`.
+        var latestWeight: HealthData? = nil
     }
     
 }

@@ -21,6 +21,8 @@ final class DefaultDashboardFeatureService: DashboardFeatureService {
         userDefaultsService.get(objectForKey: .hasSeenPermissionPriming) ?? false
     }
     
+    // MARK: - API
+    
     func markPermissionPrimingAsSeen() {
         userDefaultsService.set(true, forKey: .hasSeenPermissionPriming)
     }

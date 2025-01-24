@@ -30,11 +30,18 @@ struct WeightGoalView: View {
     // MARK: - Subview
     
     private var weightGoalBody: some View {
-        Button {
-            send(.testButtonTapped)
-        } label: {
-            Text("Current Weight Goal")
+        GroupBox {
+            Button {
+                send(.testButtonTapped)
+            } label: {
+                VStack {
+                    Spacer()
+                    Text("Current Weight Goal")
+                    Spacer()
+                }
+            }
         }
+        .frame(width: 200, height: 200)
     }
     
 }

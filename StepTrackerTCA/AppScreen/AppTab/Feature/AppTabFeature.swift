@@ -50,7 +50,7 @@ struct AppTabFeature {
             ActivityFeature()
         }
         Scope(state: \.personDataTab, action: \.personDataTab) {
-            PersonDataFeature()
+            PersonDataFeature(service: DefaultPersonDataFeatureService())
         }
     }
     

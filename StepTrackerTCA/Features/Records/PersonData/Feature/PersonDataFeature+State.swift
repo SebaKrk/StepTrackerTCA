@@ -15,6 +15,8 @@ extension PersonDataFeature {
     struct State {
         // MARK: - Properties
         
+        /// The data for weight data
+        var weightData: [HealthData] = []
         
         // MARK: - Destination
         

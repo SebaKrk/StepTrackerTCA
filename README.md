@@ -142,9 +142,13 @@ This project is not only a technical exercise but also an exploration of possibi
 ### IOS-00014 Personal Records 
     * A: PersonDataFeature (parent)
     * B: WeightAndGoal
-        - Change to Records tab
-        - WeightGoalFeatue
+        - Change to `Records` tab
+        - WeightGoalFeature
         - CurrentWightFeature
         - SetWeightGoalFeature
         - Basic navigation in WeightAndGoal
+    * C: WeightGoal
+        - Pass the date through the feature to handle time-specific data.
+        - Implement a service to manage weight goals effectively.
+        - Design and develop the user interface.
  

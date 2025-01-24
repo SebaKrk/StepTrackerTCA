@@ -29,8 +29,11 @@ struct PersonDataView: View {
     private var personDataBody: some View {
         NavigationStack {
             ScrollView {
-                currentWeightView
-                weightGoalView
+                HStack {
+                    currentWeightView
+                    weightGoalView
+                }
+                .padding([.leading, .trailing], 12)
             }
             .navigationTitle("Person records")
             .navigationBarTitleDisplayMode(.inline)
@@ -47,4 +50,13 @@ struct PersonDataView: View {
         WeightGoalView(store: store.scope(state: \.weightGoal, action: \.weightGoal))
     }
     
+}
+
+#Preview {
+    var weightData: [HealthData] = [.init(date: .now, value: 100)]
+    NavigationStack {
+        PersonDataView(store: Store(initialState: PersonDataFeature.State(weightData: weightData), reducer: {
+            PersonDataFeature(service: DefaultPersonDataFeatureService())
+        }))
+    }
 }
