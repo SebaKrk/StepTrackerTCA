@@ -39,7 +39,7 @@ struct WeightGoalView: View {
         } label: {
             weightGoalTitleHeader(data)
         }
-        .frame(width: 200, height: 200)
+        .frame(minHeight: 200)
     }
     
     private func weightGoalTitleHeader( _ data: HealthData?) -> some View {
@@ -69,13 +69,7 @@ struct WeightGoalView: View {
                             .font(.largeTitle)
                             .bold()
                     } else {
-                        Button {
-                            send(.navigationButtonTapped)
-                        } label: {
-                            Text("Set your goal")
-                                .foregroundStyle(.red)
-                                .font(.title3)
-                        }
+                        setYourGoalButton()
                     }
                 }
                 Spacer()
@@ -106,6 +100,15 @@ struct WeightGoalView: View {
         }
     }
     
+    private func setYourGoalButton() -> some View {
+        Button {
+            send(.navigationButtonTapped)
+        } label: {
+            Text("Set your goal")
+                .foregroundStyle(.red)
+                .font(.title3)
+        }
+    }
 }
 
 #Preview {
