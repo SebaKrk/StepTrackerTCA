@@ -19,7 +19,7 @@ struct WeightGoalView: View {
     
     var body: some View {
         weightGoalBody
-            .sheet(item: $store.scope(state: \.destination?.detailItem, action: \.destination.detailItem), content: { store in
+            .sheet(item: $store.scope(state: \.destination?.setWeightGoal, action: \.destination.setWeightGoal), content: { store in
                 SetWeightGoalView(store: store)
             })
             .onAppear {

@@ -8,11 +8,12 @@
 import ComposableArchitecture
 import SwiftUI
 
+@ViewAction(for: SetWeightGoalFeature.self)
 struct SetWeightGoalView: View {
     
     // MARK: - Properties
     
-    var store: StoreOf<SetWeightGoalFeature>
+    @Bindable var store: StoreOf<SetWeightGoalFeature>
     
     // MARK: - View
     
@@ -23,7 +24,60 @@ struct SetWeightGoalView: View {
     // MARK: - Subview
     
     private var setWeightGoalBody: some View {
-        Text("SetWeightGoal")
+        NavigationStack {
+             setGoalBody
+            .navigationTitle("Weight goal")
+            .toolbar {
+                toolbarButton
+            }
+        }
+    }
+    
+    // MARK: - SubView
+    
+    @ToolbarContentBuilder
+    var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) { saveButton }
+        ToolbarItem(placement: .topBarLeading) { dismissButton }
+    }
+    
+    private var saveButton: some View {
+        Button { send(.saveGoalButtonPressed)
+        } label: {
+            Text("Save")
+        }
+    }
+    
+    private var dismissButton: some View {
+        Button {
+            send(.dismissButtonPressed)
+        } label: {
+            Text("Dismiss")
+        }
+    }
+    
+    private var setGoalBody: some View {
+        VStack {
+            Form {
+                datePicker
+                setGoalTextField
+            }
+        }
+    }
+    
+    var datePicker: some View {
+        DatePicker("Date", selection: $store.addDataDate, displayedComponents: .date)
+    }
+    
+    private var setGoalTextField: some View {
+        HStack {
+            Text("Weight Goal")
+            Spacer()
+            TextField("Goal Value", text: $store.weightGoal)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 140)
+                .keyboardType(.numberPad)
+        }
     }
     
 }

@@ -15,7 +15,7 @@ extension WeightGoalFeature {
     enum Destination {
         
         /// Represents the destination for displaying in `SetWeightGoalFeature`.
-        case detailItem(SetWeightGoalFeature)
+        case setWeightGoal(SetWeightGoalFeature)
     }
     
 }
