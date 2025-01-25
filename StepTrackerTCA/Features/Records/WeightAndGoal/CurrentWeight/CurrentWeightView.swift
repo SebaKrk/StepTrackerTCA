@@ -42,7 +42,7 @@ struct CurrentWeightView: View {
         } label: {
             weightBodyTitleHeaderWithImage(data)
         }
-        .frame(width: 200, height: 200)
+        .frame(minHeight: 200)
     }
     
     private func emptyWeightBodyWidget() -> some View {

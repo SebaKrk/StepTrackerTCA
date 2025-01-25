@@ -14,8 +14,6 @@ extension WeightGoalFeature {
     @CasePathable
     enum Action: ViewAction {
         
-        // MARK: - Actions
-        
         // MARK: - View Actions
         
         case view(View)
@@ -25,12 +23,12 @@ extension WeightGoalFeature {
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
             
-            /// test
-            case testButtonTapped
+            /// Triggered when a navigation button is tapped.
+            case navigationButtonTapped
         }
         // MARK: - Destination
         
-        ///
+        /// Triggered to display a destination or handle navigation actions.
         case show
         
         /// Destination case for navigation

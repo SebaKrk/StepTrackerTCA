@@ -11,25 +11,37 @@ import Foundation
 @Reducer
 struct SetWeightGoalFeature {
     
+    // MARK: - Dependency
+    
+    @Dependency(\.dismiss) var dismiss
+    
+    // MARK: - Reducer
+    
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-                
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                    
+                    // MARK: - Binding
+                case .binding:
+                    return .none
+                    
+                    // MARK: - View Action
+                case .view(.saveGoalButtonPressed):
+                    return .run { [ date = state.addDataDate, value = state.weightGoal ] send in
+                        await send(.delegate(.setGoal(HealthData(date: date, value: Double(value) ?? 0))))
+                        await self.dismiss()
+                    }
+                               
+                case .view(.dismissButtonPressed):
+                    return .run { send in
+                        await self.dismiss()
+                    }
+                    
+                default: return .none
+                }
             }
         }
     }
-}
-
-/// Implementation of `SetWeightGoalFeature` action
-extension SetWeightGoalFeature {
-    
-    @CasePathable
-    enum Action { }
-    
-}
-
-/// Implementation of `SetWeightGoalFeature` state
-extension SetWeightGoalFeature {
-    @ObservableState
-    struct State { }
 }

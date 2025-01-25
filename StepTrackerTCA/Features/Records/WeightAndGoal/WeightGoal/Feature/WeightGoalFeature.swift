@@ -20,21 +20,23 @@ struct WeightGoalFeature {
                 
                 // MARK: - View Actions
                 
-            case .view(.testButtonTapped):
+            case .view(.navigationButtonTapped):
                 return .send(.show)
                 
             case .view(.viewDidAppear):
-                print("WeightGoalFeature")
                 return .none
                 
                 // MARK: - Destination
                 
             case .show:
-                state.destination = .detailItem(SetWeightGoalFeature.State())
+                state.destination = .setWeightGoal(SetWeightGoalFeature.State())
                 return .none
                 
-            case .destination:
+            case let .destination(.presented(.setWeightGoal(.delegate(.setGoal(data))))):
+                state.weightGoal = data
                 return .none
+                
+            default: return .none      
             }
         }
         .ifLet(\.$destination, action: \.destination)

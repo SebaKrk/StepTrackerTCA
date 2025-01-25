@@ -14,6 +14,10 @@ extension WeightGoalFeature {
     @ObservableState
     struct State {
         // MARK: - Properties
+        /// The user's weight goal represented by `HealthData`. It is optional.
+        ///
+        /// Example: `weightGoal = .init(date: .now, value: 95)`
+        var weightGoal: HealthData?
         
         // MARK: - Destination
         
@@ -22,4 +26,3 @@ extension WeightGoalFeature {
     }
     
 }
-
