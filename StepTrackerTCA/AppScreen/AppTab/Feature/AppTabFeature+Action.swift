@@ -37,6 +37,9 @@ extension AppTabFeature {
         
         /// Stores the actions of the summaryTab: `ActivityFeature`
         case activityTab(ActivityFeature.Action)
+        
+        /// Stores the actions of the summaryTab: `PersonDataFeature`
+        case personDataTab(PersonDataFeature.Action)
     }
     
 }

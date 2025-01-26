@@ -26,7 +26,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - remove ContentView
         - create basic DashboardView
     * B: Add initial DashboardView layout with mock data
-        - create basic GroupBoxView for Walki and Calendar container
+        - create basic GroupBoxView for Walk and Calendar container
     * C: HealthMetricContext
         - Created HealthMetricContext to represent health metrics
         - Added a Picker in DashboardView to allow the user to switch between health metrics.
@@ -138,3 +138,22 @@ This project is not only a technical exercise but also an exploration of possibi
         - WeightDiffWidget+ChartContent
         - StepWidget+ChartContent
         - StepPieWidget+ChartContent
+        
+### IOS-00014 Personal Records 
+    * A: PersonDataFeature (parent)
+    * B: WeightAndGoal
+        - Change to `Records` tab
+        - WeightGoalFeature
+        - CurrentWightFeature
+        - SetWeightGoalFeature
+        - Basic navigation in WeightAndGoal
+    * C: CurrentWeight
+        - Pass the date through the feature to handle time-specific data.
+        - Implement a service to manage weight goals effectively.
+        - Design and develop the user interface.
+    * D: WeightGoalView
+        - Design and develop the user interface.
+    * E: Refactor UI
+        - Created reusable components for improved modularity and code maintainability.
+    * F: Open permission screen
+        - open permission screen when no data available in current weight widget

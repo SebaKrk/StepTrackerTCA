@@ -50,9 +50,6 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .tint(store.healthMetric == .steps ? .pink : .indigo)
-        .onAppear {
-            send(.viewDidAppear)
-        }
         .refreshable {
             send(.userPulledToRefresh)
         }

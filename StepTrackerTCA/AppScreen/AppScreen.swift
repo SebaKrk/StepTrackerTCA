@@ -19,7 +19,7 @@ enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     case fuel
     case community
     case settings
-    case personData
+    case records
     
     var id: Self { self }
     
@@ -67,10 +67,10 @@ extension AppScreen {
                        comment: "The More Tab provides access to additional options and settings."),
                 systemImage: "gearshape"
             )
-        case .personData:
+        case .records:
             Label(
-                String(localized: "Personal Data",
-                       comment: "The Personal Data Tab allows users to view and edit their personal information."),
+                String(localized: "Records",
+                       comment: "The Personal records Tab allows users to view and edit their personal information."),
                 systemImage: "person"
             )
         }

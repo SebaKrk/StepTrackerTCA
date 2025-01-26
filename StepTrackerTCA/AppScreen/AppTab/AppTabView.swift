@@ -46,8 +46,8 @@ struct AppTabView: View {
             Text("community")
         case .settings:
             Text("settings")
-        case .personData:
-            Text("personData")
+        case .records:
+            PersonDataView(store: store.scope(state: \.personDataTab, action: \.personDataTab))
         }
     }
     

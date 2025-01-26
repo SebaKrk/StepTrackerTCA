@@ -14,10 +14,7 @@ struct HealthDataListFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce {
-            state,
-            action in
-            switch action {
+        Reduce { state, action in switch action {
                 // MARK: - Actions
                 
             case .navigateToHealthDataList:

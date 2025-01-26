@@ -47,7 +47,7 @@ extension ActivityFeature {
         /// Displays detailed information about the selected workout.
         case show(WorkoutData)
         
-        /// destination case for navigation
+        /// Destination case for navigation
         case destination(PresentationAction<Destination.Action>)
     }
     
