@@ -159,3 +159,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - open permission screen when no data available in current weight widget
 
 ### IOS-00015 SwiftDataManager
+    * A: Create SwiftData manager and add CurrentWeightEntity
+        - create SwiftDataManager
+        - add to Factory
+        - create first model

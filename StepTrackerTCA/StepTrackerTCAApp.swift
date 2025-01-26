@@ -6,10 +6,14 @@
 //
 
 import ComposableArchitecture
+import Factory
+import SwiftData
 import SwiftUI
 
 @main
 struct StepTrackerTCAApp: App {
+    
+    @Injected(\.swiftDataManager) private var swiftDataManager
     
     var body: some Scene {
         WindowGroup {
@@ -19,8 +23,8 @@ struct StepTrackerTCAApp: App {
                 }
             )
         }
+        .modelContainer(swiftDataManager.container)
     }
     
 }
-
 //._printChanges()
