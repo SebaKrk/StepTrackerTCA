@@ -1,30 +1,34 @@
 //
-//  WidgetBodyContent.swift
+//  WidgetBodyContentWithButton.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 25/01/2025.
+//  Created by Sebastian Sciuba on 26/01/2025.
 //
+
 
 import SwiftUI
 
-struct WidgetBodyContent: View {
+struct WidgetBodyContentWithButton: View {
     
     // MARK: - Properties
     
     let title: String
     let value: Double?
     let color: Color
+    let action: AnyView?
     
     // MARK: - Initializer
     
     init(
         title: String,
         value: Double? = nil,
-        color: Color
+        color: Color,
+        @ViewBuilder action: () -> AnyView? = { nil }
     ) {
         self.title = title
         self.value = value
         self.color = color
+        self.action = action()
     }
     
     // MARK: - Body
@@ -45,7 +49,7 @@ struct WidgetBodyContent: View {
                         .font(.title)
                         .bold()
                 } else {
-                    Text("No data available")
+                    action
                 }
             }
             Spacer()

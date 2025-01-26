@@ -50,7 +50,9 @@ struct CurrentWeightView: View {
     
     @ViewBuilder
     private func weightBodyTitleHeader( _ data: HealthData?) -> some View {
-        WidgetHeaderView(title: "Weight", systemImage: "figure", date: data?.date, color: .green)
+        WidgetHeaderView(title: "Weight", systemImage: "figure", date: data?.date, color: .green) {
+            // TODO: - openHealthKitPermissionScreen
+        }
     }
     
     @ViewBuilder

@@ -51,10 +51,9 @@ struct WeightGoalView: View {
     private func weightGoalContent(_ data: HealthData?) -> some View {
         VStack {
             Spacer()
-            WidgetBodyContent(title: "Weight Goal",
+            WidgetBodyContentWithButton(title: "Weight Goal",
                               value: data?.value,
-                              color: .green,
-                              isDestination: true) {
+                              color: .green) {
                 AnyView(setYourGoalButton())
             }
             Spacer()
