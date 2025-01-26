@@ -166,3 +166,6 @@ This project is not only a technical exercise but also an exploration of possibi
     * B: Create RecordsRepository
         - Added `RecordsRepository` to handle data persistence and operations related to SwiftData.
         - Organized and cleaned up folder structure to improve project maintainability.
+    * C: Integrate Save Action and Fetch 
+        - Connect Save Action in SetWeightGoalFeature:
+        - Update WeightGoalFeature to Fetch Latest Data
