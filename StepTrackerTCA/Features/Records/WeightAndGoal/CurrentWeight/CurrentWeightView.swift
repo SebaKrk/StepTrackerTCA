@@ -27,90 +27,37 @@ struct CurrentWeightView: View {
     // MARK: - Subview
     
     private var currentWeightBody: some View {
-        VStack {
-            if let weightData = store.latestWeight {
-                weightBodyWidget(weightData)
-            } else {
-                emptyWeightBodyWidget()
-            }
-        }
+        weightBodyWidget(store.latestWeight)
     }
 
-    private func weightBodyWidget(_ data: HealthData) -> some View {
+    private func weightBodyWidget(_ data: HealthData?) -> some View {
         GroupBox {
             weightBodyContent(data)
         } label: {
-            weightBodyTitleHeaderWithImage(data)
+            weightBodyTitleHeader(data)
         }
         .frame(minHeight: 200)
     }
     
-    private func emptyWeightBodyWidget() -> some View {
-        GroupBox {
-            VStack {
-                Spacer()
-                Text("brak danych")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                Spacer()
-            }
-        } label: {
-            VStack {
-                HStack {
-                    Label("Weight", systemImage: "figure")
-                        .foregroundStyle(.green)
-                        .bold()
-                    Spacer()
-                }
-                Divider()
-            }
-        }
-        .frame(width: 200, height: 200)
-    }
-    
-    private func weightBodyContent(_ data: HealthData) -> some View {
+    private func weightBodyContent(_ data: HealthData?) -> some View {
         VStack {
             Spacer()
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Current Weight")
-                        .foregroundStyle(.secondary)
-                    
-                    Text("\(data.value, format: .number.precision(.fractionLength(1))) kg")
-                        .font(.title)
-                        .bold()
-                }
-                Spacer()
-            }
+            WidgetBodyContent(title: "Current Weight", value: data?.value, color: .green)
             Spacer()
             weightBodyTitleFooter(data)
         }
     }
     
-    private func weightBodyTitleHeaderWithImage( _ data: HealthData) -> some View {
-        VStack {
-            HStack {
-                Group {
-                    Label("Weight", systemImage: "figure")
-                    Spacer()
-                    Text("\(data.date, format: .dateTime.month(.defaultDigits).day().year(.twoDigits))")
-                        .font(.caption)
-                }
-                .foregroundStyle(.green)
-                .bold()
-            }
-            Divider()
+    @ViewBuilder
+    private func weightBodyTitleHeader( _ data: HealthData?) -> some View {
+        WidgetHeaderView(title: "Weight", systemImage: "figure", date: data?.date, color: .green) {
+            // TODO: - openHealthKitPermissionScreen
         }
     }
     
-    private func weightBodyTitleFooter( _ data: HealthData) -> some View {
-        HStack {
-            Spacer()
-            Text("\(data.date, format: .dateTime.hour().minute())")
-                .foregroundStyle(.green)
-                .font(.caption)
-                .bold()
-        }
+    @ViewBuilder
+    private func weightBodyTitleFooter( _ data: HealthData?) -> some View {
+        WidgetTitleFooterHour(date: data?.date, color: .green)
     }
     
 }

@@ -33,7 +33,6 @@ struct CurrentWeightFeature {
                 
                 // MARK: - View Actions
             case .view(.viewDidAppear):
-                print("CurrentWeightFeature")
                 return .none
       
             }
