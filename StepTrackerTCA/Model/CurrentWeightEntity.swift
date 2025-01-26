@@ -13,6 +13,9 @@ final class CurrentWeightEntity {
     
     // MARK: - Properties
     
+    @Attribute(.unique)
+    var id: String
+    
     /// The weight of the user.
     ///
     /// Stores the weight value as a `Double`. This is a required property
@@ -30,10 +33,12 @@ final class CurrentWeightEntity {
     /// Initializes a new instance of `CurrentWeightEntity`.
     ///
     /// - Parameters:
+    ///   - id: A unique identifier for the weight entity.
     ///   - weight: The weight of the user at the time of recording.
     ///   - dateAdded: The date the weight was recorded. Defaults to the current date and time
     ///     if no value is provided.
-    init(weight: Double, dateAdded: Date) {
+    init(id: String, weight: Double, dateAdded: Date) {
+        self.id = id
         self.weight = weight
         self.dateAdded = dateAdded
     }

@@ -163,3 +163,6 @@ This project is not only a technical exercise but also an exploration of possibi
         - create SwiftDataManager
         - add to Factory
         - create first model
+    * B: Create RecordsRepository
+        - Added `RecordsRepository` to handle data persistence and operations related to SwiftData.
+        - Organized and cleaned up folder structure to improve project maintainability.
