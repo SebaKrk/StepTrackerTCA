@@ -22,6 +22,10 @@ struct CurrentWeightView: View {
             .onAppear {
                 send(.viewDidAppear)
             }
+            .sheet(item: $store.scope(state: \.destination?.openHealthKitPermissionScreen,
+                                      action: \.destination.openHealthKitPermissionScreen)) { store in
+                HealthKitPermissionPrimingView(store: store)
+            }
     }
     
     // MARK: - Subview
@@ -51,7 +55,7 @@ struct CurrentWeightView: View {
     @ViewBuilder
     private func weightBodyTitleHeader( _ data: HealthData?) -> some View {
         WidgetHeaderView(title: "Weight", systemImage: "figure", date: data?.date, color: .green) {
-            // TODO: - openHealthKitPermissionScreen
+            send(.navigationButtonTapped)
         }
     }
     

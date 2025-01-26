@@ -22,6 +22,12 @@ extension CurrentWeightFeature {
         /// The most recent health data entry, representing the user's latest recorded weight.
         /// If no data is available, this value will be `nil`.
         var latestWeight: HealthData? = nil
+        
+        // MARK: - Destination
+        
+        /// destination from `CurrentWeightFeature`
+        @Presents var destination: Destination.State?
+        
     }
     
 }

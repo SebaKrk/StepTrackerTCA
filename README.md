@@ -155,3 +155,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - Design and develop the user interface.
     * E: Refactor UI
         - Created reusable components for improved modularity and code maintainability.
+    * F: Open permission screen
+        - open permission screen when no data available in current weight widget
