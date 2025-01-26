@@ -27,7 +27,19 @@ extension CurrentWeightFeature {
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            ///
+            case navigationButtonTapped
+
         }
+        
+        // MARK: - Destination
+        
+        /// Trigger this action when the user needs to review or modify app permissions.
+        case openPermissionScreen
+        
+        /// destination case for navigation
+        case destination(PresentationAction<Destination.Action>)
     }
     
 }

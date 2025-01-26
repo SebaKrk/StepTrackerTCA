@@ -34,7 +34,18 @@ struct CurrentWeightFeature {
                 // MARK: - View Actions
             case .view(.viewDidAppear):
                 return .none
-      
+                
+            case .view(.navigationButtonTapped):
+                return .run { send in
+                    await send(.openPermissionScreen)
+                }
+                
+                // MARK: - Destination
+            case .openPermissionScreen:
+                state.destination = .openHealthKitPermissionScreen(HealthKitPermissionFeature.State())
+                return .none
+                
+            default: return .none
             }
         }
     }
