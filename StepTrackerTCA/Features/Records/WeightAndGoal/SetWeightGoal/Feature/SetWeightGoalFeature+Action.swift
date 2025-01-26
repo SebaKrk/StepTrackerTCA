@@ -19,6 +19,14 @@ extension SetWeightGoalFeature {
         /// Handles changes in bindings for the state.
         case binding(BindingAction<State>)
         
+        // MARK: - Action
+        
+        /// Saves the weight goal with the provided health data.
+        ///
+        /// - Parameter healthData: Contains the target weight and associated date.
+        /// - Note: This action triggers the save process for setting the user's weight goal.
+        case save(HealthData)
+        
         // MARK: View Action
         
         case view(View)

@@ -82,7 +82,7 @@ struct WeightGoalView: View {
     let weightGoal = HealthData(date: .now, value: 95)
     NavigationStack {
         WeightGoalView(store: Store(initialState: WeightGoalFeature.State(weightGoal: weightGoal), reducer: {
-            WeightGoalFeature()
+            WeightGoalFeature(service: DefaultWeightGoalServices())
         }))
     }
 }
