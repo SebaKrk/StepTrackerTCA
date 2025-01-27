@@ -14,6 +14,18 @@ extension WeightGoalFeature {
     @CasePathable
     enum Action: ViewAction {
         
+        // MARK: - Actions
+        
+        /// Action triggered to fetch the current weight goal from the storage or service.
+        ///
+        /// This is typically dispatched to retrieve the user's existing weight goal when the feature is initialized.
+        case fetchWeightGoal
+        
+        /// Maps a fetched weight goal entity to the corresponding state in the feature.
+        ///
+        /// - Parameter: `CurrentWeightEntity` contains the user's current weight goal and related data.
+        case mapToWeightGoal(CurrentWeightEntity)
+        
         // MARK: - View Actions
         
         case view(View)
@@ -26,6 +38,7 @@ extension WeightGoalFeature {
             /// Triggered when a navigation button is tapped.
             case navigationButtonTapped
         }
+        
         // MARK: - Destination
         
         /// Triggered to display a destination or handle navigation actions.

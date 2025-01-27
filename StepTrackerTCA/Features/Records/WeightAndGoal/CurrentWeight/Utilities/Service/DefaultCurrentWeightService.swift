@@ -9,7 +9,7 @@ import Factory
 import Foundation
 
 final class DefaultCurrentWeightService: CurrentWeightService {
-    
+        
     // MARK: - API
     
     func getLatestWeightData(from weightHealthData: [HealthData]) -> HealthData? {

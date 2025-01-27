@@ -71,7 +71,7 @@ struct PersonDataFeature {
             CurrentWeightFeature(service: DefaultCurrentWeightService())
         }
         Scope(state: \.weightGoal, action: \.weightGoal) {
-            WeightGoalFeature()
+            WeightGoalFeature(service: DefaultWeightGoalServices())
         }
     }
     

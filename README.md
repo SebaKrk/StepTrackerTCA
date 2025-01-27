@@ -157,3 +157,17 @@ This project is not only a technical exercise but also an exploration of possibi
         - Created reusable components for improved modularity and code maintainability.
     * F: Open permission screen
         - open permission screen when no data available in current weight widget
+
+### IOS-00015 SwiftDataManager
+    * A: Create SwiftData manager and add CurrentWeightEntity
+        - create SwiftDataManager
+        - add to Factory
+        - create first model
+    * B: Create RecordsRepository
+        - Added `RecordsRepository` to handle data persistence and operations related to SwiftData.
+        - Organized and cleaned up folder structure to improve project maintainability.
+    * C: Integrate Save Action and Fetch 
+        - Connect Save Action in SetWeightGoalFeature:
+        - Update WeightGoalFeature to Fetch Latest Data
+    * D: WeightGoalWidgetFeature
+        - Add functionality to display user’s weight goal on the chart after setting it

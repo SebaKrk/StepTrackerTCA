@@ -15,6 +15,8 @@ struct SetWeightGoalFeature {
     
     @Dependency(\.dismiss) var dismiss
     
+    let setWeightGoalService = DefaultSetWeightGoalService()
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -27,11 +29,23 @@ struct SetWeightGoalFeature {
                 case .binding:
                     return .none
                     
+                    // MARK: - Action
+                case let .save(currentWeight):
+                    return .run { send in
+                        do {
+                            try await setWeightGoalService.setWeightGoal(currentWeight.value, date: currentWeight.date)
+                            await send(.delegate(.setGoal(HealthData(date: currentWeight.date, value: Double(currentWeight.value)))))
+                            await self.dismiss()
+                        } catch {
+                            // TODO: - Alert
+                            print("❌ Failed to set weight goal: \(error.localizedDescription)")
+                        }
+                    }
+                    
                     // MARK: - View Action
                 case .view(.saveGoalButtonPressed):
                     return .run { [ date = state.addDataDate, value = state.weightGoal ] send in
-                        await send(.delegate(.setGoal(HealthData(date: date, value: Double(value) ?? 0))))
-                        await self.dismiss()
+                        await send(.save(HealthData(date: date, value: Double(value) ?? 0)))
                     }
                                
                 case .view(.dismissButtonPressed):

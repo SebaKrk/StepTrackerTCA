@@ -11,12 +11,33 @@ import Foundation
 @Reducer
 struct WeightGoalFeature {
     
+    // MARK: - Dependencies
+    
+    let weightGoalService: WeightGoalService
+
+    // MARK: - Livecycle
+    
+    init(service: WeightGoalService) {
+        self.weightGoalService = service
+    }
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+                
                 // MARK: - Actions
+            case .fetchWeightGoal:
+                return .run { send in
+                    if let goal = try? await weightGoalService.fetchWeightGoal() {
+                        await send(.mapToWeightGoal(goal))
+                    }
+                }
+                
+            case let .mapToWeightGoal(currentWeight):
+                state.weightGoal = HealthData(date: currentWeight.dateAdded, value: currentWeight.weight)
+                return .none
                 
                 // MARK: - View Actions
                 
@@ -24,8 +45,10 @@ struct WeightGoalFeature {
                 return .send(.show)
                 
             case .view(.viewDidAppear):
-                return .none
-                
+                return .run { send in
+                    await send(.fetchWeightGoal)
+                }
+            
                 // MARK: - Destination
                 
             case .show:

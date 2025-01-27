@@ -30,6 +30,17 @@ extension WeightGoalWidgetFeature {
         /// Responsible for refreshing dashboard data
         case refresh
         
+        /// Action triggered to fetch the current weight goal from the storage or service.
+        ///
+        /// This is typically dispatched to retrieve the user's existing weight goal when the feature is initialized.
+        case fetchWeightGoal
+        
+        /// Action triggered to set or update the weight goal.
+        ///
+        /// This is used to store or adjust the user's weight goal in the storage or service with the provided value.
+        /// - Parameter: The new weight goal value as a `Double`.
+        case setWeightGoal(Double)
+        
         // MARK: - View Actions
         
         case view(View)

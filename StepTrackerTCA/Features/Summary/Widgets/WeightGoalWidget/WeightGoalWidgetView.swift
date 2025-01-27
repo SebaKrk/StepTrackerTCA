@@ -57,7 +57,9 @@ struct WeightGoalWidgetView: View {
             if let selectedHealthMetric = store.selectedHealthMetric {
                 createRuleMark(with: selectedHealthMetric) { weightAnnotationView }
             }
-            createGoalRuleMark()
+            if let weightGoal = store.weightGoal {
+                createGoalRuleMark(weightGoal)
+            }
             ForEach(store.weightData) { weight in
                 createWeightAreaMark(with: weight)
                 createWeightLineMark(with: weight)
