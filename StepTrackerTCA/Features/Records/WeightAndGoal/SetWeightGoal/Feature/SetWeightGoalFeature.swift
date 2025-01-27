@@ -34,6 +34,7 @@ struct SetWeightGoalFeature {
                     return .run { send in
                         do {
                             try await setWeightGoalService.setWeightGoal(currentWeight.value, date: currentWeight.date)
+                            await send(.delegate(.setGoal(HealthData(date: currentWeight.date, value: Double(currentWeight.value)))))
                             await self.dismiss()
                         } catch {
                             // TODO: - Alert
@@ -45,7 +46,6 @@ struct SetWeightGoalFeature {
                 case .view(.saveGoalButtonPressed):
                     return .run { [ date = state.addDataDate, value = state.weightGoal ] send in
                         await send(.save(HealthData(date: date, value: Double(value) ?? 0)))
-                        //await send(.delegate(.setGoal(HealthData(date: date, value: Double(value) ?? 0))))
                     }
                                
                 case .view(.dismissButtonPressed):

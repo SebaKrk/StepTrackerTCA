@@ -169,3 +169,5 @@ This project is not only a technical exercise but also an exploration of possibi
     * C: Integrate Save Action and Fetch 
         - Connect Save Action in SetWeightGoalFeature:
         - Update WeightGoalFeature to Fetch Latest Data
+    * D: WeightGoalWidgetFeature
+        - Add functionality to display user’s weight goal on the chart after setting it

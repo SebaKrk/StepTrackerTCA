@@ -23,9 +23,8 @@ extension WeightGoalWidgetView {
             }
     }
     
-    //TODO: - dodać opcje wprowadzania swojego gola
-    func createGoalRuleMark() -> some ChartContent {
-        RuleMark(y: .value("Goal", 98))
+    func createGoalRuleMark(_ weightGoal: Double) -> some ChartContent {
+        RuleMark(y: .value("Goal", weightGoal))
             .foregroundStyle(.mint)
             .lineStyle(.init(lineWidth: 1, dash: [5]))
             .annotation(alignment: .bottomLeading) {
