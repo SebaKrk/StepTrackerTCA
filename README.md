@@ -17,13 +17,13 @@ This project is not only a technical exercise but also an exploration of possibi
 
 ### Important Note for Running on Simulator
 
-If you are running the application on a simulator, you need to uncomment the following line on the first launch to populate the simulator with Health data:
+⚠️ Jeśli uruchamiasz aplikację na symulatorIf you are running the application on a simulator, you need to uncomment the following line on the first launch to populate the simulator with Health data:
 ```swift
 try await dashboardFeatureService.getDummyData()
 ```
 This line is located in `DashboardFeature+Action` - `case .view(.viewDidAppear)`
 
-After the first successful run, you can comment it back as it is only needed to seed the initial dummy data in the simulator.
+⚠️ After the first successful run, you can comment it back as it is only needed to seed the initial dummy data in the simulator.
 
 ### IOS-00001 The Composable Architecture
     * A: Add TCA package dependency
