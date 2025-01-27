@@ -5,9 +5,14 @@
 //  Created by Sebastian Sciuba on 16/01/2025.
 //
 
+import Factory
 import Foundation
 
 final class DefaultWeightGoalWidgetService: WeightGoalWidgetService {
+    
+    // MARK: - Dependencies
+
+    @LazyInjected(\.recordsRepository) private var recordsRepository
     
     // MARK: - API
     
@@ -31,4 +36,8 @@ final class DefaultWeightGoalWidgetService: WeightGoalWidgetService {
         return (average * 100).rounded() / 100
     }
     
+    /// Fetches the current weight goal from the records repository.
+    func fetchWeightGoal() async throws -> CurrentWeightEntity? {
+        try? recordsRepository.fetchWeightGoal()
+    }
 }

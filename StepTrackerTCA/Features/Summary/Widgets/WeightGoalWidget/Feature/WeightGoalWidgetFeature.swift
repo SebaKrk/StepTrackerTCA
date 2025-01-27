@@ -59,12 +59,25 @@ struct WeightGoalWidgetFeature {
                         await send(.updateWeightChartData(weightData))
                     }
                     
+                case .fetchWeightGoal:
+                    return .run { send in
+                        if let goal = try? await weightGoalWidgetService.fetchWeightGoal() {
+                            await send(.setWeightGoal(goal.weight))
+                        }
+                    }
+                    
+                case let .setWeightGoal(value):
+                    state.weightGoal = value
+                    return .none
+                    
                     // MARK: - View Actions
                 case .view(.tapDestination):
                     return .send(.show)
                     
                 case .view(.viewDidAppear):
-                    return .none
+                    return .run { send in
+                        await send(.fetchWeightGoal)
+                    }
                     
                     // MARK: - Destination
                 case .show:
