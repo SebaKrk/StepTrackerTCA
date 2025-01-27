@@ -21,7 +21,7 @@ If you are running the application on a simulator, you need to uncomment the fol
 ```swift
 try await dashboardFeatureService.getDummyData()
 ```
-This line is located in `DashboardFeature+Action` - case .view(.viewDidAppear)
+This line is located in `DashboardFeature+Action` - `case .view(.viewDidAppear)`
 
 After the first successful run, you can comment it back as it is only needed to seed the initial dummy data in the simulator.
 
