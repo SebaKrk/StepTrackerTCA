@@ -181,3 +181,7 @@ This line is located in `DashboardFeature+Action` - `case .view(.viewDidAppear)`
         - Update WeightGoalFeature to Fetch Latest Data
     * D: WeightGoalWidgetFeature
         - Add functionality to display user’s weight goal on the chart after setting it
+        
+### IOS-00016 HealthPermission Bug
+        - Fixed the bug where the HealthPermission sheet was not appearing (introduced during refactoring).
+        - Added a ContentUnavailableView with a button to fetch mock data.

@@ -65,6 +65,9 @@ extension DashboardFeature {
             
             /// Represents an action triggered when the user pull to refresh.
             case userPulledToRefresh
+            
+            ///
+            case mockDataButtonTapped
         }
         
         // MARK: - Child actions
