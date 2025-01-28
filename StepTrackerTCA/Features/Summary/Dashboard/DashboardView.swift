@@ -20,13 +20,17 @@ struct DashboardView: View {
     var body: some View {
         Group {
             if store.stepData.isEmpty && store.weightData.isEmpty {
-                ProgressView()
+                unavailableView
             } else {
                 dashboardView
             }
         }
         .onAppear {
             send(.viewDidAppear)
+        }
+        .sheet(item: $store.scope(state: \.destination?.openHealthKitPermissionScreen,
+                                  action: \.destination.openHealthKitPermissionScreen)) { store in
+            HealthKitPermissionPrimingView(store: store)
         }
     }
 
@@ -53,10 +57,7 @@ struct DashboardView: View {
         .refreshable {
             send(.userPulledToRefresh)
         }
-        .sheet(item: $store.scope(state: \.destination?.openHealthKitPermissionScreen,
-                                  action: \.destination.openHealthKitPermissionScreen)) { store in
-            HealthKitPermissionPrimingView(store: store)
-        }
+
     }
     
     @ViewBuilder
@@ -69,6 +70,31 @@ struct DashboardView: View {
         }
         .pickerStyle(.segmented)
         .padding([.leading, .trailing], 6)
+    }
+    
+    private var unavailableView: some View {
+        ContentUnavailableView {
+            VStack {
+                Image(systemName: "exclamationmark.triangle")
+                Text("Warning")
+                    .bold()
+            }
+        } description: {
+            Text("Fetch mock data to display in the application.")
+                .foregroundStyle(.secondary)
+        } actions: {
+            downloadButton
+        }
+    }
+    
+    private var downloadButton: some View {
+        Button {
+            send(.mockDataButtonTapped)
+        } label: {
+            Text("Download")
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.pink)
     }
     
     @ViewBuilder

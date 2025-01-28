@@ -68,7 +68,7 @@ struct DashboardFeature {
                     }
                     
                 case let .updateStepChartData(.failure(error)):
-                    print(error.localizedDescription)
+                    print("❌ Failed to fetch step data: \(error.localizedDescription)")
                     return .none
                     
                     // WeightData
@@ -80,10 +80,15 @@ struct DashboardFeature {
                     }
                     
                 case let .updateWeightChartData(.failure(error)):
-                    print(error.localizedDescription)
+                    print("❌ Failed to fetch weigh data: \(error.localizedDescription)")
                     return .none
                     
                     // MARK: - View actions
+                case .view(.mockDataButtonTapped):
+                    return .run { send in
+                        try await dashboardFeatureService.getDummyData()
+                    }
+                    
                 case .view(.viewDidAppear):
                     if !dashboardFeatureService.hasSeenPermissionPriming {
                         return .run { send in
@@ -92,8 +97,6 @@ struct DashboardFeature {
                     } else {
                         return .run { [state] send in
                             if state.isFirstAppearance {
-                                /// use only first time
-                                //try await dashboardFeatureService.getDummyData()
                                 await send(.fetchHealthData)
                                 await send(.changeIsFirstAppearance)
                             }
