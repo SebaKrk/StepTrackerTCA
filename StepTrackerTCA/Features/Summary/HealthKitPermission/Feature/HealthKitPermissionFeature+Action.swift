@@ -33,6 +33,11 @@ extension HealthKitPermissionFeature {
             case viewDidAppear
             
         }
+        
+        // MARK: - Delegate
+        
+        /// Actions to communicate with parent features or modules.
+        case delegate(Delegate)
     }
     
 }

@@ -27,6 +27,7 @@ struct HealthKitPermissionFeature {
                 
             case .healthKitAuthorizationSuccess:
                 return .run { send in
+                    await send(.delegate(.success))
                     await self.dismiss()
                 }
                 
@@ -48,6 +49,8 @@ struct HealthKitPermissionFeature {
             case .view(.viewDidAppear):
                 state.hasSeen = true
                 return .none
+                
+            default: return .none
             }
         }
     }

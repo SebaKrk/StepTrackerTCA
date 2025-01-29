@@ -40,6 +40,10 @@ struct DashboardFeature {
                     state.hasSeenPermissionPriming = dashboardFeatureService.hasSeenPermissionPriming
                     return .none
                     
+                case let .changeViewState(viewState):
+                    state.viewState = viewState
+                    return .none
+                    
                 case let .selectedPickerChange(item):
                     state.healthMetric = item
                     return .none
@@ -47,22 +51,17 @@ struct DashboardFeature {
                 case .fetchHealthData:
                     return .run { send in
                         await send(.updateStepChartData(
-                            Result {
-                                try await dashboardFeatureService.getStepsData()
-                            }
-                        ))
-                        
+                            Result { try await dashboardFeatureService.getStepsData()}))
                         await send(.updateWeightChartData(
-                            Result {
-                                try await dashboardFeatureService.getWeightData()
-                            }
-                        ))
+                            Result { try await dashboardFeatureService.getWeightData() }))
                     }
                     
-                    // StepData
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
+                    
                     return .run { send in
+                        await send(.changeViewState(.successfullyLoaded))
+                        await send(.changeIsFirstAppearance)
                         await send(.stepPieWidget(.updatePieChartData(data)))
                         await send(.stepWidget(.updateStepChartData(data)))
                     }
@@ -71,10 +70,12 @@ struct DashboardFeature {
                     print("❌ Failed to fetch step data: \(error.localizedDescription)")
                     return .none
                     
-                    // WeightData
                 case let .updateWeightChartData(.success(data)):
                     state.weightData = data
+                    
                     return .run { send in
+                        await send(.changeViewState(.successfullyLoaded))
+                        await send(.changeIsFirstAppearance)
                         await send(.weightDiffWidget(.updateWeightChartData(data)))
                         await send(.weightGoalWidget(.updateWeightChartData(data)))
                     }
@@ -83,22 +84,38 @@ struct DashboardFeature {
                     print("❌ Failed to fetch weigh data: \(error.localizedDescription)")
                     return .none
                     
+                case .getDummyData:
+                    return .run {  [stepData = state.stepData, weightData = state.weightData] send in
+                        if stepData.isEmpty && weightData.isEmpty {
+                            try await dashboardFeatureService.getDummyData()
+                            await send(.updateDummyData)
+                        } else {
+                            print("Health data already exists.")
+                        }
+                    }
+                    
+                case .updateDummyData:
+                    return .run { send in
+                        await send(.fetchHealthData)
+                    }
+                    
                     // MARK: - View actions
                 case .view(.mockDataButtonTapped):
                     return .run { send in
-                        try await dashboardFeatureService.getDummyData()
+                        await send(.changeViewState(.loading))
+                        await send(.getDummyData)
                     }
                     
                 case .view(.viewDidAppear):
                     if !dashboardFeatureService.hasSeenPermissionPriming {
                         return .run { send in
+                            await send(.changeViewState(.loading))
                             await send(.openPermissionScreen)
                         }
                     } else {
                         return .run { [state] send in
                             if state.isFirstAppearance {
                                 await send(.fetchHealthData)
-                                await send(.changeIsFirstAppearance)
                             }
                         }
                     }
@@ -117,6 +134,17 @@ struct DashboardFeature {
                     dashboardFeatureService.markPermissionPrimingAsSeen()
                     state.destination = .openHealthKitPermissionScreen(HealthKitPermissionFeature.State())
                     return .none
+                    
+                case .destination(.presented(.openHealthKitPermissionScreen(.delegate(.success)))):
+                    return .run {  send in
+#if targetEnvironment(simulator)
+                        print("📱 Running on SIMULATOR")
+                        await send(.changeViewState(.noContentAvailable))
+#else
+                        print("📱 Running on PHYSICAL DEVICE")
+                        await send(.fetchHealthData)
+#endif
+                    }
                     
                 default: return .none
                 }
