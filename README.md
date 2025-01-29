@@ -175,3 +175,7 @@ This project is not only a technical exercise but also an exploration of possibi
 ### IOS-00016 HealthPermission Bug
         - Fixed the bug where the HealthPermission sheet was not appearing (introduced during refactoring).
         - Added a ContentUnavailableView with a button to fetch mock data.
+### IOS-00017 View State
+    * A: Refactored state and action logic in DashboardFeature using ViewState
+        - add view state to first view `Dashboard Feature`
+        - differentiate behavior for simulator and physical device after HealthKit authorization

@@ -17,6 +17,9 @@ extension DashboardFeature {
         /// It is responsible for making sure that certain actions are executed only the first time this view is displayed.
         var isFirstAppearance = true
         
+        /// View state.
+        var viewState: DashboardViewState = .loading
+        
         /// The currently selected health metric to display on the dashboard.
         /// - Default: `.steps`
         var healthMetric: HealthMetricContext = .steps
