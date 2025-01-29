@@ -19,10 +19,15 @@ struct DashboardView: View {
     
     var body: some View {
         Group {
-            if store.stepData.isEmpty && store.weightData.isEmpty {
-                unavailableView
-            } else {
+            switch store.viewState {
+            case .loading:
+                ProgressView()
+            case .successfullyLoaded:
                 dashboardView
+            case .noContentAvailable:
+                unavailableView
+            case .failed:
+                EmptyView()
             }
         }
         .onAppear {
@@ -73,28 +78,12 @@ struct DashboardView: View {
     }
     
     private var unavailableView: some View {
-        ContentUnavailableView {
-            VStack {
-                Image(systemName: "exclamationmark.triangle")
-                Text("Warning")
-                    .bold()
-            }
-        } description: {
-            Text("Fetch mock data to display in the application.")
-                .foregroundStyle(.secondary)
-        } actions: {
-            downloadButton
-        }
-    }
-    
-    private var downloadButton: some View {
         Button {
             send(.mockDataButtonTapped)
         } label: {
-            Text("Download")
+            ContentUnavailableView("Warning", systemImage: "exclamationmark.triangle",
+                                   description: Text("Tap to fetch mock data to display in the application."))
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.pink)
     }
     
     @ViewBuilder
@@ -126,3 +115,44 @@ struct DashboardView: View {
         }))
     }
 }
+
+
+
+//        Group {
+//            if store.stepData.isEmpty && store.weightData.isEmpty {
+//                unavailableView
+//            } else {
+//                dashboardView
+//            }
+//        }
+//        .onAppear {
+//            send(.viewDidAppear)
+//        }
+//        .sheet(item: $store.scope(state: \.destination?.openHealthKitPermissionScreen,
+//                                  action: \.destination.openHealthKitPermissionScreen)) { store in
+//            HealthKitPermissionPrimingView(store: store)
+//        }
+
+
+//        ContentUnavailableView {
+//            VStack {
+//                Image(systemName: "exclamationmark.triangle")
+//                Text("Warning")
+//                    .bold()
+//            }
+//        } description: {
+//            Text("Fetch mock data to display in the application.")
+//                .foregroundStyle(.secondary)
+//        } actions: {
+//            downloadButton
+//        }
+
+//private var downloadButton: some View {
+//    Button {
+//        send(.mockDataButtonTapped)
+//    } label: {
+//        Text("Download")
+//    }
+//    .buttonStyle(.borderedProminent)
+//    .tint(.pink)
+//}

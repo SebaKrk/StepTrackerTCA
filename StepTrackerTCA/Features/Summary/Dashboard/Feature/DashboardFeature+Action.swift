@@ -24,6 +24,9 @@ extension DashboardFeature {
         /// The action responsible for changing the information on whether the view is displayed for the first time.
         case changeIsFirstAppearance
         
+        /// Responsible for changing the state of the view.
+        case changeViewState(DashboardViewState)
+        
         /// Action triggered when the user changes the picker selection.
         ///
         /// - Parameter: `HealthMetricContext` representing the selected metric.
@@ -44,6 +47,11 @@ extension DashboardFeature {
         /// - Parameter result: A `Result` containing an array of `HealthData` on success
         /// or an `Error` on failure.
         case updateWeightChartData(Result<[HealthData], Error>)
+        
+        ///
+        case getDummyData
+        
+        case updateDummyData
         
         // MARK: - Destination
         

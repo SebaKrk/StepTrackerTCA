@@ -15,16 +15,6 @@ This project is not only a technical exercise but also an exploration of possibi
 
 ******************************************************************
 
-### Important Note for Running on Simulator
-
-⚠️ Jeśli uruchamiasz aplikację na symulatorIf you are running the application on a simulator, you need to uncomment the following line on the first launch to populate the simulator with Health data:
-```swift
-try await dashboardFeatureService.getDummyData()
-```
-This line is located in `DashboardFeature+Action` - `case .view(.viewDidAppear)`
-
-⚠️ After the first successful run, you can comment it back as it is only needed to seed the initial dummy data in the simulator.
-
 ### IOS-00001 The Composable Architecture
     * A: Add TCA package dependency
     
@@ -185,3 +175,7 @@ This line is located in `DashboardFeature+Action` - `case .view(.viewDidAppear)`
 ### IOS-00016 HealthPermission Bug
         - Fixed the bug where the HealthPermission sheet was not appearing (introduced during refactoring).
         - Added a ContentUnavailableView with a button to fetch mock data.
+### IOS-00017 View State
+    * A: Refactored state and action logic in DashboardFeature using ViewState
+        - add view state to first view `Dashboard Feature`
+        - differentiate behavior for simulator and physical device after HealthKit authorization
