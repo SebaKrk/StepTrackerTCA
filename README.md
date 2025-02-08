@@ -179,3 +179,7 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: Refactored state and action logic in DashboardFeature using ViewState
         - add view state to first view `Dashboard Feature`
         - differentiate behavior for simulator and physical device after HealthKit authorization
+        
+### IOS-00018 WeightLiftingGoals
+    * A: WeightLiftingGoals Feature
+        - create basic WeightLiftingGoalsFeature
