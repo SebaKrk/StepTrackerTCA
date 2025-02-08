@@ -180,6 +180,10 @@ This project is not only a technical exercise but also an exploration of possibi
         - add view state to first view `Dashboard Feature`
         - differentiate behavior for simulator and physical device after HealthKit authorization
         
-### IOS-00018 WeightLiftingGoals
-    * A: WeightLiftingGoals Feature
-        - create basic WeightLiftingGoalsFeature
+### IOS-00018 WeightLiftingStats
+    * A: WeightLiftingStats Feature
+        - create basic WeightLiftingStatsFeature
+    * B: Create basic container for UI and Navigation
+        - organized files into appropriate folders
+        - create new basic WeightLiftingGoalsFeature
+        - navigate to empty WeightLiftingGoalsFeature

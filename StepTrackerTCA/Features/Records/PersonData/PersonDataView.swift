@@ -29,9 +29,12 @@ struct PersonDataView: View {
     private var personDataBody: some View {
         NavigationStack {
             ScrollView {
-                HStack {
-                    currentWeightView
-                    weightGoalView
+                Group {
+                    HStack {
+                        currentWeightView
+                        weightGoalView
+                    }
+                    weightLiftingStatsView
                 }
                 .padding([.leading, .trailing], 12)
             }
@@ -48,6 +51,11 @@ struct PersonDataView: View {
     @ViewBuilder
     private var weightGoalView: some View {
         WeightGoalView(store: store.scope(state: \.weightGoal, action: \.weightGoal))
+    }
+    
+    @ViewBuilder
+    private var weightLiftingStatsView: some View {
+        WeightLiftingStatsView(store: store.scope(state: \.weightLiftingStats, action: \.weightLiftingStats))
     }
     
 }
