@@ -36,11 +36,6 @@ extension PersonDataFeature {
             case viewDidAppear
         }
         
-        // MARK: - Destination
-        
-        /// destination case for navigation
-        case destination(PresentationAction<Destination.Action>)
-        
         // MARK: - Child actions
         
         /// Stores the actions of the `CurrentWeightFeature`
@@ -48,6 +43,9 @@ extension PersonDataFeature {
         
         /// Stores the actions of the `WeightGoalFeature
         case weightGoal(WeightGoalFeature.Action)
+        
+        /// Stores the actions of the `WeightLiftingStatsFeature
+        case weightLiftingStats(WeightLiftingStatsFeature.Action)
     }
     
 }

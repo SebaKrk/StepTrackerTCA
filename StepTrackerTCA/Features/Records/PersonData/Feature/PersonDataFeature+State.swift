@@ -18,11 +18,6 @@ extension PersonDataFeature {
         /// The data for weight data
         var weightData: [HealthData] = []
         
-        // MARK: - Destination
-        
-        /// destination from ActivityFeature
-        @Presents var destination: Destination.State?
-        
         // MARK: - Child actions
         
         /// Stores the information contained in the `CurrentWeightFeature`
@@ -30,6 +25,10 @@ extension PersonDataFeature {
         
         /// Stores the information contained in the `WeightGoalFeature
         var weightGoal = WeightGoalFeature.State()
+        
+        /// Stores the information contained in the `WeightLiftingStatsFeature
+        var weightLiftingStats = WeightLiftingStatsFeature.State()
+    
     }
 }
 
