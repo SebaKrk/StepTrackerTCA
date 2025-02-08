@@ -58,8 +58,11 @@ struct DashboardFeature {
                     
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
-                    
                     return .run { send in
+                        if data.isEmpty {
+                            await send(.changeViewState(.noContentAvailable))
+                            return
+                        }
                         await send(.changeViewState(.successfullyLoaded))
                         await send(.changeIsFirstAppearance)
                         await send(.stepPieWidget(.updatePieChartData(data)))
@@ -74,6 +77,10 @@ struct DashboardFeature {
                     state.weightData = data
                     
                     return .run { send in
+                        if data.isEmpty {
+                            await send(.changeViewState(.noContentAvailable))
+                            return
+                        }
                         await send(.changeViewState(.successfullyLoaded))
                         await send(.changeIsFirstAppearance)
                         await send(.weightDiffWidget(.updateWeightChartData(data)))
@@ -170,3 +177,39 @@ struct DashboardFeature {
     }
     
 }
+
+
+//case .fetchHealthData:
+//    return .run { send in
+//        // Pobieramy dane równolegle
+//        async let stepsResult = Result { try await dashboardFeatureService.getStepsData() }
+//        async let weightResult = Result { try await dashboardFeatureService.getWeightData() }
+//        
+//        let stepsOutcome = await stepsResult
+//        let weightOutcome = await weightResult
+//        
+//        switch (stepsOutcome, weightOutcome) {
+//        case let (.success(stepsData), .success(weightData)):
+//            // Jeśli oba źródła są puste, ustaw stan na noContentAvailable
+//            if stepsData.isEmpty && weightData.isEmpty {
+//                await send(.changeViewState(.noContentAvailable))
+//            } else {
+//                // Jeśli są jakieś dane, wyślij odpowiednie akcje uaktualniające dane
+//                if !stepsData.isEmpty {
+//                    await send(.updateStepChartData(.success(stepsData)))
+//                }
+//                if !weightData.isEmpty {
+//                    await send(.updateWeightChartData(.success(weightData)))
+//                }
+//                await send(.changeViewState(.successfullyLoaded))
+//            }
+//            
+//        case let (.failure(error), _):
+//            print("❌ Failed to fetch steps data: \(error.localizedDescription)")
+//            await send(.changeViewState(.failed))
+//            
+//        case let (_, .failure(error)):
+//            print("❌ Failed to fetch weight data: \(error.localizedDescription)")
+//            await send(.changeViewState(.failed))
+//        }
+//    }

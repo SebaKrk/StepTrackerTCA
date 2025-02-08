@@ -19,8 +19,12 @@ final class DefaultWeightDiffService: WeightDiffService {
     }
 
     func averageDailyWeightDiffs(for weights: [HealthData]) -> [WeekdayChartData] {
+        guard weights.count > 1 else {
+              return []
+        }
+        
         var diffValues: [(date: Date, value: Double)] = []
-
+   
         for i in 1..<weights.count {
             let date = weights[i].date
             let diff = weights[i].value - weights[i - 1].value
