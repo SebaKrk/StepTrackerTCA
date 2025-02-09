@@ -57,42 +57,23 @@ struct WeightLiftingStatsView: View {
         VStack {
             WidgetBodyContentWithButton(title: "Score:",
                               color: .green) {
-                // Jeśli nie będzie ustawionego żadnego gola to pokaz:
-                // AnyView(setYourGoalsButton)
-                // jesli sa gole ale no nie ma wyniku to chyba cos w rodzaju Content uvaiable
-                // w innym przypadku pokazuj
                 AnyView(
                     VStack {
-                        weightLiftingScore("Back Squat", "140")
+                        weightLiftingScore("Clean & Jerk", "120")
                         Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Front Squat", "110")
+                        weightLiftingScore("Snatch", "100")
                         Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Deadlift", "160")
+                        weightLiftingScore("OverheadSquat ", "110")
                         Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Push Press", "90")
+                        weightLiftingScore("Power Clean", "90")
                         Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Bench Press", "120")
+                        weightLiftingScore("Squat Clean", "120")
+                        Divider().padding(.horizontal, 20)
+                        weightLiftingScore("Split Jerk", "125")
                     }
                 )
             }
             Spacer()
-        }
-    }
-    
-    // a moze dac Tabele ?
-    // gdzie bedzie pokazane nazwa / wynik / gol / procent ile brakuje
-    func missingPercentage(current: Double, goal: Double) -> Double {
-        guard goal > 0 else { return 0 }
-        let missing = ((goal - current) / goal) * 100
-        return missing
-    }
-    
-    private var setYourGoalsButton: some View {
-        Button {
-            send(.navigationButtonTapped)
-        } label: {
-            Text("Set your goals")
-                .foregroundStyle(.red)
         }
     }
     
@@ -105,6 +86,26 @@ struct WeightLiftingStatsView: View {
                 .font(.system(size: 14, weight: .semibold, design: .monospaced))
         }
     }
+    
+    private var setYourGoalsButton: some View {
+        Button {
+            send(.navigationButtonTapped)
+        } label: {
+            Text("Set your goals")
+                .foregroundStyle(.red)
+        }
+    }
+    
+    private func test(_ data: [WeightLiftingMeasurement]) -> some View {
+        ForEach(data) { item in
+            HStack {
+                Text(item.name.rawValue)
+                Spacer()
+                Text("\(item.value) kg")
+            }
+        }
+    }
+    
 }
 
 #Preview {

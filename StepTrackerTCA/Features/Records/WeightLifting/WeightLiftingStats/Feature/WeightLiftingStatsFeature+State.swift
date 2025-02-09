@@ -14,6 +14,12 @@ extension WeightLiftingStatsFeature {
     struct State {
         // MARK: - Properties
         
+        ///
+        var dummyData: [WeightLiftingMeasurement] = []
+        
+        ///
+        var dummyGoals: [WeightLiftingGoalHistory] = []
+        
         // MARK: - Destination
         
         /// destination from `WeightLiftingStatsFeature`

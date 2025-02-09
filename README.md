@@ -188,3 +188,4 @@ This project is not only a technical exercise but also an exploration of possibi
         - create new basic WeightLiftingGoalsFeature
         - navigate to empty WeightLiftingGoalsFeature
     * C: WeightLifting widget body content  
+        - generate mock data for display in the view. 

@@ -13,7 +13,14 @@ extension WeightLiftingStatsFeature {
     
     @CasePathable
     enum Action: ViewAction {
+       
         // MARK: - Actions
+        
+        ///
+        case getDummyData
+        
+        ///
+        case dummyDataLoaded([WeightLiftingMeasurement], [WeightLiftingGoalHistory])
         
         // MARK: - View Actions
         
