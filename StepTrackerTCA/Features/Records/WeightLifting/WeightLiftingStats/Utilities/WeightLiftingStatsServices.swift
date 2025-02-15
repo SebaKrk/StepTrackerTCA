@@ -10,6 +10,12 @@ import Foundation
 /// A protocol defining a service responsible for managing weightlifting statistics.
 protocol WeightLiftingStatsServices {
     
+    ///
+    func getLatestGoals(from history: [WeightLiftingGoalHistory]) -> [WeightLiftingGoal]
+    
+    ///
+    func mapData(history: [WeightLiftingGoalHistory], measurements: [WeightLiftingMeasurement]) -> [WeightLiftingDisplayModel]
+    
     /// Generates a goal history containing a single weightlifting goal.
     ///
     /// - Parameters:

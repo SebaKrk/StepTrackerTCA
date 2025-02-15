@@ -11,6 +11,42 @@ import Foundation
 /// Default implementation of the `WeightLiftingStatsServices` that provides mock data for weightlifting measurements and goals.
 final class DefaultWeightLiftingStatsServices: WeightLiftingStatsServices {
     
+    func getLatestGoals(from history: [WeightLiftingGoalHistory]) -> [WeightLiftingGoal] {
+        let allGoals = history.flatMap { $0.goals }
+        let sortedGoals = allGoals.sorted { $0.createdDate > $1.createdDate }
+        var newestGoals: [WeightLiftingGoal] = []
+        
+        for goal in sortedGoals {
+            if !newestGoals.contains(where: { $0.movement == goal.movement }) {
+                newestGoals.append(goal)
+            }
+        }
+        
+        return newestGoals
+    }
+
+    func mapData(
+        history: [WeightLiftingGoalHistory],
+        measurements: [WeightLiftingMeasurement]
+    ) -> [WeightLiftingDisplayModel] {
+        
+        let latestGoals = getLatestGoals(from: history)
+        
+        return latestGoals.map { goal in
+            let latestResult = measurements
+                .filter { $0.name == goal.movement }
+                .sorted { $0.date > $1.date }
+                .first?.value ?? 0
+
+            return WeightLiftingDisplayModel(
+                id: goal.id,
+                movement: goal.movement,
+                goal: goal.target,
+                latestResult: latestResult
+            )
+        }
+    }
+    
     // MARK: - Dummy Data Functions
     
     /// Generates dummy goal data as `WeightLiftingGoalHistory` (containing a single goal).
@@ -146,7 +182,7 @@ final class DefaultWeightLiftingStatsServices: WeightLiftingStatsServices {
         do {
             let jsonData = try encoder.encode(measurements)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print(jsonString)
+                //print(jsonString)
             }
         } catch {
             print("JSON encoding error: \(error)")

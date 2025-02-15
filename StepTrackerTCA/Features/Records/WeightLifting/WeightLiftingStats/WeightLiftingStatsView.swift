@@ -55,32 +55,52 @@ struct WeightLiftingStatsView: View {
     
     private var weightLiftingGoalsContent: some View {
         VStack {
-            WidgetBodyContentWithButton(title: "Score:",
-                              color: .green) {
-                AnyView(
-                    VStack {
-                        weightLiftingScore("Clean & Jerk", "120")
-                        Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Snatch", "100")
-                        Divider().padding(.horizontal, 20)
-                        weightLiftingScore("OverheadSquat ", "110")
-                        Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Power Clean", "90")
-                        Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Squat Clean", "120")
-                        Divider().padding(.horizontal, 20)
-                        weightLiftingScore("Split Jerk", "125")
-                    }
-                )
+            titleContainerView
+            Divider()
+            Spacer().frame(height: 10)
+            ForEach(store.data) { item in
+                weightLiftingScore(item.movement.title, "\(item.goal)", "\(item.latestResult)")
+                Divider().padding(.horizontal, 20)
             }
             Spacer()
+            
+//            weightLiftingScore("Clean & Jerk", "120")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Snatch", "100")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("OverheadSquat ", "110")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Power Clean", "90")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Squat Clean", "120")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Split Jerk", "125")
+//            Spacer()
         }
     }
     
-    private func weightLiftingScore(_ title: String, _ value: String) -> some View {
+    private var titleContainerView: some View {
+        HStack {
+            titleView("Exercise")
+            Spacer()
+            titleView("Goal")
+            Spacer()
+            titleView("Result")
+         }
+    }
+    
+    private func titleView(_ title: String) -> some View {
+        Text(title)
+            .font(.system(size: 14, weight: .bold, design: .monospaced))
+    }
+    
+    private func weightLiftingScore(_ title: String, _ goal: String, _ value: String) -> some View {
         HStack {
             Text(title)
                 .font(.system(size: 14, weight: .regular, design: .monospaced))
+            Spacer()
+            Text("\(goal) kg")
+                .font(.system(size: 14, weight: .semibold, design: .monospaced))
             Spacer()
             Text("\(value) kg")
                 .font(.system(size: 14, weight: .semibold, design: .monospaced))

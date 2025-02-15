@@ -15,6 +15,9 @@ extension WeightLiftingStatsFeature {
         // MARK: - Properties
         
         ///
+        var data: [WeightLiftingDisplayModel] = []
+        
+        ///
         var dummyData: [WeightLiftingMeasurement] = []
         
         ///
