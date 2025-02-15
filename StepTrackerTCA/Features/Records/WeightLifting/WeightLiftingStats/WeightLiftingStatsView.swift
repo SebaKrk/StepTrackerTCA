@@ -48,20 +48,62 @@ struct WeightLiftingStatsView: View {
     }
     
     private var weightLiftingGoalsTitleHeader: some View {
-        WidgetHeaderView(title: "WeightLifting Stats", systemImage: "figure.strengthtraining.traditional", color: .green) {
+        WidgetHeaderView(title: "WeightLifting", systemImage: "figure.strengthtraining.traditional", color: .green) {
             send(.navigationButtonTapped)
         }
     }
     
     private var weightLiftingGoalsContent: some View {
         VStack {
-            Spacer()
-            WidgetBodyContentWithButton(title: "WeightLifting Goals",
-                              color: .green) {
-                AnyView(setYourGoalsButton)
-                
+            titleContainerView
+            Divider()
+            Spacer().frame(height: 10)
+            ForEach(store.data) { item in
+                weightLiftingScore(item.movement.title, "\(item.goal)", "\(item.latestResult)")
+                Divider().padding(.horizontal, 20)
             }
             Spacer()
+            
+//            weightLiftingScore("Clean & Jerk", "120")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Snatch", "100")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("OverheadSquat ", "110")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Power Clean", "90")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Squat Clean", "120")
+//            Divider().padding(.horizontal, 20)
+//            weightLiftingScore("Split Jerk", "125")
+//            Spacer()
+        }
+    }
+    
+    private var titleContainerView: some View {
+        HStack {
+            titleView("Exercise")
+            Spacer()
+            titleView("Goal")
+            Spacer()
+            titleView("Result")
+         }
+    }
+    
+    private func titleView(_ title: String) -> some View {
+        Text(title)
+            .font(.system(size: 14, weight: .bold, design: .monospaced))
+    }
+    
+    private func weightLiftingScore(_ title: String, _ goal: String, _ value: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 14, weight: .regular, design: .monospaced))
+            Spacer()
+            Text("\(goal) kg")
+                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+            Spacer()
+            Text("\(value) kg")
+                .font(.system(size: 14, weight: .semibold, design: .monospaced))
         }
     }
     
@@ -71,6 +113,16 @@ struct WeightLiftingStatsView: View {
         } label: {
             Text("Set your goals")
                 .foregroundStyle(.red)
+        }
+    }
+    
+    private func test(_ data: [WeightLiftingMeasurement]) -> some View {
+        ForEach(data) { item in
+            HStack {
+                Text(item.name.rawValue)
+                Spacer()
+                Text("\(item.value) kg")
+            }
         }
     }
     
