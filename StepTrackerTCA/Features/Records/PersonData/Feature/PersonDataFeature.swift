@@ -52,10 +52,6 @@ struct PersonDataFeature {
                 return .run { send in
                     await send(.fetchHealthData)
                 }
-                
-                // MARK: - Destination
-            case .destination:
-                return .none
              
                 // MARK: - Child actions
             case .currentWeight:
@@ -63,15 +59,19 @@ struct PersonDataFeature {
                 
             case .weightGoal:
                 return .none
+
+            case .weightLiftingStats:
+                return .none
             }
         }
-        .ifLet(\.$destination, action: \.destination)
-        
         Scope(state: \.currentWeight, action: \.currentWeight) {
             CurrentWeightFeature(service: DefaultCurrentWeightService())
         }
         Scope(state: \.weightGoal, action: \.weightGoal) {
             WeightGoalFeature(service: DefaultWeightGoalServices())
+        }
+        Scope(state: \.weightLiftingStats, action: \.weightLiftingStats) {
+            WeightLiftingStatsFeature(service: DefaultWeightLiftingStatsServices())
         }
     }
     
