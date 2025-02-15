@@ -60,33 +60,26 @@ struct WeightLiftingStatsView: View {
             Spacer().frame(height: 10)
             ForEach(store.data) { item in
                 weightLiftingScore(item.movement.title, "\(item.goal)", "\(item.latestResult)")
-                Divider().padding(.horizontal, 20)
+                Divider()
             }
             Spacer()
-            
-//            weightLiftingScore("Clean & Jerk", "120")
-//            Divider().padding(.horizontal, 20)
-//            weightLiftingScore("Snatch", "100")
-//            Divider().padding(.horizontal, 20)
-//            weightLiftingScore("OverheadSquat ", "110")
-//            Divider().padding(.horizontal, 20)
-//            weightLiftingScore("Power Clean", "90")
-//            Divider().padding(.horizontal, 20)
-//            weightLiftingScore("Squat Clean", "120")
-//            Divider().padding(.horizontal, 20)
-//            weightLiftingScore("Split Jerk", "125")
-//            Spacer()
         }
     }
     
     private var titleContainerView: some View {
-        HStack {
-            titleView("Exercise")
-            Spacer()
-            titleView("Goal")
-            Spacer()
-            titleView("Result")
-         }
+        GeometryReader { geometry in
+            HStack {
+                titleView("Exercise")
+                    .frame(width: geometry.size.width * 0.4, alignment: .leading)
+                titleView("Goal")
+                    .frame(width: geometry.size.width * 0.3, alignment: .center)
+                titleView("Result")
+                    .frame(width: geometry.size.width * 0.3, alignment: .trailing)
+                    .padding(.trailing, 5)
+            }
+            .frame(width: geometry.size.width)
+        }
+        .frame(height: 20)
     }
     
     private func titleView(_ title: String) -> some View {
@@ -95,16 +88,25 @@ struct WeightLiftingStatsView: View {
     }
     
     private func weightLiftingScore(_ title: String, _ goal: String, _ value: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 14, weight: .regular, design: .monospaced))
-            Spacer()
-            Text("\(goal) kg")
-                .font(.system(size: 14, weight: .semibold, design: .monospaced))
-            Spacer()
-            Text("\(value) kg")
-                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+        GeometryReader { geometry in
+            HStack {
+                Text(title)
+                    .font(.system(size: 14, weight: .regular, design: .monospaced))
+                    .frame(width: geometry.size.width * 0.4, alignment: .leading)
+
+                Text("\(goal) kg")
+                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .frame(width: geometry.size.width * 0.3, alignment: .center)
+
+                Spacer(minLength: 5)
+
+                Text("\(value) kg")
+                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .frame(width: geometry.size.width * 0.28, alignment: .trailing)
+                    .padding(.trailing, 10)
+            }
         }
+        .frame(height: 20)
     }
     
     private var setYourGoalsButton: some View {
