@@ -47,5 +47,8 @@ extension Container {
     var recordsRepository: Factory<RecordsRepository> {
         Factory(self) { DefaultRecordsRepository() }.shared
     }
-
+    
+    var weightLiftingRepository: Factory<WeightLiftingRepository> {
+        Factory(self) { DefaultWeightLiftingRepository() }
+    }
 }

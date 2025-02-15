@@ -189,3 +189,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - navigate to empty WeightLiftingGoalsFeature
     * C: WeightLifting widget body content  
         - generate mock data for display in the view. 
+    * D: CleanUp
+        - extract dummy data generation to mock module
+        - create empty repo for WeightLifting 
+        - clean up WeightLiftingStats feature
