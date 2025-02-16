@@ -14,14 +14,17 @@ extension WeightLiftingGoalsFeature {
     @Reducer
     enum Destination {
         
-        /// Represents the destination for displaying in `Tu dać feature`.
-        case open(SetWeightGoalFeature)
+        /// Represents the destination for displaying in `ExerciseInfoFeature`.
+        case openInfo(ExerciseInfoFeature)
+        
+        ///
+        case showDetails(ExerciseDetailsFeature)
         
         /// Opens the goal editing feature.
         ///
         /// This destination is used when the user wants to modify an existing weightlifting goal.
         /// It navigates to `SetEditGoalFeature`, where users can update their goal settings.
-        case openGoal(SetEditGoalFeature)
+        case openSetNewGoal(SetEditGoalFeature)
         
     }
     

@@ -34,13 +34,21 @@ struct WeightLiftingGoalsFeature {
             case .view(.viewDidAppear):
                 return .none
                 
-            case .view(.openSetEditSheet):
-                state.destination = .openGoal(SetEditGoalFeature.State())
+            case .view(.openSetEditGoal):
+                state.destination = .openSetNewGoal(SetEditGoalFeature.State())
                 return .none
                 
+            case .view(.openExerciseInfo):
+                state.destination = .openInfo(ExerciseInfoFeature.State())
+                return .none
+  
+            case .view(.navigationButtonTapped):
+                return .send(.showExerciseDetails)
+                    
                 // MARK: - Destination
                 
-            case .show:
+            case .showExerciseDetails:
+                state.destination = .showDetails(ExerciseDetailsFeature.State())
                 return .none
                 
             case .destination(_):

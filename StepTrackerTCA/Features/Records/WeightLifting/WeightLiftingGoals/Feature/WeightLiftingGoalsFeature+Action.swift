@@ -15,6 +15,7 @@ extension WeightLiftingGoalsFeature {
     enum Action: ViewAction {
         // MARK: - Actions
         
+        
         // MARK: - View Actions
         
         case view(View)
@@ -27,13 +28,20 @@ extension WeightLiftingGoalsFeature {
             /// Opens the sheet for setting or editing a weightlifting goal.
             ///
             /// This action is used when the user taps on the button to add or modify a goal.
-            case openSetEditSheet
+            case openSetEditGoal
+            
+            ///
+            case openExerciseInfo
+        
+            ///
+            case navigationButtonTapped
+     
         }
         
         // MARK: - Destination
         
         /// Triggered to display a destination or handle navigation actions.
-        case show
+        case showExerciseDetails
         
         /// Destination case for navigation
         case destination(PresentationAction<Destination.Action>)
