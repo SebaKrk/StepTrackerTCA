@@ -34,6 +34,10 @@ struct WeightLiftingGoalsFeature {
             case .view(.viewDidAppear):
                 return .none
                 
+            case .view(.openSetEditSheet):
+                state.destination = .openGoal(SetEditGoalFeature.State())
+                return .none
+                
                 // MARK: - Destination
                 
             case .show:

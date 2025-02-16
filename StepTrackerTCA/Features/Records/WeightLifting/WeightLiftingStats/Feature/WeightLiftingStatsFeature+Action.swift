@@ -16,10 +16,10 @@ extension WeightLiftingStatsFeature {
        
         // MARK: - Actions
         
-        ///
+        /// Requests dummy data for weightlifting statistics.
         case getDummyData
         
-        ///
+        /// Handles the response when dummy data is successfully loaded.
         case dummyDataLoaded([WeightLiftingMeasurement], [WeightLiftingGoalHistory])
         
         // MARK: - View Actions
@@ -30,6 +30,9 @@ extension WeightLiftingStatsFeature {
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            /// Opens the sheet for setting or editing a weightlifting goal.
+            case openSetEditSheet
             
             /// Triggered when a navigation button is tapped.
             case navigationButtonTapped

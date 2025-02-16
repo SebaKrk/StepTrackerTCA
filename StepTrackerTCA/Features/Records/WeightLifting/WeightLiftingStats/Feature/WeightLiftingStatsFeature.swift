@@ -24,9 +24,7 @@ struct WeightLiftingStatsFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce {
-            state,
-            action in
+        Reduce { state,action in
             switch action {
                 
                 // MARK: - Actions
@@ -49,6 +47,10 @@ struct WeightLiftingStatsFeature {
             
             case .view(.navigationButtonTapped):
                 return .send(.show)
+                
+            case .view(.openSetEditSheet):
+                state.destination = .openGoal(SetEditGoalFeature.State())
+                return .none
                 
                 // MARK: - Destination
                 

@@ -16,6 +16,11 @@ extension WeightLiftingStatsFeature {
         
         /// Represents the destination for displaying in `WeightLiftingGoalsFeature`.
         case open(WeightLiftingGoalsFeature)
+        
+        /// Opens the goal editing feature.
+        ///
+        /// This action navigates to `SetEditGoalFeature`, where the user can modify an existing goal.
+        case openGoal(SetEditGoalFeature)
     }
     
 }

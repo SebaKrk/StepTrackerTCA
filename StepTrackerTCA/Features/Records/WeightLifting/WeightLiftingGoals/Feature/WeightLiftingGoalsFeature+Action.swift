@@ -23,6 +23,11 @@ extension WeightLiftingGoalsFeature {
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            /// Opens the sheet for setting or editing a weightlifting goal.
+            ///
+            /// This action is used when the user taps on the button to add or modify a goal.
+            case openSetEditSheet
         }
         
         // MARK: - Destination

@@ -19,11 +19,15 @@ struct WeightLiftingStatsView: View {
     
     var body: some View {
         Group {
-            weightLiftingGoalsBody
+            weightLiftingGoalsWidget
         }
         .onAppear {
             send(.viewDidAppear)
         }
+        .sheet(item: $store.scope(state: \.destination?.openGoal, action: \.destination.openGoal), content: { store in
+            SetEditGoalView(store: store)
+                .presentationDetents([.medium, .large])
+        })
         .navigationDestination(
             item: $store.scope(
                 state: \.destination?.open,
@@ -40,11 +44,37 @@ struct WeightLiftingStatsView: View {
     
     private var weightLiftingGoalsWidget: some View {
         GroupBox {
-            weightLiftingGoalsContent
+            if store.data.isEmpty {
+                unavailableViewGoalsView
+            } else {
+                weightLiftingGoalsContent
+            }
         } label: {
             weightLiftingGoalsTitleHeader
         }
         .frame(minHeight: 200)
+    }
+    
+    private var unavailableViewGoalsView: some View {
+        ContentUnavailableView {
+            Label {
+                Text("No Training Goal Set")
+            } icon: {
+                Image(systemName: "list.bullet")
+            }
+        } description: {
+            Text("You haven't set a goal yet.\n Add a new goal to track your progress.")
+        } actions: {
+            Button {
+                send(.openSetEditSheet)
+            } label: {
+                Label("Add New Goal", systemImage: "plus.circle")
+            }
+            .foregroundColor(.green)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(.secondary)
+        .padding()
     }
     
     private var weightLiftingGoalsTitleHeader: some View {
@@ -93,13 +123,13 @@ struct WeightLiftingStatsView: View {
                 Text(title)
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .frame(width: geometry.size.width * 0.4, alignment: .leading)
-
+                
                 Text("\(goal) kg")
                     .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     .frame(width: geometry.size.width * 0.3, alignment: .center)
-
+                
                 Spacer(minLength: 5)
-
+                
                 Text("\(value) kg")
                     .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     .frame(width: geometry.size.width * 0.28, alignment: .trailing)
@@ -115,16 +145,6 @@ struct WeightLiftingStatsView: View {
         } label: {
             Text("Set your goals")
                 .foregroundStyle(.red)
-        }
-    }
-    
-    private func test(_ data: [WeightLiftingMeasurement]) -> some View {
-        ForEach(data) { item in
-            HStack {
-                Text(item.name.rawValue)
-                Spacer()
-                Text("\(item.value) kg")
-            }
         }
     }
     

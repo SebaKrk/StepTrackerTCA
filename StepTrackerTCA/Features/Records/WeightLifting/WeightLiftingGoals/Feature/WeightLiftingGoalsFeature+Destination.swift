@@ -16,6 +16,13 @@ extension WeightLiftingGoalsFeature {
         
         /// Represents the destination for displaying in `Tu dać feature`.
         case open(SetWeightGoalFeature)
+        
+        /// Opens the goal editing feature.
+        ///
+        /// This destination is used when the user wants to modify an existing weightlifting goal.
+        /// It navigates to `SetEditGoalFeature`, where users can update their goal settings.
+        case openGoal(SetEditGoalFeature)
+        
     }
     
 }

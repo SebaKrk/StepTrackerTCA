@@ -18,10 +18,14 @@ struct PersonDataView: View {
     // MARK: - View
     
     var body: some View {
-        personDataBody
-            .onAppear {
-                send(.viewDidAppear)
-            }
+        ZStack {
+            personDataBody
+            Spacer()
+            addNewRecordButton
+        }
+        .onAppear {
+            send(.viewDidAppear)
+        }
     }
     
     // MARK: - Subview
@@ -56,6 +60,26 @@ struct PersonDataView: View {
     @ViewBuilder
     private var weightLiftingStatsView: some View {
         WeightLiftingStatsView(store: store.scope(state: \.weightLiftingStats, action: \.weightLiftingStats))
+    }
+    
+    private var addNewRecordButton: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button {
+                    print("add new data sheet")
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 15, weight: .light))
+                        .frame(width: 40, height: 40)
+                        .background(Circle().fill(Color.green))
+                        .foregroundColor(.white)
+                        .shadow(radius: 5)
+                }
+                .padding()
+            }
+        }
     }
     
 }

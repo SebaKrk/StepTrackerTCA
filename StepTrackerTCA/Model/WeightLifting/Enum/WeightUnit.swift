@@ -11,7 +11,7 @@ import Foundation
 ///
 /// This enum defines the units used for weightlifting measurements and goals.
 /// It supports both kilograms (kg) and pounds (lb).
-enum WeightUnit: Codable {
+enum WeightUnit: Codable, CaseIterable {
     
     /// Kilograms (kg) - the metric unit of weight.
     case kg

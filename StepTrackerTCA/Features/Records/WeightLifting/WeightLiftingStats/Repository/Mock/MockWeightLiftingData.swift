@@ -32,13 +32,20 @@ struct MockWeightLiftingData {
             startDate: cleanAndJerkGoalStart
         )
         
-        let goalHistory: [WeightLiftingGoalHistory] = [oldGoal, newGoal, cleanAndJerkGoal]
+        let squatCleanGoalStart = dateWeeksAgo(2)
+        let squatCleanGoal = generateDummyGoalData(
+            for: .squatClean,
+            target: 125.0,
+            startDate: cleanAndJerkGoalStart
+        )
+        
+        let goalHistory: [WeightLiftingGoalHistory] = [oldGoal, newGoal, cleanAndJerkGoal, squatCleanGoal]
         
         let startDateForMeasurements = dateWeeksAgo(12)
         let overheadSquatMeasurements = generateDummyMeasurementData(
             for: .overheadSquat,
             startDate: startDateForMeasurements,
-            measurementCount: 2,
+            measurementCount: 4,
             withGoalHistory: goalHistory
         )
         let cleanAndJerkMeasurements = generateDummyMeasurementData(
@@ -48,7 +55,14 @@ struct MockWeightLiftingData {
             withGoalHistory: goalHistory
         )
         
-        let dummyData = overheadSquatMeasurements + cleanAndJerkMeasurements
+        let squatCleanMeasurements = generateDummyMeasurementData(
+            for: .squatClean,
+            startDate: startDateForMeasurements,
+            measurementCount: 2,
+            withGoalHistory: goalHistory
+        )
+        
+        let dummyData = overheadSquatMeasurements + cleanAndJerkMeasurements + squatCleanMeasurements
         
         return (dummyData, goalHistory)
     }

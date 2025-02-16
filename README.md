@@ -195,3 +195,10 @@ This project is not only a technical exercise but also an exploration of possibi
         - clean up WeightLiftingStats feature
     * E: WeightLiftingGoalsContent
         - small UI improvements
+        
+### IOS-00019 WeightLifting flow
+    * A: SetEditGoalFeature 
+        - implemented `SetEditGoalFeature` to manage the goal-setting flow for weightlifting exercises.
+        - designed and built the user interface for setting and editing weightlifting goals.
+        - improve navigation flow for deeper feature exploration
+        - added button for recording training results
