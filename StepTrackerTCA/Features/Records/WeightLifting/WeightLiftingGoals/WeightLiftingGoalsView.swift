@@ -18,21 +18,83 @@ struct WeightLiftingGoalsView: View {
     // MARK: - View
     
     var body: some View {
-        Group {
-            Text("WeightLiftingGoalsFeature")
+        ScrollView {
+            groupBoxGoals
+                .frame(minHeight: 200)
+        }
+        .navigationTitle("WeightLifting Goals")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            toolbarButton
         }
         .onAppear {
             send(.viewDidAppear)
         }
+        .sheet(item: $store.scope(state: \.destination?.openSetNewGoal, action: \.destination.openSetNewGoal), content: { store in
+            SetEditGoalView(store: store)
+                .presentationDetents([.medium, .large])
+        })
+        .sheet(item: $store.scope(state: \.destination?.openInfo, action: \.destination.openInfo), content: { store in
+            ExerciseInfoView(store: store)
+                .presentationDetents([.medium, .large])
+        })
         .navigationDestination(
             item: $store.scope(
-                state: \.destination?.open,
-                action: \.destination.open)) { store in
-                    // do zmiany
-                    SetWeightGoalView(store: store)
+                state: \.destination?.showDetails,
+                action: \.destination.showDetails)) { store in
+                    ExerciseDetailsView(store: store)
                 }
     }
     
+    // MARK: - SubView
+    
+    @ToolbarContentBuilder
+    var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.openSetEditGoal)
+            } label: {
+                Image(systemName: "plus")
+            }
+        }
+    }
+    
+    private var groupBoxGoals: some View {
+        GroupBox {
+            VStack(alignment: .leading) {
+                Text("wynik z ostatniego treningu")
+                Text("ustawiony goal")
+                Text("najlepszy wynik")
+                HStack {
+                    Spacer()
+                    Button {
+                        send(.openExerciseInfo)
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .foregroundStyle(.green)
+                    }
+                }
+            }
+        } label: {
+            VStack {
+                HStack {
+                    Group {
+                        Text("Clean&Jerk")
+                            .font(.title3.bold())
+                            .foregroundStyle(.green)
+                        Spacer()
+                        Button {
+                            send(.navigationButtonTapped)
+                        } label: {
+                            Image(systemName: "chevron.right")
+                        }
+                    }
+                    .foregroundStyle(.green)
+                }
+                Divider()
+            }
+        }
+    }
 }
 
 #Preview {

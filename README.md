@@ -202,3 +202,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - designed and built the user interface for setting and editing weightlifting goals.
         - improve navigation flow for deeper feature exploration
         - added button for recording training results 
+    * B: Navigation in WeightLiftingGoalsView
+        - Working on the navigation flow from WeightLiftingGoalsView to ExerciseDetailsFeature.
+        - Refining state handling and deep-linking between views.
+        - improve navigation flow
