@@ -201,4 +201,4 @@ This project is not only a technical exercise but also an exploration of possibi
         - implemented `SetEditGoalFeature` to manage the goal-setting flow for weightlifting exercises.
         - designed and built the user interface for setting and editing weightlifting goals.
         - improve navigation flow for deeper feature exploration
-        - added button for recording training results
+        - added button for recording training results 
