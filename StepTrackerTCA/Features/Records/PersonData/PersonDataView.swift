@@ -18,11 +18,7 @@ struct PersonDataView: View {
     // MARK: - View
     
     var body: some View {
-        ZStack {
-            personDataBody
-            Spacer()
-            addNewRecordButton
-        }
+        personDataBody
         .onAppear {
             send(.viewDidAppear)
         }
@@ -44,6 +40,9 @@ struct PersonDataView: View {
             }
             .navigationTitle("Person records")
             .navigationBarTitleDisplayMode(.inline)
+            .overlay(alignment: .bottomTrailing) {
+                addNewRecordButton
+            }
         }
     }
     

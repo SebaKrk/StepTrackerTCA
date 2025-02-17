@@ -206,3 +206,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - Working on the navigation flow from WeightLiftingGoalsView to ExerciseDetailsFeature.
         - Refining state handling and deep-linking between views.
         - improve navigation flow
+    * C: Views Presentation
+        - Work in progress on view presentation format
+        - Refining the structure and content of views
+        - Using hardcoded values as placeholders for now
