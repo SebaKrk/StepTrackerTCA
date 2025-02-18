@@ -52,6 +52,11 @@ struct PersonDataFeature {
                 return .run { send in
                     await send(.fetchHealthData)
                 }
+                
+            case .view(.addMetricButtonPressed):
+                return .run { send in
+                    await send(.showAddMetric)
+                }
              
                 // MARK: - Child actions
             case .currentWeight:
@@ -62,8 +67,19 @@ struct PersonDataFeature {
 
             case .weightLiftingStats:
                 return .none
+                
+                // MARK: - Destination
+            
+            case .showAddMetric:
+                state.destination = .show(AddMeasurementFeature.State())
+                return .none
+                
+            case .destination(_):
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
+        
         Scope(state: \.currentWeight, action: \.currentWeight) {
             CurrentWeightFeature(service: DefaultCurrentWeightService())
         }

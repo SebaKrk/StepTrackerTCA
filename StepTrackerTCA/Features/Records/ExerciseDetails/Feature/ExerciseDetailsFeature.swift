@@ -24,7 +24,7 @@ struct ExerciseDetailsFeature {
                 state.chartData = data
                 state.goalHistory = goal
                 state.minValue = data.map { $0.value }.min() ?? 0
-                state.goal = 105
+                state.goal = 102
                 return .none
                 
                 

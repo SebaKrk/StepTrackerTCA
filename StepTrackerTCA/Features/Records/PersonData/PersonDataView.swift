@@ -43,6 +43,10 @@ struct PersonDataView: View {
             .overlay(alignment: .bottomTrailing) {
                 addNewRecordButton
             }
+            .sheet(item: $store.scope(state: \.destination?.show, action: \.destination.show), content: { store in
+                AddMeasurementView(store: store)
+                    .presentationDetents([.large, .medium])
+            })
         }
     }
     
@@ -67,7 +71,7 @@ struct PersonDataView: View {
             HStack {
                 Spacer()
                 Button {
-                    print("add new data sheet")
+                    send(.addMetricButtonPressed)
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 15, weight: .light))

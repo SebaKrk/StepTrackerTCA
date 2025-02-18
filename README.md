@@ -207,6 +207,8 @@ This project is not only a technical exercise but also an exploration of possibi
         - Refining state handling and deep-linking between views.
         - improve navigation flow
     * C: Views Presentation
-        - Work in progress on view presentation format
-        - Refining the structure and content of views
-        - Using hardcoded values as placeholders for now
+        - work in progress on view presentation format
+        - refining the structure and content of views
+        - using hardcoded values as placeholders for now
+        - add `AddMeasurementFeature` and assigned its execution to a button
+
