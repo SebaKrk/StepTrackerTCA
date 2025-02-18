@@ -62,18 +62,8 @@ struct WeightLiftingGoalsView: View {
     private var groupBoxGoals: some View {
         GroupBox {
             VStack(alignment: .leading) {
-                Text("wynik z ostatniego treningu")
-                Text("ustawiony goal")
-                Text("najlepszy wynik")
-                HStack {
-                    Spacer()
-                    Button {
-                        send(.openExerciseInfo)
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .foregroundStyle(.green)
-                    }
-                }
+                buildScoreStack()
+                infoButton
             }
         } label: {
             VStack {
@@ -94,7 +84,56 @@ struct WeightLiftingGoalsView: View {
                 Divider()
             }
         }
+        .padding([.leading, .trailing], 12)
     }
+    
+    private func buildScoreStack() -> some View {
+        VStack {
+            createCellScoreView("calendar", "Last", "102", "12.02.2025")
+            createCellScoreView("target", "Target", "120", "01.02.2024")
+            createCellScoreView("trophy", "Best", "130", "01.01.2020")
+        }
+    }
+    
+    private func createCellScoreView(_ image: String, _ title: String, _ value: String, _ date: String) -> some View {
+        GeometryReader { geometry in
+            VStack {
+                HStack {
+                    HStack {
+                        Image(systemName: image)
+                            .foregroundStyle(.green)
+                        Text(title)
+                            .font(.system(size: 14, weight: .regular, design: .monospaced))
+                    }
+                    .frame(width: geometry.size.width * 0.3, alignment: .leading)
+                    
+                    Text("\(value) kg")
+                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                        .frame(width: geometry.size.width * 0.4, alignment: .center)
+                        .foregroundStyle(.green)
+                    
+                    Text(date)
+                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                        .frame(width: geometry.size.width * 0.28, alignment: .trailing)
+                }
+                Divider()
+            }
+        }
+    }
+    
+    private var infoButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                send(.openExerciseInfo)
+            } label: {
+                Image(systemName: "info.circle")
+                    .foregroundStyle(.green)
+            }
+        }
+        .padding(.top,4)
+    }
+    
 }
 
 #Preview {

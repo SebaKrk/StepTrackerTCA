@@ -34,7 +34,17 @@ extension PersonDataFeature {
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            ///
+            case addMetricButtonPressed
         }
+        
+        // MARK: - Destination
+        
+        case showAddMetric
+        
+        /// destination case for navigation
+        case destination(PresentationAction<Destination.Action>)
         
         // MARK: - Child actions
         

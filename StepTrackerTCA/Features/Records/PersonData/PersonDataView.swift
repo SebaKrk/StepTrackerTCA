@@ -18,11 +18,7 @@ struct PersonDataView: View {
     // MARK: - View
     
     var body: some View {
-        ZStack {
-            personDataBody
-            Spacer()
-            addNewRecordButton
-        }
+        personDataBody
         .onAppear {
             send(.viewDidAppear)
         }
@@ -44,6 +40,13 @@ struct PersonDataView: View {
             }
             .navigationTitle("Person records")
             .navigationBarTitleDisplayMode(.inline)
+            .overlay(alignment: .bottomTrailing) {
+                addNewRecordButton
+            }
+            .sheet(item: $store.scope(state: \.destination?.show, action: \.destination.show), content: { store in
+                AddMeasurementView(store: store)
+                    .presentationDetents([.large, .medium])
+            })
         }
     }
     
@@ -68,7 +71,7 @@ struct PersonDataView: View {
             HStack {
                 Spacer()
                 Button {
-                    print("add new data sheet")
+                    send(.addMetricButtonPressed)
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 15, weight: .light))
