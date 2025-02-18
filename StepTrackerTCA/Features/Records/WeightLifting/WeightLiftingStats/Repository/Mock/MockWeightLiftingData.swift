@@ -10,7 +10,6 @@ import Foundation
 struct MockWeightLiftingData {
     
     // MARK: - API
-    
     static func getDummyData() async -> (dummyData: [WeightLiftingMeasurement], goalHistory: [WeightLiftingGoalHistory]) {
         let overheadSquatOldGoalDate = dateWeeksAgo(10)
         let overheadSquatNewGoalDate = dateWeeksAgo(2)
@@ -36,7 +35,7 @@ struct MockWeightLiftingData {
         let squatCleanGoal = generateDummyGoalData(
             for: .squatClean,
             target: 125.0,
-            startDate: cleanAndJerkGoalStart
+            startDate: squatCleanGoalStart
         )
         
         let goalHistory: [WeightLiftingGoalHistory] = [oldGoal, newGoal, cleanAndJerkGoal, squatCleanGoal]
@@ -65,6 +64,16 @@ struct MockWeightLiftingData {
         let dummyData = overheadSquatMeasurements + cleanAndJerkMeasurements + squatCleanMeasurements
         
         return (dummyData, goalHistory)
+    }
+    
+    static func getChartDataForCleanAndJerk() async -> ([WeightLiftingMeasurement], [WeightLiftingGoalHistory]) {
+        let (measurements, goalHistory) = await getDummyData()
+        
+        let filteredData = measurements
+            .filter { $0.name == .cleanAndJerk }
+            .sorted { $0.date < $1.date }
+
+        return (filteredData, goalHistory)
     }
     
     // MARK: - Private Methods
@@ -109,36 +118,42 @@ struct MockWeightLiftingData {
     ///   - measurementCount: The number of measurements to generate.
     ///   - goalHistories: An array of `WeightLiftingGoalHistory` used to determine the appropriate goal ID.
     /// - Returns: An array of `WeightLiftingMeasurement` objects representing the generated measurements.
-    private static func generateDummyMeasurementData(for movement: WeightliftingMovement, startDate: Date, measurementCount: Int, withGoalHistory goalHistories: [WeightLiftingGoalHistory]) -> [WeightLiftingMeasurement] {
-        
-        let dummyValues: [Double] = (0..<measurementCount).map { index in
-            let trend = Double(index) * 0.5
-            let noise = Double.random(in: -0.1...0.1)
-            let rawValue = 94.0 + trend + noise
-            let roundedValue = (rawValue * 2).rounded() / 2.0
-            return roundedValue
-        }
-        
+    private static func generateDummyMeasurementData(
+        for movement: WeightliftingMovement,
+        startDate: Date,
+        measurementCount: Int,
+        withGoalHistory goalHistories: [WeightLiftingGoalHistory]
+    ) -> [WeightLiftingMeasurement] {
+
         var measurements: [WeightLiftingMeasurement] = []
         let calendar = Calendar.current
-        
+
         for i in 0..<measurementCount {
             guard let measurementDate = calendar.date(byAdding: .weekOfYear, value: i, to: startDate) else { continue }
+
+            let trend = Double(i) * 0.5
+            let randomFluctuation = Double.random(in: -0.5...1.2)
+            let baseValue = 94.0 + trend + randomFluctuation
+
+            let roundedValue = (baseValue * 2).rounded() / 2.0
+
             let assignedGoalId = goalHistories
                 .flatMap { $0.goals }
                 .filter { $0.movement == movement && $0.createdDate <= measurementDate }
                 .sorted { $0.createdDate < $1.createdDate }
                 .last?.id
+
             let measurement = WeightLiftingMeasurement(
                 id: UUID().uuidString,
                 name: movement,
                 date: measurementDate,
-                value: dummyValues[i],
+                value: roundedValue,
                 goalId: assignedGoalId
             )
+
             measurements.append(measurement)
         }
-        
+
         return measurements
     }
     
