@@ -213,3 +213,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - add `AddMeasurementFeature` and assigned its execution to a button
     * D: AddMeasurementFeature UI
         - Added state properties for specific movement types: weightlifting, strength, fitness, cross, hero
+        - create and conect all picker in AddMeasurementFeature
+        
