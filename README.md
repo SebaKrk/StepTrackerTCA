@@ -211,4 +211,5 @@ This project is not only a technical exercise but also an exploration of possibi
         - refining the structure and content of views
         - using hardcoded values as placeholders for now
         - add `AddMeasurementFeature` and assigned its execution to a button
-
+    * D: AddMeasurementFeature UI
+        - Added state properties for specific movement types: weightlifting, strength, fitness, cross, hero
