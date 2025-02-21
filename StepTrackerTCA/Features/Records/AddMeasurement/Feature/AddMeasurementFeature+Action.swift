@@ -45,13 +45,41 @@ extension AddMeasurementFeature {
         ///
         case selectedWorkoutUnitPickerChange(WorkoutUnit)
         
+        ///
+        case validate
+        
+        ///
+        case addValue
+        
+        /// Presents an alert in the view.
+        case presentAlert
+        
         // MARK: - View Actions
         
         case view(View)
         
         enum View {
             
+            ///
             case viewDidAppear
+            
+            ///
+            case addButtonTapped
+            
+            ///
+            case cancelButtonTapped
+            
+        }
+        
+        // MARK: - Alert
+        
+        /// Actions related to alert presentation and handling.
+        case alert(PresentationAction<Alert>)
+        
+        enum Alert: Equatable {
+            
+            /// Represents a simple informational alert.
+            case showMessage
         }
     }
     

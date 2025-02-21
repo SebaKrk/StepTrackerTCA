@@ -51,6 +51,14 @@ extension AddMeasurementFeature {
         ///
         var workoutUnit: WorkoutUnit = .reps
         
+        // MARK: - Alert
+        
+        /// Optional alert message to be displayed.
+        var alertMessage: String? = nil
+        
+        /// State of the alert presentation.
+        @Presents var alert: AlertState<Action.Alert>?
+        
     }
     
 }

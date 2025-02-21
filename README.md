@@ -214,5 +214,6 @@ This project is not only a technical exercise but also an exploration of possibi
     * D: AddMeasurementFeature UI
         - Added state properties for specific movement types: weightlifting, strength, fitness, cross, hero
         - create and connect all picker in AddMeasurementFeature
-        - clean up the filess
+        - clean up the files
+        - early validation of input fields 
         

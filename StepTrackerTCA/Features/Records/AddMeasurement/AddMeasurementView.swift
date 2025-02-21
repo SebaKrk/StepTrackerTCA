@@ -27,6 +27,7 @@ struct AddMeasurementView: View {
             .toolbar {
                 toolbarButton
             }
+            .alert(store: store.scope(state: \.$alert, action: \.alert))
         }
     }
     
@@ -36,14 +37,14 @@ struct AddMeasurementView: View {
     var toolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                
+                send(.addButtonTapped)
             } label: {
                 Text("Add")
             }
         }
         ToolbarItem(placement: .topBarLeading) {
             Button {
-                
+                send(.cancelButtonTapped)
             } label: {
                 Text("Cancel")
             }
