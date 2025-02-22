@@ -54,17 +54,22 @@ enum WeightliftingMovement: String, Codable, CaseIterable {
 
     /// A description of the movement.
     ///
-    /// This property is currently empty but can be expanded to include
-    /// detailed explanations or training tips for each movement.
+    /// This property provides a brief explanation of each weightlifting movement,
+    /// highlighting its purpose and execution technique.
     var description: String {
         switch self {
-        case .cleanAndJerk,
-             .snatch,
-             .overheadSquat,
-             .powerClean,
-             .squatClean,
-             .splitJerk:
-            return ""
+        case .cleanAndJerk:
+            return "A two-part Olympic lift that involves lifting the bar from the floor to the shoulders (clean) and then overhead (jerk). It requires strength, power, and coordination."
+        case .snatch:
+            return "An Olympic lift where the bar is lifted from the floor to overhead in one continuous motion. It demands flexibility, speed, and precision."
+        case .overheadSquat:
+            return "A squat performed while holding the barbell overhead with a wide grip. It tests balance, mobility, and strength, especially in the core and shoulders."
+        case .powerClean:
+            return "A variation of the clean where the lifter catches the bar in a higher position rather than a deep squat. It emphasizes explosive power and technique."
+        case .squatClean:
+            return "A full clean where the lifter catches the bar in a deep squat before standing up. It is essential for Olympic weightlifting and requires speed and mobility."
+        case .splitJerk:
+            return "A variation of the jerk where the lifter moves one foot forward and the other back to stabilize the bar overhead. It enhances balance and control during the lift."
         }
     }
 }
