@@ -26,8 +26,8 @@ enum HeroMovement: String, Codable, CaseIterable {
     /// Murphy - 1-mile run, 100 pull-ups, 200 push-ups, 300 squats, 1-mile run for time.
     case murphy
     
-    /// Cindy - 20-minute AMRAP of pull-ups, push-ups, and air squats.
-    case cindy
+    /// Grace - 30 clean and jerks for time.
+    case grace
 
     /// A user-friendly title for each Hero workout.
     ///
@@ -43,8 +43,8 @@ enum HeroMovement: String, Codable, CaseIterable {
             return "Helen"
         case .murphy:
             return "Murphy"
-        case .cindy:
-            return "Cindy"
+        case .grace:
+            return "Grace"
         }
     }
 
@@ -61,9 +61,8 @@ enum HeroMovement: String, Codable, CaseIterable {
             return "Complete 3 rounds of a 400m run, 21 kettlebell swings, and 12 pull-ups for time."
         case .murphy:
             return "Perform a 1-mile run, 100 pull-ups, 200 push-ups, 300 air squats, and another 1-mile run for time."
-        case .cindy:
-            return "Complete as many rounds as possible (AMRAP) in 20 minutes of 5 pull-ups, 10 push-ups, and 15 air squats."
+        case .grace:
+            return "Complete 30 clean and jerks for time. This workout tests strength, power, and efficiency."
         }
     }
-    
 }

@@ -68,32 +68,40 @@ struct AddMeasurementFeature {
                             }
                         }
                     case .fitness, .hero:
-                        // dodac jaki state przerzymujaacy czas
-                        guard !state.valueToAdd.isEmpty else {
-                            let alertMessage = "The time value cannot be empty."
+                        guard state.timeInterval != 0 else {
+                            let alertMessage = "The time value cannot be equal zero."
                             state.alertMessage = alertMessage
                             return .run { send in
                                 await send(.presentAlert)
                             }
                         }
+                        
                     case .cross:
-                        // dodac jakis state przetrzujacy reps
-                        guard !state.valueToAdd.isEmpty else {
+                        guard !state.crossValueToAdd.isEmpty else {
                             let alertMessage = "The reps value field cannot be empty."
                             state.alertMessage = alertMessage
                             return .run { send in
                                 await send(.presentAlert)
                             }
                         }
-                    case .none:
-                        return .none
+                    case .none: return .none
                     }
+                    
                     return .run { send in
                         await send(.addValue)
                     }
                     
                 case .addValue:
-                    print("Save value - \(state.valueToAdd)")
+                    print("Date: \(state.addDataDate)")
+                    switch state.workoutType {
+                    case .weightlifting, .strength:
+                        print("Save 1 max kg value - \(state.valueToAdd) \(state.weightUnit)")
+                    case .fitness, .hero:
+                        print("Save time value - \(state.timeInterval)")
+                    case .cross:
+                        print("Save cross reps value - \(state.crossValueToAdd)")
+                    case .none: break
+                    }
                     return .run { send in
                         await self.dismiss()
                     }

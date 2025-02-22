@@ -68,11 +68,7 @@ struct AddMeasurementView: View {
     
     var datePicker: some View {
         DatePicker("Date", selection: $store.addDataDate, displayedComponents: .date)
-    }
-    
-    var timePicker: some View {
-        DatePicker("Score time", selection: $store.selectedTime, displayedComponents: [.hourAndMinute])
-        // do zastpienia / trzeba chyba cos swojego
+        
     }
     
     @ViewBuilder
@@ -203,7 +199,7 @@ struct AddMeasurementView: View {
     
     private var workoutInputView: some View {
         HStack {
-            TextField("Value", text: $store.valueToAdd)
+            TextField("Value", text: $store.crossValueToAdd)
                 .multilineTextAlignment(.leading)
                 .keyboardType(.decimalPad)
             Spacer()
@@ -223,18 +219,24 @@ struct AddMeasurementView: View {
         .frame(width: 75)
     }
     
+    var timePicker: some View {
+        HStack {
+            Text("Time score")
+            Spacer()
+            DurationPicker(duration: $store.timeInterval)
+                .foregroundStyle(.secondary)
+                .frame(width: 160, alignment: .trailing)
+        }
+    }
+    
     @ViewBuilder
     private var workoutDescriptionView: some View {
         if let workoutType = store.workoutType {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Workout Description")
-                    .font(.headline)
-                
+            DisclosureGroup("Workout description", isExpanded: $store.descriptionIsExpanded) {
                 Text(workoutDescription(for: workoutType))
                     .font(.body)
                     .foregroundColor(.secondary)
             }
-            .padding(.vertical, 8)
         }
     }
 
@@ -252,4 +254,5 @@ struct AddMeasurementView: View {
             return store.heroMovement?.description ?? "Select a movement to see its description."
         }
     }
+    
 }
