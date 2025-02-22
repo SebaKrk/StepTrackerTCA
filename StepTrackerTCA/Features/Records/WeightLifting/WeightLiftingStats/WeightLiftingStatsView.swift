@@ -131,7 +131,7 @@ struct WeightLiftingStatsView: View {
                 Spacer(minLength: 5)
                 
                 Text("\(value) kg")
-                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .frame(width: geometry.size.width * 0.28, alignment: .trailing)
                     .padding(.trailing, 10)
             }

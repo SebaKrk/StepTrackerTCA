@@ -30,12 +30,10 @@ struct SetEditGoalFeature {
                     
                 case let .selectedMovementPickerChange(movement):
                     state.movementType = movement
-                    print(state.movementType)
                     return .none
                     
                 case let .selectedWeightUnitPickerChange(unit):
                     state.weightUnit = unit
-                    print(state.weightUnit)
                     return .none
                     
                     // MARK: - View Actions
