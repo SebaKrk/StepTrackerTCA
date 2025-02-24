@@ -218,5 +218,6 @@ This project is not only a technical exercise but also an exploration of possibi
         - early validation of input fields 
         
 ### IOS-00020 CoreData
-    * A: CleanUp SwiftData
+    - CleanUp SwiftData
+    * A: CoreDataManager
 
