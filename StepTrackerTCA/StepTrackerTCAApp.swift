@@ -13,7 +13,7 @@ import SwiftUI
 @main
 struct StepTrackerTCAApp: App {
     
-    @Injected(\.swiftDataManager) private var swiftDataManager
+//    @Injected(\.swiftDataManager) private var swiftDataManager
     
     var body: some Scene {
         WindowGroup {
@@ -23,7 +23,7 @@ struct StepTrackerTCAApp: App {
                 }
             )
         }
-        .modelContainer(swiftDataManager.container)
+//        .modelContainer(swiftDataManager.container)
     }
     
 }

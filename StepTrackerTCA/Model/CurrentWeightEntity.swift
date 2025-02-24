@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import SwiftData
+//import SwiftData
 
-@Model
-final class CurrentWeightEntity {
+//@Model
+final class CurrentWeight { //Entity {
     
     // MARK: - Properties
     
-    @Attribute(.unique)
+//    @Attribute(.unique)
     var id: String
     
     /// The weight of the user.

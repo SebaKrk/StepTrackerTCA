@@ -24,7 +24,7 @@ extension WeightGoalFeature {
         /// Maps a fetched weight goal entity to the corresponding state in the feature.
         ///
         /// - Parameter: `CurrentWeightEntity` contains the user's current weight goal and related data.
-        case mapToWeightGoal(CurrentWeightEntity)
+        case mapToWeightGoal(CurrentWeight) //Entity)
         
         // MARK: - View Actions
         

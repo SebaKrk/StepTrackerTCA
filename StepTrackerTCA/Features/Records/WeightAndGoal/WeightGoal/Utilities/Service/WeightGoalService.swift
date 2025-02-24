@@ -15,6 +15,6 @@ protocol WeightGoalService {
      /// - Returns: An optional `CurrentWeightEntity` representing the user's current weight goal.
      ///            Returns `nil` if no weight goal is set.
      /// - Throws: An error if the fetching process fails.
-    func fetchWeightGoal() async throws -> CurrentWeightEntity?
+    func fetchWeightGoal() async throws -> CurrentWeight? //Entity?
     
 }

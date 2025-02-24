@@ -35,9 +35,9 @@ extension Container {
     /// - The factory is initialized with the default implementation, `DefaultSwiftDataManager`.
     /// - This ensures that the same instance of `SwiftDataManager` is used for handling
     ///   data persistence and operations related to SwiftData.
-    var swiftDataManager: Factory<SwiftDataManager> {
-        Factory(self) { DefaultSwiftDataManger() }.shared
-    }
+//    var swiftDataManager: Factory<SwiftDataManager> {
+//        Factory(self) { DefaultSwiftDataManger() }.shared
+//    }
     
     /// A factory that provides a shared instance of the `RecordsRepository`.
     ///
