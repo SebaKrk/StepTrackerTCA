@@ -7,14 +7,13 @@
 
 import Foundation
 
-/// A protocol defining the service responsible for managing weight goals.
+/// A protocol defining a service responsible for retrieving the user's weight goal.
 protocol WeightGoalService {
     
-    /// Fetches the current weight goal from the storage or service.
-     ///
-     /// - Returns: An optional `CurrentWeightEntity` representing the user's current weight goal.
-     ///            Returns `nil` if no weight goal is set.
-     /// - Throws: An error if the fetching process fails.
-    func fetchWeightGoal() async throws -> CurrentWeight? //Entity?
-    
+    /// Fetches the user's current weight goal from storage or an external service.
+    ///
+    /// - Returns: An optional `WeightGoal` representing the user's stored weight goal.
+    ///            Returns `nil` if no weight goal has been set.
+    /// - Throws: An error if the operation fails due to data retrieval issues.
+    func fetchWeightGoal() async throws -> WeightGoal?
 }

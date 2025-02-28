@@ -7,19 +7,87 @@
 
 import Factory
 import Foundation
-import SwiftData
+import CoreData
 
 final class DefaultRecordsRepository: RecordsRepository {
     
     // MARK: - Dependencies
     
-//    @LazyInjected(\.swiftDataManager) private var swiftDataManager
+    @LazyInjected(\.coreDataManger) private var coreDataManger
     
-//    lazy var context = swiftDataManager.mainContext
+    // MARK: - Properties
+    
+    private var backgroundContext: NSManagedObjectContext {
+        coreDataManger.backgroundContext
+    }
     
     // MARK: - API
     
-    func setNewWeightGoal(_ weight: Double, _ dateAdded: Date) throws {
+    func setNewWeightGoal(goal: WeightGoal) async throws {
+        let context = backgroundContext
+        try await context.perform {
+            let request: NSFetchRequest<CurrentWeightEntity> = CurrentWeightEntity.fetchRequest()
+            request.fetchLimit = 1
+            
+            if let existingWeightGoal = try context.fetch(request).first {
+                existingWeightGoal.weight = goal.weight
+                existingWeightGoal.dateAdded = goal.dateAdded
+            } else {
+                let newWeightGoal = CurrentWeightEntity(context: context)
+                newWeightGoal.weight = goal.weight
+                newWeightGoal.dateAdded = goal.dateAdded
+            }
+            
+            try self.saveData(context: context)
+        }
+    }
+    
+    func fetchWeightGoal() async throws -> Double {
+        let context = coreDataManger.backgroundContext
+        return try await context.perform {
+            let fetchRequest: NSFetchRequest<CurrentWeightEntity> = CurrentWeightEntity.fetchRequest()
+            fetchRequest.fetchLimit = 1
+            return try context.fetch(fetchRequest).first?.weight ?? 0
+        }
+    }
+    
+    func fetchWeightGoalWithDate() async throws -> WeightGoal? {
+        let context = coreDataManger.backgroundContext
+        return try await context.perform {
+            let fetchRequest: NSFetchRequest<CurrentWeightEntity> = CurrentWeightEntity.fetchRequest()
+            fetchRequest.fetchLimit = 1
+            guard let result = try context.fetch(fetchRequest).first else { return nil }
+            
+            return WeightGoal(id: result.id,
+                              weight: result.weight,
+                              dateAdded: result.dateAdded)
+        }
+    }
+    
+    // MARK: - Core Data Helpers
+    
+    private func saveData(context: NSManagedObjectContext) throws {
+        try context.save()
+    }
+    
+}
+
+
+//import Factory
+//import Foundation
+//import SwiftData
+
+//final class DefaultRecordsRepository: RecordsRepository {
+//    
+//    // MARK: - Dependencies
+//    
+//    @LazyInjected(\.swiftDataManager) private var swiftDataManager
+//    
+//    lazy var context = swiftDataManager.mainContext
+//    
+//    // MARK: - API
+//    
+//    func setNewWeightGoal(_ weight: Double, _ dateAdded: Date) throws {
 //        if let existingWeightGoal = try fetchWeightGoal() {
 //            existingWeightGoal.weight = weight
 //            existingWeightGoal.dateAdded = dateAdded
@@ -28,13 +96,13 @@ final class DefaultRecordsRepository: RecordsRepository {
 //            context.insert(newWeightGoal)
 //        }
 //        try context.save()
-    }
-    
-    func fetchWeightGoal() throws -> CurrentWeight? { //Entity? {
+//    }
+//    
+//    func fetchWeightGoal() throws -> CurrentWeightEntity? {
 //        var descriptor = FetchDescriptor<CurrentWeightEntity>()
 //        descriptor.fetchLimit = 1
 //        return try context.fetch(descriptor).first
-        return nil
-    }
-    
-}
+//        return nil
+//    }
+//    
+//}

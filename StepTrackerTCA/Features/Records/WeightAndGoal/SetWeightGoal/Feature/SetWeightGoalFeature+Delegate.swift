@@ -14,9 +14,9 @@ extension SetWeightGoalFeature {
     /// A delegate enum to handle events related to `SetWeightGoalFeature`.
     enum Delegate: Equatable {
         
-        /// Triggered when the user set weight goal.
-        /// - Parameter healthData: An object containing health-related data.
-        case setGoal(HealthData)
+        /// Triggered when the user sets a weight goal.
+        /// - Parameter weightGoal: An object containing the weight goal data.
+        case setGoal(WeightGoal)
     }
-        
+    
 }

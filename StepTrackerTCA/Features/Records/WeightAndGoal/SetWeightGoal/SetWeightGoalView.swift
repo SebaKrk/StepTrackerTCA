@@ -30,6 +30,7 @@ struct SetWeightGoalView: View {
             .toolbar {
                 toolbarButton
             }
+            .alert(store: store.scope(state: \.$alert, action: \.alert))
         }
     }
     
@@ -42,7 +43,8 @@ struct SetWeightGoalView: View {
     }
     
     private var saveButton: some View {
-        Button { send(.saveGoalButtonPressed)
+        Button {
+            send(.saveGoalButtonPressed)
         } label: {
             Text("Save")
         }
@@ -73,7 +75,7 @@ struct SetWeightGoalView: View {
         HStack {
             Text("Weight Goal")
             Spacer()
-            TextField("Goal Value", text: $store.weightGoal)
+            TextField("Goal Value", text: $store.value)
                 .multilineTextAlignment(.trailing)
                 .frame(width: 140)
                 .keyboardType(.numberPad)

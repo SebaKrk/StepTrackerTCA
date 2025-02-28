@@ -14,14 +14,21 @@ extension WeightGoalFeature {
     @ObservableState
     struct State {
         // MARK: - Properties
-        /// The user's weight goal represented by `HealthData`. It is optional.
+        
+        /// The user's current weight goal.
         ///
-        /// Example: `weightGoal = .init(date: .now, value: 95)`
-        var weightGoal: HealthData?
+        /// This property stores the user's weight goal as an optional `WeightGoal` object.
+        /// If `nil`, it indicates that no weight goal has been set.
+        ///
+        /// Example usage:
+        /// ```swift
+        /// state.weightGoal = WeightGoal(date: .now, value: 95)
+        /// ```
+        var weightGoal: WeightGoal? = nil
         
         // MARK: - Destination
         
-        /// destination from WeightGoalFeature
+        /// Represents the navigation state for `WeightGoalFeature`, determining the active destination.
         @Presents var destination: Destination.State?
     }
     

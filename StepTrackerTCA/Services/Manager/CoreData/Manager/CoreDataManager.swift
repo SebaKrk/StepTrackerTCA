@@ -22,7 +22,7 @@ public final class CoreDataManager {
             return
         }
         
-        guard let modelURL = Bundle.main.url(forResource: "StepTrackerModel", withExtension: "momd") else {
+        guard let modelURL = Bundle.main.url(forResource: "StepTrackerModelTest", withExtension: "momd") else {
             fatalError("Database model not found.")
         }
         
@@ -39,7 +39,7 @@ public final class CoreDataManager {
         
         container.viewContext.automaticallyMergesChangesFromParent = true
     }
-    
+
     // MARK: - API
     
     public var viewContext: NSManagedObjectContext {

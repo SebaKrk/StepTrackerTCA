@@ -16,7 +16,8 @@ final class DefaultSetWeightGoalService: SetWeightGoalService {
     
     // MARK: - API
     
-    func setWeightGoal(_ weight: Double, date: Date) async throws {
-        try? recordsRepository.setNewWeightGoal(weight, date)
+    func setWeightGoal(_ goal: WeightGoal) async throws {
+        try await recordsRepository.setNewWeightGoal(goal: goal)
     }
+    
 }

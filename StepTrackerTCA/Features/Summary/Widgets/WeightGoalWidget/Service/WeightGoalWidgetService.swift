@@ -45,10 +45,6 @@ protocol WeightGoalWidgetService {
     func calculateWeightAverage(from data: [HealthData]) -> Double
     
     /// Fetches the current weight goal from the storage or service.
-    ///
-    /// - Returns: An optional `CurrentWeightEntity` representing the user's current weight goal.
-    ///            Returns `nil` if no weight goal is set.
-    /// - Throws: An error if the fetching process fails.
-    func fetchWeightGoal() async throws -> CurrentWeight? //Entity?
+    func fetchWeightGoal() async throws -> Double
     
 }

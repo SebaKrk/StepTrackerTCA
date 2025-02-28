@@ -7,12 +7,15 @@
 
 import ComposableArchitecture
 import Factory
-import SwiftData
 import SwiftUI
 import OSLog
 
 @main
 struct StepTrackerTCAApp: App {
+    
+    // MARK: - Properties
+    
+    private let coreDataManager = Container.shared.coreDataManger()
     
     // MARK: - Lifecycle
     
@@ -22,8 +25,6 @@ struct StepTrackerTCAApp: App {
 #endif
     }
     
-//    @Injected(\.swiftDataManager) private var swiftDataManager
-    
     var body: some Scene {
         WindowGroup {
             AppTabView(
@@ -32,7 +33,6 @@ struct StepTrackerTCAApp: App {
                 }
             )
         }
-//        .modelContainer(swiftDataManager.container)
     }
     
 }

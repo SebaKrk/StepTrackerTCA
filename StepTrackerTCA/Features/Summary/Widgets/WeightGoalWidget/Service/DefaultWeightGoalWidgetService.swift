@@ -37,7 +37,8 @@ final class DefaultWeightGoalWidgetService: WeightGoalWidgetService {
     }
     
     /// Fetches the current weight goal from the records repository.
-    func fetchWeightGoal() async throws -> CurrentWeight? { //Entity? {
-        try? recordsRepository.fetchWeightGoal()
+    func fetchWeightGoal() async throws -> Double {
+        try await recordsRepository.fetchWeightGoal()
     }
+    
 }

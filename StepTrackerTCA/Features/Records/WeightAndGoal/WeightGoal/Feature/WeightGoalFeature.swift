@@ -28,15 +28,26 @@ struct WeightGoalFeature {
             switch action {
                 
                 // MARK: - Actions
+            case .checkWeightGoal:
+                if state.weightGoal == nil {
+                    return .run { send in
+                        await send(.fetchWeightGoal)
+                    }
+                }
+                return .none
+                
             case .fetchWeightGoal:
                 return .run { send in
-                    if let goal = try? await weightGoalService.fetchWeightGoal() {
-                        await send(.mapToWeightGoal(goal))
+                    do  {
+                        let goal = try await weightGoalService.fetchWeightGoal()
+                        await send(.updateWeightGoal(goal: goal))
+                    } catch {
+                        print("error fetchWeightGoal \(error)")
                     }
                 }
                 
-            case let .mapToWeightGoal(currentWeight):
-                state.weightGoal = HealthData(date: currentWeight.dateAdded, value: currentWeight.weight)
+            case let .updateWeightGoal(goal):
+                state.weightGoal = goal
                 return .none
                 
                 // MARK: - View Actions
@@ -46,7 +57,7 @@ struct WeightGoalFeature {
                 
             case .view(.viewDidAppear):
                 return .run { send in
-                    await send(.fetchWeightGoal)
+                    await send(.checkWeightGoal)
                 }
             
                 // MARK: - Destination

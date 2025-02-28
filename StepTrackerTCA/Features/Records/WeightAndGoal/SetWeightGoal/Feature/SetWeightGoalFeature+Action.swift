@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `SetWeightGoalFeature` action
+/// Implementation of `SetWeightGoalFeature` action - defines actions related to setting a weight goal.
 extension SetWeightGoalFeature {
     
     @CasePathable
@@ -21,14 +21,21 @@ extension SetWeightGoalFeature {
         
         // MARK: - Action
         
-        /// Saves the weight goal with the provided health data.
-        ///
-        /// - Parameter healthData: Contains the target weight and associated date.
-        /// - Note: This action triggers the save process for setting the user's weight goal.
-        case save(HealthData)
+        /// Validates the entered weight goal before saving.
+        case validate
+        
+        /// Saves the weight goal.
+        case save
+        
+        /// Presents an alert in the view.
+        case presentAlert
+        
+        /// Presents an alert when saving the weight goal fails.
+        case presentSaveFailedAlert(Error)
         
         // MARK: View Action
         
+        /// Represents actions triggered by the user from the UI.
         case view(View)
         
         enum View {
@@ -38,6 +45,17 @@ extension SetWeightGoalFeature {
             
             /// Triggered when the "Dismiss" button is pressed.
             case dismissButtonPressed
+        }
+        
+        // MARK: - Alert
+        
+        /// Actions related to alert presentation and handling.
+        case alert(PresentationAction<Alert>)
+        
+        enum Alert: Equatable {
+            
+            /// Represents a simple informational alert.
+            case showMessage
         }
         
         // MARK: - Delegate

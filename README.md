@@ -220,4 +220,6 @@ This project is not only a technical exercise but also an exploration of possibi
 ### IOS-00020 CoreData
     - CleanUp SwiftData
     * A: CoreDataManager
+        - Refactored all weight goal-related logic, including setting, updating, and displaying the goal, by centralizing data handling in SetWeightGoalService, standardizing state management in WeightGoalFeature, and optimizing view updates for consistency and scalability
+        
 

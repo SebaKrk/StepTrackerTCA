@@ -62,7 +62,7 @@ struct WeightGoalWidgetFeature {
                 case .fetchWeightGoal:
                     return .run { send in
                         if let goal = try? await weightGoalWidgetService.fetchWeightGoal() {
-                            await send(.setWeightGoal(goal.weight))
+                            await send(.setWeightGoal(goal))
                         }
                     }
                     
