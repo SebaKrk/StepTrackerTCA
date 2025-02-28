@@ -7,6 +7,7 @@
 
 import Factory
 import Foundation
+import Combine
 
 final class DefaultWeightGoalServices: WeightGoalService {
     
@@ -18,6 +19,15 @@ final class DefaultWeightGoalServices: WeightGoalService {
     
     func fetchWeightGoal() async throws -> WeightGoal? {
         try? await recordsRepository.fetchWeightGoalWithDate()
+    }
+    
+    func itemsDidChangePublisher() -> AnyPublisher<Void, Never> {
+        print("🟢 itemsDidChangePublisher uruchomiony")
+        return recordsRepository.itemsDidChangePublisher
+            .handleEvents(receiveOutput: { _ in
+                print("🔔 Otrzymano powiadomienie o zmianie w repozytorium")
+            })
+            .eraseToAnyPublisher()
     }
     
 }

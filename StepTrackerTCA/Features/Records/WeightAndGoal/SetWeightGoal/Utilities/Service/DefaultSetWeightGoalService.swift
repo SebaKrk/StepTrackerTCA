@@ -14,6 +14,7 @@ final class DefaultSetWeightGoalService: SetWeightGoalService {
 
     @LazyInjected(\.recordsRepository) private var recordsRepository
     
+
     // MARK: - API
     
     func setWeightGoal(_ goal: WeightGoal) async throws {

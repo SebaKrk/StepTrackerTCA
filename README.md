@@ -222,5 +222,17 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: CoreDataManager
         - Refactored all weight goal-related logic, including setting, updating, and displaying the goal, by centralizing data handling in SetWeightGoalService, standardizing state management in WeightGoalFeature, and optimizing view updates for consistency and scalability
         - Test some staf with core data in WorkoutFeature
+    * B: Combine and CoreData
+    
         
 
+```mermaid
+graph TD
+  A[AppTabFeature] --> B[DashboardFeature]
+  A --> C[WorkoutFeature]
+  A --> D[ActivityFeature]
+  A --> E[PersonDataFeature]
+
+  E --> E1[CurrentWeightFeature]
+  E --> E2[WeightGoalFeature]
+  E --> E3[WeightLiftingStatsFeature]

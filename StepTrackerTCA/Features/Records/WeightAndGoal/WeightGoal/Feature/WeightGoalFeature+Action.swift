@@ -16,6 +16,9 @@ extension WeightGoalFeature {
         
         // MARK: - Actions
         
+        ///
+        case observer
+        
         /// Checks whether the user has set a weight goal.
         ///
         /// This action is used to verify if the user has an existing goal before performing other operations.

@@ -8,6 +8,7 @@
 import Factory
 import Foundation
 import CoreData
+import Combine
 
 final class DefaultRecordsRepository: RecordsRepository {
     
@@ -15,10 +16,21 @@ final class DefaultRecordsRepository: RecordsRepository {
     
     @LazyInjected(\.coreDataManger) private var coreDataManger
     
+    // MARK: - Publishers
+    
+    public var itemsDidChangePublisher: AnyPublisher<Void, Never>
+    private let itemsDidChangeSubject = PassthroughSubject<Void, Never>()
+    
     // MARK: - Properties
     
     private var backgroundContext: NSManagedObjectContext {
         coreDataManger.backgroundContext
+    }
+    
+    // MARK: - Lifecycle
+    
+    public init() {
+        itemsDidChangePublisher = itemsDidChangeSubject.eraseToAnyPublisher()
     }
     
     // MARK: - API
@@ -67,7 +79,9 @@ final class DefaultRecordsRepository: RecordsRepository {
     // MARK: - Core Data Helpers
     
     private func saveData(context: NSManagedObjectContext) throws {
+        print("✅ Core Data zapisane, wysyłam event")
         try context.save()
+        itemsDidChangeSubject.send()
     }
     
 }
