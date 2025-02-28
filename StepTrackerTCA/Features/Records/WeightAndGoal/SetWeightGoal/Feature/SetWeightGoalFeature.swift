@@ -26,32 +26,68 @@ struct SetWeightGoalFeature {
                 switch action {
                     
                     // MARK: - Binding
-                case .binding:
+                case .binding(_):
                     return .none
                     
                     // MARK: - Action
-                case let .save(currentWeight):
+                    
+                case .validate:
+                    guard !state.value.isEmpty else {
+                        let alertMessage = "Weight value cannot be empty"
+                        state.alertMessage = alertMessage
+                        return .run { send in
+                            await send(.presentAlert)
+                        }
+                    }
                     return .run { send in
-                        do {
-                            try await setWeightGoalService.setWeightGoal(currentWeight.value, date: currentWeight.date)
-                            await send(.delegate(.setGoal(HealthData(date: currentWeight.date, value: Double(currentWeight.value)))))
-                            await self.dismiss()
-                        } catch {
-                            // TODO: - Alert
-                            print("❌ Failed to set weight goal: \(error.localizedDescription)")
+                        await send(.save)
+                    }
+                    
+                    case .save:
+                    return .run { [date = state.addDataDate, goal = state.value] send in
+                        if let weightGoal = Double(goal) {
+                            do {
+                                let goal = WeightGoal(id:  UUID().uuidString,
+                                                             weight: weightGoal,
+                                                             dateAdded: date)
+                                
+                                try await setWeightGoalService.setWeightGoal(goal)
+                                await send(.delegate(.setGoal(goal)))
+                                await self.dismiss()
+                            } catch {
+                                await send(.presentSaveFailedAlert(error))
+                            }
                         }
                     }
                     
                     // MARK: - View Action
+                    
                 case .view(.saveGoalButtonPressed):
-                    return .run { [ date = state.addDataDate, value = state.weightGoal ] send in
-                        await send(.save(HealthData(date: date, value: Double(value) ?? 0)))
+                    return .run { send in
+                        await send(.validate)
                     }
-                               
+                
                 case .view(.dismissButtonPressed):
                     return .run { send in
                         await self.dismiss()
                     }
+                    
+                    // MARK: - Alert actions
+                case .presentAlert:
+                    guard let alertMessage = state.alertMessage else { return .none }
+                    state.alert = .infoAlert(with: alertMessage)
+                    state.alertMessage = nil
+                    return .none
+                
+                case let .presentSaveFailedAlert(error):
+                    state.alert = .infoAlert(with: "Failed to save weight goal. Please try again later.")
+                    print("❌ Failed to save weight goal: \(error.localizedDescription)")
+                    state.alertMessage = nil
+                    return .none
+                    
+                case .alert(.dismiss):
+                    state.alert = nil
+                    return .none
                     
                 default: return .none
                 }

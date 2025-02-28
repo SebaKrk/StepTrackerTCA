@@ -16,6 +16,11 @@ extension WorkoutFeature {
         
         // MARK: - Properties
         
+        var addDataDate: Date = .now
+        
+        var value: String = ""
+        
+        var weightGoal: Double? = nil 
     }
     
 }

@@ -11,21 +11,56 @@ import Foundation
 @Reducer
 struct WorkoutFeature {
     
+    let service = DefaultWorkoutService()
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-                // MARK: - Actions
-                
-                // MARK: - View Actions
-                
-            case .view(.viewDidAppear):
-                print("WorkoutFeature - viewDidAppear")
-                return .none
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                    // MARK: - Actions
+                    
+                case .binding(_):
+                    return .none
+                    
+                case .save:
+                    return .run { [date = state.addDataDate, value = state.value] send in
+                        if let weight = Double(value) {
+                            try await service.setWeightGoal(weight, date: date)
+                            await send(.clearAndReload)
+                        } else {
+                            print("❌ Błąd konwersji: \(value) nie jest poprawną liczbą")
+                        }
+                    }
+                    
+                case .clearAndReload:
+                    state.value = ""
+                    return .run { send in
+                        let goal = try await service.fetchWeightGoal()
+                        await send(.updateCurrentWeight(goal))
+                    }
+                    
+                case let .updateCurrentWeight(goal):
+                    state.weightGoal = goal
+                    return .none
+                    
+                    // MARK: - View Actions
+                    
+                case .view(.saveGoalButtonPressed):
+                    return .run { send in
+                        await send(.save)
+                    }
+                    
+                case .view(.viewDidAppear):
+                    return .run { send in
+                        let goal = try await service.fetchWeightGoal()
+                        await send(.updateCurrentWeight(goal))
+                    }
+                }
             }
         }
     }
     
 }
-

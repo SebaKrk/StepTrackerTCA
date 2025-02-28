@@ -20,8 +20,18 @@ extension SetWeightGoalFeature {
         /// Default value: the current date (`Date.now`).
         var addDataDate: Date = .now
         
-        /// The weight goal entered by the user.
-        var weightGoal: String = ""
+        /// the weight value enter to TF
+        var value: String = ""
         
+        /// The weight goal entered by the user.
+        var weightGoal: Double = 0
+        
+        // MARK: - Alert
+        
+        /// Optional alert message to be displayed.
+        var alertMessage: String? = nil
+        
+        /// State of the alert presentation.
+        @Presents var alert: AlertState<Action.Alert>?
     }
 }

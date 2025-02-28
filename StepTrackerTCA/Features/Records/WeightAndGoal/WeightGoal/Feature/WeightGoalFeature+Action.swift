@@ -16,15 +16,20 @@ extension WeightGoalFeature {
         
         // MARK: - Actions
         
-        /// Action triggered to fetch the current weight goal from the storage or service.
+        /// Checks whether the user has set a weight goal.
         ///
-        /// This is typically dispatched to retrieve the user's existing weight goal when the feature is initialized.
+        /// This action is used to verify if the user has an existing goal before performing other operations.
+        case checkWeightGoal
+        
+        /// Fetches the current weight goal from storage or service.
+        ///
+        /// This action is dispatched when the feature initializes to retrieve the user’s stored weight goal.
         case fetchWeightGoal
         
-        /// Maps a fetched weight goal entity to the corresponding state in the feature.
+        /// Updates the feature’s state with the latest weight goal.
         ///
-        /// - Parameter: `CurrentWeightEntity` contains the user's current weight goal and related data.
-        case mapToWeightGoal(CurrentWeight) //Entity)
+        /// - Parameter goal: The user's weight goal, encapsulated in a `WeightGoal` object.
+        case updateWeightGoal(goal: WeightGoal?)
         
         // MARK: - View Actions
         

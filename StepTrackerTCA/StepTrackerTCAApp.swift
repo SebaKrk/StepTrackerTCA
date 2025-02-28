@@ -7,13 +7,23 @@
 
 import ComposableArchitecture
 import Factory
-import SwiftData
 import SwiftUI
+import OSLog
 
 @main
 struct StepTrackerTCAApp: App {
     
-//    @Injected(\.swiftDataManager) private var swiftDataManager
+    // MARK: - Properties
+    
+    private let coreDataManager = Container.shared.coreDataManger()
+    
+    // MARK: - Lifecycle
+    
+    init() {
+#if DEBUG
+        os_log("Database URL - \(URL.applicationSupportDirectory.path(percentEncoded: false))")
+#endif
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -23,7 +33,6 @@ struct StepTrackerTCAApp: App {
                 }
             )
         }
-//        .modelContainer(swiftDataManager.container)
     }
     
 }

@@ -16,8 +16,8 @@ final class DefaultWeightGoalServices: WeightGoalService {
     
     // MARK: - API
     
-    func fetchWeightGoal() async throws -> CurrentWeight? { //Entity? {
-        try? recordsRepository.fetchWeightGoal()
+    func fetchWeightGoal() async throws -> WeightGoal? {
+        try? await recordsRepository.fetchWeightGoalWithDate()
     }
     
 }

@@ -12,9 +12,17 @@ import Foundation
 extension WorkoutFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        case binding(BindingAction<State>)
         
         // MARK: - Actions
+        
+        case save
+        
+        case clearAndReload
+        
+        case updateCurrentWeight(Double)
         
         // MARK: - View Actions
         
@@ -22,9 +30,11 @@ extension WorkoutFeature {
         
         enum View {
             
-            /// The action responsible for completing tasks as soon as the view is displayed.
+            case saveGoalButtonPressed
+            
             case viewDidAppear
         }
     }
     
 }
+

@@ -33,7 +33,7 @@ struct WeightGoalView: View {
         weightGoalWidget(store.weightGoal)
     }
     
-    private func weightGoalWidget(_ data: HealthData?) -> some View {
+    private func weightGoalWidget(_ data: WeightGoal?) -> some View {
         GroupBox {
             weightGoalContent(data)
         } label: {
@@ -42,17 +42,17 @@ struct WeightGoalView: View {
         .frame(minHeight: 200)
     }
     
-    private func weightGoalTitleHeader( _ data: HealthData?) -> some View {
+    private func weightGoalTitleHeader( _ data: WeightGoal?) -> some View {
         WidgetHeaderView(title: "Goal", systemImage: "trophy", color: .green) {
             send(.navigationButtonTapped)
         }
     }
     
-    private func weightGoalContent(_ data: HealthData?) -> some View {
+    private func weightGoalContent(_ data: WeightGoal?) -> some View {
         VStack {
             Spacer()
             WidgetBodyContentWithButton(title: "Weight Goal",
-                              value: data?.value,
+                                        value: data?.weight,
                               color: .green) {
                 AnyView(setYourGoalButton())
             }
@@ -62,8 +62,8 @@ struct WeightGoalView: View {
     }
     
     @ViewBuilder
-    private func weightGoalTitleFooter( _ data: HealthData?) -> some View {
-        if let date = data?.date {
+    private func weightGoalTitleFooter( _ data: WeightGoal?) -> some View {
+        if let date = data?.dateAdded {
             WidgetTitleFooterDate(date: date, color: .green)
         }
     }
@@ -79,7 +79,7 @@ struct WeightGoalView: View {
 }
 
 #Preview {
-    let weightGoal = HealthData(date: .now, value: 95)
+    let weightGoal = WeightGoal(id: UUID().uuidString, weight: 96.0, dateAdded: .now)
     NavigationStack {
         WeightGoalView(store: Store(initialState: WeightGoalFeature.State(weightGoal: weightGoal), reducer: {
             WeightGoalFeature(service: DefaultWeightGoalServices())
