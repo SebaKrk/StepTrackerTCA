@@ -14,6 +14,8 @@ This project is not only a technical exercise but also an exploration of possibi
 [Sean Allen Teachable - Portfolio Project](https://seanallen.teachable.com/p/portfolio-project) - direct link to the course.
 
 ******************************************************************
+📌 **Feature Diagram:** [FeatureDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/dev/IOS-00021/IOS-00021/FeatureDiagram.md)
+******************************************************************
 
 ### IOS-00001 The Composable Architecture
     * A: Add TCA package dependency
@@ -222,5 +224,8 @@ This project is not only a technical exercise but also an exploration of possibi
     * A: CoreDataManager
         - Refactored all weight goal-related logic, including setting, updating, and displaying the goal, by centralizing data handling in SetWeightGoalService, standardizing state management in WeightGoalFeature, and optimizing view updates for consistency and scalability
         - Test some staf with core data in WorkoutFeature
-        
+    * B: Combine and CoreData
 
+### IOS-00021 Obsidian app
+    - project files organization
+    - add new FeatureDiagram file

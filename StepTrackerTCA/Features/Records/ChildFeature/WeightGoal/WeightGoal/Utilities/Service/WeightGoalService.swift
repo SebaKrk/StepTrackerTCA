@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 /// A protocol defining a service responsible for retrieving the user's weight goal.
 protocol WeightGoalService {
@@ -16,4 +17,7 @@ protocol WeightGoalService {
     ///            Returns `nil` if no weight goal has been set.
     /// - Throws: An error if the operation fails due to data retrieval issues.
     func fetchWeightGoal() async throws -> WeightGoal?
+    
+    ///
+    func itemsDidChangePublisher() -> AnyPublisher<Void, Never>
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 /// A protocol that defines methods /abstraction for setting and fetching weight goals
 protocol RecordsRepository {
@@ -28,6 +29,9 @@ protocol RecordsRepository {
     /// - Parameter goal: A `WeightGoal` object containing the target weight and its set date.
     /// - Throws: An error if saving the new weight goal fails due to storage issues.
     func setNewWeightGoal(goal: WeightGoal) async throws
+    
+    ///
+    var itemsDidChangePublisher: AnyPublisher<Void, Never> { get set }
 }
 
 ///// A protocol that defines methods /abstraction for setting and fetching weight goals

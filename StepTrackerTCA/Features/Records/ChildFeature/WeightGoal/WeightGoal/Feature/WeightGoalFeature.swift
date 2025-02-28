@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import Combine
 
 @Reducer
 struct WeightGoalFeature {
@@ -28,6 +29,18 @@ struct WeightGoalFeature {
             switch action {
                 
                 // MARK: - Actions
+            case .observer:
+                print("🟡 Rozpoczynam subskrypcję na zmiany w Core Data")
+                return .publisher {
+                    weightGoalService.itemsDidChangePublisher()
+                        .receive(on: DispatchQueue.main)
+                        .handleEvents(receiveOutput: { _ in
+                            print("🔄 Otrzymano zdarzenie o zmianie, pobieram nową wagę")
+                        })
+                        .map { _ in .fetchWeightGoal }
+                }
+                .cancellable(id: CancelID.observeWeightGoal, cancelInFlight: false)
+                
             case .checkWeightGoal:
                 if state.weightGoal == nil {
                     return .run { send in
@@ -56,8 +69,10 @@ struct WeightGoalFeature {
                 return .send(.show)
                 
             case .view(.viewDidAppear):
+                print("👀 Widok się pojawił, subskrybuję zmiany w Core Data")
                 return .run { send in
                     await send(.checkWeightGoal)
+                    await send(.observer)
                 }
             
                 // MARK: - Destination

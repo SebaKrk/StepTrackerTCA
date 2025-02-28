@@ -22,7 +22,7 @@ struct SetEditGoalView: View {
             Group {
                 formView
             }
-            .navigationTitle("WeightLifting Goals")
+            .navigationTitle("Set new Goals")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarButton
