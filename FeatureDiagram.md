@@ -1,20 +1,57 @@
 ```mermaid
 graph LR
 
-  A[AppTabFeature]
-  A --> B[DashboardFeature]
-  A --> C[WorkoutFeature]
-  A --> D[ActivityFeature]
-  A --> E["<font color='red'>Records TAB</font> PersonDataFeature"]
-  
-  E --> E1["<font color='red'>Weight</font> CurrentWeightFeature"]
-  E --> E2["<font color='red'>Goal</font><br> WeightGoalFeature"]
-  E2 --> E3[SetWeightGoalFeature]
-  
-  E --> F1["<font color='red'>WeightLifting Stats</font> WeightLiftingStatsFeature"]
-  F1 --> F2[SetEditGoalFeature]
-  F1 --> F3[WeightLiftingSummary]
-  F3 --> F3.A["<font color='red'>Lista</font><br>WeightLiftingGoalsFeature"]
-  F3.A --> F3.A1[SetEditGoalFeature]
-  F3.A --> F3.A2[ExerciseInfoFeature]
-  F3.A --> F3.A3[ExerciseDetailsFeature]
+  DashboardFeature[DashboardFeature]
+
+  DashboardFeature --> DashboardTab["<font color='red'>Dashboard TAB</font> DashboardFeature"]
+  DashboardFeature --> WorkoutTab["<font color='red'>Workout TAB</font> WorkoutFeature"]
+  DashboardFeature --> ActivityTab["<font color='red'>Activity TAB</font> ActivityFeature"] 
+  DashboardFeature --> RecordsTab["<font color='red'>Records TAB</font> PersonDataFeature"]
+
+  %% Dashboard
+  DashboardTab --> HealthKit["<font color='red'>HealthKit</font> HealthKitPermissionFeature"]
+  DashboardTab --> DashboardContainer["<font color='red'>Dashboard Container</font> DashboardFeature"]
+
+  %% Step & Weight Pickers
+  DashboardContainer --> StepTabPicker["<font color='red'>Step Tab Picker</font>"]
+  DashboardContainer --> WeightTabPicker["<font color='red'>Weight Tab Picker</font>"]
+
+  %% Step Features
+  StepTabPicker --> StepBarMark["<font color='red'>Step BarMark</font> StepWidgetFeature"]
+  StepTabPicker --> StepPieChart["<font color='red'>Step Pie</font> StepPieWidgetFeature"]
+
+  %% Weight Features
+  WeightTabPicker --> WeightRuleMark["<font color='red'>Weight RuleMark</font> WeightGoalWidgetFeature"]
+  WeightTabPicker --> WeightBarMark["<font color='red'>Weight BarMark</font> WeightDiffWidgetFeature"]
+
+  %% Health Data List
+  StepBarMark --- HealthDataList["<font color='red'>Health Data List</font> HealthDataListFeature <br> <font color='green'>Steps and Weight</font>"]
+  StepPieChart --- HealthDataList
+  WeightRuleMark --- HealthDataList
+  WeightBarMark --- HealthDataList
+
+  %% Add Metric Feature
+  HealthDataList --> AddMetric["<font color='red'>Add Metric</font> AddMetricDataFeature <br> <font color='green'>Steps and Weight</font>"]
+
+  %% Workout
+  WorkoutTab --> WorkoutFeature[WorkoutFeature]
+
+  %% Activity
+  ActivityTab --> ActivityList["<font color='red'>Activity List</font> ActivityFeature"]
+  ActivityList --> ActivityDetails["<font color='red'>Activity Details</font> ActivityDetailsFeature"]
+
+  %% Records
+  RecordsTab --> CurrentWeight["<font color='red'>Weight</font><br> CurrentWeightFeature"]
+  RecordsTab --> WeightGoal["<font color='red'>Goal</font><br> WeightGoalFeature"]
+  WeightGoal --> SetWeightGoal[SetWeightGoalFeature]
+
+  %% Weightlifting Stats Section (Poprawione połączenia)
+  RecordsTab --> WeightliftingStats["<font color='red'>WeightLifting Stats</font><br> WeightLiftingStatsFeature"]
+  WeightliftingStats --> SetEditGoal[SetEditGoalFeature]
+  WeightliftingStats --> WeightliftingSummary[WeightLiftingSummary]
+
+  %% Weightlifting Goals
+  WeightliftingSummary --> WeightliftingGoals["<font color='red'>Lista</font><br> WeightLiftingGoalsFeature"]
+  WeightliftingGoals --> ExerciseInfo[ExerciseInfoFeature]
+  WeightliftingGoals --> ExerciseDetails[ExerciseDetailsFeature]
+  WeightliftingGoals --> SetEditGoalFeature[SetEditGoalFeature]
