@@ -8,15 +8,15 @@
 import Foundation
 import SwiftData
 
-protocol SwiftDataManager {
-    
-    var container: ModelContainer { get set }
-    
-    var mainContext: ModelContext { get }
-    
-    func resetModelContainer()
-    
-    func getContext() -> ModelContext
-    
-}
+//protocol SwiftDataManager {
+//    
+//    var container: ModelContainer { get set }
+//    
+//    var mainContext: ModelContext { get }
+//    
+//    func resetModelContainer()
+//    
+//    func getContext() -> ModelContext
+//    
+//}
 

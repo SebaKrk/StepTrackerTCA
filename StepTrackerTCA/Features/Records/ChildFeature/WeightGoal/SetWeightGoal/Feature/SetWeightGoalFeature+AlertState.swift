@@ -1,14 +1,14 @@
 //
-//  AddMetricDataFeature+AlertState.swift
+//  SetWeightGoalFeature+AlertState.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 23/12/2024.
+//  Created by Sebastian Sciuba on 28/02/2025.
 //
 
 import ComposableArchitecture
 
-/// Alert state for `AddMetricDataFeature`
-extension AlertState where Action == AddMetricDataFeature.Action.Alert {
+/// Alert state for `SetWeightGoalFeature`
+extension AlertState where Action == SetWeightGoalFeature.Action.Alert {
     static func infoAlert(with message: String) -> Self {
         Self {
             TextState("Warning")
