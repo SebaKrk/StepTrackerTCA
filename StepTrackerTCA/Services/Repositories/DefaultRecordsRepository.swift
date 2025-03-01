@@ -46,6 +46,7 @@ final class DefaultRecordsRepository: RecordsRepository {
                 existingWeightGoal.dateAdded = goal.dateAdded
             } else {
                 let newWeightGoal = CurrentWeightEntity(context: context)
+                newWeightGoal.id = goal.id
                 newWeightGoal.weight = goal.weight
                 newWeightGoal.dateAdded = goal.dateAdded
             }

@@ -14,7 +14,7 @@ This project is not only a technical exercise but also an exploration of possibi
 [Sean Allen Teachable - Portfolio Project](https://seanallen.teachable.com/p/portfolio-project) - direct link to the course.
 
 ******************************************************************
-📌 **Feature Diagram:** [FeatureDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/dev/IOS-00021/IOS-00021/FeatureDiagram.md)
+📌 **Feature Diagram:** [FeatureDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/develop/FeatureDiagram.md)
 ******************************************************************
 
 ### IOS-00001 The Composable Architecture
