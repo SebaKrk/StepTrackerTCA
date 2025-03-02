@@ -27,6 +27,9 @@ extension SetWeightGoalFeature {
         /// Saves the weight goal.
         case save
         
+        /// Triggered when the user selects a different weight unit in the picker.
+        case selectedWeightUnitPickerChange(WeightUnit)
+        
         /// Presents an alert in the view.
         case presentAlert
         

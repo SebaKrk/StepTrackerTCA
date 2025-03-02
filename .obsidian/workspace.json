@@ -14,14 +14,29 @@
               "type": "markdown",
               "state": {
                 "file": "FeatureDiagram.md",
-                "mode": "preview",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
               "title": "FeatureDiagram"
             }
+          },
+          {
+            "id": "0839d1a52f9b561d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "CoreDataDiagram.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "CoreDataDiagram"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -168,19 +183,20 @@
       "command-palette:Otwórz listę poleceń": false
     }
   },
-  "active": "897d2852572126f1",
+  "active": "0839d1a52f9b561d",
   "lastOpenFiles": [
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Service/DefaultAddMetricService.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Service/AddMetricService.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+State.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+Delegate.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+AlertState.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+Action.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Service",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/AddMetricDataView.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData",
-    "FeatureDiagram.md"
+    "FeatureDiagram.md",
+    "CoreDataDiagram.md",
+    "StepTrackerTCA/Features/Records/ChildFeature/WeightGoal/WeightGoal/WeightGoalView~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Resources/StepTrackerModelTest.xcdatamodeld/StepTrackerModelTest~.xcdatamodel",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/CurrentWeightEntity/CurrentWeightEntity+CoreDataClass~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutGoalEntity/WorkoutGoalEntity+CoreDataClass.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutGoalEntity/WorkoutGoalEntity~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutGoalEntity/WorkoutGoalEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutGoalEntity",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/New Folder/WorkoutGoalEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/New Folder",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutGoalEntity.swift",
+    "README.md"
   ]
 }

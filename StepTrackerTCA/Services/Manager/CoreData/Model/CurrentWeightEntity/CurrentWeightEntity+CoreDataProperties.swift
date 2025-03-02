@@ -1,5 +1,5 @@
 //
-//  CurrentWeightEntity+CoreDataProperties.swift
+//  GoalWeightEntity+CoreDataProperties.swift
 //  StepTrackerTCA
 //
 //  Created by Sebastian Sciuba on 24/02/2025.
@@ -9,18 +9,19 @@
 import Foundation
 import CoreData
 
-extension CurrentWeightEntity {
+extension GoalWeightEntity {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<CurrentWeightEntity> {
-        return NSFetchRequest<CurrentWeightEntity>(entityName: "CurrentWeightEntity")
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<GoalWeightEntity> {
+        return NSFetchRequest<GoalWeightEntity>(entityName: "GoalWeightEntity")
     }
 
     @NSManaged public var id: String
     @NSManaged public var weight: Double
+    @NSManaged public var weightUnit: String
     @NSManaged public var dateAdded: Date
 
 }
 
-extension CurrentWeightEntity : Identifiable {
+extension GoalWeightEntity : Identifiable {
 
 }

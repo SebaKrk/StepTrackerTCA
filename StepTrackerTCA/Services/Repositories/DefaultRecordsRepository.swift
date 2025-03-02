@@ -38,16 +38,19 @@ final class DefaultRecordsRepository: RecordsRepository {
     func setNewWeightGoal(goal: WeightGoal) async throws {
         let context = backgroundContext
         try await context.perform {
-            let request: NSFetchRequest<CurrentWeightEntity> = CurrentWeightEntity.fetchRequest()
+            let request: NSFetchRequest<GoalWeightEntity> = GoalWeightEntity.fetchRequest()
             request.fetchLimit = 1
             
             if let existingWeightGoal = try context.fetch(request).first {
                 existingWeightGoal.weight = goal.weight
+                existingWeightGoal.weightUnit = goal.weightUnit.rawValue
                 existingWeightGoal.dateAdded = goal.dateAdded
+                
             } else {
-                let newWeightGoal = CurrentWeightEntity(context: context)
+                let newWeightGoal = GoalWeightEntity(context: context)
                 newWeightGoal.id = goal.id
                 newWeightGoal.weight = goal.weight
+                newWeightGoal.weightUnit = goal.weightUnit.rawValue
                 newWeightGoal.dateAdded = goal.dateAdded
             }
             
@@ -58,7 +61,7 @@ final class DefaultRecordsRepository: RecordsRepository {
     func fetchWeightGoal() async throws -> Double {
         let context = coreDataManger.backgroundContext
         return try await context.perform {
-            let fetchRequest: NSFetchRequest<CurrentWeightEntity> = CurrentWeightEntity.fetchRequest()
+            let fetchRequest: NSFetchRequest<GoalWeightEntity> = GoalWeightEntity.fetchRequest()
             fetchRequest.fetchLimit = 1
             return try context.fetch(fetchRequest).first?.weight ?? 0
         }
@@ -66,13 +69,17 @@ final class DefaultRecordsRepository: RecordsRepository {
     
     func fetchWeightGoalWithDate() async throws -> WeightGoal? {
         let context = coreDataManger.backgroundContext
-        return try await context.perform {
-            let fetchRequest: NSFetchRequest<CurrentWeightEntity> = CurrentWeightEntity.fetchRequest()
+        return try await context.perform { () -> WeightGoal? in
+            let fetchRequest: NSFetchRequest<GoalWeightEntity> = GoalWeightEntity.fetchRequest()
             fetchRequest.fetchLimit = 1
             guard let result = try context.fetch(fetchRequest).first else { return nil }
+
+            
+            let weightUnit = WeightUnit(rawValue: result.weightUnit) ?? .kg
             
             return WeightGoal(id: result.id,
                               weight: result.weight,
+                              weightUnit: weightUnit,
                               dateAdded: result.dateAdded)
         }
     }

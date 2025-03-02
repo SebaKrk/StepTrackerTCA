@@ -9,7 +9,8 @@
 import Foundation
 import CoreData
 
-@objc(CurrentWeightEntity)
-public class CurrentWeightEntity: NSManagedObject {
+@objc(GoalWeightEntity)
+public class GoalWeightEntity: NSManagedObject {
 
 }
+
