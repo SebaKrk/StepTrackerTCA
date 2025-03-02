@@ -17,7 +17,7 @@ This project is not only a technical exercise but also an exploration of possibi
 
 📌 **Feature Diagram:** [FeatureDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/develop/FeatureDiagram.md)
 
-📌 **CoreData Diagram:** [CoreDataDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/dev/IOS-00022/IOS-00022-B/CoreDataDiagram.md)
+📌 **CoreData Diagram:** [CoreDataDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/develop/CoreDataDiagram.md)
 
 ******************************************************************
 
