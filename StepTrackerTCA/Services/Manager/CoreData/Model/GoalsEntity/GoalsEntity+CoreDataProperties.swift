@@ -14,8 +14,8 @@ extension GoalsEntity {
     }
     
     @NSManaged public var id: String
-    @NSManaged public var weightGoal: GoalWeightEntity?
-    @NSManaged public var workoutGoals: Set<GoalWorkoutEntity>
+    @NSManaged public var goalWeight: GoalWeightEntity?
+    @NSManaged public var workoutGoals: Set<GoalWorkoutEntity>?
     @NSManaged public var user: UserEntity?
 }
 
