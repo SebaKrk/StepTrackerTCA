@@ -1,5 +1,5 @@
 //
-//  CurrentWeightEntity+CoreDataClass.swift
+//  GoalWeightEntity+CoreDataClass.swift
 //  StepTrackerTCA
 //
 //  Created by Sebastian Sciuba on 24/02/2025.
