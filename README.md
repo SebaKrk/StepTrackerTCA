@@ -234,4 +234,4 @@ This project is not only a technical exercise but also an exploration of possibi
     A: CoreData - new entity
         - Renamed `CurrentWeightEntity` add new property
         - created core data diagram file
-
+    B: CoreData diagram file
