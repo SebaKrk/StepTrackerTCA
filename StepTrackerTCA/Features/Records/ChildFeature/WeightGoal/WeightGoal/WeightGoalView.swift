@@ -79,7 +79,7 @@ struct WeightGoalView: View {
 }
 
 #Preview {
-    let weightGoal = WeightGoal(id: UUID().uuidString, weight: 96.0, dateAdded: .now)
+    let weightGoal = WeightGoal(id: UUID().uuidString, weight: 96.0, weightUnit: .kg, dateAdded: .now)
     NavigationStack {
         WeightGoalView(store: Store(initialState: WeightGoalFeature.State(weightGoal: weightGoal), reducer: {
             WeightGoalFeature(service: DefaultWeightGoalServices())

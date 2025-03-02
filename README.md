@@ -226,6 +226,12 @@ This project is not only a technical exercise but also an exploration of possibi
         - Test some staf with core data in WorkoutFeature
     * B: Combine and CoreData
 
-### IOS-00021 Obsidian app
+### IOS-00021 Obsidian app - create flow diagram
     - project files organization
     - add new FeatureDiagram file
+
+### IOS-00022 CoreData Diagram
+    A: CoreData - new entity
+        - Renamed `CurrentWeightEntity` add new property
+        - created core data diagram file
+

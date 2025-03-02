@@ -13,11 +13,14 @@ struct WeightGoal: Identifiable, Equatable {
     
     var weight: Double
     
+    var weightUnit: WeightUnit
+    
     var dateAdded: Date
     
-    init(id: String, weight: Double, dateAdded: Date) {
+    init(id: String, weight: Double, weightUnit: WeightUnit, dateAdded: Date) {
         self.id = id
         self.weight = weight
+        self.weightUnit = weightUnit
         self.dateAdded = dateAdded
     }
     

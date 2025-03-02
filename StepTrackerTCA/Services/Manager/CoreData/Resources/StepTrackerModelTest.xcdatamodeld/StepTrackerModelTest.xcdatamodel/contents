@@ -1,8 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D70" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
-    <entity name="CurrentWeightEntity" representedClassName="CurrentWeightEntity" syncable="YES">
+    <entity name="GoalsEntity" representedClassName="GoalsEntity" syncable="YES">
+        <attribute name="id" attributeType="String"/>
+        <relationship name="goalWeight" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GoalWeightEntity" inverseName="goals" inverseEntity="GoalWeightEntity"/>
+        <relationship name="goalWorkout" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="GoalWorkoutEntity" inverseName="goals" inverseEntity="GoalWorkoutEntity"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="UserEntity" inverseName="goals" inverseEntity="UserEntity"/>
+    </entity>
+    <entity name="GoalWeightEntity" representedClassName="GoalWeightEntity" syncable="YES">
         <attribute name="dateAdded" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="weight" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="weightUnit" attributeType="String"/>
+        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GoalsEntity" inverseName="goalWeight" inverseEntity="GoalsEntity"/>
+    </entity>
+    <entity name="GoalWorkoutEntity" representedClassName="GoalWorkoutEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="movement" attributeType="String"/>
+        <attribute name="value" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="workoutType" attributeType="String"/>
+        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GoalsEntity" inverseName="goalWorkout" inverseEntity="GoalsEntity"/>
+    </entity>
+    <entity name="UserEntity" representedClassName="UserEntity" syncable="YES">
+        <attribute name="healthKitEnabled" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GoalsEntity" inverseName="user" inverseEntity="GoalsEntity"/>
     </entity>
 </model>

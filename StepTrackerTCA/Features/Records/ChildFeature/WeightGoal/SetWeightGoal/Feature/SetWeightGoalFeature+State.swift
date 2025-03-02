@@ -26,6 +26,9 @@ extension SetWeightGoalFeature {
         /// The weight goal entered by the user.
         var weightGoal: Double = 0
         
+        /// The selected unit of measurement for weight.
+        var weightUnit: WeightUnit = .kg
+        
         // MARK: - Alert
         
         /// Optional alert message to be displayed.

@@ -62,7 +62,7 @@ struct SetWeightGoalView: View {
         VStack {
             Form {
                 datePicker
-                setGoalTextField
+                weightGoal
             }
         }
     }
@@ -71,15 +71,30 @@ struct SetWeightGoalView: View {
         DatePicker("Date", selection: $store.addDataDate, displayedComponents: .date)
     }
     
-    private var setGoalTextField: some View {
+    private var weightGoal: some View {
         HStack {
-            Text("Weight Goal")
+            setGoalTextField
             Spacer()
-            TextField("Goal Value", text: $store.value)
-                .multilineTextAlignment(.trailing)
-                .frame(width: 140)
-                .keyboardType(.numberPad)
+            weightUnitContextPicker
         }
+    }
+    
+    private var setGoalTextField: some View {
+        TextField("Goal Value", text: $store.value)
+            .multilineTextAlignment(.leading)
+            .keyboardType(.numberPad)
+    }
+    
+    @ViewBuilder
+    private var weightUnitContextPicker: some View {
+        Picker("WeightUnit", selection: $store.weightUnit.sending(\.selectedWeightUnitPickerChange)) {
+            ForEach(WeightUnit.allCases, id: \.self) { item in
+                Text(item.label)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 100)
     }
     
 }

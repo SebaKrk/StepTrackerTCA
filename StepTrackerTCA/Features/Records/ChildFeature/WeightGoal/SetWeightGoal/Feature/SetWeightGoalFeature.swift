@@ -29,6 +29,10 @@ struct SetWeightGoalFeature {
                 case .binding(_):
                     return .none
                     
+                case let .selectedWeightUnitPickerChange(unit):
+                    state.weightUnit = unit
+                    return .none
+                    
                     // MARK: - Action
                     
                 case .validate:
@@ -44,12 +48,13 @@ struct SetWeightGoalFeature {
                     }
                     
                     case .save:
-                    return .run { [date = state.addDataDate, goal = state.value] send in
+                    return .run { [date = state.addDataDate, goal = state.value, unit = state.weightUnit] send in
                         if let weightGoal = Double(goal) {
                             do {
-                                let goal = WeightGoal(id:  UUID().uuidString,
-                                                             weight: weightGoal,
-                                                             dateAdded: date)
+                                let goal = WeightGoal(id: UUID().uuidString,
+                                                      weight: weightGoal,
+                                                      weightUnit: unit,
+                                                      dateAdded: date)
                                 
                                 try await setWeightGoalService.setWeightGoal(goal)
                                 await send(.delegate(.setGoal(goal)))
