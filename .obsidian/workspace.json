@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "FeatureDiagram.md",
+                "file": "CoreDataDiagram.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "FeatureDiagram"
+              "title": "CoreDataDiagram"
             }
           }
         ]
@@ -170,17 +170,19 @@
   },
   "active": "897d2852572126f1",
   "lastOpenFiles": [
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Service/DefaultAddMetricService.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Service/AddMetricService.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+State.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+Delegate.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+AlertState.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature/AddMetricDataFeature+Action.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Service",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/AddMetricDataView.swift",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData/Feature",
-    "StepTrackerTCA/Features/Summary/DashboardContainer/ChildFeature/DetailsList/AddMetricData",
-    "FeatureDiagram.md"
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataProperties~.swift",
+    "FeatureDiagram.md",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity/UserEntity+CoreDataProperties.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity/UserEntity+CoreDataClass.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataProperties.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataClass.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity/GoalWorkoutEntity+CoreDataProperties.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity/GoalWorkoutEntity+CoreDataClass.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWeightEntity/GoalWeightEntity+CoreDataProperties.swift",
+    "CoreDataDiagram.md",
+    "README.md"
   ]
 }

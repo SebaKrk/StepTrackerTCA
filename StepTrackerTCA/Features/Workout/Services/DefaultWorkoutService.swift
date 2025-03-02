@@ -23,8 +23,9 @@ final class DefaultWorkoutService: WorkoutService {
     
     func setWeightGoal(_ weight: Double, date: Date) async throws {
         let goal = WeightGoal(id:  UUID().uuidString,
-                                     weight: weight,
-                                     dateAdded: date)
+                              weight: weight,
+                              weightUnit: .kg,
+                              dateAdded: date)
         
         try await recordsRepository.setNewWeightGoal(goal: goal)
     }

@@ -14,7 +14,11 @@ This project is not only a technical exercise but also an exploration of possibi
 [Sean Allen Teachable - Portfolio Project](https://seanallen.teachable.com/p/portfolio-project) - direct link to the course.
 
 ******************************************************************
+
 📌 **Feature Diagram:** [FeatureDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/develop/FeatureDiagram.md)
+
+📌 **CoreData Diagram:** [CoreDataDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/dev/IOS-00022/IOS-00022-B/CoreDataDiagram.md)
+
 ******************************************************************
 
 ### IOS-00001 The Composable Architecture
@@ -226,6 +230,12 @@ This project is not only a technical exercise but also an exploration of possibi
         - Test some staf with core data in WorkoutFeature
     * B: Combine and CoreData
 
-### IOS-00021 Obsidian app
+### IOS-00021 Obsidian app - create flow diagram
     - project files organization
     - add new FeatureDiagram file
+
+### IOS-00022 CoreData Diagram
+    A: CoreData - new entity
+        - Renamed `CurrentWeightEntity` add new property
+        - created core data diagram file
+    B: CoreData diagram file

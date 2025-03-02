@@ -9,26 +9,20 @@ import Foundation
 
 /// An enumeration representing weight measurement units.
 ///
-/// This enum defines the units used for weightlifting measurements and goals.
-/// It supports both kilograms (kg) and pounds (lb).
-enum WeightUnit: Codable, CaseIterable {
+/// This enum defines the units used for measuring body weight.
+/// It supports both kilograms (kg) and pounds (lbs).
+enum WeightUnit: String, Codable, CaseIterable {
     
     /// Kilograms (kg) - the metric unit of weight.
-    case kg
+    case kg = "kg"
     
-    /// Pounds (lb) - the imperial unit of weight.
-    case pound
+    /// Pounds (lbs) - the imperial unit of weight.
+    case lbs = "lbs"
 
     /// A human-readable label for the weight unit.
     ///
     /// This computed property returns a string representation of the unit,
     /// suitable for UI display.
-    var label: String {
-        switch self {
-        case .kg:
-            return "kg"
-        case .pound:
-            return "pound"
-        }
-    }
+    var label: String { rawValue }
+    
 }
