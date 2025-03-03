@@ -240,3 +240,6 @@ This project is not only a technical exercise but also an exploration of possibi
         - created core data diagram file
     B: CoreData diagram file
     C: Test save data with fake user
+    
+### IOS-00023 CRUD GoalWorkout functionality
+    
