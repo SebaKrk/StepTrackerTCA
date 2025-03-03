@@ -239,3 +239,4 @@ This project is not only a technical exercise but also an exploration of possibi
         - Renamed `CurrentWeightEntity` add new property
         - created core data diagram file
     B: CoreData diagram file
+    C: Test save data with fake user

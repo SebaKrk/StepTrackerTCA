@@ -35,7 +35,7 @@ final class DefaultRecordsRepository: RecordsRepository {
     
     // MARK: - API
     
-    func setNewWeightGoal(goal: WeightGoal) async throws {
+    func setNewWeightGoal2(goal: WeightGoal) async throws {
         let context = backgroundContext
         try await context.perform {
             let request: NSFetchRequest<GoalWeightEntity> = GoalWeightEntity.fetchRequest()
@@ -54,6 +54,59 @@ final class DefaultRecordsRepository: RecordsRepository {
                 newWeightGoal.dateAdded = goal.dateAdded
             }
             
+            try self.saveData(context: context)
+        }
+    }
+    
+    func setNewWeightGoal(goal: WeightGoal) async throws {
+        let context = backgroundContext
+        try await context.perform {
+            // Pobierz istniejącego użytkownika lub utwórz nowego
+            let userRequest: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+            userRequest.fetchLimit = 1
+            
+            let user: UserEntity
+            if let existingUser = try context.fetch(userRequest).first {
+                user = existingUser
+            } else {
+                user = UserEntity(context: context)
+                user.id = UUID().uuidString
+                user.email = "seba.s@example.com" 
+                user.healthKitEnabled = true // Domyślna wartość
+            }
+            
+            // Pobierz lub utwórz encję GoalsEntity
+            let goals: GoalsEntity
+            if let existingGoals = user.goals {
+                goals = existingGoals
+            } else {
+                goals = GoalsEntity(context: context)
+                goals.id = UUID().uuidString
+                goals.user = user
+            }
+
+            // Pobierz istniejący GoalWeightEntity dla użytkownika
+            let weightGoalRequest: NSFetchRequest<GoalWeightEntity> = GoalWeightEntity.fetchRequest()
+            weightGoalRequest.predicate = NSPredicate(format: "goals.user.id == %@", user.id)
+            weightGoalRequest.fetchLimit = 1
+            
+            if let existingWeightGoal = try context.fetch(weightGoalRequest).first {
+                // Aktualizuj istniejący cel
+                existingWeightGoal.weight = goal.weight
+                existingWeightGoal.weightUnit = goal.weightUnit.rawValue
+                existingWeightGoal.dateAdded = goal.dateAdded
+            } else {
+                // Utwórz nowy cel wagowy i przypisz do GoalsEntity
+                let newWeightGoal = GoalWeightEntity(context: context)
+                newWeightGoal.id = goal.id
+                newWeightGoal.weight = goal.weight
+                newWeightGoal.weightUnit = goal.weightUnit.rawValue
+                newWeightGoal.dateAdded = goal.dateAdded
+                newWeightGoal.goals = goals
+                goals.goalWeight = newWeightGoal
+            }
+
+            // Zapisz zmiany w tle
             try self.saveData(context: context)
         }
     }

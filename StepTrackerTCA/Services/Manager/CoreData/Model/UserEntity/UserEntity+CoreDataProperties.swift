@@ -14,6 +14,7 @@ extension UserEntity {
     }
     
     @NSManaged public var id: String
+    @NSManaged public var email: String
     @NSManaged public var healthKitEnabled: Bool
     @NSManaged public var goals: GoalsEntity?
 }
