@@ -11,7 +11,7 @@ import Foundation
 ///
 /// This enum includes endurance-based activities, providing a structured way
 /// to categorize and track fitness-related performance goals.
-enum FitnessMovement: String, Codable, CaseIterable {
+enum FitnessMovement: String, Codable, MovementType {
     
     /// Running 5 km - A common distance goal for beginner and intermediate runners.
     case run5km

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CoreDataDiagram.md",
+                "file": "FeatureDiagram.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CoreDataDiagram"
+              "title": "FeatureDiagram"
             }
           }
         ]
@@ -170,19 +170,19 @@
   },
   "active": "897d2852572126f1",
   "lastOpenFiles": [
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataProperties~.swift",
-    "FeatureDiagram.md",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity/UserEntity+CoreDataProperties.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity/UserEntity+CoreDataClass.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataProperties.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataClass.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity/GoalWorkoutEntity+CoreDataProperties.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity/GoalWorkoutEntity+CoreDataClass.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWeightEntity/GoalWeightEntity+CoreDataProperties.swift",
+    "StepTrackerTCA/Features/Records/AddMeasurement/Utilities/Services/AddMeasurementServices.swift",
+    "StepTrackerTCA/Features/Records/AddMeasurement/Utilities/Services/defining.swift",
+    "StepTrackerTCA/Model/Enum/WeightliftingMovement~.swift",
+    "StepTrackerTCA/Model/Enum/FitnessMovement~.swift",
+    "StepTrackerTCA/Model/Enum/Protocol/MovementType~.swift",
+    "StepTrackerTCA/Model/Enum/Protocol/MovementType.swift",
+    "StepTrackerTCA/Model/Enum/Protocol",
+    "StepTrackerTCA/Model/Enum/New Folder",
+    "StepTrackerTCA/Features/Records/AddMeasurement/Feature/AddMeasurementFeature+Action~.swift",
+    "StepTrackerTCA/Features/Records/AddMeasurement/Feature/AddMeasurementFeature+State~.swift",
+    "StepTrackerTCA/Features/Records/AddMeasurement/Utilities/Services/DefaultAddMeasurementServices.swift",
     "CoreDataDiagram.md",
+    "FeatureDiagram.md",
     "README.md"
   ]
 }

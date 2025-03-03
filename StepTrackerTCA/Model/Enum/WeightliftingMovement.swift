@@ -11,7 +11,7 @@ import Foundation
 ///
 /// This enum includes Olympic lifts and their variations, providing a structured way
 /// to categorize exercises and use them within the app.
-enum WeightliftingMovement: String, Codable, CaseIterable {
+enum WeightliftingMovement: String, Codable, MovementType {
     
     /// The Clean & Jerk movement, a two-part Olympic lift.
     case cleanAndJerk
