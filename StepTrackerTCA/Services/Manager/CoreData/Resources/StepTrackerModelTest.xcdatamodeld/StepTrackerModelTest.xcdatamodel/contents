@@ -22,6 +22,7 @@
         <relationship name="goals" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GoalsEntity" inverseName="goalWorkout" inverseEntity="GoalsEntity"/>
     </entity>
     <entity name="UserEntity" representedClassName="UserEntity" syncable="YES">
+        <attribute name="email" attributeType="String"/>
         <attribute name="healthKitEnabled" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
         <relationship name="goals" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GoalsEntity" inverseName="user" inverseEntity="GoalsEntity"/>

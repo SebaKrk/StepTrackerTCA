@@ -19,6 +19,7 @@ extension GoalWeightEntity {
     @NSManaged public var weight: Double
     @NSManaged public var weightUnit: String
     @NSManaged public var dateAdded: Date
+    @NSManaged public var goals: GoalsEntity? 
 
 }
 
