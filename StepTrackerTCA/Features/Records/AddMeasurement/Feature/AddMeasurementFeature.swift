@@ -15,6 +15,8 @@ struct AddMeasurementFeature {
     
     @Dependency(\.dismiss) var dismiss
     
+    let service = DefaultAddMeasurementServices()
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -25,16 +27,13 @@ struct AddMeasurementFeature {
                     // MARK: - Actions
                     
                 case .validate:
-                    guard state.workoutType != nil else {
-                        let alertMessage = "Please select a workout type before proceeding."
-                        state.alertMessage = alertMessage
-                        return .run { send in
-                            await send(.presentAlert)
-                        }
+                    guard let workoutType = state.workoutType else {
+                        state.alertMessage = "Please select a workout type before proceeding."
+                        return .run { send in await send(.presentAlert) }
                     }
-                    
+
                     let isMovementSelected: Bool = {
-                        switch state.workoutType {
+                        switch workoutType {
                         case .weightlifting:
                             return state.weightliftingMovement != nil
                         case .strength:
@@ -45,65 +44,78 @@ struct AddMeasurementFeature {
                             return state.crossMovement != nil
                         case .hero:
                             return state.heroMovement != nil
-                        case .none:
-                            return false
                         }
                     }()
-                    
+
                     guard isMovementSelected else {
-                        let alertMessage = "Please select a movement before proceeding."
-                        state.alertMessage = alertMessage
-                        return .run { send in
-                            await send(.presentAlert)
-                        }
+                        state.alertMessage = "Please select a movement before proceeding."
+                        return .run { send in await send(.presentAlert) }
                     }
- 
-                    switch state.workoutType {
+
+                    guard let movement: any MovementType = {
+                        switch workoutType {
+                        case .weightlifting:
+                            return state.weightliftingMovement
+                        case .strength:
+                            return state.strengthMovement
+                        case .fitness:
+                            return state.fitnessMovement
+                        case .cross:
+                            return state.crossMovement
+                        case .hero:
+                            return state.heroMovement
+                        }
+                    }() else {
+                        state.alertMessage = "Unexpected error: movement is missing."
+                        return .run { send in await send(.presentAlert) }
+                    }
+
+                    let valueToSave: String
+
+                    switch workoutType {
                     case .weightlifting, .strength:
                         guard !state.valueToAdd.isEmpty else {
-                            let alertMessage = "The value field cannot be empty."
-                            state.alertMessage = alertMessage
-                            return .run { send in
-                                await send(.presentAlert)
-                            }
+                            state.alertMessage = "The value field cannot be empty."
+                            return .run { send in await send(.presentAlert) }
                         }
+                        valueToSave = state.valueToAdd
+
                     case .fitness, .hero:
                         guard state.timeInterval != 0 else {
-                            let alertMessage = "The time value cannot be equal zero."
-                            state.alertMessage = alertMessage
-                            return .run { send in
-                                await send(.presentAlert)
-                            }
+                            state.alertMessage = "The time value cannot be equal zero."
+                            return .run { send in await send(.presentAlert) }
                         }
-                        
+                        valueToSave = "\(state.timeInterval)"
+
                     case .cross:
                         guard !state.crossValueToAdd.isEmpty else {
-                            let alertMessage = "The reps value field cannot be empty."
-                            state.alertMessage = alertMessage
-                            return .run { send in
-                                await send(.presentAlert)
-                            }
+                            state.alertMessage = "The reps value field cannot be empty."
+                            return .run { send in await send(.presentAlert) }
                         }
-                    case .none: return .none
+                        valueToSave = state.crossValueToAdd
+                    }
+
+                    return .run { send in
+                        await send(.addValue(workoutType: workoutType, movement: movement, value: valueToSave))
                     }
                     
+                case let .addValue(workoutType, movement, value):
+                    let date = state.addDataDate
+                    let weightUnit = state.weightUnit
+
                     return .run { send in
-                        await send(.addValue)
-                    }
-                    
-                case .addValue:
-                    print("Date: \(state.addDataDate)")
-                    switch state.workoutType {
-                    case .weightlifting, .strength:
-                        print("Save 1 max kg value - \(state.valueToAdd) \(state.weightUnit)")
-                    case .fitness, .hero:
-                        print("Save time value - \(state.timeInterval)")
-                    case .cross:
-                        print("Save cross reps value - \(state.crossValueToAdd)")
-                    case .none: break
-                    }
-                    return .run { send in
-                        await self.dismiss()
+                        do {
+                            try await service.saveMeasurement(
+                                date: date,
+                                workoutType: workoutType,
+                                movement: movement,
+                                value: value,
+                                weightUnit: weightUnit
+                            )
+                            await self.dismiss()
+                        } catch {
+                            print("❌ Error saving measurement: \(error.localizedDescription)")
+                        }
                     }
                     
                     // MARK: - Binding

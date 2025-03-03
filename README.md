@@ -242,4 +242,6 @@ This project is not only a technical exercise but also an exploration of possibi
     C: Test save data with fake user
     
 ### IOS-00023 CRUD GoalWorkout functionality
-    
+    A: Data Preparation & Save Implementation
+        - Prepare data for repository and implement save functionality  
+        - A unified interface (MovementType) has been introduced for exercises, ensuring consistency across different workout types.

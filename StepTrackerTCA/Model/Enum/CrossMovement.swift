@@ -12,7 +12,7 @@ import Foundation
 /// This enum includes high-intensity exercises that test muscular endurance,
 /// cardiovascular fitness, and explosive strength. Each case represents a timed
 /// workout challenge commonly used in functional fitness training.
-enum CrossMovement: String, Codable, CaseIterable {
+enum CrossMovement: String, Codable, MovementType {
     
     /// Pull-Ups - Measures upper-body endurance and grip strength.
     case pullUps

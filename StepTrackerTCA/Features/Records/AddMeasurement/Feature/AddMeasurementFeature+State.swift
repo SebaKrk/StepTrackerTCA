@@ -56,6 +56,24 @@ extension AddMeasurementFeature {
         /// The selected unit of measurement for workout.
         var workoutUnit: WorkoutUnit = .reps
         
+        /// The selected movement name as a string, based on the workout type.
+         var selectedMovement: String? {
+             switch workoutType {
+             case .weightlifting:
+                 return weightliftingMovement?.rawValue
+             case .strength:
+                 return strengthMovement?.rawValue
+             case .fitness:
+                 return fitnessMovement?.rawValue
+             case .cross:
+                 return crossMovement?.rawValue
+             case .hero:
+                 return heroMovement?.rawValue
+             case .none:
+                 return nil
+             }
+         }
+        
         // MARK: - Alert
         
         /// An optional alert message to be displayed.
