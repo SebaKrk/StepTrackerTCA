@@ -245,3 +245,10 @@ This project is not only a technical exercise but also an exploration of possibi
     A: Data Preparation & Save Implementation
         - Prepare data for repository and implement save functionality  
         - A unified interface (MovementType) has been introduced for exercises, ensuring consistency across different workout types.
+    B: Implement CRUD for GoalWorkout & WorkoutsLog
+        - Implemented saving functionality for all workout types using Core Data
+        - Ensured `MovementType` consistency across different workout entities
+        - Refactored repository logic for improved data integrity
+        - Validated and handled user existence before workout logging
+        - Established correct relationships between `WorkoutsLogEntity` and workout entities
+

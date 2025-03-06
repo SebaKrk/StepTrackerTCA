@@ -4,7 +4,6 @@
 //
 //  Created by Sebastian Sciuba on 03/03/2025.
 //
-
 import Factory
 import Foundation
 import CoreData
@@ -30,17 +29,68 @@ final class DefaultAddMeasurementRepository: AddMeasurementRepository {
         value: String,
         weightUnit: WeightUnit
     ) async throws {
-        print("✅ Saving measurement:")
-        print("   Workout Type: \(workoutType.rawValue)")
-        print("   Movement: \(movement.title)")
-        print("   Value: \(value) \(weightUnit.rawValue)")
-        print("   Date: \(date)")
+        let context = backgroundContext
+        
+        try await context.perform {
+            do {
+                let user = try self.fetchUser(in: context)
+                
+                let workoutsLog = self.fetchWorkoutsLog(for: user) ?? self.createWorkoutsLog(for: user, in: context)
+                
+                let newRecord = DefaultWorkoutLogFactory.createEntity(for: workoutType, in: context)
+                newRecord.id = UUID().uuidString
+                newRecord.date = date
+                newRecord.workoutType = workoutType.rawValue
+                newRecord.movement = movement.title
+                newRecord.value = value
+                newRecord.workouts = workoutsLog
+                
+                try self.saveData(context: context)
+                
+                print("""
+                ✅ Workout saved successfully:
+                - Date: \(date)
+                - Workout Type: \(workoutType.rawValue)
+                - Movement: \(movement.title)
+                - Value: \(value) \(weightUnit.rawValue)
+                """)
+            } catch {
+                print("❌ Error saveMeasurement \(workoutType.rawValue) workout: \(error.localizedDescription)")
+                throw error
+            }
+        }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func fetchUser(in context: NSManagedObjectContext) throws -> UserEntity {
+        let fetchRequest: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+        fetchRequest.fetchLimit = 1
+        
+        guard let user = try context.fetch(fetchRequest).first else {
+            throw NSError(domain: "WorkoutError", code: 404, userInfo: [NSLocalizedDescriptionKey: "❌ No user found in database."])
+        }
+        return user
+    }
+    
+    private func fetchWorkoutsLog(for user: UserEntity) -> WorkoutsLogEntity? {
+        return user.workouts?.first
+    }
+    
+    private func createWorkoutsLog(for user: UserEntity, in context: NSManagedObjectContext) -> WorkoutsLogEntity {
+        let workoutsLog = WorkoutsLogEntity(context: context)
+        workoutsLog.id = UUID().uuidString
+        workoutsLog.user = user
+        user.workouts = [workoutsLog]
+        return workoutsLog
     }
     
     // MARK: - Core Data Helpers
     
     private func saveData(context: NSManagedObjectContext) throws {
-        try context.save()
+        if context.hasChanges {
+            try context.save()
+        }
     }
     
 }
