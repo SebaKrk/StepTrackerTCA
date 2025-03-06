@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "FeatureDiagram.md",
+                "file": "CoreDataDiagram.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "FeatureDiagram"
+              "title": "CoreDataDiagram"
             }
           }
         ]
@@ -74,7 +74,8 @@
               "title": "Ulubione"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -170,19 +171,20 @@
   },
   "active": "897d2852572126f1",
   "lastOpenFiles": [
-    "StepTrackerTCA/Features/Records/AddMeasurement/Utilities/Services/AddMeasurementServices.swift",
-    "StepTrackerTCA/Features/Records/AddMeasurement/Utilities/Services/defining.swift",
-    "StepTrackerTCA/Model/Enum/WeightliftingMovement~.swift",
-    "StepTrackerTCA/Model/Enum/FitnessMovement~.swift",
-    "StepTrackerTCA/Model/Enum/Protocol/MovementType~.swift",
-    "StepTrackerTCA/Model/Enum/Protocol/MovementType.swift",
-    "StepTrackerTCA/Model/Enum/Protocol",
-    "StepTrackerTCA/Model/Enum/New Folder",
-    "StepTrackerTCA/Features/Records/AddMeasurement/Feature/AddMeasurementFeature+Action~.swift",
-    "StepTrackerTCA/Features/Records/AddMeasurement/Feature/AddMeasurementFeature+State~.swift",
-    "StepTrackerTCA/Features/Records/AddMeasurement/Utilities/Services/DefaultAddMeasurementServices.swift",
-    "CoreDataDiagram.md",
+    "StepTrackerTCA/Services/Manager/CoreData/Resources/StepTrackerModelTest.xcdatamodeld/StepTrackerModelTest~.xcdatamodel/contents",
+    "StepTrackerTCA/Services/Manager/CoreData/Resources/StepTrackerModelTest.xcdatamodeld/StepTrackerModelTest~.xcdatamodel",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLog/WorkoutEntityProtocol~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutLogEntity+CoreDataProperties~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutStrengthEntity/WorkoutStrengthEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutWeightliftingEntity/WorkoutWeightliftingEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutFitnessEntity/WorkoutFitnessEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutHeroEntity/WorkoutHeroEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutCrossEntity/WorkoutCrossEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutStrengthEntity",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutWeightliftingEntity",
     "FeatureDiagram.md",
+    "README~.md",
+    "CoreDataDiagram.md",
     "README.md"
   ]
 }

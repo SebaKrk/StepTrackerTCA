@@ -8,7 +8,6 @@
 import CoreData
 import Foundation
 
-
 extension GoalWorkoutEntity {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<GoalWorkoutEntity> {
         return NSFetchRequest<GoalWorkoutEntity>(entityName: "GoalWorkoutEntity")

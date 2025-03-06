@@ -16,7 +16,11 @@ extension UserEntity {
     @NSManaged public var id: String
     @NSManaged public var email: String
     @NSManaged public var healthKitEnabled: Bool
+    
+    // MARK: - Relations
+    
     @NSManaged public var goals: GoalsEntity?
+    @NSManaged public var workouts: Set<WorkoutsLogEntity>?
 }
 
 extension UserEntity: Identifiable {}
