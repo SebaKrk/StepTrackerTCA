@@ -12,7 +12,7 @@ import Foundation
 /// Hero WODs are named in honor of fallen heroes and are known for their high intensity,
 /// long duration, and challenging nature. They often include a combination of weightlifting,
 /// gymnastics, and endurance exercises performed against the clock.
-enum HeroMovement: String, Codable, CaseIterable {
+enum HeroMovement: String, Codable, MovementType {
     
     /// Chad 1000x - 1000 box step-ups for time.
     case chad1000x

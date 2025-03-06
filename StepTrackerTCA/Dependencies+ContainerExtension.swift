@@ -48,20 +48,29 @@ extension Container {
         Factory(self) { DefaultRecordsRepository() }.shared
     }
     
+    /// A factory that provides a shared instance of the `AddMeasurementRepository`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultAddMeasurementRepository`.
+    /// - This ensures that the same instance of `AddMeasurementRepository` is used for managing
+    ///   the addition and persistence of new workout measurements.
+    var addMeasurementRepository: Factory<AddMeasurementRepository> {
+        Factory(self) { DefaultAddMeasurementRepository() }.shared
+    }
+    
     /// A factory that provides an instance of the `WeightLiftingRepository`.
-     ///
-     /// - The factory is initialized with the default implementation, `DefaultWeightLiftingRepository`.
-     /// - Use this repository to handle operations related to weight lifting data.
-     var weightLiftingRepository: Factory<WeightLiftingRepository> {
-         Factory(self) { DefaultWeightLiftingRepository() }
-     }
-
-     /// A factory that provides a singleton instance of the `CoreDataManager`.
-     ///
-     /// - The factory is initialized with a new instance of `CoreDataManager`.
-     /// - This ensures that the same instance of `CoreDataManager` is used for managing
-     ///   Core Data operations throughout the application.
-     var coreDataManger: Factory<CoreDataManager> {
-         Factory(self) { CoreDataManager() }.singleton
-     }
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultWeightLiftingRepository`.
+    /// - Use this repository to handle operations related to weight lifting data.
+    var weightLiftingRepository: Factory<WeightLiftingRepository> {
+        Factory(self) { DefaultWeightLiftingRepository() }
+    }
+    
+    /// A factory that provides a singleton instance of the `CoreDataManager`.
+    ///
+    /// - The factory is initialized with a new instance of `CoreDataManager`.
+    /// - This ensures that the same instance of `CoreDataManager` is used for managing
+    ///   Core Data operations throughout the application.
+    var coreDataManger: Factory<CoreDataManager> {
+        Factory(self) { CoreDataManager() }.singleton
+    }
 }

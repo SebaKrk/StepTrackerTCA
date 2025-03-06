@@ -49,7 +49,8 @@ extension AddMeasurementFeature {
         case validate
         
         /// Adds a measurement value.
-        case addValue
+        /// This action is triggered after validation, meaning all required values are guaranteed to be non-nil.
+        case addValue(workoutType: WorkoutType, movement: any MovementType, value: String)
         
         /// Presents an alert in the view.
         case presentAlert

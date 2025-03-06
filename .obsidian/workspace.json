@@ -74,7 +74,8 @@
               "title": "Ulubione"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -170,18 +171,19 @@
   },
   "active": "897d2852572126f1",
   "lastOpenFiles": [
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataProperties~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Resources/StepTrackerModelTest.xcdatamodeld/StepTrackerModelTest~.xcdatamodel/contents",
+    "StepTrackerTCA/Services/Manager/CoreData/Resources/StepTrackerModelTest.xcdatamodeld/StepTrackerModelTest~.xcdatamodel",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLog/WorkoutEntityProtocol~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutLogEntity+CoreDataProperties~.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutStrengthEntity/WorkoutStrengthEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutWeightliftingEntity/WorkoutWeightliftingEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutFitnessEntity/WorkoutFitnessEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutHeroEntity/WorkoutHeroEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutCrossEntity/WorkoutCrossEntity.swift",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutStrengthEntity",
+    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutWeightliftingEntity",
     "FeatureDiagram.md",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity/UserEntity+CoreDataProperties.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity/UserEntity+CoreDataClass.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/UserEntity",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataProperties.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity/GoalsEntity+CoreDataClass.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalsEntity",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity/GoalWorkoutEntity+CoreDataProperties.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity/GoalWorkoutEntity+CoreDataClass.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWorkoutEntity",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/GoalWeightEntity/GoalWeightEntity+CoreDataProperties.swift",
+    "README~.md",
     "CoreDataDiagram.md",
     "README.md"
   ]

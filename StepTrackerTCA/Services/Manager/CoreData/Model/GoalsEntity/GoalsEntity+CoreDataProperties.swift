@@ -14,9 +14,18 @@ extension GoalsEntity {
     }
     
     @NSManaged public var id: String
+    
+    // MARK: - Relations
+    
+    /// Powiązane cele wagowe
     @NSManaged public var goalWeight: GoalWeightEntity?
+    
+    /// Powiązane cele dla konkretnych ćwiczeń
     @NSManaged public var workoutGoals: Set<GoalWorkoutEntity>?
+    
+    /// Użytkownik, do którego należą cele
     @NSManaged public var user: UserEntity?
+    
 }
 
 extension GoalsEntity: Identifiable {}

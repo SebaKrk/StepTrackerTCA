@@ -11,7 +11,7 @@ import Foundation
 ///
 /// This enum includes fundamental strength exercises, providing a structured way
 /// to categorize them and use them within the app.
-enum StrengthMovement: String, Codable, CaseIterable {
+enum StrengthMovement: String, Codable, MovementType {
     
     /// The Back Squat movement, a key lower-body strength exercise.
     case backSquat
