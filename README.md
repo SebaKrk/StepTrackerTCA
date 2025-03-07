@@ -256,3 +256,7 @@ This project is not only a technical exercise but also an exploration of possibi
     A: WorkoutWeightlifting - fetchWeightLiftingStats
         - create WorkoutWeightlifting
         - read WorkoutWeightliftingEntity and map 
+    B: StrengthSummary
+        - StrengthSummaryFeature
+        
+
