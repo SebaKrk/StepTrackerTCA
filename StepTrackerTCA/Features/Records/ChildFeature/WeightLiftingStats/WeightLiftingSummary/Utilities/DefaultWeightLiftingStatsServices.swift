@@ -12,9 +12,13 @@ final class DefaultWeightLiftingStatsServices: WeightLiftingStatsServices {
     
     // MARK: - Dependencies
     
-    @LazyInjected(\.weightLiftingRepository) private var repository
+    @LazyInjected(\.weightLiftingRepository) private var weightLiftingRepository
     
     // MARK: - API
+    
+    func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting]? {
+        try? await weightLiftingRepository.fetchWeightLiftingStats()
+    }
     
     /// Maps the provided goal history and measurements to an array of display models.
     func mapData(history: [WeightLiftingGoalHistory], measurements: [WeightLiftingMeasurement]) -> [WeightLiftingDisplayModel] {
@@ -45,7 +49,7 @@ final class DefaultWeightLiftingStatsServices: WeightLiftingStatsServices {
     
     /// Asynchronously retrieves dummy weightlifting data for testing or preview purposes.
     func getDummyData() async -> (dummyData: [WeightLiftingMeasurement], goalHistory: [WeightLiftingGoalHistory]) {
-        await repository.getDummyData()
+        await weightLiftingRepository.getDummyData()
     }
     
 }

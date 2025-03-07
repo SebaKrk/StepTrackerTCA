@@ -14,7 +14,7 @@ import Foundation
 /// It enforces a `title` property, which provides a user-friendly name for each movement.
 ///
 /// - Conforms to: `CaseIterable`
-protocol MovementType: CaseIterable {
+protocol MovementType: CaseIterable, RawRepresentable where RawValue == String {
     
     /// The user-friendly name of the movement.
     ///

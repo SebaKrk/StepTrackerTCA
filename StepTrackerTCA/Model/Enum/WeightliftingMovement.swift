@@ -14,22 +14,22 @@ import Foundation
 enum WeightliftingMovement: String, Codable, MovementType {
     
     /// The Clean & Jerk movement, a two-part Olympic lift.
-    case cleanAndJerk
+    case cleanAndJerk = "CleanAndJerk"
     
     /// The Snatch movement, an Olympic lift performed in one motion.
-    case snatch
+    case snatch = "Snatch"
     
     /// The Overhead Squat, a squat performed with the barbell overhead.
-    case overheadSquat
+    case overheadSquat = "OverheadSquat"
     
     /// The Power Clean, a variation of the Clean where the lifter catches the bar in a higher position.
-    case powerClean
+    case powerClean = "PowerClean"
     
     /// The Squat Clean, another name for the full Clean, where the lifter catches the bar in a deep squat.
-    case squatClean
+    case squatClean = "SquatClean"
     
     /// The Split Jerk, a variation of the Jerk where the feet split apart during the catch phase.
-    case splitJerk
+    case splitJerk = "SplitJerk"
 
     /// A user-friendly title for each movement.
     ///

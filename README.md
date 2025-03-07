@@ -252,3 +252,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - Validated and handled user existence before workout logging
         - Established correct relationships between `WorkoutsLogEntity` and workout entities
 
+### IOS-00024 Read WorkoutType Data 
+    A: WorkoutWeightlifting - fetchWeightLiftingStats
+        - create WorkoutWeightlifting
+        - read WorkoutWeightliftingEntity and map 
