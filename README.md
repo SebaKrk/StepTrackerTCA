@@ -256,3 +256,20 @@ This project is not only a technical exercise but also an exploration of possibi
     A: WorkoutWeightlifting - fetchWeightLiftingStats
         - create WorkoutWeightlifting
         - read WorkoutWeightliftingEntity and map 
+    B: StrengthSummary
+        - StrengthSummaryFeature
+        - workoutStrengthRepository
+        - Grouping strength workouts by movement type (groupWorkoutsByMovement).
+        - Sorting within groups by movement name (sortGroupedWorkouts).
+        - Determining the best result based on the highest value (findBestWorkout).
+        - Creating summary objects (MovementSummary) based on the best results and goal (createMovementSummary).
+        
+        
+
+
+## TODO: BUGS
+BUG-A: weightUnit nie jest zapisywane w obiekcie Core Data
+    - dodac do obiektow weightUnit np `WorkoutStrengthEntity` itd
+    - pamietaj ciwczenia maja rozne typy pomiaru, moze byc weightUnit albo WorkoutUnit
+    - moze dodac jakis wpsolny interfejs
+    - zaimplentowac to do DefaultAddMeasurementRepository idt

@@ -11,7 +11,7 @@ protocol WeightLiftingStatsServices {
     
     /// Asynchronously fetches weightlifting data.
     ///
-    /// - Returns: An optional array of `WorkoutWeigh
+    /// - Returns: An optional array of `WorkoutWeightlifting`
     func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting]?
     
     /// Maps the provided goal history and measurements to an array of display models.
