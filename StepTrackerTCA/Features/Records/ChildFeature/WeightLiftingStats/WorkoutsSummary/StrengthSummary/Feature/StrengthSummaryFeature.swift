@@ -27,95 +27,36 @@ struct StrengthSummaryFeature {
         Reduce { state,action in
             switch action {
                 
+            case .getWorkoutStrengthData:
+                return .run { send in
+                    do {
+                        let data = try await services.fetchWorkoutStrengthSummary()
+                        await send(.updateWorkoutStrengthData(data))
+                    } catch {
+                        // TODO: - obsługa błędów
+                        print("Error fetching workout strength data: \(error)")
+                    }
+                }
+                
+            case let .updateWorkoutStrengthData(data):
+                state.data = data
+                
+                // TODO: - Pobierz historie Gola i wyciagnij najnowszy dla danego cwiczenia
+                let goal: Double? = nil
+                
+                if let unwrappedData = data {
+                    state.movementSummary = services.mapToMovementSummaries(goal, data: unwrappedData)
+                }
+                return .none
+                
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                return .none
-                
+                return .run { send in
+                    await send(.getWorkoutStrengthData)
+                }
             }
         }
-    }
-    
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `StrengthSummaryFeature` action
-extension StrengthSummaryFeature {
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Actions
-        
-        // MARK: - View Actions
-        
-        case view(View)
-        
-        enum View {
-            
-            case viewDidAppear
-        }
-        
-        // MARK: - Destination
-        
-    }
-    
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `StrengthSummaryFeature` destination
-extension StrengthSummaryFeature {
-    
-    @Reducer
-    enum Destination {
-        
-    }
-    
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `StrengthSummaryFeature` state
-extension StrengthSummaryFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-    }
-    
-}
-
-protocol StrengthSummaryServices {
-    
-}
-
-final class DefaultStrengthSummaryServices: StrengthSummaryServices {
-    
-}
-
-
-
-
-import ComposableArchitecture
-import SwiftUI
-
-@ViewAction(for: StrengthSummaryFeature.self)
-struct StrengthSummaryView: View {
-    
-    // MARK: - Properties
-    
-    @Bindable var store: StoreOf<StrengthSummaryFeature>
-    
-    // MARK: - View
-    
-    var body: some View {
-        Text("StrengthSummaryFeature")
     }
     
 }
