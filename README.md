@@ -266,9 +266,8 @@ This project is not only a technical exercise but also an exploration of possibi
         
         
 
-
 ## TODO: BUGS
-BUG-A: weightUnit nie jest zapisywane w obiekcie Core Data
+    A: weightUnit nie jest zapisywane w obiekcie Core Data
     - dodac do obiektow weightUnit np `WorkoutStrengthEntity` itd
     - pamietaj ciwczenia maja rozne typy pomiaru, moze byc weightUnit albo WorkoutUnit
     - moze dodac jakis wpsolny interfejs
