@@ -41,7 +41,7 @@ final class DefaultAddMeasurementRepository: AddMeasurementRepository {
                 newRecord.id = UUID().uuidString
                 newRecord.date = date
                 newRecord.workoutType = workoutType.rawValue
-                newRecord.movement = movement.title
+                newRecord.movement = movement.rawValue
                 newRecord.value = value
                 newRecord.workouts = workoutsLog
                 

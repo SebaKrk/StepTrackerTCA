@@ -67,7 +67,8 @@ struct PersonDataFeature {
 
             case .weightLiftingStats:
                 return .none
-                
+            case .strengthSummary:
+                return .none
                 // MARK: - Destination
             
             case .showAddMetric:
@@ -76,6 +77,7 @@ struct PersonDataFeature {
                 
             case .destination(_):
                 return .none
+       
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -88,6 +90,9 @@ struct PersonDataFeature {
         }
         Scope(state: \.weightLiftingStats, action: \.weightLiftingStats) {
             WeightLiftingStatsFeature(service: DefaultWeightLiftingStatsServices())
+        }
+        Scope(state: \.strengthSummary, action: \.strengthSummary) {
+            StrengthSummaryFeature(service: DefaultStrengthSummaryServices())
         }
     }
     

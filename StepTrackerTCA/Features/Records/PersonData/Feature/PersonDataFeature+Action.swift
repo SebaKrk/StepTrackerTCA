@@ -56,6 +56,9 @@ extension PersonDataFeature {
         
         /// Stores the actions of the `WeightLiftingStatsFeature
         case weightLiftingStats(WeightLiftingStatsFeature.Action)
+        
+        /// Stores the actions of the `StrengthSummaryFeature
+        case strengthSummary(StrengthSummaryFeature.Action)
     }
     
 }

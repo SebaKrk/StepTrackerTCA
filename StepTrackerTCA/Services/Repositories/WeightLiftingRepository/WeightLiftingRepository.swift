@@ -12,6 +12,12 @@ import Foundation
 /// or mock data (e.g., for testing or previews).
 protocol WeightLiftingRepository {
 
+    /// Asynchronously fetches weightlifting data.
+    ///
+    /// - Returns: An optional array of `WorkoutWeightlifting` objects representing recorded weightlifting stats.
+    /// - Throws: An error if fetching fails.
+    func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting]?
+    
     /// Asynchronously retrieves dummy weightlifting data for testing or preview purposes.
     ///
     /// - Returns: A tuple containing:

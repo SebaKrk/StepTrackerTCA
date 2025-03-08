@@ -9,6 +9,11 @@ import Foundation
 
 protocol WeightLiftingStatsServices {
     
+    /// Asynchronously fetches weightlifting data.
+    ///
+    /// - Returns: An optional array of `WorkoutWeightlifting`
+    func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting]?
+    
     /// Maps the provided goal history and measurements to an array of display models.
     ///
     /// This function first extracts all goals from the given goal histories,
@@ -21,7 +26,6 @@ protocol WeightLiftingStatsServices {
     ///   - measurements: An array of `WeightLiftingMeasurement` representing recorded measurements.
     /// - Returns: An array of `WeightLiftingDisplayModel` to be used for display in the UI.
     func mapData(history: [WeightLiftingGoalHistory], measurements: [WeightLiftingMeasurement]) -> [WeightLiftingDisplayModel]
-    
     
     /// Asynchronously retrieves dummy weightlifting data for testing or preview purposes.
     ///

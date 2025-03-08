@@ -30,6 +30,8 @@ struct WeightLiftingStatsFeature {
                 // MARK: - Actions
             case .getDummyData:
                 return .run { send in
+                    let data = try? await weightLiftingStatsServices.fetchWeightLiftingStats()
+                    dump(data)
                     let dummyResult = await weightLiftingStatsServices.getDummyData()
                     await send(.dummyDataLoaded(dummyResult.dummyData, dummyResult.goalHistory))
                 }

@@ -29,6 +29,9 @@ extension PersonDataFeature {
         /// Stores the information contained in the `WeightLiftingStatsFeature
         var weightLiftingStats = WeightLiftingStatsFeature.State()
         
+        /// Stores the information contained in the `StrengthSummaryFeature
+        var strengthSummary = StrengthSummaryFeature.State()
+        
         // MARK: - Destination
         
         /// destination from PersonDataFeature

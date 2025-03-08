@@ -14,22 +14,23 @@ import Foundation
 enum StrengthMovement: String, Codable, MovementType {
     
     /// The Back Squat movement, a key lower-body strength exercise.
-    case backSquat
+    case backSquat = "BackSquat"
     
     /// The Deadlift, a compound movement that targets posterior chain muscles.
-    case deadlift
+    case deadlift = "Deadlift"
     
     /// The Front Squat, a squat variation with the barbell positioned in front of the shoulders.
-    case frontSquat
+    case frontSquat = "FrontSquat"
     
     /// The Weighted Pull-Ups, an upper-body strength movement with additional resistance.
-    case weightedPullUps
+    case weightedPullUps = "WeightedPullUps"
     
     /// The Push Press, a dynamic upper-body strength movement that includes leg drive.
-    case pushPress
+    case pushPress = "PushPress"
     
     /// The Bench Press, a key upper-body pushing exercise.
-    case benchPress
+    case benchPress = "BenchPress"
+
 
     /// A user-friendly title for each movement.
     ///
