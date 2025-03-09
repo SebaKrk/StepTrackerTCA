@@ -14,6 +14,8 @@ extension StrengthSummaryFeature {
     @Reducer
     enum Destination {
         
+        /// Represents the destination for displaying in `StrengthScoreFeature`.
+        case open(StrengthScoreFeature)
     }
     
 }

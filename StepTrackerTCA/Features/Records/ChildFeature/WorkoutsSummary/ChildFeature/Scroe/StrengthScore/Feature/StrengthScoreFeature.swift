@@ -59,7 +59,11 @@ extension StrengthScoreFeature {
     
     @ObservableState
     struct State {
+        
         // MARK: - Properties
+        
+        /// 
+        var data: [WorkoutStrength]
         
         // MARK: - Destination
         
@@ -77,3 +81,4 @@ extension StrengthScoreFeature {
     }
     
 }
+

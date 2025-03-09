@@ -55,8 +55,29 @@ struct StrengthSummaryFeature {
                 return .run { send in
                     await send(.getWorkoutStrengthData)
                 }
+                
+            case .view(.navigationButtonTapped):                
+                if let strengthWorkoutData = state.data {
+                    return .run { send in
+                        await send(.show(strengthWorkoutData))
+                    }
+                } else {
+                    return .run { send in
+                        // TODO: - Wyświetl alert informujący użytkownika, że nie ma dostępnych danych do wyświetlenia.
+                    }
+                }
+                
+                // MARK: - Destination
+                
+            case let .show(strengthWorkoutData):
+                state.destination = .open(StrengthScoreFeature.State(data: strengthWorkoutData))
+                return .none
+                
+            case .destination:
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }
