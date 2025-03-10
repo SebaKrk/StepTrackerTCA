@@ -25,6 +25,9 @@ struct StrengthScoreView: View {
         .toolbar {
             toolbarButton
         }
+        .onAppear {
+            send(.viewDidAppear)
+        }
     }
     
     // MARK: - SubView
@@ -39,6 +42,28 @@ struct StrengthScoreView: View {
             }
         }
     }
+    
+    
+//    private func createScoresContainers() -> some View {
+//        ForEach(store.groupedWorkoutsData ?? [], id: \.movement) { workout in
+//            groupBoxContainer(data: workout)
+//        }
+//    }
+//    
+//    private func groupBoxContainer(data: GroupedWorkouts) -> some View {
+//        GroupBox {
+//            VStack {
+//                buildScoreStack(lastScore: store.groupedWorkoutsData,
+//                                goalTarget: nil,
+//                                bestScore: store.bestWorkout)
+//                Spacer()
+//                infoButton
+//            }
+//            .frame(minHeight: 150)
+//        } label: {
+//            containerHeaderView(data.movement.rawValue)
+//        }
+//    }
     
     private func createScoresContainers() -> some View {
         ForEach(store.data) { score in

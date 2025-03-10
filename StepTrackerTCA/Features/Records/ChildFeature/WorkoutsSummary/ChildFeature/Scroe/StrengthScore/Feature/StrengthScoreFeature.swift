@@ -11,12 +11,38 @@ import Foundation
 @Reducer
 struct StrengthScoreFeature {
     
+    // MARK: - Properties
+    
+    var service: StrengthScoreService
+    
+    // MARK: - LifeCycle
+    
+    init(service: StrengthScoreService = DefaultStrengthScoreService()) {
+        self.service = service
+    }
+    
+    // MARK: - Reducer
+    
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-                // MARK: - Actions
                 
+                // MARK: - Actions
+            case .groupedWorkouts:
+                state.groupedWorkoutsData = service.groupWorkoutsByMovement(state.data)
+                dump( state.groupedWorkoutsData )
+                return .none
+                
+            case .findBestWorkout:
+                state.bestWorkout = service.findBestWorkout(from: state.data)
+                return .none
+
                 // MARK: - View Actions
+            case .view(.viewDidAppear):
+                return .run { send in
+                    await send(.groupedWorkouts)
+                    await send(.findBestWorkout)
+                }
                 
                 // MARK: - Destination
             case .destination:
@@ -26,59 +52,3 @@ struct StrengthScoreFeature {
     }
     
 }
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `StrengthScoreFeature` action
-extension StrengthScoreFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        // MARK: - Actions
-        
-        // MARK: - View Actions
-        
-        case view(View)
-        
-        enum View {
-            
-        }
-        // MARK: - Destination
-        
-        case destination(PresentationAction<Destination.Action>)
-    }
-    
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `StrengthScoreFeature` state
-extension StrengthScoreFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        /// 
-        var data: [WorkoutStrength]
-        
-        // MARK: - Destination
-        
-        /// destination from `StrengthScoreFeature`
-        @Presents var destination: Destination.State?
-    }
-    
-}
-
-/// Implementation of `StrengthScoreFeature` destination
-extension StrengthScoreFeature {
-    
-    @Reducer
-    enum Destination {
-    }
-    
-}
-
