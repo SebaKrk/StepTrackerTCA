@@ -28,6 +28,10 @@ struct StrengthScoreView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        .sheet(item: $store.scope(state: \.destination?.openInfo, action: \.destination.openInfo), content: { store in
+            MovementInfoView(store: store)
+                .presentationDetents([.medium, .large])
+        })
     }
     
     // MARK: - SubView
@@ -59,7 +63,7 @@ struct StrengthScoreView: View {
             VStack {
                 buildScoreStack(lastScore: data, goalTarget: nil, bestScore: bestWorkout)
                 Spacer()
-                infoButton
+                infoButton(data.movement)
             }
             .frame(minHeight: 150)
         } label: {
@@ -92,11 +96,11 @@ struct StrengthScoreView: View {
         }
     }
     
-    private var infoButton: some View {
+    private func infoButton(_ movement: any MovementType) -> some View {
         HStack {
             Spacer()
             Button {
-                
+                send(.openExerciseInfo(movement))
             } label: {
                 Image(systemName: "info.circle")
                     .foregroundStyle(.green)

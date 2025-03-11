@@ -14,6 +14,8 @@ extension StrengthScoreFeature {
     @Reducer
     enum Destination {
       
+        /// Represents the destination for displaying in `ExerciseInfoFeature`.
+        case openInfo(MovementInfoFeature)
     }
     
 }
