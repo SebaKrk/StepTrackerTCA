@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "302648d2af3259e5",
+        "id": "1f341144afa7203f",
         "type": "tabs",
         "children": [
           {
-            "id": "897d2852572126f1",
+            "id": "380eb24c232bb882",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CoreDataDiagram.md",
+                "file": "FeatureDiagram.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CoreDataDiagram"
+              "title": "FeatureDiagram"
             }
           }
         ]
@@ -79,7 +79,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "5ddb65d4b8639b73",
@@ -169,22 +170,22 @@
       "command-palette:Otwórz listę poleceń": false
     }
   },
-  "active": "897d2852572126f1",
+  "active": "380eb24c232bb882",
   "lastOpenFiles": [
-    "StepTrackerTCA/Services/Manager/CoreData/Resources/StepTrackerModelTest.xcdatamodeld/StepTrackerModelTest~.xcdatamodel/contents",
-    "StepTrackerTCA/Services/Manager/CoreData/Resources/StepTrackerModelTest.xcdatamodeld/StepTrackerModelTest~.xcdatamodel",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLog/WorkoutEntityProtocol~.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutLogEntity+CoreDataProperties~.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutStrengthEntity/WorkoutStrengthEntity.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutWeightliftingEntity/WorkoutWeightliftingEntity.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutFitnessEntity/WorkoutFitnessEntity.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutHeroEntity/WorkoutHeroEntity.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutCrossEntity/WorkoutCrossEntity.swift",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutStrengthEntity",
-    "StepTrackerTCA/Services/Manager/CoreData/Model/WorkoutLogEntity/WorkoutWeightliftingEntity",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/StrengthScore",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/ChildFeature/ExerciseInfo/Feature/ExerciseInfoFeature.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/ChildFeature/ExerciseDetails/Feature/ExerciseDetailsFeature.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/WeightLiftingGoals/Utilities/WeightLiftingGoalsServices.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/WeightLiftingGoals/Utilities/DefaultWeightLiftingGoalsServices.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/WeightLiftingGoals/Feature/WeightLiftingGoalsFeature.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/WeightLiftingGoals/Feature/WeightLiftingGoalsFeature+State.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/WeightLiftingGoals/Feature/WeightLiftingGoalsFeature+Destination.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/WeightLiftingGoals/Feature/WeightLiftingGoalsFeature+Action.swift",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/ChildFeature/ExerciseInfo/Feature",
+    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scroe/WeightLiftingScores/ChildFeature/ExerciseInfo/ExerciseInfoView.swift",
+    "CoreDataDiagram.md",
     "FeatureDiagram.md",
     "README~.md",
-    "CoreDataDiagram.md",
     "README.md"
   ]
 }

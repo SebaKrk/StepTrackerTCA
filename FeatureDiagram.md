@@ -45,13 +45,19 @@ graph LR
   RecordsTab --> WeightGoal["<font color='red'>Goal</font><br> WeightGoalFeature"]
   WeightGoal --> SetWeightGoal[SetWeightGoalFeature]
 
-  %% Weightlifting Stats Section (Poprawione połączenia)
-  RecordsTab --> WeightliftingStats["<font color='red'>WeightLifting Stats</font><br> WeightLiftingStatsFeature"]
+  %% Workouts summary sction
+  RecordsTab --> WorkoutsSummary["<font color='red'>Summary</font><br>StrengthSummary<br>WeightLiftingSummary"]
+  
+  WorkoutsSummary --> WeightliftingStats["<font color='red'>WeightLifting Stats</font><br> WeightLiftingStatsFeature"]
+  WorkoutsSummary --> StrengthSummary["<font color='red'>StrengthStats</font><br> StrengthSummaryFeature"]
+  
+  WeightliftingStats --> Scores["<font color='red'>Scores</font>"]
+  StrengthSummary --> Scores["<font color='red'>Scores</font>"]
+  %% plus/edit button 
   WeightliftingStats --> SetEditGoal[SetEditGoalFeature]
-  WeightliftingStats --> WeightliftingSummary[WeightLiftingSummary]
 
-  %% Weightlifting Goals
-  WeightliftingSummary --> WeightliftingGoals["<font color='red'>Lista</font><br> WeightLiftingGoalsFeature"]
+  Scores --> WeightliftingGoals["<font color='red'>Lista</font><br> WeightLiftingGoalsFeature"]
+  
   WeightliftingGoals --> ExerciseInfo[ExerciseInfoFeature]
   WeightliftingGoals --> ExerciseDetails[ExerciseDetailsFeature]
   WeightliftingGoals --> SetEditGoalFeature[SetEditGoalFeature]

@@ -259,16 +259,19 @@ This project is not only a technical exercise but also an exploration of possibi
     B: StrengthSummary
         - StrengthSummaryFeature
         - workoutStrengthRepository
-        - Grouping strength workouts by movement type (groupWorkoutsByMovement).
+        - Groupiewng strength workouts by movement type (groupWorkoutsByMovement).
         - Sorting within groups by movement name (sortGroupedWorkouts).
         - Determining the best result based on the highest value (findBestWorkout).
         - Creating summary objects (MovementSummary) based on the best results and goal (createMovementSummary).
-        
-        
+    C: Strength Scores
+        - folder reorganizations
+        - create StrengthScoreFeature
+        - grouped workout data and display in container views
+    
 
 
 ## TODO: BUGS
-BUG-A: weightUnit nie jest zapisywane w obiekcie Core Data
+    A: weightUnit nie jest zapisywane w obiekcie Core Data
     - dodac do obiektow weightUnit np `WorkoutStrengthEntity` itd
     - pamietaj ciwczenia maja rozne typy pomiaru, moze byc weightUnit albo WorkoutUnit
     - moze dodac jakis wpsolny interfejs
