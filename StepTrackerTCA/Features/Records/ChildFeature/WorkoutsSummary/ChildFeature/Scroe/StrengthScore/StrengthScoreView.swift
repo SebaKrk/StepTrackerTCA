@@ -43,39 +43,21 @@ struct StrengthScoreView: View {
         }
     }
     
-    
-//    private func createScoresContainers() -> some View {
-//        ForEach(store.groupedWorkoutsData ?? [], id: \.movement) { workout in
-//            groupBoxContainer(data: workout)
-//        }
-//    }
-//    
-//    private func groupBoxContainer(data: GroupedWorkouts) -> some View {
-//        GroupBox {
-//            VStack {
-//                buildScoreStack(lastScore: store.groupedWorkoutsData,
-//                                goalTarget: nil,
-//                                bestScore: store.bestWorkout)
-//                Spacer()
-//                infoButton
-//            }
-//            .frame(minHeight: 150)
-//        } label: {
-//            containerHeaderView(data.movement.rawValue)
-//        }
-//    }
-    
+    @ViewBuilder
     private func createScoresContainers() -> some View {
-        ForEach(store.data) { score in
-            groupBoxContainer(data: score)
+        if let groupedData = store.groupedWorkoutsData {
+            ForEach(groupedData) { group in
+                groupBoxContainer(data: group, bestWorkout: group.bestWorkout)
+            }
+        } else {
+            Text("Brak danych")
         }
     }
     
-    private func groupBoxContainer(data: WorkoutStrength) -> some View {
+    private func groupBoxContainer(data: GroupedWorkouts, bestWorkout: WorkoutStrength) -> some View {
         GroupBox {
             VStack {
-                // tu musze mieć juz przesiana tablice tak zeby nie powtazaly
-                buildScoreStack(lastScore: data, goalTarget: nil, bestScore: nil)
+                buildScoreStack(lastScore: data, goalTarget: nil, bestScore: bestWorkout)
                 Spacer()
                 infoButton
             }
@@ -124,10 +106,9 @@ struct StrengthScoreView: View {
     }
     
     @ViewBuilder
-    // TODO: - dostarczy odpowiednie elementy zamiast WorkoutStrength
-    private func buildScoreStack(lastScore: WorkoutStrength?, goalTarget: WorkoutStrength?, bestScore: WorkoutStrength?) -> some View {
+    private func buildScoreStack(lastScore: GroupedWorkouts?, goalTarget: WorkoutStrength?, bestScore: WorkoutStrength?) -> some View {
         VStack {
-            createCellScoreView("calendar", "Last", lastScore?.value, lastScore?.date)
+            createCellScoreView("calendar", "Last", lastScore?.workouts.last?.value, lastScore?.workouts.last?.date)
             createCellScoreView("target", "Target", goalTarget?.value, goalTarget?.date)
             createCellScoreView("trophy", "Best", bestScore?.value, bestScore?.date)
         }
@@ -173,5 +154,3 @@ struct StrengthScoreView: View {
     }
     
 }
-
-//Text("StrengthScoreFeature - \(store.data.first?.movement.rawValue ?? "kaplica")")

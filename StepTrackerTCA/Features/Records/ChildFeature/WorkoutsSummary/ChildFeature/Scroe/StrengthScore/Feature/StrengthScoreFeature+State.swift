@@ -23,9 +23,6 @@ extension StrengthScoreFeature {
         ///
         var groupedWorkoutsData: [GroupedWorkouts]?
         
-        ///
-        var bestWorkout: WorkoutStrength?
-        
         // MARK: - Destination
         
         /// destination from `StrengthScoreFeature`

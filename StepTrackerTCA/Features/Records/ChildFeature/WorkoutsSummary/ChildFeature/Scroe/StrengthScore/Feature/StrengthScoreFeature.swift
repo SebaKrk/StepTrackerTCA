@@ -30,18 +30,12 @@ struct StrengthScoreFeature {
                 // MARK: - Actions
             case .groupedWorkouts:
                 state.groupedWorkoutsData = service.groupWorkoutsByMovement(state.data)
-                dump( state.groupedWorkoutsData )
-                return .none
-                
-            case .findBestWorkout:
-                state.bestWorkout = service.findBestWorkout(from: state.data)
                 return .none
 
                 // MARK: - View Actions
             case .view(.viewDidAppear):
                 return .run { send in
                     await send(.groupedWorkouts)
-                    await send(.findBestWorkout)
                 }
                 
                 // MARK: - Destination
