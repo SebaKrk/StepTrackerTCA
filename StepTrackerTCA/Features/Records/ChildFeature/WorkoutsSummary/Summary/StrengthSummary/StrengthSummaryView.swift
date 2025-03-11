@@ -24,7 +24,14 @@ struct StrengthSummaryView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        .navigationDestination(
+            item: $store.scope(
+                state: \.destination?.open,
+                action: \.destination.open)) { store in
+                    StrengthScoreView(store: store)
+                }
     }
+    
     
     // MARK: - SubView
     
@@ -47,7 +54,7 @@ struct StrengthSummaryView: View {
     
     private var strengthSummaryTitleHeader: some View {
         WidgetHeaderView(title: "Strength", systemImage: "dumbbell.fill", color: .green) {
-            // dodać akcje przejscaia
+            send(.navigationButtonTapped)
         }
     }
     

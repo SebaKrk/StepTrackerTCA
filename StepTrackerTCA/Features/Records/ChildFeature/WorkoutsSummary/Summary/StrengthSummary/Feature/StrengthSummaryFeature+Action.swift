@@ -35,9 +35,18 @@ extension StrengthSummaryFeature {
             
             /// Triggered when the view appears.
             case viewDidAppear
+            
+            /// Triggered when a navigation button is tapped.
+            case navigationButtonTapped
         }
         
         // MARK: - Destination
+        
+        /// Triggered to display a destination or handle navigation actions.
+        case show([WorkoutStrength])
+        
+        /// Destination case for navigation
+        case destination(PresentationAction<Destination.Action>)
         
     }
     
