@@ -38,11 +38,17 @@ struct StrengthScoreFeature {
                     await send(.groupedWorkouts)
                 }
                 
+            case let .view(.openExerciseInfo(movement)):
+                state.destination = .openInfo(MovementInfoFeature.State(movement: movement))
+                return .none
+            
+                
                 // MARK: - Destination
             case .destination:
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }
