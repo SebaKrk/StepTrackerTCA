@@ -265,7 +265,9 @@ This project is not only a technical exercise but also an exploration of possibi
         - Creating summary objects (MovementSummary) based on the best results and goal (createMovementSummary).
     C: Strength Scores
         - folder reorganizations
-        - create StrengthScoreFeature 
+        - create StrengthScoreFeature
+        - grouped workout data and display in container views
+    
 
 
 ## TODO: BUGS
