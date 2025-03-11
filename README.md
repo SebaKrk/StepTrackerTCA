@@ -267,7 +267,9 @@ This project is not only a technical exercise but also an exploration of possibi
         - folder reorganizations
         - create StrengthScoreFeature
         - grouped workout data and display in container views
-    
+    D: Strength Info
+        - Created MovementInfoFeature, implementing a common WorkoutMovementType interface based on MovementType, allowing support for various types of workouts.
+        - This abstraction ensures modularity and reusability across different parts of the application, making it easier to extend and integrate with different workout types.
 
 
 ## TODO: BUGS
