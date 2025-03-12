@@ -38,6 +38,9 @@ extension StrengthScoreFeature {
             ///
             /// - Parameter movement: The selected movement type.
             case openExerciseInfo(any MovementType)
+            
+            ///
+            case navigationButtonTapped(any MovementType)
         }
         
         // MARK: - Destination

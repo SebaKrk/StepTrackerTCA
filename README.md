@@ -270,6 +270,7 @@ This project is not only a technical exercise but also an exploration of possibi
     D: Strength Info
         - Created MovementInfoFeature, implementing a common WorkoutMovementType interface based on MovementType, allowing support for various types of workouts.
         - This abstraction ensures modularity and reusability across different parts of the application, making it easier to extend and integrate with different workout types.
+    E: MovementDetailsFeature
 
 
 ## TODO: BUGS
@@ -278,3 +279,4 @@ This project is not only a technical exercise but also an exploration of possibi
     - pamietaj ciwczenia maja rozne typy pomiaru, moze byc weightUnit albo WorkoutUnit
     - moze dodac jakis wpsolny interfejs
     - zaimplentowac to do DefaultAddMeasurementRepository idt
+
