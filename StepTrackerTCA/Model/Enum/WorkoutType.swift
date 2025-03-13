@@ -18,7 +18,7 @@ import Foundation
 /// - `fitness`: Cardiovascular and endurance-based activities.
 /// - `cross`: Functional fitness workouts emphasizing intensity and variety.
 /// - `hero`: Special benchmark workouts, often named after military personnel.
-enum WorkoutType: String, Codable, CaseIterable {
+enum WorkoutType: String, Codable, CaseIterable, WorkoutCategory {
     
     /// Weightlifting - Focuses on Olympic-style lifts and variations.
     case weightlifting
@@ -68,6 +68,16 @@ enum WorkoutType: String, Codable, CaseIterable {
             return "High-intensity workouts combining strength, cardio, and bodyweight exercises for functional fitness."
         case .hero:
             return "Benchmark workouts named after fallen heroes, testing overall fitness, endurance, and resilience."
+        }
+    }
+    
+    var movementType: any MovementType.Type {
+        switch self {
+        case .strength: return StrengthMovement.self
+        case .fitness: return FitnessMovement.self
+        case .cross: return CrossMovement.self
+        case .hero: return HeroMovement.self
+        case .weightlifting: return WeightliftingMovement.self
         }
     }
     
