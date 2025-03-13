@@ -73,17 +73,22 @@ struct StrengthScoreView: View {
             }
             .frame(minHeight: 150)
         } label: {
-            containerHeaderView(data.movement.rawValue, movement: data.movement)
+            containerHeaderView(data.movement.rawValue,
+                                movement: data.movement,
+                                workoutsData: data.workouts)
+            
         }
     }
     
-    private func containerHeaderView(_ title: String, movement: any MovementType) -> some View {
+    private func containerHeaderView(_ title: String,
+                                     movement: any MovementType,
+                                     workoutsData: [WorkoutStrength]) -> some View {
         VStack {
             HStack {
                 Group {
                     groupBoxHeaderTitle(title)
                     Spacer()
-                    containerNavigationButton(for: movement)
+                    containerNavigationButton(for: movement, workoutsData: workoutsData)
                 }
                 .foregroundStyle(.green)
             }
@@ -95,9 +100,9 @@ struct StrengthScoreView: View {
             .font(.title3.bold())
     }
     
-    private func containerNavigationButton(for movement: any MovementType) -> some View {
+    private func containerNavigationButton(for movement: any MovementType, workoutsData: [WorkoutStrength]) -> some View {
         Button {
-            send(.navigationButtonTapped(movement))
+            send(.navigationButtonTapped(movement, workoutsData: workoutsData))
         } label: {
             Image(systemName: "chevron.right")
         }

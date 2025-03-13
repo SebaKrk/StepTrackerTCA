@@ -40,7 +40,7 @@ extension StrengthScoreFeature {
             case openExerciseInfo(any MovementType)
             
             ///
-            case navigationButtonTapped(any MovementType)
+            case navigationButtonTapped(any MovementType, workoutsData: [WorkoutStrength])
         }
         
         // MARK: - Destination

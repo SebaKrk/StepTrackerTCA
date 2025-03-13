@@ -60,7 +60,7 @@ extension MovementDetailsFeature {
         
         // MARK: - Properties
         
-        let data: [GroupedWorkouts]?
+        let data: [WorkoutStrength]?
         
         let movement: any MovementType
     }

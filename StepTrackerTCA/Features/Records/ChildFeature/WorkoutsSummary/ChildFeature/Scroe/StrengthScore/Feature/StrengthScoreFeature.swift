@@ -42,9 +42,10 @@ struct StrengthScoreFeature {
                 state.destination = .openInfo(MovementInfoFeature.State(movement: movement))
                 return .none
             
-            case let .view(.navigationButtonTapped(movement)):
-                state.destination = .showDetails(MovementDetailsFeature.State(data: state.groupedWorkoutsData, movement: movement))
+            case let .view(.navigationButtonTapped(movement, workoutsData)):
+                state.destination = .showDetails(MovementDetailsFeature.State(data: workoutsData, movement: movement))
                 return .none
+    
 
                 // MARK: - Destination
             case .destination:

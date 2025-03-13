@@ -271,7 +271,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - Created MovementInfoFeature, implementing a common WorkoutMovementType interface based on MovementType, allowing support for various types of workouts.
         - This abstraction ensures modularity and reusability across different parts of the application, making it easier to extend and integrate with different workout types.
     E: MovementDetailsFeature
-
+        - create details chart
 
 ## TODO: BUGS
     A: weightUnit nie jest zapisywane w obiekcie Core Data

@@ -13,7 +13,7 @@ struct ChartGroupBoxHeader: View {
     
     let title: String
     let systemImage: String
-    let secondaryText: String
+    let secondaryText: String?
     let color: Color
     let destination: Bool
     var action: (() -> Void)?
@@ -23,7 +23,7 @@ struct ChartGroupBoxHeader: View {
     init(
         title: String,
         systemImage: String,
-        secondaryText: String,
+        secondaryText: String? = nil,
         color: Color,
         destination: Bool = false,
         action: (() -> Void)? = nil
@@ -42,7 +42,9 @@ struct ChartGroupBoxHeader: View {
         HStack {
             VStack(alignment: .leading) {
                 titleHeader
-                secondaryTitleHeader
+                if let text = secondaryText {
+                    secondaryTitleHeader(text)
+                }
             }
             Spacer()
             if destination {
@@ -59,8 +61,8 @@ struct ChartGroupBoxHeader: View {
             .foregroundStyle(color)
     }
     
-    var secondaryTitleHeader: some View {
-        Text(secondaryText)
+    func secondaryTitleHeader(_ text: String) -> some View {
+        Text(text)
             .font(.caption)
             .foregroundStyle(.secondary)
     }
