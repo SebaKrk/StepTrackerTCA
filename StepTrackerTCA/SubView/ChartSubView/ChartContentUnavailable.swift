@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ChartNoDataView: View {
+struct ChartContentUnavailable: View {
     
     var body: some View {
         ContentUnavailableView("No Data",
