@@ -42,7 +42,7 @@ struct MovementDetailsView: View {
         if let data = store.data {
             createChartView(data)
         } else {
-            Text("Bład")
+            ChartContentUnavailable()
         }
     }
     
@@ -54,21 +54,12 @@ struct MovementDetailsView: View {
     
     private func createChartView(_ data: [WorkoutStrength]) -> some View {
         Chart {
+            /// Jeśli pierwszy obiekt ma wartość, spróbuj przekonwertować na Double
+            if let goal = data.first?.value {
+                createGoalRuleMark(goal)
+            }
             ForEach(data) { data in
                 createPointMark(with: data)
-            }
-        }
-        .chartYScale(domain: .automatic(includesZero: false))
-        .chartXAxis {
-            AxisMarks {
-                AxisValueLabel(format: .dateTime.month(.defaultDigits).day())
-            }
-        }
-        .chartYAxis {
-            AxisMarks { value in
-                AxisGridLine()
-                    .foregroundStyle(Color.secondary.opacity(0.3))
-                AxisValueLabel()
             }
         }
     }

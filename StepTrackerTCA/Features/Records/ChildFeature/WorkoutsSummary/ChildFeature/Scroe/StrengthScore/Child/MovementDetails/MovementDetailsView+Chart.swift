@@ -20,4 +20,16 @@ extension MovementDetailsView {
         .symbol(.circle)
     }
     
+    func createGoalRuleMark(_ goal: String) -> some ChartContent {
+        RuleMark(y: .value("Goal", goal))
+            .foregroundStyle(.pink)
+            .lineStyle(.init(lineWidth: 1, dash: [5]))
+            .annotation(alignment: .bottomLeading) {
+                Text("Goal")
+                    .bold()
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+            }
+    }
+    
 }
