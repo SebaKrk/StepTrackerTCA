@@ -10,9 +10,9 @@ import SwiftUI
 struct ChartContentUnavailable: View {
     
     var body: some View {
-        ContentUnavailableView("Brak danych",
-                               systemImage: "exclamationmark.triangle",
-                               description: Text("Nie znaleziono żadnych danych. Dodaj nowe dane, aby je zobaczyć."))
+        ContentUnavailableView("No Data",
+                               systemImage: "chart.bar.doc.horizontal",
+                               description: Text("No data found. Add new data to see results."))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(.secondary)
         .padding()

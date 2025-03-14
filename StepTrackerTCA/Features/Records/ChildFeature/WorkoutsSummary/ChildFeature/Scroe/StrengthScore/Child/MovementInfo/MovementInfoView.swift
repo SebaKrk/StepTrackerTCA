@@ -12,7 +12,7 @@ struct MovementInfoView: View {
     
     // MARK: - Properties
     
-    var store: StoreOf<MovementInfoFeature>
+    @Bindable var store: StoreOf<MovementInfoFeature>
     
     // MARK: - View
     

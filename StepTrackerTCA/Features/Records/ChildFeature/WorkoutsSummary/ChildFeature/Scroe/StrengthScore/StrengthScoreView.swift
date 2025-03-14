@@ -32,6 +32,12 @@ struct StrengthScoreView: View {
             MovementInfoView(store: store)
                 .presentationDetents([.medium, .large])
         })
+        .navigationDestination(
+            item: $store.scope(
+                state: \.destination?.showDetails,
+                action: \.destination.showDetails)) { store in
+                MovementDetailsView(store: store)
+            }
     }
     
     // MARK: - SubView
@@ -53,7 +59,7 @@ struct StrengthScoreView: View {
             ForEach(groupedData) { group in
                 groupBoxContainer(data: group, bestWorkout: group.bestWorkout)
             }
-        } else {
+         } else {
             Text("Brak danych")
         }
     }
@@ -67,30 +73,36 @@ struct StrengthScoreView: View {
             }
             .frame(minHeight: 150)
         } label: {
-            containerHeaderView(data.movement.rawValue)
+            containerHeaderView(data.movement.rawValue,
+                                movement: data.movement,
+                                workoutsData: data.workouts)
+            
         }
     }
     
-    private func containerHeaderView(_ title: String) -> some View {
+    private func containerHeaderView(_ title: String,
+                                     movement: any MovementType,
+                                     workoutsData: [WorkoutStrength]) -> some View {
         VStack {
             HStack {
                 Group {
                     groupBoxHeaderTitle(title)
                     Spacer()
-                    containerNavigationButton
+                    containerNavigationButton(for: movement, workoutsData: workoutsData)
                 }
                 .foregroundStyle(.green)
             }
         }
     }
+    
     private func groupBoxHeaderTitle(_ title: String) -> some View {
         Text(title)
             .font(.title3.bold())
     }
     
-    private var containerNavigationButton: some View {
+    private func containerNavigationButton(for movement: any MovementType, workoutsData: [WorkoutStrength]) -> some View {
         Button {
-            print("Przejscie do wykresu")
+            send(.navigationButtonTapped(movement, workoutsData: workoutsData))
         } label: {
             Image(systemName: "chevron.right")
         }

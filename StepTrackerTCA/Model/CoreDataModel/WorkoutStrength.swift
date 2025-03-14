@@ -16,7 +16,7 @@ struct WorkoutStrength: Identifiable, Equatable {
     let workoutType: WorkoutType = .strength
     
     /// The specific Strength movement performed.
-    let movement: StrengthMovement
+    let movement: StrengthMovement // MovementType
     
     /// The date when the workout was recorded.
     let date: Date
