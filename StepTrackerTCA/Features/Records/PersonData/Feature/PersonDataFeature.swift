@@ -64,12 +64,6 @@ struct PersonDataFeature {
                 
             case .weightGoal:
                 return .none
-
-            case .weightLiftingStats:
-                return .none
-                
-            case .strengthSummary:
-                return .none
                 
             case .workoutSummary:
                 return .none
@@ -93,12 +87,6 @@ struct PersonDataFeature {
         }
         Scope(state: \.weightGoal, action: \.weightGoal) {
             WeightGoalFeature(service: DefaultWeightGoalServices())
-        }
-        Scope(state: \.weightLiftingStats, action: \.weightLiftingStats) {
-            WeightLiftingStatsFeature(service: DefaultWeightLiftingStatsServices())
-        }
-        Scope(state: \.strengthSummary, action: \.strengthSummary) {
-            StrengthSummaryFeature(service: DefaultStrengthSummaryServices())
         }
         Scope(state: \.workoutSummary, action: \.workoutSummary) {
             SummaryFeature(service: DefaultSummaryFeatureServices())
