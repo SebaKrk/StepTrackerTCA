@@ -21,6 +21,9 @@ protocol MovementType: CaseIterable, RawRepresentable where RawValue == String {
     /// Each movement type must provide a readable name that can be displayed in the UI.
     var title: String { get }
     
+    
+    var icon: String { get }
+    
     /// A description of the movement.
     ///
     /// Each movement type must provide a readable description explaining its purpose.

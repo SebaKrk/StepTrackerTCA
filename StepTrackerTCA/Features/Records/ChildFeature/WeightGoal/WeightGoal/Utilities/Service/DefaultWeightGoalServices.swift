@@ -22,7 +22,7 @@ final class DefaultWeightGoalServices: WeightGoalService {
     }
     
     func itemsDidChangePublisher() -> AnyPublisher<Void, Never> {
-        print("🟢 itemsDidChangePublisher uruchomiony")
+       // print("🟢 itemsDidChangePublisher uruchomiony")
         return recordsRepository.itemsDidChangePublisher
             .handleEvents(receiveOutput: { _ in
                 print("🔔 Otrzymano powiadomienie o zmianie w repozytorium")

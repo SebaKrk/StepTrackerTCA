@@ -65,4 +65,23 @@ enum HeroMovement: String, Codable, MovementType {
             return "Complete 30 clean and jerks for time. This workout tests strength, power, and efficiency."
         }
     }
+
+    /// A system symbol representing the Hero workout.
+    ///
+    /// This computed property returns an appropriate SF Symbol for each Hero WOD,
+    /// providing a visual representation for improved user experience.
+    var icon: String {
+        switch self {
+        case .chad1000x:
+            return "figure.step.training"
+        case .fran:
+            return "figure.cross.training"
+        case .helen:
+            return "figure.run"
+        case .murphy:
+            return "figure.strength"
+        case .grace:
+            return "figure.weightlifting"
+        }
+    }
 }

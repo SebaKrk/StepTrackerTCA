@@ -24,6 +24,7 @@ struct MovementDetailsView: View {
                 .padding()
                 .frame(height: 350)
         }
+        .navigationTitle("\(store.movement.title) details")
         .onAppear {
             send(.viewDidAppear)
         }
@@ -39,30 +40,28 @@ struct MovementDetailsView: View {
     
     @ViewBuilder
     private var chartView: some View {
-        if let data = store.data {
-            createChartView(data)
-        } else {
+        if store.sessions.isEmpty {
             ChartContentUnavailable()
+        } else {
+            createChartView(store.sessions)
         }
     }
     
     private var headerTitle: some View {
         ChartGroupBoxHeader(title: store.movement.title,
-                            systemImage: "dumbbell.fill",
+                            systemImage: store.movement.icon,
                             color: .green, destination: false)
     }
     
-    private func createChartView(_ data: [WorkoutStrength]) -> some View {
+    private func createChartView(_ sessions: [any WorkoutSessionProtocol]) -> some View {
         Chart {
             /// Jeśli pierwszy obiekt ma wartość, spróbuj przekonwertować na Double
-            if let goal = data.first?.value {
+            if let goal = sessions.first?.value {
                 createGoalRuleMark(goal)
             }
-            ForEach(data) { data in
+            ForEach(sessions, id: \.id) { data in
                 createPointMark(with: data)
             }
         }
     }
-
-    
 }

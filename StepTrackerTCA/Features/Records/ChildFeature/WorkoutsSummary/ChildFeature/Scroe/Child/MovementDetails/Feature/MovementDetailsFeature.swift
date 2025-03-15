@@ -18,7 +18,7 @@ struct MovementDetailsFeature {
             switch action {
                 
             case .view(.viewDidAppear):
-                dump(state.data)
+                dump(state.sessions)
                 return .none
             }
         }
@@ -60,8 +60,8 @@ extension MovementDetailsFeature {
         
         // MARK: - Properties
         
-        let data: [WorkoutStrength]?
-        
         let movement: any MovementType
+        
+        let sessions: [any WorkoutSessionProtocol]
     }
 }

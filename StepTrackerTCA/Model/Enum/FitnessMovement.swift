@@ -71,4 +71,25 @@ enum FitnessMovement: String, Codable, MovementType {
             return "A classic rowing distance for testing endurance, often used in competitions."
         }
     }
+
+    /// A system symbol representing the movement.
+    ///
+    /// This computed property returns an appropriate SF Symbol for each fitness activity,
+    /// helping to visually distinguish different exercises in the user interface.
+    var icon: String {
+        switch self {
+        case .run5km:
+            return "figure.run"
+        case .run15km:
+            return "figure.run.circle"
+        case .sprint400m:
+            return "figure.sprint"
+        case .swim1km:
+            return "figure.swim"
+        case .ride20km:
+            return "bicycle.circle"
+        case .row2km:
+            return "figure.rower"
+        }
+    }
 }

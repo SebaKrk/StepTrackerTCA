@@ -81,4 +81,14 @@ enum WorkoutType: String, Codable, CaseIterable, WorkoutCategory {
         }
     }
     
+    var icon: String {
+        switch self {
+        case .strength: return "dumbbell.fill"
+        case .fitness: return "figure.run"
+        case .cross: return "figure.cross.training"
+        case .hero: return "figure"
+        case .weightlifting: return "figure.strengthtraining.traditional"
+        }
+    }
+    
 }

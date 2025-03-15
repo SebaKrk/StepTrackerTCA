@@ -30,7 +30,7 @@ struct WeightGoalFeature {
                 
                 // MARK: - Actions
             case .observer:
-                print("🟡 Rozpoczynam subskrypcję na zmiany w Core Data")
+                //print("🟡 Rozpoczynam subskrypcję na zmiany w Core Data")
                 return .publisher {
                     weightGoalService.itemsDidChangePublisher()
                         .receive(on: DispatchQueue.main)
@@ -69,7 +69,7 @@ struct WeightGoalFeature {
                 return .send(.show)
                 
             case .view(.viewDidAppear):
-                print("👀 Widok się pojawił, subskrybuję zmiany w Core Data")
+                //print("👀 Widok się pojawił, subskrybuję zmiany w Core Data")
                 return .run { send in
                     await send(.checkWeightGoal)
                     await send(.observer)

@@ -32,6 +32,8 @@ extension PersonDataFeature {
         /// Stores the information contained in the `StrengthSummaryFeature
         var strengthSummary = StrengthSummaryFeature.State()
         
+        var workoutSummary = SummaryFeature.State()
+        
         // MARK: - Destination
         
         /// destination from PersonDataFeature

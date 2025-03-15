@@ -272,6 +272,17 @@ This project is not only a technical exercise but also an exploration of possibi
         - This abstraction ensures modularity and reusability across different parts of the application, making it easier to extend and integrate with different workout types.
     E: MovementDetailsFeature
         - create details chart
+        
+### IOS-00025 Refactor under a shared interface
+    A: Shared interface for summary workout
+        - SummaryFeature
+        - ScoresFeature
+        - MovementInfoFeature
+        - MovementDetailsFeature
+
+
+
+
 
 ## TODO: BUGS
     A: weightUnit nie jest zapisywane w obiekcie Core Data

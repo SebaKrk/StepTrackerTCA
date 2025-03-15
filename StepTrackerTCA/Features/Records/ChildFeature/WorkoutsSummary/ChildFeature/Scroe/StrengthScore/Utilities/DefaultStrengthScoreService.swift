@@ -19,11 +19,11 @@ final class DefaultStrengthScoreService: StrengthScoreService {
         var groupedWorkouts: [GroupedWorkouts] = []
         
         for movement in StrengthMovement.allCases {
-            let workoutsForMovement = data.filter { $0.movement == movement }
-            if !workoutsForMovement.isEmpty {
-                let bestWorkout: WorkoutStrength = findBestWorkout(from: workoutsForMovement)
-                groupedWorkouts.append(GroupedWorkouts(movement: movement, workouts: workoutsForMovement, bestWorkout: bestWorkout))
-            }
+//            let workoutsForMovement = data.filter { $0.movement == movement }
+//            if !workoutsForMovement.isEmpty {
+//                let bestWorkout: WorkoutStrength = findBestWorkout(from: workoutsForMovement)
+//                groupedWorkouts.append(GroupedWorkouts(movement: movement, workouts: workoutsForMovement, bestWorkout: bestWorkout))
+//            }
         }
         
         return sortGroupedWorkouts(groupedWorkouts)

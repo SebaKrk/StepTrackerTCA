@@ -28,8 +28,8 @@ struct StrengthScoreFeature {
             switch action {
                 
                 // MARK: - Actions
-            case .groupedWorkouts:
-                state.groupedWorkoutsData = service.groupWorkoutsByMovement(state.data)
+            case .groupedWorkouts: 
+//                state.groupedWorkoutsData = service.groupWorkoutsByMovement(state.data)
                 return .none
 
                 // MARK: - View Actions
@@ -43,7 +43,7 @@ struct StrengthScoreFeature {
                 return .none
             
             case let .view(.navigationButtonTapped(movement, workoutsData)):
-                state.destination = .showDetails(MovementDetailsFeature.State(data: workoutsData, movement: movement))
+//                state.destination = .showDetails(MovementDetailsFeature.State(data: workoutsData, movement: movement))
                 return .none
     
 

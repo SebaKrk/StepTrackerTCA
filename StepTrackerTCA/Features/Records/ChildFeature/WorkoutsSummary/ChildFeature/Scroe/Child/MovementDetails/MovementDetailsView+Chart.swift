@@ -10,7 +10,7 @@ import SwiftUI
 
 extension MovementDetailsView {
     
-    func createPointMark(with data: WorkoutStrength) -> some ChartContent {
+    func createPointMark(with data: any WorkoutSessionProtocol) -> some ChartContent {
         PointMark(
             x: .value("Day", data.date, unit: .day),
             y: .value("Value", data.value)

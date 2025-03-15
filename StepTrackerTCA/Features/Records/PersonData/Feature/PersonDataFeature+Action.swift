@@ -59,6 +59,9 @@ extension PersonDataFeature {
         
         /// Stores the actions of the `StrengthSummaryFeature
         case strengthSummary(StrengthSummaryFeature.Action)
+        
+        case workoutSummary(SummaryFeature.Action)
+        
     }
     
 }

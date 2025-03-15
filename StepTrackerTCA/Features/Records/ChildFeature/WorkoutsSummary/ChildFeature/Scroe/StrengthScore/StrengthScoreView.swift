@@ -17,27 +17,28 @@ struct StrengthScoreView: View {
     // MARK: - View
     
     var body: some View {
-        ScrollView {
-            createScoresContainers()
-        }
-        .navigationTitle("StrengthScore Score")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            toolbarButton
-        }
-        .onAppear {
-            send(.viewDidAppear)
-        }
-        .sheet(item: $store.scope(state: \.destination?.openInfo, action: \.destination.openInfo), content: { store in
-            MovementInfoView(store: store)
-                .presentationDetents([.medium, .large])
-        })
-        .navigationDestination(
-            item: $store.scope(
-                state: \.destination?.showDetails,
-                action: \.destination.showDetails)) { store in
-                MovementDetailsView(store: store)
-            }
+        Text("aaa")
+//        ScrollView {
+//            createScoresContainers()
+//        }
+//        .navigationTitle("StrengthScore Score")
+//        .navigationBarTitleDisplayMode(.inline)
+//        .toolbar {
+//            toolbarButton
+//        }
+//        .onAppear {
+//            send(.viewDidAppear)
+//        }
+//        .sheet(item: $store.scope(state: \.destination?.openInfo, action: \.destination.openInfo), content: { store in
+//            MovementInfoView(store: store)
+//                .presentationDetents([.medium, .large])
+//        })
+//        .navigationDestination(
+//            item: $store.scope(
+//                state: \.destination?.showDetails,
+//                action: \.destination.showDetails)) { store in
+//                MovementDetailsView(store: store)
+//            }
     }
     
     // MARK: - SubView
