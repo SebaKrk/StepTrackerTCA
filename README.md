@@ -286,6 +286,7 @@ This project is not only a technical exercise but also an exploration of possibi
         - Remove ExerciseInfoFeature
         - Remove WeightLiftingGoalsFeature
         - Remove WeightLiftingStatsFeature
+    C: Project file organization
         - Project file organization
 
 
