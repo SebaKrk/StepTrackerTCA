@@ -279,9 +279,14 @@ This project is not only a technical exercise but also an exploration of possibi
         - ScoresFeature
         - MovementInfoFeature
         - MovementDetailsFeature
-
-
-
+    B: CleanUp
+        - Remove StrengthScoreFeature
+        - Remove StrengthSummaryFeature
+        - Remove ExerciseDetailsFeature
+        - Remove ExerciseInfoFeature
+        - Remove WeightLiftingGoalsFeature
+        - Remove WeightLiftingStatsFeature
+        - Project file organization
 
 
 ## TODO: BUGS
