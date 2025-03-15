@@ -51,6 +51,27 @@ enum WeightliftingMovement: String, Codable, MovementType {
             return "Split Jerk"
         }
     }
+    
+    /// A system symbol representing the movement.
+    ///
+    /// This computed property returns an appropriate SF Symbol for each weightlifting movement,
+    /// providing a visual representation for improved user experience.
+    var icon: String {
+        switch self {
+        case .cleanAndJerk:
+            return "figure.clean.jerk"
+        case .snatch:
+            return "figure.snatch"
+        case .overheadSquat:
+            return "figure.squat"
+        case .powerClean:
+            return "figure.power.clean"
+        case .squatClean:
+            return "figure.squat.clean"
+        case .splitJerk:
+            return "figure.split.jerk"
+        }
+    }
 
     /// A description of the movement.
     ///

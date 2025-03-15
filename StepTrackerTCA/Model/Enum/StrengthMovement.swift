@@ -9,8 +9,8 @@ import Foundation
 
 /// An enumeration representing different types of strength movements.
 ///
-/// This enum includes fundamental strength exercises, providing a structured way
-/// to categorize them and use them within the app.
+/// Strength movements focus on building muscular power and endurance, often performed
+/// with free weights, barbells, or bodyweight resistance.
 enum StrengthMovement: String, Codable, MovementType {
     
     /// The Back Squat movement, a key lower-body strength exercise.
@@ -30,7 +30,6 @@ enum StrengthMovement: String, Codable, MovementType {
     
     /// The Bench Press, a key upper-body pushing exercise.
     case benchPress = "BenchPress"
-
 
     /// A user-friendly title for each movement.
     ///
@@ -70,6 +69,27 @@ enum StrengthMovement: String, Codable, MovementType {
             return "A compound exercise that develops explosive strength in the shoulders and arms."
         case .benchPress:
             return "A key upper-body pushing exercise that primarily targets the chest, shoulders, and triceps."
+        }
+    }
+    
+    /// A system symbol representing the strength movement.
+    ///
+    /// This computed property returns an appropriate SF Symbol for each strength movement,
+    /// providing a visual representation for improved user experience.
+    var icon: String {
+        switch self {
+        case .backSquat:
+            return "figure.squat"
+        case .deadlift:
+            return "figure.strength"
+        case .frontSquat:
+            return "figure.front.squat"
+        case .weightedPullUps:
+            return "figure.pullup"
+        case .pushPress:
+            return "figure.press"
+        case .benchPress:
+            return "figure.bench.press"
         }
     }
 }

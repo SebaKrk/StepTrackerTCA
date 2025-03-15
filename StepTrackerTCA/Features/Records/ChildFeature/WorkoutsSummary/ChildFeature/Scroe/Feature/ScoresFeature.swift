@@ -54,6 +54,9 @@ struct ScoresFeature {
             case let .view(.openExerciseInfo(movement)):
                 state.destination = .openInfo(MovementInfoFeature.State(movement: movement))
                 return .none
+            case let .view(.openMovementDetails(movement, sessions)):
+                state.destination = .showDetails(MovementDetailsFeature.State(movement: movement, sessions: sessions))
+                return .none
                 
                 
                 // MARK: - Destination
@@ -95,6 +98,9 @@ extension ScoresFeature {
             /// - Parameter movement: The selected movement type.
             case openExerciseInfo(any MovementType)
             
+            ///
+            case openMovementDetails(any MovementType, [any WorkoutSessionProtocol])
+            
         }
         
         // MARK: - Destination
@@ -120,9 +126,8 @@ extension ScoresFeature {
         ///
         var selectedWorkout: NewGroupedWorkouts
         
+        ///
         var bestResult: (any WorkoutSessionProtocol)?
-        
-        
         
         // MARK: - Destination
         
@@ -142,8 +147,8 @@ extension ScoresFeature {
     @Reducer
     enum Destination {
         
-        /// Represents the destination for displaying in `ScoresFeature`.
-        //case open(ScoreFeature)
+        /// Represents the destination for displaying in `MovementDetailsFeature`
+        case showDetails(MovementDetailsFeature)
         
         /// Represents the destination for displaying in `MovementInfoFeature`.
         case openInfo(MovementInfoFeature)
@@ -178,6 +183,12 @@ struct ScoresView: View {
             MovementInfoView(store: store)
                 .presentationDetents([.medium, .large])
         })
+        .navigationDestination(
+            item: $store.scope(
+                state: \.destination?.showDetails,
+                action: \.destination.showDetails)) { store in
+                MovementDetailsView(store: store)
+            }
     }
     
     // MARK: - SubView
@@ -220,7 +231,7 @@ struct ScoresView: View {
             Group {
                 groupBoxHeaderTitle(data.movement.title)
                 Spacer()
-                containerNavigationButton()
+                containerNavigationButton(data.movement, data.sessions)
             }
             .foregroundStyle(.green)
         }
@@ -232,9 +243,9 @@ struct ScoresView: View {
             .font(.title3.bold())
     }
     
-    private func containerNavigationButton() -> some View {
+    private func containerNavigationButton(_ movement: any MovementType, _ sessions: [any WorkoutSessionProtocol]) -> some View {
         Button {
-            
+            send(.openMovementDetails(movement, sessions))
         } label: {
             Image(systemName: "chevron.right")
         }

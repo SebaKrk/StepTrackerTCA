@@ -18,7 +18,7 @@ extension StrengthScoreFeature {
         case openInfo(MovementInfoFeature)
         
         /// Represents the destination for displaying in `MovementDetailsFeature`
-        case showDetails(MovementDetailsFeature)
+//        case showDetails(MovementDetailsFeature)
     }
     
 }

@@ -52,6 +52,27 @@ enum CrossMovement: String, Codable, MovementType {
             return "Box Jumps"
         }
     }
+    
+    /// A system symbol representing the movement.
+    ///
+    /// This computed property returns an appropriate SF Symbol for each movement type,
+    /// helping to visually distinguish different exercises in the user interface.
+    var icon: String {
+        switch self {
+        case .pullUps:
+            return "figure.pullup"
+        case .pushUps:
+            return "figure.pushup"
+        case .burpees:
+            return "figure.exercise"
+        case .airSquats:
+            return "figure.squat"
+        case .doubleUnders:
+            return "skipping.rope"
+        case .boxJumps:
+            return "figure.box.trainer"
+        }
+    }
 
     /// A description of the movement.
     ///
