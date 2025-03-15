@@ -16,7 +16,7 @@ struct WorkoutStrength: Identifiable, Equatable, WorkoutSessionProtocol {
     let workoutType: WorkoutType = .strength
     
     /// The specific Strength movement performed.
-    let movement: any MovementType
+    let movement: any MovementType // StrengthMovement
     
     /// The date when the workout was recorded.
     let date: Date

@@ -24,14 +24,14 @@ struct NewGroupedWorkouts: Identifiable {
     var id: WorkoutType { workoutType }
     
     let workoutType: WorkoutType
-    let movements: [NewGroupedMovement] // ✅ Teraz przechowujemy unikalne ruchy (ćwiczenia) zamiast sesji
+    let movements: [NewGroupedMovement]
 }
 
 struct NewGroupedMovement: Identifiable {
     var id: String { movement.title }
     
     let movement: any MovementType
-    let session: any WorkoutSessionProtocol
+    let sessions: [any WorkoutSessionProtocol]
 }
 
 protocol SummaryFeatureServices {
@@ -78,18 +78,11 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
     
     private func groupMovementsBySession(_ sessions: [any WorkoutSessionProtocol]) -> [NewGroupedMovement] {
         let groupedMovements = sessions
-            .reduce(into: [String: any WorkoutSessionProtocol]()) { result, session in
+            .reduce(into: [String: [any WorkoutSessionProtocol]]()) { result, session in
                 let movementKey = session.movement.title
-
-                if let existingSession = result[movementKey] {
-                    if session.date > existingSession.date {
-                        result[movementKey] = session
-                    }
-                } else {
-                    result[movementKey] = session
-                }
+                result[movementKey, default: []].append(session)
             }
-            .map { NewGroupedMovement(movement: $0.value.movement, session: $0.value) }
+            .map { NewGroupedMovement(movement: $0.value.first!.movement, sessions: $0.value) }
 
         return groupedMovements
     }
@@ -185,7 +178,7 @@ extension SummaryFeature {
             case viewDidAppear
             
             /// Triggered when a navigation button is tapped.
-            case navigationButtonTapped(WorkoutType) // ✅ Now passing workout type
+            case navigationButtonTapped(WorkoutType)
         }
         
         // MARK: - Destination
@@ -254,7 +247,7 @@ struct SummaryView: View {
     
     var body: some View {
         Group {
-            summaryWidgetBody
+            summaryBody
         }
         .onAppear {
             send(.viewDidAppear)
@@ -271,7 +264,7 @@ struct SummaryView: View {
     // MARK: - SubView
     
     @ViewBuilder
-    private var summaryWidgetBody: some View {
+    private var summaryBody: some View {
         if let data = store.groupedWorkouts {
             ForEach(data) { item in
                 /// Nazwa kategorii treningowej (np. Weightlifting, Strength)
@@ -292,12 +285,12 @@ struct SummaryView: View {
                 
                 ForEach(data.movements) { movement in
                     summaryByGroupedMovement(movement)
+                    Divider()
                 }
-                
                 Spacer()
             }
         } label: {
-            summaryTitleHeader(data.workoutType.title, data.workoutType.icon, workoutType: data.workoutType) // Pass workoutType
+            summaryTitleHeader(data.workoutType.title, data.workoutType.icon, workoutType: data.workoutType)
         }
         .frame(minHeight: 200)
     }
@@ -314,21 +307,22 @@ struct SummaryView: View {
                     .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     .frame(width: geometry.size.width * 0.3, alignment: .center)
                 Spacer(minLength: 5)
-                Text(data.session.value)
+                Text(data.sessions.last?.value ?? "brak")
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .frame(width: geometry.size.width * 0.28, alignment: .trailing)
+                
             }
-            .frame(height: 20)
         }
+        .frame(height: 20)
     }
     
     private func summaryTitleHeader(_ title: String, _ icon: String,
-                                    workoutType: WorkoutType) -> some View { // Updated function
+                                    workoutType: WorkoutType) -> some View {
         WidgetHeaderView(title: title, systemImage: icon, color: .green) {
-            send(.navigationButtonTapped(workoutType)) // Updated action
+            send(.navigationButtonTapped(workoutType))
         }
     }
-    
+
     private var titleContainerView: some View {
         GeometryReader { geometry in
             HStack {
