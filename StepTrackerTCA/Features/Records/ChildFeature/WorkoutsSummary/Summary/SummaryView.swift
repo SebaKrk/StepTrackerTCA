@@ -46,7 +46,7 @@ struct SummaryView: View {
         }
     }
     
-    private func summaryWorkoutTypeWidget(_ data: NewGroupedWorkouts) -> some View {
+    private func summaryWorkoutTypeWidget(_ data: GroupedWorkouts) -> some View {
         GroupBox {
             VStack {
                 titleContainerView
@@ -64,7 +64,7 @@ struct SummaryView: View {
         .frame(minHeight: 200)
     }
 
-    private func summaryByGroupedMovement(_ data: NewGroupedMovement) -> some View {
+    private func summaryByGroupedMovement(_ data: GroupedMovement) -> some View {
         GeometryReader { geometry in
             HStack {
                 Text(data.movement.title)

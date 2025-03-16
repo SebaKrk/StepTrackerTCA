@@ -288,7 +288,10 @@ This project is not only a technical exercise but also an exploration of possibi
         - Remove WeightLiftingStatsFeature
     C: Project file organization
         - Project file organization
-
+    D: Rename protocols
+        - Rename protocols nad add dock
+        - Remove MovementSummary
+        - Remove WeightLiftingDisplayModel
 
 ## TODO: BUGS
     A: weightUnit nie jest zapisywane w obiekcie Core Data

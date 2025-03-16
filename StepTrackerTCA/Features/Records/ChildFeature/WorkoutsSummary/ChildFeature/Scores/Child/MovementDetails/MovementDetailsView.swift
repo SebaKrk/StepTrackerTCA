@@ -53,7 +53,7 @@ struct MovementDetailsView: View {
                             color: .green, destination: false)
     }
     
-    private func createChartView(_ sessions: [any WorkoutSessionProtocol]) -> some View {
+    private func createChartView(_ sessions: [any WorkoutSession]) -> some View {
         Chart {
             /// Jeśli pierwszy obiekt ma wartość, spróbuj przekonwertować na Double
             if let goal = sessions.first?.value {

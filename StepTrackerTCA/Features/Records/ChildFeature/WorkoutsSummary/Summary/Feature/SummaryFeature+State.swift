@@ -20,7 +20,7 @@ extension SummaryFeature {
         var data: WorkoutSummary?
         
         /// A collection of grouped workouts categorized by type.
-        var groupedWorkouts: [NewGroupedWorkouts]?
+        var groupedWorkouts: [GroupedWorkouts]?
         
         // MARK: - Destination
         

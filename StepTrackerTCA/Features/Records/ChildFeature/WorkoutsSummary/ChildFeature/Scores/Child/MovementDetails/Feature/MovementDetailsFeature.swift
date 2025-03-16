@@ -62,6 +62,6 @@ extension MovementDetailsFeature {
         
         let movement: any MovementType
         
-        let sessions: [any WorkoutSessionProtocol]
+        let sessions: [any WorkoutSession]
     }
 }

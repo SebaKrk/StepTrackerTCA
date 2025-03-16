@@ -14,5 +14,5 @@ protocol ScoresFeatureServices {
     ///
     /// - Parameter sessions: An array of workout sessions conforming to `WorkoutSessionProtocol`.
     /// - Returns: The best workout session or `nil` if no sessions are available.
-    func bestSession(from sessions: [any WorkoutSessionProtocol]) -> (any WorkoutSessionProtocol)?
+    func bestSession(from sessions: [any WorkoutSession]) -> (any WorkoutSession)?
 }

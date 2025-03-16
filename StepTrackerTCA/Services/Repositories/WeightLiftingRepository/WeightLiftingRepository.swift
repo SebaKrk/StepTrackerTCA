@@ -28,6 +28,6 @@ protocol WeightLiftingRepository {
     /// on real data sources.
     func getDummyData() async -> (dummyData: [WeightLiftingMeasurement], goalHistory: [WeightLiftingGoalHistory])
     
-    func fetchSessions() async throws -> [any WorkoutSessionProtocol] 
+    func fetchSessions() async throws -> [any WorkoutSession] 
  
 }
