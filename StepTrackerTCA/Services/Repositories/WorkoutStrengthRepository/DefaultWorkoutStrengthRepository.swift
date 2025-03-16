@@ -24,6 +24,11 @@ final class DefaultWorkoutStrengthRepository: WorkoutStrengthRepository {
     
     // MARK: - API
     
+    func fetchSessions() async throws -> [any WorkoutSession] {
+        let workouts = try await fetchWorkoutStrengthSummary() ?? []
+        return workouts.map { $0 as any WorkoutSession }
+    }
+    
     func fetchWorkoutStrengthSummary() async throws -> [WorkoutStrength]? {
         let context = coreDataManger.backgroundContext
         return try await context.perform { () -> [WorkoutStrength]? in

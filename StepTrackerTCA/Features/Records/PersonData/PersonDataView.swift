@@ -33,9 +33,9 @@ struct PersonDataView: View {
                     HStack {
                         currentWeightView
                         weightGoalView
+                        
                     }
-                    weightLiftingStatsView
-                    strengthSummaryView
+                    workoutSummaryView
                 }
                 .padding([.leading, .trailing], 12)
             }
@@ -60,15 +60,10 @@ struct PersonDataView: View {
     private var weightGoalView: some View {
         WeightGoalView(store: store.scope(state: \.weightGoal, action: \.weightGoal))
     }
-    
+
     @ViewBuilder
-    private var weightLiftingStatsView: some View {
-        WeightLiftingStatsView(store: store.scope(state: \.weightLiftingStats, action: \.weightLiftingStats))
-    }
-    
-    @ViewBuilder
-    private var strengthSummaryView: some View {
-        StrengthSummaryView(store: store.scope(state: \.strengthSummary, action: \.strengthSummary))
+    private var workoutSummaryView: some View {
+        SummaryView(store: store.scope(state: \.workoutSummary, action: \.workoutSummary))
     }
     
     private var addNewRecordButton: some View {

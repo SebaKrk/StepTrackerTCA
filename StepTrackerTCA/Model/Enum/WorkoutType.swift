@@ -71,6 +71,10 @@ enum WorkoutType: String, Codable, CaseIterable, WorkoutCategory {
         }
     }
     
+    /// The movement type associated with each workout category.
+    ///
+    /// Each `WorkoutType` is linked to a specific movement type, which defines
+    /// the exercises typically performed within that category.
     var movementType: any MovementType.Type {
         switch self {
         case .strength: return StrengthMovement.self
@@ -81,4 +85,16 @@ enum WorkoutType: String, Codable, CaseIterable, WorkoutCategory {
         }
     }
     
+    /// The icon associated with each workout type.
+    ///
+    /// Provides a visual representation of the workout category for UI elements.
+    var icon: String {
+        switch self {
+        case .strength: return "dumbbell.fill"
+        case .fitness: return "figure.run"
+        case .cross: return "figure.cross.training"
+        case .hero: return "figure"
+        case .weightlifting: return "figure.strengthtraining.traditional"
+        }
+    }
 }

@@ -13,4 +13,6 @@ protocol WorkoutStrengthRepository {
     ///
     /// - Returns: An optional array of `WorkoutStrength
     func fetchWorkoutStrengthSummary() async throws -> [WorkoutStrength]?
+    
+    func fetchSessions() async throws -> [any WorkoutSession] 
 }

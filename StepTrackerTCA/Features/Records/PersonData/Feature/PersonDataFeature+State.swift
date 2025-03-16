@@ -26,11 +26,8 @@ extension PersonDataFeature {
         /// Stores the information contained in the `WeightGoalFeature
         var weightGoal = WeightGoalFeature.State()
         
-        /// Stores the information contained in the `WeightLiftingStatsFeature
-        var weightLiftingStats = WeightLiftingStatsFeature.State()
-        
-        /// Stores the information contained in the `StrengthSummaryFeature
-        var strengthSummary = StrengthSummaryFeature.State()
+        /// Stores the information contained in the `SummaryFeature
+        var workoutSummary = SummaryFeature.State()
         
         // MARK: - Destination
         
