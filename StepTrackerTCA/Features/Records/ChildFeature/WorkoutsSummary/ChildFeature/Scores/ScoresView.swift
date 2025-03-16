@@ -63,7 +63,7 @@ struct ScoresView: View {
         }
     }
     
-    private func scoresMovementWidget(_ data: NewGroupedMovement) -> some View {
+    private func scoresMovementWidget(_ data: GroupedMovement) -> some View {
         GroupBox {
             VStack {
                 buildScoreStack(data)
@@ -79,7 +79,7 @@ struct ScoresView: View {
         }
     }
     
-    private func containerHeaderView(_ data: NewGroupedMovement)  -> some View {
+    private func containerHeaderView(_ data: GroupedMovement)  -> some View {
         HStack {
             Group {
                 groupBoxHeaderTitle(data.movement.title)
@@ -96,7 +96,7 @@ struct ScoresView: View {
             .font(.title3.bold())
     }
     
-    private func containerNavigationButton(_ movement: any MovementType, _ sessions: [any WorkoutSessionProtocol]) -> some View {
+    private func containerNavigationButton(_ movement: any MovementType, _ sessions: [any WorkoutSession]) -> some View {
         Button {
             send(.openMovementDetails(movement, sessions))
         } label: {
@@ -118,7 +118,7 @@ struct ScoresView: View {
     }
     
     @ViewBuilder
-    private func buildScoreStack(_ data: NewGroupedMovement) -> some View {
+    private func buildScoreStack(_ data: GroupedMovement) -> some View {
         VStack {
             createCellScoreView("calendar", "Last", data.sessions.last?.value, data.sessions.last?.date)
             createCellScoreView("target", "Target", nil, nil)

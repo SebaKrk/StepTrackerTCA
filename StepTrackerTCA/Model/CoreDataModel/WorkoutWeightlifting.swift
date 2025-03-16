@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct WorkoutWeightlifting: Identifiable, Equatable, WorkoutSessionProtocol {
+struct WorkoutWeightlifting: Identifiable, Equatable, WorkoutSession {
     
     /// The unique identifier for the workout session.
     let id: String

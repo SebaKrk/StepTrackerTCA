@@ -17,10 +17,10 @@ extension ScoresFeature {
         // MARK: - Properties
         
         /// The currently selected workout session, grouped by type or date.
-        var selectedWorkout: NewGroupedWorkouts
+        var selectedWorkout: GroupedWorkouts
         
         /// The best workout session based on evaluation criteria, if available.
-        var bestResult: (any WorkoutSessionProtocol)?
+        var bestResult: (any WorkoutSession)?
         
         // MARK: - Destination
         

@@ -19,7 +19,7 @@ protocol SummaryFeatureServices {
     /// Groups workouts by their workout type from the provided summary.
     ///
     /// - Parameter summary: The workout summary containing workout sessions.
-    /// - Returns: An array of `NewGroupedWorkouts`, where workouts are grouped by type.
-    func groupWorkoutsByWorkoutType(_ summary: WorkoutSummary) -> [NewGroupedWorkouts]
+    /// - Returns: An array of `GroupedWorkouts`, where workouts are grouped by type.
+    func groupWorkoutsByWorkoutType(_ summary: WorkoutSummary) -> [GroupedWorkouts]
     
 }
