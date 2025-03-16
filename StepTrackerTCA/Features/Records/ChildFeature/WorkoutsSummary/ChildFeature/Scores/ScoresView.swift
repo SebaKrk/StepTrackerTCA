@@ -52,7 +52,7 @@ struct ScoresView: View {
             Button {
                 send(.goalsButtonTapped)
             } label: {
-                Image(systemName: "plus")
+                Image(systemName: "target")
             }
         }
     }

@@ -55,10 +55,10 @@ struct ScoresFeature {
                 
                 // MARK: - Destination
                 
-              case .openGoalsSheet:
-                  state.destination = .openGoal(SetEditGoalFeature.State())
-                  return .none
-                  
+            case .openGoalsSheet:
+                let workoutType = state.selectedWorkout.workoutType
+                state.destination = .openGoal(SetEditGoalFeature.State(workoutType: workoutType))
+                return .none
                 
             case .destination:
                 return .none

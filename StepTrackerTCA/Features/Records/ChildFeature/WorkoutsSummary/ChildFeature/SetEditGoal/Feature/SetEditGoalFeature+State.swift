@@ -12,7 +12,7 @@ import Foundation
 extension SetEditGoalFeature {
     
     @ObservableState
-    struct State: Equatable {
+    struct State {
         
         // MARK: - Properties
         
@@ -23,7 +23,10 @@ extension SetEditGoalFeature {
         /// The selected movement type for the goal.
         ///
         /// If `nil`, no movement type has been selected yet.
-        var movementType: WeightliftingMovement? = nil
+        //var movementType: any MovementType
+        var selectedMovement: (any MovementType)?
+        
+        var workoutType: WorkoutType
         
         /// The selected unit of measurement for weight.
         var weightUnit: WeightUnit = .kg

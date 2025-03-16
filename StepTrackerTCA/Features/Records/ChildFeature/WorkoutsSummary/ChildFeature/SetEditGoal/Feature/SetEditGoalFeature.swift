@@ -28,8 +28,11 @@ struct SetEditGoalFeature {
                     
                     // MARK: - Actions
                     
-                case let .selectedMovementPickerChange(movement):
-                    state.movementType = movement
+//                case let .selectedMovementPickerChange(movement):
+//                    state.movementType = movement
+//                    return .none
+                case let .selectedMovementChange(movement):
+                    print(movement)
                     return .none
                     
                 case let .selectedWeightUnitPickerChange(unit):
@@ -46,6 +49,7 @@ struct SetEditGoalFeature {
                 case .view(.saveButtonPressed):
                     print("save button pressed")
                     return .none
+
                 }
             }
         }

@@ -42,14 +42,18 @@ extension ScoresFeature {
             ///   - sessions: The associated workout sessions.
             case openMovementDetails(any MovementType, [any WorkoutSessionProtocol])
             
-            ///
+            /// This action is responsible for opening the goal setting sheet
+            /// where the user can define or update their movement goal.
             case goalsButtonTapped
             
         }
         
         // MARK: - Destination
         
+        /// Opens a sheet responsible for setting or editing a goal for a specific exercise.
         ///
+        /// This action is triggered when the user wants to define or modify their goal
+        /// for a selected movement type.
         case openGoalsSheet
         
         /// Destination case for navigation

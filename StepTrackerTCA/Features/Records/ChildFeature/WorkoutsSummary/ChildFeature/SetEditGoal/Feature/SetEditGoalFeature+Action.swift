@@ -22,8 +22,7 @@ extension SetEditGoalFeature {
         
         // MARK: - Actions
         
-        /// Triggered when the user selects a different movement type in the movement picker.
-        case selectedMovementPickerChange(WeightliftingMovement?)
+        case selectedMovementChange(any MovementType)
         
         /// Triggered when the user selects a different weight unit in the unit picker.
         case selectedWeightUnitPickerChange(WeightUnit)
