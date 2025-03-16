@@ -273,7 +273,7 @@ This project is not only a technical exercise but also an exploration of possibi
     E: MovementDetailsFeature
         - create details chart
         
-### IOS-00025 Refactor under a shared interface
+### IOS-00025 Refactor for a shared interface
     A: Shared interface for summary workout
         - SummaryFeature
         - ScoresFeature
