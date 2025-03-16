@@ -40,24 +40,21 @@ graph LR
   ActivityTab --> ActivityList["<font color='red'>Activity List</font> ActivityFeature"]
   ActivityList --> ActivityDetails["<font color='red'>Activity Details</font> ActivityDetailsFeature"]
 
-  %% Records
-  RecordsTab --> CurrentWeight["<font color='red'>Weight</font><br> CurrentWeightFeature"]
-  RecordsTab --> WeightGoal["<font color='red'>Goal</font><br> WeightGoalFeature"]
-  WeightGoal --> SetWeightGoal[SetWeightGoalFeature]
+  MovmentDetails
 
-  %% Workouts summary sction
-  RecordsTab --> WorkoutsSummary["<font color='red'>Summary</font><br>StrengthSummary<br>WeightLiftingSummary"]
-  
-  WorkoutsSummary --> WeightliftingStats["<font color='red'>WeightLifting Stats</font><br> WeightLiftingStatsFeature"]
-  WorkoutsSummary --> StrengthSummary["<font color='red'>StrengthStats</font><br> StrengthSummaryFeature"]
-  
-  WeightliftingStats --> Scores["<font color='red'>Scores</font>"]
-  StrengthSummary --> Scores["<font color='red'>Scores</font>"]
-  %% plus/edit button 
-  WeightliftingStats --> SetEditGoal[SetEditGoalFeature]
+%% Records
+RecordsTab --> CurrentWeight["<font color='red'>**Weight**</font><br>CurrentWeightFeature"]
+RecordsTab --> WeightGoal["<font color='red'>**Goal**</font><br>WeightGoalFeature"]
+RecordsTab --> WorkoutsSummary["<font color='red'>**Summary**</font><br>SummaryFeature <font color='green'>Repository:</font><br>workoutStrengthRepository<br>weightLiftingRepository"]
 
-  Scores --> WeightliftingGoals["<font color='red'>Lista</font><br> WeightLiftingGoalsFeature"]
-  
-  WeightliftingGoals --> ExerciseInfo[ExerciseInfoFeature]
-  WeightliftingGoals --> ExerciseDetails[ExerciseDetailsFeature]
-  WeightliftingGoals --> SetEditGoalFeature[SetEditGoalFeature]
+RecordsTab --> AddMeasurement["<font color='red'>**Measurement**</font><br><font color='purple'>(Add new data presented in the sheet)</font><br>AddMeasurementFeature"]
+
+%% tu możemy dodać gola
+WeightGoal --> SetWeightGoal[SetWeightGoalFeature]
+WorkoutsSummary --> ScoresList["<font color='red'>**Scores**</font> <br><font color='purple'>(List of summary movement)</font> <br>ScoresFeature"]
+
+ScoresList --> MovmentInfo["<font color='red'>**Info**</font> <br><font color='purple'>(Present Info Sheet)</font><br>MovementInfoFeature"]
+ScoresList --> MovmentDetails["<font color='red'>**Details**</font> <br><font color='purple'>(Navigate to Details)</font><br>MovementDetailsFeature"]
+ScoresList --> SetEditGoal["<font color='red'>**Goal**</font> <br><font color='purple'>(Present Add Goal Sheet)</font> <br>SetEditGoalFeature"]
+
+
