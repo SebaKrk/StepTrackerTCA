@@ -295,6 +295,7 @@ This project is not only a technical exercise but also an exploration of possibi
         
 ### IOS-00026 Implementation SetEditGoalFeature
     A: SetEditGoalFeature
+    B: Create costume symbol for add Target
 
 
 
