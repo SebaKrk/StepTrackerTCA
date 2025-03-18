@@ -40,6 +40,9 @@ extension SetEditGoalFeature {
         /// Triggered when the user selects a different weight unit in the unit picker.
         case selectedWeightUnitPickerChange(WeightUnit)
         
+        /// Validates the measurement inputs.
+        case validate
+        
         // MARK: - View Actions
         
         case view(View)

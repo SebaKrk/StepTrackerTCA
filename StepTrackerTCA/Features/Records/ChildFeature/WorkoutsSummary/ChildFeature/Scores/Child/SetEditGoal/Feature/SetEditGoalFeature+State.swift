@@ -23,6 +23,8 @@ extension SetEditGoalFeature {
         /// Passed WorkoutType
         var workoutType: WorkoutType
         
+        var selectedMovement: (any MovementType)? 
+        
         /// The selected weightlifting movement.
         var weightliftingMovement: WeightliftingMovement? = nil
         

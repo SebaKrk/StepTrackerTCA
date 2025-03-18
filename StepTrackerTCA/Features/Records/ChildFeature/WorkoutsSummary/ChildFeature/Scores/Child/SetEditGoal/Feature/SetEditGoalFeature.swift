@@ -28,6 +28,19 @@ struct SetEditGoalFeature {
                     
                     // MARK: - Actions
                     
+                case .validate:
+                    guard !state.valueToAdd.isEmpty else {
+                        // TODO: - ALERTS
+                        print("nie moze byc puste")
+                        return .none
+                    }
+                    
+                    dump(state.valueToAdd)
+                    
+                    return .run { send in
+                        await self.dismiss()
+                    }
+                    
                 case let .selectedWeightUnitPickerChange(unit):
                     state.weightUnit = unit
                     return .none
@@ -59,8 +72,9 @@ struct SetEditGoalFeature {
                     }
                     
                 case .view(.saveButtonPressed):
-                    print("save button pressed")
-                    return .none
+                    return .run { send in
+                        await send(.validate)
+                    }
                 }
             }
         }
