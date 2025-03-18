@@ -66,49 +66,81 @@ struct SetEditGoalView: View {
         DatePicker("Date", selection: $store.addDataDate, displayedComponents: .date)
     }
     
-//    @ViewBuilder
-//    private var movementContextPicker: some View {
-//        Picker("Movement", selection: $store.movementType.sending(\.selectedMovementPickerChange)) {
-//            Text("select movement").tag(nil as WeightliftingMovement?)
-//            ForEach(WeightliftingMovement.allCases, id: \.self) { item in
-//                Text(item.title)
-//                    .tag(item)
-//            }
-//        }
-//        .pickerStyle(.navigationLink)
-//    }
-    
     @ViewBuilder
     private var selectedWorkoutTypePicker: some View {
         switch store.workoutType {
         case .weightlifting:
-            Text("weightliftingTypeContextPicker")
+            weightliftingTypeContextPicker
         case .strength:
-            Text("strengthTypeContextPicker")
+            strengthTypeContextPicker
         case .fitness:
-            Text("fitnessTypeContextPicker")
+            fitnessTypeContextPicker
         case .cross:
-            Text(" crossTypeContextPicker")
+            crossTypeContextPicker
         case .hero:
-            Text("heroTypeContextPicker")
-            
+            heroTypeContextPicker
         }
     }
     
-//    @ViewBuilder
-//    private var movementPicker: some View {
-//        if let movementType = store.workoutType.movementType as? (any CaseIterable & MovementType.Type) {
-//            Picker("Movement", selection: $store.selectedMovement.sending(\.selectedMovementChange)) {
-//                Text("Select movement").tag(nil as (any MovementType)?)
-//
-//                ForEach(movementType.allCases as! [any MovementType], id: \.rawValue) { movement in
-//                    Text(movement.title)
-//                        .tag(movement as (any MovementType)?)
-//                }
-//            }
-//            .pickerStyle(.navigationLink)
-//        }
-//    }
+    @ViewBuilder
+    private var weightliftingTypeContextPicker: some View {
+        Picker("Weightlifting", selection: $store.weightliftingMovement.sending(\.selectedWeightliftingMovementPickerChange)) {
+            Text("select").tag(nil as WeightliftingMovement?)
+            ForEach(WeightliftingMovement.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.navigationLink)
+    }
+    
+    @ViewBuilder
+    private var strengthTypeContextPicker: some View {
+        Picker("Strength", selection: $store.strengthMovement.sending(\.selectedStrengthMovementPickerChange)) {
+            Text("select").tag(nil as StrengthMovement?)
+            ForEach(StrengthMovement.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.navigationLink)
+    }
+    
+    @ViewBuilder
+    private var fitnessTypeContextPicker: some View {
+        Picker("Fitness", selection: $store.fitnessMovement.sending(\.selectedFitnessMovementPickerChange)) {
+            Text("select").tag(nil as FitnessMovement?)
+            ForEach(FitnessMovement.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.navigationLink)
+    }
+    
+    @ViewBuilder
+    private var crossTypeContextPicker: some View {
+        Picker("Cross", selection: $store.crossMovement.sending(\.selectedCrossMovementPickerChange)) {
+            Text("select").tag(nil as CrossMovement?)
+            ForEach(CrossMovement.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.navigationLink)
+    }
+    
+    @ViewBuilder
+    private var heroTypeContextPicker: some View {
+        Picker("Hero WOD", selection: $store.heroMovement.sending(\.selectedHeroMovementPickerChange)) {
+            Text("select").tag(nil as HeroMovement?)
+            ForEach(HeroMovement.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.navigationLink)
+    }
     
     private var weightView: some View {
         HStack {
