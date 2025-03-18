@@ -292,6 +292,11 @@ This project is not only a technical exercise but also an exploration of possibi
         - Rename protocols nad add dock
         - Remove MovementSummary
         - Remove WeightLiftingDisplayModel
+        
+### IOS-00026 Implementation SetEditGoalFeature
+    A: SetEditGoalFeature
+
+
 
 ## TODO: BUGS
     A: weightUnit nie jest zapisywane w obiekcie Core Data

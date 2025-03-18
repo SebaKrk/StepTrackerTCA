@@ -20,14 +20,24 @@ extension SetEditGoalFeature {
         /// Defaults to the current date.
         var addDataDate: Date = .now
         
-        /// The selected movement type for the goal.
-        ///
-        /// If `nil`, no movement type has been selected yet.
-        //var movementType: any MovementType
-        var selectedMovement: (any MovementType)?
-        
+        /// Passed WorkoutType
         var workoutType: WorkoutType
         
+        /// The selected weightlifting movement.
+        var weightliftingMovement: WeightliftingMovement? = nil
+        
+        /// The selected strength movement.
+        var strengthMovement: StrengthMovement? = nil
+        
+        /// The selected fitness movement.
+        var fitnessMovement: FitnessMovement? = nil
+        
+        /// The selected cross movement.
+        var crossMovement: CrossMovement? = nil
+        
+        /// The selected hero movement.
+        var heroMovement: HeroMovement? = nil
+
         /// The selected unit of measurement for weight.
         var weightUnit: WeightUnit = .kg
         
