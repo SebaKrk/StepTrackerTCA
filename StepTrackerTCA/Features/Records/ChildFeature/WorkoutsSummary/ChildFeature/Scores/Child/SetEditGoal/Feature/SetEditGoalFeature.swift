@@ -28,15 +28,40 @@ struct SetEditGoalFeature {
                     
                     // MARK: - Actions
                     
-//                case let .selectedMovementPickerChange(movement):
-//                    state.movementType = movement
-//                    return .none
-                case let .selectedMovementChange(movement):
-                    print(movement)
-                    return .none
+                case .validate:
+                    guard !state.valueToAdd.isEmpty else {
+                        // TODO: - ALERTS
+                        print("nie moze byc puste")
+                        return .none
+                    }
+                    
+                    dump(state.valueToAdd)
+                    
+                    return .run { send in
+                        await self.dismiss()
+                    }
                     
                 case let .selectedWeightUnitPickerChange(unit):
                     state.weightUnit = unit
+                    return .none
+                    
+                case let .selectedWeightliftingMovementPickerChange(movement):
+                    state.weightliftingMovement = movement
+                    return .none
+                    
+                case let .selectedStrengthMovementPickerChange(movement):
+                    state.strengthMovement = movement
+                    return .none
+                    
+                case let .selectedFitnessMovementPickerChange(movement):
+                    state.fitnessMovement = movement
+                    return .none
+                case let .selectedCrossMovementPickerChange(movement):
+                    state.crossMovement = movement
+                    return .none
+                    
+                case let .selectedHeroMovementPickerChange(movement):
+                    state.heroMovement = movement
                     return .none
                     
                     // MARK: - View Actions
@@ -47,9 +72,9 @@ struct SetEditGoalFeature {
                     }
                     
                 case .view(.saveButtonPressed):
-                    print("save button pressed")
-                    return .none
-
+                    return .run { send in
+                        await send(.validate)
+                    }
                 }
             }
         }

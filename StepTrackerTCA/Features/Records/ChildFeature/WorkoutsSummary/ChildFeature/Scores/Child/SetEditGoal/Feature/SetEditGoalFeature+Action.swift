@@ -22,10 +22,26 @@ extension SetEditGoalFeature {
         
         // MARK: - Actions
         
-        case selectedMovementChange(any MovementType)
+        /// Triggered when the user selects a different weightlifting movement in the picker.
+        case selectedWeightliftingMovementPickerChange(WeightliftingMovement?)
+        
+        /// Triggered when the user selects a different strength movement in the picker.
+        case selectedStrengthMovementPickerChange(StrengthMovement?)
+        
+        /// Triggered when the user selects a different fitness movement in the picker.
+        case selectedFitnessMovementPickerChange(FitnessMovement?)
+        
+        /// Triggered when the user selects a different cross movement in the picker.
+        case selectedCrossMovementPickerChange(CrossMovement?)
+        
+        /// Triggered when the user selects a different hero movement in the picker.
+        case selectedHeroMovementPickerChange(HeroMovement?)
         
         /// Triggered when the user selects a different weight unit in the unit picker.
         case selectedWeightUnitPickerChange(WeightUnit)
+        
+        /// Validates the measurement inputs.
+        case validate
         
         // MARK: - View Actions
         
