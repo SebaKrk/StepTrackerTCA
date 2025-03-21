@@ -56,6 +56,12 @@ extension AddMeasurementFeature {
         /// The selected unit of measurement for workout.
         var workoutUnit: WorkoutUnit = .reps
         
+        /// The selected unit of measurement, used for the unit of value to add.
+        var selectedUnit: String = ""
+        
+        /// The value to be saved, entered as a string.
+        var valueToSave: String = ""
+        
         /// The selected movement name as a string, based on the workout type.
          var selectedMovement: String? {
              switch workoutType {

@@ -27,6 +27,7 @@ struct SetEditGoalView: View {
             .toolbar {
                 toolbarButton
             }
+            .alert(store: store.scope(state: \.$alert, action: \.alert))
         }
     }
     
@@ -38,7 +39,9 @@ struct SetEditGoalView: View {
             Form {
                 datePicker
                 selectedWorkoutTypePicker
-                weightView
+                if store.selectedMovement != nil {
+                    measurementInputView
+                }
             }
         }
     }
@@ -142,6 +145,18 @@ struct SetEditGoalView: View {
         .pickerStyle(.navigationLink)
     }
     
+    @ViewBuilder
+    private var measurementInputView: some View {
+        switch store.workoutType {
+        case .weightlifting, .strength:
+            weightView
+        case .fitness,.hero:
+            timePicker
+        case .cross:
+            workoutInputView
+        }
+    }
+    
     private var weightView: some View {
         HStack {
             TextField("Value", text: $store.valueToAdd)
@@ -149,6 +164,16 @@ struct SetEditGoalView: View {
                 .keyboardType(.decimalPad)
             Spacer()
             weightUnitContextPicker
+        }
+    }
+    
+    var timePicker: some View {
+        HStack {
+            Text("Time score")
+            Spacer()
+            DurationPicker(duration: $store.timeInterval)
+                .foregroundStyle(.secondary)
+                .frame(width: 160, alignment: .trailing)
         }
     }
     
@@ -162,6 +187,28 @@ struct SetEditGoalView: View {
         }
         .pickerStyle(.segmented)
         .frame(width: 100)
+    }
+    
+    private var workoutInputView: some View {
+        HStack {
+            TextField("Value", text: $store.crossValueToAdd)
+                .multilineTextAlignment(.leading)
+                .keyboardType(.decimalPad)
+            Spacer()
+            workoutUnitContextPicker
+        }
+    }
+    
+    @ViewBuilder
+    private var workoutUnitContextPicker: some View {
+        Picker("WorkoutUnit", selection: $store.workoutUnit.sending(\.selectedWorkoutUnitPickerChange)) {
+            ForEach(WorkoutUnit.allCases, id: \.self) { item in
+                Text(item.label)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 75)
     }
     
 }

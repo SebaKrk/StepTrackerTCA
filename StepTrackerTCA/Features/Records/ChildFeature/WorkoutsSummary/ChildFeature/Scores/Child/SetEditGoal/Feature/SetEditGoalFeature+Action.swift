@@ -40,8 +40,20 @@ extension SetEditGoalFeature {
         /// Triggered when the user selects a different weight unit in the unit picker.
         case selectedWeightUnitPickerChange(WeightUnit)
         
+        /// Triggered when the user selects a different workout unit in the picker.
+        case selectedWorkoutUnitPickerChange(WorkoutUnit)
+        
+        ///
+        case selectedMomentChange (any MovementType)
+        
         /// Validates the measurement inputs.
         case validate
+        
+        //
+        case addValue
+        
+        /// Presents an alert in the view.
+        case presentAlert
         
         // MARK: - View Actions
         
@@ -54,6 +66,17 @@ extension SetEditGoalFeature {
             
             /// Triggered when the dismiss button is pressed.
             case dismissButtonPressed
+        }
+        
+        // MARK: - Alert
+        
+        /// Actions related to alert presentation and handling.
+        case alert(PresentationAction<Alert>)
+        
+        enum Alert: Equatable {
+            
+            /// Represents a simple informational alert.
+            case showMessage
         }
     }
     

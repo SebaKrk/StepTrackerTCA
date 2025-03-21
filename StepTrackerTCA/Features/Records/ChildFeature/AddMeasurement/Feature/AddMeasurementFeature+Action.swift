@@ -50,7 +50,8 @@ extension AddMeasurementFeature {
         
         /// Adds a measurement value.
         /// This action is triggered after validation, meaning all required values are guaranteed to be non-nil.
-        case addValue(workoutType: WorkoutType, movement: any MovementType, value: String)
+        //case addValue(workoutType: WorkoutType, movement: any MovementType, value: String, unit: String)
+        case addValue
         
         /// Presents an alert in the view.
         case presentAlert
