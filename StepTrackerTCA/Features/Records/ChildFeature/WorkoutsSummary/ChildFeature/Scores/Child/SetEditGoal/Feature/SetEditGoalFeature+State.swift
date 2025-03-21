@@ -23,7 +23,8 @@ extension SetEditGoalFeature {
         /// Passed WorkoutType
         var workoutType: WorkoutType
         
-        var selectedMovement: (any MovementType)? 
+        /// The selected MovementType
+        var selectedMovement: (any MovementType)? = nil
         
         /// The selected weightlifting movement.
         var weightliftingMovement: WeightliftingMovement? = nil
@@ -43,9 +44,28 @@ extension SetEditGoalFeature {
         /// The selected unit of measurement for weight.
         var weightUnit: WeightUnit = .kg
         
+        /// The selected unit of measurement for workout.
+        var workoutUnit: WorkoutUnit = .reps
+        
         /// The value to add, entered as a string.
         var valueToAdd: String = ""
         
+        /// The value for cross training to add, entered as a string.
+        var crossValueToAdd: String = ""
+        
+        /// The time interval for the measurement.
+        var timeInterval: TimeInterval = 0
+        
+        /// The selected unit of measurement, used for the unit of value to add.
+        var selectedUnit: String = ""
+        
+        // MARK: - Alert
+        
+        /// An optional alert message to be displayed.
+        var alertMessage: String? = nil
+        
+        /// The state of the alert presentation.
+        @Presents var alert: AlertState<Action.Alert>?
     }
     
 }

@@ -17,6 +17,6 @@ protocol AddMeasurementServices {
     ///   - movement: The specific movement associated with the measurement.
     ///   - value: The recorded value (e.g., weight, time, reps).
     ///   - weightUnit: The unit of measurement (e.g., kg, lbs).
-    func saveMeasurement(date: Date, workoutType: WorkoutType, movement: any MovementType, value: String, weightUnit: WeightUnit) async throws
+    func saveMeasurement(date: Date, workoutType: WorkoutType, movement: String, value: String, unit: String) async throws
     
 }

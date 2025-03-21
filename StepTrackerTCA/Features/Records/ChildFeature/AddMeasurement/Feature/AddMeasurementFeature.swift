@@ -70,39 +70,52 @@ struct AddMeasurementFeature {
                         return .run { send in await send(.presentAlert) }
                     }
 
-                    let valueToSave: String
-
+                    
                     switch workoutType {
                     case .weightlifting, .strength:
                         guard !state.valueToAdd.isEmpty else {
                             state.alertMessage = "The value field cannot be empty."
                             return .run { send in await send(.presentAlert) }
                         }
-                        valueToSave = state.valueToAdd
+                        state.valueToSave = state.valueToAdd
+                        state.selectedUnit = state.weightUnit.rawValue
 
                     case .fitness, .hero:
                         guard state.timeInterval != 0 else {
                             state.alertMessage = "The time value cannot be equal zero."
                             return .run { send in await send(.presentAlert) }
                         }
-                        valueToSave = "\(state.timeInterval)"
+                        state.valueToSave = "\(state.timeInterval)"
+                        state.workoutUnit = .seconds
+                        state.selectedUnit = state.workoutUnit.rawValue
 
                     case .cross:
                         guard !state.crossValueToAdd.isEmpty else {
                             state.alertMessage = "The reps value field cannot be empty."
-                            return .run { send in await send(.presentAlert) }
+                            return .run { send in await send(.presentAlert)
+                            }
                         }
-                        valueToSave = state.crossValueToAdd
+                        state.valueToSave = state.crossValueToAdd
+                        state.workoutUnit = .reps
+                        state.selectedUnit = state.workoutUnit.rawValue
                     }
 
                     return .run { send in
-                        await send(.addValue(workoutType: workoutType, movement: movement, value: valueToSave))
+                        await send(.addValue)
                     }
                     
-                case let .addValue(workoutType, movement, value):
+                case .addValue:
+                    guard let workoutType = state.workoutType,
+                          let movement = state.selectedMovement else {
+                        state.alertMessage = "Failed to add data – missing required workout information."
+                        return .run { send in await send(.presentAlert)
+                        }
+                    }
+                    
                     let date = state.addDataDate
-                    let weightUnit = state.weightUnit
-
+                    let value = state.valueToSave
+                    let unit = state.selectedUnit
+                    
                     return .run { send in
                         do {
                             try await service.saveMeasurement(
@@ -110,7 +123,7 @@ struct AddMeasurementFeature {
                                 workoutType: workoutType,
                                 movement: movement,
                                 value: value,
-                                weightUnit: weightUnit
+                                unit: unit
                             )
                             await self.dismiss()
                         } catch {
