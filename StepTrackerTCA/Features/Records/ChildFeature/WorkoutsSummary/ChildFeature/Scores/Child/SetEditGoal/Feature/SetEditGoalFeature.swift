@@ -70,6 +70,7 @@ struct SetEditGoalFeature {
                             return .run { send in await send(.presentAlert) }
                         }
                         valueToSave = state.valueToAdd
+                        state.selectedUnit = state.weightUnit.rawValue
                         
                     case .fitness,
                             .hero:
@@ -78,6 +79,8 @@ struct SetEditGoalFeature {
                             return .run { send in await send(.presentAlert) }
                         }
                         valueToSave = "\(state.timeInterval)"
+                        state.workoutUnit = .seconds
+                        state.selectedUnit = state.workoutUnit.rawValue
                         
                     case .cross:
                         guard !state.crossValueToAdd.isEmpty else {
@@ -85,6 +88,8 @@ struct SetEditGoalFeature {
                             return .run { send in await send(.presentAlert) }
                         }
                         valueToSave = state.crossValueToAdd
+                        state.workoutUnit = .reps
+                        state.selectedUnit = state.workoutUnit.rawValue
                     }
                     
                     state.valueToAdd = valueToSave
@@ -94,15 +99,20 @@ struct SetEditGoalFeature {
                     }
                     
                 case .addValue:
+                    guard let movement = state.selectedMovement else {
+                        state.alertMessage = "Failed to add data – missing required movement information."
+                        return .run { send in await send(.presentAlert) }
+                    }
                     
                     return .run { [workout = state.workoutType,
-                                   movement = state.selectedMovement,
                                    date = state.addDataDate,
-                                   value = state.valueToAdd] send in
+                                   value = state.valueToAdd,
+                                   unit = state.selectedUnit] send in
                         
-                        service.setNewGoal(for: workout, movement,
+                        service.setNewGoal(for: workout, movement.rawValue,
                                            date: date,
-                                           value: value
+                                           value: value,
+                                           unit: unit
                         )
                         await self.dismiss()
                     }

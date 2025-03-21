@@ -11,10 +11,14 @@ import Foundation
 ///
 /// This enum provides units for measuring repetitions and time-based exercises.
 /// It ensures consistency in tracking various workout metrics.
-enum WorkoutUnit: Codable, CaseIterable {
+/// Provides a collection of all cases in `WorkoutUnit`, allowing iteration over them.
+enum WorkoutUnit: String, Codable, CaseIterable {
     
     /// Repetitions (Reps) - The number of times an exercise is performed.
     case reps
+    
+    /// Seconds - Duration of an exercise in seconds.
+    case seconds
     
     /// A user-friendly label for the unit.
     ///
@@ -24,6 +28,8 @@ enum WorkoutUnit: Codable, CaseIterable {
         switch self {
         case .reps:
             return "Reps"
+        case .seconds:
+            return "Seconds"
         }
     }
 }

@@ -8,20 +8,17 @@
 import Foundation
 
 protocol SetEditGoalService {
-    func setNewGoal(for workoutType: WorkoutType, _ movement: (any MovementType)?, date: Date, value: String)
+    func setNewGoal(for workoutType: WorkoutType, _ movement: String, date: Date, value: String, unit: String)
 }
 
 final class DefaultSetEditGoalService: SetEditGoalService {
     
-    func setNewGoal(for workoutType: WorkoutType,
-                    _ movement: (any MovementType)?,
-        date: Date,
-        value: String
-    ) {
+    func setNewGoal(for workoutType: WorkoutType, _ movement: String, date: Date, value: String, unit: String) {
         print(workoutType)
-        print(movement!)
+        print(movement)
         print(date)
         print(value)
+        print(unit)
     }
     
 }

@@ -25,9 +25,9 @@ final class DefaultAddMeasurementRepository: AddMeasurementRepository {
     func saveMeasurement(
         date: Date,
         workoutType: WorkoutType,
-        movement: any MovementType,
+        movement: String,
         value: String,
-        weightUnit: WeightUnit
+        unit: String
     ) async throws {
         let context = backgroundContext
         
@@ -41,7 +41,7 @@ final class DefaultAddMeasurementRepository: AddMeasurementRepository {
                 newRecord.id = UUID().uuidString
                 newRecord.date = date
                 newRecord.workoutType = workoutType.rawValue
-                newRecord.movement = movement.rawValue
+                newRecord.movement = movement
                 newRecord.value = value
                 newRecord.workouts = workoutsLog
                 
@@ -51,8 +51,8 @@ final class DefaultAddMeasurementRepository: AddMeasurementRepository {
                 ✅ Workout saved successfully:
                 - Date: \(date)
                 - Workout Type: \(workoutType.rawValue)
-                - Movement: \(movement.title)
-                - Value: \(value) \(weightUnit.rawValue)
+                - Movement: \(movement)
+                - Value: \(value) \(unit)
                 """)
             } catch {
                 print("❌ Error saveMeasurement \(workoutType.rawValue) workout: \(error.localizedDescription)")

@@ -56,6 +56,9 @@ extension SetEditGoalFeature {
         /// The time interval for the measurement.
         var timeInterval: TimeInterval = 0
         
+        /// The selected unit of measurement, used for the unit of value to add.
+        var selectedUnit: String = ""
+        
         // MARK: - Alert
         
         /// An optional alert message to be displayed.
