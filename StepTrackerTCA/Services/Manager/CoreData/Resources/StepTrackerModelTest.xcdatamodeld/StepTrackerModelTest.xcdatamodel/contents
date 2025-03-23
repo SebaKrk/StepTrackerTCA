@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D70" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D81" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="GoalsEntity" representedClassName="GoalsEntity" syncable="YES">
         <attribute name="id" attributeType="String"/>
+        <relationship name="goalsWorkout" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="GoalWorkoutEntity" inverseName="goals" inverseEntity="GoalWorkoutEntity"/>
         <relationship name="goalWeight" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GoalWeightEntity" inverseName="goals" inverseEntity="GoalWeightEntity"/>
-        <relationship name="goalWorkout" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="GoalWorkoutEntity" inverseName="goals" inverseEntity="GoalWorkoutEntity"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="UserEntity" inverseName="goals" inverseEntity="UserEntity"/>
     </entity>
     <entity name="GoalWeightEntity" representedClassName="GoalWeightEntity" syncable="YES">
@@ -19,7 +19,7 @@
         <attribute name="movement" attributeType="String"/>
         <attribute name="value" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="workoutType" attributeType="String"/>
-        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GoalsEntity" inverseName="goalWorkout" inverseEntity="GoalsEntity"/>
+        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GoalsEntity" inverseName="goalsWorkout" inverseEntity="GoalsEntity"/>
     </entity>
     <entity name="UserEntity" representedClassName="UserEntity" syncable="YES">
         <attribute name="email" attributeType="String"/>

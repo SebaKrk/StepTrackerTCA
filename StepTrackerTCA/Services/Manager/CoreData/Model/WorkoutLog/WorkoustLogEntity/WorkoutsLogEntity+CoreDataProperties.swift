@@ -9,16 +9,28 @@ import CoreData
 import Foundation
 
 extension WorkoutsLogEntity {
+    
+    /// A unique identifier for the workout log.
     @NSManaged public var id: String
+    
+    /// A set of strength workouts associated with this workout log.
+    @NSManaged public var workoutStrength: Set<WorkoutStrengthEntity>?
+    
+    /// A set of weightlifting workouts linked to this workout log.
+    @NSManaged public var workoutWeightlifting: Set<WorkoutWeightliftingEntity>?
+    
+    /// A set of fitness workouts recorded in this workout log.
+    @NSManaged public var workoutFitness: Set<WorkoutFitnessEntity>?
+    
+    /// A set of CrossFit workouts associated with this workout log.
+    @NSManaged public var workoutCross: Set<WorkoutCrossEntity>?
+    
+    /// A set of Hero workouts included in this workout log.
+    @NSManaged public var workoutHero: Set<WorkoutHeroEntity>?
     
     // MARK: - Relations
     
+    /// The user associated with this workout log.
     @NSManaged public var user: UserEntity?
     
-    /// powizanie z poszczegolnymi typow treningu
-    @NSManaged public var workoutStrength: Set<WorkoutStrengthEntity>?
-    @NSManaged public var workoutWeightlifting: Set<WorkoutWeightliftingEntity>?
-    @NSManaged public var workoutFitness: Set<WorkoutFitnessEntity>?
-    @NSManaged public var workoutCross: Set<WorkoutCrossEntity>?
-    @NSManaged public var workoutHero: Set<WorkoutHeroEntity>?
 }

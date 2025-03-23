@@ -21,7 +21,7 @@ extension GoalsEntity {
     @NSManaged public var goalWeight: GoalWeightEntity?
     
     /// Powiązane cele dla konkretnych ćwiczeń
-    @NSManaged public var workoutGoals: Set<GoalWorkoutEntity>?
+    @NSManaged public var goalsWorkout: Set<GoalWorkoutEntity>?
     
     /// Użytkownik, do którego należą cele
     @NSManaged public var user: UserEntity?
@@ -29,3 +29,4 @@ extension GoalsEntity {
 }
 
 extension GoalsEntity: Identifiable {}
+

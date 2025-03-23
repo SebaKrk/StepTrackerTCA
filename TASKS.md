@@ -277,6 +277,11 @@
     A: SetEditGoalFeature
     B: Create costume symbol for add Target
     C: Validate the data in SetEditGoalFeature
+    D: Save data
+    E: Fetch Goal 
+        - show in PersonDataFeature -> SummaryFeature
+        - show in SummaryFeature -> ScoresFeature
+        - show in chart in MovementDetailsFeature
 
 ### IOS-00027 TASKS file 
 

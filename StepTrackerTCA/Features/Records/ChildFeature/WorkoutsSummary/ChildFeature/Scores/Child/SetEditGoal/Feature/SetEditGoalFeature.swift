@@ -109,12 +109,17 @@ struct SetEditGoalFeature {
                                    value = state.valueToAdd,
                                    unit = state.selectedUnit] send in
                         
-                        service.setNewGoal(for: workout, movement.rawValue,
-                                           date: date,
-                                           value: value,
-                                           unit: unit
-                        )
-                        await self.dismiss()
+                        do {
+                            try await service.setNewGoal(for: workout, movement.rawValue,
+                                               date: date,
+                                               value: value,
+                                               unit: unit
+                            )
+                            await self.dismiss()
+                        } catch {
+                            print("❌ Error adding new goal: \(error.localizedDescription)")
+                        }
+
                     }
                     
                 case let .selectedWeightUnitPickerChange(unit):

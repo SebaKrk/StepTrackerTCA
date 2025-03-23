@@ -48,6 +48,15 @@ extension Container {
         Factory(self) { DefaultRecordsRepository() }.shared
     }
     
+    /// A factory that provides a shared instance of the `GoalsRepository`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultGoalsRepository`.
+    /// - This ensures that the same instance of `GoalsRepository` is used for managing
+    ///   goal-related data and operations throughout the application.
+    var goalsRepository: Factory<GoalsRepository> {
+        Factory(self) { DefaultGoalsRepository() }.shared
+    }
+    
     /// A factory that provides a shared instance of the `AddMeasurementRepository`.
     ///
     /// - The factory is initialized with the default implementation, `DefaultAddMeasurementRepository`.
