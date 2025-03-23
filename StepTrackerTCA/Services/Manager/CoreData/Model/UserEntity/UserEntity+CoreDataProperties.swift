@@ -24,3 +24,4 @@ extension UserEntity {
 }
 
 extension UserEntity: Identifiable {}
+

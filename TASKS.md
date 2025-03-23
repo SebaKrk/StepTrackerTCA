@@ -277,6 +277,7 @@
     A: SetEditGoalFeature
     B: Create costume symbol for add Target
     C: Validate the data in SetEditGoalFeature
+    D: Save data
 
 ### IOS-00027 TASKS file 
 
