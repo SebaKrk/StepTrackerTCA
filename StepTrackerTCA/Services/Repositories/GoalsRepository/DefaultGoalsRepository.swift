@@ -33,13 +33,11 @@ final class DefaultGoalsRepository: GoalsRepository {
         
         try await context.perform {
             do {
-                print("🔹 setNewGoal: Start")
-                
+                // TODO: - Usunąć tworzenie/sprawdzanie user - logowanie usera
                 let user = try self.fetchUser(in: context)
-                print("✅ User fetched: \(user.id)")
                 
+                // TODO: - Przy tworzeniu/logowaniu User ma powstać z GoalsEntity
                 let goals = self.fetchOrCreateGoals(for: user, in: context)
-                print("✅ Goals entity ready for user: \(user.id)")
                 
                 let newGoal = self.createGoalEntity(
                     workoutType: workoutType,
@@ -49,13 +47,13 @@ final class DefaultGoalsRepository: GoalsRepository {
                     unit: unit,
                     in: context
                 )
-                print("✅ New Goal Created: \(newGoal.workoutType)  - \(newGoal.movement ?? "N/A")")
                 
                 self.addGoal(newGoal, to: goals)
-                print("✅ Goal added to GoalsEntity")
                 
                 try self.saveData(context: context)
             } catch {
+                
+                // TODO: - Obsługa błędów, zbiorczy Enum dla wszystkich repo
                 print("❌ Error in setNewGoal: \(error)")
                 throw error
             }
@@ -66,25 +64,20 @@ final class DefaultGoalsRepository: GoalsRepository {
     // MARK: - Methods
     
     private func fetchUser(in context: NSManagedObjectContext) throws -> UserEntity {
-        print("🔹 fetchUser: Attempting to fetch user")
         let fetchRequest: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
         fetchRequest.fetchLimit = 1
         
         guard let user = try context.fetch(fetchRequest).first else {
-            print("❌ No user found in database")
             throw NSError(domain: "WorkoutError", code: 404, userInfo: [NSLocalizedDescriptionKey: "❌ No user found in database."])
         }
-        print("✅ User found: \(user.id)")
         return user
     }
     
     /// Fetching or Creating GoalsEntity
     private func fetchOrCreateGoals(for user: UserEntity, in context: NSManagedObjectContext) -> GoalsEntity {
         if let existingGoals = user.goals {
-            print("✅ Existing GoalsEntity found for user: \(user.id)")
             return existingGoals
         } else {
-            print("🔹 No GoalsEntity found, creating new one for user: \(user.id)")
             let newGoals = GoalsEntity(context: context)
             user.goals = newGoals
             return newGoals
@@ -93,30 +86,22 @@ final class DefaultGoalsRepository: GoalsRepository {
     
     /// creating GoalWorkoutEntity
     private func createGoalEntity(workoutType: WorkoutType, movement: String, date: Date, value: String, unit: String, in context: NSManagedObjectContext) -> GoalWorkoutEntity {
-        print("🔹 Creating new GoalWorkoutEntity")
         let goal = GoalWorkoutEntity(context: context)
         goal.id = UUID().uuidString
         goal.workoutType = workoutType.rawValue
         goal.movement = movement
         goal.date = date
-        goal.value = Double(value) ?? 0.0 
-        print("✅ Goal created: \(goal.workoutType) - \(goal.movement ?? "N/A")")
+        goal.value = Double(value) ?? 0.0
         return goal
     }
     
     ///Adding Goal to GoalsEntity
     private func addGoal(_ goal: GoalWorkoutEntity, to goals: GoalsEntity) {
-        print("🔹 addGoal: Attempting to add goal to GoalsEntity")
-        
         if goals.goalsWorkout == nil {
-            print("🔸 workoutGoals is nil, initializing as an empty array.")
             goals.goalsWorkout = []
-        } else {
-            print("🔸 workoutGoals is already initialized: \(goals.goalsWorkout?.count ?? 0) items")
         }
         
-        goals.goalsWorkout?.insert(goal)  // Dodanie celu do workoutGoals
-        print("✅ Goal added: \(goal.workoutType) - \(goal.movement ?? "N/A")")
+        goals.goalsWorkout?.insert(goal)
     }
     
     
@@ -140,7 +125,6 @@ final class DefaultGoalsRepository: GoalsRepository {
     
     private func saveData(context: NSManagedObjectContext) throws {
         do {
-            print("✅ Core Data zapisane, wysyłam event")
             try context.save()
             print("💾 Changes saved in Core Data")
         } catch {
