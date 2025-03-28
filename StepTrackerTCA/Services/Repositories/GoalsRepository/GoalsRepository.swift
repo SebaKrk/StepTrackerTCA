@@ -24,4 +24,8 @@ protocol GoalsRepository {
     /// - Throws: An error if the goal cannot be saved.
     /// - Note: This method is asynchronous and must be awaited.
     func setNewGoal(for workoutType: WorkoutType, _ movement: String, date: Date, value: String, unit: String) async throws
+    
+    ///
+    func fetchAllGoals() async throws -> [WorkoutGoal]?
+    
 }
