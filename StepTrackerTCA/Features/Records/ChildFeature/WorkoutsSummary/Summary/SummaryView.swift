@@ -73,9 +73,10 @@ struct SummaryView: View {
                 
                 /// Text(summary.goal.map { "\($0) kg" } ?? "-")
                 // TODO: - zaimplementować Goal
-                Text("_")
+                Text("\(data.goals?.last?.value ?? 0.0 , format: .number)")
                     .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     .frame(width: geometry.size.width * 0.3, alignment: .center)
+                
                 Spacer(minLength: 5)
                 Text(data.sessions.last?.value ?? "brak")
                     .font(.system(size: 14, weight: .regular, design: .monospaced))

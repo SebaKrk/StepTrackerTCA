@@ -23,6 +23,29 @@ final class DefaultGoalsRepository: GoalsRepository {
     
     // MARK: - API
     
+    func fetchAllGoals() async throws -> [WorkoutGoal]? {
+        let context = backgroundContext
+        return try await context.perform {
+            let fetchRequest: NSFetchRequest<GoalWorkoutEntity> = GoalWorkoutEntity.fetchRequest()
+            
+            fetchRequest.returnsObjectsAsFaults = false
+            
+            let result = try context.fetch(fetchRequest)
+            
+            let workoutGoals = result.map { goal in
+                return WorkoutGoal(
+                    id: goal.id,
+                    workoutType: goal.workoutType,
+                    movement: goal.movement ?? "",
+                    date: goal.date,
+                    value: goal.value
+                )
+            }
+            
+            return workoutGoals
+        }
+    }
+    
     func setNewGoal(for workoutType: WorkoutType,
                     _ movement: String,
                     date: Date,

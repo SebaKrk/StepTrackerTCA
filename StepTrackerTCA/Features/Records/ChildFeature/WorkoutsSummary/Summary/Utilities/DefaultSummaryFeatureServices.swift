@@ -15,6 +15,8 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
     @LazyInjected(\.workoutStrengthRepository) private var workoutStrengthRepository
     @LazyInjected(\.weightLiftingRepository) private var weightLiftingRepository
     
+    @LazyInjected(\.goalsRepository) private var goalsRepository
+    
     // MARK: - API
     
     /// Fetches and returns a workout summary containing all recorded workout sessions.
@@ -24,7 +26,41 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
             weightLiftingRepository.fetchSessions()
         ].flatMap { $0 }
         
-        return WorkoutSummary(workouts: sessions)
+        let goals = try await goalsRepository.fetchAllGoals()
+        
+        return WorkoutSummary(workouts: sessions, goals: goals)
+    }
+    
+//    func groupWorkoutsByWorkoutType(_ summary: WorkoutSummary) -> [GroupedWorkouts] {
+//        let groupedByWorkoutType = Dictionary(grouping: summary.workouts) { workoutSession -> WorkoutType in
+//            workoutSession.workoutType
+//        }
+//        
+//        return groupedByWorkoutType.map { workoutType, workouts in
+//            let groupedMovements = groupMovementsByMovement(workouts, goals: summary.goals)
+//            
+//            return GroupedWorkouts(
+//                workoutType: workoutType,
+//                movements: groupedMovements
+//            )
+//        }
+//    }
+
+    func groupMovementsByMovement(_ workouts: [any WorkoutSession], goals: [WorkoutGoal]?) -> [GroupedMovement] {
+        let groupedByMovement = Dictionary(grouping: workouts) { workoutSession -> String in
+            workoutSession.movement.title
+        }
+        
+        return groupedByMovement.map { movementTitle, sessions in
+            let movement = sessions.first?.movement
+            let movementGoals = goals?.filter { $0.movement == movementTitle }
+            
+            return GroupedMovement(
+                movement: movement!,
+                sessions: sessions,
+                goals: movementGoals
+            )
+        }
     }
     
     /// Groups workout sessions by their workout type.
@@ -60,8 +96,8 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
                 let movementKey = session.movement.title
                 result[movementKey, default: []].append(session)
             }
-            .map { GroupedMovement(movement: $0.value.first!.movement, sessions: $0.value) }
-
+            .map { GroupedMovement(movement: $0.value.first!.movement, sessions: $0.value, goals: nil) }
+        
         return groupedMovements
     }
     
