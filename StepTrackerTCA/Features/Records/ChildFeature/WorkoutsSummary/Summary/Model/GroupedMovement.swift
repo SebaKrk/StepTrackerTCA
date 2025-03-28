@@ -29,4 +29,10 @@ struct GroupedMovement: Identifiable {
     ///
     /// This stores all sessions that belong to the same movement category.
     let sessions: [any WorkoutSession]
+    
+    /// A collection of goals associated with the movement.
+    ///
+    /// This may be nil if no goals have been set by the user.
+    let goals: [WorkoutGoal]?
+    
 }

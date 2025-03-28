@@ -31,3 +31,7 @@ struct GroupedWorkouts: Identifiable {
     /// Stores all `GroupedMovement` instances belonging to the same `WorkoutType`.
     let movements: [GroupedMovement]
 }
+
+
+///// The goal associated with the workout type.
+//let goal: WorkoutGoal?

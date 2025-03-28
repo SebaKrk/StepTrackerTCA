@@ -17,4 +17,13 @@ import Foundation
 ///   - workouts: An array containing workout sessions (`WorkoutSession`).
 struct WorkoutSummary {
     let workouts: [any WorkoutSession]
+    let goals: [WorkoutGoal]?
+}
+
+struct WorkoutGoal: Identifiable {
+    let id: String
+    let workoutType: String
+    let movement: String
+    let date: Date
+    let value: Double
 }
