@@ -25,33 +25,18 @@ final class DefaultWeightLiftingRepository: WeightLiftingRepository {
     // MARK: - API
     
     func fetchSessions() async throws -> [any WorkoutSession] {
-        let workouts = try await fetchWeightLiftingStats() ?? []
-        return workouts.map { $0 as any WorkoutSession }
+//        let workouts = try await fetchWeightLiftingStats() ?? []
+//        return workouts.map { $0 as any WorkoutSession }
+        []
     }
     
-    
-    func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting]? {
-        let context = coreDataManger.backgroundContext
-        return try await context.perform { () -> [WorkoutWeightlifting]? in
-            let fetchRequest: NSFetchRequest<WorkoutWeightliftingEntity> = WorkoutWeightliftingEntity.fetchRequest()
-            
-            let entities = try context.fetch(fetchRequest)
-            guard !entities.isEmpty else { return nil }
-            
-            return entities.compactMap { entity in
-                guard let movement = WeightliftingMovement(rawValue: entity.movement) else {
-                    print("Błąd: Nieznana wartość enum \(entity.movement)")
-                    return nil
-                }
-                
-                return WorkoutWeightlifting(
-                    id: entity.id,
-                    movement: movement,
-                    date: entity.date,
-                    value: entity.value
-                )
-            }
-        }
+    func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting] {
+        let fetchRequest = WorkoutWeightliftingEntity.fetchRequest()
+        
+        return try coreDataManger.backgroundContext
+            .fetch(fetchRequest)
+            .map { WorkoutWeightliftingMapper.mapEntity(from: $0)}
+        
     }
     
     // MARK: - Mock Data

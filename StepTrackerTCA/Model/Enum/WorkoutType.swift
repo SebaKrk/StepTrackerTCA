@@ -97,4 +97,9 @@ enum WorkoutType: String, Codable, CaseIterable, WorkoutCategory {
         case .weightlifting: return "figure.strengthtraining.traditional"
         }
     }
+
+    init?(from raw: String) {
+        self.init(rawValue: raw.lowercased())
+    }
+
 }

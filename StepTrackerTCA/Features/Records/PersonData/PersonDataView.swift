@@ -65,6 +65,16 @@ struct PersonDataView: View {
     private var workoutSummaryView: some View {
         SummaryView(store: store.scope(state: \.workoutSummary, action: \.workoutSummary))
     }
+//    @ViewBuilder
+//    private var newWorkoutSummaryView: some View {
+//        SummaryView(
+//            store: Store(initialState: SummaryFeature.State()) {
+//                SummaryFeature(service: DefaultSummaryFeatureServices())
+//            }
+//        )
+//    }
+    
+    
     
     private var addNewRecordButton: some View {
         VStack {

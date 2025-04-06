@@ -84,4 +84,8 @@ enum HeroMovement: String, Codable, MovementType {
             return "figure.weightlifting"
         }
     }
+    
+    static func from(rawValue: String) -> HeroMovement? {
+        return HeroMovement.allCases.first { $0.rawValue.caseInsensitiveCompare(rawValue) == .orderedSame }
+    }
 }

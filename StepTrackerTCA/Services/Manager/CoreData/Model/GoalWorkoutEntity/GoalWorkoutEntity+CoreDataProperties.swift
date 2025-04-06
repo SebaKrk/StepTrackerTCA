@@ -20,7 +20,7 @@ extension GoalWorkoutEntity {
     @NSManaged public var workoutType: String
     
     /// Enum: e.g. "cleanAndJerk", "snatch" (only for weightlifting)
-    @NSManaged public var movement: String?
+    @NSManaged public var movement: String
     
     ///
     @NSManaged public var date: Date

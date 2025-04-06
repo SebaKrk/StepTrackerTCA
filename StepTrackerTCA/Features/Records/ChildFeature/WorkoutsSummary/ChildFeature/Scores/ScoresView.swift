@@ -21,7 +21,7 @@ struct ScoresView: View {
         ScrollView {
             scoresBody
         }
-        .navigationTitle("\(store.selectedWorkout.workoutType.title) scores")
+        .navigationTitle("\(store.selectedWorkoutType.rawValue) scores")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             toolbarButton
@@ -57,13 +57,14 @@ struct ScoresView: View {
         }
     }
     
+    @ViewBuilder
     private var scoresBody: some View {
-        ForEach(store.selectedWorkout.movements, id: \.id) { movement in
-            scoresMovementWidget(movement)
+        ForEach(store.filteredMovements) { filteredMovement in
+            scoresMovementWidget(filteredMovement)
         }
     }
     
-    private func scoresMovementWidget(_ data: GroupedMovement) -> some View {
+    private func scoresMovementWidget(_ data: ScoresFeature.FilteredMovement) -> some View {
         GroupBox {
             VStack {
                 buildScoreStack(data)
@@ -73,38 +74,37 @@ struct ScoresView: View {
             .frame(minHeight: 100)
         } label: {
             VStack {
-                containerHeaderView(data)
+                containerHeaderView(data.movement)
                 Divider()
             }
         }
     }
     
-    private func containerHeaderView(_ data: GroupedMovement)  -> some View {
+    private func containerHeaderView(_ movement: String)  -> some View {
         HStack {
             Group {
-                groupBoxHeaderTitle(data.movement.title)
+                groupBoxHeaderTitle(movement)
                 Spacer()
-                containerNavigationButton(data.movement, data.sessions)
+                containerNavigationButton(movement)
             }
             .foregroundStyle(.green)
         }
-        
     }
     
     private func groupBoxHeaderTitle(_ title: String) -> some View {
         Text(title)
             .font(.title3.bold())
     }
-    
-    private func containerNavigationButton(_ movement: any MovementType, _ sessions: [any WorkoutSession]) -> some View {
+
+    private func containerNavigationButton(_ movement: String) -> some View {
         Button {
-            send(.openMovementDetails(movement, sessions))
+            send(.openMovementDetails(movement))
         } label: {
             Image(systemName: "chevron.right")
         }
     }
     
-    private func infoButton(_ movement: any MovementType) -> some View {
+    private func infoButton(_ movement: String) -> some View {
         HStack {
             Spacer()
             Button {
@@ -118,15 +118,23 @@ struct ScoresView: View {
     }
     
     @ViewBuilder
-    private func buildScoreStack(_ data: GroupedMovement) -> some View {
-        VStack {
-            createCellScoreView("calendar", "Last", data.sessions.last?.value, data.sessions.last?.date)
-            createCellScoreView("target", "Target", nil, nil)
-            createCellScoreView("trophy", "Best", store.bestResult?.value, store.bestResult?.date)
+    private func buildScoreStack(_ data: ScoresFeature.FilteredMovement) -> some View {
+        VStack(spacing: 8) {
+            ForEach(buildScoreItems(from: data), id: \.title) { item in
+                createCellScoreView(item.icon, item.title, item.value, item.date)
+            }
         }
     }
+
+    private func buildScoreItems(from data: ScoresFeature.FilteredMovement) -> [ScoreItem] {
+        [
+            ScoreItem(icon: "calendar", title: "Last", value: data.last?.value, date: data.last?.date),
+            ScoreItem(icon: "target", title: "Target", value: data.goal?.value, date: data.goal?.date),
+            ScoreItem(icon: "trophy", title: "Best", value: data.best?.value, date: data.best?.date)
+        ]
+    }
     
-    private func createCellScoreView(_ image: String, _ title: String, _ value: String?, _ date: Date?) -> some View {
+    private func createCellScoreView(_ image: String, _ title: String, _ value: Double?, _ date: Date?) -> some View {
         GeometryReader { geometry in
             VStack {
                 HStack {
@@ -140,7 +148,7 @@ struct ScoresView: View {
                     
                     Group {
                         if let value = value {
-                            Text("\(value) kg")
+                            Text("\(value, format: .number) kg")
                                 .foregroundStyle(.green)
                         } else {
                             Text("brak")
@@ -164,6 +172,22 @@ struct ScoresView: View {
             }
         }
         .frame(height: 30)
+    }
+    
+    /// A structure used specifically for the `ScoresView`.
+    /// Represents a single score item containing relevant details for display.
+    struct ScoreItem {
+        /// The icon name representing the score item (e.g., "calendar", "target", "trophy").
+        let icon: String
+        
+        /// The title describing the score item (e.g., "Last", "Target", "Best").
+        let title: String
+        
+        /// The value associated with the score item, if available.
+        let value: Double?
+        
+        /// The date associated with the score item, if available.
+        let date: Date?
     }
     
 }

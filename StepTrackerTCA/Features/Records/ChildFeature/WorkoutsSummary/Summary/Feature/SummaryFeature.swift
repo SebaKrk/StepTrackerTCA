@@ -5,7 +5,6 @@
 //  Created by Sebastian Sciuba on 14/03/2025.
 //
 
-
 import ComposableArchitecture
 import Foundation
 
@@ -27,25 +26,29 @@ struct SummaryFeature {
     var body: some Reducer<State, Action> {
         Reduce { state,action in
             switch action {
-                // MARK: - Action
                 
             case .getData:
                 return .run { send in
                     do {
-                        let data = try await services.fetchWorkoutSummary()
-                        await send(.updateData(data))
+                        let summary = try await services.fetchWorkoutSummary()
+                        await send(.updateData(summary))
                     } catch {
-                        // TODO: - obsługa błędów
-                        print("Error fetching workout strength data: \(error)")
+                        print("Error fetching workout data: \(error)")
                     }
                 }
                 
-            case let .updateData(data):
-                state.data = data
-                state.groupedWorkouts = services.groupWorkoutsByWorkoutType(data)
-                return .none
+            case let .updateData(summary):
+                state.summary = summary
+                return .run { send in
+                    await send(.groupedData(summary))
+                }
+
+            case let .groupedData(summary):
+                let grouped = services.groupSummaryData(summary)
                 
-                // MARK: - View Action
+                state.groupedMovements = services.processGroupedMovements(grouped)
+                
+                return .none
                 
             case .view(.viewDidAppear):
                 return .run { send in
@@ -53,14 +56,10 @@ struct SummaryFeature {
                 }
                 
             case let .view(.navigationButtonTapped(workoutType)):
-                if let selectedWorkout = state.groupedWorkouts?.first(where: { $0.workoutType == workoutType }) {
-                    state.destination = .open(ScoresFeature.State(selectedWorkout: selectedWorkout))
-                } else {
-                    print("No matching wxorkout found for \(workoutType.title)")
-                }
+                state.destination = .open(ScoresFeature.State(selectedWorkoutType: workoutType))
                 return .none
                 
-                // MARK: - Destinationw
+                // MARK: - Destination
 
             case .destination:
                 return .none

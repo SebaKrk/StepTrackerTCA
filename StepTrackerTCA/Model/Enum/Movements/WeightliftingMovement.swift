@@ -1,4 +1,3 @@
-//
 //  WeightLiftingExercise.swift
 //  StepTrackerTCA
 //
@@ -92,5 +91,9 @@ enum WeightliftingMovement: String, Codable, MovementType {
         case .splitJerk:
             return "A variation of the jerk where the lifter moves one foot forward and the other back to stabilize the bar overhead. It enhances balance and control during the lift."
         }
+    }
+    
+    static func from(rawValue: String) -> WeightliftingMovement? {
+        return WeightliftingMovement.allCases.first { $0.rawValue.caseInsensitiveCompare(rawValue) == .orderedSame }
     }
 }
