@@ -98,6 +98,14 @@ extension Container {
         Factory(self) { DefaultWorkoutCrossRepository() }
     }
     
+    /// A factory that provides an instance of the `WorkoutHeroWodRepository`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultWorkoutHeroWodRepository`.
+    /// - Use this repository to handle operations related to WorkoutCross data.
+    var workoutHeroWodRepository: Factory<WorkoutHeroWodRepository> {
+        Factory(self) { DefaultWorkoutHeroWodRepository() }
+    }
+    
     /// A factory that provides a singleton instance of the `CoreDataManager`.
     ///
     /// - The factory is initialized with a new instance of `CoreDataManager`.
