@@ -1,16 +1,16 @@
 //
-//  DefaultWorkoutStrengthRepository.swift
+//  DefaultWorkoutCrossRepository.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 07/03/2025.
+//  Created by Sebastian Sciuba on 06/04/2025.
 //
 
 import CoreData
 import Foundation
 import Factory
 
-/// The default implementation of the `WorkoutStrengthRepository` protocol,
-final class DefaultWorkoutStrengthRepository: WorkoutStrengthRepository {
+/// The default implementation of the `WorkoutCrossRepository` protocol,
+final class DefaultWorkoutCrossRepository: WorkoutCrossRepository {
     
     // MARK: - Dependencies
     
@@ -24,13 +24,12 @@ final class DefaultWorkoutStrengthRepository: WorkoutStrengthRepository {
     
     // MARK: - API
     
-    func fetchWorkoutStrengthSummary() async throws -> [WorkoutStrength] {
-        let fetchRequest = WorkoutStrengthEntity.fetchRequest()
+    func fetchWorkoutCrossSummary() async throws -> [WorkoutCross] {
+        let fetchRequest = WorkoutCrossEntity.fetchRequest()
         
         return try coreDataManger.backgroundContext
             .fetch(fetchRequest)
-            .map { WorkoutStrengthMapper.mapEntity(from: $0)}
+            .map { WorkoutCrossMapper.mapEntity(from: $0)}
     }
     
 }
-

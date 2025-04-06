@@ -216,16 +216,22 @@ struct AddMeasurementView: View {
             }
         }
         .pickerStyle(.segmented)
-        .frame(width: 75)
+        .frame(width: 125)
     }
     
     var timePicker: some View {
-        HStack {
-            Text("Time score")
-            Spacer()
-            DurationPicker(duration: $store.timeInterval)
-                .foregroundStyle(.secondary)
-                .frame(width: 160, alignment: .trailing)
+        VStack {
+            HStack {
+                Text("Time score")
+                    .frame(alignment: .leading)
+                Spacer()
+            }
+            HStack {
+                Spacer()
+                DurationPicker(duration: $store.timeInterval)
+                    .foregroundStyle(.secondary)
+                    .frame(alignment: .trailing)
+            }
         }
     }
     

@@ -24,12 +24,6 @@ final class DefaultWeightLiftingRepository: WeightLiftingRepository {
     
     // MARK: - API
     
-    func fetchSessions() async throws -> [any WorkoutSession] {
-//        let workouts = try await fetchWeightLiftingStats() ?? []
-//        return workouts.map { $0 as any WorkoutSession }
-        []
-    }
-    
     func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting] {
         let fetchRequest = WorkoutWeightliftingEntity.fetchRequest()
         

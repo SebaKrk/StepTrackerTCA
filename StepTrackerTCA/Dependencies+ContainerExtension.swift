@@ -74,13 +74,36 @@ extension Container {
         Factory(self) { DefaultWeightLiftingRepository() }
     }
     
-    
     /// A factory that provides an instance of the `WorkoutStrengthRepository`.
     ///
     /// - The factory is initialized with the default implementation, `DefaultWorkoutStrengthRepository`.
     /// - Use this repository to handle operations related to WorkoutStrength data.
     var workoutStrengthRepository: Factory<WorkoutStrengthRepository> {
         Factory(self) { DefaultWorkoutStrengthRepository() }
+    }
+    
+    /// A factory that provides an instance of the `WorkoutStrengthRepository`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultWorkoutFitnessRepository`.
+    /// - Use this repository to handle operations related to WorkoutFitness data.
+    var workoutFitnessRepository: Factory<WorkoutFitnessRepository> {
+        Factory(self) { DefaultWorkoutFitnessRepository() }
+    }
+    
+    /// A factory that provides an instance of the `WorkoutCrossRepository`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultWorkoutCrossRepository`.
+    /// - Use this repository to handle operations related to WorkoutCross data.
+    var workoutCrossRepository: Factory<WorkoutCrossRepository> {
+        Factory(self) { DefaultWorkoutCrossRepository() }
+    }
+    
+    /// A factory that provides an instance of the `WorkoutHeroWodRepository`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultWorkoutHeroWodRepository`.
+    /// - Use this repository to handle operations related to WorkoutCross data.
+    var workoutHeroWodRepository: Factory<WorkoutHeroWodRepository> {
+        Factory(self) { DefaultWorkoutHeroWodRepository() }
     }
     
     /// A factory that provides a singleton instance of the `CoreDataManager`.

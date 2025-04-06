@@ -68,7 +68,7 @@ struct SummaryView: View {
                 Text(movement.movement)
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .frame(width: geometry.size.width * 0.4, alignment: .leading)
-            
+                
                 Group {
                     if let goal = store.summary?.goals.first(where: { $0.movement == movement.movement }) {
                         Text("\(goal.value, format: .number)")
@@ -81,12 +81,29 @@ struct SummaryView: View {
                 
                 Spacer(minLength: 5)
                 
-                Text("\(movement.value, format: .number)")
+                Text(formatValue(movement.value, for: movement.workoutType))
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .frame(width: geometry.size.width * 0.28, alignment: .trailing)
             }
         }
         .frame(height: 20)
+    }
+
+    private func formatValue(_ value: Double, for workoutType: WorkoutType) -> String {
+        switch workoutType {
+        case .hero, .fitness:
+            let timeInterval = value
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = timeInterval >= 3600 ? [.hour, .minute, .second] : [.minute, .second]
+            formatter.unitsStyle = .positional
+            formatter.zeroFormattingBehavior = .pad
+            return formatter.string(from: timeInterval) ?? "Invalid Time"
+            
+        case .weightlifting, .strength:
+            return String(format: "%.0f kg", value)
+        case .cross:
+            return String(format: "%.0f reps", value)
+        }
     }
     
     private func summaryTitleHeader(_ title: String, _ icon: String,
