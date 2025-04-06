@@ -99,8 +99,10 @@ struct SummaryView: View {
             formatter.zeroFormattingBehavior = .pad
             return formatter.string(from: timeInterval) ?? "Invalid Time"
             
-        case .weightlifting, .strength, .cross:
-            return String(format: "%.2f", value)
+        case .weightlifting, .strength:
+            return String(format: "%.0f kg", value)
+        case .cross:
+            return String(format: "%.0f reps", value)
         }
     }
     

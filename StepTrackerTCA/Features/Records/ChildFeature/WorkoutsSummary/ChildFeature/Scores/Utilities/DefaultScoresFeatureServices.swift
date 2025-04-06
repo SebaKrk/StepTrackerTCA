@@ -16,6 +16,7 @@ final class DefaultScoresFeatureServices: ScoresFeatureServices {
     @LazyInjected(\.workoutStrengthRepository) private var workoutStrengthRepository
     @LazyInjected(\.weightLiftingRepository) private var weightLiftingRepository
     @LazyInjected(\.workoutFitnessRepository) private var workoutFitnessRepository
+    @LazyInjected(\.workoutCrossRepository) private var workoutCrossRepository
     
     @LazyInjected(\.goalsRepository) private var goalsRepository
     
@@ -38,7 +39,12 @@ final class DefaultScoresFeatureServices: ScoresFeatureServices {
         case .fitness:
             let fitness = try await workoutFitnessRepository.fetchWorkoutFitnessSummary()
             measurements = fitness.map { mapToMeasurement($0, type: .fitness) }
-        case .cross, .hero:
+            
+        case .cross:
+            let cross = try await workoutCrossRepository.fetchWorkoutCrossSummary()
+            measurements = cross.map { mapToMeasurement($0, type: .cross) }
+            
+        case .hero:
             break
         }
         

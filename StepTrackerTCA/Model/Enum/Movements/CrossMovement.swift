@@ -15,22 +15,22 @@ import Foundation
 enum CrossMovement: String, Codable, MovementType {
     
     /// Pull-Ups - Measures upper-body endurance and grip strength.
-    case pullUps
+    case pullUps = "PullUps"
     
     /// Push-Ups - A benchmark for upper-body strength and endurance.
-    case pushUps
+    case pushUps = "PushUps"
     
     /// Burpees - A full-body endurance challenge.
-    case burpees
+    case burpees = "Burpees"
     
     /// Air Squats - A lower-body endurance and mobility test.
-    case airSquats
+    case airSquats = "AirSquats"
     
     /// Double-Unders - A test of coordination and cardiovascular endurance.
-    case doubleUnders
+    case doubleUnders = "DoubleUnders"
     
     /// Box Jumps - A benchmark for lower-body power and explosiveness.
-    case boxJumps
+    case boxJumps = "BoxJumps"
 
     /// A user-friendly title for each cross-training goal.
     ///
