@@ -121,7 +121,7 @@ struct ScoresView: View {
     private func buildScoreStack(_ data: ScoresFeature.FilteredMovement) -> some View {
         VStack(spacing: 8) {
             ForEach(buildScoreItems(from: data), id: \.title) { item in
-                createCellScoreView(item.icon, item.title, item.value, item.date)
+                createCellScoreView(item.icon, item.title, item.value, item.date, workoutType: data.best!.workoutType)
             }
         }
     }
@@ -134,7 +134,13 @@ struct ScoresView: View {
         ]
     }
     
-    private func createCellScoreView(_ image: String, _ title: String, _ value: Double?, _ date: Date?) -> some View {
+    private func createCellScoreView(
+        _ image: String,
+        _ title: String,
+        _ value: Double?,
+        _ date: Date?,
+        workoutType: WorkoutType
+    ) -> some View {
         GeometryReader { geometry in
             VStack {
                 HStack {
@@ -148,7 +154,7 @@ struct ScoresView: View {
                     
                     Group {
                         if let value = value {
-                            Text("\(value, format: .number) kg")
+                            Text(formatValue(value, for: workoutType))
                                 .foregroundStyle(.green)
                         } else {
                             Text("brak")
@@ -172,6 +178,24 @@ struct ScoresView: View {
             }
         }
         .frame(height: 30)
+    }
+
+    private func formatValue(_ value: Double, for workoutType: WorkoutType) -> String {
+        switch workoutType {
+        case .weightlifting, .strength:
+            return String(format: "%.2f kg", value)
+            
+        case .hero, .fitness:
+            let timeInterval = value
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = timeInterval >= 3600 ? [.hour, .minute, .second] : [.minute, .second]
+            formatter.unitsStyle = .positional
+            formatter.zeroFormattingBehavior = .pad
+            return formatter.string(from: timeInterval) ?? "Invalid Time"
+            
+        case .cross:
+            return String(format: "%.0f reps", value)
+        }
     }
     
     /// A structure used specifically for the `ScoresView`.

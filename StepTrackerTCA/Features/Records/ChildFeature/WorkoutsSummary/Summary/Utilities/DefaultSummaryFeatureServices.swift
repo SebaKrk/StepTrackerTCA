@@ -14,6 +14,7 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
     
     @LazyInjected(\.workoutStrengthRepository) private var workoutStrengthRepository
     @LazyInjected(\.weightLiftingRepository) private var weightLiftingRepository
+    @LazyInjected(\.workoutFitnessRepository) private var workoutFitnessRepository
     
     @LazyInjected(\.goalsRepository) private var goalsRepository
     
@@ -23,13 +24,15 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
     func fetchWorkoutSummary() async throws -> Summary {
         let strength: [WorkoutStrength] = try await workoutStrengthRepository.fetchWorkoutStrengthSummary()
         let weightLifting: [WorkoutWeightlifting] = try await weightLiftingRepository.fetchWeightLiftingStats()
+        let fitness: [WorkoutFitness] = try await workoutFitnessRepository.fetchWorkoutFitnessSummary()
         
         let goals: [WorkoutGoal] = try await goalsRepository.fetchAllGoals()
 
         let strengthMeasurements = strength.map { mapToMeasurement($0, type: .strength) }
         let weightLiftingMeasurements = weightLifting.map { mapToMeasurement($0, type: .weightlifting) }
+        let fitnessMeasurements = fitness.map { mapToMeasurement($0, type: .fitness) }
 
-        let allMeasurements = strengthMeasurements + weightLiftingMeasurements
+        let allMeasurements = strengthMeasurements + weightLiftingMeasurements + fitnessMeasurements
 
         return Summary(measurements: allMeasurements, goals: goals)
     }

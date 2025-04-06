@@ -27,7 +27,5 @@ protocol WeightLiftingRepository {
     /// This method is useful for populating UI previews or running tests without relying
     /// on real data sources.
     func getDummyData() async -> (dummyData: [WeightLiftingMeasurement], goalHistory: [WeightLiftingGoalHistory])
-    
-    func fetchSessions() async throws -> [any WorkoutSession] 
  
 }

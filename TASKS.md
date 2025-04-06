@@ -285,6 +285,9 @@
 
 ### IOS-00027 TASKS file 
 
+### IOS-00028 Workout Fitness Repository
+    A: Create model/mapper/repository Fitness
+
 
 ## TODO: BUGS
     A: weightUnit nie jest zapisywane w obiekcie Core Data
