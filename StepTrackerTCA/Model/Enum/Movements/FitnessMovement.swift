@@ -14,22 +14,22 @@ import Foundation
 enum FitnessMovement: String, Codable, MovementType {
     
     /// Running 5 km - A common distance goal for beginner and intermediate runners.
-    case run5km
+    case run5km = "Run5km"
     
     /// Running 15 km - A long-distance endurance challenge for experienced runners.
-    case run15km
+    case run15km = "Run15km"
     
     /// Sprinting 400 m - A short-distance high-intensity running goal.
-    case sprint400m
+    case sprint400m = "Sprint400m"
     
     /// Swimming 1 km - A standard training distance for swimming endurance.
-    case swim1km
+    case swim1km = "Swim1km"
     
     /// Cycling 20 km - A moderate endurance distance for beginner and intermediate cyclists.
-    case ride20km
+    case ride20km = "Ride20km"
     
     /// Rowing 2 km - A classic benchmark test for rowing endurance and power output.
-    case row2km
+    case row2km = "Row2km"
 
     /// A user-friendly title for each fitness movement.
     ///
@@ -96,4 +96,5 @@ enum FitnessMovement: String, Codable, MovementType {
     static func from(rawValue: String) -> FitnessMovement? {
         return FitnessMovement.allCases.first { $0.rawValue.caseInsensitiveCompare(rawValue) == .orderedSame }
     }
+    
 }

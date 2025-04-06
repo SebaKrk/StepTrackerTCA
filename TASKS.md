@@ -285,8 +285,9 @@
 
 ### IOS-00027 TASKS file 
 
-### IOS-00028 Workout Fitness Repository
+### IOS-00028 Add next Repository
     A: Create model/mapper/repository Fitness
+    B: Create model/mapper/repository Cross
 
 
 ## TODO: BUGS

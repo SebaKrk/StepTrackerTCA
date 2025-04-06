@@ -15,19 +15,19 @@ import Foundation
 enum HeroMovement: String, Codable, MovementType {
     
     /// Chad 1000x - 1000 box step-ups for time.
-    case chad1000x
+    case chad1000x = "Chad1000x"
     
     /// Fran - 21-15-9 reps of thrusters and pull-ups for time.
-    case fran
+    case fran = "Fran"
     
     /// Helen - 3 rounds of a 400m run, kettlebell swings, and pull-ups for time.
-    case helen
+    case helen = "Helen"
     
     /// Murphy - 1-mile run, 100 pull-ups, 200 push-ups, 300 squats, 1-mile run for time.
-    case murphy
+    case murphy = "Murphy"
     
     /// Grace - 30 clean and jerks for time.
-    case grace
+    case grace = "Grace"
 
     /// A user-friendly title for each Hero workout.
     ///

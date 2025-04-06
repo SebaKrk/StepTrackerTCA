@@ -90,6 +90,14 @@ extension Container {
         Factory(self) { DefaultWorkoutFitnessRepository() }
     }
     
+    /// A factory that provides an instance of the `WorkoutCrossRepository`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultWorkoutCrossRepository`.
+    /// - Use this repository to handle operations related to WorkoutCross data.
+    var workoutCrossRepository: Factory<WorkoutCrossRepository> {
+        Factory(self) { DefaultWorkoutCrossRepository() }
+    }
+    
     /// A factory that provides a singleton instance of the `CoreDataManager`.
     ///
     /// - The factory is initialized with a new instance of `CoreDataManager`.
