@@ -49,7 +49,7 @@ extension SetEditGoalFeature {
         /// Validates the measurement inputs.
         case validate
         
-        //
+        /// This action is responsible for adding a value.
         case addValue
         
         /// Presents an alert in the view.

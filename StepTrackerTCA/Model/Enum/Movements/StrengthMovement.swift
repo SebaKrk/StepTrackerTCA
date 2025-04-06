@@ -92,4 +92,8 @@ enum StrengthMovement: String, Codable, MovementType {
             return "figure.bench.press"
         }
     }
+    
+    static func from(rawValue: String) -> StrengthMovement? {
+        return StrengthMovement.allCases.first { $0.rawValue.caseInsensitiveCompare(rawValue) == .orderedSame }
+    }
 }

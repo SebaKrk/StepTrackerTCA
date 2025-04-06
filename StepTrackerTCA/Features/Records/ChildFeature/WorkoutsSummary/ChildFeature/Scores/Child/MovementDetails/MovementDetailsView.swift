@@ -24,7 +24,7 @@ struct MovementDetailsView: View {
                 .padding()
                 .frame(height: 350)
         }
-        .navigationTitle("\(store.movement.title) details")
+        .navigationTitle("\(store.movement) details")
         .onAppear {
             send(.viewDidAppear)
         }
@@ -40,28 +40,34 @@ struct MovementDetailsView: View {
     
     @ViewBuilder
     private var chartView: some View {
-        if store.sessions.isEmpty {
-            ChartContentUnavailable()
+        if let filteredMovement = store.filteredMovement, !filteredMovement.movements.isEmpty {
+            createChartView(filteredMovement)
         } else {
-            createChartView(store.sessions)
+            ChartContentUnavailable()
         }
     }
     
     private var headerTitle: some View {
-        ChartGroupBoxHeader(title: store.movement.title,
-                            systemImage: store.movement.icon,
+        ChartGroupBoxHeader(title: store.movement,
+                            systemImage: store.movement,
                             color: .green, destination: false)
     }
     
-    private func createChartView(_ sessions: [any WorkoutSession]) -> some View {
+    private func createChartView(_ movements: GroupedMovement) -> some View {
         Chart {
-            /// Jeśli pierwszy obiekt ma wartość, spróbuj przekonwertować na Double
-            if let goal = sessions.first?.value {
+            if !store.goalIntervals.isEmpty {
+                ForEach(store.goalIntervals, id: \.start) { interval in
+                    createGoalRuleMarkIntervals(start: interval.start, end: interval.end, value: interval.value)
+                }
+            }
+            else if let goal = movements.goals?.first?.value {
                 createGoalRuleMark(goal)
             }
-            ForEach(sessions, id: \.id) { data in
-                createPointMark(with: data)
+            
+            ForEach(movements.movements, id: \.id) { item in
+                createPointMark(with: item)
             }
         }
     }
+    
 }

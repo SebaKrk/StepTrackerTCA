@@ -93,4 +93,8 @@ enum CrossMovement: String, Codable, MovementType {
             return "Measure explosive lower-body strength by completing as many box jumps as possible in 1 minute."
         }
     }
+    
+    static func from(rawValue: String) -> CrossMovement? {
+        return CrossMovement.allCases.first { $0.rawValue.caseInsensitiveCompare(rawValue) == .orderedSame }
+    }
 }

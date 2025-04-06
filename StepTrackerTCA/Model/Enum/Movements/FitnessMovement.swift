@@ -92,4 +92,8 @@ enum FitnessMovement: String, Codable, MovementType {
             return "figure.rower"
         }
     }
+    
+    static func from(rawValue: String) -> FitnessMovement? {
+        return FitnessMovement.allCases.first { $0.rawValue.caseInsensitiveCompare(rawValue) == .orderedSame }
+    }
 }

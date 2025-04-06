@@ -16,13 +16,16 @@ extension SummaryFeature {
     enum Action: ViewAction {
         // MARK: - Actions
         
-        /// Fetches workout data asynchronously.
+        /// Fetches workout data.
         case getData
         
-        /// Updates the state with a new `WorkoutSummary`.
-        ///
-        /// - Parameter summary: The new workout summary data to be stored.
-        case updateData(WorkoutSummary)
+        /// Updates the state with the provided summary data.
+        /// - Parameter summary: The `Summary` object containing the updated workout data.
+        case updateData(Summary)
+        
+        /// Groups the provided summary data for display or further processing.
+        /// - Parameter summary: The `Summary` object containing raw workout data to be grouped.
+        case groupedData(Summary)
         
         // MARK: - View Actions
         
@@ -37,7 +40,7 @@ extension SummaryFeature {
             
             /// Triggered when a navigation button is tapped.
             case navigationButtonTapped(WorkoutType)
-
+            
         }
         
         // MARK: - Destination

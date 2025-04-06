@@ -9,7 +9,7 @@ import Factory
 import Foundation
 
 final class DefaultSummaryFeatureServices: SummaryFeatureServices {
-    
+
     // MARK: - Dependencies
     
     @LazyInjected(\.workoutStrengthRepository) private var workoutStrengthRepository
@@ -19,86 +19,71 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
     
     // MARK: - API
     
-    /// Fetches and returns a workout summary containing all recorded workout sessions.
-    func fetchWorkoutSummary() async throws -> WorkoutSummary {
-        let sessions = try await [
-            workoutStrengthRepository.fetchSessions(),
-            weightLiftingRepository.fetchSessions()
-        ].flatMap { $0 }
+    /// Retrieves a workout summary.
+    func fetchWorkoutSummary() async throws -> Summary {
+        let strength: [WorkoutStrength] = try await workoutStrengthRepository.fetchWorkoutStrengthSummary()
+        let weightLifting: [WorkoutWeightlifting] = try await weightLiftingRepository.fetchWeightLiftingStats()
         
-        let goals = try await goalsRepository.fetchAllGoals()
-        
-        return WorkoutSummary(workouts: sessions, goals: goals)
+        let goals: [WorkoutGoal] = try await goalsRepository.fetchAllGoals()
+
+        let strengthMeasurements = strength.map { mapToMeasurement($0, type: .strength) }
+        let weightLiftingMeasurements = weightLifting.map { mapToMeasurement($0, type: .weightlifting) }
+
+        let allMeasurements = strengthMeasurements + weightLiftingMeasurements
+
+        return Summary(measurements: allMeasurements, goals: goals)
     }
     
-//    func groupWorkoutsByWorkoutType(_ summary: WorkoutSummary) -> [GroupedWorkouts] {
-//        let groupedByWorkoutType = Dictionary(grouping: summary.workouts) { workoutSession -> WorkoutType in
-//            workoutSession.workoutType
-//        }
-//        
-//        return groupedByWorkoutType.map { workoutType, workouts in
-//            let groupedMovements = groupMovementsByMovement(workouts, goals: summary.goals)
-//            
-//            return GroupedWorkouts(
-//                workoutType: workoutType,
-//                movements: groupedMovements
-//            )
-//        }
-//    }
-
-    func groupMovementsByMovement(_ workouts: [any WorkoutSession], goals: [WorkoutGoal]?) -> [GroupedMovement] {
-        let groupedByMovement = Dictionary(grouping: workouts) { workoutSession -> String in
-            workoutSession.movement.title
-        }
-        
-        return groupedByMovement.map { movementTitle, sessions in
-            let movement = sessions.first?.movement
-            let movementGoals = goals?.filter { $0.movement == movementTitle }
-            
+    /// Groups the given workout summary data into categorized movements.
+    func groupSummaryData(_ summary: Summary) -> [GroupedMovement] {
+        return WorkoutType.allCases.compactMap { type -> GroupedMovement? in
+            let filteredMeasurements = summary.measurements.filter { $0.workoutType == type }
+            guard !filteredMeasurements.isEmpty else { return nil }
+            let filteredGoals = summary.goals.filter { $0.workoutType == type.rawValue }
             return GroupedMovement(
-                movement: movement!,
-                sessions: sessions,
-                goals: movementGoals
+                workoutType: type,
+                movements: filteredMeasurements,
+                goals: filteredGoals
             )
         }
     }
     
-    /// Groups workout sessions by their workout type.
-    func groupWorkoutsByWorkoutType(_ summary: WorkoutSummary) -> [GroupedWorkouts] {
-        let groupedByType = groupSessionsByWorkoutType(summary)
-        
-        return groupedByType.map { (workoutType, sessions) in
-            let groupedMovements = groupMovementsBySession(sessions)
-            return GroupedWorkouts(workoutType: workoutType, movements: groupedMovements)
+    /// Processes the grouped movements to group them by movement, preserving all measurements.
+    func processGroupedMovements(_ grouped: [GroupedMovement]) -> [GroupedMovement] {
+        return grouped.map { group in
+            let groupedMovements = groupByMovement(from: group)
+            return GroupedMovement(
+                workoutType: group.workoutType,
+                movements: groupedMovements,
+                goals: group.goals
+            )
         }
     }
     
-    // MARK: - Private methods
-    
-    /// Groups workout sessions by their workout type.
-    ///
-    /// - Parameter summary: A `WorkoutSummary` containing workout sessions.
-    /// - Returns: A dictionary where the key is `WorkoutType` and the value is an array of workout sessions.
-    private func groupSessionsByWorkoutType(_ summary: WorkoutSummary) -> [WorkoutType: [any WorkoutSession]] {
-        summary.workouts
-            .reduce(into: [WorkoutType: [any WorkoutSession]]()) { result, session in
-                result[session.workoutType, default: []].append(session)
+    func groupByMovement(from data: GroupedMovement) -> [WorkoutMeasurement] {
+        var latestMovements: [WorkoutMeasurement] = []
+
+        data.movements.forEach { measurement in
+            if let index = latestMovements.firstIndex(where: { $0.movement == measurement.movement }) {
+                if measurement.date > latestMovements[index].date {
+                    latestMovements[index] = measurement
+                }
+            } else {
+                latestMovements.append(measurement)
             }
+        }
+        
+        return latestMovements
     }
     
-    /// Groups movements by their session.
-    ///
-    /// - Parameter sessions: An array of workout sessions.
-    /// - Returns: An array of `GroupedMovement`, where movements are grouped by their title.
-    private func groupMovementsBySession(_ sessions: [any WorkoutSession]) -> [GroupedMovement] {
-        let groupedMovements = sessions
-            .reduce(into: [String: [any WorkoutSession]]()) { result, session in
-                let movementKey = session.movement.title
-                result[movementKey, default: []].append(session)
-            }
-            .map { GroupedMovement(movement: $0.value.first!.movement, sessions: $0.value, goals: nil) }
-        
-        return groupedMovements
+    private func mapToMeasurement<T: WorkoutSession>(_ item: T, type: WorkoutType) -> WorkoutMeasurement {
+        WorkoutMeasurement(
+            id: item.id,
+            workoutType: type,
+            movement: item.movement,
+            date: item.date,
+            value: Double(item.value) ?? 0
+        )
     }
     
 }

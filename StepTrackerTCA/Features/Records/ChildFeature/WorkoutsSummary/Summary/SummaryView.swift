@@ -30,28 +30,26 @@ struct SummaryView: View {
                 action: \.destination.open)) { store in
                     ScoresView(store: store)
                 }
-        
     }
-    
-    // MARK: - SubView
     
     @ViewBuilder
     private var summaryBody: some View {
-        if let data = store.groupedWorkouts {
-            ForEach(data) { item in
-                summaryWorkoutTypeWidget(item)
+        if let _ = store.summary, !store.groupedMovements.isEmpty {
+            ForEach(store.groupedMovements) { data in
+                summaryWorkoutTypeWidget(data)
             }
         } else {
             unavailableView
         }
     }
     
-    private func summaryWorkoutTypeWidget(_ data: GroupedWorkouts) -> some View {
+    private func summaryWorkoutTypeWidget(_ data: GroupedMovement) -> some View {
         GroupBox {
             VStack {
                 titleContainerView
                 Divider()
                 Spacer().frame(height: 10)
+            
                 ForEach(data.movements) { movement in
                     summaryByGroupedMovement(movement)
                     Divider()
@@ -59,41 +57,45 @@ struct SummaryView: View {
                 Spacer()
             }
         } label: {
-            summaryTitleHeader(data.workoutType.title, data.workoutType.icon, workoutType: data.workoutType)
+            summaryTitleHeader(data.workoutType.title, data.workoutType.icon, movement: data)
         }
         .frame(minHeight: 200)
     }
-
-    private func summaryByGroupedMovement(_ data: GroupedMovement) -> some View {
+    
+    private func summaryByGroupedMovement(_ movement: WorkoutMeasurement) -> some View {
         GeometryReader { geometry in
             HStack {
-                Text(data.movement.title)
+                Text(movement.movement)
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .frame(width: geometry.size.width * 0.4, alignment: .leading)
-                
-                /// Text(summary.goal.map { "\($0) kg" } ?? "-")
-                // TODO: - zaimplementować Goal
-                Text("\(data.goals?.last?.value ?? 0.0 , format: .number)")
-                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
-                    .frame(width: geometry.size.width * 0.3, alignment: .center)
+            
+                Group {
+                    if let goal = store.summary?.goals.first(where: { $0.movement == movement.movement }) {
+                        Text("\(goal.value, format: .number)")
+                    } else {
+                        Text("-")
+                    }
+                }
+                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                .frame(width: geometry.size.width * 0.3, alignment: .center)
                 
                 Spacer(minLength: 5)
-                Text(data.sessions.last?.value ?? "brak")
+                
+                Text("\(movement.value, format: .number)")
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .frame(width: geometry.size.width * 0.28, alignment: .trailing)
-                
             }
         }
         .frame(height: 20)
     }
     
     private func summaryTitleHeader(_ title: String, _ icon: String,
-                                    workoutType: WorkoutType) -> some View {
+                                    movement: GroupedMovement) -> some View {
         WidgetHeaderView(title: title, systemImage: icon, color: .green) {
-            send(.navigationButtonTapped(workoutType))
+            send(.navigationButtonTapped(movement.workoutType))
         }
     }
-
+    
     private var titleContainerView: some View {
         GeometryReader { geometry in
             HStack {

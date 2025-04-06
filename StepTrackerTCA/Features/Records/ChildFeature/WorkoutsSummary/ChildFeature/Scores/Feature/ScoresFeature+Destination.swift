@@ -16,7 +16,7 @@ extension ScoresFeature {
         
         /// Represents the destination for displaying in `MovementDetailsFeature`
         case showDetails(MovementDetailsFeature)
-        
+
         /// Represents the destination for displaying in `MovementInfoFeature`.
         case openInfo(MovementInfoFeature)
         

@@ -10,7 +10,7 @@ import SwiftUI
 
 extension MovementDetailsView {
     
-    func createPointMark(with data: any WorkoutSession) -> some ChartContent {
+    func createPointMark(with data: WorkoutMeasurement) -> some ChartContent {
         PointMark(
             x: .value("Day", data.date, unit: .day),
             y: .value("Value", data.value)
@@ -20,7 +20,7 @@ extension MovementDetailsView {
         .symbol(.circle)
     }
     
-    func createGoalRuleMark(_ goal: String) -> some ChartContent {
+    func createGoalRuleMark(_ goal: Double) -> some ChartContent {
         RuleMark(y: .value("Goal", goal))
             .foregroundStyle(.pink)
             .lineStyle(.init(lineWidth: 1, dash: [5]))
@@ -30,6 +30,16 @@ extension MovementDetailsView {
                     .foregroundStyle(.secondary)
                     .font(.caption)
             }
+    }
+    
+    func createGoalRuleMarkIntervals(start: Date, end: Date, value: Double) -> some ChartContent {
+        RuleMark(
+            xStart: .value("Start Date", start),
+            xEnd: .value("End Date", end),
+            y: .value("Goal", value)
+        )
+        .foregroundStyle(.pink)
+        .lineStyle(.init(lineWidth: 1, dash: [5]))
     }
     
 }

@@ -16,7 +16,7 @@ protocol WeightLiftingRepository {
     ///
     /// - Returns: An optional array of `WorkoutWeightlifting` objects representing recorded weightlifting stats.
     /// - Throws: An error if fetching fails.
-    func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting]?
+    func fetchWeightLiftingStats() async throws -> [WorkoutWeightlifting]
     
     /// Asynchronously retrieves dummy weightlifting data for testing or preview purposes.
     ///

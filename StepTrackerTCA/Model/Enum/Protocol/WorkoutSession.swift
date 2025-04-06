@@ -25,12 +25,12 @@ protocol WorkoutSession: Identifiable, Equatable {
     ///
     /// Each workout session belongs to a specific `WorkoutType`, which determines
     /// its categorization and associated movement types.
-    var workoutType: WorkoutType { get }
+    var workoutType: String  { get }
     
     /// The movement associated with this workout session.
     ///
     /// Each session involves a specific movement, which conforms to `MovementType`.
-    var movement: any MovementType { get }
+    var movement: String { get }
     
     /// A value associated with the workout session.
     ///

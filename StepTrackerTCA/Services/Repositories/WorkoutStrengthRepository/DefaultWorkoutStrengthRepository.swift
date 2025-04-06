@@ -25,32 +25,17 @@ final class DefaultWorkoutStrengthRepository: WorkoutStrengthRepository {
     // MARK: - API
     
     func fetchSessions() async throws -> [any WorkoutSession] {
-        let workouts = try await fetchWorkoutStrengthSummary() ?? []
-        return workouts.map { $0 as any WorkoutSession }
+//        let workouts = try await fetchWorkoutStrengthSummary() ?? []
+//        return workouts.map { $0 as any WorkoutSession }
+        []
     }
     
-    func fetchWorkoutStrengthSummary() async throws -> [WorkoutStrength]? {
-        let context = coreDataManger.backgroundContext
-        return try await context.perform { () -> [WorkoutStrength]? in
-            let fetchRequest: NSFetchRequest<WorkoutStrengthEntity> = WorkoutStrengthEntity.fetchRequest()
-            
-            let entities = try context.fetch(fetchRequest)
-            guard !entities.isEmpty else { return nil }
-            
-            return entities.compactMap { entity in
-                guard let movement = StrengthMovement(rawValue: entity.movement) else {
-                    print("Błąd: Nieznana wartość enum \(entity.movement)")
-                    return nil
-                }
-                
-                return WorkoutStrength(
-                    id: entity.id,
-                    movement: movement,
-                    date: entity.date,
-                    value: entity.value
-                )
-            }
-        }
+    func fetchWorkoutStrengthSummary() async throws -> [WorkoutStrength] {
+        let fetchRequest = WorkoutStrengthEntity.fetchRequest()
+        
+        return try coreDataManger.backgroundContext
+            .fetch(fetchRequest)
+            .map { WorkoutStrengthMapper.mapEntity(from: $0)}
     }
     
 }
