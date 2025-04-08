@@ -289,6 +289,8 @@
     A: Create model/mapper/repository Fitness
     B: Create model/mapper/repository Cross
     C: Create model/mapper/repository Hero
+    
+### IOS-00029 Facade and Adapter
 
 
 
