@@ -290,10 +290,8 @@
     B: Create model/mapper/repository Cross
     C: Create model/mapper/repository Hero
     
-### IOS-00029 Facade and Adapter
-
-
-
+### IOS-00029 Facade and Strategy
+    A: Implement Facade and Strategy pattern in to SummaryFeature
 
 
 

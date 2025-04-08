@@ -10,37 +10,20 @@ import Foundation
 
 final class DefaultSummaryFeatureServices: SummaryFeatureServices {
 
-    // MARK: - Dependencies
+    // MARK: - Properties
     
-    @LazyInjected(\.workoutStrengthRepository) private var workoutStrengthRepository
-    @LazyInjected(\.weightLiftingRepository) private var weightLiftingRepository
-    @LazyInjected(\.workoutFitnessRepository) private var workoutFitnessRepository
-    @LazyInjected(\.workoutCrossRepository) private var workoutCrossRepository
-    @LazyInjected(\.workoutHeroWodRepository) private var workoutHeroWodRepository
+    private let strategy: WorkoutSummaryStrategy
 
-    @LazyInjected(\.goalsRepository) private var goalsRepository
+    // MARK: - Lifecycle
     
+    init(strategy: WorkoutSummaryStrategy = AllWorkoutStrategy()) {
+        self.strategy = strategy
+    }
+
     // MARK: - API
     
-    /// Retrieves a workout summary.
     func fetchWorkoutSummary() async throws -> Summary {
-        let strength: [WorkoutStrength] = try await workoutStrengthRepository.fetchWorkoutStrengthSummary()
-        let weightLifting: [WorkoutWeightlifting] = try await weightLiftingRepository.fetchWeightLiftingStats()
-        let fitness: [WorkoutFitness] = try await workoutFitnessRepository.fetchWorkoutFitnessSummary()
-        let cross: [WorkoutCross] = try await workoutCrossRepository.fetchWorkoutCrossSummary()
-        let hero: [WorkoutHeroWod] = try await workoutHeroWodRepository.fetchWorkoutHeroWodSummary()
-        
-        let goals: [WorkoutGoal] = try await goalsRepository.fetchAllGoals()
-
-        let strengthMeasurements = strength.map { mapToMeasurement($0, type: .strength) }
-        let weightLiftingMeasurements = weightLifting.map { mapToMeasurement($0, type: .weightlifting) }
-        let fitnessMeasurements = fitness.map { mapToMeasurement($0, type: .fitness) }
-        let crossMeasurements = cross.map { mapToMeasurement($0, type: .cross) }
-        let heroMeasurements = hero.map { mapToMeasurement($0, type: .hero) }
-         
-        let allMeasurements = strengthMeasurements + weightLiftingMeasurements + fitnessMeasurements + crossMeasurements + heroMeasurements
-
-        return Summary(measurements: allMeasurements, goals: goals)
+        return try await strategy.fetchSummary()
     }
     
     /// Groups the given workout summary data into categorized movements.

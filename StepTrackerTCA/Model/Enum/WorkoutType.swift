@@ -21,19 +21,19 @@ import Foundation
 enum WorkoutType: String, Codable, CaseIterable, WorkoutCategory {
     
     /// Weightlifting - Focuses on Olympic-style lifts and variations.
-    case weightlifting
+    case weightlifting = "Weightlifting"
     
     /// Strength - Includes fundamental strength movements like squats, presses, and deadlifts.
-    case strength
+    case strength = "Strength"
     
     /// Fitness - Covers endurance-based activities like running, swimming, and rowing.
-    case fitness
+    case fitness = "Fitness"
     
     /// Cross Training - High-intensity functional fitness workouts.
-    case cross
+    case cross = "Cross"
     
     /// Hero Workouts - Special named workouts often used as benchmarks.
-    case hero
+    case hero = "Hero"
     
     /// A user-friendly title for each workout type.
     ///
