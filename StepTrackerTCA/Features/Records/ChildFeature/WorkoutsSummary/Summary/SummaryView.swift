@@ -49,7 +49,7 @@ struct SummaryView: View {
                 titleContainerView
                 Divider()
                 Spacer().frame(height: 10)
-            
+                
                 ForEach(data.movements) { movement in
                     summaryByGroupedMovement(movement)
                     Divider()
@@ -88,7 +88,7 @@ struct SummaryView: View {
         }
         .frame(height: 20)
     }
-
+    
     private func formatValue(_ value: Double, for workoutType: WorkoutType) -> String {
         switch workoutType {
         case .hero, .fitness:

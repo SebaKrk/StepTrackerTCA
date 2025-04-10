@@ -292,6 +292,7 @@
     
 ### IOS-00029 Facade and Strategy
     A: Implement Facade and Strategy pattern in to SummaryFeature
+    B: Implement Facade and Strategy pattern in to ScoresFeature
 
 
 
