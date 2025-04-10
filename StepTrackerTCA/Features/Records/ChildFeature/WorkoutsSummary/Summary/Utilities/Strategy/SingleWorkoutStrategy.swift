@@ -19,7 +19,7 @@ final class SingleWorkoutStrategy: WorkoutSummaryStrategy {
     private let facadeGoal: GoalSummaryFacade
     private let workoutType: WorkoutType
 
-    // MARK: - Lifcycle
+    // MARK: - Lifecycle
     
     init(
         facade: WorkoutSummaryFacade = WorkoutSummaryFacade(),
