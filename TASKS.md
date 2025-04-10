@@ -289,9 +289,10 @@
     A: Create model/mapper/repository Fitness
     B: Create model/mapper/repository Cross
     C: Create model/mapper/repository Hero
-
-
-
+    
+### IOS-00029 Facade and Strategy
+    A: Implement Facade and Strategy pattern in to SummaryFeature
+    B: Implement Facade and Strategy pattern in to ScoresFeature
 
 
 

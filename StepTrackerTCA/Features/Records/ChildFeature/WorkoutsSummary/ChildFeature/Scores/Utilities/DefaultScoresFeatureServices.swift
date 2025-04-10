@@ -11,49 +11,30 @@ import Foundation
 /// A default implementation of `ScoresFeatureServices` that provides functionality for evaluating workout sessions.
 final class DefaultScoresFeatureServices: ScoresFeatureServices {
     
-    // MARK: - Dependencies
+    //// MARK: - Properties
     
-    @LazyInjected(\.workoutStrengthRepository) private var workoutStrengthRepository
-    @LazyInjected(\.weightLiftingRepository) private var weightLiftingRepository
-    @LazyInjected(\.workoutFitnessRepository) private var workoutFitnessRepository
-    @LazyInjected(\.workoutCrossRepository) private var workoutCrossRepository
-    @LazyInjected(\.workoutHeroWodRepository) private var workoutHeroWodRepository
+//    private let strategy: WorkoutSummaryStrategy
+    private let strategy: (WorkoutType) -> WorkoutSummaryStrategy
     
-    @LazyInjected(\.goalsRepository) private var goalsRepository
+    // MARK: - Lifecycle
+    
+//    init(workoutType: WorkoutType) {
+//        self.strategy = SingleWorkoutStrategy(workoutType: workoutType)
+//    }
+//    
+    init(strategy: @escaping (WorkoutType) -> WorkoutSummaryStrategy) {
+        self.strategy = strategy
+    }
     
     // MARK: - API
     
-    /// Fetches the workout summary for a specified workout type.
+//    func fetchSummary(for workoutType: WorkoutType) async throws -> Summary {
+//        // WorkoutType jest ignorowany, b
+//        return try await strategy.fetchSummary()
+//    }
     func fetchSummary(for workoutType: WorkoutType) async throws -> Summary {
-        var measurements: [WorkoutMeasurement] = []
-        var goals: [WorkoutGoal] = []
-        
-        switch workoutType {
-        case .strength:
-            let strength = try await workoutStrengthRepository.fetchWorkoutStrengthSummary()
-            measurements = strength.map { mapToMeasurement($0, type: .strength) }
-            
-        case .weightlifting:
-            let weightLifting = try await weightLiftingRepository.fetchWeightLiftingStats()
-            measurements = weightLifting.map { mapToMeasurement($0, type: .weightlifting) }
-            
-        case .fitness:
-            let fitness = try await workoutFitnessRepository.fetchWorkoutFitnessSummary()
-            measurements = fitness.map { mapToMeasurement($0, type: .fitness) }
-            
-        case .cross:
-            let cross = try await workoutCrossRepository.fetchWorkoutCrossSummary()
-            measurements = cross.map { mapToMeasurement($0, type: .cross) }
-            
-        case .hero:
-            let hero = try await workoutHeroWodRepository.fetchWorkoutHeroWodSummary()
-            measurements = hero.map { mapToMeasurement($0, type: .hero) }
-        }
-        
-        goals = try await goalsRepository.fetchAllGoals()
-            .filter { $0.workoutType == workoutType.rawValue }
-        
-        return Summary(measurements: measurements, goals: goals)
+        let strategy = strategy(workoutType)
+        return try await strategy.fetchSummary()
     }
     
     /// Maps the provided summary data into a grouped movement structure.

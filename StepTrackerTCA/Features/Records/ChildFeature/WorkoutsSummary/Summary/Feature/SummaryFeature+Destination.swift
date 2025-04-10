@@ -15,8 +15,7 @@ extension SummaryFeature {
     enum Destination {
         
         /// Represents the destination for displaying in `ScoreFeature`.
-        case open(ScoresFeature)
-
+        case open(ScoresFeature)  
     }
     
 }
