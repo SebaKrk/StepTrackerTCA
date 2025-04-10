@@ -17,7 +17,7 @@ struct ScoresFeature {
     
     // MARK: - Livecycle
     
-    init(service: ScoresFeatureServices = DefaultScoresFeatureServices()) {
+    init(service: ScoresFeatureServices) {
         self.services = service
     }
     
