@@ -11,27 +11,19 @@ import Foundation
 /// A default implementation of `ScoresFeatureServices` that provides functionality for evaluating workout sessions.
 final class DefaultScoresFeatureServices: ScoresFeatureServices {
     
-    //// MARK: - Properties
+    // MARK: - Properties
     
-//    private let strategy: WorkoutSummaryStrategy
     private let strategy: (WorkoutType) -> WorkoutSummaryStrategy
     
     // MARK: - Lifecycle
-    
-//    init(workoutType: WorkoutType) {
-//        self.strategy = SingleWorkoutStrategy(workoutType: workoutType)
-//    }
-//    
+
     init(strategy: @escaping (WorkoutType) -> WorkoutSummaryStrategy) {
         self.strategy = strategy
     }
     
     // MARK: - API
     
-//    func fetchSummary(for workoutType: WorkoutType) async throws -> Summary {
-//        // WorkoutType jest ignorowany, b
-//        return try await strategy.fetchSummary()
-//    }
+    /// This function retrieves workout measurements and associated goals for the given workout type.
     func fetchSummary(for workoutType: WorkoutType) async throws -> Summary {
         let strategy = strategy(workoutType)
         return try await strategy.fetchSummary()

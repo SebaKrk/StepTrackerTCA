@@ -14,14 +14,6 @@ struct ScoresFeature {
     // MARK: - Dependencies
     
     @Dependency(\.scoresFeatureServices) var services: ScoresFeatureServices
-    
-//    let services: ScoresFeatureServices
-//    
-//    // MARK: - Livecycle
-//    
-//    init(service: ScoresFeatureServices) {
-//        self.services = service
-//    }
 
     // MARK: - Reducer
     
