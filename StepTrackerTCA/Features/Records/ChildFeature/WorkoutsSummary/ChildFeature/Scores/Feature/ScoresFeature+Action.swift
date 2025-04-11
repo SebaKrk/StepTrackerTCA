@@ -62,6 +62,9 @@ extension ScoresFeature {
             /// Opens the goal setting sheet for defining or updating a movement goal.
             case goalsButtonTapped
             
+            ///
+            case submitWorkoutScoreButtonTapped
+            
         }
         
         // MARK: - Destination
@@ -71,6 +74,9 @@ extension ScoresFeature {
         /// This action is triggered when the user wants to define or modify their goal
         /// for a selected movement type.
         case openGoalsSheet
+        
+        ///
+        case openSubmitWorkoutSheet
         
         /// Destination case for handling navigation actions.
         /// - Parameter action: The action to be performed within the destination.

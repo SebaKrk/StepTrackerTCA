@@ -83,6 +83,11 @@ struct ScoresFeature {
                     await send(.openGoalsSheet)
                 }
                 
+            case .view(.submitWorkoutScoreButtonTapped):
+                return .run { send in
+                    await send(.openSubmitWorkoutSheet)
+                }
+                
                 // MARK: - Destination
                 
             case .openGoalsSheet:
@@ -90,9 +95,13 @@ struct ScoresFeature {
                 state.destination = .openGoal(SetEditGoalFeature.State(workoutType: workoutType))
                 return .none
                 
-            case .destination:
+            case .openSubmitWorkoutSheet:
+                let workoutType = state.selectedWorkoutType
+                state.destination = .openSubmitWorkout(SubmitWorkoutFeature.State(workoutType: workoutType))
                 return .none
                 
+            case .destination(_):
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)

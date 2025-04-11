@@ -1,36 +1,34 @@
 //
-//  SetEditGoalFeature.swift
+//  SubmitWorkoutFeature.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 15/02/2025.
+//  Created by Sebastian Sciuba on 11/04/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct SetEditGoalFeature {
+struct SubmitWorkoutFeature {
     
     // MARK: - Dependency
     
     @Dependency(\.dismiss) var dismiss
     
-    let service: SetEditGoalService
+    let service: SubmitWorkoutService
     
     // MARK: - Lifecycle
     
-    init(_ service: SetEditGoalService = DefaultSetEditGoalService()) {
+    init(_ service: SubmitWorkoutService = DefaultSubmitWorkoutService()) {
         self.service = service
     }
-    
+
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
         CombineReducers {
             BindingReducer()
-            Reduce {
-                state,
-                action in
+            Reduce { state,action in
                 switch action {
                     
                 case .binding(_):
@@ -39,7 +37,6 @@ struct SetEditGoalFeature {
                     // MARK: - Actions
                     
                 case .validate:
-                    
                     let isMovementSelected: Bool = {
                         switch state.workoutType {
                         case .weightlifting:
@@ -110,7 +107,7 @@ struct SetEditGoalFeature {
                                    unit = state.selectedUnit] send in
                         
                         do {
-                            try await service.setNewGoal(for: workout, movement.rawValue,
+                            try await service.submitWorkout(for: workout, movement.rawValue,
                                                date: date,
                                                value: value,
                                                unit: unit
@@ -171,15 +168,15 @@ struct SetEditGoalFeature {
                     return .none
                     
                     // MARK: - View Actions
+                
+                case .view(.saveButtonPressed):
+                    return .run { send in
+                        await send(.validate)
+                    }
                     
                 case .view(.dismissButtonPressed):
                     return .run { send in
                         await self.dismiss()
-                    }
-                    
-                case .view(.saveButtonPressed):
-                    return .run { send in
-                        await send(.validate)
                     }
                     
                     // MARK: - Alert Action

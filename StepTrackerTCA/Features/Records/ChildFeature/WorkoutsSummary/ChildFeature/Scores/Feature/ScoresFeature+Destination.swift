@@ -22,6 +22,12 @@ extension ScoresFeature {
         
         /// Represents the destination for setting or editing goals.
         case openGoal(SetEditGoalFeature)
+        
+        ///
+        case openSubmitWorkout(SubmitWorkoutFeature)
     }
     
 }
+
+
+

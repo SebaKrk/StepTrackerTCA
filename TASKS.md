@@ -294,7 +294,10 @@
     A: Implement Facade and Strategy pattern in to SummaryFeature
     B: Implement Facade and Strategy pattern in to ScoresFeature
 
-
+### IOS-00030 SubmitWorkout
+    A: Create SubmitWorkout Feature
+    
+    
 
 ## TODO: BUGS
     A: weightUnit nie jest zapisywane w obiekcie Core Data
