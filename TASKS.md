@@ -296,13 +296,6 @@
 
 ### IOS-00030 SubmitWorkout
     A: Create SubmitWorkout Feature
-    
-    
+    B: Serwis - save new data to CoreData
 
-## TODO: BUGS
-    A: weightUnit nie jest zapisywane w obiekcie Core Data
-    - dodac do obiektow weightUnit np `WorkoutStrengthEntity` itd
-    - pamietaj ciwczenia maja rozne typy pomiaru, moze byc weightUnit albo WorkoutUnit
-    - moze dodac jakis wpsolny interfejs
-    - zaimplentowac to do DefaultAddMeasurementRepository idt
 
