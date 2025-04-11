@@ -36,6 +36,9 @@ struct ScoresView: View {
         .sheet(item: $store.scope(state: \.destination?.openGoal, action: \.destination.openGoal), content: { store in
             SetEditGoalView(store: store)
         })
+        .sheet(item: $store.scope(state: \.destination?.openSubmitWorkout, action: \.destination.openSubmitWorkout), content: { store in
+            SubmitWorkoutView(store: store)
+        })
         .navigationDestination(
             item: $store.scope(
                 state: \.destination?.showDetails,
@@ -48,6 +51,14 @@ struct ScoresView: View {
     
     @ToolbarContentBuilder
     var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.submitWorkoutScoreButtonTapped)
+            } label: {
+                Image("custom.figure.run.circle.badge.plus")
+            }
+        }
+        
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 send(.goalsButtonTapped)
