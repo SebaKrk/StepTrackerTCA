@@ -18,7 +18,8 @@ final class DefaultSetEditGoalService: SetEditGoalService {
     
     /// Sets a new workout goal for a specified workout type and movement.
     func setNewGoal(for workoutType: WorkoutType, _ movement: String, date: Date, value: String, unit: String) async throws {
-        try await goalsRepository.setNewGoal(for: workoutType, movement, date: date, value: value, unit: unit)
+        print("goalsRepository.setNewGoal")
+//        try await goalsRepository.setNewGoal(for: workoutType, movement, date: date, value: value, unit: unit)
     }
     
 }

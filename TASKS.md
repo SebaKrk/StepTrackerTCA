@@ -297,5 +297,7 @@
 ### IOS-00030 SubmitWorkout
     A: Create SubmitWorkout Feature
     B: Serwis - save new data to CoreData
-
-
+    C: Refactor SetEditGoalFeature and SubmitWorkout
+     - Initial setup: refactored workout submission using Strategy pattern with factory 
+     - handling multiple submission methods based on service type
+    

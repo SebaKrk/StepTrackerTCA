@@ -21,13 +21,14 @@ final class DefaultSubmitWorkoutService: SubmitWorkoutService {
                        date: Date,
                        value: String,
                        unit: String) async throws {
-        try await addMeasurementRepository.saveMeasurement(
-            date: date,
-            workoutType: workoutType,
-            movement: movement,
-            value: value,
-            unit: unit
-        )
+        print("addMeasurementRepository.saveMeasurement")
+//        try await addMeasurementRepository.saveMeasurement(
+//            date: date,
+//            workoutType: workoutType,
+//            movement: movement,
+//            value: value,
+//            unit: unit
+//        )
     }
     
 }
