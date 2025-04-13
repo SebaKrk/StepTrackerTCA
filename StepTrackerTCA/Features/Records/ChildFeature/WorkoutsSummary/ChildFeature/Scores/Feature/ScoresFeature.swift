@@ -14,14 +14,6 @@ struct ScoresFeature {
     // MARK: - Dependencies
     
     @Dependency(\.scoresFeatureServices) var services: ScoresFeatureServices
-    
-//    let services: ScoresFeatureServices
-//    
-//    // MARK: - Livecycle
-//    
-//    init(service: ScoresFeatureServices) {
-//        self.services = service
-//    }
 
     // MARK: - Reducer
     
@@ -91,16 +83,25 @@ struct ScoresFeature {
                     await send(.openGoalsSheet)
                 }
                 
+            case .view(.submitWorkoutScoreButtonTapped):
+                return .run { send in
+                    await send(.openSubmitWorkoutSheet)
+                }
+                
                 // MARK: - Destination
                 
             case .openGoalsSheet:
                 let workoutType = state.selectedWorkoutType
-                state.destination = .openGoal(SetEditGoalFeature.State(workoutType: workoutType))
+                state.destination = .openSubmitWorkout(WorkoutSubmissionFeature.State(submissionType: .setGoal, workoutType: workoutType))
                 return .none
                 
-            case .destination:
+            case .openSubmitWorkoutSheet:
+                let workoutType = state.selectedWorkoutType
+                state.destination = .openSubmitWorkout(WorkoutSubmissionFeature.State(submissionType: .submit, workoutType: workoutType))
                 return .none
                 
+            case .destination(_):
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)

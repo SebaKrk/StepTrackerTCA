@@ -21,7 +21,15 @@ extension ScoresFeature {
         case openInfo(MovementInfoFeature)
         
         /// Represents the destination for setting or editing goals.
-        case openGoal(SetEditGoalFeature)
+        //case openGoal(SetEditGoalFeature)
+        case openGoal(WorkoutSubmissionFeature)
+        
+        ///
+        //case openSubmitWorkout(SubmitWorkoutFeature)
+        case openSubmitWorkout(WorkoutSubmissionFeature)
     }
     
 }
+
+
+

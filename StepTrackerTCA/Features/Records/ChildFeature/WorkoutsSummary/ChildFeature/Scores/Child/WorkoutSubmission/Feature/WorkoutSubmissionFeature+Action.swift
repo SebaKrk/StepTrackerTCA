@@ -1,16 +1,15 @@
 //
-//  SetEditGoalFeature+Action.swift
+//  WorkoutSubmissionFeature+Action.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 15/02/2025.
+//  Created by Sebastian Sciuba on 12/04/2025.
 //
-
 
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `SetEditGoalFeature` action
-extension SetEditGoalFeature {
+/// Implementation of `WorkoutSubmissionFeature` action
+extension WorkoutSubmissionFeature {
     
     @CasePathable
     enum Action: ViewAction, BindableAction {

@@ -294,12 +294,14 @@
     A: Implement Facade and Strategy pattern in to SummaryFeature
     B: Implement Facade and Strategy pattern in to ScoresFeature
 
-
-
-## TODO: BUGS
-    A: weightUnit nie jest zapisywane w obiekcie Core Data
-    - dodac do obiektow weightUnit np `WorkoutStrengthEntity` itd
-    - pamietaj ciwczenia maja rozne typy pomiaru, moze byc weightUnit albo WorkoutUnit
-    - moze dodac jakis wpsolny interfejs
-    - zaimplentowac to do DefaultAddMeasurementRepository idt
-
+### IOS-00030 SubmitWorkout
+    A: Create SubmitWorkout Feature
+    B: Serwis - save new data to CoreData
+    C: Refactor SetEditGoalFeature and SubmitWorkout
+     - Initial setup: refactored workout submission using Strategy pattern with factory 
+     - handling multiple submission methods based on service type
+    D: WorkoutSubmission
+    - Cleaning up the folder structure. 
+    - Code organization into appropriate files.
+    - Removed SetEditGoalFeature and SubmitWorkout features by merging them into a unified flow.
+    

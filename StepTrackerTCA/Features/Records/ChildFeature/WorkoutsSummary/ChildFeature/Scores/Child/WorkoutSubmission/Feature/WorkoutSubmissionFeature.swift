@@ -1,27 +1,19 @@
 //
-//  SetEditGoalFeature.swift
+//  WorkoutSubmissionFeature.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 15/02/2025.
+//  Created by Sebastian Sciuba on 12/04/2025.
 //
 
 import ComposableArchitecture
-import Foundation
 
 @Reducer
-struct SetEditGoalFeature {
+struct WorkoutSubmissionFeature {
     
     // MARK: - Dependency
     
+    @Dependency(\.workoutSubmissionStrategyFactory) var strategyFactory
     @Dependency(\.dismiss) var dismiss
-    
-    let service: SetEditGoalService
-    
-    // MARK: - Lifecycle
-    
-    init(_ service: SetEditGoalService = DefaultSetEditGoalService()) {
-        self.service = service
-    }
     
     // MARK: - Reducer
     
@@ -104,22 +96,24 @@ struct SetEditGoalFeature {
                         return .run { send in await send(.presentAlert) }
                     }
                     
-                    return .run { [workout = state.workoutType,
+                    return .run { [submissionType = state.submissionType,
+                                   workoutType = state.workoutType,
                                    date = state.addDataDate,
                                    value = state.valueToAdd,
                                    unit = state.selectedUnit] send in
                         
+                        let strategy = strategyFactory.strategy(for: submissionType)
+                        
                         do {
-                            try await service.setNewGoal(for: workout, movement.rawValue,
-                                               date: date,
-                                               value: value,
-                                               unit: unit
-                            )
+                            try await strategy.submit(workout: workoutType,
+                                                      movement: movement.rawValue,
+                                                      date: date,
+                                                      value: value,
+                                                      unit: unit)
                             await self.dismiss()
                         } catch {
                             print("❌ Error adding new goal: \(error.localizedDescription)")
                         }
-
                     }
                     
                 case let .selectedWeightUnitPickerChange(unit):
@@ -168,9 +162,7 @@ struct SetEditGoalFeature {
                     
                 case let .selectedMomentChange(movement):
                     state.selectedMovement = movement
-                    return .run { send in
-                        await send(.selectedMomentChange(movement))
-                    }
+                    return .none
                     
                     // MARK: - View Actions
                     
@@ -202,5 +194,13 @@ struct SetEditGoalFeature {
             }
         }
     }
-    
 }
+
+
+//return .run { [service = state.service, workoutType = state.workoutType] send in
+//    let strategy = strategyFactory.strategy(for: service)
+//    do {
+//        try await strategy.submit(workout: workoutType , movement: "clean", date: .now, value: "123", unit: "kg")
+//    } catch {
+//
+//    }

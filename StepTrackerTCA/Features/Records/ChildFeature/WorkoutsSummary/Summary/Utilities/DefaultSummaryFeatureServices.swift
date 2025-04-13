@@ -52,6 +52,7 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
         }
     }
     
+    /// Groups the given workout summary data into categorized movements.
     func groupByMovement(from data: GroupedMovement) -> [WorkoutMeasurement] {
         var latestMovements: [WorkoutMeasurement] = []
 
@@ -67,6 +68,8 @@ final class DefaultSummaryFeatureServices: SummaryFeatureServices {
         
         return latestMovements
     }
+    
+    // MARK: - Private methods
     
     private func mapToMeasurement<T: WorkoutSession>(_ item: T, type: WorkoutType) -> WorkoutMeasurement {
         WorkoutMeasurement(
