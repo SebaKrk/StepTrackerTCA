@@ -1,19 +1,18 @@
 //
-//  SetEditGoalView.swift
+//  WorkoutSubmissionView.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 15/02/2025.
+//  Created by Sebastian Sciuba on 12/04/2025.
 //
 
 import ComposableArchitecture
 import SwiftUI
 
-@ViewAction(for: SetEditGoalFeature.self)
-struct SetEditGoalView: View {
-    
+@ViewAction(for: WorkoutSubmissionFeature.self)
+struct WorkoutSubmissionView: View {
     // MARK: - Properties
     
-    @Bindable var store: StoreOf<SetEditGoalFeature>
+    @Bindable var store: StoreOf<WorkoutSubmissionFeature>
     
     // MARK: - View
     
@@ -22,7 +21,7 @@ struct SetEditGoalView: View {
             Group {
                 formView
             }
-            .navigationTitle("Set new \(store.workoutType.rawValue) goal")
+            .navigationTitle(store.submissionType.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarButton
@@ -212,3 +211,4 @@ struct SetEditGoalView: View {
     }
     
 }
+

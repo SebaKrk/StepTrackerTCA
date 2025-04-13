@@ -92,14 +92,12 @@ struct ScoresFeature {
                 
             case .openGoalsSheet:
                 let workoutType = state.selectedWorkoutType
-//                state.destination = .openGoal(SetEditGoalFeature.State(workoutType: workoutType))
-                state.destination = .openSubmitWorkout(WorkoutSubmissionFeature.State(service: .setGoal, workoutType: workoutType))
+                state.destination = .openSubmitWorkout(WorkoutSubmissionFeature.State(submissionType: .setGoal, workoutType: workoutType))
                 return .none
                 
             case .openSubmitWorkoutSheet:
                 let workoutType = state.selectedWorkoutType
-                state.destination = .openSubmitWorkout(WorkoutSubmissionFeature.State(service: .submit, workoutType: workoutType))
-                    //.openSubmitWorkout(SubmitWorkoutFeature.State(workoutType: workoutType))
+                state.destination = .openSubmitWorkout(WorkoutSubmissionFeature.State(submissionType: .submit, workoutType: workoutType))
                 return .none
                 
             case .destination(_):

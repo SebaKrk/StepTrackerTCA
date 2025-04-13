@@ -1,27 +1,29 @@
 //
-//  SubmitWorkoutFeature+State.swift
+//  WorkoutSubmissionFeature+State.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 11/04/2025.
+//  Created by Sebastian Sciuba on 12/04/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `SubmitWorkoutFeature` state
-extension SubmitWorkoutFeature {
+/// Implementation of `WorkoutSubmissionFeature` state
+extension WorkoutSubmissionFeature {
     
     @ObservableState
     struct State {
         
         // MARK: - Properties
         
-        /// The date for which the user wants to add  data.
-        /// Defaults to the current date.
-        var addDataDate: Date = .now
+        var submissionType: SubmissionType
         
         /// Passed WorkoutType
         var workoutType: WorkoutType
+        
+        /// The date for which the user wants to add  data.
+        /// Defaults to the current date.
+        var addDataDate: Date = .now
         
         /// The selected MovementType
         var selectedMovement: (any MovementType)? = nil

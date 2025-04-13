@@ -1,34 +1,28 @@
 //
-//  SubmitWorkoutFeature.swift
+//  WorkoutSubmissionFeature.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 11/04/2025.
+//  Created by Sebastian Sciuba on 12/04/2025.
 //
 
 import ComposableArchitecture
-import Foundation
 
 @Reducer
-struct SubmitWorkoutFeature {
+struct WorkoutSubmissionFeature {
     
     // MARK: - Dependency
     
+    @Dependency(\.workoutSubmissionStrategyFactory) var strategyFactory
     @Dependency(\.dismiss) var dismiss
     
-    let service: SubmitWorkoutService
-    
-    // MARK: - Lifecycle
-    
-    init(_ service: SubmitWorkoutService = DefaultSubmitWorkoutService()) {
-        self.service = service
-    }
-
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
         CombineReducers {
             BindingReducer()
-            Reduce { state,action in
+            Reduce {
+                state,
+                action in
                 switch action {
                     
                 case .binding(_):
@@ -37,6 +31,7 @@ struct SubmitWorkoutFeature {
                     // MARK: - Actions
                     
                 case .validate:
+                    
                     let isMovementSelected: Bool = {
                         switch state.workoutType {
                         case .weightlifting:
@@ -101,22 +96,24 @@ struct SubmitWorkoutFeature {
                         return .run { send in await send(.presentAlert) }
                     }
                     
-                    return .run { [workout = state.workoutType,
+                    return .run { [submissionType = state.submissionType,
+                                   workoutType = state.workoutType,
                                    date = state.addDataDate,
                                    value = state.valueToAdd,
                                    unit = state.selectedUnit] send in
                         
+                        let strategy = strategyFactory.strategy(for: submissionType)
+                        
                         do {
-                            try await service.submitWorkout(for: workout, movement.rawValue,
-                                               date: date,
-                                               value: value,
-                                               unit: unit
-                            )
+                            try await strategy.submit(workout: workoutType,
+                                                      movement: movement.rawValue,
+                                                      date: date,
+                                                      value: value,
+                                                      unit: unit)
                             await self.dismiss()
                         } catch {
                             print("❌ Error adding new goal: \(error.localizedDescription)")
                         }
-
                     }
                     
                 case let .selectedWeightUnitPickerChange(unit):
@@ -168,15 +165,15 @@ struct SubmitWorkoutFeature {
                     return .none
                     
                     // MARK: - View Actions
-                
-                case .view(.saveButtonPressed):
-                    return .run { send in
-                        await send(.validate)
-                    }
                     
                 case .view(.dismissButtonPressed):
                     return .run { send in
                         await self.dismiss()
+                    }
+                    
+                case .view(.saveButtonPressed):
+                    return .run { send in
+                        await send(.validate)
                     }
                     
                     // MARK: - Alert Action
@@ -197,5 +194,13 @@ struct SubmitWorkoutFeature {
             }
         }
     }
-    
 }
+
+
+//return .run { [service = state.service, workoutType = state.workoutType] send in
+//    let strategy = strategyFactory.strategy(for: service)
+//    do {
+//        try await strategy.submit(workout: workoutType , movement: "clean", date: .now, value: "123", unit: "kg")
+//    } catch {
+//
+//    }

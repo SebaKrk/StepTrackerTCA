@@ -300,4 +300,8 @@
     C: Refactor SetEditGoalFeature and SubmitWorkout
      - Initial setup: refactored workout submission using Strategy pattern with factory 
      - handling multiple submission methods based on service type
+    D: WorkoutSubmission
+    - Cleaning up the folder structure. 
+    - Code organization into appropriate files.
+    - Removed SetEditGoalFeature and SubmitWorkout features by merging them into a unified flow.
     
