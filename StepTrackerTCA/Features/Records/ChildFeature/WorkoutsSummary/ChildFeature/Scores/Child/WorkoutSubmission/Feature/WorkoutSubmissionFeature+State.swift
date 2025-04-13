@@ -16,7 +16,7 @@ extension WorkoutSubmissionFeature {
         
         // MARK: - Properties
         
-        var service: Service
+        var submissionType: SubmissionType
         
         /// Passed WorkoutType
         var workoutType: WorkoutType

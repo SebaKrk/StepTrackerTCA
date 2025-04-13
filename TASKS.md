@@ -303,3 +303,5 @@
     D: WorkoutSubmission
     - Cleaning up the folder structure 
     - Code organization into appropriate files
+    - Removed SetEditGoalFeature and SubmitWorkout features by merging them into a unified flow
+    

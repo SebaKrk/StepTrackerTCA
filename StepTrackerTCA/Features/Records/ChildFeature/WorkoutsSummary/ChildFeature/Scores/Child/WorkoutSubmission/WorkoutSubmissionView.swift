@@ -21,8 +21,7 @@ struct WorkoutSubmissionView: View {
             Group {
                 formView
             }
-            //.navigationTitle("Set new \(store.workoutType.rawValue) goal")
-            .navigationTitle("\(store.service)")
+            .navigationTitle(store.submissionType.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarButton

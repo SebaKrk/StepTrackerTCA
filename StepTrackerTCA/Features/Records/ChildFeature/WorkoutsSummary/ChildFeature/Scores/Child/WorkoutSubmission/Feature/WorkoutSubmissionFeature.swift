@@ -96,13 +96,13 @@ struct WorkoutSubmissionFeature {
                         return .run { send in await send(.presentAlert) }
                     }
                     
-                    return .run { [service = state.service,
+                    return .run { [submissionType = state.submissionType,
                                    workoutType = state.workoutType,
                                    date = state.addDataDate,
                                    value = state.valueToAdd,
                                    unit = state.selectedUnit] send in
                         
-                        let strategy = strategyFactory.strategy(for: service)
+                        let strategy = strategyFactory.strategy(for: submissionType)
                         
                         do {
                             try await strategy.submit(workout: workoutType,

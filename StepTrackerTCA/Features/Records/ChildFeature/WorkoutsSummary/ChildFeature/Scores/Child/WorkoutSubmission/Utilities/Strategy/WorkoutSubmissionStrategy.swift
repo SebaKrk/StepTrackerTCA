@@ -7,8 +7,17 @@
 
 import Foundation
 
-// strategy
+/// A strategy interface for submitting different types of workout-related data.
 protocol WorkoutSubmissionStrategy {
+    
+    /// Submits workout data based on specific strategy requirements.
+    ///
+    /// - Parameters:
+    ///   - workout: The type of workout being submitted.
+    ///   - movement: The movement associated with the workout.
+    ///   - date: The date of the workout or goal.
+    ///   - value: The primary value (e.g., reps, distance).
+    ///   - unit: The unit for the value (e.g., kg, km).
     func submit(
         workout: WorkoutType,
         movement: String,
@@ -16,47 +25,5 @@ protocol WorkoutSubmissionStrategy {
         value: String,
         unit: String
     ) async throws
-}
-
-// Strategy - Submit
-struct SubmitWorkoutStrategy: WorkoutSubmissionStrategy {
     
-    let service: SubmitWorkoutService
-    
-    func submit(workout: WorkoutType, movement: String, date: Date, value: String, unit: String) async throws {
-        try await service.submitWorkout(for: workout, movement, date: date, value: value, unit: unit)
-    }
 }
-
-// Strategy add Goal
-struct SetGoalStrategy: WorkoutSubmissionStrategy {
-    
-    let service: SetEditGoalService
-
-    func submit(workout: WorkoutType, movement: String, date: Date, value: String, unit: String) async throws {
-        try await service.setNewGoal(for: workout, movement, date: date, value: value, unit: unit)
-    }
-}
-
-
-// Factory
-enum Service {
-    case submit 
-    case setGoal
-}
-
-protocol WorkoutSubmissionStrategyFactory {
-    func strategy(for service: Service) -> WorkoutSubmissionStrategy
-}
-
-struct DefaultWorkoutSubmissionStrategyFactory: WorkoutSubmissionStrategyFactory {
-    func strategy(for service: Service) -> WorkoutSubmissionStrategy {
-        switch service {
-        case .setGoal:
-            return SetGoalStrategy(service: DefaultSetEditGoalService())
-        case .submit:
-            return SubmitWorkoutStrategy(service: DefaultSubmitWorkoutService())
-        }
-    }
-}
-
