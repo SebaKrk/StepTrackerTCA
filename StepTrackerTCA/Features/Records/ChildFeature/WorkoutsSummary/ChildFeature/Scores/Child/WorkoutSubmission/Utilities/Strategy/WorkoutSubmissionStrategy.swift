@@ -41,7 +41,7 @@ struct SetGoalStrategy: WorkoutSubmissionStrategy {
 
 // Factory
 enum Service {
-    case submit
+    case submit 
     case setGoal
 }
 
