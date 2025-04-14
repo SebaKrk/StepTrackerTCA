@@ -49,12 +49,16 @@ RecordsTab --> WorkoutsSummary["<font color='red'>**Summary**</font><br>SummaryF
 
 RecordsTab --> AddMeasurement["<font color='red'>**Measurement**</font><br><font color='purple'>(Add new data presented in the sheet)</font><br>AddMeasurementFeature"]
 
-%% tu możemy dodać gola
-WeightGoal --> SetWeightGoal[SetWeightGoalFeature]
-WorkoutsSummary --> ScoresList["<font color='red'>**Scores**</font> <br><font color='purple'>(List of summary movement)</font> <br>ScoresFeature"]
+  %% Workouts Summary
+  RecordsTab --> WorkoutsSummary["<font color='red'>**Summary**</font><br>SummaryFeature <br><font color='green'>Repository:</font><br>workoutStrengthRepository<br>weightLiftingRepository"]
 
-ScoresList --> MovmentInfo["<font color='red'>**Info**</font> <br><font color='purple'>(Present Info Sheet)</font><br>MovementInfoFeature"]
-ScoresList --> MovmentDetails["<font color='red'>**Details**</font> <br><font color='purple'>(Navigate to Details)</font><br>MovementDetailsFeature"]
-ScoresList --> SetEditGoal["<font color='red'>**Goal**</font> <br><font color='purple'>(Present Add Goal Sheet)</font> <br>SetEditGoalFeature"]
+  %% Scores and Submission
+  WorkoutsSummary --> ScoresList["<font color='red'>**Scores**</font> <br><font color='purple'>(List of summary movement)</font> <br>ScoresFeature"]
 
+  ScoresList --> MovmentInfo["<font color='red'>**Info**</font> <br><font color='purple'>(Present Info Sheet)</font><br>MovementInfoFeature"]
+  ScoresList --> MovmentDetails["<font color='red'>**Details**</font> <br><font color='purple'>(Navigate to Details)</font><br>MovementDetailsFeature"]
+  ScoresList --> WorkoutSubmission["<font color='red'>**Submission**</font> <br><font color='purple'>(Present Submission Sheet)</font><br>WorkoutSubmissionFeature"]
+
+  WorkoutSubmission --> SetEditGoal["<font color='red'>**Goal**</font> <br><font color='purple'>(Add or Edit Goal)</font><br>SetEditGoalFeature <br><font color='green'>Repository:</font><br>goalsRepository"]
+  WorkoutSubmission --> SubmitExercise["<font color='red'>**Result**</font> <br><font color='purple'>(Submit Exercise Result)</font><br>SubmitExerciseResultFeature <br><font color='green'>Repository:</font><br>addMeasurementRepository"]
 

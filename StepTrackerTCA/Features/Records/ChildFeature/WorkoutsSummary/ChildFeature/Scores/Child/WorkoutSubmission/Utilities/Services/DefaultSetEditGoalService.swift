@@ -22,3 +22,4 @@ final class DefaultSetEditGoalService: SetEditGoalService {
     }
     
 }
+
