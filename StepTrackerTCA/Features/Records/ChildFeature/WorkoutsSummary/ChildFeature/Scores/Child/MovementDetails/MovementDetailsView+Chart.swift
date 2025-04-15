@@ -42,4 +42,17 @@ extension MovementDetailsView {
         .lineStyle(.init(lineWidth: 1, dash: [5]))
     }
     
+    func selectedPointMark<Content: View>(with selectedPoint: WorkoutMeasurement,
+                                       annotationView: @escaping () -> Content
+    ) -> some ChartContent {
+        PointMark(x: .value("Selected Point", selectedPoint.date, unit: .day))
+            .foregroundStyle(Color.secondary.opacity(0.3))
+            .offset(y: -10)
+            .annotation(position: .top,
+                        spacing: 0,
+                        overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
+                annotationView()
+            }
+    }
+    
 }

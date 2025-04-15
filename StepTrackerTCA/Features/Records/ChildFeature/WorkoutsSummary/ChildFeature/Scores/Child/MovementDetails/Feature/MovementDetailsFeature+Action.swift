@@ -14,7 +14,15 @@ extension MovementDetailsFeature {
     
     /// Represents all the actions that can be performed within the `MovementDetailsFeature`.
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
+        
+        /// Action triggered when the user selects a date on the chart.
+        case selectedChartDateChange(Date?)
         
         /// Filters the currently selected movement by exercise name.
         ///
@@ -49,9 +57,20 @@ extension MovementDetailsFeature {
         
         enum View {
             
+            ///
+            case tapHistoryButton
+            
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
         }
+        
+        // MARK: - Destination
+        
+        /// Presents a detailed view of the selected `GroupedMovement`.
+        case show(GroupedMovement)
+        
+        /// Destination case for navigation
+        case destination(PresentationAction<Destination.Action>)
     }
     
 }
