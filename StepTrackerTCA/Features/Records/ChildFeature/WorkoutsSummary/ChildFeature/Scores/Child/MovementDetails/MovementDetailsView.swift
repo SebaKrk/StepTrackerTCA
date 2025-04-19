@@ -62,7 +62,7 @@ struct MovementDetailsView: View {
             send(.tapHistoryButton)
         } label: {
             HStack {
-                Text("\(store.movement) movement history")
+                Text("Movement history")
                 Spacer()
                 Image(systemName: "chevron.right")
             }
