@@ -33,4 +33,6 @@ protocol MovementDetailsFeatureServices {
     ///   - movementName: The name of the movement to filter by (e.g., "Snatch", "Squat").
     /// - Returns: A new `GroupedMovement` containing only the filtered data related to the specified movement.
     func filterGroupedMovementByExercise(_ groupedMovement: GroupedMovement, movementName: String) -> GroupedMovement
+    
+    func selectedWorkoutMeasurement(from measurements: [WorkoutMeasurement], with rawSelectedDate: Date?) -> WorkoutMeasurement?
 }

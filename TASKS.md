@@ -308,3 +308,6 @@
 ### IOS-00031 MovementHistory
     A: MovementHistoryFeature
      - create feature and view file
+    B: NavigationDestination for MovementHistoryFeature
+    - add destination
+    - add createPointMark

@@ -9,6 +9,14 @@ import Foundation
 
 final class DefaultMovementDetailsFeatureServices: MovementDetailsFeatureServices {
     
+    /// Retrieves the workout measurement that corresponds to the selected date.
+    func selectedWorkoutMeasurement(from measurements: [WorkoutMeasurement], with rawSelectedDate: Date?) -> WorkoutMeasurement? {
+        guard let rawSelectedDate else { return nil }
+        return measurements.first {
+            Calendar.current.isDate(rawSelectedDate, inSameDayAs: $0.date)
+        }
+    }
+    
     /// Generates an array of goal intervals from the provided workout goals.
     func generateGoalIntervals(workoutGoals: [WorkoutGoal], movementName: String) -> [MovementDetailsFeature.GoalInterval] {
         let filteredGoals = workoutGoals.filter { $0.movement == movementName }
