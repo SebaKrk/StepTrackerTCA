@@ -305,3 +305,9 @@
     - Code organization into appropriate files.
     - Removed SetEditGoalFeature and SubmitWorkout features by merging them into a unified flow.
     
+### IOS-00031 MovementHistory
+    A: MovementHistoryFeature
+     - create feature and view file
+    B: NavigationDestination for MovementHistoryFeature
+    - add destination
+    - add createPointMark

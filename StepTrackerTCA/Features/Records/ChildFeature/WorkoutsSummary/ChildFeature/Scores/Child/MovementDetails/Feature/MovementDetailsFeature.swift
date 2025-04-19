@@ -24,42 +24,79 @@ struct MovementDetailsFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-                
-            case .filterByMovement:
-                return .run { [groupedMovement = state.selectedMovement,  movement = state.movement] send in
-                    let filteredMovement = services.filterGroupedMovementByExercise(groupedMovement, movementName: movement)
-                    await send(.update(filteredMovement))
-                }
-                
-            case let .update(groupedMovement):
-                state.filteredMovement = groupedMovement
-                
-                return .run { send in
-                    await send(.checkGoals(groupedMovement))
-                }
-                
-                
-            case let .checkGoals(groupedMovement):
-                guard let goals = groupedMovement.goals, goals.count >= 2 else {
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                    
+                    // MARK: - Binding
+                case .binding(_):
+                    return .run { [date = state.rawSelectedDate] send  in
+                        if let date = date {
+                            await send(.selectedChartDateChange(date))
+                        } else {
+                            await send(.selectedChartDateChange(nil))
+                        }
+                    }
+                    
+                case let .selectedChartDateChange(date):
+                    if date == nil {
+                        state.selectedPoint = nil
+                    } else {
+                        state.selectedPoint = services.selectedWorkoutMeasurement(from: state.selectedMovement.movements, with: date)
+                    }
                     return .none
-                }
-                return .run { [movementName = state.movement] send in
-                    let goalIntervals = services.generateGoalIntervals(workoutGoals: goals, movementName: movementName)
-                    await send(.updateGoalInterval(goalIntervals))
-                }
-                
-            case let .updateGoalInterval(goalIntervals):
-                state.goalIntervals = goalIntervals
-                return .none
-                
-            case .view(.viewDidAppear):
-                return .run { send in
-                    await send(.filterByMovement)
+                    
+                    // MARK: - Actions
+                case .filterByMovement:
+                    return .run { [groupedMovement = state.selectedMovement,  movement = state.movement] send in
+                        let filteredMovement = services.filterGroupedMovementByExercise(groupedMovement, movementName: movement)
+                        await send(.update(filteredMovement))
+                    }
+                    
+                case let .update(groupedMovement):
+                    state.filteredMovement = groupedMovement
+                    
+                    return .run { send in
+                        await send(.checkGoals(groupedMovement))
+                    }
+                    
+                    
+                case let .checkGoals(groupedMovement):
+                    guard let goals = groupedMovement.goals, goals.count >= 2 else {
+                        return .none
+                    }
+                    return .run { [movementName = state.movement] send in
+                        let goalIntervals = services.generateGoalIntervals(workoutGoals: goals, movementName: movementName)
+                        await send(.updateGoalInterval(goalIntervals))
+                    }
+                    
+                case let .updateGoalInterval(goalIntervals):
+                    state.goalIntervals = goalIntervals
+                    return .none
+                    
+                    // MARK: - View Actions
+                case .view(.tapHistoryButton):
+                    return .run { [ groupedMovement = state.selectedMovement] send in
+                        await send(.show(groupedMovement))
+                    }
+                    
+                case .view(.viewDidAppear):
+                    return .run { send in
+                        await send(.filterByMovement)
+                    }
+                    
+                    // MARK: - Destination
+                case let .show(groupedMovement):
+                    state.destination = .showMovementHistory(MovementHistoryFeature.State(selectedMovement: groupedMovement))
+                    return .none
+                    
+                case .destination(_):
+                    return .none
                 }
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
     /// A structure representing an interval between workout goals.
