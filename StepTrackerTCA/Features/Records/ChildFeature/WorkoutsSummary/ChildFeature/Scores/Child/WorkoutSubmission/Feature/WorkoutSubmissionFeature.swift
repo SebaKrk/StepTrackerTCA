@@ -1,0 +1,206 @@
+//
+//  WorkoutSubmissionFeature.swift
+//  StepTrackerTCA
+//
+//  Created by Sebastian Sciuba on 12/04/2025.
+//
+
+import ComposableArchitecture
+
+@Reducer
+struct WorkoutSubmissionFeature {
+    
+    // MARK: - Dependency
+    
+    @Dependency(\.workoutSubmissionStrategyFactory) var strategyFactory
+    @Dependency(\.dismiss) var dismiss
+    
+    // MARK: - Reducer
+    
+    var body: some Reducer<State, Action> {
+        CombineReducers {
+            BindingReducer()
+            Reduce {
+                state,
+                action in
+                switch action {
+                    
+                case .binding(_):
+                    return .none
+                    
+                    // MARK: - Actions
+                    
+                case .validate:
+                    
+                    let isMovementSelected: Bool = {
+                        switch state.workoutType {
+                        case .weightlifting:
+                            return state.weightliftingMovement != nil
+                        case .strength:
+                            return state.strengthMovement != nil
+                        case .fitness:
+                            return state.fitnessMovement != nil
+                        case .cross:
+                            return state.crossMovement != nil
+                        case .hero:
+                            return state.heroMovement != nil
+                        }
+                    }()
+                    
+                    guard isMovementSelected else {
+                        state.alertMessage = "Please select a movement before proceeding."
+                        return .run { send in await send(.presentAlert) }
+                    }
+                    
+                    let valueToSave: String
+                    
+                    switch state.workoutType {
+                    case .weightlifting,
+                            .strength:
+                        guard !state.valueToAdd.isEmpty else {
+                            state.alertMessage = "The value field cannot be empty."
+                            return .run { send in await send(.presentAlert) }
+                        }
+                        valueToSave = state.valueToAdd
+                        state.selectedUnit = state.weightUnit.rawValue
+                        
+                    case .fitness,
+                            .hero:
+                        guard state.timeInterval != 0 else {
+                            state.alertMessage = "The time value cannot be equal zero."
+                            return .run { send in await send(.presentAlert) }
+                        }
+                        valueToSave = "\(state.timeInterval)"
+                        state.workoutUnit = .seconds
+                        state.selectedUnit = state.workoutUnit.rawValue
+                        
+                    case .cross:
+                        guard !state.crossValueToAdd.isEmpty else {
+                            state.alertMessage = "The reps value field cannot be empty."
+                            return .run { send in await send(.presentAlert) }
+                        }
+                        valueToSave = state.crossValueToAdd
+                        state.workoutUnit = .reps
+                        state.selectedUnit = state.workoutUnit.rawValue
+                    }
+                    
+                    state.valueToAdd = valueToSave
+                    
+                    return .run { send in
+                        await send(.addValue)
+                    }
+                    
+                case .addValue:
+                    guard let movement = state.selectedMovement else {
+                        state.alertMessage = "Failed to add data – missing required movement information."
+                        return .run { send in await send(.presentAlert) }
+                    }
+                    
+                    return .run { [submissionType = state.submissionType,
+                                   workoutType = state.workoutType,
+                                   date = state.addDataDate,
+                                   value = state.valueToAdd,
+                                   unit = state.selectedUnit] send in
+                        
+                        let strategy = strategyFactory.strategy(for: submissionType)
+                        
+                        do {
+                            try await strategy.submit(workout: workoutType,
+                                                      movement: movement.rawValue,
+                                                      date: date,
+                                                      value: value,
+                                                      unit: unit)
+                            await self.dismiss()
+                        } catch {
+                            print("❌ Error adding new goal: \(error.localizedDescription)")
+                        }
+                    }
+                    
+                case let .selectedWeightUnitPickerChange(unit):
+                    state.weightUnit = unit
+                    return .none
+                    
+                case let .selectedWorkoutUnitPickerChange(unit):
+                    state.workoutUnit = unit
+                    return .none
+                    
+                case let .selectedWeightliftingMovementPickerChange(movement):
+                    state.weightliftingMovement = movement
+                    
+                    return .run { send in
+                        guard let movement = movement else { return }
+                        await send(.selectedMomentChange(movement))
+                    }
+                    
+                case let .selectedStrengthMovementPickerChange(movement):
+                    state.strengthMovement = movement
+                    return .run { send in
+                        guard let movement = movement else { return }
+                        await send(.selectedMomentChange(movement))
+                    }
+                    
+                case let .selectedFitnessMovementPickerChange(movement):
+                    state.fitnessMovement = movement
+                    return .run { send in
+                        guard let movement = movement else { return }
+                        await send(.selectedMomentChange(movement))
+                    }
+                    
+                case let .selectedCrossMovementPickerChange(movement):
+                    state.crossMovement = movement
+                    return .run { send in
+                        guard let movement = movement else { return }
+                        await send(.selectedMomentChange(movement))
+                    }
+                    
+                case let .selectedHeroMovementPickerChange(movement):
+                    state.heroMovement = movement
+                    return .run { send in
+                        guard let movement = movement else { return }
+                        await send(.selectedMomentChange(movement))
+                    }
+                    
+                case let .selectedMomentChange(movement):
+                    state.selectedMovement = movement
+                    return .none
+                    
+                    // MARK: - View Actions
+                    
+                case .view(.dismissButtonPressed):
+                    return .run { send in
+                        await self.dismiss()
+                    }
+                    
+                case .view(.saveButtonPressed):
+                    return .run { send in
+                        await send(.validate)
+                    }
+                    
+                    // MARK: - Alert Action
+                    
+                case .presentAlert:
+                    guard let alertMessage = state.alertMessage else { return .none }
+                    state.alert = .infoAlert(with: alertMessage)
+                    state.alertMessage = nil
+                    return .none
+                    
+                case .alert(.dismiss):
+                    state.alert = nil
+                    return .none
+                    
+                case .alert(.presented(_)):
+                    return .none
+                }
+            }
+        }
+    }
+}
+
+
+//return .run { [service = state.service, workoutType = state.workoutType] send in
+//    let strategy = strategyFactory.strategy(for: service)
+//    do {
+//        try await strategy.submit(workout: workoutType , movement: "clean", date: .now, value: "123", unit: "kg")
+//    } catch {
+//
+//    }
