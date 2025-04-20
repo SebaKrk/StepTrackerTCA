@@ -22,7 +22,7 @@ struct MovementHistoryFeature {
             switch action {
                 
             case .view(.viewDidAppear):
-                print("MovementHistoryFeature")
+                dump(state.selectedMovement)
                 return .none
             }
         }

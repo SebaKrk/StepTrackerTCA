@@ -18,7 +18,30 @@ struct MovementHistoryView: View {
     // MARK: - View
     
     var body: some View {
-        Text("MovementHistoryView")
+        List {
+            Section {
+                ForEach(store.selectedMovement.movements) { item in
+                    cell(item.date, item.value)
+                }
+            } header: {
+                Text("\(store.selectedMovement.workoutType.rawValue) - \(store.selectedMovement.movements.first?.movement ?? "")")
+            }
+        }
+        .navigationTitle("Movement history")
+        .onAppear {
+            send(.viewDidAppear)
+        }
+
+    }
+    
+    // MARK: - SubView
+    
+    private func cell(_ date: Date, _ value: Double) -> some View {
+        HStack {
+            Text(date.formatted(date: .abbreviated, time: .omitted))
+            Spacer()
+            Text("\(value, format: .number) kg")
+        }
     }
     
 }

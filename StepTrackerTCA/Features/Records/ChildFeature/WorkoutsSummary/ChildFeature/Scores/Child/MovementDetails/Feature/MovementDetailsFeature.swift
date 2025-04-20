@@ -77,7 +77,8 @@ struct MovementDetailsFeature {
                     
                     // MARK: - View Actions
                 case .view(.tapHistoryButton):
-                    return .run { [ groupedMovement = state.selectedMovement] send in
+                    return .run { [groupedMovement = state.filteredMovement] send in
+                        guard let groupedMovement else { return }
                         await send(.show(groupedMovement))
                     }
                     
