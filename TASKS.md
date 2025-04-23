@@ -311,3 +311,5 @@
     B: NavigationDestination for MovementHistoryFeature
     - add destination
     - add createPointMark
+    C: MovementHistory List 
+    - Create List for movements
