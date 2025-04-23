@@ -24,7 +24,16 @@ struct MovementHistoryView: View {
                     cell(item.date, item.value)
                 }
             } header: {
-                Text("\(store.selectedMovement.workoutType.rawValue) - \(store.selectedMovement.movements.first?.movement ?? "")")
+                movementSectionTitle
+            }
+            if let goals = store.selectedMovement.goals, !goals.isEmpty {
+                Section {
+                    ForEach(goals) { goal in
+                        cell(goal.date, goal.value)
+                    }
+                } header: {
+                    goalSectionTitle
+                }
             }
         }
         .navigationTitle("Movement history")
@@ -42,6 +51,14 @@ struct MovementHistoryView: View {
             Spacer()
             Text("\(value, format: .number) kg")
         }
+    }
+    
+    private var movementSectionTitle: some View {
+        Text("\(store.selectedMovement.workoutType.rawValue) - \(store.selectedMovement.movements.first?.movement ?? "")")
+    }
+    
+    private var goalSectionTitle: some View {
+        Text("Goals")
     }
     
 }

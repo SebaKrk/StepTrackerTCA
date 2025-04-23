@@ -11,34 +11,15 @@ import Foundation
 @Reducer
 struct MovementHistoryFeature {
     
-    // MARK: - Dependencies
-    
-    // MARK: - Livecycle
-    
-    // MARK: - Reducer
-    
-    var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-                
-            case .view(.viewDidAppear):
-                dump(state.selectedMovement)
-                return .none
-            }
-        }
+    // MARK: - State
+    @ObservableState
+    struct State {
+        var selectedMovement: GroupedMovement
     }
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `MovementHistoryFeature` action
-extension MovementHistoryFeature {
     
+    // MARK: - Action
     @CasePathable
     enum Action: ViewAction {
-        
-        // MARK: - Actions
         
         // MARK: - View Actions
         
@@ -52,20 +33,15 @@ extension MovementHistoryFeature {
         }
     }
     
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `MovementHistoryFeature` state
-extension MovementHistoryFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        var selectedMovement: GroupedMovement
-        
+    // MARK: - Reducer
+    var body: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+                
+            case .view(.viewDidAppear):
+                return .none
+            }
+        }
     }
+    
 }
