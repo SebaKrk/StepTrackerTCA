@@ -39,7 +39,11 @@ class DefaultHealthKitManager: HealthKitManager {
     /// this implementation supports reading step count and body mass data.
     let readTypes: Set<HKObjectType> = [
         HKQuantityType(.stepCount),
-        HKQuantityType(.bodyMass)
+        HKQuantityType(.bodyMass),
+        HKObjectType.workoutType(),
+        HKQuantityType(.heartRate),
+        HKQuantityType(.activeEnergyBurned),
+        HKQuantityType(.workoutEffortScore),
     ]
     
     // MARK: - API
@@ -67,6 +71,49 @@ class DefaultHealthKitManager: HealthKitManager {
         let query = buildQuery(for: quantityType, startDate: startDate, endDate: endDate, options: options)
         let results = try await query.result(for: store)
         return processHealthData(results.statistics(), unit: unit, options: options)
+    }
+    
+    /// Fetches workouts from the HealthKit store for a given number of past days.
+    ///
+    /// - Parameter days: The number of days to look back for workouts. Defaults to 28.
+    /// - Returns: An array of `HKWorkout` objects.
+    func fetchWorkouts(for days: Int = 28) async throws -> [HKWorkout] {
+        
+        let (startDate, endDate) = calculateDateRange(for: days)
+        
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate)
+        /// HKSamplePredicate<HKWorkout>.workout(predicate)
+        let workoutPredicate = HKSamplePredicate.workout(predicate)
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [workoutPredicate],
+            sortDescriptors: [SortDescriptor(\HKWorkout.endDate, order: .reverse)]
+        )
+        let workouts = try await descriptor.result(for: store)
+        return workouts
+    }
+    
+    func fetchHeartRateSamples(for workout: HKWorkout) async throws -> [HKQuantitySample] {
+        guard let hrType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+            throw NSError(
+                domain: "HealthKitError",
+                code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "Heart Rate type is unavailable in HealthKit"]
+            )
+        }
+        
+        let objectPredicate = HKQuery.predicateForObjects(from: workout)
+        
+        let timePredicate = HKQuery.predicateForSamples(
+            withStart: workout.startDate,
+            end: workout.endDate,
+            options: []
+        )
+        let compound = NSCompoundPredicate(andPredicateWithSubpredicates: [objectPredicate, timePredicate])
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [ .quantitySample(type: hrType, predicate: compound) ],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .forward) ]
+        )
+        return try await descriptor.result(for: store) as [HKQuantitySample]
     }
     
     /// Adds health data to the HealthKit store for a specific date, value, and type.
@@ -163,3 +210,23 @@ class DefaultHealthKitManager: HealthKitManager {
     }
     
 }
+
+
+//// Define the type.
+//let stepType = HKQuantityType(.stepCount)
+//
+//// Create the descriptor.
+//let descriptor = HKSampleQueryDescriptor(
+//    predicates:[.quantitySample(type: stepType)],
+//    sortDescriptors: [SortDescriptor(\.endDate, order: .reverse)],
+//    limit: 10)
+//
+//
+//// Launch the query and wait for the results.
+//// The system automatically sets results to [HKQuantitySample].
+//let results = try await descriptor.result(for: store)
+//
+//
+//for result in results {
+//    // Process the results here.
+//}

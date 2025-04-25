@@ -313,3 +313,7 @@
     - add createPointMark
     C: MovementHistory List 
     - Create List for movements
+
+### IOS-00032 Activity
+    A: create ActivityList 
+

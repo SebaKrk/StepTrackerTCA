@@ -11,6 +11,16 @@ import Foundation
 @Reducer
 struct ActivityFeature {
     
+    // MARK: - Properties
+    
+    var service: DefaultActivityFeatureService
+    
+    // MARK: - Lifecycle
+    
+    init(service: DefaultActivityFeatureService = DefaultActivityFeatureService()) {
+        self.service = service
+    }
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -29,14 +39,33 @@ struct ActivityFeature {
                     state.activityPeriod = period
                     return .none
                     
+                case .fetchHealthData:
+                    return .run { send in
+                        await send(.updateHKData(Result {
+                            try await service.getWorkoutData()
+                        }))
+                    }
+                case let .updateHKData(.success(data)):
+                    state.workouts = data
+                    return .none
+                    
+                case let .updateHKData(.failure(error)):
+                    print("❌ Failed to fetchHK data: \(error.localizedDescription)")
+                    return .none
+                    
+                    
                     // MARK: - View Actions
                  
                 case let .view(.tapWorkout(workout)):
                     return .send(.workoutSelected(workout))
                     
+                case let .view(.tapHKWorkout(workout)):
+                    return .send(.HKWorkoutSelected(workout))
+                    
                 case .view(.viewDidAppear):
-                    print("ActivityFeature - viewDidAppear")
-                    return .none
+                    return .run { send in
+                        await send(.fetchHealthData)
+                    }
                     
                 // MARK: - Destination
                     
@@ -47,12 +76,25 @@ struct ActivityFeature {
                     }
                     return .none
                     
+                case let .HKWorkoutSelected(workout):
+                    state.selectedHKWorkout = workout
+                    if let workout {
+                        return .send(.showHR(workout))
+                    }
+                    return.none
+                    
                 case let .show(workout):
                     state.destination = .detailItem(ActivityDetailsFeature.State(workout: workout))
                     return .none
                     
+                case let .showHR(workout):
+                    state.destination = .heartRateDetails(HeartRateDetailsFeature.State(workout: workout))
+                    return .none
+                    
                 case .destination:
                     return .none
+     
+
                 }
             }
         }
