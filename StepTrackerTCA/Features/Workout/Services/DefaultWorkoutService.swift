@@ -10,7 +10,7 @@ import Foundation
 
 protocol WorkoutService {
     func setWeightGoal(_ weight: Double, date: Date) async throws
-    func fetchWeightGoal() async throws -> Double
+    func fetchWeightGoal() async throws -> Double?
 }
 
 final class DefaultWorkoutService: WorkoutService {
@@ -30,7 +30,7 @@ final class DefaultWorkoutService: WorkoutService {
         try await recordsRepository.setNewWeightGoal(goal: goal)
     }
     
-    func fetchWeightGoal() async throws -> Double {
+    func fetchWeightGoal() async throws -> Double? {
         try await recordsRepository.fetchWeightGoal()
     }
     

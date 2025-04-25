@@ -45,6 +45,6 @@ protocol WeightGoalWidgetService {
     func calculateWeightAverage(from data: [HealthData]) -> Double
     
     /// Fetches the current weight goal from the storage or service.
-    func fetchWeightGoal() async throws -> Double
+    func fetchWeightGoal() async throws -> Double?
     
 }

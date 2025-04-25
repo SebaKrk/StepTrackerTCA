@@ -136,7 +136,10 @@ struct SummaryView: View {
     }
     
     private var unavailableView: some View {
-        ChartContentUnavailable()
+        GroupBox {
+            ChartContentUnavailable()
+        }
+        .frame(minHeight: 200)
     }
     
 }

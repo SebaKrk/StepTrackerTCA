@@ -38,8 +38,11 @@ struct WorkoutFeature {
                 case .clearAndReload:
                     state.value = ""
                     return .run { send in
-                        let goal = try await service.fetchWeightGoal()
-                        await send(.updateCurrentWeight(goal))
+                        if let goal = try? await service.fetchWeightGoal() {
+                            await send(.updateCurrentWeight(goal))
+                        } else {
+                            print("⚠️ Brak ustawionego celu – goal jest nil")
+                        }
                     }
                     
                 case let .updateCurrentWeight(goal):
@@ -55,8 +58,9 @@ struct WorkoutFeature {
                     
                 case .view(.viewDidAppear):
                     return .run { send in
-                        let goal = try await service.fetchWeightGoal()
-                        await send(.updateCurrentWeight(goal))
+                        if let goal = try await service.fetchWeightGoal() {
+                            await send(.updateCurrentWeight(goal))
+                        }
                     }
                 }
             }
