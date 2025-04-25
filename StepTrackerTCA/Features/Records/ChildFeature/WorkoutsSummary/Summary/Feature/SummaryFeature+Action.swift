@@ -41,6 +41,10 @@ extension SummaryFeature {
             /// Triggered when a navigation button is tapped.
             case navigationButtonTapped(WorkoutType)
             
+            /// Triggered when the "+" button is tapped when user don't have any data..
+            /// Propagates an action upward to the parent feature, which opens a sheet.
+            case addMetricButtonPressed
+            
         }
         
         // MARK: - Destination
