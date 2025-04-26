@@ -26,17 +26,40 @@ struct HeartRateDetailsFeature {
     @ObservableState
     struct State {
         
+        ///
         var workout: HKWorkout
         
+        ///
         var sample: [HKQuantitySample] = []
+        
+        ///
+        var workoutType: String { workout.workoutActivityType.name }
+        
+        ///
+        var startWorkout: Date { workout.startDate }
+        
+        ///
+        var endWorkout: Date { workout.endDate }
+        
+        var isExpandDetails: Bool = false
+        
     }
     
     // MARK: - Action
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
         
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
+        
+        // MARK: - Actions
+        
+        ///
         case fetch
         
+        ///
         case updateData(Result<[HKQuantitySample], Error>)
         
         // MARK: - View Actions
@@ -53,31 +76,38 @@ struct HeartRateDetailsFeature {
     
     // MARK: - Reducer
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-                
-            case .fetch:
-                return .run { [workout = state.workout] send in
-                    await send(.updateData(Result {
-                        try await service.fetchHeartRateSamples(for: workout)
-                    }))
-                }
-                
-            case let .updateData(.success(data)):
-                state.sample = data
-                dump(data)
-                return .none
-                
-            case let .updateData(.failure(error)):
-                print("❌ Failed to sample data: \(error.localizedDescription)")
-                return .none
-                
-            case .view(.viewDidAppear):
-                return .run { send in
-                    await send(.fetch)
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                    
+                    // MARK: - Binding
+                case .binding(_):
+                    return .none
+                    
+                    // MARK: - Actions
+                case .fetch:
+                    return .run { [workout = state.workout] send in
+                        await send(.updateData(Result {
+                            try await service.fetchHeartRateSamples(for: workout)
+                        }))
+                    }
+                    
+                case let .updateData(.success(data)):
+                    state.sample = data
+                    return .none
+                    
+                case let .updateData(.failure(error)):
+                    print("❌ Failed to sample data: \(error.localizedDescription)")
+                    return .none
+                    
+                    // MARK: - ViewActions
+                case .view(.viewDidAppear):
+                    return .run { send in
+                        await send(.fetch)
+                    }
                 }
             }
-            
         }
     }
     

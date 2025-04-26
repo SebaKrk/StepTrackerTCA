@@ -320,5 +320,5 @@
     - create property for real data form HK in ActivityFeature
     - create and fetch workout and HeatRate data from HK manager 
     - create HeartRateDetailsFeature
+    B: HeartRateDetails 
     
-

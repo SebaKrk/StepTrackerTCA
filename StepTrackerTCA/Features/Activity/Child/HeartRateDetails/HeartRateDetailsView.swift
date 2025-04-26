@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import HealthKit
 
 @ViewAction(for: HeartRateDetailsFeature.self)
 struct HeartRateDetailsView: View {
@@ -18,22 +19,49 @@ struct HeartRateDetailsView: View {
     // MARK: - View
     
     var body: some View {
-        List(store.sample, id: \.startDate) { sample in
-            HStack {
-                Text(sample.startDate, style: .time)
-                Spacer()
-                let bpm = sample.quantity.doubleValue(
-                    for: .count().unitDivided(by: .minute())
-                )
-                Text("\(Int(bpm)) BPM")
-            }
+        DisclosureGroup("Details HR", isExpanded: $store.isExpandDetails) {
+            Text("cos")
         }
+        detailsHeartRateList
         .navigationTitle("Heart Rate Details")
         .onAppear {
             send(.viewDidAppear)
         }
     }
-       
+    
+    // pogrupowane po 1 minucie , moze najwyzsze z dane minuty
+    // kazdy pomiar , na zasadzie rozwijanej listy
+    
+    private var detailsHeartRateList: some View {
+        List {
+            Section {
+                ForEach(store.sample, id: \.startDate) { sample in
+                    sampleCell(sample)
+                }
+            } header: {
+                sectionHeaderTitle
+            }
+    
+        }
+    }
+    
+    private func sampleCell(_ sample: HKQuantitySample) -> some View {
+        HStack {
+            Text(sample.startDate, style: .time)
+            Spacer()
+            let bpm = sample.quantity.doubleValue(
+                for: .count().unitDivided(by: .minute())
+            )
+            bmpCell(bpm)
+        }
+    }
+    
+    private func bmpCell(_ bpm: Double)  -> some View {
+        Label("\(Int(bpm)) BMP", systemImage: "heart.fill")
+    }
+    
+    private var sectionHeaderTitle: some View {
+        Text("\(store.workoutType): \(store.startWorkout, format: Date.FormatStyle.dateTime.day().month(.twoDigits).year().hour().minute()) - \(store.endWorkout,format: Date.FormatStyle.dateTime.hour().minute())")
+    }
+    
 }
-
- 
