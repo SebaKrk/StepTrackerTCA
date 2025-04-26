@@ -19,10 +19,22 @@ struct HeartRateDetailsView: View {
     // MARK: - View
     
     var body: some View {
-        DisclosureGroup("Details HR", isExpanded: $store.isExpandDetails) {
-            Text("cos")
+        VStack(spacing: 5) {
+            GroupBox {
+                Text("Tu bedzie chart")
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 200)
+            }
+            .padding([.leading, .trailing], 6)
+
+            Form {
+                DisclosureGroup("Details HR", isExpanded: $store.isExpandDetails) {
+                    ForEach(store.sample, id: \.startDate) { sample in
+                        sampleCell(sample)
+                    }
+                }
+            }
         }
-        detailsHeartRateList
         .navigationTitle("Heart Rate Details")
         .onAppear {
             send(.viewDidAppear)
