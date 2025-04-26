@@ -8,5 +8,9 @@
 import HealthKit
 
 protocol HeartRateDetailsService {
+    
     func fetchHeartRateSamples(for workout: HKWorkout) async throws -> [HKQuantitySample]
+    
+    func calculateMinuteHRStats(from samples: [HKQuantitySample]) -> [HeartRateMetricsMinute]
+    
 }

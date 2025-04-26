@@ -321,4 +321,8 @@
     - create and fetch workout and HeatRate data from HK manager 
     - create HeartRateDetailsFeature
     B: HeartRateDetails 
+    - create details
+    - create service
+    - create charts
     
+

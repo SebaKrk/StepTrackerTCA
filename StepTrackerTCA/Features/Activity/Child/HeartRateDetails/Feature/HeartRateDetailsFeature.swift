@@ -33,6 +33,9 @@ struct HeartRateDetailsFeature {
         var sample: [HKQuantitySample] = []
         
         ///
+        var hrData: [HeartRateMetricsMinute] = []
+        
+        ///
         var workoutType: String { workout.workoutActivityType.name }
         
         ///
@@ -41,6 +44,7 @@ struct HeartRateDetailsFeature {
         ///
         var endWorkout: Date { workout.endDate }
         
+        ///
         var isExpandDetails: Bool = false
         
     }
@@ -61,6 +65,14 @@ struct HeartRateDetailsFeature {
         
         ///
         case updateData(Result<[HKQuantitySample], Error>)
+        
+        ///
+        case calculateMinuteHRStats
+        
+        ///
+        case updateHRMetric([HeartRateMetricsMinute])
+        //([HKQuantitySample])
+        
         
         // MARK: - View Actions
         
@@ -95,10 +107,22 @@ struct HeartRateDetailsFeature {
                     
                 case let .updateData(.success(data)):
                     state.sample = data
-                    return .none
+                    return .run { send in
+                        await send(.calculateMinuteHRStats)
+                    }
                     
                 case let .updateData(.failure(error)):
                     print("❌ Failed to sample data: \(error.localizedDescription)")
+                    return .none
+                    
+                case .calculateMinuteHRStats:
+                    return .run { [sample = state.sample] send in
+                        let hrData = service.calculateMinuteHRStats(from: sample)
+                        await send(.updateHRMetric(hrData))
+                    }
+                    
+                case let .updateHRMetric(data):
+                    state.hrData = data
                     return .none
                     
                     // MARK: - ViewActions

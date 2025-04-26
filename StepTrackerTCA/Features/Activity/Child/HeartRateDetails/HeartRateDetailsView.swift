@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Charts
 import SwiftUI
 import HealthKit
 
@@ -20,29 +21,34 @@ struct HeartRateDetailsView: View {
     
     var body: some View {
         VStack(spacing: 5) {
-            GroupBox {
-                Text("Tu bedzie chart")
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 200)
-            }
-            .padding([.leading, .trailing], 6)
-
-            Form {
-                DisclosureGroup("Details HR", isExpanded: $store.isExpandDetails) {
-                    ForEach(store.sample, id: \.startDate) { sample in
-                        sampleCell(sample)
-                    }
-                }
-            }
+            hrGroupBox
+            hrDetails
         }
         .navigationTitle("Heart Rate Details")
         .onAppear {
             send(.viewDidAppear)
         }
     }
+
+    private var hrGroupBox: some View {
+        GroupBox {
+            chartView
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 200)
+        }
+        .padding([.leading, .trailing], 6)
+        
+    }
     
-    // pogrupowane po 1 minucie , moze najwyzsze z dane minuty
-    // kazdy pomiar , na zasadzie rozwijanej listy
+    private var hrDetails: some View {
+        Form {
+            DisclosureGroup("Details HR", isExpanded: $store.isExpandDetails) {
+                ForEach(store.sample, id: \.startDate) { sample in
+                    sampleCell(sample)
+                }
+            }
+        }
+    }
     
     private var detailsHeartRateList: some View {
         List {
@@ -53,7 +59,7 @@ struct HeartRateDetailsView: View {
             } header: {
                 sectionHeaderTitle
             }
-    
+            
         }
     }
     
@@ -74,6 +80,26 @@ struct HeartRateDetailsView: View {
     
     private var sectionHeaderTitle: some View {
         Text("\(store.workoutType): \(store.startWorkout, format: Date.FormatStyle.dateTime.day().month(.twoDigits).year().hour().minute()) - \(store.endWorkout,format: Date.FormatStyle.dateTime.hour().minute())")
+    }
+    
+    @ViewBuilder
+    private var chartView: some View {
+        createChartView(store.hrData)
+    }
+    
+    @ViewBuilder
+    private func createChartView(_ hrData: [HeartRateMetricsMinute]) -> some View {
+        Chart {
+            ForEach(hrData, id: \.minute) { stats in
+                BarMark(
+                    x: .value("Minute", stats.minute, unit: .minute),
+                    yStart: .value("HR min", stats.minHR),
+                    yEnd: .value("HR max", stats.maxHR)
+                )
+            }
+            
+        }
+        
     }
     
 }
