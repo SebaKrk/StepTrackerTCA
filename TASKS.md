@@ -316,4 +316,9 @@
 
 ### IOS-00032 Activity
     A: create ActivityList 
+    - create ext HKWorkoutActivityType, returns a user-friendly name for the workout activity
+    - create property for real data form HK in ActivityFeature
+    - create and fetch workout and HeatRate data from HK manager 
+    - create HeartRateDetailsFeature
+    
 
