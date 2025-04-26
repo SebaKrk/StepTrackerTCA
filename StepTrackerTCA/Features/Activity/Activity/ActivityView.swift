@@ -30,6 +30,12 @@ struct ActivityView: View {
                         action: \.destination.detailItem)) { store in
                             ActivityDetailsView(store: store)
                         }
+                .navigationDestination(
+                    item: $store.scope(
+                        state: \.destination?.heartRateDetails,
+                        action: \.destination.heartRateDetails)) { store in
+                            HeartRateDetailsView(store: store)
+                        }
         }
     }
     
@@ -38,11 +44,21 @@ struct ActivityView: View {
     private var activityBody: some View {
         VStack(spacing: 0) {
             activityPeriodPicker
-            activityList
+            activityListView
         }
         .navigationTitle("Activity")
         .onAppear {
             send(.viewDidAppear)
+        }
+    }
+    
+    @ViewBuilder
+    private var activityListView: some View {
+        switch store.activityPeriod {
+        case .day:
+            activityList
+        case .fourWeeks:
+            hkWorkoutList
         }
     }
     
@@ -93,6 +109,22 @@ struct ActivityView: View {
         .tint(.primary)
     }
     
+    private var hkWorkoutList: some View {
+        List(selection: $store.selectedHKWorkout.sending(\.HKWorkoutSelected)) {
+            ForEach(store.workouts, id: \.uuid) { item in
+                Button {
+                    send(.tapHKWorkout(item))
+                } label: {
+                    Text(item.workoutActivityType.name)
+                }
+            }
+        }
+        .listStyle(.grouped)
+        .scrollContentBackground(.hidden)
+        .padding(.top, 0)
+        .padding([.leading, .trailing], 12)
+    }
+    
 }
 
 #Preview {
@@ -102,4 +134,5 @@ struct ActivityView: View {
         }))
     }
 }
+
 

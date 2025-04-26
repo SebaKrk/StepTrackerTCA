@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthKit
 
 /// Implementation of `ActivityFeature` state
 extension ActivityFeature {
@@ -27,6 +28,11 @@ extension ActivityFeature {
         /// The currently selected activity period to display on the list.
         /// - Default: `.day`
         var activityPeriod: ActivityPeriod = .day
+        
+        ///
+        var workouts: [HKWorkout] = []
+        
+        var selectedHKWorkout: HKWorkout?
         
         // MARK: - Destination
         

@@ -89,4 +89,8 @@ protocol HealthKitManager {
     /// HealthKit data types (`HKQuantityType.stepCount` and `HKQuantityType.bodyMass`).
     func addSimulatorData() async throws
     
+    
+    func fetchWorkouts(for days: Int) async throws -> [HKWorkout]
+    
+    func fetchHeartRateSamples(for workout: HKWorkout) async throws -> [HKQuantitySample]
 }
