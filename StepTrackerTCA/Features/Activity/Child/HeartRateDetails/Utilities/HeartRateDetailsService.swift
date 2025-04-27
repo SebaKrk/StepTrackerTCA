@@ -13,4 +13,6 @@ protocol HeartRateDetailsService {
     
     func calculateMinuteHRStats(from samples: [HKQuantitySample]) -> [HeartRateMetricsMinute]
     
+    func fetchActiveEnergyBurned(for workout: HKWorkout) async throws -> Double 
+    
 }

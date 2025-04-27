@@ -29,15 +29,16 @@ struct HeartRateDetailsView: View {
             send(.viewDidAppear)
         }
     }
-
+    
     private var hrGroupBox: some View {
         GroupBox {
-            chartView
+            heartRateWorkoutWidget
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 200)
+        } label: {
+            chartHeaderView
         }
         .padding([.leading, .trailing], 6)
-        
     }
     
     private var hrDetails: some View {
@@ -59,7 +60,6 @@ struct HeartRateDetailsView: View {
             } header: {
                 sectionHeaderTitle
             }
-            
         }
     }
     
@@ -83,23 +83,51 @@ struct HeartRateDetailsView: View {
     }
     
     @ViewBuilder
-    private var chartView: some View {
-        createChartView(store.hrData)
+    var heartRateWorkoutWidget: some View {
+        VStack(alignment: .leading) {
+            chartView
+            Spacer().frame(height: 15)
+            chartFooterView
+        }
+        .padding()
     }
     
     @ViewBuilder
-    private func createChartView(_ hrData: [HeartRateMetricsMinute]) -> some View {
-        Chart {
-            ForEach(hrData, id: \.minute) { stats in
-                BarMark(
-                    x: .value("Minute", stats.minute, unit: .minute),
-                    yStart: .value("HR min", stats.minHR),
-                    yEnd: .value("HR max", stats.maxHR)
-                )
+    var chartHeaderView: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Group {
+                    Text("Heart Rate Range")
+                    Spacer()
+                    Text("\(store.hrData.first?.minute ?? .now, format: .dateTime.month().day().year())")
+                }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
             }
             
+            Label("\(store.lowestMinHR, format: .number) - \(store.highestMaxHR, format: .number) BMP", systemImage: "heart.fill")
+                .foregroundColor(.pink)
         }
-        
+        .padding(.leading, 10)
+        .padding(.bottom, -25)
+    }
+    
+    @ViewBuilder
+    var chartFooterView: some View {
+        Text("\(Int(store.activeEnergyBurned), format: .number) KCLA")
+    }
+    
+    @ViewBuilder
+    private var chartView: some View {
+        createChartView(store.hrData)
+            .padding(.top, 4)
     }
     
 }
+
+//Text(Date.now, format: Date.FormatStyle(date: .numeric, time:.shortened))
+
+//            Text("\(SalesData.salesInPeriod(in: scrollPositionStart...scrollPositionEnd), format: .number) PLN")
+
+
+//Text("\(scrollPositionString) – \(scrollPositionEndString)")

@@ -116,6 +116,25 @@ class DefaultHealthKitManager: HealthKitManager {
         return try await descriptor.result(for: store) as [HKQuantitySample]
     }
     
+    func fetchActiveEnergyBurned(for workout: HKWorkout) async throws -> Double {
+        let type = HKQuantityType(.activeEnergyBurned)
+        let predicate = HKQuery.predicateForSamples(withStart: workout.startDate, end: workout.endDate, options: .strictStartDate)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate) { _, result, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let sum = result?.sumQuantity() {
+                    let kcal = sum.doubleValue(for: HKUnit.kilocalorie())
+                    continuation.resume(returning: kcal)
+                } else {
+                    continuation.resume(returning: 0)
+                }
+            }
+            self.store.execute(query)
+        }
+    }
+    
     /// Adds health data to the HealthKit store for a specific date, value, and type.
     func addHealthData(for date: Date, value: Double, type: HKQuantityTypeIdentifier, unit: HKUnit) async throws {
         guard let quantityType = HKQuantityType.quantityType(forIdentifier: type) else {

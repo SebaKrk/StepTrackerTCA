@@ -40,4 +40,8 @@ final class DefaultHeartRateDetailsService: HeartRateDetailsService {
         return stats.sorted { $0.minute < $1.minute }
     }
     
+    func fetchActiveEnergyBurned(for workout: HKWorkout) async throws -> Double {
+        try await healthKitManager.fetchActiveEnergyBurned(for: workout)
+    }
+    
 }

@@ -22,70 +22,6 @@ struct HeartRateDetailsFeature {
         self.service = service
     }
     
-    // MARK: - State
-    @ObservableState
-    struct State {
-        
-        ///
-        var workout: HKWorkout
-        
-        ///
-        var sample: [HKQuantitySample] = []
-        
-        ///
-        var hrData: [HeartRateMetricsMinute] = []
-        
-        ///
-        var workoutType: String { workout.workoutActivityType.name }
-        
-        ///
-        var startWorkout: Date { workout.startDate }
-        
-        ///
-        var endWorkout: Date { workout.endDate }
-        
-        ///
-        var isExpandDetails: Bool = false
-        
-    }
-    
-    // MARK: - Action
-    @CasePathable
-    enum Action: ViewAction, BindableAction {
-        
-        // MARK: - Binding Action
-        
-        /// Handles changes in bindings for the state.
-        case binding(BindingAction<State>)
-        
-        // MARK: - Actions
-        
-        ///
-        case fetch
-        
-        ///
-        case updateData(Result<[HKQuantitySample], Error>)
-        
-        ///
-        case calculateMinuteHRStats
-        
-        ///
-        case updateHRMetric([HeartRateMetricsMinute])
-        //([HKQuantitySample])
-        
-        
-        // MARK: - View Actions
-        
-        /// View-specific actions triggered by UI events.
-        case view(View)
-        
-        enum View {
-            
-            /// The action responsible for completing tasks as soon as the view is displayed.
-            case viewDidAppear
-        }
-    }
-    
     // MARK: - Reducer
     var body: some Reducer<State, Action> {
         CombineReducers {
@@ -95,11 +31,14 @@ struct HeartRateDetailsFeature {
                     
                     // MARK: - Binding
                 case .binding(_):
-                    return .none
+                    return .run { [min = state.scrollPositionStart] send  in
+                        await send(.selectedChartMinChange(min))
+                    }
                     
                     // MARK: - Actions
-                case .fetch:
+                case .fetchData:
                     return .run { [workout = state.workout] send in
+                        await send(.calculateActiveEnergyBurned(workout))
                         await send(.updateData(Result {
                             try await service.fetchHeartRateSamples(for: workout)
                         }))
@@ -114,6 +53,16 @@ struct HeartRateDetailsFeature {
                 case let .updateData(.failure(error)):
                     print("❌ Failed to sample data: \(error.localizedDescription)")
                     return .none
+                
+                case let .calculateActiveEnergyBurned(data):
+                    return .run { send in
+                       let energyBurned = try await service.fetchActiveEnergyBurned(for: data)
+                        await send(.updateActiveEnergyBurned(energyBurned))
+                    }
+                    
+                case let .updateActiveEnergyBurned(data):
+                    state.activeEnergyBurned = data
+                    return .none
                     
                 case .calculateMinuteHRStats:
                     return .run { [sample = state.sample] send in
@@ -123,13 +72,28 @@ struct HeartRateDetailsFeature {
                     
                 case let .updateHRMetric(data):
                     state.hrData = data
+                    state.lowestMinHR = data.map(\.minHR).min() ?? 0
+                    state.highestMaxHR = data.map(\.maxHR).max() ?? 0
+                    
+                    state.scrollPositionStart = data.first?.minute ?? .now
+                    
+                    return .run { [min = state.scrollPositionStart] send  in
+                        await send(.selectedChartMinChange(min))
+                    }
+                    
+                case let .selectedChartMinChange(min):
+                    if let min = min {
+                        print(min.formatted(.dateTime.minute()))
+                    }
                     return .none
                     
                     // MARK: - ViewActions
                 case .view(.viewDidAppear):
-                    return .run { send in
-                        await send(.fetch)
+                    return .run { [start = state.scrollPositionStart] send in
+                        print(start)
+                        await send(.fetchData)
                     }
+     
                 }
             }
         }
