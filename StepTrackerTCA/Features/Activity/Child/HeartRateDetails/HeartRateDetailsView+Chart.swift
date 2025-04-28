@@ -21,6 +21,7 @@ extension HeartRateDetailsView {
                 )
             }
             .foregroundStyle(.pink.opacity(0.9))
+            .cornerRadius(4)
         }
         .chartYScale(domain: .automatic(includesZero: false))
         .chartXAxis {
