@@ -86,10 +86,11 @@ struct HeartRateDetailsView: View {
     var heartRateWorkoutWidget: some View {
         VStack(alignment: .leading) {
             chartView
+                .padding()
             Spacer().frame(height: 15)
             chartFooterView
         }
-        .padding()
+        
     }
     
     @ViewBuilder
@@ -114,7 +115,15 @@ struct HeartRateDetailsView: View {
     
     @ViewBuilder
     var chartFooterView: some View {
-        Text("\(Int(store.activeEnergyBurned), format: .number) KCLA")
+        VStack(alignment: .leading, spacing: 4) {
+            Label("\(Int(store.activeEnergyBurned), format: .number) kcal", systemImage: "flame.fill")
+                .foregroundStyle(.pink)
+            
+            Text("Duration: \(store.workoutDurationInMinutes, format: .number.precision(.fractionLength(0))) min")
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+            
+        }
     }
     
     @ViewBuilder

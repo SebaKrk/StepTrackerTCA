@@ -17,10 +17,12 @@ final class DefaultHeartRateDetailsService: HeartRateDetailsService {
     
     // MARK: - API
     
+    /// Fetches heart rate quantity samples associated with a given workout.
     func fetchHeartRateSamples(for workout: HKWorkout) async throws -> [HKQuantitySample] {
         try await healthKitManager.fetchHeartRateSamples(for: workout)
     }
     
+    /// Calculates per-minute heart rate metrics from the provided heart rate samples.
     func calculateMinuteHRStats(from samples: [HKQuantitySample]) -> [HeartRateMetricsMinute] {
         let calendar = Calendar.current
         
@@ -40,6 +42,7 @@ final class DefaultHeartRateDetailsService: HeartRateDetailsService {
         return stats.sorted { $0.minute < $1.minute }
     }
     
+    /// Fetches the amount of active energy burned during the given workout.
     func fetchActiveEnergyBurned(for workout: HKWorkout) async throws -> Double {
         try await healthKitManager.fetchActiveEnergyBurned(for: workout)
     }

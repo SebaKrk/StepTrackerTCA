@@ -25,21 +25,22 @@ extension HeartRateDetailsFeature {
         
         // MARK: - Actions
         
-        ///
+        /// Initiates the process of fetching heart rate data from HealthKit.
         case fetchData
-        
-        ///
+
+        /// Updates the state with the result of fetching heart rate samples.
         case updateData(Result<[HKQuantitySample], Error>)
-        
-        ///
+
+        /// Calculates heart rate statistics per minute based on the fetched data.
         case calculateMinuteHRStats
-        
-        ///
+
+        /// Updates the heart rate metrics per minute used for charting and analysis.
         case updateHRMetric([HeartRateMetricsMinute])
-        //([HKQuantitySample])
-        
+
+        /// Calculates the amount of active energy burned from a workout sample.
         case calculateActiveEnergyBurned(HKWorkout)
         
+        /// Updates the active energy burned value after calculating it from the workout data.
         case updateActiveEnergyBurned(Double)
         
         

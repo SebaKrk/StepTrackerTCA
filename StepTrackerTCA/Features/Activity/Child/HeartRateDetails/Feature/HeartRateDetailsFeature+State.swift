@@ -15,54 +15,44 @@ extension HeartRateDetailsFeature {
     @ObservableState
     struct State {
         
-        ///
+        /// The workout for which heart rate details are being displayed.
         var workout: HKWorkout
         
-        ///
+        /// The list of heart rate quantity samples fetched from HealthKit.
         var sample: [HKQuantitySample] = []
         
-        ///
+        /// The processed per-minute heart rate metrics derived from the samples.
         var hrData: [HeartRateMetricsMinute] = []
         
-        ///
+        /// The type of workout (e.g., running, cycling) as a human-readable string.
         var workoutType: String { workout.workoutActivityType.name }
         
-        ///
+        /// The start time of the workout.
         var startWorkout: Date { workout.startDate }
         
-        ///
+        /// The end time of the workout.
         var endWorkout: Date { workout.endDate }
         
         ///
+        var workoutDurationInMinutes: Double {
+            workout.endDate.timeIntervalSince(workout.startDate) / 60
+        }
+        
+        /// A Boolean flag indicating whether the workout details view is expanded.
         var isExpandDetails: Bool = false
         
-        ///
+        /// The lowest recorded heart rate during the workout.
         var lowestMinHR: Double = 0
         
-        ///
+        /// The highest recorded heart rate during the workout.
         var highestMaxHR: Double = 0
         
+        /// The amount of active energy burned during the workout, in kilocalories.
         var activeEnergyBurned: Double = 0
         
-        /// Scroll start set to one minute into the workout
+        /// The starting position of the scroll view, set to one minute into the workout.
         var scrollPositionStart: Date = .now
         
-        /// All minute-level HR metrics for the hour of scrollPositionStart
-        var hrMetricsForCurrentHour: [HeartRateMetricsMinute] {
-            let calendar = Calendar.current
-            guard let hourStart = calendar.dateInterval(of: .hour, for: scrollPositionStart)?.start else { return [] }
-            return hrData.filter { calendar.isDate($0.minute, equalTo: hourStart, toGranularity: .hour) }
-        }
-
-        /// Average HR (mean of min and max) for the exact minute at scrollPositionStart
-        var averageHRAtScrollPosition: Int? {
-            let calendar = Calendar.current
-            guard let minuteStart = calendar.dateInterval(of: .minute, for: scrollPositionStart)?.start,
-                  let metrics = hrData.first(where: { $0.minute == minuteStart }) else {
-                return nil
-            }
-            return Int((metrics.minHR + metrics.maxHR) / 2)
-        }
     }
     
 }
