@@ -94,6 +94,12 @@ struct HeartRateDetailsView: View {
     }
     
     @ViewBuilder
+    private var chartView: some View {
+        createChartView(store.hrData)
+            .padding(.top, 4)
+    }
+
+    @ViewBuilder
     var chartHeaderView: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -125,11 +131,36 @@ struct HeartRateDetailsView: View {
             
         }
     }
+
+    @ViewBuilder
+    func createChartView(_ hrData: [HeartRateMetricsMinute]) -> some View {
+        Chart {
+            if let selectedDate = store.rawSelectedDate {
+                createRuleMark(with: selectedDate) { annotationView }
+            }
+            ForEach(hrData, id: \.minute) { stats in
+                createBarMark(stats)
+            }
+            .foregroundStyle(.pink.opacity(0.9))
+            .cornerRadius(4)
+        }
+        .chartYScale(domain: .automatic(includesZero: false))
+        .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
+        .chartXAxis {
+            AxisMarks(preset: .aligned, values: .automatic) { value in
+                AxisValueLabel()
+            }
+        }
+    }
     
     @ViewBuilder
-    private var chartView: some View {
-        createChartView(store.hrData)
-            .padding(.top, 4)
+    private var annotationView: some View {
+        ChartHRAnnotationView(
+            date: store.selectedHeartRateMetric?.minute ?? .now,
+            valueOne: store.selectedHeartRateMetric?.minHR ?? 0,
+            valueTwo: store.selectedHeartRateMetric?.maxHR ?? 0,
+            color: .pink
+        )
     }
     
 }

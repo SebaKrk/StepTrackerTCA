@@ -24,4 +24,6 @@ protocol HeartRateDetailsService {
     /// - Returns: The active energy burned as a `Double` value.
     func fetchActiveEnergyBurned(for workout: HKWorkout) async throws -> Double
     
+    func selectedHealthMetric(from heartRateMetric: [HeartRateMetricsMinute], with rawSelectedDate: Date?) -> HeartRateMetricsMinute? 
+    
 }
