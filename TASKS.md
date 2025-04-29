@@ -324,5 +324,5 @@
     - create details
     - create service
     - create charts
-    
+    C: ChartXSelection
 

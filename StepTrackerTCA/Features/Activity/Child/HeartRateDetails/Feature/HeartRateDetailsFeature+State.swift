@@ -51,7 +51,11 @@ extension HeartRateDetailsFeature {
         var activeEnergyBurned: Double = 0
         
         /// The starting position of the scroll view, set to one minute into the workout.
-        var scrollPositionStart: Date = .now
+        //var scrollPositionStart: Date = .now
+        
+        var rawSelectedDate: Date?
+        
+        var selectedHeartRateMetric: HeartRateMetricsMinute?
         
     }
     

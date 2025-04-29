@@ -47,4 +47,12 @@ final class DefaultHeartRateDetailsService: HeartRateDetailsService {
         try await healthKitManager.fetchActiveEnergyBurned(for: workout)
     }
     
+    
+    func selectedHealthMetric(from heartRateMetric: [HeartRateMetricsMinute], with rawSelectedDate: Date?) -> HeartRateMetricsMinute? {
+        guard let rawSelectedDate else { return nil }
+        return heartRateMetric.first {
+            Calendar.current.isDate(rawSelectedDate, equalTo: $0.minute, toGranularity: .minute)
+        }
+    }
+    
 }

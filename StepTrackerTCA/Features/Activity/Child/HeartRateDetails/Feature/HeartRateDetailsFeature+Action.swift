@@ -43,6 +43,9 @@ extension HeartRateDetailsFeature {
         /// Updates the active energy burned value after calculating it from the workout data.
         case updateActiveEnergyBurned(Double)
         
+        /// Action triggered when the user selects a date on the step chart.
+        case selectedChartDateChange(Date?)
+        
         
         // MARK: - View Actions
         
