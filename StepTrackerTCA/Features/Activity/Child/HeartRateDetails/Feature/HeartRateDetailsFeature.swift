@@ -111,9 +111,23 @@ struct HeartRateDetailsFeature {
                         await send(.fetchData)
                     }
      
+                case let .view(.tapHRMetrics(data)):
+                    
+                    state.rawSelectedDate = data.minute
+                    return .run { send in
+                        await send(.selectedChartDateChange(data.minute))
+                    }
                 }
             }
         }
     }
     
 }
+
+//return .run { [date = state.rawSelectedDate]  send  in
+//    if let date = date {
+//        await send(.selectedChartDateChange(date))
+//    } else {
+//        await send(.selectedChartDateChange(nil))
+//    }
+//}

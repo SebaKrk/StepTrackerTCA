@@ -27,9 +27,10 @@ extension ActivityFeature {
         /// - Parameter: `ActivityPeriod` representing the selected period.
         case selectedPickerChange(ActivityPeriod)
         
-        
+        ///
         case fetchHealthData
         
+        ///
         case updateHKData(Result<[HKWorkout], Error>)
 
         

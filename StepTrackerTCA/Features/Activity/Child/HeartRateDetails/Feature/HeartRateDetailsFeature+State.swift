@@ -41,6 +41,9 @@ extension HeartRateDetailsFeature {
         /// A Boolean flag indicating whether the workout details view is expanded.
         var isExpandDetails: Bool = false
         
+        ///
+        var isExpandDetailsByMinute: Bool = false
+        
         /// The lowest recorded heart rate during the workout.
         var lowestMinHR: Double = 0
         

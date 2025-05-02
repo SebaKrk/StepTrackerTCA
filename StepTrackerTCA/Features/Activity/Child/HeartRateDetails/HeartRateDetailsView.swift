@@ -22,7 +22,10 @@ struct HeartRateDetailsView: View {
     var body: some View {
         VStack(spacing: 5) {
             hrGroupBox
-            hrDetails
+            Form {
+                heartRateByMinuteList
+                hrDetails
+            }
         }
         .navigationTitle("Heart Rate Details")
         .onAppear {
@@ -41,24 +44,38 @@ struct HeartRateDetailsView: View {
         .padding([.leading, .trailing], 6)
     }
     
-    private var hrDetails: some View {
-        Form {
-            DisclosureGroup("Details HR", isExpanded: $store.isExpandDetails) {
-                ForEach(store.sample, id: \.startDate) { sample in
-                    sampleCell(sample)
-                }
+    
+    private var heartRateByMinuteList: some View {
+        DisclosureGroup("Details HR by minute", isExpanded: $store.isExpandDetailsByMinute) {
+            ForEach(store.hrData, id: \.minute) { data in
+                sampleCellButton(data)
             }
         }
     }
     
-    private var detailsHeartRateList: some View {
-        List {
-            Section {
-                ForEach(store.sample, id: \.startDate) { sample in
-                    sampleCell(sample)
-                }
-            } header: {
-                sectionHeaderTitle
+    private func sampleCellButton(_ data: HeartRateMetricsMinute) -> some View {
+        Button {
+            send(.tapHRMetrics(data))
+        } label: {
+            hrDataCell(data)
+        }
+    }
+    
+    private func hrDataCell(_ data: HeartRateMetricsMinute) -> some View {
+        HStack {
+            Text("\(data.minute, style: .time)")
+            Spacer()
+            Text("\(data.minHR, format: .number) -")
+            Text("\(data.maxHR, format: .number)")
+            Text("BMP")
+                .font(.caption2)
+        }
+    }
+    
+    private var hrDetails: some View {
+        DisclosureGroup("Details HR", isExpanded: $store.isExpandDetails) {
+            ForEach(store.sample, id: \.startDate) { sample in
+                sampleCell(sample)
             }
         }
     }
@@ -98,7 +115,7 @@ struct HeartRateDetailsView: View {
         createChartView(store.hrData)
             .padding(.top, 4)
     }
-
+    
     @ViewBuilder
     var chartHeaderView: some View {
         VStack(alignment: .leading) {
@@ -131,7 +148,7 @@ struct HeartRateDetailsView: View {
             
         }
     }
-
+    
     @ViewBuilder
     func createChartView(_ hrData: [HeartRateMetricsMinute]) -> some View {
         Chart {
@@ -171,3 +188,19 @@ struct HeartRateDetailsView: View {
 
 
 //Text("\(scrollPositionString) – \(scrollPositionEndString)")
+
+
+
+//    private var detailsHeartRateList: some View {
+//        List(selection: $store.rawSelectedDate.sending(\.selectedChartMinChange)) {
+////        List {
+//            Section {
+//                ForEach(store.sample, id: \.startDate) { sample in
+//                    sampleCell(sample)
+//                        .tag(sample.startDate)
+//                }
+//            } header: {
+//                sectionHeaderTitle
+//            }
+//        }
+//    }
