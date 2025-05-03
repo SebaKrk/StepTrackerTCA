@@ -44,7 +44,6 @@ struct HeartRateDetailsView: View {
         .padding([.leading, .trailing], 6)
     }
     
-    
     private var heartRateByMinuteList: some View {
         DisclosureGroup("Details HR by minute", isExpanded: $store.isExpandDetailsByMinute) {
             ForEach(store.hrData, id: \.minute) { data in
@@ -57,7 +56,14 @@ struct HeartRateDetailsView: View {
         Button {
             send(.tapHRMetrics(data))
         } label: {
-            hrDataCell(data)
+            if  store.rawSelectedDate == data.minute {
+                hrDataCell(data)
+                    .foregroundColor(.white)
+            } else {
+                hrDataCell(data)
+                    .foregroundColor(.pink)
+            }
+            
         }
     }
     
@@ -176,7 +182,7 @@ struct HeartRateDetailsView: View {
             date: store.selectedHeartRateMetric?.minute ?? .now,
             valueOne: store.selectedHeartRateMetric?.minHR ?? 0,
             valueTwo: store.selectedHeartRateMetric?.maxHR ?? 0,
-            color: .pink
+            color: .white
         )
     }
     

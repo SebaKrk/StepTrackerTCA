@@ -32,17 +32,18 @@ struct ChartHRAnnotationView: View {
             dateLabel
             valueLabel
         }
-        .padding(12)
-        .background(
+        .padding(4)
+        .background {
             RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-        )
+                .foregroundStyle(Color.gray.opacity(0.2))
+        }
     }
     
     // MARK: - Subview
     
     private var dateLabel: some View {
         Text(date, format: .dateTime.hour().minute())
+            .font(.footnote)
     }
     
     private var valueLabel: some View {
