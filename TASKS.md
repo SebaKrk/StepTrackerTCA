@@ -325,4 +325,5 @@
     - create service
     - create charts
     C: ChartXSelection
-
+    D: HeartRate by minute list
+    - tapHRMetrics

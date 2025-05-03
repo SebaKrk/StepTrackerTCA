@@ -45,8 +45,7 @@ extension HeartRateDetailsFeature {
         
         /// Action triggered when the user selects a date on the step chart.
         case selectedChartDateChange(Date?)
-        
-        
+                
         // MARK: - View Actions
         
         /// View-specific actions triggered by UI events.
@@ -56,6 +55,9 @@ extension HeartRateDetailsFeature {
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            ///
+            case tapHRMetrics(HeartRateMetricsMinute)
         }
     }
     
