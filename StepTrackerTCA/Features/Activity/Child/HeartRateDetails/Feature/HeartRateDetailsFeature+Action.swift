@@ -12,6 +12,7 @@ import HealthKit
 extension HeartRateDetailsFeature {
     
     // MARK: - Action
+    
     @CasePathable
     enum Action: ViewAction, BindableAction {
         
@@ -21,7 +22,7 @@ extension HeartRateDetailsFeature {
         case binding(BindingAction<State>)
         
         /// Action triggered when the user selects a date on the chart.
-        case selectedChartMinChange(Date?)
+        //case selectedChartMinChange(Date?)
         
         // MARK: - Actions
         
@@ -56,7 +57,7 @@ extension HeartRateDetailsFeature {
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
             
-            ///
+            /// Action triggered when a specific heart rate metric is tapped by the user on the chart.
             case tapHRMetrics(HeartRateMetricsMinute)
         }
     }

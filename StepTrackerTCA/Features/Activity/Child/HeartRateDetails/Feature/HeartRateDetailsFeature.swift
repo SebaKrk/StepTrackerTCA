@@ -31,9 +31,6 @@ struct HeartRateDetailsFeature {
                     
                     // MARK: - Binding
                 case .binding(_):
-                    //return .run { [min = state.scrollPositionStart] send  in
-                    //    await send(.selectedChartMinChange(min))
-                    //}
                     return .run { [date = state.rawSelectedDate]  send  in
                         if let date = date {
                             await send(.selectedChartDateChange(date))
@@ -90,24 +87,13 @@ struct HeartRateDetailsFeature {
                     state.hrData = data
                     state.lowestMinHR = data.map(\.minHR).min() ?? 0
                     state.highestMaxHR = data.map(\.maxHR).max() ?? 0
-                    
-                    //state.scrollPositionStart = data.first?.minute ?? .now
-                    
-                    //return .run { [min = state.scrollPositionStart] send  in
-                    //    await send(.selectedChartMinChange(min))
-                    //}
+           
                     return .none
-                    
-                case let .selectedChartMinChange(min):
-                    //if let min = min {
-                    //    print(min.formatted(.dateTime.minute()))
-                    //}
-                    return .none
+
                     
                     // MARK: - ViewActions
                 case .view(.viewDidAppear):
-                    return .run { send in //[start = state.scrollPositionStart] send in
-                        //print(start)
+                    return .run { send in
                         await send(.fetchData)
                     }
      
@@ -127,6 +113,17 @@ struct HeartRateDetailsFeature {
     
 }
 
+//case .binding(_):
+    //return .run { [min = state.scrollPositionStart] send  in
+    //    await send(.selectedChartMinChange(min))
+    //}
+
+//state.scrollPositionStart = data.first?.minute ?? .now
+
+//return .run { [min = state.scrollPositionStart] send  in
+//    await send(.selectedChartMinChange(min))
+//}
+
 //return .run { [date = state.rawSelectedDate]  send  in
 //    if let date = date {
 //        await send(.selectedChartDateChange(date))
@@ -134,3 +131,13 @@ struct HeartRateDetailsFeature {
 //        await send(.selectedChartDateChange(nil))
 //    }
 //}
+
+
+//case let .selectedChartMinChange(min):
+//if let min = min {
+//    print(min.formatted(.dateTime.minute()))
+//}
+//return .none
+
+//case .view(.viewDidAppear):
+    //return .run { send in //[start = state.scrollPositionStart] send in

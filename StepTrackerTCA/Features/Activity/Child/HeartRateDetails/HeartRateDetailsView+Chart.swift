@@ -24,16 +24,15 @@ extension HeartRateDetailsView {
     ) -> some ChartContent {
         RuleMark(x: .value("Selected Metric", selectedDate, unit: .minute))
             .foregroundStyle(Color.secondary.opacity(0.3))
-            .offset(y: -10)
-            .annotation(position: .leading,
-                        spacing: 0,
+            .offset(y: -30)
+            .annotation(position: .bottomTrailing,
+                        spacing: 4,
                         overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) { annotationView() }
     }
-
     
 }
 
-
+// do implementacji pozniej
 //        .chartXVisibleDomain(length: 15 * 60)
 //        .chartScrollableAxes(.horizontal)
 //        .chartScrollTargetBehavior(
