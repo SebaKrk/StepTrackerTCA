@@ -33,7 +33,7 @@ extension HeartRateDetailsFeature {
         /// The end time of the workout.
         var endWorkout: Date { workout.endDate }
         
-        ///
+        /// The duration of the workout in minutes, calculated from the start and end times.
         var workoutDurationInMinutes: Double {
             workout.endDate.timeIntervalSince(workout.startDate) / 60
         }
@@ -41,7 +41,7 @@ extension HeartRateDetailsFeature {
         /// A Boolean flag indicating whether the workout details view is expanded.
         var isExpandDetails: Bool = false
         
-        ///
+        /// A Boolean flag indicating whether heart rate details should be expanded per minute.
         var isExpandDetailsByMinute: Bool = false
         
         /// The lowest recorded heart rate during the workout.
@@ -56,8 +56,10 @@ extension HeartRateDetailsFeature {
         /// The starting position of the scroll view, set to one minute into the workout.
         //var scrollPositionStart: Date = .now
         
+        /// The raw date selected by the user during interaction, used for tracking UI selection state.
         var rawSelectedDate: Date?
         
+        /// The heart rate metric corresponding to the selected time, used to display detailed metrics.
         var selectedHeartRateMetric: HeartRateMetricsMinute?
         
     }

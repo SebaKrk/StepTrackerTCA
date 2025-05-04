@@ -47,7 +47,7 @@ final class DefaultHeartRateDetailsService: HeartRateDetailsService {
         try await healthKitManager.fetchActiveEnergyBurned(for: workout)
     }
     
-    
+    /// Returns the heart rate metric corresponding to the selected minute, if available.
     func selectedHealthMetric(from heartRateMetric: [HeartRateMetricsMinute], with rawSelectedDate: Date?) -> HeartRateMetricsMinute? {
         guard let rawSelectedDate else { return nil }
         return heartRateMetric.first {
