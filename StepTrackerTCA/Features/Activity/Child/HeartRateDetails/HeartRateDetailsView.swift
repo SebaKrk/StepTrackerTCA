@@ -20,7 +20,7 @@ struct HeartRateDetailsView: View {
     // MARK: - View
     
     var body: some View {
-        VStack(spacing: 5) {
+        VStack(spacing: 2) {
             hrGroupBox
             Form {
                 heartRateByMinuteList
@@ -33,6 +33,8 @@ struct HeartRateDetailsView: View {
         }
     }
     
+    // MARK: - SubView
+    
     private var hrGroupBox: some View {
         GroupBox {
             heartRateWorkoutWidget
@@ -41,7 +43,7 @@ struct HeartRateDetailsView: View {
         } label: {
             chartHeaderView
         }
-        .padding([.leading, .trailing], 6)
+        .padding([.leading, .trailing], 12)
     }
     
     private var heartRateByMinuteList: some View {
@@ -187,26 +189,3 @@ struct HeartRateDetailsView: View {
     }
     
 }
-
-//Text(Date.now, format: Date.FormatStyle(date: .numeric, time:.shortened))
-
-//            Text("\(SalesData.salesInPeriod(in: scrollPositionStart...scrollPositionEnd), format: .number) PLN")
-
-
-//Text("\(scrollPositionString) – \(scrollPositionEndString)")
-
-
-
-//    private var detailsHeartRateList: some View {
-//        List(selection: $store.rawSelectedDate.sending(\.selectedChartMinChange)) {
-////        List {
-//            Section {
-//                ForEach(store.sample, id: \.startDate) { sample in
-//                    sampleCell(sample)
-//                        .tag(sample.startDate)
-//                }
-//            } header: {
-//                sectionHeaderTitle
-//            }
-//        }
-//    }

@@ -24,6 +24,14 @@ protocol HeartRateDetailsService {
     /// - Returns: The active energy burned as a `Double` value.
     func fetchActiveEnergyBurned(for workout: HKWorkout) async throws -> Double
     
-    func selectedHealthMetric(from heartRateMetric: [HeartRateMetricsMinute], with rawSelectedDate: Date?) -> HeartRateMetricsMinute? 
+    /// Returns the heart rate metric corresponding to the selected minute, if available.
+    ///
+    /// - Parameters:
+    ///   - heartRateMetric: An array of `HeartRateMetricsMinute` values to search through.
+    ///   - rawSelectedDate: An optional `Date` representing the selected time.
+    /// - Returns: A `HeartRateMetricsMinute` object that matches the selected minute, or `nil` if no match is found.
+    ///
+    /// This method compares the provided `rawSelectedDate` to each metric's `minute` value using `.minute` granularity.
+    func selectedHealthMetric(from heartRateMetric: [HeartRateMetricsMinute], with rawSelectedDate: Date?) -> HeartRateMetricsMinute?
     
 }
