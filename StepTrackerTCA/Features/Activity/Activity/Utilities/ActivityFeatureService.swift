@@ -12,6 +12,4 @@ protocol ActivityFeatureService {
     
     func getWorkoutData() async throws -> [HKWorkout]
     
-    func fetchHeartRateSamples(for workout: HKWorkout) async throws -> [HKQuantitySample]
-    
 }
