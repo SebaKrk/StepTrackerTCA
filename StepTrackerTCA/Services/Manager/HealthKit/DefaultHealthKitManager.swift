@@ -231,6 +231,25 @@ class DefaultHealthKitManager: HealthKitManager {
 }
 
 
+//HKObjectType
+//│
+//├── HKSampleType
+//│   ├── HKWorkoutType → do zapisu/pobrania treningu
+//│   └── HKQuantityType (np. tętno, kroki, kalorie)
+//│
+//├── HKCharacteristicType (np. płeć, grupa krwi – niezmienne cechy)
+//│
+//└── HKCorrelationType (np. zestaw pomiarów, jak ciśnienie skurczowe + rozkurczowe)
+//
+//HKWorkout (konkretna próbka, z metadata, tętno, energia itd.)
+//│
+//├── startDate, endDate
+//├── activityType: .crossTraining
+//├── metadata: lokalizacja, brand
+//└── powiązane dane: np. próbki tętna, kalorie
+
+
+
 //// Define the type.
 //let stepType = HKQuantityType(.stepCount)
 //
@@ -249,3 +268,4 @@ class DefaultHealthKitManager: HealthKitManager {
 //for result in results {
 //    // Process the results here.
 //}
+

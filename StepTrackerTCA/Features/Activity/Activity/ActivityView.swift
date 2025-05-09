@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import HealthKit
 
 @ViewAction(for: ActivityFeature.self)
 struct ActivityView: View {
@@ -30,12 +31,12 @@ struct ActivityView: View {
                         action: \.destination.detailItem)) { store in
                             ActivityDetailsView(store: store)
                         }
-                .navigationDestination(
-                    item: $store.scope(
-                        state: \.destination?.heartRateDetails,
-                        action: \.destination.heartRateDetails)) { store in
-                            HeartRateDetailsView(store: store)
-                        }
+                        .navigationDestination(
+                            item: $store.scope(
+                                state: \.destination?.heartRateDetails,
+                                action: \.destination.heartRateDetails)) { store in
+                                    HeartRateDetailsView(store: store)
+                                }
         }
     }
     
@@ -115,14 +116,49 @@ struct ActivityView: View {
                 Button {
                     send(.tapHKWorkout(item))
                 } label: {
-                    Text(item.workoutActivityType.name)
+                    createHkWorkoutCell(item)
                 }
             }
         }
-        .listStyle(.grouped)
+        //        .listStyle(.grouped)ch
         .scrollContentBackground(.hidden)
         .padding(.top, 0)
         .padding([.leading, .trailing], 12)
+    }
+    
+    private func createHkWorkoutCell(_ item: HKWorkout) -> some View {
+        HStack(alignment: .center) {
+            Image(systemName: item.workoutActivityType.iconName)
+                .resizable()
+                .frame(width: 50, height: 50)
+                .padding(.top, 4)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(item.workoutActivityType.name)
+                        .font(.headline)
+                    Spacer()
+                    Text(item.startDate, format: .dateTime.day().month().hour().minute())
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                HStack {
+                    if let energyStats = item.statistics(for: .init(.activeEnergyBurned)),
+                       let energy = energyStats.sumQuantity()?.doubleValue(for: .kilocalorie()) {
+                        Text("Calories: \(energy, specifier: "%.0f") kcal")
+                    } else {
+                        Text("Calories: 0 kcal")
+                    }
+                    
+                    Spacer()
+                    
+                    Text("Duration: \(Int(item.duration / 60)) min")
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+        }
     }
     
 }

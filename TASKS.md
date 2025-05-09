@@ -327,7 +327,10 @@
     C: ChartXSelection
     D: HeartRate by minute list
     - tapHRMetrics
-
+    
+### IOS-00033 ActivityFeature
+    A: Activity List Cell
+    
 ### IOS-00034 Settings
     A: WorkoutScheduler - AuthorizationState
 
