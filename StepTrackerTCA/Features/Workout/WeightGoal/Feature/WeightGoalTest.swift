@@ -1,5 +1,5 @@
 //
-//  WorkoutFeature.swift
+//  WeightGoalTest.swift
 //  StepTrackerTCA
 //
 //  Created by Sebastian Sciuba on 12/01/2025.
@@ -9,9 +9,9 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct WorkoutFeature {
+struct WeightGoalTest {
     
-    let service = DefaultWorkoutService()
+    let service = DefaultWeightGoalServiceTest()
     
     // MARK: - Reducer
     

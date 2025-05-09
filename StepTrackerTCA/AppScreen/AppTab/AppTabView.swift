@@ -37,7 +37,7 @@ struct AppTabView: View {
         case .summary:
             DashboardView(store: store.scope(state: \.summaryTab, action: \.summaryTab))
         case .workout:
-            WorkoutView(store: store.scope(state: \.workoutTab, action: \.workoutTab))
+            WeightGoalTestView(store: store.scope(state: \.workoutTab, action: \.workoutTab))
         case .activity:
             ActivityTabContent(store: store.scope(state: \.activityTab, action: \.activityTab))
         case .fuel:
@@ -45,7 +45,7 @@ struct AppTabView: View {
         case .community:
             Text("community")
         case .settings:
-            Text("settings")
+            SettingsView()
         case .records:
             PersonDataView(store: store.scope(state: \.personDataTab, action: \.personDataTab))
         }

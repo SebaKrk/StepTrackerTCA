@@ -32,8 +32,8 @@ extension AppTabFeature {
         /// Stores the actions of the summaryTab: `DashboardFeature`
         case summaryTab(DashboardFeature.Action)
         
-        /// Stores the actions of the summaryTab: `WorkoutFeature`
-        case workoutTab(WorkoutFeature.Action)
+        /// Stores the actions of the summaryTab: `WeightGoalTest`
+        case workoutTab(WeightGoalTest.Action)
         
         /// Stores the actions of the summaryTab: `ActivityFeature`
         case activityTab(ActivityFeature.Action)

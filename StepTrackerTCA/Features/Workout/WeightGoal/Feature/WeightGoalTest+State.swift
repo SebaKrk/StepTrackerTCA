@@ -1,5 +1,5 @@
 //
-//  WorkoutFeature+State.swift
+//  WeightGoalTest+State.swift
 //  StepTrackerTCA
 //
 //  Created by Sebastian Sciuba on 12/01/2025.
@@ -8,8 +8,8 @@
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `WorkoutFeature` state
-extension WorkoutFeature {
+/// Implementation of `WeightGoalTest` state
+extension WeightGoalTest {
     
     @ObservableState
     struct State: Equatable {

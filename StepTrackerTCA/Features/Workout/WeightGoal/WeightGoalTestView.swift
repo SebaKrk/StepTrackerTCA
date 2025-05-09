@@ -1,5 +1,5 @@
 //
-//  WorkoutView.swift
+//  WeightGoalTestView.swift
 //  StepTrackerTCA
 //
 //  Created by Sebastian Sciuba on 12/01/2025.
@@ -8,12 +8,12 @@
 import ComposableArchitecture
 import SwiftUI
 
-@ViewAction(for: WorkoutFeature.self)
-struct WorkoutView: View {
+@ViewAction(for: WeightGoalTest.self)
+struct WeightGoalTestView: View {
     
     // MARK: - Properties
     
-    @Bindable var store: StoreOf<WorkoutFeature>
+    @Bindable var store: StoreOf<WeightGoalTest>
     
     // MARK: - View
     
