@@ -18,10 +18,7 @@ final class DefaultActivityFeatureService: ActivityFeatureService {
     // MARK: - API
     
     func getWorkoutData() async throws -> [HKWorkout] {
-        try await healthKitManager.fetchWorkouts(for: 10)
+        try await healthKitManager.fetchWorkouts(for: 50)
     }
     
-    func fetchHeartRateSamples(for workout: HKWorkout) async throws -> [HKQuantitySample] {
-        try await healthKitManager.fetchHeartRateSamples(for: workout)
-    }
 }

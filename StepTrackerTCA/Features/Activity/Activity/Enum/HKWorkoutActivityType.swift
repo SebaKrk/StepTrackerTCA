@@ -21,4 +21,17 @@ extension HKWorkoutActivityType {
         default:          return String(describing: self)
         }
     }
+    
+    var iconName: String {
+        switch self {
+        case .running:    return "figure.run.circle.fill"
+        case .walking:    return "figure.walk.circle.fill"
+        case .cycling:    return "figure.outdoor.cycle.circle.fill"
+        case .swimming:   return "swimmer.circle.fill"
+        case .yoga:       return "figure.cooldown.circle.fill"
+        case .hiking:     return "figure.hiking.circle.fill"
+        case .crossTraining: return "figure.cross.training.circle.fill"
+        default:          return String(describing: self)
+        }
+    }
 }
