@@ -8,12 +8,12 @@
 import Factory
 import Foundation
 
-protocol WorkoutService {
+protocol WeightGoalServiceTest {
     func setWeightGoal(_ weight: Double, date: Date) async throws
     func fetchWeightGoal() async throws -> Double?
 }
 
-final class DefaultWorkoutService: WorkoutService {
+final class DefaultWeightGoalServiceTest: WeightGoalServiceTest {
     
     // MARK: - Dependencies
 

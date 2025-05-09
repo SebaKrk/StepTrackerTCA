@@ -8,8 +8,8 @@
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `WorkoutFeature` action
-extension WorkoutFeature {
+/// Implementation of `WeightGoalTest` action
+extension WeightGoalTest {
     
     @CasePathable
     enum Action: ViewAction, BindableAction {
