@@ -32,7 +32,7 @@ extension AppTabFeature {
         var summaryTab = DashboardFeature.State()
         
         /// Stores the information contained in the summaryTab: `WeightGoalTest`.
-        var workoutTab = WeightGoalTest.State()
+        var workoutTab = WorkoutPlanerFeature.State()
         
         /// Stores the information contained in the summaryTab: `ActivityFeature`.
         var activityTab = ActivityFeature.State()

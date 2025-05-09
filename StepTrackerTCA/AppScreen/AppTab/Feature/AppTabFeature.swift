@@ -44,7 +44,7 @@ struct AppTabFeature {
             DashboardFeature(service: DefaultDashboardFeatureService())
         }
         Scope(state: \.workoutTab, action: \.workoutTab) {
-            WeightGoalTest()
+            WorkoutPlanerFeature()
         }
         Scope(state: \.activityTab, action: \.activityTab) {
             ActivityFeature()
