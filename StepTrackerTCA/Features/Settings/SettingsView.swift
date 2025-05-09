@@ -15,19 +15,22 @@ struct SettingsView: View {
     
     var body: some View {
         List {
-            Section {
-                Button("Request Authorization") {
-                    Task {
-                        authorizationState = await WorkoutScheduler.shared.requestAuthorization()
-                        
-                    }
+            workoutSchedulerSection
+        }
+    }
+    
+    private var workoutSchedulerSection: some View {
+        Section {
+            Button("Request Authorization") {
+                Task {
+                    authorizationState = await WorkoutScheduler.shared.requestAuthorization()
                 }
-                .disabled(authorizationState != .notDetermined)
-            } header: {
-                Text("Workout Scheduler")
-            } footer: {
-                Text("Current authorization state: \(String(describing: authorizationState))")
             }
+            .disabled(authorizationState != .notDetermined)
+        } header: {
+            Text("Workout Scheduler")
+        } footer: {
+            Text("Current authorization state: \(String(describing: authorizationState))")
         }
     }
     

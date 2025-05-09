@@ -20,38 +20,111 @@ struct WorkoutPlanerView: View {
     
     @State var workoutPlan: WorkoutPlan? = nil
     @State var showPreview: Bool = false
+    @State var seePreve: Bool = false
+    @State var scheduledWorkouts: [ScheduledWorkoutPlan] = []
     
     // MARK: - View
     
     var body: some View {
-        VStack {
-            Text("WorkoutPlanerFeature")
-            Button {
-                workoutPlan = WorkoutPlan(.custom(createCrossfitWorkout()))
-            } label: {
-                Text("create workout")
-            }
-            HStack {
-                Spacer()
-                Text("or")
-                Spacer()
-            }
-            Button {
-                workoutPlan = WorkoutPlan(.goal(createSingleWorkout()))
-            } label: {
-                Text("create single workout")
-            }
-            
-            if workoutPlan != nil {
-                Button("Present Workout Preview") {
-                    showPreview.toggle()
+        Group {
+            VStack {
+                if !scheduledWorkouts.isEmpty {
+                    list
+                } else {
+                    Text("WorkoutPlanerFeature")
                 }
-                .workoutPreview(workoutPlan!, isPresented: $showPreview)
+                Button {
+                    workoutPlan = WorkoutPlan(.custom(createCrossfitWorkout()))
+                } label: {
+                    Text("create workout")
+                }
+                HStack {
+                    Spacer()
+                    Text("or")
+                    Spacer()
+                }
+                Button {
+                    workoutPlan = WorkoutPlan(.goal(createSingleWorkout()))
+                } label: {
+                    Text("create single workout")
+                }
+                
+                if workoutPlan != nil {
+                    Button("Present Workout Preview") {
+                        showPreview.toggle()
+                        seePreve = true
+                    }
+                    .workoutPreview(workoutPlan!, isPresented: $showPreview)
+                }
+                
+                if workoutPlan != nil && seePreve == true {
+                    Button {
+                        guard let workout = workoutPlan else { return }
+                        Task {
+                            await schedule(workout: workout)
+                        }
+                    } label: {
+                        Text("start in 5 min")
+                    }
+                }
+                
             }
+        }
+        .task {
+            scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
         }
         
     }
     
+    var list: some View {
+        List {
+            Section("Scheduled Workouts") {
+                ForEach(scheduledWorkouts, id: \.self) { scheduledWorkout in
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text(scheduledWorkout.plan.workout.activity.name)
+                            
+                            if scheduledWorkout.complete {
+                                Spacer()
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                    }
+                }
+            }
+            Section {
+                Button {
+                    Task {
+                        await WorkoutScheduler.shared.removeAllWorkouts()
+                        scheduledWorkouts = []
+                    }
+                } label: {
+                    Text("Remove all scheduled workouts")
+                }
+            } header: {
+                Text("remove all workouts")
+            } footer: {
+                Text("Usuwa z watcha")
+            }
+        }
+        .frame(height: 200)
+    }
+    
+    private func schedule(workout: WorkoutPlan) async {
+        var components = DateComponents()
+        components.minute = 5
+        
+        guard let targetDate = Calendar.current.date(byAdding: components, to: Date()) else {
+            return
+        }
+
+        let targetComponents = Calendar.current.dateComponents(in: .current, from: targetDate)
+        await WorkoutScheduler.shared.schedule(workout, at: targetComponents)
+        
+        scheduledWorkouts.append(ScheduledWorkoutPlan(workout, date: targetComponents))
+    }
+
     func createSingleWorkout() -> SingleGoalWorkout {
         SingleGoalWorkout(activity: .crossTraining, location: .indoor, goal: .energy(300, .kilocalories))
     }
@@ -131,3 +204,5 @@ struct WorkoutPlanerView: View {
 }
 
 //workoutPreview
+
+// PacerWorkout
