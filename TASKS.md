@@ -340,3 +340,8 @@
     - testing WorkoutKit
     - adding costume workout to apple watch
     - testing WorkoutScheduler
+
+### IOS-00036 WorkoutTab sandbox
+    A: WorkoutFeature
+    - create custom buttons
+    - sandbox 
