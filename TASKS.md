@@ -334,3 +334,9 @@
 ### IOS-00034 Settings
     A: WorkoutScheduler - AuthorizationState
 
+### IOS-00035 WorkoutPlaner
+    A: WorkoutPlanerFeature
+    - create basic feature 
+    - testing WorkoutKit
+    - adding costume workout to apple watch
+    - testing WorkoutScheduler
