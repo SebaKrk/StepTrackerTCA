@@ -32,6 +32,7 @@ extension HKWorkoutActivityType {
         case .yoga:             return "figure.cooldown.circle.fill"
         case .hiking:           return "figure.hiking.circle.fill"
         case .crossTraining:    return "figure.cross.training.circle.fill"
+        case .boxing:           return "figure.boxing.circle.fill"
         default:                return String(describing: self)
         }
     }
