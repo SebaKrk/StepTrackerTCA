@@ -7,6 +7,8 @@
 
 import ComposableArchitecture
 import Foundation
+import SwiftUI
+import PhotosUI
 
 @Reducer
 struct WorkoutFeature {
@@ -18,49 +20,59 @@ struct WorkoutFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-                // MARK: - Actions
-                
-                // MARK: - View Actions
-                
-            case .view(.viewDidAppear):
-                
-                return .none
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                    
+                    // MARK: - Binding
+                    
+                case .binding(_):
+                    return .none
+                    
+                    // MARK: - Actions
+                    
+                case let .changePhotoSourceOption(item):
+                    state.photoSelection = item
+                    return .none
+                    
+                    // MARK: - View Actions
+                    
+                case .view(.viewDidAppear):
+                    return .none
+                    
+                case let .view(.showPhotoPicker(flag)):
+                    state.isPickerPresented = flag
+                    return .none
+                    
+                case let .view(.selectedPhotoChanged(photo)):
+                    
+                    guard let photo else { return .none }
+                    
+                    return .run { send in
+                        if let data = try? await photo.loadTransferable(type: Data.self),
+                           let uiImage = UIImage(data: data) {
+                            await send(.imageLoadedFromLibrary(uiImage))
+                        } else {
+                            await send(.imageLoadedFromLibrary(nil))
+                        }
+                    }
+                    
+                case let .imageLoadedFromLibrary(image):
+                    //state.selectedImage = image
+                    guard let image else { return .none }
+                    state.destination = .openImageAnalysis(ImageAnalysisFeature.State(selectedImage: image))
+                    return .none
+                    
+                    // MARK: - Destination
+                    
+                case .destination:
+                    return .none
+                }
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }
 
-
-/// Implementation of `WorkoutFeature` action
-extension WorkoutFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Actions
-        
-        // MARK: - View actions
-        
-        /// Used for view actions.
-        case view(View)
-        
-        enum View {
-            
-            /// The action responsible for completing tasks as soon as the view is displayed.
-            case viewDidAppear
-        }
-    }
-}
-
-/// Implementation of `WorkoutFeature` state
-extension WorkoutFeature {
-    @ObservableState
-    struct State {
-        
-    }
-}
-    
-    

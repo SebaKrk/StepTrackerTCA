@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import PhotosUI
 
 @ViewAction(for: WorkoutFeature.self)
 struct WorkoutView: View {
@@ -17,7 +18,7 @@ struct WorkoutView: View {
     
     @State private var photoSelection: PhotoSourceOption = .photo
     @State private var workoutSelection: WorkoutTypeOption = .customWorkout
-
+    
     // MARK: - View
     
     var body: some View {
@@ -31,6 +32,17 @@ struct WorkoutView: View {
             }
             .navigationTitle("Workout")
             .navigationBarTitleDisplayMode(.inline)
+            .photosPicker(isPresented: $store.isPickerPresented,
+                          selection: $store.selectedItem)
+            .onChange(of: store.selectedItem) { _, newItem in
+                send(.selectedPhotoChanged(newItem))
+            }
+            .navigationDestination(
+                item: $store.scope(
+                    state: \.destination?.openImageAnalysis,
+                    action: \.destination.openImageAnalysis)) { store in
+                        ImageAnalysisView(store: store)
+                    }
         }
         
     }
@@ -38,10 +50,10 @@ struct WorkoutView: View {
     // MARK: - SubView
     
     private var photoSourceOptionButton: some View {
-        PickerButtonView(selectedOption: $photoSelection) { option in
+        PickerButtonView(selectedOption: $store.photoSelection.sending(\.changePhotoSourceOption)) { option in
             switch option {
             case .library:
-                print("chose libry")
+                send(.showPhotoPicker(!store.isPickerPresented))
             case .photo:
                 print("chose photo")
             }
@@ -64,23 +76,9 @@ struct WorkoutView: View {
     }
     
     private var historyOptionButton: some View {
-        Group {
-            Button {
-                print("onHistoryTapped")
-            } label: {
-                Label("History", systemImage: "calendar")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.pink.opacity(0.1))
-                    .foregroundColor(.pink)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(.pink, lineWidth: 0.5)
-            )
+        LabeledButton(title: "History", systemImage: "calendar") {
+            print("onHistoryTapped")
         }
-        .padding()
     }
     
 }

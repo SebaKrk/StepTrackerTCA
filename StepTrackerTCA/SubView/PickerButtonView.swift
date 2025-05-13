@@ -24,6 +24,8 @@ struct PickerButtonView<Option: ButtonActionOption>: View {
                 Label(selectedOption.name, systemImage: selectedOption.icon)
                     .frame(maxWidth: .infinity)
                     .foregroundColor(tint)
+                    .padding(.horizontal, 10)
+                    .contentShape(Rectangle())
             }
             Spacer()
             Menu {
@@ -37,7 +39,8 @@ struct PickerButtonView<Option: ButtonActionOption>: View {
             } label: {
                 Image(systemName: "ellipsis")
                     .foregroundColor(tint)
-                    .padding(.horizontal, 8)
+                    .padding(10)
+                    .contentShape(Rectangle())
             }
             Spacer()
         }
