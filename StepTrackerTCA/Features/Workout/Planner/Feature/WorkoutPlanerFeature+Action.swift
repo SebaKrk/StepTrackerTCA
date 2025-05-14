@@ -1,16 +1,16 @@
 //
-//  WorkoutFeature+Action.swift
+//  WorkoutPlanerFeature+Action.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 13/05/2025.
+//  Created by Sebastian Sciuba on 14/05/2025.
 //
 
 import ComposableArchitecture
-import SwiftUI
-import PhotosUI
+import Foundation
+import WorkoutKit
 
-/// Implementation of `WorkoutFeature` action
-extension WorkoutFeature {
+/// Implementation of `WorkoutPlanerFeature` action
+extension WorkoutPlanerFeature {
     
     @CasePathable
     enum Action: ViewAction, BindableAction {
@@ -23,13 +23,19 @@ extension WorkoutFeature {
         // MARK: - Actions
         
         ///
-        case changePhotoSourceOption(PhotoSourceOption)
+        case selectedWorkoutActivityPickerChange(WorkoutActivityType)
         
         ///
-        case changeWorkoutType(WorkoutTypeOption)
+        case selectedWorkoutLocationPickerChange(WorkoutLocationType)
         
         ///
-        case imageLoadedFromLibrary(UIImage?)
+        case createSingleWorkout
+        
+        ///
+        case updateWorkoutPlan(SingleGoalWorkout)
+        
+        ///
+        case updateWorkoutPreview
         
         // MARK: - View actions
         
@@ -42,19 +48,10 @@ extension WorkoutFeature {
             case viewDidAppear
             
             ///
-            case showPhotoPicker(Bool)
+            case createWorkoutButtonTapped
             
             ///
-            case selectedPhotoChanged(PhotosPickerItem?)
-            
-            ///
-            case showWorkoutPlaner
-            
+            case showWorkoutPreview
         }
-        
-        // MARK: - Destination
-        
-        /// Destination case for navigation
-        case destination(PresentationAction<Destination.Action>)
     }
 }

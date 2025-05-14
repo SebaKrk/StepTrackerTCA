@@ -17,6 +17,10 @@ extension WorkoutFeature {
         
         /// Represents the destination for displaying in `WorkoutFeature`.
         case openImageAnalysis(ImageAnalysisFeature)
+        
+        /// Represents the destination for displaying in `WorkoutPlanerFeature`.
+        case openWorkoutPlaner(WorkoutPlanerFeature)
     }
     
 }
+
