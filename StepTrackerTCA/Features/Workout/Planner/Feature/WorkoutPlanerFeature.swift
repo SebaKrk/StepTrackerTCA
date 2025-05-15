@@ -14,8 +14,12 @@ struct WorkoutPlanerFeature {
     
     // MARK: - Dependencies
     
-    let services: WorkoutPlanerService
+    @Dependency(\.dismiss) var dismiss
     
+    // MARK: - Properties
+    
+    let services: WorkoutPlanerService
+
     // MARK: - Livecycle
     
     init(service: WorkoutPlanerService = DefaultWorkoutPlanerService()) {
@@ -33,9 +37,21 @@ struct WorkoutPlanerFeature {
                     // MARK: - Binding
                     
                 case .binding(_):
-                    return .none
+                    if !state.energyGoalValue.isEmpty {
+                        return .send(.changePlanerState(.add))
+                    } else {
+                        return .send(.changePlanerState(.start))
+                    }
                     
                     // MARK: - Actions
+                case let .changePlanerState(viewState):
+                    state.planerState = viewState
+                    return .none
+                    
+                case .validate:
+                    // TODO: Validate values to add
+                    return .none
+                    
                 case let .selectedWorkoutActivityPickerChange(item):
                     state.workoutActivityType = item
                     return .none
@@ -47,29 +63,53 @@ struct WorkoutPlanerFeature {
                 case .createSingleWorkout:
                     return .run { [activity = state.workoutActivityType,
                                    location = state.workoutLocationType,
-                                   goal = state.energyGoalValueToAdd] send in
+                                   goal = state.energyGoalValue] send in
                         let workout = services.createSingleWorkout(activity: activity, location: location, goal: goal)
                         await send(.updateWorkoutPlan(workout))
                     }
                     
                 case let .updateWorkoutPlan(item):
-                    state.workoutPlan =  WorkoutPlan(.goal(item))
-                    return .none
+                    state.workoutPlan = WorkoutPlan(.goal(item))
+                    return .send(.changePlanerState(.preview))
                     
                 case .updateWorkoutPreview:
                     state.showPreview.toggle()
                     return .none
+                    
+                case .updateScheduleWorkout:
+                    guard let workout = state.workoutPlan else { return .none }
+                     let date = state.dateAndTime
+
+                     return .run { _ in
+                         await services.schedule(workout: workout, at: date)
+                         await self.dismiss()
+                     }
                     
                     // MARK: - View Actions
                     
                 case .view(.viewDidAppear):
                     return .none
                     
+                case .view(.cancelButtonTapped):
+                    return .run { send in
+                        await self.dismiss()
+                    }
+                    
                 case .view(.createWorkoutButtonTapped):
                     return .send(.createSingleWorkout)
                     
                 case .view(.showWorkoutPreview):
                     return .send(.updateWorkoutPreview)
+                    
+                case .view(.userDidOpenPreview):
+                    return .none
+                    
+                case .view(.userDidClosePreview):
+                    state.seePreview.toggle()
+                    return .send(.changePlanerState(.save))
+                    
+                case .view(.saveScheduleWorkoutButtonTapped):
+                    return .send(.updateScheduleWorkout)
                 }
             }
         }

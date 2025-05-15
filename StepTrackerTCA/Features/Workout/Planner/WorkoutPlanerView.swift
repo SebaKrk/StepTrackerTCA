@@ -32,22 +32,12 @@ struct WorkoutPlanerView: View {
     
     @ToolbarContentBuilder
     var toolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                
-            } label: {
-                Text("Add")
-            }
+        if store.planerState == .add {
+            ToolbarItem(placement: .topBarTrailing) { addButton }
         }
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                
-            } label: {
-                Text("Cancel")
-            }
-        }
+        ToolbarItem(placement: .topBarLeading) { cancelButton }
     }
-    
+
     @ViewBuilder
     private var formView: some View {
         VStack {
@@ -56,22 +46,31 @@ struct WorkoutPlanerView: View {
                 workoutTypeContextPicker
                 workoutLocationPicker
                 energyGoalInputView
+                addWorkoutForm
+                saveWorkoutButton
             }
-            
-            Button {
-                send(.createWorkoutButtonTapped)
-            } label: {
-                Text("add")
-            }
-            
-            if store.workoutPlan != nil {
-                Button {
-                    send(.showWorkoutPreview)
-                } label: {
-                    Label("Workout Preview", systemImage: "sparkle.magnifyingglass")
+        }
+    }
+
+    @ViewBuilder
+    var addWorkoutForm: some View {
+        if let workoutPlan = store.workoutPlan, !store.seePreview {
+            previewButton
+            .workoutPreview(workoutPlan, isPresented: $store.showPreview)
+            .onChange(of: store.showPreview, { oldValue, newValue in
+                if newValue {
+                    send(.userDidOpenPreview)
+                } else {
+                    send(.userDidClosePreview)
                 }
-                .workoutPreview(store.workoutPlan!, isPresented: $store.showPreview)
-            }
+            })
+        }
+    }
+    
+    @ViewBuilder
+    var saveWorkoutButton: some View {
+        if store.seePreview {
+            saveButton
         }
     }
     
@@ -79,7 +78,6 @@ struct WorkoutPlanerView: View {
         DatePicker("Date&Time",
                    selection: $store.dateAndTime,
                    displayedComponents: [.date, .hourAndMinute])
-        
     }
     
     @ViewBuilder
@@ -110,11 +108,50 @@ struct WorkoutPlanerView: View {
         HStack {
             Text("Energy Goal")
             Spacer()
-            TextField("kcla", text: $store.energyGoalValueToAdd)
+            TextField("kcla", text: $store.energyGoalValue)
                 .multilineTextAlignment(.trailing)
                 .keyboardType(.decimalPad)
         }
     }
+    
+    private var cancelButton: some View {
+        Button {
+            send(.cancelButtonTapped)
+        } label: {
+            Text("Cancel")
+        }
+    }
+    
+    private var addButton: some View {
+        Button {
+            send(.createWorkoutButtonTapped)
+        } label: {
+            Text("Add")
+        }
+    }
+    
+    private var previewButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                send(.showWorkoutPreview)
+            } label: {
+                Text("Preview")
+            }
+        }
+    }
+    
+    private var saveButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                send(.saveScheduleWorkoutButtonTapped)
+            } label: {
+                Text("Save")
+            }
+        }
+    }
+    
 }
 
 #Preview {

@@ -13,4 +13,6 @@ protocol WorkoutPlanerService {
     func createSingleWorkout(activity: WorkoutActivityType,
                              location: WorkoutLocationType,
                              goal: String) -> SingleGoalWorkout
+    
+    func schedule(workout: WorkoutPlan, at date: Date) async
 }

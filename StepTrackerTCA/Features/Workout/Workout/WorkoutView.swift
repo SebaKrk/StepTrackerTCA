@@ -71,7 +71,6 @@ struct WorkoutView: View {
                 print("chose custom workout")
             case .singleGoalWorkout:
                 send(.showWorkoutPlaner)
-                //print("chose single workout")
             case .pacerWorkout:
                 print("chose pacer workout")
             }

@@ -13,11 +13,17 @@ final class DefaultWorkoutPlanerService: WorkoutPlanerService {
     func createSingleWorkout(activity: WorkoutActivityType,
                              location: WorkoutLocationType,
                              goal: String) -> SingleGoalWorkout {
-//        SingleGoalWorkout(activity: .crossTraining, location: .indoor, goal: .energy(300, .kilocalories))
+        ///SingleGoalWorkout(activity: .crossTraining, location: .indoor, goal: .energy(300, .kilocalories))
 
         SingleGoalWorkout(activity: activity.hkType,
                           location: location.hkType,
                           goal: .energy(300, .kilocalories))
+    }
+    
+    internal func schedule(workout: WorkoutPlan, at date: Date) async {
+        let components = Calendar.current.dateComponents(in: .current, from: date)
+        await WorkoutScheduler.shared.schedule(workout, at: components)
+        ///print("aadd WorkoutScheduler: \(components) \n \(workout)")
     }
     
 }

@@ -17,11 +17,8 @@ extension WorkoutPlanerFeature {
         
         // MARK: - Properties
         
-        var workoutPlan: WorkoutPlan? = nil
-        
-        /// The date for which the user wants to add data.
-        /// Defaults to the current date.
-        var dateAndTime: Date = .now
+        ///
+        var planerState: WorkoutPlanerState = .start
         
         ///
         var workoutActivityType: WorkoutActivityType = .crossTraining
@@ -30,9 +27,20 @@ extension WorkoutPlanerFeature {
         var workoutLocationType: WorkoutLocationType = .indoor
         
         ///
-        var energyGoalValueToAdd: String = ""
+        var workoutPlan: WorkoutPlan? = nil
+        
+        /// The date for which the user wants to add data.
+        /// Defaults to the current date.
+        var dateAndTime: Date = .now
+        
+        ///
+        var energyGoalValue: String = ""
         
         ///
         var showPreview: Bool = false
+        
+        ///
+        var seePreview: Bool = false
     }
+    
 }

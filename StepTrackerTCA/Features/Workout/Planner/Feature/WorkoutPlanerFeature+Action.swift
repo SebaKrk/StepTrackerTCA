@@ -23,10 +23,16 @@ extension WorkoutPlanerFeature {
         // MARK: - Actions
         
         ///
+        case changePlanerState(WorkoutPlanerState)
+        
+        ///
         case selectedWorkoutActivityPickerChange(WorkoutActivityType)
         
         ///
         case selectedWorkoutLocationPickerChange(WorkoutLocationType)
+        
+        ///
+        case validate
         
         ///
         case createSingleWorkout
@@ -36,6 +42,9 @@ extension WorkoutPlanerFeature {
         
         ///
         case updateWorkoutPreview
+        
+        ///
+        case updateScheduleWorkout
         
         // MARK: - View actions
         
@@ -48,10 +57,24 @@ extension WorkoutPlanerFeature {
             case viewDidAppear
             
             ///
+            case cancelButtonTapped
+            
+            ///
             case createWorkoutButtonTapped
             
             ///
+            case saveScheduleWorkoutButtonTapped
+            
+            ///
             case showWorkoutPreview
+            
+            ///
+            case userDidOpenPreview
+            
+            ///
+            case userDidClosePreview
+            
         }
     }
+    
 }
