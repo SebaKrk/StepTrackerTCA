@@ -72,6 +72,7 @@ extension ImageAnalysisFeature {
         /// Destination case for navigation
         case destination(PresentationAction<Destination.Action>)
     }
+    
 }
 
 import ComposableArchitecture

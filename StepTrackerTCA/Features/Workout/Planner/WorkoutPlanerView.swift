@@ -2,14 +2,11 @@
 //  WorkoutPlanerView.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 09/05/2025.
+//  Created by Sebastian Sciuba on 14/05/2025.
 //
 
 import ComposableArchitecture
 import SwiftUI
-
-import HealthKit
-import WorkoutKit
 
 @ViewAction(for: WorkoutPlanerFeature.self)
 struct WorkoutPlanerView: View {
@@ -18,191 +15,149 @@ struct WorkoutPlanerView: View {
     
     @Bindable var store: StoreOf<WorkoutPlanerFeature>
     
-    @State var workoutPlan: WorkoutPlan? = nil
-    @State var showPreview: Bool = false
-    @State var seePreve: Bool = false
-    @State var scheduledWorkouts: [ScheduledWorkoutPlan] = []
-    
     // MARK: - View
     
     var body: some View {
-        Group {
-            VStack {
-                if !scheduledWorkouts.isEmpty {
-                    list
+        NavigationStack {
+            Group {
+                formView
+            }
+            .navigationTitle("Workout Planer")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                toolbarButton
+            }
+        }
+    }
+    
+    @ToolbarContentBuilder
+    var toolbarButton: some ToolbarContent {
+        if store.planerState == .add {
+            ToolbarItem(placement: .topBarTrailing) { addButton }
+        }
+        ToolbarItem(placement: .topBarLeading) { cancelButton }
+    }
+
+    @ViewBuilder
+    private var formView: some View {
+        VStack {
+            Form {
+                datePicker
+                workoutTypeContextPicker
+                workoutLocationPicker
+                energyGoalInputView
+                addWorkoutForm
+                saveWorkoutButton
+            }
+        }
+    }
+
+    @ViewBuilder
+    var addWorkoutForm: some View {
+        if let workoutPlan = store.workoutPlan, !store.seePreview {
+            previewButton
+            .workoutPreview(workoutPlan, isPresented: $store.showPreview)
+            .onChange(of: store.showPreview, { oldValue, newValue in
+                if newValue {
+                    send(.userDidOpenPreview)
                 } else {
-                    Text("WorkoutPlanerFeature")
+                    send(.userDidClosePreview)
                 }
-                Button {
-                    workoutPlan = WorkoutPlan(.custom(createCrossfitWorkout()))
-                } label: {
-                    Text("create workout")
-                }
-                HStack {
-                    Spacer()
-                    Text("or")
-                    Spacer()
-                }
-                Button {
-                    workoutPlan = WorkoutPlan(.goal(createSingleWorkout()))
-                } label: {
-                    Text("create single workout")
-                }
-                
-                if workoutPlan != nil {
-                    Button("Present Workout Preview") {
-                        showPreview.toggle()
-                        seePreve = true
-                    }
-                    .workoutPreview(workoutPlan!, isPresented: $showPreview)
-                }
-                
-                if workoutPlan != nil && seePreve == true {
-                    Button {
-                        guard let workout = workoutPlan else { return }
-                        Task {
-                            await schedule(workout: workout)
-                        }
-                    } label: {
-                        Text("start in 5 min")
-                    }
-                }
-                
+            })
+        }
+    }
+    
+    @ViewBuilder
+    var saveWorkoutButton: some View {
+        if store.seePreview {
+            saveButton
+        }
+    }
+    
+    var datePicker: some View {
+        DatePicker("Date&Time",
+                   selection: $store.dateAndTime,
+                   displayedComponents: [.date, .hourAndMinute])
+    }
+    
+    @ViewBuilder
+    private var workoutTypeContextPicker: some View {
+        Picker("Workout type", selection: $store.workoutActivityType.sending(\.selectedWorkoutActivityPickerChange)) {
+            Text("select workout").tag(nil as WorkoutActivityType?)
+            ForEach(WorkoutActivityType.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
             }
         }
-        .task {
-            scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
-        }
-        
+        .pickerStyle(.navigationLink)
     }
     
-    var list: some View {
-        List {
-            Section("Scheduled Workouts") {
-                ForEach(scheduledWorkouts, id: \.self) { scheduledWorkout in
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(scheduledWorkout.plan.workout.activity.name)
-                            
-                            if scheduledWorkout.complete {
-                                Spacer()
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                            }
-                        }
-                    }
-                }
-            }
-            Section {
-                Button {
-                    Task {
-                        await WorkoutScheduler.shared.removeAllWorkouts()
-                        scheduledWorkouts = []
-                    }
-                } label: {
-                    Text("Remove all scheduled workouts")
-                }
-            } header: {
-                Text("remove all workouts")
-            } footer: {
-                Text("Usuwa z watcha")
+    @ViewBuilder
+    private var workoutLocationPicker: some View {
+        Picker("Location", selection: $store.workoutLocationType.sending(\.selectedWorkoutLocationPickerChange)) {
+            Text("select workout").tag(nil as WorkoutLocationType?)
+            ForEach(WorkoutLocationType.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
             }
         }
-        .frame(height: 200)
+        .pickerStyle(.navigationLink)
     }
     
-    private func schedule(workout: WorkoutPlan) async {
-        var components = DateComponents()
-        components.minute = 5
-        
-        guard let targetDate = Calendar.current.date(byAdding: components, to: Date()) else {
-            return
+    private var energyGoalInputView: some View {
+        HStack {
+            Text("Energy Goal")
+            Spacer()
+            TextField("kcla", text: $store.energyGoalValue)
+                .multilineTextAlignment(.trailing)
+                .keyboardType(.decimalPad)
         }
-
-        let targetComponents = Calendar.current.dateComponents(in: .current, from: targetDate)
-        await WorkoutScheduler.shared.schedule(workout, at: targetComponents)
-        
-        scheduledWorkouts.append(ScheduledWorkoutPlan(workout, date: targetComponents))
-    }
-
-    func createSingleWorkout() -> SingleGoalWorkout {
-        SingleGoalWorkout(activity: .crossTraining, location: .indoor, goal: .energy(300, .kilocalories))
     }
     
-    private func createCrossfitWorkout() -> CustomWorkout {
-        
-        let warmup = WorkoutStep(
-            goal: .open, // .energy(75, .kilocalories)
-            alert: .heartRate(zone: 2),
-            displayName: "Rozgrzewka"
-        )
-        
-        let block1 = createStrengthTrainingBlock()
-        
-        let transition = createTransitionBlock()
-        
-        let block2 = createFitnessTrainingBlock()
-        
-        let cooldownStep = WorkoutStep(goal: .time(5, .minutes))
-        
-        
-        return CustomWorkout(
-            activity: .crossTraining,
-            location: .indoor,
-            displayName: "Crossfit",
-            warmup: warmup,
-            blocks: [block1, transition, block2],
-            cooldown: cooldownStep
-        )
+    private var cancelButton: some View {
+        Button {
+            send(.cancelButtonTapped)
+        } label: {
+            Text("Cancel")
+        }
     }
     
-    func createStrengthTrainingBlock() -> IntervalBlock {
-        var workout = IntervalStep(.work)
-        workout.step.goal = .open
-        workout.step.displayName = "Block One"
-        
-        let workoutBlock = IntervalBlock(
-            steps: [workout],
-            iterations: 1
-        )
-
-        return workoutBlock
+    private var addButton: some View {
+        Button {
+            send(.createWorkoutButtonTapped)
+        } label: {
+            Text("Add")
+        }
     }
     
-    func createTransitionBlock() -> IntervalBlock {
-        
-        var transitionToZone1 = IntervalStep(.recovery)
-        transitionToZone1.purpose = .recovery
-        transitionToZone1.step.alert = .heartRate(zone: 1)
-        transitionToZone1.step.goal = .open
-        transitionToZone1.step.displayName = "Przejście do strefy 1"
-
-        let transitionBlock = IntervalBlock(
-            steps: [transitionToZone1],
-            iterations: 1
-        )
-
-        return transitionBlock
+    private var previewButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                send(.showWorkoutPreview)
+            } label: {
+                Text("Preview")
+            }
+        }
     }
     
-    func createFitnessTrainingBlock() -> IntervalBlock {
-        var workout = IntervalStep(.work)
-        workout.purpose = .work
-        workout.step.alert = .heartRate(zone: 4)
-        //workout.step.alert = .speed(10...15, unit: .milesPerHour, metric: .current)
-        workout.step.goal = .open
-        workout.step.displayName = "Block Two"
-        
-        let workoutBlock = IntervalBlock(
-            steps: [workout],
-            iterations: 1
-        )
-
-        return workoutBlock
+    private var saveButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                send(.saveScheduleWorkoutButtonTapped)
+            } label: {
+                Text("Save")
+            }
+        }
     }
     
 }
 
-//workoutPreview
-
-// PacerWorkout
+#Preview {
+    NavigationStack {
+        WorkoutPlanerView(store: Store(initialState: WorkoutPlanerFeature.State(), reducer: {
+            WorkoutPlanerFeature(service: DefaultWorkoutPlanerService())
+        }))
+    }
+}

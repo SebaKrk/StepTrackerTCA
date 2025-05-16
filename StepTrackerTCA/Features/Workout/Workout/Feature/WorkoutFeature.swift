@@ -36,6 +36,10 @@ struct WorkoutFeature {
                     state.photoSelection = item
                     return .none
                     
+                case let .changeWorkoutType(item):
+                    state.workoutSelection = item
+                    return .none
+                    
                     // MARK: - View Actions
                     
                 case .view(.viewDidAppear):
@@ -64,10 +68,15 @@ struct WorkoutFeature {
                     state.destination = .openImageAnalysis(ImageAnalysisFeature.State(selectedImage: image))
                     return .none
                     
+                case .view(.showWorkoutPlaner):
+                    state.destination = .openWorkoutPlaner(WorkoutPlanerFeature.State())
+                    return .none
+                    
                     // MARK: - Destination
                     
                 case .destination:
                     return .none
+         
                 }
             }
         }

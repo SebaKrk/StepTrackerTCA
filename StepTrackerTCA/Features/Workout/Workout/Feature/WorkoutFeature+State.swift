@@ -15,10 +15,16 @@ extension WorkoutFeature {
     @ObservableState
     struct State {
         
+        ///
         var photoSelection: PhotoSourceOption = .photo
         
+        ///
+        var workoutSelection: WorkoutTypeOption = .customWorkout
+        
+        ///
         var isPickerPresented: Bool = false
         
+        ///
         var selectedItem: PhotosPickerItem? = nil
         
         //var selectedImage: UIImage? = nil

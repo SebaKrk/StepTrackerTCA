@@ -26,6 +26,9 @@ extension WorkoutFeature {
         case changePhotoSourceOption(PhotoSourceOption)
         
         ///
+        case changeWorkoutType(WorkoutTypeOption)
+        
+        ///
         case imageLoadedFromLibrary(UIImage?)
         
         // MARK: - View actions
@@ -43,6 +46,9 @@ extension WorkoutFeature {
             
             ///
             case selectedPhotoChanged(PhotosPickerItem?)
+            
+            ///
+            case showWorkoutPlaner
             
         }
         
