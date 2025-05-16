@@ -22,6 +22,14 @@ extension Container {
         Factory(self) { DefaultHealthKitManager() }.singleton
     }
     
+    /// A factory that provides a singleton instance of the `WorkoutKitManager`.
+    ///
+    /// - The factory is initialized with the default implementation, `DefaultWorkoutKitManager`.
+    /// - This ensures that the same instance of `WorkoutKitManager` is used throughout the application.
+    var workoutKitManager: Factory<WorkoutKitManager> {
+        Factory(self) { DefaultWorkoutKitManager() }.singleton
+    }
+    
     /// A factory that provides a shared instance of the `UserDefaultsService`.
     ///
     /// - This factory ensures that a shared instance of `UserDefaultsServiceManager` is

@@ -347,3 +347,4 @@
     - sandbox 
     B: WorkoutPlanerFeature
     - Create SingleWorkout
+    C: WorkoutKitManager
