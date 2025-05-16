@@ -65,11 +65,13 @@ struct WorkoutPlanerFeature {
                                    location = state.workoutLocationType,
                                    goal = state.energyGoalValue] send in
                         let workout = services.createSingleWorkout(activity: activity, location: location, goal: goal)
+                        
                         await send(.updateWorkoutPlan(workout))
                     }
                     
                 case let .updateWorkoutPlan(item):
-                    state.workoutPlan = WorkoutPlan(.goal(item))
+                    guard let goalWorkout = item else { return .none }
+                    state.workoutPlan = WorkoutPlan(.goal(goalWorkout))
                     return .send(.changePlanerState(.preview))
                     
                 case .updateWorkoutPreview:
