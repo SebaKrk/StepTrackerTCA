@@ -43,7 +43,7 @@ struct AppTabView: View {
         case .fuel:
             Text("fuel")
         case .community:
-            Text("community")
+            WorkoutPlanerViewTest()
         case .settings:
             SettingsView()
         case .records:

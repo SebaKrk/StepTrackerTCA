@@ -16,9 +16,6 @@ struct WorkoutView: View {
     
     @Bindable var store: StoreOf<WorkoutFeature>
     
-    @State private var photoSelection: PhotoSourceOption = .photo
-    @State private var workoutSelection: WorkoutTypeOption = .customWorkout
-    
     // MARK: - View
     
     var body: some View {
@@ -37,6 +34,12 @@ struct WorkoutView: View {
             .onChange(of: store.selectedItem) { _, newItem in
                 send(.selectedPhotoChanged(newItem))
             }
+            .sheet(item: $store.scope(state: \.destination?.openWorkoutPlaner,
+                                      action: \.destination.openWorkoutPlaner),
+                   content: { store in
+                WorkoutPlanerView(store: store)
+                    .presentationDetents([.medium, .large])
+            })
             .navigationDestination(
                 item: $store.scope(
                     state: \.destination?.openImageAnalysis,
@@ -62,12 +65,12 @@ struct WorkoutView: View {
     }
     
     private var workoutTypeOptionButton: some View {
-        PickerButtonView(selectedOption: $workoutSelection) { option in
+        PickerButtonView(selectedOption: $store.workoutSelection.sending(\.changeWorkoutType)) { option in
             switch option {
             case .customWorkout:
                 print("chose custom workout")
             case .singleGoalWorkout:
-                print("chose single workout")
+                send(.showWorkoutPlaner)
             case .pacerWorkout:
                 print("chose pacer workout")
             }

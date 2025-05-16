@@ -345,3 +345,6 @@
     A: WorkoutFeature
     - create custom buttons
     - sandbox 
+    B: WorkoutPlanerFeature
+    - Create SingleWorkout
+    C: WorkoutKitManager
