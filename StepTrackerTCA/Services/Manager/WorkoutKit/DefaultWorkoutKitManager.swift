@@ -41,8 +41,35 @@ final class DefaultWorkoutKitManager: WorkoutKitManager {
         await workoutScheduler.schedule(workout, at: components)
     }
     
+    /// Marks a scheduled workout as complete.
+    func markWorkoutComplete(_ workout: ScheduledWorkoutPlan) async {
+        let workoutPlan = workout.plan
+        let components = workout.date
+        await workoutScheduler.markComplete(workoutPlan, at: components)
+    }
+
+    /// Removes a specific scheduled workout.
+    func removeScheduledWorkout(_ workout: ScheduledWorkoutPlan) async {
+        let workoutPlan = workout.plan
+        let components = workout.date
+        await workoutScheduler.remove(workoutPlan, at: components)
+    }
+    
+    /// Removes all scheduled workouts.
+    func removeAllScheduledWorkouts() async {
+        await workoutScheduler.removeAllWorkouts()
+    }
+    
+    /// Fetches all scheduled workouts.
+    func fetchScheduledWorkouts() async {
+        scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
+     }
+    
+    // MARK: - Authorization
+    
     /// Requests authorization and updates the local authorization state.
     func requestAuthorization() async {
         authorizationState = await workoutScheduler.requestAuthorization()
     }
+    
 }
