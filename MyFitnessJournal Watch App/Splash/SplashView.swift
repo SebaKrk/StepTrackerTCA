@@ -39,10 +39,3 @@ struct SplashView: View {
     }
     
 }
-
-
-//    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-//        withAnimation {
-//            send(.showMainApp)
-//        }
-//    }

@@ -32,9 +32,9 @@ struct SplashFeature {
                     // MARK: - View Actions
                 case .view(.viewDidAppear):
                     return .run { send in
-                          try await clock.sleep(for: .seconds(3))
-                          await send(.view(.showMainApp))
-                      }
+                        try await clock.sleep(for: .seconds(3))
+                        await send(.view(.showMainApp), animation: .easeInOut)
+                    }
                     
                 case .view(.showMainApp):
                     state.isActive = true
