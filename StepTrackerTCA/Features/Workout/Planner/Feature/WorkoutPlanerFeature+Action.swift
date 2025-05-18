@@ -49,13 +49,7 @@ extension WorkoutPlanerFeature {
         // MARK: - View actions
         
         /// Actions triggered by user interactions in the view.
-        case view(View)
 
-        /// Sub-actions for view-related events.
-        enum View {
-            
-            /// Triggered when the view appears.
-            case viewDidAppear
             
             /// Triggered when the cancel button is tapped.
             case cancelButtonTapped

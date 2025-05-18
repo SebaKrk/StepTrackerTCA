@@ -5,13 +5,18 @@
 //  Created by Sebastian Sciuba on 17/05/2025.
 //
 
+import ComposableArchitecture
 import SwiftUI
 
 @main
 struct MyFitnessJournal_Watch_AppApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashView(
+                store: Store(initialState: SplashFeature.State()) {
+                    SplashFeature()
+                }
+            )
         }
     }
 }

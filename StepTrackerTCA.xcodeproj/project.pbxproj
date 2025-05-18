@@ -9,50 +9,21 @@
 /* Begin PBXBuildFile section */
 		930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 930DCF402D16A3D900F1A5E4 /* Factory */; };
 		9332A8C62D1809FD00DA426E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9332A8C52D1809FD00DA426E /* README.md */; };
-		934A03B12DD8A54A0089D27C /* MyFitnessJournal Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C72DD9CD8C0089D27C /* ComposableArchitecture */; };
+		934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C92DD9CD9A0089D27C /* Factory */; };
 		93622F162D2C81B000E9863B /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 93622F152D2C81B000E9863B /* Algorithms */; };
 		9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */ = {isa = PBXBuildFile; fileRef = 9388D7F92D8E8B090016D160 /* TASKS.md */; };
 		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		934A03B22DD8A54A0089D27C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 93CE752D2D1699CA006D5A4A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 934A03AF2DD8A54A0089D27C;
-			remoteInfo = "MyFitnessJournal Watch App";
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		934A03BE2DD8A54B0089D27C /* Embed Watch Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
-			dstSubfolderSpec = 16;
-			files = (
-				934A03B12DD8A54A0089D27C /* MyFitnessJournal Watch App.app in Embed Watch Content */,
-			);
-			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		9332A8C52D1809FD00DA426E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		934A03A42DD8A5490089D27C /* MyFitnessJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFitnessJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MyFitnessJournal Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9388D7F92D8E8B090016D160 /* TASKS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TASKS.md; sourceTree = "<group>"; };
 		93CE75352D1699CA006D5A4A /* StepTrackerTCA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StepTrackerTCA.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		934A03A52DD8A5490089D27C /* MyFitnessJournal */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MyFitnessJournal;
-			sourceTree = "<group>";
-		};
 		934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "MyFitnessJournal Watch App";
@@ -66,17 +37,12 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		934A03A12DD8A5490089D27C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		934A03AD2DD8A54A0089D27C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */,
+				934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,14 +59,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		934A03C62DD9CD8C0089D27C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		93CE752C2D1699CA006D5A4A = {
 			isa = PBXGroup;
 			children = (
 				9332A8C52D1809FD00DA426E /* README.md */,
 				9388D7F92D8E8B090016D160 /* TASKS.md */,
 				93CE75372D1699CA006D5A4A /* StepTrackerTCA */,
-				934A03A52DD8A5490089D27C /* MyFitnessJournal */,
 				934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */,
+				934A03C62DD9CD8C0089D27C /* Frameworks */,
 				93CE75362D1699CA006D5A4A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,7 +82,6 @@
 			isa = PBXGroup;
 			children = (
 				93CE75352D1699CA006D5A4A /* StepTrackerTCA.app */,
-				934A03A42DD8A5490089D27C /* MyFitnessJournal.app */,
 				934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */,
 			);
 			name = Products;
@@ -118,30 +90,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		934A03A32DD8A5490089D27C /* MyFitnessJournal */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 934A03BF2DD8A54B0089D27C /* Build configuration list for PBXNativeTarget "MyFitnessJournal" */;
-			buildPhases = (
-				934A03A02DD8A5490089D27C /* Sources */,
-				934A03A12DD8A5490089D27C /* Frameworks */,
-				934A03A22DD8A5490089D27C /* Resources */,
-				934A03BE2DD8A54B0089D27C /* Embed Watch Content */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				934A03B32DD8A54A0089D27C /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				934A03A52DD8A5490089D27C /* MyFitnessJournal */,
-			);
-			name = MyFitnessJournal;
-			packageProductDependencies = (
-			);
-			productName = MyFitnessJournal;
-			productReference = 934A03A42DD8A5490089D27C /* MyFitnessJournal.app */;
-			productType = "com.apple.product-type.application";
-		};
 		934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 934A03BB2DD8A54B0089D27C /* Build configuration list for PBXNativeTarget "MyFitnessJournal Watch App" */;
@@ -159,6 +107,8 @@
 			);
 			name = "MyFitnessJournal Watch App";
 			packageProductDependencies = (
+				934A03C72DD9CD8C0089D27C /* ComposableArchitecture */,
+				934A03C92DD9CD9A0089D27C /* Factory */,
 			);
 			productName = "MyFitnessJournal Watch App";
 			productReference = 934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */;
@@ -199,9 +149,6 @@
 				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					934A03A32DD8A5490089D27C = {
-						CreatedOnToolsVersion = 16.3;
-					};
 					934A03AF2DD8A54A0089D27C = {
 						CreatedOnToolsVersion = 16.3;
 					};
@@ -230,20 +177,12 @@
 			projectRoot = "";
 			targets = (
 				93CE75342D1699CA006D5A4A /* StepTrackerTCA */,
-				934A03A32DD8A5490089D27C /* MyFitnessJournal */,
 				934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		934A03A22DD8A5490089D27C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		934A03AE2DD8A54A0089D27C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -263,13 +202,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		934A03A02DD8A5490089D27C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		934A03AC2DD8A54A0089D27C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -285,14 +217,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		934A03B32DD8A54A0089D27C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */;
-			targetProxy = 934A03B22DD8A54A0089D27C /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		934A03BC2DD8A54B0089D27C /* Debug */ = {
@@ -350,66 +274,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 11.4;
-			};
-			name = Release;
-		};
-		934A03C02DD8A54B0089D27C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		934A03C12DD8A54B0089D27C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -608,15 +472,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		934A03BF2DD8A54B0089D27C /* Build configuration list for PBXNativeTarget "MyFitnessJournal" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				934A03C02DD8A54B0089D27C /* Debug */,
-				934A03C12DD8A54B0089D27C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		93CE75302D1699CA006D5A4A /* Build configuration list for PBXProject "StepTrackerTCA" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -666,6 +521,16 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		930DCF402D16A3D900F1A5E4 /* Factory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = Factory;
+		};
+		934A03C72DD9CD8C0089D27C /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		934A03C92DD9CD9A0089D27C /* Factory */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
 			productName = Factory;
