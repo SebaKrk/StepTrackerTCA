@@ -33,7 +33,7 @@ struct SplashFeature {
                 case .view(.viewDidAppear):
                     return .run { send in
                         try await clock.sleep(for: .seconds(3))
-                        await send(.view(.showMainApp), animation: .easeInOut)
+                        await send(.view(.showMainApp), animation: .bouncy)
                     }
                     
                 case .view(.showMainApp):
