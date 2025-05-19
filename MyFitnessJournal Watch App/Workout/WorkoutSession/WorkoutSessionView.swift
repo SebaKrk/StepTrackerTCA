@@ -24,7 +24,6 @@ struct WorkoutSessionView: View {
                     .tag(screen as WorkoutSessionScreenAW?)
             }
         }
-        .navigationTitle("MyFitnessJournal")
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(store.selectedTab == .nowPlaying)
     }
@@ -33,12 +32,20 @@ struct WorkoutSessionView: View {
     func tabContent(for screen: WorkoutSessionScreenAW) -> some View {
         switch screen {
         case .controls:
-            Text("controls")
+            controlsView
         case .workout:
             Text("workout")
         case .nowPlaying:
             nowPlayingView
         }
+    }
+    
+    private var controlsView: some View {
+        ControlsView(
+            store: Store(initialState: ControlsFeature.State()) {
+                ControlsFeature()
+            }
+        )
     }
     
     private var nowPlayingView: some View {

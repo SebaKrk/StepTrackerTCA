@@ -357,3 +357,8 @@
     - create WorkoutSessionFeature
     - add tabs sessions
     - add NowPlayingView from WatchKit
+    D: Workout flow
+    - Working on workout flow
+    - MainView
+    - ControlsView
+

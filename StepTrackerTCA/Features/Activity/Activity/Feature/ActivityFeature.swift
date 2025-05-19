@@ -93,8 +93,6 @@ struct ActivityFeature {
                     
                 case .destination:
                     return .none
-     
-
                 }
             }
         }

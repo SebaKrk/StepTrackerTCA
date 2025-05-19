@@ -19,29 +19,33 @@ struct SplashView: View {
     
     var body: some View {
         if store.isActive {
-            workoutSessionView
+            mainView
         } else {
-            VStack {
-                Text("My Fitness Journal")
-                    .font(.title2)
-                    .bold()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .foregroundStyle(.pink)
-                
-                Text("Let’s get moving!")
-                    .font(.caption)
-            }
-            .onAppear {
-                send(.viewDidAppear)
-            }
+            splashView
+                .onAppear {
+                    send(.viewDidAppear)
+                }
         }
     }
     
-    private var workoutSessionView: some View {
-        WorkoutSessionView(
-            store: Store(initialState: WorkoutSessionFeature.State()) {
-                WorkoutSessionFeature()
+    private var splashView: some View {
+        VStack {
+            Text("My Fitness Journal")
+                .font(.title2)
+                .bold()
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .foregroundStyle(.pink)
+            
+            Text("Let’s get moving!")
+                .font(.caption)
+        }
+    }
+    
+    private var mainView: some View {
+        MainViewAW(
+            store: Store(initialState: MainFeatureAW.State()) {
+                MainFeatureAW()
             }
         )
     }
