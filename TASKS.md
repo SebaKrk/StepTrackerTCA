@@ -348,3 +348,7 @@
     B: WorkoutPlanerFeature
     - Create SingleWorkout
     C: WorkoutKitManager
+    
+### IOS-00037 MyFitnessJournal App Watch
+    A: My Fitness Journal: Track heart rate & workout notes 
+    - Add new target to app
