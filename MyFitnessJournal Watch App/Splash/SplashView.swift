@@ -19,7 +19,7 @@ struct SplashView: View {
     
     var body: some View {
         if store.isActive {
-            ContentView()
+            workoutSessionView
         } else {
             VStack {
                 Text("My Fitness Journal")
@@ -36,6 +36,14 @@ struct SplashView: View {
                 send(.viewDidAppear)
             }
         }
+    }
+    
+    private var workoutSessionView: some View {
+        WorkoutSessionView(
+            store: Store(initialState: WorkoutSessionFeature.State()) {
+                WorkoutSessionFeature()
+            }
+        )
     }
     
 }
