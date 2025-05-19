@@ -353,4 +353,7 @@
     A: My Fitness Journal: Track heart rate & workout notes 
     - Add new target to app
     B: Splash screen
-
+    C: WorkoutSessionFeature
+    - create WorkoutSessionFeature
+    - add tabs sessions
+    - add NowPlayingView from WatchKit
