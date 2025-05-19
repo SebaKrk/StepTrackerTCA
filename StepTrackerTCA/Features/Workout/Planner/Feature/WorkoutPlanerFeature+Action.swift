@@ -24,25 +24,25 @@ extension WorkoutPlanerFeature {
         
         /// Changes the state of the workout planner screen.
         case changePlanerState(WorkoutPlanerState)
-
+        
         /// Called when the user selects a workout activity type.
         case selectedWorkoutActivityPickerChange(WorkoutActivityType)
-
+        
         /// Called when the user selects a workout location type.
         case selectedWorkoutLocationPickerChange(WorkoutLocationType)
-
+        
         /// Triggers validation of the current input or workout plan.
         case validate
-
+        
         /// Starts the creation of a single workout.
         case createSingleWorkout
-
+        
         /// Updates the current workout plan with the provided workout.
         case updateWorkoutPlan(SingleGoalWorkout?)
-
+        
         /// Toggles the workout preview state.
         case updateWorkoutPreview
-
+        
         /// Updates the scheduled workout details.
         case updateScheduleWorkout
         
@@ -50,11 +50,10 @@ extension WorkoutPlanerFeature {
         
         /// Actions triggered by user interactions in the view.
         case view(View)
-
+        
         /// Sub-actions for view-related events.
         enum View {
             
-            /// Triggered when the view appears.
             case viewDidAppear
             
             /// Triggered when the cancel button is tapped.
@@ -77,5 +76,5 @@ extension WorkoutPlanerFeature {
             
         }
     }
-    
 }
+
