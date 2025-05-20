@@ -26,6 +26,9 @@ struct WorkoutSessionView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(store.selectedTab == .nowPlaying)
+        .onDisappear {
+             print("🧹 WorkoutSessionView disappeared")
+         }
     }
     
     @ViewBuilder
@@ -41,11 +44,8 @@ struct WorkoutSessionView: View {
     }
     
     private var controlsView: some View {
-        ControlsView(
-            store: Store(initialState: ControlsFeature.State()) {
-                ControlsFeature()
-            }
-        )
+        ControlsView(store: store.scope(state: \.controlsFeature,
+                                     action: \.controlsFeature))
     }
     
     private var nowPlayingView: some View {

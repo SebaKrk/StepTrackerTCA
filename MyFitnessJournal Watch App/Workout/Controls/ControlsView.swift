@@ -21,6 +21,10 @@ struct ControlsView: View {
             endButton
             playPauseButton
         }
+        .onDisappear {
+             print("🧹 ControlsView disappeared")
+         }
+     
     }
     
     private var endButton: some View {
@@ -50,5 +54,5 @@ struct ControlsView: View {
             ///Text(workoutManager.running ? "Pause" : "Resume")
         }
     }
-    
+
 }

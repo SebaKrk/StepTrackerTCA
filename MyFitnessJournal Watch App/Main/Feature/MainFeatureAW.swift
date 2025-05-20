@@ -19,19 +19,26 @@ struct MainFeatureAW {
             BindingReducer()
             Reduce { state, action in
                 switch action {
-                    
+                   
+                    // MARK: - Binding Action
                 case .binding(_):
                     return .none
+
+                    // MARK: - View Action
                     
-                //case let .tabChanged(tabItem):
-                //    state.selectedTab = tabItem
-                //    return .none
+                case let .view(.selectedWorkoutOption(workout)):
+                    return .send(.show(workout))
                     
-                case let .view(.selectedWorkoutOption(item)):
-                    return .send(.show(item))
+                    // MARK: - Action
                     
-                case let .show(item):
-                    switch item {
+                case .openSheet:
+                    state.destination = .openSummary(SummaryFeature.State())
+                    return .none
+                    
+                    // MARK: - Destination
+                    
+                case let .show(workout):
+                    switch workout {
                     case .planned:
                         state.destination = .workoutSession(WorkoutSessionFeature.State())
                     case .mirroring:
@@ -42,8 +49,12 @@ struct MainFeatureAW {
                         print("free")
                     }
                     return .none
-                    
-                case .destination:
+
+                case .destination(.presented(.workoutSession(.controlsFeature(.view(.endButtonPressed))))):
+                    print("MainFeatureAW - endButtonPressed")
+                    return .send(.openSheet)
+                     
+                default:
                     return .none
                 }
             }
@@ -52,6 +63,7 @@ struct MainFeatureAW {
     }
     
 }
+
 
 
 /// Implementation of `MainFeatureAW` action
@@ -65,10 +77,7 @@ extension MainFeatureAW {
         /// Handles changes in bindings for the state.
         case binding(BindingAction<State>)
         
-        // MARK: - Actions
-        
-        ///
-        //case tabChanged(WorkoutOptionAW)
+        // MARK: - View Actions
         
         case view(View)
         
@@ -78,12 +87,20 @@ extension MainFeatureAW {
             case selectedWorkoutOption(WorkoutOptionAW)
         }
         
+        // MARK: - Actions
+        
+        ///
+        case openSheet
+        
+        // MARK: - Destination
+        
         ///
         case show(WorkoutOptionAW)
         
         ///
         case destination(PresentationAction<Destination.Action>)
     }
+    
 }
 
 /// Implementation of `MainFeatureAW` state
@@ -97,14 +114,10 @@ extension MainFeatureAW {
         ///
         var workoutTypes: [WorkoutOptionAW] = [.planned, .mirroring, .scheduled, .free]
         
-        ///
-        //var selectedTab: WorkoutOptionAW?
-        
         // MARK: - Destination
         
         /// destination from MovementDetailsFeature
         @Presents var destination: Destination.State?
-        
     }
     
 }
@@ -117,6 +130,42 @@ extension MainFeatureAW {
         
         /// Represents the destination for displaying in `WorkoutSessionFeature`.
         case workoutSession(WorkoutSessionFeature)
+        
+        ///
+        case openSummary(SummaryFeature)
     }
     
 }
+
+
+
+
+
+//case let .tabChanged(tabItem):
+//    state.selectedTab = tabItem
+//    return .none
+
+
+
+// jak to ogarnać
+//case .summaryFeature(.view(.doneButtonPressed)):
+//  return .none
+
+//case .summaryFeature(.binding(_)):
+//   return .none
+//
+
+//                case .destination:
+//                    return .none
+
+//.ifLet(\.summaryFeature, action: \.summaryFeature) { SummaryFeature()}
+
+
+
+///
+//var summaryFeature: SummaryFeature.State?
+
+// MARK: - Child Actions
+
+///
+//case summaryFeature(SummaryFeature.Action)

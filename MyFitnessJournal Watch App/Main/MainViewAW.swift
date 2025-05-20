@@ -31,13 +31,16 @@ struct MainViewAW: View {
             }
             .listStyle(.carousel)
             .navigationBarTitle("Workouts")
+            .sheet(item: $store.scope(state: \.destination?.openSummary,
+                                      action: \.destination.openSummary)) { store in
+                SummaryView(store: store)
+            }
             .navigationDestination(
                 item: $store.scope(
                     state: \.destination?.workoutSession,
                     action: \.destination.workoutSession)) { store in
                         WorkoutSessionView(store: store)
                     }
-
         }
         .onAppear {
             //TODO: - requestAuthorization

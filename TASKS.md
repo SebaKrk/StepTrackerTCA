@@ -361,4 +361,5 @@
     - Working on workout flow
     - MainView
     - ControlsView
+    - SummaryView
 

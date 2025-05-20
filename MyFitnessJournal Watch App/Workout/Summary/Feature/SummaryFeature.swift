@@ -1,5 +1,5 @@
 //
-//  ControlsFeature.swift
+//  SummaryFeature.swift
 //  MyFitnessJournal Watch App
 //
 //  Created by Sebastian Sciuba on 19/05/2025.
@@ -9,9 +9,11 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct ControlsFeature {
+struct SummaryFeature {
     
-    // MARK: - Dependencies
+    // MARK: - Dependency
+    
+    @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
     
@@ -28,27 +30,23 @@ struct ControlsFeature {
                     // MARK: - Actions
                     
                     // MARK: - View Actions
-                case .view(.endButtonPressed):
-                    print("endButtonPressed")
-                    return .none
-                    
-                case .view(.playPauseButtonPressed):
-                    print("playPauseButtonPressed")
-                    return .none
-                
+                case .view(.doneButtonPressed):
+                    print("SummaryFeature - doneButtonPressed")
+                    return .run { send in
+                        await self.dismiss()
+                    }
                 }
             }
         }
     }
-    
 }
+
 
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `ControlsFeature` state
-extension ControlsFeature {
-    
+/// Implementation of `SummaryFeature` state
+extension SummaryFeature {
     @CasePathable
     enum Action: ViewAction, BindableAction {
         
@@ -65,11 +63,7 @@ extension ControlsFeature {
         enum View {
             
             ///
-            case endButtonPressed
-            
-            ///
-            case playPauseButtonPressed
-            
+            case doneButtonPressed
         }
     }
     
@@ -78,10 +72,8 @@ extension ControlsFeature {
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `ControlsFeature` state
-extension ControlsFeature {
+/// Implementation of `SummaryFeature` state
+extension SummaryFeature {
     @ObservableState
-    struct State: Equatable {
-        
-    }
+    struct State: Equatable {}
 }
