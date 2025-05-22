@@ -362,4 +362,7 @@
     - MainView
     - ControlsView
     - SummaryView
+    E: WKAppBundleIdentifier
+    - Add WKAppBundleIdentifier and WKApplication set to TRUE
+
 

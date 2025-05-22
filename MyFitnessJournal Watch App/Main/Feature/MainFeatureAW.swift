@@ -44,7 +44,7 @@ struct MainFeatureAW {
                     case .mirroring:
                         print("mirroring")
                     case .scheduled:
-                        print("scheduled")
+                        print("scheduled") 
                     case .free:
                         print("free")
                     }
@@ -60,6 +60,8 @@ struct MainFeatureAW {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        
+        ._printChanges()
     }
     
 }
