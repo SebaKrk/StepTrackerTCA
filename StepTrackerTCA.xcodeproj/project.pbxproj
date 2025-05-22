@@ -23,9 +23,22 @@
 		93CE75352D1699CA006D5A4A /* StepTrackerTCA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StepTrackerTCA.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		93388CD22DDF30B20057649A /* Exceptions for "MyFitnessJournal Watch App" folder in "MyFitnessJournal Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"MyFitnessJournal-Watch-App-Info.plist",
+			);
+			target = 934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				93388CD22DDF30B20057649A /* Exceptions for "MyFitnessJournal Watch App" folder in "MyFitnessJournal Watch App" target */,
+			);
 			path = "MyFitnessJournal Watch App";
 			sourceTree = "<group>";
 		};
@@ -229,6 +242,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.MyFitnessJournal;
@@ -258,6 +272,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.MyFitnessJournal;

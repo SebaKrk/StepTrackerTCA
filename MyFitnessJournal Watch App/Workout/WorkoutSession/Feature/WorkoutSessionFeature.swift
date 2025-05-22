@@ -27,6 +27,7 @@ struct WorkoutSessionFeature {
             }
             
         }
+        
         Scope(state: \.controlsFeature, action: \.controlsFeature) {
             ControlsFeature()
         }
