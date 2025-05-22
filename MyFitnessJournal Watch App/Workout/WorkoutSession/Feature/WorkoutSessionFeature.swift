@@ -22,7 +22,13 @@ struct WorkoutSessionFeature {
                 state.selectedTab = tabItem
                 
                 return .none
+            case .controlsFeature(_):
+                return .none
             }
+            
+        }
+        Scope(state: \.controlsFeature, action: \.controlsFeature) {
+            ControlsFeature()
         }
     }
 }
@@ -36,7 +42,12 @@ extension WorkoutSessionFeature {
         /// Action triggered when the user changes the selected tab.
         case tabChanged(WorkoutSessionScreenAW)
         
+        // MARK: - Child Actions
+        
+        ///
+        case controlsFeature(ControlsFeature.Action)
     }
+    
 }
 
 /// Implementation of `WorkoutSessionFeature` state
@@ -51,6 +62,11 @@ extension WorkoutSessionFeature {
         ///
         /// Default value is `.workout`.
         var selectedTab: WorkoutSessionScreenAW = .workout
+        
+        // MARK: - Child State
+        
+        ///
+        var controlsFeature =  ControlsFeature.State()
     }
     
 }

@@ -24,21 +24,28 @@ struct WorkoutSessionView: View {
                     .tag(screen as WorkoutSessionScreenAW?)
             }
         }
-        .navigationTitle("MyFitnessJournal")
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(store.selectedTab == .nowPlaying)
+        .onDisappear {
+             print("🧹 WorkoutSessionView disappeared")
+         }
     }
     
     @ViewBuilder
     func tabContent(for screen: WorkoutSessionScreenAW) -> some View {
         switch screen {
         case .controls:
-            Text("controls")
+            controlsView
         case .workout:
             Text("workout")
         case .nowPlaying:
             nowPlayingView
         }
+    }
+    
+    private var controlsView: some View {
+        ControlsView(store: store.scope(state: \.controlsFeature,
+                                     action: \.controlsFeature))
     }
     
     private var nowPlayingView: some View {

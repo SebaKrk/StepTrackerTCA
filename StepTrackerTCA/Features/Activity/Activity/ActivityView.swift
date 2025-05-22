@@ -31,6 +31,7 @@ struct ActivityView: View {
                         action: \.destination.detailItem)) { store in
                             ActivityDetailsView(store: store)
                         }
+            
                         .navigationDestination(
                             item: $store.scope(
                                 state: \.destination?.heartRateDetails,
