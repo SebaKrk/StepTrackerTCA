@@ -348,3 +348,21 @@
     B: WorkoutPlanerFeature
     - Create SingleWorkout
     C: WorkoutKitManager
+    
+### IOS-00037 MyFitnessJournal App Watch
+    A: My Fitness Journal: Track heart rate & workout notes 
+    - Add new target to app
+    B: Splash screen
+    C: WorkoutSessionFeature
+    - create WorkoutSessionFeature
+    - add tabs sessions
+    - add NowPlayingView from WatchKit
+    D: Workout flow
+    - Working on workout flow
+    - MainView
+    - ControlsView
+    - SummaryView
+    E: WKAppBundleIdentifier
+    - Add WKAppBundleIdentifier and WKApplication set to TRUE
+
+
