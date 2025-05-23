@@ -365,4 +365,10 @@
     E: WKAppBundleIdentifier
     - Add WKAppBundleIdentifier and WKApplication set to TRUE
 
+### IOS-00038 Visualize the UI
+    A: WorkoutSession with hardcoded data to visualize the UI
+    - WorkoutMetricFeature
+    - ElapsedTimeFeature
+    B: SummaryView with hardcoded data
+    - add SummaryMetricView
 
