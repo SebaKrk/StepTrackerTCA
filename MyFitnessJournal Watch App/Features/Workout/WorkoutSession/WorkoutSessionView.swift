@@ -37,7 +37,7 @@ struct WorkoutSessionView: View {
         case .controls:
             controlsView
         case .workout:
-            Text("workout")
+            workoutMetricView
         case .nowPlaying:
             nowPlayingView
         }
@@ -52,4 +52,8 @@ struct WorkoutSessionView: View {
         NowPlayingView().tag(WorkoutSessionScreenAW.nowPlaying)
     }
     
+    private var workoutMetricView: some View {
+        WorkoutMetricView(store: store.scope(state: \.workoutMetricFeature,
+                                             action: \.workoutMetricFeature))
+    }
 }

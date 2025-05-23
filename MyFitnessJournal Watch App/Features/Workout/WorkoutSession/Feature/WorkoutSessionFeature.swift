@@ -24,12 +24,18 @@ struct WorkoutSessionFeature {
                 return .none
             case .controlsFeature(_):
                 return .none
+                
+            case .workoutMetricFeature(_):
+                return .none
             }
             
         }
         
         Scope(state: \.controlsFeature, action: \.controlsFeature) {
             ControlsFeature()
+        }
+        Scope(state: \.workoutMetricFeature, action: \.workoutMetricFeature) {
+            WorkoutMetricFeature()
         }
     }
 }
@@ -47,6 +53,9 @@ extension WorkoutSessionFeature {
         
         ///
         case controlsFeature(ControlsFeature.Action)
+        
+        ///
+        case workoutMetricFeature(WorkoutMetricFeature.Action)
     }
     
 }
@@ -67,7 +76,10 @@ extension WorkoutSessionFeature {
         // MARK: - Child State
         
         ///
-        var controlsFeature =  ControlsFeature.State()
+        var controlsFeature = ControlsFeature.State()
+        
+        ///
+        var workoutMetricFeature = WorkoutMetricFeature.State()
     }
     
 }
