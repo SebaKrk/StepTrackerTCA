@@ -29,6 +29,9 @@ struct MainViewAW: View {
                     }
                 }
             }
+            .onAppear {
+                send(.viewDidAppear)
+            }
             .listStyle(.carousel)
             .navigationBarTitle("Workouts")
             .sheet(item: $store.scope(state: \.destination?.openSummary,
