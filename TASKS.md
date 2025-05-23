@@ -373,3 +373,8 @@
     - add SummaryMetricView
     C: ActivityRings
     - ActivityRingsView
+    
+### IOS-00039 Workout Manager
+    A: Signing & Capabilities
+    - add Background modes and HealtKit
+    - Privacy - Health Share/Update Usage Description
