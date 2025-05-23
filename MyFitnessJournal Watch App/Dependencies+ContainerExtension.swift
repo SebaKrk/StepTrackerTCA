@@ -18,7 +18,7 @@ extension Container {
     ///
     /// - The factory is initialized with the default implementation, `DefaultWorkoutManager`.
     /// - This ensures that the same instance of `WorkoutManager` is used throughout the application.
-    var WorkoutManager: Factory<WorkoutManager> {
+    var workoutManager: Factory<WorkoutManager> {
         Factory(self) { DefaultWorkoutManager() }.singleton
     }
     
