@@ -369,3 +369,6 @@
     A: WorkoutSession with hardcoded data to visualize the UI
     - WorkoutMetricFeature
     - ElapsedTimeFeature
+    B: SummaryView with hardcoded data
+    - add SummaryMetricView
+
