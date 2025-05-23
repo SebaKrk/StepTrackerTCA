@@ -371,4 +371,5 @@
     - ElapsedTimeFeature
     B: SummaryView with hardcoded data
     - add SummaryMetricView
-
+    C: ActivityRings
+    - ActivityRingsView
