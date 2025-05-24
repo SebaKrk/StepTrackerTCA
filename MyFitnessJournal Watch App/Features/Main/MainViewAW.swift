@@ -29,25 +29,21 @@ struct MainViewAW: View {
                     }
                 }
             }
-            .onAppear {
-                send(.viewDidAppear)
-            }
             .listStyle(.carousel)
             .navigationBarTitle("Workouts")
             .sheet(item: $store.scope(state: \.destination?.openSummary,
                                       action: \.destination.openSummary)) { store in
                 SummaryView(store: store)
             }
-            .navigationDestination(
-                item: $store.scope(
-                    state: \.destination?.workoutSession,
-                    action: \.destination.workoutSession)) { store in
-                        WorkoutSessionView(store: store)
-                    }
+                                      .navigationDestination(
+                                        item: $store.scope(
+                                            state: \.destination?.workoutSession,
+                                            action: \.destination.workoutSession)) { store in
+                                                WorkoutSessionView(store: store)
+                                            }
         }
         .onAppear {
-            //TODO: - requestAuthorization
-            //workoutManager.requestAuthorization()
+            send(.viewDidAppear)
         }
         
     }
@@ -59,3 +55,10 @@ struct MainViewAW: View {
         MainFeatureAW()
     }))
 }
+
+//.navigationDestination(
+//  item: $store.scope(
+//      state: \.destination?.openTest,
+//      action: \.destination.openTest)) { store in
+//          HeartRateView(store: store)
+//      }

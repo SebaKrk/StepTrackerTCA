@@ -21,11 +21,9 @@ struct ControlsView: View {
             endButton
             playPauseButton
         }
-        .onDisappear {
-             print("🧹 ControlsView disappeared")
-         }
-     
     }
+    
+    // MARK: - SubView
     
     private var endButton: some View {
         VStack {
@@ -43,15 +41,13 @@ struct ControlsView: View {
     private var playPauseButton: some View {
         VStack {
             Button {
-                send(.playPauseButtonPressed)
+                send(.togglePauseButtonPressed)
             } label: {
-                Image(systemName: "pause")
-                ///Image(systemName: workoutManager.running ? "pause" : "play")
+                Image(systemName: store.workoutSessionIsRunning ? "pause" : "play")
             }
             .tint(.yellow)
             .font(.title2)
-            Text("Pause")
-            ///Text(workoutManager.running ? "Pause" : "Resume")
+            Text(store.workoutSessionIsRunning ? "Pause" : "Resume")
         }
     }
 

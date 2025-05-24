@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SwiftUI
 import WatchKit
 
+@ViewAction(for: WorkoutSessionFeature.self)
 struct WorkoutSessionView: View {
     
     // MARK: - Properties
@@ -26,10 +27,15 @@ struct WorkoutSessionView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(store.selectedTab == .nowPlaying)
-        .onDisappear {
-             print("🧹 WorkoutSessionView disappeared")
-         }
+        .onAppear {
+            send(.viewDidAppear)
+        }
+        .onChange(of: store.workoutSessionIsRunning, { oldValue, newValue in
+            send(.changeTab)
+        })
     }
+    
+    // MARK: - SubViews
     
     @ViewBuilder
     func tabContent(for screen: WorkoutSessionScreenAW) -> some View {

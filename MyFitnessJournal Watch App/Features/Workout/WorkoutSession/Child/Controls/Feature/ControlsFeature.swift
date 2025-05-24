@@ -11,7 +11,15 @@ import Foundation
 @Reducer
 struct ControlsFeature {
     
-    // MARK: - Dependencies
+    // MARK: - Properties
+    
+    var service: ControlsService
+    
+    // MARK: - Lifecycle
+    
+    init(service: ControlsService = DefaultControlsService()) {
+        self.service = service
+    }
     
     // MARK: - Reducer
     
@@ -25,17 +33,15 @@ struct ControlsFeature {
                 case .binding(_):
                     return .none
                     
-                    // MARK: - Actions
-                    
                     // MARK: - View Actions
                 case .view(.endButtonPressed):
-                    print("endButtonPressed")
+                    service.endWorkout()
                     return .none
                     
-                case .view(.playPauseButtonPressed):
-                    print("playPauseButtonPressed")
+                case .view(.togglePauseButtonPressed):
+                    service.togglePause()
+                    state.workoutSessionIsRunning = service.workoutSessionIsRunning
                     return .none
-                
                 }
             }
         }
@@ -57,7 +63,7 @@ extension ControlsFeature {
         /// Handles changes in bindings for the state.
         case binding(BindingAction<State>)
         
-        // MARK: - Actions
+        // MARK: - Actions View
         
         case view(View)
         
@@ -68,7 +74,8 @@ extension ControlsFeature {
             case endButtonPressed
             
             ///
-            case playPauseButtonPressed
+            case togglePauseButtonPressed
+            
             
         }
     }
@@ -82,6 +89,8 @@ import Foundation
 extension ControlsFeature {
     @ObservableState
     struct State: Equatable {
+        
+        var workoutSessionIsRunning: Bool = false
         
     }
 }

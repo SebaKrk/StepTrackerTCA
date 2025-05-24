@@ -7,21 +7,49 @@
 
 import ComposableArchitecture
 import Foundation
+import Factory
 
 @Reducer
 struct WorkoutSessionFeature {
     
+    // MARK: - Properties
+    
+    var service: WorkoutSessionService
+    
+    // MARK: - Lifecycle
+    
+    init(service: WorkoutSessionService = DefaultWorkoutSessionService()) {
+        self.service = service
+    }
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        
         Reduce { state, action in
             switch action {
-                
+                // MARK: - Actions
+            case let .setWorkoutActivityType(workoutActivityType):
+                return .run { send in
+                    service.updateWorkoutActivityType(workoutActivityType)
+                }
             case let .tabChanged(tabItem):
                 state.selectedTab = tabItem
-                
                 return .none
+                
+                // MARK: - View Actions
+            case .view(.viewDidAppear):
+                if let workout = state.selectedWorkout {
+                    return .run { send in
+                        await send(.setWorkoutActivityType(workout))
+                    }
+                }
+                return .none
+                
+            case .view(.changeTab):
+                state.selectedTab = .workout
+                return .none
+                
+                // MARK: - Child Action
             case .controlsFeature(_):
                 return .none
                 
@@ -30,7 +58,6 @@ struct WorkoutSessionFeature {
             }
             
         }
-        
         Scope(state: \.controlsFeature, action: \.controlsFeature) {
             ControlsFeature()
         }
@@ -38,48 +65,4 @@ struct WorkoutSessionFeature {
             WorkoutMetricFeature()
         }
     }
-}
-
-/// Implementation of `WorkoutSessionFeature` action
-extension WorkoutSessionFeature {
-    
-    @CasePathable
-    enum Action {
-        
-        /// Action triggered when the user changes the selected tab.
-        case tabChanged(WorkoutSessionScreenAW)
-        
-        // MARK: - Child Actions
-        
-        ///
-        case controlsFeature(ControlsFeature.Action)
-        
-        ///
-        case workoutMetricFeature(WorkoutMetricFeature.Action)
-    }
-    
-}
-
-/// Implementation of `WorkoutSessionFeature` state
-extension WorkoutSessionFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        /// The currently selected tab in the application.
-        ///
-        /// Default value is `.workout`.
-        var selectedTab: WorkoutSessionScreenAW = .workout
-        
-        // MARK: - Child State
-        
-        ///
-        var controlsFeature = ControlsFeature.State()
-        
-        ///
-        var workoutMetricFeature = WorkoutMetricFeature.State()
-    }
-    
 }

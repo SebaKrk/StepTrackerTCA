@@ -52,13 +52,14 @@ struct MainFeatureAW {
                 case let .show(workout):
                     switch workout {
                     case .planned:
-                        state.destination = .workoutSession(WorkoutSessionFeature.State())
+                        state.destination = .workoutSession(WorkoutSessionFeature.State(selectedWorkout: .crossTraining))
                     case .mirroring:
                         print("mirroring")
                     case .scheduled:
                         print("scheduled") 
                     case .free:
                         print("free")
+                        //state.destination = .openTest(HeartRateFeature.State())
                     }
                     return .none
 

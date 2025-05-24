@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import Factory
 
 @ViewAction(for: WorkoutMetricFeature.self)
 struct WorkoutMetricView: View {
@@ -18,21 +19,28 @@ struct WorkoutMetricView: View {
     // MARK: - View
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Spacer()
-            elapsedTime
-            heartRate
-            workoutEnergy
+        TimelineView(PeriodicTimelineSchedule(from: .now, by: 0.03)) { context in
+            VStack(alignment: .leading) {
+                Spacer()
+                elapsedTime(context)
+                heartRate
+                workoutEnergy
+            }
+            .ignoresSafeArea(edges: .bottom)
+            .scenePadding()
         }
-        .ignoresSafeArea(edges: .bottom)
-        .scenePadding()
+      
     }
     
-    private var elapsedTime: some View {
-        ElapsedTimeView(store: Store(initialState: ElapsedTimeFeature.State(elapsedTime: 3 * 60 + 15.25,
-                                                                            showSubseconds: true), reducer: {
-            ElapsedTimeFeature()
-        }))
+    /// workoutManager.builder?.elapsedTime(at: context.date) ?? 0
+    private func elapsedTime(_ context: TimelineViewDefaultContext) -> some View {
+        ElapsedTimeView(store: Store(
+            initialState: ElapsedTimeFeature.State(
+                elapsedTime: store.elapsedTime,
+                showSubseconds: true),
+            reducer: {
+                ElapsedTimeFeature()
+            }))
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.yellow)
         .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
@@ -41,7 +49,7 @@ struct WorkoutMetricView: View {
     private var heartRate: some View {
         HStack {
             heartImage
-            Text(153.formatted(MetricFormatter.heartRate))
+            Text(store.heartRate.formatted(MetricFormatter.heartRate))
                 .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
             VStack {
                 Spacer().frame(height: 10)
@@ -54,7 +62,7 @@ struct WorkoutMetricView: View {
     }
     
     private var workoutEnergy: some View {
-        Text(Measurement(value: 43, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
+        Text(Measurement(value: store.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
             .frame(maxWidth: .infinity, alignment: .leading)
             .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
     }
@@ -71,8 +79,14 @@ struct WorkoutMetricView: View {
     
 }
 
-#Preview {
-    WorkoutMetricView(store: Store(initialState: WorkoutMetricFeature.State(), reducer: {
-        WorkoutMetricFeature()
-    }))
-}
+//#Preview {
+//    WorkoutMetricView(store: Store(initialState: WorkoutMetricFeature.State(), reducer: {
+//        WorkoutMetricFeature()
+//    }))
+//}
+
+//        TimelineView(MetricsTimelineSchedule(from: workoutManager.builder?.startDate ?? Date(),
+//                                             isPaused: workoutManager.session?.state == .paused)) { context in
+            
+//        }
+//        by: (mode == .lowFrequency ? 1.0 : 1.0 / 30.0))
