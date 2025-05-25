@@ -35,11 +35,15 @@ protocol WorkoutManager {
     
     var workoutSessionIsRunning: Bool { get }
     
-    var averageHeartRate: Double { get }
+    //var averageHeartRate: Double { get }
     
-    var heartRate: Double { get }
+    //var heartRate: Double { get }
     
-    var activeEnergy: Double { get }
+    //var activeEnergy: Double { get }
+    
+    var metrics: WorkoutMetrics { get }
+    
+    var workoutMetricsStream: AsyncStream<WorkoutMetrics> { get }
     
     // MARK: - Session State Control
     

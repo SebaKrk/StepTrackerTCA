@@ -49,7 +49,7 @@ struct WorkoutMetricView: View {
     private var heartRate: some View {
         HStack {
             heartImage
-            Text(store.heartRate.formatted(MetricFormatter.heartRate))
+            Text(store.workoutMetrics.heartRate.formatted(MetricFormatter.heartRate))
                 .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
             VStack {
                 Spacer().frame(height: 10)
@@ -62,7 +62,7 @@ struct WorkoutMetricView: View {
     }
     
     private var workoutEnergy: some View {
-        Text(Measurement(value: store.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
+        Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
             .frame(maxWidth: .infinity, alignment: .leading)
             .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
     }
@@ -79,11 +79,11 @@ struct WorkoutMetricView: View {
     
 }
 
-//#Preview {
-//    WorkoutMetricView(store: Store(initialState: WorkoutMetricFeature.State(), reducer: {
-//        WorkoutMetricFeature()
-//    }))
-//}
+#Preview {
+    WorkoutMetricView(store: Store(initialState: WorkoutMetricFeature.State(), reducer: {
+        WorkoutMetricFeature()
+    }))
+}
 
 //        TimelineView(MetricsTimelineSchedule(from: workoutManager.builder?.startDate ?? Date(),
 //                                             isPaused: workoutManager.session?.state == .paused)) { context in

@@ -17,9 +17,14 @@ final class DefaultWorkoutMetricService: WorkoutMetricService {
     
     // MARK: - API
     
-    func elapsedTime(at context: TimelineViewDefaultContext) -> TimeInterval? {
-        workoutManager.builder?.elapsedTime(at: context.date)
+    var workoutMetricsStream: AsyncStream<WorkoutMetrics> {
+        workoutManager.workoutMetricsStream
     }
+    
+    
+//    func elapsedTime(at context: TimelineViewDefaultContext) -> TimeInterval? {
+//        workoutManager.builder?.elapsedTime(at: context.date)
+//    }
 
 }
 

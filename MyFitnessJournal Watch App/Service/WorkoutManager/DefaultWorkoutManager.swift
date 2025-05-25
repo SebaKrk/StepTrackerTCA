@@ -28,7 +28,7 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
     }
     
     let healthStore = HKHealthStore()
-    
+
     var session: HKWorkoutSession?
     
     var builder: HKLiveWorkoutBuilder?
@@ -48,9 +48,21 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
     
     var workout: HKWorkout?
     
-    var averageHeartRate: Double = 0
-    var heartRate: Double = 0
-    var activeEnergy: Double = 0
+    var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
+
+    var workoutMetricsStream: AsyncStream<WorkoutMetrics> {
+        AsyncStream { continuation in
+            self.workoutMetricsContinuation = continuation
+        }
+    }
+    
+    var metrics = WorkoutMetrics(averageHeartRate: 0,
+                                 heartRate: 0,
+                                 activeEnergy: 0)
+    
+    //var averageHeartRate: Double = 0
+    //var heartRate: Double = 0
+    //var activeEnergy: Double = 0
     
     var workoutSessionIsRunning = false
     
@@ -95,11 +107,17 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
             switch statistics.quantityType {
             case HKQuantityType.quantityType(forIdentifier: .heartRate):
                 let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
-                self.heartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0
-                self.averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
+                
+                self.metrics.heartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0
+                self.metrics.averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
+                
+                self.workoutMetricsContinuation?.yield(self.metrics)
             case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
                 let energyUnit = HKUnit.kilocalorie()
-                self.activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
+                
+                self.metrics.activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
+                
+                self.workoutMetricsContinuation?.yield(self.metrics)
             default:
                 return
             }
@@ -111,9 +129,21 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
         builder = nil
         workout = nil
         session = nil
-        activeEnergy = 0
-        averageHeartRate = 0
-        heartRate = 0
+        metrics = WorkoutMetrics(averageHeartRate: 0,
+                                 heartRate: 0,
+                                 activeEnergy: 0)
+//        activeEnergy = 0
+//        averageHeartRate = 0
+//        heartRate = 0
     }
     
+}
+
+struct WorkoutMetrics: Equatable {
+    
+    var averageHeartRate: Double
+    
+    var heartRate: Double
+    
+    var activeEnergy: Double
 }

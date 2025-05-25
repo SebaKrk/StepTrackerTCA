@@ -8,14 +8,15 @@
 import Foundation
 import HealthKit
 
-extension DefaultWorkoutManager: HKWorkoutSessionDelegate {
+//
+extension DefaultWorkoutManager: HKLiveWorkoutBuilderDelegate {
     
     func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
 
     func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
         for type in collectedTypes {
             guard let quantityType = type as? HKQuantityType else {
-                return
+                continue
             }
 
             let statistics = workoutBuilder.statistics(for: quantityType)

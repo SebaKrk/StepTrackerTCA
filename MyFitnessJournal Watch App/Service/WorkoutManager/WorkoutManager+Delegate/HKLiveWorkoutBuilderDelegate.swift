@@ -8,7 +8,7 @@
 import Foundation
 import HealthKit
 
-extension DefaultWorkoutManager: HKLiveWorkoutBuilderDelegate {
+extension DefaultWorkoutManager: HKWorkoutSessionDelegate {
     
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState,
                         from fromState: HKWorkoutSessionState, date: Date) {
@@ -25,6 +25,7 @@ extension DefaultWorkoutManager: HKLiveWorkoutBuilderDelegate {
                 }
             }
         }
+        print("🔄 Workout session changed from \(fromState.rawValue) to \(toState.rawValue)")
     }
 
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) { }

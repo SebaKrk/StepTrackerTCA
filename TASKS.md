@@ -379,4 +379,5 @@
     - add Background modes and HealtKit
     - Privacy - Health Share/Update Usage Description
     B: Authorization
-    C: 
+    C: create WorkoutManager
+

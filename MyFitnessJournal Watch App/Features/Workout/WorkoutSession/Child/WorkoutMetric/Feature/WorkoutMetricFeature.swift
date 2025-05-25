@@ -34,11 +34,18 @@ struct WorkoutMetricFeature {
                     return .none
                     
                     // MARK: - Actions
+                case let .workoutMetrics(data):
+                    state.workoutMetrics = data
+                    return .none
                     
                     // MARK: - View Actions
                 case .view(.startHeartAnimation):
                     state.animateHeart = true
-                    return .none
+                    return .run { send in
+                        for await value in service.workoutMetricsStream {
+                            await send(.workoutMetrics(value))
+                        }
+                    }
                 }
             }
         }
@@ -61,6 +68,11 @@ extension WorkoutMetricFeature {
         
         // MARK: - Actions
         
+        ///
+        case workoutMetrics(WorkoutMetrics)
+        
+        // MARK: - View Actions
+        
         case view(View)
         
         /// Sub-actions for view-related events.
@@ -82,13 +94,19 @@ extension WorkoutMetricFeature {
         
         var elapsedTime: TimeInterval = 0
 
-        var averageHeartRate: Double = 0
-        
-        var heartRate: Double = 0
-        
-        var activeEnergy: Double = 0
+//        var averageHeartRate: Double = 0
+//        
+//        var heartRate: Double = 0
+//        
+//        var activeEnergy: Double = 0
         
         var animateHeart: Bool = false
+        
+        var workoutMetrics: WorkoutMetrics = WorkoutMetrics(
+            averageHeartRate: 0,
+            heartRate: 0,
+            activeEnergy: 0
+        )
         
     }
 }

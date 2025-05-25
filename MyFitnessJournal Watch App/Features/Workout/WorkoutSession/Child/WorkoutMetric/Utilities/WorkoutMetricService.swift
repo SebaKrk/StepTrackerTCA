@@ -11,6 +11,8 @@ import SwiftUI
 
 protocol WorkoutMetricService {
     
-    func elapsedTime(at context: TimelineViewDefaultContext) -> TimeInterval?
+    var workoutMetricsStream: AsyncStream<WorkoutMetrics> { get }
+    
+//    func elapsedTime(at context: TimelineViewDefaultContext) -> TimeInterval?
     
 }
