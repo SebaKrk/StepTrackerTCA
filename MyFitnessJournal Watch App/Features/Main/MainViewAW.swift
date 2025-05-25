@@ -41,6 +41,12 @@ struct MainViewAW: View {
                                             action: \.destination.workoutSession)) { store in
                                                 WorkoutSessionView(store: store)
                                             }
+                                            .navigationDestination(
+                                                item: $store.scope(
+                                                    state: \.destination?.openTest,
+                                                    action: \.destination.openTest)) { store in
+                                                        HeartRateView(store: store)
+                                                    }
         }
         .onAppear {
             send(.viewDidAppear)
@@ -56,9 +62,4 @@ struct MainViewAW: View {
     }))
 }
 
-//.navigationDestination(
-//  item: $store.scope(
-//      state: \.destination?.openTest,
-//      action: \.destination.openTest)) { store in
-//          HeartRateView(store: store)
-//      }
+

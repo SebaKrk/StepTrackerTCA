@@ -59,7 +59,7 @@ struct MainFeatureAW {
                         print("scheduled") 
                     case .free:
                         print("free")
-                        //state.destination = .openTest(HeartRateFeature.State())
+                        state.destination = .openTest(HeartRateFeature.State())
                     }
                     return .none
 
@@ -74,7 +74,8 @@ struct MainFeatureAW {
         }
         .ifLet(\.$destination, action: \.destination)
         
-        ._printChanges()
+        //._printChanges()
     }
     
 }
+    

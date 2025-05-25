@@ -8,15 +8,42 @@
 import HealthKit
 
 final class WorkoutManagerTest: NSObject, ObservableObject {
+    
     private let healthStore = HKHealthStore()
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
 
-    var heartRateHandler: ((Double) -> Void)?
+    var heartRateContinuation: AsyncStream<Double>.Continuation?
+
+    var heartRateStream: AsyncStream<Double> {
+        AsyncStream { continuation in
+            self.heartRateContinuation = continuation
+        }
+    }
+    
+    var heartRate: Double = 0
+
+    func updateForStatistics(_ statistics: HKStatistics?) {
+        guard let statistics = statistics else { return }
+
+        DispatchQueue.main.async {
+            switch statistics.quantityType {
+            case HKQuantityType.quantityType(forIdentifier: .heartRate):
+                let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
+                if let newHeartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) {
+                    print("💓 Updated heart rate: \(newHeartRate)")
+                    self.heartRate = newHeartRate
+                    self.heartRateContinuation?.yield(newHeartRate)
+                }
+            default:
+                break
+            }
+        }
+    }
 
     func startWorkout() {
         let config = HKWorkoutConfiguration()
-        config.activityType = .running
+        config.activityType = .walking
         config.locationType = .outdoor
 
         do {
@@ -37,21 +64,22 @@ final class WorkoutManagerTest: NSObject, ObservableObject {
 
 extension WorkoutManagerTest: HKLiveWorkoutBuilderDelegate {
     func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
-        guard collectedTypes.contains(HKQuantityType.quantityType(forIdentifier: .heartRate)!) else { return }
-
-        guard let stats = workoutBuilder.statistics(for: .quantityType(forIdentifier: .heartRate)!) else { return }
-        let bpmUnit = HKUnit(from: "count/min")
-        let value = stats.mostRecentQuantity()?.doubleValue(for: bpmUnit)
-        if let value = value {
-            heartRateHandler?(value)
+        print("🏃‍♂️ didCollectDataOf: \(collectedTypes)")
+        for type in collectedTypes {
+            guard let quantityType = type as? HKQuantityType else { continue }
+            let statistics = workoutBuilder.statistics(for: quantityType)
+            updateForStatistics(statistics)
         }
-        
     }
 
     func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
 }
 
 extension WorkoutManagerTest: HKWorkoutSessionDelegate {
-    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {}
+//    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {}
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {}
+    
+    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
+        print("🔄 Workout session changed from \(fromState.rawValue) to \(toState.rawValue)")
+    }
 }

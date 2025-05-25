@@ -20,7 +20,7 @@ extension MainFeatureAW {
         ///
         case openSummary(SummaryFeature)
         
-        //case openTest(HeartRateFeature)
+        case openTest(HeartRateFeature)
     }
     
 }

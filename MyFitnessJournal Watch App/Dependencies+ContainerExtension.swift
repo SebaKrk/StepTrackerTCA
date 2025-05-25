@@ -23,12 +23,12 @@ extension Container {
     }
     
     // Tesst
-//    var workoutMetricServiceTest: Factory<WorkoutMetricServiceTest> {
-//        self { DefaultWorkoutMetricServiceTest() }
-//    }
-//    
-//    var workoutManagerTest: Factory<WorkoutManagerTest> {
-//         self { WorkoutManagerTest() }.shared
-//     }
+    var workoutMetricServiceTest: Factory<WorkoutMetricServiceTest> {
+        self { DefaultWorkoutMetricServiceTest() }
+    }
+    
+    var workoutManagerTest: Factory<WorkoutManagerTest> {
+         self { WorkoutManagerTest() }.shared
+     }
     
 }

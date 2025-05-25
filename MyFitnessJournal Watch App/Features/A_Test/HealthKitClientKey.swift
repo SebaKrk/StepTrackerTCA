@@ -9,31 +9,28 @@ import ComposableArchitecture
 import Factory
 
 protocol WorkoutMetricServiceTest {
+    var heartRateStream: AsyncStream<Double> { get }
     func start()
-    func onHeartRateUpdate(_ handler: @escaping (Double) -> Void)
 }
 
 final class DefaultWorkoutMetricServiceTest: WorkoutMetricServiceTest {
     
     @Injected(\.workoutManagerTest) private var manager
-    
-    private var onHeartRate: ((Double) -> Void)?
+
+    var heartRateStream: AsyncStream<Double> {
+        manager.heartRateStream
+    }
 
     func start() {
-        manager.heartRateHandler = { [weak self] bpm in
-            self?.onHeartRate?(bpm)
-        }
         manager.startWorkout()
     }
 
-    func onHeartRateUpdate(_ handler: @escaping (Double) -> Void) {
-        onHeartRate = handler
-    }
 }
 
 
 struct HealthKitClient {
-    var start: (@escaping (Double) async -> Void) async -> Void
+    var heartRateStream: AsyncStream<Double>
+    var start: () -> Void
 }
 
 extension DependencyValues {
@@ -46,12 +43,10 @@ extension DependencyValues {
         static let liveValue: HealthKitClient = {
             let service = Container.shared.workoutMetricServiceTest()
 
-            return HealthKitClient { onHeartRate in
-                service.onHeartRateUpdate { bpm in
-                    Task { await onHeartRate(bpm) }
-                }
-                service.start()
-            }
+            return HealthKitClient(
+                heartRateStream: service.heartRateStream,
+                start: service.start
+            )
         }()
     }
 }
