@@ -93,12 +93,6 @@ extension WorkoutMetricFeature {
     struct State: Equatable {
         
         var elapsedTime: TimeInterval = 0
-
-//        var averageHeartRate: Double = 0
-//        
-//        var heartRate: Double = 0
-//        
-//        var activeEnergy: Double = 0
         
         var animateHeart: Bool = false
         

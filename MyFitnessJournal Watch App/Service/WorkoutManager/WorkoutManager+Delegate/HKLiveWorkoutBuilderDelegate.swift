@@ -10,6 +10,7 @@ import HealthKit
 
 extension DefaultWorkoutManager: HKWorkoutSessionDelegate {
     
+    ///
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState,
                         from fromState: HKWorkoutSessionState, date: Date) {
         DispatchQueue.main.async {
@@ -28,6 +29,7 @@ extension DefaultWorkoutManager: HKWorkoutSessionDelegate {
         print("🔄 Workout session changed from \(fromState.rawValue) to \(toState.rawValue)")
     }
 
+    ///
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) { }
     
 }

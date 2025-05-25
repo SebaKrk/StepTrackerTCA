@@ -15,6 +15,16 @@ struct SummaryFeature {
     
     @Dependency(\.dismiss) var dismiss
     
+    // MARK: - Properties
+    
+    var service: SummaryService
+    
+    // MARK: - Lifecycle
+    
+    init(service: SummaryService = DefaultSummaryService()) {
+        self.service = service
+    }
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -28,11 +38,16 @@ struct SummaryFeature {
                     return .none
                     
                     // MARK: - Actions
+                case .changeSummaryState:
+                    service.setShowingSummaryView(false)
+                    return .none
                     
                     // MARK: - View Actions
                 case .view(.doneButtonPressed):
                     print("SummaryFeature - doneButtonPressed")
+                    
                     return .run { send in
+                        await send(.changeSummaryState)
                         await self.dismiss()
                     }
                 }
@@ -56,6 +71,10 @@ extension SummaryFeature {
         case binding(BindingAction<State>)
         
         // MARK: - Actions
+        
+        case changeSummaryState
+        
+        // MARK: - Actions View
         
         case view(View)
         

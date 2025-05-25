@@ -29,7 +29,8 @@ extension DefaultWorkoutManager {
 
     func endWorkout() {
         session?.end()
-        //showingSummaryView = true
+        //resetWorkout()
+        showingSummaryView = true
     }
     
 }

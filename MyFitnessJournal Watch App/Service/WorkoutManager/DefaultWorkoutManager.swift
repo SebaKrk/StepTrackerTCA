@@ -21,6 +21,7 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
     
     var showingSummaryView: Bool = false {
         didSet {
+            print("showingSummaryView changed to: \(showingSummaryView)")
             if showingSummaryView == false {
                 resetWorkout()
             }
@@ -59,10 +60,6 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
     var metrics = WorkoutMetrics(averageHeartRate: 0,
                                  heartRate: 0,
                                  activeEnergy: 0)
-    
-    //var averageHeartRate: Double = 0
-    //var heartRate: Double = 0
-    //var activeEnergy: Double = 0
     
     var workoutSessionIsRunning = false
     
@@ -112,6 +109,7 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
                 self.metrics.averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
                 
                 self.workoutMetricsContinuation?.yield(self.metrics)
+                
             case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
                 let energyUnit = HKUnit.kilocalorie()
                 
@@ -132,18 +130,7 @@ final class DefaultWorkoutManager: NSObject, WorkoutManager {
         metrics = WorkoutMetrics(averageHeartRate: 0,
                                  heartRate: 0,
                                  activeEnergy: 0)
-//        activeEnergy = 0
-//        averageHeartRate = 0
-//        heartRate = 0
+        print(metrics)
     }
     
-}
-
-struct WorkoutMetrics: Equatable {
-    
-    var averageHeartRate: Double
-    
-    var heartRate: Double
-    
-    var activeEnergy: Double
 }

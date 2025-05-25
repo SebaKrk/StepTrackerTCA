@@ -62,4 +62,5 @@ struct WorkoutSessionView: View {
         WorkoutMetricView(store: store.scope(state: \.workoutMetricFeature,
                                              action: \.workoutMetricFeature))
     }
+    
 }

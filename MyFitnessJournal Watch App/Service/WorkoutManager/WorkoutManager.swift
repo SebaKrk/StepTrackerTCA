@@ -33,13 +33,9 @@ protocol WorkoutManager {
     
     // MARK: - Workout Metrics Accessors
     
+    var showingSummaryView: Bool { get set }
+    
     var workoutSessionIsRunning: Bool { get }
-    
-    //var averageHeartRate: Double { get }
-    
-    //var heartRate: Double { get }
-    
-    //var activeEnergy: Double { get }
     
     var metrics: WorkoutMetrics { get }
     
