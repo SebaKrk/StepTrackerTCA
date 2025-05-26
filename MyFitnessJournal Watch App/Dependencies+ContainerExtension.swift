@@ -22,13 +22,4 @@ extension Container {
         Factory(self) { DefaultWorkoutManager() }.singleton
     }
     
-    // Tesst
-    var workoutMetricServiceTest: Factory<WorkoutMetricServiceTest> {
-        self { DefaultWorkoutMetricServiceTest() }
-    }
-    
-    var workoutManagerTest: Factory<WorkoutManagerTest> {
-         self { WorkoutManagerTest() }.shared
-     }
-    
 }

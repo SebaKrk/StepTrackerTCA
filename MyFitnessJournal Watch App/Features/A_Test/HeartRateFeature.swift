@@ -11,7 +11,7 @@ import Foundation
 @Reducer
 struct HeartRateFeature {
     
-    @Dependency(\.healthKitClient) var healthKitClient
+    @Dependency(\.heartRateClient) var heartRateClient
     
     // MARK: - Reducer
     
@@ -30,7 +30,6 @@ struct HeartRateFeature {
                 case let .heartRateUpdated(bpm):
                     print("🧠 TCA Reducer received heartRateUpdated: \(bpm)")
                     state.heartRate = bpm
-                    print(state.heartRate)
                     return .none
                     
                     // MARK: - View Actions
@@ -39,16 +38,14 @@ struct HeartRateFeature {
                     return .none
                     
                 case .view(.startWorkout):
-                    healthKitClient.start()
+                    heartRateClient.start()
+                    
                     return .run { send in
-                        for await bpm in healthKitClient.heartRateStream {
+                        for await bpm in heartRateClient.heartRateStream {
                             print("🚀 Inside .run got bpm: \(bpm)")
                             await send(.heartRateUpdated(bpm))
                         }
                     }
-                    
-                case .view(.stopWorkout):
-                    return .none
                 }
             }
         }
@@ -77,7 +74,6 @@ extension HeartRateFeature {
         /// Sub-actions for view-related events.
         enum View {
             case startWorkout
-            case stopWorkout
             case startHeartAnimation
         }
     }
@@ -95,3 +91,5 @@ extension HeartRateFeature {
         var heartRate: Double = 0
     }
 }
+
+

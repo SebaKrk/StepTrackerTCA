@@ -24,16 +24,9 @@ struct HeartRateView: View {
                     send(.startWorkout)
                 }
                 .buttonStyle(.borderedProminent)
-                
-                Button("Stop Workout") {
-                    send(.stopWorkout)
-                }
                 .buttonStyle(.borderedProminent)
             }
         }
-//        .onAppear {
-//            send(.startWorkout)
-//        }
     }
     
     private var heartRate: some View {

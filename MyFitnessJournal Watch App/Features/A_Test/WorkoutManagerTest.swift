@@ -7,7 +7,12 @@
 
 import HealthKit
 
-final class WorkoutManagerTest: NSObject, ObservableObject {
+protocol WorkoutManagerTestProtocol {
+    var heartRateStream: AsyncStream<Double> { get }
+    func startWorkout()
+}
+
+final class WorkoutManagerTest: NSObject, ObservableObject, WorkoutManagerTestProtocol {
     
     private let healthStore = HKHealthStore()
     private var session: HKWorkoutSession?
@@ -31,7 +36,7 @@ final class WorkoutManagerTest: NSObject, ObservableObject {
             case HKQuantityType.quantityType(forIdentifier: .heartRate):
                 let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
                 if let newHeartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) {
-                    print("💓 Updated heart rate: \(newHeartRate)")
+                    print("❤️ Updated heart rate: \(newHeartRate)")
                     self.heartRate = newHeartRate
                     self.heartRateContinuation?.yield(newHeartRate)
                 }
@@ -76,7 +81,6 @@ extension WorkoutManagerTest: HKLiveWorkoutBuilderDelegate {
 }
 
 extension WorkoutManagerTest: HKWorkoutSessionDelegate {
-//    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {}
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {}
     
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
