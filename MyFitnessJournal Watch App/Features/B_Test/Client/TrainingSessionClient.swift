@@ -49,37 +49,3 @@ private enum TrainingSessionClientKey: DependencyKey {
     }()
 
 }
-
-//extension DependencyValues {
-//    var heartRateClient: HeartRateClient {
-//        get { self[HeartRateClientKey.self] }
-//        set { self[HeartRateClientKey.self] = newValue }
-//    }
-//}
-//
-//private enum HeartRateClientKey: DependencyKey {
-//    static let liveValue: HeartRateClient = {
-//        
-//        @Dependency(\.workoutManagerTest) var manager
-//        
-//        return HeartRateClient(
-//            heartRateStream: manager.heartRateStream,
-//            start: manager.startWorkout
-//        )
-//    }()
-//}
-
-//extension TrainingSessionClient {
-//    static let live = TrainingSessionClient(
-//        selectedWorkout: nil,
-//        workoutMetricsStream: {
-//            workoutManager.workoutMetricsStream
-//        },
-//        workoutSessionIsRunning: {
-//            workoutManager.workoutSessionIsRunning
-//        },
-//        togglePause: {
-//            await workoutManager.togglePause()
-//        }
-//    )
-//}

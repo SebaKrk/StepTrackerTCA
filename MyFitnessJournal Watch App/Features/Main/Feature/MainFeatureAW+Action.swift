@@ -35,9 +35,6 @@ extension MainFeatureAW {
         // MARK: - Actions
         
         ///
-        case openSheet
-        
-        ///
         case openTrainingSheet
         
         // MARK: - Destination

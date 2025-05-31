@@ -7,8 +7,8 @@
 
 import Foundation
 
-protocol MainServiceAW {
-    
-    func requestAuthorization()
-    
-}
+//protocol MainServiceAW {
+//    
+//    func requestAuthorization()
+//    
+//}

@@ -2,7 +2,7 @@
 //  ActivityRingsView.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 23/05/2025.
+//  Created by Sebastian Sciuba on 31/05/2025.
 //
 
 import Foundation

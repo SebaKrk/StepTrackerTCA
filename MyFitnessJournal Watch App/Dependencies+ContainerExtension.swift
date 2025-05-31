@@ -14,12 +14,4 @@ import Foundation
 /// dependencies used across the application.
 extension Container {
     
-    /// A factory that provides a singleton instance of the `WorkoutManager`.
-    ///
-    /// - The factory is initialized with the default implementation, `DefaultWorkoutManager`.
-    /// - This ensures that the same instance of `WorkoutManager` is used throughout the application.
-    var workoutManager: Factory<WorkoutManager> {
-        Factory(self) { DefaultWorkoutManager() }.singleton
-    }
-    
 }

@@ -2,10 +2,10 @@
 //  WorkoutSessionScreenAW.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 19/05/2025.
+//  Created by Sebastian Sciuba on 31/05/2025.
 //
 
-import SwiftUI
+import Foundation
 
 /// Enum representing the available screens (tabs) in the watch application when a workout session is running.
 enum WorkoutSessionScreenAW: Codable, Hashable, Identifiable, CaseIterable {

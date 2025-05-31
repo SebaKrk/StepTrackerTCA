@@ -14,20 +14,11 @@ extension MainFeatureAW {
     @Reducer
     enum Destination {
         
-        /// Represents the destination for displaying in `WorkoutSessionFeature`.
-        case workoutSession(WorkoutSessionFeature)
-        
-        ///
+        /// Represents the destination for displaying in `TrainingSessionTabFeature`.
         case trainingSession(TrainingSessionTabFeature)
         
-        ///
-        case openSummary(SummaryFeature)
-        
-        ///
+        /// Represents the destination for displaying in `TrainingSummaryFeature`.
         case openTrainingSummary(TrainingSummaryFeature)
-        
-        ///
-        case openTest(HeartRateFeature)
     }
     
 }

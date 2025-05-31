@@ -11,15 +11,9 @@ import Foundation
 @Reducer
 struct MainFeatureAW {
     
-    // MARK: - Properties
+    // MARK: - Dependency
     
-    var service: MainServiceAW
-    
-    // MARK: - Lifecycle
-    
-    init(service: MainServiceAW = DefaultMainServiceAW()) {
-        self.service = service
-    }
+    @Dependency(\.authorizationClientAW) var client
     
     // MARK: - Reducer
     
@@ -35,17 +29,13 @@ struct MainFeatureAW {
 
                     // MARK: - View Action
                 case .view(.viewDidAppear):
-                    service.requestAuthorization()
+                    client.requestAuthorization()
                     return .none
                     
                 case let .view(.selectedWorkoutOption(workout)):
                     return .send(.show(workout))
                     
                     // MARK: - Action
-                    
-                case .openSheet:
-                    state.destination = .openSummary(SummaryFeature.State())
-                    return .none
                     
                 case .openTrainingSheet:
                     state.destination = .openTrainingSummary(TrainingSummaryFeature.State())
@@ -56,21 +46,16 @@ struct MainFeatureAW {
                 case let .show(workout):
                     switch workout {
                     case .planned:
-                        state.destination = .workoutSession(WorkoutSessionFeature.State(selectedWorkout: .crossTraining))
+                        print("planned")
                     case .mirroring:
                         print("mirroring")
                     case .scheduled:
                         print("scheduled")
-                        state.destination = .trainingSession(TrainingSessionTabFeature.State(selectedWorkout: .americanFootball))
                     case .free:
                         print("free")
-                        state.destination = .openTest(HeartRateFeature.State())
+                        state.destination = .trainingSession(TrainingSessionTabFeature.State(selectedWorkout: .americanFootball))
                     }
                     return .none
-
-                case .destination(.presented(.workoutSession(.controlsFeature(.view(.endButtonPressed))))):
-                    print("MainFeatureAW - endButtonPressed")
-                    return .send(.openSheet)
                      
                 case .destination(.presented(.trainingSession(.controls(.view(.endButtonPressed))))):
                     return .send(.openTrainingSheet)
