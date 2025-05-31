@@ -1,5 +1,5 @@
 //
-//  AuthorizationAW.swift
+//  AuthorizationKeyAW.swift
 //  MyFitnessJournal Watch App
 //
 //  Created by Sebastian Sciuba on 23/05/2025.
@@ -22,11 +22,10 @@ extension DependencyValues {
 private enum AuthorizationKeyAW: DependencyKey {
     static let liveValue: AuthorizationClientAW = {
         
-        @Dependency(\.trainingManager) var manager
+        @Dependency(\.authorizationManager) var manager
         
         return AuthorizationClientAW {
             manager.requestAuthorization()
         }
     }()
 }
-

@@ -18,10 +18,6 @@ protocol TrainingManager {
     /// This is exposed for internal use and should not be modified externally.
     var builder: HKLiveWorkoutBuilder? { get }
     
-    // MARK: - Authorization
-    
-    func requestAuthorization()
-    
     // MARK: - Workout Configuration
     
     /// Sets the workout type and initializes a new HealthKit session.

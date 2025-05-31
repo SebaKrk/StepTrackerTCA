@@ -11,17 +11,8 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
 
     // MARK: - HealthKit Configuration
     
-    let healthStore = HKHealthStore()
-    let shareTypes: Set<HKSampleType> = [
-        HKQuantityType.workoutType()
-    ]
-    let readTypes: Set<HKObjectType> = [
-        HKQuantityType(.heartRate),
-        HKQuantityType(.activeEnergyBurned),
-        HKQuantityType(.workoutEffortScore),
-        HKObjectType.activitySummaryType()
-    ]
-
+    let healthStore: HKHealthStore
+    
     // MARK: - Workout Session State
     
     var session: HKWorkoutSession?
@@ -45,6 +36,7 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     var workoutSessionIsRunning: Bool = false
 
     // MARK: - Workout Metrics
+    
     var metrics = WorkoutMetrics(
         averageHeartRate: 0,
         heartRate: 0,
@@ -52,15 +44,15 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     )
     var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
-
-    // MARK: - Authorization
-    func requestAuthorization() {
-        healthStore.requestAuthorization(toShare: shareTypes, read: readTypes) { (success, error) in
-            // Handle error.
-        }
+    
+    // MARK: - Livecycle
+    
+    init(healthStore: HKHealthStore) {
+        self.healthStore = healthStore
     }
 
-    // MARK: - State
+    // MARK: - API
+    
     func setSelectedWorkout(_ type: HKWorkoutActivityType?) {
         selectedWorkout = type
     }
