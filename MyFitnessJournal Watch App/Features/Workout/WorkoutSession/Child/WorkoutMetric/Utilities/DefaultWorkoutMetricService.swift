@@ -22,6 +22,8 @@ final class DefaultWorkoutMetricService: WorkoutMetricService {
     }
     
     
+    //workoutManager.builder?.startDate
+    
 //    func elapsedTime(at context: TimelineViewDefaultContext) -> TimeInterval? {
 //        workoutManager.builder?.elapsedTime(at: context.date)
 //    }

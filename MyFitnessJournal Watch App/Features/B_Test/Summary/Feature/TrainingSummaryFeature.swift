@@ -1,25 +1,20 @@
 //
-//  ControlsFeature.swift
+//  TrainingSummaryFeature.swift
 //  MyFitnessJournal Watch App
 //
-//  Created by Sebastian Sciuba on 19/05/2025.
+//  Created by Sebastian Sciuba on 30/05/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct ControlsFeature {
+struct TrainingSummaryFeature {
     
-    // MARK: - Properties
+    // MARK: - Dependency
     
-    var service: ControlsService
-    
-    // MARK: - Lifecycle
-    
-    init(service: ControlsService = DefaultControlsService()) {
-        self.service = service
-    }
+    @Dependency(\.dismiss) var dismiss
+    @Dependency(\.trainingSessionClient) var client
     
     // MARK: - Reducer
     
@@ -33,28 +28,31 @@ struct ControlsFeature {
                 case .binding(_):
                     return .none
                     
-                    // MARK: - View Actions
-                case .view(.endButtonPressed):
-                    service.endWorkout()
+                    // MARK: - Actions
+                case .changeSummaryState:
+                    client.setShowingSummary(false)
                     return .none
                     
-                case .view(.togglePauseButtonPressed):
-                    service.togglePause()
-                    state.workoutSessionIsRunning = service.workoutSessionIsRunning
-                    return .none
+                    // MARK: - View Actions
+                case .view(.doneButtonPressed):
+                    print("SummaryFeature - doneButtonPressed")
+                    
+                    return .run { send in
+                        await send(.changeSummaryState)
+                        await self.dismiss()
+                    }
                 }
             }
         }
     }
-    
 }
+
 
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `ControlsFeature` state
-extension ControlsFeature {
-    
+/// Implementation of `TrainingSummaryFeature` state
+extension TrainingSummaryFeature {
     @CasePathable
     enum Action: ViewAction, BindableAction {
         
@@ -62,6 +60,10 @@ extension ControlsFeature {
         
         /// Handles changes in bindings for the state.
         case binding(BindingAction<State>)
+        
+        // MARK: - Actions
+        
+        case changeSummaryState
         
         // MARK: - Actions View
         
@@ -71,10 +73,7 @@ extension ControlsFeature {
         enum View {
             
             ///
-            case endButtonPressed
-            
-            ///
-            case togglePauseButtonPressed
+            case doneButtonPressed
         }
     }
     
@@ -83,12 +82,9 @@ extension ControlsFeature {
 import ComposableArchitecture
 import Foundation
 
-/// Implementation of `ControlsFeature` state
-extension ControlsFeature {
+/// Implementation of `TrainingSummaryFeature` state
+extension TrainingSummaryFeature {
     @ObservableState
-    struct State: Equatable {
-        
-        var workoutSessionIsRunning: Bool = false
-        
-    }
+    struct State: Equatable {}
 }
+

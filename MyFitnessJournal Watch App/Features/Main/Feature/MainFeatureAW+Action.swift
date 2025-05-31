@@ -37,6 +37,9 @@ extension MainFeatureAW {
         ///
         case openSheet
         
+        ///
+        case openTrainingSheet
+        
         // MARK: - Destination
         
         ///

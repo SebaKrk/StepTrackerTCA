@@ -18,8 +18,15 @@ extension MainFeatureAW {
         case workoutSession(WorkoutSessionFeature)
         
         ///
+        case trainingSession(TrainingSessionTabFeature)
+        
+        ///
         case openSummary(SummaryFeature)
         
+        ///
+        case openTrainingSummary(TrainingSummaryFeature)
+        
+        ///
         case openTest(HeartRateFeature)
     }
     

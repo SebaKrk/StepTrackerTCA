@@ -21,7 +21,9 @@ extension DependencyValues {
 
 private enum HeartRateClientKey: DependencyKey {
     static let liveValue: HeartRateClient = {
+        
         @Dependency(\.workoutManagerTest) var manager
+        
         return HeartRateClient(
             heartRateStream: manager.heartRateStream,
             start: manager.startWorkout

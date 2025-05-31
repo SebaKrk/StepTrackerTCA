@@ -47,6 +47,10 @@ struct MainFeatureAW {
                     state.destination = .openSummary(SummaryFeature.State())
                     return .none
                     
+                case .openTrainingSheet:
+                    state.destination = .openTrainingSummary(TrainingSummaryFeature.State())
+                    return .none
+                    
                     // MARK: - Destination
                     
                 case let .show(workout):
@@ -56,7 +60,8 @@ struct MainFeatureAW {
                     case .mirroring:
                         print("mirroring")
                     case .scheduled:
-                        print("scheduled") 
+                        print("scheduled")
+                        state.destination = .trainingSession(TrainingSessionTabFeature.State(selectedWorkout: .americanFootball))
                     case .free:
                         print("free")
                         state.destination = .openTest(HeartRateFeature.State())
@@ -67,6 +72,9 @@ struct MainFeatureAW {
                     print("MainFeatureAW - endButtonPressed")
                     return .send(.openSheet)
                      
+                case .destination(.presented(.trainingSession(.controls(.view(.endButtonPressed))))):
+                    return .send(.openTrainingSheet)
+                    
                 default:
                     return .none
                 }

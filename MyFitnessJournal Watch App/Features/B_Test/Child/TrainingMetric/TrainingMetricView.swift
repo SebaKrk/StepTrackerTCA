@@ -1,54 +1,55 @@
 //
-//  WorkoutMetricView.swift
-//  MyFitnessJournal Watch App
+//  TrainingMetricView.swift
+//  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 22/05/2025.
+//  Created by Sebastian Sciuba on 28/05/2025.
 //
 
 import ComposableArchitecture
 import SwiftUI
-import Factory
 
-@ViewAction(for: WorkoutMetricFeature.self)
-struct WorkoutMetricView: View {
+@ViewAction(for: TrainingMetricFeature.self)
+struct TrainingMetricView: View {
     
     // MARK: - Properties
     
-    @Bindable var store: StoreOf<WorkoutMetricFeature>
+    @Bindable var store: StoreOf<TrainingMetricFeature>
     
     // MARK: - View
     
     var body: some View {
-        TimelineView(PeriodicTimelineSchedule(from: .now, by: 0.03)) { context in
+        TimelineView(PeriodicTimelineSchedule(from: .now, by: 1.0 / 30.0)) { context in
             VStack(alignment: .leading) {
                 Spacer()
-                elapsedTime()
+                makeElapsedTimeView(context)
                 heartRateMeasurement
                 workoutEnergy
             }
             .ignoresSafeArea(edges: .bottom)
             .scenePadding()
         }
-        .onAppear {
-            send(.viewDidAppear)
-        }
-      
     }
     
-    /// workoutManager.builder?.elapsedTime(at: context.date) ?? 0
-    private func elapsedTime() -> some View {
-        ElapsedTimeView(store: Store(
-            initialState: ElapsedTimeFeature.State(
-                elapsedTime: store.elapsedTime,
-                showSubseconds: true),
-            reducer: {
-                ElapsedTimeFeature()
-            }))
+    // MARK: - SubView
+    
+    private func makeElapsedTimeView(_ context: TimelineViewDefaultContext) -> some View {
+        ElapsedTimeView2(
+            elapsedTime: store.elapsedTime,
+            showSubseconds: context.cadence == .live
+        )
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.yellow)
         .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
+        .onAppear {
+            send(.updateElapsedTime(context.date))
+        }
+        .onChange(of: context.date) { newDate in
+            send(.updateElapsedTime(newDate))
+        }
     }
-    
+//        .onChange(of: context.date) { _, newDate in
+//            send(.updateElapsedTime(newDate))
+//        }
     @ViewBuilder
     private var heartRateMeasurement: some View {
         if store.workoutMetrics.heartRate == 0 {
@@ -62,7 +63,7 @@ struct WorkoutMetricView: View {
             heartRate
         }
     }
-
+    
     private var heartRate: some View {
         HStack {
             heartImage
@@ -73,7 +74,7 @@ struct WorkoutMetricView: View {
                 Text("BMP")
                     .font(.footnote)
                     .baselineOffset(-2)
-            }   
+            }
         }
     }
     
@@ -92,14 +93,22 @@ struct WorkoutMetricView: View {
     
 }
 
-#Preview {
-    WorkoutMetricView(store: Store(initialState: WorkoutMetricFeature.State(), reducer: {
-        WorkoutMetricFeature()
-    }))
-}
 
-//        TimelineView(MetricsTimelineSchedule(from: workoutManager.builder?.startDate ?? Date(),
-//                                             isPaused: workoutManager.session?.state == .paused)) { context in
-            
-//        }
-//        by: (mode == .lowFrequency ? 1.0 : 1.0 / 30.0))
+struct ElapsedTimeView2: View {
+    
+    let elapsedTime: TimeInterval
+    let showSubseconds: Bool
+    
+    @State private var timeFormatter = ElapsedTimeFormatter()
+    
+    var body: some View {
+        Text(NSNumber(value: elapsedTime), formatter: timeFormatter)
+            .fontWeight(.semibold)
+            .onChange(of: showSubseconds) {
+                timeFormatter.showSubseconds = showSubseconds
+            }
+            .onAppear {
+                timeFormatter.showSubseconds = showSubseconds
+            }
+    }
+}

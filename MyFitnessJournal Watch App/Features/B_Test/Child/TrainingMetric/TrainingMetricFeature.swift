@@ -1,25 +1,19 @@
 //
-//  WorkoutMetricFeature.swift
+//  TrainingMetricFeature.swift
 //  MyFitnessJournal Watch App
 //
-//  Created by Sebastian Sciuba on 22/05/2025.
+//  Created by Sebastian Sciuba on 28/05/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct WorkoutMetricFeature {
+struct TrainingMetricFeature {
     
-    // MARK: - Properties
+    // MARK: - Dependency
     
-    var service: WorkoutMetricService
-    
-    // MARK: - Lifecycle
-    
-    init(service: WorkoutMetricService = DefaultWorkoutMetricService()) {
-        self.service = service
-    }
+    @Dependency(\.trainingSessionClient) var client
     
     // MARK: - Reducer
     
@@ -34,6 +28,7 @@ struct WorkoutMetricFeature {
                     return .none
                     
                     // MARK: - Actions
+                    
                 case let .workoutMetrics(data):
                     state.workoutMetrics = data
                     return .none
@@ -49,25 +44,41 @@ struct WorkoutMetricFeature {
                     state.animateHeart = value
                     return .none
                     
-                    // MARK: - View Actions
-                case .view(.viewDidAppear):
+                case let .pauseChanged(paused):
+                    state.isPaused = paused
+                    // Zapisz czas gdy trening jest wstrzymany
+                    if paused {
+                        state.pausedElapsedTime = state.elapsedTime
+                    }
+                    return .none
+
+                case .task:
                     return .run { send in
-                        for await value in service.workoutMetricsStream {
-                            await send(.workoutMetrics(value))
+                        for await isRunning in client.workoutSessionIsRunningStream() {
+                            await send(.pauseChanged(!isRunning))
                         }
                     }
+                    
+                    // MARK: - View Action
+                    
+                case let .view(.updateElapsedTime(date)):
+                    // Tylko aktualizuj czas gdy trening NIE jest wstrzymany
+                    guard !state.isPaused else {
+                        // Gdy jest wstrzymany, utrzymuj ostatni zapisany czas
+                        state.elapsedTime = state.pausedElapsedTime
+                        return .none
+                    }
+                    state.elapsedTime = client.elapsedTimeAt(date)
+                    return .none
                 }
             }
         }
     }
-    
 }
 
-import ComposableArchitecture
-import Foundation
 
-/// Implementation of `WorkoutMetricFeature` state
-extension WorkoutMetricFeature {
+/// Implementation of `TrainingMetricFeature` state
+extension TrainingMetricFeature {
     @CasePathable
     enum Action: ViewAction, BindableAction {
         
@@ -78,49 +89,46 @@ extension WorkoutMetricFeature {
         
         // MARK: - Actions
         
-        ///
         case workoutMetrics(WorkoutMetrics)
         
-        ///
         case hearAnimation
         
-        ///
         case toggleHeartAnimation(Bool)
         
-        // MARK: - View Actions
+        case pauseChanged(Bool)
+        
+        case task
+        
+        // MARK: - Actions View
         
         case view(View)
         
         /// Sub-actions for view-related events.
         enum View {
-            
-            ///
-            case viewDidAppear
+            case updateElapsedTime(Date)
         }
     }
     
 }
 
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `WorkoutMetricFeature` state
-extension WorkoutMetricFeature {
+/// Implementation of `TrainingMetricFeature` state
+extension TrainingMetricFeature {
     @ObservableState
     struct State: Equatable {
         
-        ///
         var elapsedTime: TimeInterval = 0
         
-        ///
+        var pausedElapsedTime: TimeInterval = 0
+        
         var animateHeart: Bool = false
         
-        ///
+        var isPaused: Bool = false
+        
         var workoutMetrics: WorkoutMetrics = WorkoutMetrics(
             averageHeartRate: 0,
             heartRate: 0,
             activeEnergy: 0
         )
-        
     }
+    
 }

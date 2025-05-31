@@ -1,19 +1,19 @@
 //
-//  ControlsView.swift
+//  TrainingControlsView.swift
 //  StepTrackerTCA
 //
-//  Created by Sebastian Sciuba on 19/05/2025.
+//  Created by Sebastian Sciuba on 28/05/2025.
 //
 
 import ComposableArchitecture
 import SwiftUI
 
-@ViewAction(for: ControlsFeature.self)
-struct ControlsView: View {
-
+@ViewAction(for: TrainingControlsFeature.self)
+struct TrainingControlsView: View {
+    
     // MARK: - Properties
     
-    @Bindable var store: StoreOf<ControlsFeature>
+    @Bindable var store: StoreOf<TrainingControlsFeature>
     
     // MARK: - View
     
@@ -22,6 +22,7 @@ struct ControlsView: View {
             endButton
             playPauseButton
         }
+        
     }
     
     // MARK: - SubView
@@ -44,11 +45,11 @@ struct ControlsView: View {
             Button {
                 send(.togglePauseButtonPressed)
             } label: {
-                Image(systemName: store.workoutSessionIsRunning ? "play" : "pause")
+                Image(systemName: store.sessionIsRunning ? "pause" : "play")
             }
             .tint(.yellow)
             .font(.title2)
-            Text(store.workoutSessionIsRunning ? "Resume" : "Pause")
+            Text(store.sessionIsRunning ? "Pause" : "Resume")
         }
     }
 
