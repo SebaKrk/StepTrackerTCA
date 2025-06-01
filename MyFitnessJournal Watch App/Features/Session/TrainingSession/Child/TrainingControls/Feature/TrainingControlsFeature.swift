@@ -35,15 +35,16 @@ extension TrainingControlsFeature {
         
         // MARK: - Actions View
         
+        /// Handles user-triggered events from the training controls view.
         case view(View)
         
         /// Sub-actions for view-related events.
         enum View {
             
-            ///
+            /// Called when the user taps the End button to stop the workout session.
             case endButtonPressed
             
-            ///
+            /// Called when the user taps the Pause/Resume button to toggle session state.
             case togglePauseButtonPressed
         }
     }

@@ -63,6 +63,7 @@ extension TrainingSummaryFeature {
         
         // MARK: - Actions
         
+        /// Updates the summary state, typically used to hide or reset the summary screen.
         case changeSummaryState
         
         // MARK: - Actions View
@@ -72,7 +73,7 @@ extension TrainingSummaryFeature {
         /// Sub-actions for view-related events.
         enum View {
             
-            ///
+            /// Called when the user taps the Done button to close the summary view.
             case doneButtonPressed
         }
     }

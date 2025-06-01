@@ -57,7 +57,7 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
         selectedWorkout = type
     }
 
-    func setValueForSumaryView(_ value: Bool) {
+    func setValueForSummaryView(_ value: Bool) {
         showingSummaryView = value
     }
 

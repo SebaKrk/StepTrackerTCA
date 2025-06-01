@@ -28,7 +28,7 @@ protocol TrainingManager {
     /// Sets the state of the summary view (shown at the end of a workout).
     ///
     /// - Parameter value: `true` to show the summary view, `false` to hide it.
-    func setValueForSumaryView(_ value: Bool)
+    func setValueForSummaryView(_ value: Bool)
     
     // MARK: - Session Lifecycle
     

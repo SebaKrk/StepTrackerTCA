@@ -46,7 +46,6 @@ struct TrainingMetricFeature {
                     
                 case let .pauseChanged(paused):
                     state.isPaused = paused
-                    // Zapisz czas gdy trening jest wstrzymany
                     if paused {
                         state.pausedElapsedTime = state.elapsedTime
                     }
@@ -62,9 +61,7 @@ struct TrainingMetricFeature {
                     // MARK: - View Action
                     
                 case let .view(.updateElapsedTime(date)):
-                    // Tylko aktualizuj czas gdy trening NIE jest wstrzymany
                     guard !state.isPaused else {
-                        // Gdy jest wstrzymany, utrzymuj ostatni zapisany czas
                         state.elapsedTime = state.pausedElapsedTime
                         return .none
                     }
@@ -89,14 +86,25 @@ extension TrainingMetricFeature {
         
         // MARK: - Actions
         
+        /// Updates the current workout metrics with new data.
+        ///
+        /// - Parameter data: The latest workout metrics from the session.
         case workoutMetrics(WorkoutMetrics)
         
+        /// Triggers the heart animation logic based on heart rate availability.
         case hearAnimation
         
+        /// Sets the heart animation state.
+        ///
+        /// - Parameter value: A Boolean indicating whether the heart should animate.
         case toggleHeartAnimation(Bool)
         
+        /// Updates the paused state of the workout.
+        ///
+        /// - Parameter paused: A Boolean indicating whether the workout is paused.
         case pauseChanged(Bool)
         
+        /// Starts a background task that observes workout session running state.
         case task
         
         // MARK: - Actions View
@@ -105,6 +113,9 @@ extension TrainingMetricFeature {
         
         /// Sub-actions for view-related events.
         enum View {
+            /// Called periodically to update the elapsed workout time.
+            ///
+            /// - Parameter date: The current timestamp used to calculate elapsed time.
             case updateElapsedTime(Date)
         }
     }
@@ -116,14 +127,19 @@ extension TrainingMetricFeature {
     @ObservableState
     struct State: Equatable {
         
+        /// The total duration of the workout session, updated in real time.
         var elapsedTime: TimeInterval = 0
-        
+
+        /// The elapsed workout time recorded at the moment the session was paused.
         var pausedElapsedTime: TimeInterval = 0
-        
+
+        /// Indicates whether the heart animation should be active based on heart rate.
         var animateHeart: Bool = false
-        
+
+        /// A Boolean value that determines whether the workout session is currently paused.
         var isPaused: Bool = false
-        
+
+        /// The current metrics of the workout, such as heart rate and active energy burned.
         var workoutMetrics: WorkoutMetrics = WorkoutMetrics(
             averageHeartRate: 0,
             heartRate: 0,

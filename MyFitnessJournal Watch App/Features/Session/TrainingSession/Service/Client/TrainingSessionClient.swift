@@ -44,7 +44,7 @@ private enum TrainingSessionClientKey: DependencyKey {
         } endWorkout: {
             manager.endWorkout()
         } setShowingSummary: { value in
-            manager.setValueForSumaryView(value)
+            manager.setValueForSummaryView(value)
         }
     }()
 

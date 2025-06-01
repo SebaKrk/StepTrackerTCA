@@ -27,8 +27,6 @@ struct SplashFeature {
                 case .binding(_):
                     return .none
                     
-                    // MARK: - Actions
-                    
                     // MARK: - View Actions
                 case .view(.viewDidAppear):
                     return .run { send in
@@ -45,46 +43,3 @@ struct SplashFeature {
         }
     }
 }
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `SplashFeature` state
-extension SplashFeature {
-    @CasePathable
-    enum Action: ViewAction, BindableAction {
-        
-        // MARK: - Binding Action
-        
-        /// Handles changes in bindings for the state.
-        case binding(BindingAction<State>)
-        
-        // MARK: - Actions
-        
-        case view(View)
-        
-        /// Sub-actions for view-related events.
-        enum View {
-            
-            /// Triggered when the view appears.
-            case viewDidAppear
-            
-            ///
-            case showMainApp
-        }
-    }
-    
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `SplashFeature` state
-extension SplashFeature {
-    @ObservableState
-    struct State: Equatable {
-        
-        var isActive: Bool = false
-    }
-}
-
