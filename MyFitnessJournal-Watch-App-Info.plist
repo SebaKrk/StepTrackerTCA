@@ -2,9 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>WKAppBundleIdentifi</key>
-	<string>ss.MyFitnessJournal.watchkitapp</string>
+	<key>UIBackgroundModes</key>
+	<array/>
+	<key>WKAppBundleIsStandalone</key>
+	<true/>
 	<key>WKApplication</key>
 	<true/>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+	</array>
 </dict>
 </plist>

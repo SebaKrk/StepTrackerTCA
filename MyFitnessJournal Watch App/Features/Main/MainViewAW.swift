@@ -31,20 +31,17 @@ struct MainViewAW: View {
             }
             .listStyle(.carousel)
             .navigationBarTitle("Workouts")
-            .sheet(item: $store.scope(state: \.destination?.openSummary,
-                                      action: \.destination.openSummary)) { store in
-                SummaryView(store: store)
+            .sheet(item: $store.scope(state: \.destination?.openTrainingSummary,
+                                      action: \.destination.openTrainingSummary)) { store in
+                TrainingSummaryView(store: store)
             }
-            .navigationDestination(
-                item: $store.scope(
-                    state: \.destination?.workoutSession,
-                    action: \.destination.workoutSession)) { store in
-                        WorkoutSessionView(store: store)
-                    }
+            .navigationDestination(item: $store.scope(state: \.destination?.trainingSession,
+                                                      action: \.destination.trainingSession)) { store in
+                TrainingSessionTabView(store: store)
+            }
         }
         .onAppear {
-            //TODO: - requestAuthorization
-            //workoutManager.requestAuthorization()
+            send(.viewDidAppear)
         }
         
     }
