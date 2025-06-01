@@ -4,8 +4,8 @@
 <dict>
 	<key>UIBackgroundModes</key>
 	<array/>
-	<key>WKAppBundleIdentifi</key>
-	<string>ss.MyFitnessJournal.watchkitapp</string>
+	<key>WKAppBundleIsStandalone</key>
+	<true/>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKBackgroundModes</key>

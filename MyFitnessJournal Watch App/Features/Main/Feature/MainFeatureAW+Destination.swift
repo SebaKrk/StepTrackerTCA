@@ -5,8 +5,6 @@
 //  Created by Sebastian Sciuba on 23/05/2025.
 //
 
-
-
 import ComposableArchitecture
 import Foundation
 
@@ -16,11 +14,11 @@ extension MainFeatureAW {
     @Reducer
     enum Destination {
         
-        /// Represents the destination for displaying in `WorkoutSessionFeature`.
-        case workoutSession(WorkoutSessionFeature)
+        /// Represents the destination for displaying in `TrainingSessionTabFeature`.
+        case trainingSession(TrainingSessionTabFeature)
         
-        ///
-        case openSummary(SummaryFeature)
+        /// Represents the destination for displaying in `TrainingSummaryFeature`.
+        case openTrainingSummary(TrainingSummaryFeature)
     }
     
 }

@@ -11,15 +11,9 @@ import Foundation
 @Reducer
 struct MainFeatureAW {
     
-    // MARK: - Properties
+    // MARK: - Dependency
     
-    var service: MainServiceAW
-    
-    // MARK: - Lifecycle
-    
-    init(service: MainServiceAW = DefaultMainServiceAW()) {
-        self.service = service
-    }
+    @Dependency(\.authorizationClientAW) var client
     
     // MARK: - Reducer
     
@@ -35,7 +29,7 @@ struct MainFeatureAW {
 
                     // MARK: - View Action
                 case .view(.viewDidAppear):
-                    service.requestAuthorization()
+                    client.requestAuthorization()
                     return .none
                     
                 case let .view(.selectedWorkoutOption(workout)):
@@ -43,8 +37,8 @@ struct MainFeatureAW {
                     
                     // MARK: - Action
                     
-                case .openSheet:
-                    state.destination = .openSummary(SummaryFeature.State())
+                case .openTrainingSheet:
+                    state.destination = .openTrainingSummary(TrainingSummaryFeature.State())
                     return .none
                     
                     // MARK: - Destination
@@ -52,20 +46,20 @@ struct MainFeatureAW {
                 case let .show(workout):
                     switch workout {
                     case .planned:
-                        state.destination = .workoutSession(WorkoutSessionFeature.State())
+                        print("planned")
                     case .mirroring:
                         print("mirroring")
                     case .scheduled:
-                        print("scheduled") 
+                        print("scheduled")
                     case .free:
                         print("free")
+                        state.destination = .trainingSession(TrainingSessionTabFeature.State(selectedWorkout: .americanFootball))
                     }
                     return .none
-
-                case .destination(.presented(.workoutSession(.controlsFeature(.view(.endButtonPressed))))):
-                    print("MainFeatureAW - endButtonPressed")
-                    return .send(.openSheet)
                      
+                case .destination(.presented(.trainingSession(.controls(.view(.endButtonPressed))))):
+                    return .send(.openTrainingSheet)
+                    
                 default:
                     return .none
                 }
@@ -73,7 +67,8 @@ struct MainFeatureAW {
         }
         .ifLet(\.$destination, action: \.destination)
         
-        ._printChanges()
+        //._printChanges()
     }
     
 }
+    
