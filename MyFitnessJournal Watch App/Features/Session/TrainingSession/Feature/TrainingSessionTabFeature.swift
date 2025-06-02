@@ -52,7 +52,6 @@ struct TrainingSessionTabFeature {
                     }.cancellable(id: CancelId.cancelSessionRunning),
                     .run { send in
                         for await metric in self.client.workoutMetricsStream() {
-                            print("metric: \(metric)")
                             await send(.metric(.workoutMetrics(metric)))
                         }
                     }.cancellable(id: CancelId.cancelMetrics)

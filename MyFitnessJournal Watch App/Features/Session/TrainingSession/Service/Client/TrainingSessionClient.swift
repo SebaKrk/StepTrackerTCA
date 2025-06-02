@@ -16,7 +16,6 @@ struct TrainingSessionClient {
     var elapsedTimeAt: (_ date: Date) -> TimeInterval
     var togglePause: @Sendable () async -> Void
     var endWorkout: @Sendable () async -> Void
-    var setShowingSummary: @Sendable (Bool) -> Void
 }
 
 extension DependencyValues {
@@ -43,8 +42,6 @@ private enum TrainingSessionClientKey: DependencyKey {
             manager.togglePause()
         } endWorkout: {
             manager.endWorkout()
-        } setShowingSummary: { value in
-            manager.setValueForSummaryView(value)
         }
     }()
 

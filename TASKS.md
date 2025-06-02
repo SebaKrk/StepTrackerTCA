@@ -382,3 +382,9 @@
     C: create WorkoutManager
     - create training flow
     - clean up folders
+    D: SummaryView
+    - display real data from workout session
+    - extract elapsed time, calories, heart rate metrics
+    - format summary UI using real values
+    - add SummaryMetricView to show detailed stats
+    - validate data received from WorkoutKit/HealthKit
