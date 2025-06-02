@@ -11,19 +11,17 @@ import HealthKit
 extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
+        
         DispatchQueue.main.async {
-            // Zaktualizuj stan na podstawie rzeczywistego stanu HealthKit
             self.workoutSessionIsRunning = toState == .running
-            print("🔄 Workout session changed from \(fromState.rawValue) to \(toState.rawValue)")
-            print("📊 workoutSessionIsRunning: \(self.workoutSessionIsRunning)")
-            
-            // Wyślij aktualizację do streamów
             self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
         }
         
         if toState == .ended {
             builder?.endCollection(withEnd: date) { (success, error) in
+                
                 self.builder?.finishWorkout { (workout, error) in
+                    
                     DispatchQueue.main.async {
                         self.workout = workout
                     }
@@ -35,4 +33,5 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: any Error) {
         print("❌ Workout session failed with error: \(error)")
     }
+    
 }

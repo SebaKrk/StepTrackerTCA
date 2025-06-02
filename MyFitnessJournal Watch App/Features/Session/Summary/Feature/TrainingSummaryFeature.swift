@@ -14,7 +14,7 @@ struct TrainingSummaryFeature {
     // MARK: - Dependency
     
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.trainingSessionClient) var client
+    @Dependency(\.trainingSummaryClient) var client
     
     // MARK: - Reducer
     
@@ -29,63 +29,55 @@ struct TrainingSummaryFeature {
                     return .none
                     
                     // MARK: - Actions
+                    
+                case let .changeViewState(viewState):
+                    state.viewState = viewState
+                    return .none
+                    
                 case .changeSummaryState:
                     client.setShowingSummary(false)
                     return .none
+
+                case .checkWorkoutSummary:
+                    state.summary = client.getWorkoutSummary()
+                    state.retryCount = 0
+                    
+                    if state.summary?.workout != nil {
+                        return .send(.changeViewState(.successfullyLoaded))
+                    }
+                    return .send(.retryWorkoutCheck)
+                    
+                case .retryWorkoutCheck:
+                    guard state.retryCount < 10 else {
+                        return .send(.changeViewState(.failed))
+                    }
+                    
+                    state.retryCount += 1
+                    
+                    return .run { send in
+                        try await Task.sleep(for: .seconds(1))
+                        await send(.performWorkoutCheck)
+                    }
+                    
+                case .performWorkoutCheck:
+                    state.summary = client.getWorkoutSummary()
+                    if state.summary?.workout != nil {
+                        return .send(.changeViewState(.successfullyLoaded))
+                    }
+                    return .send(.retryWorkoutCheck)
                     
                     // MARK: - View Actions
                 case .view(.doneButtonPressed):
-                    print("SummaryFeature - doneButtonPressed")
-                    
                     return .run { send in
                         await send(.changeSummaryState)
                         await self.dismiss()
                     }
+                    
+                case .view(.viewDidAppear):
+                    return .send(.checkWorkoutSummary)
                 }
             }
         }
     }
-}
-
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `TrainingSummaryFeature` state
-extension TrainingSummaryFeature {
-    @CasePathable
-    enum Action: ViewAction, BindableAction {
-        
-        // MARK: - Binding Action
-        
-        /// Handles changes in bindings for the state.
-        case binding(BindingAction<State>)
-        
-        // MARK: - Actions
-        
-        /// Updates the summary state, typically used to hide or reset the summary screen.
-        case changeSummaryState
-        
-        // MARK: - Actions View
-        
-        case view(View)
-        
-        /// Sub-actions for view-related events.
-        enum View {
-            
-            /// Called when the user taps the Done button to close the summary view.
-            case doneButtonPressed
-        }
-    }
     
 }
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `TrainingSummaryFeature` state
-extension TrainingSummaryFeature {
-    @ObservableState
-    struct State: Equatable {}
-}
-
