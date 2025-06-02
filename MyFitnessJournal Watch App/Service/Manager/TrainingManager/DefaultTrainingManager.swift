@@ -27,7 +27,6 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     }
     var showingSummaryView: Bool = false {
         didSet {
-            print("showingSummaryView changed to: \(showingSummaryView)")
             if showingSummaryView == false {
                 resetWorkout()
             }
@@ -78,8 +77,6 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     // MARK: - Workout Management
     
     func startWorkout(workoutType: HKWorkoutActivityType) {
-        print("start workout: \(workoutType)")
-
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .indoor
@@ -152,13 +149,10 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     }
     
     func getWorkout() -> HKWorkout? {
-        print("🔍 getWorkout() called - workout: \(workout != nil ? "exists" : "nil")")
-        print("⏩️ workout:\(workout)")
-        return workout
+        workout
     }
 
     func getWorkoutMetrics() -> WorkoutMetrics {
-        print("🔍 getWorkoutMetrics() - activeEnergy: \(metrics.activeEnergy)")
-        return metrics
+        metrics
     }
 }

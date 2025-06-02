@@ -25,7 +25,6 @@ extension DefaultTrainingManager: HKLiveWorkoutBuilderDelegate {
     func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
     
     private func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didFinishWorkout workout: HKWorkout) {
-        print("✅ Finished workout stored")
         self.workout = workout
     }
 }

@@ -53,27 +53,8 @@ struct TrainingSummaryView: View {
     private var totalTime: some View {
         SummaryMetricView(title: "Total Time",
                           value: durationFormatter.string(for: store.summary?.workout?.duration) ?? "00:00:00", .yellow)
-        ///   value: durationFormatter.string(from: workoutManager.workout?.duration ?? 0.0) ?? "")
     }
     
-//    private var totalEnergy: some View {
-//            SummaryMetricView(
-//                title: "Total Energy",
-//                value: Measurement(
-//                    value: store.summary?.workout?
-//                        .statistics(for: .init(.activeEnergyBurned))?
-//                        .sumQuantity()?
-//                        .doubleValue(for: .kilocalorie()) ?? 0,
-//                    unit: UnitEnergy.kilocalories
-//                )
-//                .formatted(.measurement(
-//                    width: .abbreviated,
-//                    usage: .workout,
-//                    numberFormatStyle: .number.precision(.fractionLength(0)))
-//                ),
-//                .pink
-//            )
-//        }
     private var totalEnergy: some View {
         let energyFromWorkout = store.summary?.workout?
             .statistics(for: .init(.activeEnergyBurned))?
@@ -102,7 +83,6 @@ struct TrainingSummaryView: View {
             value: (store.summary?.metrics.averageHeartRate.formatted(.number.precision(.fractionLength(0))) ?? "--") + " bpm",
             .red
         )
-        /// workoutManager.averageHeartRate.formatted(.number.precision(.fractionLength(0)))
     }
     
     private var activityRingsView: some View {
