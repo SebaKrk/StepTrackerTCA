@@ -27,7 +27,7 @@ extension DefaultTrainingManager {
     }
     
     func endWorkout() {
-        print("end workout")
+        print("🛑 endWorkout() called")
         
         guard let session = session else {
             print("❌ No session to end")
@@ -35,10 +35,7 @@ extension DefaultTrainingManager {
         }
         
         session.end()
-        print("🛑 Ending workout session")
-        
-        showingSummaryView = true
-        print("showingSummaryView")
+        print("📤 session.end() called")
     }
     
     // MARK: - Private Helpers

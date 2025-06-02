@@ -5,14 +5,18 @@
 //  Created by Sebastian Sciuba on 31/05/2025.
 //
 
-import Foundation
+import ComposableArchitecture
 import HealthKit
 import SwiftUI
 
 struct ActivityRingsView: WKInterfaceObjectRepresentable {
     
-    let healthStore: HKHealthStore
-
+    // MARK: - Dependency
+    
+    @Dependency(\.healthStore) var healthStore
+    
+    // MARK: - API
+    
     func makeWKInterfaceObject(context: Context) -> some WKInterfaceObject {
         let activityRingsObject = WKInterfaceActivityRing()
 

@@ -48,4 +48,17 @@ protocol TrainingManager {
     /// Emits `true` if the workout is currently running, otherwise `false`.
     func workoutSessionIsRunningStream() -> AsyncStream<Bool>
     
+    
+    // MARK: - Workout Snapshot
+    
+    /// Returns the finalized `HKWorkout` object representing the completed workout session.
+    ///
+    /// - Returns: An optional `HKWorkout` instance. Returns `nil` if the workout has not ended yet.
+    func getWorkout() -> HKWorkout?
+    
+    /// Returns the latest `WorkoutMetrics` collected during the session.
+    ///
+    /// Useful for generating summaries or displaying final statistics after the workout ends.
+    /// - Returns: A `WorkoutMetrics` instance containing metrics such as duration, distance, and calories.
+    func getWorkoutMetrics() -> WorkoutMetrics
 }

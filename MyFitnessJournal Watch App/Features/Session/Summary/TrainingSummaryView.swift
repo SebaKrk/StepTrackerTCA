@@ -16,9 +16,29 @@ struct TrainingSummaryView: View {
     
     @Bindable var store: StoreOf<TrainingSummaryFeature>
     
+    @State private var durationFormatter = DurationFormatter()
+    
     // MARK: - View
     
     var body: some View {
+        Group {
+            switch store.viewState {
+            case .loading:
+                ProgressView()
+            case .successfullyLoaded:
+                trainingSummaryView
+            case .failed:
+                Text("failed")
+            }
+        }
+        .onAppear {
+            send(.viewDidAppear)
+        }
+    }
+    
+    // MARK: - SubView
+    
+    private var trainingSummaryView: some View {
         ScrollView {
             VStack(alignment: .leading) {
                 totalTime
@@ -32,24 +52,61 @@ struct TrainingSummaryView: View {
     
     private var totalTime: some View {
         SummaryMetricView(title: "Total Time",
-                          value: "32:00:23", .yellow)
-        
+                          value: durationFormatter.string(for: store.summary?.workout?.duration) ?? "00:00:00", .yellow)
+        ///   value: durationFormatter.string(from: workoutManager.workout?.duration ?? 0.0) ?? "")
     }
+    
+//    private var totalEnergy: some View {
+//            SummaryMetricView(
+//                title: "Total Energy",
+//                value: Measurement(
+//                    value: store.summary?.workout?
+//                        .statistics(for: .init(.activeEnergyBurned))?
+//                        .sumQuantity()?
+//                        .doubleValue(for: .kilocalorie()) ?? 0,
+//                    unit: UnitEnergy.kilocalories
+//                )
+//                .formatted(.measurement(
+//                    width: .abbreviated,
+//                    usage: .workout,
+//                    numberFormatStyle: .number.precision(.fractionLength(0)))
+//                ),
+//                .pink
+//            )
+//        }
     private var totalEnergy: some View {
-        SummaryMetricView(title: "Total Energy",
-                          value: Measurement(value: 632,
-                                             unit: UnitEnergy.kilocalories)
-                            .formatted(.measurement(width: .abbreviated,
-                                                    usage: .workout,
-                                                    numberFormatStyle: .number.precision(.fractionLength(0)))), .pink)
+        let energyFromWorkout = store.summary?.workout?
+            .statistics(for: .init(.activeEnergyBurned))?
+            .sumQuantity()?
+            .doubleValue(for: .kilocalorie())
+        
+        let energyFromMetrics = store.summary?.metrics.activeEnergy
+        
+        let finalEnergy = energyFromWorkout ?? energyFromMetrics ?? 0
+        
+        return SummaryMetricView(
+            title: "Total Energy",
+            value: Measurement(value: finalEnergy, unit: UnitEnergy.kilocalories)
+                .formatted(.measurement(
+                    width: .abbreviated,
+                    usage: .workout,
+                    numberFormatStyle: .number.precision(.fractionLength(0))
+                )),
+            .pink
+        )
     }
+    
     private var avgHeartRate: some View {
-        SummaryMetricView(title: "Avg. Heart Rate",
-                          value: 123.formatted(.number.precision(.fractionLength(0))) + " bpm", .red)
+        SummaryMetricView(
+            title: "Avg. Heart Rate",
+            value: (store.summary?.metrics.averageHeartRate.formatted(.number.precision(.fractionLength(0))) ?? "--") + " bpm",
+            .red
+        )
+        /// workoutManager.averageHeartRate.formatted(.number.precision(.fractionLength(0)))
     }
     
     private var activityRingsView: some View {
-        ActivityRingsView(healthStore: HKHealthStore())
+        ActivityRingsView()
     }
     
     private var doneButton: some View {

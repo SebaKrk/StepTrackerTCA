@@ -42,6 +42,7 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
         heartRate: 0,
         activeEnergy: 0
     )
+    
     var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
     
@@ -137,6 +138,7 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     }
 
     // MARK: - Helpers
+    
     func resetWorkout() {
         selectedWorkout = nil
         builder = nil
@@ -148,5 +150,15 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
             activeEnergy: 0
         )
     }
+    
+    func getWorkout() -> HKWorkout? {
+        print("🔍 getWorkout() called - workout: \(workout != nil ? "exists" : "nil")")
+        print("⏩️ workout:\(workout)")
+        return workout
+    }
 
+    func getWorkoutMetrics() -> WorkoutMetrics {
+        print("🔍 getWorkoutMetrics() - activeEnergy: \(metrics.activeEnergy)")
+        return metrics
+    }
 }
