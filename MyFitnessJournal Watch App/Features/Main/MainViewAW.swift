@@ -21,11 +21,11 @@ struct MainViewAW: View {
         NavigationStack {
             //List(selection: $store.selectedTab) {
             List {
-                ForEach(store.workoutTypes) { workoutType in
+                ForEach(store.workoutOptions) { workoutOption in
                     Button {
-                        send(.selectedWorkoutOption(workoutType))
+                        send(.selectedWorkoutOption(workoutOption))
                     } label: {
-                        Text(workoutType.title)
+                        Text(workoutOption.title)
                     }
                 }
             }
@@ -35,9 +35,9 @@ struct MainViewAW: View {
                                       action: \.destination.openTrainingSummary)) { store in
                 TrainingSummaryView(store: store)
             }
-            .navigationDestination(item: $store.scope(state: \.destination?.trainingSession,
-                                                      action: \.destination.trainingSession)) { store in
-                TrainingSessionTabView(store: store)
+            .navigationDestination(item: $store.scope(state: \.destination?.openWorkoutType,
+                                                      action: \.destination.openWorkoutType)) { store in
+                WorkoutTypeView(store: store)
             }
         }
         .onAppear {

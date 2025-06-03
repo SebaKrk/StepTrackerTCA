@@ -388,3 +388,4 @@
     - format summary UI using real values
     - add SummaryMetricView to show detailed stats
     - validate data received from WorkoutKit/HealthKit
+    E: WorkoutType
