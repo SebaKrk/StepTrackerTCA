@@ -20,7 +20,7 @@ extension MainFeatureAW {
         /// The list of workout options available to the user.
         ///
         /// Default values include planned, mirroring, scheduled, and free workouts.
-        var workoutTypes: [WorkoutOptionAW] = [.planned, .mirroring, .scheduled, .free]
+        var workoutOptions: [WorkoutOptionAW] = [.planned, .mirroring, .scheduled, .free]
         
         // MARK: - Destination
         
