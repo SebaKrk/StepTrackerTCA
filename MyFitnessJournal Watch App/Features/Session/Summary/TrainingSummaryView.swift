@@ -12,6 +12,8 @@ import HealthKit
 @ViewAction(for: TrainingSummaryFeature.self)
 struct TrainingSummaryView: View {
     
+    @Dependency(\.healthStore) var healthStore
+    
     // MARK: - Properties
     
     @Bindable var store: StoreOf<TrainingSummaryFeature>
@@ -86,7 +88,12 @@ struct TrainingSummaryView: View {
     }
     
     private var activityRingsView: some View {
-        ActivityRingsView()
+        HStack {
+            Text("Activity Rings")
+                .foregroundStyle(.foreground)
+            ActivityRingsView(healthStore: healthStore)
+                .frame(width: 50, height: 50)
+        }
     }
     
     private var doneButton: some View {

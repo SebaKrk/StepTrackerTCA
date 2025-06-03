@@ -11,9 +11,7 @@ import SwiftUI
 
 struct ActivityRingsView: WKInterfaceObjectRepresentable {
     
-    // MARK: - Dependency
-    
-    @Dependency(\.healthStore) var healthStore
+    let healthStore: HKHealthStore
     
     // MARK: - API
     
@@ -39,4 +37,6 @@ struct ActivityRingsView: WKInterfaceObjectRepresentable {
     func updateWKInterfaceObject(_ wkInterfaceObject: WKInterfaceObjectType, context: Context) {
 
     }
+    
+    
 }
