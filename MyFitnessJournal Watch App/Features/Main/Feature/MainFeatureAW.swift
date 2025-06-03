@@ -53,11 +53,11 @@ struct MainFeatureAW {
                         print("scheduled")
                     case .free:
                         print("free")
-                        state.destination = .trainingSession(TrainingSessionTabFeature.State(selectedWorkout: .americanFootball))
+                        state.destination = .openWorkoutType(WorkoutTypeFeature.State())
                     }
                     return .none
                      
-                case .destination(.presented(.trainingSession(.controls(.view(.endButtonPressed))))):
+                case .destination(.presented(.openWorkoutType(.destination(.presented(.trainingSession(.controls(.view(.endButtonPressed)))))))):
                     return .send(.openTrainingSheet)
                     
                 default:

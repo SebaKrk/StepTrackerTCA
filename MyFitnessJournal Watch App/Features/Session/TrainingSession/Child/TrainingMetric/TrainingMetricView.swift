@@ -33,7 +33,7 @@ struct TrainingMetricView: View {
     // MARK: - SubView
     
     private func makeElapsedTimeView(_ context: TimelineViewDefaultContext) -> some View {
-        ElapsedTimeView2(
+        ElapsedTimeView(
             elapsedTime: store.elapsedTime,
             showSubseconds: context.cadence == .live
         )
@@ -43,13 +43,11 @@ struct TrainingMetricView: View {
         .onAppear {
             send(.updateElapsedTime(context.date))
         }
-        .onChange(of: context.date) { newDate in
+        .onChange(of: context.date) { _, newDate in
             send(.updateElapsedTime(newDate))
         }
     }
-//        .onChange(of: context.date) { _, newDate in
-//            send(.updateElapsedTime(newDate))
-//        }
+
     @ViewBuilder
     private var heartRateMeasurement: some View {
         if store.workoutMetrics.heartRate == 0 {
@@ -91,24 +89,4 @@ struct TrainingMetricView: View {
             .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: store.animateHeart)
     }
     
-}
-
-
-struct ElapsedTimeView2: View {
-    
-    let elapsedTime: TimeInterval
-    let showSubseconds: Bool
-    
-    @State private var timeFormatter = ElapsedTimeFormatter()
-    
-    var body: some View {
-        Text(NSNumber(value: elapsedTime), formatter: timeFormatter)
-            .fontWeight(.semibold)
-            .onChange(of: showSubseconds) {
-                timeFormatter.showSubseconds = showSubseconds
-            }
-            .onAppear {
-                timeFormatter.showSubseconds = showSubseconds
-            }
-    }
 }

@@ -27,7 +27,6 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     }
     var showingSummaryView: Bool = false {
         didSet {
-            print("showingSummaryView changed to: \(showingSummaryView)")
             if showingSummaryView == false {
                 resetWorkout()
             }
@@ -42,6 +41,7 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
         heartRate: 0,
         activeEnergy: 0
     )
+    
     var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
     
@@ -77,8 +77,6 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     // MARK: - Workout Management
     
     func startWorkout(workoutType: HKWorkoutActivityType) {
-        print("start workout: \(workoutType)")
-
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .indoor
@@ -137,6 +135,7 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
     }
 
     // MARK: - Helpers
+    
     func resetWorkout() {
         selectedWorkout = nil
         builder = nil
@@ -148,5 +147,12 @@ final class DefaultTrainingManager: NSObject, TrainingManager {
             activeEnergy: 0
         )
     }
+    
+    func getWorkout() -> HKWorkout? {
+        workout
+    }
 
+    func getWorkoutMetrics() -> WorkoutMetrics {
+        metrics
+    }
 }
