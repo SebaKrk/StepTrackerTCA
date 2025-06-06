@@ -10,6 +10,7 @@ import ComposableArchitecture
 struct TrainingSummaryClient {
     var setShowingSummary: @Sendable (Bool) -> Void
     var getWorkoutSummary: @Sendable () -> WorkoutSummary
+    var fetchTodaySummary: @Sendable () async throws -> ActivityRingData
 }
 
 extension DependencyValues {
@@ -24,6 +25,7 @@ private enum TrainingSummaryClientKey: DependencyKey {
     static let liveValue: TrainingSummaryClient = {
         
         @Dependency(\.trainingManager) var manager
+        @Dependency(\.activityRingManager) var activityRingManager
         
         return TrainingSummaryClient { value in
             manager.setValueForSummaryView(value)
@@ -31,6 +33,8 @@ private enum TrainingSummaryClientKey: DependencyKey {
             WorkoutSummary(workout: manager.getWorkout(),
                            metrics: manager.getWorkoutMetrics()
             )
+        } fetchTodaySummary: {
+            try await activityRingManager.fetchTodaySummary()
         }
     }()
 }
