@@ -18,6 +18,8 @@ extension HKWorkoutActivityType {
         case .swimming:         return "Swimming"
         case .crossTraining:    return "Cross Training"
         case .boxing:           return "Boxing"
+        case .traditionalStrengthTraining: return "Strength"
+        case .functionalStrengthTraining: return "Functional"
         default:                return String(describing: self)
         }
     }
@@ -30,6 +32,8 @@ extension HKWorkoutActivityType {
         case .swimming:         return "swimmer.circle.fill"
         case .crossTraining:    return "figure.cross.training.circle.fill"
         case .boxing:           return "figure.boxing.circle.fill"
+        case .traditionalStrengthTraining: return "figure.strengthtraining.traditional.circle.fill"
+        case .functionalStrengthTraining: return "figure.strengthtraining.functional.circle.fill"
         default:                return String(describing: self)
         }
     }
