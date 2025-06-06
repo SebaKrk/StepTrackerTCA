@@ -35,6 +35,18 @@ extension TrainingSummaryFeature {
         /// Performs a single check for the workout summary. Called after a delay to see if the workout data has become available.
         case performWorkoutCheck
         
+        /// Called when the workout summary has been successfully loaded.
+        case workoutSummaryLoaded(WorkoutSummary)
+        
+        /// Starts the process of fetching today's activity ring data from HealthKit.
+        case fetchTodaySummary
+        
+        /// Sets the activity ring data after successful fetch from HealthKit.
+        case activityRingDataLoaded(ActivityRingData)
+        
+        /// Called when fetching the activity ring data fails.
+        case failedToLoadRingData
+        
         // MARK: - Actions View
         
         case view(View)

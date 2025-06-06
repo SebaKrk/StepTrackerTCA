@@ -37,7 +37,7 @@ struct TrainingSummaryFeature {
                 case .changeSummaryState:
                     client.setShowingSummary(false)
                     return .none
-
+                    
                 case .checkWorkoutSummary:
                     state.summary = client.getWorkoutSummary()
                     state.retryCount = 0
@@ -60,11 +60,38 @@ struct TrainingSummaryFeature {
                     }
                     
                 case .performWorkoutCheck:
-                    state.summary = client.getWorkoutSummary()
+                    let summary = client.getWorkoutSummary()
                     if state.summary?.workout != nil {
-                        return .send(.changeViewState(.successfullyLoaded))
+                        return .send(.workoutSummaryLoaded(summary))
                     }
                     return .send(.retryWorkoutCheck)
+                    
+                case let .workoutSummaryLoaded(summary):
+                    state.summary = summary
+                    if state.activityRingData != nil {
+                        state.viewState = .successfullyLoaded
+                    }
+                    return .none
+                    
+                case .fetchTodaySummary:
+                    return .run { send in
+                        do {
+                            let data = try await client.fetchTodaySummary()
+                            await send(.activityRingDataLoaded(data))
+                        } catch {
+                            await send(.failedToLoadRingData)
+                        }
+                    }
+                    
+                case let .activityRingDataLoaded(ringData):
+                    state.activityRingData = ringData
+                    if state.summary != nil {
+                        return .send(.changeViewState(.successfullyLoaded))
+                    }
+                    return .none
+                    
+                case .failedToLoadRingData:
+                    return .send(.changeViewState(.failed))
                     
                     // MARK: - View Actions
                 case .view(.doneButtonPressed):
@@ -74,7 +101,11 @@ struct TrainingSummaryFeature {
                     }
                     
                 case .view(.viewDidAppear):
-                    return .send(.checkWorkoutSummary)
+                    return .run { send in
+                        await send(.checkWorkoutSummary)
+                        await send(.fetchTodaySummary)
+                    }
+                    
                 }
             }
         }
