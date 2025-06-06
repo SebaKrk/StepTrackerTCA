@@ -389,3 +389,6 @@
     - add SummaryMetricView to show detailed stats
     - validate data received from WorkoutKit/HealthKit
     E: WorkoutType
+    
+### IOS-00040 ActivityRings  
+    A: ActivityRings 

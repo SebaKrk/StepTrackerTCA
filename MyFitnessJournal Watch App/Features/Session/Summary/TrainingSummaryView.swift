@@ -88,11 +88,13 @@ struct TrainingSummaryView: View {
     }
     
     private var activityRingsView: some View {
-        HStack {
+        VStack(alignment: .leading) {
             Text("Activity Rings")
                 .foregroundStyle(.foreground)
-            ActivityRingsView(healthStore: healthStore)
-                .frame(width: 50, height: 50)
+            
+            let data = ActivityRingData(moveValue: 332, moveGoal: 900, exerciseValue: 33, exerciseGoal: 60, standValue: 3, standGoal: 10)
+            
+            ActivityRingsView(ringData: data)
         }
     }
     
