@@ -16,4 +16,5 @@ struct WorkoutSummary: Equatable {
     
     /// Live metrics gathered during the workout session.
     let metrics: WorkoutMetrics
+    
 }

@@ -41,6 +41,21 @@ extension DependencyValues {
     }
 }
 
+/// A TCA dependency key for managing  Activity Ring.
+private enum ActivityRingManagerKey: DependencyKey {
+    static let liveValue:  ActivityRingManager = {
+        @Dependency(\.healthStore) var healthStore
+        return DefaultActivityRingManager(healthStore: healthStore)
+    }()
+}
+
+extension DependencyValues {
+    var activityRingManager:  ActivityRingManager {
+        get { self[ActivityRingManagerKey.self] }
+        set { self[ActivityRingManagerKey.self] = newValue }
+    }
+}
+
 /// A TCA dependency key for accessing a shared instance of HKHealthStore.
 private enum HealthStoreKey: DependencyKey {
     static let liveValue: HKHealthStore = HKHealthStore()
