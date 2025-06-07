@@ -230,7 +230,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
+				INFOPLIST_KEY_CFBundleDisplayName = "MyFitnessJournal - Test";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Your workout related data will be used to display your saved workouts in MyWorkouts.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyFitnessJournal on Apple Watch will be saved to HealthKit.";
@@ -263,7 +263,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
+				INFOPLIST_KEY_CFBundleDisplayName = "MyFitnessJournal - Test";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Your workout related data will be used to display your saved workouts in MyWorkouts.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyFitnessJournal on Apple Watch will be saved to HealthKit.";
