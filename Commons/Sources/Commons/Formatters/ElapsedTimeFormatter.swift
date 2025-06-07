@@ -9,7 +9,7 @@ import Foundation
 
 /// A formatter that formats elapsed time as minutes and seconds,
 /// with optional display of hundredths of a second.
-class ElapsedTimeFormatter: Formatter {
+public class ElapsedTimeFormatter: Formatter {
     
     /// Formatter for minutes and seconds using DateComponentsFormatter.
     let componentsFormatter: DateComponentsFormatter = {
@@ -20,12 +20,12 @@ class ElapsedTimeFormatter: Formatter {
     }()
     
     /// Determines whether hundredths of a second should be shown.
-    var showSubseconds = true
+    public var showSubseconds = true
 
     /// Returns a formatted string representation of the given time interval.
     /// - Parameter value: The time interval to format.
     /// - Returns: A string with minutes and seconds, and optionally hundredths.
-    override func string(for value: Any?) -> String? {
+    public override func string(for value: Any?) -> String? {
         guard let time = value as? TimeInterval else {
             return nil
         }
