@@ -392,3 +392,8 @@
     
 ### IOS-00040 ActivityRings  
     A: ActivityRings 
+
+### IOS-00041 New Packages
+    A: Add new packages to facilitate communication between the iOS and watchOS apps
+    - create Commons
+    - crate HealhtHub
