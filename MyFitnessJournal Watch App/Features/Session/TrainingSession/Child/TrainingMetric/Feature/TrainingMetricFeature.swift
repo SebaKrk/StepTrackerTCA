@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct TrainingMetricFeature {
@@ -124,6 +125,7 @@ extension TrainingMetricFeature {
 
 /// Implementation of `TrainingMetricFeature` state
 extension TrainingMetricFeature {
+    
     @ObservableState
     struct State: Equatable {
         

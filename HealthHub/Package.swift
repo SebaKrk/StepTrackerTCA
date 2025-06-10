@@ -7,7 +7,7 @@ let package = Package(
     name: "HealthHub",
     platforms: [
         .iOS(.v17),
-        .watchOS(.v10)
+        .watchOS(.v11)
     ],
     products: [
         .library(
@@ -15,12 +15,21 @@ let package = Package(
             targets: ["HealthHub"]),
     ],
     dependencies: [
-        .package(path: "../Commons")
+        .package(path: "../Commons"),
+        .package(path: "../SharedModels"),
+        .package(
+            url: "https://github.com/pointfreeco/swift-composable-architecture.git",
+            from: "1.20.2" 
+        ),
     ],
     targets: [
         .target(
             name: "HealthHub",
-            dependencies: ["Commons"])
-        // Usuń testTarget - nie masz foldera Tests
+            dependencies: [
+                "Commons",
+                "SharedModels",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        )
     ]
 )

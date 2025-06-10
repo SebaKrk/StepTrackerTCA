@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 /// Implementation of `MainFeatureAW` action
 extension MainFeatureAW {
@@ -54,3 +55,4 @@ extension MainFeatureAW {
     }
     
 }
+

@@ -7,7 +7,7 @@ let package = Package(
     name: "Commons",
     platforms: [
         .iOS(.v17),
-        .watchOS(.v10)
+        .watchOS(.v11)
     ],
     products: [
         .library(
