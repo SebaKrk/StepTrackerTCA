@@ -397,3 +397,7 @@
     A: Add new packages to facilitate communication between the iOS and watchOS apps
     - create Commons
     - crate HealhtHub
+    B: Created a shared TrainingManager module 
+    - create SharedModels
+    C: Make TrainingManager Sendable & Introduce Delegate Proxy
+ 

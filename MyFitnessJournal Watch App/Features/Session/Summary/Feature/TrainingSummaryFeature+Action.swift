@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 /// Implementation of `TrainingSummaryFeature` state
 extension TrainingSummaryFeature {

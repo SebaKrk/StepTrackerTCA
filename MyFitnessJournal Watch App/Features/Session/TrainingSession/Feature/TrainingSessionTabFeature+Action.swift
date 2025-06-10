@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import HealthKit
+import SharedModels
 
 /// Implementation of `TrainingSessionTabFeature` action
 extension TrainingSessionTabFeature {

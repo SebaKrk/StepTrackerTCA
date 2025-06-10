@@ -9,9 +9,11 @@
 /* Begin PBXBuildFile section */
 		930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 930DCF402D16A3D900F1A5E4 /* Factory */; };
 		9332A8C62D1809FD00DA426E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9332A8C52D1809FD00DA426E /* README.md */; };
+		934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 934045BC2DF561F0005A00C8 /* HealthHub */; };
 		934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C72DD9CD8C0089D27C /* ComposableArchitecture */; };
 		934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C92DD9CD9A0089D27C /* Factory */; };
 		93622F162D2C81B000E9863B /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 93622F152D2C81B000E9863B /* Algorithms */; };
+		936D5E372DF6228200E10214 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 936D5E362DF6228200E10214 /* SharedModels */; };
 		9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */ = {isa = PBXBuildFile; fileRef = 9388D7F92D8E8B090016D160 /* TASKS.md */; };
 		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
 		93D02EF02DF4D14F00F08849 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D02EEF2DF4D14F00F08849 /* Commons */; };
@@ -19,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		9332A8C52D1809FD00DA426E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		934045BE2DF5685B005A00C8 /* SharedModels */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SharedModels; sourceTree = "<group>"; };
 		934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MyFitnessJournal Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9388D7F92D8E8B090016D160 /* TASKS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TASKS.md; sourceTree = "<group>"; };
 		93CE75352D1699CA006D5A4A /* StepTrackerTCA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StepTrackerTCA.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -45,7 +48,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				93D02EF02DF4D14F00F08849 /* Commons in Frameworks */,
+				936D5E372DF6228200E10214 /* SharedModels in Frameworks */,
 				934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */,
+				934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */,
 				934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -73,6 +78,7 @@
 		93CE752C2D1699CA006D5A4A = {
 			isa = PBXGroup;
 			children = (
+				934045BE2DF5685B005A00C8 /* SharedModels */,
 				93D02EEE2DF4CCBF00F08849 /* Commons */,
 				93D02EED2DF41F4C00F08849 /* HealthHub */,
 				9332A8C52D1809FD00DA426E /* README.md */,
@@ -116,6 +122,8 @@
 				934A03C72DD9CD8C0089D27C /* ComposableArchitecture */,
 				934A03C92DD9CD9A0089D27C /* Factory */,
 				93D02EEF2DF4D14F00F08849 /* Commons */,
+				934045BC2DF561F0005A00C8 /* HealthHub */,
+				936D5E362DF6228200E10214 /* SharedModels */,
 			);
 			productName = "MyFitnessJournal Watch App";
 			productReference = 934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */;
@@ -243,6 +251,7 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyFitnessJournal on Apple Watch will be saved to HealthKit.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.MyFitnessJournal;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -276,6 +285,7 @@
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyFitnessJournal on Apple Watch will be saved to HealthKit.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.MyFitnessJournal;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -529,7 +539,7 @@
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.17.0;
+				minimumVersion = 1.20.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -539,6 +549,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
 			productName = Factory;
+		};
+		934045BC2DF561F0005A00C8 /* HealthHub */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthHub;
 		};
 		934A03C72DD9CD8C0089D27C /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -554,6 +568,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
+		};
+		936D5E362DF6228200E10214 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
 		};
 		93CE767C2D16A13F006D5A4A /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;

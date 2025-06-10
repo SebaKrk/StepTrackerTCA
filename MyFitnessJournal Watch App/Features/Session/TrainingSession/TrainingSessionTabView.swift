@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import WatchKit
+import SharedModels
 
 @ViewAction(for: TrainingSessionTabFeature.self)
 struct TrainingSessionTabView: View {

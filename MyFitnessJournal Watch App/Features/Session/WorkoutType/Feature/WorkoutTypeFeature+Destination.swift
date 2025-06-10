@@ -5,7 +5,6 @@
 //  Created by Sebastian Sciuba on 03/06/2025.
 //
 
-
 import ComposableArchitecture
 
 /// Implementation of `WorkoutTypeFeature` destination

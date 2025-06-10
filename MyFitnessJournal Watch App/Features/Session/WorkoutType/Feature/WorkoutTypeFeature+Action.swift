@@ -8,6 +8,7 @@
 
 import ComposableArchitecture
 import HealthKit
+import SharedModels
 
 /// Implementation of `WorkoutTypeFeature` action
 extension WorkoutTypeFeature {

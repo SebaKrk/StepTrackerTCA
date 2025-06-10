@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import HealthKit
+import SharedModels
 
 /// Feature responsible for displaying and handling workout type selection.
 @Reducer

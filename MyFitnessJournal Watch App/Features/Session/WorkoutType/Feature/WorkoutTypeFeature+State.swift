@@ -5,8 +5,8 @@
 //  Created by Sebastian Sciuba on 03/06/2025.
 //
 
-
 import ComposableArchitecture
+import SharedModels
 
 /// Implementation of `WorkoutTypeFeature` state
 extension WorkoutTypeFeature {
@@ -15,6 +15,8 @@ extension WorkoutTypeFeature {
     struct State {
         
         // MARK: - Properties
+        
+        ///
         var workoutTypes: [WorkoutType] = [.boxing, .cross, .functional, .strength]
         
         // MARK: - Destination
