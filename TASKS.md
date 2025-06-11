@@ -399,5 +399,5 @@
     - crate HealhtHub
     B: Created a shared TrainingManager module 
     - create SharedModels
-    C: Make TrainingManager Sendable & Introduce Delegate Proxy
- 
+    C: TrainingManager @unchecked Sendable
+
