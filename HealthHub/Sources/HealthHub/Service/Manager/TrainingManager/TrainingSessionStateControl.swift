@@ -7,36 +7,36 @@
 
 import Foundation
 
-/// Session State Control
-//extension DefaultTrainingManager {
-//    
-//    public func togglePause() {
-//        guard let session = session else {
-//            return
-//        }
-//        
-//        if workoutSessionIsRunning {
-//            pause()
-//        } else {
-//            resume()
-//        }
-//    }
-//    
-//    public func endWorkout() {
-//        guard let session = session else {
-//            return
-//        }
-//        
-//        session.end()
-//    }
-//    
-//    // MARK: - Private Helpers
-//    
-//    private func pause() {
-//        session?.pause()
-//    }
-//    
-//    private func resume() {
-//        session?.resume()
-//    }
-//}
+// Session State Control
+extension DefaultTrainingManager {
+    
+    public func togglePause() {
+        guard let session = session else {
+            return
+        }
+        
+        if workoutSessionIsRunning {
+            pause()
+        } else {
+            resume()
+        }
+    }
+    
+    public func endWorkout() {
+        guard let session = session else {
+            return
+        }
+        
+        session.end()
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func pause() {
+        session?.pause()
+    }
+    
+    private func resume() {
+        session?.resume()
+    }
+}
