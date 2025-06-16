@@ -25,6 +25,7 @@ struct WorkoutView: View {
                     photoSourceOptionButton
                     workoutTypeOptionButton
                     historyOptionButton
+                    workoutMirroringButton
                 }
             }
             .navigationTitle("Workout")
@@ -46,6 +47,12 @@ struct WorkoutView: View {
                     action: \.destination.openImageAnalysis)) { store in
                         ImageAnalysisView(store: store)
                     }
+                    .navigationDestination(
+                        item: $store.scope(
+                            state: \.destination?.openWorkoutMirroring,
+                            action: \.destination.openWorkoutMirroring)) { store in
+                                WorkoutMirroringView(store: store)
+                            }
         }
         
     }
@@ -81,6 +88,12 @@ struct WorkoutView: View {
     private var historyOptionButton: some View {
         LabeledButton(title: "History", systemImage: "calendar") {
             print("onHistoryTapped")
+        }
+    }
+    
+    private var workoutMirroringButton: some View {
+        LabeledButton(title: "Mirroring", systemImage: "applewatch.case.sizes") {
+            send(.showWorkoutMirroring)
         }
     }
     

@@ -396,8 +396,8 @@
 ### IOS-00041 New Packages
     A: Add new packages to facilitate communication between the iOS and watchOS apps
     - create Commons
-    - crate HealhtHub
+    - crate HealthHub
     B: Created a shared TrainingManager module 
     - create SharedModels
     C: TrainingManager @unchecked Sendable
-
+    D: Starts mirroring the workout session to the companion iOS device.

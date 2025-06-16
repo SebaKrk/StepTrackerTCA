@@ -14,11 +14,13 @@ import SharedModels
 /// and exposing real-time streams for workout metrics and session state.
 ///
 public protocol TrainingManager: Sendable {
+    
+#if os(watchOS)
     /// The current HKLiveWorkoutBuilder instance used to collect live workout data.
     ///
     /// This is exposed for internal use and should not be modified externally.
     var builder: HKLiveWorkoutBuilder? { get }
-    
+#endif
     // MARK: - Workout Configuration
     
     /// Sets the workout type and initializes a new HealthKit session.
@@ -62,4 +64,12 @@ public protocol TrainingManager: Sendable {
     /// Useful for generating summaries or displaying final statistics after the workout ends.
     /// - Returns: A `WorkoutMetrics` instance containing metrics such as duration, distance, and calories.
     func getWorkoutMetrics() -> WorkoutMetrics
+    
+    // MARK: - Platform Setup
+    
+    #if os(iOS)
+    /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
+    func setupRemoteSessionHandler()
+    #endif
+    
 }
