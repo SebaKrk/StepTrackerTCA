@@ -18,8 +18,8 @@ struct WorkoutTypeFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            // MARK: - Internal Actions
                 
+            // MARK: - Actions
             case let .show(hkType):
                 state.destination = .trainingSession(TrainingSessionTabFeature.State(selectedWorkout: hkType))
                 return .none

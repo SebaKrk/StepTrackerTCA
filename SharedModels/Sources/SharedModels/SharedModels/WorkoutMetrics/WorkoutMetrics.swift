@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents key metrics during a workout session.
-public struct WorkoutMetrics: Equatable, Sendable {
+public struct WorkoutMetrics: Equatable, Sendable, Decodable {
     
     // MARK: - Properties
     

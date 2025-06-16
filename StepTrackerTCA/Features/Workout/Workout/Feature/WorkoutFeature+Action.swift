@@ -50,6 +50,9 @@ extension WorkoutFeature {
             ///
             case showWorkoutPlaner
             
+            ///
+            case showWorkoutMirroring
+            
         }
         
         // MARK: - Destination

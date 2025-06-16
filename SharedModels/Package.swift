@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SharedModels",
     platforms: [
-        .iOS(.v17),
+        .iOS(.v18),
         .watchOS(.v11)
     ],
     products: [

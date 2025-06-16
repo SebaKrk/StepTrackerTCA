@@ -20,6 +20,9 @@ extension WorkoutFeature {
         
         /// Represents the destination for displaying in `WorkoutPlanerFeature`.
         case openWorkoutPlaner(WorkoutPlanerFeature)
+        
+        /// Represents the destination for displaying in `WorkoutMirroringFeature`.
+        case openWorkoutMirroring(WorkoutMirroringFeature)
     }
     
 }

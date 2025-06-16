@@ -15,14 +15,17 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
     let healthStore: HKHealthStore
     
     let shareTypes: Set<HKSampleType> = [
-        HKQuantityType.workoutType()
+        HKQuantityType.workoutType(),
+        HKQuantityType(.heartRate),
+        HKQuantityType(.activeEnergyBurned)
     ]
     
     let readTypes: Set<HKObjectType> = [
         HKQuantityType(.heartRate),
         HKQuantityType(.activeEnergyBurned),
         HKQuantityType(.workoutEffortScore),
-        HKObjectType.activitySummaryType()
+        HKObjectType.activitySummaryType(),
+        HKObjectType.workoutType()
     ]
     
     public init(healthStore: HKHealthStore) {
