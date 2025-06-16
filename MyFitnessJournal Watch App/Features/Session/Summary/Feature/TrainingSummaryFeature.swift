@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct TrainingSummaryFeature {
@@ -48,7 +49,7 @@ struct TrainingSummaryFeature {
                     return .send(.retryWorkoutCheck)
                     
                 case .retryWorkoutCheck:
-                    guard state.retryCount < 10 else {
+                    guard state.retryCount < 20 else {
                         return .send(.changeViewState(.failed))
                     }
                     

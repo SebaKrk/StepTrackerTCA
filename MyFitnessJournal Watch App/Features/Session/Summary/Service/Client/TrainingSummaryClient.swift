@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 
 struct TrainingSummaryClient {
     var setShowingSummary: @Sendable (Bool) -> Void

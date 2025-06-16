@@ -30,7 +30,10 @@ class DefaultHealthKitManager: HealthKitManager {
     /// this implementation supports writing step count and body mass data.
     let shareTypes: Set<HKSampleType> = [
         HKQuantityType(.stepCount),
-        HKQuantityType(.bodyMass)
+        HKQuantityType(.bodyMass),
+        HKQuantityType.workoutType(),
+        HKQuantityType(.heartRate),
+        HKQuantityType(.activeEnergyBurned)
     ]
     
     /// A set of object types that the manager requests read access to.
@@ -44,6 +47,7 @@ class DefaultHealthKitManager: HealthKitManager {
         HKQuantityType(.heartRate),
         HKQuantityType(.activeEnergyBurned),
         HKQuantityType(.workoutEffortScore),
+        HKObjectType.activitySummaryType(),
     ]
     
     // MARK: - API

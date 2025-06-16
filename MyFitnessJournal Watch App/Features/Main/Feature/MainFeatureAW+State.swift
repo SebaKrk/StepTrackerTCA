@@ -5,9 +5,9 @@
 //  Created by Sebastian Sciuba on 23/05/2025.
 //
 
-
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 /// Implementation of `MainFeatureAW` state
 extension MainFeatureAW {

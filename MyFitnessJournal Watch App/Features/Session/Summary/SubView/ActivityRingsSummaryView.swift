@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import HealthKit
 import SwiftUI
+import SharedModels
 
 struct ActivityRingsSummaryView: View {
     

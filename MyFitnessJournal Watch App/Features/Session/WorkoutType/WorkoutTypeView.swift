@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import WatchKit
+import SharedModels
 
 @ViewAction(for: WorkoutTypeFeature.self)
 struct WorkoutTypeView: View {
