@@ -50,7 +50,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
         Task { @MainActor in
             do {
                 for dataElement in data {
-                    try processReceivedWatchData(dataElement)  // ← Poprawna metoda
+                    try processReceivedWatchData(dataElement) 
                 }
             } catch {
                 print("❌ iOS: Failed to handle received data: \(error)")
@@ -71,20 +71,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
 #endif
     
     // MARK: - Helper Methods
-    
-    //    #if os(watchOS)
-    //    private func sendElapsedTimeToCompanion(date: Date) async {
-    //        guard let session = self.session else { return }
-    //
-    //        let elapsedTimeInterval = session.associatedWorkoutBuilder().elapsedTime(at: date)
-    //        let elapsedTime = WorkoutElapsedTime(timeInterval: elapsedTimeInterval, date: date)
-    //
-    //        if let elapsedTimeData = try? JSONEncoder().encode(elapsedTime) {
-    //            await sendData(elapsedTimeData)
-    //            print("⌚ watchOS: Sent elapsed time to iOS: \(elapsedTimeInterval)s")
-    //        }
-    //    }
-    //    #endif
+
 #if os(watchOS)
     private func sendElapsedTimeToCompanion(date: Date) async {
         print("🔄 sendElapsedTimeToCompanion called")
@@ -108,41 +95,41 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
 #endif
     
 #if os(iOS)
-//    private func handleReceivedDataFromWatch(_ data: Data) throws {
-//        print("📱 iOS: Processing received data of size: \(data.count) bytes")
-//        
-//        // Try to decode as WorkoutElapsedTime (for time synchronization)
-//        if let elapsedTime = try? JSONDecoder().decode(WorkoutElapsedTime.self, from: data) {
-//            var currentElapsedTime: TimeInterval = 0
-//            if session?.state == .running {
-//                currentElapsedTime = elapsedTime.timeInterval + Date().timeIntervalSince(elapsedTime.date)
-//            } else {
-//                currentElapsedTime = elapsedTime.timeInterval
-//            }
-//            print("📱 iOS: Updated elapsed time: \(currentElapsedTime)")
-//            // TODO: Update your elapsed time property here if you have one
-//            return
-//        }
-//        
-//        // Try to decode as WorkoutMetrics (custom JSON format)
-//        if let receivedMetrics = try? JSONDecoder().decode(WorkoutMetrics.self, from: data) {
-//            print("📱 iOS: Received WorkoutMetrics - HR: \(receivedMetrics.heartRate), Energy: \(receivedMetrics.activeEnergy)")
-//            self.metrics = receivedMetrics
-//            self.workoutMetricsContinuation?.yield(receivedMetrics)
-//            return
-//        }
-//        
-//        // Try to decode as HKStatistics array (standard HealthKit data from watchOS)
-//        if let statisticsArray = try NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: HKStatistics.self, from: data) {
-//            print("📱 iOS: Received \(statisticsArray.count) HKStatistics objects")
-//            for statistics in statisticsArray {
-//                updateForStatistics(statistics)
-//            }
-//            return
-//        }
-//        
-//        print("⚠️ iOS: Received unrecognized data format")
-//    }
+    private func handleReceivedDataFromWatch(_ data: Data) throws {
+        print("📱 iOS: Processing received data of size: \(data.count) bytes")
+        
+        // Try to decode as WorkoutElapsedTime (for time synchronization)
+        if let elapsedTime = try? JSONDecoder().decode(WorkoutElapsedTime.self, from: data) {
+            var currentElapsedTime: TimeInterval = 0
+            if session?.state == .running {
+                currentElapsedTime = elapsedTime.timeInterval + Date().timeIntervalSince(elapsedTime.date)
+            } else {
+                currentElapsedTime = elapsedTime.timeInterval
+            }
+            print("📱 iOS: Updated elapsed time: \(currentElapsedTime)")
+            // TODO: Update your elapsed time property here if you have one
+            return
+        }
+        
+        // Try to decode as WorkoutMetrics (custom JSON format)
+        if let receivedMetrics = try? JSONDecoder().decode(WorkoutMetrics.self, from: data) {
+            print("📱 iOS: Received WorkoutMetrics - HR: \(receivedMetrics.heartRate), Energy: \(receivedMetrics.activeEnergy)")
+            self.metrics = receivedMetrics
+            self.workoutMetricsContinuation?.yield(receivedMetrics)
+            return
+        }
+        
+        // Try to decode as HKStatistics array (standard HealthKit data from watchOS)
+        if let statisticsArray = try NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: HKStatistics.self, from: data) {
+            print("📱 iOS: Received \(statisticsArray.count) HKStatistics objects")
+            for statistics in statisticsArray {
+                updateForStatistics(statistics)
+            }
+            return
+        }
+        
+        print("⚠️ iOS: Received unrecognized data format")
+    }
 #endif
 }
 

@@ -401,3 +401,6 @@
     - create SharedModels
     C: TrainingManager @unchecked Sendable
     D: Starts mirroring the workout session to the companion iOS device.
+    E: Rename iOS project name 
+    - iOS - MyFitnessJournal
+    - Prepare session
