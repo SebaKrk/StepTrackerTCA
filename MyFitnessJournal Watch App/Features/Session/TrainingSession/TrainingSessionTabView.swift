@@ -36,6 +36,10 @@ struct TrainingSessionTabView: View {
                 send(.changeTab)
             }
         }
+        .sheet(item: $store.scope(state: \.destination?.countDown,
+                                  action: \.destination.countDown)) { store in
+            CountDownView(store: store)
+        }
     }
     
     // MARK: - SubViews

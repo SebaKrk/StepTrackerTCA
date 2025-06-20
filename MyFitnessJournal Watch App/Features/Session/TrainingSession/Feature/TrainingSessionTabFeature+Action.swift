@@ -33,6 +33,11 @@ extension TrainingSessionTabFeature {
         /// Starts the workout session, including monitoring streams for session status and metrics.
         case workoutStart
         
+        
+        case prepareWorkout
+        
+        case showCountDown
+        
         // MARK: - Actions
         
         case view(View)
@@ -54,6 +59,11 @@ extension TrainingSessionTabFeature {
         
         /// Delegate action for workout metrics.
         case metric(TrainingMetricFeature.Action)
+        
+        // MARK: - Destination
+        
+        /// Handles navigation and child feature presentation actions.
+        case destination(PresentationAction<Destination.Action>)
     }
     
 }

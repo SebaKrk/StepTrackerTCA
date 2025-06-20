@@ -30,6 +30,8 @@ extension TrainingSessionTabFeature {
         /// The elapsed workout time used for tracking duration.
         var elapsedTime: TimeInterval = 0
         
+        var showCountDownView: Bool = false
+        
         // MARK: - Child State
         
         /// State for managing the training control buttons and pause/resume status.
@@ -44,6 +46,11 @@ extension TrainingSessionTabFeature {
         
         /// State for displaying and managing real-time workout metrics.
         var metric = TrainingMetricFeature.State()
+        
+        // MARK: - Destination
+        
+        /// destination from MovementDetailsFeature
+        @Presents var destination: Destination.State?
     }
     
 }
