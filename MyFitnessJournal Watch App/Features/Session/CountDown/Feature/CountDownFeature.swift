@@ -9,16 +9,16 @@ import ComposableArchitecture
 import Foundation
 import SwiftUI
 
-// MARK: - State
 @Reducer
 struct CountDownFeature {
-
+    
     // MARK: - Dependencies
     
+    @Dependency(\.countDownClient) var client
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
     @Dependency(\.dismiss) var dismiss
-
+    
     // MARK: - Reducer
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -65,13 +65,26 @@ struct CountDownFeature {
                 
             case .timerFinished:
                 state.timerFinished = true
-                // Tutaj możesz dodać logikę dla zakończenia timera
-                // np. uruchomienie WorkoutManager
+                print("Timer finished! Starting workout...")
+                return .send(.startWorkout)
+                
+            case .startWorkout:
+                print("Starting workout...")
                 return .run { send in
+                    print("Closing view first...")
+                    await send(.closeView)
+                    // Krótkie opóźnienie żeby view się zamknął
+//                    try? await Task.sleep(for: .milliseconds(100))
+                    await client.startWorkout()
+                    print("Workout started!")
+                }
+                
+            case .closeView:
+                print("Closing view...")
+                return .run { _ in
                     await self.dismiss()
                 }
             }
         }
     }
 }
-

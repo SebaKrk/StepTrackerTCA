@@ -30,8 +30,6 @@ extension TrainingSessionTabFeature {
         /// The elapsed workout time used for tracking duration.
         var elapsedTime: TimeInterval = 0
         
-        var showCountDownView: Bool = false
-        
         // MARK: - Child State
         
         /// State for managing the training control buttons and pause/resume status.

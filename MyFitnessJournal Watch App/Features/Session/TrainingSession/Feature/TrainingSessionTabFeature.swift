@@ -45,7 +45,6 @@ struct TrainingSessionTabFeature {
                 )
                 
             case .prepareWorkout:
-                state.showCountDownView = true
                 return .run { send in
                     await send(.showCountDown)
                 }

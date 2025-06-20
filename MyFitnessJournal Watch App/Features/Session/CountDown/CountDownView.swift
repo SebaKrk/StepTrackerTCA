@@ -38,6 +38,7 @@ struct CountDownView: View {
             .onAppear {
                 store.send(.onAppear)
             }
+            // to chyba do wyjebania 
             .onChange(of: store.timerFinished) { oldValue, newValue in
                 if newValue == true {
                     print("Timer finished!")

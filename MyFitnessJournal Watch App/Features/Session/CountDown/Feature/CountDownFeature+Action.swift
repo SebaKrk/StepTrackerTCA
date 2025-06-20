@@ -18,6 +18,9 @@ extension CountDownFeature {
         case timerTick
         case timerFinished
         case onAppear
+        
+        case startWorkout
+        case closeView
     }
     
 }
