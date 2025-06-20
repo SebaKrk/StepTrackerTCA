@@ -102,7 +102,7 @@ extension DefaultTrainingManager {
         
         print("📱 iOS: Updated elapsed time: \(currentElapsedTime)s")
         // TODO: Update your elapsed time property if you have one
-        // self.elapsedTimeInterval = currentElapsedTime
+//         self.elapsedTimeInterval = currentElapsedTime
     }
     
     private func handleWorkoutMetricsUpdate(_ receivedMetrics: WorkoutMetrics) {
