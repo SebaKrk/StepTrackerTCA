@@ -18,7 +18,7 @@
                BlueprintIdentifier = "934A03AF2DD8A54A0089D27C"
                BuildableName = "MyFitnessJournal Watch App.app"
                BlueprintName = "MyFitnessJournal Watch App"
-               ReferencedContainer = "container:StepTrackerTCA.xcodeproj">
+               ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -32,7 +32,7 @@
                BlueprintIdentifier = "934A03A32DD8A5490089D27C"
                BuildableName = "MyFitnessJournal.app"
                BlueprintName = "MyFitnessJournal"
-               ReferencedContainer = "container:StepTrackerTCA.xcodeproj">
+               ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -61,7 +61,7 @@
             BlueprintIdentifier = "934A03AF2DD8A54A0089D27C"
             BuildableName = "MyFitnessJournal Watch App.app"
             BlueprintName = "MyFitnessJournal Watch App"
-            ReferencedContainer = "container:StepTrackerTCA.xcodeproj">
+            ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -78,7 +78,7 @@
             BlueprintIdentifier = "934A03AF2DD8A54A0089D27C"
             BuildableName = "MyFitnessJournal Watch App.app"
             BlueprintName = "MyFitnessJournal Watch App"
-            ReferencedContainer = "container:StepTrackerTCA.xcodeproj">
+            ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
