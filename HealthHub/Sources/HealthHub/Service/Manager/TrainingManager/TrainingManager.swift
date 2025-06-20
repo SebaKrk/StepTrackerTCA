@@ -72,4 +72,6 @@ public protocol TrainingManager: Sendable {
     func setupRemoteSessionHandler()
     #endif
     
+    
+    func startWorkout() async 
 }
