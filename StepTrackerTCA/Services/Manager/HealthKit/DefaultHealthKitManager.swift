@@ -8,61 +8,19 @@
 import Algorithms
 import HealthKit
 import Observation
+import ComposableArchitecture
+import HealthHub
 
 /// The default implementation of the `HealthKitManager` protocol.
 ///
 /// This class provides the necessary configuration and functionality for requesting
 /// and managing HealthKit data, such as step count and body mass.
-@Observable
+//@Observable
 class DefaultHealthKitManager: HealthKitManager {
     
-    // MARK: - Properties
-    
-    /// The HealthKit store used to access and manage HealthKit data.
-    ///
-    /// `HKHealthStore` is responsible for interacting with the HealthKit framework.
-    /// It is used for requesting permissions, fetching, and saving data.
-    let store = HKHealthStore()
-    
-    /// A set of sample types that the manager requests write access to.
-    ///
-    /// This defines which types of data the app can write to HealthKit. For example,
-    /// this implementation supports writing step count and body mass data.
-    let shareTypes: Set<HKSampleType> = [
-        HKQuantityType(.stepCount),
-        HKQuantityType(.bodyMass),
-        HKQuantityType.workoutType(),
-        HKQuantityType(.heartRate),
-        HKQuantityType(.activeEnergyBurned)
-    ]
-    
-    /// A set of object types that the manager requests read access to.
-    ///
-    /// This defines which types of data the app can read from HealthKit. For example,
-    /// this implementation supports reading step count and body mass data.
-    let readTypes: Set<HKObjectType> = [
-        HKQuantityType(.stepCount),
-        HKQuantityType(.bodyMass),
-        HKObjectType.workoutType(),
-        HKQuantityType(.heartRate),
-        HKQuantityType(.activeEnergyBurned),
-        HKQuantityType(.workoutEffortScore),
-        HKObjectType.activitySummaryType(),
-    ]
+    @Dependency(\.authorizationManager) var manager
     
     // MARK: - API
-    
-    /// Requests authorization to access HealthKit data.
-    ///
-    /// - Returns: A result of type `Result<Bool, Error>` indicating success or an authorization error.
-    func requestAuthorization() async -> Result<Bool, Error> {
-        do {
-            try await store.requestAuthorization(toShare: shareTypes, read: readTypes)
-            return .success(true)
-        } catch {
-            return .failure(error)
-        }
-    }
     
     /// Fetches data for the given quantity type and date range.
     func fetchHealthData(
@@ -73,7 +31,7 @@ class DefaultHealthKitManager: HealthKitManager {
     ) async throws -> [HealthData] {
         let (startDate, endDate) = calculateDateRange(for: days)
         let query = buildQuery(for: quantityType, startDate: startDate, endDate: endDate, options: options)
-        let results = try await query.result(for: store)
+        let results = try await query.result(for: manager.healthStore)
         return processHealthData(results.statistics(), unit: unit, options: options)
     }
     
@@ -92,7 +50,7 @@ class DefaultHealthKitManager: HealthKitManager {
             predicates: [workoutPredicate],
             sortDescriptors: [SortDescriptor(\HKWorkout.endDate, order: .reverse)]
         )
-        let workouts = try await descriptor.result(for: store)
+        let workouts = try await descriptor.result(for: manager.healthStore)
         return workouts
     }
     
@@ -117,7 +75,7 @@ class DefaultHealthKitManager: HealthKitManager {
             predicates: [ .quantitySample(type: hrType, predicate: compound) ],
             sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .forward) ]
         )
-        return try await descriptor.result(for: store) as [HKQuantitySample]
+        return try await descriptor.result(for: manager.healthStore) as [HKQuantitySample]
     }
     
     func fetchActiveEnergyBurned(for workout: HKWorkout) async throws -> Double {
@@ -135,7 +93,7 @@ class DefaultHealthKitManager: HealthKitManager {
                     continuation.resume(returning: 0)
                 }
             }
-            self.store.execute(query)
+            self.manager.healthStore.execute(query)
         }
     }
     
@@ -149,7 +107,7 @@ class DefaultHealthKitManager: HealthKitManager {
         let sample = HKQuantitySample(type: quantityType, quantity: quantity, start: date, end: date)
         
         do {
-            try await store.save(sample)
+            try await manager.healthStore.save(sample)
             print("✅ Successfully saved \(type.rawValue) data for date \(date): value = \(value) \(unit.unitString)")
         } catch {
             print("❌ Failed to save \(type.rawValue) data for date \(date): \(error.localizedDescription)")
@@ -224,7 +182,7 @@ class DefaultHealthKitManager: HealthKitManager {
         }
 
         do {
-            try await store.save(mockSamples)
+            try await manager.healthStore.save(mockSamples)
             print("✅ Dummy Data successfully sent up")
         } catch {
             print("❌ Failed to save dummy data: \(error.localizedDescription)")

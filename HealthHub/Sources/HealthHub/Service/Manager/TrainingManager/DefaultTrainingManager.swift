@@ -16,7 +16,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     // MARK: - Workout Session State
     var session: HKWorkoutSession?
     
-    private(set) var state: HKWorkoutSessionState = .notStarted
+    public var sessionState: HKWorkoutSessionState = .notStarted
     
 #if os(watchOS)
     public var builder: HKLiveWorkoutBuilder?
@@ -62,9 +62,9 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     public init(healthStore: HKHealthStore) {
         self.healthStore = healthStore
         super.init()    
-#if os(iOS)
-        setupRemoteSessionHandler()
-#endif
+//#if os(iOS)
+//        setupRemoteSessionHandler()
+//#endif
     }
     
     // MARK: - TrainingManager Protocol Implementation
@@ -107,7 +107,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         configuration.activityType = workoutType
         configuration.locationType = .outdoor
         
-        state = .prepared
+        sessionState = .prepared
 
         session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
         builder = session?.associatedWorkoutBuilder()
@@ -144,7 +144,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         
         let start = Date()
         session?.startActivity(with: start)
-        state = .running
+        sessionState = .running
         
         await withCheckedContinuation { continuation in
             builder?.beginCollection(withStart: start) { (success, error) in
@@ -220,7 +220,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
             activeEnergy: 0
         )
         workoutSessionIsRunning = false
-        state = .notStarted
+        sessionState = .notStarted
     }
 }
 
@@ -249,4 +249,5 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
 //            workoutConfiguration: configuration
 //        )
         
+
 

@@ -405,3 +405,5 @@
     - iOS - MyFitnessJournal
 ### IOS-00042 Prepare session
     A: CountDown functionality
+    B: Clean up Dependency
+    C: Mirroring workout view

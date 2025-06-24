@@ -31,6 +31,10 @@ extension DefaultTrainingManager {
                 self.session = mirroredSession
                 self.session?.delegate = self
                 
+                
+                self.sessionState = mirroredSession.state
+                print("📱 iOS: Updated sessionState to: \(mirroredSession.state)")
+                
                 // Update running state
                 self.workoutSessionIsRunning = mirroredSession.state == .running
                 self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
@@ -38,6 +42,7 @@ extension DefaultTrainingManager {
                 print("📱 iOS: Mirrored session state: \(mirroredSession.state.rawValue)")
             }
         }
+        print("📱 iOS: Handler successfully assigned to healthStore")
     }
     
     /// Starts a workout app on the paired Apple Watch

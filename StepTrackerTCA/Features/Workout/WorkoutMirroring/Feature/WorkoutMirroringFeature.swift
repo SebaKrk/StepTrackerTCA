@@ -13,10 +13,19 @@ import HealthHub
 @Reducer
 struct WorkoutMirroringFeature {
     
+    // MARK: - Properties
+    
+    let service: TrainingCalculationsService
+    
     // MARK: - Dependency
     
+    @Dependency(\.workoutMirroringClient) var client
+
+    // MARK: - Lifecycle
     
-    @Dependency(\.trainingManager) var manager
+    init(service: TrainingCalculationsService = DefaultTrainingCalculationsService()) {
+        self.service = service
+    }
     
     // MARK: - Reducer
     var body: some Reducer<State, Action> {
@@ -30,18 +39,47 @@ struct WorkoutMirroringFeature {
                     return .none
                     
                     // MARK: - Actions
+                    
+                case .checkSessionState:
+                   let sessionState = client.sessionState()
+                   print("🔴 Checking session state: \(sessionState)")
+                   
+                   state.sessionState = sessionState
+                   
+                   if state.sessionState {
+                       print("🔴 Session is active - sending startMirroringWorkout")
+                       return .send(.startMirroringWorkout)
+                   } else {
+                       print("🔴 Session is NOT active - no action taken")
+                   }
+                   return .none
+                    
                 case let .workoutMetrics(data):
                     state.workoutMetrics = data
-                    print(data.heartRate)
+                    print("heartRate: \(data.heartRate)")
+                    
+                    let maxHR = service.calculateMaxHeartRate(age: state.userAge, gender: state.userGender)
+                    let zone = service.calculateHeartRateZone(current: Int(data.heartRate), max: maxHR)
+                    let percentage = service.calculateHeartRatePercentage(current: Int(data.heartRate), max: maxHR)
+                     
+                    state.currentHeartRateZone = zone
+                    state.currentHeartRatePercentage = percentage
+                    
                     return .none
                     
-                    // MARK: - View Actions
-                case .view(.viewDidAppear):
+                case .startMirroringWorkout:
+                    print("🔴 Starting mirroring workout - creating stream...")
                     return .run { send in
-                        for await metrics in manager.workoutMetricsStream {
+                        print("🔴 Stream created, waiting for metrics...")
+                        for await metrics in client.workoutMetricsStream() {
+                            print("🔴 Received metrics in stream: HR=\(metrics.heartRate)")
                             await send(.workoutMetrics(metrics))
                         }
                     }
+                    
+                    // MARK: - View Actions
+                case .view(.viewDidAppear):
+                    return .send(.checkSessionState)
                     
                 case .view(.viewWillDisappear):
                     return .cancel(id: CancelID.workoutMetricsStream)
@@ -52,59 +90,5 @@ struct WorkoutMirroringFeature {
     
     private enum CancelID {
         case workoutMetricsStream
-    }
-}
-
-import ComposableArchitecture
-import Foundation
-
-/// Implementation of `WorkoutMirroringFeature` action
-extension WorkoutMirroringFeature {
-    
-    @CasePathable
-    enum Action: ViewAction, BindableAction {
-        
-        // MARK: - Actions
-        
-        case workoutMetrics(WorkoutMetrics)
-        
-        // MARK: - Binding Action
-        
-        /// Handles changes in bindings for the state.
-        case binding(BindingAction<State>)
-        
-        // MARK: - View actions
-        
-        /// Used for view actions.
-        case view(View)
-        
-        enum View {
-            
-            /// The action responsible for completing tasks as soon as the view is displayed.
-            case viewDidAppear
-            
-            /// The action when view will disappear to clean up resources
-            case viewWillDisappear
-            
-        }
-    }
-    
-}
-
-import ComposableArchitecture
-import SwiftUI
-
-/// Implementation of `WorkoutMirroringFeature` state
-extension WorkoutMirroringFeature {
-    
-    @ObservableState
-    struct State {
-        
-        var workoutMetrics: WorkoutMetrics = WorkoutMetrics(
-            averageHeartRate: 0,
-            heartRate: 0,
-            activeEnergy: 0
-        )
-        
     }
 }

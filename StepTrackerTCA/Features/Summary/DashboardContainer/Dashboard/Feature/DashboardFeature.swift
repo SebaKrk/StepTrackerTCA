@@ -12,6 +12,10 @@ import Foundation
 @Reducer
 struct DashboardFeature {
     
+    // MARK: - Dependency
+    
+    @Dependency(\.dashboardClient) var manager
+    
     // MARK: - Properties
     
     var dashboardFeatureService: DashboardFeatureService
@@ -54,6 +58,7 @@ struct DashboardFeature {
                             Result { try await dashboardFeatureService.getStepsData()}))
                         await send(.updateWeightChartData(
                             Result { try await dashboardFeatureService.getWeightData() }))
+                        await manager.setupRemoteSessionHandler()
                     }
                     
                 case let .updateStepChartData(.success(data)):
