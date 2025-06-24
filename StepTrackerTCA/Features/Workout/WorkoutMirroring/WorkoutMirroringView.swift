@@ -25,9 +25,11 @@ struct WorkoutMirroringView: View {
             }
         }
         .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
             send(.viewDidAppear)
         }
         .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false 
             send(.viewWillDisappear)
         }
     }
