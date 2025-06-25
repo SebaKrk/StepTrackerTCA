@@ -407,3 +407,5 @@
     A: CountDown functionality
     B: Clean up Dependency
     C: Mirroring workout view
+    - WorkoutMirroringFeature nad view
+    - HeartRateZoneInfoFeature and view

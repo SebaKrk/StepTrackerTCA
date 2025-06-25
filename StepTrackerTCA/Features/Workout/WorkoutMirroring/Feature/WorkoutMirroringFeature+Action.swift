@@ -9,42 +9,52 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 
-/// Implementation of `WorkoutMirroringFeature` action
+
 extension WorkoutMirroringFeature {
     
+    /// Defines all possible actions that can be performed or received by the `WorkoutMirroringFeature`.
     @CasePathable
     enum Action: ViewAction, BindableAction {
         
         // MARK: - Binding Action
         
-        /// Handles changes in bindings for the state.
+        /// Action triggered when any of the bindable state properties change.
         case binding(BindingAction<State>)
         
-        // MARK: - Actions
+        // MARK: - Core Actions
         
-        ///
+        /// Action containing updated workout metrics data.
         case workoutMetrics(WorkoutMetrics)
         
-        ///
+        /// Action to check the current state of the workout session.
         case checkSessionState
         
-        ///
+        /// Action to initiate the mirroring of the workout data.
         case startMirroringWorkout
         
-        // MARK: - View actions
+        // MARK: - View Lifecycle Actions
         
-        /// Used for view actions.
+        /// Actions related to SwiftUI view lifecycle and user interactions.
         case view(View)
         
+        /// Subset of view-related actions.
         enum View {
             
-            /// The action responsible for completing tasks as soon as the view is displayed.
+            /// Triggered when the view has appeared and is ready for initial setup.
             case viewDidAppear
             
-            /// The action when view will disappear to clean up resources
+            /// Triggered when the view is about to disappear, typically used for cleanup.
             case viewWillDisappear
             
+            /// Triggered when the user taps the heart rate zone button.
+            case heartRateZoneButtonTapped
+            
         }
+        
+        // MARK: - Navigation and Presentation
+        
+        /// Action to handle navigation destinations within this feature.
+        case destination(PresentationAction<Destination.Action>)
     }
     
 }

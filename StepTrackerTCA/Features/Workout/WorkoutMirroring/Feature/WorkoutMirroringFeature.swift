@@ -83,9 +83,17 @@ struct WorkoutMirroringFeature {
                     
                 case .view(.viewWillDisappear):
                     return .cancel(id: CancelID.workoutMetricsStream)
+                    
+                case .view(.heartRateZoneButtonTapped):
+                    state.destination = .openHeartRateZoneInfo(HeartRateZoneInfoFeature.State())
+                    return .none
+                    
+                case .destination(_):
+                    return .none
                 }
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
     private enum CancelID {

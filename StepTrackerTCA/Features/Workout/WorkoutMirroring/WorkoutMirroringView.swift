@@ -24,6 +24,9 @@ struct WorkoutMirroringView: View {
                 noActiveWorkoutView
             }
         }
+        .toolbar {
+            toolbarButton
+        }
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
             send(.viewDidAppear)
@@ -32,7 +35,24 @@ struct WorkoutMirroringView: View {
             UIApplication.shared.isIdleTimerDisabled = false 
             send(.viewWillDisappear)
         }
+        .sheet(item: $store.scope(state: \.destination?.openHeartRateZoneInfo,
+                                  action: \.destination.openHeartRateZoneInfo)) { store in
+            HeartRateZoneInfoView(store: store)
+                .presentationDetents([.medium, .large])
+        }
     }
+    
+    @ToolbarContentBuilder
+    private var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.heartRateZoneButtonTapped)
+            } label: {
+                Image(systemName: "heart.text.clipboard")
+            }
+        }
+    }
+    
     private var noActiveWorkoutView: some View {
         Text("Waiting for Watch workout...")
     }
@@ -75,11 +95,12 @@ struct WorkoutMirroringView: View {
         VStack(spacing: 5) {
             Text("\(store.currentHeartRatePercentage)%")
                 .font(.system(size: 60))
-                .foregroundColor(store.currentHeartRateZone.color)
-            
+//                .id(store.currentHeartRatePercentage)
+//                .transition(.push(from: .bottom))
+                .animation(.snappy(duration: 0.3), value: store.currentHeartRatePercentage)
         }
     }
-    
+        
     private var activeEnergyBurnedView: some View {
         HStack {
             Image(systemName: "flame.fill")
@@ -121,15 +142,11 @@ struct WorkoutMirroringView: View {
                 heartRate: 145,
                 activeEnergy: 200
             ),
-            sessionState: true
+            sessionState: true,
+            currentHeartRateZone: .anaerobic,
+            currentHeartRatePercentage: 99,
         ), reducer: {
             WorkoutMirroringFeature()
         }))
     }
 }
-
-
-//            ZStack {
-//                store.currentHeartRateZone.color
-//                    .opacity(0.3)
-//                    .ignoresSafeArea()

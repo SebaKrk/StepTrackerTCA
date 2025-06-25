@@ -23,11 +23,17 @@ extension WorkoutMirroringFeature {
         
         var sessionState: Bool = false
         
-        var currentHeartRateZone: HeartRateZone = .recovery
+        var currentHeartRateZone: HeartRateZone = .resting
+        
         var currentHeartRatePercentage: Int = 0
         
-        var userAge: Int = 37  
+        var userAge: Int = 37
+        
         var userGender: Gender? = .male
         
+        // MARK: - Destination
+        
+        /// destination from ActivityFeature
+        @Presents var destination: Destination.State?
     }
 }
