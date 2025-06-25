@@ -44,6 +44,11 @@ extension TrainingSessionTabFeature {
         
         /// State for displaying and managing real-time workout metrics.
         var metric = TrainingMetricFeature.State()
+        
+        // MARK: - Destination
+        
+        /// destination from MovementDetailsFeature
+        @Presents var destination: Destination.State?
     }
     
 }

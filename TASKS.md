@@ -403,4 +403,9 @@
     D: Starts mirroring the workout session to the companion iOS device.
     E: Rename iOS project name 
     - iOS - MyFitnessJournal
-    - Prepare session
+### IOS-00042 Prepare session
+    A: CountDown functionality
+    B: Clean up Dependency
+    C: Mirroring workout view
+    - WorkoutMirroringFeature nad view
+    - HeartRateZoneInfoFeature and view

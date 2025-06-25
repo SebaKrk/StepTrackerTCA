@@ -35,6 +35,8 @@ public protocol TrainingManager: Sendable {
     
     // MARK: - Session Lifecycle
     
+    var sessionState: HKWorkoutSessionState { get }
+    
     /// Pauses or resumes the workout session depending on its current state.
     func togglePause()
     
@@ -72,4 +74,6 @@ public protocol TrainingManager: Sendable {
     func setupRemoteSessionHandler()
     #endif
     
+    
+    func startWorkout() async 
 }

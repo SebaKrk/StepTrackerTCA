@@ -10,17 +10,23 @@ import HealthKit
  
 public final class DefaultAuthorizationManager: AuthorizationManager {
  
+    // MARK: - Properties
+    
+    public let healthStore: HKHealthStore
+
     // MARK: - HealthKit Configuration
     
-    let healthStore: HKHealthStore
-    
     let shareTypes: Set<HKSampleType> = [
+        HKQuantityType(.stepCount),
+        HKQuantityType(.bodyMass),
         HKQuantityType.workoutType(),
         HKQuantityType(.heartRate),
         HKQuantityType(.activeEnergyBurned)
     ]
-    
+
     let readTypes: Set<HKObjectType> = [
+        HKQuantityType(.stepCount),
+        HKQuantityType(.bodyMass),
         HKQuantityType(.heartRate),
         HKQuantityType(.activeEnergyBurned),
         HKQuantityType(.workoutEffortScore),
@@ -28,18 +34,21 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
         HKObjectType.workoutType()
     ]
     
+    // MARK: - Lifecycle
+    
     public init(healthStore: HKHealthStore) {
         self.healthStore = healthStore
     }
     
     // MARK: - Authorization
-    public func requestAuthorization() {
-        healthStore.requestAuthorization(toShare: shareTypes, read: readTypes) { (success, error) in
-            if let error = error {
-                print(error.localizedDescription)
-            } else {
-                print("Authorization: \(success)")
-            }
+
+    /// Requests authorization from HealthKit to read and/or write the required data types.
+    public func requestAuthorization() async -> Result<Bool, Error> {
+        do {
+            try await healthStore.requestAuthorization(toShare: shareTypes, read: readTypes)
+            return .success(true)
+        } catch {
+            return .failure(error)
         }
     }
     

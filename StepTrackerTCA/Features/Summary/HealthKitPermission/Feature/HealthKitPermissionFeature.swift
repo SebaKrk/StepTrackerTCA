@@ -14,8 +14,8 @@ struct HealthKitPermissionFeature {
     
     // MARK: - Dependency
     
-    @Injected(\.healthKitManager) private var healthKitManager
-    
+    //@Injected(\.healthKitManager) private var healthKitManager
+    @Dependency(\.authorizationManager) var authorizationManager
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -36,7 +36,8 @@ struct HealthKitPermissionFeature {
             case .view(.appleHealthButtonPressed):
                 state.isShowingHealthKitPermissions = true
                 return .run { send in
-                    let result = await self.healthKitManager.requestAuthorization()
+                    //authorizationManager.requestAuthorization()
+                    let result = await self.authorizationManager.requestAuthorization()
                     switch result {
                     case .success:
                         await send(.healthKitAuthorizationSuccess)

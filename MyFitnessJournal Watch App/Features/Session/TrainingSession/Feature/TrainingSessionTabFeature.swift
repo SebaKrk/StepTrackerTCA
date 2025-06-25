@@ -44,6 +44,11 @@ struct TrainingSessionTabFeature {
                     .cancel(id: CancelId.cancelMetrics)
                 )
                 
+            case .prepareWorkout:
+                return .run { send in
+                    await send(.showCountDown)
+                }
+                
             case .workoutStart:
                 return .merge(
                     .run { send in
@@ -63,6 +68,7 @@ struct TrainingSessionTabFeature {
                 if let workout = state.selectedWorkout {
                     return .run { send in
                         await send(.setWorkoutActivityType(workout))
+                        await send(.prepareWorkout)
                     }
                 }
                 return .none
@@ -89,8 +95,16 @@ struct TrainingSessionTabFeature {
                 
             case .metric(_):
                 return .none
+            
+            case .showCountDown:
+                state.destination = .countDown(CountDownFeature.State(selectedWorkout: .americanFootball))
+                return .none
+                
+            case .destination(_):
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
         Scope(state: \.controls, action: \.controls) {
             TrainingControlsFeature()
         }

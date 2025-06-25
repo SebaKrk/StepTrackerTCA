@@ -9,12 +9,14 @@ import HealthKit
 import SharedModels
 
 public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked Sendable {
-    
+
     // MARK: - HealthKit Configuration
     let healthStore: HKHealthStore
     
     // MARK: - Workout Session State
     var session: HKWorkoutSession?
+    
+    public var sessionState: HKWorkoutSessionState = .notStarted
     
 #if os(watchOS)
     public var builder: HKLiveWorkoutBuilder?
@@ -26,8 +28,9 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     var selectedWorkout: HKWorkoutActivityType? {
         didSet {
             guard let selectedWorkout = selectedWorkout else { return }
+            
             Task {
-                await startWorkout(workoutType: selectedWorkout)
+               try await prepareWorkout(workoutType: selectedWorkout)
             }
         }
     }
@@ -59,9 +62,9 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     public init(healthStore: HKHealthStore) {
         self.healthStore = healthStore
         super.init()    
-#if os(iOS)
-        setupRemoteSessionHandler()
-#endif
+//#if os(iOS)
+//        setupRemoteSessionHandler()
+//#endif
     }
     
     // MARK: - TrainingManager Protocol Implementation
@@ -96,30 +99,37 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     }
     
     // MARK: - Workout Management
-    
+    func prepareWorkout(workoutType: HKWorkoutActivityType) async throws {
 #if os(watchOS)
-    internal func startWorkout(workoutType: HKWorkoutActivityType) async {
         print("⌚ watchOS: Starting workout: \(workoutType)")
         
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .outdoor
         
-        do {
-            session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
-            builder = session?.associatedWorkoutBuilder()
-        } catch {
-            print("❌ watchOS: Error creating workout session: \(error)")
-            return
-        }
-        
+        sessionState = .prepared
+
+        session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
+        builder = session?.associatedWorkoutBuilder()
         session?.delegate = self
         builder?.delegate = self
-        builder?.dataSource = HKLiveWorkoutDataSource(
-            healthStore: healthStore,
-            workoutConfiguration: configuration
-        )
-        
+        builder?.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore,
+                                                      workoutConfiguration: configuration)
+
+        session?.prepare()
+#else
+        print("❌ iOS: Unable to start")
+#endif
+    }
+    
+    
+    
+    public func startWorkout() async {
+        guard session != nil else {
+            print("❌ No workout session prepared")
+            return
+        }
+#if os(watchOS)
         do {
             print("⌚ watchOS: Starting mirroring to companion device")
             try await session?.startMirroringToCompanionDevice()
@@ -134,6 +144,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         
         let start = Date()
         session?.startActivity(with: start)
+        sessionState = .running
         
         await withCheckedContinuation { continuation in
             builder?.beginCollection(withStart: start) { (success, error) in
@@ -145,9 +156,9 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
                 continuation.resume()
             }
         }
-    }
-    
 #endif
+    }
+
 
     internal func sendData(_ data: Data) async {
         print("🔄 sendData called with \(data.count) bytes")
@@ -195,7 +206,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     
     // MARK: - Helpers
     
-    internal func resetWorkout() {
+    func resetWorkout() {
         print("🔄 Resetting workout state")
         selectedWorkout = nil
 #if os(watchOS)
@@ -209,5 +220,34 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
             activeEnergy: 0
         )
         workoutSessionIsRunning = false
+        sessionState = .notStarted
     }
 }
+
+
+//    internal func startWorkout(workoutType: HKWorkoutActivityType) async {
+//    public func startWorkout() async {
+        
+//        print("⌚ watchOS: Starting workout: \(workoutType)")
+//
+//        let configuration = HKWorkoutConfiguration()
+//        configuration.activityType = workoutType
+//        configuration.locationType = .outdoor
+        
+//        do {
+//            session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
+//            builder = session?.associatedWorkoutBuilder()
+//        } catch {
+//            print("❌ watchOS: Error creating workout session: \(error)")
+//            return
+//        }
+//
+//        session?.delegate = self
+//        builder?.delegate = self
+//        builder?.dataSource = HKLiveWorkoutDataSource(
+//            healthStore: healthStore,
+//            workoutConfiguration: configuration
+//        )
+        
+
+

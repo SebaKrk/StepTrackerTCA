@@ -29,7 +29,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "934A03A32DD8A5490089D27C"
+               BlueprintIdentifier = "93CE75342D1699CA006D5A4A"
                BuildableName = "MyFitnessJournal.app"
                BlueprintName = "MyFitnessJournal"
                ReferencedContainer = "container:MyFitnessJournal.xcodeproj">

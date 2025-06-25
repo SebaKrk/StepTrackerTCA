@@ -43,7 +43,6 @@ struct MainViewAW: View {
         .onAppear {
             send(.viewDidAppear)
         }
-        
     }
     
 }

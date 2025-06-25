@@ -8,14 +8,19 @@
 //  within the TCA Dependency System.
 //
 
+
 import ComposableArchitecture
 import HealthKit
 
 /// A TCA dependency key for accessing the live implementation of the training manager.
-private enum TrainingManagerKey: DependencyKey {
-    static let liveValue: TrainingManager = {
+public enum TrainingManagerKey: DependencyKey {
+    public static let liveValue: TrainingManager = {
+        print("Dependency - 🚀 TrainingManagerKey: Starting creation at \(Date())")
         @Dependency(\.healthStore) var healthStore
-        return DefaultTrainingManager(healthStore: healthStore)
+        print("Dependency - 📦 TrainingManagerKey: HealthStore dependency resolved")
+        let manager = DefaultTrainingManager(healthStore: healthStore)
+        print("Dependency - ✅ TrainingManagerKey: TrainingManager created successfully")
+        return manager
     }()
 }
 
@@ -27,10 +32,14 @@ public extension DependencyValues {
 }
 
 /// A TCA dependency key for managing HealthKit authorization logic.
-private enum AuthorizationManagerKey: DependencyKey {
-    static let liveValue: AuthorizationManager = {
+public enum AuthorizationManagerKey: DependencyKey {
+    public static let liveValue: AuthorizationManager = {
+        print("Dependency - 🔐 AuthorizationManagerKey: Starting creation at \(Date())")
         @Dependency(\.healthStore) var healthStore
-        return DefaultAuthorizationManager(healthStore: healthStore)
+        print("Dependency - 📦 AuthorizationManagerKey: HealthStore dependency resolved")
+        let manager = DefaultAuthorizationManager(healthStore: healthStore)
+        print("Dependency - ✅ AuthorizationManagerKey: AuthorizationManager created successfully")
+        return manager
     }()
 }
 
@@ -41,11 +50,15 @@ public extension DependencyValues {
     }
 }
 
-/// A TCA dependency key for managing  Activity Ring.
-private enum ActivityRingManagerKey: DependencyKey {
-    static let liveValue:  ActivityRingManager = {
+/// A TCA dependency key for managing Activity Ring.
+public enum ActivityRingManagerKey: DependencyKey {
+    public static let liveValue: ActivityRingManager = {
+        print("Dependency - 💍 ActivityRingManagerKey: Starting creation at \(Date())")
         @Dependency(\.healthStore) var healthStore
-        return DefaultActivityRingManager(healthStore: healthStore)
+        print("Dependency - 📦 ActivityRingManagerKey: HealthStore dependency resolved")
+        let manager = DefaultActivityRingManager(healthStore: healthStore)
+        print("Dependency - ✅ ActivityRingManagerKey: ActivityRingManager created successfully")
+        return manager
     }()
 }
 
@@ -57,8 +70,13 @@ public extension DependencyValues {
 }
 
 /// A TCA dependency key for accessing a shared instance of HKHealthStore.
-private enum HealthStoreKey: DependencyKey {
-    static let liveValue: HKHealthStore = HKHealthStore()
+public enum HealthStoreKey: DependencyKey {
+    public static let liveValue: HKHealthStore = {
+        print("Dependency - 🏥 HealthStoreKey: Creating HKHealthStore at \(Date())")
+        let healthStore = HKHealthStore()
+        print("Dependency - ✅ HealthStoreKey: HKHealthStore created successfully")
+        return healthStore
+    }()
 }
 
 public extension DependencyValues {
