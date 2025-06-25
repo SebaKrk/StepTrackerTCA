@@ -10,7 +10,7 @@ import Foundation
 import SharedModels
 
 struct AuthorizationClientAW {
-    var requestAuthorization: @Sendable () -> Void
+    var requestAuthorization: @Sendable () async -> Void
 }
 
 extension DependencyValues {
@@ -26,7 +26,7 @@ private enum AuthorizationKeyAW: DependencyKey {
         @Dependency(\.authorizationManager) var manager
         
         return AuthorizationClientAW {
-            manager.requestAuthorization()
+           await manager.requestAuthorization()
         }
     }()
 }

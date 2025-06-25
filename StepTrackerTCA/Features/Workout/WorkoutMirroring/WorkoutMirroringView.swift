@@ -8,57 +8,145 @@
 import ComposableArchitecture
 import SwiftUI
 import HealthHub
+import SharedModels
+import Commons
 
 @ViewAction(for: WorkoutMirroringFeature.self)
 struct WorkoutMirroringView: View {
-    
-    
-    @Dependency(\.authorizationManager) var authorizationManager
-    @Dependency(\.trainingManager) var trainingManager
-    
-    // MARK: - Properties
-    
     @Bindable var store: StoreOf<WorkoutMirroringFeature>
     
-    // MARK: - View
-    
     var body: some View {
-        VStack {
-            Text("Waiting for Watch workout...")
-            
-            Text(store.workoutMetrics.heartRate.formatted(.number.precision(.fractionLength(0))))
-                .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
+        Group {
+            if store.sessionState {
+                activeWorkoutView
+                    .animation(.easeInOut(duration: 0.5), value: store.currentHeartRateZone)
+            } else {
+                noActiveWorkoutView
+            }
         }
-        .task {
-            let result = await authorizationManager.requestAuthorization()
-            print("📱 iOS: HealthKit authorization result: \(result)")
-            
-            trainingManager.setupRemoteSessionHandler()
-            print("📱 iOS: Remote session handler setup")
-            
+        .toolbar {
+            toolbarButton
+        }
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
             send(.viewDidAppear)
         }
         .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false 
             send(.viewWillDisappear)
         }
+        .sheet(item: $store.scope(state: \.destination?.openHeartRateZoneInfo,
+                                  action: \.destination.openHeartRateZoneInfo)) { store in
+            HeartRateZoneInfoView(store: store)
+                .presentationDetents([.medium, .large])
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.heartRateZoneButtonTapped)
+            } label: {
+                Image(systemName: "heart.text.clipboard")
+            }
+        }
+    }
+    
+    private var noActiveWorkoutView: some View {
+        Text("Waiting for Watch workout...")
+    }
+    
+    private var activeWorkoutView: some View {
+        GroupBox {
+            VStack {
+                heartRateView
+                Spacer().frame(height: 25)
+                currentHeartRatePercentageView
+                Spacer().frame(height: 25)
+                activeEnergyBurnedView
+            }
+            Spacer().frame(height: 25)
+            currentHeartRateZoneView
+        }
+        .padding()
+    }
+    
+    private var heartRateView: some View {
+        HStack {
+            Group {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.red)
+                
+                Text(store.workoutMetrics.heartRate.formatted(.number.precision(.fractionLength(0))))
+                Text("BPM")
+            }
+            .font(.system(.title3, design: .rounded).monospacedDigit())
+            .foregroundColor(.primary)
+            Spacer()
+            
+            Text(store.currentHeartRateZone.rawValue)
+                .font(.title3.weight(.semibold))
+                .foregroundColor(store.currentHeartRateZone.color)
+        }
+    }
+    
+    private var currentHeartRatePercentageView: some View {
+        VStack(spacing: 5) {
+            Text("\(store.currentHeartRatePercentage)%")
+                .font(.system(size: 60))
+//                .id(store.currentHeartRatePercentage)
+//                .transition(.push(from: .bottom))
+                .animation(.snappy(duration: 0.3), value: store.currentHeartRatePercentage)
+        }
+    }
+        
+    private var activeEnergyBurnedView: some View {
+        HStack {
+            Image(systemName: "flame.fill")
+                .foregroundColor(.pink)
+                .font(.system(.title2, design: .rounded))
+            Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
+                .font(.system(.title3, design: .rounded).monospacedDigit())
+                .foregroundColor(.primary)
+            Text("Active\nEnergy")
+                .font(.system(.caption, design: .rounded).smallCaps())
+        }
+    }
+    
+    private var currentHeartRateZoneView: some View {
+        HStack {
+            Spacer()
+            Text(store.currentHeartRateZone.description)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+    
+}
+
+#Preview("N/S") {
+    NavigationStack {
+        WorkoutMirroringView(store: Store(initialState: WorkoutMirroringFeature.State(), reducer: {
+            WorkoutMirroringFeature()
+        }))
     }
 }
 
-//        .task {
-//            await setupHealthKit()
-
-// Listen to heart rate
-//            for await metrics in trainingManager.workoutMetricsStream {
-//                heartRate = metrics.heartRate
-//                print("📱 iOS: Got HR: \(heartRate)")
-//            }
-//        }
-
-//    private func setupHealthKit() async {
-//        let result = await authorizationManager.requestAuthorization()
-//        print("📱 iOS: HealthKit authorization result: \(result)")
-//
-//        trainingManager.setupRemoteSessionHandler()
-//        print("📱 iOS: Remote session handler setup")
-//    }
-
+#Preview("Start") {
+    NavigationStack {
+        WorkoutMirroringView(store: Store(initialState: WorkoutMirroringFeature.State(
+            workoutMetrics: WorkoutMetrics(
+                averageHeartRate: 120,
+                heartRate: 145,
+                activeEnergy: 200
+            ),
+            sessionState: true,
+            currentHeartRateZone: .anaerobic,
+            currentHeartRatePercentage: 99,
+        ), reducer: {
+            WorkoutMirroringFeature()
+        }))
+    }
+}

@@ -16,6 +16,8 @@ struct MainFeatureAW {
     
     @Dependency(\.authorizationClientAW) var client
     
+    var zmienna: String = ""
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -30,8 +32,10 @@ struct MainFeatureAW {
 
                     // MARK: - View Action
                 case .view(.viewDidAppear):
-                    client.requestAuthorization()
-                    return .none
+                    return .run { send in
+                        await client.requestAuthorization()
+                    }
+        
                     
                 case let .view(.selectedWorkoutOption(workout)):
                     return .send(.show(workout))
