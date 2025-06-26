@@ -68,6 +68,15 @@ struct WorkoutFeature {
                     state.destination = .openImageAnalysis(ImageAnalysisFeature.State(selectedImage: image))
                     return .none
                     
+                case .view(.openCameraView):
+                    state.showCamera = true
+                    return .none
+                    
+                case let .view(.imageDataReceived(data)):
+                    state.showCamera = false
+                    state.imageData = data
+                    return .none
+                
                 case .view(.showWorkoutPlaner):
                     state.destination = .openWorkoutPlaner(WorkoutPlanerFeature.State())
                     return .none

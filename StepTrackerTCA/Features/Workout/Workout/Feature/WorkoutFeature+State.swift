@@ -15,6 +15,13 @@ extension WorkoutFeature {
     @ObservableState
     struct State {
         
+        
+        ///
+        var showCamera: Bool = false
+        
+        ///
+        var imageData: Data? = nil
+        
         ///
         var photoSelection: PhotoSourceOption = .photo
         
