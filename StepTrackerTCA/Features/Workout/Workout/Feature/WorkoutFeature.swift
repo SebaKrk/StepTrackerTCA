@@ -74,7 +74,18 @@ struct WorkoutFeature {
                     
                 case let .view(.imageDataReceived(data)):
                     state.showCamera = false
-                    state.imageData = data
+                    
+                    guard let imageData = data else {
+                        return .none
+                    }
+                    
+                    state.imageData = imageData
+                    
+                    if let uiImage = UIImage(data: imageData) {
+                        state.destination = .openImageAnalysis(
+                            ImageAnalysisFeature.State(selectedImage: uiImage)
+                        )
+                    }
                     return .none
                 
                 case .view(.showWorkoutPlaner):
