@@ -16,6 +16,8 @@ struct WorkoutView: View {
     
     @Bindable var store: StoreOf<WorkoutFeature>
     
+    @State private var camera = Camera()
+    
     // MARK: - View
     
     var body: some View {
@@ -34,6 +36,17 @@ struct WorkoutView: View {
                           selection: $store.selectedItem)
             .onChange(of: store.selectedItem) { _, newItem in
                 send(.selectedPhotoChanged(newItem))
+            }
+            .sheet(isPresented: $store.showCamera) {
+                CameraView(camera: camera, imageData: $store.imageData)
+                    .task {
+                        await camera.start()
+                    }
+                    .onChange(of: store.imageData) { _, newData in
+                        if let data = newData {
+                            send(.imageDataReceived(data))
+                        }
+                    }
             }
             .sheet(item: $store.scope(state: \.destination?.openWorkoutPlaner,
                                       action: \.destination.openWorkoutPlaner),
@@ -65,7 +78,7 @@ struct WorkoutView: View {
             case .library:
                 send(.showPhotoPicker(!store.isPickerPresented))
             case .photo:
-                print("chose photo")
+                send(.openCameraView)
             }
         }
         .padding()

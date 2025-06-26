@@ -24,7 +24,6 @@ struct ImageAnalysisView: View {
             Spacer()
             actionButton
         }
-        
     }
     
     // MARK: - SubView
@@ -33,7 +32,6 @@ struct ImageAnalysisView: View {
         Image(uiImage: store.selectedImage )
             .resizable()
             .scaledToFit()
-            .frame(height: 200)
             .padding()
     }
     

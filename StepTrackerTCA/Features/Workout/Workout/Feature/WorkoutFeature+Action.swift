@@ -45,6 +45,12 @@ extension WorkoutFeature {
             case showPhotoPicker(Bool)
             
             ///
+            case openCameraView
+            
+            ///
+            case imageDataReceived(Data?)
+            
+            ///
             case selectedPhotoChanged(PhotosPickerItem?)
             
             ///
