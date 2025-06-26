@@ -414,3 +414,4 @@
 ### IOS-00043 Vision framework
     A: Implement camera 
     - testing 
+    B: Text Detection with Apple’s Vision Framework
