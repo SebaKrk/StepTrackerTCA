@@ -1,13 +1,13 @@
 //
 //  ImageAnalysisFeature.swift
-//  StepTrackerTCA
+//  MyFitnessJournal
 //
-//  Created by Sebastian Sciuba on 13/05/2025.
+//  Created by Sebastian Sciuba on 27/06/2025.
 //
 
 import ComposableArchitecture
 import Foundation
-//@preconcurrency import Vision
+import Vision
 
 @Reducer
 struct ImageAnalysisFeature {
@@ -16,7 +16,7 @@ struct ImageAnalysisFeature {
     
     let services: ImageAnalysisService
 
-    // MARK: - Livecycle
+    // MARK: - Lifecycle
     
     init(service: ImageAnalysisService = DefaultImageAnalysisService()) {
         self.services = service
@@ -42,16 +42,50 @@ struct ImageAnalysisFeature {
                     
                     return .run { [image = state.selectedImage] send in
                         do {
-                            let text = try await services.performOCR(on: image)
-                            await send(.view(.ocrCompleted(text)))
+                            let observations = try await services.performOCR(on: image)
+                            await send(.view(.ocrCompleted(observations)))
                         } catch {
                             await send(.view(.ocrFailed(error.localizedDescription)))
                         }
                     }
                     
-                case let .view(.ocrCompleted(text)):
+                case let .view(.ocrCompleted(observations)):
                     state.isProcessingOCR = false
-                    state.recognizedText = text
+                    state.textObservations = observations
+                    
+                    // Inicjalizuj editable texts z OCR wyników
+                    state.editableTexts = observations.compactMap { observation in
+                        observation.topCandidates(1).first?.string ?? ""
+                    }
+                    
+                    // Konwertuj na String dla WorkoutGenerator
+                    state.recognizedText = state.editableTexts.joined(separator: "\n")
+                    return .none
+                    
+                case let .view(.updateText(index, newText)):
+                    // Aktualizuj tekst na konkretnym indeksie
+                    if index < state.editableTexts.count {
+                        state.editableTexts[index] = newText
+                        
+                        // Zaktualizuj recognizedText dla WorkoutGenerator
+                        state.recognizedText = state.editableTexts.joined(separator: "\n")
+                    }
+                    return .none
+                    
+                case let .view(.startEditing(index)):
+                    state.editingIndex = index
+                    return .none
+                    
+                case .view(.stopEditing):
+                    state.editingIndex = nil
+                    return .none
+                    
+                case .view(.showImagePreview):
+                    state.showImagePreview = true
+                    return .none
+                    
+                case .view(.hideImagePreview):
+                    state.showImagePreview = false
                     return .none
                     
                 case let .view(.ocrFailed(error)):
@@ -70,5 +104,4 @@ struct ImageAnalysisFeature {
         }
         .ifLet(\.$destination, action: \.destination)
     }
-    
 }

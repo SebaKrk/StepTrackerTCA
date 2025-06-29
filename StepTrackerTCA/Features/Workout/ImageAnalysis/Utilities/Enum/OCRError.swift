@@ -7,19 +7,19 @@
 
 import Foundation
 
-enum OCRError: Error, LocalizedError {
+enum OCRError: Error {
     case invalidImage
-    case noRectanglesFound
-    case noWhiteboardDetected
+    case processingFailed
+    case noTextFound
     
-    var errorDescription: String? {
+    var localizedDescription: String {
         switch self {
         case .invalidImage:
-            return "Invalid image format"
-        case .noRectanglesFound:
-            return "No rectangles found in image"
-        case .noWhiteboardDetected:
-            return "No whiteboard detected in image"
+            return "Nieprawidłowy obraz"
+        case .processingFailed:
+            return "Błąd przetwarzania OCR"
+        case .noTextFound:
+            return "Nie znaleziono tekstu w obrazie"
         }
     }
 }

@@ -6,7 +6,10 @@
 //
 
 import UIKit
+import Vision
 
 protocol ImageAnalysisService {
-    func performOCR(on image: UIImage) async throws -> String
+//    func performOCR(on image: UIImage) async throws -> String
+    func performOCR(on image: UIImage) async throws -> [RecognizedTextObservation]
 }
+
