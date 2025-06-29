@@ -415,3 +415,4 @@
     A: Implement camera 
     - testing 
     B: Text Detection with Apple’s Vision Framework
+    C: implement FoundationModels
