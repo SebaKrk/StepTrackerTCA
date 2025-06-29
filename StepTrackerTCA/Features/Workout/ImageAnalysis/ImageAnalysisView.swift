@@ -1,13 +1,14 @@
 //
 //  ImageAnalysisView.swift
-//  StepTrackerTCA
+//  MyFitnessJournal
 //
-//  Created by Sebastian Sciuba on 13/05/2025.
+//  Created by Sebastian Sciuba on 27/06/2025.
 //
 
 import ComposableArchitecture
 import SwiftUI
 import PhotosUI
+import Vision
 
 @ViewAction(for: ImageAnalysisFeature.self)
 struct ImageAnalysisView: View {
@@ -16,7 +17,7 @@ struct ImageAnalysisView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            image
+            imageWithBoundingBoxes
             
             Button("Analyze Text") {
                 send(.performOCR)
@@ -28,15 +29,9 @@ struct ImageAnalysisView: View {
                 ProgressView("Processing...")
             }
             
-            if !store.recognizedText.isEmpty {
-                ScrollView {
-                    Text(store.recognizedText)
-                        .textSelection(.enabled)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .frame(maxHeight: 200)
+            // Pokazuj listę rozpoznanego tekstu z numerami odpowiadającymi ramkom
+            if !store.textObservations.isEmpty {
+                recognizedTextList
             }
             
             // Error
@@ -56,15 +51,142 @@ struct ImageAnalysisView: View {
                 action: \.destination.open)) { store in
                     WorkoutGeneratorView(store: store)
                 }
+        .sheet(isPresented: $store.showImagePreview) {
+            ImagePreviewSheet(
+                image: store.selectedImage,
+                observations: store.textObservations,
+                onDismiss: { send(.hideImagePreview) }
+            )
+        }
     }
     
-    private var image: some View {
-        Image(uiImage: store.selectedImage)
-            .resizable()
-            .scaledToFit()
-            .padding()
+    // MARK: - Image with Bounding Boxes
+    private var imageWithBoundingBoxes: some View {
+        Button {
+            send(.showImagePreview)
+        } label: {
+            Image(uiImage: store.selectedImage)
+                .resizable()
+                .scaledToFit()
+                .overlay {
+                    // 🔴 CZERWONE RAMKI WOKÓŁ ROZPOZNANEGO TEKSTU
+                    ForEach(Array(store.textObservations.enumerated()), id: \.offset) { index, observation in
+                        Box(observation: observation)
+                            .stroke(.red, lineWidth: 2)
+                            .overlay(
+                                // Numerek w lewym górnym rogu ramki
+                                Text("\(index + 1)")
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                                    .padding(2)
+                                    .background(Color.red)
+                                    .clipShape(Circle())
+                                    .offset(x: -8, y: -8),
+                                alignment: .topLeading
+                            )
+                    }
+                }
+                .overlay(
+                    // Ikona powiększenia w prawym górnym rogu
+                    Image(systemName: "magnifyingglass")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(Color.black.opacity(0.6))
+                        .clipShape(Circle())
+                        .offset(x: -10, y: 10),
+                    alignment: .topTrailing
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .padding()
     }
     
+    // MARK: - Recognized Text List
+    private var recognizedTextList: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Rozpoznany tekst (\(store.textObservations.count) fragmentów):")
+                    .font(.headline)
+                    .padding(.bottom, 5)
+                
+                ForEach(Array(store.textObservations.enumerated()), id: \.offset) { index, observation in
+                    editableTextRow(index: index, observation: observation)
+                }
+            }
+            .padding(.horizontal)
+        }
+        .frame(maxHeight: 300)
+    }
+    
+    // MARK: - Editable Text Row
+    private func editableTextRow(index: Int, observation: RecognizedTextObservation) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            // Numerek odpowiadający ramce na obrazie
+            Text("\(index + 1)")
+                .font(.caption)
+                .foregroundColor(.white)
+                .padding(4)
+                .background(Color.red)
+                .clipShape(Circle())
+                .frame(minWidth: 20)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                // Edytowalny tekst lub TextField
+                if store.editingIndex == index {
+                    TextField("Edytuj tekst", text: .init(
+                        get: { store.editableTexts.indices.contains(index) ? store.editableTexts[index] : "" },
+                        set: { newValue in send(.updateText(index: index, newText: newValue)) }
+                    ))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .onSubmit {
+                        send(.stopEditing)
+                    }
+                } else {
+                    Text(store.editableTexts.indices.contains(index) ? store.editableTexts[index] : "")
+                        .textSelection(.enabled)
+                        .onTapGesture {
+                            send(.startEditing(index: index))
+                        }
+                }
+                
+                HStack {
+                    // Pokazuj confidence score
+                    if let confidence = observation.topCandidates(1).first?.confidence {
+                        Text("Pewność: \(Int(confidence * 100))%")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    // Przycisk edycji
+                    if store.editingIndex == index {
+                        Button("Gotowe") {
+                            send(.stopEditing)
+                        }
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                    } else {
+                        Button("Edytuj") {
+                            send(.startEditing(index: index))
+                        }
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(store.editingIndex == index ? Color.blue.opacity(0.1) : Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .animation(.easeInOut(duration: 0.2), value: store.editingIndex)
+    }
+    
+    // MARK: - Action Button
     private var actionButton: some View {
         LabeledButton(title: "Convert to Workout", systemImage: "brain") {
             print("Send workout to Chat and convert to Workout")
@@ -74,36 +196,3 @@ struct ImageAnalysisView: View {
         .disabled(store.recognizedText.isEmpty)
     }
 }
-
-//@ViewAction(for: ImageAnalysisFeature.self)
-//struct ImageAnalysisView: View {
-//
-//    // MARK: - Properties
-//
-//    @Bindable var store: StoreOf<ImageAnalysisFeature>
-//
-//    // MARK: - View
-//
-//    var body: some View {
-//        VStack {
-//            image
-//            Spacer()
-//            actionButton
-//        }
-//    }
-//
-//    // MARK: - SubView
-//
-//    private var image: some View {
-//        Image(uiImage: store.selectedImage )
-//            .resizable()
-//            .scaledToFit()
-//            .padding()
-//    }
-//
-//    private var actionButton: some View {
-//        LabeledButton(title: "Convert to Workout", systemImage: "brain") {
-//            print("Send workout to Chat and convert to Workout")
-//        }
-//    }
-//}

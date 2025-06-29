@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import Vision
 
 /// Implementation of `ImageAnalysisFeature` action
 extension ImageAnalysisFeature {
@@ -29,12 +30,31 @@ extension ImageAnalysisFeature {
            /// The action responsible for completing tasks as soon as the view is displayed.
            case viewDidAppear
            
+           /// Triggers OCR analysis of the selected image
            case performOCR
            
-           case ocrCompleted(String)
+           /// OCR completed successfully with text observations
+           case ocrCompleted([RecognizedTextObservation])
            
+           /// OCR failed with error message
            case ocrFailed(String)
            
+           /// Updates text at specific index
+           case updateText(index: Int, newText: String)
+           
+           /// Starts editing text at specific index
+           case startEditing(index: Int)
+           
+           /// Stops editing
+           case stopEditing
+           
+           /// Shows image preview with bounding boxes
+           case showImagePreview
+           
+           /// Hides image preview
+           case hideImagePreview
+           
+           /// Opens workout generator with recognized text
            case openWorkoutGenerator
            
        }
