@@ -15,6 +15,11 @@ struct WorkoutGeneratorView: View {
     
     @Bindable var store: StoreOf<WorkoutGeneratorFeature>
     
+    @available(iOS 26.0, *)
+    private var model: SystemLanguageModel {
+        SystemLanguageModel.default
+    }
+    
     var body: some View {
         rootView
     }
@@ -40,7 +45,38 @@ struct WorkoutGeneratorView: View {
         .padding()
     }
     
+    @available(iOS 26.0, *)
+    @ViewBuilder
     private var generatorWorkoutView: some View {
-        Text("iOS 26")
+       switch model.availability {
+       case .available:
+           VStack {
+               Text("🎯 AI Workout Generator Ready!")
+                   .font(.title2)
+                   .fontWeight(.semibold)
+               Button {
+                   
+               } label: {
+                   Text("Generate")
+               }
+           }
+           
+       case .unavailable(.appleIntelligenceNotEnabled):
+           Text("⚠️ Apple Intelligence not enabled")
+               .foregroundColor(.orange)
+           
+       case .unavailable(.modelNotReady):
+           Text("⏳ AI model loading...")
+               .foregroundColor(.blue)
+           
+       case .unavailable(.deviceNotEligible):
+           Text("❌ Device not compatible")
+               .foregroundColor(.red)
+           
+       case .unavailable(_):
+           Text("🚫 AI features unavailable")
+               .foregroundColor(.gray)
+       }
     }
+    
 }
