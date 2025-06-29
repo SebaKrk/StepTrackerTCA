@@ -48,6 +48,9 @@ extension ImageAnalysisFeature {
            /// Stops editing
            case stopEditing
            
+           /// Removes text fragment at specific index
+           case removeText(index: Int)
+           
            /// Shows image preview with bounding boxes
            case showImagePreview
            

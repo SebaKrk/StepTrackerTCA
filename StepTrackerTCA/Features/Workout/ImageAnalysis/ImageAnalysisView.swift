@@ -160,19 +160,31 @@ struct ImageAnalysisView: View {
                     
                     Spacer()
                     
-                    // Przycisk edycji
-                    if store.editingIndex == index {
-                        Button("Gotowe") {
-                            send(.stopEditing)
+                    // Kontrolki
+                    HStack(spacing: 8) {
+                        // Przycisk usuwania
+                        Button {
+                            send(.removeText(index: index))
+                        } label: {
+                            Image(systemName: "trash")
+                                .font(.caption)
+                                .foregroundColor(.red)
                         }
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                    } else {
-                        Button("Edytuj") {
-                            send(.startEditing(index: index))
+                        
+                        // Przycisk edycji
+                        if store.editingIndex == index {
+                            Button("Gotowe") {
+                                send(.stopEditing)
+                            }
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                        } else {
+                            Button("Edytuj") {
+                                send(.startEditing(index: index))
+                            }
+                            .font(.caption)
+                            .foregroundColor(.blue)
                         }
-                        .font(.caption)
-                        .foregroundColor(.blue)
                     }
                 }
             }
@@ -181,9 +193,8 @@ struct ImageAnalysisView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(store.editingIndex == index ? Color.blue.opacity(0.1) : Color(.systemGray6))
+
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .animation(.easeInOut(duration: 0.2), value: store.editingIndex)
     }
     
     // MARK: - Action Button
@@ -196,3 +207,4 @@ struct ImageAnalysisView: View {
         .disabled(store.recognizedText.isEmpty)
     }
 }
+
