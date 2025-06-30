@@ -80,6 +80,27 @@ struct ImageAnalysisFeature {
                     state.editingIndex = nil
                     return .none
                     
+                case let .view(.removeText(index)):
+                    // Usuń element z wszystkich tablic
+                    if index < state.textObservations.count {
+                        state.textObservations.remove(at: index)
+                    }
+                    if index < state.editableTexts.count {
+                        state.editableTexts.remove(at: index)
+                    }
+                    
+                    // Zaktualizuj recognizedText
+                    state.recognizedText = state.editableTexts.joined(separator: "\n")
+                    
+                    // Reset editing index jeśli był ustawiony
+                    if state.editingIndex == index {
+                        state.editingIndex = nil
+                    } else if let currentEditingIndex = state.editingIndex, currentEditingIndex > index {
+                        // Dostosuj indeks edycji jeśli usuwamy element przed nim
+                        state.editingIndex = currentEditingIndex - 1
+                    }
+                    return .none
+                    
                 case .view(.showImagePreview):
                     state.showImagePreview = true
                     return .none

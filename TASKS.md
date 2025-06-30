@@ -417,3 +417,6 @@
     B: Text Detection with Apple’s Vision Framework
     C: implement FoundationModels
     D: Testing / Sandbox with Vision
+    E: Remove
+
+ 
