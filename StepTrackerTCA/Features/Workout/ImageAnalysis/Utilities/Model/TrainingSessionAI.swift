@@ -5,51 +5,113 @@
 //  Created by Sebastian Sciuba on 30/06/2025.
 //
 
+import FoundationModels
 import Foundation
 
 // MARK: - Training Session AI (główny obiekt treningu)
+@available(iOS 26.0, *)
+@Generable
 struct TrainingSessionAI {
-    let date: Date              // Data treningu
+    @Guide(description: "Parse and extract the date from the training plan or use today's date if not specified")
+    let date: Date
+    
+    @Guide(description: "Generate intelligent warm-up description based on the exercises in workouts. Include mobility work, activation exercises, and light cardio that prepare the body for the main workout. Example: For deadlifts include hip mobility and glute activation")
     let warmUp: WarmUpAI?
+    
+    @Guide(description: "Parse all workout sections from the training plan. Look for markers like 'A)', 'B)', numbered sections, 'EMOM', 'AMRAP', etc.")
     let workouts: [WorkoutAI]
+    
+    @Guide(description: "Generate cool-down description targeting muscle groups used in workouts. Include stretching, foam rolling, and recovery activities. Example: After upper body work include shoulder and chest stretches")
     let coolDown: CoolDownAI?
 }
 
 // MARK: - Warm Up AI
+@available(iOS 26.0, *)
+@Generable
 struct WarmUpAI {
-    let description: String     // opis rozgrzewki np. "5 min bieg + dynamic stretching"
+    @Guide(description: "Generate specific warm-up based on workout exercises. Examples: 'Dynamic leg swings, hip circles, bodyweight squats for squat day' or 'Arm circles, scapular activation, ring rows for pull-up workout'")
+    let description: String
 }
 
 // MARK: - Cool Down AI
+@available(iOS 26.0, *)
+@Generable
 struct CoolDownAI {
-    let description: String     // opis końcówki np. "10 min stretching + foam rolling"
+    @Guide(description: "Generate targeted cool-down for muscles worked. Examples: 'Hip flexor stretches, foam rolling quads after squat workout' or 'Shoulder stretches, chest doorway stretch after pressing movements'")
+    let description: String
 }
 
 // MARK: - Workout Structure AI
+@available(iOS 26.0, *)
+@Generable
 struct WorkoutAI {
+    @Guide(description: "Extract workout name from markers like 'EMOM 25', 'AMRAP 12', 'A) Back Squat', 'Strength Work', 'MetCon'. Keep original formatting when possible")
     let name: String
-    let timeCap: Int?           // w minutach, opcjonalne
-    let rounds: Int?            // nil oznacza brak określonej liczby rund
+    
+    @Guide(description: "Parse time limits from text like 'TC:20', 'AMRAP 12', '15 minute cap'. Set to nil for strength work without time constraints. Convert to minutes as integer")
+    let timeCap: Int?
+    
+    @Guide(description: "Identify round structure: nil for AMRAP/EMOM/time-based, specific number for '5 rounds', '8R', '3 sets'. For progressions like '5x5' or '10-8-6' use nil and create separate exercises")
+    let rounds: Int?
+    
+    @Guide(description: "Convert all exercises in the workout. For rep progressions like '10-8-8-6-6' create separate ExerciseAI for each set. For EMOM create separate exercise for each minute")
     let exercises: [ExerciseAI]
 }
 
 // MARK: - Exercise Structure AI
+@available(iOS 26.0, *)
+@Generable
 struct ExerciseAI {
-    let type: ExerciseTypeAI    // typ ćwiczenia (enum)
-    let target: ExerciseTargetAI? // cel: reps, kalorie, metry, sekundy etc.
-    let weight: WeightAI?       // obciążenie, nil dla ćwiczeń z własnym ciężarem
-    let info: String?           // dodatkowe informacje jak "1RM - find one reps max"
+    @Guide(description: "Map exercise name to closest ExerciseTypeAI enum. Use aliases: 'DL'→deadlift, 'T2B'→toesToBar, 'C&J'→cleanAndJerk, 'HSPU'→handstandPushUps, 'KB'→kettlebell variants")
+    let type: ExerciseTypeAI
+    
+    @Guide(description: "Parse targets: numbers followed by 'reps' use reps(), 'cal/calories' use calories(), 'm/meters' use meters(), 'sec/seconds' use seconds(), 'min/minutes' use minutes()")
+    let target: ExerciseTargetAI?
+    
+    @Guide(description: "Parse weights: format like '100/65' means men:100, women:65. Single number could be universal. Examples: '80/50kg'→men:80,women:50, '20kg'→men:20,women:20, bodyweight→nil")
+    let weight: WeightAI?
+    
+    @Guide(description: "Include contextual info: '1RM test', 'EMOM minute 1', 'Set 2 @ 70%', 'Rest 90-120s', 'Box height 20 inches', scaling options, or technique notes")
+    let info: String?
 }
 
-// MARK: - Exercise Target AI (poprzednio ExerciseAmount)
+
+// MARK: - Weight Structure AI
+@available(iOS 26.0, *)
+@Generable
+struct WeightAI {
+    @Guide(description: "Weight for men in kilograms. Parse from formats like '100/65' (men:100), '80kg' (universal), or 'Rx 135/95' (men:135)")
+    let men: Int?
+    
+    @Guide(description: "Weight for women in kilograms. Parse from formats like '100/65' (women:65), '80kg' (universal), or 'Rx 135/95' (women:95)")
+    let women: Int?
+}
+
+
+// MARK: - Exercise Target AI
+@available(iOS 26.0, *)
+@Generable
 enum ExerciseTargetAI {
-    case reps(Int)          // powtórzenia
-    case calories(Int)      // kalorie
-    case meters(Int)        // metry/dystans
-    case seconds(Int)       // sekundy/czas
-    case minutes(Int)       // minuty
-    case rounds(Int)        // rundy
-    case laps(Int)          // okrążenia
+    /// Use for repetitions: '10 reps', '5 push-ups', '3 clean and jerks'
+    case reps(Int)
+    
+    /// Use for calorie targets: '15 cal row', '50 calories bike'
+    case calories(Int)
+    
+    /// Use for distance: '400m run', '1000 meter row', '100m sprint'
+    case meters(Int)
+    
+    /// Use for time duration: '30 sec plank', '45 seconds work'
+    case seconds(Int)
+    
+    /// Use for longer time durations: '2 min AMRAP', '5 minute bike'
+    case minutes(Int)
+    
+    /// Use rarely, mainly for internal round counting
+    case rounds(Int)
+    
+    /// Use for track/pool laps: '4 laps around track'
+    case laps(Int)
     
     var displayText: String {
         switch self {
@@ -71,13 +133,8 @@ enum ExerciseTargetAI {
     }
 }
 
-// MARK: - Weight Structure AI
-struct WeightAI {
-    let men: Int?               // obciążenie dla mężczyzn w kg
-    let women: Int?             // obciążenie dla kobiet w kg
-}
-
 // MARK: - Exercise Type AI
+@available(iOS 26.0, *)
 enum ExerciseTypeAI: String, CaseIterable {
     // Strength/Weightlifting (z obciążeniem)
     case deadlift
@@ -260,8 +317,9 @@ enum ExerciseCategory {
     case strength
     case weightlifting
     case crossfit
-    case kettlebell
     case cardio
+    case kettlebell
     case gymnastics
     case other
 }
+
