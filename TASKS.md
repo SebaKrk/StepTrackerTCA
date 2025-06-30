@@ -419,4 +419,7 @@
     D: Testing / Sandbox with Vision
     E: Remove
 
- 
+### IOS-00044 AI Structure 
+     A: Create AI workout parsing structures
+
+ 📷 Zdjęcie → 📝 OCR → 🤖 AI Cleanup → 🏗️ AI Structure → ✅ Plan treningowy

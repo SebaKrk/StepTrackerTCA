@@ -25,25 +25,6 @@ final class DefaultImageAnalysisService: ImageAnalysisService {
 }
 
 
-//final class DefaultImageAnalysisService: ImageAnalysisService {
-//   
-//    func performOCR(on image: UIImage) async throws -> String {
-//        guard let imageData = image.jpegData(compressionQuality: 1.0) else {
-//            throw OCRError.invalidImage
-//        }
-//        
-//        let ocr = OCR()
-//        try await ocr.performOCR(imageData: imageData)
-//        
-//        // Pobierz tekst z obserwacji
-//        let recognizedStrings = ocr.observations.compactMap { observation in
-//            observation.topCandidates(1).first?.string
-//        }
-//        
-//        return recognizedStrings.joined(separator: "\n")
-//    }
-//}
-
 // MARK: - OCR Class (z SampleTextScanner)
 @Observable
 class OCR {
