@@ -11,7 +11,8 @@ import FoundationModels
 @available(iOS 26, *)
 @MainActor
 final class WorkoutPlanGenerator {
-    private(set) var parsedWorkout: String?
+    //private(set) var parsedWorkout: String?
+    private(set) var parsedWorkout: TrainingSessionAI.PartiallyGenerated?
     private var session: LanguageModelSession
     
     var error: Error?
@@ -39,6 +40,7 @@ final class WorkoutPlanGenerator {
                 - Keep original workout structure
                 - Fix only obvious scanning errors (typos)
                 - Format for better readability
+                - For date: use format "Monday, January 15, 2025" or "2025-01-15"
                 
                 Format:
                 1. 
@@ -62,12 +64,26 @@ final class WorkoutPlanGenerator {
         )
     }
     
+//    func generateWorkoutPlan() async throws {
+//        let stream = session.streamResponse(
+//            generating: TrainingSessionAI.self,
+//            includeSchemaInPrompt: false
+//        ) {
+//            "Parse and organize this CrossFit workout text into the specified format."
+//        }
+//        
+//        for try await partialResponse in stream {
+//            parsedWorkout = partialResponse
+//        }
+//    }
+    
     func generateWorkoutPlan() async throws {
         let stream = session.streamResponse(
-            generating: String.self,
-            includeSchemaInPrompt: false
+            generating: TrainingSessionAI.self,
+            options: GenerationOptions(sampling: .greedy),
+            includeSchemaInPrompt: true
         ) {
-            "Parse and organize this CrossFit workout text into the specified format."
+            "Parse the OCR text into a structured TrainingSessionAI object."
         }
         
         for try await partialResponse in stream {

@@ -13,7 +13,7 @@ import Foundation
 @Generable
 struct TrainingSessionAI {
     @Guide(description: "Parse and extract the date from the training plan or use today's date if not specified")
-    let date: Date
+    let date: String
     
     @Guide(description: "Generate intelligent warm-up description based on the exercises in workouts. Include mobility work, activation exercises, and light cardio that prepare the body for the main workout. Example: For deadlifts include hip mobility and glute activation")
     let warmUp: WarmUpAI?
@@ -135,6 +135,7 @@ enum ExerciseTargetAI {
 
 // MARK: - Exercise Type AI
 @available(iOS 26.0, *)
+@Generable
 enum ExerciseTypeAI: String, CaseIterable {
     // Strength/Weightlifting (z obciążeniem)
     case deadlift
@@ -313,6 +314,9 @@ enum ExerciseTypeAI: String, CaseIterable {
 }
 
 // MARK: - Exercise Category
+
+@available(iOS 26.0, *)
+@Generable
 enum ExerciseCategory {
     case strength
     case weightlifting
