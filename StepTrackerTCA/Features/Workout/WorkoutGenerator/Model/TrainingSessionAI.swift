@@ -158,6 +158,7 @@ enum ExerciseTypeAI: String, CaseIterable {
     case boxJumps
     case doubleUnders
     case toesToBar
+    case sitUps
     
     // Fitness/Cardio
     case running
@@ -202,6 +203,7 @@ enum ExerciseTypeAI: String, CaseIterable {
         case .boxJumps: return "Box Jumps"
         case .doubleUnders: return "Double Unders"
         case .toesToBar: return "Toes to Bar"
+        case .sitUps: return "Sit-ups"
         case .running: return "Running"
         case .rowing: return "Rowing"
         case .cycling: return "Cycling"
@@ -256,6 +258,8 @@ enum ExerciseTypeAI: String, CaseIterable {
             return ["double unders", "double-unders", "DU"]
         case .toesToBar:
             return ["toes to bar", "toes-to-bar", "T2B"]
+        case .sitUps:
+            return ["sit up", "sit-up", "situp"]
         case .running:
             return ["running", "run", "jog"]
         case .rowing:
@@ -299,7 +303,7 @@ enum ExerciseTypeAI: String, CaseIterable {
             return .strength
         case .snatch, .cleanAndJerk, .powerClean, .powerSnatch:
             return .weightlifting
-        case .pullUps, .pushUps, .burpees, .airSquat, .boxJumps, .doubleUnders, .toesToBar:
+        case .pullUps, .pushUps, .burpees, .airSquat, .boxJumps, .doubleUnders, .toesToBar, .sitUps:
             return .crossfit
         case .running, .rowing, .cycling, .swimming:
             return .cardio

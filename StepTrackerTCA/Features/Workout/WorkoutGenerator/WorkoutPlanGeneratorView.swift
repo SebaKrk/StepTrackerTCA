@@ -408,6 +408,9 @@ struct WorkoutPlanGeneratorView: View {
                 
                 await MainActor.run {
                     generatedWorkout = workoutPlanGenerator?.parsedWorkout
+                    print("=== GENERATED WORKOUT DUMP ===")
+                    dump(generatedWorkout)
+                    print("=== END DUMP ===")
                     isGenerating = false
                     modelStatus = "Generation completed"
                 }
