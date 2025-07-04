@@ -13,7 +13,7 @@ struct WorkoutPlanGeneratorView: View {
     
     @State private var workoutPlanGenerator: WorkoutPlanGenerator?
     @State private var isGenerating = false
-    @State private var generatedWorkout: String?
+    @State private var generatedWorkout: TrainingSessionAI.PartiallyGenerated?
     @State private var errorMessage: String?
     @State private var modelStatus: String = "Initializing..."
     
@@ -113,7 +113,7 @@ struct WorkoutPlanGeneratorView: View {
         }
     }
     
-    private func successView(workout: String) -> some View {
+    private func successView(workout: TrainingSessionAI.PartiallyGenerated) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Label("Generated Workout Plan", systemImage: "checkmark.circle.fill")
@@ -130,17 +130,189 @@ struct WorkoutPlanGeneratorView: View {
             }
             
             ScrollView {
-                Text(workout)
-                    .textSelection(.enabled)
-                    .font(.system(.body, design: .monospaced))
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                VStack(alignment: .leading, spacing: 16) {
+                    workoutStructureView(workout: workout)
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .frame(maxHeight: .infinity)
         }
     }
+    
+    // MARK: - Workout Structure Views
+    
+    @ViewBuilder
+    private func workoutStructureView(workout: TrainingSessionAI.PartiallyGenerated) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            dateView(workout: workout)
+            warmUpView(workout: workout)
+            workoutsView(workout: workout)
+            coolDownView(workout: workout)
+        }
+    }
+    
+    @ViewBuilder
+    private func dateView(workout: TrainingSessionAI.PartiallyGenerated) -> some View {
+        if let date = workout.date {
+            HStack {
+                Image(systemName: "calendar")
+                    .foregroundColor(.blue)
+                Text("Date: \(date)")
+                    .font(.headline)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func warmUpView(workout: TrainingSessionAI.PartiallyGenerated) -> some View {
+        if let warmUp = workout.warmUp {
+            VStack(alignment: .leading, spacing: 4) {
+                Label("Warm Up", systemImage: "flame.fill")
+                    .font(.subheadline)
+                    .foregroundColor(.orange)
+                
+                if let description = warmUp.description {
+                    Text(description)
+                        .font(.caption)
+                        .padding(.leading)
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func workoutsView(workout: TrainingSessionAI.PartiallyGenerated) -> some View {
+        if let workouts = workout.workouts {
+            ForEach(Array(workouts.enumerated()), id: \.offset) { index, workoutItem in
+                singleWorkoutView(workoutItem: workoutItem)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func singleWorkoutView(workoutItem: WorkoutAI.PartiallyGenerated) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            workoutHeaderView(workoutItem: workoutItem)
+            exercisesView(workoutItem: workoutItem)
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    
+    @ViewBuilder
+    private func workoutHeaderView(workoutItem: WorkoutAI.PartiallyGenerated) -> some View {
+        HStack {
+            if let name = workoutItem.name {
+                Label(name, systemImage: "dumbbell.fill")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+            }
+            
+            Spacer()
+            
+            if let timeCap = workoutItem.timeCap {
+                Text("TC: \(timeCap)'")
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(Color.blue.opacity(0.2))
+                    .clipShape(Capsule())
+            }
+            
+            if let rounds = workoutItem.rounds {
+                Text("\(rounds) rounds")
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(Color.green.opacity(0.2))
+                    .clipShape(Capsule())
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func exercisesView(workoutItem: WorkoutAI.PartiallyGenerated) -> some View {
+        if let exercises = workoutItem.exercises {
+            ForEach(Array(exercises.enumerated()), id: \.offset) { exerciseIndex, exercise in
+                exerciseRowView(exercise: exercise)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func exerciseRowView(exercise: ExerciseAI.PartiallyGenerated) -> some View {
+        HStack(alignment: .top) {
+            Text("•")
+                .foregroundColor(.secondary)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    if let exerciseType = exercise.type {
+                        Text(exerciseType.displayName)
+                            .fontWeight(.medium)
+                    }
+                    
+//                    if let target = exercise.target {
+//                        Text("- \(target.displayText!)")
+//                            .foregroundColor(.secondary)
+//                    }
+                    
+                    if let weight = exercise.weight {
+                        Text("(\(formatWeight(weight)))")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                }
+                
+                if let info = exercise.info {
+                    Text(info)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .italic()
+                }
+            }
+        }
+        .padding(.leading)
+    }
+    
+    @ViewBuilder
+    private func coolDownView(workout: TrainingSessionAI.PartiallyGenerated) -> some View {
+        if let coolDown = workout.coolDown {
+            VStack(alignment: .leading, spacing: 4) {
+                Label("Cool Down", systemImage: "snowflake")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                
+                if let description = coolDown.description {
+                    Text(description)
+                        .font(.caption)
+                        .padding(.leading)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func formatWeight(_ weight: WeightAI.PartiallyGenerated) -> String {
+        switch (weight.men, weight.women) {
+        case (let m?, let w?):
+            return "\(m)/\(w) kg"
+        case (let m?, nil):
+            return "\(m) kg (M)"
+        case (nil, let w?):
+            return "\(w) kg (W)"
+        case (nil, nil):
+            return "Body weight"
+        }
+    }
+    
+    // MARK: - Error View
     
     private func errorView(error: String) -> some View {
         VStack(spacing: 16) {
@@ -168,6 +340,8 @@ struct WorkoutPlanGeneratorView: View {
             Spacer()
         }
     }
+    
+    // MARK: - Initial View
     
     private var initialView: some View {
         VStack(spacing: 24) {
@@ -220,6 +394,8 @@ struct WorkoutPlanGeneratorView: View {
         }
     }
     
+    // MARK: - Actions
+    
     private func generateWorkout() {
         isGenerating = true
         errorMessage = nil
@@ -232,6 +408,9 @@ struct WorkoutPlanGeneratorView: View {
                 
                 await MainActor.run {
                     generatedWorkout = workoutPlanGenerator?.parsedWorkout
+                    print("=== GENERATED WORKOUT DUMP ===")
+                    dump(generatedWorkout)
+                    print("=== END DUMP ===")
                     isGenerating = false
                     modelStatus = "Generation completed"
                 }
@@ -268,8 +447,9 @@ struct WorkoutPlanGeneratorView: View {
         }
     }
 }
+
 //struct WorkoutPlanGeneratorView: View {
-//    
+//
 //    @State private var workoutPlanGenerator: WorkoutPlanGenerator?
 //    @State private var modelStatus: String = "Checking..."
 //    
