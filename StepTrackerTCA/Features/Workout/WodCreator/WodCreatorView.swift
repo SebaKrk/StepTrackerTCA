@@ -1,0 +1,125 @@
+//
+//  WodCreatorView.swift
+//  MyFitnessJournal
+//
+//  Created by Sebastian Sciuba on 04/07/2025.
+//
+
+import ComposableArchitecture
+import SwiftUI
+import SharedModels
+
+@ViewAction(for: WodCreatorFeature.self)
+struct WodCreatorView: View {
+    
+    // MARK: - Properties
+    
+    @Bindable var store: StoreOf<WodCreatorFeature>
+    
+    @State var addExercise: Bool = false
+    
+    // MARK: - View
+    
+    var body: some View {
+        VStack {
+            Form {
+                Section {
+                    wodTitle
+                    Text("TimeCap")
+                    Text("Rounds")
+                }
+                Section {
+                    Button {
+                        addExercise = true
+                    } label: {
+                        HStack {
+                            Text("add exerciseType")
+                            Spacer()
+                            Image(systemName: "plus")
+                        }
+                    }
+                    if addExercise {
+                        Text("ExerciseType")
+                        Text("ExerciseTarget - reps")
+                        Text("weight")
+                        Text("Info")
+                    }
+                } header: {
+                    Text("Exercises")
+                }
+            }
+        }
+        .sheet(isPresented: $store.isWodTitleSheetPresented) {
+            wodTitleSheet
+        }
+    }
+    
+    private var wodTitle: some View {
+        Button {
+            send(.wodTitleSheetTapped)
+        } label: {
+            HStack {
+                Text("Wod title")
+                    .foregroundColor(.primary)
+                Spacer()
+                Text(store.wodTitle.isEmpty ? "Wod title" : store.wodTitle)
+                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    @ViewBuilder
+    private var wodTitleSheet: some View {
+        NavigationStack {
+             Form {
+                 TextField("Workout title", text: $store.wodTitle.sending(\.wodTitleChanged))
+                     .multilineTextAlignment(.leading)
+            }
+            .navigationTitle("Workout Title")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        send(.wodTitleSheetDismissed)
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+}
+
+
+///import WorkoutKit
+//CustomWorkout(
+//    activity: HKWorkoutActivityType,
+//    location: HKWorkoutSessionLocationType,
+//    displayName: String?,
+//    warmup: WorkoutStep?,
+//    blocks: [IntervalBlock],
+//    cooldown: WorkoutStep?
+//)
+
+
+//@available(iOS 26.0, *)
+//@Generable
+//struct WorkoutAI {
+//    let name: String
+//    let timeCap: Int?
+//    let rounds: Int?
+//    let exercises: [ExerciseAI]
+//}
+//
+//// MARK: - Exercise Structure AI
+//@available(iOS 26.0, *)
+//@Generable
+//struct ExerciseAI {
+//    let type: ExerciseTypeAI
+//    let target: ExerciseTargetAI?
+//    let weight: WeightAI?
+//    let info: String?
+//}

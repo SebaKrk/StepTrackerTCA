@@ -124,7 +124,7 @@ struct ScoresFeature {
         let last: WorkoutMeasurement?
         
         /// The goal associated with the movement, if available.
-        let goal: WorkoutGoal?
+        let goal: WorkoutGoalSum?
     }
     
 }

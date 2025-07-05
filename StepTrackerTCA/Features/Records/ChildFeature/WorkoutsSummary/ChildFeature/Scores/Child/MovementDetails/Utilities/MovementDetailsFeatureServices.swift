@@ -20,7 +20,7 @@ protocol MovementDetailsFeatureServices {
     ///   - workoutGoals: An array of `WorkoutGoal` objects to be processed.
     ///   - movementName: The name of the movement (e.g., "Snatch", "Squat") for which intervals are generated.
     /// - Returns: An array of `GoalInterval` objects, or an empty array if insufficient goals are provided.
-    func generateGoalIntervals(workoutGoals: [WorkoutGoal], movementName: String) -> [MovementDetailsFeature.GoalInterval]
+    func generateGoalIntervals(workoutGoals: [WorkoutGoalSum], movementName: String) -> [MovementDetailsFeature.GoalInterval]
     
     /// Filters a `GroupedMovement` to return only data related to a specific exercise.
     ///

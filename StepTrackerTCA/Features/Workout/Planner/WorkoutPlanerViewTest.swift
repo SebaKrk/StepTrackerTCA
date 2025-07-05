@@ -145,7 +145,7 @@ struct WorkoutPlanerViewTest: View {
         
         let cooldownStep = WorkoutStep(goal: .time(5, .minutes))
         
-        
+    
         return CustomWorkout(
             activity: .crossTraining,
             location: .indoor,
