@@ -24,18 +24,23 @@ struct WodCreatorFeature {
             switch action {
                 
                 // MARK: - Binding
-                
             case .binding(_):
                 return .none
                 
                 // MARK: - Actions
-
             case let .wodTitleChanged(title):
                 state.wodTitle = title
                 return .none
                 
-                // MARK: - View Actions
+            case let .durationChanged(duration):
+                state.selectedDuration = duration
+                return .none
                 
+            case .changeDurationPickerState:
+                state.isDurationPickerPresented.toggle()
+                return .none
+                
+                // MARK: - View Actions
             case .view(.viewDidAppear):
                 return .none
                 
@@ -46,6 +51,14 @@ struct WodCreatorFeature {
             case .view(.wodTitleSheetDismissed):
                 state.isWodTitleSheetPresented = false
                 return .none
+                
+            case .view(.durationPickerTapped):
+                ///state.isDurationPickerPresented.toggle()
+                return .run { send in
+                    await send(.changeDurationPickerState, animation: .easeInOut(duration: 0.3))
+                }
+                
+
             }
         }
     }
@@ -60,27 +73,23 @@ extension WodCreatorFeature {
     enum Action: ViewAction, BindableAction {
         
         // MARK: - Binding Action
-        
-        /// Handles changes in bindings for the state.
         case binding(BindingAction<State>)
         
         // MARK: - Actions
-        
         case wodTitleChanged(String)
+        case durationChanged(Int)
+        case changeDurationPickerState
         
         // MARK: - View actions
-        
-        /// Used for view actions.
         case view(View)
         
         enum View {
-            
-            /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
-            
             case wodTitleSheetTapped
-            
             case wodTitleSheetDismissed
+            
+            // MARK: - Duration Actions
+            case durationPickerTapped
         }
     }
 }
@@ -93,9 +102,14 @@ extension WodCreatorFeature {
     @ObservableState
     struct State {
         
+        // MARK: Title Properties
         var isWodTitleSheetPresented: Bool = false
-        
         var wodTitle: String = ""
+        
+        // MARK: - Duration Properties
+        var selectedDuration: Int = 15
+        var isDurationPickerPresented: Bool = false
+        var availableDurations: [Int] = Array(1...50)
+        
     }
 }
-

@@ -150,7 +150,6 @@ extension WorkoutCreatorFeature {
         
         var coolDownGoal: SimpleWorkoutGoal = .open
         
-        
         @Presents var destination: Destination.State?
         
     }

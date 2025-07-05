@@ -25,7 +25,7 @@ struct WodCreatorView: View {
             Form {
                 Section {
                     wodTitle
-                    Text("TimeCap")
+                    wodTimer
                     Text("Rounds")
                 }
                 Section {
@@ -75,9 +75,9 @@ struct WodCreatorView: View {
     @ViewBuilder
     private var wodTitleSheet: some View {
         NavigationStack {
-             Form {
-                 TextField("Workout title", text: $store.wodTitle.sending(\.wodTitleChanged))
-                     .multilineTextAlignment(.leading)
+            Form {
+                TextField("Workout title", text: $store.wodTitle.sending(\.wodTitleChanged))
+                    .multilineTextAlignment(.leading)
             }
             .navigationTitle("Workout Title")
             .navigationBarTitleDisplayMode(.inline)
@@ -91,6 +91,43 @@ struct WodCreatorView: View {
         }
         .presentationDetents([.medium])
     }
+    
+    @ViewBuilder
+    var wodTimer: some View {
+        Button {
+            send(.durationPickerTapped)
+        } label: {
+            HStack {
+                Text("WOD timer picker")
+                    .foregroundColor(.primary)
+                Spacer()
+                Text("\(store.selectedDuration) min")
+                    .foregroundColor(.secondary)
+                Image(systemName: store.isDurationPickerPresented ? "chevron.up" : "chevron.down")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        
+        if store.isDurationPickerPresented {
+            wodTimerPicker
+        }
+    }
+    
+    private var wodTimerPicker: some View {
+        Picker("Czas trwania", selection: $store.selectedDuration.sending(\.durationChanged)) {
+            ForEach(store.availableDurations, id: \.self) { duration in
+                Text("\(duration) min")
+                    .tag(duration)
+            }
+        }
+        .pickerStyle(WheelPickerStyle())
+        .frame(height: 150)
+        .transition(.opacity.combined(with: .scale))
+        .animation(.easeInOut(duration: 0.3), value: store.isDurationPickerPresented)
+    }
+
 }
 
 
@@ -122,4 +159,15 @@ struct WodCreatorView: View {
 //    let target: ExerciseTargetAI?
 //    let weight: WeightAI?
 //    let info: String?
+//}
+
+//var timeSteper: some View {
+//    VStack {
+//        Text("Czas trwania: \(duration) min")
+//            .font(.title2)
+//            .padding()
+//
+//        Stepper("", value: $duration, in: 5...50, step: 5)
+//            .labelsHidden()
+//    }
 //}
