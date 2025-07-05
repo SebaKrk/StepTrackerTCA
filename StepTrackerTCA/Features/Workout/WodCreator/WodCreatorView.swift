@@ -26,7 +26,7 @@ struct WodCreatorView: View {
                 Section {
                     wodTitle
                     wodTimer
-                    Text("Rounds")
+                    wodRounds
                 }
                 Section {
                     Button {
@@ -127,7 +127,43 @@ struct WodCreatorView: View {
         .transition(.opacity.combined(with: .scale))
         .animation(.easeInOut(duration: 0.3), value: store.isDurationPickerPresented)
     }
-
+    
+    @ViewBuilder
+    var wodRounds: some View {
+        Button {
+            send(.roundsPickerTapped)
+        } label: {
+            HStack {
+                Text("WOD rounds picker")
+                    .foregroundColor(.primary)
+                Spacer()
+                Text("\(store.selectedRounds) rounds")
+                    .foregroundColor(.secondary)
+                Image(systemName: store.isRoundsPickerPresented ? "chevron.up" : "chevron.down")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        
+        if store.isRoundsPickerPresented {
+            wodRoundsPicker
+        }
+    }
+    
+    private var wodRoundsPicker: some View {
+        Picker("Rounds", selection: $store.selectedRounds.sending(\.roundsChange)) {
+            ForEach(store.availableRounds, id: \.self) { duration in
+                Text("\(duration)")
+                    .tag(duration)
+            }
+        }
+        .pickerStyle(WheelPickerStyle())
+        .frame(height: 150)
+        .transition(.opacity.combined(with: .scale))
+        .animation(.easeInOut(duration: 0.3), value: store.isRoundsPickerPresented)
+    }
+    
 }
 
 

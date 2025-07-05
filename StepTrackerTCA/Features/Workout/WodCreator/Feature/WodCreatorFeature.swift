@@ -36,8 +36,16 @@ struct WodCreatorFeature {
                 state.selectedDuration = duration
                 return .none
                 
+            case let .roundsChange(rounds):
+                state.selectedRounds = rounds
+                return .none
+                
             case .changeDurationPickerState:
                 state.isDurationPickerPresented.toggle()
+                return .none
+                
+            case .changeRoundsPickerState:
+                state.isRoundsPickerPresented.toggle()
                 return .none
                 
                 // MARK: - View Actions
@@ -53,12 +61,15 @@ struct WodCreatorFeature {
                 return .none
                 
             case .view(.durationPickerTapped):
-                ///state.isDurationPickerPresented.toggle()
                 return .run { send in
                     await send(.changeDurationPickerState, animation: .easeInOut(duration: 0.3))
                 }
                 
-
+            case .view(.roundsPickerTapped):
+                return .run { send in
+                    await send(.changeRoundsPickerState, animation: .easeInOut(duration: 0.3))
+                }
+    
             }
         }
     }
@@ -78,7 +89,10 @@ extension WodCreatorFeature {
         // MARK: - Actions
         case wodTitleChanged(String)
         case durationChanged(Int)
+        case roundsChange(Int)
         case changeDurationPickerState
+        case changeRoundsPickerState
+        
         
         // MARK: - View actions
         case view(View)
@@ -90,6 +104,7 @@ extension WodCreatorFeature {
             
             // MARK: - Duration Actions
             case durationPickerTapped
+            case roundsPickerTapped
         }
     }
 }
@@ -111,5 +126,8 @@ extension WodCreatorFeature {
         var isDurationPickerPresented: Bool = false
         var availableDurations: [Int] = Array(1...50)
         
+        var selectedRounds: Int = 3
+        var isRoundsPickerPresented: Bool = false
+        var availableRounds: [Int] = Array(0...50)
     }
 }
