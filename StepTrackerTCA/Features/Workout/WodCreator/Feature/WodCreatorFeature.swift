@@ -130,4 +130,5 @@ extension WodCreatorFeature {
         var isRoundsPickerPresented: Bool = false
         var availableRounds: [Int] = Array(0...50)
     }
+    
 }

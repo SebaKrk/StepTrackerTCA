@@ -59,10 +59,10 @@ struct WodCreatorView: View {
             send(.wodTitleSheetTapped)
         } label: {
             HStack {
-                Text("Wod title")
+                Text("Title")
                     .foregroundColor(.primary)
                 Spacer()
-                Text(store.wodTitle.isEmpty ? "Wod title" : store.wodTitle)
+                Text(store.wodTitle.isEmpty ? "WOD 1" : store.wodTitle)
                     .foregroundColor(.secondary)
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
@@ -76,10 +76,10 @@ struct WodCreatorView: View {
     private var wodTitleSheet: some View {
         NavigationStack {
             Form {
-                TextField("Workout title", text: $store.wodTitle.sending(\.wodTitleChanged))
+                TextField("WOD workout title", text: $store.wodTitle.sending(\.wodTitleChanged))
                     .multilineTextAlignment(.leading)
             }
-            .navigationTitle("Workout Title")
+            .navigationTitle("Workout title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -98,7 +98,7 @@ struct WodCreatorView: View {
             send(.durationPickerTapped)
         } label: {
             HStack {
-                Text("WOD timer picker")
+                Text("Timer")
                     .foregroundColor(.primary)
                 Spacer()
                 Text("\(store.selectedDuration) min")
@@ -116,7 +116,7 @@ struct WodCreatorView: View {
     }
     
     private var wodTimerPicker: some View {
-        Picker("Czas trwania", selection: $store.selectedDuration.sending(\.durationChanged)) {
+        Picker("WOD timer picker", selection: $store.selectedDuration.sending(\.durationChanged)) {
             ForEach(store.availableDurations, id: \.self) { duration in
                 Text("\(duration) min")
                     .tag(duration)
@@ -134,7 +134,7 @@ struct WodCreatorView: View {
             send(.roundsPickerTapped)
         } label: {
             HStack {
-                Text("WOD rounds picker")
+                Text("Rounds")
                     .foregroundColor(.primary)
                 Spacer()
                 Text("\(store.selectedRounds) rounds")
