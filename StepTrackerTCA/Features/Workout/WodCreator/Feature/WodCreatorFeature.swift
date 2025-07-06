@@ -69,6 +69,10 @@ struct WodCreatorFeature {
                 return .run { send in
                     await send(.changeRoundsPickerState, animation: .easeInOut(duration: 0.3))
                 }
+            
+            case .view(.addExerciseTapped):
+                state.addExercise.toggle()
+                return .none
     
             }
         }
@@ -93,7 +97,6 @@ extension WodCreatorFeature {
         case changeDurationPickerState
         case changeRoundsPickerState
         
-        
         // MARK: - View actions
         case view(View)
         
@@ -105,6 +108,8 @@ extension WodCreatorFeature {
             // MARK: - Duration Actions
             case durationPickerTapped
             case roundsPickerTapped
+            
+            case addExerciseTapped
         }
     }
 }
@@ -129,6 +134,8 @@ extension WodCreatorFeature {
         var selectedRounds: Int = 3
         var isRoundsPickerPresented: Bool = false
         var availableRounds: [Int] = Array(0...50)
+        
+        var addExercise: Bool = false
     }
     
 }

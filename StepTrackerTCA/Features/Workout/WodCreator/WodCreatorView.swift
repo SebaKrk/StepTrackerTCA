@@ -16,8 +16,6 @@ struct WodCreatorView: View {
     
     @Bindable var store: StoreOf<WodCreatorFeature>
     
-    @State var addExercise: Bool = false
-    
     // MARK: - View
     
     var body: some View {
@@ -29,16 +27,8 @@ struct WodCreatorView: View {
                     wodRounds
                 }
                 Section {
-                    Button {
-                        addExercise = true
-                    } label: {
-                        HStack {
-                            Text("add exerciseType")
-                            Spacer()
-                            Image(systemName: "plus")
-                        }
-                    }
-                    if addExercise {
+                    addExerciseButton
+                    if store.addExercise {
                         Text("ExerciseType")
                         Text("ExerciseTarget - reps")
                         Text("weight")
@@ -49,6 +39,7 @@ struct WodCreatorView: View {
                 }
             }
         }
+        .navigationTitle("Create WOD")
         .sheet(isPresented: $store.isWodTitleSheetPresented) {
             wodTitleSheet
         }
@@ -163,6 +154,23 @@ struct WodCreatorView: View {
         .transition(.opacity.combined(with: .scale))
         .animation(.easeInOut(duration: 0.3), value: store.isRoundsPickerPresented)
     }
+    
+    private var addExerciseButton: some View {
+        Button {
+            send(.addExerciseTapped)
+        } label: {
+            HStack {
+                Text("add exercise")
+                    .foregroundColor(.primary)
+                Spacer()
+                Image(systemName: "plus")
+                    .foregroundColor(.pink)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+//    Text("ExerciseType")
     
 }
 

@@ -57,6 +57,7 @@ struct WorkoutCreatorView: View {
             }
         }
     }
+    
     private var wodView: some View {
         Button {
             send(.wodSheetTapped)
