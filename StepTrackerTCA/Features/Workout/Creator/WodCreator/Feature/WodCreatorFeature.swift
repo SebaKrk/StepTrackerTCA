@@ -40,6 +40,16 @@ struct WodCreatorFeature {
                 state.selectedRounds = rounds
                 return .none
                 
+                
+            case let .exerciseTypeChange(exercise):
+                state.selectedExerciseType = exercise
+                return .none
+                
+            case let .repsChange(rep):
+                state.selectedReps = rep
+                return .none
+                
+                
             case .changeDurationPickerState:
                 state.isDurationPickerPresented.toggle()
                 return .none
@@ -48,6 +58,9 @@ struct WodCreatorFeature {
                 state.isRoundsPickerPresented.toggle()
                 return .none
                 
+            case .changeRepsPickerState:
+                state.isRepsPickerPresented.toggle()
+                return .none
                 // MARK: - View Actions
             case .view(.viewDidAppear):
                 return .none
@@ -69,11 +82,17 @@ struct WodCreatorFeature {
                 return .run { send in
                     await send(.changeRoundsPickerState, animation: .easeInOut(duration: 0.3))
                 }
+                
+                
+            case .view(.repsPickerTapped):
+                return .run { send in
+                    await send(.changeRepsPickerState, animation: .easeInOut(duration: 0.3))
+                }
             
             case .view(.addExerciseTapped):
                 state.addExercise.toggle()
                 return .none
-    
+
             }
         }
     }
@@ -94,8 +113,11 @@ extension WodCreatorFeature {
         case wodTitleChanged(String)
         case durationChanged(Int)
         case roundsChange(Int)
+        case exerciseTypeChange(ExerciseType)
         case changeDurationPickerState
         case changeRoundsPickerState
+        case changeRepsPickerState
+        case repsChange(Int)
         
         // MARK: - View actions
         case view(View)
@@ -108,6 +130,7 @@ extension WodCreatorFeature {
             // MARK: - Duration Actions
             case durationPickerTapped
             case roundsPickerTapped
+            case repsPickerTapped
             
             case addExerciseTapped
         }
@@ -136,6 +159,13 @@ extension WodCreatorFeature {
         var availableRounds: [Int] = Array(0...50)
         
         var addExercise: Bool = false
+        
+        var selectedExerciseType: ExerciseType = .airSquat
+        
+        var selectedReps: Int = 3
+        var isRepsPickerPresented: Bool = false
+        var availableReps: [Int] = Array(0...100)
+        
     }
     
 }

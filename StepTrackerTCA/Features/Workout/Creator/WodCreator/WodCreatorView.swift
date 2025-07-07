@@ -29,8 +29,8 @@ struct WodCreatorView: View {
                 Section {
                     addExerciseButton
                     if store.addExercise {
-                        Text("ExerciseType")
-                        Text("ExerciseTarget - reps")
+                        exerciseTypePicker
+                        repsView
                         Text("weight")
                         Text("Info")
                     }
@@ -40,9 +40,15 @@ struct WodCreatorView: View {
             }
         }
         .navigationTitle("Create WOD")
+        .toolbar { toolbarButton }
         .sheet(isPresented: $store.isWodTitleSheetPresented) {
             wodTitleSheet
         }
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) { saveButton }
     }
     
     private var wodTitle: some View {
@@ -170,8 +176,60 @@ struct WodCreatorView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
-//    Text("ExerciseType")
+    private var exerciseTypePicker: some View {
+        Picker("Exercise", selection: $store.selectedExerciseType.sending(\.exerciseTypeChange)) {
+            ForEach(ExerciseType.allCases, id: \.self) { exercise in
+                Text(exercise.displayName)
+                    .tag(exercise)
+            }
+        }
+        .pickerStyle(.navigationLink)
+    }
     
+    
+    @ViewBuilder
+    var repsView: some View {
+        Button {
+            send(.repsPickerTapped)
+        } label: {
+            HStack {
+                Text("Reps")
+                    .foregroundColor(.primary)
+                Spacer()
+                Text("\(store.selectedReps) reps")
+                    .foregroundColor(.secondary)
+                Image(systemName: store.isRepsPickerPresented ? "chevron.up" : "chevron.down")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        
+        if store.isRepsPickerPresented {
+            repsPicker
+        }
+    }
+    
+    private var repsPicker: some View {
+        Picker("Reps", selection: $store.selectedReps.sending(\.repsChange)) {
+            ForEach(store.availableReps, id: \.self) { rep in
+                Text("\(rep)")
+                    .tag(rep)
+            }
+        }
+        .pickerStyle(WheelPickerStyle())
+        .frame(height: 150)
+        .transition(.opacity.combined(with: .scale))
+        .animation(.easeInOut(duration: 0.3), value: store.isRepsPickerPresented)
+    }
+    
+    private var saveButton: some View {
+        Button {
+            //send(.cancelButtonTapped)
+        } label: {
+            Text("save")
+        }
+    }
 }
 
 
