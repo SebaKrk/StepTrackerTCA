@@ -112,6 +112,21 @@ struct WodCreatorFeature {
                 state.addExercise.toggle()
                 return .none
 
+            case .view(.addToExercises):
+                let newExercise = ExerciseSession(
+                    type: state.selectedExerciseType,
+                    target: .reps(state.selectedReps), 
+                    weight: state.isWeightViewPresented ? WeightConfiguration(
+                        men: Int(state.weightMen),
+                        women: Int(state.weightWomen)
+                    ) : nil,
+                    info: state.info.isEmpty ? nil : state.info
+                )
+                
+                // Dodajemy do listy
+                state.exercises.append(newExercise)
+                
+                return .none
             }
         }
     }
@@ -157,6 +172,8 @@ extension WodCreatorFeature {
             case repsPickerTapped
             
             case addExerciseTapped
+            
+            case addToExercises
         }
     }
 }
@@ -196,6 +213,9 @@ extension WodCreatorFeature {
         
         var isWodInfoSheetPresented: Bool = false
         var info: String = ""
+        
+        
+        var exercises: [ExerciseSession] = []
         
     }
     

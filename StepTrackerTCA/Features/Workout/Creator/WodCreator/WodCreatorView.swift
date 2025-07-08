@@ -34,8 +34,20 @@ struct WodCreatorView: View {
                         weightView
                         infoButton
                     }
+                    Button {
+                        send(.addToExercises)
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text("add")
+                        }
+                    }
                 } header: {
                     Text("Exercises")
+                }
+                
+                Section {
+                    exerciseList
                 }
             }
         }
@@ -310,6 +322,14 @@ struct WodCreatorView: View {
             }
         }
         .presentationDetents([.medium, .large]) // dodaj .large dla dłuższych tekstów
+    }
+    
+    private var exerciseList: some View {
+        List {
+            ForEach(store.exercises) { exercise in
+                Text("\(exercise.type.displayName)")
+            }
+        }
     }
     
     private var saveButton: some View {

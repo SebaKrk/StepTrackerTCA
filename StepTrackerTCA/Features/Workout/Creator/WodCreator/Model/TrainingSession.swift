@@ -5,7 +5,6 @@
 //  Created by Sebastian Sciuba on 07/07/2025.
 //
 
-
 import Foundation
 
 // MARK: - Training Session (główny obiekt treningu)
@@ -35,7 +34,8 @@ struct WorkoutSessionNew {
 }
 
 // MARK: - Exercise Session
-struct ExerciseSession {
+struct ExerciseSession: Identifiable, Equatable {
+    let id = UUID()
     let type: ExerciseType
     let target: ExerciseTarget?
     let weight: WeightConfiguration?
@@ -43,13 +43,13 @@ struct ExerciseSession {
 }
 
 // MARK: - Weight Configuration
-struct WeightConfiguration {
+struct WeightConfiguration: Equatable {
     let men: Int?
     let women: Int?
 }
 
 // MARK: - Exercise Target
-enum ExerciseTarget {
+enum ExerciseTarget: Equatable {
     /// Use for repetitions: '10 reps', '5 push-ups', '3 clean and jerks'
     case reps(Int)
     
