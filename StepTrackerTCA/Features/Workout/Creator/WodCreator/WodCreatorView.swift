@@ -31,8 +31,8 @@ struct WodCreatorView: View {
                     if store.addExercise {
                         exerciseTypePicker
                         repsView
-                        Text("weight")
-                        Text("Info")
+                        weightView
+                        infoButton
                     }
                 } header: {
                     Text("Exercises")
@@ -43,6 +43,10 @@ struct WodCreatorView: View {
         .toolbar { toolbarButton }
         .sheet(isPresented: $store.isWodTitleSheetPresented) {
             wodTitleSheet
+        }
+        .presentationDetents([.fraction(0.15)])
+        .sheet(isPresented: $store.isWodInfoSheetPresented) {
+            wodInfoSheet
         }
     }
     
@@ -223,6 +227,91 @@ struct WodCreatorView: View {
         .animation(.easeInOut(duration: 0.3), value: store.isRepsPickerPresented)
     }
     
+    private var weightView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle("Waga", isOn: $store.isWeightViewPresented)
+            
+            if store.isWeightViewPresented {
+                VStack(spacing: 8) {
+                    HStack {
+                        Text("Mężczyzna")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        TextField("kg", text: $store.weightMen.sending(\.weightMenChange))
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.decimalPad)
+                    }
+                    .padding(4)
+                    
+                    HStack {
+                        Text("Kobieta")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        TextField("kg", text: $store.weightWomen.sending(\.weightWomenChange))
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.decimalPad)
+                            .frame(width: 150)
+                    }
+                    .padding(4)
+                }
+            }
+        }
+    }
+    
+    private var infoButton: some View {
+        Button {
+            send(.wodInfoButtonTapped)
+        } label: {
+            HStack {
+                Text("Info")
+                    .foregroundColor(.primary)
+                Spacer()
+                Text(store.info.isEmpty ? "add info" : store.info)
+                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    @ViewBuilder
+    private var wodInfoSheet: some View {
+        NavigationStack {
+            Form {
+                TextEditor(text: $store.info.sending(\.wodInfoChanged))
+                    .frame(minHeight: 100)
+                    .overlay(
+                        Group {
+                            if store.info.isEmpty {
+                                VStack {
+                                    HStack {
+                                        Text("WOD workout description...")
+                                            .foregroundColor(.secondary)
+                                            .padding(.horizontal, 4)
+                                            .padding(.vertical, 8)
+                                        Spacer()
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                    )
+            }
+            .navigationTitle("Extra info")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        send(.wodInfoSheetDismissed)
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large]) // dodaj .large dla dłuższych tekstów
+    }
+    
     private var saveButton: some View {
         Button {
             //send(.cancelButtonTapped)
@@ -273,3 +362,23 @@ struct WodCreatorView: View {
 //            .labelsHidden()
 //    }
 //}
+
+//    @ViewBuilder
+//    private var wodInfoSheet: some View {
+//        NavigationStack {
+//            Form {
+//                TextField("WOD workout title", text: $store.info.sending(\.wodInfoChanged))
+//                    .multilineTextAlignment(.leading)
+//            }
+//            .navigationTitle("Extra info ")
+//            .navigationBarTitleDisplayMode(.inline)
+//            .toolbar {
+//                ToolbarItem(placement: .topBarTrailing) {
+//                    Button("Done") {
+//                        send(.wodInfoSheetDismissed)
+//                    }
+//                }
+//            }
+//        }
+//        .presentationDetents([.medium])
+//    }

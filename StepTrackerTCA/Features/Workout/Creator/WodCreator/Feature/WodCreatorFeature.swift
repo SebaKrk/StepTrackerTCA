@@ -40,6 +40,18 @@ struct WodCreatorFeature {
                 state.selectedRounds = rounds
                 return .none
                 
+            case let .weightMenChange(weight):
+                state.weightMen = weight
+                return .none
+                
+            case let .weightWomenChange(weight):
+                state.weightWomen = weight
+                return .none
+                
+            case let .wodInfoChanged(info):
+                state.info = info
+                return .none
+                
                 
             case let .exerciseTypeChange(exercise):
                 state.selectedExerciseType = exercise
@@ -48,7 +60,6 @@ struct WodCreatorFeature {
             case let .repsChange(rep):
                 state.selectedReps = rep
                 return .none
-                
                 
             case .changeDurationPickerState:
                 state.isDurationPickerPresented.toggle()
@@ -71,6 +82,14 @@ struct WodCreatorFeature {
                 
             case .view(.wodTitleSheetDismissed):
                 state.isWodTitleSheetPresented = false
+                return .none
+
+            case .view(.wodInfoButtonTapped):
+                state.isWodInfoSheetPresented.toggle()
+                return .none
+                
+            case .view(.wodInfoSheetDismissed):
+                state.isWodInfoSheetPresented = false
                 return .none
                 
             case .view(.durationPickerTapped):
@@ -118,6 +137,9 @@ extension WodCreatorFeature {
         case changeRoundsPickerState
         case changeRepsPickerState
         case repsChange(Int)
+        case weightMenChange(String)
+        case weightWomenChange(String)
+        case wodInfoChanged(String)
         
         // MARK: - View actions
         case view(View)
@@ -126,6 +148,8 @@ extension WodCreatorFeature {
             case viewDidAppear
             case wodTitleSheetTapped
             case wodTitleSheetDismissed
+            case wodInfoButtonTapped
+            case wodInfoSheetDismissed
             
             // MARK: - Duration Actions
             case durationPickerTapped
@@ -165,6 +189,13 @@ extension WodCreatorFeature {
         var selectedReps: Int = 3
         var isRepsPickerPresented: Bool = false
         var availableReps: [Int] = Array(0...100)
+        
+        var isWeightViewPresented: Bool = false
+        var weightMen: String = ""
+        var weightWomen: String = ""
+        
+        var isWodInfoSheetPresented: Bool = false
+        var info: String = ""
         
     }
     
