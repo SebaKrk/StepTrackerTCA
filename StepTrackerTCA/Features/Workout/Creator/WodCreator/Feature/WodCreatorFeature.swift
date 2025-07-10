@@ -36,6 +36,10 @@ struct WodCreatorFeature {
                 state.selectedDuration = duration
                 return .none
                 
+            case let .exerciseWorkoutType(type):
+                state.selectedExerciseWorkoutType = type
+                return .none
+                
             case let .roundsChange(rounds):
                 state.selectedRounds = rounds
                 return .none
@@ -90,6 +94,10 @@ struct WodCreatorFeature {
                 
             case .view(.wodInfoSheetDismissed):
                 state.isWodInfoSheetPresented = false
+                return .none
+                
+            case .view(.workoutTypeTapped):
+                state.isExerciseWorkoutTypePresented.toggle()
                 return .none
                 
             case .view(.durationPickerTapped):
@@ -154,6 +162,7 @@ extension WodCreatorFeature {
         // MARK: - Actions
         case wodTitleChanged(String)
         case durationChanged(Int)
+        case exerciseWorkoutType(ExerciseWorkoutType)
         case roundsChange(Int)
         case exerciseTypeChange(ExerciseType)
         case changeDurationPickerState
@@ -175,6 +184,7 @@ extension WodCreatorFeature {
             case wodInfoSheetDismissed
             
             // MARK: - Duration Actions
+            case workoutTypeTapped
             case durationPickerTapped
             case roundsPickerTapped
             case repsPickerTapped
@@ -195,8 +205,12 @@ extension WodCreatorFeature {
     struct State {
         
         // MARK: Title Properties
+        
         var isWodTitleSheetPresented: Bool = false
         var wodTitle: String = ""
+        
+        var selectedExerciseWorkoutType: ExerciseWorkoutType = .amrap
+        var isExerciseWorkoutTypePresented: Bool = false
         
         // MARK: - Duration Properties
         var selectedDuration: Int = 15

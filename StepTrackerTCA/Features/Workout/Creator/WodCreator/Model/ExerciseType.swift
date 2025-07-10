@@ -23,6 +23,9 @@ enum ExerciseType: String, CaseIterable {
     case powerClean
     case powerSnatch
     
+    case hangPowerClean
+    case hangPowerSnatch
+    
     // CrossFit/Cardio (bodyweight + tempo)
     case pullUps
     case pushUps
@@ -69,6 +72,8 @@ enum ExerciseType: String, CaseIterable {
         case .cleanAndJerk: return "Clean and Jerk"
         case .powerClean: return "Power Clean"
         case .powerSnatch: return "Power Snatch"
+        case .hangPowerClean: return "Hang Power Clean"
+        case .hangPowerSnatch: return "Hang Power Snatch"
         case .pullUps: return "Pull-ups"
         case .pushUps: return "Push-ups"
         case .burpees: return "Burpees"
@@ -117,6 +122,10 @@ enum ExerciseType: String, CaseIterable {
             return ["power clean", "PC"]
         case .powerSnatch:
             return ["power snatch", "PS"]
+        case .hangPowerClean:
+            return ["power clean", "PC", "HPC", "hang PC", "hang power clean"]
+        case .hangPowerSnatch:
+            return ["power snatch", "PS", "HPS", "hang PS", "hang power snatch"]
         case .pullUps:
             return ["pull-ups", "pull ups", "PU"]
         case .pushUps:
@@ -174,7 +183,7 @@ enum ExerciseType: String, CaseIterable {
         switch self {
         case .deadlift, .backSquat, .frontSquat, .benchPress, .overheadSquat:
             return .strength
-        case .snatch, .cleanAndJerk, .powerClean, .powerSnatch:
+        case .snatch, .cleanAndJerk, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch:
             return .weightlifting
         case .pullUps, .pushUps, .burpees, .airSquat, .boxJumps, .doubleUnders, .toesToBar, .sitUps:
             return .crossfit

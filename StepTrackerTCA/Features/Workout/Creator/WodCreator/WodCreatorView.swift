@@ -23,6 +23,7 @@ struct WodCreatorView: View {
             Form {
                 Section {
                     wodTitle
+                    wodType
                     wodTimer
                     wodRounds
                 }
@@ -85,6 +86,7 @@ struct WodCreatorView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
+
     @ViewBuilder
     private var wodTitleSheet: some View {
         NavigationStack {
@@ -106,25 +108,66 @@ struct WodCreatorView: View {
     }
     
     @ViewBuilder
-    var wodTimer: some View {
+    private var wodType: some View {
         Button {
-            send(.durationPickerTapped)
+            send(.workoutTypeTapped)
         } label: {
             HStack {
-                Text("Timer")
+                Text("Type")
                     .foregroundColor(.primary)
                 Spacer()
-                Text("\(store.selectedDuration) min")
+                Text(store.selectedExerciseWorkoutType.displayName)
                     .foregroundColor(.secondary)
-                Image(systemName: store.isDurationPickerPresented ? "chevron.up" : "chevron.down")
+                Image(systemName: store.isExerciseWorkoutTypePresented ? "chevron.up" : "chevron.down")
                     .foregroundColor(.secondary)
                     .font(.caption)
             }
         }
         .buttonStyle(PlainButtonStyle())
         
-        if store.isDurationPickerPresented {
-            wodTimerPicker
+        if store.isExerciseWorkoutTypePresented {
+            wodExerciseWorkoutTypePicker
+        }
+    }
+     
+    @ViewBuilder
+    private var wodExerciseWorkoutTypePicker: some View {
+        Picker("WOD Workout type picker", selection: $store.selectedExerciseWorkoutType.sending(\.exerciseWorkoutType)) {
+            ForEach(ExerciseWorkoutType.allCases, id: \.self) { type in
+                Text(type.displayName)
+                    .tag(type)
+            }
+        }
+        .pickerStyle(WheelPickerStyle())
+        .frame(height: 150)
+        .transition(.opacity.combined(with: .scale))
+        .animation(.easeInOut(duration: 0.3), value: store.isExerciseWorkoutTypePresented)
+    }
+    
+    
+    @ViewBuilder
+    var wodTimer: some View {
+        Toggle("Timer", isOn: $store.isWeightViewPresented)
+        if store.isWeightViewPresented {
+            Button {
+                send(.durationPickerTapped)
+            } label: {
+                HStack {
+                    Text("Time Cap")
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Text("\(store.selectedDuration) min")
+                        .foregroundColor(.secondary)
+                    Image(systemName: store.isDurationPickerPresented ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            if store.isDurationPickerPresented {
+                wodTimerPicker
+            }
         }
     }
     
@@ -321,50 +364,96 @@ struct WodCreatorView: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large]) // dodaj .large dla dłuższych tekstów
+        .presentationDetents([.medium, .large])
     }
     
     private var exerciseList: some View {
         List {
             ForEach(store.exercises) { exercise in
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(exercise.type.displayName)
-                            .font(.headline)
-                        
+                if let info = exercise.info, !info.isEmpty {
+                    DisclosureGroup {
+                        Text(info)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } label: {
+                        HStack {
+                            if let target = exercise.target {
+                                target.displayText
+                            }
+                            
+                            Text(exercise.type.displayName)
+                                .foregroundStyle(.secondary)
+                            
+                            Spacer()
+                            
+                            if let weight = exercise.weight {
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    if let men = weight.men {
+                                        HStack(spacing: 2) {
+                                            Group {
+                                                Text("♂")
+                                                Text("\(men)")
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                            .font(.caption)
+                                        }
+                                            
+                                    }
+                                    if let women = weight.women {
+                                        HStack(spacing: 2) {
+                                            Group {
+                                                Text("♀")
+                                                Text("\(women)")
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                            .font(.caption)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 2)
+                } else {
+                    HStack {
                         if let target = exercise.target {
-                            Text(target.displayText)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            target.displayText
                         }
                         
-                        if let info = exercise.info, !info.isEmpty {
-                            Text(info)
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
+                        Text(exercise.type.displayName)
+                            .foregroundStyle(.secondary)
+                        
+                        Spacer()
+                        
+                        if let weight = exercise.weight {
+                            VStack(alignment: .trailing, spacing: 2) {
+                                if let men = weight.men {
+                                    HStack(spacing: 2) {
+                                        Group {
+                                            Text("♂")
+                                            Text("\(men)")
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        .font(.caption)
+                                    }
+                                        
+                                }
+                                if let women = weight.women {
+                                    HStack(spacing: 2) {
+                                        Group {
+                                            Text("♀")
+                                            Text("\(women)")
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        .font(.caption)
+                                    }
+                                }
+                            }
+                            Spacer().frame(width: 16)
                         }
                     }
-                    
-                    Spacer()
-                    
-                    // Waga po prawej stronie
-                    if let weight = exercise.weight {
-                        VStack(alignment: .trailing, spacing: 2) {
-                            if let men = weight.men {
-                                Text("♂ \(men)kg")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                            }
-                            if let women = weight.women {
-                                Text("♀ \(women)kg")
-                                    .font(.caption)
-                                    .foregroundColor(.pink)
-                            }
-                        }
-                    }
+                    .padding(.vertical, 2)
                 }
-                .padding(.vertical, 2)
             }
         }
     }
@@ -378,64 +467,47 @@ struct WodCreatorView: View {
     }
 }
 
+#Preview("start") {
+    NavigationStack {
+        WodCreatorView(
+            store: Store(
+                initialState: WodCreatorFeature.State(),
+                reducer: { WodCreatorFeature() }
+            )
+        )
+    }
+}
 
-///import WorkoutKit
-//CustomWorkout(
-//    activity: HKWorkoutActivityType,
-//    location: HKWorkoutSessionLocationType,
-//    displayName: String?,
-//    warmup: WorkoutStep?,
-//    blocks: [IntervalBlock],
-//    cooldown: WorkoutStep?
-//)
-
-
-//@available(iOS 26.0, *)
-//@Generable
-//struct WorkoutAI {
-//    let name: String
-//    let timeCap: Int?
-//    let rounds: Int?
-//    let exercises: [ExerciseAI]
-//}
-//
-//// MARK: - Exercise Structure AI
-//@available(iOS 26.0, *)
-//@Generable
-//struct ExerciseAI {
-//    let type: ExerciseTypeAI
-//    let target: ExerciseTargetAI?
-//    let weight: WeightAI?
-//    let info: String?
-//}
-
-//var timeSteper: some View {
-//    VStack {
-//        Text("Czas trwania: \(duration) min")
-//            .font(.title2)
-//            .padding()
-//
-//        Stepper("", value: $duration, in: 5...50, step: 5)
-//            .labelsHidden()
-//    }
-//}
-
-//    @ViewBuilder
-//    private var wodInfoSheet: some View {
-//        NavigationStack {
-//            Form {
-//                TextField("WOD workout title", text: $store.info.sending(\.wodInfoChanged))
-//                    .multilineTextAlignment(.leading)
-//            }
-//            .navigationTitle("Extra info ")
-//            .navigationBarTitleDisplayMode(.inline)
-//            .toolbar {
-//                ToolbarItem(placement: .topBarTrailing) {
-//                    Button("Done") {
-//                        send(.wodInfoSheetDismissed)
-//                    }
-//                }
-//            }
-//        }
-//        .presentationDetents([.medium])
-//    }
+#Preview("ex1") {
+    NavigationStack {
+        WodCreatorView(
+            store: Store(
+                initialState: {
+                    var state = WodCreatorFeature.State()
+                    state.exercises = [
+                        ExerciseSession(
+                            type: .deadlift,
+                            target: .reps(4),
+                            weight: WeightConfiguration(men: 70, women: 40),
+                            info: "Classic strength work"
+                        ),
+                        ExerciseSession(
+                            type: .hangPowerSnatch,
+                            target: .reps(3),
+                            weight: WeightConfiguration(men: 70, women: 40),
+                            info: nil
+                        ),
+                        ExerciseSession(
+                            type: .overheadSquat,
+                            target: .reps(2),
+                            weight: WeightConfiguration(men: 70, women: 40),
+                            info: "Classic strength work"
+                        )
+                    ]
+                    return state
+                }(),
+                reducer: { WodCreatorFeature() }
+            )
+        )
+    }
+}

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 // MARK: - Training Session (główny obiekt treningu)
 struct TrainingSession {
@@ -71,22 +72,21 @@ enum ExerciseTarget: Equatable {
     /// Use for track/pool laps: '4 laps around track'
     case laps(Int)
     
-    var displayText: String {
+    var displayText: Text {
         switch self {
         case .reps(let count):
-            return "\(count) reps"
+            return Text("\(count)").bold() + Text(" reps").font(.caption)
         case .calories(let count):
-            return "\(count) cal"
+            return Text("\(count)").bold() + Text(" cal").font(.caption)
         case .meters(let count):
-            return "\(count) m"
+            return Text("\(count)").bold() + Text(" m").font(.caption)
         case .seconds(let count):
-            return "\(count) sec"
+            return Text("\(count)").bold() + Text(" sec").font(.caption)
         case .minutes(let count):
-            return "\(count) min"
+            return Text("\(count)").bold() + Text(" min").font(.caption)
         case .rounds(let count):
-            return "\(count) rounds"
+            return Text("\(count)").bold() + Text(" rounds").font(.caption)
         case .laps(let count):
-            return "\(count) laps"
+            return Text("\(count)").bold() + Text(" laps").font(.caption)
         }
-    }
-}
+    }}
