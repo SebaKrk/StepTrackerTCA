@@ -327,7 +327,44 @@ struct WodCreatorView: View {
     private var exerciseList: some View {
         List {
             ForEach(store.exercises) { exercise in
-                Text("\(exercise.type.displayName)")
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(exercise.type.displayName)
+                            .font(.headline)
+                        
+                        if let target = exercise.target {
+                            Text(target.displayText)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        if let info = exercise.info, !info.isEmpty {
+                            Text(info)
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Waga po prawej stronie
+                    if let weight = exercise.weight {
+                        VStack(alignment: .trailing, spacing: 2) {
+                            if let men = weight.men {
+                                Text("♂ \(men)kg")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                            }
+                            if let women = weight.women {
+                                Text("♀ \(women)kg")
+                                    .font(.caption)
+                                    .foregroundColor(.pink)
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
             }
         }
     }

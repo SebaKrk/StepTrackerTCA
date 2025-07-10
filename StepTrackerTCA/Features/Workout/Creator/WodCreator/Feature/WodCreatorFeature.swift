@@ -115,14 +115,22 @@ struct WodCreatorFeature {
             case .view(.addToExercises):
                 let newExercise = ExerciseSession(
                     type: state.selectedExerciseType,
-                    target: .reps(state.selectedReps), 
-                    weight: state.isWeightViewPresented ? WeightConfiguration(
-                        men: Int(state.weightMen),
-                        women: Int(state.weightWomen)
-                    ) : nil,
+                    target: .reps(state.selectedReps),
+                    weight: {
+                        let menWeight = Int(state.weightMen)
+                        let womenWeight = Int(state.weightWomen)
+                        
+                        if menWeight != nil || womenWeight != nil {
+                            return WeightConfiguration(
+                                men: menWeight,
+                                women: womenWeight
+                            )
+                        } else {
+                            return nil
+                        }
+                    }(),
                     info: state.info.isEmpty ? nil : state.info
                 )
-                
                 // Dodajemy do listy
                 state.exercises.append(newExercise)
                 
