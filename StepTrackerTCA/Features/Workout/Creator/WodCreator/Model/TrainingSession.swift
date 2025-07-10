@@ -29,6 +29,7 @@ struct CoolDownSession {
 // MARK: - Workout Session
 struct WorkoutSessionNew {
     let name: String
+    let type: ExerciseWorkoutType
     let timeCap: Int?
     let rounds: Int?
     let exercises: [ExerciseSession]

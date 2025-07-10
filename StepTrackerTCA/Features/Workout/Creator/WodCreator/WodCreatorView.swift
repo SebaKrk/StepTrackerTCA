@@ -147,8 +147,8 @@ struct WodCreatorView: View {
     
     @ViewBuilder
     var wodTimer: some View {
-        Toggle("Timer", isOn: $store.isWeightViewPresented)
-        if store.isWeightViewPresented {
+        Toggle("Timer", isOn: $store.isDurationPickerPresented)
+        if store.isDurationPickerPresented {
             Button {
                 send(.durationPickerTapped)
             } label: {
@@ -158,14 +158,14 @@ struct WodCreatorView: View {
                     Spacer()
                     Text("\(store.selectedDuration) min")
                         .foregroundColor(.secondary)
-                    Image(systemName: store.isDurationPickerPresented ? "chevron.up" : "chevron.down")
+                    Image(systemName: store.isDurationPickerToggle ? "chevron.up" : "chevron.down")
                         .foregroundColor(.secondary)
                         .font(.caption)
                 }
             }
             .buttonStyle(PlainButtonStyle())
             
-            if store.isDurationPickerPresented {
+            if store.isDurationPickerToggle {
                 wodTimerPicker
             }
         }
@@ -284,7 +284,7 @@ struct WodCreatorView: View {
     
     private var weightView: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Toggle("Waga", isOn: $store.isWeightViewPresented)
+            Toggle("Weight", isOn: $store.isWeightViewPresented)
             
             if store.isWeightViewPresented {
                 VStack(spacing: 8) {
@@ -460,7 +460,7 @@ struct WodCreatorView: View {
     
     private var saveButton: some View {
         Button {
-            //send(.cancelButtonTapped)
+            send(.saveButtonTapped)
         } label: {
             Text("save")
         }

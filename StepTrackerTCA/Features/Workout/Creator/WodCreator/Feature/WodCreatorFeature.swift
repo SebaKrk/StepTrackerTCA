@@ -66,7 +66,7 @@ struct WodCreatorFeature {
                 return .none
                 
             case .changeDurationPickerState:
-                state.isDurationPickerPresented.toggle()
+                state.isDurationPickerToggle.toggle()
                 return .none
                 
             case .changeRoundsPickerState:
@@ -139,8 +139,20 @@ struct WodCreatorFeature {
                     }(),
                     info: state.info.isEmpty ? nil : state.info
                 )
-                // Dodajemy do listy
                 state.exercises.append(newExercise)
+                
+                return .none
+                
+            case .view(.saveButtonTapped):
+                
+                let traningSession = WorkoutSessionNew(
+                    name: state.wodTitle.isEmpty ? "WOD 1" : state.wodTitle,
+                    type: state.exerciseWorkoutType,
+                    timeCap: state.selectedDuration,
+                    rounds: state.selectedRounds,
+                    exercises: state.exercises)
+                
+                dump(traningSession)
                 
                 return .none
             }
@@ -192,6 +204,8 @@ extension WodCreatorFeature {
             case addExerciseTapped
             
             case addToExercises
+            
+            case saveButtonTapped
         }
     }
 }
@@ -215,6 +229,7 @@ extension WodCreatorFeature {
         // MARK: - Duration Properties
         var selectedDuration: Int = 15
         var isDurationPickerPresented: Bool = false
+        var isDurationPickerToggle: Bool = false
         var availableDurations: [Int] = Array(1...50)
         
         var selectedRounds: Int = 3
@@ -227,7 +242,7 @@ extension WodCreatorFeature {
         
         var selectedReps: Int = 3
         var isRepsPickerPresented: Bool = false
-        var availableReps: [Int] = Array(0...100)
+        var availableReps: [Int] = Array(1...100)
         
         var isWeightViewPresented: Bool = false
         var weightMen: String = ""
