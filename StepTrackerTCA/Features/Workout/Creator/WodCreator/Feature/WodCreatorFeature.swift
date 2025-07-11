@@ -145,15 +145,20 @@ struct WodCreatorFeature {
                 
             case .view(.saveButtonTapped):
                 
-                let traningSession = WorkoutSessionNew(
+                let trainingSession = WorkoutSessionNew(
                     name: state.wodTitle.isEmpty ? "WOD 1" : state.wodTitle,
-                    type: state.exerciseWorkoutType,
+                    type: state.selectedExerciseWorkoutType,
                     timeCap: state.selectedDuration,
                     rounds: state.selectedRounds,
                     exercises: state.exercises)
                 
-                dump(traningSession)
+                //dump(traningSession)
                 
+                return .run { send in
+                    await send(.delegate(.wodCreated(trainingSession)))
+                    await self.dismiss()
+                }
+            case .delegate(_):
                 return .none
             }
         }
@@ -207,6 +212,12 @@ extension WodCreatorFeature {
             
             case saveButtonTapped
         }
+        
+        case delegate(Delegate)
+          
+          enum Delegate {
+              case wodCreated(WorkoutSessionNew)
+          }
     }
 }
 

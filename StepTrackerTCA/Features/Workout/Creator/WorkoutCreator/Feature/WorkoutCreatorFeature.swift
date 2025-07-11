@@ -20,62 +20,80 @@ struct WorkoutCreatorFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-            BindingReducer()
-            Reduce { state, action in
-                switch action {
-                    
-                    // MARK: - Binding
-                    
-                case .binding(_):
-                    return .none
-                    
-                    // MARK: - Actions
-                    
-                case let .workoutTitleChanged(title):
-                    state.workoutTitle = title
-                    return .none
-                    
-                case let .selectedWorkoutActivityPickerChange(item):
-                    state.workoutActivityType = item
-                    return .none
-                    
-                case let .selectedWorkoutLocationPickerChange(item):
-                    state.workoutLocationType = item
-                    return .none
-                    
-                case let .warmupGoalChanged(goal):
-                    //state.warmupGoal = goal
-                    return .none
-                    
-                case let .coolDownGoalChanged(goal):
-                    return .none
-                    
-                    // MARK: - View Actions
-                    
-                case .view(.viewDidAppear):
-                    return .none
-                    
-                case .view(.cancelButtonTapped):
-                    return .run { send in
-                        await self.dismiss()
-                    }
-                    
-                case .view(.workoutTitleSheetTapped):
-                    state.isWorkoutTitleSheetPresented.toggle()
-                    return .none
-                    
-                case .view(.workoutTitleSheetDismissed):
-                    state.isWorkoutTitleSheetPresented = false
-                    return .none
-                case .view(.wodSheetTapped):
-                    state.destination = .openWodCreator(WodCreatorFeature.State())
-                    return .none
-                case .destination:
-                    return .none
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+                
+                // MARK: - Binding
+                
+            case .binding(_):
+                return .none
+                
+                // MARK: - Actions
+                
+            case let .workoutTitleChanged(title):
+                state.workoutTitle = title
+                return .none
+                
+            case let .selectedWorkoutActivityPickerChange(item):
+                state.workoutActivityType = item
+                return .none
+                
+            case let .selectedWorkoutLocationPickerChange(item):
+                state.workoutLocationType = item
+                return .none
+                
+            case let .warmupGoalChanged(goal):
+                //state.warmupGoal = goal
+                return .none
+                
+            case let .coolDownGoalChanged(goal):
+                return .none
+                
+                // MARK: - View Actions
+                
+            case .view(.viewDidAppear):
+                return .none
+                
+            case .view(.cancelButtonTapped):
+                return .run { send in
+                    await self.dismiss()
                 }
                 
+            case .view(.workoutTitleSheetTapped):
+                state.isWorkoutTitleSheetPresented.toggle()
+                return .none
+                
+            case .view(.workoutTitleSheetDismissed):
+                state.isWorkoutTitleSheetPresented = false
+                return .none
+                
+            case .view(.wodSheetTapped):
+                state.destination = .openWodCreator(WodCreatorFeature.State())
+                return .none
+                
+                // MARK: - Destination
+  
+                
+                // MARK: - Child
+            case let .destination(.presented(.openWodCreator(.delegate(.wodCreated(workout))))):
+//            case let .wodCreator(.delegate(.wodCreated( workout))):
+                print("Otrzymano workout:")
+                dump(workout)
+                return .none
+                
+            case .destination:
+                return .none
+                
+//            default:
+//                return .none
             }
-            .ifLet(\.$destination, action: \.destination)
+            
+        }
+        .ifLet(\.$destination, action: \.destination)
+//        Scope(state: \.wodCreator, action: \.wodCreator) {
+//            WodCreatorFeature()
+//        }
     }
 }
 
@@ -123,9 +141,16 @@ extension WorkoutCreatorFeature {
             case workoutTitleSheetDismissed
         }
         
-        case destination(PresentationAction<Destination.Action>)
-    }
+        // MARK: - Destination
         
+        case destination(PresentationAction<Destination.Action>)
+        
+        // MARK: - Child
+        
+//        case wodCreator(WodCreatorFeature.Action)
+        
+    }
+    
 }
 
 // MARK: - State
@@ -150,7 +175,13 @@ extension WorkoutCreatorFeature {
         
         var coolDownGoal: SimpleWorkoutGoal = .open
         
+        // MARK: - Destination
+        
         @Presents var destination: Destination.State?
+        
+        // MARK: - Child
+        
+//        var wodCreator = WodCreatorFeature.State()
         
     }
     
@@ -167,7 +198,7 @@ extension WorkoutCreatorFeature {
     }
     
 }
-   
+
 enum SimpleWorkoutGoal: CaseIterable, Hashable {
     
     case open
@@ -177,5 +208,6 @@ enum SimpleWorkoutGoal: CaseIterable, Hashable {
         case .open: return "Open"
         }
     }
-
+    
 }
+
