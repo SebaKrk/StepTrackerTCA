@@ -423,3 +423,8 @@
      A: Create AI workout parsing structures
 
  📷 Zdjęcie → 📝 OCR → 🤖 AI Cleanup → 🏗️ AI Structure → ✅ Plan treningowy
+
+
+### IOS-00045 Workout Creator sheet
+    A: Implement a screen to manually add workouts.
+

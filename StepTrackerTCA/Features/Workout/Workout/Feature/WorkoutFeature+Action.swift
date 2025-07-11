@@ -59,6 +59,9 @@ extension WorkoutFeature {
             ///
             case showWorkoutMirroring
             
+            ///
+            case showCostumeWorkoutCreator
+            
         }
         
         // MARK: - Destination

@@ -23,6 +23,6 @@ struct GroupedMovement: Identifiable {
     let movements: [WorkoutMeasurement]
     
     /// An optional array of `WorkoutGoal` objects that define desired outcomes or objectives.
-    let goals: [WorkoutGoal]?
+    let goals: [WorkoutGoalSum]?
     
 }

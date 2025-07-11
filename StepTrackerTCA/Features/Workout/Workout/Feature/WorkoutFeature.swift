@@ -92,6 +92,10 @@ struct WorkoutFeature {
                     state.destination = .openWorkoutPlaner(WorkoutPlanerFeature.State())
                     return .none
                     
+                case .view(.showCostumeWorkoutCreator):
+                    state.destination = .openCostumeWorkoutCreator(WorkoutCreatorFeature.State())
+                    return .none
+                    
                 case .view(.showWorkoutMirroring):
                     state.destination = .openWorkoutMirroring(WorkoutMirroringFeature.State())
                     return .none

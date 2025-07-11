@@ -24,6 +24,8 @@ extension WorkoutFeature {
         /// Represents the destination for displaying in `WorkoutMirroringFeature`.
         case openWorkoutMirroring(WorkoutMirroringFeature)
         
+        case openCostumeWorkoutCreator(WorkoutCreatorFeature)
+        
     }
     
 }

@@ -18,7 +18,7 @@ import Foundation
 /// - `movement`: The specific movement or exercise the goal is related to.
 /// - `date`: The date when the goal is set or achieved.
 /// - `value`: The target value to achieve, such as a weight, time, or repetition count.
-struct WorkoutGoal: Identifiable {
+struct WorkoutGoalSum: Identifiable {
     
     /// A unique identifier for the goal.
     let id: String
