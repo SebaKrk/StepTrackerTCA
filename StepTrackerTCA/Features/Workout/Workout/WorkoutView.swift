@@ -54,6 +54,12 @@ struct WorkoutView: View {
                 WorkoutPlanerView(store: store)
                     .presentationDetents([.medium, .large])
             })
+            .sheet(item: $store.scope(state: \.destination?.openCostumeWorkoutCreator,
+                                      action: \.destination.openCostumeWorkoutCreator),
+                   content: { store in
+                WorkoutCreatorView(store: store)
+                    .presentationDetents([.large,.medium])
+            })
             .navigationDestination(
                 item: $store.scope(
                     state: \.destination?.openImageAnalysis,
@@ -89,6 +95,7 @@ struct WorkoutView: View {
             switch option {
             case .customWorkout:
                 print("chose custom workout")
+                send(.showCostumeWorkoutCreator)
             case .singleGoalWorkout:
                 send(.showWorkoutPlaner)
             case .pacerWorkout:

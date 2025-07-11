@@ -21,7 +21,7 @@ final class GoalSummaryFacade {
     ///
     /// - Returns: An array of `WorkoutGoal` representing all goals stored in the repository.
     /// - Throws: An error if fetching fails.
-    func fetchAllGoals() async throws -> [WorkoutGoal] {
+    func fetchAllGoals() async throws -> [WorkoutGoalSum] {
         return try await goalsRepository.fetchAllGoals()
     }
 }

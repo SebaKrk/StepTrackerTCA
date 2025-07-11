@@ -21,6 +21,6 @@ struct Summary {
     let measurements: [WorkoutMeasurement]
     
     /// An array of `WorkoutGoal` objects representing desired objectives or targets.
-    let goals: [WorkoutGoal]
+    let goals: [WorkoutGoalSum]
     
 }

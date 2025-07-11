@@ -23,12 +23,12 @@ final class DefaultGoalsRepository: GoalsRepository {
     
     // MARK: - API
     
-    func fetchAllGoals() async throws -> [WorkoutGoal] {
+    func fetchAllGoals() async throws -> [WorkoutGoalSum] {
         let fetchRequest = GoalWorkoutEntity.fetchRequest()
         return try coreDataManger.backgroundContext
             .fetch(fetchRequest)
             .map { goal in
-                WorkoutGoal(
+                WorkoutGoalSum(
                     id: goal.id,
                     workoutType: goal.workoutType,
                     movement: goal.movement,
