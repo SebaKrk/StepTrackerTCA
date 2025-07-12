@@ -10,6 +10,7 @@ import SwiftUI
 import SharedModels
 import WorkoutKit
 
+
 @ViewAction(for: WorkoutCreatorFeature.self)
 struct WorkoutCreatorView: View {
     
@@ -52,8 +53,14 @@ struct WorkoutCreatorView: View {
                 workoutTypeContextPicker
                 workoutLocationPicker
                 warmUpPicker
+                if store.warmupGoal == .timeLimit {
+                    warmUpTimeLimit
+                }
                 wodView
                 coolDownPicker
+                if store.coolDownGoal == .timeLimit {
+                    coolDownTimeLimit
+                }
             }
         }
     }
@@ -138,20 +145,31 @@ struct WorkoutCreatorView: View {
     
     @ViewBuilder
     private var warmUpPicker: some View {
-        Picker("WarmUp", selection: $store.warmupGoal.sending(\.warmupGoalChanged)) {
-            Text("select warm up").tag(nil as SimpleWorkoutGoal?)
+        Picker("Warm up", selection: $store.warmupGoal.sending(\.warmupGoalChanged)) {
+            Text("Select warm up").tag(nil as SimpleWorkoutGoal?)
             ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
                 Text(item.title)
                     .tag(item)
             }
         }
         .pickerStyle(.navigationLink)
+    }
+    
+    private var warmUpTimeLimit: some View {
+        Picker("Time", selection: $store.warmUpGoalTime.sending(\.warmupTimeChange)) {
+            ForEach(store.availableTime, id: \.self) { time in
+                Text("\(time)")
+                    .tag(time)
+            }
+        }
+        .pickerStyle(WheelPickerStyle())
+        .frame(height: 150)
     }
     
     @ViewBuilder
     private var coolDownPicker: some View {
-        Picker("Cool down", selection: $store.coolDownGoal.sending(\.warmupGoalChanged)) {
-            Text("select cool down").tag(nil as SimpleWorkoutGoal?)
+        Picker("Cool down", selection: $store.coolDownGoal.sending(\.coolDownGoalChanged)) {
+            Text("Select cool down").tag(nil as SimpleWorkoutGoal?)
             ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
                 Text(item.title)
                     .tag(item)
@@ -160,6 +178,16 @@ struct WorkoutCreatorView: View {
         .pickerStyle(.navigationLink)
     }
     
+    private var coolDownTimeLimit: some View {
+        Picker("Time", selection: $store.coolDownTime.sending(\.coolDownTimeChange)) {
+            ForEach(store.availableTime, id: \.self) { time in
+                Text("\(time)")
+                    .tag(time)
+            }
+        }
+        .pickerStyle(WheelPickerStyle())
+        .frame(height: 150)
+    }
     
     // MARK: - Private
     
