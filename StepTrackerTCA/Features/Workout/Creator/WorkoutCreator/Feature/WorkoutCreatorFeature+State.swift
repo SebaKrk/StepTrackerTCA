@@ -27,6 +27,8 @@ extension WorkoutCreatorFeature {
         
         var warmUpGoalTime: Int = 1
         
+        var isWarmUpSheetPresented: Bool = false
+        
         var coolDownGoal: SimpleWorkoutGoal = .open
         
         var coolDownTime: Int = 1

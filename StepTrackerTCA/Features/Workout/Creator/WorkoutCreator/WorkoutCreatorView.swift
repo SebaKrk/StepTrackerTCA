@@ -33,6 +33,10 @@ struct WorkoutCreatorView: View {
             .sheet(isPresented: $store.isWorkoutTitleSheetPresented) {
                 workoutTitleSheet
             }
+            .sheet(isPresented: $store.isWarmUpSheetPresented) {
+                warmUpPickerSheet
+            }
+            .presentationDetents([.fraction(0.15)])
             .navigationDestination(item: $store.scope(state: \.destination?.openWodCreator,
                                                       action: \.destination.openWodCreator)) { store in
                 WodCreatorView(store: store)
@@ -52,10 +56,7 @@ struct WorkoutCreatorView: View {
                 workoutTitle
                 workoutTypeContextPicker
                 workoutLocationPicker
-                warmUpPicker
-                if store.warmupGoal == .timeLimit {
-                    warmUpTimeLimit
-                }
+                warmUpButton
                 wodView
                 coolDownPicker
                 if store.coolDownGoal == .timeLimit {
@@ -143,27 +144,93 @@ struct WorkoutCreatorView: View {
         .pickerStyle(.navigationLink)
     }
     
-    @ViewBuilder
-    private var warmUpPicker: some View {
-        Picker("Warm up", selection: $store.warmupGoal.sending(\.warmupGoalChanged)) {
-            Text("Select warm up").tag(nil as SimpleWorkoutGoal?)
-            ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
-                Text(item.title)
-                    .tag(item)
+    private var warmUpButton: some View {
+        Button {
+            send(.openWarmUpSheetPresented)
+        } label: {
+            HStack {
+                Text("Warm up")
+                    .foregroundColor(.primary)
+                Spacer()
+                if store.warmupGoal == .open {
+                    Text(store.warmupGoal.title)
+                        .foregroundColor(.secondary)
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                } else {
+                    Text("\(store.warmUpGoalTime) minutes")
+                        .foregroundColor(.secondary)
+                }
             }
         }
-        .pickerStyle(.navigationLink)
+        .buttonStyle(PlainButtonStyle())
     }
     
-    private var warmUpTimeLimit: some View {
-        Picker("Time", selection: $store.warmUpGoalTime.sending(\.warmupTimeChange)) {
-            ForEach(store.availableTime, id: \.self) { time in
-                Text("\(time)")
-                    .tag(time)
+    private var warmUpPickerSheet: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    warmUpPicker
+                    if store.warmupGoal == .timeLimit {
+                        warmUpTimeLimit
+                    }
+                }
+            }
+            .navigationTitle("Warm Up")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        send(.openWarmUpSheetPresented)
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        send(.openWarmUpSheetPresented)
+                    }
+                }
             }
         }
-        .pickerStyle(WheelPickerStyle())
-        .frame(height: 150)
+    }
+    
+    @ViewBuilder
+    private var warmUpPicker: some View {
+        List {
+            Section("Warm up") {
+                ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
+                    Button {
+                        send(.warmupGoalButtonTapped(item))
+                    } label: {
+                        HStack {
+                            Text(item.title)
+                            Spacer()
+                            if store.warmupGoal == item {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.pink)
+                            }
+                        }
+                        .padding()
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .listRowInsets(EdgeInsets())
+                }
+            }
+        }
+    }
+
+    private var warmUpTimeLimit: some View {
+        VStack {
+            Picker("Time", selection: $store.warmUpGoalTime.sending(\.warmupTimeChange)) {
+                ForEach(store.availableTime, id: \.self) { time in
+                    Text("\(time)")
+                        .tag(time)
+                }
+            }
+            .pickerStyle(WheelPickerStyle())
+            .frame(height: 125)
+        }
     }
     
     @ViewBuilder
@@ -179,14 +246,23 @@ struct WorkoutCreatorView: View {
     }
     
     private var coolDownTimeLimit: some View {
-        Picker("Time", selection: $store.coolDownTime.sending(\.coolDownTimeChange)) {
-            ForEach(store.availableTime, id: \.self) { time in
-                Text("\(time)")
-                    .tag(time)
+        VStack {
+            Picker("Time", selection: $store.coolDownTime.sending(\.coolDownTimeChange)) {
+                ForEach(store.availableTime, id: \.self) { time in
+                    Text("\(time)").tag(time)
+                }
+            }
+            .pickerStyle(WheelPickerStyle())
+            .frame(height: 150)
+            HStack {
+                Spacer()
+                Button {
+                    print("aaa")
+                } label: {
+                    Text("Done")
+                }
             }
         }
-        .pickerStyle(WheelPickerStyle())
-        .frame(height: 150)
     }
     
     // MARK: - Private

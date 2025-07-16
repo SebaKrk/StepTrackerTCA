@@ -43,9 +43,9 @@ struct WorkoutCreatorFeature {
                 state.workoutLocationType = item
                 return .none
                 
-            case let .warmupGoalChanged(goal):
-                state.warmupGoal = goal
-                return .none
+//            case let .warmupGoalChanged(goal):
+//                state.warmupGoal = goal
+//                return .none
                 
             case let .warmupTimeChange(time):
                 state.warmUpGoalTime = time
@@ -79,6 +79,14 @@ struct WorkoutCreatorFeature {
                 
             case .view(.wodSheetTapped):
                 state.destination = .openWodCreator(WodCreatorFeature.State())
+                return .none
+                
+            case .view(.openWarmUpSheetPresented):
+                state.isWarmUpSheetPresented.toggle()
+                return .none
+                
+            case let .view(.warmupGoalButtonTapped(goal)):
+                state.warmupGoal = goal
                 return .none
                 
                 // MARK: - Destination

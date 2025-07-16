@@ -26,7 +26,7 @@ extension WorkoutCreatorFeature {
         
         case workoutTitleChanged(String)
         
-        case warmupGoalChanged(SimpleWorkoutGoal)
+//        case warmupGoalChanged(SimpleWorkoutGoal)
         
         case warmupTimeChange(Int)
         
@@ -51,6 +51,10 @@ extension WorkoutCreatorFeature {
             case wodSheetTapped
             
             case workoutTitleSheetDismissed
+            
+            case openWarmUpSheetPresented
+            
+            case warmupGoalButtonTapped(SimpleWorkoutGoal)
         }
         
         // MARK: - Destination

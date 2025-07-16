@@ -6,7 +6,7 @@
 //
 
 import FoundationModels
- 
+
 // Enum for workout section types
 @Generable
 @available(iOS 26, *)
