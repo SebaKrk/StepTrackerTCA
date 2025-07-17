@@ -36,10 +36,16 @@ struct WorkoutCreatorView: View {
             .sheet(isPresented: $store.isWarmUpSheetPresented) {
                 warmUpPickerSheet
             }
-            .presentationDetents([.fraction(0.15)])
+            .sheet(isPresented: $store.isCoolDownSheetPresented) {
+                coolDownPickerSheet
+            }
             .navigationDestination(item: $store.scope(state: \.destination?.openWodCreator,
                                                       action: \.destination.openWodCreator)) { store in
                 WodCreatorView(store: store)
+            }
+            .navigationDestination(item: $store.scope(state: \.destination?.openWorkoutPreview,
+                                                      action: \.destination.openWorkoutPreview)) { store in
+                WorkoutPreviewView(store: store)
             }
         }
     }
@@ -47,6 +53,11 @@ struct WorkoutCreatorView: View {
     @ToolbarContentBuilder
     var toolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) { cancelButton }
+        if !store.wods.isEmpty {
+            ToolbarItem(placement: .topBarTrailing) {
+                previewButton
+            }
+        }
     }
     
     @ViewBuilder
@@ -57,29 +68,39 @@ struct WorkoutCreatorView: View {
                 workoutTypeContextPicker
                 workoutLocationPicker
                 warmUpButton
-                wodView
-                coolDownPicker
-                if store.coolDownGoal == .timeLimit {
-                    coolDownTimeLimit
+                createWodButton
+                if !store.wods.isEmpty {
+                    wodsView
                 }
+                coolDownButton
             }
         }
     }
     
-    private var wodView: some View {
+    private var createWodButton: some View {
         Button {
             send(.wodSheetTapped)
         } label: {
             HStack {
-                Text("Wod")
+                Text("Create WOD")
                     .foregroundColor(.primary)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.secondary)
                     .font(.caption)
+                
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+    }
+    
+    private var wodsView: some View {
+        // TODO: - przejscie z uzupelnionymi danymi do WODu aby ewentualnie cos zmienic i zapisc
+        List {
+            ForEach(store.wods) { wod in
+                Text(wod.name)
             }
         }
-        .buttonStyle(PlainButtonStyle())
     }
     
     private var workoutTitle: some View {
@@ -99,16 +120,17 @@ struct WorkoutCreatorView: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-
+    
     @ViewBuilder
     private var workoutTitleSheet: some View {
         NavigationStack {
-             Form {
-                 TextField("Workout title", text: $store.workoutTitle.sending(\.workoutTitleChanged))
-                     .multilineTextAlignment(.leading)
+            Form {
+                TextField("Workout title", text: $store.workoutTitle.sending(\.workoutTitleChanged))
+                    .multilineTextAlignment(.leading)
             }
             .navigationTitle("Workout Title")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDetents([.medium])
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
@@ -117,7 +139,7 @@ struct WorkoutCreatorView: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        
     }
     
     @ViewBuilder
@@ -159,7 +181,7 @@ struct WorkoutCreatorView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                 } else {
-                    Text("\(store.warmUpGoalTime) minutes")
+                    Text("\(store.warmUpGoalTime ?? 0 ) minutes")
                         .foregroundColor(.secondary)
                 }
             }
@@ -179,6 +201,7 @@ struct WorkoutCreatorView: View {
             }
             .navigationTitle("Warm Up")
             .navigationBarTitleDisplayMode(.inline)
+            .presentationDetents([.medium])
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -219,10 +242,104 @@ struct WorkoutCreatorView: View {
             }
         }
     }
-
+    
     private var warmUpTimeLimit: some View {
         VStack {
             Picker("Time", selection: $store.warmUpGoalTime.sending(\.warmupTimeChange)) {
+                ForEach(store.availableTime, id: \.self) { time in
+                    Text("\(time)")
+                        .tag(time as Int?)
+                }
+            }
+            .pickerStyle(WheelPickerStyle())
+            .frame(height: 125)
+            .onChange(of: store.warmUpGoalTime) { oldValue, newValue in
+                     print("Picker changed: \(oldValue) -> \(newValue)")
+                 }
+        }
+    }
+    
+    private var coolDownButton: some View {
+        Button {
+            send(.openCoolDownSheetPresented)
+        } label: {
+            HStack {
+                Text("Cool Down")
+                    .foregroundColor(.primary)
+                Spacer()
+                if store.coolDownGoal == .open {
+                    Text(store.coolDownGoal.title)
+                        .foregroundColor(.secondary)
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                } else {
+                    Text("\(store.coolDownTime ?? 0) minutes")
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private var coolDownPickerSheet: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    coolDownPicker
+                    if store.coolDownGoal == .timeLimit {
+                        coolDownTimeLimit
+                    }
+                }
+            }
+            .navigationTitle("Cool Down")
+            .navigationBarTitleDisplayMode(.inline)
+            .presentationDetents([.medium])
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        send(.openCoolDownSheetPresented)
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        send(.openCoolDownSheetPresented)
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var coolDownPicker: some View {
+        List {
+            Section("Cool Down") {
+                ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
+                    Button {
+                        send(.coolDownButtonTapped(item))
+                    } label: {
+                        HStack {
+                            Text(item.title)
+                            Spacer()
+                            if store.coolDownGoal == item {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.pink)
+                            }
+                        }
+                        .padding()
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .listRowInsets(EdgeInsets())
+                }
+            }
+        }
+    }
+    
+    private var coolDownTimeLimit: some View {
+        VStack {
+            Picker("Time", selection: $store.coolDownTime.sending(\.coolDownTimeChange)) {
                 ForEach(store.availableTime, id: \.self) { time in
                     Text("\(time)")
                         .tag(time)
@@ -230,38 +347,6 @@ struct WorkoutCreatorView: View {
             }
             .pickerStyle(WheelPickerStyle())
             .frame(height: 125)
-        }
-    }
-    
-    @ViewBuilder
-    private var coolDownPicker: some View {
-        Picker("Cool down", selection: $store.coolDownGoal.sending(\.coolDownGoalChanged)) {
-            Text("Select cool down").tag(nil as SimpleWorkoutGoal?)
-            ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
-                Text(item.title)
-                    .tag(item)
-            }
-        }
-        .pickerStyle(.navigationLink)
-    }
-    
-    private var coolDownTimeLimit: some View {
-        VStack {
-            Picker("Time", selection: $store.coolDownTime.sending(\.coolDownTimeChange)) {
-                ForEach(store.availableTime, id: \.self) { time in
-                    Text("\(time)").tag(time)
-                }
-            }
-            .pickerStyle(WheelPickerStyle())
-            .frame(height: 150)
-            HStack {
-                Spacer()
-                Button {
-                    print("aaa")
-                } label: {
-                    Text("Done")
-                }
-            }
         }
     }
     
@@ -274,7 +359,15 @@ struct WorkoutCreatorView: View {
             Text("Cancel")
         }
     }
-
+    
+    private var previewButton: some View {
+        Button {
+            send(.previewButtonTapped)
+        } label: {
+            Text("Show")
+        }
+    }
+    
 }
 
 //import WorkoutKit

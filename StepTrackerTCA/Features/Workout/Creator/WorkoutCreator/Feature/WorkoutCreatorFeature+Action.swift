@@ -26,13 +26,11 @@ extension WorkoutCreatorFeature {
         
         case workoutTitleChanged(String)
         
-//        case warmupGoalChanged(SimpleWorkoutGoal)
+        case warmupTimeChange(Int?)
         
-        case warmupTimeChange(Int)
+        case coolDownTimeChange(Int?)
         
-        case coolDownGoalChanged(SimpleWorkoutGoal)
-        
-        case coolDownTimeChange(Int)
+        case addWodToWods(WorkoutSessionNew)
         
         // MARK: - View actions
         
@@ -55,6 +53,12 @@ extension WorkoutCreatorFeature {
             case openWarmUpSheetPresented
             
             case warmupGoalButtonTapped(SimpleWorkoutGoal)
+            
+            case openCoolDownSheetPresented
+            
+            case coolDownButtonTapped(SimpleWorkoutGoal)
+            
+            case previewButtonTapped
         }
         
         // MARK: - Destination

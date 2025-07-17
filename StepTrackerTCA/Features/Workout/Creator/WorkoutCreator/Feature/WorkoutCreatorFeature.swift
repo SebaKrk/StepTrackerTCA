@@ -21,7 +21,9 @@ struct WorkoutCreatorFeature {
     
     var body: some Reducer<State, Action> {
         BindingReducer()
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
                 
                 // MARK: - Binding
@@ -43,20 +45,18 @@ struct WorkoutCreatorFeature {
                 state.workoutLocationType = item
                 return .none
                 
-//            case let .warmupGoalChanged(goal):
-//                state.warmupGoal = goal
-//                return .none
-                
             case let .warmupTimeChange(time):
+                print(time)
                 state.warmUpGoalTime = time
-                return .none
-                
-            case let .coolDownGoalChanged(goal):
-                state.coolDownGoal = goal
+                print(state.warmUpGoalTime)
                 return .none
                 
             case let .coolDownTimeChange(time):
                 state.coolDownTime = time
+                return .none
+                
+            case let .addWodToWods(WOD):
+                state.wods.append(WOD)
                 return .none
                 
                 // MARK: - View Actions
@@ -87,19 +87,63 @@ struct WorkoutCreatorFeature {
                 
             case let .view(.warmupGoalButtonTapped(goal)):
                 state.warmupGoal = goal
+                
+                if goal == .open {
+                    state.warmUpGoalTime = nil
+                }
+                
+                return .none
+                
+            case .view(.openCoolDownSheetPresented):
+                state.isCoolDownSheetPresented.toggle()
+                return .none
+                
+            case let .view(.coolDownButtonTapped(goal)):
+                state.coolDownGoal = goal
+                
+                if goal == .open {
+                    state.coolDownTime = nil
+                }
+                
+                return .none
+                
+            case  .view(.previewButtonTapped):
+                let newSession = TrainingSession(
+                    date: .now,
+                    warmUp: WarmUpSession(
+                        goal: state.warmupGoal,
+                        time: state.warmupGoal == .open ? nil : state.warmUpGoalTime,
+                        description: nil
+                    ),
+                    workouts: state.wods,
+                    coolDown: CoolDownSession(
+                        goal: state.coolDownGoal,
+                        time: state.coolDownTime,
+                        description: nil
+                    )
+                )
+                state.trainingSession = newSession
+                if let session = state.trainingSession {
+                    state.destination = .openWorkoutPreview(WorkoutPreviewFeature.State(trainingSession: session))
+                } else {
+                    print("brak session")
+                }
                 return .none
                 
                 // MARK: - Destination
   
-                
                 // MARK: - Child
             case let .destination(.presented(.openWodCreator(.delegate(.wodCreated(workout))))):
                 print("Otrzymano workout:")
                 dump(workout)
-                return .none
+                
+                return .run { send in
+                    await send(.addWodToWods(workout))
+                }
                 
             case .destination:
                 return .none
+
             }
             
         }

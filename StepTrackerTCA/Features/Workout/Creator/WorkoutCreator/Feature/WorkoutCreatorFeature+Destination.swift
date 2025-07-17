@@ -15,6 +15,9 @@ extension WorkoutCreatorFeature {
         
         /// Represents the destination for displaying in `WodCreatorFeature`.
         case openWodCreator(WodCreatorFeature)
+        
+        /// Represents the destination for displaying in `WorkoutPreviewFeature`.
+        case openWorkoutPreview(WorkoutPreviewFeature)
     }
     
 }
