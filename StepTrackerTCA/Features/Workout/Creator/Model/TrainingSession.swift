@@ -10,7 +10,7 @@ import SwiftUI
 
 // MARK: - Training Session (główny obiekt treningu)
 struct TrainingSession {
-    let date: String
+    let date: Date
     let warmUp: WarmUpSession?
     let workouts: [WorkoutSessionNew]
     let coolDown: CoolDownSession?
@@ -18,16 +18,21 @@ struct TrainingSession {
 
 // MARK: - Warm Up Session
 struct WarmUpSession {
-    let description: String
+    let goal: SimpleWorkoutGoal
+    let time: Int?
+    let description: String?
 }
 
 // MARK: - Cool Down Session
 struct CoolDownSession {
-    let description: String
+    let goal: SimpleWorkoutGoal
+    let time: Int?
+    let description: String?
 }
 
 // MARK: - Workout Session
-struct WorkoutSessionNew {
+struct WorkoutSessionNew: Identifiable, Equatable {
+    let id = UUID()
     let name: String
     let type: ExerciseWorkoutType
     let timeCap: Int?

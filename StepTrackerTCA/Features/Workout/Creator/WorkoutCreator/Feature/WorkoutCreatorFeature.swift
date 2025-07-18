@@ -21,7 +21,9 @@ struct WorkoutCreatorFeature {
     
     var body: some Reducer<State, Action> {
         BindingReducer()
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
                 
                 // MARK: - Binding
@@ -43,11 +45,20 @@ struct WorkoutCreatorFeature {
                 state.workoutLocationType = item
                 return .none
                 
-            case let .warmupGoalChanged(goal):
-                //state.warmupGoal = goal
+            case let .warmupTimeChange(time):
+                state.warmUpGoalTime = time
                 return .none
                 
-            case let .coolDownGoalChanged(goal):
+            case let .warmupNoteChanged(note):
+                state.warmUpNote = note
+                return .none
+                
+            case let .coolDownTimeChange(time):
+                state.coolDownTime = time
+                return .none
+                
+            case let .addWodToWods(WOD):
+                state.wods.append(WOD)
                 return .none
                 
                 // MARK: - View Actions
@@ -72,142 +83,72 @@ struct WorkoutCreatorFeature {
                 state.destination = .openWodCreator(WodCreatorFeature.State())
                 return .none
                 
+            case .view(.openWarmUpSheetPresented):
+                state.isWarmUpSheetPresented.toggle()
+                return .none
+                
+            case let .view(.warmupGoalButtonTapped(goal)):
+                state.warmupGoal = goal
+                
+                if goal == .open {
+                    state.warmUpGoalTime = nil
+                }
+                return .none
+
+            case .view(.openCoolDownSheetPresented):
+                state.isCoolDownSheetPresented.toggle()
+                return .none
+                
+            case let .view(.coolDownButtonTapped(goal)):
+                state.coolDownGoal = goal
+                
+                if goal == .open {
+                    state.coolDownTime = nil
+                }
+                
+                return .none
+                
+            case  .view(.previewButtonTapped):
+                let newSession = TrainingSession(
+                    date: .now,
+                    warmUp: WarmUpSession(
+                        goal: state.warmupGoal,
+                        time: state.warmupGoal == .open ? nil : state.warmUpGoalTime,
+                        description: state.warmUpNote
+                    ),
+                    workouts: state.wods,
+                    coolDown: CoolDownSession(
+                        goal: state.coolDownGoal,
+                        time: state.coolDownTime,
+                        description: nil
+                    )
+                )
+                state.trainingSession = newSession
+                if let session = state.trainingSession {
+                    state.destination = .openWorkoutPreview(WorkoutPreviewFeature.State(trainingSession: session))
+                } else {
+                    print("brak session")
+                }
+                return .none
+                
                 // MARK: - Destination
   
-                
                 // MARK: - Child
             case let .destination(.presented(.openWodCreator(.delegate(.wodCreated(workout))))):
-//            case let .wodCreator(.delegate(.wodCreated( workout))):
                 print("Otrzymano workout:")
                 dump(workout)
-                return .none
+                
+                return .run { send in
+                    await send(.addWodToWods(workout))
+                }
                 
             case .destination:
                 return .none
-                
-//            default:
-//                return .none
+
             }
             
         }
         .ifLet(\.$destination, action: \.destination)
-//        Scope(state: \.wodCreator, action: \.wodCreator) {
-//            WodCreatorFeature()
-//        }
-    }
-}
-
-// MARK: - Action
-
-/// Implementation of `WorkoutCreatorFeature` action
-extension WorkoutCreatorFeature {
-    
-    @CasePathable
-    enum Action: ViewAction, BindableAction {
-        
-        // MARK: - Binding Action
-        
-        /// Handles changes in bindings for the state.
-        case binding(BindingAction<State>)
-        
-        // MARK: - Actions
-        
-        case selectedWorkoutActivityPickerChange(WorkoutActivityType)
-        
-        case selectedWorkoutLocationPickerChange(WorkoutLocationType)
-        
-        case workoutTitleChanged(String)
-        
-        case warmupGoalChanged(SimpleWorkoutGoal)
-        
-        case coolDownGoalChanged(SimpleWorkoutGoal)
-        
-        // MARK: - View actions
-        
-        /// Used for view actions.
-        case view(View)
-        
-        enum View {
-            
-            /// The action responsible for completing tasks as soon as the view is displayed.
-            case viewDidAppear
-            
-            case cancelButtonTapped
-            
-            case workoutTitleSheetTapped
-            
-            case wodSheetTapped
-            
-            case workoutTitleSheetDismissed
-        }
-        
-        // MARK: - Destination
-        
-        case destination(PresentationAction<Destination.Action>)
-        
-        // MARK: - Child
-        
-//        case wodCreator(WodCreatorFeature.Action)
-        
     }
     
 }
-
-// MARK: - State
-
-/// Implementation of `WorkoutCreatorFeature` state
-extension WorkoutCreatorFeature {
-    
-    @ObservableState
-    struct State {
-        
-        var isWorkoutTitleSheetPresented: Bool = false
-        
-        var workoutTitle: String = ""
-        
-        var workoutActivityType: WorkoutActivityType = .crossTraining
-        
-        var availableWorkoutTypes: [WorkoutActivityType] = [.crossTraining]
-        
-        var workoutLocationType: WorkoutLocationType = .indoor
-        
-        var warmupGoal: SimpleWorkoutGoal = .open
-        
-        var coolDownGoal: SimpleWorkoutGoal = .open
-        
-        // MARK: - Destination
-        
-        @Presents var destination: Destination.State?
-        
-        // MARK: - Child
-        
-//        var wodCreator = WodCreatorFeature.State()
-        
-    }
-    
-}
-
-/// Implementation of `WorkoutCreatorFeature` destination
-extension WorkoutCreatorFeature {
-    
-    @Reducer
-    enum Destination {
-        
-        /// Represents the destination for displaying in `WodCreatorFeature`.
-        case openWodCreator(WodCreatorFeature)
-    }
-    
-}
-
-enum SimpleWorkoutGoal: CaseIterable, Hashable {
-    
-    case open
-    
-    var title: String {
-        switch self {
-        case .open: return "Open"
-        }
-    }
-    
-}
-

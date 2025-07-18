@@ -26,6 +26,11 @@ extension WorkoutPlanerFeature {
         /// Selected workout location type (e.g., indoor, outdoor).
         var workoutLocationType: WorkoutLocationType = .indoor
         
+        var warmUp: SimpleWorkoutGoal = .open
+        
+        
+        var coolDOwn: SimpleWorkoutGoal = .timeLimit
+        
         /// The currently created or selected workout plan.
         var workoutPlan: WorkoutPlan? = nil
         
