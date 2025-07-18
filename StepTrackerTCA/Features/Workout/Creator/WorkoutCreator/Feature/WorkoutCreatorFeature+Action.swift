@@ -62,6 +62,8 @@ extension WorkoutCreatorFeature {
             
             /// User tapped to preview the complete workout
             case previewButtonTapped
+            
+            case workoutTypeButtonTaped
         }
         
         // MARK: - Destination

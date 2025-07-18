@@ -101,7 +101,13 @@ struct WorkoutCreatorFeature {
                 }
                 return .none
                 
+            case .view(.workoutTypeButtonTaped):
+                    state.destination = .openWorkoutActivityType(WorkoutActivityTypeFeature.State())
+                return .none
+                
                 // MARK: - Child Features
+    
+                
             case let .warmUpConfiguration(.presented(.delegate(.warmUpUpdated(session)))):
                 state.warmUpSession = session
                 return .none
@@ -129,6 +135,13 @@ struct WorkoutCreatorFeature {
                 return .run { send in
                     await send(.addWodToWods(workout))
                 }
+                
+            case let  .destination(.presented(.openWorkoutActivityType(.delegate(.workoutActivityTypeUpdated(update))))):
+                state.workoutActivityType = update
+                
+                return .run { send in
+                      await send(.destination(.dismiss))
+                  }
                 
             case .destination:
                 return .none

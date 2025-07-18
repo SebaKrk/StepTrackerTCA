@@ -27,7 +27,8 @@ extension WorkoutCreatorFeature {
         // MARK: - Workout type
         
         /// Selected workout activity type (e.g., crossTraining, running, cycling)
-        var workoutActivityType: WorkoutActivityType = .crossTraining
+        var workoutActivityType: WorkoutActivityType? = nil
+        //= .crossTraining
         
         /// Available workout activity types for selection
         var availableWorkoutTypes: [WorkoutActivityType] = [.crossTraining]

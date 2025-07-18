@@ -33,21 +33,26 @@ struct WorkoutCreatorView: View {
             .sheet(isPresented: $store.isWorkoutTitleSheetPresented) {
                 workoutTitleSheet
             }
-            .sheet(item: $store.scope(state: \.warmUpConfiguration, action: \.warmUpConfiguration)) { store in
-                SessionConfigurationView(store: store)
+            .sheet(item: $store.scope(state: \.destination?.openWorkoutActivityType,
+                                      action: \.destination.openWorkoutActivityType)) { store in
+                WorkoutActivityTypeView(store: store)
+                    .presentationDetents([.medium])
             }
-            .sheet(item: $store.scope(state: \.coolDownConfiguration, action: \.coolDownConfiguration)) { store in
-                SessionConfigurationView(store: store)
-            }
-            .navigationDestination(item: $store.scope(state: \.destination?.openWodCreator,
-                                                      action: \.destination.openWodCreator)) { store in
-                WodCreatorView(store: store)
-            }
-            .navigationDestination(item: $store.scope(state: \.destination?.openWorkoutPreview,
-                                                      action: \.destination.openWorkoutPreview)) { store in
-                WorkoutPreviewView(store: store)
-                    .presentationDetents([.large, .medium])
-            }
+//            .sheet(item: $store.scope(state: \.warmUpConfiguration, action: \.warmUpConfiguration)) { store in
+//                WorkoutActivityTypeView(store: store)
+//            }
+//            .sheet(item: $store.scope(state: \.coolDownConfiguration, action: \.coolDownConfiguration)) { store in
+//                SessionConfigurationView(store: store)
+//            }
+//            .navigationDestination(item: $store.scope(state: \.destination?.openWodCreator,
+//                                                      action: \.destination.openWodCreator)) { store in
+//                WodCreatorView(store: store)
+//            }
+//            .navigationDestination(item: $store.scope(state: \.destination?.openWorkoutPreview,
+//                                                      action: \.destination.openWorkoutPreview)) { store in
+//                WorkoutPreviewView(store: store)
+//                    .presentationDetents([.large, .medium])
+//            }
         }
     }
     
@@ -145,14 +150,33 @@ struct WorkoutCreatorView: View {
     
     @ViewBuilder
     private var workoutTypeContextPicker: some View {
-        Picker("Type", selection: $store.workoutActivityType.sending(\.selectedWorkoutActivityPickerChange)) {
-            Text("select workout").tag(nil as WorkoutActivityType?)
-            ForEach(store.availableWorkoutTypes, id: \.self) { item in
-                Text(item.title)
-                    .tag(item)
+//        Picker("Type", selection: $store.workoutActivityType.sending(\.selectedWorkoutActivityPickerChange)) {
+//            Text("select workout").tag(nil as WorkoutActivityType?)
+//            ForEach(store.availableWorkoutTypes, id: \.self) { item in
+//                Text(item.title)
+//                    .tag(item)
+//            }
+//        }
+//        .pickerStyle(.navigationLink)
+        
+        Button {
+            send(.workoutTypeButtonTaped)
+        } label: {
+            HStack {
+                Text("Workout Type")
+                    .foregroundColor(.primary)
+                Spacer()
+                if let type = store.workoutActivityType {
+                    Text(type.title)
+                        .foregroundColor(.secondary)
+                }
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+                
             }
+            .buttonStyle(PlainButtonStyle())
         }
-        .pickerStyle(.navigationLink)
     }
     
     @ViewBuilder
