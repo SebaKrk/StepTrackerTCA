@@ -76,10 +76,10 @@ extension WorkoutCreatorFeature {
         
         /// Handles warm up configuration feature actions
         /// - Parameter action: SessionConfigurationFeature action for warm up phase
-        case warmUpConfiguration(PresentationAction<SessionConfigurationFeature.Action>)
+        //case warmUpConfiguration(PresentationAction<SessionConfigurationFeature.Action>)
         
         /// Handles cool down configuration feature actions
         /// - Parameter action: SessionConfigurationFeature action for cool down phase
-        case coolDownConfiguration(PresentationAction<SessionConfigurationFeature.Action>)
+//        case coolDownConfiguration(PresentationAction<SessionConfigurationFeature.Action>)
     }
 }

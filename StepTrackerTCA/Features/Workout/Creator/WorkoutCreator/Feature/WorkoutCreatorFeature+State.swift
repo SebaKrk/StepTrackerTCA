@@ -56,14 +56,6 @@ extension WorkoutCreatorFeature {
         /// Navigation destination for presenting WOD creator or workout preview
         @Presents var destination: Destination.State?
         
-        // MARK: - Child Features
-        
-        /// State for warm up configuration feature
-        @Presents var warmUpConfiguration: SessionConfigurationFeature.State?
-        
-        /// State for cool down configuration feature
-        @Presents var coolDownConfiguration: SessionConfigurationFeature.State?
-        
         // MARK: - Computed Properties
         
         /// Display text for warm up button showing current configuration

@@ -20,6 +20,8 @@ extension WorkoutCreatorFeature {
         case openWorkoutPreview(WorkoutPreviewFeature)
         
         case openWorkoutActivityType(WorkoutActivityTypeFeature)
+        
+        case openSessionConfiguration(SessionConfigurationFeature)
     }
     
 }

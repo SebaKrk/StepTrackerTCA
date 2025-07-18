@@ -22,9 +22,7 @@ struct WorkoutCreatorView: View {
     
     var body: some View {
         NavigationStack {
-            Group {
                 formView
-            }
             .navigationTitle("Workout Creator")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -33,26 +31,25 @@ struct WorkoutCreatorView: View {
             .sheet(isPresented: $store.isWorkoutTitleSheetPresented) {
                 workoutTitleSheet
             }
+            .sheet(item: $store.scope(state: \.destination?.openSessionConfiguration,
+                                      action: \.destination.openSessionConfiguration)) { store in
+                SessionConfigurationView(store: store)
+                    .presentationDetents([.large])
+            }
             .sheet(item: $store.scope(state: \.destination?.openWorkoutActivityType,
                                       action: \.destination.openWorkoutActivityType)) { store in
                 WorkoutActivityTypeView(store: store)
                     .presentationDetents([.medium])
             }
-//            .sheet(item: $store.scope(state: \.warmUpConfiguration, action: \.warmUpConfiguration)) { store in
-//                WorkoutActivityTypeView(store: store)
-//            }
-//            .sheet(item: $store.scope(state: \.coolDownConfiguration, action: \.coolDownConfiguration)) { store in
-//                SessionConfigurationView(store: store)
-//            }
-//            .navigationDestination(item: $store.scope(state: \.destination?.openWodCreator,
-//                                                      action: \.destination.openWodCreator)) { store in
-//                WodCreatorView(store: store)
-//            }
-//            .navigationDestination(item: $store.scope(state: \.destination?.openWorkoutPreview,
-//                                                      action: \.destination.openWorkoutPreview)) { store in
-//                WorkoutPreviewView(store: store)
-//                    .presentationDetents([.large, .medium])
-//            }
+            .navigationDestination(item: $store.scope(state: \.destination?.openWodCreator,
+                                                      action: \.destination.openWodCreator)) { store in
+                WodCreatorView(store: store)
+            }
+            .navigationDestination(item: $store.scope(state: \.destination?.openWorkoutPreview,
+                                                      action: \.destination.openWorkoutPreview)) { store in
+                WorkoutPreviewView(store: store)
+                    .presentationDetents([.large, .medium])
+            }
         }
     }
     
@@ -71,7 +68,7 @@ struct WorkoutCreatorView: View {
         VStack {
             Form {
                 workoutTitle
-                workoutTypeContextPicker
+                workoutTypeButton
                 workoutLocationPicker
                 warmUpButton
                 createWodButton
@@ -149,16 +146,7 @@ struct WorkoutCreatorView: View {
     }
     
     @ViewBuilder
-    private var workoutTypeContextPicker: some View {
-//        Picker("Type", selection: $store.workoutActivityType.sending(\.selectedWorkoutActivityPickerChange)) {
-//            Text("select workout").tag(nil as WorkoutActivityType?)
-//            ForEach(store.availableWorkoutTypes, id: \.self) { item in
-//                Text(item.title)
-//                    .tag(item)
-//            }
-//        }
-//        .pickerStyle(.navigationLink)
-        
+    private var workoutTypeButton: some View {
         Button {
             send(.workoutTypeButtonTaped)
         } label: {
