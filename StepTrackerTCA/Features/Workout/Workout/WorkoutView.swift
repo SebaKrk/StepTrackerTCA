@@ -54,6 +54,9 @@ struct WorkoutView: View {
                 WorkoutPlanerView(store: store)
                     .presentationDetents([.medium, .large])
             })
+            
+            // TODO: - FIX
+            // to nie powino byc shhetem
             .sheet(item: $store.scope(state: \.destination?.openCostumeWorkoutCreator,
                                       action: \.destination.openCostumeWorkoutCreator),
                    content: { store in
