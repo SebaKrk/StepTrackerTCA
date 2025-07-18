@@ -21,18 +21,14 @@ struct WorkoutCreatorFeature {
     
     var body: some Reducer<State, Action> {
         BindingReducer()
-        Reduce {
-            state,
-            action in
+        Reduce { state, action in
             switch action {
                 
                 // MARK: - Binding
-                
             case .binding(_):
                 return .none
                 
                 // MARK: - Actions
-                
             case let .workoutTitleChanged(title):
                 state.workoutTitle = title
                 return .none
@@ -45,27 +41,11 @@ struct WorkoutCreatorFeature {
                 state.workoutLocationType = item
                 return .none
                 
-            case let .warmupTimeChange(time):
-                state.warmUpGoalTime = time
-                return .none
-                
-            case let .warmupNoteChanged(note):
-                state.warmUpNote = note
-                return .none
-                
-            case let .coolDownTimeChange(time):
-                state.coolDownTime = time
-                return .none
-                
             case let .addWodToWods(WOD):
                 state.wods.append(WOD)
                 return .none
                 
                 // MARK: - View Actions
-                
-            case .view(.viewDidAppear):
-                return .none
-                
             case .view(.cancelButtonTapped):
                 return .run { send in
                     await self.dismiss()
@@ -84,71 +64,82 @@ struct WorkoutCreatorFeature {
                 return .none
                 
             case .view(.openWarmUpSheetPresented):
-                state.isWarmUpSheetPresented.toggle()
-                return .none
-                
-            case let .view(.warmupGoalButtonTapped(goal)):
-                state.warmupGoal = goal
-                
-                if goal == .open {
-                    state.warmUpGoalTime = nil
+                if let warmUp = state.warmUpSession {
+                    state.warmUpConfiguration = SessionConfigurationFeature.State(
+                        phaseType: .warmUp,
+                        warmUpSession: warmUp
+                    )
+                } else {
+                    state.warmUpConfiguration = SessionConfigurationFeature.State(phaseType: .warmUp)
                 }
                 return .none
-
+                
             case .view(.openCoolDownSheetPresented):
-                state.isCoolDownSheetPresented.toggle()
-                return .none
-                
-            case let .view(.coolDownButtonTapped(goal)):
-                state.coolDownGoal = goal
-                
-                if goal == .open {
-                    state.coolDownTime = nil
+                if let coolDown = state.coolDownSession {
+                    state.coolDownConfiguration = SessionConfigurationFeature.State(
+                        phaseType: .coolDown,
+                        coolDownSession: coolDown
+                    )
+                } else {
+                    state.coolDownConfiguration = SessionConfigurationFeature.State(phaseType: .coolDown)
                 }
-                
                 return .none
                 
-            case  .view(.previewButtonTapped):
+            case .view(.previewButtonTapped):
+                
                 let newSession = TrainingSession(
                     date: .now,
-                    warmUp: WarmUpSession(
-                        goal: state.warmupGoal,
-                        time: state.warmupGoal == .open ? nil : state.warmUpGoalTime,
-                        description: state.warmUpNote
-                    ),
+                    warmUp: state.warmUpSession,
                     workouts: state.wods,
-                    coolDown: CoolDownSession(
-                        goal: state.coolDownGoal,
-                        time: state.coolDownTime,
-                        description: nil
-                    )
+                    coolDown: state.coolDownSession
                 )
+                
                 state.trainingSession = newSession
+                
                 if let session = state.trainingSession {
                     state.destination = .openWorkoutPreview(WorkoutPreviewFeature.State(trainingSession: session))
-                } else {
-                    print("brak session")
                 }
+                return .none
+                
+                // MARK: - Child Features
+            case let .warmUpConfiguration(.presented(.delegate(.warmUpUpdated(session)))):
+                state.warmUpSession = session
+                return .none
+                
+            case let .coolDownConfiguration(.presented(.delegate(.coolDownUpdated(session)))):
+                state.coolDownSession = session
+                return .none
+                
+            case .warmUpConfiguration(.presented(.view(.sheetDismissed))):
+                state.warmUpConfiguration = nil
+                return .none
+                
+            case .coolDownConfiguration(.presented(.view(.sheetDismissed))):
+                state.coolDownConfiguration = nil
+                return .none
+                
+            case .warmUpConfiguration:
+                return .none
+                
+            case .coolDownConfiguration:
                 return .none
                 
                 // MARK: - Destination
-  
-                // MARK: - Child
             case let .destination(.presented(.openWodCreator(.delegate(.wodCreated(workout))))):
-                print("Otrzymano workout:")
-                dump(workout)
-                
                 return .run { send in
                     await send(.addWodToWods(workout))
                 }
                 
             case .destination:
                 return .none
-
             }
-            
         }
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$warmUpConfiguration, action: \.warmUpConfiguration) {
+            SessionConfigurationFeature()
+        }
+        .ifLet(\.$coolDownConfiguration, action: \.coolDownConfiguration) {
+            SessionConfigurationFeature()
+        }
     }
-    
 }

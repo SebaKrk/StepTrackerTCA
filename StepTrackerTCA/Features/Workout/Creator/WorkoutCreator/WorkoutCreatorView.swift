@@ -33,11 +33,11 @@ struct WorkoutCreatorView: View {
             .sheet(isPresented: $store.isWorkoutTitleSheetPresented) {
                 workoutTitleSheet
             }
-            .sheet(isPresented: $store.isWarmUpSheetPresented) {
-                warmUpPickerSheet
+            .sheet(item: $store.scope(state: \.warmUpConfiguration, action: \.warmUpConfiguration)) { store in
+                SessionConfigurationView(store: store)
             }
-            .sheet(isPresented: $store.isCoolDownSheetPresented) {
-                coolDownPickerSheet
+            .sheet(item: $store.scope(state: \.coolDownConfiguration, action: \.coolDownConfiguration)) { store in
+                SessionConfigurationView(store: store)
             }
             .navigationDestination(item: $store.scope(state: \.destination?.openWodCreator,
                                                       action: \.destination.openWodCreator)) { store in
@@ -166,7 +166,7 @@ struct WorkoutCreatorView: View {
         }
         .pickerStyle(.navigationLink)
     }
-    
+
     private var warmUpButton: some View {
         Button {
             send(.openWarmUpSheetPresented)
@@ -175,129 +175,16 @@ struct WorkoutCreatorView: View {
                 Text("Warm up")
                     .foregroundColor(.primary)
                 Spacer()
-                if store.warmupGoal == .open {
-                    Text(store.warmupGoal.title)
-                        .foregroundColor(.secondary)
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                } else {
-                    Text("\(store.warmUpGoalTime ?? 0 ) minutes")
-                        .foregroundColor(.secondary)
-                }
+                Text(store.warmUpDisplayText)
+                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
             }
         }
         .buttonStyle(PlainButtonStyle())
     }
-    
-    private var warmUpPickerSheet: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    warmUpPicker
-                    if store.warmupGoal == .timeLimit {
-                        warmUpTimeLimit
-                    }
-                    warmupInfoButton
-                }
-            }
-            .navigationTitle("Warm Up")
-            .navigationBarTitleDisplayMode(.inline)
-            .presentationDetents([.medium, .large])
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        send(.openWarmUpSheetPresented)
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        send(.openWarmUpSheetPresented)
-                    }
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var warmUpPicker: some View {
-        List {
-            Section("Warm up") {
-                ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
-                    Button {
-                        send(.warmupGoalButtonTapped(item))
-                    } label: {
-                        HStack {
-                            Text(item.title)
-                            Spacer()
-                            if store.warmupGoal == item {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.pink)
-                            }
-                        }
-                        .padding()
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .listRowInsets(EdgeInsets())
-                }
-            }
-        }
-    }
-    
-    private var warmUpTimeLimit: some View {
-        VStack {
-            Picker("Time", selection: $store.warmUpGoalTime.sending(\.warmupTimeChange)) {
-                ForEach(store.availableTime, id: \.self) { time in
-                    Text("\(time)")
-                        .tag(time as Int?)
-                }
-            }
-            .pickerStyle(WheelPickerStyle())
-            .frame(height: 125)
-        }
-    }
-    
-    private var warmupInfoButton: some View {
-        NavigationLink {
-            warmupInfoSheet
-        } label: {
-            HStack {
-                Text("Info")
-                    .foregroundColor(.primary)
-                Spacer()
-                Text(store.warmUpNote.isEmpty ? "add info" : store.warmUpNote)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var warmupInfoSheet: some View {
-            Form {
-                TextEditor(text: $store.warmUpNote.sending(\.warmupNoteChanged))
-                    .frame(minHeight: 100)
-                    .overlay(
-                        Group {
-                            if store.warmUpNote.isEmpty {
-                                VStack {
-                                    HStack {
-                                        Text("Warmup note ...")
-                                            .foregroundColor(.secondary)
-                                            .padding(.horizontal, 4)
-                                            .padding(.vertical, 8)
-                                        Spacer()
-                                    }
-                                    Spacer()
-                                }
-                            }
-                        }
-                    )
-            }
-            .navigationTitle("WarmUp info")
-            .navigationBarTitleDisplayMode(.inline)
-    }
-    
+
     private var coolDownButton: some View {
         Button {
             send(.openCoolDownSheetPresented)
@@ -306,87 +193,14 @@ struct WorkoutCreatorView: View {
                 Text("Cool Down")
                     .foregroundColor(.primary)
                 Spacer()
-                if store.coolDownGoal == .open {
-                    Text(store.coolDownGoal.title)
-                        .foregroundColor(.secondary)
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                } else {
-                    Text("\(store.coolDownTime ?? 0) minutes")
-                        .foregroundColor(.secondary)
-                }
+                Text(store.coolDownDisplayText)
+                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
             }
         }
         .buttonStyle(PlainButtonStyle())
-    }
-    
-    private var coolDownPickerSheet: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    coolDownPicker
-                    if store.coolDownGoal == .timeLimit {
-                        coolDownTimeLimit
-                    }
-                }
-            }
-            .navigationTitle("Cool Down")
-            .navigationBarTitleDisplayMode(.inline)
-            .presentationDetents([.medium])
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        send(.openCoolDownSheetPresented)
-                    }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        send(.openCoolDownSheetPresented)
-                    }
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var coolDownPicker: some View {
-        List {
-            Section("Cool Down") {
-                ForEach(SimpleWorkoutGoal.allCases, id: \.self) { item in
-                    Button {
-                        send(.coolDownButtonTapped(item))
-                    } label: {
-                        HStack {
-                            Text(item.title)
-                            Spacer()
-                            if store.coolDownGoal == item {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.pink)
-                            }
-                        }
-                        .padding()
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .listRowInsets(EdgeInsets())
-                }
-            }
-        }
-    }
-    
-    private var coolDownTimeLimit: some View {
-        VStack {
-            Picker("Time", selection: $store.coolDownTime.sending(\.coolDownTimeChange)) {
-                ForEach(store.availableTime, id: \.self) { time in
-                    Text("\(time)")
-                        .tag(time)
-                }
-            }
-            .pickerStyle(WheelPickerStyle())
-            .frame(height: 125)
-        }
     }
     
     // MARK: - Private
