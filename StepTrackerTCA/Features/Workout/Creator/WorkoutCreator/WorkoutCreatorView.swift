@@ -46,6 +46,7 @@ struct WorkoutCreatorView: View {
             .navigationDestination(item: $store.scope(state: \.destination?.openWorkoutPreview,
                                                       action: \.destination.openWorkoutPreview)) { store in
                 WorkoutPreviewView(store: store)
+                    .presentationDetents([.large, .medium])
             }
         }
     }
@@ -197,11 +198,12 @@ struct WorkoutCreatorView: View {
                     if store.warmupGoal == .timeLimit {
                         warmUpTimeLimit
                     }
+                    warmupInfoButton
                 }
             }
             .navigationTitle("Warm Up")
             .navigationBarTitleDisplayMode(.inline)
-            .presentationDetents([.medium])
+            .presentationDetents([.medium, .large])
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -253,10 +255,47 @@ struct WorkoutCreatorView: View {
             }
             .pickerStyle(WheelPickerStyle())
             .frame(height: 125)
-            .onChange(of: store.warmUpGoalTime) { oldValue, newValue in
-                     print("Picker changed: \(oldValue) -> \(newValue)")
-                 }
         }
+    }
+    
+    private var warmupInfoButton: some View {
+        NavigationLink {
+            warmupInfoSheet
+        } label: {
+            HStack {
+                Text("Info")
+                    .foregroundColor(.primary)
+                Spacer()
+                Text(store.warmUpNote.isEmpty ? "add info" : store.warmUpNote)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var warmupInfoSheet: some View {
+            Form {
+                TextEditor(text: $store.warmUpNote.sending(\.warmupNoteChanged))
+                    .frame(minHeight: 100)
+                    .overlay(
+                        Group {
+                            if store.warmUpNote.isEmpty {
+                                VStack {
+                                    HStack {
+                                        Text("Warmup note ...")
+                                            .foregroundColor(.secondary)
+                                            .padding(.horizontal, 4)
+                                            .padding(.vertical, 8)
+                                        Spacer()
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                    )
+            }
+            .navigationTitle("WarmUp info")
+            .navigationBarTitleDisplayMode(.inline)
     }
     
     private var coolDownButton: some View {

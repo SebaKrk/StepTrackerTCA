@@ -28,6 +28,8 @@ extension WorkoutCreatorFeature {
         
         case warmupTimeChange(Int?)
         
+        case warmupNoteChanged(String)
+        
         case coolDownTimeChange(Int?)
         
         case addWodToWods(WorkoutSessionNew)
@@ -53,6 +55,8 @@ extension WorkoutCreatorFeature {
             case openWarmUpSheetPresented
             
             case warmupGoalButtonTapped(SimpleWorkoutGoal)
+            
+//            case warmupNoteButtonTapped
             
             case openCoolDownSheetPresented
             

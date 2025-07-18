@@ -15,15 +15,23 @@ extension WorkoutCreatorFeature {
         
         var trainingSession: TrainingSession? = nil
         
+        // MARK: - Title
+        
         var isWorkoutTitleSheetPresented: Bool = false
         
         var workoutTitle: String = ""
+        
+        // MARK: - Workout type
         
         var workoutActivityType: WorkoutActivityType = .crossTraining
         
         var availableWorkoutTypes: [WorkoutActivityType] = [.crossTraining]
         
+        // MARK: - Workout Location
+        
         var workoutLocationType: WorkoutLocationType = .indoor
+        
+        // MARK: - WarmUp
         
         var warmupGoal: SimpleWorkoutGoal = .open
         
@@ -31,13 +39,20 @@ extension WorkoutCreatorFeature {
         
         var isWarmUpSheetPresented: Bool = false
         
+        var warmUpNote: String = ""
+        
+        // MARK: - WODS
+        
         var wods: [WorkoutSessionNew] = []
+        
+        // MARK: - CoolDown
         
         var coolDownGoal: SimpleWorkoutGoal = .open
         
         var coolDownTime: Int? = nil
         
         var isCoolDownSheetPresented: Bool = false
+        
         
         var availableTime: [Int] = Array(stride(from: 5, through: 60, by: 5))
         

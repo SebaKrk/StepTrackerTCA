@@ -46,9 +46,11 @@ struct WorkoutCreatorFeature {
                 return .none
                 
             case let .warmupTimeChange(time):
-                print(time)
                 state.warmUpGoalTime = time
-                print(state.warmUpGoalTime)
+                return .none
+                
+            case let .warmupNoteChanged(note):
+                state.warmUpNote = note
                 return .none
                 
             case let .coolDownTimeChange(time):
@@ -91,9 +93,8 @@ struct WorkoutCreatorFeature {
                 if goal == .open {
                     state.warmUpGoalTime = nil
                 }
-                
                 return .none
-                
+
             case .view(.openCoolDownSheetPresented):
                 state.isCoolDownSheetPresented.toggle()
                 return .none
@@ -113,7 +114,7 @@ struct WorkoutCreatorFeature {
                     warmUp: WarmUpSession(
                         goal: state.warmupGoal,
                         time: state.warmupGoal == .open ? nil : state.warmUpGoalTime,
-                        description: nil
+                        description: state.warmUpNote
                     ),
                     workouts: state.wods,
                     coolDown: CoolDownSession(

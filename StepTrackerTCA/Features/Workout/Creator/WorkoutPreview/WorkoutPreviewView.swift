@@ -18,7 +18,6 @@ struct WorkoutPreviewView: View {
     // MARK: - View
     
     var body: some View {
-        NavigationStack {
             Form {
                 // MARK: - Basic Info Section
                 Section("Informacje podstawowe") {
@@ -120,10 +119,13 @@ struct WorkoutPreviewView: View {
                         }
                     }
                 }
+                appleWatchButton
+                iphoneButton
+                saveButton
+                
             }
             .navigationTitle("Podgląd treningu")
             .navigationBarTitleDisplayMode(.inline)
-        }
     }
     
     // MARK: - Helper Views
@@ -159,4 +161,29 @@ struct WorkoutPreviewView: View {
             }
         }
     }
+    
+    private var appleWatchButton: some View {
+        Button {
+            
+        } label: {
+            Label("Start on Apple Watch", systemImage: "applewatch")
+        }
+    }
+    
+    private var iphoneButton: some View {
+        Button {
+            
+        } label: {
+            Label("Start on iPhone", systemImage: "iphone")
+        }
+    }
+    
+    private var saveButton: some View {
+        Button {
+            
+        } label: {
+            Label("Save for later", systemImage: "bookmark")
+        }
+    }
+    
 }
