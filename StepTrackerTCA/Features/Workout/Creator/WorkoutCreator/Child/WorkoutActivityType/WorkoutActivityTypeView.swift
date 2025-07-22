@@ -27,10 +27,9 @@ struct WorkoutActivityTypeView: View {
     }
     
     private var rootView: some View {
-            workoutTypeSimpleList
+        workoutTypeSimpleList
     }
     
-   
     @ViewBuilder
     private var workoutTypeSimpleList: some View {
         List(selection: $store.workoutActivityType.sending(\.workoutActivityTypeChange)) {

@@ -91,7 +91,6 @@ struct SessionConfigurationFeature {
                 }
                 
                 // MARK: - Delegate
-                
             case .delegate:
                 return .none
             }
@@ -120,4 +119,5 @@ extension SessionConfigurationFeature {
             }
         }
     }
+    
 }
