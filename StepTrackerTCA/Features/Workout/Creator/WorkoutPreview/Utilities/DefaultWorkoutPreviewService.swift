@@ -6,7 +6,8 @@
 //
 
 import Foundation
+import WorkoutKit
 
 protocol DefaultWorkoutPreviewService {
-    
+    func mapTrainingSessionToCostumeWorkout(_ training: TrainingSession) -> CustomWorkout?
 }

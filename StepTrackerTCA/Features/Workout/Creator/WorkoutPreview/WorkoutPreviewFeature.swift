@@ -7,9 +7,16 @@
 
 import Foundation
 import ComposableArchitecture
+import WorkoutKit
 
 @Reducer
 struct WorkoutPreviewFeature {
+    
+    let service: DefaultWorkoutPreviewService
+    
+    init(service: DefaultWorkoutPreviewService = WorkoutPreviewService()) {
+        self.service = service
+    }
     
     // MARK: - Reducer
     var body: some Reducer<State, Action> {
@@ -24,6 +31,15 @@ struct WorkoutPreviewFeature {
                 // MARK: - Actions
 
                 // MARK: - View Actions
+                
+            case .view(.onAppear):
+                let trainingSession = service.mapTrainingSessionToCostumeWorkout(state.trainingSession)
+                state.workoutPlan = WorkoutPlan(.custom(trainingSession!))
+                return .none
+                
+            case .view(.showApplePreview):
+                state.showPreview.toggle()
+                return .none
             }
         }
     }
@@ -45,7 +61,10 @@ extension WorkoutPreviewFeature {
         // MARK: - View actions
         case view(View)
         
-        enum View { }
+        enum View {
+            case onAppear
+            case showApplePreview
+        }
     }
 }
 
@@ -60,6 +79,8 @@ extension WorkoutPreviewFeature {
         // MARK: Properties
         
         let trainingSession: TrainingSession
+        var workoutPlan: WorkoutPlan? = nil
+        var showPreview: Bool = false
         
     }
     
