@@ -88,9 +88,15 @@ struct WorkoutCreatorFeature {
                 return .none
                 
             case .view(.previewButtonTapped):
+                guard let activityType = state.workoutActivityType else {
+                    return .none
+                }
                 
                 let newSession = TrainingSession(
                     date: .now,
+                    title: state.workoutTitle,
+                    activity:  activityType.hkType,
+                    location: state.workoutLocationType.hkType,
                     warmUp: state.warmUpSession,
                     workouts: state.wods,
                     coolDown: state.coolDownSession

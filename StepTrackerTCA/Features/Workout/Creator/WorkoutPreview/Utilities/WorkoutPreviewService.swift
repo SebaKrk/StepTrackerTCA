@@ -27,9 +27,9 @@ final class WorkoutPreviewService: DefaultWorkoutPreviewService {
         let blocks = mapWorkoutsToIntervalBlock(training.workouts)
 
         return CustomWorkout(
-            activity: .crossTraining,
-            location: .indoor,
-            displayName: "displayName",
+            activity: training.activity,
+            location: training.location,
+            displayName: training.title,
             warmup: warmupStep,
             blocks: blocks,
             cooldown: cooldownStep

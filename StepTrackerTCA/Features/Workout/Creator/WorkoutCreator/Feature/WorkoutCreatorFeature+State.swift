@@ -31,7 +31,7 @@ extension WorkoutCreatorFeature {
         //= .crossTraining
         
         /// Available workout activity types for selection
-        var availableWorkoutTypes: [WorkoutActivityType] = [.crossTraining]
+        //var availableWorkoutTypes: [WorkoutActivityType] = [.crossTraining]
         
         // MARK: - Workout Location
         

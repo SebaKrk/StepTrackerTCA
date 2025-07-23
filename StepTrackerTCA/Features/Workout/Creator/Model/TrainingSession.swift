@@ -7,13 +7,14 @@
 
 import Foundation
 import SwiftUI
+import HealthKit
 
 // MARK: - Training Session (główny obiekt treningu)
 struct TrainingSession {
     let date: Date
-    // brakuje  okreslenia HKWorkoutActivityType np activity: .crossTraining,
-    // brakuje typu location HKWorkoutSessionLocationType
-    // tytulu tez brakuje displayName
+    let title: String
+    let activity: HKWorkoutActivityType
+    let location: HKWorkoutSessionLocationType
     let warmUp: WarmUpSession?
     let workouts: [WorkoutSessionNew]
     let coolDown: CoolDownSession?
