@@ -21,18 +21,14 @@ struct WorkoutCreatorFeature {
     
     var body: some Reducer<State, Action> {
         BindingReducer()
-        Reduce {
-            state,
-            action in
+        Reduce { state, action in
             switch action {
                 
                 // MARK: - Binding
-                
             case .binding(_):
                 return .none
                 
                 // MARK: - Actions
-                
             case let .workoutTitleChanged(title):
                 state.workoutTitle = title
                 return .none
@@ -45,26 +41,11 @@ struct WorkoutCreatorFeature {
                 state.workoutLocationType = item
                 return .none
                 
-            case let .warmupTimeChange(time):
-                state.warmUpGoalTime = time
-                return .none
-                
-            case let .warmupNoteChanged(note):
-                state.warmUpNote = note
-                return .none
-                
-            case let .coolDownTimeChange(time):
-                state.coolDownTime = time
-                return .none
-                
             case let .addWodToWods(WOD):
                 state.wods.append(WOD)
                 return .none
                 
                 // MARK: - View Actions
-                
-            case .view(.viewDidAppear):
-                return .none
                 
             case .view(.cancelButtonTapped):
                 return .run { send in
@@ -84,71 +65,79 @@ struct WorkoutCreatorFeature {
                 return .none
                 
             case .view(.openWarmUpSheetPresented):
-                state.isWarmUpSheetPresented.toggle()
-                return .none
-                
-            case let .view(.warmupGoalButtonTapped(goal)):
-                state.warmupGoal = goal
-                
-                if goal == .open {
-                    state.warmUpGoalTime = nil
+                if let warmUp = state.warmUpSession {
+                    state.destination = .openSessionConfiguration(SessionConfigurationFeature.State(
+                        phaseType: .warmUp,
+                        warmUpSession: warmUp
+                    ))
+                } else {
+                    state.destination = .openSessionConfiguration(SessionConfigurationFeature.State(phaseType: .warmUp)
+                    )
                 }
                 return .none
-
+                
             case .view(.openCoolDownSheetPresented):
-                state.isCoolDownSheetPresented.toggle()
+                if let coolDown = state.coolDownSession {
+                    state.destination = .openSessionConfiguration(SessionConfigurationFeature.State(
+                        phaseType: .coolDown,
+                        coolDownSession: coolDown)
+                    )
+                } else {
+                    state.destination = .openSessionConfiguration(SessionConfigurationFeature.State(phaseType: .coolDown))
+                }
                 return .none
                 
-            case let .view(.coolDownButtonTapped(goal)):
-                state.coolDownGoal = goal
-                
-                if goal == .open {
-                    state.coolDownTime = nil
+            case .view(.previewButtonTapped):
+                guard let activityType = state.workoutActivityType else {
+                    return .none
                 }
                 
-                return .none
-                
-            case  .view(.previewButtonTapped):
                 let newSession = TrainingSession(
                     date: .now,
-                    warmUp: WarmUpSession(
-                        goal: state.warmupGoal,
-                        time: state.warmupGoal == .open ? nil : state.warmUpGoalTime,
-                        description: state.warmUpNote
-                    ),
+                    title: state.workoutTitle,
+                    activity:  activityType,
+                    location: state.workoutLocationType,
+                    warmUp: state.warmUpSession,
                     workouts: state.wods,
-                    coolDown: CoolDownSession(
-                        goal: state.coolDownGoal,
-                        time: state.coolDownTime,
-                        description: nil
-                    )
+                    coolDown: state.coolDownSession
                 )
+                
                 state.trainingSession = newSession
+                
                 if let session = state.trainingSession {
                     state.destination = .openWorkoutPreview(WorkoutPreviewFeature.State(trainingSession: session))
-                } else {
-                    print("brak session")
                 }
+                return .none
+                
+            case .view(.workoutTypeButtonTaped):
+                    state.destination = .openWorkoutActivityType(WorkoutActivityTypeFeature.State())
                 return .none
                 
                 // MARK: - Destination
-  
-                // MARK: - Child
             case let .destination(.presented(.openWodCreator(.delegate(.wodCreated(workout))))):
-                print("Otrzymano workout:")
-                dump(workout)
-                
                 return .run { send in
                     await send(.addWodToWods(workout))
                 }
                 
+            case let  .destination(.presented(.openWorkoutActivityType(.delegate(.workoutActivityTypeUpdated(update))))):
+                state.workoutActivityType = update
+                
+                return .run { send in
+                      await send(.destination(.dismiss))
+                  }
+                
+            case let .destination(.presented(.openSessionConfiguration(.delegate(.warmUpUpdated(session))))):
+                state.warmUpSession = session
+                return .none
+        
+            case let .destination(.presented(.openSessionConfiguration(.delegate(.coolDownUpdated(session))))):
+                state.coolDownSession = session
+                return .none
+                
             case .destination:
                 return .none
-
             }
-            
         }
         .ifLet(\.$destination, action: \.destination)
     }
-    
 }
