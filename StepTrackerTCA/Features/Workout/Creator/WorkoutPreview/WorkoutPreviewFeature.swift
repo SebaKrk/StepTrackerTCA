@@ -33,7 +33,7 @@ struct WorkoutPreviewFeature {
                 // MARK: - View Actions
                 
             case .view(.onAppear):
-                let trainingSession = service.mapTrainingSessionToCostumeWorkout(state.trainingSession)
+                let trainingSession = service.mapTrainingSessionToCustomWorkout(state.trainingSession)
                 state.workoutPlan = WorkoutPlan(.custom(trainingSession!))
                 return .none
                 

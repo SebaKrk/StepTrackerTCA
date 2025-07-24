@@ -95,8 +95,8 @@ struct WorkoutCreatorFeature {
                 let newSession = TrainingSession(
                     date: .now,
                     title: state.workoutTitle,
-                    activity:  activityType.hkType,
-                    location: state.workoutLocationType.hkType,
+                    activity:  activityType,
+                    location: state.workoutLocationType,
                     warmUp: state.warmUpSession,
                     workouts: state.wods,
                     coolDown: state.coolDownSession

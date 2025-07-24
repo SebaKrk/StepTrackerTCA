@@ -13,8 +13,8 @@ import HealthKit
 struct TrainingSession {
     let date: Date
     let title: String
-    let activity: HKWorkoutActivityType
-    let location: HKWorkoutSessionLocationType
+    let activity: WorkoutActivityType
+    let location: WorkoutLocationType
     let warmUp: WarmUpSession?
     let workouts: [WorkoutSessionNew]
     let coolDown: CoolDownSession?
