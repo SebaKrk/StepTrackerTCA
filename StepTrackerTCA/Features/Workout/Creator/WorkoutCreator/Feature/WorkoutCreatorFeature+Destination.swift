@@ -18,6 +18,12 @@ extension WorkoutCreatorFeature {
         
         /// Represents the destination for displaying in `WorkoutPreviewFeature`.
         case openWorkoutPreview(WorkoutPreviewFeature)
+        
+        ///
+        case openWorkoutActivityType(WorkoutActivityTypeFeature)
+        
+        ///
+        case openSessionConfiguration(SessionConfigurationFeature)
     }
     
 }

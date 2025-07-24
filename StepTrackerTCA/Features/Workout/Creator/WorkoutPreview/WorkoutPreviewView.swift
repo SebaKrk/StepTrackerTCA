@@ -122,10 +122,19 @@ struct WorkoutPreviewView: View {
                 appleWatchButton
                 iphoneButton
                 saveButton
+                if store.workoutPlan != nil {
+                    previewApple
+                }
+                if store.seeWorkoutPlanPreview {
+                    addToAppleWatch
+                }
                 
             }
             .navigationTitle("Podgląd treningu")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                send(.onAppear)
+            }
     }
     
     // MARK: - Helper Views
@@ -180,10 +189,27 @@ struct WorkoutPreviewView: View {
     
     private var saveButton: some View {
         Button {
-            
         } label: {
             Label("Save for later", systemImage: "bookmark")
         }
     }
+    
+    private var previewApple: some View {
+        Button {
+            send(.showApplePreview)
+        } label: {
+            Label("show", systemImage: "applewatch")
+        }
+        .workoutPreview(store.workoutPlan!, isPresented: $store.showPreview)
+    }
+    
+    private var addToAppleWatch: some View {
+        Button {
+            send(.addToAppleWatch)
+        } label: {
+            Label("ADD", systemImage: "applewatch")
+        }
+    }
+    
     
 }

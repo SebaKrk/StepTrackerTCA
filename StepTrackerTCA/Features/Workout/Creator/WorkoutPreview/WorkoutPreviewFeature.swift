@@ -7,9 +7,16 @@
 
 import Foundation
 import ComposableArchitecture
+import WorkoutKit
 
 @Reducer
 struct WorkoutPreviewFeature {
+    
+    let service: DefaultWorkoutPreviewService
+    
+    init(service: DefaultWorkoutPreviewService = WorkoutPreviewService()) {
+        self.service = service
+    }
     
     // MARK: - Reducer
     var body: some Reducer<State, Action> {
@@ -22,8 +29,36 @@ struct WorkoutPreviewFeature {
                 return .none
                 
                 // MARK: - Actions
+                
+            case let .changePreviewWorkoutPlanStatus(value):
+                state.seeWorkoutPlanPreview = value
+                return .none
 
                 // MARK: - View Actions
+                
+            case .view(.onAppear):
+                let trainingSession = service.mapTrainingSessionToCustomWorkout(state.trainingSession)
+                state.workoutPlan = WorkoutPlan(.custom(trainingSession!))
+                return .none
+                
+            case .view(.showApplePreview):
+                state.showPreview.toggle()
+                return .send(.changePreviewWorkoutPlanStatus(true))
+                
+            case .view(.addToAppleWatch):
+                guard let workoutPlan = state.workoutPlan else { return .none }
+                
+                return .run { send in
+                    await service.scheduleWorkoutNow(workoutPlan: workoutPlan)
+                }
+                
+//                 Sprawdź czy workout się pojawił w scheduled workouts
+//                 let scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
+//                 let wasScheduled = scheduledWorkouts.contains { scheduled in
+//                     scheduled.plan.workout.displayName == workoutPlan.workout.displayName
+//                 }
+//                 await send(.workoutSchedulingResult(success: wasScheduled))
+
             }
         }
     }
@@ -41,11 +76,16 @@ extension WorkoutPreviewFeature {
         case binding(BindingAction<State>)
         
         // MARK: - Actions
-
+        case changePreviewWorkoutPlanStatus(Bool)
+        
         // MARK: - View actions
         case view(View)
         
-        enum View { }
+        enum View {
+            case onAppear
+            case showApplePreview
+            case addToAppleWatch
+        }
     }
 }
 
@@ -60,6 +100,9 @@ extension WorkoutPreviewFeature {
         // MARK: Properties
         
         let trainingSession: TrainingSession
+        var workoutPlan: WorkoutPlan? = nil
+        var showPreview: Bool = false
+        var seeWorkoutPlanPreview: Bool = false
         
     }
     

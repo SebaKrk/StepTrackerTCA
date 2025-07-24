@@ -7,10 +7,14 @@
 
 import Foundation
 import SwiftUI
+import HealthKit
 
 // MARK: - Training Session (główny obiekt treningu)
 struct TrainingSession {
     let date: Date
+    let title: String
+    let activity: WorkoutActivityType
+    let location: WorkoutLocationType
     let warmUp: WarmUpSession?
     let workouts: [WorkoutSessionNew]
     let coolDown: CoolDownSession?
