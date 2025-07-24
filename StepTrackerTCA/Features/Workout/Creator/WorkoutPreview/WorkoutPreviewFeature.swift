@@ -52,12 +52,11 @@ struct WorkoutPreviewFeature {
                     await service.scheduleWorkoutNow(workoutPlan: workoutPlan)
                 }
                 
-                // Sprawdź czy workout się pojawił w scheduled workouts
+//                 Sprawdź czy workout się pojawił w scheduled workouts
 //                 let scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
 //                 let wasScheduled = scheduledWorkouts.contains { scheduled in
 //                     scheduled.plan.workout.displayName == workoutPlan.workout.displayName
 //                 }
-//                 
 //                 await send(.workoutSchedulingResult(success: wasScheduled))
 
             }
