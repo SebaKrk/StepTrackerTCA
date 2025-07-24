@@ -31,6 +31,11 @@ final class WorkoutPreviewService: DefaultWorkoutPreviewService {
         )
     }
     
+    func scheduleWorkoutNow(workoutPlan: WorkoutPlan) async {
+        let targetComponents = Calendar.current.dateComponents(in: .current, from: .now)
+        await WorkoutScheduler.shared.schedule(workoutPlan, at: targetComponents)
+    }
+    
     // MARK: - Private Methods
     
     private func createWarmupStep(from session: WarmUpSession) -> WorkoutStep {

@@ -125,7 +125,9 @@ struct WorkoutPreviewView: View {
                 if store.workoutPlan != nil {
                     previewApple
                 }
-                
+                if store.seeWorkoutPlanPreview {
+                    addToAppleWatch
+                }
                 
             }
             .navigationTitle("Podgląd treningu")
@@ -200,5 +202,14 @@ struct WorkoutPreviewView: View {
         }
         .workoutPreview(store.workoutPlan!, isPresented: $store.showPreview)
     }
+    
+    private var addToAppleWatch: some View {
+        Button {
+            send(.addToAppleWatch)
+        } label: {
+            Label("ADD", systemImage: "applewatch")
+        }
+    }
+    
     
 }

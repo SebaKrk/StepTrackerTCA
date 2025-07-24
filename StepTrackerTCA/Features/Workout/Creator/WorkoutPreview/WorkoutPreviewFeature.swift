@@ -29,6 +29,10 @@ struct WorkoutPreviewFeature {
                 return .none
                 
                 // MARK: - Actions
+                
+            case let .changePreviewWorkoutPlanStatus(value):
+                state.seeWorkoutPlanPreview = value
+                return .none
 
                 // MARK: - View Actions
                 
@@ -39,7 +43,23 @@ struct WorkoutPreviewFeature {
                 
             case .view(.showApplePreview):
                 state.showPreview.toggle()
-                return .none
+                return .send(.changePreviewWorkoutPlanStatus(true))
+                
+            case .view(.addToAppleWatch):
+                guard let workoutPlan = state.workoutPlan else { return .none }
+                
+                return .run { send in
+                    await service.scheduleWorkoutNow(workoutPlan: workoutPlan)
+                }
+                
+                // Sprawdź czy workout się pojawił w scheduled workouts
+//                 let scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
+//                 let wasScheduled = scheduledWorkouts.contains { scheduled in
+//                     scheduled.plan.workout.displayName == workoutPlan.workout.displayName
+//                 }
+//                 
+//                 await send(.workoutSchedulingResult(success: wasScheduled))
+
             }
         }
     }
@@ -57,13 +77,15 @@ extension WorkoutPreviewFeature {
         case binding(BindingAction<State>)
         
         // MARK: - Actions
-
+        case changePreviewWorkoutPlanStatus(Bool)
+        
         // MARK: - View actions
         case view(View)
         
         enum View {
             case onAppear
             case showApplePreview
+            case addToAppleWatch
         }
     }
 }
@@ -81,6 +103,7 @@ extension WorkoutPreviewFeature {
         let trainingSession: TrainingSession
         var workoutPlan: WorkoutPlan? = nil
         var showPreview: Bool = false
+        var seeWorkoutPlanPreview: Bool = false
         
     }
     
