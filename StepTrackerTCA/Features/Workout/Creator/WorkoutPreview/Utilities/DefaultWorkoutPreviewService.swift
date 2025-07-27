@@ -11,5 +11,7 @@ import WorkoutKit
 protocol DefaultWorkoutPreviewService {
     func mapTrainingSessionToCustomWorkout(_ training: TrainingSession) -> CustomWorkout?
     
-    func scheduleWorkoutNow(workoutPlan: WorkoutPlan) async
+//    func scheduleWorkoutNow(workoutPlan: WorkoutPlan) async
+    
+    func addScheduleAndCheck(workoutPlan: WorkoutPlan) async -> Bool 
 }

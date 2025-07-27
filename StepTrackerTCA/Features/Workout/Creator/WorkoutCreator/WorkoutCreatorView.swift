@@ -76,6 +76,7 @@ struct WorkoutCreatorView: View {
                     wodsView
                 }
                 coolDownButton
+                debugButton
             }
         }
     }
@@ -212,6 +213,16 @@ struct WorkoutCreatorView: View {
                     .font(.caption)
             }
         }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private var debugButton: some View {
+        Button {
+            send(.debugButtonTaped)
+        } label:  {
+            Text("DEBUG: Create Workout")
+        }
+        .foregroundStyle(.pink)
         .buttonStyle(PlainButtonStyle())
     }
     

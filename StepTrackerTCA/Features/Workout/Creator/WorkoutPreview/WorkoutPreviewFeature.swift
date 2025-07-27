@@ -33,6 +33,14 @@ struct WorkoutPreviewFeature {
             case let .changePreviewWorkoutPlanStatus(value):
                 state.seeWorkoutPlanPreview = value
                 return .none
+                
+            case .workoutSchedulingResult(let result):
+                if result {
+                    print("Workout dodany do Apple Watch")
+                } else {
+                    print("Nie udało się dodać workout'u")
+                }
+                return .none
 
                 // MARK: - View Actions
                 
@@ -47,18 +55,11 @@ struct WorkoutPreviewFeature {
                 
             case .view(.addToAppleWatch):
                 guard let workoutPlan = state.workoutPlan else { return .none }
-                
                 return .run { send in
-                    await service.scheduleWorkoutNow(workoutPlan: workoutPlan)
+                    let result = await service.addScheduleAndCheck(workoutPlan: workoutPlan)
+                    await send(.workoutSchedulingResult(result))
                 }
                 
-//                 Sprawdź czy workout się pojawił w scheduled workouts
-//                 let scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
-//                 let wasScheduled = scheduledWorkouts.contains { scheduled in
-//                     scheduled.plan.workout.displayName == workoutPlan.workout.displayName
-//                 }
-//                 await send(.workoutSchedulingResult(success: wasScheduled))
-
             }
         }
     }
@@ -77,6 +78,8 @@ extension WorkoutPreviewFeature {
         
         // MARK: - Actions
         case changePreviewWorkoutPlanStatus(Bool)
+        
+        case workoutSchedulingResult(Bool)
         
         // MARK: - View actions
         case view(View)

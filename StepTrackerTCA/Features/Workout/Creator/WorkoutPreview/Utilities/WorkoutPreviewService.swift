@@ -31,10 +31,36 @@ final class WorkoutPreviewService: DefaultWorkoutPreviewService {
         )
     }
     
-    func scheduleWorkoutNow(workoutPlan: WorkoutPlan) async {
-        let targetComponents = Calendar.current.dateComponents(in: .current, from: .now)
+    func addScheduleAndCheck(workoutPlan: WorkoutPlan) async -> Bool {
+        await scheduleWorkoutNow(workoutPlan: workoutPlan)
+        return await verifyWorkoutWasScheduled(workoutPlan: workoutPlan)
+    }
+
+    private func scheduleWorkoutNow(workoutPlan: WorkoutPlan) async {
+        let targetComponents = getCurrentDateComponents()
         await WorkoutScheduler.shared.schedule(workoutPlan, at: targetComponents)
     }
+
+    private func getCurrentDateComponents() -> DateComponents {
+        return Calendar.current.dateComponents(in: .current, from: .now)
+    }
+
+    private func verifyWorkoutWasScheduled(workoutPlan: WorkoutPlan) async -> Bool {
+        let scheduledWorkouts = await WorkoutScheduler.shared.scheduledWorkouts
+        return scheduledWorkouts.contains { (scheduled: ScheduledWorkoutPlan) in
+            scheduled.plan == workoutPlan
+        }
+    }
+    
+//    1. Brakujące uprawnienia
+//
+//    if !HKHealthStore.isHealthDataAvailable() {
+//
+//    2. Apple Watch nie sparowany/niedostępny
+//
+//    if !WCSession.default.isWatchAppInstalled {
+//
+//    3. Błędy w WorkoutScheduler
     
     // MARK: - Private Methods
     
