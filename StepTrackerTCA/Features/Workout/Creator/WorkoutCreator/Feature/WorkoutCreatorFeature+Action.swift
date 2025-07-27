@@ -64,6 +64,8 @@ extension WorkoutCreatorFeature {
             case previewButtonTapped
             
             case workoutTypeButtonTaped
+            
+            case debugButtonTaped
         }
         
         // MARK: - Destination
