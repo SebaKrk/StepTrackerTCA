@@ -21,7 +21,9 @@ struct WorkoutCreatorFeature {
     
     var body: some Reducer<State, Action> {
         BindingReducer()
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
                 
                 // MARK: - Binding
@@ -110,7 +112,49 @@ struct WorkoutCreatorFeature {
                 return .none
                 
             case .view(.workoutTypeButtonTaped):
-                    state.destination = .openWorkoutActivityType(WorkoutActivityTypeFeature.State())
+                state.destination = .openWorkoutActivityType(WorkoutActivityTypeFeature.State())
+                return .none
+                
+            case .view(.debugButtonTaped):
+                let debugSession = TrainingSession.previewTrainingSession
+                let x = TrainingSession(
+                    date: .now ,
+                    title: "Dekerta Crossfit - WeightLifting",
+                    activity: .crossTraining,
+                    location: .indoor,
+                    warmUp: WarmUpSession(
+                        goal: .timeLimit,
+                        time: 20,
+                        description: "WarmUp for Snatch"
+                    ),
+                    workouts: [
+                        WorkoutSessionNew(
+                            name: "WOD 1",
+                            type: .forTime,
+                            timeCap: 20,
+                            rounds: 0,
+                            exercises: [
+                                ExerciseSession(
+                                    type: .snatch,
+                                    target: .reps(1),
+                                    weight: nil,
+                                    info: "Find one rep max in 20 min time"
+                                )
+                            ]
+                        )
+                    ],
+                    coolDown: CoolDownSession(
+                        goal: .timeLimit,
+                        time: 10,
+                        description: "Strenig after have weightlifting"
+                    )
+                )
+                
+                state.trainingSession = debugSession
+                
+                if let session = state.trainingSession {
+                    state.destination = .openWorkoutPreview(WorkoutPreviewFeature.State(trainingSession: session))
+                }
                 return .none
                 
                 // MARK: - Destination
@@ -123,13 +167,13 @@ struct WorkoutCreatorFeature {
                 state.workoutActivityType = update
                 
                 return .run { send in
-                      await send(.destination(.dismiss))
-                  }
+                    await send(.destination(.dismiss))
+                }
                 
             case let .destination(.presented(.openSessionConfiguration(.delegate(.warmUpUpdated(session))))):
                 state.warmUpSession = session
                 return .none
-        
+                
             case let .destination(.presented(.openSessionConfiguration(.delegate(.coolDownUpdated(session))))):
                 state.coolDownSession = session
                 return .none

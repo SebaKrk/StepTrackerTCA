@@ -18,6 +18,61 @@ struct TrainingSession {
     let warmUp: WarmUpSession?
     let workouts: [WorkoutSessionNew]
     let coolDown: CoolDownSession?
+    
+    static let previewTrainingSession = TrainingSession(
+        date: .now,
+        title: "Clean & Jerk + Conditioning",
+        activity: .crossTraining,
+        location: .indoor,
+        warmUp: WarmUpSession(
+            goal: .timeLimit,
+            time: 15,
+            description: "WarmUp for Clean & Jerk - Focus on mobility and activation"
+                //"WarmUp for Clean & Jerk - Focus on mobility and activation: Start with 5 min light cardio (rowing/bike), then dynamic stretching focusing on ankles, hips, and shoulders. Include: leg swings, arm circles, hip circles, overhead reaches. Practice empty barbell movements: deadlifts, front squats, overhead squats. Pay special attention to wrist mobility and thoracic spine extension. Finish with light clean pulls and front rack holds."
+        ),
+        workouts: [
+            WorkoutSessionNew(
+                name: "Weightlifting - Clean and Jerk",
+                type: .forTime,
+                timeCap: 20,
+                rounds: 0,
+                exercises: [
+                    ExerciseSession(
+                        type: .cleanAndJerk,
+                        target: .reps(1),
+                        weight: nil,
+                        info: "Find one rep max in 20 min time"
+                    )
+                ]
+            ),
+            WorkoutSessionNew(
+                name: "WOD 1",
+                type: .forTime,
+                timeCap: 12,
+                rounds: 8,
+                exercises: [
+                    ExerciseSession(
+                        type: .boxJumps,
+                        target: .reps(5),
+                        weight: nil,
+                        info: "Box jumps"
+                    ),
+                    ExerciseSession(
+                        type: .powerClean,
+                        target: .reps(3),
+                        weight: .init(men: 80, women: 50),
+                        info: "Power clean @ 80/50kg"
+                    )
+                ]
+            )
+        ],
+        coolDown: CoolDownSession(
+            goal: .timeLimit,
+            time: 10,
+            description: "Post-workout recovery and mobility - Essential for heavy lifting recovery"
+                //"Post-workout recovery and mobility - Essential for heavy lifting recovery: Start with 2-3 minutes walking to lower heart rate. Focus on static stretching: hip flexors, hamstrings, calves, and shoulders. Include pigeon pose for hip mobility, seated spinal twist, and doorway chest stretch. Pay attention to wrist and forearm stretches after heavy barbell work. Finish with deep breathing exercises (4-7-8 breathing pattern) to activate parasympathetic nervous system. Hydrate and consider foam rolling if available."
+        )
+    )
 }
 
 // MARK: - Warm Up Session
