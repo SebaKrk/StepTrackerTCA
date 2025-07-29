@@ -187,10 +187,19 @@ struct WorkoutPreviewView: View {
         }
     }
     
+    @ViewBuilder
     private var saveButton: some View {
-        Button {
-        } label: {
-            Label("Save for later", systemImage: "bookmark")
+        if #available(iOS 26.0, *) {
+            NavigationLink {
+                    ContentViewTEST()
+            } label: {
+                Label("Save for later", systemImage: "bookmark")
+            }
+        } else {
+            Button {
+            } label: {
+                Label("Save for later", systemImage: "bookmark")
+            }
         }
     }
     
@@ -212,4 +221,40 @@ struct WorkoutPreviewView: View {
     }
     
     
+}
+
+@available(iOS 26.0, *)
+struct ContentViewTEST: View {
+    var body: some View {
+         TabView {
+             Tab("Numbers", systemImage: "number") {
+                 ScrollView {
+                    ForEach(0 ..< 50) { index in
+                        Text("\(index)")
+                            .padding()
+                    }
+                 }
+             }
+             Tab("Alerts", systemImage: "bell") {
+                 AlertsView()
+             }
+         }
+         .tabBarMinimizeBehavior(.onScrollDown)
+    }
+}
+
+struct AlertsView: View {
+    @State private var showingAlert = false
+    
+    var body: some View {
+        VStack {
+            Button("Show Alert") {
+                showingAlert = true
+            }
+            .alert("Important message", isPresented: $showingAlert) {
+                Button("OK") { }
+            }
+        }
+        .padding()
+    }
 }
