@@ -430,3 +430,8 @@
     B: Working on Creator
     C: ReUsed components
     D: Add Debug Workout and scheduledWorkouts
+    
+### IOS-00046 WorkoutMirrorLive
+
+    A: Create new target - WorkoutMirrorLive
+
