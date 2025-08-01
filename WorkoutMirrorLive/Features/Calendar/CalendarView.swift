@@ -21,8 +21,8 @@ struct CalendarView: View {
             workoutCalendarList
                 .navigationDestination(
                     item: $store.scope(
-                        state: \.destination?.openWorkoutDetailsView,
-                        action: \.destination.openWorkoutDetailsView),
+                        state: \.destination?.workoutDetailsView,
+                        action: \.destination.workoutDetailsView),
                     destination: { store in
                         WorkoutDetailsView(store: store)
                     }
@@ -38,10 +38,7 @@ struct CalendarView: View {
                 Text(item)
             }
         }
-        //        .listStyle(.grouped)
-        //        .scrollContentBackground(.hidden)
-        //        .padding(.top, 0)/
-        //        .padding([.leading, .trailing], 12)
+        .navigationTitle("Workout Schedule")
     }
     
     private var contentUnavailable: some View {

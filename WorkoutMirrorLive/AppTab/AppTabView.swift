@@ -15,7 +15,7 @@ struct AppTabView: View {
     
     @Bindable var store: StoreOf<AppTabFeature>
     @State var selection: AppScreen = .live
-
+    
     // MARK: - View
     
     var body: some View {
@@ -23,7 +23,7 @@ struct AppTabView: View {
             ForEach(store.tabs) { screen in
                 tabContent(for: screen)
                     .tag(screen)
-                    ///.badge("new") ///.badge(1)
+                ///.badge("new") ///.badge(1)
                     .tabItem {
                         Label(screen.title, systemImage: screen.image)
                     }
@@ -44,7 +44,6 @@ struct AppTabView: View {
         switch appScreenTab {
         case .live:
             liveView
-
         case .workout:
             List(0..<100) { i in
                 Text("live \(i)")
@@ -60,14 +59,14 @@ struct AppTabView: View {
             state: \.live,
             action: \.live)
         )
-//        if let store = store.scope(state: \.live, action: \.live) {
-//            LiveView(store: store)
-//        } else {
-//            ProgressView()
-//                .onAppear {
-//                    send(.initLiveIfNeeded)
-//                }
-//        }
+        //        if let store = store.scope(state: \.live, action: \.live) {
+        //            LiveView(store: store)
+        //        } else {
+        //            ProgressView()
+        //                .onAppear {
+        //                    send(.initLiveIfNeeded)
+        //                }
+        //        }
     }
 }
 

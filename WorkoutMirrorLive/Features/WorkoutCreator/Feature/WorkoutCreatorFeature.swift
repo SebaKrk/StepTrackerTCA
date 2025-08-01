@@ -1,5 +1,5 @@
 //
-//  WorkoutDetailsFeature.swift
+//  WorkoutCreatorFeature.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Sciuba on 01/08/2025.
@@ -9,25 +9,40 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct WorkoutDetailsFeature {
+struct WorkoutCreatorFeature {
+    
+    // MARK: - Dependency
+    
+    @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
+        BindingReducer()
         Reduce<State, Action> { state, action in
             switch action {
+                
+                // MARK: - Binding
+            case .binding(_):
+                return .none
                 
                 // MARK: - Action
                 
                 // MARK: - View Action
-            case .view(.startWorkoutButtonTapped):
-                // tu narazie otwieram Mirroring dla testow nawigacji bez przekazania itemu
+                
+            case .view(.startButtonTaped):
                 state.destination = .workoutMirroringView(WorkoutMirroringFeature.State())
                 return .none
+                
+            case .view(.cancelButtonTapped):
+                return .run { send in
+                    await self.dismiss()
+                }
+                
             case .view(.viewDidAppear):
                 return .none
                 
-                // MARK:
+                // MARK: - Destination
             case .destination(_):
                 return .none
             }
@@ -37,10 +52,15 @@ struct WorkoutDetailsFeature {
 }
 
 /// Implementation of `WorkoutDetailsFeature` action
-extension WorkoutDetailsFeature {
+extension WorkoutCreatorFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
         
         // MARK: - Actions
         
@@ -51,8 +71,9 @@ extension WorkoutDetailsFeature {
         enum View {
             
             ///
-            case startWorkoutButtonTapped
-            
+            case startButtonTaped
+            ///
+            case cancelButtonTapped
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
         }
@@ -64,8 +85,8 @@ extension WorkoutDetailsFeature {
     }
 }
 
-/// Implementation of `WorkoutDetailsFeature` state
-extension WorkoutDetailsFeature {
+/// Implementation of `WorkoutCreatorFeature` state
+extension WorkoutCreatorFeature {
     
     @ObservableState
     struct State {
@@ -73,18 +94,18 @@ extension WorkoutDetailsFeature {
         // MARK: - Properties
         
         ///
-        var workout: String
+        var addDataDate: Date = .now
         
         // MARK: - Destination
         
-        /// destination from WorkoutDetailsFeature
+        /// destination from WorkoutCreatorFeature
         @Presents var destination: Destination.State?
     }
     
 }
 
-/// Implementation of `WorkoutDetailsFeature` destination
-extension WorkoutDetailsFeature {
+/// Implementation of `WorkoutCreatorFeature` destination
+extension WorkoutCreatorFeature {
     
     @Reducer
     enum Destination {
@@ -92,3 +113,5 @@ extension WorkoutDetailsFeature {
     }
     
 }
+
+

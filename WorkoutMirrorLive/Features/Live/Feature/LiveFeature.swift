@@ -21,21 +21,34 @@ struct LiveFeature {
                 
                 // MARK: - View Action
             case .view(.startWorkoutMirrorButtonTapped):
-                state.destination = .openWorkoutMirroringView(WorkoutMirroringFeature.State())
+                state.destination = .workoutMirroringView(WorkoutMirroringFeature.State())
                 return .none
                 
             case .view(.navCalendarButtonTapped):
-                state.destination = .openCalendarView(CalendarFeature.State())
+                state.destination = .calendarView(CalendarFeature.State())
+                return .none
+                
+            case .view(.navWorkoutCreatorButtonTapped):
+                state.destination = .workoutCreatorView(WorkoutCreatorFeature.State())
                 return .none
                 
             case .view(.viewDidAppear):
                 return .none
                 
-            case   .destination(.presented(.openCalendarView(.destination(.presented(.openWorkoutDetailsView(.destination(.presented(.openWorkoutMirroringView(.view(.xMarkButtonTapped)))))))))):
-                print("state.destination = nil")
+            case   .destination(.presented(.calendarView(.destination(.presented(.workoutDetailsView(.destination(.presented(.workoutMirroringView(.view(.xMarkButtonTapped)))))))))):
+                print("state.destination = nil, from calendarView")
                 state.destination = nil
                 return .none
+                
+            case .destination(.presented(.workoutCreatorView(.destination(.presented(.workoutMirroringView(.view(.xMarkButtonTapped))))))):
+                print("state.destination = nil, from workoutCreatorView")
+                state.destination = nil
+                return .none
+                
             case .destination(_):
+                return .none
+                
+            default:
                 return .none
             }
         }
@@ -60,6 +73,9 @@ extension LiveFeature {
             
             ///
             case navCalendarButtonTapped
+            
+            ///
+            case navWorkoutCreatorButtonTapped
             
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
@@ -95,10 +111,13 @@ extension LiveFeature {
     enum Destination {
         
         /// Represents the destination for displaying in `WorkoutMirroringFeature`.
-        case openWorkoutMirroringView(WorkoutMirroringFeature)
+        case workoutMirroringView(WorkoutMirroringFeature)
         
         /// Represents the destination for displaying in `CalendarFeature`.
-        case openCalendarView(CalendarFeature)
+        case calendarView(CalendarFeature)
+        
+        /// Represents the destination for displaying in `WorkoutCreatorFeature`.
+        case workoutCreatorView(WorkoutCreatorFeature)
     }
 }
 

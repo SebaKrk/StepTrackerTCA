@@ -21,8 +21,8 @@ struct WorkoutDetailsView: View {
             send(.startWorkoutButtonTapped)
         }
         .navigationTitle(store.workout)
-        .fullScreenCover(item: $store.scope(state: \.destination?.openWorkoutMirroringView,
-                                            action: \.destination.openWorkoutMirroringView)) { store in
+        .fullScreenCover(item: $store.scope(state: \.destination?.workoutMirroringView,
+                                            action: \.destination.workoutMirroringView)) { store in
             WorkoutMirroringView(store: store)
         }
     }

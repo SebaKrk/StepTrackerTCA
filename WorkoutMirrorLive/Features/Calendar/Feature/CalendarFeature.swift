@@ -21,7 +21,7 @@ struct CalendarFeature {
                 
             case let .workoutSelected(item):
                 // tu narazie otwieram Mirroring dla testow nawigacji 
-                state.destination = .openWorkoutDetailsView(WorkoutDetailsFeature.State(workout: item!))
+                state.destination = .workoutDetailsView(WorkoutDetailsFeature.State(workout: item!))
                 return .none
                 
                 // MARK: - View Action
@@ -90,6 +90,6 @@ extension CalendarFeature {
     
     @Reducer
     enum Destination {
-        case openWorkoutDetailsView(WorkoutDetailsFeature)
+        case workoutDetailsView(WorkoutDetailsFeature)
     }
 }

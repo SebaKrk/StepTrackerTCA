@@ -23,12 +23,21 @@ struct LiveView: View {
                     toolbarButton
                 }
                 .navigationDestination(
-                    item: $store.scope(state: \.destination?.openCalendarView, action: \.destination.openCalendarView), destination: { store in
+                    item: $store.scope(state: \.destination?.calendarView, action: \.destination.calendarView), destination: { store in
                         CalendarView(store: store)
                     }
                 )
-                .fullScreenCover(item: $store.scope(state: \.destination?.openWorkoutMirroringView,
-                                                    action: \.destination.openWorkoutMirroringView)) { store in
+//                .navigationDestination(
+//                    item: $store.scope(state: \.destination?.workoutCreatorView, action: \.destination.workoutCreatorView), destination: { store in
+//                        WorkoutCreatorView(store: store)
+//                    }
+//                )
+                .fullScreenCover(item: $store.scope(state: \.destination?.workoutCreatorView,
+                                                    action: \.destination.workoutCreatorView)) { store in
+                    WorkoutCreatorView(store: store)
+                }
+                .fullScreenCover(item: $store.scope(state: \.destination?.workoutMirroringView,
+                                                    action: \.destination.workoutMirroringView)) { store in
                     WorkoutMirroringView(store: store)
                 }
         }
@@ -95,7 +104,7 @@ struct LiveView: View {
     // MARK: - Main Buttons
     private var crateButton: some View {
         GlassButton("plus") {
-            // TODO: Add action
+            send(.navWorkoutCreatorButtonTapped)
         }
     }
     
