@@ -1,15 +1,15 @@
 //
-//  LiveFeature.swift
+//  CalendarFeature.swift
 //  WorkoutMirrorLive
 //
-//  Created by Sebastian Sciuba on 31/07/2025.
+//  Created by Sebastian Sciuba on 01/08/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct LiveFeature {
+struct CalendarFeature {
     
     // MARK: - Reducer
     
@@ -20,14 +20,6 @@ struct LiveFeature {
                 // MARK: - Action
                 
                 // MARK: - View Action
-            case .view(.startWorkoutMirrorButtonTapped):
-                state.destination = .openWorkoutMirroringView(WorkoutMirroringFeature.State())
-                return .none
-                
-            case .view(.navCalendarButtonTapped):
-                state.destination = .openCalendarView(CalendarFeature.State())
-                return .none
-                
             case .view(.viewDidAppear):
                 return .none
                 
@@ -39,8 +31,8 @@ struct LiveFeature {
     }
 }
 
-/// Implementation of `LiveFeature` action
-extension LiveFeature {
+/// Implementation of `CalendarFeature` action
+extension CalendarFeature {
     
     @CasePathable
     enum Action: ViewAction {
@@ -50,12 +42,7 @@ extension LiveFeature {
         case view(View)
         
         enum View {
-            
-            ///
-            case startWorkoutMirrorButtonTapped
-            
-            case navCalendarButtonTapped
-            
+                    
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
         }
@@ -67,8 +54,8 @@ extension LiveFeature {
     }
 }
 
-/// Implementation of `LiveFeature` state
-extension LiveFeature {
+/// Implementation of `CalendarFeature` state
+extension CalendarFeature {
     
     @ObservableState
     struct State {
@@ -77,23 +64,16 @@ extension LiveFeature {
         
         // MARK: - Destination
         
-        /// destination from LiveFeature
+        /// destination from CalendarFeature
         @Presents var destination: Destination.State?
     }
     
 }
 
-/// Implementation of `LiveFeature` destination
-extension LiveFeature {
+/// Implementation of `CalendarFeature` destination
+extension CalendarFeature {
     
     @Reducer
     enum Destination {
-        
-        /// Represents the destination for displaying in `WorkoutMirroringFeature`.
-        case openWorkoutMirroringView(WorkoutMirroringFeature)
-        
-        /// Represents the destination for displaying in `CalendarFeature`.
-        case openCalendarView(CalendarFeature)
     }
 }
-

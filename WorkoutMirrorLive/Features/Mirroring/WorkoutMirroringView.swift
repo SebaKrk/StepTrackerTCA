@@ -141,14 +141,14 @@ struct WorkoutMirroringView: View {
             Group {
                 Image(systemName: "heart.fill")
                     .foregroundColor(.red)
-                Text("\(123)")//formatted(.number.precision(.fractionLength(0))))
+                Text("\(174)")//formatted(.number.precision(.fractionLength(0))))
                 Text("BPM")
             }
             .font(.system(.title3, design: .rounded).monospacedDigit())
             .foregroundColor(.primary)
             Spacer()
             
-            Text("Recovery")
+            Text("Anaerobic")
                 .font(.title3.weight(.semibold))
                 .foregroundColor(.red)//store.currentHeartRateZone.color)
         }
@@ -156,7 +156,7 @@ struct WorkoutMirroringView: View {
     
     private var currentHeartRatePercentageView: some View {
         VStack(spacing: 5) {
-            Text("\(70)%")
+            Text("\(91)%")
                 .font(.system(size: 60))
             //                .id(store.currentHeartRatePercentage)
             //                .transition(.push(from: .bottom))
@@ -169,7 +169,7 @@ struct WorkoutMirroringView: View {
             Image(systemName: "flame.fill")
                 .foregroundColor(.pink)
                 .font(.system(.title2, design: .rounded))
-            Text("\(123)")
+            Text("\(321)")
             //            Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
                 .font(.system(.title3, design: .rounded).monospacedDigit())
                 .foregroundColor(.primary)
@@ -181,7 +181,7 @@ struct WorkoutMirroringView: View {
     private var currentHeartRateZoneView: some View {
         HStack {
             Spacer()
-            Text("Aerobic")
+            Text("Anaerobic")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

@@ -17,29 +17,101 @@ struct LiveView: View {
     // MARK: - Body
     
     var body: some View {
-        rootView
-            .fullScreenCover(item: $store.scope(state: \.destination?.openWorkoutMirroringView,
-                                                action: \.destination.openWorkoutMirroringView)) { store in
-                WorkoutMirroringView(store: store)
-            }
+        NavigationStack {
+            rootView
+                .toolbar {
+                    toolbarButton
+                }
+                .navigationDestination(
+                    item: $store.scope(state: \.destination?.openCalendarView, action: \.destination.openCalendarView), destination: { store in
+                        CalendarView(store: store)
+                    }
+                )
+                .fullScreenCover(item: $store.scope(state: \.destination?.openWorkoutMirroringView,
+                                                    action: \.destination.openWorkoutMirroringView)) { store in
+                    WorkoutMirroringView(store: store)
+                }
+        }
     }
     
     // MARK: - SubView
     
     var rootView: some View {
-        timerButton
-    }
-    
-    private var timerButton: some View {
-        Button {
-            send(.startWorkoutMirror)
-        } label: {
-            Image(systemName: "stopwatch")
-                .padding()
-                .glassEffect()
-                .foregroundStyle(.white)
+        HStack {
+            calendarButton
+            startWorkoutButton
+            crateButton
         }
     }
+    
+    @ToolbarContentBuilder
+    private var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                /// To bedzie sprawdzala wczesniej wszystki wyamagane zgody i ewentualnie przenosilo do zakladki person gdzie bedzie mozna kliknac odp zgode
+                hrSensorButtonStatus
+                bluetoothButtonStatus
+                healthKitButtonStatus
+                motionButtonStatus
+            } label: {
+                gearShapeImage
+            }
+        }
+    }
+    
+    // MARK: - ToolBar Buttons
+    private var hrSensorButtonStatus: some View {
+        Button {
+            // akcja
+        } label: {
+            tabLabel("HR sensor", .authorized, "heart.fill")
+        }
+    }
+    
+    private var bluetoothButtonStatus: some View {
+        Button {
+            // akcja
+        } label: {
+            tabLabel("Bluetooth", .disabled, "antenna.radiowaves.left.and.right")
+        }
+    }
+    
+    private var healthKitButtonStatus: some View {
+        Button {
+            // akcja
+        } label: {
+            tabLabel("Health", .unauthorized, "waveform.path.ecg")
+        }
+    }
+    
+    private var motionButtonStatus: some View {
+        Button {
+            // akcja
+        } label: {
+            tabLabel("Motion", .unauthorized, "figure.walk")
+        }
+    }
+    
+    // MARK: - Main Buttons
+    private var crateButton: some View {
+        GlassButton("plus") {
+            // TODO: Add action
+        }
+    }
+    
+    private var calendarButton: some View {
+        GlassButton("calendar") {
+            send(.navCalendarButtonTapped)
+        }
+    }
+    
+    private var startWorkoutButton: some View {
+        GlassButton("play") {
+            send(.startWorkoutMirrorButtonTapped)
+        }
+    }
+    
+    // MARK: - Helpers
     
     private var backgroundGradient: some View {
         LinearGradient(
@@ -49,6 +121,30 @@ struct LiveView: View {
         )
         .ignoresSafeArea()
     }
+    
+    private func tabLabel(_ title: String, _ status: SensorStatus, _ icon: String) -> some View {
+        Label {
+            Text("\(title) \(status.emoji)")
+        } icon: {
+            Image(systemName: icon)
+        }
+    }
+    
+    private var gearShapeImage: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Image(systemName: "gearshape")
+                .imageScale(.large)
+            Circle()
+                .fill(Color.red)
+                .frame(width: 10, height: 10)
+                .overlay(
+                    Text("!")
+                        .font(.system(size: 7, weight: .bold))
+                        .foregroundColor(.white)
+                )
+        }
+    }
+    
 }
 
 //            .sheet(item: $store.scope(state: \.destination?.openWorkoutMirroringView,
