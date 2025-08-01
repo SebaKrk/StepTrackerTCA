@@ -18,8 +18,7 @@ struct WorkoutMirroringFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        
-        Reduce { state, action in
+        Reduce<State, Action> { state, action in
             switch action {
                 
                 // MARK: - Action

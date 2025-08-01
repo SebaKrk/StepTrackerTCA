@@ -14,7 +14,7 @@ struct LiveFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
+        Reduce<State, Action> { state, action in
             switch action {
                 
                 // MARK: - Action
@@ -31,6 +31,10 @@ struct LiveFeature {
             case .view(.viewDidAppear):
                 return .none
                 
+            case   .destination(.presented(.openCalendarView(.destination(.presented(.openWorkoutDetailsView(.destination(.presented(.openWorkoutMirroringView(.view(.xMarkButtonTapped)))))))))):
+                print("state.destination = nil")
+                state.destination = nil
+                return .none
             case .destination(_):
                 return .none
             }
@@ -54,6 +58,7 @@ extension LiveFeature {
             ///
             case startWorkoutMirrorButtonTapped
             
+            ///
             case navCalendarButtonTapped
             
             /// Action triggered when the view appears on the screen.

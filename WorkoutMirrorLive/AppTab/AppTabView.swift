@@ -43,11 +43,8 @@ struct AppTabView: View {
     func tabContent(for appScreenTab: AppScreen) -> some View {
         switch appScreenTab {
         case .live:
-            LiveView(
-                store: Store(initialState: LiveFeature.State()) {
-                    LiveFeature()
-                }
-            )
+            liveView
+
         case .workout:
             List(0..<100) { i in
                 Text("live \(i)")
@@ -57,6 +54,21 @@ struct AppTabView: View {
         }
     }
     
+    @ViewBuilder
+    var liveView: some View {
+        LiveView(store: store.scope(
+            state: \.live,
+            action: \.live)
+        )
+//        if let store = store.scope(state: \.live, action: \.live) {
+//            LiveView(store: store)
+//        } else {
+//            ProgressView()
+//                .onAppear {
+//                    send(.initLiveIfNeeded)
+//                }
+//        }
+    }
 }
 
 struct TabViewBottomAccessoryPlacementView: View {

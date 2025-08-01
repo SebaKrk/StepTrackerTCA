@@ -14,8 +14,7 @@ struct AppTabFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        
-        Reduce { state, action in
+        Reduce<State, Action> { state, action in
             switch action {
                 
                 // MARK: - Action
@@ -27,8 +26,14 @@ struct AppTabFeature {
             case .view(.viewDidAppear):
                 return .none
                 
+            default:
+                return .none
             }
         }
+        Scope(state: \.live, action: \.live) {
+            LiveFeature()
+        }
+        //.ifLet(\.live, action: \.live) { LiveFeature() }
     }
 }
 
@@ -50,6 +55,10 @@ extension AppTabFeature {
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
         }
+        
+        // MARK: - Child
+        ///
+        case live(LiveFeature.Action)
     }
 }
 
@@ -70,6 +79,10 @@ extension AppTabFeature {
         ///
         /// Default value is `.summary`.
         var selectedTab: AppScreen = .live
+        
+        // MARK: - Child
+        
+        var live: LiveFeature.State = .init()
     }
     
 }

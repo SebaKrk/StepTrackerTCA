@@ -1,5 +1,5 @@
 //
-//  CalendarFeature.swift
+//  WorkoutDetailsFeature.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Sciuba on 01/08/2025.
@@ -9,25 +9,25 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct CalendarFeature {
+struct WorkoutDetailsFeature {
     
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
+        Reduce<State, Action> { state, action in
             switch action {
                 
                 // MARK: - Action
                 
-            case let .workoutSelected(item):
-                // tu narazie otwieram Mirroring dla testow nawigacji 
-                state.destination = .openWorkoutDetailsView(WorkoutDetailsFeature.State(workout: item!))
-                return .none
-                
                 // MARK: - View Action
+            case .view(.startWorkoutButtonTapped):
+                // tu narazie otwieram Mirroring dla testow nawigacji bez przekazania itemu
+                state.destination = .openWorkoutMirroringView(WorkoutMirroringFeature.State())
+                return .none
             case .view(.viewDidAppear):
                 return .none
                 
+                // MARK:
             case .destination(_):
                 return .none
             }
@@ -36,22 +36,23 @@ struct CalendarFeature {
     }
 }
 
-/// Implementation of `CalendarFeature` action
-extension CalendarFeature {
+/// Implementation of `WorkoutDetailsFeature` action
+extension WorkoutDetailsFeature {
     
     @CasePathable
     enum Action: ViewAction {
         
         // MARK: - Actions
         
-        case workoutSelected(String?)
-        
         // MARK: - View Actions
         
         case view(View)
         
         enum View {
-                    
+            
+            ///
+            case startWorkoutButtonTapped
+            
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
         }
@@ -63,8 +64,8 @@ extension CalendarFeature {
     }
 }
 
-/// Implementation of `CalendarFeature` state
-extension CalendarFeature {
+/// Implementation of `WorkoutDetailsFeature` state
+extension WorkoutDetailsFeature {
     
     @ObservableState
     struct State {
@@ -72,24 +73,22 @@ extension CalendarFeature {
         // MARK: - Properties
         
         ///
-        var workoutCalendar: [String] = ["Trening 2314"]
-        
-        ///
-        var selectedWorkout: String?
+        var workout: String
         
         // MARK: - Destination
         
-        /// destination from CalendarFeature
+        /// destination from WorkoutDetailsFeature
         @Presents var destination: Destination.State?
     }
     
 }
 
-/// Implementation of `CalendarFeature` destination
-extension CalendarFeature {
+/// Implementation of `WorkoutDetailsFeature` destination
+extension WorkoutDetailsFeature {
     
     @Reducer
     enum Destination {
-        case openWorkoutDetailsView(WorkoutDetailsFeature)
+        case openWorkoutMirroringView(WorkoutMirroringFeature)
     }
+    
 }
