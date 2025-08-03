@@ -27,6 +27,11 @@ struct LiveView: View {
                         CalendarView(store: store)
                     }
                 )
+                .navigationDestination(
+                    item: $store.scope(state: \.destination?.workoutDevicePickerView, action: \.destination.workoutDevicePickerView), destination: { store in
+                        WorkoutDevicePickerView(store: store)
+                    }
+                )
 //                .navigationDestination(
 //                    item: $store.scope(state: \.destination?.workoutCreatorView, action: \.destination.workoutCreatorView), destination: { store in
 //                        WorkoutCreatorView(store: store)
@@ -46,10 +51,15 @@ struct LiveView: View {
     // MARK: - SubView
     
     var rootView: some View {
-        HStack {
-            calendarButton
-            startWorkoutButton
-            crateButton
+        VStack {
+            Spacer()
+            HStack {
+                calendarButton
+                startWorkoutButton
+                crateButton
+            }
+            deviceButton
+            Spacer()
         }
     }
     
@@ -117,6 +127,12 @@ struct LiveView: View {
     private var startWorkoutButton: some View {
         GlassButton("play") {
             send(.startWorkoutMirrorButtonTapped)
+        }
+    }
+    
+    private var deviceButton: some View {
+        GlassButton("applewatch.case.sizes") {
+            send(.deviceButtonTapped)
         }
     }
     

@@ -24,6 +24,10 @@ struct LiveFeature {
                 state.destination = .workoutMirroringView(WorkoutMirroringFeature.State())
                 return .none
                 
+            case .view(.deviceButtonTapped):
+                state.destination = .workoutDevicePickerView(WorkoutDevicePickerFeature.State())
+                return .none
+                
             case .view(.navCalendarButtonTapped):
                 state.destination = .calendarView(CalendarFeature.State())
                 return .none
@@ -77,6 +81,9 @@ extension LiveFeature {
             ///
             case navWorkoutCreatorButtonTapped
             
+            ///
+            case deviceButtonTapped
+            
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
         }
@@ -104,20 +111,4 @@ extension LiveFeature {
     
 }
 
-/// Implementation of `LiveFeature` destination
-extension LiveFeature {
-    
-    @Reducer
-    enum Destination {
-        
-        /// Represents the destination for displaying in `WorkoutMirroringFeature`.
-        case workoutMirroringView(WorkoutMirroringFeature)
-        
-        /// Represents the destination for displaying in `CalendarFeature`.
-        case calendarView(CalendarFeature)
-        
-        /// Represents the destination for displaying in `WorkoutCreatorFeature`.
-        case workoutCreatorView(WorkoutCreatorFeature)
-    }
-}
 

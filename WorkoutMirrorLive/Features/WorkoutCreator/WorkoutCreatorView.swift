@@ -19,7 +19,7 @@ struct WorkoutCreatorView: View {
     var body: some View {
         NavigationStack {
             formView
-                .navigationTitle("Weight goal")
+                .navigationTitle("Create Workout")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     toolbarButton
