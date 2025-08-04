@@ -1,39 +1,35 @@
 //
-//  WorkoutDevicePickerFeature.swift
+//  WorkoutTypeListFeature.swift
 //  WorkoutMirrorLive
 //
-//  Created by Sebastian Sciuba on 03/08/2025.
+//  Created by Sebastian Sciuba on 04/08/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct WorkoutDevicePickerFeature {
+struct WorkoutTypeListFeature {
     
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
+        BindingReducer()
         Reduce<State, Action> { state, action in
             switch action {
+                // MARK: - Binding
+            case .binding(_):
+                return .none
                 
                 // MARK: - Action
             case let .selectedWorkout(workout):
                 state.selectedWorkout = workout
+                if let workout {
+                    
+                }
                 return .none
                 
                 // MARK: - View Action
-            case .view(.watchButtonTapped):
-                state.destination = .workoutMirroringView(WorkoutMirroringFeature.State())
-                return .none
-                
-            case .view(.iPhoneButtonTapped):
-                state.destination = .workoutTypeListView(WorkoutTypeListFeature.State())
-                return .none
-                
-            case let .view(.selectedWorkoutButtonTapped(workout)):
-                return .send(.selectedWorkout(workout))
-                
             case .view(.viewDidAppear):
                 return .none
                 
@@ -46,30 +42,26 @@ struct WorkoutDevicePickerFeature {
     }
 }
 
-/// Implementation of `WorkoutDevicePickerFeature` action
-extension WorkoutDevicePickerFeature {
+/// Implementation of `WorkoutTypeListFeature` action
+extension WorkoutTypeListFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
         
         // MARK: - Actions
         
-        case selectedWorkout(String)
+        case selectedWorkout(WorkoutType?)
         
         // MARK: - View Actions
         
         case view(View)
         
         enum View {
-            
-            ///
-            case watchButtonTapped
-            
-            ///
-            case iPhoneButtonTapped
-            
-            ///
-            case selectedWorkoutButtonTapped(String)
             
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
@@ -82,34 +74,38 @@ extension WorkoutDevicePickerFeature {
     }
 }
 
-/// Implementation of `WorkoutDetailsFeature` state
-extension WorkoutDevicePickerFeature {
+/// Implementation of `WorkoutTypeListFeature` state
+extension WorkoutTypeListFeature {
     
     @ObservableState
     struct State {
         
         // MARK: - Properties
         
-        var selectedWorkout: String?
+        var workoutTypes: [WorkoutType] = [.boxing, .cross, .functional]
         
+        var selectedWorkout: WorkoutType?
+ 
         // MARK: - Destination
         
-        /// destination from WorkoutDevicePickerFeature
+        /// destination from WorkoutTypeListFeature
         @Presents var destination: Destination.State?
     }
     
 }
 
-/// Implementation of `WorkoutDevicePickerFeature` destination
-extension WorkoutDevicePickerFeature {
+
+/// Implementation of `WorkoutTypeListFeature` destination
+extension WorkoutTypeListFeature {
     
     @Reducer
     enum Destination {
         
-        case workoutMirroringView(WorkoutMirroringFeature)
-        
-        case workoutTypeListView(WorkoutTypeListFeature)
+        //case workoutMirroringView(WorkoutMirroringFeature)
     }
     
 }
+
+
+
 

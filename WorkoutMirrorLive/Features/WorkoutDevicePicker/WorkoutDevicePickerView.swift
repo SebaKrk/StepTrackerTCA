@@ -23,6 +23,15 @@ struct WorkoutDevicePickerView: View {
                                                 action: \.destination.workoutMirroringView)) { store in
                 WorkoutMirroringView(store: store)
             }
+            .navigationDestination(
+                item: $store.scope(
+                    state: \.destination?.workoutTypeListView,
+                    action: \.destination.workoutTypeListView),
+                destination: { store in
+                    WorkoutTypeListView(store: store)
+                }
+            )
+                                        
     }
     
     // MARK: - SubView
@@ -41,56 +50,56 @@ struct WorkoutDevicePickerView: View {
     }
     
     private var iPhoneButton: some View {
-        //GlassButton("iphone") {
-        //send(.iPhoneButtonTapped)
-        //}
-        Group {
-            Menu {
-                Button {
-                    send(.iPhoneButtonTapped)
-                } label: {
-                    if let workout = store.selectedWorkout {
-                        Label {
-                            Text("start workout")
-                        } icon: {
-                            Image(systemName: workout)
-                        }
-                    } else {
-                        Text("Chose workout")
-                    }
-                    
-                }
-                
-                Menu {
-                    Button {
-                        send(.selectedWorkoutButtonTapped("figure.cross.training"))
-                    } label: {
-                        Label {
-                            Text("Cross training")
-                        } icon: {
-                            Image(systemName: "figure.cross.training")
-                        }
-                    }
-                    
-                    Button {
-                        send(.selectedWorkoutButtonTapped("figure.boxing"))
-                    } label: {
-                        Label {
-                            Text("Boxing training")
-                        } icon: {
-                            Image(systemName: "figure.boxing")
-                        }
-                    }
-                    
-                } label: {
-                    Text("Select workout")
-                        .tint(.primary)
-                }
-            } label: {
-                GlassImage("iphone")
-            }
+        GlassButton("iphone") {
+            send(.iPhoneButtonTapped)
         }
-        .tint(.primary)
+//        Group {
+//            Menu {
+//                Button {
+//                    send(.iPhoneButtonTapped)
+//                } label: {
+//                    if let workout = store.selectedWorkout {
+//                        Label {
+//                            Text("start workout")
+//                        } icon: {
+//                            Image(systemName: workout)
+//                        }
+//                    } else {
+//                        Text("Chose workout")
+//                    }
+//                    
+//                }
+//                
+//                Menu {
+//                    Button {
+//                        send(.selectedWorkoutButtonTapped("figure.cross.training"))
+//                    } label: {
+//                        Label {
+//                            Text("Cross training")
+//                        } icon: {
+//                            Image(systemName: "figure.cross.training")
+//                        }
+//                    }
+//                    
+//                    Button {
+//                        send(.selectedWorkoutButtonTapped("figure.boxing"))
+//                    } label: {
+//                        Label {
+//                            Text("Boxing training")
+//                        } icon: {
+//                            Image(systemName: "figure.boxing")
+//                        }
+//                    }
+//                    
+//                } label: {
+//                    Text("Select workout")
+//                        .tint(.primary)
+//                }
+//            } label: {
+//                GlassImage("iphone")
+//            }
+//        }
+//        .tint(.primary)
     }
     
 }
