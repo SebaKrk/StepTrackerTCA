@@ -25,7 +25,7 @@ struct WorkoutTypeListFeature {
             case let .selectedWorkout(workout):
                 state.selectedWorkout = workout
                 if let workout {
-                    
+                    state.destination = .workoutSessionView(WorkoutSessionFeature.State(selectedWorkout: workout))
                 }
                 return .none
                 
@@ -101,7 +101,7 @@ extension WorkoutTypeListFeature {
     @Reducer
     enum Destination {
         
-        //case workoutMirroringView(WorkoutMirroringFeature)
+        case workoutSessionView(WorkoutSessionFeature)
     }
     
 }

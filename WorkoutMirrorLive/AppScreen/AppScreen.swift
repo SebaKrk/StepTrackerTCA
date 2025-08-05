@@ -69,6 +69,28 @@ extension AppScreen {
 }
 
 
+//zakladaka live:
+//• glowna funkcja aplikacji tzn pokazanie aktualnego tetna, strefy tetna oraz spalonych kalori.
+//  uzytkownik bedzie wiedzial na jakim procencie wytrzymalosci sie znajduje
+//•  Czas trwania sesji.
+
+// start treningu -> mirrorwanie treningu -> zakonczenie = podumowaniem
+//  Analiza po treningu (raporty)
+//    -   Średnie tętno, maksymalne, wykresy.
+//    -    Czas spędzony w każdej strefie.
+//    -    Spalona energia.
+//    -    Eksport do PDF / CSV.
+
+//zakladaka workout:
+//• dwie zakladki do wyboru u gory
+//• planowanie treningu
+//    - Rodzaje treningów do wyboru
+//    - Bieganie, rower, interwały, siłowy, HIIT, itd.
+//    - Każdy typ może mieć inne metryki i cele.
+//    - Użytkownik może ustawić własny cel (czas, kcal, strefa tętna, dystans).
+//• lista treningow ktore odbyly sie za pomoca mojej aplikacji (moze byc tez lista wszystkich treninogw z helt kit + szybka opcja tylko za pomoca mojej app)
+//•
+
 
 //zakladaka perosn:
 //•    ustawienia sensorów / BLE
@@ -76,3 +98,45 @@ extension AppScreen {
 //•    prywatność / HealthKit
 //•    eksport danych
 //•    dane kontaktowe / feedback
+//Profil Użytkownika:
+//Dane podstawowe: wiek, waga, wzrost, płeć (kluczowe do dokładnego obliczania stref tętna i spalonych kalorii).
+//Ustalenie tętna maksymalnego (HRmax) i spoczynkowego – automatycznie z formuły lub poprzez test wysiłkowy.
+//Synchronizacja z Urządzeniami Zewnętrznymi:
+//Natywna integracja z zegarkami (Apple Watch, Wear OS) i czujnikami tętna na klatkę piersiową (np. Polar, Garmin) przez Bluetooth. To jest główne źródło danych.
+
+//🔹 1. Wejście do zakładki Live
+//     ✅ Sprawdzamy stan sesji:
+//    → brak aktywnego treningu? ➝ ekran startowy
+//    → jest aktywna sesja? ➝ uruchamiam  ekran aktywnego treningu(4)
+//🔹 2. Brak aktywnego treningu → ekran przygotowania
+//    •    Ekran: LiveStartView
+//    •    Pokazuje:
+//    •    Krótka instrukcja (“Połącz się z czujnikiem, wybierz typ treningu”)
+//    •    Stan połączenia z czujnikiem tętna (Bluetooth / HealthKit)
+//    •    Przycisk Rozpocznij trening (nieaktywny jeśli brak czujnika)
+//    •    Wybór typu treningu (ikony / list picker)
+//    •    Ewentualne alerty (np. “Brak uprawnień do HealthKit”)
+//🔹 3. Po sparowaniu czujnika i wybraniu treningu
+//    •    Przycisk Rozpocznij staje się aktywny
+//    •    Kliknięcie ➝ przejście do LiveWorkoutView
+//🔹 4. Widok aktywnego treningu (LiveWorkoutView)
+//    •    Pokazuje w czasie rzeczywistym:
+//    •    ❤️ BPM + strefa tętna
+//    •    🔥 Kalorie
+//    •    ⏱ Czas trwania
+//    •    % HRmax
+//    •    🛑 Pauza / Zakończ
+//    •    Może zawierać:
+//    •    Live Activity
+//    •    Haptic Feedback przy zmianie strefy
+//🔹 5. Pauza → pokazuje menu
+//•    Wznowienie / zakończenie
+//•    Podgląd wyników cząstkowych
+//
+//🔹 6. Zakończenie treningu
+//•    Przejście do WorkoutSummaryView:
+//•    Tętno śr./max
+//•    Czas
+//•    Spalone kcal
+//•    Czas w każdej strefie
+

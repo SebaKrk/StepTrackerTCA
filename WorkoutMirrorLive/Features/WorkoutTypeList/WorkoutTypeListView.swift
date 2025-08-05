@@ -19,6 +19,10 @@ struct WorkoutTypeListView: View {
     var body: some View {
         workoutTypeList
             .navigationTitle("Workout type list")
+            .fullScreenCover(item: $store.scope(state: \.destination?.workoutSessionView,
+                                                action: \.destination.workoutSessionView)) { store in
+                WorkoutSessionView(store: store)
+            }
     }
     
     // MARK: - Subview
