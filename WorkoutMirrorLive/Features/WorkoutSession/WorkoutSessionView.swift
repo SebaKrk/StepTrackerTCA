@@ -66,7 +66,7 @@ struct WorkoutSessionView: View {
             state: \.countDown,
             action: \.countDown)
         )
-        .padding()
+        .frame(width: 200, height: 200, alignment: .center)
     }
     
     private var sessionView: some View {

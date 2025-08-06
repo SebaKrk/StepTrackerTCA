@@ -15,7 +15,7 @@ struct CountDownView: View {
     var body: some View {
         VStack(spacing: 20) {
             ZStack {
-                Color.black
+                Color(.systemBackground)
                     .ignoresSafeArea()
                 Circle()
                     .stroke(.gray, style: .init(lineWidth: 20))
