@@ -29,6 +29,6 @@ struct GlassImage: View {
             .padding()
             .glassEffect()
             .symbolRenderingMode(.hierarchical)
-            .foregroundStyle(.primary)
+//            .foregroundStyle(.white)
     }
 }

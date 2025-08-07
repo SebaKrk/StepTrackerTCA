@@ -22,16 +22,30 @@ struct WorkoutMirroringView: View {
                 activeWorkoutView
             }
             .background(backgroundGradient)
-            .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("Workout Mirroring")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarButton
             }
             .toolbar {
-                bottomToolbarButton
+                if !store.isToolbarHidden {
+                    bottomToolbarButton
+                }
             }
-            .toolbar(removing: .title)
             .ignoresSafeArea(edges: .bottom)
+            .toolbarVisibility(store.isToolbarHidden ? .hidden : .visible, for: .automatic)
+            .onTapGesture {
+                if store.isToolbarHidden {
+                    send(.hideToolBarButtonTapped)
+                }
+            }
+            //.toolbar(removing: .title)
+            .sheet(item: $store.scope(
+                state: \.destination?.heartRateZoneInfo,
+                action: \.destination.heartRateZoneInfo)) { store in
+                    HeartRateZoneInfoView(store: store)
+                        .presentationDetents([.large, .medium])
+                }
         }
     }
     
@@ -39,80 +53,77 @@ struct WorkoutMirroringView: View {
     
     @ToolbarContentBuilder
     var bottomToolbarButton: some ToolbarContent {
+        switch store.mirroringToolBarState {
+        case .none: noneToolBar
+        case .camera: cameraOptionToolBar
+        case .music: musicOptionToolBar
+        case .voice: voiceOptionToolBar
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var cameraOptionToolBar: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            Button {
-                // Akcja
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-            }
-            Spacer()
-            Button {
-                // Akcja
-            } label: {
-                Image(systemName: "heart")
-            }
-            Button {
-                // Akcja
-            } label: {
-                Image(systemName: "snowflake")
-            }
-            Spacer()
-            Button {
-                // Akcja
-            } label: {
-                Text("Add")
+            if store.isActiveCamera {
+                activeCameraButton
+                Spacer()
+                recordCameraButton
+            } else {
+                disableCameraButton
+                Spacer()
             }
         }
+    }
+    
+    @ToolbarContentBuilder
+    private var musicOptionToolBar: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            backMusicButton
+            playMusicButton
+            forwardMusicButton
+            Spacer()
+            openMusicLibraryButton
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var voiceOptionToolBar: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            voiceButton
+            Spacer()
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var noneToolBar: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {}
     }
     
     @ToolbarContentBuilder
     var toolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button {
-                send(.xMarkButtonTapped)
+            Menu {
+                activeCameraButtonLabel
+                activeMusicButtonLabel
+                activeVoiceButtonLabel
+                if store.mirroringToolBarState != .none {
+                    hideBottomButtons
+                }
             } label: {
-                Image(systemName: "xmark")
+                Image(systemName: "gearshape")
             }
         }
-    }
-    
-    @ToolbarContentBuilder
-    var toolbarButton2: some ToolbarContent {
-        ToolbarSpacer(.flexible)
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-            }
+        ToolbarItem(placement: .title) {
+            hideAllToolBarButtons
         }
-        ToolbarSpacer(.fixed)
-        
-        ToolbarItemGroup {
-            Button {
-                
-            } label: {
-                Image(systemName: "heart")
-            }
-            Button {
-                
-            } label: {
-                Image(systemName: "snowflake")
-            }
-        }
-        ToolbarSpacer(.fixed)
-        ToolbarItem {
-            Button {
-                
-            } label: {
-                Text("Add")
-            }
+        ToolbarItem(placement: .topBarTrailing) {
+            heartRateZoneButton
         }
     }
     
     private var backgroundGradient: some View {
         LinearGradient(
-            gradient: Gradient(colors: [.blue, .gray, .red]),
+            gradient: Gradient(colors: [.black, .gray, .black]),
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -191,6 +202,25 @@ struct WorkoutMirroringView: View {
 }
 
 
+//Spacer()
+//            Button {
+//                // Akcja
+//            } label: {
+//                Image(systemName: "play")
+//                //pause
+//            }
+//            Button {
+//                send(.xMarkButtonTapped)
+//            } label: {
+//                Image(systemName: "xmark")
+//            }
+//            Spacer()
+//            Button {
+//                // Akcja
+//            } label: {
+//                Image(systemName: "music.note")
+//            }
+
 //        GroupBox {
 //            VStack {
 //                heartRateView
@@ -217,3 +247,38 @@ struct WorkoutMirroringView: View {
 //            }
 //        }
 //        .glassEffect()
+
+//
+//@ToolbarContentBuilder
+//var toolbarButton2: some ToolbarContent {
+//    ToolbarSpacer(.flexible)
+//    ToolbarItem(placement: .topBarLeading) {
+//        Button {
+//
+//        } label: {
+//            Image(systemName: "square.and.arrow.up")
+//        }
+//    }
+//    ToolbarSpacer(.fixed)
+//
+//    ToolbarItemGroup {
+//        Button {
+//
+//        } label: {
+//            Image(systemName: "heart")
+//        }
+//        Button {
+//
+//        } label: {
+//            Image(systemName: "snowflake")
+//        }
+//    }
+//    ToolbarSpacer(.fixed)
+//    ToolbarItem {
+//        Button {
+//
+//        } label: {
+//            Text("Add")
+//        }
+//    }
+//}
