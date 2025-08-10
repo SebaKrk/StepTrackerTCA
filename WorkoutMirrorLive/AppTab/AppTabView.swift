@@ -49,7 +49,7 @@ struct AppTabView: View {
                 Text("live \(i)")
             }
         case .person:
-            Text("Person")
+            personView
         }
     }
     
@@ -67,6 +67,14 @@ struct AppTabView: View {
         //                    send(.initLiveIfNeeded)
         //                }
         //        }
+    }
+    
+    @ViewBuilder
+    var personView: some View {
+        PersonView(store: store.scope(
+            state: \.person,
+            action: \.person)
+        )
     }
 }
 

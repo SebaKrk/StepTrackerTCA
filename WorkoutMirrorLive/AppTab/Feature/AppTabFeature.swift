@@ -33,6 +33,9 @@ struct AppTabFeature {
         Scope(state: \.live, action: \.live) {
             LiveFeature()
         }
+        Scope(state: \.person, action: \.person) {
+            PersonFeature()
+        }
         //.ifLet(\.live, action: \.live) { LiveFeature() }
     }
 }
@@ -59,6 +62,9 @@ extension AppTabFeature {
         // MARK: - Child
         ///
         case live(LiveFeature.Action)
+        
+        ///
+        case person(PersonFeature.Action)
     }
 }
 
@@ -82,7 +88,11 @@ extension AppTabFeature {
         
         // MARK: - Child
         
+        ///
         var live: LiveFeature.State = .init()
+        
+        ///
+        var person: PersonFeature.State = .init()
     }
     
 }

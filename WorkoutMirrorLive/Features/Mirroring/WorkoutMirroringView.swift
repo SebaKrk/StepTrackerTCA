@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import HealthHub
 
 @ViewAction(for: WorkoutMirroringFeature.self)
 struct WorkoutMirroringView: View {
@@ -18,10 +19,23 @@ struct WorkoutMirroringView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                activeWorkoutView
+            VStack {
+                ScrollView {
+                    activeWorkoutView
+                    GlassFolderContainer(corner: 32) {
+                        Text("aaaa")
+                    }
+                    
+                    GlassEffectContainer {
+                        Text("aaaa")
+                            .padding(20)
+                            .glassEffect(.regular, in: .rect(cornerRadius: 12))
+                    }
+                    
+                }
+                controlsView
             }
-            .background(backgroundGradient)
+            //.background(backgroundGradient)
             .navigationTitle("Workout Mirroring")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -147,6 +161,26 @@ struct WorkoutMirroringView: View {
         .padding()
     }
     
+    private var controlsView: some View {
+        GlassEffectContainer {
+            VStack {
+                HStack {
+                    activityIcon
+                    Spacer()
+                    timeLineView
+                    Spacer()
+                    ActivityRingsView(move: 22, exercise: 32, stand: 56)
+                }
+                Spacer().frame(height: 20)
+                workoutActionButton
+            }
+            .padding()
+        }
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
+//        .glassEffect(.clear.interactive(),in: .rect(cornerRadius: 12))
+//        .padding()
+    }
+    
     private var heartRateView: some View {
         HStack {
             Group {
@@ -196,6 +230,55 @@ struct WorkoutMirroringView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+        }
+    }
+    
+    private var timeLineView: some View {
+        TimelineView(PeriodicTimelineSchedule(from: .now, by: 1.0 / 30.0)) { context in
+            makeElapsedTimeView(context)
+        }
+    }
+    
+    private func makeElapsedTimeView(_ context: TimelineViewDefaultContext) -> some View {
+        ElapsedTimeView(
+            elapsedTime: store.elapsedTime,
+            showSubseconds: context.cadence == .live
+        )
+        //        .frame(maxWidth: .infinity, alignment: .leading)
+        .foregroundStyle(.yellow)
+        .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
+        //        .onAppear {
+        //            send(.updateElapsedTime(context.date))
+        //        }
+        //        .onChange(of: context.date) { _, newDate in
+        //            send(.updateElapsedTime(newDate))
+        //        }
+    }
+    
+    private var activityIcon: some View {
+        Image(systemName: "figure.cross.training.circle.fill")
+            .resizable()
+            .foregroundStyle(.primary)
+            .frame(width: 30, height: 30, alignment: .center)
+    }
+    
+    private var workoutActionButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                
+            } label: {
+                Image(systemName: "pause")
+                    .font(.system(size: 30, weight: .medium))
+                    .frame(width: 80, height: 80)
+                    .background(
+                        Circle()
+//                                    .fill(.ultraThinMaterial)
+//                                    .shadow(radius: 5)
+                    )
+            }
+            .buttonStyle(.plain)
+            Spacer()
         }
     }
     
@@ -282,3 +365,68 @@ struct WorkoutMirroringView: View {
 //        }
 //    }
 //}
+
+struct ActivityRingsView: View {
+    var move: Double // 0.0 - 1.0
+    var exercise: Double
+    var stand: Double
+    
+    var body: some View {
+        ZStack {
+            RingView(progress: 1.0, color: .gray, lineWidth: 20)
+            RingView(progress: stand, color: .blue, lineWidth: 20)
+            RingView(progress: exercise, color: .green, lineWidth: 14)
+            RingView(progress: move, color: .red, lineWidth: 8)
+        }
+        .frame(width: 25, height: 25)
+    }
+}
+
+struct RingView: View {
+    var progress: Double
+    var color: Color
+    var lineWidth: CGFloat
+    
+    var body: some View {
+        Circle()
+            .trim(from: 0, to: progress)
+            .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+            .rotationEffect(.degrees(-90))
+    }
+}
+
+struct GlassFolderContainer<Content: View>: View {
+    let corner: CGFloat
+    @ViewBuilder var content: () -> Content
+
+    init(corner: CGFloat = 36, @ViewBuilder content: @escaping () -> Content) {
+        self.corner = corner
+        self.content = content
+    }
+
+    private var shape: some InsettableShape {
+        RoundedRectangle(cornerRadius: corner, style: .continuous)
+    }
+
+    var body: some View {
+        // Kontener zbiera i optymalizuje efekty szkła wewnątrz
+        GlassEffectContainer {
+            content()
+                .padding(20)
+                // 3D szkło „za” widokiem (grubość, specular, blur, cienie)
+                
+                //.glassBackgroundEffect(in: shape)                 // iOS 26
+                // Efekty „przed” widokiem (highlighty, refrakcja itp.)
+                .glassEffect(.regular, in: shape)                 // iOS 26
+                // Opcjonalny delikatny „rim”, jak w iOS
+                .overlay {
+                    shape
+                        .strokeBorder(.white.opacity(0.35), lineWidth: 1)
+                        .blendMode(.overlay)
+                }
+                // Lekki cień dla „uniesienia”
+                .shadow(color: .black.opacity(0.18), radius: 28, y: 14)
+        }
+        .clipShape(shape) // poprawny hit-test i antyaliasing krawędzi
+    }
+}

@@ -152,6 +152,8 @@ extension WorkoutMirroringFeature {
         
         // MARK: - Properties
         
+        var elapsedTime: TimeInterval = 0
+        
         ///
         var mirroringToolBarState: WorkoutMirroringToolBarState = .none
         

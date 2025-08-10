@@ -33,6 +33,7 @@ struct GlassButton: View {
         Button(action: action) {
             GlassImage(name)
         }
-        //.tint(.primary)
+//        .buttonStyle(.plain)
+        .tint(.white)
     }
 }
