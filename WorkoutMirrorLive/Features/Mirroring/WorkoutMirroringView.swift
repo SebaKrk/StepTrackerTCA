@@ -7,7 +7,6 @@
 
 import ComposableArchitecture
 import SwiftUI
-import HealthHub
 
 @ViewAction(for: WorkoutMirroringFeature.self)
 struct WorkoutMirroringView: View {
@@ -67,6 +66,7 @@ struct WorkoutMirroringView: View {
     
     @ToolbarContentBuilder
     var bottomToolbarButton: some ToolbarContent {
+        
         switch store.mirroringToolBarState {
         case .none: noneToolBar
         case .camera: cameraOptionToolBar
@@ -127,11 +127,21 @@ struct WorkoutMirroringView: View {
                 Image(systemName: "gearshape")
             }
         }
+        
         ToolbarItem(placement: .title) {
             hideAllToolBarButtons
         }
+        
         ToolbarItem(placement: .topBarTrailing) {
-            heartRateZoneButton
+            if store.workoutSessionState == .paused {
+                Button {
+                    send(.endWorkoutButtonTapped)
+                } label: {
+                    Image(systemName: "xmark")
+                }
+            } else {
+                heartRateZoneButton
+            }
         }
     }
     
@@ -172,13 +182,13 @@ struct WorkoutMirroringView: View {
                     ActivityRingsView(move: 22, exercise: 32, stand: 56)
                 }
                 Spacer().frame(height: 20)
-                workoutActionButton
+                workoutActionButtonsView
             }
             .padding()
         }
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 12))
-//        .glassEffect(.clear.interactive(),in: .rect(cornerRadius: 12))
-//        .padding()
+        //        .glassEffect(.clear.interactive(),in: .rect(cornerRadius: 12))
+        //        .padding()
     }
     
     private var heartRateView: some View {
@@ -262,19 +272,47 @@ struct WorkoutMirroringView: View {
             .frame(width: 30, height: 30, alignment: .center)
     }
     
-    private var workoutActionButton: some View {
+    @ViewBuilder
+    private var workoutActionButtonsView: some View {
+        switch store.workoutSessionState {
+        case .running:
+            workoutPauseButton
+        case .paused:
+            resumeWorkoutButton
+        }
+    }
+    
+    private var workoutPauseButton: some View {
         HStack {
             Spacer()
             Button {
-                
+                send(.pauseWorkoutButtonTaped)
             } label: {
                 Image(systemName: "pause")
                     .font(.system(size: 30, weight: .medium))
                     .frame(width: 80, height: 80)
                     .background(
                         Circle()
-//                                    .fill(.ultraThinMaterial)
-//                                    .shadow(radius: 5)
+                        //.fill(.ultraThinMaterial)
+                        //.shadow(radius: 5)
+                    )
+            }
+            .buttonStyle(.plain)
+            Spacer()
+        }
+    }
+    
+    private var resumeWorkoutButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                send(.resumeWorkoutButtonTapped)
+            } label: {
+                Image(systemName: "play")
+                    .font(.system(size: 30, weight: .medium))
+                    .frame(width: 80, height: 80)
+                    .background(
+                        Circle()
                     )
             }
             .buttonStyle(.plain)
@@ -398,33 +436,33 @@ struct RingView: View {
 struct GlassFolderContainer<Content: View>: View {
     let corner: CGFloat
     @ViewBuilder var content: () -> Content
-
+    
     init(corner: CGFloat = 36, @ViewBuilder content: @escaping () -> Content) {
         self.corner = corner
         self.content = content
     }
-
+    
     private var shape: some InsettableShape {
         RoundedRectangle(cornerRadius: corner, style: .continuous)
     }
-
+    
     var body: some View {
         // Kontener zbiera i optymalizuje efekty szkła wewnątrz
         GlassEffectContainer {
             content()
                 .padding(20)
-                // 3D szkło „za” widokiem (grubość, specular, blur, cienie)
-                
-                //.glassBackgroundEffect(in: shape)                 // iOS 26
-                // Efekty „przed” widokiem (highlighty, refrakcja itp.)
+            // 3D szkło „za” widokiem (grubość, specular, blur, cienie)
+            
+            //.glassBackgroundEffect(in: shape)                 // iOS 26
+            // Efekty „przed” widokiem (highlighty, refrakcja itp.)
                 .glassEffect(.regular, in: shape)                 // iOS 26
-                // Opcjonalny delikatny „rim”, jak w iOS
+            // Opcjonalny delikatny „rim”, jak w iOS
                 .overlay {
                     shape
                         .strokeBorder(.white.opacity(0.35), lineWidth: 1)
                         .blendMode(.overlay)
                 }
-                // Lekki cień dla „uniesienia”
+            // Lekki cień dla „uniesienia”
                 .shadow(color: .black.opacity(0.18), radius: 28, y: 14)
         }
         .clipShape(shape) // poprawny hit-test i antyaliasing krawędzi

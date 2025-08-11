@@ -21,7 +21,7 @@ struct PersonView: View {
             if let status = store.authorizationStatus {
                 if status == true {
                     VStack {
-                        Text("Authorization status: \(status)")
+                        Text("Authorization status: \(String(describing: status))")
                         Button {
                             send(.debugAuthorizationStatuses)
                         } label: {
@@ -30,7 +30,7 @@ struct PersonView: View {
                     }
                 } else {
                     VStack {
-                        Text("Authorization status: \(status)")
+                        Text("Authorization status: \(String(describing: status))")
                         Button {
                             send(.requestAuthorizationButtonTapped)
                         } label: {

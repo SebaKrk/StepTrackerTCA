@@ -30,6 +30,10 @@ struct WorkoutMirroringFeature {
                 state.mirroringToolBarState = value
                 return .none
                 
+            case let .workoutSessionState(value):
+                state.workoutSessionState = value
+                return .none
+                
                 // MARK: - View Action
             case let .view(.bottomToolBarStateTapped(value)):
                 return .send(.bottomToolBarStateChanged(value))
@@ -54,11 +58,6 @@ struct WorkoutMirroringFeature {
                 print("backwardMusicButtonTapped")
                 return .none
                 
-            case .view(.xMarkButtonTapped):
-                return .run { send in
-                    await self.dismiss()
-                }
-                
             case .view(.hideToolBarButtonTapped):
                 state.isToolbarHidden.toggle()
                 return .none
@@ -67,9 +66,31 @@ struct WorkoutMirroringFeature {
                 state.destination = .heartRateZoneInfo(HeartRateZoneInfoFeature.State())
                 return .none
                 
+                // MARK: - Workout Actions
+                
+            case .view(.pauseWorkoutButtonTaped):
+                return .run { send in
+                    await send(.workoutSessionState(.paused))
+                }
+                
+            case .view(.endWorkoutButtonTapped):
+                return .run { send in
+//                    return .send(.workoutSessionState(.ended))
+                    await self.dismiss()
+                }
+                
+            case .view(.resumeWorkoutButtonTapped):
+                return .send(.workoutSessionState(.running))
+                
+            case .view(.xMarkButtonTapped):
+                return .run { send in
+                    await self.dismiss()
+                }
+                
             case .view(.viewDidAppear):
                 return .none
                 
+                // MARK: - Destination
             case .destination(_):
                 return .none
             }
@@ -94,6 +115,8 @@ extension WorkoutMirroringFeature {
         
         ///
         case bottomToolBarStateChanged(WorkoutMirroringToolBarState)
+        
+        case workoutSessionState(WorkoutSessionStateTest)
         
         // MARK: - View Actions
         
@@ -133,6 +156,15 @@ extension WorkoutMirroringFeature {
             
             // MARK: Workout
             
+            ///
+            case pauseWorkoutButtonTaped
+            
+            ///
+            case endWorkoutButtonTapped
+            
+            ///
+            case resumeWorkoutButtonTapped
+            
             ////
             case xMarkButtonTapped
         }
@@ -166,6 +198,9 @@ extension WorkoutMirroringFeature {
         ///
         var isToolbarHidden: Bool = false
         
+        ///
+        var workoutSessionState: WorkoutSessionStateTest = .running
+        
         // MARK: - Destination
         
         /// destination from WorkoutCreatorFeature
@@ -185,4 +220,11 @@ extension WorkoutMirroringFeature {
         case heartRateZoneInfo(HeartRateZoneInfoFeature)
         
     }
+}
+
+// tymczasowo to symulacji
+enum WorkoutSessionStateTest {
+    case running
+//    case ended
+    case paused
 }
