@@ -75,6 +75,7 @@ struct CountDownFeature {
                     await send(.closeView)
                     // Krótkie opóźnienie żeby view się zamknął
 //                    try? await Task.sleep(for: .milliseconds(100))
+                    
                     await client.startWorkout()
                     print("Workout started!")
                 }

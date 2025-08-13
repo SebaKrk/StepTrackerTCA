@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 @ViewAction(for: WorkoutTypeListFeature.self)

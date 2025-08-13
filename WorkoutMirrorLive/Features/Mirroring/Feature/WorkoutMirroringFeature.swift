@@ -74,11 +74,12 @@ struct WorkoutMirroringFeature {
                 }
                 
             case .view(.endWorkoutButtonTapped):
-                return .run { send in
+//                return .run { send in
 //                    return .send(.workoutSessionState(.ended))
-                    await self.dismiss()
-                }
-                
+//                    await self.dismiss()
+//                }
+                print("endWorkoutButtonTapped")
+                return .none
             case .view(.resumeWorkoutButtonTapped):
                 return .send(.workoutSessionState(.running))
                 
@@ -116,6 +117,7 @@ extension WorkoutMirroringFeature {
         ///
         case bottomToolBarStateChanged(WorkoutMirroringToolBarState)
         
+        ///
         case workoutSessionState(WorkoutSessionStateTest)
         
         // MARK: - View Actions

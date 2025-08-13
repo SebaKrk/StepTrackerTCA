@@ -14,7 +14,7 @@ struct CountDownFeature {
     
     // MARK: - Dependencies
     
-    //    @Dependency(\.countDownClient) var client
+    @Dependency(\.countDownClient) var client
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date) var date
     @Dependency(\.dismiss) var dismiss
@@ -75,14 +75,12 @@ struct CountDownFeature {
                     print("Closing view first...")
                     await send(.closeView)
                     
-                    //await client.startWorkout()
+                    await client.startWorkout()
                     print("Workout started!")
                 }
                 
             case .closeView:
-//                return .run { _ in
-//                    await self.dismiss()
-//                }
+                /// obsluzone w rodzicu
                 return .none
             }
         }

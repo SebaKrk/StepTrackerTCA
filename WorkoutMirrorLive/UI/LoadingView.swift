@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LoadingView: View {
+    
     let message: String
     let onAppear: () -> Void
     

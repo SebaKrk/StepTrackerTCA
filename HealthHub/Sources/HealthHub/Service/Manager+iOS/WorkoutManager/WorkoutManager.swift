@@ -1,8 +1,8 @@
 //
-//  TrainingManager.swift
-//  StepTrackerTCA
+//  WorkoutManager.swift
+//  HealthHub
 //
-//  Created by Sebastian Sciuba on 30/05/2025.
+//  Created by Sebastian Sciuba on 12/08/2025.
 //
 
 import HealthKit
@@ -13,14 +13,14 @@ import SharedModels
 /// This includes starting a workout, toggling pause/resume, ending the session,
 /// and exposing real-time streams for workout metrics and session state.
 ///
-public protocol TrainingManager: Sendable {
+@available(iOS 26.0, *)
+public protocol WorkoutManager: Sendable {
     
-#if os(watchOS)
     /// The current HKLiveWorkoutBuilder instance used to collect live workout data.
     ///
     /// This is exposed for internal use and should not be modified externally.
     var builder: HKLiveWorkoutBuilder? { get }
-#endif
+    
     // MARK: - Workout Configuration
     
     /// Sets the workout type and initializes a new HealthKit session.
@@ -46,15 +46,15 @@ public protocol TrainingManager: Sendable {
     ///
     func startWorkout() async
     
-    // MARK: - Streams
-    
-    /// A stream that emits live workout metrics, such as heart rate and calories burned.
-    var workoutMetricsStream: AsyncStream<WorkoutMetrics> { get }
-    
-    /// A stream that emits the running state of the workout session.
-    ///
-    /// Emits `true` if the workout is currently running, otherwise `false`.
-    func workoutSessionIsRunningStream() -> AsyncStream<Bool>
+//    // MARK: - Streams
+//    
+//    /// A stream that emits live workout metrics, such as heart rate and calories burned.
+//    var workoutMetricsStream: AsyncStream<WorkoutMetrics> { get }
+//    
+//    /// A stream that emits the running state of the workout session.
+//    ///
+//    /// Emits `true` if the workout is currently running, otherwise `false`.
+//    func workoutSessionIsRunningStream() -> AsyncStream<Bool>
     
     
     // MARK: - Workout Snapshot
@@ -70,11 +70,11 @@ public protocol TrainingManager: Sendable {
     /// - Returns: A `WorkoutMetrics` instance containing metrics such as duration, distance, and calories.
     func getWorkoutMetrics() -> WorkoutMetrics
     
-    // MARK: - Platform Setup
-    
-    #if os(iOS)
-    /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
-    func setupRemoteSessionHandler()
-    #endif
-
+//    // MARK: - Platform Setup
+//    
+//    #if os(iOS)
+//    /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
+//    func setupRemoteSessionHandler()
+//    #endif
+//
 }

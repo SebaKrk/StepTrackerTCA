@@ -7,9 +7,14 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct WorkoutSessionFeature {
+    
+    // MARK: - Dependency
+    
+    @Dependency(\.workoutSessionClient) var client
     
     // MARK: - Reducer
     
@@ -26,17 +31,54 @@ struct WorkoutSessionFeature {
                 state.workoutSessionState = viewState
                 return .none
                 
+            case let .setWorkoutActivityType(workoutActivityType):
+                return .run { send in
+                    try await self.client.selectedWorkout(workoutActivityType.hkType)
+                    //await send(.workoutStart)
+                }
+                
+            case .prepareWorkout:
+                return .run { send in
+                    await send(.workoutViewStateChange(.countdown))
+                }
+                
+            case .endingWorkout:
+                return .run { send in
+                    await send(.workoutViewStateChange(.summary))
+                }
+                
                 // MARK: - View Action
             case let .view(.changeViewState(viewState)):
                 return .send(.workoutViewStateChange(viewState))
                 
             case .view(.viewDidAppear):
+                if let workout = state.selectedWorkout {
+                    return .run { send in
+                        await send(.setWorkoutActivityType(workout))
+                        await send(.prepareWorkout)
+                    }
+                }
                 return .none
                 
                 // MARK: - Child
             case .countDown(.closeView):
                 return .send(.workoutViewStateChange(.session))
-//                return .none
+                
+            case .mirroring(.view(.pauseWorkoutButtonTaped)):
+                return .run { send in
+                    await self.client.togglePause()
+                }
+            case .mirroring(.view(.resumeWorkoutButtonTapped)):
+                return .run { send in
+                    await self.client.togglePause()
+                }
+            case .mirroring(.view(.endWorkoutButtonTapped)):
+                return .run { send in
+                    await self.client.endWorkout()
+                    await send(.endingWorkout)
+                }
+                
+                
             default:
                 return .none
             }
@@ -46,6 +88,9 @@ struct WorkoutSessionFeature {
         }
         Scope(state: \.mirroring, action: \.mirroring) {
             WorkoutMirroringFeature()
+        }
+        Scope(state: \.summary, action: \.summary) {
+            WorkoutSummaryFeature()
         }
     }
 }
@@ -64,6 +109,15 @@ extension WorkoutSessionFeature {
         // MARK: - Actions
         case workoutViewStateChange(WorkoutSessionState)
         
+        ///
+        case setWorkoutActivityType(WorkoutType)
+        
+        ///
+        case prepareWorkout
+        
+        ///
+        case endingWorkout
+
         // MARK: - View Actions
         
         case view(View)
@@ -84,6 +138,9 @@ extension WorkoutSessionFeature {
         
         ///
         case mirroring(WorkoutMirroringFeature.Action)
+        
+        ///
+        case summary(WorkoutSummaryFeature.Action)
     }
     
     
@@ -97,8 +154,10 @@ extension WorkoutSessionFeature {
         
         // MARK: - Properties
         
+        ///
         var workoutSessionState: WorkoutSessionState = .start
         
+        ///
         var selectedWorkout: WorkoutType?
         
         // MARK: - Child
@@ -108,6 +167,9 @@ extension WorkoutSessionFeature {
         
         ///
         var mirroring: WorkoutMirroringFeature.State = .init()
+        
+        ///
+        var summary: WorkoutSummaryFeature.State = .init()
     }
     
 }

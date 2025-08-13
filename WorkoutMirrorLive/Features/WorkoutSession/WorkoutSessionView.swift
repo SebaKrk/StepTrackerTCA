@@ -21,6 +21,9 @@ struct WorkoutSessionView: View {
             .ignoresSafeArea()
             .navigationTitle(store.workoutSessionState.title)
             .navigationBarHidden(store.workoutSessionState == .countdown ? true : false)
+            .onAppear {
+                send(.viewDidAppear)
+            }
     }
     
     @ViewBuilder
@@ -39,25 +42,14 @@ struct WorkoutSessionView: View {
     
     @ViewBuilder
     private var startView: some View {
-        if store.selectedWorkout == nil {
-            VStack(spacing: 16) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.orange)
-                Text("Nie wybrano treningu")
-                    .font(.title2)
-                    .bold()
-//                Button("Wróć") {
-//                    send(.dismiss)
-//                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
-        } else {
-            LoadingView(message: "Rozpoczynam odliczanie...") {
-                send(.changeViewState(.countdown))
-            }
-        }
+        Text("welcome")
+        //        if store.selectedWorkout == nil {
+        //            errorView
+        //        } else {
+        //            LoadingView(message: "Rozpoczynam odliczanie...") {
+        //                send(.changeViewState(.countdown))
+        //            }
+        //        }
     }
     
     @ViewBuilder
@@ -77,7 +69,26 @@ struct WorkoutSessionView: View {
     }
     
     private var summaryView: some View {
-        Text("summary")
+        WorkoutSummaryView(store: store.scope(
+            state: \.summary,
+            action: \.summary)
+        )
     }
+    
+    //    private var errorView: some View {
+    //        VStack(spacing: 16) {
+    //            Image(systemName: "exclamationmark.triangle.fill")
+    //                .font(.system(size: 50))
+    //                .foregroundColor(.orange)
+    //            Text("Nie wybrano treningu")
+    //                .font(.title2)
+    //                .bold()
+    //            //Button("Wróć") {
+    //                //send(.dismiss)
+    //            //}
+    //        }
+    //        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    //        .background(Color(.systemBackground))
+    //    }
     
 }
