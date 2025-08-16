@@ -78,6 +78,9 @@ struct WorkoutSessionFeature {
                     await send(.endingWorkout)
                 }
                 
+            case .summary(.view(.endWorkoutButtonTapped)):
+                return .none
+                
                 
             default:
                 return .none

@@ -24,7 +24,7 @@ extension DefaultWorkoutManager: HKWorkoutSessionDelegate {
             self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
         }
         
-        if toState == .ended {
+        if toState == .stopped {
             handleWorkoutEnd(date: date)
         }
     }

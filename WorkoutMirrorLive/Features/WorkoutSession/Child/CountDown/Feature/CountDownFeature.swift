@@ -117,8 +117,6 @@ extension CountDownFeature {
 }
 
 
-import HealthKit
-
 extension CountDownFeature {
     
     @ObservableState

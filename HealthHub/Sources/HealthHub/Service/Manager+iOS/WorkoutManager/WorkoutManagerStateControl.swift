@@ -34,7 +34,7 @@ extension DefaultWorkoutManager {
         
         sessionState = .stopped
         session.stopActivity(with: .now)
-        session.end()
+        //session.end()
         
     }
     
@@ -74,8 +74,10 @@ extension DefaultWorkoutManager {
                 try await builder.endCollection(at: date)
                 let finishedWorkout = try await builder.finishWorkout()
                 self.workout = finishedWorkout
+                
                 self.session?.end()
                 print("✅ iOS: Workout finished successfully")
+                dump(workout)
             } catch {
                 print("❌ iOS: Failed to end workout: \(error)")
             }

@@ -48,6 +48,9 @@ struct LiveFeature {
                 print("state.destination = nil, from workoutCreatorView")
                 state.destination = nil
                 return .none
+//            case .destination(.presented(.workoutDevicePickerView(..destination(.presented(.workoutTypeListView(.destination(.presented(.workoutSessionView(.summary(.view(.endWorkoutButtonTapped))))))))))):
+//                state.destination = nil
+//                return .none
                 
             case .destination(_):
                 return .none

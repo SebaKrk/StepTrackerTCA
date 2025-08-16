@@ -139,6 +139,8 @@ struct WorkoutMirroringView: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
+                .foregroundColor(.red)
+                
             } else {
                 heartRateZoneButton
             }

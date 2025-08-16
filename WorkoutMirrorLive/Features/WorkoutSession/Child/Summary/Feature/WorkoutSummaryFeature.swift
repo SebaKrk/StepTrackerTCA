@@ -8,9 +8,19 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import HealthKit
+
+nonisolated enum WorkoutSummaryFeatureCancelID: Hashable, Sendable {
+    case sessionStateListener
+    case retry
+}
 
 @Reducer
 struct WorkoutSummaryFeature {
+    
+    // MARK: - Dependency
+    
+    @Dependency(\.workoutSummaryClient) var client
     
     // MARK: - Reducer
     
@@ -29,9 +39,65 @@ struct WorkoutSummaryFeature {
                     state.viewState = viewState
                     return .none
                     
+                case .checkWorkoutSummary:
+                    return .run { send in
+                        let summary = await client.getWorkoutSummary()
+                        await send(.workoutSummaryLoaded(summary))
+                    }
+                    
+                case let .workoutSummaryLoaded(summary):
+                    state.summary = summary
+
+                    if summary.workout != nil {
+                        state.viewState = .successfullyLoaded
+                        // Sprzątnij ewentualny retry, jeśli jeszcze chodzi
+                        return .cancel(id: WorkoutSummaryFeatureCancelID.retry)
+                    } else {
+                        state.viewState = .loading
+                        // Delikatny retry z krótkim sleepem i cancelInFlight,
+                        // żeby nie uruchamiać wielu retry naraz.
+                        return .run { send in
+                            try? await Task.sleep(for: .milliseconds(3000))
+                            await send(.checkWorkoutSummary)
+                        }
+                        .cancellable(id: WorkoutSummaryFeatureCancelID.retry, cancelInFlight: true)
+                    }
+                    
                     // MARK: - View Action
                 case .view(.viewDidAppear):
+                        return .run { send in
+                            await send(.checkWorkoutSummary)
+                        }
+                    
+                case .view(.endWorkoutButtonTapped):
+                    print("endWorkoutButtonTapped")
                     return .none
+//                    return .merge(
+//                        .run { send in
+//                            print("📌 [WorkoutSummaryFeature] viewDidAppear → wysyłam pierwszy checkWorkoutSummary (optymistyczny)")
+//                            await send(.checkWorkoutSummary)
+//                        },
+//                        .run { send in
+//                            print("📌 [WorkoutSummaryFeature] Rozpoczynam nasłuch sessionStateStream()")
+//                            for await state in await client.sessionStateStream() {
+//                                print("💫 [WorkoutSummaryFeature] Otrzymano sessionState = \(state)")
+//                                if state == .ended {
+//                                    print("✅ [WorkoutSummaryFeature] sessionState == .ended → wysyłam checkWorkoutSummary")
+//                                    await send(.checkWorkoutSummary)
+//                                    break
+//                                }
+//                            }
+//                            print("🛑 [WorkoutSummaryFeature] Nasłuch sessionStateStream() zakończony")
+//                        }
+//                            .cancellable(id: WorkoutSummaryFeatureCancelID.sessionStateListener)
+//                    )
+                    
+                    // zastanow sie czy nie gdzies inedziej tzn wczesniej
+                case .view(.viewDidDisappear):
+                    return .merge(
+                        .cancel(id: WorkoutSummaryFeatureCancelID.sessionStateListener),
+                        .cancel(id: WorkoutSummaryFeatureCancelID.retry)
+                    )
                 }
             }
         }
@@ -54,6 +120,12 @@ extension WorkoutSummaryFeature {
         /// Responsible for changing the state of the view.
         case changeViewState(WorkoutSummaryState)
         
+        /// Initiates the workout summary check process. If the workout is ready, transitions to a loaded state; otherwise, begins a retry sequence.
+        case checkWorkoutSummary
+        
+        /// Called when the workout summary has been successfully loaded.
+        case workoutSummaryLoaded(WorkoutSummary)
+        
         // MARK: - View Actions
         
         case view(View)
@@ -62,6 +134,12 @@ extension WorkoutSummaryFeature {
             
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            ///
+            case viewDidDisappear
+            
+            ///
+            case endWorkoutButtonTapped
         }
     }
 }
@@ -82,3 +160,4 @@ extension WorkoutSummaryFeature {
     }
     
 }
+

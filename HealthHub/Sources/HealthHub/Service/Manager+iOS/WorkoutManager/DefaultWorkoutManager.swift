@@ -18,6 +18,11 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     var session: HKWorkoutSession?
     
     public var sessionState: HKWorkoutSessionState = .notStarted
+//    public var sessionState: HKWorkoutSessionState = .notStarted {
+//        didSet { sessionStateContinuation?.yield(sessionState) }
+//    }
+//    
+//    private var sessionStateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
     
     public var builder: HKLiveWorkoutBuilder?
     
@@ -83,6 +88,13 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
         }
     }
     
+//    public func sessionStateStream() -> AsyncStream<HKWorkoutSessionState> {
+//        AsyncStream { continuation in
+//            self.sessionStateContinuation = continuation
+//            continuation.yield(self.sessionState) // emit current state immediately
+//        }
+//    }
+    
     public func getWorkout() -> HKWorkout? {
         workout
     }
@@ -134,7 +146,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
         let start = Date()
         session?.startActivity(with: start)
         sessionState = .running
-        
+         
         await withCheckedContinuation { continuation in
             builder?.beginCollection(withStart: start) { (success, error) in
                 if success {

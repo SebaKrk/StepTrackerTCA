@@ -22,6 +22,7 @@
 		93A6AA412E48735100495CD1 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA402E48735100495CD1 /* HealthHub */; };
 		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
 		93D02EF02DF4D14F00F08849 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D02EEF2DF4D14F00F08849 /* Commons */; };
+		93D199972E50C57800697D06 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D199962E50C57800697D06 /* Commons */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +74,7 @@
 				93A6AA412E48735100495CD1 /* HealthHub in Frameworks */,
 				938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */,
 				93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */,
+				93D199972E50C57800697D06 /* Commons in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,6 +176,7 @@
 				938209BB2E39FA6C00F49046 /* ComposableArchitecture */,
 				93A6AA3E2E48727C00495CD1 /* SharedModels */,
 				93A6AA402E48735100495CD1 /* HealthHub */,
+				93D199962E50C57800697D06 /* Commons */,
 			);
 			productName = WorkoutMirrorLive;
 			productReference = 9382096C2E39388600F49046 /* WorkoutMirrorLive.app */;
@@ -759,6 +762,10 @@
 			productName = ComposableArchitecture;
 		};
 		93D02EEF2DF4D14F00F08849 /* Commons */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Commons;
+		};
+		93D199962E50C57800697D06 /* Commons */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Commons;
 		};

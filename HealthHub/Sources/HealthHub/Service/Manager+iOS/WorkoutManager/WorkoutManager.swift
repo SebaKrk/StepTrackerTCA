@@ -37,6 +37,8 @@ public protocol WorkoutManager: Sendable {
     
     var sessionState: HKWorkoutSessionState { get }
     
+    //func sessionStateStream() -> AsyncStream<HKWorkoutSessionState>
+    
     /// Pauses or resumes the workout session depending on its current state.
     func togglePause()
     
