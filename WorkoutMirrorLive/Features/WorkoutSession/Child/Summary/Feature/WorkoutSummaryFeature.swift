@@ -71,28 +71,15 @@ struct WorkoutSummaryFeature {
                     
                 case .view(.endWorkoutButtonTapped):
                     print("endWorkoutButtonTapped")
-                    return .none
-//                    return .merge(
-//                        .run { send in
-//                            print("📌 [WorkoutSummaryFeature] viewDidAppear → wysyłam pierwszy checkWorkoutSummary (optymistyczny)")
-//                            await send(.checkWorkoutSummary)
-//                        },
-//                        .run { send in
-//                            print("📌 [WorkoutSummaryFeature] Rozpoczynam nasłuch sessionStateStream()")
-//                            for await state in await client.sessionStateStream() {
-//                                print("💫 [WorkoutSummaryFeature] Otrzymano sessionState = \(state)")
-//                                if state == .ended {
-//                                    print("✅ [WorkoutSummaryFeature] sessionState == .ended → wysyłam checkWorkoutSummary")
-//                                    await send(.checkWorkoutSummary)
-//                                    break
-//                                }
-//                            }
-//                            print("🛑 [WorkoutSummaryFeature] Nasłuch sessionStateStream() zakończony")
-//                        }
-//                            .cancellable(id: WorkoutSummaryFeatureCancelID.sessionStateListener)
-//                    )
+//                    return .none
+                    return .merge(
+                        .cancel(id: WorkoutSummaryFeatureCancelID.sessionStateListener),
+                        .cancel(id: WorkoutSummaryFeatureCancelID.retry)
+                    )
                     
                     // zastanow sie czy nie gdzies inedziej tzn wczesniej
+                    // jak robie zamkiecie i usuwam caly destination to ta akacja jeszcze leci co powoduje blad
+                    // narazie dalem ja do endWorkoutButtonTapped
                 case .view(.viewDidDisappear):
                     return .merge(
                         .cancel(id: WorkoutSummaryFeatureCancelID.sessionStateListener),
@@ -138,7 +125,6 @@ extension WorkoutSummaryFeature {
             ///
             case viewDidDisappear
             
-            ///
             case endWorkoutButtonTapped
         }
     }
@@ -161,3 +147,24 @@ extension WorkoutSummaryFeature {
     
 }
 
+
+
+//                    return .merge(
+//                        .run { send in
+//                            print("📌 [WorkoutSummaryFeature] viewDidAppear → wysyłam pierwszy checkWorkoutSummary (optymistyczny)")
+//                            await send(.checkWorkoutSummary)
+//                        },
+//                        .run { send in
+//                            print("📌 [WorkoutSummaryFeature] Rozpoczynam nasłuch sessionStateStream()")
+//                            for await state in await client.sessionStateStream() {
+//                                print("💫 [WorkoutSummaryFeature] Otrzymano sessionState = \(state)")
+//                                if state == .ended {
+//                                    print("✅ [WorkoutSummaryFeature] sessionState == .ended → wysyłam checkWorkoutSummary")
+//                                    await send(.checkWorkoutSummary)
+//                                    break
+//                                }
+//                            }
+//                            print("🛑 [WorkoutSummaryFeature] Nasłuch sessionStateStream() zakończony")
+//                        }
+//                            .cancellable(id: WorkoutSummaryFeatureCancelID.sessionStateListener)
+//                    )

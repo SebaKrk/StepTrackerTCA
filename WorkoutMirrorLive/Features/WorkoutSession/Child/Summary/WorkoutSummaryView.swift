@@ -36,15 +36,16 @@ struct WorkoutSummaryView: View {
             }
             .toolbarRole(.navigationStack)
             .toolbar {
+                // TODO: - Bład, powielajacy sie przycisk w tabBar
                 toolbarButton
             }
             .toolbar(store.viewState == .loading ? .hidden : .visible, for: .navigationBar)
             .onAppear {
                 send(.viewDidAppear)
             }
-            .onDisappear {
-                send(.viewDidDisappear)
-            }
+//            .onDisappear {
+//                send(.viewDidDisappear)
+//            }
         }
         .onAppear { print("WorkoutSummaryView appear") }
     }

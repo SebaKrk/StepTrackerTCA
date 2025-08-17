@@ -254,17 +254,18 @@ struct WorkoutMirroringView: View {
     private func makeElapsedTimeView(_ context: TimelineViewDefaultContext) -> some View {
         ElapsedTimeView(
             elapsedTime: store.elapsedTime,
-            showSubseconds: context.cadence == .live
+            showSubseconds: true
         )
+        //context.cadence == .live
         //        .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.yellow)
         .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
-        //        .onAppear {
-        //            send(.updateElapsedTime(context.date))
-        //        }
-        //        .onChange(of: context.date) { _, newDate in
-        //            send(.updateElapsedTime(newDate))
-        //        }
+        .onAppear {
+            send(.updateElapsedTime(context.date))
+        }
+        .onChange(of: context.date) { _, newDate in
+            send(.updateElapsedTime(newDate))
+        }
     }
     
     private var activityIcon: some View {
@@ -288,7 +289,7 @@ struct WorkoutMirroringView: View {
         HStack {
             Spacer()
             Button {
-                send(.pauseWorkoutButtonTaped)
+                send(.pauseWorkoutButtonTaped(true))
             } label: {
                 Image(systemName: "pause")
                     .font(.system(size: 30, weight: .medium))
@@ -308,7 +309,7 @@ struct WorkoutMirroringView: View {
         HStack {
             Spacer()
             Button {
-                send(.resumeWorkoutButtonTapped)
+                send(.resumeWorkoutButtonTapped(false))
             } label: {
                 Image(systemName: "play")
                     .font(.system(size: 30, weight: .medium))
