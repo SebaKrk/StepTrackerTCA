@@ -9,7 +9,7 @@ import Foundation
 import HealthKit
 
 /// Combines detailed HealthKit workout data with live workout metrics.
-public struct WorkoutSummary: Equatable {
+public struct WorkoutSummary: Equatable, @unchecked Sendable {
     
     // MARK: - Properties
     

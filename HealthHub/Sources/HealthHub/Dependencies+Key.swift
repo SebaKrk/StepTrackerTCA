@@ -13,6 +13,28 @@ import ComposableArchitecture
 import HealthKit
 
 /// A TCA dependency key for accessing the live implementation of the training manager.
+@available(iOS 26.0, *)
+public enum WorkoutManagerKey: DependencyKey {
+    public static let liveValue: WorkoutManager = {
+        print("Dependency - 🚀 WorkoutManager: Starting creation at \(Date())")
+        @Dependency(\.healthStore) var healthStore
+        print("Dependency - 📦 WorkoutManagerKey: HealthStore dependency resolved")
+        let manager = DefaultWorkoutManager(healthStore: healthStore)
+        print("Dependency - ✅ WorkoutManagerKey: TrainingManager created successfully")
+        return manager
+    }()
+}
+
+@available(iOS 26.0, *)
+public extension DependencyValues {
+    var workoutManager: WorkoutManager {
+        get { self[WorkoutManagerKey.self] }
+        set { self[WorkoutManagerKey.self] = newValue }
+    }
+}
+
+
+/// A TCA dependency key for accessing the live implementation of the training manager.
 public enum TrainingManagerKey: DependencyKey {
     public static let liveValue: TrainingManager = {
         print("Dependency - 🚀 TrainingManagerKey: Starting creation at \(Date())")
