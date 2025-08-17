@@ -43,6 +43,10 @@ struct WorkoutMirroringFeature {
                 }
                 return .none
                 
+            case let .workoutMetrics(data):
+                state.workoutMetrics = data
+                return .none
+                
                 // MARK: - View Action
             case let .view(.bottomToolBarStateTapped(value)):
                 return .send(.bottomToolBarStateChanged(value))

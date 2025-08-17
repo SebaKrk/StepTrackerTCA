@@ -7,6 +7,8 @@
 
 import ComposableArchitecture
 import SwiftUI
+import Commons
+import SharedModels
 
 @ViewAction(for: WorkoutMirroringFeature.self)
 struct WorkoutMirroringView: View {
@@ -198,7 +200,7 @@ struct WorkoutMirroringView: View {
             Group {
                 Image(systemName: "heart.fill")
                     .foregroundColor(.red)
-                Text("\(174)")//formatted(.number.precision(.fractionLength(0))))
+                Text(store.workoutMetrics.heartRate.formatted(.number.precision(.fractionLength(0))))
                 Text("BPM")
             }
             .font(.system(.title3, design: .rounded).monospacedDigit())
@@ -226,8 +228,7 @@ struct WorkoutMirroringView: View {
             Image(systemName: "flame.fill")
                 .foregroundColor(.pink)
                 .font(.system(.title2, design: .rounded))
-            Text("\(321)")
-            //            Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
+            Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
                 .font(.system(.title3, design: .rounded).monospacedDigit())
                 .foregroundColor(.primary)
             Text("Active\nEnergy")

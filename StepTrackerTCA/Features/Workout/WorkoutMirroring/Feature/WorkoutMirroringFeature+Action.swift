@@ -9,7 +9,6 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 
-
 extension WorkoutMirroringFeature {
     
     /// Defines all possible actions that can be performed or received by the `WorkoutMirroringFeature`.

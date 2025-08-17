@@ -5,9 +5,9 @@
 //  Created by Sebastian Sciuba on 17/08/2025.
 //
 
-
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 /// Implementation of `WorkoutMirroringFeature` state
 extension WorkoutMirroringFeature {
@@ -20,6 +20,15 @@ extension WorkoutMirroringFeature {
         var elapsedTime: TimeInterval = 0
         var pausedElapsedTime: TimeInterval = 0
         var isPaused: Bool = false
+        
+        /// The current metrics of the workout, such as heart rate and active energy burned.
+        var workoutMetrics: WorkoutMetrics = WorkoutMetrics(
+            averageHeartRate: 0,
+            heartRate: 0,
+            activeEnergy: 0
+        )
+        
+        
         
         ///
         var mirroringToolBarState: WorkoutMirroringToolBarState = .none
