@@ -43,6 +43,9 @@ public protocol TrainingManager: Sendable {
     /// Ends the current workout session.
     func endWorkout()
     
+    ///
+    func startWorkout() async
+    
     // MARK: - Streams
     
     /// A stream that emits live workout metrics, such as heart rate and calories burned.
@@ -73,7 +76,5 @@ public protocol TrainingManager: Sendable {
     /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
     func setupRemoteSessionHandler()
     #endif
-    
-    
-    func startWorkout() async 
+
 }

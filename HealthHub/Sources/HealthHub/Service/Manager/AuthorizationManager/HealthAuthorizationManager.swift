@@ -52,4 +52,33 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
         }
     }
     
+    /// Returns a dictionary mapping each share type to its current authorization status.
+//    public func authorizationStatuses() -> [HKSampleType: HKAuthorizationStatus] {
+//        var statuses: [HKSampleType: HKAuthorizationStatus] = [:]
+//        for type in shareTypes {
+//            let status = healthStore.authorizationStatus(for: type)
+//            statuses[type] = status
+//        }
+//        return statuses
+//    }
+    /// Returns a dictionary mapping the name of each share type to a boolean indicating if it's authorized.
+    public func authorizationStatuses() -> [String: Bool] {
+        var statuses: [String: Bool] = [:]
+        for type in shareTypes {
+            let isAuthorized = healthStore.authorizationStatus(for: type) == .sharingAuthorized
+            statuses[type.identifier] = isAuthorized
+        }
+        return statuses
+    }
+    
+    /// Returns true if all share types are authorized for sharing.
+    public func isAuthorizedForAllRequiredShareTypes() -> Bool {
+        for type in shareTypes {
+            if healthStore.authorizationStatus(for: type) != .sharingAuthorized {
+                return false
+            }
+        }
+        return true
+    }
+    
 }

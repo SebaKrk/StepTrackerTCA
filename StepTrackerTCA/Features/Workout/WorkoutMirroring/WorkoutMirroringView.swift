@@ -7,7 +7,6 @@
 
 import ComposableArchitecture
 import SwiftUI
-import HealthHub
 import SharedModels
 import Commons
 
@@ -150,3 +149,4 @@ struct WorkoutMirroringView: View {
         }))
     }
 }
+

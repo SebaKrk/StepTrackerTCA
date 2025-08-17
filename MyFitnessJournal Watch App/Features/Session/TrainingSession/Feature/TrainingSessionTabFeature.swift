@@ -97,7 +97,9 @@ struct TrainingSessionTabFeature {
                 return .none
             
             case .showCountDown:
-                state.destination = .countDown(CountDownFeature.State(selectedWorkout: .americanFootball))
+                print(state.selectedWorkout.debugDescription)
+                state.destination = .countDown(CountDownFeature.State(selectedWorkout: state.selectedWorkout))
+                //selectedWorkout
                 return .none
                 
             case .destination(_):

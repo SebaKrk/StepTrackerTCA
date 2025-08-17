@@ -50,7 +50,8 @@ struct WorkoutGeneratorView: View {
     private var generatorWorkoutView: some View {
         switch model.availability {
         case .available:
-            WorkoutPlanGeneratorView(ocrText: store.recognizedText)
+//            WorkoutPlanGeneratorView(ocrText: store.recognizedText)
+            Text("⚠️ WorkoutPlanGeneratorView")
             
         case .unavailable(.appleIntelligenceNotEnabled):
             Text("⚠️ Apple Intelligence not enabled")

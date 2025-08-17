@@ -45,5 +45,4 @@ private enum TrainingSessionClientKey: DependencyKey {
             manager.endWorkout()
         }
     }()
-
 }
