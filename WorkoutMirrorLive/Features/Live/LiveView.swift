@@ -32,19 +32,19 @@ struct LiveView: View {
                         WorkoutDevicePickerView(store: store)
                     }
                 )
-//                .navigationDestination(
-//                    item: $store.scope(state: \.destination?.workoutCreatorView, action: \.destination.workoutCreatorView), destination: { store in
-//                        WorkoutCreatorView(store: store)
-//                    }
-//                )
+            //                .navigationDestination(
+            //                    item: $store.scope(state: \.destination?.workoutCreatorView, action: \.destination.workoutCreatorView), destination: { store in
+            //                        WorkoutCreatorView(store: store)
+            //                    }
+            //                )
                 .fullScreenCover(item: $store.scope(state: \.destination?.workoutCreatorView,
                                                     action: \.destination.workoutCreatorView)) { store in
                     WorkoutCreatorView(store: store)
                 }
-                .fullScreenCover(item: $store.scope(state: \.destination?.workoutMirroringView,
-                                                    action: \.destination.workoutMirroringView)) { store in
-                    WorkoutMirroringView(store: store)
-                }
+                                                    .fullScreenCover(item: $store.scope(state: \.destination?.workoutMirroringView,
+                                                                                        action: \.destination.workoutMirroringView)) { store in
+                                                        WorkoutMirroringView(store: store)
+                                                    }
         }
     }
     
@@ -76,6 +76,33 @@ struct LiveView: View {
                 gearShapeImage
             }
         }
+        
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                
+            } label: {
+                Image(systemName: "xmark")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            //            .buttonStyle(.borderedProminent)
+            //            .foregroundStyle(.red, .pink)
+            //            .tint(.white)
+            //            .background(Circle().fill(Color.blue))
+            //                .background(.blue, in: Circle())
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                
+            } label: {
+                Image(systemName: "xmark")
+            }
+            .foregroundColor(.white)
+            .background(Circle().fill(Color.blue))
+            //                .background(.blue, in: Circle())
+        }
+        
     }
     
     // MARK: - ToolBar Buttons
@@ -134,6 +161,17 @@ struct LiveView: View {
         GlassButton("applewatch.case.sizes") {
             send(.deviceButtonTapped)
         }
+        //        Button {
+        //            send(.deviceButtonTapped)
+        //        } label: {
+        //            Image(systemName: "applewatch.case.sizes")
+        //                .padding()
+        //        }
+        //        .background(Circle().fill(Color.blue))
+        //        .glassEffect(.regular.tint(.green))
+        //        albo
+        //        .buttonStyle(.glassProminent)
+        //        .clipShape(.circle)
     }
     
     // MARK: - Helpers

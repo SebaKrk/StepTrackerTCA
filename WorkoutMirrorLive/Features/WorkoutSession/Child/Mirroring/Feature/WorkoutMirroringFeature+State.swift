@@ -28,7 +28,17 @@ extension WorkoutMirroringFeature {
             activeEnergy: 0
         )
         
+        ///
+        var currentHeartRateZone: HeartRateZone = .resting
         
+        ///
+        var currentHeartRatePercentage: Int = 0
+        
+        ///
+        var userAge: Int = 37
+        
+        ///
+        var userGender: Gender? = .male
         
         ///
         var mirroringToolBarState: WorkoutMirroringToolBarState = .none

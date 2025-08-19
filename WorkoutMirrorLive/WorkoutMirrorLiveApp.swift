@@ -20,3 +20,13 @@ struct WorkoutMirrorLiveApp: App {
         }
     }
 }
+
+//@main
+//struct WorkoutMirrorLiveApp: App {
+//
+//    var body: some Scene {
+//        WindowGroup {
+//            AppTabViewTest()
+//        }
+//    }
+//}

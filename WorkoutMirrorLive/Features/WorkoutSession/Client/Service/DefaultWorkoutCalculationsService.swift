@@ -37,4 +37,5 @@ final class DefaultWorkoutCalculationsService: WorkoutCalculationsService {
         let percentage = Double(current) / Double(max) * 100
         return Int(percentage)
     }
+    
 }

@@ -23,20 +23,20 @@ struct WorkoutMirroringView: View {
             VStack {
                 ScrollView {
                     activeWorkoutView
-                    GlassFolderContainer(corner: 32) {
-                        Text("aaaa")
-                    }
-                    
-                    GlassEffectContainer {
-                        Text("aaaa")
-                            .padding(20)
-                            .glassEffect(.regular, in: .rect(cornerRadius: 12))
-                    }
+//                    GlassFolderContainer(corner: 32) {
+//                        Text("aaaa")
+//                    }
+//                    
+//                    GlassEffectContainer {
+//                        Text("aaaa")
+//                            .padding(20)
+//                            .glassEffect(.regular, in: .rect(cornerRadius: 12))
+//                    }
                     
                 }
                 controlsView
             }
-            //.background(backgroundGradient)
+            .background(backgroundGradient)
             .navigationTitle("Workout Mirroring")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -207,15 +207,15 @@ struct WorkoutMirroringView: View {
             .foregroundColor(.primary)
             Spacer()
             
-            Text("Anaerobic")
+            Text(store.currentHeartRateZone.rawValue)
                 .font(.title3.weight(.semibold))
-                .foregroundColor(.red)//store.currentHeartRateZone.color)
+                .foregroundColor(store.currentHeartRateZone.color)
         }
     }
     
     private var currentHeartRatePercentageView: some View {
         VStack(spacing: 5) {
-            Text("\(91)%")
+            Text("\(store.currentHeartRatePercentage)%")
                 .font(.system(size: 60))
             //                .id(store.currentHeartRatePercentage)
             //                .transition(.push(from: .bottom))
@@ -239,7 +239,7 @@ struct WorkoutMirroringView: View {
     private var currentHeartRateZoneView: some View {
         HStack {
             Spacer()
-            Text("Anaerobic")
+            Text(store.currentHeartRateZone.description)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
