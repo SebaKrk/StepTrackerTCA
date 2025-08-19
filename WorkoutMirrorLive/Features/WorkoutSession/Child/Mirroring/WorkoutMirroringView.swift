@@ -55,6 +55,12 @@ struct WorkoutMirroringView: View {
                 }
             }
             //.toolbar(removing: .title)
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = true
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
+            }
             .sheet(item: $store.scope(
                 state: \.destination?.heartRateZoneInfo,
                 action: \.destination.heartRateZoneInfo)) { store in
