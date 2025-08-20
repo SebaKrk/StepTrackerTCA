@@ -19,6 +19,10 @@ enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     
     case person
     
+    case activities
+    
+    case summary
+    
     var id: Self { self }
     
 }
@@ -48,6 +52,18 @@ extension AppScreen {
                        comment: "The Profile Tab contains user info, connected sensors, and settings."),
                 systemImage: "person.fill"
             )
+        case .activities:
+            Label(
+                String(localized: "Activities",
+                       comment: "The Activities Tab shows a list of completed workouts with details and quick actions."),
+                systemImage: "calendar"
+            )
+        case .summary:
+            Label(
+                String(localized: "Summary",
+                       comment: "The Summary Tab presents charts and analytics for workouts and health metrics."),
+                systemImage: "house"
+            )
         }
     }
     
@@ -56,6 +72,8 @@ extension AppScreen {
         case .live: return "Live"
         case .workout: return "Workout"
         case .person: return "Profile"
+        case .activities: return "Activities"
+        case .summary: return "Summary"
         }
     }
     
@@ -64,6 +82,8 @@ extension AppScreen {
         case .live: return "figure"//"waveform.path.ecg"
         case .workout: return "figure.run"
         case .person: return "person.fill"
+        case .activities: return "calendar"
+        case .summary: return "house"
         }
     }
 }

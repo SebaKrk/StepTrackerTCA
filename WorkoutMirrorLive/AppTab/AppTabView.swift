@@ -50,6 +50,8 @@ struct AppTabView: View {
             }
         case .person:
             personView
+        default:
+            EmptyView()
         }
     }
     

@@ -434,4 +434,5 @@
 ### IOS-00046 WorkoutMirrorLive
     A: Create new target - WorkoutMirrorLive
     - sandbox 
+    B: Sandbox
 
