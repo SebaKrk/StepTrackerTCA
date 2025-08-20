@@ -8,25 +8,25 @@
 import ComposableArchitecture
 import SwiftUI
 
-@main
-struct WorkoutMirrorLiveApp: App {
-    var body: some Scene {
-        WindowGroup {
-            AppTabView(
-                store: Store(initialState: AppTabFeature.State()) {
-                    AppTabFeature()
-                }
-            )
-        }
-    }
-}
-
 //@main
 //struct WorkoutMirrorLiveApp: App {
-//
 //    var body: some Scene {
 //        WindowGroup {
-//            AppTabViewTest()
+//            AppTabView(
+//                store: Store(initialState: AppTabFeature.State()) {
+//                    AppTabFeature()
+//                }
+//            )
 //        }
 //    }
 //}
+
+@main
+struct WorkoutMirrorLiveApp: App {
+
+    var body: some Scene {
+        WindowGroup {
+            AppTabViewTest()
+        }
+    }
+}

@@ -7,15 +7,12 @@
 
 import SwiftUI
 
-enum AppTab: CaseIterable {
-//    case boat, sea, compose, live, workout, person
+enum AppTabTEST: CaseIterable {
     case live, workout, person
     
     var title: String {
         switch self {
-//        case .boat: return "Boat"
-//        case .sea: return "Sea"
-//        case .compose: return "Compose"
+
         case .live: return "Live"
         case .workout: return "Workout"
         case .person: return "Workout"
@@ -24,9 +21,6 @@ enum AppTab: CaseIterable {
     
     var icon: String {
         switch self {
-//        case .boat: return "sailboat"
-//        case .sea: return "water.waves"
-//        case .compose: return "figure.run"
         case .live: return "figure"
         case .workout: return "figure.run"
         case .person: return "figure.run"
@@ -35,7 +29,7 @@ enum AppTab: CaseIterable {
 }
 
 struct AppTabRootView: View {
-    let tab: AppTab
+    let tab: AppTabTEST
     
     var body: some View {
         NavigationStack {
@@ -78,7 +72,7 @@ struct AppTabViewTest: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            ForEach(AppTab.allCases, id: \.self) { tab in
+            ForEach(AppTabTEST.allCases, id: \.self) { tab in
                 Tab(value: tab, role: tab == .workout ? .search : nil) {
                     AppTabRootView(tab: tab)
                 } label: {
