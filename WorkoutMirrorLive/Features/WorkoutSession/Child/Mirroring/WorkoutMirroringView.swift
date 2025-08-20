@@ -7,6 +7,8 @@
 
 import ComposableArchitecture
 import SwiftUI
+import Commons
+import SharedModels
 
 @ViewAction(for: WorkoutMirroringFeature.self)
 struct WorkoutMirroringView: View {
@@ -21,20 +23,20 @@ struct WorkoutMirroringView: View {
             VStack {
                 ScrollView {
                     activeWorkoutView
-                    GlassFolderContainer(corner: 32) {
-                        Text("aaaa")
-                    }
-                    
-                    GlassEffectContainer {
-                        Text("aaaa")
-                            .padding(20)
-                            .glassEffect(.regular, in: .rect(cornerRadius: 12))
-                    }
+//                    GlassFolderContainer(corner: 32) {
+//                        Text("aaaa")
+//                    }
+//                    
+//                    GlassEffectContainer {
+//                        Text("aaaa")
+//                            .padding(20)
+//                            .glassEffect(.regular, in: .rect(cornerRadius: 12))
+//                    }
                     
                 }
                 controlsView
             }
-            //.background(backgroundGradient)
+            .background(backgroundGradient)
             .navigationTitle("Workout Mirroring")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -53,6 +55,12 @@ struct WorkoutMirroringView: View {
                 }
             }
             //.toolbar(removing: .title)
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = true
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
+            }
             .sheet(item: $store.scope(
                 state: \.destination?.heartRateZoneInfo,
                 action: \.destination.heartRateZoneInfo)) { store in
@@ -198,22 +206,22 @@ struct WorkoutMirroringView: View {
             Group {
                 Image(systemName: "heart.fill")
                     .foregroundColor(.red)
-                Text("\(174)")//formatted(.number.precision(.fractionLength(0))))
+                Text(store.workoutMetrics.heartRate.formatted(.number.precision(.fractionLength(0))))
                 Text("BPM")
             }
             .font(.system(.title3, design: .rounded).monospacedDigit())
             .foregroundColor(.primary)
             Spacer()
             
-            Text("Anaerobic")
+            Text(store.currentHeartRateZone.rawValue)
                 .font(.title3.weight(.semibold))
-                .foregroundColor(.red)//store.currentHeartRateZone.color)
+                .foregroundColor(store.currentHeartRateZone.color)
         }
     }
     
     private var currentHeartRatePercentageView: some View {
         VStack(spacing: 5) {
-            Text("\(91)%")
+            Text("\(store.currentHeartRatePercentage)%")
                 .font(.system(size: 60))
             //                .id(store.currentHeartRatePercentage)
             //                .transition(.push(from: .bottom))
@@ -226,8 +234,7 @@ struct WorkoutMirroringView: View {
             Image(systemName: "flame.fill")
                 .foregroundColor(.pink)
                 .font(.system(.title2, design: .rounded))
-            Text("\(321)")
-            //            Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
+            Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
                 .font(.system(.title3, design: .rounded).monospacedDigit())
                 .foregroundColor(.primary)
             Text("Active\nEnergy")
@@ -238,7 +245,7 @@ struct WorkoutMirroringView: View {
     private var currentHeartRateZoneView: some View {
         HStack {
             Spacer()
-            Text("Anaerobic")
+            Text(store.currentHeartRateZone.description)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

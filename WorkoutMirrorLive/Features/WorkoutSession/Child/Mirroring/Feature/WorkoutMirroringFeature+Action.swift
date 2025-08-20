@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 /// Implementation of `WorkoutMirroringFeature` action
 extension WorkoutMirroringFeature {
@@ -31,6 +32,11 @@ extension WorkoutMirroringFeature {
         
         ///
         case workoutSessionState(WorkoutSessionStateTest)
+        
+        /// Updates the current workout metrics with new data.
+        ///
+        /// - Parameter data: The latest workout metrics from the session.
+        case workoutMetrics(WorkoutMetrics)
         
         // MARK: - View Actions
         
