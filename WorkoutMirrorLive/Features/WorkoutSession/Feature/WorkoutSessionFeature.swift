@@ -29,12 +29,22 @@ struct WorkoutSessionFeature {
                 // MARK: - Action
             case let .workoutViewStateChange(viewState):
                 state.workoutSessionState = viewState
+                
+                if viewState == .session {
+                    return .send(.runningWorkout)
+                }
                 return .none
                 
             case let .setWorkoutActivityType(workoutActivityType):
                 return .run { send in
                     try await self.client.selectedWorkout(workoutActivityType.hkType)
                     //await send(.workoutStart)
+                }
+            case .runningWorkout:
+                return .run { send in
+                    for await metric in await self.client.workoutMetricsStream() {
+                        await send(.mirroring(.workoutMetrics(metric)))
+                    }
                 }
                 
             case .prepareWorkout:
@@ -120,6 +130,8 @@ extension WorkoutSessionFeature {
         
         ///
         case endingWorkout
+        
+        case runningWorkout
 
         // MARK: - View Actions
         

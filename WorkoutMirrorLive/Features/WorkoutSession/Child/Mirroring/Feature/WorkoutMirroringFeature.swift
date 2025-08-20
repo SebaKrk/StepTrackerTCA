@@ -7,17 +7,27 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct WorkoutMirroringFeature {
     
+    // MARK: - Properties
+    
+   // let service: WorkoutCalculationsService
+    
     // MARK: - Dependency
     
+    @Dependency(\.workoutSessionClient) var client
+    @Dependency(\.workoutCalculations) var service
     @Dependency(\.dismiss) var dismiss
     
-    @Dependency(\.workoutSessionClient) var client
     
-    // MARK: - Reducer
+    // MARK: - Lifecycle
+    
+//    init(service: WorkoutCalculationsService = DefaultWorkoutCalculationsService()) {
+//        self.service = service
+//    }
     
     var body: some Reducer<State, Action> {
         BindingReducer()
@@ -41,6 +51,17 @@ struct WorkoutMirroringFeature {
                 if value {
                     state.pausedElapsedTime = state.elapsedTime
                 }
+                return .none
+                
+            case let .workoutMetrics(data):
+                state.workoutMetrics = data
+                let maxHR = service.calculateMaxHeartRate(state.userAge, state.userGender)
+                let zone = service.calculateHeartRateZone( Int(data.heartRate), maxHR)
+                let percentage = service.calculateHeartRatePercentage(Int(data.heartRate), maxHR)
+                 
+                state.currentHeartRateZone = zone
+                state.currentHeartRatePercentage = percentage
+//                
                 return .none
                 
                 // MARK: - View Action
@@ -83,8 +104,8 @@ struct WorkoutMirroringFeature {
                 state.elapsedTime = client.elapsedTimeAt(date)
                 return .none
                 
-            
-//
+                
+                //
                 // MARK: - Workout Actions
                 
             case let .view(.pauseWorkoutButtonTaped(value)):
@@ -94,10 +115,10 @@ struct WorkoutMirroringFeature {
                 }
                 
             case .view(.endWorkoutButtonTapped):
-//                return .run { send in
-//                    return .send(.workoutSessionState(.ended))
-//                    await self.dismiss()
-//                }
+                //                return .run { send in
+                //                    return .send(.workoutSessionState(.ended))
+                //                    await self.dismiss()
+                //                }
                 print("endWorkoutButtonTapped")
                 return .none
                 
@@ -119,12 +140,12 @@ struct WorkoutMirroringFeature {
                 // MARK: - Destination
             case .destination(_):
                 return .none
-      
+                
             }
         }
         .ifLet(\.$destination, action: \.destination)
     }
-       
+    
 }
 
 
