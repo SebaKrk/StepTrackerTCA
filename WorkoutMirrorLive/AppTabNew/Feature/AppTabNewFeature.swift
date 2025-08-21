@@ -14,31 +14,45 @@ struct AppTabNewFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
+        BindingReducer()
         Reduce<State, Action> { state, action in
             switch action {
+                // MARK: - Binding
+            case .binding(_):
+                return .none
                 
                 // MARK: - Action
             case let .tabChanged(tab):
-                state.selectedTab = tab
+                if tab == .workout {
+                    return .send(.activateWorkoutView)
+                } else {
+                    state.selectedTab = tab
+                    return .none
+                }
+                
+            case .activateWorkoutView:
+                state.destination = .workout(WorkoutFeature.State())
                 return .none
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .none
                 
+            case .destination:
+                return .none
+                
             default:
                 return .none
             }
         }
+        
         Scope(state: \.summary, action: \.summary) {
             SummaryFeature()
-        }
-        Scope(state: \.workout, action: \.workout) {
-            WorkoutFeature()
         }
         Scope(state: \.activities, action: \.activities) {
             ActivitiesFeature()
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 }
 
@@ -46,10 +60,20 @@ struct AppTabNewFeature {
 extension AppTabNewFeature {
     
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+        
+        // MARK: - Binding Action
+        
+        /// Handles changes in bindings for the state.
+        case binding(BindingAction<State>)
+        
+        // MARK: - Actions
         
         /// Action triggered when the user changes the selected tab.
         case tabChanged(AppScreen)
+        
+        ///
+        case activateWorkoutView
         
         // MARK: - View Actions
         
@@ -65,12 +89,14 @@ extension AppTabNewFeature {
         
         ///
         case summary(SummaryFeature.Action)
-        
-        ///
-        case workout(WorkoutFeature.Action)
-        
+
         ///
         case activities(ActivitiesFeature.Action)
+        
+        // MARK: - Destination
+        
+        /// Action to handle navigation destinations within this feature.
+        case destination(PresentationAction<Destination.Action>)
     }
 }
 
@@ -98,11 +124,24 @@ extension AppTabNewFeature {
         var summary: SummaryFeature.State = .init()
         
         ///
-        var workout: WorkoutFeature.State = .init()
-        
-        ///
         var activities: ActivitiesFeature.State = .init()
+        
+        // MARK: - Destination
+        
+        /// destination from WorkoutFeature
+        @Presents var destination: Destination.State?
     }
     
+}
+
+/// Implementation of `AppTabNewFeature` destination
+extension AppTabNewFeature {
+    
+    @Reducer
+    enum Destination {
+        
+        /// Represents the destination for displaying in `WorkoutFeature`.
+        case workout(WorkoutFeature)
+    }
 }
 

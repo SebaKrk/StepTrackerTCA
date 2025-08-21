@@ -14,8 +14,8 @@ struct AppTabNewView: View {
     // MARK: - Properties
     
     @Bindable var store: StoreOf<AppTabNewFeature>
-    @State var selection: AppScreen = .summary
     
+    @State var isPresented: Bool = false
     // MARK: - View
     
     var body: some View {
@@ -39,6 +39,11 @@ struct AppTabNewView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        .sheet(item: $store.scope(state: \.destination?.workout,
+                                  action: \.destination.workout)) { store in
+            WorkoutView(store: store)
+                .interactiveDismissDisabled(true)
+        }
     }
     
     @ViewBuilder
@@ -47,16 +52,19 @@ struct AppTabNewView: View {
         case .summary:
             summaryView
         case .activities:
-            List(0..<100) { i in
-                Text("activitie \(i)")
-            }
+            activitiesView
+            //            List(0..<100) { i in
+            //                Text("activitie \(i)")
+            //            }
         case .workout:
-            workoutView
+            EmptyView()
+        case .sharing:
+            Text("sharing")
         default:
             EmptyView()
         }
     }
-
+    
     @ViewBuilder
     var summaryView: some View {
         SummaryView(store: store.scope(
@@ -73,12 +81,12 @@ struct AppTabNewView: View {
         )
     }
     
-    @ViewBuilder
-    var workoutView: some View {
-        WorkoutView(store: store.scope(
-            state: \.workout,
-            action: \.workout)
-        )
-    }
+    //    @ViewBuilder
+    //    var workoutView: some View {
+    //        WorkoutView(store: store.scope(
+    //            state: \.workout,
+    //            action: \.workout)
+    //        )
+    //    }
     
 }

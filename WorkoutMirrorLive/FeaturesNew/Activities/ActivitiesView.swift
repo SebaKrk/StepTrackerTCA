@@ -17,6 +17,12 @@ struct ActivitiesView: View {
     // MARK: - Body
     
     var body: some View {
-        Text("ActivitiesFeature")
+        NavigationStack {
+            List(0..<100) { i in
+                Text("activitie \(i)")
+            }
+            .navigationTitle("ActivitiesFeature")
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }

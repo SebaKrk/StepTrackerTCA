@@ -23,6 +23,8 @@ enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     
     case summary
     
+    case sharing
+    
     var id: Self { self }
     
 }
@@ -64,6 +66,12 @@ extension AppScreen {
                        comment: "The Summary Tab presents charts and analytics for workouts and health metrics."),
                 systemImage: "house"
             )
+        case .sharing:
+            Label(
+                String(localized: "Sharing",
+                       comment: "The Sharing Tab shows the team you joined and shared workout activity."),
+                systemImage: "person.3.fill"
+            )
         }
     }
     
@@ -74,6 +82,7 @@ extension AppScreen {
         case .person: return "Profile"
         case .activities: return "Activities"
         case .summary: return "Summary"
+        case .sharing: return "Sharing"
         }
     }
     
@@ -84,6 +93,7 @@ extension AppScreen {
         case .person: return "person.fill"
         case .activities: return "calendar"
         case .summary: return "house"
+        case .sharing: return "person.3.fill"
         }
     }
 }

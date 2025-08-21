@@ -11,6 +11,10 @@ import Foundation
 @Reducer
 struct WorkoutFeature {
     
+    // MARK: - Dependency
+    
+    @Dependency(\.dismiss) var dismiss
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -23,6 +27,14 @@ struct WorkoutFeature {
             case .view(.viewDidAppear):
                 return .none
                 
+            case .view(.closeButtonTapped):
+                return .run { send in
+                    await self.dismiss()
+                }
+                
+                
+                
+                // MARK: -
             case .destination(_):
                 return .none
             }
@@ -47,6 +59,9 @@ extension WorkoutFeature {
                     
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            ///
+            case closeButtonTapped
         }
         
         // MARK: - Destination
