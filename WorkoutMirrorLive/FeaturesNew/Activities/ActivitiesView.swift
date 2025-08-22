@@ -23,6 +23,26 @@ struct ActivitiesView: View {
             }
             .navigationTitle("ActivitiesFeature")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                toolbarButton
+            }
         }
     }
+    
+    @ToolbarContentBuilder
+    var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                // You can add menu actions here in the future
+            } label: {
+                filterImage
+            }
+            .badge(store.badgeCount)
+        }
+    }
+    
+    private var filterImage: some View {
+        Image(systemName: "line.3.horizontal.decrease")
+    }
 }
+

@@ -1,16 +1,20 @@
 //
-//  ActivitiesFeature.swift
-//  MyFitnessJournal
+//  SettingsFeature.swift
+//  WorkoutMirrorLive
 //
-//  Created by Sebastian Sciuba on 20/08/2025.
+//  Created by Sebastian Sciuba on 22/08/2025.
 //
 
 import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct ActivitiesFeature {
+struct SettingsFeature {
     
+    // MARK: - Dependency
+    
+    @Dependency(\.dismiss) var dismiss
+
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -23,6 +27,11 @@ struct ActivitiesFeature {
             case .view(.viewDidAppear):
                 return .none
                 
+            case .view(.xMarkButtonTapped):
+                return .run { send in
+                    await self.dismiss()
+                }
+                            
             case .destination(_):
                 return .none
             }
@@ -31,8 +40,8 @@ struct ActivitiesFeature {
     }
 }
 
-/// Implementation of `ActivitiesFeature` action
-extension ActivitiesFeature {
+/// Implementation of `SettingsFeature` action
+extension SettingsFeature {
     
     @CasePathable
     enum Action: ViewAction {
@@ -47,6 +56,9 @@ extension ActivitiesFeature {
                     
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            ///
+            case xMarkButtonTapped
         }
         
         // MARK: - Destination
@@ -56,30 +68,27 @@ extension ActivitiesFeature {
     }
 }
 
-/// Implementation of `ActivitiesFeature` state
-extension ActivitiesFeature {
+/// Implementation of `SettingsFeature` state
+extension SettingsFeature {
     
     @ObservableState
     struct State {
         
         // MARK: - Properties
         
-        var badgeCount: Int = 5
-        
         // MARK: - Destination
         
-        /// destination from ActivitiesFeature
+        /// destination from SettingsFeature
         @Presents var destination: Destination.State?
     }
     
 }
 
-/// Implementation of `ActivitiesFeature` destination
-extension ActivitiesFeature {
+/// Implementation of `SettingsFeature` destination
+extension SettingsFeature {
     
     @Reducer
     enum Destination {
         
     }
 }
-

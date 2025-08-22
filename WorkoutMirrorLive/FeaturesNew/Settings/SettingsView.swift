@@ -1,18 +1,19 @@
 //
-//  SummaryView.swift
-//  MyFitnessJournal
+//  SettingsView.swift
+//  WorkoutMirrorLive
 //
-//  Created by Sebastian Sciuba on 20/08/2025.
+//  Created by Sebastian Sciuba on 22/08/2025.
 //
 
+import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-@ViewAction(for: SummaryFeature.self)
-struct SummaryView: View {
+@ViewAction(for: SettingsFeature.self)
+struct SettingsView: View {
     
     // MARK: - Properties
-    @Bindable var store: StoreOf<SummaryFeature>
+    @Bindable var store: StoreOf<SettingsFeature>
     
     // MARK: - Body
     
@@ -22,24 +23,21 @@ struct SummaryView: View {
                 .toolbar {
                     toolbarButton
                 }
-                .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
-                    SettingsView(store: store)
-                }
         }
         
     }
     
     var rootView: some View {
-        Text("SummaryFeature")
+        Text("SettingsView")
     }
     
     @ToolbarContentBuilder
     private var toolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                send(.settingsButtonTapped)
+                send(.xMarkButtonTapped)
             } label: {
-                Image(systemName: "person")
+                Image(systemName: "xmark")
             }
         }
     }

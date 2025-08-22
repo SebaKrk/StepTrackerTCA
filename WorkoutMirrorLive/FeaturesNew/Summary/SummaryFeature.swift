@@ -23,6 +23,10 @@ struct SummaryFeature {
             case .view(.viewDidAppear):
                 return .none
                 
+            case .view(.settingsButtonTapped):
+                state.destination = .settings(SettingsFeature.State())
+                return .none
+                
             case .destination(_):
                 return .none
             }
@@ -47,6 +51,9 @@ extension SummaryFeature {
                     
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            ///
+            case settingsButtonTapped
         }
         
         // MARK: - Destination
@@ -78,6 +85,8 @@ extension SummaryFeature {
     @Reducer
     enum Destination {
         
+        /// Represents the destination for displaying in `SettingsFeature`.
+        case settings(SettingsFeature)
     }
 }
 

@@ -24,13 +24,13 @@ struct WorkoutView: View {
             .navigationBarTitle("Workout")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                toolbarButton
+                toolbarButtons
             }
         }
     }
     
     @ToolbarContentBuilder
-    var toolbarButton: some ToolbarContent {
+    var toolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {
                 send(.closeButtonTapped)
@@ -40,6 +40,20 @@ struct WorkoutView: View {
             .buttonStyle(.borderedProminent)
             .tint(.pink)
         }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                
+            } label: {
+                gearShapeImage
+            }
+            //.badge("new")
+            .badge(1)
+        }
+    }
+    
+    private var gearShapeImage: some View {
+        Image(systemName: "gearshape")
     }
 }
 
