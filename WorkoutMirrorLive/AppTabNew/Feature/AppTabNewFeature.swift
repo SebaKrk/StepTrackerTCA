@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct AppTabNewFeature {
@@ -35,9 +36,19 @@ struct AppTabNewFeature {
                 state.destination = .workoutConfiguration(ConfigurationFeature.State())
                 return .none
                 
+            case let .activateWorkoutSessionView(workout):
+                state.destination = .session(WorkoutSessionFeature.State(selectedWorkout: workout))
+                return .none
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .none
+                
+                // MARK: - Destination
+            case let .destination(.presented(.workoutConfiguration(.delegate(.start(workout))))):
+                return .run { send in
+                    await send(.activateWorkoutSessionView(workout))
+                }
                 
             case .destination:
                 return .none
@@ -75,6 +86,9 @@ extension AppTabNewFeature {
         
         ///
         case activateWorkoutView
+        
+        ///
+        case activateWorkoutSessionView(WorkoutType)
         
         // MARK: - View Actions
         
@@ -146,6 +160,9 @@ extension AppTabNewFeature {
         
         /// Represents the destination for displaying in `ConfigurationFeature`.
         case workoutConfiguration(ConfigurationFeature)
+        
+        /// Represents the destination for displaying in `WorkoutSessionFeature`.
+        case session(WorkoutSessionFeature)
 
     }
 }

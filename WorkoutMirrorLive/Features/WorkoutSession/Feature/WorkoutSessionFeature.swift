@@ -67,6 +67,8 @@ struct WorkoutSessionFeature {
                         await send(.setWorkoutActivityType(workout))
                         await send(.prepareWorkout)
                     }
+                } else {
+                    print("Bład: Nie ma zaznaczonej ćwiczenia")
                 }
                 return .none
                 

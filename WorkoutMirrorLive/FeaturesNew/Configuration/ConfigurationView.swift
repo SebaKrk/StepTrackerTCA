@@ -36,29 +36,79 @@ struct ConfigurationView: View {
         case .device:
             deviceView
         case .activity:
-            crossFitWorkoutButton
+            activityView
         case .ready:
-            Text("ready")
+            readyView
         }
     }
     
     @ToolbarContentBuilder
     var toolbarButtons: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                send(.closeButtonTapped)
-            } label: {
-                xMarkImage
-            }
+        switch store.viewState {
+        case .device:
+            deviceToolBar
+        case .activity:
+            activityToolBar
+        case .ready:
+            readyToolBar
         }
-        
-        ToolbarItem(placement: .topBarTrailing) {
-            Menu {
-                Text("Tu cos bedzie")
-            } label: {
-                menuInfoImage
+    }
+    
+    private var deviceToolBar: some ToolbarContent {
+        Group {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    send(.closeButtonTapped)
+                } label: {
+                    xMarkImage
+                }
             }
             
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Text("Tu cos bedzie")
+                } label: {
+                    menuInfoImage
+                }
+            }
+        }
+    }
+    
+    private var activityToolBar: some ToolbarContent {
+        Group {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    send(.backToDeviceButtonTapped)
+                } label: {
+                    backwardImage
+                }
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button {
+                        
+                    } label: {
+                        Label {
+                            Text("manage workout type")
+                        } icon: {
+                            Image(systemName: "chevron.right")
+                        }
+                    }
+                } label: {
+                    menuInfoImage
+                }
+            }
+        }
+    }
+    
+    private var readyToolBar: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                send(.backToActivityButtonTapped)
+            } label: {
+                backwardImage
+            }
         }
     }
     
@@ -66,10 +116,13 @@ struct ConfigurationView: View {
         Image(systemName: "xmark")
     }
     
+    private var backwardImage: some View {
+        Image(systemName: "chevron.backward")
+    }
+    
     private var menuInfoImage: some View {
         Image(systemName: "ellipsis")
     }
-    
     
     private var deviceView: some View {
         DeviceView(store: store.scope(
@@ -77,21 +130,35 @@ struct ConfigurationView: View {
             action: \.device)
         )
     }
+    private var activityView: some View {
+        ActivityPickerView(store: store.scope(
+            state: \.activity,
+            action: \.activity)
+        )
+    }
     
-    private var crossFitWorkoutButton: some View {
+    private var readyView: some View {
         Button {
-            
+            send(.startButtonTapped)
         } label: {
-            Image(systemName: "figure")
+            Text("START")
+                .bold()
                 .tint(.white)
         }
-        .frame(width: 55, height: 55)
+        .frame(width: 75, height: 75)
         .glassEffect(.regular.interactive(true), in: .capsule)
     }
-
+    
 }
 
 
-
-
-
+//private var crossFitWorkoutButton: some View {
+//    Button {
+//
+//    } label: {
+//        Image(systemName: "figure")
+//            .tint(.white)
+//    }
+//    .frame(width: 55, height: 55)
+//    .glassEffect(.regular.interactive(true), in: .capsule)
+//}

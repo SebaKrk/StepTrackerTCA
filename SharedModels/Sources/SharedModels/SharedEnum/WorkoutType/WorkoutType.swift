@@ -7,7 +7,7 @@
 
 import HealthKit
 
-public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable {
+public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable {
     
     case strength
     case functional

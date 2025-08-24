@@ -10,7 +10,7 @@ import Foundation
 enum SetupPhase: Equatable, Identifiable, CaseIterable {
     
     /// wybór: watch / iPhone / mirror
-    case device
+    case device 
     
     /// crossfit / functional / box
     case activity

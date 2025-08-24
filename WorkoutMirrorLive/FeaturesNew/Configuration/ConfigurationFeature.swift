@@ -6,8 +6,8 @@
 //
 
 import ComposableArchitecture
-import Foundation
 import SwiftUI
+import SharedModels
 
 @Reducer
 struct ConfigurationFeature {
@@ -37,24 +37,64 @@ struct ConfigurationFeature {
                     await self.dismiss()
                 }
                 
+            case .view(.backToDeviceButtonTapped):
+                return .send(.core(.changeViewState(.device)))
+                
+            case .view(.backToActivityButtonTapped):
+                return .send(.core(.changeViewState(.activity)))
+                
+            case .view(.startButtonTapped):
+                guard let workout = state.selectedWorkout else {
+                    print("Bład: Nie wybrano ćwiczenia")
+                    return .none
+                }
+                return .run { send in
+                    await send(.delegate(.start(workout)))
+                    await self.dismiss()
+                    //                return .run { [workout = state.selectedWorkout] send in
+                    //                    dump(workout)
+                    //                    await send(.delegate(.start(workout)))
+                    //                    await send(.delegate(.start))
+                }
+                
+                // MARK: - Child Action
+            case .device(.select):
+                //state.selectedDevice
+                return .run { send in
+                    try await clock.sleep(for: .milliseconds(1250))
+                    await send(.core(.changeViewState(.activity)), animation: .bouncy)
+                }
+                
+            case let .activity(.select(value)):
+                state.selectedWorkout = value
+                //return .none
+                return .run { send in
+                    try await clock.sleep(for: .milliseconds(1250))
+                    await send(.core(.changeViewState(.ready)), animation: .bouncy)
+                }
+                
+                // MARK: - Delegate Action
+            case .delegate(_):
+                return .none
+                
                 // MARK: - Destination
             case .destination(_):
                 return .none
                 
-                // MARK: - Child
-            case .device(.select):
-                return .run { send in
-                    try await clock.sleep(for: .seconds(2))
-                    await send(.core(.changeViewState(.activity)), animation: .bouncy)
-                }
-                
             case .device(_):
                 return .none
+                
+            case .activity(_):
+                return .none
+                
             }
         }
         .ifLet(\.$destination, action: \.destination)
         Scope(state: \.device, action: \.device) {
             DeviceFeature()
+        }
+        Scope(state: \.activity, action: \.activity) {
+            ActivityPickerFeature()
         }
     }
 }
@@ -81,6 +121,7 @@ extension ConfigurationFeature {
             
             ///
             case changeViewState(SetupPhase)
+            
         }
         
         // MARK: - View Actions
@@ -88,23 +129,40 @@ extension ConfigurationFeature {
         case view(View)
         
         enum View {
-                    
+            
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
             
             ///
             case closeButtonTapped
+            
+            ///
+            case backToDeviceButtonTapped
+            
+            ///
+            case backToActivityButtonTapped
+            
+            ///
+            case startButtonTapped
         }
         
-        // MARK: - Destination
+        // MARK: - Delegate Actions
         
-        /// Action to handle navigation destinations within this feature.
-        case destination(PresentationAction<Destination.Action>)
+        case delegate(DelegateAction)
+        
+        enum DelegateAction: Equatable {
+            
+            ///
+            case start(WorkoutType)
+        }
         
         // MARK: - Child
         
         ///
         case device(DeviceFeature.Action)
+        
+        ///
+        case activity(ActivityPickerFeature.Action)
     }
 }
 
@@ -119,27 +177,19 @@ extension ConfigurationFeature {
         ///
         var viewState: SetupPhase = .device
         
+        ///
+        var selectedDevice: DeviceOption? = nil
         
-        // MARK: - Destination
-        
-        /// destination from WorkoutFeature
-        @Presents var destination: Destination.State?
+        ///
+        var selectedWorkout: WorkoutType? = nil
         
         // MARK: - Child
-
+        
         ///
         var device: DeviceFeature.State = .init()
-    }
-    
-}
-
-/// Implementation of `ConfigurationFeature` destination
-extension ConfigurationFeature {
-    
-    @Reducer
-    enum Destination {
         
+        ///
+        var activity: ActivityPickerFeature.State = .init()
     }
+    
 }
-
-

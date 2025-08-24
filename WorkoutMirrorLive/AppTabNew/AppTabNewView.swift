@@ -15,7 +15,6 @@ struct AppTabNewView: View {
     
     @Bindable var store: StoreOf<AppTabNewFeature>
     
-    @State var isPresented: Bool = false
     // MARK: - View
     
     var body: some View {
@@ -45,6 +44,9 @@ struct AppTabNewView: View {
                 .interactiveDismissDisabled(true)
                 .presentationDetents([.medium])
         }
+                                  .fullScreenCover(item: $store.scope(state: \.destination?.session, action: \.destination.session)) { store in
+                                      WorkoutSessionView(store: store)
+                                  }
     }
     
     @ViewBuilder

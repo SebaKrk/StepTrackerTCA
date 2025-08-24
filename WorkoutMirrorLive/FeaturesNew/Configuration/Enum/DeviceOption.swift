@@ -9,22 +9,22 @@ import Foundation
 
 enum DeviceOption: CaseIterable, Equatable {
     
-    case iphone
     case watch
+    case iphone
     case mirror
     
     var title: String {
         switch self {
-        case .iphone: "iPhone"
         case .watch:  "Watch"
+        case .iphone: "iPhone"
         case .mirror: "Mirror"
         }
     }
     
     var symbolName: String {
         switch self {
-        case .iphone: "iphone"
         case .watch:  "applewatch"
+        case .iphone: "iphone"
         case .mirror: "rectangle.on.rectangle"
         }
     }

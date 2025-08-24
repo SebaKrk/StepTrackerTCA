@@ -62,6 +62,7 @@ extension WorkoutFeature {
             
             ///
             case closeButtonTapped
+            
         }
         
         // MARK: - Destination

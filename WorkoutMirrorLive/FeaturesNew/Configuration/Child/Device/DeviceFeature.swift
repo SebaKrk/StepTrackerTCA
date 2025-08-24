@@ -35,12 +35,16 @@ extension DeviceFeature {
     enum Action: ViewAction {
         
         // MARK: - Actions
+        
+        ///
         case select(DeviceOption)
         
         // MARK: - View Actions
         case view(View)
         
         enum View {
+            
+            ///
             case buttonTapped(DeviceOption)
         }
     }
@@ -51,6 +55,8 @@ extension DeviceFeature {
     
     @ObservableState
     struct State {
+        
+        ///
         var selected: DeviceOption? = nil
     }
 }
