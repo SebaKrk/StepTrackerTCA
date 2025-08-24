@@ -18,10 +18,12 @@ struct WorkoutView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                Text("WorkoutFeature")
+            VStack {
+                Spacer()
+                crossFitWorkoutButton
+                Spacer()
             }
-            .navigationBarTitle("Workout")
+            .navigationBarTitle("Chose a workout")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarButtons
@@ -47,15 +49,42 @@ struct WorkoutView: View {
             } label: {
                 gearShapeImage
             }
-            //.badge("new")
             .badge(1)
+            ///.badge("new")
         }
     }
     
     private var gearShapeImage: some View {
         Image(systemName: "gearshape")
     }
+    
+    private var crossFitWorkoutButton: some View {
+        Button {
+            
+        } label: {
+            Image(systemName: "figure")
+                .tint(.white)
+        }
+        .frame(width: 55, height: 55)
+        .glassEffect(.regular.interactive(true), in: .capsule)
+    }
+    
 }
+
+//        .buttonStyle(.glassProminent)
+//        .tint(.pink)
+//        .background(
+//            Circle()
+//                .fill(.blasck)
+//        )
+
+//Button("Toggle Actions") {
+//    withAnimation(.bouncy(duration: 1, extraBounce: 0.07)) {
+//        progress = progress == 0 ? 1 : 0
+//    }
+//}
+//.buttonStyle(.glassProminent)
+//.frame(maxWidth: .infinity)
 
 //    
 //    @ToolbarContentBuilder

@@ -39,10 +39,11 @@ struct AppTabNewView: View {
         .onAppear {
             send(.viewDidAppear)
         }
-        .sheet(item: $store.scope(state: \.destination?.workout,
-                                  action: \.destination.workout)) { store in
-            WorkoutView(store: store)
+        .sheet(item: $store.scope(state: \.destination?.workoutConfiguration,
+                                  action: \.destination.workoutConfiguration)) { store in
+            ConfigurationView(store: store)
                 .interactiveDismissDisabled(true)
+                .presentationDetents([.medium])
         }
     }
     
@@ -53,9 +54,6 @@ struct AppTabNewView: View {
             summaryView
         case .activities:
             activitiesView
-            //            List(0..<100) { i in
-            //                Text("activitie \(i)")
-            //            }
         case .workout:
             EmptyView()
         case .sharing:

@@ -31,7 +31,8 @@ struct AppTabNewFeature {
                 }
                 
             case .activateWorkoutView:
-                state.destination = .workout(WorkoutFeature.State())
+                //state.destination = .workout(WorkoutFeature.State())
+                state.destination = .workoutConfiguration(ConfigurationFeature.State())
                 return .none
                 
                 // MARK: - View Action
@@ -142,6 +143,10 @@ extension AppTabNewFeature {
         
         /// Represents the destination for displaying in `WorkoutFeature`.
         case workout(WorkoutFeature)
+        
+        /// Represents the destination for displaying in `ConfigurationFeature`.
+        case workoutConfiguration(ConfigurationFeature)
+
     }
 }
 

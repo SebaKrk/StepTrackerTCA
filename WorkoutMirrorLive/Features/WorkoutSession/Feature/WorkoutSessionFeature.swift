@@ -120,6 +120,7 @@ extension WorkoutSessionFeature {
         case binding(BindingAction<State>)
         
         // MARK: - Actions
+        ///
         case workoutViewStateChange(WorkoutSessionState)
         
         ///
@@ -131,6 +132,7 @@ extension WorkoutSessionFeature {
         ///
         case endingWorkout
         
+        ///
         case runningWorkout
 
         // MARK: - View Actions
