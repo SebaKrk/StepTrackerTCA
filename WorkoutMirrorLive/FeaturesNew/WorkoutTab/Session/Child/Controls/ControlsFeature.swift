@@ -45,7 +45,7 @@ struct ControlsFeature {
                     print("wyslij do menagera: \(value)")
                 }
                 
-            case .endWorkoutButtonTapped:
+            case .view(.endWorkoutButtonTapped):
                 print("endWorkoutButtonTapped")
                 return .none
             }

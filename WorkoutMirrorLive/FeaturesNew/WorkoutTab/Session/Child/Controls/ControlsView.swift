@@ -30,6 +30,7 @@ struct ControlsView: View {
             Spacer().frame(height: 50)
             if store.isExpanded {
                 endWorkoutButton
+                    .padding()
                 Spacer()
             }
         }
@@ -55,12 +56,12 @@ struct ControlsView: View {
         //        .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.yellow)
         .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
-//        .onAppear {
-//            send(.updateElapsedTime(context.date))
-//        }
-//        .onChange(of: context.date) { _, newDate in
-//            send(.updateElapsedTime(newDate))
-//        }
+        //        .onAppear {
+        //            send(.updateElapsedTime(context.date))
+        //        }
+        //        .onChange(of: context.date) { _, newDate in
+        //            send(.updateElapsedTime(newDate))
+        //        }
     }
     
     @ViewBuilder
@@ -101,17 +102,34 @@ struct ControlsView: View {
         } label: {
             Label("Koniec treningu", systemImage: "xmark")
                 .bold()
+                .frame(maxWidth: .infinity, minHeight: 50)
         }
         .buttonStyle(.borderedProminent)
         .foregroundStyle(.pink)
-        .opacity(0.2)
-        .tint(.pink)
+        .tint(.pink.opacity(0.2))
     }
+    
+    //    Button {
+    //        withAnimation {
+    //            workoutManager.endWorkout()
+    //        }
+    //    } label: {
+    //        Image(systemName: "xmark")
+    //            .frame(maxWidth: .infinity, minHeight: 50)
+    //            .font(.largeTitle)
+    //    }
+    //    .padding(.leading)
+    //    .buttonStyle(.borderedProminent)
+    //    .tint(.red)
     
     @ViewBuilder
     func sessionControlButton(systemImage: String, frame: CGFloat,
                               action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button {
+            withAnimation {
+                action()
+            }
+        } label:  {
             Image(systemName: systemImage)
                 .frame(width: frame, height: frame)
                 .font(.system(size: 30, weight: .medium))
@@ -135,3 +153,4 @@ struct ControlsView: View {
                      reducer: { ControlsFeature() })
     )
 }
+
