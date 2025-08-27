@@ -36,7 +36,6 @@ extension SetupPhase {
         case .device: return "Chose device"
         case .activity: return "Chose activity"
         case .ready: return ""
-            
         }
     }
 }

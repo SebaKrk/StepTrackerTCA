@@ -75,7 +75,7 @@ struct CountDownFeature {
                     print("Closing view first...")
                     await send(.closeView)
                     
-                    await client.startWorkout()
+                    //await client.startWorkout()
                     print("Workout started!")
                 }
                 

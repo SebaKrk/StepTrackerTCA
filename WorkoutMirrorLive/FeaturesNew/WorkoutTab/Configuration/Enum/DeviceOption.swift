@@ -28,4 +28,5 @@ enum DeviceOption: CaseIterable, Equatable {
         case .mirror: "rectangle.on.rectangle"
         }
     }
+    
 }

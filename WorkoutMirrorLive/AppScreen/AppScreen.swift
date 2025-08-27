@@ -21,7 +21,7 @@ enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     
     case activities
     
-    case summary
+    case stats
     
     case sharing
     
@@ -60,10 +60,10 @@ extension AppScreen {
                        comment: "The Activities Tab shows a list of completed workouts with details and quick actions."),
                 systemImage: "calendar"
             )
-        case .summary:
+        case .stats:
             Label(
-                String(localized: "Summary",
-                       comment: "The Summary Tab presents charts and analytics for workouts and health metrics."),
+                String(localized: "Stats",
+                       comment: "The Stats Tab presents charts and analytics for workouts and health metrics."),
                 systemImage: "house"
             )
         case .sharing:
@@ -81,7 +81,7 @@ extension AppScreen {
         case .workout: return "Workout"
         case .person: return "Profile"
         case .activities: return "Activities"
-        case .summary: return "Summary"
+        case .stats: return "Stats"
         case .sharing: return "Sharing"
         }
     }
@@ -92,7 +92,7 @@ extension AppScreen {
         case .workout: return "figure.run"
         case .person: return "person.fill"
         case .activities: return "calendar"
-        case .summary: return "house"
+        case .stats: return "house"
         case .sharing: return "person.3.fill"
         }
     }

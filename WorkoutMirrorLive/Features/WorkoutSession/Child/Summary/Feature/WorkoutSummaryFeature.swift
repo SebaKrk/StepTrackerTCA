@@ -21,6 +21,7 @@ struct WorkoutSummaryFeature {
     // MARK: - Dependency
     
     @Dependency(\.workoutSummaryClient) var client
+    @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
     
@@ -71,12 +72,15 @@ struct WorkoutSummaryFeature {
                     
                 case .view(.endWorkoutButtonTapped):
                     print("endWorkoutButtonTapped")
-//                    return .none
-                    return .merge(
-                        .cancel(id: WorkoutSummaryFeatureCancelID.sessionStateListener),
-                        .cancel(id: WorkoutSummaryFeatureCancelID.retry)
-                    )
-                    
+                    return .run { send in
+                        await self.dismiss()
+                    }
+//                    return .merge(
+//                        .cancel(id: WorkoutSummaryFeatureCancelID.sessionStateListener),
+//                        .cancel(id: WorkoutSummaryFeatureCancelID.retry)
+//                        
+//                    )
+//                    
                     // zastanow sie czy nie gdzies inedziej tzn wczesniej
                     // jak robie zamkiecie i usuwam caly destination to ta akacja jeszcze leci co powoduje blad
                     // narazie dalem ja do endWorkoutButtonTapped

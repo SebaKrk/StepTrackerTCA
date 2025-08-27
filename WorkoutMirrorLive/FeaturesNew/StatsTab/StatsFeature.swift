@@ -1,5 +1,5 @@
 //
-//  WorkoutFeature.swift
+//  StatsFeature.swift
 //  MyFitnessJournal
 //
 //  Created by Sebastian Sciuba on 20/08/2025.
@@ -9,11 +9,7 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-struct WorkoutFeature {
-    
-    // MARK: - Dependency
-    
-    @Dependency(\.dismiss) var dismiss
+struct StatsFeature {
     
     // MARK: - Reducer
     
@@ -27,14 +23,10 @@ struct WorkoutFeature {
             case .view(.viewDidAppear):
                 return .none
                 
-            case .view(.closeButtonTapped):
-                return .run { send in
-                    await self.dismiss()
-                }
+            case .view(.settingsButtonTapped):
+                state.destination = .settings(SettingsFeature.State())
+                return .none
                 
-                
-                
-                // MARK: -
             case .destination(_):
                 return .none
             }
@@ -43,8 +35,8 @@ struct WorkoutFeature {
     }
 }
 
-/// Implementation of `WorkoutFeature` action
-extension WorkoutFeature {
+/// Implementation of `StatsFeature` action
+extension StatsFeature {
     
     @CasePathable
     enum Action: ViewAction {
@@ -61,8 +53,7 @@ extension WorkoutFeature {
             case viewDidAppear
             
             ///
-            case closeButtonTapped
-            
+            case settingsButtonTapped
         }
         
         // MARK: - Destination
@@ -72,8 +63,8 @@ extension WorkoutFeature {
     }
 }
 
-/// Implementation of `WorkoutFeature` state
-extension WorkoutFeature {
+/// Implementation of `StatsFeature` state
+extension StatsFeature {
     
     @ObservableState
     struct State {
@@ -82,18 +73,20 @@ extension WorkoutFeature {
         
         // MARK: - Destination
         
-        /// destination from WorkoutFeature
+        /// destination from SummaryFeature
         @Presents var destination: Destination.State?
     }
     
 }
 
-/// Implementation of `WorkoutFeature` destination
-extension WorkoutFeature {
+/// Implementation of `StatsFeature` destination
+extension StatsFeature {
     
     @Reducer
     enum Destination {
         
+        /// Represents the destination for displaying in `SettingsFeature`.
+        case settings(SettingsFeature)
     }
 }
 

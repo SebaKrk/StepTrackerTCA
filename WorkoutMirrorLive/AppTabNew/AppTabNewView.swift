@@ -38,22 +38,29 @@ struct AppTabNewView: View {
         .onAppear {
             send(.viewDidAppear)
         }
-        .sheet(item: $store.scope(state: \.destination?.workoutConfiguration,
-                                  action: \.destination.workoutConfiguration)) { store in
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.workoutConfiguration,
+                action: \.destination.workoutConfiguration)
+        ) { store in
             ConfigurationView(store: store)
                 .interactiveDismissDisabled(true)
                 .presentationDetents([.medium])
         }
-                                  .fullScreenCover(item: $store.scope(state: \.destination?.session, action: \.destination.session)) { store in
-                                      WorkoutSessionView(store: store)
-                                  }
+        .fullScreenCover(
+            item: $store.scope(
+                state: \.destination?.session,
+                action: \.destination.session)
+        ) { store in
+            SessionView(store: store)
+        }
     }
     
     @ViewBuilder
     func tabContent(for appScreenTab: AppScreen) -> some View {
         switch appScreenTab {
-        case .summary:
-            summaryView
+        case .stats:
+            statsView
         case .activities:
             activitiesView
         case .workout:
@@ -66,10 +73,10 @@ struct AppTabNewView: View {
     }
     
     @ViewBuilder
-    var summaryView: some View {
-        SummaryView(store: store.scope(
-            state: \.summary,
-            action: \.summary)
+    var statsView: some View {
+        StatsView(store: store.scope(
+            state: \.stats,
+            action: \.stats)
         )
     }
     

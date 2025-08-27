@@ -1,5 +1,5 @@
 //
-//  SummaryView.swift
+//  StatsView.swift
 //  MyFitnessJournal
 //
 //  Created by Sebastian Sciuba on 20/08/2025.
@@ -8,11 +8,11 @@
 import ComposableArchitecture
 import SwiftUI
 
-@ViewAction(for: SummaryFeature.self)
-struct SummaryView: View {
+@ViewAction(for: StatsFeature.self)
+struct StatsView: View {
     
     // MARK: - Properties
-    @Bindable var store: StoreOf<SummaryFeature>
+    @Bindable var store: StoreOf<StatsFeature>
     
     // MARK: - Body
     
@@ -30,7 +30,7 @@ struct SummaryView: View {
     }
     
     var rootView: some View {
-        Text("SummaryFeature")
+        Text("StatsFeature")
     }
     
     @ToolbarContentBuilder

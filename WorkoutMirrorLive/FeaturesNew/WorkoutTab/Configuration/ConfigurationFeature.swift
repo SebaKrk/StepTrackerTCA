@@ -44,43 +44,56 @@ struct ConfigurationFeature {
                 return .send(.core(.changeViewState(.activity)))
                 
             case .view(.startButtonTapped):
-                guard let workout = state.selectedWorkout else {
-                    print("Bład: Nie wybrano ćwiczenia")
+                if state.selectedDevice == .mirror {
+                    // Tu bedzie odpalnie lusta po sprawdzeniu np czy na pewno mamy trawajaca sesje na zegarku
                     return .none
-                }
-                return .run { send in
-                    await send(.delegate(.start(workout)))
-                    await self.dismiss()
-                    //                return .run { [workout = state.selectedWorkout] send in
-                    //                    dump(workout)
-                    //                    await send(.delegate(.start(workout)))
-                    //                    await send(.delegate(.start))
+                } else {
+                    guard let workout = state.selectedWorkout else {
+                        print("Bład: Nie wybrano ćwiczenia")
+                        return .none
+                    }
+                    return .run { send in
+                        /// ta akacja jest przekazywana do AppTabNewFeature gdzie następnie wywoływany jest .fullScreenCover
+                        await send(.delegate(.start(workout)))
+                        await self.dismiss()
+                    }
                 }
                 
                 // MARK: - Child Action
             case .device(.select):
-                //state.selectedDevice
-                return .run { send in
-                    try await clock.sleep(for: .milliseconds(1250))
-                    await send(.core(.changeViewState(.activity)), animation: .bouncy)
+                switch state.selectedDevice {
+                case .iphone, .watch:
+                    return .run { send in
+                        try await clock.sleep(for: .milliseconds(1250))
+                        await send(.core(.changeViewState(.activity)), animation: .bouncy)
+                    }
+                case .mirror:
+                    return .run { send in
+                        try await clock.sleep(for: .milliseconds(1250))
+                        await send(.core(.changeViewState(.ready)),
+                                   animation: .bouncy)
+                    }
+                case .none:
+                    return .none
                 }
+                    
+            case let .device(.view(.buttonTapped(option))):
+                state.selectedDevice = option
+                return .none
                 
             case let .activity(.select(value)):
                 state.selectedWorkout = value
-                //return .none
                 return .run { send in
                     try await clock.sleep(for: .milliseconds(1250))
-                    await send(.core(.changeViewState(.ready)), animation: .bouncy)
+                    await send(.core(.changeViewState(.ready)),
+                               animation: .bouncy)
                 }
                 
                 // MARK: - Delegate Action
             case .delegate(_):
                 return .none
                 
-                // MARK: - Destination
-            case .destination(_):
-                return .none
-                
+                // MARK: - Childs Action
             case .device(_):
                 return .none
                 
@@ -89,7 +102,6 @@ struct ConfigurationFeature {
                 
             }
         }
-        .ifLet(\.$destination, action: \.destination)
         Scope(state: \.device, action: \.device) {
             DeviceFeature()
         }

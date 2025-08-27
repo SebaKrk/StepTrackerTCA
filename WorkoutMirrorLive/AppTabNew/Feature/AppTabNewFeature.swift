@@ -37,7 +37,7 @@ struct AppTabNewFeature {
                 return .none
                 
             case let .activateWorkoutSessionView(workout):
-                state.destination = .session(WorkoutSessionFeature.State(selectedWorkout: workout))
+                state.destination = .session(SessionFeature.State(selectedWorkout: workout))
                 return .none
                 
                 // MARK: - View Action
@@ -58,8 +58,8 @@ struct AppTabNewFeature {
             }
         }
         
-        Scope(state: \.summary, action: \.summary) {
-            SummaryFeature()
+        Scope(state: \.stats, action: \.stats) {
+            StatsFeature()
         }
         Scope(state: \.activities, action: \.activities) {
             ActivitiesFeature()
@@ -103,7 +103,7 @@ extension AppTabNewFeature {
         // MARK: - Child
         
         ///
-        case summary(SummaryFeature.Action)
+        case stats(StatsFeature.Action)
 
         ///
         case activities(ActivitiesFeature.Action)
@@ -126,7 +126,7 @@ extension AppTabNewFeature {
         /// List of available tabs in the application.
         ///
         /// The order of tabs determines their placement in the UI.
-        var tabs: [AppScreen] = [.summary, .activities, .workout]
+        var tabs: [AppScreen] = [.stats, .activities, .workout]
         
         /// The currently selected tab in the application.
         ///
@@ -136,7 +136,7 @@ extension AppTabNewFeature {
         // MARK: - Child
         
         ///
-        var summary: SummaryFeature.State = .init()
+        var stats: StatsFeature.State = .init()
         
         ///
         var activities: ActivitiesFeature.State = .init()
@@ -155,14 +155,12 @@ extension AppTabNewFeature {
     @Reducer
     enum Destination {
         
-        /// Represents the destination for displaying in `WorkoutFeature`.
-        case workout(WorkoutFeature)
-        
         /// Represents the destination for displaying in `ConfigurationFeature`.
         case workoutConfiguration(ConfigurationFeature)
         
         /// Represents the destination for displaying in `WorkoutSessionFeature`.
-        case session(WorkoutSessionFeature)
+        //case session(WorkoutSessionFeature)
+        case session(SessionFeature)
 
     }
 }

@@ -92,8 +92,7 @@ struct WorkoutSessionFeature {
                 
             case .summary(.view(.endWorkoutButtonTapped)):
                 return .none
-                
-                
+                   
             default:
                 return .none
             }

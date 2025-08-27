@@ -12,6 +12,7 @@ import SwiftUI
 struct ConfigurationView: View {
     
     // MARK: - Properties
+    
     @Bindable var store: StoreOf<ConfigurationFeature>
     
     // MARK: - Body
@@ -29,6 +30,8 @@ struct ConfigurationView: View {
                 }
         }
     }
+    
+    // MARK: - SubView
     
     @ViewBuilder
     var rootView: some View {
@@ -105,7 +108,11 @@ struct ConfigurationView: View {
     private var readyToolBar: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {
-                send(.backToActivityButtonTapped)
+                if store.selectedDevice == .mirror {
+                    send(.backToDeviceButtonTapped)
+                } else {
+                    send(.backToActivityButtonTapped)
+                }
             } label: {
                 backwardImage
             }
@@ -138,6 +145,10 @@ struct ConfigurationView: View {
     }
     
     private var readyView: some View {
+        startButton
+    }
+    
+    private var startButton: some View {
         Button {
             send(.startButtonTapped)
         } label: {
@@ -150,7 +161,6 @@ struct ConfigurationView: View {
     }
     
 }
-
 
 //private var crossFitWorkoutButton: some View {
 //    Button {
