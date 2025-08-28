@@ -22,6 +22,14 @@ struct ControlsFeature {
                 state.isExpanded.toggle()
                 return .none
                 
+            case .lockView:
+                state.isLocked = true
+                return .none
+                
+            case .showLockView:
+                state.isExpanded = true
+                return .none
+                
             case let .sessionStateChange(value):
                 state.sessionState = value
                 return .none
@@ -32,6 +40,13 @@ struct ControlsFeature {
                 
             case .view(.expandButtonTapped):
                 return .send(.expandContainer)
+                
+            case .view(.lockButtonTapped):
+                return .send(.lockView)
+                
+            case .view(.unlockConfirmed):
+                state.isLocked = false
+                return .none
                 
             case let .view(.pauseWorkoutButtonTaped(value)):
                 return .run { send in
@@ -65,6 +80,12 @@ extension ControlsFeature {
         case expandContainer
         
         ///
+        case showLockView
+        
+        ///
+        case lockView
+        
+        ///
         case sessionStateChange(WorkoutSessionStateTest)
         
         // MARK: - View Actions
@@ -77,6 +98,12 @@ extension ControlsFeature {
             
             ///
             case expandButtonTapped
+            
+            ///
+            case lockButtonTapped
+            
+            ///
+            case unlockConfirmed
             
             ///
             case pauseWorkoutButtonTaped(Bool)
@@ -103,6 +130,9 @@ extension ControlsFeature {
         
         ///
         var isExpanded = false
+        
+        ///
+        var isLocked = false
         
         ///
         var sessionState: WorkoutSessionStateTest = .running
