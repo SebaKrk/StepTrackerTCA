@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import SharedModels
 
 @ViewAction(for: ControlsFeature.self)
 struct ControlsView: View {
@@ -18,27 +19,32 @@ struct ControlsView: View {
     
     var body: some View {
         VStack(alignment: .center) {
-            Spacer()
-            timeLineView
-            HStack(spacing: 30) {
+            if store.isLocked {
                 Spacer()
-                lockButton
-                workoutActionButtonsView
-                expandButton
+                timeLineView
+                unlockSlider
+                    .padding(.horizontal,12)
                 Spacer()
+            } else {
+                HStack {
+                    workoutImage
+                    timeLineView
+                    workoutImage.hidden()
+                }
+                HStack(spacing: 30) {
+                    Spacer()
+                    lockButton
+                    workoutActionButtonsView
+                    expandButton
+                    Spacer()
+                }
             }
             Spacer()
             if store.isExpanded {
-                Group {
-                    if store.isLocked {
-                        unlockSlider
-                    } else {
-                        endWorkoutButton
-                    }
-                }
-                .padding(.horizontal,12)
-                Spacer()
+                endWorkoutButton
+                    .padding(.horizontal,12)
             }
+            Spacer()
         }
         .frame(maxWidth: .infinity)
         .frame(height: store.isExpanded ? 350 : 200)
@@ -72,25 +78,15 @@ struct ControlsView: View {
     
     @ViewBuilder
     private var workoutActionButtonsView: some View {
-        switch store.sessionState {
-        case .running:
-            workoutPauseButton
-        case .paused:
-            resumeWorkoutButton
-        }
+        mainControlButton
     }
     
-    private var workoutPauseButton: some View {
-        sessionControlButton(systemImage: "pause", frame: 100) {
-            send(.pauseWorkoutButtonTaped(true))
-        }
-        .opacity(store.isLocked ? 0.7 : 1)
-        .disabled(store.isLocked)
-    }
-    
-    private var resumeWorkoutButton: some View {
-        sessionControlButton(systemImage: "play", frame: 100) {
-            send(.resumeWorkoutButtonTapped(false))
+    private var mainControlButton: some View {
+        return sessionControlButton(
+            systemImage: store.sessionState == .running ? "pause" : "play",
+            frame: 100
+        ) {
+            send(.mainControlButtonTapped)
         }
         .opacity(store.isLocked ? 0.7 : 1)
         .disabled(store.isLocked)
@@ -100,8 +96,8 @@ struct ControlsView: View {
         sessionControlButton(systemImage: store.isExpanded ? "chevron.down" : "chevron.up", frame: 50) {
             send(.expandButtonTapped)
         }
-//        .opacity(store.isLocked ? 0.7 : 1)
-//        .disabled(store.isLocked)
+        .opacity(store.isLocked ? 0.7 : 1)
+        .disabled(store.isLocked)
     }
     
     private var lockButton: some View {
@@ -131,6 +127,15 @@ struct ControlsView: View {
         ) {
             send(.unlockConfirmed) // TCA lub dowolna akcja
         }
+    }
+    
+    private var workoutImage: some View {
+        Image(systemName: store.selectedWorkout?.iconCircleFill ?? "")
+            .symbolRenderingMode(.hierarchical)
+            .font(.system(size: 44, weight: .semibold))
+            .foregroundStyle(.pink)
+            .frame(width: 64, height: 64)
+            .padding()
     }
     
     @ViewBuilder
@@ -163,107 +168,5 @@ struct ControlsView: View {
         store: Store(initialState: ControlsFeature.State(),
                      reducer: { ControlsFeature() })
     )
-}
-
-
-import SwiftUI
-
-struct SlideAction: View {
-    let title: String
-    let systemImage: String
-    let threshold: CGFloat    // 0.0...1.0, np. 0.8
-    let onTriggered: () -> Void
-
-    @State private var dragX: CGFloat = 0
-    @State private var width: CGFloat = 0
-    @State private var triggered = false
-
-    var body: some View {
-        GeometryReader { geo in
-            let trackWidth = geo.size.width
-            ZStack(alignment: .leading) {
-                // Track
-                Capsule()
-                    .fill(.regularMaterial)
-                    .overlay(
-                        Capsule()
-                            .strokeBorder(.white.opacity(0.12))
-                    )
-
-                // Progress fill
-                Capsule()
-                    .fill(.white.opacity(0.12))
-                    .frame(width: max(56, dragX + 56))
-
-                // Label centered
-                HStack(spacing: 8) {
-                    Image(systemName: systemImage)
-                        .imageScale(.large)
-                    Text(title)
-                        .font(.system(.headline, design: .rounded))
-                }
-                .frame(maxWidth: .infinity)
-                .foregroundStyle(.primary)
-                .opacity(triggered ? 0 : 1)
-
-                // Thumb
-                Circle()
-                    .fill(.thinMaterial)
-                    .overlay(
-                        Circle().strokeBorder(.white.opacity(0.25))
-                    )
-                    .shadow(radius: 3, y: 1)
-                    .frame(width: 56, height: 56)
-                    .overlay(
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(.primary)
-                    )
-                    .offset(x: dragX)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                guard !triggered else { return }
-                                let x = max(0, min(value.translation.width, trackWidth - 56))
-                                dragX = x
-                                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                            }
-                            .onEnded { _ in
-                                guard !triggered else { return }
-                                let goal = (trackWidth - 56) * threshold
-                                if dragX >= goal {
-                                    triggered = true
-                                    let gen = UINotificationFeedbackGenerator()
-                                    gen.notificationOccurred(.success)
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                                        dragX = trackWidth - 56
-                                    }
-                                    // opóźnienie, by pozwolić animacji dojechać
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                                        onTriggered()
-                                        reset(after: 0.5)
-                                    }
-                                } else {
-                                    withAnimation(.spring) { dragX = 0 }
-                                }
-                            }
-                    )
-                    .accessibilityLabel(Text(title))
-                    .accessibilityAddTraits(.isButton)
-            }
-            .onAppear { width = trackWidth }
-        }
-        .frame(height: 64)
-        .contentShape(Rectangle())
-    }
-
-    private func reset(after delay: CGFloat) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            withAnimation(.spring) {
-                dragX = 0
-                triggered = false
-            }
-        }
-    }
 }
 

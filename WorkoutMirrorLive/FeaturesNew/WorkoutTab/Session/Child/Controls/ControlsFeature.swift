@@ -18,16 +18,17 @@ struct ControlsFeature {
             switch action {
                 
                 // MARK: - Action
+            case let .setWorkoutType(value):
+                state.selectedWorkout = value
+                return .none
+                
             case .expandContainer:
                 state.isExpanded.toggle()
                 return .none
                 
             case .lockView:
-                state.isLocked = true
-                return .none
-                
-            case .showLockView:
-                state.isExpanded = true
+                state.isLocked.toggle()
+                state.isExpanded = false
                 return .none
                 
             case let .sessionStateChange(value):
@@ -47,18 +48,22 @@ struct ControlsFeature {
             case .view(.unlockConfirmed):
                 state.isLocked = false
                 return .none
-                
-            case let .view(.pauseWorkoutButtonTaped(value)):
-                return .run { send in
-                    await send(.sessionStateChange(.paused))
-                    print("wyslij do menagera: \(value)")
-                }
-                
-            case let .view(.resumeWorkoutButtonTapped(value)):
-                return .run { send in
-                    await send(.sessionStateChange(.running))
-                    print("wyslij do menagera: \(value)")
-                }
+              
+            case .view(.mainControlButtonTapped):
+                let newState: WorkoutSessionStateTest =
+                    state.sessionState == .running ? .paused : .running
+                return .send(.sessionStateChange(newState))
+//            case let .view(.pauseWorkoutButtonTaped(value)):
+//                return .run { send in
+//                    await send(.sessionStateChange(.paused))
+//                    print("wyslij do menagera: \(value)")
+//                }
+//                
+//            case let .view(.resumeWorkoutButtonTapped(value)):
+//                return .run { send in
+//                    await send(.sessionStateChange(.running))
+//                    print("wyslij do menagera: \(value)")
+//                }
                 
             case .view(.endWorkoutButtonTapped):
                 print("endWorkoutButtonTapped")
@@ -76,17 +81,19 @@ extension ControlsFeature {
     enum Action: ViewAction {
         
         // MARK: - Actions
+        
+        ///
+        case setWorkoutType(WorkoutType)
+        
+        ///
+        case sessionStateChange(WorkoutSessionStateTest)
+        
         ///
         case expandContainer
         
         ///
-        case showLockView
-        
-        ///
         case lockView
         
-        ///
-        case sessionStateChange(WorkoutSessionStateTest)
         
         // MARK: - View Actions
         case view(View)
@@ -106,10 +113,7 @@ extension ControlsFeature {
             case unlockConfirmed
             
             ///
-            case pauseWorkoutButtonTaped(Bool)
-            
-            ///
-            case resumeWorkoutButtonTapped(Bool)
+            case mainControlButtonTapped
             
             ///
             case endWorkoutButtonTapped
@@ -126,6 +130,12 @@ extension ControlsFeature {
         // MARK: - Properties
         
         ///
+        var selectedWorkout: WorkoutType? = nil
+        
+        ///
+        var sessionState: WorkoutSessionStateTest = .running
+        
+        ///
         var elapsedTime: TimeInterval = 0
         
         ///
@@ -133,9 +143,6 @@ extension ControlsFeature {
         
         ///
         var isLocked = false
-        
-        ///
-        var sessionState: WorkoutSessionStateTest = .running
     }
     
 }

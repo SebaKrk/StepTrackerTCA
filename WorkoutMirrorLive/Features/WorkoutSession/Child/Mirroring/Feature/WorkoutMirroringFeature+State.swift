@@ -18,7 +18,9 @@ extension WorkoutMirroringFeature {
         // MARK: - Properties
         
         var elapsedTime: TimeInterval = 0
+        
         var pausedElapsedTime: TimeInterval = 0
+        
         var isPaused: Bool = false
         
         /// The current metrics of the workout, such as heart rate and active energy burned.

@@ -58,12 +58,23 @@ extension LiveSessionFeature {
         
         // MARK: - Properties
         
+        var elapsedTime: TimeInterval = 0
+        var pausedElapsedTime: TimeInterval = 0
+        var isPaused: Bool = false
+        
         /// The current metrics of the workout, such as heart rate and active energy burned.
         var workoutMetrics: WorkoutMetrics = WorkoutMetrics(
             averageHeartRate: 0,
             heartRate: 0,
             activeEnergy: 0
         )
+        
+        ///
+        var currentHeartRateZone: HeartRateZone = .resting
+        
+        ///
+        var currentHeartRatePercentage: Int = 0
+        
         
     }
     

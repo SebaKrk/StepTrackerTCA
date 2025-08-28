@@ -29,13 +29,19 @@ struct SessionFeature {
 
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .none
+                return .run { [workout = state.selectedWorkout] send in
+                    await send(.controls(.setWorkoutType(workout)))
+                }
                 
             case .view(.closeButtonTapped):
                 return .run { send in
                     await self.dismiss()
                 }
                 
+            case .view(.heartRateZoneButtonTapped):
+                state.destination = .openHeartRateZoneInfo(HeartRateZoneInfoFeature.State())
+                return .none
+
                 // MARK: - Destination
             case .destination(_):
                 return .none
@@ -86,6 +92,9 @@ extension SessionFeature {
             ///
             case closeButtonTapped
             
+            ///
+            case heartRateZoneButtonTapped
+            
         }
         
         // MARK: - Destination
@@ -117,7 +126,7 @@ extension SessionFeature {
         var sessionState: SessionState = .countdown
         
         ///
-        var selectedWorkout: WorkoutType?
+        var selectedWorkout: WorkoutType
         
         // MARK: - Destination
         
@@ -143,7 +152,7 @@ extension SessionFeature {
     
     @Reducer
     enum Destination {
-        
+        /// Represents the destination for displaying in `HeartRateZoneInfoFeature`.
+        case openHeartRateZoneInfo(HeartRateZoneInfoFeature)
     }
 }
-

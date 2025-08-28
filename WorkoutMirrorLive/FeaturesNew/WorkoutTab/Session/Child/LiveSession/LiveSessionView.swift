@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import Commons
 import SwiftUI
+import SharedModels
 
 @ViewAction(for: LiveSessionFeature.self)
 struct LiveSessionView: View {
@@ -17,15 +19,106 @@ struct LiveSessionView: View {
     // MARK: - Body
     
     var body: some View {
-//        VStack {
-//            Spacer()
-//            Text("LiveSessionView")
-//            Spacer()
-//        }
-        List(0..<100) { i in
-            Text("activitie \(i)")
+        VStack(spacing: 2) {
+            Spacer()
+            HStack {
+                secondaryMetricCard("avg hr",
+                                    data: 0)
+                secondaryMetricCard("max hr",
+                                    data: 0)
+            }
+            workoutMetricsCard
+            Spacer()
+        }
+        .padding([.leading, .trailing], 8)
+        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false}
+    }
+    
+    // MARK: - SubView
+    
+    private var workoutMetricsCard: some View {
+        GroupBox {
+            VStack {
+                heartRateView
+                Spacer().frame(height: 10)
+                currentHeartRatePercentageView
+                activeEnergyBurnedView
+                Spacer().frame(height: 10)
+                currentHeartRateZoneView
+            }
+        .overlay(
+            RoundedRectangle(cornerRadius: 2)
+                .inset(by: -10)
+                .stroke(store.currentHeartRateZone.color.opacity(0.3),
+                        lineWidth: 1))
         }
     }
+    
+    private func secondaryMetricCard(_ title: String, data: Double) -> some View {
+        GroupBox {
+            VStack(spacing: 2) {
+                Text(title)
+                    .textCase(.uppercase)
+                Text(data.formatted(.number.precision(.fractionLength(0))))
+                    .font(.largeTitle.bold())
+            }
+            .frame(maxWidth: .infinity)
+            .multilineTextAlignment(.center)
+        }
+    }
+    
+    private var heartRateView: some View {
+        HStack {
+            Group {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.red)
+                Text(store.workoutMetrics.heartRate.formatted(.number.precision(.fractionLength(0))))
+                Text("BPM")
+            }
+            .font(.system(.title3, design: .rounded).monospacedDigit())
+            .foregroundColor(.primary)
+            Spacer()
+            
+            Text(store.currentHeartRateZone.rawValue)
+                .font(.title3.weight(.semibold))
+                .foregroundColor(store.currentHeartRateZone.color)
+        }
+    }
+    
+    private var currentHeartRatePercentageView: some View {
+        VStack(spacing: 5) {
+            Text("\(store.currentHeartRatePercentage)%")
+                .font(.system(size: 60))
+            //                .id(store.currentHeartRatePercentage)
+            //                .transition(.push(from: .bottom))
+                .animation(.snappy(duration: 0.3), value: 70)
+        }
+    }
+    
+    private var activeEnergyBurnedView: some View {
+        HStack {
+            Image(systemName: "flame.fill")
+                .foregroundColor(.pink)
+                .font(.system(.title2, design: .rounded))
+            Text(Measurement(value: store.workoutMetrics.activeEnergy, unit: .kilocalories).formatted(MetricFormatter.workoutEnergy))
+                .font(.system(.title3, design: .rounded).monospacedDigit())
+                .foregroundColor(.primary)
+            Text("Active\nEnergy")
+                .font(.system(.caption, design: .rounded).smallCaps())
+        }
+    }
+    
+    private var currentHeartRateZoneView: some View {
+        HStack {
+            Spacer()
+            Text(store.currentHeartRateZone.description)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+    
 }
 
 #Preview("LiveSessionFeature") {
@@ -36,7 +129,3 @@ struct LiveSessionView: View {
         )
     }
 }
-
-
-
-    

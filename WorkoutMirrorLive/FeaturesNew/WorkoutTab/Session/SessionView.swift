@@ -14,7 +14,7 @@ struct SessionView: View {
     // MARK: - Properties
     
     @Bindable var store: StoreOf<SessionFeature>
-
+    
     // MARK: - Body
     
     var body: some View {
@@ -30,6 +30,11 @@ struct SessionView: View {
                 }
                 .toolbar {
                     toolbarButtons
+                }
+                .sheet(item: $store.scope(state: \.destination?.openHeartRateZoneInfo,
+                                          action: \.destination.openHeartRateZoneInfo)) { store in
+                    HeartRateZoneInfoView(store: store)
+                        .presentationDetents([.medium, .large])
                 }
         }
     }
@@ -69,8 +74,10 @@ struct SessionView: View {
         //        .presentationDetents([.height(120), .medium, .large])
         //        .presentationDragIndicator(.visible)
         //}
-
+        
     }
+    
+    @ViewBuilder
     private var controlsView: some View {
         ControlsView(store: store.scope(
             state: \.controls,
@@ -78,12 +85,20 @@ struct SessionView: View {
         )
     }
     
+    @ToolbarContentBuilder
     private var toolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {
                 send(.closeButtonTapped)
             } label: {
                 xMarkImage
+            }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.heartRateZoneButtonTapped)
+            } label: {
+                Image(systemName: "heart.text.clipboard")
             }
         }
     }

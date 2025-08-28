@@ -34,6 +34,15 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         }
     }
     
+    public var iconCircleFill: String {
+        switch self {
+        case .strength:   return "figure.strengthtraining.traditional.circle.fill"
+        case .functional: return "figure.strengthtraining.functional.circle.fill"
+        case .cross:      return "figure.cross.training.circle.fill"
+        case .boxing:     return "figure.boxing.circle.fill"
+        }
+    }
+    
     /// Map to HealthKit equivalent
     public var hkType: HKWorkoutActivityType {
         switch self {
