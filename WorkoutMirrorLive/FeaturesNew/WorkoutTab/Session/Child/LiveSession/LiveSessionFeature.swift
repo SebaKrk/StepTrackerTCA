@@ -12,6 +12,11 @@ import SharedModels
 @Reducer
 struct LiveSessionFeature {
     
+    // MARK: - Dependency
+    
+    @Dependency(\.sessionClient) var client
+    @Dependency(\.sessionCalculations) var calculation
+     
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -46,6 +51,7 @@ extension LiveSessionFeature {
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
             
+            
         }
     }
 }
@@ -75,7 +81,18 @@ extension LiveSessionFeature {
         ///
         var currentHeartRatePercentage: Int = 0
         
+        ///
+        var averageHeartRate: Int = 0
         
+        ///
+        var maxHeartRate: Int = 0
+        
+        // TODO: - WYCIAGNIJ TE DANE Z HELHKIT
+        ///
+        var userAge: Int = 37
+        
+        ///
+        var userGender: Gender? = .male
     }
     
 }

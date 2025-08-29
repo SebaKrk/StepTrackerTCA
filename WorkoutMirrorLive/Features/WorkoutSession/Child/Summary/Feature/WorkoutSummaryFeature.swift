@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
-import HealthKit
+//import HealthKit
 
 nonisolated enum WorkoutSummaryFeatureCancelID: Hashable, Sendable {
     case sessionStateListener

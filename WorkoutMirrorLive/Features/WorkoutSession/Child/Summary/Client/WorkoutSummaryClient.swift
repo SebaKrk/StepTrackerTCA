@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import SharedModels
 import HealthHub
-import HealthKit
+//import HealthKit
 
 struct WorkoutSummaryClient {
     //var setShowingSummary: @Sendable (Bool) -> Void

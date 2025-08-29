@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import SharedModels
+import HealthKit
 
 @ViewAction(for: ControlsFeature.self)
 struct ControlsView: View {
@@ -68,12 +69,12 @@ struct ControlsView: View {
         //        .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.yellow)
         .font(.system(.largeTitle, design: .rounded).monospacedDigit().lowercaseSmallCaps())
-        //        .onAppear {
-        //            send(.updateElapsedTime(context.date))
-        //        }
-        //        .onChange(of: context.date) { _, newDate in
-        //            send(.updateElapsedTime(newDate))
-        //        }
+        .onAppear {
+            send(.updateElapsedTime(context.date))
+        }
+        .onChange(of: context.date) { _, newDate in
+            send(.updateElapsedTime(newDate))
+        }
     }
     
     @ViewBuilder
@@ -169,4 +170,3 @@ struct ControlsView: View {
                      reducer: { ControlsFeature() })
     )
 }
-

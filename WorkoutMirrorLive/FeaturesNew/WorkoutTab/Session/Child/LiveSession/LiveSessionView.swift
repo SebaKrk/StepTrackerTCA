@@ -19,13 +19,13 @@ struct LiveSessionView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 6) {
             Spacer()
             HStack {
                 secondaryMetricCard("avg hr",
-                                    data: 0)
+                                    data: store.averageHeartRate)
                 secondaryMetricCard("max hr",
-                                    data: 0)
+                                    data: store.maxHeartRate)
             }
             workoutMetricsCard
             Spacer()
@@ -47,20 +47,23 @@ struct LiveSessionView: View {
                 Spacer().frame(height: 10)
                 currentHeartRateZoneView
             }
-        .overlay(
-            RoundedRectangle(cornerRadius: 2)
-                .inset(by: -10)
-                .stroke(store.currentHeartRateZone.color.opacity(0.3),
-                        lineWidth: 1))
+            .overlay {
+                if store.currentHeartRateZone != .resting {
+                    RoundedRectangle(cornerRadius: 2)
+                        .inset(by: -10)
+                        .stroke(store.currentHeartRateZone.color.opacity(0.3),
+                                lineWidth: 1)
+                }
+            }
         }
     }
     
-    private func secondaryMetricCard(_ title: String, data: Double) -> some View {
+    private func secondaryMetricCard(_ title: String, data: Int) -> some View {
         GroupBox {
             VStack(spacing: 2) {
                 Text(title)
                     .textCase(.uppercase)
-                Text(data.formatted(.number.precision(.fractionLength(0))))
+                Text(data.formatted(.number))
                     .font(.largeTitle.bold())
             }
             .frame(maxWidth: .infinity)

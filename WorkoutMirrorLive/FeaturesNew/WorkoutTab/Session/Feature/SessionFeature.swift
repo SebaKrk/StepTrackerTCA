@@ -13,7 +13,8 @@ import SharedModels
 struct SessionFeature {
     
     // MARK: - Dependency
-    
+
+    @Dependency(\.sessionClient) var client
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -30,6 +31,7 @@ struct SessionFeature {
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { [workout = state.selectedWorkout] send in
+                    try await self.client.selectedWorkout(workout.hkType)
                     await send(.controls(.setWorkoutType(workout)))
                 }
                 
@@ -49,6 +51,22 @@ struct SessionFeature {
                 // MARK: - Child
             case .countDown(.closeView):
                 return .send(.sessionViewStateChange(.session))
+                
+//            case .controls(.mainControlButtonTapped):
+//                let currentState = state.controls.sessionState
+//                
+//                if currentState == .running {
+//                    print("🚫 Pausing workout")
+//                    return .run { send in
+//                        try await client.pauseWorkout()
+//                    }
+//                } else {
+//                    print("▶️ Resuming workout")
+//                    return .run { send in
+//                        try await client.resumeWorkout()
+//                    }
+//                }
+//                return .none
                 
             case .countDown(_):
                 return .none
@@ -78,7 +96,11 @@ extension SessionFeature {
     enum Action: ViewAction {
         
         // MARK: - Actions
+        ///
         case sessionViewStateChange(SessionState)
+        
+        // nie potrebuje tej akcji poniewaz Wokout type dostaje tym razem wczeniej i wysylam ja odrazu przy view didi appear dzieki czemu w managerze powino ustawic sie slected workout i odpalic preper
+        //case setWorkoutActivityType(WorkoutType)
         
         // MARK: - View Actions
         

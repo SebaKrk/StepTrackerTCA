@@ -27,7 +27,7 @@ private enum WorkoutMirroringClientKey: DependencyKey {
         @Dependency(\.trainingManager) var manager
         
         return WorkoutMirroringClient(
-            ź: {
+            workoutMetricsStream: {
                 manager.workoutMetricsStream
             },
             sessionState: {

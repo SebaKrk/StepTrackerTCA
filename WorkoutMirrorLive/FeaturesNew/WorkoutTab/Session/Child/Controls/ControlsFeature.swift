@@ -8,9 +8,14 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import HealthKit
 
 @Reducer
 struct ControlsFeature {
+    
+    // MARK: - Dependency
+    
+    @Dependency(\.sessionClient) var client
     
     // MARK: - Reducer
     var body: some Reducer<State, Action> {
@@ -31,9 +36,10 @@ struct ControlsFeature {
                 state.isExpanded = false
                 return .none
                 
-            case let .sessionStateChange(value):
+            case let .sessionStateUpdated(value):
                 state.sessionState = value
                 return .none
+                
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
@@ -50,23 +56,22 @@ struct ControlsFeature {
                 return .none
               
             case .view(.mainControlButtonTapped):
-                let newState: WorkoutSessionStateTest =
-                    state.sessionState == .running ? .paused : .running
-                return .send(.sessionStateChange(newState))
-//            case let .view(.pauseWorkoutButtonTaped(value)):
-//                return .run { send in
-//                    await send(.sessionStateChange(.paused))
-//                    print("wyslij do menagera: \(value)")
-//                }
-//                
-//            case let .view(.resumeWorkoutButtonTapped(value)):
-//                return .run { send in
-//                    await send(.sessionStateChange(.running))
-//                    print("wyslij do menagera: \(value)")
-//                }
+                //recznie zmien sessionStateUpdated
+                return .run { _ in
+                    await client.togglePause()
+                }
                 
             case .view(.endWorkoutButtonTapped):
-                print("endWorkoutButtonTapped")
+                return .run { _ in
+                    await client.endWorkout()
+                }
+                
+            case let .view(.updateElapsedTime(date)):
+                guard !state.isPaused else {
+                    state.elapsedTime = state.pausedElapsedTime
+                    return .none
+                }
+                state.elapsedTime = client.elapsedTimeAt(date)
                 return .none
             }
         }
@@ -86,7 +91,7 @@ extension ControlsFeature {
         case setWorkoutType(WorkoutType)
         
         ///
-        case sessionStateChange(WorkoutSessionStateTest)
+        case sessionStateUpdated(HKWorkoutSessionState)
         
         ///
         case expandContainer
@@ -117,6 +122,12 @@ extension ControlsFeature {
             
             ///
             case endWorkoutButtonTapped
+            
+            
+            /// Called periodically to update the elapsed workout time.
+            ///
+            /// - Parameter date: The current timestamp used to calculate elapsed time.
+            case updateElapsedTime(Date)
         }
     }
 }
@@ -133,10 +144,17 @@ extension ControlsFeature {
         var selectedWorkout: WorkoutType? = nil
         
         ///
-        var sessionState: WorkoutSessionStateTest = .running
+        //var sessionState: WorkoutSessionStateTest = .running
+        var sessionState: HKWorkoutSessionState = .notStarted
         
         ///
         var elapsedTime: TimeInterval = 0
+        
+        ///
+        var pausedElapsedTime: TimeInterval = 0
+        
+        ///
+        var isPaused: Bool = false
         
         ///
         var isExpanded = false
@@ -146,3 +164,17 @@ extension ControlsFeature {
     }
     
 }
+
+
+//            case let .view(.pauseWorkoutButtonTaped(value)):
+//                return .run { send in
+//                    await send(.sessionStateChange(.paused))
+//                    print("wyslij do menagera: \(value)")
+//                }
+//
+//            case let .view(.resumeWorkoutButtonTapped(value)):
+//                return .run { send in
+//                    await send(.sessionStateChange(.running))
+//                    print("wyslij do menagera: \(value)")
+//                }
+                

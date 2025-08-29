@@ -114,6 +114,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     }
     
     public func startWorkout() async {
+        print("Starting workout...3 - DefaultWorkoutManager")
         guard session != nil else {
             print("❌ No workout session prepared")
             return
@@ -145,6 +146,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
                 continuation.resume()
             }
         }
+              print("Workout started!")
     }
     
     internal func sendData(_ data: Data) async {
