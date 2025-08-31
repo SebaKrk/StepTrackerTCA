@@ -1,38 +1,39 @@
 //
-//  WorkoutSessionClient.swift
-//  WorkoutMirrorLive
+//  SessionClient.swift
+//  MyFitnessJournal
 //
-//  Created by Sebastian Sciuba on 12/08/2025.
+//  Created by Sebastian Sciuba on 28/08/2025.
 //
 
-import Foundation
 import ComposableArchitecture
+import Foundation
 import HealthKit
-import SharedModels
 import HealthHub
+import SharedModels
 
-struct WorkoutSessionClient {
+struct SessionClient {
     var selectedWorkout: @Sendable (HKWorkoutActivityType?) async throws -> Void
     var workoutMetricsStream: @Sendable () -> AsyncStream<WorkoutMetrics>
     var workoutSessionStateStream: @Sendable () -> AsyncStream<HKWorkoutSessionState>
     var elapsedTimeAt: (_ date: Date) -> TimeInterval
     var togglePause: @Sendable () async -> Void
+    var getWorkoutSummary: @Sendable () async -> WorkoutSummary
     var endWorkout: @Sendable () async -> Void
 }
 
 extension DependencyValues {
-    var workoutSessionClient: WorkoutSessionClient {
-        get { self[WorkoutSessionClientClientKey.self] }
-        set { self[WorkoutSessionClientClientKey.self] = newValue }
+    var sessionClient: SessionClient {
+        get { self[SessionClientClientKey.self] }
+        set { self[SessionClientClientKey.self] = newValue }
     }
 }
 
-private enum WorkoutSessionClientClientKey: DependencyKey {
-    static let liveValue: WorkoutSessionClient = {
+private enum SessionClientClientKey: DependencyKey {
+    static let liveValue: SessionClient = {
         
         @Dependency(\.workoutManager) var manager
-   
-        return WorkoutSessionClient { type in
+        
+        return SessionClient { type in
             manager.setSelectedWorkout(type)
         } workoutMetricsStream: {
             manager.workoutMetricsStream
@@ -42,6 +43,9 @@ private enum WorkoutSessionClientClientKey: DependencyKey {
             manager.builder?.elapsedTime(at: date) ?? 0
         } togglePause: {
             manager.togglePause()
+        } getWorkoutSummary: {
+            WorkoutSummary(workout: manager.getWorkout(),
+                           metrics: manager.getWorkoutMetrics())
         } endWorkout: {
             manager.endWorkout()
         }

@@ -7,7 +7,7 @@
 
 import HealthKit
 
-public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable {
+public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable {
     
     case strength
     case functional
@@ -31,6 +31,15 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable {
         case .functional:       return "figure.strengthtraining.functional"
         case .cross:            return "figure.cross.training"
         case .boxing:           return "figure.boxing"
+        }
+    }
+    
+    public var iconCircleFill: String {
+        switch self {
+        case .strength:   return "figure.strengthtraining.traditional.circle.fill"
+        case .functional: return "figure.strengthtraining.functional.circle.fill"
+        case .cross:      return "figure.cross.training.circle.fill"
+        case .boxing:     return "figure.boxing.circle.fill"
         }
     }
     

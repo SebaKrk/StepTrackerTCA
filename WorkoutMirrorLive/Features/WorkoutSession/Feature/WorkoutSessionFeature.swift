@@ -67,6 +67,8 @@ struct WorkoutSessionFeature {
                         await send(.setWorkoutActivityType(workout))
                         await send(.prepareWorkout)
                     }
+                } else {
+                    print("Bład: Nie ma zaznaczonej ćwiczenia")
                 }
                 return .none
                 
@@ -90,8 +92,7 @@ struct WorkoutSessionFeature {
                 
             case .summary(.view(.endWorkoutButtonTapped)):
                 return .none
-                
-                
+                   
             default:
                 return .none
             }
@@ -120,6 +121,7 @@ extension WorkoutSessionFeature {
         case binding(BindingAction<State>)
         
         // MARK: - Actions
+        ///
         case workoutViewStateChange(WorkoutSessionState)
         
         ///
@@ -131,6 +133,7 @@ extension WorkoutSessionFeature {
         ///
         case endingWorkout
         
+        ///
         case runningWorkout
 
         // MARK: - View Actions
@@ -188,4 +191,3 @@ extension WorkoutSessionFeature {
     }
     
 }
-

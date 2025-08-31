@@ -70,13 +70,14 @@ struct CountDownFeature {
                 return .send(.startWorkout)
                 
             case .startWorkout:
-                print("Starting workout...")
+                print("Starting workout...1 - CountDownFeature")
                 return .run { send in
-                    print("Closing view first...")
+                    print("Closing view first... - CountDownFeature")
                     await send(.closeView)
                     
+                    print("Starting workout...2 - CountDownFeature")
                     await client.startWorkout()
-                    print("Workout started!")
+                    
                 }
                 
             case .closeView:
