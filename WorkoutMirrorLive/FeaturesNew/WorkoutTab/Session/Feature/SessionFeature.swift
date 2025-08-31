@@ -42,10 +42,10 @@ struct SessionFeature {
                     await send(.controls(.setWorkoutType(workout)))
                 }
                 
-            case .view(.closeButtonTapped):
-                return .run { send in
-                    await self.dismiss()
-                }
+//            case .view(.closeButtonTapped):
+//                return .run { send in
+//                    await self.dismiss()
+//                }
                 
             case .view(.heartRateZoneButtonTapped):
                 state.destination = .openHeartRateZoneInfo(HeartRateZoneInfoFeature.State())
@@ -113,7 +113,7 @@ extension SessionFeature {
             case viewDidAppear
             
             ///
-            case closeButtonTapped
+            //case closeButtonTapped
             
             ///
             case heartRateZoneButtonTapped
