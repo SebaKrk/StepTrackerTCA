@@ -51,7 +51,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     )
     
     var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
-    var workoutSessionContinuation: AsyncStream<HKWorkoutSessionState>.Continuation
+    var workoutSessionContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
     
     // MARK: - Lifecycle
     
@@ -209,3 +209,4 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
         sessionState = .notStarted
     }
 }
+

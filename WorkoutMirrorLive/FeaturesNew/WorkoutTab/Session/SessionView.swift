@@ -95,13 +95,13 @@ struct SessionView: View {
     
     @ToolbarContentBuilder
     private var toolbarButtons: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                send(.closeButtonTapped)
-            } label: {
-                xMarkImage
-            }
-        }
+//        ToolbarItem(placement: .topBarLeading) {
+//            Button {
+//                send(.closeButtonTapped)
+//            } label: {
+//                xMarkImage
+//            }
+//        }
         if store.sessionState != .summary {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

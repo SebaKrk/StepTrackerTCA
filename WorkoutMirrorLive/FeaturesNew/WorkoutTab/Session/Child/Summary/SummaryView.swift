@@ -47,68 +47,62 @@ struct SummaryView: View {
     
     @ViewBuilder
     private var summaryView: some View {
-        VStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if let summary = store.summary, let workout = summary.workout {
-                        WorkoutInfoRow(
-                            title: "Typ aktywności",
-                            value: workout.workoutActivityType.name
-                        )
-                        WorkoutInfoRow(
-                            title: "Czas trwania",
-                            value: workout.duration.formattedDuration()
-                        )
-                        WorkoutInfoRow(
-                            title: "Data rozpoczęcia",
-                            value: workout.startDate.formatted(date: .abbreviated, time: .shortened)
-                        )
-                        WorkoutInfoRow(
-                            title: "Data zakończenia",
-                            value: workout.endDate.formatted(date: .abbreviated, time: .shortened)
-                        )
-                        WorkoutInfoRow(
-                            title: "Spalone kalorie",
-                            value: (
-                                workout.statistics(for: .init(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie())
-                            ).map {
-                                Measurement(value: $0, unit: UnitEnergy.kilocalories)
-                                    .formatted(.measurement(width: .abbreviated, usage: .workout))
-                            } ?? "--"
-                        )
-                        WorkoutInfoRow(
-                            title: "Źródło",
-                            value: workout.sourceRevision.source.name
-                        )
-                        WorkoutInfoRow(
-                            title: "Urządzenie",
-                            value: workout.device?.name ?? "--"
-                        )
-                        WorkoutInfoRow(
-                            title: "Średnie tętno",
-                            value: summary.metrics.averageHeartRate.formatted(.number.precision(.fractionLength(0)))
-                        )
-                        WorkoutInfoRow(
-                            title: "Aktualne tętno",
-                            value: summary.metrics.heartRate.formatted(.number.precision(.fractionLength(0)))
-                        )
-                        WorkoutInfoRow(
-                            title: "Spalone kalorie na podstawie metryk",
-                            value: Measurement(value: summary.metrics.activeEnergy, unit: UnitEnergy.kilocalories)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                if let summary = store.summary, let workout = summary.workout {
+                    WorkoutInfoRow(
+                        title: "Typ aktywności",
+                        value: workout.workoutActivityType.name
+                    )
+                    WorkoutInfoRow(
+                        title: "Czas trwania",
+                        value: workout.duration.formattedDuration()
+                    )
+                    WorkoutInfoRow(
+                        title: "Data rozpoczęcia",
+                        value: workout.startDate.formatted(date: .abbreviated, time: .shortened)
+                    )
+                    WorkoutInfoRow(
+                        title: "Data zakończenia",
+                        value: workout.endDate.formatted(date: .abbreviated, time: .shortened)
+                    )
+                    WorkoutInfoRow(
+                        title: "Spalone kalorie",
+                        value: (
+                            workout.statistics(for: .init(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie())
+                        ).map {
+                            Measurement(value: $0, unit: UnitEnergy.kilocalories)
                                 .formatted(.measurement(width: .abbreviated, usage: .workout))
-                        )
-                    } else {
-                        Text("Brak danych")
-                    }
+                        } ?? "--"
+                    )
+                    WorkoutInfoRow(
+                        title: "Źródło",
+                        value: workout.sourceRevision.source.name
+                    )
+                    WorkoutInfoRow(
+                        title: "Urządzenie",
+                        value: workout.device?.name ?? "--"
+                    )
+                    WorkoutInfoRow(
+                        title: "Średnie tętno",
+                        value: summary.metrics.averageHeartRate.formatted(.number.precision(.fractionLength(0)))
+                    )
+                    WorkoutInfoRow(
+                        title: "Aktualne tętno",
+                        value: summary.metrics.heartRate.formatted(.number.precision(.fractionLength(0)))
+                    )
+                    WorkoutInfoRow(
+                        title: "Spalone kalorie na podstawie metryk",
+                        value: Measurement(value: summary.metrics.activeEnergy, unit: UnitEnergy.kilocalories)
+                            .formatted(.measurement(width: .abbreviated, usage: .workout))
+                    )
                 }
-                .padding()
-                
             }
-            .scrollEdgeEffectStyle(.hard, for: .top)
-            .scrollEdgeEffectStyle(.soft, for: .bottom)
-        }
-        doneButton
             .padding()
+            doneButton
+        }
+        .scrollEdgeEffectStyle(.hard, for: .top)
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
     }
     
     private var doneButton: some View {
