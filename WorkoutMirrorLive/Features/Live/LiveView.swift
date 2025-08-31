@@ -41,10 +41,12 @@ struct LiveView: View {
                                                     action: \.destination.workoutCreatorView)) { store in
                     WorkoutCreatorView(store: store)
                 }
-                                                    .fullScreenCover(item: $store.scope(state: \.destination?.workoutMirroringView,
-                                                                                        action: \.destination.workoutMirroringView)) { store in
-                                                        WorkoutMirroringView(store: store)
-                                                    }
+                .fullScreenCover(
+                    item: $store.scope(state: \.destination?.workoutMirroringView,
+                                       action: \.destination.workoutMirroringView)) { store in
+                                           WorkoutMirroringView(store: store
+                                           )
+                                       }
         }
     }
     

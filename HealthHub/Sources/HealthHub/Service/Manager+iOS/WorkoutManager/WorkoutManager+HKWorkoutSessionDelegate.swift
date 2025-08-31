@@ -21,7 +21,8 @@ extension DefaultWorkoutManager: HKWorkoutSessionDelegate {
         print("💫 Session state changed from \(fromState.rawValue) to \(toState.rawValue)")
         Task { @MainActor in
             self.workoutSessionIsRunning = toState == .running
-            self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
+//            self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
+            self.workoutSessionContinuation?.yield(toState)
         }
         
         if toState == .stopped {

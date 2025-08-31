@@ -68,7 +68,7 @@ struct AppTabRootView: View {
 
 struct AppTabViewTest: View {
     
-    @State private var selectedTab: AppTab = .live
+    @State private var selectedTab: AppTabTEST = .live
     
     var body: some View {
         TabView(selection: $selectedTab) {

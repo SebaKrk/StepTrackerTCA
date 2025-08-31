@@ -48,16 +48,18 @@ public protocol WorkoutManager: Sendable {
     ///
     func startWorkout() async
     
-//    // MARK: - Streams
+    // MARK: - Streams
     
     /// A stream that emits live workout metrics, such as heart rate and calories burned.
     var workoutMetricsStream: AsyncStream<WorkoutMetrics> { get }
     
-    /// A stream that emits the running state of the workout session.
+    /// A stream that emits updates about the workout session's state.
     ///
-    /// Emits `true` if the workout is currently running, otherwise `false`.
-    func workoutSessionIsRunningStream() -> AsyncStream<Bool>
-    
+    /// This stream emits values of type `HKWorkoutSessionState` whenever the state of the
+    /// workout session changes (e.g., running, paused, ended).
+    ///
+    /// - Returns: An `AsyncStream` of `HKWorkoutSessionState` reflecting real-time state changes.
+    var workoutSessionStateStream: AsyncStream<HKWorkoutSessionState> { get }
     
     // MARK: - Workout Snapshot
     

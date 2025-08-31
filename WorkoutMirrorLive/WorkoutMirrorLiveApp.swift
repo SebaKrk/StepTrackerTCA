@@ -21,12 +21,25 @@ import SwiftUI
 //    }
 //}
 
+//@main
+//struct WorkoutMirrorLiveApp: App {
+//
+//    var body: some Scene {
+//        WindowGroup {
+//            AppTabViewTest()
+//        }
+//    }
+//}
+
 @main
 struct WorkoutMirrorLiveApp: App {
-
     var body: some Scene {
         WindowGroup {
-            AppTabViewTest()
+            AppTabNewView(
+                store: Store(initialState: AppTabNewFeature.State()) {
+                    AppTabNewFeature()
+                }
+            )
         }
     }
 }

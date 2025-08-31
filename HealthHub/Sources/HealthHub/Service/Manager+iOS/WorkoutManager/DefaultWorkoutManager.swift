@@ -51,7 +51,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     )
     
     var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
-    var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
+    var workoutSessionContinuation: AsyncStream<HKWorkoutSessionState>.Continuation
     
     // MARK: - Lifecycle
     
@@ -69,14 +69,13 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     public func setValueForSummaryView(_ value: Bool) {
         showingSummaryView = value
     }
-    
-    public func workoutSessionIsRunningStream() -> AsyncStream<Bool> {
+    public var workoutSessionStateStream: AsyncStream<HKWorkoutSessionState> {
         AsyncStream { continuation in
             self.workoutSessionContinuation = continuation
-            continuation.yield(self.workoutSessionIsRunning)
+            continuation.yield(self.sessionState)
         }
     }
-    
+        
     public var workoutMetricsStream: AsyncStream<WorkoutMetrics> {
         AsyncStream { continuation in
             self.workoutMetricsContinuation = continuation
@@ -114,6 +113,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     }
     
     public func startWorkout() async {
+        print("Starting workout...3 - DefaultWorkoutManager")
         guard session != nil else {
             print("❌ No workout session prepared")
             return
@@ -145,6 +145,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
                 continuation.resume()
             }
         }
+              print("Workout started!")
     }
     
     internal func sendData(_ data: Data) async {
