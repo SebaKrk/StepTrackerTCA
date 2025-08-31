@@ -47,7 +47,7 @@ struct SessionView: View {
         case .session:
             sessionView
         case .summary:
-            Text("summaryView")
+            summaryView
         }
     }
     
@@ -85,6 +85,14 @@ struct SessionView: View {
         )
     }
     
+    @ViewBuilder
+    private var summaryView: some View {
+        SummaryView(store: store.scope(
+            state: \.summary,
+            action: \.summary)
+        )
+    }
+    
     @ToolbarContentBuilder
     private var toolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -94,11 +102,13 @@ struct SessionView: View {
                 xMarkImage
             }
         }
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                send(.heartRateZoneButtonTapped)
-            } label: {
-                Image(systemName: "heart.text.clipboard")
+        if store.sessionState != .summary {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.heartRateZoneButtonTapped)
+                } label: {
+                    Image(systemName: "heart.text.clipboard")
+                }
             }
         }
     }

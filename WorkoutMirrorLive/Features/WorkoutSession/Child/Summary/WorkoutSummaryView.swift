@@ -210,3 +210,9 @@ struct SummaryMetricView: View {
         Divider()
     }
 }
+
+#Preview {
+    SummaryMetricView(title: "Czas",
+                      value: "12:34",
+                      .red)
+}

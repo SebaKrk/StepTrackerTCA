@@ -13,10 +13,9 @@ struct SessionCalculationsClient {
     var calculateMaxHeartRate: (_ age: Int, _ gender: Gender?) -> Int
     var calculateHeartRateZone: (_ current: Int, _ max: Int) -> HeartRateZone
     var calculateHeartRatePercentage: (_ current: Int, _ max: Int) -> Int
-    
-    // New
-    var calculateAverageHeartRate: (_ readings: [Int]) -> Int
-    var calculateMaxHeartRateFromReadings: (_ readings: [Int]) -> Int
+
+    var processHeartRate: (_ hr: Int) async -> (average: Int, max: Int)
+    var resetSession: () async -> Void
 }
 
 extension DependencyValues {
@@ -27,7 +26,29 @@ extension DependencyValues {
 }
 
 private enum SessionCalculationsClientKey: DependencyKey {
-    public static let liveValue: SessionCalculationsClient = {
+    static let liveValue: SessionCalculationsClient = {
+        actor SessionState {
+            var heartRateSum: Int = 0
+            var heartRateCount: Int = 0
+            var maxHeartRate: Int = 0
+
+            func process(_ hr: Int) -> (average: Int, max: Int) {
+                heartRateSum += hr
+                heartRateCount += 1
+                maxHeartRate = max(maxHeartRate, hr)
+                let average = heartRateCount > 0 ? heartRateSum / heartRateCount : 0
+                return (average, maxHeartRate)
+            }
+
+            func reset() {
+                heartRateSum = 0
+                heartRateCount = 0
+                maxHeartRate = 0
+            }
+        }
+
+        let sessionState = SessionState()
+
         return SessionCalculationsClient(
             calculateMaxHeartRate: { age, gender in
                 switch gender {
@@ -40,10 +61,10 @@ private enum SessionCalculationsClientKey: DependencyKey {
             calculateHeartRateZone: { current, max in
                 let percentage = Double(current) / Double(max)
                 switch percentage {
-                case 0.5...0.6: return .recovery
-                case 0.6...0.7: return .fatBurning
-                case 0.7...0.8: return .aerobic
-                case 0.8...0.9: return .threshold
+                case 0.5..<0.6: return .recovery
+                case 0.6..<0.7: return .fatBurning
+                case 0.7..<0.8: return .aerobic
+                case 0.8..<0.9: return .threshold
                 case 0.9...1.0: return .anaerobic
                 default: return .recovery
                 }
@@ -52,15 +73,12 @@ private enum SessionCalculationsClientKey: DependencyKey {
                 let percentage = Double(current) / Double(max) * 100
                 return Int(percentage)
             },
-            calculateAverageHeartRate: { readings in
-                guard !readings.isEmpty else { return 0 }
-                let sum = readings.reduce(0, +)
-                return sum / readings.count
+            processHeartRate: { hr in
+                await sessionState.process(hr)
             },
-            calculateMaxHeartRateFromReadings: { readings in
-                readings.max() ?? 0
+            resetSession: {
+                await sessionState.reset()
             }
         )
     }()
-    
 }

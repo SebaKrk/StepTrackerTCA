@@ -26,6 +26,13 @@ struct SessionFeature {
                 // MARK: - Action
             case let .sessionViewStateChange(value):
                 state.sessionState = value
+                if value == .session {
+                    return .run { send in
+                        for await state in self.client.workoutSessionStateStream() {
+                            await send(.controls(.sessionStateUpdated(state)))
+                        }
+                    }
+                }
                 return .none
 
                 // MARK: - View Action
@@ -52,27 +59,21 @@ struct SessionFeature {
             case .countDown(.closeView):
                 return .send(.sessionViewStateChange(.session))
                 
-//            case .controls(.mainControlButtonTapped):
-//                let currentState = state.controls.sessionState
-//                
-//                if currentState == .running {
-//                    print("🚫 Pausing workout")
-//                    return .run { send in
-//                        try await client.pauseWorkout()
-//                    }
-//                } else {
-//                    print("▶️ Resuming workout")
-//                    return .run { send in
-//                        try await client.resumeWorkout()
-//                    }
-//                }
-//                return .none
+            case .controls(.view(.endWorkoutButtonTapped)):
+                return .send(.sessionViewStateChange(.summary))
+                
+            case .summary(.view(.endWorkoutButtonTapped)):
+                return .run { send in
+                    await self.dismiss()
+                }
                 
             case .countDown(_):
                 return .none
             case .live(_):
                 return .none
             case .controls(_):
+                return .none
+            case .summary(_):
                 return .none
             }
         }
@@ -86,6 +87,9 @@ struct SessionFeature {
         Scope(state: \.controls, action: \.controls) {
             ControlsFeature()
         }
+        Scope(state: \.summary, action: \.summary) {
+            SummaryFeature()
+        }
     }
 }
 
@@ -98,9 +102,6 @@ extension SessionFeature {
         // MARK: - Actions
         ///
         case sessionViewStateChange(SessionState)
-        
-        // nie potrebuje tej akcji poniewaz Wokout type dostaje tym razem wczeniej i wysylam ja odrazu przy view didi appear dzieki czemu w managerze powino ustawic sie slected workout i odpalic preper
-        //case setWorkoutActivityType(WorkoutType)
         
         // MARK: - View Actions
         
@@ -135,6 +136,9 @@ extension SessionFeature {
         ///
         case controls(ControlsFeature.Action)
         
+        ///
+        case summary(SummaryFeature.Action)
+        
     }
 }
 
@@ -165,6 +169,9 @@ extension SessionFeature {
         
         ///
         var controls: ControlsFeature.State = .init()
+        
+        ///
+        var summary: SummaryFeature.State = .init()
     }
     
 }

@@ -23,15 +23,18 @@ struct LiveSessionView: View {
             Spacer()
             HStack {
                 secondaryMetricCard("avg hr",
-                                    data: store.averageHeartRate)
+                                    data: store.sessionAverageHeartRate)
                 secondaryMetricCard("max hr",
-                                    data: store.maxHeartRate)
+                                    data: store.sessionMaxHeartRate)
             }
             workoutMetricsCard
             Spacer()
         }
         .padding([.leading, .trailing], 8)
-        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
+            send(.viewDidAppear)
+        }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false}
     }
     

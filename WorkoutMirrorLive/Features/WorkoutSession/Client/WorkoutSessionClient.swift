@@ -14,7 +14,7 @@ import HealthHub
 struct WorkoutSessionClient {
     var selectedWorkout: @Sendable (HKWorkoutActivityType?) async throws -> Void
     var workoutMetricsStream: @Sendable () -> AsyncStream<WorkoutMetrics>
-    var workoutSessionIsRunningStream: @Sendable () -> AsyncStream<Bool>
+    var workoutSessionStateStream: @Sendable () -> AsyncStream<HKWorkoutSessionState>
     var elapsedTimeAt: (_ date: Date) -> TimeInterval
     var togglePause: @Sendable () async -> Void
     var endWorkout: @Sendable () async -> Void
@@ -36,8 +36,8 @@ private enum WorkoutSessionClientClientKey: DependencyKey {
             manager.setSelectedWorkout(type)
         } workoutMetricsStream: {
             manager.workoutMetricsStream
-        } workoutSessionIsRunningStream: {
-            manager.workoutSessionIsRunningStream()
+        } workoutSessionStateStream: {
+            manager.workoutSessionStateStream
         } elapsedTimeAt: { date in
             manager.builder?.elapsedTime(at: date) ?? 0
         } togglePause: {
