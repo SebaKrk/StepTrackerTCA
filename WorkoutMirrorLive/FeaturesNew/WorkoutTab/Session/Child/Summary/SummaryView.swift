@@ -99,10 +99,12 @@ struct SummaryView: View {
                 }
             }
             .padding()
-            doneButton
         }
-        .scrollEdgeEffectStyle(.hard, for: .top)
-        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaInset(edge: .bottom) {
+            doneButton
+                .padding(.horizontal)
+                .padding(.vertical, 16)
+        }
     }
     
     private var doneButton: some View {
