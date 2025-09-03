@@ -6,10 +6,10 @@
 //
 import CoreBluetooth
 
-extension DefaultCentralManager: CBPeripheralDelegate {
-    
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-          // Nie musisz nic robić - tylko utrzymujesz połączenie
-          print("📡 Services discovered for \(peripheral.name ?? "Unknown")")
-      }
-}
+//extension DefaultCentralManager: CBPeripheralDelegate {
+//    
+//    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+//          // Nie musisz nic robić - tylko utrzymujesz połączenie
+//          print("📡 Services discovered for \(peripheral.name ?? "Unknown")")
+//      }
+//}

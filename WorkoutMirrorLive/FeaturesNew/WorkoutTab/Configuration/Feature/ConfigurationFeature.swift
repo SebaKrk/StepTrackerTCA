@@ -16,6 +16,7 @@ struct ConfigurationFeature {
     
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.bluetoothClient) var client
     
     // MARK: - Reducer
     
@@ -58,7 +59,7 @@ struct ConfigurationFeature {
                         await self.dismiss()
                     }
                 }
-                
+            
             case .view(.startScanningBluetoothButtonTapped):
                 state.destination = .bluetoothFeature(BluetoothFeature.State())
                 return .none

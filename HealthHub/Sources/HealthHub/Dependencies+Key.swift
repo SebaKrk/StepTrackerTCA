@@ -8,7 +8,6 @@
 //  within the TCA Dependency System.
 //
 
-
 import ComposableArchitecture
 import HealthKit
 
@@ -111,11 +110,8 @@ public extension DependencyValues {
 
 /// A TCA dependency key for accessing the live implementation of the central manager.
 public enum CentralManagerKey: DependencyKey {
-    @MainActor
     public static let liveValue: CentralManager = {
-        
         let centralManager = DefaultCentralManager()
-         
         return centralManager
     }()
 }

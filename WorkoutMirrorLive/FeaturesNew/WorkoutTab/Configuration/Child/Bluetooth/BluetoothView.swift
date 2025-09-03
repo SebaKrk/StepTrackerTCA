@@ -9,23 +9,50 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 import SharedModels
+import CoreBluetooth
 
 @ViewAction(for: BluetoothFeature.self)
 struct BluetoothView: View {
     
     // MARK: - Properties
-    @Bindable var store: StoreOf<BluetoothFeature>
+    var store: StoreOf<BluetoothFeature>
     
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
-            Text("BluetoothFeature")
-                .toolbar {
-                    toolbarButtons
+            VStack {
+                Text("Scanning for devices...")
+                Spacer()
+                List(store.discoveredPeripherals, id: \.self) { peripheral in
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text(peripheral.name ?? "Unknown Device")
+                            Spacer()
+                            //Text("State: \(peripheral.state.rawValue)")
+                            Text("State: \(peripheral.state.rawValue)")
+                        }
+                        
+                        Text("ID: \(peripheral.identifier.uuidString)")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
                 }
+                Spacer()
+                Button {
+                    send(.stopScanningButtonTapped)
+                } label: {
+                    Text("Stop")
+                }
+            }
+            .toolbar {
+                toolbarButtons
+            }
+            .onAppear {
+                send(.viewDidAppear)
+            }
         }
-       
+        
     }
     
     @ToolbarContentBuilder
@@ -43,3 +70,4 @@ struct BluetoothView: View {
         Image(systemName: "xmark")
     }
 }
+
