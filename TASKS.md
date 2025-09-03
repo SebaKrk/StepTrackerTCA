@@ -436,4 +436,5 @@
     - sandbox 
     B: Sandbox
 ### IOS-00046 WorkoutTab
-    A: WorkoutTab - sandbox
+    A: Bluetooth - sandbox
+

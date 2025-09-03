@@ -107,3 +107,22 @@ public extension DependencyValues {
         set { self[HealthStoreKey.self] = newValue }
     }
 }
+
+
+/// A TCA dependency key for accessing the live implementation of the central manager.
+public enum CentralManagerKey: DependencyKey {
+    @MainActor
+    public static let liveValue: CentralManager = {
+        
+        let centralManager = DefaultCentralManager()
+         
+        return centralManager
+    }()
+}
+
+public extension DependencyValues {
+    var centralManager: CentralManager {
+        get { self[CentralManagerKey.self] }
+        set { self[CentralManagerKey.self] = newValue }
+    }
+}

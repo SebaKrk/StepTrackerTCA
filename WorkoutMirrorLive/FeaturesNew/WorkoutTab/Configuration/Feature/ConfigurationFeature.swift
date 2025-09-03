@@ -59,6 +59,10 @@ struct ConfigurationFeature {
                     }
                 }
                 
+            case .view(.startScanningBluetoothButtonTapped):
+                state.destination = .bluetoothFeature(BluetoothFeature.State())
+                return .none
+                
                 // MARK: - Child Action
             case .device(.select):
                 switch state.selectedDevice {
@@ -100,14 +104,19 @@ struct ConfigurationFeature {
             case .activity(_):
                 return .none
                 
+                // MARK: - Destination Action
+            case .destination(_):
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
         Scope(state: \.device, action: \.device) {
             DeviceFeature()
         }
         Scope(state: \.activity, action: \.activity) {
             ActivityPickerFeature()
         }
+        
     }
 }
 
@@ -156,6 +165,9 @@ extension ConfigurationFeature {
             
             ///
             case startButtonTapped
+            
+            ///
+            case startScanningBluetoothButtonTapped
         }
         
         // MARK: - Delegate Actions
@@ -168,6 +180,11 @@ extension ConfigurationFeature {
             case start(WorkoutType)
         }
         
+        // MARK: - Destination
+                
+        /// destination case for navigation
+        case destination(PresentationAction<Destination.Action>)
+        
         // MARK: - Child
         
         ///
@@ -175,6 +192,7 @@ extension ConfigurationFeature {
         
         ///
         case activity(ActivityPickerFeature.Action)
+
     }
 }
 
@@ -195,6 +213,11 @@ extension ConfigurationFeature {
         ///
         var selectedWorkout: WorkoutType? = nil
         
+        // MARK: - Destination
+        
+        /// destination from ConfigurationFeature
+        @Presents var destination: Destination.State?
+        
         // MARK: - Child
         
         ///
@@ -202,6 +225,19 @@ extension ConfigurationFeature {
         
         ///
         var activity: ActivityPickerFeature.State = .init()
+        
+    }
+    
+}
+
+/// Implementation of `ConfigurationFeature` destination
+extension ConfigurationFeature {
+    
+    @Reducer
+    enum Destination {
+        
+        /// Represents the destination for displaying in `BluetoothFeature`
+        case bluetoothFeature(BluetoothFeature)
     }
     
 }

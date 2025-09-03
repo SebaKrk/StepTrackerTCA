@@ -20,9 +20,9 @@ struct SessionView: View {
     var body: some View {
         NavigationStack {
             rootView
+//                .ignoresSafeArea()
 //                .ignoresSafeArea(.keyboard, edges: [.top])
                 .ignoresSafeArea(edges: .bottom)
-//                .ignoresSafeArea()
                 .navigationTitle(store.sessionState.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarTitleDisplayMode(.inline)

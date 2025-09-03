@@ -28,6 +28,14 @@ struct ConfigurationView: View {
                 .onAppear {
                     //send(.viewDidAppear)
                 }
+                .sheet(
+                    item: $store.scope(
+                        state: \.destination?.bluetoothFeature,
+                        action: \.destination.bluetoothFeature)
+                ) { store in
+                    BluetoothView(store: store)
+                        .presentationDetents([.medium, .large])
+                }
         }
     }
     
@@ -69,11 +77,49 @@ struct ConfigurationView: View {
             
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Text("Tu cos bedzie")
+                    bluetoothButtonStatus
                 } label: {
-                    menuInfoImage
+                    //menuInfoImage
+                    gearShapeImage
                 }
             }
+        }
+    }
+    
+    private var bluetoothButtonStatus: some View {
+        Button {
+            send(.startScanningBluetoothButtonTapped)
+        } label: {
+            tabLabel("Bluetooth", .ready, "antenna.radiowaves.left.and.right")
+        }
+    }
+    
+    private func tabLabel(_ title: String,
+                          _ status: BluetoothStatus,
+                          _ icon: String) -> some View {
+        Label {
+            Text("\(title) \(status.emoji) \(status.buttonText)")
+        } icon: {
+            Image(systemName: icon)
+        }
+    }
+    
+    private var bluetoothButton: some View {
+        Button {
+            openBluetoothSettings()
+        } label: {
+            Text("Bluetooth")
+        }
+    }
+    
+    //    Text("1. Otwórz Ustawienia\n2. Znajdź 'Bluetooth'\n3. Włącz przełącznik")
+    private func openBluetoothSettings() {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl)
         }
     }
     
@@ -129,6 +175,21 @@ struct ConfigurationView: View {
     
     private var menuInfoImage: some View {
         Image(systemName: "ellipsis")
+    }
+    
+    private var gearShapeImage: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Image(systemName: "gearshape")
+                .imageScale(.large)
+            Circle()
+                .fill(Color.red)
+                .frame(width: 10, height: 10)
+                .overlay(
+                    Text("!")
+                        .font(.system(size: 7, weight: .bold))
+                        .foregroundColor(.white)
+                )
+        }
     }
     
     private var deviceView: some View {
