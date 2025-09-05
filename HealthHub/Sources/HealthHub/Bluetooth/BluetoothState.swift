@@ -5,10 +5,10 @@
 //  Created by Sebastian Sciuba on 03/09/2025.
 //
 
-@preconcurrency
 import CoreBluetooth
 
-/// Actor który zarządza stanem Bluetooth - thread-safe z automatu
+/// Actor który zarządza wewnętrznym stanem Bluetooth - thread-safe z automatu
+@preconcurrency
 actor BluetoothState {
     
     /// Czy aktualnie skanujemy urządzenia
@@ -16,6 +16,11 @@ actor BluetoothState {
     
     /// Czy Bluetooth jest włączony i gotowy do użycia
     var isPoweredOn = false
+    
+    /// Aktualny status systemu Bluetooth (mapowany z CBManagerState)
+    var status: BluetoothStatus = .unknown
+    
+    var connectedPeripheral: CBPeripheral? = nil
     
     /// Thread-safe update skanowania
     func updateScanning(_ value: Bool) {
@@ -26,4 +31,17 @@ actor BluetoothState {
     func updatePowerState(_ value: Bool) {
         isPoweredOn = value
     }
+    
+    /// Thread-safe update statusu systemu
+    func updateStatus(_ newStatus: BluetoothStatus) {
+        status = newStatus
+        // Automatycznie aktualizuj isPoweredOn na podstawie statusu
+        isPoweredOn = (newStatus == .ready)
+    }
+        
+    func setConnectedPeripheral(_ peripheral: CBPeripheral?) {
+        connectedPeripheral = peripheral
+    }
 }
+
+

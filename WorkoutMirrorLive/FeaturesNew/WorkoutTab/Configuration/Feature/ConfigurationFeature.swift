@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import SharedModels
+import HealthHub
 
 @Reducer
 struct ConfigurationFeature {
@@ -29,9 +30,20 @@ struct ConfigurationFeature {
                 state.viewState = viewState
                 return .none
                 
+            case let .core(.bluetoothStatusChanged(status)):
+                state.bluetoothStatus = status
+                return .none
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .none
+                return .run { send in
+                    await client.initializeBluetooth()
+                    
+                    // Nasłuchuj zmian statusu
+                    for await status in await client.bluetoothStatusUpdates() {
+                        await send(.core(.bluetoothStatusChanged(status)))
+                    }
+                }
                 
             case .view(.closeButtonTapped):
                 return .run { send in
@@ -59,11 +71,26 @@ struct ConfigurationFeature {
                         await self.dismiss()
                     }
                 }
-            
-            case .view(.startScanningBluetoothButtonTapped):
-                state.destination = .bluetoothFeature(BluetoothFeature.State())
-                return .none
                 
+            case .view(.startScanningBluetoothButtonTapped):
+                // Sprawdź status przed otwarciem sheeta
+                switch state.bluetoothStatus {
+                case .ready:
+                    state.destination = .bluetoothFeature(BluetoothFeature.State())
+                case .disabled, .unauthorized:
+                    // Otwórz ustawienia zamiast sheeta
+                    return .run { _ in
+                        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                            await UIApplication.shared.open(settingsUrl)
+                        }
+                    }
+                case .unknown:
+                    break
+                default:
+                    break
+                }
+                
+                return .none
                 // MARK: - Child Action
             case .device(.select):
                 switch state.selectedDevice {
@@ -144,6 +171,9 @@ extension ConfigurationFeature {
             ///
             case changeViewState(SetupPhase)
             
+            ///
+            case bluetoothStatusChanged(BluetoothStatus)
+            
         }
         
         // MARK: - View Actions
@@ -207,6 +237,9 @@ extension ConfigurationFeature {
         
         ///
         var viewState: SetupPhase = .device
+        
+        ///
+        var bluetoothStatus: BluetoothStatus = .unknown
         
         ///
         var selectedDevice: DeviceOption? = nil

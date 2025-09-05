@@ -14,6 +14,10 @@ import HealthHub
 /// Zawiera funkcje które TCA może wywoływać jako Effects
 public struct BluetoothClient: Sendable {
     
+    /// NOWA FUNKCJA - Triggeruje inicjalizację Bluetooth (fire and forget)
+    /// Manager wyśle statusy przez bluetoothStatusUpdates stream
+    public var initializeBluetooth: @Sendable () async -> Void
+    
     /// Rozpoczyna skanowanie urządzeń BLE
     /// Zwraca Effect który może wysyłać Actions do TCA Feature
     public var startScanning: @Sendable () async throws -> Void
@@ -26,11 +30,30 @@ public struct BluetoothClient: Sendable {
     /// TCA Feature będzie tego używać żeby dostawać nowe urządzenia w real-time
     public var discoveredDevices: @Sendable () -> AsyncStream<CBPeripheral>
     
+    /// NOWY STREAM - Nasłuchuje zmian statusu Bluetooth jako AsyncStream
+    /// TCA Feature będzie tego używać żeby pokazać progress view i wiedzieć kiedy można skanować
+    public var bluetoothStatusUpdates: @Sendable () -> AsyncStream<BluetoothStatus>
+    
     /// Sprawdza czy Bluetooth jest włączony
     public var isPoweredOn: @Sendable () async -> Bool
     
     /// Sprawdza czy aktualnie skanuje
     public var isScanning: @Sendable () async -> Bool
+    
+    /// NOWA PROPERTY - Sprawdza aktualny status Bluetooth
+    public var currentStatus: @Sendable () async -> BluetoothStatus
+    
+    /// Połącz się z wybranym urządzeniem
+    public var connect: @Sendable (CBPeripheral) async throws -> Void
+    
+    /// Rozłącz aktualne połączenie
+    public var disconnect: @Sendable () async -> Void
+    
+    /// Stream zdarzeń połączenia
+    public var connectionEvents: @Sendable () -> AsyncStream<ConnectionEvent>
+    
+    /// Aktualnie połączone urządzenie
+    public var connectedPeripheral: @Sendable () async -> CBPeripheral?
 }
 
 // MARK: - Dependency Registration
@@ -48,6 +71,12 @@ public enum BluetoothClientKey: DependencyKey {
         print("📱 BluetoothClient: Creating with CentralManager")
         
         return BluetoothClient(
+            /// NOWA FUNKCJA - Inicjalizuje Bluetooth manager
+            initializeBluetooth: {
+                print("📱 BluetoothClient: Initializing Bluetooth...")
+                await centralManager.initializeBluetooth()
+            },
+            
             /// Funkcja startScanning - wywołuje centralManager.startScanning()
             startScanning: {
                 print("📱 BluetoothClient: Starting scan...")
@@ -66,6 +95,12 @@ public enum BluetoothClientKey: DependencyKey {
                 return centralManager.discoveredDevices
             },
             
+            /// NOWY STREAM - Funkcja bluetoothStatusUpdates - zwraca strumień statusów
+            bluetoothStatusUpdates: {
+                print("📱 BluetoothClient: Returning bluetooth status updates stream")
+                return centralManager.bluetoothStatusUpdates
+            },
+            
             /// Funkcja isPoweredOn - zwraca stan Bluetooth z centralManager
             isPoweredOn: {
                 return await centralManager.isPoweredOn
@@ -74,6 +109,31 @@ public enum BluetoothClientKey: DependencyKey {
             /// Funkcja isScanning - zwraca stan skanowania z centralManager
             isScanning: {
                 return await centralManager.isScanning
+            },
+            
+            /// NOWA PROPERTY - Funkcja currentStatus - zwraca aktualny status
+            currentStatus: {
+                return await centralManager.currentStatus
+            },
+            connect: { peripheral in
+                print("📱 BluetoothClient: Connecting to \(peripheral.name ?? "Unknown")...")
+                try await centralManager.connect(to: peripheral)
+            },
+            
+            /// Funkcja disconnect - rozłącza urządzenie
+            disconnect: {
+                print("📱 BluetoothClient: Disconnecting...")
+                await centralManager.disconnect()
+            },
+            
+            /// Stream zdarzeń połączenia
+            connectionEvents: {
+                print("📱 BluetoothClient: Returning connection events stream")
+                return centralManager.connectionEvents
+            },
+            /// Aktualnie połączone urządzenie
+            connectedPeripheral: {
+                return await centralManager.connectedPeripheral
             }
         )
     }()

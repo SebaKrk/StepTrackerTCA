@@ -14,15 +14,14 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
     /// DELEGATE METHOD - System wywołuje tę funkcję gdy zmieni się stan Bluetooth
     /// Np. gdy user włączy/wyłączy Bluetooth w ustawieniach
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        
-        print("🔵 DELEGATE CALLED! State: \(central.state), isOn: \(isOn)")  
         /// Wyciągnij wartość state lokalnie (poza Task) żeby uniknąć data races
-        let isOn = central.state == .poweredOn
+        let cbState = central.state
         
-        /// Thread-safe update przez Actor (bez await - fire and forget)
+        print("🔵 DELEGATE CALLED! CBManagerState: \(cbState)")
+        
+        /// Thread-safe update przez Actor + wyślij przez stream (fire and forget)
         Task { [weak self] in
-            await self?.state.updatePowerState(isOn)
-            print("🔵 Bluetooth state changed: \(isOn ? "ON" : "OFF")")
+            await self?.updateStatusFromCBState(cbState)
         }
     }
     
@@ -46,5 +45,24 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
         /// Tworzymy lokalną kopię żeby uniknąć concurrent access issues
         /// CBPeripheral nie jest Sendable, ale AsyncStream radzi sobie z tym
         deviceContinuation.yield(peripheral)
+    }
+     
+    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        print("✅ Connected to: \(peripheral.name ?? "Unknown")")
+        connectionContinuation.yield(.connected(peripheral))
+    }
+    
+    /// DELEGATE METHOD - Wywoływane gdy nie uda się połączyć z urządzeniem
+    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        print("❌ Failed to connect to: \(peripheral.name ?? "Unknown"), error: \(error?.localizedDescription ?? "Unknown")")
+        Task { await state.setConnectedPeripheral(nil) }
+        connectionContinuation.yield(.failedToConnect(peripheral, error: error?.localizedDescription))
+    }
+    
+    /// DELEGATE METHOD - Wywoływane gdy urządzenie się rozłączy
+    public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        print("🔌 Disconnected from: \(peripheral.name ?? "Unknown")")
+        Task { await state.setConnectedPeripheral(nil) }
+        connectionContinuation.yield(.disconnected(peripheral, error: error?.localizedDescription))
     }
 }

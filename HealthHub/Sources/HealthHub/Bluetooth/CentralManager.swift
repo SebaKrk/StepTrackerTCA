@@ -20,6 +20,12 @@ public protocol CentralManager: Sendable {
     /// Czy aktualnie skanuje urządzenia
     var isScanning: Bool { get async }
     
+    /// Aktualny status systemu Bluetooth
+    var currentStatus: BluetoothStatus { get async }
+    
+    /// Aktualnie połączone urządzenie
+    var connectedPeripheral: CBPeripheral? { get async }
+    
     // MARK: - Async Methods (nowoczesne API)
     
     /// Rozpocznij skanowanie urządzeń BLE
@@ -30,12 +36,31 @@ public protocol CentralManager: Sendable {
     /// async = może trwać chwilę ale zawsze się uda
     func stopScanning() async
     
+    /// Triggeruje inicjalizację managera (fire and forget)
+    /// Manager sam wyśle aktualizacje stanu przez bluetoothStatusUpdates
+    func initializeBluetooth() async
+    
+    /// Połącz się z wybranym urządzeniem
+    func connect(to peripheral: CBPeripheral) async throws
+    
+    /// Rozłącz aktualne połączenie
+    func disconnect() async
+    
     // MARK: - Event Streams (komunikacja z TCA)
     
     /// Strumień znalezionych urządzeń podczas skanowania
     /// AsyncStream = jak nieskończona tablica którą można nasłuchiwać
     /// TCA będzie nasłuchiwać tego strumienia i dostawać każde nowe urządzenie
     var discoveredDevices: AsyncStream<CBPeripheral> { get }
+    
+    /// Strumień zmian statusu Bluetooth
+    /// TCA będzie nasłuchiwać tego strumienia żeby pokazać progress view
+    /// i wiedzieć kiedy można zacząć skanowanie
+    var bluetoothStatusUpdates: AsyncStream<BluetoothStatus> { get }
+    
+    
+    /// Nowy stream dla zdarzeń połączenia
+    var connectionEvents: AsyncStream<ConnectionEvent> { get }
 }
 
 

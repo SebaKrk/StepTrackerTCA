@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import HealthHub
 
 @ViewAction(for: ConfigurationFeature.self)
 struct ConfigurationView: View {
@@ -26,7 +27,7 @@ struct ConfigurationView: View {
                     toolbarButtons
                 }
                 .onAppear {
-                    //send(.viewDidAppear)
+                    send(.viewDidAppear)
                 }
                 .sheet(
                     item: $store.scope(
@@ -90,7 +91,7 @@ struct ConfigurationView: View {
         Button {
             send(.startScanningBluetoothButtonTapped)
         } label: {
-            tabLabel("Bluetooth", .ready, "antenna.radiowaves.left.and.right")
+            tabLabel("Bluetooth", store.bluetoothStatus, "bluetooth")
         }
     }
     
@@ -100,28 +101,29 @@ struct ConfigurationView: View {
         Label {
             Text("\(title) \(status.emoji) \(status.buttonText)")
         } icon: {
-            Image(systemName: icon)
+            Image("bluetooth")
+                .tint(.white)
         }
     }
     
-    private var bluetoothButton: some View {
-        Button {
-            openBluetoothSettings()
-        } label: {
-            Text("Bluetooth")
-        }
-    }
-    
-    //    Text("1. Otwórz Ustawienia\n2. Znajdź 'Bluetooth'\n3. Włącz przełącznik")
-    private func openBluetoothSettings() {
-        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-            return
-        }
-        
-        if UIApplication.shared.canOpenURL(settingsUrl) {
-            UIApplication.shared.open(settingsUrl)
-        }
-    }
+//    private var bluetoothButton: some View {
+//        Button {
+//            openBluetoothSettings()
+//        } label: {
+//            Text("Bluetooth")
+//        }
+//    }
+//    
+//    //    Text("1. Otwórz Ustawienia\n2. Znajdź 'Bluetooth'\n3. Włącz przełącznik")
+//    private func openBluetoothSettings() {
+//        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+//            return
+//        }
+//        
+//        if UIApplication.shared.canOpenURL(settingsUrl) {
+//            UIApplication.shared.open(settingsUrl)
+//        }
+//    }
     
     private var activityToolBar: some ToolbarContent {
         Group {
