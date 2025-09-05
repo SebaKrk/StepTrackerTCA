@@ -31,7 +31,7 @@ struct BluetoothFeature {
                 /// Rozpoczynamy nasłuchiwanie znalezionych urządzeń
                 print("scanningStarted")
                 return .run { send in
-                    for await device in client.discoveredDevices() {
+                    for await device in await client.discoveredDevices() {
                         await send(.deviceDiscovered(device))
                     }
                 }

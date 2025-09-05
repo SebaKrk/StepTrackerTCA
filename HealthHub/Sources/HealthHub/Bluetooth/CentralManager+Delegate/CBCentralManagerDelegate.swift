@@ -14,6 +14,8 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
     /// DELEGATE METHOD - System wywołuje tę funkcję gdy zmieni się stan Bluetooth
     /// Np. gdy user włączy/wyłączy Bluetooth w ustawieniach
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        
+        print("🔵 DELEGATE CALLED! State: \(central.state), isOn: \(isOn)")  
         /// Wyciągnij wartość state lokalnie (poza Task) żeby uniknąć data races
         let isOn = central.state == .poweredOn
         
