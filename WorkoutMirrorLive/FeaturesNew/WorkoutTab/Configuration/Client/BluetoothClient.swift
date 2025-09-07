@@ -14,24 +14,22 @@ import HealthHub
 /// Zawiera funkcje które TCA może wywoływać jako Effects
 public struct BluetoothClient: Sendable {
     
-    /// NOWA FUNKCJA - Triggeruje inicjalizację Bluetooth (fire and forget)
-    /// Manager wyśle statusy przez bluetoothStatusUpdates stream
+    /// Triggeruje inicjalizację Bluetooth managera
     public var initializeBluetooth: @Sendable () async -> Void
     
+    /// Pobiera aktualny status Bluetooth na żądanie (bez streamowania)
+    public var getCurrentStatus: @Sendable () async -> BluetoothStatus
+    
     /// Rozpoczyna skanowanie urządzeń BLE
-    /// Zwraca Effect który może wysyłać Actions do TCA Feature
     public var startScanning: @Sendable () async throws -> Void
     
     /// Zatrzymuje skanowanie urządzeń BLE
-    /// Zwraca Effect który może wysyłać Actions do TCA Feature
     public var stopScanning: @Sendable () async -> Void
     
     /// Nasłuchuje znalezionych urządzeń jako AsyncStream
-    /// TCA Feature będzie tego używać żeby dostawać nowe urządzenia w real-time
     public var discoveredDevices: @Sendable () -> AsyncStream<CBPeripheral>
     
-    /// NOWY STREAM - Nasłuchuje zmian statusu Bluetooth jako AsyncStream
-    /// TCA Feature będzie tego używać żeby pokazać progress view i wiedzieć kiedy można skanować
+    /// Nasłuchuje zmian statusu Bluetooth jako AsyncStream
     public var bluetoothStatusUpdates: @Sendable () -> AsyncStream<BluetoothStatus>
     
     /// Sprawdza czy Bluetooth jest włączony
@@ -40,13 +38,10 @@ public struct BluetoothClient: Sendable {
     /// Sprawdza czy aktualnie skanuje
     public var isScanning: @Sendable () async -> Bool
     
-    /// NOWA PROPERTY - Sprawdza aktualny status Bluetooth
-    public var currentStatus: @Sendable () async -> BluetoothStatus
-    
-    /// Połącz się z wybranym urządzeniem
+    /// Łączy się z wybranym urządzeniem
     public var connect: @Sendable (CBPeripheral) async throws -> Void
     
-    /// Rozłącz aktualne połączenie
+    /// Rozłącza aktualne połączenie
     public var disconnect: @Sendable () async -> Void
     
     /// Stream zdarzeń połączenia
@@ -65,73 +60,75 @@ public enum BluetoothClientKey: DependencyKey {
     public static let liveValue: BluetoothClient = {
         
         /// Pobieramy CentralManager z TCA dependencies
-        /// To będzie nasz DefaultCentralManager
         @Dependency(\.centralManager) var centralManager
         
         print("📱 BluetoothClient: Creating with CentralManager")
         
         return BluetoothClient(
-            /// NOWA FUNKCJA - Inicjalizuje Bluetooth manager
+            /// Inicjalizuje Bluetooth manager
             initializeBluetooth: {
                 print("📱 BluetoothClient: Initializing Bluetooth...")
                 await centralManager.initializeBluetooth()
             },
             
-            /// Funkcja startScanning - wywołuje centralManager.startScanning()
+            /// Pobiera aktualny status na żądanie
+            getCurrentStatus: {
+                return await centralManager.currentStatus
+            },
+            
+            /// Rozpoczyna skanowanie
             startScanning: {
                 print("📱 BluetoothClient: Starting scan...")
                 try await centralManager.startScanning()
             },
             
-            /// Funkcja stopScanning - wywołuje centralManager.stopScanning()
+            /// Zatrzymuje skanowanie
             stopScanning: {
                 print("📱 BluetoothClient: Stopping scan...")
                 await centralManager.stopScanning()
             },
             
-            /// Funkcja discoveredDevices - zwraca strumień z centralManager
+            /// Zwraca strumień znalezionych urządzeń
             discoveredDevices: {
                 print("📱 BluetoothClient: Returning discovered devices stream")
                 return centralManager.discoveredDevices
             },
             
-            /// NOWY STREAM - Funkcja bluetoothStatusUpdates - zwraca strumień statusów
+            /// Zwraca strumień statusów Bluetooth
             bluetoothStatusUpdates: {
                 print("📱 BluetoothClient: Returning bluetooth status updates stream")
                 return centralManager.bluetoothStatusUpdates
             },
             
-            /// Funkcja isPoweredOn - zwraca stan Bluetooth z centralManager
+            /// Sprawdza czy Bluetooth włączony
             isPoweredOn: {
                 return await centralManager.isPoweredOn
             },
             
-            /// Funkcja isScanning - zwraca stan skanowania z centralManager
+            /// Sprawdza czy skanuje
             isScanning: {
                 return await centralManager.isScanning
             },
             
-            /// NOWA PROPERTY - Funkcja currentStatus - zwraca aktualny status
-            currentStatus: {
-                return await centralManager.currentStatus
-            },
+            /// Łączy z urządzeniem
             connect: { peripheral in
                 print("📱 BluetoothClient: Connecting to \(peripheral.name ?? "Unknown")...")
                 try await centralManager.connect(to: peripheral)
             },
             
-            /// Funkcja disconnect - rozłącza urządzenie
+            /// Rozłącza urządzenie
             disconnect: {
                 print("📱 BluetoothClient: Disconnecting...")
                 await centralManager.disconnect()
             },
             
-            /// Stream zdarzeń połączenia
+            /// Zwraca strumień zdarzeń połączenia
             connectionEvents: {
                 print("📱 BluetoothClient: Returning connection events stream")
                 return centralManager.connectionEvents
             },
-            /// Aktualnie połączone urządzenie
+            
+            /// Zwraca aktualnie połączone urządzenie
             connectedPeripheral: {
                 return await centralManager.connectedPeripheral
             }

@@ -23,14 +23,13 @@ struct BluetoothView: View {
     var body: some View {
         NavigationStack {
             rootView
-            .toolbar {
-                toolbarButtons
-            }
-            .onAppear {
-                send(.viewDidAppear)
-            }
+                .toolbar {
+                    toolbarButtons
+                }
+                .onAppear {
+                    send(.viewDidAppear)
+                }
         }
-        
     }
     
     @ToolbarContentBuilder
@@ -50,112 +49,177 @@ struct BluetoothView: View {
         case .ready:
             devicesListView
         case .disconnected:
-            Text("disconnected")
+            Text("Disconnected")
         case .unauthorized:
-            Text("unauthorized")
+            Text("Unauthorized - Open Settings")
         case .disabled:
-            Text("disabled")
+            Text("Bluetooth Disabled")
         case .unsupported:
-            Text("unsupported")
-            case .unknown:
-                loadingView
+            Text("Bluetooth Unsupported")
+        case .unknown:
+            loadingView
         }
     }
     
     @ViewBuilder
     private var devicesListView: some View {
-        if store.discoveredPeripherals.isEmpty {
+        VStack {
+            // Sekcja połączonych urządzeń
+            if let connectedDevice = store.connectedDevice {
+                connectedDevicesSection(connectedDevice)
+            } else {
+                Text("Brak polaczonch urzadzen")
+            }
+            
+            // Sekcja dostępnych urządzeń
+            availableDevicesSection
+            
+            // Przycisk skanowania na dole
+            scanningButton
+                .padding()
+        }
+    }
+    
+    /// Sekcja pokazująca połączone urządzenie
+    private func connectedDevicesSection(_ device: CBPeripheral) -> some View {
+        VStack(alignment: .leading) {
+            Text("Connected Device")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            deviceCell(device, isConnected: true)
+                .padding(.horizontal)
+            
+            Divider()
+        }
+    }
+    
+    /// Sekcja pokazująca dostępne urządzenia
+    @ViewBuilder
+    private var availableDevicesSection: some View {
+        if store.availableDevices.isEmpty {
             if store.isScanning {
                 scanningView
             } else {
-                VStack {
-                    Spacer()
-                    Text("No device detected.")
-                    Spacer()
-                    scanningButton
-                }
+                emptyDevicesView
             }
         } else {
-            VStack {
-                List(store.discoveredPeripherals, id: \.self) { peripheral in
-                    deviceCell(peripheral)
+            VStack(alignment: .leading) {
+                Text("Available Devices")
+                    .font(.headline)
+                    .padding(.horizontal)
+                
+                List(store.availableDevices, id: \.self) { peripheral in
+                    deviceCell(peripheral, isConnected: false)
                 }
-                scanningButton
+                .listStyle(PlainListStyle())
             }
         }
     }
     
-    private func deviceCell(_ peripheral: CBPeripheral) -> some View {
-        VStack(alignment: .leading) {
+    /// Komórka urządzenia - różna dla połączonych i dostępnych
+    private func deviceCell(_ peripheral: CBPeripheral, isConnected: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(peripheral.name ?? "Unknown Device")
+                VStack(alignment: .leading) {
+                    Text(peripheral.name ?? "Unknown Device")
+                        .font(.body)
+                        .fontWeight(isConnected ? .semibold : .regular)
+                    
+                    Text("ID: \(peripheral.identifier.uuidString.prefix(8))...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
                 Spacer()
-                Text("State: \(peripheral.state.rawValue)")
+                
+                if isConnected {
+                    Text("CONNECTED")
+                        .font(.caption)
+                        .foregroundColor(.green)
+                        .fontWeight(.semibold)
+                } else {
+                    Text("TAP TO CONNECT")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                }
             }
             
-            Text("ID: \(peripheral.identifier.uuidString)")
-                .font(.footnote)
-                .foregroundColor(.secondary)
+            if isConnected && !store.connectionStatus.isEmpty {
+                Text(store.connectionStatus)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
+        .padding(.vertical, 4)
         .onTapGesture {
-            send(.deviceTapped(peripheral)) 
+            if !isConnected {
+                send(.deviceTapped(peripheral))
+            }
         }
     }
-  
+    
+    /// Przycisk start/stop skanowania
     private var scanningButton: some View {
         Button {
             send(.scanningButtonTapped)
         } label: {
-            Text(store.isScanning ? "Stop scanning" : "Start scanning")
+            Text(store.isScanning ? "Stop Scanning" : "Start Scanning")
+                .foregroundColor(.white)
+                .fontWeight(.semibold)
         }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(store.isScanning ? Color.red : Color.blue)
+        .cornerRadius(10)
     }
     
+    /// Widok podczas skanowania
     private var scanningView: some View {
-        VStack {
-            Spacer()
-            ProgressView("Scanning...")
-            Spacer()
-            scanningButton
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.2)
+            
+            Text("Scanning for devices...")
+                .font(.body)
+                .foregroundColor(.secondary)
         }
-        .transition(.opacity)
+        .frame(maxWidth: .infinity, minHeight: 100)
     }
     
-    private var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView("Inicjalizuję Bluetooth...")
-            Spacer()
+    /// Widok gdy brak urządzeń
+    private var emptyDevicesView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "antenna.radiowaves.left.and.right")
+                .font(.system(size: 40))
+                .foregroundColor(.secondary)
+            
+            Text("No devices found")
+                .font(.body)
+                .foregroundColor(.secondary)
+            
+            Text("Tap 'Start Scanning' to search for heart rate monitors")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
         }
-        .transition(.opacity)
+        .frame(maxWidth: .infinity, minHeight: 150)
+    }
+    
+    /// Widok ładowania
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.2)
+            
+            Text("Initializing Bluetooth...")
+                .font(.body)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var xMarkImage: some View {
         Image(systemName: "xmark")
     }
 }
-
-//
-//VStack {
-//    Text("Scanning for devices...")
-//    Spacer()
-//    List(store.discoveredPeripherals, id: \.self) { peripheral in
-//        VStack(alignment: .leading) {
-//            HStack {
-//                Text(peripheral.name ?? "Unknown Device")
-//                Spacer()
-//                //Text("State: \(peripheral.state.rawValue)")
-//                Text("State: \(peripheral.state.rawValue)")
-//            }
-//            
-//            Text("ID: \(peripheral.identifier.uuidString)")
-//                .font(.footnote)
-//                .foregroundColor(.secondary)
-//        }
-//    }
-//    Spacer()
-//    Button {
-//        send(.stopScanningButtonTapped)
-//    } label: {
-//        Text("Stop")
-//    }
-//}

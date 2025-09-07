@@ -13,239 +13,282 @@ import HealthHub
 
 @Reducer
 struct BluetoothFeature {
-    
-    // MARK: - Dependency
-    
-    @Dependency(\.dismiss) var dismiss
-    
-    @Dependency(\.bluetoothClient) var client
-    
-    // MARK: - Reducer
-    
-    var body: some Reducer<State, Action> {
-        Reduce<State, Action> { state, action in
-            switch action {
-                
-                // MARK: - Action
-            case let .bluetoothStatusChanged(status):
-                // Aktualizuj stan Feature
-                state.bluetoothStatus = status
-                
-                // Reaguj na konkretne zmiany
-                switch status {
-                case .ready:
-                    // Bluetooth gotowy - można automatycznie startować scan
-                    if !state.isScanning {
-                        return .run { send in
-                            try await client.startScanning()
-                            await send(.scanningStarted)
-                        }
-                    }
-                    
-                case .disabled:
-                    // Bluetooth wyłączony - zatrzymaj skanowanie jeśli trwa
-                    if state.isScanning {
-                        state.isScanning = false
-                        state.discoveredPeripherals.removeAll()
-                        return .run { send in
-                            await client.stopScanning()
-                        }
-                    }
-                    
-                case .unauthorized:
-                    // Brak uprawnień - zatrzymaj skanowanie i wyczyść listę
-                    state.isScanning = false
-                    state.discoveredPeripherals.removeAll()
-                    
-                case .unknown, .unsupported, .disconnected:
-                    // Stany przejściowe lub błędy
-                    break
-                }
-                
-                return .none
-                
-                
-            case .scanningStarted:
-                state.isScanning = true
-                /// Rozpoczynamy nasłuchiwanie znalezionych urządzeń
-                print("scanningStarted")
-                return .run { send in
-                    for await device in await client.discoveredDevices() {
-                        await send(.deviceDiscovered(device))
-                    }
-                }
-                
-            case .scanningStopped:
-                state.isScanning = false
-                print("⏹️ Scanning stopped")
-                return .none
-                
-//            case let .deviceDiscovered(peripheral):
-//                /// Dodajemy urządzenie do listy jeśli jeszcze go nie ma
-//                if !state.discoveredPeripherals.contains(where: { $0.identifier == peripheral.identifier }) {
-//                    state.discoveredPeripherals.append(peripheral)
-//                    print("📡 BluetoothFeature: Discovered NEW device: \(peripheral.name ?? "Unknown")")
-//                }
-//                return .none
-                
-            case let .deviceDiscovered(peripheral):
-                // Zawsze aktualizuj listę - pokaż wszystkie urządzenia
-                if let existingIndex = state.discoveredPeripherals.firstIndex(where: { $0.identifier == peripheral.identifier }) {
-                    // Zaktualizuj istniejące urządzenie (może mieć nowy stan połączenia)
-                    state.discoveredPeripherals[existingIndex] = peripheral
-                    print("🔄 Updated device: \(peripheral.name ?? "Unknown"), state: \(peripheral.state.rawValue)")
-                } else {
-                    // Dodaj nowe urządzenie
-                    state.discoveredPeripherals.append(peripheral)
-                    print("📡 New device: \(peripheral.name ?? "Unknown"), state: \(peripheral.state.rawValue)")
-                }
-                return .none
-                
-            case .connectionEventReceived(let event):
-                switch event {
-                case .connecting(let peripheral):
-                    state.connectionStatus = "Connecting to \(peripheral.name ?? "Unknown")..."
-                    print(state.connectionStatus)
-                    
-                case .connected(let peripheral):
-                    state.connectedDevice = peripheral
-                    state.connectionStatus = "Connected to \(peripheral.name ?? "Unknown")"
-                    print(state.connectionStatus)
-                    
-                case .disconnected(let peripheral, let error):
-                    state.connectedDevice = nil
-                    let errorMsg = error != nil ? " (\(error!))" : ""
-                    state.connectionStatus = "Disconnected from \(peripheral.name ?? "Unknown")\(errorMsg)"
-                    print(state.connectionStatus)
-                    
-                case .failedToConnect(let peripheral, let error):
-                    state.connectedDevice = nil
-                    let errorMsg = error ?? "Unknown error"
-                    state.connectionStatus = "Failed to connect to \(peripheral.name ?? "Unknown"): \(errorMsg)"
-                    print(state.connectionStatus)
-                    
-                }
-                return .none
-                
-                // MARK: - View Action
-                
-            case .view(.viewDidAppear):
-                // Startuj nasłuchiwanie statusu Bluetooth
-                return .run { send in
-                    // 1. Inicjalizuj Bluetooth manager
-                    //await client.initializeBluetooth()
-                    let currentStatus = await client.currentStatus()
-                    await send(.bluetoothStatusChanged(currentStatus))
-                    
-                    // 2. NASŁUCHUJ ZMIAN przez AsyncStream - nieskończona pętla!
-                    for await status in await client.bluetoothStatusUpdates() {
-                        await send(.bluetoothStatusChanged(status))
-                    }
-                }
-                
-            case .view(.closeButtonTapped):
-                return .run { send in
-                    await client.stopScanning()
-                    await send(.scanningStopped)
-                    await self.dismiss()
-                }
-                
-            case .view(.scanningButtonTapped):
-                if state.isScanning {
-                    // Zatrzymaj skanowanie
-                    return .run { send in
-                        await client.stopScanning()
-                        await send(.scanningStopped)
-                    }
-                } else {
-                    // Rozpocznij skanowanie (tylko jeśli Bluetooth gotowy)
-                    guard state.bluetoothStatus == .ready else {
-                        return .none
-                    }
-                    return .run { send in
-                        try await client.startScanning()
-                        await send(.scanningStarted)
-                    }
-                }
-                
-            case .view(.deviceTapped(let peripheral)):
-                state.connectionStatus = "Connecting to \(peripheral.name ?? "Unknown")..."
-                return .run { send in
-                    try await client.connect(peripheral)
-                    
-                    // Nasłuchuj zdarzeń połączenia
-                    for await event in await client.connectionEvents() {
-                        await send(.connectionEventReceived(event))
-                    }
-                }
-            }
-        }
-    }
+   
+   // MARK: - Dependency
+   
+   @Dependency(\.dismiss) var dismiss
+   @Dependency(\.bluetoothClient) var client
+   
+   // MARK: - Reducer
+   
+   var body: some Reducer<State, Action> {
+       Reduce<State, Action> { state, action in
+           switch action {
+               
+               // MARK: - Status Actions
+           case let .bluetoothStatusChanged(status):
+               state.bluetoothStatus = status
+               
+               // Reaguj na zmiany statusu
+               switch status {
+               case .ready:
+                   // Bluetooth gotowy - można automatycznie startować scan
+                   if !state.isScanning {
+                       return .run { send in
+                           try await client.startScanning()
+                           await send(.scanningStarted)
+                       }
+                   }
+                   
+               case .disabled:
+                   // Bluetooth wyłączony - zatrzymaj skanowanie jeśli trwa
+                   if state.isScanning {
+                       return .merge(
+                           .send(.scanningStatusChanged(false)),
+                           .send(.discoveredPeripheralsCleared),
+                           .run { send in
+                               await client.stopScanning()
+                           }
+                       )
+                   }
+                   
+               case .unauthorized:
+                   // Brak uprawnień - zatrzymaj skanowanie i wyczyść listę
+                   return .merge(
+                       .send(.scanningStatusChanged(false)),
+                       .send(.discoveredPeripheralsCleared)
+                   )
+                   
+               case .unknown, .unsupported, .disconnected:
+                   // Stany przejściowe lub błędy
+                   break
+               }
+               return .none
+               
+               // MARK: - Scanning Actions
+           case let .scanningStatusChanged(value):
+               state.isScanning = value
+               return .none
+               
+           case .scanningStarted:
+               return .merge(
+                   .send(.scanningStatusChanged(true)),
+                   .run { send in
+                       print("📡 Starting scanning stream")
+                       for await device in await client.discoveredDevices() {
+                           print("📡 Stream yielded device: \(device.name ?? "Unknown")")
+                           await send(.deviceDiscovered(device))
+                       }
+                       print("🔴 Scanning stream ENDED")
+                   }
+                   .cancellable(id: "scanning")
+               )
+               
+           case .scanningStopped:
+               print("⏹️ Scanning stopped")
+               return .send(.scanningStatusChanged(false))
+               
+           case .discoveredPeripheralsCleared:
+               state.discoveredPeripherals.removeAll()
+               return .none
+               
+               // MARK: - Device Actions
+           case let .deviceDiscovered(peripheral):
+               // Dodajemy urządzenie do listy jeśli jeszcze go nie ma
+               if !state.discoveredPeripherals.contains(where: { $0.identifier == peripheral.identifier }) {
+                   state.discoveredPeripherals.append(peripheral)
+                   print("📡 BluetoothFeature: Discovered NEW device: \(peripheral.name ?? "Unknown")")
+               }
+               return .none
+               
+               // MARK: - Connection Actions
+           case let .connectedDeviceChanged(device):
+               state.connectedDevice = device
+               return .none
+               
+           case let .connectionStatusChanged(status):
+               state.connectionStatus = status
+               return .none
+               
+           case .connectionEventReceived(let event):
+               switch event {
+               case .connecting(let peripheral):
+                   let status = "Connecting to \(peripheral.name ?? "Unknown")..."
+                   return .send(.connectionStatusChanged(status))
+                   
+               case .connected(let peripheral):
+                   let status = "Connected to \(peripheral.name ?? "Unknown")"
+                   return .merge(
+                       .send(.connectedDeviceChanged(peripheral)),
+                       .send(.connectionStatusChanged(status)),
+                       .cancel(id: "scanning"),
+                       .cancel(id: "connectionEvents"),
+                       .run { send in
+                           await client.stopScanning()
+                           //await self.dismiss()
+                       }
+                   )
+                   
+               case .disconnected(let peripheral, let error):
+                   let errorMsg = error != nil ? " (\(error!))" : ""
+                   let status = "Disconnected from \(peripheral.name ?? "Unknown")\(errorMsg)"
+                   return .merge(
+                       .send(.connectedDeviceChanged(nil)),
+                       .send(.connectionStatusChanged(status))
+                   )
+                   
+               case .failedToConnect(let peripheral, let error):
+                   let errorMsg = error ?? "Unknown error"
+                   let status = "Failed to connect to \(peripheral.name ?? "Unknown"): \(errorMsg)"
+                   return .merge(
+                       .send(.connectedDeviceChanged(nil)),
+                       .send(.connectionStatusChanged(status))
+                   )
+               }
+               
+               // MARK: - View Actions
+           case .view(.viewDidAppear):
+               // Sprawdź status Bluetooth tylko raz na żądanie
+               return .run { send in
+                   let currentStatus = await client.getCurrentStatus()
+                   await send(.bluetoothStatusChanged(currentStatus))
+               }
+               
+           case .view(.closeButtonTapped):
+               return .merge(
+                   .cancel(id: "scanning"),
+                   .cancel(id: "connectionEvents"),
+                   .run { send in
+                       await client.stopScanning()
+                       await send(.scanningStopped)
+                       await self.dismiss()
+                   }
+               )
+               
+           case .view(.scanningButtonTapped):
+               if state.isScanning {
+                   // Zatrzymaj skanowanie
+                   return .merge(
+                       .cancel(id: "scanning"),
+                       .run { send in
+                           await client.stopScanning()
+                           await send(.scanningStopped)
+                       }
+                   )
+               } else {
+                   // Rozpocznij skanowanie (tylko jeśli Bluetooth gotowy)
+                   guard state.bluetoothStatus == .ready else {
+                       return .none
+                   }
+                   return .run { send in
+                       try await client.startScanning()
+                       await send(.scanningStarted)
+                   }
+               }
+
+           case let .view(.deviceTapped(peripheral)):
+               print("deviceTapped \(peripheral)")
+               return .merge(
+                   .send(.connectionStatusChanged("Connecting...")),
+                   .send(.scanningStatusChanged(false)),
+                   .cancel(id: "scanning"),
+                   .run { send in
+                       try await client.connect(peripheral)
+                   },
+                   .run { send in
+                       for await event in await client.connectionEvents() {
+                           await send(.connectionEventReceived(event))
+                       }
+                   }
+                   .cancellable(id: "connectionEvents")
+               )
+           }
+       }
+   }
 }
 
 /// Implementation of `BluetoothFeature` action
 extension BluetoothFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Actions
-        
-        ///
-        case bluetoothStatusChanged(BluetoothStatus)
-        
-        ///
-        case scanningStarted
-        
-        ///
-        case scanningStopped
-        
-        ///
-        case deviceDiscovered(CBPeripheral)
-        
-        case connectionEventReceived(ConnectionEvent)
-        
-        // MARK: - View Actions
-        case view(View)
-        
-        enum View {
-            
-            ///
-            case viewDidAppear
-            
-            ///
-            case closeButtonTapped
-            
-            ///
-            case scanningButtonTapped
-            
-            ///
-            case deviceTapped(CBPeripheral)
-        }
-    }
+   
+   @CasePathable
+   enum Action: ViewAction {
+       
+       // MARK: - Actions
+       
+       /// Aktualizuje stan Bluetooth w Feature (ready/disabled/unauthorized etc.)
+       case bluetoothStatusChanged(BluetoothStatus)
+       
+       /// Rozpoczęcie skanowania urządzeń - uruchamia AsyncStream dla znalezionych urządzeń
+       case scanningStarted
+       
+       /// Zakończenie skanowania urządzeń - zatrzymuje AsyncStream
+       case scanningStopped
+       
+       /// Zmiana stanu skanowania (true/false) - aktualizuje UI
+       case scanningStatusChanged(Bool)
+       
+       /// Znaleziono nowe urządzenie podczas skanowania - dodaje do listy
+       case deviceDiscovered(CBPeripheral)
+       
+       /// Zmiana aktualnie połączonego urządzenia (nil = brak połączenia)
+       case connectedDeviceChanged(CBPeripheral?)
+       
+       /// Otrzymano event połączenia z urządzeniem (connecting/connected/disconnected)
+       case connectionEventReceived(ConnectionEvent)
+       
+       /// Wyczyść listę znalezionych urządzeń
+       case discoveredPeripheralsCleared
+       
+       /// Aktualizacja statusu połączenia jako tekst dla UI
+       case connectionStatusChanged(String)
+       
+       // MARK: - View Actions
+       case view(View)
+       
+       enum View {
+           /// Widok się pojawił - sprawdź status Bluetooth
+           case viewDidAppear
+           
+           /// User nacisnął przycisk zamknięcia - zatrzymaj wszystko i zamknij
+           case closeButtonTapped
+           
+           /// User nacisnął przycisk skanowania - start/stop scanning
+           case scanningButtonTapped
+           
+           /// User nacisnął na urządzenie na liście - spróbuj się połączyć
+           case deviceTapped(CBPeripheral)
+       }
+   }
 }
 
 /// Implementation of `BluetoothFeature` state
 extension BluetoothFeature {
-    
-    @ObservableState
-    struct State {
-        
-        ///
-        var bluetoothStatus: BluetoothStatus = .unknown
-        
-        ///
-        var isScanning: Bool = false
-        
-        ///
-        var discoveredPeripherals: [CBPeripheral] = []
-        
-        ///
-        var connectedDevice: CBPeripheral? = nil
-        
-        ///
-        var connectionStatus: String = ""
-    }
-    
+   
+   @ObservableState
+   struct State {
+       
+       /// Aktualny status systemu Bluetooth (ready/disabled/unknown etc.)
+       var bluetoothStatus: BluetoothStatus = .unknown
+       
+       /// Czy aktualnie skanuje urządzenia BLE
+       var isScanning: Bool = false
+       
+       /// Lista wszystkich znalezionych urządzeń podczas skanowania
+       var discoveredPeripherals: [CBPeripheral] = []
+       
+       /// Aktualnie połączone urządzenie (nil jeśli brak połączenia)
+       var connectedDevice: CBPeripheral? = nil
+       
+       /// Status połączenia jako tekst do wyświetlenia w UI
+       var connectionStatus: String = ""
+       
+       /// Computed property - lista dostępnych urządzeń (bez aktualnie połączonego)
+       /// Używane do oddzielnego wyświetlania "Available" i "Connected" w UI
+       var availableDevices: [CBPeripheral] {
+           discoveredPeripherals.filter { device in
+               device != connectedDevice
+           }
+       }
+   }
 }
 

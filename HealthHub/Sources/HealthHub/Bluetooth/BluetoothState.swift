@@ -35,7 +35,6 @@ actor BluetoothState {
     /// Thread-safe update statusu systemu
     func updateStatus(_ newStatus: BluetoothStatus) {
         status = newStatus
-        // Automatycznie aktualizuj isPoweredOn na podstawie statusu
         isPoweredOn = (newStatus == .ready)
     }
         
@@ -43,5 +42,4 @@ actor BluetoothState {
         connectedPeripheral = peripheral
     }
 }
-
 
