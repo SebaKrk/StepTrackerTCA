@@ -69,6 +69,7 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     public func setValueForSummaryView(_ value: Bool) {
         showingSummaryView = value
     }
+    
     public var workoutSessionStateStream: AsyncStream<HKWorkoutSessionState> {
         AsyncStream { continuation in
             self.workoutSessionContinuation = continuation

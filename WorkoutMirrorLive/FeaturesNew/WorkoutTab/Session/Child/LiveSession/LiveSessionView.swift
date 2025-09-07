@@ -19,8 +19,7 @@ struct LiveSessionView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack(spacing: 6) {
-            Spacer()
+        ScrollView {
             HStack {
                 secondaryMetricCard("avg hr",
                                     data: store.sessionAverageHeartRate)

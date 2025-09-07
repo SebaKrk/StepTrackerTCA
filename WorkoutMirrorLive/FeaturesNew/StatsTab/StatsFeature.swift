@@ -27,6 +27,11 @@ struct StatsFeature {
                 state.destination = .settings(SettingsFeature.State())
                 return .none
                 
+                // test
+            case .view(.incrementButtonTapped):
+                state.counter += 1
+                return .none
+                
             case .destination(_):
                 return .none
             }
@@ -54,6 +59,11 @@ extension StatsFeature {
             
             ///
             case settingsButtonTapped
+            
+            //TEST
+            /// Action triggered when increment button is tapped
+            case incrementButtonTapped
+
         }
         
         // MARK: - Destination
@@ -70,6 +80,11 @@ extension StatsFeature {
     struct State {
         
         // MARK: - Properties
+        
+        // TEST
+        /// Counter value that will be animated
+        var counter: Float = 0
+
         
         // MARK: - Destination
         

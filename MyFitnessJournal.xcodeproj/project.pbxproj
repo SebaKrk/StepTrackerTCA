@@ -386,6 +386,8 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -422,6 +424,8 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
