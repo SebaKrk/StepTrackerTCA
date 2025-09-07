@@ -435,4 +435,6 @@
     A: Create new target - WorkoutMirrorLive
     - sandbox 
     B: Sandbox
+### IOS-00046 WorkoutTab
+    A: Bluetooth - sandbox
 
