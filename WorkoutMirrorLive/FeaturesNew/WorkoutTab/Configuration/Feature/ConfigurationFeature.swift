@@ -42,28 +42,19 @@ struct ConfigurationFeature {
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { send in
-                    
-                    // Najpierw sprawdź aktualny stan
+                    print("📱 ConfigurationFeature: Checking initial status...")
                     let initialStatus = await client.getCurrentStatus()
                     await send(.core(.bluetoothStatusChanged(initialStatus)))
                     
-                    // Potem zainicjalizuj - to może wywołać delegate callback z prawdziwym stanem
+                    print("📱 ConfigurationFeature: Initializing Bluetooth...")
                     await client.initializeBluetooth()
                     
-                    // I sprawdź ponownie po inicjalizacji
                     let finalStatus = await client.getCurrentStatus()
                     if finalStatus != initialStatus {
+                        print("📱 ConfigurationFeature: Status changed after init: \(finalStatus)")
                         await send(.core(.bluetoothStatusChanged(finalStatus)))
                     }
                 }
-//                return .run { send in
-//                    await client.initializeBluetooth()
-//                
-//                    try await Task.sleep(for: .milliseconds(500))
-//                    let currentStatus = await client.getCurrentStatus()
-//                    print("seba \(currentStatus)")
-//                    await send(.core(.bluetoothStatusChanged(currentStatus)))
-//                }
                 
             case .view(.closeButtonTapped):
                 return .run { send in

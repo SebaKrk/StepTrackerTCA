@@ -10,48 +10,13 @@ import CoreBluetooth
 
 public final class DefaultCentralManager: NSObject, CentralManager, @unchecked Sendable {
    
-   /// Oryginalny CBCentralManager z CoreBluetooth - to jest główny obiekt który komunikuje się z systemem Bluetooth
+   /// Oryginalny CBCentralManager z CoreBluetooth
    private let cbCentralManager: CBCentralManager
-   
-   /// Strumień przez który płyną znalezione urządzenia do TCA
-   /// ZMIANA: var zamiast let - żeby móc recreate
-   private var deviceStream: AsyncStream<CBPeripheral>
-   
-   /// Kontynuacja do wysyłania urządzeń przez strumień
-   /// ZMIANA: var zamiast let - żeby móc recreate
-   var deviceContinuation: AsyncStream<CBPeripheral>.Continuation
-   
-   /// Stream przez który płyną zmiany statusu Bluetooth do TCA
-   private let statusStream: AsyncStream<BluetoothStatus>
-   
-   /// Kontynuacja do wysyłania statusów przez strumień
-   let statusContinuation: AsyncStream<BluetoothStatus>.Continuation
-   
-   /// Stream dla zdarzeń połączenia
-   private let connectionStream: AsyncStream<ConnectionEvent>
-   
-   /// Kontynuacja do wysyłania eventów połączenia przez strumień
-   let connectionContinuation: AsyncStream<ConnectionEvent>.Continuation
     
    /// Actor który zarządza stanem - thread-safe
    let state = BluetoothState()
    
    override init() {
-       /// Tworzymy parę AsyncStream dla urządzeń - strumień i kontynuację
-       let (deviceStream, deviceContinuation) = AsyncStream.makeStream(of: CBPeripheral.self)
-       self.deviceStream = deviceStream
-       self.deviceContinuation = deviceContinuation
-       
-       /// Tworzymy parę AsyncStream dla statusów
-       let (statusStream, statusContinuation) = AsyncStream.makeStream(of: BluetoothStatus.self)
-       self.statusStream = statusStream
-       self.statusContinuation = statusContinuation
-       
-       /// Tworzymy parę AsyncStream dla zdarzeń połączenia
-       let (connectionStream, connectionContinuation) = AsyncStream.makeStream(of: ConnectionEvent.self)
-       self.connectionStream = connectionStream
-       self.connectionContinuation = connectionContinuation
-       
        /// Tworzymy CBCentralManager bez delegate (na razie nil)
        cbCentralManager = CBCentralManager(delegate: nil, queue: nil)
        super.init()
@@ -59,24 +24,15 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
        /// WAŻNE: Ustawiamy siebie jako delegate DOPIERO po inicjalizacji
        cbCentralManager.delegate = self
        
-       /// Wysyłamy początkowy status
-       statusContinuation.yield(.unknown)
-       
-       print("📱 Created DefaultCentralManager with initial device stream")
+       print("📱 Created DefaultCentralManager")
    }
    
    // MARK: - CentralManager Protocol Implementation
    
-   /// Zwraca strumień znalezionych urządzeń - TCA będzie tego nasłuchiwać
-   public var discoveredDevices: AsyncStream<CBPeripheral> {
-       deviceStream
+   /// Zwraca NOWY strumień znalezionych urządzeń za każdym wywołaniem
+   public func discoveredDevices() async -> AsyncStream<CBPeripheral> {
+       return await state.newScanStream()
    }
-   
-   /// Zwraca strumień zmian statusu Bluetooth
-   public var bluetoothStatusUpdates: AsyncStream<BluetoothStatus> { statusStream }
-   
-   /// Zwraca strumień zdarzeń połączenia
-   public var connectionEvents: AsyncStream<ConnectionEvent> { connectionStream }
    
    /// Czy Bluetooth jest włączony - async bo Actor wymaga await
    public var isPoweredOn: Bool {
@@ -111,35 +67,39 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
            throw BluetoothError.notPoweredOn
        }
        
-       /// NOWE: Utwórz fresh stream przed każdym skanowaniem
-       recreateDeviceStream()
+       await state.startScanning()
+       cbCentralManager.scanForPeripherals(withServices: [
+           Gatt.Service.heartRate,
+           Gatt.Service.weightScale
+       ])
        
-       cbCentralManager.scanForPeripherals(withServices: [Gatt.Service.heartRate])
-       await state.updateScanning(true)
-       print("🔍 Started scanning for devices with fresh stream")
+       print("🔍 Started scanning for devices")
    }
    
    /// Zatrzymuje skanowanie urządzeń
    public func stopScanning() async {
        cbCentralManager.stopScan()
-       await state.updateScanning(false)
+       await state.finishScanning()
        
-       /// NOWE: Zakończ obecny stream
-       deviceContinuation.finish()
-       
-       print("⏹️ Stopped scanning and finished device stream")
+       print("⏹️ Stopped scanning")
    }
    
+    /// Zwraca urządzenia aktualnie połączone z systemem iOS które mają określone serwisy
+    public func getConnectedPeripherals() async -> [CBPeripheral] {
+        return cbCentralManager.retrieveConnectedPeripherals(withServices: [
+            Gatt.Service.heartRate,
+            Gatt.Service.weightScale
+        ])
+    }
+    
    /// Łączy się z wybranym urządzeniem
    public func connect(to peripheral: CBPeripheral) async throws {
        guard await state.isPoweredOn else {
            throw BluetoothError.notPoweredOn
        }
        
-       /// Wyślij event że próbujemy się połączyć
-       connectionContinuation.yield(.connecting(peripheral))
-       
        /// Zatrzymaj skanowanie przed połączeniem
+       ///
        await stopScanning()
        
        /// Rozpocznij połączenie - wynik będzie w delegate callback
@@ -154,21 +114,10 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    
    // MARK: - Private Helpers
    
-   /// NOWA FUNKCJA: Tworzy nowy device stream i continuation
-   private func recreateDeviceStream() {
-       let (newStream, newContinuation) = AsyncStream.makeStream(of: CBPeripheral.self)
-       self.deviceStream = newStream
-       self.deviceContinuation = newContinuation
-       
-       print("🆕 Created fresh device stream and continuation")
-   }
-   
-   /// Mapuje CBManagerState na BluetoothStatus i aktualizuje Actor + Stream
+   /// Mapuje CBManagerState na BluetoothStatus i aktualizuje Actor
    public func updateStatusFromCBState(_ cbState: CBManagerState) async {
        let newStatus = mapCBStateToBluetoothStatus(cbState)
-       
        await state.updateStatus(newStatus)
-       statusContinuation.yield(newStatus)
        
        print("🔵 Status updated: \(cbState) → \(newStatus)")
    }

@@ -134,10 +134,18 @@ struct BluetoothView: View {
                 Spacer()
                 
                 if isConnected {
-                    Text("CONNECTED")
+                    VStack {
+                        Text("CONNECTED")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                            .fontWeight(.semibold)
+                        
+                        Button("Disconnect") {
+                            send(.disconnectButtonTapped)
+                        }
                         .font(.caption)
-                        .foregroundColor(.green)
-                        .fontWeight(.semibold)
+                        .foregroundColor(.red)
+                    }
                 } else {
                     Text("TAP TO CONNECT")
                         .font(.caption)
