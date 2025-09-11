@@ -437,4 +437,4 @@
     B: Sandbox
 ### IOS-00046 WorkoutTab
     A: Bluetooth - sandbox
-
+    B: BLE - fitness device scanning
