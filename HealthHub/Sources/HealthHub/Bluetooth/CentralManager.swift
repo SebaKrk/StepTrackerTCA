@@ -45,54 +45,15 @@ public protocol CentralManager: Sendable {
    
    /// Rozłącz aktualne połączenie
    func disconnect() async
+    
+    /// Zwraca urządzenia aktualnie połączone z systemem iOS które mają określone serwisy
+    func getConnectedPeripherals() async -> [CBPeripheral]
    
    // MARK: - Event Streams (komunikacja z TCA)
    
    /// Strumień znalezionych urządzeń podczas skanowania
    /// AsyncStream = jak nieskończona tablica którą można nasłuchiwać
    /// TCA będzie nasłuchiwać tego strumienia i dostawać każde nowe urządzenie
-   var discoveredDevices: AsyncStream<CBPeripheral> { get }
-   
-   /// Strumień zmian statusu Bluetooth
-   /// TCA będzie nasłuchiwać tego strumienia żeby pokazać progress view
-   /// i wiedzieć kiedy można zacząć skanowanie
-   var bluetoothStatusUpdates: AsyncStream<BluetoothStatus> { get }
-   
-   /// Stream dla zdarzeń połączenia
-   var connectionEvents: AsyncStream<ConnectionEvent> { get }
-    
+   /// UWAGA: Za każdym razem gdy wywołasz startScanning() - dostaniesz NOWY stream!
+   func discoveredDevices() async -> AsyncStream<CBPeripheral>
 }
-
-
-//import CoreBluetooth
-//
-//public protocol CentralManager: Sendable {
-//    
-//    // MARK: - Properties
-//    
-//    /// Aktualnie połączone urządzenie
-//    var connectedPeripheral: CBPeripheral? { get set }
-//    
-//    /// Lista znalezionych urządzeń podczas skanowania
-//    var discoveredPeripherals: [CBPeripheral] { get set }
-//    
-//    /// Czy Bluetooth jest włączony i gotowy
-//    var isPoweredOn: Bool { get }
-//    
-//    /// Czy aktualnie skanuje urządzenia
-//    var isScanning: Bool { get }
-//    
-//    // MARK: - Methods
-//    
-//    /// Rozpocznij skanowanie urządzeń BLE
-//    func startScanning()
-//    
-//    /// Zatrzymaj skanowanie urządzeń
-//    func stopScanning()
-//    
-//    /// Połącz się z wybranym urządzeniem
-//    func connect(to peripheral: CBPeripheral)
-//    
-//    /// Rozłącz aktualne połączenie
-//    func disconnect()
-//}

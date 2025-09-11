@@ -180,10 +180,13 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
             self.metrics.heartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0
             self.metrics.averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
             
+            print("💓 HealthKit HR: \(Int(self.metrics.heartRate)) BPM, Avg: \(Int(self.metrics.averageHeartRate)) BPM")
+            
         case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
             let energyUnit = HKUnit.kilocalorie()
             self.metrics.activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
             
+            print("🔥 Energy: \(Int(self.metrics.activeEnergy)) kcal")
         default:
             return
         }

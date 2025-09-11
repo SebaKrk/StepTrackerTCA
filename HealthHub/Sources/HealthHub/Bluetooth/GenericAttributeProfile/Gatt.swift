@@ -13,9 +13,11 @@ public enum Gatt {
     
     public enum Service: Sendable {
         public static let heartRate = CBUUID(string: "180D")
+        public static let weightScale = CBUUID(string: "181D")
     }
     
     public enum Characteristic: Sendable {
         public static let heartRateMeasurement = CBUUID(string: "2A37")
+        public static let weightMeasurement = CBUUID(string: "2A9D")
     }
 }
