@@ -37,6 +37,10 @@ struct ConfigurationView: View {
                     BluetoothView(store: store)
                         .presentationDetents([.medium, .large])
                 }
+//                .onDisappear {
+//                    send(.viewDidDisappear)
+//                }
+   
         }
     }
     
@@ -89,7 +93,7 @@ struct ConfigurationView: View {
     
     private var bluetoothButtonStatus: some View {
         Button {
-            send(.startScanningBluetoothButtonTapped)
+            send(.scanningBluetoothButtonTapped)
         } label: {
             tabLabel("Bluetooth", store.bluetoothStatus, "bluetooth")
         }
@@ -102,7 +106,9 @@ struct ConfigurationView: View {
             Text("\(title) \(status.emoji) \(status.buttonText)")
         } icon: {
             Image("bluetooth")
-                .tint(.white)
+                .renderingMode(.template)
+                .foregroundColor(.white)
+                
         }
     }
     

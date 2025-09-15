@@ -43,5 +43,5 @@ extension DefaultWorkoutManager: HKLiveWorkoutBuilderDelegate {
     public func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didEnd workoutActivity: HKWorkoutActivity) {
         print("workout builder did end workout_activity=\(workoutActivity)")
     }
+    
 }
-
