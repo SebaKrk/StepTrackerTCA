@@ -5,17 +5,17 @@
 //  Created by Sebastian Sciuba on 02/09/2025.
 //
 
-import Foundation
 import ComposableArchitecture
-import SwiftUI
-import SharedModels
 import CoreBluetooth
+import SharedModels
+import SwiftUI
 import HealthHub
 
 @ViewAction(for: BluetoothFeature.self)
 struct BluetoothView: View {
     
     // MARK: - Properties
+    
     @Bindable var store: StoreOf<BluetoothFeature>
     
     // MARK: - Body
@@ -25,12 +25,15 @@ struct BluetoothView: View {
             rootView
                 .toolbar {
                     toolbarButtons
+                    bluetoothScanToolBar
                 }
                 .onAppear {
                     send(.viewDidAppear)
                 }
         }
     }
+    
+    // MARK: - ToolBar
     
     @ToolbarContentBuilder
     var toolbarButtons: some ToolbarContent {
@@ -40,181 +43,162 @@ struct BluetoothView: View {
             } label: {
                 xMarkImage
             }
+            .buttonStyle(.glass)
         }
     }
+    
+    @ToolbarContentBuilder
+    private var bluetoothScanToolBar: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            Spacer()
+            bluetoothScanButton
+        }
+    }
+    
+    // MARK: - SubView
     
     @ViewBuilder
     private var rootView: some View {
         switch store.bluetoothStatus {
         case .ready:
-            devicesListView
+            readyView
+                .onAppear {
+                    send(.readyViewDidAppear)
+                }
         case .disconnected:
-            Text("Disconnected")
+            disconnectedView
         case .unauthorized:
-            Text("Unauthorized - Open Settings")
+            unauthorizedView
         case .disabled:
-            Text("Bluetooth Disabled")
+            disabledView
         case .unsupported:
-            Text("Bluetooth Unsupported")
+            unsupportedView
         case .unknown:
             loadingView
         }
     }
     
     @ViewBuilder
-    private var devicesListView: some View {
-        VStack {
-            // Sekcja połączonych urządzeń
-            if let connectedDevice = store.connectedDevice {
-                connectedDevicesSection(connectedDevice)
-            } else {
-                Text("Brak polaczonch urzadzen")
-            }
-            
-            // Sekcja dostępnych urządzeń
-            availableDevicesSection
-            
-            // Przycisk skanowania na dole
-            scanningButton
-                .padding()
-        }
-    }
-    
-    /// Sekcja pokazująca połączone urządzenie
-    private func connectedDevicesSection(_ device: CBPeripheral) -> some View {
-        VStack(alignment: .leading) {
-            Text("Connected Device")
-                .font(.headline)
-                .padding(.horizontal)
-            
-            deviceCell(device, isConnected: true)
-                .padding(.horizontal)
-            
-            Divider()
-        }
-    }
-    
-    /// Sekcja pokazująca dostępne urządzenia
-    @ViewBuilder
-    private var availableDevicesSection: some View {
-        if store.availableDevices.isEmpty {
-            if store.isScanning {
-                scanningView
-            } else {
-                emptyDevicesView
-            }
-        } else {
-            VStack(alignment: .leading) {
-                Text("Available Devices")
-                    .font(.headline)
-                    .padding(.horizontal)
-                
-                List(store.availableDevices, id: \.self) { peripheral in
-                    deviceCell(peripheral, isConnected: false)
-                }
-                .listStyle(PlainListStyle())
-            }
-        }
-    }
-    
-    /// Komórka urządzenia - różna dla połączonych i dostępnych
-    private func deviceCell(_ peripheral: CBPeripheral, isConnected: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(peripheral.name ?? "Unknown Device")
-                        .font(.body)
-                        .fontWeight(isConnected ? .semibold : .regular)
-                    
-                    Text("ID: \(peripheral.identifier.uuidString.prefix(8))...")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                if isConnected {
-                    VStack {
-                        Text("CONNECTED")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                            .fontWeight(.semibold)
-                        
-                        Button("Disconnect") {
-                            send(.disconnectButtonTapped)
-                        }
-                        .font(.caption)
-                        .foregroundColor(.red)
+    private var readyView: some View {
+        List {
+            Section("Connected Devices") {
+                if !store.connectedDevices.isEmpty {
+                    ForEach(store.connectedDevices, id: \.self) { device in
+                        deviceRow(device)
                     }
                 } else {
-                    Text("TAP TO CONNECT")
-                        .font(.caption)
-                        .foregroundColor(.blue)
+                    Text("You have no devices connected.")
+                        .foregroundColor(.secondary)
                 }
             }
             
-            if isConnected && !store.connectionStatus.isEmpty {
-                Text(store.connectionStatus)
+            Section("Available Devices") {
+                if store.availableDevices.isEmpty {
+                    Text("No devices found.")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(store.availableDevices, id: \.self) { device in
+                        deviceRow(device)
+                    }
+                }
+            }
+            
+            if store.isScanning {
+                Section {
+                    EmptyView()
+                } footer: {
+                    HStack {
+                        ProgressView()
+                        Text("Scanning...")
+                    }
+                }
+            }
+        }
+    }
+    
+    private func deviceRow(_ device: CBPeripheral) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(device.name ?? "Unknown Device")
+                    .font(.body)
+                Text("ID: \(device.identifier.uuidString.prefix(14))...")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-        }
-        .padding(.vertical, 4)
-        .onTapGesture {
-            if !isConnected {
-                send(.deviceTapped(peripheral))
+            Spacer()
+            
+            if device.state == .connecting || device.state == .disconnecting {
+                ProgressView().id(UUID())
+            } else {
+                infoMenu(device)
             }
+        }
+        .onTapGesture {
+            send(.deviceTapped(device))
         }
     }
     
-    /// Przycisk start/stop skanowania
-    private var scanningButton: some View {
+    @ViewBuilder
+    private func infoMenu(_ device: CBPeripheral) -> some View {
+        Menu {
+            if device.state == .connected {
+                disconnectButton(device)
+            } else if device.state == .disconnected {
+                connectButton(device)
+            }
+        } label: {
+            Image(systemName: "info.circle")
+                .font(.headline)
+        }
+    }
+    
+    private func disconnectButton(_ device: CBPeripheral) -> some View {
+        Button {
+            send(.disconnectButtonTapped(device))
+        } label: {
+            Text("disconnect")
+        }
+    }
+    
+    private func connectButton(_ device: CBPeripheral) -> some View {
+        Button {
+            send(.deviceTapped(device))
+        } label: {
+            Text("connect")
+        }
+    }
+    
+    @ViewBuilder
+    private var bluetoothScanButton: some View {
         Button {
             send(.scanningButtonTapped)
         } label: {
-            Text(store.isScanning ? "Stop Scanning" : "Start Scanning")
-                .foregroundColor(.white)
-                .fontWeight(.semibold)
+            Image(systemName: store.isScanning ? "stop" : "play")
+                .tint(store.isScanning ? .red : .blue)
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(store.isScanning ? Color.red : Color.blue)
-        .cornerRadius(10)
+        .buttonStyle(.borderedProminent)
     }
     
-    /// Widok podczas skanowania
-    private var scanningView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.2)
-            
-            Text("Scanning for devices...")
-                .font(.body)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, minHeight: 100)
+    private var disconnectedView: some View {
+        BluetoothStatusView(bluetoothStatus: .disconnected, showActions: false)
     }
     
-    /// Widok gdy brak urządzeń
-    private var emptyDevicesView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "antenna.radiowaves.left.and.right")
-                .font(.system(size: 40))
-                .foregroundColor(.secondary)
-            
-            Text("No devices found")
-                .font(.body)
-                .foregroundColor(.secondary)
-            
-            Text("Tap 'Start Scanning' to search for heart rate monitors")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+    private var unauthorizedView: some View {
+        BluetoothStatusView(bluetoothStatus: .unauthorized, showActions: true) {
+            send(.unauthorizedButtonTapped)
         }
-        .frame(maxWidth: .infinity, minHeight: 150)
     }
     
-    /// Widok ładowania
+    private var disabledView: some View {
+        BluetoothStatusView(bluetoothStatus: .disabled, showActions: true) {
+            send(.disabledButtonTaped)
+        }
+    }
+    
+    private var unsupportedView: some View {
+        BluetoothStatusView(bluetoothStatus: .unsupported, showActions: false)
+    }
+    
     private var loadingView: some View {
         VStack(spacing: 16) {
             ProgressView()
@@ -230,4 +214,5 @@ struct BluetoothView: View {
     private var xMarkImage: some View {
         Image(systemName: "xmark")
     }
+    
 }

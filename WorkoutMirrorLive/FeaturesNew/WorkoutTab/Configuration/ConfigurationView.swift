@@ -37,6 +37,7 @@ struct ConfigurationView: View {
                     BluetoothView(store: store)
                         .presentationDetents([.medium, .large])
                 }
+            
         }
     }
     
@@ -78,52 +79,79 @@ struct ConfigurationView: View {
             
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    bluetoothButtonStatus
+                    availableDeviceNavButton
+                    Divider()
+                    sensorView
+                    //bluetoothButtonStatus
+                    appleWatchConnectStatusButton
                 } label: {
-                    //menuInfoImage
                     gearShapeImage
                 }
             }
         }
     }
     
+    private var availableDeviceNavButton: some View {
+        Button {
+            send(.scanningBluetoothButtonTapped)
+        } label: {
+            Label {
+                Text("available device")
+            } icon: {
+                Image("bluetooth")
+                    .renderingMode(.template)
+                    .foregroundColor(.white)
+            }
+        }
+    }
+    
+    private var sensorView: some View {
+            Label {
+                Text("Połączony")
+                    .foregroundStyle(.white)
+            } icon: {
+                Image("custom.heart.badge.waveform")
+            }
+    }
+    
     private var bluetoothButtonStatus: some View {
         Button {
-            send(.startScanningBluetoothButtonTapped)
+            send(.scanningBluetoothButtonTapped)
         } label: {
             tabLabel("Bluetooth", store.bluetoothStatus, "bluetooth")
         }
     }
     
+    private var appleWatchConnectStatusButton: some View {
+//        Button {
+            
+//        } label: {
+            appleWatchConnectStatus
+//        }
+    }
+    
+    
+    private var appleWatchConnectStatus: some View {
+        Label {
+            Text("Połączony")
+        } icon: {
+            Image(systemName: "applewatch.side.right")
+                .renderingMode(.template)
+                .foregroundColor(.white)
+        }
+    }
+    // Bluetooth Available device
     private func tabLabel(_ title: String,
                           _ status: BluetoothStatus,
                           _ icon: String) -> some View {
         Label {
-            Text("\(title) \(status.emoji) \(status.buttonText)")
+            Text("\(status.labelText)")
         } icon: {
             Image("bluetooth")
-                .tint(.white)
+                .renderingMode(.template)
+                .foregroundColor(.white)
         }
     }
-    
-//    private var bluetoothButton: some View {
-//        Button {
-//            openBluetoothSettings()
-//        } label: {
-//            Text("Bluetooth")
-//        }
-//    }
-//    
-//    //    Text("1. Otwórz Ustawienia\n2. Znajdź 'Bluetooth'\n3. Włącz przełącznik")
-//    private func openBluetoothSettings() {
-//        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-//            return
-//        }
-//        
-//        if UIApplication.shared.canOpenURL(settingsUrl) {
-//            UIApplication.shared.open(settingsUrl)
-//        }
-//    }
     
     private var activityToolBar: some ToolbarContent {
         Group {
@@ -224,14 +252,3 @@ struct ConfigurationView: View {
     }
     
 }
-
-//private var crossFitWorkoutButton: some View {
-//    Button {
-//
-//    } label: {
-//        Image(systemName: "figure")
-//            .tint(.white)
-//    }
-//    .frame(width: 55, height: 55)
-//    .glassEffect(.regular.interactive(true), in: .capsule)
-//}
