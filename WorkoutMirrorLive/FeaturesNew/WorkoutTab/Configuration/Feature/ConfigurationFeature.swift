@@ -94,16 +94,22 @@ struct ConfigurationFeature {
                 
             case .view(.scanningBluetoothButtonTapped):
                 return .run { [bluetoothStatus = state.bluetoothStatus] send in
-                    
                     switch bluetoothStatus {
                     case .ready:
                         await send(.core(.openBluetoothFeature(bluetoothStatus)))
-                    case .disabled, .unauthorized:
+                        
+                    case .unauthorized, .disabled:
                         if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                            await UIApplication.shared.open(settingsUrl)
+                            await MainActor.run {
+                                if UIApplication.shared.canOpenURL(settingsUrl) {
+                                    UIApplication.shared.open(settingsUrl)
+                                }
+                            }
                         }
+                        
                     case .unknown:
                         break
+                        
                     default:
                         break
                     }
@@ -176,3 +182,4 @@ struct ConfigurationFeature {
         }
     }
 }
+

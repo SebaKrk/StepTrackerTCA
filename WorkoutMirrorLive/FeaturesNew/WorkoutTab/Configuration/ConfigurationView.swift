@@ -37,10 +37,10 @@ struct ConfigurationView: View {
                     BluetoothView(store: store)
                         .presentationDetents([.medium, .large])
                 }
-//                .onDisappear {
-//                    send(.viewDidDisappear)
-//                }
-   
+            //                .onDisappear {
+            //                    send(.viewDidDisappear)
+            //                }
+            
         }
     }
     
@@ -83,6 +83,9 @@ struct ConfigurationView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     bluetoothButtonStatus
+                    appleWatchConnectStatusButton
+                    Divider()
+                    Text("Connection status")
                 } label: {
                     //menuInfoImage
                     gearShapeImage
@@ -99,37 +102,36 @@ struct ConfigurationView: View {
         }
     }
     
+    private var appleWatchConnectStatusButton: some View {
+        Button {
+            
+        } label: {
+            appleWatchConnectStatus
+        }
+    }
+    
+    
+    private var appleWatchConnectStatus: some View {
+        Label {
+            Text("Połączony")
+        } icon: {
+            Image(systemName: "applewatch.side.right")
+                .renderingMode(.template)
+                .foregroundColor(.white)
+        }
+    }
+    
     private func tabLabel(_ title: String,
                           _ status: BluetoothStatus,
                           _ icon: String) -> some View {
         Label {
-            Text("\(title) \(status.emoji) \(status.buttonText)")
+            Text("\(status.labelText)")
         } icon: {
             Image("bluetooth")
                 .renderingMode(.template)
                 .foregroundColor(.white)
-                
         }
     }
-    
-//    private var bluetoothButton: some View {
-//        Button {
-//            openBluetoothSettings()
-//        } label: {
-//            Text("Bluetooth")
-//        }
-//    }
-//    
-//    //    Text("1. Otwórz Ustawienia\n2. Znajdź 'Bluetooth'\n3. Włącz przełącznik")
-//    private func openBluetoothSettings() {
-//        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-//            return
-//        }
-//        
-//        if UIApplication.shared.canOpenURL(settingsUrl) {
-//            UIApplication.shared.open(settingsUrl)
-//        }
-//    }
     
     private var activityToolBar: some ToolbarContent {
         Group {
@@ -230,14 +232,3 @@ struct ConfigurationView: View {
     }
     
 }
-
-//private var crossFitWorkoutButton: some View {
-//    Button {
-//
-//    } label: {
-//        Image(systemName: "figure")
-//            .tint(.white)
-//    }
-//    .frame(width: 55, height: 55)
-//    .glassEffect(.regular.interactive(true), in: .capsule)
-//}

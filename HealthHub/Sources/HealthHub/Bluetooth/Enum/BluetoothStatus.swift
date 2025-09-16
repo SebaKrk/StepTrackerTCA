@@ -30,10 +30,10 @@ public enum BluetoothStatus: Sendable, Equatable {
     
     public var labelText: String {
         switch self {
-        case .ready: return "Gotowy"
+        case .ready: return "Aktywny"
         case .disconnected: return "Niepołączony"
         case .unauthorized: return "Brak zgody"
-        case .disabled: return "Bluetooth wyłączony"
+        case .disabled: return "Wyłączony"
         case .unsupported: return "Nieobsługiwany"
         case .unknown: return "Sprawdzanie..."
         }
