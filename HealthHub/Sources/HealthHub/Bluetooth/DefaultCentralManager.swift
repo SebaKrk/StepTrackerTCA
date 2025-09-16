@@ -13,8 +13,9 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    /// Oryginalny CBCentralManager z CoreBluetooth
    private let cbCentralManager: CBCentralManager
     
-   /// Actor który zarządza stanem - thread-safe
-   let state = BluetoothState()
+   /// Aktory które zarządzają stanem - thread-safe
+   let statusActor = BluetoothStatusActor()
+   let scanActor = BluetoothScanActor()
    
    override init() {
        /// Tworzymy CBCentralManager bez delegate (na razie nil)
@@ -24,35 +25,45 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
        /// WAŻNE: Ustawiamy siebie jako delegate DOPIERO po inicjalizacji
        cbCentralManager.delegate = self
        
-       print("📱 Created DefaultCentralManager")
+       print("📱 🟢 Created DefaultCentralManager with separate actors")
    }
+    
+    deinit {
+        print("🪦 -> ❌ DefaultCentralManager deinit")
+    }
    
    // MARK: - CentralManager Protocol Implementation
    
    /// Zwraca NOWY strumień znalezionych urządzeń za każdym wywołaniem
    public func discoveredDevices() async -> AsyncStream<CBPeripheral> {
-       return await state.newScanStream()
+       print("scanActor.newScanStream")
+       return await scanActor.newScanStream()
+   }
+   
+   /// Zwraca NOWY strumień zmian statusu Bluetooth
+   public func statusUpdates() async -> AsyncStream<BluetoothStatus> {
+       return await statusActor.newStatusStream()
    }
    
    /// Czy Bluetooth jest włączony - async bo Actor wymaga await
    public var isPoweredOn: Bool {
-       get async { await state.isPoweredOn }
+       get async { await statusActor.isPoweredOn }
    }
    
    /// Czy aktualnie skanuje - async bo Actor wymaga await
    public var isScanning: Bool {
-       get async { await state.isScanning }
+       get async { await scanActor.isScanning }
    }
    
    /// Aktualny status systemu Bluetooth
    public var currentStatus: BluetoothStatus {
-       get async { await state.status }
+       get async { await statusActor.status }
    }
    
-   /// Aktualnie połączone urządzenie (jedno)
-   public var connectedPeripheral: CBPeripheral? {
-       get async { await state.connectedPeripheral }
-   }
+//   /// Aktualnie połączone urządzenie (jedno)
+//   public var connectedPeripheral: CBPeripheral? {
+//       get async { await statusActor.connectedPeripheral }
+//   }
    
    /// Triggeruje inicjalizację managera
    public func initializeBluetooth() async {
@@ -63,11 +74,11 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    
    /// Rozpoczyna skanowanie urządzeń BLE z serwisem Heart Rate
    public func startScanning() async throws {
-       guard await state.isPoweredOn else {
+       guard await statusActor.isPoweredOn else {
            throw BluetoothError.notPoweredOn
        }
        
-       await state.startScanning()
+       await scanActor.startScanning()
        cbCentralManager.scanForPeripherals(withServices: [
            Gatt.Service.heartRate,
            Gatt.Service.weightScale
@@ -79,9 +90,9 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    /// Zatrzymuje skanowanie urządzeń
    public func stopScanning() async {
        cbCentralManager.stopScan()
-       await state.finishScanning()
+       await scanActor.finishScanning()
        
-       print("⏹️ Stopped scanning")
+       print("ℹ️ Stopped scanning")
    }
    
     /// Zwraca urządzenia aktualnie połączone z systemem iOS które mają określone serwisy
@@ -94,12 +105,11 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
     
    /// Łączy się z wybranym urządzeniem
    public func connect(to peripheral: CBPeripheral) async throws {
-       guard await state.isPoweredOn else {
+       guard await statusActor.isPoweredOn else {
            throw BluetoothError.notPoweredOn
        }
        
        /// Zatrzymaj skanowanie przed połączeniem
-       ///
        await stopScanning()
        
        /// Rozpocznij połączenie - wynik będzie w delegate callback
@@ -107,8 +117,7 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    }
    
    /// Rozłącza aktualnie połączone urządzenie
-   public func disconnect() async {
-       guard let peripheral = await state.connectedPeripheral else { return }
+    public func disconnect(_ peripheral: CBPeripheral) async {
        cbCentralManager.cancelPeripheralConnection(peripheral)
    }
    
@@ -117,7 +126,7 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    /// Mapuje CBManagerState na BluetoothStatus i aktualizuje Actor
    public func updateStatusFromCBState(_ cbState: CBManagerState) async {
        let newStatus = mapCBStateToBluetoothStatus(cbState)
-       await state.updateStatus(newStatus)
+       await statusActor.updateStatus(newStatus)
        
        print("🔵 Status updated: \(cbState) → \(newStatus)")
    }

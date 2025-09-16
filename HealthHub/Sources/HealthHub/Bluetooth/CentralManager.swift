@@ -24,7 +24,7 @@ public protocol CentralManager: Sendable {
    var currentStatus: BluetoothStatus { get async }
    
    /// Aktualnie połączone urządzenie (jedno)
-   var connectedPeripheral: CBPeripheral? { get async }
+//   var connectedPeripheral: CBPeripheral? { get async }
    
    // MARK: - Async Methods (nowoczesne API)
    
@@ -44,7 +44,7 @@ public protocol CentralManager: Sendable {
    func connect(to peripheral: CBPeripheral) async throws
    
    /// Rozłącz aktualne połączenie
-   func disconnect() async
+    func disconnect(_ peripheral: CBPeripheral) async
     
     /// Zwraca urządzenia aktualnie połączone z systemem iOS które mają określone serwisy
     func getConnectedPeripherals() async -> [CBPeripheral]
@@ -56,4 +56,8 @@ public protocol CentralManager: Sendable {
    /// TCA będzie nasłuchiwać tego strumienia i dostawać każde nowe urządzenie
    /// UWAGA: Za każdym razem gdy wywołasz startScanning() - dostaniesz NOWY stream!
    func discoveredDevices() async -> AsyncStream<CBPeripheral>
+   
+   /// Strumień zmian statusu Bluetooth
+   /// Wyśle aktualny status od razu po subskrypcji, a potem każdą zmianę
+   func statusUpdates() async -> AsyncStream<BluetoothStatus>
 }

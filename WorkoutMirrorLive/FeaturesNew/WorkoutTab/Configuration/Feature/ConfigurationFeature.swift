@@ -33,28 +33,37 @@ struct ConfigurationFeature {
             case let .core(.bluetoothStatusChanged(status)):
                 state.bluetoothStatus = status
                 
-                // Jeśli BluetoothFeature jest otwarty, przekaż mu status
+                /// Jeśli BluetoothFeature jest otwarty, przekaż mu status
                 if case .bluetoothFeature = state.destination {
                     return .send(.destination(.presented(.bluetoothFeature(.bluetoothStatusChanged(status)))))
                 }
                 return .none
                 
-                // MARK: - View Action
-            case .view(.viewDidAppear):
+            case .core(.startBluetoothStatusMonitoring):
                 return .run { send in
-                    print("📱 ConfigurationFeature: Checking initial status...")
-                    let initialStatus = await client.getCurrentStatus()
-                    await send(.core(.bluetoothStatusChanged(initialStatus)))
+                    let statusStream = await client.statusUpdates()
                     
-                    print("📱 ConfigurationFeature: Initializing Bluetooth...")
-                    await client.initializeBluetooth()
-                    
-                    let finalStatus = await client.getCurrentStatus()
-                    if finalStatus != initialStatus {
-                        print("📱 ConfigurationFeature: Status changed after init: \(finalStatus)")
-                        await send(.core(.bluetoothStatusChanged(finalStatus)))
+                    for await status in statusStream {
+                        await send(.core(.bluetoothStatusChanged(status)))
                     }
                 }
+                .cancellable(id: "bluetoothStatusMonitoring")
+                
+                // MARK: - View Action
+                
+            case .view(.viewDidAppear):
+                return .concatenate(
+                    .run { _ in
+                        await client.initializeBluetooth()
+                    },
+                    .merge(
+                        .run { send in
+                            let finalStatus = await client.getCurrentStatus()
+                            await send(.core(.bluetoothStatusChanged(finalStatus)))
+                        },
+                        .send(.core(.startBluetoothStatusMonitoring))
+                    )
+                )
                 
             case .view(.closeButtonTapped):
                 return .run { send in
@@ -83,30 +92,31 @@ struct ConfigurationFeature {
                     }
                 }
                 
-            case .view(.startScanningBluetoothButtonTapped):
-                // Sprawdź aktualny status przed otwarciem BluetoothFeature
-                return .run { send in
-                    let currentStatus = await client.getCurrentStatus()
-
-                    await send(.core(.bluetoothStatusChanged(currentStatus)))
-                    
-                    switch currentStatus {
+            case .view(.scanningBluetoothButtonTapped):
+                return .run { [bluetoothStatus = state.bluetoothStatus] send in
+                    switch bluetoothStatus {
                     case .ready:
-                        await send(.core(.openBluetoothFeature))
-                    case .disabled, .unauthorized:
+                        await send(.core(.openBluetoothFeature(bluetoothStatus)))
+                        
+                    case .unauthorized, .disabled:
                         if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                            await UIApplication.shared.open(settingsUrl)
+                            await MainActor.run {
+                                if UIApplication.shared.canOpenURL(settingsUrl) {
+                                    UIApplication.shared.open(settingsUrl)
+                                }
+                            }
                         }
+                        
                     case .unknown:
-                        // Status jeszcze się nie ustalił
                         break
+                        
                     default:
                         break
                     }
                 }
                 
-            case .core(.openBluetoothFeature):
-                state.destination = .bluetoothFeature(BluetoothFeature.State())
+            case let .core(.openBluetoothFeature(bluetoothStatus)):
+                state.destination = .bluetoothFeature(BluetoothFeature.State(bluetoothStatus: bluetoothStatus))
                 return .none
                 
                 // MARK: - Child Action
@@ -151,13 +161,14 @@ struct ConfigurationFeature {
                 return .none
                 
                 // MARK: - Destination Action
-            case .destination(.dismiss):
-                // Po zamknięciu BluetoothFeature sprawdź status ponownie
-                return .run { send in
-                    let currentStatus = await client.getCurrentStatus()
-                    await send(.core(.bluetoothStatusChanged(currentStatus)))
-                }
                 
+//            case .destination(.dismiss):
+//                // Po zamknięciu BluetoothFeature sprawdź status ponownie
+//                return .run { send in
+//                    let currentStatus = await client.getCurrentStatus()
+//                    await send(.core(.bluetoothStatusChanged(currentStatus)))
+//                }
+            
             case .destination(_):
                 return .none
             }
@@ -172,123 +183,3 @@ struct ConfigurationFeature {
     }
 }
 
-extension ConfigurationFeature {
-    
-    enum CancelID: Hashable, Sendable {
-        case advance
-    }
-}
-
-/// Implementation of `ConfigurationFeature` action
-extension ConfigurationFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Core Actions
-        
-        case core(Internal)
-        
-        enum Internal {
-            /// Zmiana stanu widoku (device/activity/ready)
-            case changeViewState(SetupPhase)
-            
-            /// Aktualizacja statusu Bluetooth w ConfigurationFeature
-            case bluetoothStatusChanged(BluetoothStatus)
-            
-            /// Otwórz BluetoothFeature sheet
-            case openBluetoothFeature
-        }
-        
-        // MARK: - View Actions
-        
-        case view(View)
-        
-        enum View {
-            /// Widok się pojawił - sprawdź status Bluetooth
-            case viewDidAppear
-            
-            /// User nacisnął przycisk zamknięcia
-            case closeButtonTapped
-            
-            /// User nacisnął przycisk powrotu do wyboru urządzenia
-            case backToDeviceButtonTapped
-            
-            /// User nacisnął przycisk powrotu do wyboru aktywności
-            case backToActivityButtonTapped
-            
-            /// User nacisnął przycisk START
-            case startButtonTapped
-            
-            /// User nacisnął przycisk skanowania Bluetooth
-            case startScanningBluetoothButtonTapped
-        }
-        
-        // MARK: - Delegate Actions
-        
-        case delegate(DelegateAction)
-        
-        enum DelegateAction: Equatable {
-            /// Rozpocznij trening z wybranym typem ćwiczenia
-            case start(WorkoutType)
-        }
-        
-        // MARK: - Destination
-        
-        /// Navigation destination actions
-        case destination(PresentationAction<Destination.Action>)
-        
-        // MARK: - Child
-        
-        /// DeviceFeature child actions
-        case device(DeviceFeature.Action)
-        
-        /// ActivityPickerFeature child actions
-        case activity(ActivityPickerFeature.Action)
-    }
-}
-
-/// Implementation of `ConfigurationFeature` state
-extension ConfigurationFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        /// Aktualny stan widoku konfiguracji (device/activity/ready)
-        var viewState: SetupPhase = .device
-        
-        /// Aktualny status Bluetooth (ready/disabled/unknown etc.)
-        var bluetoothStatus: BluetoothStatus = .unknown
-        
-        /// Wybrane urządzenie do treningu (iPhone/Watch/Mirror)
-        var selectedDevice: DeviceOption? = nil
-        
-        /// Wybrany typ treningu
-        var selectedWorkout: WorkoutType? = nil
-        
-        // MARK: - Destination
-        
-        /// Navigation destination state
-        @Presents var destination: Destination.State?
-        
-        // MARK: - Child
-        
-        /// DeviceFeature child state
-        var device: DeviceFeature.State = .init()
-        
-        /// ActivityPickerFeature child state
-        var activity: ActivityPickerFeature.State = .init()
-    }
-}
-
-/// Implementation of `ConfigurationFeature` destination
-extension ConfigurationFeature {
-    
-    @Reducer
-    enum Destination {
-        /// BluetoothFeature destination dla skanowania i łączenia urządzeń
-        case bluetoothFeature(BluetoothFeature)
-    }
-}
