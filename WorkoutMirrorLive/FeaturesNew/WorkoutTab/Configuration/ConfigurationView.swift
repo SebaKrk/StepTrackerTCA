@@ -37,9 +37,6 @@ struct ConfigurationView: View {
                     BluetoothView(store: store)
                         .presentationDetents([.medium, .large])
                 }
-            //                .onDisappear {
-            //                    send(.viewDidDisappear)
-            //                }
             
         }
     }
@@ -82,16 +79,39 @@ struct ConfigurationView: View {
             
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    bluetoothButtonStatus
-                    appleWatchConnectStatusButton
+                    availableDeviceNavButton
                     Divider()
-                    Text("Connection status")
+                    sensorView
+                    //bluetoothButtonStatus
+                    appleWatchConnectStatusButton
                 } label: {
-                    //menuInfoImage
                     gearShapeImage
                 }
             }
         }
+    }
+    
+    private var availableDeviceNavButton: some View {
+        Button {
+            send(.scanningBluetoothButtonTapped)
+        } label: {
+            Label {
+                Text("available device")
+            } icon: {
+                Image("bluetooth")
+                    .renderingMode(.template)
+                    .foregroundColor(.white)
+            }
+        }
+    }
+    
+    private var sensorView: some View {
+            Label {
+                Text("Połączony")
+                    .foregroundStyle(.white)
+            } icon: {
+                Image("custom.heart.badge.waveform")
+            }
     }
     
     private var bluetoothButtonStatus: some View {
@@ -103,11 +123,11 @@ struct ConfigurationView: View {
     }
     
     private var appleWatchConnectStatusButton: some View {
-        Button {
+//        Button {
             
-        } label: {
+//        } label: {
             appleWatchConnectStatus
-        }
+//        }
     }
     
     
@@ -120,7 +140,7 @@ struct ConfigurationView: View {
                 .foregroundColor(.white)
         }
     }
-    
+    // Bluetooth Available device
     private func tabLabel(_ title: String,
                           _ status: BluetoothStatus,
                           _ icon: String) -> some View {
