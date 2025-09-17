@@ -27,6 +27,9 @@ extension ConfigurationFeature {
             /// Aktualizacja statusu Bluetooth w ConfigurationFeature
             case bluetoothStatusChanged(BluetoothStatus)
             
+            ///
+            case watchConnectivityStatusChange(WatchConnectivityStatus)
+            
             /// Otwórz BluetoothFeature sheet
             case openBluetoothFeature(BluetoothStatus)
             
@@ -55,6 +58,8 @@ extension ConfigurationFeature {
             
             /// User nacisnął przycisk skanowania Bluetooth
             case scanningBluetoothButtonTapped
+            
+            case checkWatch
 
         }
         

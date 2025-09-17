@@ -24,6 +24,9 @@ extension ConfigurationFeature {
         /// Aktualny status Bluetooth (ready/disabled/unknown etc.)
         var bluetoothStatus: BluetoothStatus = .unknown
         
+        ///
+        var watchConnectivityStatus: WatchConnectivityStatus = .unknown
+        
         /// Wybrane urządzenie do treningu (iPhone/Watch/Mirror)
         var selectedDevice: DeviceOption? = nil
         

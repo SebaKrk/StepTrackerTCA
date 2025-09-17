@@ -17,7 +17,8 @@ struct ConfigurationFeature {
     
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.continuousClock) var clock
-    @Dependency(\.bluetoothClient) var client
+    @Dependency(\.bluetoothClient) var bluetoothClient
+    @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     
     // MARK: - Reducer
     
@@ -41,7 +42,7 @@ struct ConfigurationFeature {
                 
             case .core(.startBluetoothStatusMonitoring):
                 return .run { send in
-                    let statusStream = await client.statusUpdates()
+                    let statusStream = await bluetoothClient.statusUpdates()
                     
                     for await status in statusStream {
                         await send(.core(.bluetoothStatusChanged(status)))
@@ -49,20 +50,26 @@ struct ConfigurationFeature {
                 }
                 .cancellable(id: "bluetoothStatusMonitoring")
                 
-                // MARK: - View Action
+            case let .core(.watchConnectivityStatusChange(status)):
+                state.watchConnectivityStatus = status
+                return .none
                 
+                // MARK: - View Action
             case .view(.viewDidAppear):
                 return .concatenate(
                     .run { _ in
-                        await client.initializeBluetooth()
+                        await bluetoothClient.initializeBluetooth()
+                        await watchConnectivityClient.initializeWatchConnectivity()
                     },
-                    .merge(
-                        .run { send in
-                            let finalStatus = await client.getCurrentStatus()
-                            await send(.core(.bluetoothStatusChanged(finalStatus)))
-                        },
-                        .send(.core(.startBluetoothStatusMonitoring))
-                    )
+                    .run { send in
+                        let finalStatus = await bluetoothClient.getCurrentStatus()
+                        await send(.core(.bluetoothStatusChanged(finalStatus)))
+                    },
+                    .send(.core(.startBluetoothStatusMonitoring)),
+                    .run { send in
+                        let status = await watchConnectivityClient.checkWatchStatus()
+                        await send(.core(.watchConnectivityStatusChange(status)))
+                    }
                 )
                 
             case .view(.closeButtonTapped):
@@ -115,6 +122,12 @@ struct ConfigurationFeature {
                     }
                 }
                 
+            case .view(.checkWatch):
+                return .run { send in
+                    let status = await watchConnectivityClient.checkWatchStatus()
+                    await send(.core(.watchConnectivityStatusChange(status)))
+                }
+                
             case let .core(.openBluetoothFeature(bluetoothStatus)):
                 state.destination = .bluetoothFeature(BluetoothFeature.State(bluetoothStatus: bluetoothStatus))
                 return .none
@@ -161,14 +174,6 @@ struct ConfigurationFeature {
                 return .none
                 
                 // MARK: - Destination Action
-                
-//            case .destination(.dismiss):
-//                // Po zamknięciu BluetoothFeature sprawdź status ponownie
-//                return .run { send in
-//                    let currentStatus = await client.getCurrentStatus()
-//                    await send(.core(.bluetoothStatusChanged(currentStatus)))
-//                }
-            
             case .destination(_):
                 return .none
             }

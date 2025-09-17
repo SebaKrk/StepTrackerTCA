@@ -39,17 +39,7 @@ public enum BluetoothStatus: Sendable, Equatable {
         }
     }
     
-    public var buttonText: String {
-        switch self {
-        case .ready: return "Rozpocznij skanowanie"
-        case .disconnected: return "Połącz ponownie"
-        case .unauthorized: return "Otwórz ustawienia"
-        case .disabled: return "Włącz Bluetooth"
-        case .unsupported: return "Nieaktywne"
-        case .unknown: return "Czekaj..."
-        }
-    }
-    
+
     // MARK: - Nowe właściwości dla ContentUnavailableView
     
     /// Tytuł wyświetlany w ContentUnavailableView
