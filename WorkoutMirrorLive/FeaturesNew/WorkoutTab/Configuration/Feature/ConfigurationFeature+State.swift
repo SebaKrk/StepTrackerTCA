@@ -33,6 +33,9 @@ extension ConfigurationFeature {
         /// Wybrany typ treningu
         var selectedWorkout: WorkoutType? = nil
         
+        ///
+        var isHeartRateConnected: Bool = false
+        
         // MARK: - Destination
         
         /// Navigation destination state

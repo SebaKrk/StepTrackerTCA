@@ -80,8 +80,7 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
        
        await scanActor.startScanning()
        cbCentralManager.scanForPeripherals(withServices: [
-           Gatt.Service.heartRate,
-           Gatt.Service.weightScale
+           Gatt.Service.heartRate
        ])
        
        print("🔍 Started scanning for devices")
@@ -120,6 +119,12 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
     public func disconnect(_ peripheral: CBPeripheral) async {
        cbCentralManager.cancelPeripheralConnection(peripheral)
    }
+    
+    public func checkConnectedDevicesFirst() async -> [CBPeripheral] {
+        cbCentralManager.retrieveConnectedPeripherals(withServices: [
+            Gatt.Service.heartRate
+        ])
+    }
    
    // MARK: - Private Helpers
    

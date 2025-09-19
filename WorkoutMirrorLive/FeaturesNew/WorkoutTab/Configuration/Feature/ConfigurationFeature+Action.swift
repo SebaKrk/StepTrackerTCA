@@ -33,7 +33,12 @@ extension ConfigurationFeature {
             /// Otwórz BluetoothFeature sheet
             case openBluetoothFeature(BluetoothStatus)
             
+            ///
             case startBluetoothStatusMonitoring
+
+            ///
+            case heartRateConnectionChanged(Bool)
+             
         }
         
         // MARK: - View Actions

@@ -87,7 +87,7 @@ struct ConfigurationView: View {
                     } label: {
                         connectionImage
                     }
-                    .badge(2)
+                    //.badge(store.connectionBadge)
                 }
             } else {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -111,7 +111,7 @@ struct ConfigurationView: View {
     
     private var heartRateSensorConnectStatus: some View {
         Label {
-            Text("Connect")
+            Text(store.isHeartRateConnected ? "connected" : "disconnected")
                 .foregroundStyle(.white)
         } icon: {
             Image(systemName: "heart")

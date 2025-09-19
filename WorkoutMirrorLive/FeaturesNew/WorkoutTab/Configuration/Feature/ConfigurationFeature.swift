@@ -40,6 +40,10 @@ struct ConfigurationFeature {
                 }
                 return .none
                 
+            case let .core(.heartRateConnectionChanged(isConnected)):
+                state.isHeartRateConnected = isConnected
+                return .none
+                
             case .core(.startBluetoothStatusMonitoring):
                 return .run { send in
                     let statusStream = await bluetoothClient.statusUpdates()
@@ -66,6 +70,10 @@ struct ConfigurationFeature {
                         await send(.core(.bluetoothStatusChanged(finalStatus)))
                     },
                     .send(.core(.startBluetoothStatusMonitoring)),
+                    .run {send in
+                        let devices = await bluetoothClient.checkConnectedDevicesFirst()
+                        await send(.core(.heartRateConnectionChanged(devices.count > 0)))
+                    },
                     .run { send in
                         let status = await watchConnectivityClient.checkWatchStatus()
                         await send(.core(.watchConnectivityStatusChange(status)))
