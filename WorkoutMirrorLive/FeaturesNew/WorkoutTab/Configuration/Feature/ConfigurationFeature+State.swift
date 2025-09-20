@@ -24,11 +24,29 @@ extension ConfigurationFeature {
         /// Aktualny status Bluetooth (ready/disabled/unknown etc.)
         var bluetoothStatus: BluetoothStatus = .unknown
         
+        ///
+        var watchConnectivityStatus: WatchConnectivityStatus = .unknown
+        
         /// Wybrane urządzenie do treningu (iPhone/Watch/Mirror)
         var selectedDevice: DeviceOption? = nil
         
         /// Wybrany typ treningu
         var selectedWorkout: WorkoutType? = nil
+        
+        ///
+        var isHeartRateConnected: Bool = false
+        
+        /// Liczba połączonych urządzeń (0, 1, 2)
+        var connectionBadge: Int {
+            var count = 0
+            if isHeartRateConnected {
+                count += 1
+            }
+            if watchConnectivityStatus == .ready {
+                count += 1
+            }
+            return count
+        }
         
         // MARK: - Destination
         

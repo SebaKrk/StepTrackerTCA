@@ -174,8 +174,9 @@ struct BluetoothView: View {
             send(.scanningButtonTapped)
         } label: {
             Image(systemName: store.isScanning ? "stop" : "play")
-                .tint(store.isScanning ? .red : .blue)
+                .foregroundStyle(.white)
         }
+//        .tint(store.isScanning ? .red : .blue)
         .buttonStyle(.borderedProminent)
     }
     

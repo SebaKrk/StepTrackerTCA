@@ -49,7 +49,7 @@ struct BluetoothStatusView: View {
                         Image(systemName: "arrow.right.circle")
                             .font(.system(size: 25))
                             .padding(.bottom, 1)
-                        Text(bluetoothStatus.buttonText)
+                        Text(bluetoothStatus.labelText)
                             .font(.footnote)
                     }
                     .foregroundStyle(.blue)
