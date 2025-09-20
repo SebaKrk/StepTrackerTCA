@@ -49,6 +49,9 @@ public struct BluetoothClient: Sendable {
     
     /// Zwraca urządzenia aktualnie połączone z systemem iOS
      public var getConnectedPeripherals: @Sendable () async -> [CBPeripheral]
+    
+    /// Sprawdza czy system iOS ma już połączone urządzenia HR/Weight Scale
+    public var checkConnectedDevicesFirst: @Sendable () async -> [CBPeripheral]
 }
 
 // MARK: - Dependency Registration
@@ -130,7 +133,12 @@ public enum BluetoothClientKey: DependencyKey {
             /// Zwraca urządzenia aktualnie połączone z systemem iOS
             getConnectedPeripherals: {
                 return await centralManager.getConnectedPeripherals()
+            },
+            /// Sprawdza połączone urządzenia
+            checkConnectedDevicesFirst: {
+                return await centralManager.checkConnectedDevicesFirst()
             }
+            
         )
     }()
 }

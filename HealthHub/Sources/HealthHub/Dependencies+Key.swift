@@ -122,3 +122,18 @@ public extension DependencyValues {
         set { self[CentralManagerKey.self] = newValue }
     }
 }
+
+/// A TCA dependency key for accessing the live implementation of the watch connectivity manager.
+public enum WatchConnectivityManagerKey: DependencyKey {
+    public static let liveValue: WatchConnectivityManager = {
+        let watchManager = DefaultWatchConnectivityManager()
+        return watchManager
+    }()
+}
+
+public extension DependencyValues {
+    var watchConnectivityManager: WatchConnectivityManager {
+        get { self[WatchConnectivityManagerKey.self] }
+        set { self[WatchConnectivityManagerKey.self] = newValue }
+    }
+}

@@ -48,6 +48,9 @@ public protocol CentralManager: Sendable {
     
     /// Zwraca urządzenia aktualnie połączone z systemem iOS które mają określone serwisy
     func getConnectedPeripherals() async -> [CBPeripheral]
+    
+    /// Sprawdza czy system iOS ma już połączone urządzenia HR
+    func checkConnectedDevicesFirst() async -> [CBPeripheral]
    
    // MARK: - Event Streams (komunikacja z TCA)
    

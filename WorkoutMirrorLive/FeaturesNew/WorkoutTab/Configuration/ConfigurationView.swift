@@ -77,17 +77,36 @@ struct ConfigurationView: View {
                 }
             }
             
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    availableDeviceNavButton
-                    Divider()
-                    sensorView
-                    //bluetoothButtonStatus
-                    appleWatchConnectStatusButton
-                } label: {
-                    gearShapeImage
+            if store.bluetoothStatus == .ready  {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if store.connectionBadge == 0 {
+                        toolBarbBlueToothMenuButton
+                    } else {
+                        toolBarbBlueToothMenuButton
+                            .badge(store.connectionBadge)
+                    }
+                }
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        bluetoothButtonStatus
+                    } label: {
+                        noConnectionImage
+                    }
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var toolBarbBlueToothMenuButton: some View {
+        Menu {
+            availableDeviceNavButton
+            Divider()
+            heartRateSensorConnectStatus
+            appleWatchConnectStatus
+        } label: {
+            connectionImage
         }
     }
     
@@ -95,23 +114,25 @@ struct ConfigurationView: View {
         Button {
             send(.scanningBluetoothButtonTapped)
         } label: {
-            Label {
-                Text("available device")
-            } icon: {
-                Image("bluetooth")
-                    .renderingMode(.template)
-                    .foregroundColor(.white)
-            }
+            Text("Bluetooth Devices")
         }
     }
     
-    private var sensorView: some View {
-            Label {
-                Text("Połączony")
-                    .foregroundStyle(.white)
-            } icon: {
-                Image("custom.heart.badge.waveform")
-            }
+    private var heartRateSensorConnectStatus: some View {
+        Label {
+            Text(store.isHeartRateConnected ? "connected" : "disconnected")
+                .foregroundStyle(.white)
+        } icon: {
+            Image(systemName: "heart")
+        }
+    }
+    
+    private var appleWatchConnectStatus: some View {
+        Label {
+            Text(store.watchConnectivityStatus.rawValue)
+        } icon: {
+            Image(systemName: "applewatch.side.right")
+        }
     }
     
     private var bluetoothButtonStatus: some View {
@@ -122,30 +143,11 @@ struct ConfigurationView: View {
         }
     }
     
-    private var appleWatchConnectStatusButton: some View {
-//        Button {
-            
-//        } label: {
-            appleWatchConnectStatus
-//        }
-    }
-    
-    
-    private var appleWatchConnectStatus: some View {
-        Label {
-            Text("Połączony")
-        } icon: {
-            Image(systemName: "applewatch.side.right")
-                .renderingMode(.template)
-                .foregroundColor(.white)
-        }
-    }
-    // Bluetooth Available device
     private func tabLabel(_ title: String,
                           _ status: BluetoothStatus,
                           _ icon: String) -> some View {
         Label {
-            Text("\(status.labelText)")
+            Text("\(title) \(status.emoji) \(status.labelText)")
         } icon: {
             Image("bluetooth")
                 .renderingMode(.template)
@@ -153,6 +155,7 @@ struct ConfigurationView: View {
         }
     }
     
+    @ToolbarContentBuilder
     private var activityToolBar: some ToolbarContent {
         Group {
             ToolbarItem(placement: .topBarLeading) {
@@ -207,6 +210,14 @@ struct ConfigurationView: View {
         Image(systemName: "ellipsis")
     }
     
+    private var noConnectionImage: some View {
+        Image(systemName: "antenna.radiowaves.left.and.right.slash")
+    }
+    
+    private var connectionImage: some View {
+        Image(systemName: "antenna.radiowaves.left.and.right")
+    }
+    
     private var gearShapeImage: some View {
         ZStack(alignment: .bottomTrailing) {
             Image(systemName: "gearshape")
@@ -215,7 +226,7 @@ struct ConfigurationView: View {
                 .fill(Color.red)
                 .frame(width: 10, height: 10)
                 .overlay(
-                    Text("!")
+                    Text("2") // <--- aktualizowac liczbe dostepnych sensorow
                         .font(.system(size: 7, weight: .bold))
                         .foregroundColor(.white)
                 )
