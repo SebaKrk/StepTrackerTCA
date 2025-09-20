@@ -79,15 +79,12 @@ struct ConfigurationView: View {
             
             if store.bluetoothStatus == .ready  {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        availableDeviceNavButton
-                        Divider()
-                        heartRateSensorConnectStatus
-                        appleWatchConnectStatus
-                    } label: {
-                        connectionImage
+                    if store.connectionBadge == 0 {
+                        toolBarbBlueToothMenuButton
+                    } else {
+                        toolBarbBlueToothMenuButton
+                            .badge(store.connectionBadge)
                     }
-                    //.badge(store.connectionBadge)
                 }
             } else {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -98,6 +95,18 @@ struct ConfigurationView: View {
                     }
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var toolBarbBlueToothMenuButton: some View {
+        Menu {
+            availableDeviceNavButton
+            Divider()
+            heartRateSensorConnectStatus
+            appleWatchConnectStatus
+        } label: {
+            connectionImage
         }
     }
     
