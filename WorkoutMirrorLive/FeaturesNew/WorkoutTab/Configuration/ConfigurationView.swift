@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import HealthHub
+import SharedModels
 
 @ViewAction(for: ConfigurationFeature.self)
 struct ConfigurationView: View {

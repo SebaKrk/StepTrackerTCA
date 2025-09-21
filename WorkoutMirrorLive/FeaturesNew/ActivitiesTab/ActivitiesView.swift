@@ -26,6 +26,12 @@ struct ActivitiesView: View {
             .toolbar {
                 toolbarButton
             }
+            .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
+                SettingsView(store: store)
+            }
+            .sheet(item: $store.scope(state: \.destination?.animationTest, action: \.destination.animationTest)) { store in
+                AnimationView(store: store)
+            }
         }
     }
     
@@ -33,7 +39,16 @@ struct ActivitiesView: View {
     var toolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                // You can add menu actions here in the future
+                Button {
+                    send(.settingsButtonTapped)
+                } label: {
+                    Text("Settings")
+                }
+                Button {
+                    send(.activitiesButtonTapped)
+                } label: {
+                    Text("Animation")
+                }
             } label: {
                 filterImage
             }
@@ -45,4 +60,3 @@ struct ActivitiesView: View {
         Image(systemName: "line.3.horizontal.decrease")
     }
 }
-

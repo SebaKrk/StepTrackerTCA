@@ -2,7 +2,7 @@
 //  HeartRateZone.swift
 //  SharedModels
 //
-//  Created by Sebastian Sciuba on 24/06/2025.
+//  Created by Sebastian Sciuba on 21/09/2025.
 //
 
 import SwiftUI

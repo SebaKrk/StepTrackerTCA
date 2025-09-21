@@ -1,13 +1,13 @@
 //
 //  SetupPhase.swift
-//  MyFitnessJournal
+//  SharedModels
 //
-//  Created by Sebastian Sciuba on 23/08/2025.
+//  Created by Sebastian Sciuba on 21/09/2025.
 //
 
 import Foundation
 
-enum SetupPhase: Equatable, Identifiable, CaseIterable {
+public enum SetupPhase: Equatable, Identifiable, CaseIterable {
     
     /// wybór: watch / iPhone / mirror
     case device 
@@ -24,18 +24,19 @@ enum SetupPhase: Equatable, Identifiable, CaseIterable {
     /// sygnał do startu (GO)
     case ready
     
-    var id : Self { self }
+    public var id : Self { self }
     
 }
 
 extension SetupPhase {
     
-    var navTitle: String {
+    public var navTitle: String {
+        
         switch self {
-            
         case .device: return "Chose device"
         case .activity: return "Chose activity"
         case .ready: return ""
         }
     }
+    
 }

@@ -1,19 +1,19 @@
 //
 //  DeviceOption.swift
-//  MyFitnessJournal
+//  SharedModels
 //
-//  Created by Sebastian Sciuba on 24/08/2025.
+//  Created by Sebastian Sciuba on 21/09/2025.
 //
 
 import Foundation
 
-enum DeviceOption: CaseIterable, Equatable {
+public enum DeviceOption: CaseIterable, Equatable {
     
     case watch
     case iphone
     case mirror
     
-    var title: String {
+    public var title: String {
         switch self {
         case .watch:  "Watch"
         case .iphone: "iPhone"
@@ -21,7 +21,7 @@ enum DeviceOption: CaseIterable, Equatable {
         }
     }
     
-    var symbolName: String {
+    public var symbolName: String {
         switch self {
         case .watch:  "applewatch"
         case .iphone: "iphone"

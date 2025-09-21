@@ -23,6 +23,14 @@ struct ActivitiesFeature {
             case .view(.viewDidAppear):
                 return .none
                 
+            case .view(.settingsButtonTapped):
+                state.destination = .settings(SettingsFeature.State())
+                return .none
+                
+            case .view(.activitiesButtonTapped):
+                state.destination = .animationTest(AnimationFeature.State())
+                return .none
+                
             case .destination(_):
                 return .none
             }
@@ -47,6 +55,11 @@ extension ActivitiesFeature {
                     
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            case settingsButtonTapped
+            
+            case activitiesButtonTapped
+            
         }
         
         // MARK: - Destination
@@ -80,6 +93,11 @@ extension ActivitiesFeature {
     @Reducer
     enum Destination {
         
+        /// Represents the destination for displaying in `SettingsFeature`.
+        case settings(SettingsFeature)
+        
+        /// Represents the destination for displaying in `AnimationFeature`.
+        case animationTest(AnimationFeature)
     }
 }
 

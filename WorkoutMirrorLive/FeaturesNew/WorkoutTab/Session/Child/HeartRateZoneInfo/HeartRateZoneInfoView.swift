@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import SharedModels
 
 @ViewAction(for: HeartRateZoneInfoFeature.self)
 struct HeartRateZoneInfoView: View {

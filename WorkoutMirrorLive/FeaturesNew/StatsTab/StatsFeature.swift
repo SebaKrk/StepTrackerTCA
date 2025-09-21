@@ -23,13 +23,7 @@ struct StatsFeature {
             case .view(.viewDidAppear):
                 return .none
                 
-            case .view(.settingsButtonTapped):
-                state.destination = .settings(SettingsFeature.State())
-                return .none
-                
-                // test
-            case .view(.incrementButtonTapped):
-                state.counter += 1
+            case .view(.personButtonTapped):
                 return .none
                 
             case .destination(_):
@@ -58,11 +52,7 @@ extension StatsFeature {
             case viewDidAppear
             
             ///
-            case settingsButtonTapped
-            
-            //TEST
-            /// Action triggered when increment button is tapped
-            case incrementButtonTapped
+            case personButtonTapped
 
         }
         
@@ -81,11 +71,6 @@ extension StatsFeature {
         
         // MARK: - Properties
         
-        // TEST
-        /// Counter value that will be animated
-        var counter: Float = 0
-
-        
         // MARK: - Destination
         
         /// destination from SummaryFeature
@@ -99,9 +84,7 @@ extension StatsFeature {
     
     @Reducer
     enum Destination {
-        
-        /// Represents the destination for displaying in `SettingsFeature`.
-        case settings(SettingsFeature)
+
     }
 }
 
