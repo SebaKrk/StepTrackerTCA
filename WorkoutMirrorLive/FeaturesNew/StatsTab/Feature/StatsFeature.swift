@@ -24,6 +24,7 @@ struct StatsFeature {
                 return .none
                 
             case .view(.personButtonTapped):
+                state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
                 
             case .destination(_):
@@ -84,7 +85,7 @@ extension StatsFeature {
     
     @Reducer
     enum Destination {
-
+        case personSettings(PersonSettingsFeature)
     }
 }
 

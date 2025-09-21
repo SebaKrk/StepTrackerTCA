@@ -439,4 +439,7 @@
     A: Bluetooth - sandbox
     B: BLE - fitness device scanning
     C: WatchConnectivity
+    
+### IOS-00048 PersonSettings
+    A: Create PersonSettingsFeature
 
