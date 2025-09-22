@@ -17,21 +17,39 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
     // MARK: - HealthKit Configuration
     
     let shareTypes: Set<HKSampleType> = [
+        ///Activity & Steps
         HKQuantityType(.stepCount),
+        
+        ///Body Metrics
         HKQuantityType(.bodyMass),
+        
+        /// Workouts & Heart Rate
         HKQuantityType.workoutType(),
         HKQuantityType(.heartRate),
         HKQuantityType(.activeEnergyBurned)
     ]
 
     let readTypes: Set<HKObjectType> = [
-        HKQuantityType(.stepCount),
+        /// Personal Info (Characteristics)
+        HKCharacteristicType(.dateOfBirth),
+        HKCharacteristicType(.biologicalSex),
+        
+        /// Body Metrics
+        HKQuantityType(.height),
         HKQuantityType(.bodyMass),
+        
+        /// Heart Rate & Health
         HKQuantityType(.heartRate),
-        HKQuantityType(.activeEnergyBurned),
-        HKQuantityType(.workoutEffortScore),
+        HKQuantityType(.restingHeartRate),
+        
+        /// Activity & Steps
+        HKQuantityType(.stepCount),
         HKObjectType.activitySummaryType(),
-        HKObjectType.workoutType()
+        
+        /// Workouts & Energy
+        HKObjectType.workoutType(),
+        HKQuantityType(.activeEnergyBurned),
+        HKQuantityType(.workoutEffortScore) 
     ]
     
     // MARK: - Lifecycle

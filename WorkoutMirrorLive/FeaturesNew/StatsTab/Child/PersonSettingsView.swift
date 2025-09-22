@@ -34,9 +34,9 @@ struct PersonSettingsView: View {
         List {
             Section {
                 coreMetricsCell("Name", "Sebastian")
+                coreMetricsCell("Surename", "-")
             }
             Section {
-                coreMetricsCell("Name", "Sebastian")
                 coreMetricsCell("Height", "182 cm")
                 coreMetricsCell("Age", "38")
                 coreMetricsCell("Weight", "78 kg")
