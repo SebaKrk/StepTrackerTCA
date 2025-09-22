@@ -37,7 +37,7 @@ import SharedModels
 ///     print("Current weight: \(weightData.value) kg")
 /// }
 /// ```
-protocol PersonalDataManager {
+public protocol PersonalDataManager: Sendable {
     
     /// Retrieves the user's age calculated from their date of birth.
     ///

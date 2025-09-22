@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct PersonSettingsFeature {
@@ -23,10 +24,48 @@ struct PersonSettingsFeature {
             switch action {
                 
                 // MARK: - Action
+            case let .changeAge(age):
+                state.age = age
+                return .none
+                
+            case let .changeSex(sex):
+                state.sex = sex
+                return .none
+                
+            case let .changeHeight(height):
+                state.height = height
+                return .none
+                
+            case let .changeWeight(weight):
+                state.weight = weight
+                return .none
+                
+            case let .changeRestingHeartRate(restingHeartRate):
+                state.restingHeartRate = restingHeartRate
+                return .none
+            
+            case .fetchPersonalData:
+                return .run { send in
+                    do {
+                        let age = try await personalDataClient.getAge()
+                        let sex = try await personalDataClient.getBiologicalSex()
+                        let height = try await personalDataClient.getHeight()
+                        let weight = try await personalDataClient.getWeight(1)
+                        let restingHR = try await personalDataClient.getRestingHeartRate(7)
+                        
+                        await send(.changeAge(age?.description ?? "-"))
+                        await send(.changeSex(sex ?? "-"))
+                        await send(.changeHeight(height != nil ? "\(Int(height!.value)) cm" : "-"))
+                        await send(.changeWeight(weight != nil ? "\(Int(weight!.value)) kg" : "-"))
+                        await send(.changeRestingHeartRate(restingHR != nil ? "\(Int(restingHR!.value)) bpm" : "-"))
+                    } catch {
+                        print("Failed to fetch personal data: \(error)")
+                    }
+                }
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .none
+                return .send(.fetchPersonalData)
                 
             case .view(.xMarkButtonTapped):
                 return .run { send in
@@ -48,6 +87,18 @@ extension PersonSettingsFeature {
     enum Action: ViewAction {
         
         // MARK: - Actions
+        
+        case changeAge(String)
+        
+        case changeSex(String)
+        
+        case changeHeight(String)
+        
+        case changeWeight(String)
+        
+        case changeRestingHeartRate(String)
+        
+        case fetchPersonalData
         
         // MARK: - View Actions
         
@@ -77,7 +128,15 @@ extension PersonSettingsFeature {
         
         // MARK: - Properties
         
-        let age: Int? = nil
+        var age: String = "-"
+        
+        var sex: String = "-"
+        
+        var height: String = "-"
+        
+        var weight: String = "-"
+        
+        var restingHeartRate: String = "-"
         
         // MARK: - Destination
         

@@ -21,7 +21,7 @@ import Foundation
 /// - Activity metrics (steps, calories burned)
 /// - Health characteristics (age, biological sex)`
 /// 
-public struct HealthKitData: Identifiable, Equatable {
+public struct HealthKitData: Identifiable, Equatable, Sendable {
     
     /// A unique identifier for each health data entry.
     ///

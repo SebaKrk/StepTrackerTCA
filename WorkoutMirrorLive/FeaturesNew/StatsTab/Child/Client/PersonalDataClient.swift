@@ -11,6 +11,7 @@ import HealthHub
 import SharedModels
 
 public struct PersonalDataClient {
+    
     var getAge: @Sendable () async throws -> Int?
     var getBiologicalSex: @Sendable () async throws -> String?
     var getHeight: @Sendable () async throws -> HealthKitData?

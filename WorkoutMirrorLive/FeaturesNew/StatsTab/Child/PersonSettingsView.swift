@@ -20,6 +20,9 @@ struct PersonSettingsView: View {
     var body: some View {
         NavigationStack {
             rootView
+                .onAppear {
+                    send(.viewDidAppear)
+                }
                 .toolbar {
                     toolbarButton
                 }
@@ -37,15 +40,15 @@ struct PersonSettingsView: View {
                 coreMetricsCell("Surename", "-")
             }
             Section {
-                coreMetricsCell("Height", "182 cm")
-                coreMetricsCell("Age", "38")
-                coreMetricsCell("Weight", "78 kg")
-                coreMetricsCell("Sex", "Male")
+                coreMetricsCell("Height", store.height)
+                coreMetricsCell("Age", store.age)
+                coreMetricsCell("Weight", store.weight)
+                coreMetricsCell("Sex", store.sex)
             } header: {
                 Text("Personal Info")
             }
             Section {
-                coreMetricsCell("Resting HR", "65 bpm")
+                coreMetricsCell("Resting HR", store.restingHeartRate)
                 coreMetricsCell("Activity Level", "Active")
             } header: {
                 Text("Heart Rate & Activity")

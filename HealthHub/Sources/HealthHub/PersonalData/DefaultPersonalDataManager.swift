@@ -9,12 +9,22 @@ import ComposableArchitecture
 import SharedModels
 import HealthKit
 
-final class DefaultPersonalDataManager: PersonalDataManager {
+@preconcurrency
+public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked Sendable {
+    
+
+    // MARK: - Dependency
     
     @Dependency(\.authorizationManager) var manager
     
+    // MARK: - Lifecycle
+    
+    public init() {}
+    
+    // MARK: - API
+    
     /// Retrieves user's age by calculating from date of birth stored in HealthKit characteristics.
-    func getAge() async throws -> Int? {
+    public func getAge() async throws -> Int? {
         do {
             let dateOfBirthComponents = try manager.healthStore.dateOfBirthComponents()
             
@@ -32,7 +42,7 @@ final class DefaultPersonalDataManager: PersonalDataManager {
     }
     
     /// Retrieves user's biological sex directly from HealthKit characteristics as a readable string.
-    func getBiologicalSex() async throws -> String? {
+    public func getBiologicalSex() async throws -> String? {
         do {
             let biologicalSex = try manager.healthStore.biologicalSex()
             switch biologicalSex.biologicalSex {
@@ -49,7 +59,7 @@ final class DefaultPersonalDataManager: PersonalDataManager {
     }
     
     /// Fetches the most recent height measurement from HealthKit and returns value in centimeters.
-    func getHeight() async throws -> HealthKitData? {
+    public func getHeight() async throws -> HealthKitData? {
         let heightType = HKQuantityType(.height)
         let samplePredicate = HKSamplePredicate.quantitySample(type: heightType, predicate: nil)
         
@@ -68,7 +78,7 @@ final class DefaultPersonalDataManager: PersonalDataManager {
     }
     
     /// Retrieves average weight from the specified number of days using HealthKitQueryBuilder with discrete averaging.
-    func getWeight(days: Int = 1) async throws -> HealthKitData? {
+    public func getWeight(days: Int = 1) async throws -> HealthKitData? {
         let (startDate, endDate) = HealthKitQueryBuilder.calculateDateRange(for: days)
         let query = HealthKitQueryBuilder.buildQuery(
             for: .bodyMass,
@@ -88,7 +98,7 @@ final class DefaultPersonalDataManager: PersonalDataManager {
     }
     
     /// Fetches average resting heart rate from the specified days using HealthKitQueryBuilder for cardiovascular data.
-    func getRestingHeartRate(days: Int = 7) async throws -> HealthKitData? {
+    public func getRestingHeartRate(days: Int = 7) async throws -> HealthKitData? {
         let (startDate, endDate) = HealthKitQueryBuilder.calculateDateRange(for: days)
         let query = HealthKitQueryBuilder.buildQuery(
             for: .restingHeartRate,
