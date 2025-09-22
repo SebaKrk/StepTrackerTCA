@@ -13,6 +13,7 @@ struct PersonSettingsFeature {
     
     // MARK: - Dependency
     
+    @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -75,6 +76,8 @@ extension PersonSettingsFeature {
     struct State {
         
         // MARK: - Properties
+        
+        let age: Int? = nil
         
         // MARK: - Destination
         
