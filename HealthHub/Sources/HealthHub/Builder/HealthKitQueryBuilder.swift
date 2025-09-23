@@ -142,4 +142,5 @@ public final class HealthKitQueryBuilder {
             return HealthKitData(date: $0.startDate, value: value)
         }
     }
+    
 }

@@ -12,7 +12,6 @@ import HealthKit
 @preconcurrency
 public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked Sendable {
     
-
     // MARK: - Dependency
     
     @Dependency(\.authorizationManager) var manager
@@ -78,7 +77,8 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     }
     
     /// Retrieves average weight from the specified number of days using HealthKitQueryBuilder with discrete averaging.
-    public func getWeight(days: Int = 1) async throws -> HealthKitData? {
+    
+    public func getWeight(days: Int = 30) async throws -> HealthKitData? {
         let (startDate, endDate) = HealthKitQueryBuilder.calculateDateRange(for: days)
         let query = HealthKitQueryBuilder.buildQuery(
             for: .bodyMass,
@@ -94,7 +94,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             options: .discreteAverage
         )
         
-        return processedData.first
+        return processedData.last 
     }
     
     /// Fetches average resting heart rate from the specified days using HealthKitQueryBuilder for cardiovascular data.
@@ -116,4 +116,5 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         return processedData.first
     }
+
 }
