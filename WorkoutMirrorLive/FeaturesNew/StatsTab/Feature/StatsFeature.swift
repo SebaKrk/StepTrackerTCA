@@ -7,9 +7,14 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 
 @Reducer
 struct StatsFeature {
+    
+    // MARK: - Dependency
+    
+    @Dependency(\.authorizationManager) var authorizationManager
     
     // MARK: - Reducer
     
@@ -21,7 +26,16 @@ struct StatsFeature {
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .none
+                return .run { send in
+                    let result = await self.authorizationManager.requestAuthorization()
+                    switch result {
+                    case .success:
+                        print("success")
+                        
+                    case .failure(let error):
+                        print("Authorization failed with error: \(error.localizedDescription)")
+                    }
+                }
                 
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())

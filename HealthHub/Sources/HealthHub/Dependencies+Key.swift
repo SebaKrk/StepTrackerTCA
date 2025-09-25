@@ -137,3 +137,17 @@ public extension DependencyValues {
         set { self[WatchConnectivityManagerKey.self] = newValue }
     }
 }
+
+/// A TCA dependency key for managing personal health data retrieval.
+public enum PersonalDataManagerKey: DependencyKey {
+    public static let liveValue: PersonalDataManager = {
+        return DefaultPersonalDataManager()
+    }()
+}
+
+public extension DependencyValues {
+    var personalDataManager: PersonalDataManager {
+        get { self[PersonalDataManagerKey.self] }
+        set { self[PersonalDataManagerKey.self] = newValue }
+    }
+}

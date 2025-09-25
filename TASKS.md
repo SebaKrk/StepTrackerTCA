@@ -442,4 +442,7 @@
     
 ### IOS-00048 PersonSettings
     A: Create PersonSettingsFeature
+    B: PersonalDataManager
+    - create PersonalDataManager
+    - create HealthKitQueryBuilder
 

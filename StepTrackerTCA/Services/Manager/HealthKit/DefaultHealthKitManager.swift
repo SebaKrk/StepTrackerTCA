@@ -9,7 +9,7 @@ import Algorithms
 import HealthKit
 import Observation
 import ComposableArchitecture
-import HealthHub
+//import HealthHub
 
 /// The default implementation of the `HealthKitManager` protocol.
 ///
