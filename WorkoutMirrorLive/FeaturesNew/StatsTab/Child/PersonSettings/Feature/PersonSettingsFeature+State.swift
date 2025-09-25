@@ -25,6 +25,8 @@ extension PersonSettingsFeature {
         
         var restingHeartRate: String = "-"
         
+        var maxHR: String = "-"
+        
         // MARK: - Destination
         
         /// destination from PersonSettingsFeature

@@ -41,15 +41,15 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     }
     
     /// Retrieves user's biological sex directly from HealthKit characteristics as a readable string.
-    public func getBiologicalSex() async throws -> String? {
+    public func getBiologicalSex() async throws -> BiologicalSex? {
         do {
             let biologicalSex = try manager.healthStore.biologicalSex()
             switch biologicalSex.biologicalSex {
-            case .male: return "Male"
-            case .female: return "Female"
-            case .other: return "Other"
-            case .notSet: return "Not Set"
-            @unknown default: return "Unknown"
+            case .male: return .male
+            case .female: return .female
+            case .other: return .unknown
+            case .notSet: return .notSet
+            @unknown default: return .unknown
             }
         } catch {
             print("Failed to fetch biological sex: \(error)")

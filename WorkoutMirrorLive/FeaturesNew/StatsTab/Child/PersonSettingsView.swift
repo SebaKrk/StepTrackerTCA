@@ -49,7 +49,8 @@ struct PersonSettingsView: View {
             }
             Section {
                 coreMetricsCell("Resting HR", store.restingHeartRate)
-                coreMetricsCell("Activity Level", "Active")
+                coreMetricsCell("Max HR", store.maxHR)
+                
             } header: {
                 Text("Heart Rate & Activity")
             } footer: {

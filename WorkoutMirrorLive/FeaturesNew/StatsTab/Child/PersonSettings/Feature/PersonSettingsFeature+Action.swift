@@ -20,7 +20,7 @@ extension PersonSettingsFeature {
         case changeAge(Int?)
         
         ////
-        case changeSex(String?)
+        case changeSex(BiologicalSex?)
         
         ///
         case changeHeight(HealthKitData?)
@@ -30,6 +30,9 @@ extension PersonSettingsFeature {
         
         ///
         case changeRestingHeartRate(HealthKitData?)
+        
+        ///
+        case changeMaxHeartRate(Int? , BiologicalSex?)
         
         ///
         case fetchPersonalData

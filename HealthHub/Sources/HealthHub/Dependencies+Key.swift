@@ -151,3 +151,17 @@ public extension DependencyValues {
         set { self[PersonalDataManagerKey.self] = newValue }
     }
 }
+
+/// A TCA dependency key for managing personal health data retrieval.
+public enum HeartRateCalculatorKey: DependencyKey {
+    public static let liveValue: HeartRateCalculator = {
+        return DefaultHeartRateCalculator()
+    }()
+}
+
+public extension DependencyValues {
+    var heartRateCalculator: HeartRateCalculator {
+        get { self[HeartRateCalculatorKey.self] }
+        set { self[HeartRateCalculatorKey.self] = newValue }
+    }
+}

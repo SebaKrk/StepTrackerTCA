@@ -24,7 +24,7 @@ struct ActivitiesView: View {
             .navigationTitle("ActivitiesFeature")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                toolbarButton
+                toolbarButtons
             }
             .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
                 SettingsView(store: store)
@@ -36,8 +36,16 @@ struct ActivitiesView: View {
     }
     
     @ToolbarContentBuilder
-    var toolbarButton: some ToolbarContent {
+    var toolbarButtons: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                
+            } label: {
+                Image(systemName: "apple.intelligence")
+            }
+        }
+        
+        ToolbarItem(placement: .topBarLeading) {
             Menu {
                 Button {
                     send(.settingsButtonTapped)

@@ -15,6 +15,7 @@ struct PersonSettingsFeature {
     // MARK: - Dependency
     
     @Dependency(\.personalDataClient) var personalDataClient
+    @Dependency(\.personCalculatorClient) var calculator
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -32,7 +33,7 @@ struct PersonSettingsFeature {
                 
             case let .changeSex(sex):
                 if let sex = sex {
-                    state.sex = sex
+                    state.sex = sex.displayName
                 }
                 return .none
                 
@@ -53,7 +54,17 @@ struct PersonSettingsFeature {
                     state.restingHeartRate = "\(restingHeartRate)"
                 }
                 return .none
-            
+                
+            case let .changeMaxHeartRate(age, sex):
+                guard let age = age, let sex = sex else {
+                      return .none
+                  }
+                  
+                let maxHR = calculator.calculateMaxHeartRate(age, sex)
+                  state.maxHR = "\(maxHR)"
+                  
+                  return .none
+                
             case .fetchPersonalData:
                 return .run { send in
                     do {
@@ -68,6 +79,7 @@ struct PersonSettingsFeature {
                         await send(.changeHeight(height))
                         await send(.changeWeight(weight))
                         await send(.changeRestingHeartRate(restingHR))
+                        await send(.changeMaxHeartRate(age, sex))
                         
                     } catch {
                         print("Failed to fetch personal data: \(error)")
