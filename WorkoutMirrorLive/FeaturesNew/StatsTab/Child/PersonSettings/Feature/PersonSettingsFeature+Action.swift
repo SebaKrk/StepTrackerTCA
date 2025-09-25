@@ -32,7 +32,7 @@ extension PersonSettingsFeature {
         case changeRestingHeartRate(HealthKitData?)
         
         ///
-        case changeMaxHeartRate(Int? , BiologicalSex?)
+        case changeMaxHeartRate(Int?, BiologicalSex?)
         
         ///
         case fetchPersonalData

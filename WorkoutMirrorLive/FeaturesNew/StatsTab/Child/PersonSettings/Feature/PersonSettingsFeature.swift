@@ -51,19 +51,19 @@ struct PersonSettingsFeature {
                 
             case let .changeRestingHeartRate(restingHeartRate):
                 if let restingHeartRate = restingHeartRate?.value {
-                    state.restingHeartRate = "\(restingHeartRate)"
+                    state.restingHeartRate = "\(Int(restingHeartRate))"
                 }
                 return .none
                 
             case let .changeMaxHeartRate(age, sex):
                 guard let age = age, let sex = sex else {
-                      return .none
-                  }
-                  
+                    return .none
+                }
+                
                 let maxHR = calculator.calculateMaxHeartRate(age, sex)
-                  state.maxHR = "\(maxHR)"
-                  
-                  return .none
+                state.maxHR = "\(maxHR)"
+                
+                return .none
                 
             case .fetchPersonalData:
                 return .run { send in
