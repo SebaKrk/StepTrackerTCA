@@ -9,8 +9,9 @@ import Foundation
 
 public struct FairbarnFemaleFormula: HeartRateFormula {
     
+    public init() {}
+    
     public func maxHR(for age: Int) -> Int {
-        208 - Int(0.7 * Double(age))
+        209 - Int(0.86 * Double(age))
     }
 }
-

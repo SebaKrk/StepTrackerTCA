@@ -17,6 +17,12 @@ extension SessionFeature {
         ///
         case sessionViewStateChange(SessionState)
         
+        ///
+        case makeCalculationForSession
+        
+        
+        case setMaxHR(Int)
+        
         // MARK: - View Actions
         
         case view(View)

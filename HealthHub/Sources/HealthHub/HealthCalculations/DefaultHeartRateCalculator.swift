@@ -21,8 +21,6 @@ public final class DefaultHeartRateCalculator: HeartRateCalculator, @unchecked S
     ///   - biologicalSex: Płeć biologiczna użytkownika
     /// - Returns: Maksymalne tętno w uderzeniach na minutę
     public func calculateMaxHeartRate(age: Int, biologicalSex: BiologicalSex) -> Int {
-        print(age)
-        print(biologicalSex)
         
         let strategy = selectStrategy(for: biologicalSex)
         return strategy.maxHR(for: age)
@@ -35,15 +33,12 @@ public final class DefaultHeartRateCalculator: HeartRateCalculator, @unchecked S
     private func selectStrategy(for biologicalSex: BiologicalSex) -> HeartRateFormula {
         switch biologicalSex {
         case .male:
-            print("male str")
             return FairbarnMaleFormula()
             
         case .female:
-            print("female str")
             return FairbarnFemaleFormula()
             
         case .notSet, .unknown:
-            print("unknown str")
             return FairbarnUnknownFormula()
         }
     }

@@ -21,7 +21,7 @@ extension SessionFeature {
         
         ///
         var selectedWorkout: WorkoutType
-        
+                
         // MARK: - Destination
         
         /// destination from WorkoutFeature

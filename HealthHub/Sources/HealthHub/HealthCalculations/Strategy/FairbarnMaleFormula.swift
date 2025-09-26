@@ -12,7 +12,6 @@ public struct FairbarnMaleFormula: HeartRateFormula {
     public init() {}
     
     public func maxHR(for age: Int) -> Int {
-        208 - Int(0.8 * Double(age))
+        207 - Int(0.78 * Double(age))
     }
-    
 }
