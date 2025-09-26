@@ -439,4 +439,12 @@
     A: Bluetooth - sandbox
     B: BLE - fitness device scanning
     C: WatchConnectivity
+    
+### IOS-00048 PersonSettings
+    A: Create PersonSettingsFeature
+    B: PersonalDataManager
+    - create PersonalDataManager
+    - create HealthKitQueryBuilder
+    C: HealthCalculations
+    - create strategy for calculate HR Max 
 

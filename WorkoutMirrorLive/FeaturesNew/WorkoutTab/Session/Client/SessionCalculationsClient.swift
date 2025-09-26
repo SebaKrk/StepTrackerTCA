@@ -10,7 +10,7 @@ import Foundation
 import SharedModels
 
 struct SessionCalculationsClient {
-    var calculateMaxHeartRate: (_ age: Int, _ gender: Gender?) -> Int
+    
     var calculateHeartRateZone: (_ current: Int, _ max: Int) -> HeartRateZone
     var calculateHeartRatePercentage: (_ current: Int, _ max: Int) -> Int
 
@@ -50,15 +50,8 @@ private enum SessionCalculationsClientKey: DependencyKey {
         let sessionState = SessionState()
 
         return SessionCalculationsClient(
-            calculateMaxHeartRate: { age, gender in
-                switch gender {
-                case .female:
-                    return Int(206 - (0.88 * Double(age)))
-                case .male, .none:
-                    return Int(208 - (0.7 * Double(age)))
-                }
-            },
             calculateHeartRateZone: { current, max in
+                guard max > 0 else { return .recovery }
                 let percentage = Double(current) / Double(max)
                 switch percentage {
                 case 0.5..<0.6: return .recovery
@@ -70,6 +63,7 @@ private enum SessionCalculationsClientKey: DependencyKey {
                 }
             },
             calculateHeartRatePercentage: { current, max in
+                guard max > 0 else { return 0 }
                 let percentage = Double(current) / Double(max) * 100
                 return Int(percentage)
             },

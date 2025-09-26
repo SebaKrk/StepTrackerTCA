@@ -23,6 +23,13 @@ struct StatsView: View {
                 .toolbar {
                     toolbarButton
                 }
+                .onAppear {
+                    send(.viewDidAppear)
+                }
+                .fullScreenCover(item: $store.scope(state: \.destination?.personSettings,
+                                                    action: \.destination.personSettings)) { store in
+                    PersonSettingsView(store: store)
+                }
         }
     }
     
