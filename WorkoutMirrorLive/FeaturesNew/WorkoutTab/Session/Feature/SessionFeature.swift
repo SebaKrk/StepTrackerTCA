@@ -14,7 +14,10 @@ struct SessionFeature {
     
     // MARK: - Dependency
 
-    @Dependency(\.sessionClient) var client
+    @Dependency(\.sessionClient) var sessionClient
+    @Dependency(\.personCalculatorClient) var calculator
+    @Dependency(\.personalDataClient) var personalDataClient
+    
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -28,25 +31,40 @@ struct SessionFeature {
                 state.sessionState = value
                 if value == .session {
                     return .run { send in
-                        for await state in await self.client.workoutSessionStateStream() {
+                        for await state in await self.sessionClient.workoutSessionStateStream() {
                             await send(.controls(.sessionStateUpdated(state)))
                         }
                     }
                 }
                 return .none
 
+            case .makeCalculationForSession:
+                return .run { send in
+                    let age = try await personalDataClient.getAge()
+                    let sex = try await personalDataClient.getBiologicalSex()
+                    
+                    guard let age = age, let sex = sex else {
+                        // zucic blad ze musi byc ustawiony wiek i plec ?
+                        return
+                    }
+                    
+                    let maxHR = await calculator.calculateMaxHeartRate(age, sex)
+                    await send(.setMaxHR(maxHR))
+                }
+                
+            case let .setMaxHR(value):
+                return .send(.live(.setupMaxHeartRate(value)))
+                            
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { [workout = state.selectedWorkout] send in
-                    try await self.client.selectedWorkout(workout.hkType)
+                    try await self.sessionClient.selectedWorkout(workout.hkType)
+                    
                     await send(.controls(.setWorkoutType(workout)))
+                    await send(.makeCalculationForSession)
                 }
-                
-//            case .view(.closeButtonTapped):
-//                return .run { send in
-//                    await self.dismiss()
-//                }
-                
+ 
             case .view(.heartRateZoneButtonTapped):
                 state.destination = .openHeartRateZoneInfo(HeartRateZoneInfoFeature.State())
                 return .none

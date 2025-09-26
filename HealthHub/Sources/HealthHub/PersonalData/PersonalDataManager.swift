@@ -51,12 +51,20 @@ public protocol PersonalDataManager: Sendable {
     /// Retrieves the user's biological sex from HealthKit.
     ///
     /// This method fetches the biological sex characteristic and returns it as a
-    /// human-readable string representation.
+    /// `BiologicalSex` enum value representing the user's biological sex.
     ///
-    /// - Returns: A string representation of biological sex ("Male", "Female", "Other", "Not Set"),
-    ///           or `nil` if not available
-    /// - Throws: HealthKit errors if data access fails
-    func getBiologicalSex() async throws -> String?
+    /// - Returns: A `BiologicalSex` enum value (.male, .female, .notSet, .unknown),
+    ///           or `nil` if data is not available or access is denied
+    /// - Throws: HealthKit errors if data access fails or permission is not granted
+    ///
+    /// ## Available Values:
+    /// - `.male` - Male biological sex
+    /// - `.female` - Female biological sex
+    /// - `.notSet` - User hasn't set biological sex in Health app
+    /// - `.unknown` - Biological sex is unknown or unspecified
+    ///
+    func getBiologicalSex() async throws -> BiologicalSex?
+    
     
     /// Retrieves the user's most recent height measurement.
     ///

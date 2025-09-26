@@ -13,7 +13,7 @@ import SharedModels
 public struct PersonalDataClient {
     
     var getAge: @Sendable () async throws -> Int?
-    var getBiologicalSex: @Sendable () async throws -> String?
+    var getBiologicalSex: @Sendable () async throws -> BiologicalSex?
     var getHeight: @Sendable () async throws -> HealthKitData?
     var getWeight: @Sendable (Int) async throws -> HealthKitData?
     var getRestingHeartRate: @Sendable (Int) async throws -> HealthKitData?

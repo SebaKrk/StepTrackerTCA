@@ -445,4 +445,6 @@
     B: PersonalDataManager
     - create PersonalDataManager
     - create HealthKitQueryBuilder
+    C: HealthCalculations
+    - create strategy for calculate HR Max 
 

@@ -24,6 +24,11 @@ struct LiveSessionFeature {
             switch action {
                 
                 // MARK: - Action
+                
+            case let .setupMaxHeartRate(value):
+                state.maxHeartRate = value
+                return .none
+                
             case let .workoutMetrics(data):
                 state.workoutMetrics = data
                 return .merge(
@@ -50,10 +55,9 @@ struct LiveSessionFeature {
                 state.sessionMaxHeartRate = max
                 return .none
                 
-            case .setupMaxHeartRate:
-                state.maxHeartRate = calculation.calculateMaxHeartRate(state.userAge, state.userGender)
+            case .startWorkoutMetricsStream:
                 return .run { send in
-                    for await metric in client.workoutMetricsStream() {
+                    for await metric in await client.workoutMetricsStream() {
                         await send(.workoutMetrics(metric))
                     }
                 }
@@ -61,7 +65,7 @@ struct LiveSessionFeature {
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { send in
-                    await send(.setupMaxHeartRate)
+                    await send(.startWorkoutMetricsStream)
                 }
             }
         }
@@ -76,25 +80,28 @@ extension LiveSessionFeature {
     enum Action: ViewAction {
         
         // MARK: - Actions
-        
+
         /// Updates the current workout metrics with new data.
-        ///
-        /// - Parameter data: The latest workout metrics from the session.
+        /// Triggered whenever a new `WorkoutMetrics` is received from the workout stream.
         case workoutMetrics(WorkoutMetrics)
         
-        ///
-        case setupMaxHeartRate
+        /// Sets the maximum heart rate (HR max) for the current session.
+        /// Usually calculated at the beginning of the session using age and sex.
+        case setupMaxHeartRate(Int)
         
-        ///
-        case calculateHeartRateZone(Int,Int)
+        /// Starts streaming workout metrics (heart rate, active energy, etc.) from the session client.
+        case startWorkoutMetricsStream
         
-        ///
-        case calculateHeartRatePercentage(Int,Int)
+        /// Calculates the current heart rate zone based on the latest heart rate and HR max.
+        case calculateHeartRateZone(Int, Int)
         
-        ///
+        /// Calculates the user's current heart rate as a percentage of the HR max.
+        case calculateHeartRatePercentage(Int, Int)
+        
+        /// Updates the session's average and maximum heart rate with the provided values.
         case updateSessionHeartRateStats(average: Int, max: Int)
 
-        ///
+        /// Calculates session-level heart rate statistics based on a new heart rate reading.
         case calculateSessionHeartRateStats(Int)
         
         // MARK: - View Actions
@@ -105,7 +112,6 @@ extension LiveSessionFeature {
                     
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
-            
             
         }
     }
@@ -126,27 +132,22 @@ extension LiveSessionFeature {
             activeEnergy: 0
         )
         
-        ///
+        /// The currently calculated heart rate zone for the user, based on HR max and current HR.
         var currentHeartRateZone: HeartRateZone = .resting
-        
-        ///
+
+        /// The user's current heart rate as a percentage of the maximum heart rate.
         var currentHeartRatePercentage: Int = 0
-        
-        ///
+
+        /// The average heart rate calculated across the current session.
         var sessionAverageHeartRate: Int = 0
-        
-        ///
+
+        /// The maximum heart rate recorded so far in the current session.
         var sessionMaxHeartRate: Int = 0
-        
-        ///
+
+        /// The maximum heart rate (HR max) calculated at the beginning of the session.
+        /// Provided by `SessionFeature`, which retrieves the user’s age and biological sex
+        /// from `personCalculatorClient` and applies the appropriate calculation strategy.
         var maxHeartRate: Int = 0
-        
-        // TODO: - WYCIAGNIJ TE DANE Z HELHKIT
-        ///
-        var userAge: Int = 38
-        
-        ///
-        var userGender: Gender? = .male
     }
     
 }
