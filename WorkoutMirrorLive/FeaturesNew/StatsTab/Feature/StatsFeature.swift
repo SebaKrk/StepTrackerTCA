@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import HealthHub
+import SharedModels
 
 @Reducer
 struct StatsFeature {
@@ -19,10 +20,17 @@ struct StatsFeature {
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
+        Reduce<State, Action> { state, action in
             switch action {
                 
                 // MARK: - Action
+            case let .changeViewState(viewState):
+                state.viewState = viewState
+                return .none
+                
+            case let .selectedPickerChange(value):
+                state.context = value
+                return .none
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
@@ -41,65 +49,19 @@ struct StatsFeature {
                 state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
                 
+                // MARK: - Destination
             case .destination(_):
+                return .none
+                
+                // MARK: - Child
+            case .trainingReadiness(_):
                 return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
-    }
-}
-
-/// Implementation of `StatsFeature` action
-extension StatsFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
         
-        // MARK: - Actions
-        
-        // MARK: - View Actions
-        
-        case view(View)
-        
-        enum View {
-                    
-            /// Action triggered when the view appears on the screen.
-            case viewDidAppear
-            
-            ///
-            case personButtonTapped
-
+        Scope(state: \.trainingReadiness, action: \.trainingReadiness) {
+            TrainingReadinessFeature()
         }
-        
-        // MARK: - Destination
-        
-        /// Action to handle navigation destinations within this feature.
-        case destination(PresentationAction<Destination.Action>)
     }
 }
-
-/// Implementation of `StatsFeature` state
-extension StatsFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        // MARK: - Destination
-        
-        /// destination from SummaryFeature
-        @Presents var destination: Destination.State?
-    }
-    
-}
-
-/// Implementation of `StatsFeature` destination
-extension StatsFeature {
-    
-    @Reducer
-    enum Destination {
-        case personSettings(PersonSettingsFeature)
-    }
-}
-

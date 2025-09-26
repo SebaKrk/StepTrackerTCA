@@ -448,3 +448,6 @@
     C: HealthCalculations
     - create strategy for calculate HR Max 
 
+### IOS-00048 StatsFeature
+    A: Build some new chart container and features
+    - create TrainingReadinessFeature
