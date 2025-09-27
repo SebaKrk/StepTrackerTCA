@@ -18,43 +18,15 @@ struct TrainingReadinessFeature {
             switch action {
                 
                 // MARK: - Action
+            case let .internal(.readinessCalculated(value)):
+                state.readinessValue = value
+                return .none
                 
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
                 return .none
-                
             }
         }
-    }
-}
-
-
-/// Implementation of `TrainingReadinessFeature` action
-extension TrainingReadinessFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Action
-        
-        // MARK: - View actions
-        
-        /// Used for view actions.
-        case view(View)
-        
-        enum View {
-            
-            /// The action responsible for completing tasks as soon as the view is displayed.
-            case viewDidAppear
-        }
-    }
-}
-
-/// Implementation of `TrainingReadinessFeature` state
-extension TrainingReadinessFeature {
-    
-    @ObservableState
-    struct State {
     }
 }
