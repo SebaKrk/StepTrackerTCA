@@ -38,7 +38,7 @@ struct TrainingReadinessView: View {
     private var charts: some View {
         Chart {
             readinessBackground()
-            readinessIndicator(value: store.readinessValue)
+            readinessIndicator(store.readinessValue)
                 .annotation(position: .top, alignment: .center, spacing: -10) {
                     readinessLabel(value: store.readinessValue,
                                  color: store.readinessLevel.color)

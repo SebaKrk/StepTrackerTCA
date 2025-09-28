@@ -27,7 +27,6 @@ extension TrainingReadinessView {
         }
     }
     
-    // Definicja wszystkich segmentów
     var readinessSegments: [ReadinessSegment] {
         [
             ReadinessSegment(range: 0...40, color: .red, cornerRadius: .leading),
@@ -65,7 +64,7 @@ extension TrainingReadinessView {
     }
     
     @ChartContentBuilder
-    func readinessIndicator(value: Int) -> some ChartContent {
+    func readinessIndicator(_ value: Int) -> some ChartContent {
         PointMark(
             x: .value("Current", value),
             y: .value("Y", 0.5)
