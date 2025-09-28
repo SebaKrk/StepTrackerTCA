@@ -17,16 +17,20 @@ extension TrainingReadinessFeature {
         case `internal`(Internal)
         
         enum Internal {
+            
             /// Akcja wywoływana po obliczeniu readiness
             case readinessCalculated(Int)
         }
         
         // MARK: - View actions
+        
         case view(View)
         
         enum View {
+            
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
         }
     }
+    
 }

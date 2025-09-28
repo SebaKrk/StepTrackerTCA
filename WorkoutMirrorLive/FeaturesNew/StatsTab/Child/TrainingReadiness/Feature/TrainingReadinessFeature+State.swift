@@ -14,12 +14,15 @@ extension TrainingReadinessFeature {
     @ObservableState
     struct State {
         
-        var readinessValue: Int = 74
+        ///
+        var readinessValue: Int = 92
         
+        ///
         var readinessLevel: ReadinessLevel {
             ReadinessLevel(from: readinessValue)
         }
         
+        ///
         var readinessLabel: String {
             readinessLevel.rawValue
         }
