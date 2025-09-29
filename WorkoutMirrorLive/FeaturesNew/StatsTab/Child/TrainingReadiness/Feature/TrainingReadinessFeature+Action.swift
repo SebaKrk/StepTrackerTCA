@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 
 /// Implementation of `TrainingReadinessFeature` action
 extension TrainingReadinessFeature {
@@ -18,8 +19,11 @@ extension TrainingReadinessFeature {
         
         enum Internal {
             
-            /// Akcja wywoływana po obliczeniu readiness
-            case readinessCalculated(Int)
+            /// Action triggered after readiness calculation completes
+            case readinessCalculated(TrainingReadinessResult)
+            
+            /// Action triggered when calculation fails
+            case calculationFailed(String)
         }
         
         // MARK: - View actions

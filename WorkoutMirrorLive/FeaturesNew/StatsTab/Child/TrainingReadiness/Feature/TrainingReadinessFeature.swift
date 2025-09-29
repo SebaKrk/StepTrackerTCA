@@ -11,6 +11,10 @@ import Foundation
 @Reducer
 struct TrainingReadinessFeature {
     
+    // MARK: - Dependency
+    
+    @Dependency(\.trainingReadinessClient) var trainingReadinessClient
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -18,14 +22,26 @@ struct TrainingReadinessFeature {
             switch action {
                 
                 // MARK: - Action
-            case let .internal(.readinessCalculated(value)):
-                state.readinessValue = value
+            case let .internal(.readinessCalculated(result)):
+                state.readinessResult = result
+                return .none
+                
+            case let .internal(.calculationFailed(error)):
+                state.errorMessage = error
+                dump(error)
                 return .none
                 
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                return .none
+                return .run { send in
+                    do {
+                        let result = try await trainingReadinessClient.calculate()
+                        await send(.internal(.readinessCalculated(result)))
+                    } catch {
+                        await send(.internal(.calculationFailed(error.localizedDescription)))
+                    }
+                }
             }
         }
     }

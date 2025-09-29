@@ -14,17 +14,30 @@ extension TrainingReadinessFeature {
     @ObservableState
     struct State {
         
-        ///
-        var readinessValue: Int = 92
+        /// Training readiness calculation result
+        var readinessResult: TrainingReadinessResult?
         
-        ///
-        var readinessLevel: ReadinessLevel {
-            ReadinessLevel(from: readinessValue)
+        /// Error message if calculation fails
+        var errorMessage: String?
+        
+        /// Computed readiness value (0-100)
+        var readinessValue: Int {
+            readinessResult?.overallScore ?? 0
         }
         
-        ///
+        /// Computed readiness level
+        var readinessLevel: ReadinessLevel {
+            readinessResult?.readinessLevel ?? .veryPoor
+        }
+        
+        /// Computed readiness label
         var readinessLabel: String {
             readinessLevel.rawValue
+        }
+        
+        /// Whether result is reliable (enough data available)
+        var isReliable: Bool {
+            readinessResult?.isReliable ?? false
         }
     }
 }

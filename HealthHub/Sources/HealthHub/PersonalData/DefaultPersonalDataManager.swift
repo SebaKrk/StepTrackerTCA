@@ -94,7 +94,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             options: .discreteAverage
         )
         
-        return processedData.last 
+        return processedData.last
     }
     
     /// Fetches average resting heart rate from the specified days using HealthKitQueryBuilder for cardiovascular data.
@@ -116,5 +116,86 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         return processedData.first
     }
-
+    
+    /// Retrieves the user's average heart rate variability from specified time period.
+    public func getHeartRateVariability(days: Int = 7) async throws -> HealthKitData? {
+        let (startDate, endDate) = HealthKitQueryBuilder.calculateDateRange(for: days)
+        let query = HealthKitQueryBuilder.buildQuery(
+            for: .heartRateVariabilitySDNN,
+            startDate: startDate,
+            endDate: endDate,
+            options: .discreteAverage
+        )
+        
+        let results = try await query.result(for: manager.healthStore)
+        let processedData = HealthKitQueryBuilder.processHealthKitData(
+            results.statistics(),
+            unit: .secondUnit(with: .milli),
+            options: .discreteAverage
+        )
+        
+        return processedData.first
+    }
+    
+    /// Retrieves the user's active energy burned from specified time period.
+    public func getActiveEnergyBurned(days: Int = 1) async throws -> HealthKitData? {
+        let energyType = HKQuantityType(.activeEnergyBurned)
+        let (startDate, endDate) = HealthKitQueryBuilder.calculateDateRange(for: days)
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: startDate,
+            end: endDate,
+            options: .strictStartDate
+        )
+        
+        // Użyj HKStatisticsCollectionQuery dla dziennych statystyk
+        var interval = DateComponents()
+        interval.day = 1
+        
+        let query = HKStatisticsCollectionQuery(
+            quantityType: energyType,
+            quantitySamplePredicate: predicate,
+            options: .cumulativeSum,
+            anchorDate: startDate,
+            intervalComponents: interval
+        )
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            query.initialResultsHandler = { query, results, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                
+                guard let results = results else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                
+                var dailyValues: [Double] = []
+                
+                results.enumerateStatistics(from: startDate, to: endDate) { statistics, _ in
+                    if let sum = statistics.sumQuantity() {
+                        let value = sum.doubleValue(for: .kilocalorie())
+                        if value > 0 {
+                            dailyValues.append(value)
+                        }
+                    }
+                }
+                
+                guard !dailyValues.isEmpty else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                
+                // Oblicz średnią tylko z dni które mają dane
+                let average = dailyValues.reduce(0, +) / Double(dailyValues.count)
+                
+                let result = HealthKitData(date: endDate, value: average)
+                continuation.resume(returning: result)
+            }
+            
+            manager.healthStore.execute(query)
+        }
+    }
 }

@@ -12,7 +12,7 @@ import SwiftUI
 
 @ViewAction(for: TrainingReadinessFeature.self)
 struct TrainingReadinessView: View {
-    
+
     // MARK: - Properties
     
     @Bindable var store: StoreOf<TrainingReadinessFeature>
@@ -33,6 +33,9 @@ struct TrainingReadinessView: View {
         .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
         .frame(height: 120)
+        .onAppear {
+            send(.viewDidAppear)
+        }
     }
     
     private var charts: some View {

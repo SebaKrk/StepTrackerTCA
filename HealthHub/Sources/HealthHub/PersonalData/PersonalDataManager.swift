@@ -98,5 +98,28 @@ public protocol PersonalDataManager: Sendable {
     ///           or `nil` if no resting heart rate data is available
     /// - Throws: HealthKit errors if data access fails
     func getRestingHeartRate(days: Int) async throws -> HealthKitData?
+
+    /// Retrieves the user's average heart rate variability from specified time period.
+    ///
+    /// HRV measures the variation in time between heartbeats, indicating autonomic nervous
+    /// system balance. Higher HRV generally suggests better recovery and readiness.
+    ///
+    /// - Parameter days: Number of days to look back for averaging (default: 7)
+    /// - Returns: A `HealthKitData` object containing HRV in milliseconds,
+    ///           or `nil` if no HRV data is available
+    /// - Throws: HealthKit errors if data access fails
+    func getHeartRateVariability(days: Int) async throws -> HealthKitData?
     
+
+    /// Retrieves the user's active energy burned from specified time period.
+    ///
+    /// This method fetches active energy expenditure data from HealthKit, which represents
+    /// calories burned through physical activity (excluding basal metabolic rate).
+    /// Used to assess training load and its impact on recovery.
+    ///
+    /// - Parameter days: Number of days to look back for calculation (default: 1)
+    /// - Returns: A `HealthKitData` object containing active energy in kilocalories,
+    ///           or `nil` if no activity data is available
+    /// - Throws: HealthKit errors if data access fails
+    func getActiveEnergyBurned(days: Int) async throws -> HealthKitData?
 }
