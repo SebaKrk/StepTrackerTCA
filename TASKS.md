@@ -451,3 +451,7 @@
 ### IOS-00048 StatsFeature
     A: Build some new chart container and features
     - create TrainingReadinessFeature
+    - SleepScoreCalculator
+    - HRVScoreCalculator
+    - RestingHeartRateScoreCalculator
+    - ActivityLoadScoreCalculator
