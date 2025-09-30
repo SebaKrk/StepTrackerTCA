@@ -5,13 +5,6 @@
 //  Created by Sebastian Sciuba on 28/09/2025.
 //
 
-//
-//  DefaultTrainingReadinessCalculator.swift
-//  HealthHub
-//
-//  Created by Sebastian Sciuba on 28/09/2025.
-//
-
 import ComposableArchitecture
 import Foundation
 import SharedModels
@@ -32,6 +25,9 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
     // MARK: - API
     
     public func calculateTrainingReadiness() async throws -> TrainingReadinessResult {
+        
+        // DEBUG - wylistuj wszystkie RHR
+        try await personalDataManager.debugListAllRHR()
         
         // 1. Pobierz dane z HealthKit
         let restingHeartRateComponent = try await calculateRestingHeartRateScore()

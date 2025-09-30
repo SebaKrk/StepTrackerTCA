@@ -20,7 +20,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     
     public init() {}
     
-    // MARK: - API
+    // MARK: - Characteristics API
     
     /// Retrieves user's age by calculating from date of birth stored in HealthKit characteristics.
     public func getAge() async throws -> Int? {
@@ -57,6 +57,8 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         }
     }
     
+    // MARK: - Body Metrics API
+    
     /// Fetches the most recent height measurement from HealthKit and returns value in centimeters.
     public func getHeight() async throws -> HealthKitData? {
         let heightType = HKQuantityType(.height)
@@ -77,7 +79,6 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     }
     
     /// Retrieves average weight from the specified number of days using HealthKitQueryBuilder with discrete averaging.
-    
     public func getWeight(days: Int = 30) async throws -> HealthKitData? {
         let (startDate, endDate) = HealthKitQueryBuilder.calculateDateRange(for: days)
         let query = HealthKitQueryBuilder.buildQuery(
@@ -96,6 +97,8 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         return processedData.last
     }
+    
+    // MARK: - General Heart Rate API
     
     /// Fetches average resting heart rate from the specified days using HealthKitQueryBuilder for cardiovascular data.
     public func getRestingHeartRate(days: Int = 7) async throws -> HealthKitData? {
@@ -137,6 +140,8 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         return processedData.first
     }
     
+    // MARK: - General Activity API
+    
     /// Retrieves the user's active energy burned from specified time period.
     public func getActiveEnergyBurned(days: Int = 1) async throws -> HealthKitData? {
         let energyType = HKQuantityType(.activeEnergyBurned)
@@ -148,7 +153,6 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             options: .strictStartDate
         )
         
-        // Użyj HKStatisticsCollectionQuery dla dziennych statystyk
         var interval = DateComponents()
         interval.day = 1
         
@@ -188,9 +192,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
                     return
                 }
                 
-                // Oblicz średnią tylko z dni które mają dane
                 let average = dailyValues.reduce(0, +) / Double(dailyValues.count)
-                
                 let result = HealthKitData(date: endDate, value: average)
                 continuation.resume(returning: result)
             }
@@ -198,4 +200,310 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             manager.healthStore.execute(query)
         }
     }
+    
+    // MARK: - Training Readiness Specific API
+    
+    /// Retrieves this morning's resting heart rate measurement.
+    ///
+    /// Fetches RHR from the extended morning window (midnight - 11 AM today) to capture
+    /// measurements taken during sleep and early morning. Apple Watch typically records
+    /// RHR during sleep periods.
+    ///
+    /// - Returns: A `HealthKitData` object containing RHR in bpm, or `nil` if unavailable
+    /// - Throws: HealthKit errors if data access fails
+    public func getThisMorningRestingHeartRate() async throws -> HealthKitData? {
+        
+        let window = TrainingReadinessTimeWindows.thisMorningRHRWindow()
+        
+        print("🔍 RHR Debug: Searching window \(window.start) to \(window.end)")
+        
+        let restingHeartRateType = HKQuantityType(.restingHeartRate)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: window.start,
+            end: window.end,
+            options: .strictStartDate
+        )
+        
+        let samplePredicate = HKSamplePredicate.quantitySample(
+            type: restingHeartRateType,
+            predicate: predicate
+        )
+        
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [samplePredicate],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .forward)],
+            limit: 1
+        )
+        
+        let results = try await descriptor.result(for: manager.healthStore)
+        
+        print("🔍 RHR Debug: Found \(results.count) samples")
+        
+        guard let sample = results.first else {
+            print("❌ RHR Debug: No samples found in window")
+            return nil
+        }
+        
+        let rhrValue = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+        print("✅ RHR Debug: Found RHR=\(rhrValue) at \(sample.startDate)")
+        return HealthKitData(date: sample.startDate, value: rhrValue)
+    }
+    
+    /// Retrieves average morning resting heart rate from specified number of days.
+    ///
+    /// Fetches RHR measurements from the extended morning window (midnight - 11 AM) for
+    /// each of the specified days and calculates their average.
+    ///
+    /// - Parameter days: Number of days to average (default: 7)
+    /// - Returns: A `HealthKitData` object containing average morning RHR in bpm, or `nil` if unavailable
+    /// - Throws: HealthKit errors if data access fails
+    public func getAverageMorningRestingHeartRate(days: Int = 7) async throws -> HealthKitData? {
+     
+        let restingHeartRateType = HKQuantityType(.restingHeartRate)
+        var allValues: [Double] = []
+        
+        for dayOffset in 0..<days {
+            let calendar = Calendar.current
+            let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date())!
+            
+            // Window: midnight to 11 AM for each day
+            let windowStart = calendar.startOfDay(for: targetDate)
+            let windowEnd = calendar.date(byAdding: .hour, value: 11, to: windowStart)!
+            
+            let predicate = HKQuery.predicateForSamples(
+                withStart: windowStart,
+                end: windowEnd,
+                options: .strictStartDate
+            )
+            
+            let samplePredicate = HKSamplePredicate.quantitySample(
+                type: restingHeartRateType,
+                predicate: predicate
+            )
+            
+            let descriptor = HKSampleQueryDescriptor(
+                predicates: [samplePredicate],
+                sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .forward)],
+                limit: 1
+            )
+            
+            let results = try await descriptor.result(for: manager.healthStore)
+            
+            if let sample = results.first {
+                let value = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+                allValues.append(value)
+            }
+        }
+        
+        guard !allValues.isEmpty else { return nil }
+        
+        let average = allValues.reduce(0, +) / Double(allValues.count)
+        return HealthKitData(date: Date(), value: average)
+    }
+    
+    /// Retrieves last night's HRV measurement.
+    ///
+    /// Fetches HRV from last night's sleep window (8 PM yesterday - 10 AM today).
+    ///
+    /// - Returns: A `HealthKitData` object containing HRV in milliseconds, or `nil` if unavailable
+    /// - Throws: HealthKit errors if data access fails
+    public func getLastNightHRV() async throws -> HealthKitData? {
+        let window = TrainingReadinessTimeWindows.lastNightHRVWindow()
+        
+        let hrvType = HKQuantityType(.heartRateVariabilitySDNN)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: window.start,
+            end: window.end,
+            options: .strictStartDate
+        )
+        
+        let samplePredicate = HKSamplePredicate.quantitySample(
+            type: hrvType,
+            predicate: predicate
+        )
+        
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [samplePredicate],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)]
+        )
+        
+        let results = try await descriptor.result(for: manager.healthStore)
+        
+        guard !results.isEmpty else { return nil }
+        
+        let totalHRV = results.reduce(0.0) { sum, sample in
+            sum + sample.quantity.doubleValue(for: .secondUnit(with: .milli))
+        }
+        
+        let averageHRV = totalHRV / Double(results.count)
+        return HealthKitData(date: results.first!.startDate, value: averageHRV)
+    }
+    
+    /// Retrieves average nightly HRV from specified number of nights.
+    ///
+    /// - Parameter nights: Number of nights to average (default: 7)
+    /// - Returns: A `HealthKitData` object containing average HRV in milliseconds, or `nil` if unavailable
+    /// - Throws: HealthKit errors if data access fails
+    public func getAverageNightlyHRV(nights: Int = 7) async throws -> HealthKitData? {
+        let hrvType = HKQuantityType(.heartRateVariabilitySDNN)
+        var allValues: [Double] = []
+        
+        for dayOffset in 0..<nights {
+            let calendar = Calendar.current
+            let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date())!
+            
+            let windowEnd = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: targetDate)!
+            let windowStart = calendar.date(byAdding: .hour, value: -14, to: windowEnd)!
+            
+            let predicate = HKQuery.predicateForSamples(
+                withStart: windowStart,
+                end: windowEnd,
+                options: .strictStartDate
+            )
+            
+            let samplePredicate = HKSamplePredicate.quantitySample(
+                type: hrvType,
+                predicate: predicate
+            )
+            
+            let descriptor = HKSampleQueryDescriptor(
+                predicates: [samplePredicate],
+                sortDescriptors: []
+            )
+            
+            let results = try await descriptor.result(for: manager.healthStore)
+            
+            if !results.isEmpty {
+                let nightAverage = results.reduce(0.0) { sum, sample in
+                    sum + sample.quantity.doubleValue(for: .secondUnit(with: .milli))
+                } / Double(results.count)
+                
+                allValues.append(nightAverage)
+            }
+        }
+        
+        guard !allValues.isEmpty else { return nil }
+        
+        let average = allValues.reduce(0, +) / Double(allValues.count)
+        return HealthKitData(date: Date(), value: average)
+    }
+    
+    /// Retrieves yesterday's total active energy burned.
+    ///
+    /// Fetches activity from full previous day (00:00 - 23:59 yesterday).
+    ///
+    /// - Returns: A `HealthKitData` object containing active energy in kcal, or `nil` if unavailable
+    /// - Throws: HealthKit errors if data access fails
+    public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
+        let window = TrainingReadinessTimeWindows.yesterdayFullDay()
+        
+        let query = HealthKitQueryBuilder.buildQuery(
+            for: .activeEnergyBurned,
+            startDate: window.start,
+            endDate: window.end,
+            options: .cumulativeSum
+        )
+        
+        let results = try await query.result(for: manager.healthStore)
+        let processedData = HealthKitQueryBuilder.processHealthKitData(
+            results.statistics(),
+            unit: .kilocalorie(),
+            options: .cumulativeSum
+        )
+        
+        return processedData.first
+    }
+    
+    /// Retrieves average daily active energy from specified number of days.
+    ///
+    /// - Parameter days: Number of days to average (default: 7)
+    /// - Returns: A `HealthKitData` object containing average daily energy in kcal, or `nil` if unavailable
+    /// - Throws: HealthKit errors if data access fails
+    public func getAverageDailyActiveEnergy(days: Int = 7) async throws -> HealthKitData? {
+        let energyType = HKQuantityType(.activeEnergyBurned)
+        let ranges = TrainingReadinessTimeWindows.lastFullDays(count: days)
+        
+        var dailyValues: [Double] = []
+        
+        for range in ranges {
+            let predicate = HKQuery.predicateForSamples(
+                withStart: range.start,
+                end: range.end,
+                options: .strictStartDate
+            )
+            
+            let statistics = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<HKStatistics?, Error>) in
+                let query = HKStatisticsQuery(
+                    quantityType: energyType,
+                    quantitySamplePredicate: predicate,
+                    options: .cumulativeSum
+                ) { (query: HKStatisticsQuery, statistics: HKStatistics?, error: Error?) in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: statistics)
+                    }
+                }
+                
+                manager.healthStore.execute(query)
+            }
+            
+            if let sum = statistics?.sumQuantity() {
+                let value = sum.doubleValue(for: HKUnit.kilocalorie())
+                if value > 0 {
+                    dailyValues.append(value)
+                }
+            }
+        }
+        
+        guard !dailyValues.isEmpty else { return nil }
+        
+        let average = dailyValues.reduce(0, +) / Double(dailyValues.count)
+        return HealthKitData(date: Date(), value: average)
+    }
+    
+    /// DEBUG: Lista wszystkie pomiary RHR z ostatnich 7 dni
+    public func debugListAllRHR() async throws {
+        let calendar = Calendar.current
+        let now = Date()
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: now)!
+        
+        let restingHeartRateType = HKQuantityType(.restingHeartRate)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: sevenDaysAgo,
+            end: now,
+            options: .strictStartDate
+        )
+        
+        let samplePredicate = HKSamplePredicate.quantitySample(
+            type: restingHeartRateType,
+            predicate: predicate
+        )
+        
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [samplePredicate],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)]
+        )
+        
+        let results = try await descriptor.result(for: manager.healthStore)
+        
+        print("📋 RHR Debug: Found \(results.count) total RHR samples in last 7 days")
+        print("📋 Time range: \(sevenDaysAgo) to \(now)")
+        print("📋 Samples:")
+        
+        for (index, sample) in results.enumerated() {
+            let value = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            dateFormatter.timeZone = TimeZone.current
+            let dateString = dateFormatter.string(from: sample.startDate)
+            
+            print("  [\(index + 1)] \(dateString) - RHR: \(value) bpm")
+        }
+        
+        if results.isEmpty {
+            print("❌ No RHR data found at all in last 7 days!")
+        }
+    }
+    
 }

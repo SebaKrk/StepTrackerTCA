@@ -27,13 +27,13 @@ extension DefaultTrainingReadinessCalculator {
     /// - Load moderately above average: 0 points (manageable)
     /// - Load significantly above average: -10 points (insufficient recovery time)
     func calculateActivityLoadScore() async throws -> TrainingComponentScore? {
-        // Fetch yesterday's active energy
-        guard let yesterdayLoad = try await personalDataManager.getActiveEnergyBurned(days: 1) else {
+        // Fetch yesterday's active energy (full day: 00:00 - 23:59)
+        guard let yesterdayLoad = try await personalDataManager.getYesterdayActiveEnergy() else {
             return nil
         }
         
         // Fetch baseline (7-day average)
-        let baselineLoad = try await personalDataManager.getActiveEnergyBurned(days: 7)
+        let baselineLoad = try await personalDataManager.getAverageDailyActiveEnergy(days: 7)
         
         // Calculate score
         let score = calculateLoadComponentScore(

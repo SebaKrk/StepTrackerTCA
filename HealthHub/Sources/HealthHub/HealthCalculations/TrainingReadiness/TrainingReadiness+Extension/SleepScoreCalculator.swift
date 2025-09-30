@@ -27,12 +27,12 @@ extension DefaultTrainingReadinessCalculator {
     /// - Additional points based on comparison to personal baseline
     func calculateSleepScore() async throws -> TrainingComponentScore? {
         
-        guard let currentSleep = try await sleepDataManager.getSleepDuration(days: 1) else {
+        guard let currentSleep = try await sleepDataManager.getLastNightSleep() else {
             return nil
         }
         
-        // Fetch baseline (7-day average)
-        let baselineSleep = try await sleepDataManager.getSleepDuration(days: 7)
+        // Fetch baseline (7-night average)
+        let baselineSleep = try await sleepDataManager.getAverageSleepFromLastNights(nights: 7)
         
         // Calculate score
         let score = calculateSleepComponentScore(
@@ -52,7 +52,7 @@ extension DefaultTrainingReadinessCalculator {
     ///
     /// - Parameters:
     ///   - current: Last night's sleep duration in hours
-    ///   - baseline: Average sleep duration in hours (7-day baseline)
+    ///   - baseline: Average sleep duration in hours (7-night baseline)
     /// - Returns: Score from -10 to +15 based on sleep quality
     private func calculateSleepComponentScore(current: Double, baseline: Double?) -> Int {
         print("    📊 Sleep: Current=\(current)h, Baseline=\(baseline ?? 0)h")
