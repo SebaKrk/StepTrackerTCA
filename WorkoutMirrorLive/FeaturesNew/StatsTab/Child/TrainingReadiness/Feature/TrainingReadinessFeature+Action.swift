@@ -19,6 +19,9 @@ extension TrainingReadinessFeature {
         
         enum Internal {
             
+            ///
+            case changeContentState(ContentState)
+            
             /// Action triggered after readiness calculation completes
             case readinessCalculated(TrainingReadinessResult)
             

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct TrainingReadinessFeature {
@@ -15,6 +16,8 @@ struct TrainingReadinessFeature {
     
     @Dependency(\.trainingReadinessClient) var trainingReadinessClient
     
+    @Dependency(\.continuousClock) var clock
+
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -22,9 +25,17 @@ struct TrainingReadinessFeature {
             switch action {
                 
                 // MARK: - Action
+            case let .internal(.changeContentState(newState)):
+                state.contentState = newState
+                return .none
+                
             case let .internal(.readinessCalculated(result)):
                 state.readinessResult = result
-                return .none
+                return .run { send in
+                    try await clock.sleep(for: .seconds(2))
+                    await send(.internal(.changeContentState(.success)))
+                }
+//                return .send(.internal(.changeContentState(.success)))
                 
             case let .internal(.calculationFailed(error)):
                 state.errorMessage = error
@@ -45,4 +56,6 @@ struct TrainingReadinessFeature {
             }
         }
     }
+    
 }
+

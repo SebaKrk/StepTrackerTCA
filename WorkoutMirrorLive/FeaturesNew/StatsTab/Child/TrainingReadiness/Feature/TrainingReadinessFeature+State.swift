@@ -14,6 +14,8 @@ extension TrainingReadinessFeature {
     @ObservableState
     struct State {
         
+        var contentState: ContentState = .loading
+        
         /// Training readiness calculation result
         var readinessResult: TrainingReadinessResult?
         

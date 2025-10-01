@@ -12,7 +12,7 @@ import SwiftUI
 
 @ViewAction(for: TrainingReadinessFeature.self)
 struct TrainingReadinessView: View {
-
+    
     // MARK: - Properties
     
     @Bindable var store: StoreOf<TrainingReadinessFeature>
@@ -20,31 +20,53 @@ struct TrainingReadinessView: View {
     // MARK: - View
     
     var body: some View {
-        GroupBox {
-            charts
-        } label: {
-            HStack {
-                Text("Training Readiness")
-                Spacer()
-                Text(store.readinessLabel)
-                    .foregroundStyle(store.readinessLevel.color)
+            GroupBox {
+                content
+            } label: {
+                HStack {
+                    Text("Training Readiness")
+                    Spacer()
+                    Text(store.readinessLabel)
+                        .foregroundStyle(store.readinessLevel.color)
+                }
             }
-        }
-        .padding([.leading, .trailing], 8)
-        .foregroundStyle(.secondary)
-        .frame(height: 120)
-        .onAppear {
-            send(.viewDidAppear)
-        }
+            .padding([.leading, .trailing], 8)
+            .foregroundStyle(.secondary)
+            .frame(height: 120)
+            .skeleton(isLoading: store.contentState == .loading) 
+            .onAppear {
+                send(.viewDidAppear)
+            }
     }
     
+    @ViewBuilder
+    private var content: some View {
+        Group {
+            switch store.contentState {
+            case .loading:
+                skeletonView
+            case .success:
+                charts
+            case .unauthorized:
+                Text("")
+            case .locked:
+                Text("")
+            case .error:
+                Text("")
+            }
+        }
+        .frame(height: 60)
+    }
+    
+    
+    @ViewBuilder
     private var charts: some View {
         Chart {
-            readinessBackground()
+            readinessChart()
             readinessIndicator(store.readinessValue)
                 .annotation(position: .top, alignment: .center, spacing: -10) {
                     readinessLabel(value: store.readinessValue,
-                                 color: store.readinessLevel.color)
+                                   color: store.readinessLevel.color)
                 }
         }
         .chartXScale(domain: 0...100)
@@ -61,7 +83,12 @@ struct TrainingReadinessView: View {
             plotArea
                 .frame(height: 10)
         }
-        .frame(height: 60)
+        
+    }
+    
+    private var skeletonView: some View {
+        charts
     }
     
 }
+

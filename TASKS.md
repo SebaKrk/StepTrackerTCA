@@ -455,3 +455,6 @@
     - HRVScoreCalculator
     - RestingHeartRateScoreCalculator
     - ActivityLoadScoreCalculator
+
+### IOS-00049 ContentState
+    A: ContentState for charts in GroupBox 

@@ -38,7 +38,7 @@ extension TrainingReadinessView {
     }
     
     @ChartContentBuilder
-    func readinessBackground() -> some ChartContent {
+    func readinessChart() -> some ChartContent {
         ForEach(readinessSegments, id: \.range.lowerBound) { segment in
             createSegmentMark(segment: segment)
         }

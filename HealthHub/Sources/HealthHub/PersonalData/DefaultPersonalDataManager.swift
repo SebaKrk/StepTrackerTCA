@@ -20,7 +20,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     
     public init() {}
     
-    // MARK: - Characteristics API
+    // MARK: - API
     
     /// Retrieves user's age by calculating from date of birth stored in HealthKit characteristics.
     public func getAge() async throws -> Int? {
