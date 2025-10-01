@@ -4,7 +4,6 @@
 //
 //  Created by Sebastian Sciuba on 26/09/2025.
 //
-
 import Charts
 import ComposableArchitecture
 import SharedModels
@@ -13,51 +12,30 @@ import SwiftUI
 @ViewAction(for: TrainingReadinessFeature.self)
 struct TrainingReadinessView: View {
     
-    // MARK: - Properties
-    
     @Bindable var store: StoreOf<TrainingReadinessFeature>
     
-    // MARK: - View
-    
     var body: some View {
-            GroupBox {
-                content
-            } label: {
-                HStack {
-                    Text("Training Readiness")
-                    Spacer()
+        GroupBox {
+            charts
+        } label: {
+            HStack {
+                Text("Training Readiness")
+                Spacer()
+                if case .success = store.contentState {
                     Text(store.readinessLabel)
                         .foregroundStyle(store.readinessLevel.color)
                 }
             }
-            .padding([.leading, .trailing], 8)
-            .foregroundStyle(.secondary)
-            .frame(height: 120)
-            .skeleton(isLoading: store.contentState == .loading) 
-            .onAppear {
-                send(.viewDidAppear)
-            }
-    }
-    
-    @ViewBuilder
-    private var content: some View {
-        Group {
-            switch store.contentState {
-            case .loading:
-                skeletonView
-            case .success:
-                charts
-            case .unauthorized:
-                Text("")
-            case .locked:
-                Text("")
-            case .error:
-                Text("")
-            }
         }
-        .frame(height: 60)
+        .padding([.leading, .trailing], 8)
+        .foregroundStyle(.secondary)
+        .frame(height: 120)
+        .skeleton(isLoading: store.contentState == .loading)
+        .overlay { overlayContent }
+        .onAppear {
+            send(.viewDidAppear)
+        }
     }
-    
     
     @ViewBuilder
     private var charts: some View {
@@ -65,8 +43,10 @@ struct TrainingReadinessView: View {
             readinessChart()
             readinessIndicator(store.readinessValue)
                 .annotation(position: .top, alignment: .center, spacing: -10) {
-                    readinessLabel(value: store.readinessValue,
-                                   color: store.readinessLevel.color)
+                    readinessLabel(
+                        value: store.readinessValue,
+                        color: store.readinessLevel.color
+                    )
                 }
         }
         .chartXScale(domain: 0...100)
@@ -80,15 +60,40 @@ struct TrainingReadinessView: View {
         .chartYScale(domain: 0...1)
         .chartYAxis(.hidden)
         .chartPlotStyle { plotArea in
-            plotArea
-                .frame(height: 10)
+            plotArea.frame(height: 10)
         }
-        
+        .frame(height: 60)
+        .blur(radius: shouldBlur ? 3 : 0)
+        .opacity(shouldBlur ? 0.4 : 1.0)
     }
+
+    private var shouldBlur: Bool {
+         switch store.contentState {
+         case .locked, .unauthorized, .error:
+             return true
+         case .loading, .success:
+             return false
+         }
+     }
     
-    private var skeletonView: some View {
-        charts
+    @ViewBuilder
+    private var overlayContent: some View {
+        switch store.contentState {
+        case .locked:
+            ChartOverlayView.locked {
+                ///send(.unlockButtonTapped)
+            }
+        case .unauthorized:
+            ChartOverlayView.unauthorized {
+                //send(.requestHealthAccessTapped)
+            }
+        case .error:
+            ChartOverlayView.error {
+                //send(.retryButtonTapped)
+            }
+        default:
+            EmptyView()
+        }
     }
     
 }
-
