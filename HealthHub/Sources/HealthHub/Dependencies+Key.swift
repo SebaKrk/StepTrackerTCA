@@ -165,3 +165,33 @@ public extension DependencyValues {
         set { self[HeartRateCalculatorKey.self] = newValue }
     }
 }
+
+/// A TCA dependency key for managing sleep data retrieval.
+public enum SleepDataManagerKey: DependencyKey {
+    public static let liveValue: SleepDataManager = {
+        let manager = DefaultSleepDataManager()
+        return manager
+    }()
+}
+
+public extension DependencyValues {
+    var sleepDataManager: SleepDataManager {
+        get { self[SleepDataManagerKey.self] }
+        set { self[SleepDataManagerKey.self] = newValue }
+    }
+}
+
+/// A TCA dependency key for managing training readiness calculator.
+public enum TrainingReadinessCalculatorKey: DependencyKey {
+    public static let liveValue: TrainingReadinessCalculator = {
+        DefaultTrainingReadinessCalculator()
+    }()
+}
+
+public extension DependencyValues {
+    var trainingReadinessCalculator: TrainingReadinessCalculator {
+        get { self[TrainingReadinessCalculatorKey.self] }
+        set { self[TrainingReadinessCalculatorKey.self] = newValue }
+    }
+}
+

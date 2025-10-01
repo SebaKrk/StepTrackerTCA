@@ -448,3 +448,13 @@
     C: HealthCalculations
     - create strategy for calculate HR Max 
 
+### IOS-00048 StatsFeature
+    A: Build some new chart container and features
+    - create TrainingReadinessFeature
+    - SleepScoreCalculator
+    - HRVScoreCalculator
+    - RestingHeartRateScoreCalculator
+    - ActivityLoadScoreCalculator
+
+### IOS-00049 ContentState
+    A: ContentState for charts in GroupBox 

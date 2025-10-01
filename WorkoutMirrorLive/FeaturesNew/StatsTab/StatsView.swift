@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import SharedModels
 
 @ViewAction(for: StatsFeature.self)
 struct StatsView: View {
@@ -19,22 +20,29 @@ struct StatsView: View {
     
     var body: some View {
         NavigationStack {
-            rootView
-                .toolbar {
-                    toolbarButton
-                }
-                .onAppear {
-                    send(.viewDidAppear)
-                }
-                .fullScreenCover(item: $store.scope(state: \.destination?.personSettings,
-                                                    action: \.destination.personSettings)) { store in
-                    PersonSettingsView(store: store)
-                }
+            switch store.viewState {
+            case .success:
+                statsView
+            case .failed:
+                failedView
+            case .loading:
+                progressView
+            }
+        }
+        .onAppear {
+            send(.viewDidAppear)
         }
     }
     
-    var rootView: some View {
-        Text("StatsView")
+    var statsView: some View {
+        rootView
+            .toolbar {
+                toolbarButton
+            }
+            .fullScreenCover(item: $store.scope(state: \.destination?.personSettings,
+                                                action: \.destination.personSettings)) { store in
+                PersonSettingsView(store: store)
+            }
     }
     
     @ToolbarContentBuilder
@@ -48,4 +56,47 @@ struct StatsView: View {
         }
     }
     
+    var failedView: some View {
+        EmptyView()
+    }
+    
+    var progressView: some View {
+        ProgressView()
+    }
+    
+    var rootView: some View {
+        ScrollView {
+            statsContextPicker
+            switch store.context {
+            case .today:
+                todayView
+            case .analytics:
+                Text("Analytics")
+            }
+        }
+        .navigationTitle("Stats")
+        .navigationBarTitleDisplayMode(.inline)
+        
+    }
+    
+    @ViewBuilder
+    private var statsContextPicker: some View {
+        Picker("statsPicker", selection: $store.context.sending(\.selectedPickerChange)) {
+            ForEach(StatsFeature.StatsFeatureContext.allCases, id: \.self) { item in
+                Text(item.title)
+                    .tag(item)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding([.leading, .trailing, .bottom], 6)
+    }
+    
+    private var todayView: some View {
+        VStack(spacing: 12) {
+            trainingReadinessView()
+            testChart()
+        }
+    }
+    
 }
+
