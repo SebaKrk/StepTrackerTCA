@@ -21,7 +21,7 @@ struct TrainingReadinessView: View {
             HStack {
                 Text("Training Readiness")
                 Spacer()
-                if case .success = store.contentState {
+                if case .available = store.contentState {
                     Text(store.readinessLabel)
                         .foregroundStyle(store.readinessLevel.color)
                 }
@@ -71,7 +71,7 @@ struct TrainingReadinessView: View {
          switch store.contentState {
          case .locked, .unauthorized, .error:
              return true
-         case .loading, .success:
+         case .loading, .available:
              return false
          }
      }
