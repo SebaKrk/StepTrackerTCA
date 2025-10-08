@@ -27,6 +27,10 @@ extension TrainingReadinessFeature {
             
             /// Action triggered when calculation fails
             case calculationFailed(String)
+            
+            ///
+            case checkPremiumAccess
+            
         }
         
         // MARK: - View actions

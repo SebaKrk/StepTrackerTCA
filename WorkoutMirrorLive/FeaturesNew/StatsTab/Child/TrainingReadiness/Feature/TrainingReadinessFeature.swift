@@ -15,9 +15,8 @@ struct TrainingReadinessFeature {
     // MARK: - Dependency
     
     @Dependency(\.trainingReadinessClient) var trainingReadinessClient
-    
     @Dependency(\.continuousClock) var clock
-
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -33,18 +32,32 @@ struct TrainingReadinessFeature {
                 state.readinessResult = result
                 return .run { send in
                     try await clock.sleep(for: .seconds(2))
-                    await send(.internal(.changeContentState(.success)))
+                    await send(.internal(.checkPremiumAccess))
                 }
-//                return .send(.internal(.changeContentState(.success)))
                 
             case let .internal(.calculationFailed(error)):
                 state.errorMessage = error
-                dump(error)
-                return .none
+                return .send(.internal(.changeContentState(.error(error))))
+                
+            case .internal(.checkPremiumAccess):
+                return .run { send in
+                    let hasPremium = false
+                    /// await authorizationClient.checkPremiumAccess()
+                    
+                    if hasPremium {
+                        await send(.internal(.changeContentState(.available)))
+                    } else {
+                        await send(.internal(.changeContentState(.locked(.requiresPremium))))
+                    }
+                    
+                }
                 
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
+                /// sprawdź dostęp do HK , jesli jest nie przyznany to zwroć
+                //await send(.internal(.changeContentState(.unauthorized)))
+                /// jesli jest ok to :
                 return .run { send in
                     do {
                         let result = try await trainingReadinessClient.calculate()
@@ -53,9 +66,9 @@ struct TrainingReadinessFeature {
                         await send(.internal(.calculationFailed(error.localizedDescription)))
                     }
                 }
+                
             }
         }
     }
     
 }
-

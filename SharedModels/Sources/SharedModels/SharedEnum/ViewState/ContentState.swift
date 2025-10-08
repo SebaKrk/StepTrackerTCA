@@ -13,7 +13,7 @@ public enum ContentState: Equatable {
     case loading
     
     /// Content is ready to display
-    case success
+    case available
     
     /// Content failed to load
     case error(String? = nil)
