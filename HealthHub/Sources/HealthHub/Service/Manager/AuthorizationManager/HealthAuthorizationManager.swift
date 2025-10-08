@@ -41,6 +41,7 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
         /// Heart Rate & Health
         HKQuantityType(.heartRate),
         HKQuantityType(.restingHeartRate),
+        HKQuantityType(.heartRateVariabilitySDNN),
         
         /// Activity & Steps
         HKQuantityType(.stepCount),
@@ -49,7 +50,10 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
         /// Workouts & Energy
         HKObjectType.workoutType(),
         HKQuantityType(.activeEnergyBurned),
-        HKQuantityType(.workoutEffortScore) 
+        HKQuantityType(.workoutEffortScore),
+        
+        /// Sleep
+        HKCategoryType(.sleepAnalysis)
     ]
     
     // MARK: - Lifecycle
