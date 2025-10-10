@@ -21,7 +21,7 @@ struct TrainingReadinessView: View {
             HStack {
                 Text("Training Readiness")
                 Spacer()
-                if case .available = store.contentState {
+                if case .ready = store.contentState {
                     Text(store.readinessLabel)
                         .foregroundStyle(store.readinessLevel.color)
                 }
@@ -69,26 +69,31 @@ struct TrainingReadinessView: View {
 
     private var shouldBlur: Bool {
          switch store.contentState {
-         case .locked, .unauthorized, .error:
+         case .ready:
+            return !store.hasAccess  
+         case .unauthorized, .noData:
              return true
-         case .loading, .available:
+         case .loading:
              return false
          }
      }
-    
+
     @ViewBuilder
     private var overlayContent: some View {
         switch store.contentState {
-        case .locked:
-            ChartOverlayView.locked {
-                ///send(.unlockButtonTapped)
+        case .ready:
+            if !store.hasAccess {
+                ChartOverlayView.locked {
+                    // send(.unlockButtonTapped)
+                }
             }
+        
         case .unauthorized:
             ChartOverlayView.unauthorized {
                 //send(.requestHealthAccessTapped)
             }
-        case .error:
-            ChartOverlayView.error {
+        case .noData:
+            ChartOverlayView.noData {
                 //send(.retryButtonTapped)
             }
         default:

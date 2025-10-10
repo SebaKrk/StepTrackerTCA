@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
+import Foundation
 
 /// Implementation of `StatsFeature` state
 extension StatsFeature {
@@ -15,9 +16,14 @@ extension StatsFeature {
     struct State {
         
         // MARK: - Properties
+//        @Shared(.inMemory("count"))
+//        var count: Int = 0
         
         ///
-        var viewState: ViewState = .success
+        @Shared(.appStorage("userSubscriptionTier"))
+        var subscriptionTier: SubscriptionTier = .basic
+        ///
+        var viewState: ViewState = .loading
         
         /// The currently selected stats context display on the stats view.
         /// - Default: `.today`
@@ -31,7 +37,7 @@ extension StatsFeature {
         // MARK: - Child
 
         ///
-        var trainingReadiness: TrainingReadinessFeature.State = .init()
+        var trainingReadiness: TrainingReadinessFeature.State?
     }
     
 }

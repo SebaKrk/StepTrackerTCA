@@ -72,8 +72,6 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
     
     // MARK: - Private Methods
     
-    
-    
     /// Oblicza końcowy overall score z wszystkich komponentów
     private func calculateOverallScore(from components: TrainingReadinessComponents) -> Int {
         var totalScore = 50 // bazowy score

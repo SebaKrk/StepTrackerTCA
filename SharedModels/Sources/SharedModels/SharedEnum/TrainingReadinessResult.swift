@@ -84,3 +84,31 @@ public struct TrainingReadinessResult: Sendable, Equatable {
         self.isReliable = isReliable
     }
 }
+
+public extension TrainingReadinessResult {
+    
+    /// Counts how many components are missing (nil).
+    var missingComponentCount: Int {
+        var missing = 0
+        if components.restingHeartRate == nil { missing += 1 }
+        if components.heartRateVariability == nil { missing += 1 }
+        if components.sleepQuality == nil { missing += 1 }
+        if components.previousDayLoad == nil { missing += 1 }
+        return missing
+    }
+
+    /// Returns `true` if too many components are missing to consider the result reliable.
+    var hasInsufficientData: Bool {
+        missingComponentCount >= 2
+    }
+    
+    /// Returns `true` if all data components are missing, indicating that HealthKit access is likely denied.
+    ///
+    /// This means the application was unable to retrieve any physiological data required for training readiness calculation,
+    /// possibly due to lack of user permissions or HealthKit being disabled.
+    /// In this case, the app may need to prompt the user to grant HealthKit access or inform them about limited functionality.
+    var healthKitAccessDenied: Bool {
+        missingComponentCount == 4
+    }
+    
+}
