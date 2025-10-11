@@ -7,13 +7,24 @@
 
 import Foundation
 
-public enum SubscriptionTier: String, Equatable {
+public enum SubscriptionTier: String, Equatable, CaseIterable, Identifiable, Sendable {
     
-    case basic = "Basic"
+    case basic = "basic"
     
-    case pro = "Pro"
+    case pro = "pro"
     
-    case elite = "Elite"
+    case elite = "elite"
     
-    var name: String { rawValue }
+    public var id: Self { self }
+    
+    public var name: String {
+        switch self {
+        case .basic:
+            return "Basic"
+        case .pro:
+            return "Pro"
+        case .elite:
+            return "Elite"
+        }
+    }
 }

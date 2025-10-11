@@ -47,6 +47,19 @@ struct StatsView: View {
     
     @ToolbarContentBuilder
     private var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Menu {
+                ForEach(SubscriptionTier.allCases.filter { $0 != store.subscriptionTier }) { tier in
+                    Button(tier.name) {
+                        send(.subscriptionTierButtonTapped(tier))
+                    }
+                }
+                Divider()
+                Text(store.subscriptionTier.name)
+            } label: {
+                Image(systemName: "crown")
+            }
+        }
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 send(.personButtonTapped)

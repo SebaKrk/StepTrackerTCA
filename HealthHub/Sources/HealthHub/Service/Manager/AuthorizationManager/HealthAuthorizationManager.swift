@@ -83,6 +83,7 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
 //        }
 //        return statuses
 //    }
+    
     /// Returns a dictionary mapping the name of each share type to a boolean indicating if it's authorized.
     public func authorizationStatuses() -> [String: Bool] {
         var statuses: [String: Bool] = [:]

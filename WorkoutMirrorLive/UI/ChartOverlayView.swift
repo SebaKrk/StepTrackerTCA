@@ -94,4 +94,16 @@ extension ChartOverlayView {
              action: action
          )
      }
+    
+    static func noData(action: @escaping () -> Void) -> ChartOverlayView {
+        ChartOverlayView(
+            icon: "chart.bar.xaxis",
+            iconColor: .gray,
+            title: "No Data Available",
+            buttonIcon: "arrow.clockwise",
+            buttonText: "Refresh",
+            buttonColor: .gray,
+            action: action
+        )
+    }
 }

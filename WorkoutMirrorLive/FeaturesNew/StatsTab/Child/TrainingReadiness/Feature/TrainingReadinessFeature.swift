@@ -30,43 +30,34 @@ struct TrainingReadinessFeature {
                 
             case let .internal(.readinessCalculated(result)):
                 state.readinessResult = result
-                return .run { send in
+                return .run {  [tier = state.subscriptionTier] send in
                     try await clock.sleep(for: .seconds(2))
-                    await send(.internal(.checkPremiumAccess))
+                    await send(.internal(.changeContentState(.ready(tier))))
+                    
                 }
                 
             case let .internal(.calculationFailed(error)):
                 state.errorMessage = error
-                return .send(.internal(.changeContentState(.error(error))))
-                
-            case .internal(.checkPremiumAccess):
-                return .run { send in
-                    let hasPremium = false
-                    /// await authorizationClient.checkPremiumAccess()
-                    
-                    if hasPremium {
-                        await send(.internal(.changeContentState(.available)))
-                    } else {
-                        await send(.internal(.changeContentState(.locked(.requiresPremium))))
-                    }
-                    
-                }
+                return .send(.internal(.changeContentState(.noData)))
                 
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                /// sprawdź dostęp do HK , jesli jest nie przyznany to zwroć
-                //await send(.internal(.changeContentState(.unauthorized)))
-                /// jesli jest ok to :
                 return .run { send in
                     do {
                         let result = try await trainingReadinessClient.calculate()
-                        await send(.internal(.readinessCalculated(result)))
+                        
+                        if result.healthKitAccessDenied {
+                            await send(.internal(.changeContentState(.unauthorized)))
+                        } else if result.hasInsufficientData {
+                            await send(.internal(.changeContentState(.noData)))
+                        } else {
+                            await send(.internal(.readinessCalculated(result)))
+                        }
                     } catch {
                         await send(.internal(.calculationFailed(error.localizedDescription)))
                     }
                 }
-                
             }
         }
     }
