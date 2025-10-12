@@ -61,7 +61,7 @@ struct StatsFeature {
                 }
                 
             case .view(.personButtonTapped):
-                state.destination = .personSettings(PersonSettingsFeature.State())
+                state.destination = .personSettings(PersonSettingsFeature.State( subscriptionTier: state.$subscriptionTier))
                 return .none
                 
             case let  .view(.subscriptionTierButtonTapped(value)):

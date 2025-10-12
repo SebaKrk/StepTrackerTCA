@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import SharedModels
 
 @ViewAction(for: PersonSettingsFeature.self)
 struct PersonSettingsView: View {
@@ -46,6 +47,11 @@ struct PersonSettingsView: View {
                 coreMetricsCell("Sex", store.sex)
             } header: {
                 Text("Personal Info")
+            }
+            Section {
+                coreMetricsCell("Plan", store.subscriptionTier.name)
+            } header: {
+                Text("Subscription Plan")
             }
             Section {
                 coreMetricsCell("Resting HR", store.restingHeartRate)

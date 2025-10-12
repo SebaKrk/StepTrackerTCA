@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 
 /// Implementation of `PersonSettingsFeature` state
 extension PersonSettingsFeature {
@@ -26,6 +27,9 @@ extension PersonSettingsFeature {
         var restingHeartRate: String = "-"
         
         var maxHR: String = "-"
+        
+        ///
+        @Shared var subscriptionTier: SubscriptionTier
         
         // MARK: - Destination
         
