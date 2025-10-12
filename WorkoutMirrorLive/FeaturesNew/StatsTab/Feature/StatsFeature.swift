@@ -40,6 +40,10 @@ struct StatsFeature {
                 state.trainingReadiness = .init(subscriptionTier: state.$subscriptionTier)
                 return .none
                 
+            case .initializeSummaryCard:
+                state.summaryCard = .init(subscriptionTier: state.$subscriptionTier)
+                return .none
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { send in
@@ -48,6 +52,7 @@ struct StatsFeature {
                     case .success:
                         await send(.changeViewState(.success))
                         await send(.initializeTrainingReadiness)
+                        await send(.initializeSummaryCard)
                         
                     case .failure(let error):
                         print("Authorization failed with error: \(error.localizedDescription)")
@@ -69,11 +74,18 @@ struct StatsFeature {
                 // MARK: - Child
             case .trainingReadiness(_):
                 return .none
+                
+            case .summaryCard(_):
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.trainingReadiness, action: \.trainingReadiness) {
-               TrainingReadinessFeature()
-           }
+            TrainingReadinessFeature()
+        }
+        .ifLet(\.summaryCard, action: \.summaryCard) {
+            HealthMetricSummaryCardFeature()
+        }
     }
+    
 }

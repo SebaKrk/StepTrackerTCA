@@ -38,6 +38,9 @@ extension StatsFeature {
 
         ///
         var trainingReadiness: TrainingReadinessFeature.State?
+        
+        ///
+        var summaryCard: HealthMetricSummaryCardFeature.State?
     }
     
 }

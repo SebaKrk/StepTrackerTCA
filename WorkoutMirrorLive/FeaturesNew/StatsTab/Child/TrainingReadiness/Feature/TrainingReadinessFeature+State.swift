@@ -17,7 +17,9 @@ extension TrainingReadinessFeature {
         ///
         @Shared var subscriptionTier: SubscriptionTier
         
+        ///
         var requiredTier: SubscriptionTier = .pro
+        
         ////
         var contentState: ContentState = .loading
         
