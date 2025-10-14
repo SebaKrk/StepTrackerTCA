@@ -19,20 +19,28 @@ import Foundation
 ///     score: 10,
 ///     currentValue: 52.0,
 ///     baselineValue: 55.0,
-///     unit: "bpm"
+///     unit: "bpm",
+///     minScore: -15,
+///     maxScore: 15
 /// )
 /// ```
 ///
 /// ## Score Range
-/// Component scores typically range from -20 to +20, where:
+/// Each component has its own score range defined by `minScore` and `maxScore`:
 /// - Positive scores indicate favorable conditions for training
 /// - Negative scores suggest suboptimal conditions
 /// - Zero represents neutral/baseline conditions
+///
+/// Typical ranges by component:
+/// - Activity Load: -10 to +5
+/// - HRV: -15 to +15
+/// - Resting Heart Rate: -15 to +15
+/// - Sleep Quality: -10 to +15
 public struct TrainingComponentScore: Sendable, Equatable {
     
     /// Component score contribution to overall training readiness.
     ///
-    /// Ranges from -20 to +20, representing this component's impact on training readiness.
+    /// The actual score value within the range defined by `minScore` and `maxScore`.
     /// Positive values indicate favorable conditions, negative values suggest caution.
     public let score: Int
     
@@ -52,22 +60,38 @@ public struct TrainingComponentScore: Sendable, Equatable {
     /// Human-readable unit string (e.g., "bpm", "ms", "hours", "kcal") for display purposes.
     public let unit: String
     
+    /// Minimum possible score for this component.
+    ///
+    /// Represents the most unfavorable score this component can contribute (typically negative).
+    public let minScore: Int
+    
+    /// Maximum possible score for this component.
+    ///
+    /// Represents the most favorable score this component can contribute (typically positive).
+    public let maxScore: Int
+    
     /// Creates a new TrainingComponentScore.
     ///
     /// - Parameters:
-    ///   - score: Component score from -20 to +20
+    ///   - score: Component score within the range [minScore...maxScore]
     ///   - currentValue: Current measured value
     ///   - baselineValue: Optional baseline for comparison
     ///   - unit: Unit of measurement string
+    ///   - minScore: Minimum possible score for this component
+    ///   - maxScore: Maximum possible score for this component
     public init(
         score: Int,
         currentValue: Double,
         baselineValue: Double?,
-        unit: String
+        unit: String,
+        minScore: Int,
+        maxScore: Int
     ) {
         self.score = score
         self.currentValue = currentValue
         self.baselineValue = baselineValue
         self.unit = unit
+        self.minScore = minScore
+        self.maxScore = maxScore
     }
 }

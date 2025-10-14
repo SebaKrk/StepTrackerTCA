@@ -7,6 +7,8 @@
 
 import ComposableArchitecture
 import SwiftUI
+import Charts
+import SharedModels
 
 @ViewAction(for: HealthMetricSummaryCardFeature.self)
 struct HealthMetricSummaryCardView: View {
@@ -86,24 +88,41 @@ struct HealthMetricSummaryCardView: View {
         .frame(height: 160)
         .blur(radius: shouldBlur ? 3 : 0)
     }
-    
+        
     @ViewBuilder
     func metricContent(for metric: HealthMetricType, data: TrainingComponentScore) -> some View {
         HStack(spacing: 12) {
+            // Wartość + jednostka po lewej
             VStack(alignment: .leading, spacing: 8) {
-                // Wartość
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(String(format: "%.1f", data.currentValue))
+                        .font(.title2)
+                        .fontWeight(.semibold)
                     Text(data.unit)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
                 
-                // Status
                 HStack(spacing: 4) {
-                    Text("\(data.score)")
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                        .font(.caption)
+                    Text("Normal")
+                        .font(.caption)
+                        .foregroundColor(.green)
                 }
-                Spacer()
             }
+            
             Spacer()
+            
+            Chart {
+                metricChart(for: data)
+            }
+            .chartYScale(domain: data.minScore...data.maxScore)
+            .chartXScale(domain: 0...1)
+            .chartXAxis(.hidden)
+            .chartYAxis(.hidden)
+            .frame(width: 10, height: 80)
         }
         .padding(.vertical, 8)
     }
@@ -194,129 +213,5 @@ struct HealthMetricSummaryCardView: View {
 //            )
 //        )
 //        .padding()
-//    }
-//}
-
-
-import SwiftUI
-import SharedModels
-
-enum HealthMetricType: String, CaseIterable, Identifiable {
-    case rhr
-    case hrv
-    case sleep
-    case activity
-    
-    var id: String { rawValue }
-    
-    var icon: String {
-        switch self {
-        case .rhr: return "heart.fill"
-        case .hrv: return "waveform.path.ecg"
-        case .sleep: return "bed.double.fill"
-        case .activity: return "flame.fill"
-        }
-    }
-    
-    var title: String {
-        switch self {
-        case .rhr: return "RHR"
-        case .hrv: return "HRV"
-        case .sleep: return "Sleep"
-        case .activity: return "Activity"
-        }
-    }
-    
-    var fullName: String {
-        switch self {
-        case .rhr: return "Resting Heart Rate"
-        case .hrv: return "Heart Rate Variability"
-        case .sleep: return "Sleep Quality"
-        case .activity: return "Activity Level"
-        }
-    }
-}
-
-
-//        LazyVGrid(
-//            columns: [
-//                GridItem(.flexible(), spacing: 12),
-//                GridItem(.flexible(), spacing: 12)
-//            ],
-//            spacing: 12
-//        ) {
-//            ForEach(HealthMetricType.allCases) { metricType in
-//                metricGroupBox(for: metricType) {
-//                    Text("AAA")
-//                    VStack(alignment: .leading, spacing: 8) {
-//                        // Icon
-//                        Image(systemName: metricType.icon)
-//                            .font(.title2)
-//                            .foregroundColor(.gray)
-//
-//                        // Title (skrót)
-//                        Text(metricType.title)
-//                            .font(.title)
-//                            .fontWeight(.medium)
-//                            .foregroundColor(.gray)
-//
-//                        // Full name
-//                        Text(metricType.fullName)
-//                            .font(.caption)
-//                            .foregroundColor(.secondary)
-//
-//                        Spacer()
-//                            .frame(height: 80) // placeholder
-//                    }
-//                    .frame(maxWidth: .infinity, alignment: .leading)
-//                }
-//            }
-//        }
-//        .padding(.horizontal, 16)
-
-
-//                    VStack {
-//                        HStack {
-//                            Group {
-//                                Image(systemName: metricType.icon)
-//                                Text(metricType.title)
-//                                Spacer()
-//                                Image(systemName: "chevron.right")
-//                            }
-//                            .foregroundColor(.gray)
-//                            .font(.caption)
-//                        }
-//                        Divider()
-//                    }
-//                }
-//                .frame(maxWidth: .infinity, alignment: .leading)
-//                .foregroundStyle(.secondary)
-
-//    @ViewBuilder
-//    private func metricGroupBox<Content: View>(for metric: HealthMetricType, @ViewBuilder content: () -> Content ) -> some View {
-//        GroupBox {
-//            content()
-//        } label: {
-//            Text("title")
-//        }
-//        .groupBoxStyle(HealthMetricGroupBoxStyle())
-//.padding([.leading, .trailing], 8)
-//.foregroundStyle(.secondary)
-//    }
-
-//}
-
-
-//// MARK: - Custom GroupBox Style
-//
-//struct HealthMetricGroupBoxStyle: GroupBoxStyle {
-//    func makeBody(configuration: Configuration) -> some View {
-//        VStack(alignment: .leading, spacing: 0) {
-//            configuration.content
-//        }
-//        .padding(16)
-//        .background(Color.white)
-//        .cornerRadius(16)
-//        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
 //    }
 //}
