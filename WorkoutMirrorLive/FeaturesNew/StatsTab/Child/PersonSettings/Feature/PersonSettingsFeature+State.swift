@@ -14,6 +14,14 @@ extension PersonSettingsFeature {
     @ObservableState
     struct State {
         
+        // MARK: - Shared properties
+        
+//        @Shared(.appStorage("userSubscriptionTier"))
+//        var subscriptionTier: SubscriptionTier = .basic
+        
+        @Shared(.appStorage(.subscriptionTier))
+        var subscriptionTier: SubscriptionTier = .basic
+        
         // MARK: - Properties
         
         var age: String = "-"
@@ -27,9 +35,6 @@ extension PersonSettingsFeature {
         var restingHeartRate: String = "-"
         
         var maxHR: String = "-"
-        
-        ///
-        @Shared var subscriptionTier: SubscriptionTier
         
         // MARK: - Destination
         

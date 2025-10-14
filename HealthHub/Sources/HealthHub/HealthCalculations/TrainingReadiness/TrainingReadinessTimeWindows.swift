@@ -104,7 +104,7 @@ struct TrainingReadinessTimeWindows {
         
         return (startOfYesterday, endOfYesterday)
     }
-    
+
     /// Returns an array of date ranges for the last N nights.
     ///
     /// Used for calculating baseline averages over multiple sleep sessions.

@@ -37,11 +37,12 @@ struct StatsFeature {
                 return .none
                 
             case .initializeTrainingReadiness:
-                state.trainingReadiness = .init(subscriptionTier: state.$subscriptionTier)
+                state.trainingReadiness = .init() //.init(subscriptionTier: state.$subscriptionTier)
                 return .none
                 
             case .initializeSummaryCard:
-                state.summaryCard = .init(subscriptionTier: state.$subscriptionTier)
+                state.summaryCard = .init()
+                    //.init(subscriptionTier: state.$subscriptionTier)
                 return .none
                 
                 // MARK: - View Action
@@ -61,7 +62,7 @@ struct StatsFeature {
                 }
                 
             case .view(.personButtonTapped):
-                state.destination = .personSettings(PersonSettingsFeature.State( subscriptionTier: state.$subscriptionTier))
+                state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
                 
             case let  .view(.subscriptionTierButtonTapped(value)):

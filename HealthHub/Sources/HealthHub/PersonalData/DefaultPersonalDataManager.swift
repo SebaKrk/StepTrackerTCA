@@ -388,30 +388,66 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         return HealthKitData(date: Date(), value: average)
     }
     
-    /// Retrieves yesterday's total active energy burned.
+    /// Retrieves yesterday's total active energy burned from both quantity samples and workouts.
+    ///
+    /// This method combines two sources of active energy data to provide a complete picture
+    /// of yesterday's energy expenditure:
+    /// 1. **Quantity samples** - Background energy from general activity throughout the day
+    /// 2. **Workout sessions** - Energy burned during tracked exercise sessions
     ///
     /// Fetches activity from full previous day (00:00 - 23:59 yesterday).
     ///
-    /// - Returns: A `HealthKitData` object containing active energy in kcal, or `nil` if unavailable
-    /// - Throws: HealthKit errors if data access fails
+    /// - Returns: A `HealthKitData` object containing total active energy in kilocalories,
+    ///           or `nil` if no activity data is available for yesterday
+    /// - Throws: HealthKit errors if data access fails or permissions are not granted
+    ///
     public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
         let window = TrainingReadinessTimeWindows.yesterdayFullDay()
-        
+        let healthStore = manager.healthStore
+
+        print("📊 Activity Debug: window=\(window.start) → \(window.end)")
+
+        // 1️⃣ Energy from quantity samples
         let query = HealthKitQueryBuilder.buildQuery(
             for: .activeEnergyBurned,
             startDate: window.start,
             endDate: window.end,
             options: .cumulativeSum
         )
-        
-        let results = try await query.result(for: manager.healthStore)
+
+        let results = try await query.result(for: healthStore)
         let processedData = HealthKitQueryBuilder.processHealthKitData(
             results.statistics(),
             unit: .kilocalorie(),
             options: .cumulativeSum
         )
+
+        let sampleEnergy = processedData.first?.value ?? 0
+        print("📊 Activity Debug: activeEnergyBurned samples = \(sampleEnergy) kcal")
+
+        // 2️⃣ Energy from workouts
+        let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
+            from: window.start,
+            to: window.end,
+            healthStore: healthStore
+        )
         
-        return processedData.first
+        let energyType = HKQuantityType(.activeEnergyBurned)
+        let workoutEnergy = workouts.reduce(0.0) { total, workout in
+            if let statistics = workout.statistics(for: energyType),
+               let sum = statistics.sumQuantity() {
+                return total + sum.doubleValue(for: HKUnit.kilocalorie())
+            }
+            return total
+        }
+        
+        print("📊 Activity Debug: HKWorkouts found = \(workouts.count), total energy = \(workoutEnergy) kcal")
+
+        // 3️⃣ Combine both
+        let totalEnergy = sampleEnergy + workoutEnergy
+        print("📊 Activity Debug: combined total energy = \(totalEnergy) kcal")
+
+        return HealthKitData(date: window.end, value: totalEnergy)
     }
     
     /// Retrieves average daily active energy from specified number of days.

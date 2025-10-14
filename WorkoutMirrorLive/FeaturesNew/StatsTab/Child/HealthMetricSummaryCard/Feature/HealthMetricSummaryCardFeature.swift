@@ -97,8 +97,9 @@ extension HealthMetricSummaryCardFeature {
         
         // MARK: - Properties
         
-        ///
-        @Shared var subscriptionTier: SubscriptionTier
+        @Shared(.appStorage(.subscriptionTier))
+        var subscriptionTier: SubscriptionTier = .basic
+        //@Shared var subscriptionTier: SubscriptionTier
         
         ///
         var requiredTier: SubscriptionTier = .pro
