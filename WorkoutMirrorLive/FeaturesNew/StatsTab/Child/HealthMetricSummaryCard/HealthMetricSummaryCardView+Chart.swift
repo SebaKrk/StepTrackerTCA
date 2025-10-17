@@ -31,33 +31,38 @@ extension HealthMetricSummaryCardView {
     func metricSegments(for data: TrainingComponentScore) -> [MetricSegment] {
         let min = data.minScore
         let max = data.maxScore
-        let midNegative = min / 2
-        let midPositive = max / 2
+        let totalRange = max - min  // 15 dla Activity, 30 dla HRV
+        let quarterRange = Double(totalRange) / 4.0  // 3.75 dla Activity, 7.5 dla HRV
+        
+        // Równe ćwiartki całego zakresu
+        let boundary1 = min + Int(quarterRange)       // -10 + 3.75 ≈ -6
+        let boundary2 = min + Int(quarterRange * 2)   // -10 + 7.5 ≈ -2
+        let boundary3 = min + Int(quarterRange * 3)   // -10 + 11.25 ≈ 1
         
         return [
-            // Bardzo zły zakres (dół)
-            MetricSegment(range: min...midNegative, color: .red, cornerRadius: .bottom),
-            // Średnio zły
-            MetricSegment(range: midNegative...0, color: .orange, cornerRadius: .none),
-            // Neutralny/dobry
-            MetricSegment(range: 0...midPositive, color: .yellow, cornerRadius: .none),
-            // Bardzo dobry (góra)
-            MetricSegment(range: midPositive...max, color: .green, cornerRadius: .top)
+            MetricSegment(range: min...boundary1, color: .red, cornerRadius: .bottom),
+            MetricSegment(range: boundary1...boundary2, color: .orange, cornerRadius: .none),
+            MetricSegment(range: boundary2...boundary3, color: .yellow, cornerRadius: .none),
+            MetricSegment(range: boundary3...max, color: .green, cornerRadius: .top)
         ]
     }
-    
+
     func colorForScore(_ score: Int, data: TrainingComponentScore) -> Color {
-        let midNegative = data.minScore / 2
-        let midPositive = data.maxScore / 2
+        let totalRange = data.maxScore - data.minScore
+        let quarterRange = Double(totalRange) / 4.0
         
-        if score <= midNegative {
-            return .red       // score <= -5 dla Activity
-        } else if score < 0 {
-            return .orange    // -4 <= score <= -1 dla Activity
-        } else if score < midPositive {
-            return .yellow    // 0 <= score <= 1 dla Activity
+        let boundary1 = data.minScore + Int(quarterRange)
+        let boundary2 = data.minScore + Int(quarterRange * 2)
+        let boundary3 = data.minScore + Int(quarterRange * 3)
+        
+        if score <= boundary1 {
+            return .red
+        } else if score <= boundary2 {
+            return .orange
+        } else if score <= boundary3 {
+            return .yellow
         } else {
-            return .green     // score >= 2 dla Activity
+            return .green
         }
     }
     
@@ -68,7 +73,7 @@ extension HealthMetricSummaryCardView {
         }
         
         metricIndicator(data.score)
-            .annotation(position: .top, alignment: .center) {
+            .annotation(position: .overlay, alignment: .center) {
                 metricLabel(value: data.score, color: colorForScore(data.score, data: data))
             }
     }

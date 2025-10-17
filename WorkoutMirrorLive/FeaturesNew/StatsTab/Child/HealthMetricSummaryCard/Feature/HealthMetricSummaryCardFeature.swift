@@ -42,7 +42,6 @@ struct HealthMetricSummaryCardFeature {
                     do {
                         let result = try await trainingReadinessClient.calculate()
                         
-                        
                         if result.healthKitAccessDenied {
                             await send(.internal(.changeContentState(.unauthorized)))
                         } else {
@@ -52,8 +51,19 @@ struct HealthMetricSummaryCardFeature {
                         print("blad")
                     }
                 }
+                
+            case let .view(.showDetailsButtonTapped(metric: metric, data: score)):
+                state.destination = .details(HealthMetricSummaryDetailsCardFeature.State(metricType: metric,
+                                                                                         initialData: score))
+                return .none
+                
+                // MARK: - Destination
+                
+            case .destination(_):
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }
@@ -85,7 +95,17 @@ extension HealthMetricSummaryCardFeature {
             
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            ///
+            //case showDetailsButtonTapped
+            case showDetailsButtonTapped(metric: HealthMetricType, data: TrainingComponentScore)
         }
+        
+        // MARK: - Destination
+        
+        /// Destination case for handling navigation actions.
+        /// - Parameter action: The action to be performed within the destination.
+        case destination(PresentationAction<Destination.Action>)
     }
 }
 
@@ -129,6 +149,21 @@ extension HealthMetricSummaryCardFeature {
             }
         }
         
+        /// Represents the navigation destination state within `HealthMetricSummaryCardFeature`.
+        /// This property handles transitions to different screens or modals within the feature.
+        @Presents var destination: Destination.State?
     }
     
 }
+
+/// Implementation of `HealthMetricSummaryCardFeature` destination
+extension HealthMetricSummaryCardFeature {
+    
+    @Reducer
+    enum Destination {
+        
+        ///
+        case details(HealthMetricSummaryDetailsCardFeature)
+    }
+}
+

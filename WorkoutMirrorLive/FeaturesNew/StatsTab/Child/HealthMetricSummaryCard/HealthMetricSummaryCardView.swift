@@ -27,6 +27,12 @@ struct HealthMetricSummaryCardView: View {
             .onAppear {
                 send(.viewDidAppear)
             }
+            .navigationDestination(
+                item: $store.scope(
+                    state: \.destination?.details,
+                    action: \.destination.details)) { store in
+                        HealthMetricSummaryDetailsCardView(store: store)
+                    }
     }
     
     private var rootView: some View {
@@ -59,15 +65,15 @@ struct HealthMetricSummaryCardView: View {
     }
     
     private var shouldBlur: Bool {
-         switch store.contentState {
-         case .ready:
+        switch store.contentState {
+        case .ready:
             return !store.hasAccess
-         case .unauthorized, .noData:
-             return true
-         case .loading:
-             return false
-         }
-     }
+        case .unauthorized, .noData:
+            return true
+        case .loading:
+            return false
+        }
+    }
     
     // MARK: - SubViews
     
@@ -83,64 +89,78 @@ struct HealthMetricSummaryCardView: View {
                 noDataContent()
             }
         } label: {
-            containerTitle(metric)
+            containerTitle(metric, data: data)
         }
         .frame(height: 160)
         .blur(radius: shouldBlur ? 3 : 0)
     }
-        
+    
     @ViewBuilder
     func metricContent(for metric: HealthMetricType, data: TrainingComponentScore) -> some View {
         HStack(spacing: 12) {
-            // Wartość + jednostka po lewej
             VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(String(format: "%.1f", data.currentValue))
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    Text(data.unit)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                HStack(spacing: 4) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.caption)
-                    Text("Normal")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                }
+                currentValueLabel(data)
+                currentStatusLabel(data)
             }
-            
             Spacer()
-            
-            Chart {
-                metricChart(for: data)
-            }
-            .chartYScale(domain: data.minScore...data.maxScore)
-            .chartXScale(domain: 0...1)
-            .chartXAxis(.hidden)
-            .chartYAxis(.hidden)
-            .frame(width: 10, height: 80)
+            chartView(data)
         }
         .padding(.vertical, 8)
     }
     
-    @ViewBuilder
-    func containerTitle(_ metricType: HealthMetricType) -> some View {
-        VStack {
-            HStack {
-                Group {
-                    Image(systemName: metricType.icon)
-                    Text(metricType.title)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                }
-                .foregroundColor(.gray)
+    func currentValueLabel(_ data: TrainingComponentScore) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Text(String(format: "%.1f", data.currentValue))
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text(data.unit)
                 .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    func currentStatusLabel(_ data: TrainingComponentScore) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: data.status.icon)
+                .foregroundColor(data.status.color)
+                .font(.caption)
+            Text(data.status.text)
+                .font(.caption)
+                .foregroundColor(data.status.color)
+        }
+    }
+    
+    func chartView(_ data: TrainingComponentScore) -> some View {
+        Chart {
+            metricChart(for: data)
+        }
+        .chartYScale(domain: data.minScore...data.maxScore)
+        .chartXScale(domain: 0...1)
+        .chartXAxis(.hidden)
+        .chartYAxis(.hidden)
+        .frame(width: 10, height: 80)
+    }
+    
+    @ViewBuilder
+    func containerTitle(_ metricType: HealthMetricType, data: TrainingComponentScore?) -> some View {
+        Button {
+            if let data = data { 
+                send(.showDetailsButtonTapped(metric: metricType, data: data))
             }
-            Divider()
+        } label: {
+            VStack {
+                HStack {
+                    Group {
+                        Image(systemName: metricType.icon)
+                        Text(metricType.title)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                    }
+                    .foregroundColor(.gray)
+                    .font(.caption)
+                }
+                Divider()
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .foregroundStyle(.secondary)
@@ -166,7 +186,7 @@ struct HealthMetricSummaryCardView: View {
                     // send(.unlockButtonTapped)
                 }
             }
-        
+            
         case .unauthorized:
             ChartOverlayView.unauthorized {
                 //send(.requestHealthAccessTapped)
@@ -178,40 +198,3 @@ struct HealthMetricSummaryCardView: View {
     }
     
 }
-
-//#Preview {
-//    ZStack {
-//        Color(.systemGroupedBackground)
-//            .ignoresSafeArea()
-//
-//        HealthMetricCardsView(
-//            components: TrainingReadinessComponents(
-//                restingHeartRate: TrainingComponentScore(
-//                    score: 10,
-//                    currentValue: 58.1,
-//                    baselineValue: 55.0,
-//                    unit: "bpm"
-//                ),
-//                heartRateVariability: TrainingComponentScore(
-//                    score: 8,
-//                    currentValue: 61.4,
-//                    baselineValue: 58.0,
-//                    unit: "ms"
-//                ),
-//                sleepQuality: TrainingComponentScore(
-//                    score: 5,
-//                    currentValue: 7.5,
-//                    baselineValue: 7.8,
-//                    unit: "hours"
-//                ),
-//                previousDayLoad: TrainingComponentScore(
-//                    score: -5,
-//                    currentValue: 450.0,
-//                    baselineValue: 320.0,
-//                    unit: "kcal"
-//                )
-//            )
-//        )
-//        .padding()
-//    }
-//}

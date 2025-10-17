@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// Represents a single component's contribution to training readiness calculation.
 ///
@@ -93,5 +94,74 @@ public struct TrainingComponentScore: Sendable, Equatable {
         self.unit = unit
         self.minScore = minScore
         self.maxScore = maxScore
+    }
+}
+
+// MARK: - Score Status
+
+extension TrainingComponentScore {
+    
+    /// Represents the qualitative status of a training component score.
+    public enum ScoreStatus: Sendable, Equatable {
+        case poor
+        case belowAverage
+        case good
+        case excellent
+        
+        /// Display text for the status
+        public var text: String {
+            switch self {
+            case .poor: return "Poor"
+            case .belowAverage: return "Below Average"
+            case .good: return "Good"
+            case .excellent: return "Excellent"
+            }
+        }
+        
+        /// SF Symbol icon name for the status
+        public var icon: String {
+            switch self {
+            case .poor: return "xmark.circle.fill"
+            case .belowAverage: return "exclamationmark.triangle.fill"
+            case .good: return "minus.circle.fill"
+            case .excellent: return "checkmark.circle.fill"
+            }
+        }
+        
+        /// Color associated with the status
+        public var color: Color {
+            switch self {
+            case .poor: return .red
+            case .belowAverage: return .orange
+            case .good: return .yellow
+            case .excellent: return .green
+            }
+        }
+    }
+    
+    /// Computed status based on the score's position within the min-max range.
+    ///
+    /// Divides the score range into four equal quartiles:
+    /// - Bottom 25%: Poor
+    /// - Second 25%: Below Average
+    /// - Third 25%: Good
+    /// - Top 25%: Excellent
+    public var status: ScoreStatus {
+        let totalRange = maxScore - minScore
+        let quarterRange = Double(totalRange) / 4.0
+        
+        let boundary1 = minScore + Int(quarterRange)
+        let boundary2 = minScore + Int(quarterRange * 2)
+        let boundary3 = minScore + Int(quarterRange * 3)
+        
+        if score <= boundary1 {
+            return .poor
+        } else if score <= boundary2 {
+            return .belowAverage
+        } else if score <= boundary3 {
+            return .good
+        } else {
+            return .excellent
+        }
     }
 }
