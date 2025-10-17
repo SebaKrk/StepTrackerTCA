@@ -13,6 +13,7 @@ extension TrainingReadinessFeature {
     
     @CasePathable
     enum Action: ViewAction {
+        
         // MARK: - Internal actions
         
         case `internal`(Internal)
@@ -27,9 +28,6 @@ extension TrainingReadinessFeature {
             
             /// Action triggered when calculation fails
             case calculationFailed(String)
-            
-            ///
-            case checkPremiumAccess
             
         }
         

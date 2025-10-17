@@ -32,22 +32,41 @@ struct StatsFeature {
                 state.context = value
                 return .none
                 
+            case let .changeSubscriptionTier(value):
+                state.$subscriptionTier.withLock { $0 = value }
+                return .none
+                
+            case .initializeTrainingReadiness:
+                state.trainingReadiness = .init() //.init(subscriptionTier: state.$subscriptionTier)
+                return .none
+                
+            case .initializeSummaryCard:
+                state.summaryCard = .init()
+                    //.init(subscriptionTier: state.$subscriptionTier)
+                return .none
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { send in
                     let result = await self.authorizationManager.requestAuthorization()
                     switch result {
                     case .success:
-                        print("success")
+                        await send(.changeViewState(.success))
+                        await send(.initializeTrainingReadiness)
+                        await send(.initializeSummaryCard)
                         
                     case .failure(let error):
                         print("Authorization failed with error: \(error.localizedDescription)")
+                        await send(.changeViewState(.failed))
                     }
                 }
                 
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
+                
+            case let  .view(.subscriptionTierButtonTapped(value)):
+                return .send(.changeSubscriptionTier(value))
                 
                 // MARK: - Destination
             case .destination(_):
@@ -56,12 +75,18 @@ struct StatsFeature {
                 // MARK: - Child
             case .trainingReadiness(_):
                 return .none
+                
+            case .summaryCard(_):
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
-        
-        Scope(state: \.trainingReadiness, action: \.trainingReadiness) {
+        .ifLet(\.trainingReadiness, action: \.trainingReadiness) {
             TrainingReadinessFeature()
         }
+        .ifLet(\.summaryCard, action: \.summaryCard) {
+            HealthMetricSummaryCardFeature()
+        }
     }
+    
 }

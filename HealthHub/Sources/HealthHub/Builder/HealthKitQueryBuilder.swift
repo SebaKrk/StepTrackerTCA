@@ -143,4 +143,36 @@ public final class HealthKitQueryBuilder {
         }
     }
     
+    /// Fetches workouts from HealthKit within the specified date range.
+    ///
+    /// This method retrieves all workout samples that occurred between the start and end dates.
+    /// It's useful for analyzing training load, calculating workout-specific energy expenditure,
+    /// or retrieving workout metadata.
+    ///
+    /// - Parameters:
+    ///   - startDate: The beginning of the date range for workout retrieval
+    ///   - endDate: The end of the date range for workout retrieval
+    ///   - healthStore: The `HKHealthStore` instance to execute the query against
+    /// - Returns: Array of `HKWorkout` objects found within the specified range
+    /// - Throws: HealthKit errors if data access fails
+    public static func fetchWorkouts(from startDate: Date, to endDate: Date, healthStore: HKHealthStore) async throws -> [HKWorkout] {
+        try await withCheckedThrowingContinuation { continuation in
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+            let query = HKSampleQuery(
+                sampleType: .workoutType(),
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: nil
+            ) { _, samples, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                let workouts = samples as? [HKWorkout] ?? []
+                continuation.resume(returning: workouts)
+            }
+            healthStore.execute(query)
+        }
+    }
+    
 }

@@ -16,6 +16,9 @@ extension StatsFeature {
         
         // MARK: - Actions
         
+        ///
+        case changeSubscriptionTier(SubscriptionTier)
+        
         /// Responsible for changing the state of the view.
         case changeViewState(ViewState)
         
@@ -23,6 +26,12 @@ extension StatsFeature {
         ///
         /// - Parameter: `StatsFeatureContext` representing the selected context.
         case selectedPickerChange(StatsFeatureContext)
+        
+        ///
+        case initializeTrainingReadiness
+        
+        ///
+        case initializeSummaryCard
         
         // MARK: - View Actions
         
@@ -35,6 +44,9 @@ extension StatsFeature {
             
             ///
             case personButtonTapped
+            
+            ///
+            case subscriptionTierButtonTapped(SubscriptionTier)
 
         }
         
@@ -47,6 +59,9 @@ extension StatsFeature {
         
         ///
         case trainingReadiness(TrainingReadinessFeature.Action)
+        
+        ///
+        case summaryCard(HealthMetricSummaryCardFeature.Action)
     }
     
 }

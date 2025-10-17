@@ -12,10 +12,22 @@ extension StatsView {
     
     @ViewBuilder
     func trainingReadinessView() -> some View {
-        TrainingReadinessView(store: store.scope(
+        if let store = store.scope(
             state: \.trainingReadiness,
-            action: \.trainingReadiness)
-        )
+            action: \.trainingReadiness
+        ) {
+            TrainingReadinessView(store: store)
+        }
+    }
+    
+    @ViewBuilder
+    func summaryCards() -> some View {
+        if let store = store.scope(
+            state: \.summaryCard,
+            action: \.summaryCard
+        ) {
+            HealthMetricSummaryCardView(store: store)
+        }
     }
     
     @ViewBuilder

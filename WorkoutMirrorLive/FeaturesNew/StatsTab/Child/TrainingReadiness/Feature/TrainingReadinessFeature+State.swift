@@ -14,6 +14,15 @@ extension TrainingReadinessFeature {
     @ObservableState
     struct State {
         
+        ///
+        //@Shared var subscriptionTier: SubscriptionTier
+        @Shared(.appStorage(.subscriptionTier))
+        var subscriptionTier: SubscriptionTier = .basic
+        
+        ///
+        var requiredTier: SubscriptionTier = .pro
+        
+        ////
         var contentState: ContentState = .loading
         
         /// Training readiness calculation result
@@ -40,6 +49,24 @@ extension TrainingReadinessFeature {
         /// Whether result is reliable (enough data available)
         var isReliable: Bool {
             readinessResult?.isReliable ?? false
+        }
+        
+        var hasAccess: Bool {
+            guard case .ready = contentState else {
+                 return false
+             }
+            
+            switch (subscriptionTier, requiredTier) {
+                /// basic nie ma dostępu do pro/elite
+            case (.basic, .pro), (.basic, .elite):
+                return false
+            case (.pro, .elite):
+                /// pro nie ma dostępu do elite
+                return false
+            default:
+                /// pozostałe przypadki = dostęp OK
+                return true
+            }
         }
     }
 }

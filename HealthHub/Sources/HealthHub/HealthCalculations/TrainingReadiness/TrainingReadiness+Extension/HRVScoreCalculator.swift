@@ -46,7 +46,9 @@ extension DefaultTrainingReadinessCalculator {
             score: score,
             currentValue: currentHRV.value,
             baselineValue: baselineHRV?.value,
-            unit: "ms"
+            unit: "ms",
+            minScore: -15,
+            maxScore: 15    
         )
     }
     

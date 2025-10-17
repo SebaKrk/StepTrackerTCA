@@ -40,5 +40,4 @@ public protocol AuthorizationManager: Sendable {
     ///
     /// Use this method to verify that the app has the necessary permissions to write data to HealthKit before attempting to save any samples.
     func isAuthorizedForAllRequiredShareTypes() -> Bool
-    
 }

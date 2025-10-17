@@ -35,6 +35,7 @@ import SwiftUI
 struct WorkoutMirrorLiveApp: App {
     var body: some Scene {
         WindowGroup {
+//            HealthMetricCardsView()
             AppTabNewView(
                 store: Store(initialState: AppTabNewFeature.State()) {
                     AppTabNewFeature()
