@@ -15,9 +15,13 @@ extension TrainingReadinessFeature {
     struct State {
         
         ///
-        @Shared var subscriptionTier: SubscriptionTier
+        //@Shared var subscriptionTier: SubscriptionTier
+        @Shared(.appStorage(.subscriptionTier))
+        var subscriptionTier: SubscriptionTier = .basic
         
+        ///
         var requiredTier: SubscriptionTier = .pro
+        
         ////
         var contentState: ContentState = .loading
         

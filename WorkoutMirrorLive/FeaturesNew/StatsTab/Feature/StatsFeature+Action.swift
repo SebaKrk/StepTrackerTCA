@@ -30,6 +30,9 @@ extension StatsFeature {
         ///
         case initializeTrainingReadiness
         
+        ///
+        case initializeSummaryCard
+        
         // MARK: - View Actions
         
         case view(View)
@@ -56,6 +59,9 @@ extension StatsFeature {
         
         ///
         case trainingReadiness(TrainingReadinessFeature.Action)
+        
+        ///
+        case summaryCard(HealthMetricSummaryCardFeature.Action)
     }
     
 }

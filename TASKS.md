@@ -459,3 +459,4 @@
 ### IOS-00049 ContentState
     A: ContentState for charts in GroupBox 
     B: @Shared state for premiumStatus
+    C: HealthMetricSummaryCard

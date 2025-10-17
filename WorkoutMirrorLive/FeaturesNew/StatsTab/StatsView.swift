@@ -107,7 +107,7 @@ struct StatsView: View {
     private var todayView: some View {
         VStack(spacing: 12) {
             trainingReadinessView()
-            testChart()
+            summaryCards()
         }
     }
     

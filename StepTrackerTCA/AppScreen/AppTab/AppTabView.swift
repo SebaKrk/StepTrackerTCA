@@ -29,6 +29,7 @@ struct AppTabView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        
     }
     
     @ViewBuilder

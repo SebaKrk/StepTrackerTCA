@@ -19,9 +19,9 @@ extension StatsFeature {
 //        @Shared(.inMemory("count"))
 //        var count: Int = 0
         
-        ///
-        @Shared(.appStorage("userSubscriptionTier"))
+        @Shared(.appStorage(.subscriptionTier))
         var subscriptionTier: SubscriptionTier = .basic
+        
         ///
         var viewState: ViewState = .loading
         
@@ -38,6 +38,9 @@ extension StatsFeature {
 
         ///
         var trainingReadiness: TrainingReadinessFeature.State?
+        
+        ///
+        var summaryCard: HealthMetricSummaryCardFeature.State?
     }
     
 }

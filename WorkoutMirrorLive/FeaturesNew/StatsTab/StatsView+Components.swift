@@ -21,6 +21,16 @@ extension StatsView {
     }
     
     @ViewBuilder
+    func summaryCards() -> some View {
+        if let store = store.scope(
+            state: \.summaryCard,
+            action: \.summaryCard
+        ) {
+            HealthMetricSummaryCardView(store: store)
+        }
+    }
+    
+    @ViewBuilder
     func testChart() -> some View {
         GroupBox {
             VStack {

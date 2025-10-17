@@ -13,6 +13,7 @@ extension TrainingReadinessFeature {
     
     @CasePathable
     enum Action: ViewAction {
+        
         // MARK: - Internal actions
         
         case `internal`(Internal)
