@@ -83,8 +83,17 @@ struct TrainingReadinessView: View {
         switch store.contentState {
         case .ready:
             if !store.hasAccess {
-                ChartOverlayView.locked {
-                    // send(.unlockButtonTapped)
+                switch store.subscriptionTier {
+                case .basic:
+                    ChartOverlayView.lockedBasic {
+                        // send(.unlockButtonTapped)
+                    }
+                case .pro:
+                    ChartOverlayView.lockedPro{
+                        // send(.unlockButtonTapped)
+                    }
+                case .elite:
+                    EmptyView()
                 }
             }
         

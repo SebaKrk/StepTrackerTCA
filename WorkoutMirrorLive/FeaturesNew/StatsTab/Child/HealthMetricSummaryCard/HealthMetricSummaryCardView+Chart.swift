@@ -31,13 +31,12 @@ extension HealthMetricSummaryCardView {
     func metricSegments(for data: TrainingComponentScore) -> [MetricSegment] {
         let min = data.minScore
         let max = data.maxScore
-        let totalRange = max - min  // 15 dla Activity, 30 dla HRV
-        let quarterRange = Double(totalRange) / 4.0  // 3.75 dla Activity, 7.5 dla HRV
+        let totalRange = max - min
+        let quarterRange = Double(totalRange) / 4.0
         
-        // Równe ćwiartki całego zakresu
-        let boundary1 = min + Int(quarterRange)       // -10 + 3.75 ≈ -6
-        let boundary2 = min + Int(quarterRange * 2)   // -10 + 7.5 ≈ -2
-        let boundary3 = min + Int(quarterRange * 3)   // -10 + 11.25 ≈ 1
+        let boundary1 = min + Int(quarterRange)
+        let boundary2 = min + Int(quarterRange * 2)
+        let boundary3 = min + Int(quarterRange * 3)
         
         return [
             MetricSegment(range: min...boundary1, color: .red, cornerRadius: .bottom),
@@ -46,7 +45,7 @@ extension HealthMetricSummaryCardView {
             MetricSegment(range: boundary3...max, color: .green, cornerRadius: .top)
         ]
     }
-
+    
     func colorForScore(_ score: Int, data: TrainingComponentScore) -> Color {
         let totalRange = data.maxScore - data.minScore
         let quarterRange = Double(totalRange) / 4.0
@@ -116,4 +115,5 @@ extension HealthMetricSummaryCardView {
             .foregroundStyle(.white)
             .clipShape(Capsule())
     }
+    
 }

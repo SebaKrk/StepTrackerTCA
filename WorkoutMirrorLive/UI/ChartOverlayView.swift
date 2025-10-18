@@ -59,14 +59,26 @@ struct ChartOverlayView: View {
 }
 
 extension ChartOverlayView {
-    static func locked(action: @escaping () -> Void) -> ChartOverlayView {
+    static func lockedBasic(action: @escaping () -> Void) -> ChartOverlayView {
         ChartOverlayView(
             icon: "lock.fill",
             iconColor: .yellow,
             title: "Premium Feature",
             buttonIcon: "crown.fill",
-            buttonText: "Unlock Premium",
+            buttonText: "Unlock Pro",
             buttonColor: .yellow,
+            action: action
+        )
+    }
+
+    static func lockedPro(action: @escaping () -> Void) -> ChartOverlayView {
+        ChartOverlayView(
+            icon: "lock.fill",
+            iconColor: .orange,
+            title: "Elite Feature",
+            buttonIcon: "flame.fill",
+            buttonText: "Go Elite",
+            buttonColor: .orange,
             action: action
         )
     }

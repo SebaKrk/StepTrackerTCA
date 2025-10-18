@@ -44,23 +44,8 @@ struct HealthMetricSummaryCardView: View {
             spacing: 4
         ) {
             ForEach(HealthMetricType.allCases) { metricType in
-                metricGroupBox(for: metricType, data: getMetricData(for: metricType))
+                metricGroupBox(for: metricType, data: store.components?.score(for: metricType))
             }
-        }
-    }
-    
-    private func getMetricData(for type: HealthMetricType) -> TrainingComponentScore? {
-        guard let components = store.components else { return nil }
-        
-        switch type {
-        case .rhr:
-            return components.restingHeartRate
-        case .hrv:
-            return components.heartRateVariability
-        case .sleep:
-            return components.sleepQuality
-        case .activity:
-            return components.previousDayLoad
         }
     }
     
@@ -144,7 +129,7 @@ struct HealthMetricSummaryCardView: View {
     @ViewBuilder
     func containerTitle(_ metricType: HealthMetricType, data: TrainingComponentScore?) -> some View {
         Button {
-            if let data = data { 
+            if let data = data {
                 send(.showDetailsButtonTapped(metric: metricType, data: data))
             }
         } label: {
@@ -182,16 +167,28 @@ struct HealthMetricSummaryCardView: View {
         switch store.contentState {
         case .ready:
             if !store.hasAccess {
-                ChartOverlayView.locked {
-                    // send(.unlockButtonTapped)
+                switch store.subscriptionTier {
+                case .basic:
+                    ChartOverlayView.lockedBasic {
+                        // send(.unlockButtonTapped)
+                    }
+                case .pro:
+                    ChartOverlayView.lockedPro{
+                        // send(.unlockButtonTapped)
+                    }
+                case .elite:
+                    EmptyView()
                 }
             }
-            
+        
         case .unauthorized:
             ChartOverlayView.unauthorized {
                 //send(.requestHealthAccessTapped)
             }
-            
+        case .noData:
+            ChartOverlayView.noData {
+                //send(.retryButtonTapped)
+            }
         default:
             EmptyView()
         }

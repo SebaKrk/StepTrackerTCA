@@ -1,22 +1,22 @@
 //
 //  HealthMetricType.swift
-//  MyFitnessJournal
+//  SharedModels
 //
-//  Created by Sebastian Sciuba on 14/10/2025.
+//  Created by Sebastian Sciuba on 18/10/2025.
 //
 
-import SwiftUI
-import SharedModels
+import Foundation
 
-enum HealthMetricType: String, CaseIterable, Identifiable {
+public enum HealthMetricType: String, CaseIterable, Identifiable {
+    
     case rhr
     case hrv
     case sleep
     case activity
     
-    var id: String { rawValue }
+    public var id: String { rawValue }
     
-    var icon: String {
+    public var icon: String {
         switch self {
         case .rhr: return "heart.fill"
         case .hrv: return "waveform.path.ecg"
@@ -25,7 +25,7 @@ enum HealthMetricType: String, CaseIterable, Identifiable {
         }
     }
     
-    var title: String {
+    public var title: String {
         switch self {
         case .rhr: return "RHR"
         case .hrv: return "HRV"
@@ -34,7 +34,7 @@ enum HealthMetricType: String, CaseIterable, Identifiable {
         }
     }
     
-    var fullName: String {
+    public var fullName: String {
         switch self {
         case .rhr: return "Resting Heart Rate"
         case .hrv: return "Heart Rate Variability"
