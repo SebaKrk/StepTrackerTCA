@@ -1,5 +1,5 @@
 //
-//  ChartOverlayView.swift
+//  OverlayView.swift
 //  MyFitnessJournal
 //
 //  Created by Sebastian Sciuba on 01/10/2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ChartOverlayView: View {
+struct OverlayView: View {
     
     let icon: String
     let iconColor: Color
@@ -58,21 +58,33 @@ struct ChartOverlayView: View {
     }
 }
 
-extension ChartOverlayView {
-    static func locked(action: @escaping () -> Void) -> ChartOverlayView {
-        ChartOverlayView(
+extension OverlayView {
+    static func lockedBasic(action: @escaping () -> Void) -> OverlayView {
+        OverlayView(
             icon: "lock.fill",
             iconColor: .yellow,
             title: "Premium Feature",
             buttonIcon: "crown.fill",
-            buttonText: "Unlock Premium",
+            buttonText: "Unlock Pro",
             buttonColor: .yellow,
             action: action
         )
     }
+
+    static func lockedPro(action: @escaping () -> Void) -> OverlayView {
+        OverlayView(
+            icon: "lock.fill",
+            iconColor: .orange,
+            title: "Elite Feature",
+            buttonIcon: "flame.fill",
+            buttonText: "Go Elite",
+            buttonColor: .orange,
+            action: action
+        )
+    }
     
-    static func unauthorized(action: @escaping () -> Void) -> ChartOverlayView {
-        ChartOverlayView(
+    static func unauthorized(action: @escaping () -> Void) -> OverlayView {
+        OverlayView(
             icon: "heart.text.square.fill",
             iconColor: .red,
             title: "Health Access Required",
@@ -83,8 +95,8 @@ extension ChartOverlayView {
         )
     }
     
-    static func error(action: @escaping () -> Void) -> ChartOverlayView {
-         ChartOverlayView(
+    static func error(action: @escaping () -> Void) -> OverlayView {
+        OverlayView(
              icon: "exclamationmark.triangle.fill",
              iconColor: .red,
              title: "Unable to load data",
@@ -95,8 +107,8 @@ extension ChartOverlayView {
          )
      }
     
-    static func noData(action: @escaping () -> Void) -> ChartOverlayView {
-        ChartOverlayView(
+    static func noData(action: @escaping () -> Void) -> OverlayView {
+        OverlayView(
             icon: "chart.bar.xaxis",
             iconColor: .gray,
             title: "No Data Available",

@@ -18,5 +18,3 @@ public enum ContentState: Equatable {
     case ready(SubscriptionTier)
     
 }
-
-

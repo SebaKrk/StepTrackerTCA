@@ -5,8 +5,8 @@
 //  Created by Sebastian Sciuba on 17/10/2025.
 //
 
-
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 @ViewAction(for: HealthMetricSummaryDetailsCardFeature.self)

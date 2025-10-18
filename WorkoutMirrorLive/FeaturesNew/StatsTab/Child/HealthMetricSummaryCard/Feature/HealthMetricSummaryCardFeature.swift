@@ -48,7 +48,8 @@ struct HealthMetricSummaryCardFeature {
                             await send(.internal(.dataLoaded(result.components)))
                         }
                     } catch {
-                        print("blad")
+                        await send(.internal(.changeContentState(.noData)))
+                        print(error.localizedDescription)
                     }
                 }
                 
@@ -67,103 +68,3 @@ struct HealthMetricSummaryCardFeature {
     }
     
 }
-
-/// Implementation of `HealthMetricSummaryCardFeature` action
-extension HealthMetricSummaryCardFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Internal Actions
-        
-        case `internal`(Internal)
-        
-        enum Internal {
-            
-            ///
-            case changeContentState(ContentState)
-            
-            ///
-            case dataLoaded(TrainingReadinessComponents?)
-        }
-        
-        // MARK: - View Actions
-        
-        case view(View)
-        
-        enum View {
-            
-            /// Action triggered when the view appears on the screen.
-            case viewDidAppear
-            
-            ///
-            //case showDetailsButtonTapped
-            case showDetailsButtonTapped(metric: HealthMetricType, data: TrainingComponentScore)
-        }
-        
-        // MARK: - Destination
-        
-        /// Destination case for handling navigation actions.
-        /// - Parameter action: The action to be performed within the destination.
-        case destination(PresentationAction<Destination.Action>)
-    }
-}
-
-/// Implementation of `HealthMetricSummaryCardFeature` state
-extension HealthMetricSummaryCardFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        @Shared(.appStorage(.subscriptionTier))
-        var subscriptionTier: SubscriptionTier = .basic
-        //@Shared var subscriptionTier: SubscriptionTier
-        
-        ///
-        var requiredTier: SubscriptionTier = .pro
-        
-        ///
-        var contentState: ContentState = .loading
-        
-        ///
-        var components: TrainingReadinessComponents? = nil
-        
-        ///
-        var hasAccess: Bool {
-            guard case .ready = contentState else {
-                return false
-            }
-            
-            switch (subscriptionTier, requiredTier) {
-                /// basic nie ma dostępu do pro/elite
-            case (.basic, .pro), (.basic, .elite):
-                return false
-            case (.pro, .elite):
-                /// pro nie ma dostępu do elite
-                return false
-            default:
-                /// pozostałe przypadki = dostęp OK
-                return true
-            }
-        }
-        
-        /// Represents the navigation destination state within `HealthMetricSummaryCardFeature`.
-        /// This property handles transitions to different screens or modals within the feature.
-        @Presents var destination: Destination.State?
-    }
-    
-}
-
-/// Implementation of `HealthMetricSummaryCardFeature` destination
-extension HealthMetricSummaryCardFeature {
-    
-    @Reducer
-    enum Destination {
-        
-        ///
-        case details(HealthMetricSummaryDetailsCardFeature)
-    }
-}
-

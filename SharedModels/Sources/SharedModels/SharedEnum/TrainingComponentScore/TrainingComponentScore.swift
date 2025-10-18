@@ -165,3 +165,22 @@ extension TrainingComponentScore {
         }
     }
 }
+
+extension TrainingReadinessComponents {
+    
+    /// Returns the training component score for a specific metric type
+    /// - Parameter type: The health metric type to retrieve
+    /// - Returns: The corresponding training component score, or nil if unavailable
+    public func score(for type: HealthMetricType) -> TrainingComponentScore? {
+        switch type {
+        case .rhr:
+            return restingHeartRate
+        case .hrv:
+            return heartRateVariability
+        case .sleep:
+            return sleepQuality
+        case .activity:
+            return previousDayLoad
+        }
+    }
+}
