@@ -23,10 +23,23 @@ struct HealthMetricSummaryCardView: View {
         rootView
             .skeleton(isLoading: store.contentState == .loading)
             .padding([.leading, .trailing], 8)
-            .overlay { overlayContent }
+            //.overlay { overlayContent }
             .onAppear {
                 send(.viewDidAppear)
             }
+            .subscriptionOverlay(
+                 contentState: store.contentState,
+                 subscriptionTier: store.subscriptionTier,
+                 requiredTier: store.requiredTier,
+                 onUnlockTapped: {
+                     // send(.unlockButtonTapped)
+                 },
+                 onHealthAccessTapped: {
+                     // send(.requestHealthAccessTapped)
+                 },
+                 onRetryTapped: {
+                     // send(.retryButtonTapped)
+                 })
             .navigationDestination(
                 item: $store.scope(
                     state: \.destination?.details,
@@ -44,34 +57,8 @@ struct HealthMetricSummaryCardView: View {
             spacing: 4
         ) {
             ForEach(HealthMetricType.allCases) { metricType in
-                metricGroupBox(for: metricType, data: getMetricData(for: metricType))
+                metricGroupBox(for: metricType, data: store.components?.score(for: metricType))
             }
-        }
-    }
-    
-    private func getMetricData(for type: HealthMetricType) -> TrainingComponentScore? {
-        guard let components = store.components else { return nil }
-        
-        switch type {
-        case .rhr:
-            return components.restingHeartRate
-        case .hrv:
-            return components.heartRateVariability
-        case .sleep:
-            return components.sleepQuality
-        case .activity:
-            return components.previousDayLoad
-        }
-    }
-    
-    private var shouldBlur: Bool {
-        switch store.contentState {
-        case .ready:
-            return !store.hasAccess
-        case .unauthorized, .noData:
-            return true
-        case .loading:
-            return false
         }
     }
     
@@ -92,7 +79,6 @@ struct HealthMetricSummaryCardView: View {
             containerTitle(metric, data: data)
         }
         .frame(height: 160)
-        .blur(radius: shouldBlur ? 3 : 0)
     }
     
     @ViewBuilder
@@ -144,7 +130,7 @@ struct HealthMetricSummaryCardView: View {
     @ViewBuilder
     func containerTitle(_ metricType: HealthMetricType, data: TrainingComponentScore?) -> some View {
         Button {
-            if let data = data { 
+            if let data = data {
                 send(.showDetailsButtonTapped(metric: metricType, data: data))
             }
         } label: {
@@ -174,26 +160,6 @@ struct HealthMetricSummaryCardView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             Spacer()
-        }
-    }
-    
-    @ViewBuilder
-    private var overlayContent: some View {
-        switch store.contentState {
-        case .ready:
-            if !store.hasAccess {
-                ChartOverlayView.locked {
-                    // send(.unlockButtonTapped)
-                }
-            }
-            
-        case .unauthorized:
-            ChartOverlayView.unauthorized {
-                //send(.requestHealthAccessTapped)
-            }
-            
-        default:
-            EmptyView()
         }
     }
     
