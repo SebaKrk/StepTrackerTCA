@@ -23,10 +23,23 @@ struct HealthMetricSummaryCardView: View {
         rootView
             .skeleton(isLoading: store.contentState == .loading)
             .padding([.leading, .trailing], 8)
-            .overlay { overlayContent }
+            //.overlay { overlayContent }
             .onAppear {
                 send(.viewDidAppear)
             }
+            .subscriptionOverlay(
+                 contentState: store.contentState,
+                 subscriptionTier: store.subscriptionTier,
+                 requiredTier: store.requiredTier,
+                 onUnlockTapped: {
+                     // send(.unlockButtonTapped)
+                 },
+                 onHealthAccessTapped: {
+                     // send(.requestHealthAccessTapped)
+                 },
+                 onRetryTapped: {
+                     // send(.retryButtonTapped)
+                 })
             .navigationDestination(
                 item: $store.scope(
                     state: \.destination?.details,
@@ -49,17 +62,6 @@ struct HealthMetricSummaryCardView: View {
         }
     }
     
-    private var shouldBlur: Bool {
-        switch store.contentState {
-        case .ready:
-            return !store.hasAccess
-        case .unauthorized, .noData:
-            return true
-        case .loading:
-            return false
-        }
-    }
-    
     // MARK: - SubViews
     
     @ViewBuilder
@@ -77,7 +79,6 @@ struct HealthMetricSummaryCardView: View {
             containerTitle(metric, data: data)
         }
         .frame(height: 160)
-        .blur(radius: shouldBlur ? 3 : 0)
     }
     
     @ViewBuilder
@@ -159,38 +160,6 @@ struct HealthMetricSummaryCardView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             Spacer()
-        }
-    }
-    
-    @ViewBuilder
-    private var overlayContent: some View {
-        switch store.contentState {
-        case .ready:
-            if !store.hasAccess {
-                switch store.subscriptionTier {
-                case .basic:
-                    ChartOverlayView.lockedBasic {
-                        // send(.unlockButtonTapped)
-                    }
-                case .pro:
-                    ChartOverlayView.lockedPro{
-                        // send(.unlockButtonTapped)
-                    }
-                case .elite:
-                    EmptyView()
-                }
-            }
-        
-        case .unauthorized:
-            ChartOverlayView.unauthorized {
-                //send(.requestHealthAccessTapped)
-            }
-        case .noData:
-            ChartOverlayView.noData {
-                //send(.retryButtonTapped)
-            }
-        default:
-            EmptyView()
         }
     }
     

@@ -30,11 +30,24 @@ struct TrainingReadinessView: View {
         .padding([.leading, .trailing], 8)
         .foregroundStyle(.secondary)
         .frame(height: 120)
-        .skeleton(isLoading: store.contentState == .loading)
-        .overlay { overlayContent }
         .onAppear {
             send(.viewDidAppear)
         }
+        .skeleton(isLoading: store.contentState == .loading)
+        .subscriptionOverlay(
+             contentState: store.contentState,
+             subscriptionTier: store.subscriptionTier,
+             requiredTier: store.requiredTier,
+             onUnlockTapped: {
+                 // send(.unlockButtonTapped)
+             },
+             onHealthAccessTapped: {
+                 // send(.requestHealthAccessTapped)
+             },
+             onRetryTapped: {
+                 // send(.retryButtonTapped)
+             })
+
     }
     
     @ViewBuilder
@@ -63,51 +76,6 @@ struct TrainingReadinessView: View {
             plotArea.frame(height: 10)
         }
         .frame(height: 60)
-        .blur(radius: shouldBlur ? 3 : 0)
-        .opacity(shouldBlur ? 0.4 : 1.0)
-    }
-
-    private var shouldBlur: Bool {
-         switch store.contentState {
-         case .ready:
-            return !store.hasAccess  
-         case .unauthorized, .noData:
-             return true
-         case .loading:
-             return false
-         }
-     }
-
-    @ViewBuilder
-    private var overlayContent: some View {
-        switch store.contentState {
-        case .ready:
-            if !store.hasAccess {
-                switch store.subscriptionTier {
-                case .basic:
-                    ChartOverlayView.lockedBasic {
-                        // send(.unlockButtonTapped)
-                    }
-                case .pro:
-                    ChartOverlayView.lockedPro{
-                        // send(.unlockButtonTapped)
-                    }
-                case .elite:
-                    EmptyView()
-                }
-            }
-        
-        case .unauthorized:
-            ChartOverlayView.unauthorized {
-                //send(.requestHealthAccessTapped)
-            }
-        case .noData:
-            ChartOverlayView.noData {
-                //send(.retryButtonTapped)
-            }
-        default:
-            EmptyView()
-        }
     }
     
 }

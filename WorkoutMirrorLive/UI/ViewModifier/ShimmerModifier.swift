@@ -1,44 +1,11 @@
 //
 //  ShimmerModifier.swift
-//  MyFitnessJournal
+//  WorkoutMirrorLive
 //
-//  Created by Sebastian Sciuba on 01/10/2025.
+//  Created by Sebastian Sciuba on 18/10/2025.
 //
-
 
 import SwiftUI
-
-// MARK: - Skeleton Modifier
-
-struct SkeletonModifier: ViewModifier {
-    let isLoading: Bool
-    
-    func body(content: Content) -> some View {
-        content
-            .redacted(reason: isLoading ? .placeholder : [])
-            .shimmer(isActive: isLoading)
-    }
-}
-
-// MARK: - View Extension
-
-extension View {
-    /// Applies skeleton loading effect with shimmer animation
-    ///
-    /// - Parameter isLoading: Whether the skeleton effect should be active
-    /// - Returns: View with skeleton effect applied conditionally
-    ///
-    /// # Example
-    /// ```swift
-    /// Text("Hello World")
-    ///     .skeleton(isLoading: viewModel.isLoading)
-    /// ```
-    func skeleton(isLoading: Bool) -> some View {
-        modifier(SkeletonModifier(isLoading: isLoading))
-    }
-}
-
-// MARK: - Shimmer Modifier
 
 struct ShimmerModifier: ViewModifier {
     let isActive: Bool
@@ -85,12 +52,3 @@ struct ShimmerModifier: ViewModifier {
     }
 }
 
-extension View {
-    /// Applies shimmer animation effect
-    ///
-    /// - Parameter isActive: Whether the shimmer effect should be active
-    /// - Returns: View with shimmer effect applied conditionally
-    func shimmer(isActive: Bool = true) -> some View {
-        modifier(ShimmerModifier(isActive: isActive))
-    }
-}

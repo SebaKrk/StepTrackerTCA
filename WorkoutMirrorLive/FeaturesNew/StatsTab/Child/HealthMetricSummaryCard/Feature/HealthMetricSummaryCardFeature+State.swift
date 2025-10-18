@@ -29,25 +29,6 @@ extension HealthMetricSummaryCardFeature {
         ///
         var components: TrainingReadinessComponents? = nil
         
-        ///
-        var hasAccess: Bool {
-            guard case .ready = contentState else {
-                return false
-            }
-            
-            switch (subscriptionTier, requiredTier) {
-                /// basic nie ma dostępu do pro/elite
-            case (.basic, .pro), (.basic, .elite):
-                return false
-            case (.pro, .elite):
-                /// pro nie ma dostępu do elite
-                return false
-            default:
-                /// pozostałe przypadki = dostęp OK
-                return true
-            }
-        }
-        
         /// Represents the navigation destination state within `HealthMetricSummaryCardFeature`.
         /// This property handles transitions to different screens or modals within the feature.
         @Presents var destination: Destination.State?
