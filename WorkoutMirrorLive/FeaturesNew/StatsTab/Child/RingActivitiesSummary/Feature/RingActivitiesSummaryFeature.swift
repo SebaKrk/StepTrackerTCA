@@ -56,8 +56,18 @@ struct RingActivitiesSummaryFeature {
                     return .none
                 }
                 return .send(.internal(.fetchTodaySummary))
+                
+            case .view(.showDetailsButtonTapped):
+                state.destination = .details(RingActivitiesSummaryDetailsFeature.State())
+                return .none
+                
+                // MARK: - Destination
+                
+            case .destination(_):
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }
@@ -95,9 +105,18 @@ extension RingActivitiesSummaryFeature {
         
         enum View {
             
+            ///
+            case showDetailsButtonTapped
+            
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
         }
+        
+        // MARK: - Destination
+        
+        /// Destination case for handling navigation actions.
+        /// - Parameter action: The action to be performed within the destination.
+        case destination(PresentationAction<Destination.Action>)
     }
 }
 
@@ -119,6 +138,23 @@ extension RingActivitiesSummaryFeature {
         /// - `nil` when no data has been fetched yet
         var activityRingData: ActivityRingData? = nil
         
+        
+        /// Represents the navigation destination state within `RingActivitiesSummaryFeature`.
+        /// This property handles transitions to different screens or modals within the feature.
+        @Presents var destination: Destination.State?
+        
+    }
+    
+}
+
+/// Implementation of `RingActivitiesSummaryFeature` destination
+extension RingActivitiesSummaryFeature {
+    
+    @Reducer
+    enum Destination {
+        
+        ///
+        case details(RingActivitiesSummaryDetailsFeature)
     }
     
 }

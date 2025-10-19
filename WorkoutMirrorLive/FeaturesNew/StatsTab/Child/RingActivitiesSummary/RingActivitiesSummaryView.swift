@@ -20,6 +20,12 @@ struct RingActivitiesSummaryView: View {
     
     var body: some View {
         activitiesSummaryView
+            .navigationDestination(
+                item: $store.scope(
+                    state: \.destination?.details,
+                    action: \.destination.details)) { store in
+                        RingActivitiesSummaryDetailsView(store: store)
+                    }
     }
     
     private var activitiesSummaryView: some View {
@@ -56,7 +62,7 @@ struct RingActivitiesSummaryView: View {
     
     private var headerTitle: some View {
         Button {
-            
+            send(.showDetailsButtonTapped)
         } label: {
             HStack {
                 Text("Activities Summary")
