@@ -45,15 +45,21 @@ struct StatsFeature {
                     //.init(subscriptionTier: state.$subscriptionTier)
                 return .none
                 
+            case .initializeRingActivitiesSummary:
+                state.ringActivitiesSummary = .init()
+                return .none
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { send in
                     let result = await self.authorizationManager.requestAuthorization()
+                    
                     switch result {
                     case .success:
                         await send(.changeViewState(.success))
                         await send(.initializeTrainingReadiness)
                         await send(.initializeSummaryCard)
+                        await send(.initializeRingActivitiesSummary)
                         
                     case .failure(let error):
                         print("Authorization failed with error: \(error.localizedDescription)")
@@ -78,6 +84,9 @@ struct StatsFeature {
                 
             case .summaryCard(_):
                 return .none
+                
+            case .ringActivitiesSummary(_):
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -86,6 +95,9 @@ struct StatsFeature {
         }
         .ifLet(\.summaryCard, action: \.summaryCard) {
             HealthMetricSummaryCardFeature()
+        }
+        .ifLet(\.ringActivitiesSummary, action: \.ringActivitiesSummary) {
+            RingActivitiesSummaryFeature()
         }
     }
     
