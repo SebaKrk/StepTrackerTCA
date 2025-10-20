@@ -41,6 +41,9 @@ extension StatsFeature {
         
         ///
         var summaryCard: HealthMetricSummaryCardFeature.State?
+        
+        ///
+        var ringActivitiesSummary: RingActivitiesSummaryFeature.State?
     }
     
 }

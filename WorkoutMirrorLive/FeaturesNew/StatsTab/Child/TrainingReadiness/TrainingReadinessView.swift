@@ -20,6 +20,7 @@ struct TrainingReadinessView: View {
         } label: {
             HStack {
                 Text("Training Readiness")
+                    .font(.caption)
                 Spacer()
                 if case .ready = store.contentState {
                     Text(store.readinessLabel)
