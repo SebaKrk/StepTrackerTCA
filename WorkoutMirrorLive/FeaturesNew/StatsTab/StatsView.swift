@@ -39,6 +39,9 @@ struct StatsView: View {
             .toolbar {
                 toolbarButton
             }
+            .padding([.leading, .trailing], 8)
+            .background(LinearGradient(colors: [store.color.opacity(0.25
+                                                             ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
             .fullScreenCover(item: $store.scope(state: \.destination?.personSettings,
                                                 action: \.destination.personSettings)) { store in
                 PersonSettingsView(store: store)

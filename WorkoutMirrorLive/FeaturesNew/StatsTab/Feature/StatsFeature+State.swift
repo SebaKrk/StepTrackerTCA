@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
-import Foundation
+import SwiftUI
 
 /// Implementation of `StatsFeature` state
 extension StatsFeature {
@@ -28,6 +28,8 @@ extension StatsFeature {
         /// The currently selected stats context display on the stats view.
         /// - Default: `.today`
         var context: StatsFeatureContext = .today
+        
+        var color: Color = .clear
         
         // MARK: - Destination
         
