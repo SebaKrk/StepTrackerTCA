@@ -461,3 +461,7 @@
     B: @Shared state for premiumStatus
     C: HealthMetricSummaryCard
     D: Clean nad fix ContentState
+
+### IOS-00050 StatTab
+    A: RingActivitiesSummary
+

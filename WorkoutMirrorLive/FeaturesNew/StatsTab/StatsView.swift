@@ -106,6 +106,7 @@ struct StatsView: View {
     
     private var todayView: some View {
         VStack(spacing: 12) {
+            ringActivitiesSummaryView()
             trainingReadinessView()
             summaryCards()
         }

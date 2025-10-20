@@ -90,7 +90,7 @@ struct SubscriptionOverlayModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .blur(radius: shouldBlur ? 3 : 0)
-            .opacity(shouldBlur ? 0.4 : 1.0)
+            //.opacity(shouldBlur ? 0.4 : 1.0)
             .overlay { overlayContent }
     }
     

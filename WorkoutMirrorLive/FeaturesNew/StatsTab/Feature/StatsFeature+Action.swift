@@ -33,6 +33,9 @@ extension StatsFeature {
         ///
         case initializeSummaryCard
         
+        ///
+        case initializeRingActivitiesSummary
+        
         // MARK: - View Actions
         
         case view(View)
@@ -62,6 +65,10 @@ extension StatsFeature {
         
         ///
         case summaryCard(HealthMetricSummaryCardFeature.Action)
+        
+        ///
+        case ringActivitiesSummary(RingActivitiesSummaryFeature.Action)
+        
     }
     
 }

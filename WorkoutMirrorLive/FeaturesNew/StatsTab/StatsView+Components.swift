@@ -31,6 +31,16 @@ extension StatsView {
     }
     
     @ViewBuilder
+    func ringActivitiesSummaryView() -> some View {
+        if let store = store.scope(
+            state: \.ringActivitiesSummary,
+            action: \.ringActivitiesSummary
+        ) {
+            RingActivitiesSummaryView(store: store)
+        }
+    }
+    
+    @ViewBuilder
     func testChart() -> some View {
         GroupBox {
             VStack {
