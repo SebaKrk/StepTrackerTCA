@@ -37,8 +37,11 @@ struct RingActivitiesSummaryView: View {
                 Divider()
             }
         }
-        .padding([.leading, .trailing], 8)
+        .backgroundStyle(.clear)
         .foregroundStyle(.secondary)
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .stroke(.gray.opacity(0.5), lineWidth: 0.5)
+            .fill(Color(.secondarySystemBackground).gradient.opacity(0.5)))
         .frame(height: 120)
         .onAppear {
             send(.viewDidAppear)

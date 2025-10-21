@@ -38,7 +38,7 @@ extension TrainingReadinessFeature {
         
         /// Computed readiness level
         var readinessLevel: ReadinessLevel {
-            readinessResult?.readinessLevel ?? .veryPoor
+            readinessResult?.readinessLevel ?? .fair
         }
         
         /// Computed readiness label

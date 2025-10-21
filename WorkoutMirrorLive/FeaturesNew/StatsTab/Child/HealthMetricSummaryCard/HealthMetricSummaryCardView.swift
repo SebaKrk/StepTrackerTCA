@@ -22,7 +22,6 @@ struct HealthMetricSummaryCardView: View {
     var body: some View {
         rootView
             .skeleton(isLoading: store.contentState == .loading)
-            .padding([.leading, .trailing], 8)
             //.overlay { overlayContent }
             .onAppear {
                 send(.viewDidAppear)
@@ -78,6 +77,10 @@ struct HealthMetricSummaryCardView: View {
         } label: {
             containerTitle(metric, data: data)
         }
+        .backgroundStyle(.clear)
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .stroke(.gray.opacity(0.5), lineWidth: 0.5)
+            .fill(Color(.secondarySystemBackground).gradient.opacity(0.5)))
         .frame(height: 160)
     }
     
