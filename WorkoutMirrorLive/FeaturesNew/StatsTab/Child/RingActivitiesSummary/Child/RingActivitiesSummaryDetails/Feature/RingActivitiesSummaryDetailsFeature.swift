@@ -16,6 +16,7 @@ struct RingActivitiesSummaryDetailsFeature {
     // MARK: - Dependency
     
     @Dependency(\.activityRingManager) var activityRingManager
+    @Dependency(\.continuousClock) var clock
     
     // MARK: - Reducer
     
@@ -24,11 +25,32 @@ struct RingActivitiesSummaryDetailsFeature {
             switch action {
                 
                 // MARK: - Internal Action
+            case let .internal(.changeViewState(value)):
+                state.viewState = value
+                return .none
+                
+            case let .internal(.hourlyActivityDataLoaded(data)):
+                state.hourlyData = data
+                return .none
+                
+            case .internal(.fetchHourlyActivityData):
+                return .run { send in
+                    do {
+                        await send(.internal(.changeViewState(.loading)))
+                        let data = try await activityRingManager.fetchTodayHourlyData()
+                        try await clock.sleep(for: .seconds(2))
+                        await send(.internal(.changeViewState(.success)))
+                        await send(.internal(.hourlyActivityDataLoaded(data)))
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
                 
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                return .none
+                dump(state.activityRingData)
+                return .send(.internal(.fetchHourlyActivityData))
             }
         }
     }
@@ -47,6 +69,16 @@ extension RingActivitiesSummaryDetailsFeature {
         
         enum Internal {
             
+            /// Updates the current loading state of the view
+            /// - Parameter value: The new view state (loading, success, or failed)
+            case changeViewState(ViewState)
+            
+            ///
+            case fetchHourlyActivityData
+            
+            ///
+            case hourlyActivityDataLoaded([HourlyActivityData])
+
         }
         
         // MARK: - View Actions
@@ -68,7 +100,16 @@ extension RingActivitiesSummaryDetailsFeature {
     struct State {
         
         // MARK: - Properties
+        
+        /// Current loading state of the view
+        var viewState: ViewState = .loading
   
+        /// The activity ring data containing daily metrics
+        var activityRingData: ActivityRingData
+        
+        ///
+        var hourlyData: [HourlyActivityData] = []
+
     }
     
 }

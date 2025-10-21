@@ -51,4 +51,142 @@ public final class DefaultActivityRingManager: ActivityRingManager {
         }
     }
     
+    public func fetchTodayHourlyData() async throws -> [HourlyActivityData] {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Pobierz dzisiejszą datę jako komponenty (bez strefy czasowej)
+        let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
+        
+        var hourlyData: [HourlyActivityData] = []
+        
+        for hour in 0..<24 {
+            // Stwórz komponenty dla konkretnej godziny
+            var components = DateComponents()
+            components.year = todayComponents.year
+            components.month = todayComponents.month
+            components.day = todayComponents.day
+            components.hour = hour
+            components.minute = 0
+            components.second = 0
+            
+            guard let hourStart = calendar.date(from: components),
+                  let hourEnd = calendar.date(byAdding: .hour, value: 1, to: hourStart) else {
+                continue
+            }
+            
+            // Pobierz dane dla danej godziny
+            do {
+                let activeEnergy = try await fetchActiveEnergy(from: hourStart, to: hourEnd)
+                let exerciseMinutes = try await fetchExerciseTime(from: hourStart, to: hourEnd)
+                let standHours = try await fetchStandHour(from: hourStart, to: hourEnd)
+                
+                let data = HourlyActivityData(
+                    hour: hour,
+                    activeEnergyBurned: activeEnergy,
+                    exerciseMinutes: exerciseMinutes,
+                    standHours: standHours,
+                    date: hourStart
+                )
+                
+                hourlyData.append(data)
+            } catch {
+                // Dodaj puste dane dla tej godziny w przypadku błędu
+                hourlyData.append(HourlyActivityData(
+                    hour: hour,
+                    activeEnergyBurned: 0,
+                    exerciseMinutes: 0,
+                    standHours: 0,
+                    date: hourStart
+                ))
+            }
+        }
+        
+        return hourlyData
+    }
+    
+    // MARK: - Private Methods
+    
+    /// Pobiera spalenie kalorii (Active Energy) dla danego przedziału czasowego
+    private func fetchActiveEnergy(from startDate: Date, to endDate: Date) async throws -> Double {
+        guard let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else {
+            throw NSError(domain: "HealthKitError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Active energy type not available"])
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: energyType,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, statistics, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let sum = statistics?.sumQuantity() {
+                    let value = sum.doubleValue(for: .kilocalorie())
+                    continuation.resume(returning: value)
+                } else {
+                    continuation.resume(returning: 0.0)
+                }
+            }
+            healthStore.execute(query)
+        }
+    }
+    
+    /// Pobiera czas ćwiczeń (Exercise Time) dla danego przedziału czasowego
+    private func fetchExerciseTime(from startDate: Date, to endDate: Date) async throws -> Double {
+        guard let exerciseType = HKQuantityType.quantityType(forIdentifier: .appleExerciseTime) else {
+            throw NSError(domain: "HealthKitError", code: 3, userInfo: [NSLocalizedDescriptionKey: "Exercise time type not available"])
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: exerciseType,
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum
+            ) { _, statistics, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let sum = statistics?.sumQuantity() {
+                    let value = sum.doubleValue(for: .minute())
+                    continuation.resume(returning: value)
+                } else {
+                    continuation.resume(returning: 0.0)
+                }
+            }
+            healthStore.execute(query)
+        }
+    }
+    
+    /// Pobiera informację czy w danej godzinie użytkownik stał (Stand Hour)
+    private func fetchStandHour(from startDate: Date, to endDate: Date) async throws -> Int {
+        guard let standType = HKCategoryType.categoryType(forIdentifier: .appleStandHour) else {
+            throw NSError(domain: "HealthKitError", code: 4, userInfo: [NSLocalizedDescriptionKey: "Stand hour type not available"])
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: standType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: nil
+            ) { _, samples, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let categorySamples = samples as? [HKCategorySample] {
+                    let stood = categorySamples.contains { $0.value == HKCategoryValueAppleStandHour.stood.rawValue }
+                    continuation.resume(returning: stood ? 1 : 0)
+                } else {
+                    continuation.resume(returning: 0)
+                }
+            }
+            healthStore.execute(query)
+        }
+    }
+    
 }

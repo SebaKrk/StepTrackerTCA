@@ -28,16 +28,11 @@ struct TrainingReadinessView: View {
                 }
             }
         }
-        .backgroundStyle(.clear)
-        .foregroundStyle(.secondary)
-        .background(RoundedRectangle(cornerRadius: 24, style: .continuous)
-            .stroke(.gray.opacity(0.5), lineWidth: 0.5)
-            .fill(Color(.secondarySystemBackground).gradient.opacity(0.5)))
+        .styledGroupBox()
         .frame(height: 120)
         .onAppear {
             send(.viewDidAppear)
         }
-        
         .skeleton(isLoading: store.contentState == .loading)
         .subscriptionOverlay(
              contentState: store.contentState,

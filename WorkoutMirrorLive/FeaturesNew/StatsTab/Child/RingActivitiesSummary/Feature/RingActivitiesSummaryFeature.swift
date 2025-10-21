@@ -58,7 +58,11 @@ struct RingActivitiesSummaryFeature {
                 return .send(.internal(.fetchTodaySummary))
                 
             case .view(.showDetailsButtonTapped):
-                state.destination = .details(RingActivitiesSummaryDetailsFeature.State())
+                guard let data = state.activityRingData else {
+                    return .none
+                }
+                
+                state.destination = .details(RingActivitiesSummaryDetailsFeature.State(activityRingData: data))
                 return .none
                 
                 // MARK: - Destination

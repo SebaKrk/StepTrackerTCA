@@ -26,6 +26,7 @@ struct AppTabView: View {
                 ///.badge("new") ///.badge(1)
                     .tabItem {
                         Label(screen.title, systemImage: screen.image)
+
                     }
             }
         }
