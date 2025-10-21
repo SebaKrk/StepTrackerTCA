@@ -79,6 +79,10 @@ struct StatsFeature {
                 return .none
                 
                 // MARK: - Child
+            case let  .trainingReadiness(.internal(.readinessCalculated(result))):
+                state.color = result.readinessLevel.color
+                return .none
+                
             case .trainingReadiness(_):
                 return .none
                 
