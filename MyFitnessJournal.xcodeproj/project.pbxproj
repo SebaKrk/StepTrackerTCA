@@ -23,7 +23,23 @@
 		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
 		93D02EF02DF4D14F00F08849 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D02EEF2DF4D14F00F08849 /* Commons */; };
 		93D199972E50C57800697D06 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D199962E50C57800697D06 /* Commons */; };
+		93FA1B1F2EAA991A001809ED /* LNPopupUI in Frameworks */ = {isa = PBXBuildFile; productRef = 93FA1B1E2EAA991A001809ED /* LNPopupUI */; };
+		93FA1B242EAA9D5A001809ED /* LNPopupUI in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 93FA1B1E2EAA991A001809ED /* LNPopupUI */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		93FA1B232EAA99B1001809ED /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				93FA1B242EAA9D5A001809ED /* LNPopupUI in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		9332A8C52D1809FD00DA426E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -71,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93FA1B1F2EAA991A001809ED /* LNPopupUI in Frameworks */,
 				93A6AA412E48735100495CD1 /* HealthHub in Frameworks */,
 				938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */,
 				93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */,
@@ -163,6 +180,7 @@
 				938209682E39388600F49046 /* Sources */,
 				938209692E39388600F49046 /* Frameworks */,
 				9382096A2E39388600F49046 /* Resources */,
+				93FA1B232EAA99B1001809ED /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -177,6 +195,7 @@
 				93A6AA3E2E48727C00495CD1 /* SharedModels */,
 				93A6AA402E48735100495CD1 /* HealthHub */,
 				93D199962E50C57800697D06 /* Commons */,
+				93FA1B1E2EAA991A001809ED /* LNPopupUI */,
 			);
 			productName = WorkoutMirrorLive;
 			productReference = 9382096C2E39388600F49046 /* WorkoutMirrorLive.app */;
@@ -243,6 +262,7 @@
 				93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */,
 				93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 93CE75362D1699CA006D5A4A /* Products */;
@@ -708,6 +728,14 @@
 				minimumVersion = 1.20.2;
 			};
 		};
+		93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LeoNatan/LNPopupUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.7;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -772,6 +800,11 @@
 		93D199962E50C57800697D06 /* Commons */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Commons;
+		};
+		93FA1B1E2EAA991A001809ED /* LNPopupUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */;
+			productName = LNPopupUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

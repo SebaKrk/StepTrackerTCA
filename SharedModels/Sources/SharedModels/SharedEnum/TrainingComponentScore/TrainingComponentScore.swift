@@ -101,44 +101,6 @@ public struct TrainingComponentScore: Sendable, Equatable {
 
 extension TrainingComponentScore {
     
-    /// Represents the qualitative status of a training component score.
-    public enum ScoreStatus: Sendable, Equatable {
-        case poor
-        case belowAverage
-        case good
-        case excellent
-        
-        /// Display text for the status
-        public var text: String {
-            switch self {
-            case .poor: return "Poor"
-            case .belowAverage: return "Below Average"
-            case .good: return "Good"
-            case .excellent: return "Excellent"
-            }
-        }
-        
-        /// SF Symbol icon name for the status
-        public var icon: String {
-            switch self {
-            case .poor: return "xmark.circle.fill"
-            case .belowAverage: return "exclamationmark.triangle.fill"
-            case .good: return "minus.circle.fill"
-            case .excellent: return "checkmark.circle.fill"
-            }
-        }
-        
-        /// Color associated with the status
-        public var color: Color {
-            switch self {
-            case .poor: return .red
-            case .belowAverage: return .orange
-            case .good: return .yellow
-            case .excellent: return .green
-            }
-        }
-    }
-    
     /// Computed status based on the score's position within the min-max range.
     ///
     /// Divides the score range into four equal quartiles:
@@ -165,6 +127,35 @@ extension TrainingComponentScore {
         }
     }
 }
+
+// MARK: - Activity Status Mapping
+
+extension TrainingComponentScore {
+    
+    /// Maps the component score to an activity status.
+    ///
+    /// This should only be used for activity load metrics where `currentValue`
+    /// represents calories burned and `baselineValue` represents the 7-day average.
+    ///
+    /// - Returns: Activity status if baseline is available, nil otherwise
+    ///
+    /// ## Example
+    /// ```swift
+    /// if let activityStatus = activityScore.asActivityStatus {
+    ///     print(activityStatus.title)  // "Good Readiness"
+    /// }
+    /// ```
+    public var asActivityStatus: ActivityStatus? {
+        guard let baseline = baselineValue, baseline > 0 else {
+            return nil
+        }
+        
+        let percentageOfBaseline = (currentValue / baseline) * 100
+        return ActivityStatus.from(loadPercentage: percentageOfBaseline)
+    }
+}
+
+// MARK: - Helper Extension
 
 extension TrainingReadinessComponents {
     

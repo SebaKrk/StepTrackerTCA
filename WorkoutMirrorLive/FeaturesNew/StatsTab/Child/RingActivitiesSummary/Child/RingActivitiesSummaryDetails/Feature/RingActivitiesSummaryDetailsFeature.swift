@@ -30,7 +30,14 @@ struct RingActivitiesSummaryDetailsFeature {
                 return .none
                 
             case let .internal(.hourlyActivityDataLoaded(data)):
+                print("💾 [STORE] Saving \(data.count) hours to state")
                 state.hourlyData = data
+                print("💾 [STORE] State now has \(state.hourlyData.count) hours")
+                
+                // ✅ DODAJ dump TUTAJ - po załadowaniu
+                print("📊 [DEBUG] Dumping loaded data:")
+                dump(state.hourlyData)
+                
                 return .none
                 
             case .internal(.fetchHourlyActivityData):
@@ -49,7 +56,6 @@ struct RingActivitiesSummaryDetailsFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                dump(state.activityRingData)
                 return .send(.internal(.fetchHourlyActivityData))
             }
         }

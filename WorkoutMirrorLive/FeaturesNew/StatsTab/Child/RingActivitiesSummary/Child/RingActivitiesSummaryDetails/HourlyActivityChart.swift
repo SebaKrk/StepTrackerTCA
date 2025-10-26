@@ -10,6 +10,7 @@ import Charts
 import SharedModels
 
 struct HourlyActivityChart: View {
+    
     let hourlyData: [HourlyActivityData]
     let dataType: ActivityDataType
     let totalValue: Double
@@ -37,8 +38,18 @@ struct HourlyActivityChart: View {
         }
     }
     
+    // ✅ Oblicz obecną godzinę
+    private var currentHour: Int {
+        Calendar.current.component(.hour, from: Date())
+    }
+    
+    // ✅ Filtruj dane tylko do obecnej godziny (włącznie)
+    private var visibleData: [HourlyActivityData] {
+        hourlyData.filter { $0.hour <= currentHour }
+    }
+    
     var body: some View {
-        Chart(hourlyData) { data in
+        Chart(visibleData) { data in
             BarMark(
                 x: .value("Hour", data.hour),
                 y: .value("Value", displayValue(for: data))
@@ -61,6 +72,7 @@ struct HourlyActivityChart: View {
         }
         .chartYAxis(.hidden)
         .chartYScale(domain: 0...(maxValue * 1.1))
+        .chartXScale(domain: 0...23) // ✅ Pokaż całą oś X (0-23), ale rysuj tylko do currentHour
         .chartPlotStyle { plotArea in
             plotArea
                 .background(.clear)
@@ -80,10 +92,12 @@ struct HourlyActivityChart: View {
         }
     }
     
-    // Oblicz maksymalną wartość dla danego typu danych
+    // Oblicz maksymalną wartość dla danego typu danych (tylko z widocznych danych)
     private var maxValue: Double {
-        let values = hourlyData.map { dataValue(for: $0) }
-        return values.max() ?? 1.0
+        let values = visibleData.map { dataValue(for: $0) }
+        let maxVal = values.max() ?? 1.0
+        // ✅ Jeśli wszystkie wartości to 0, zwróć sensowną wartość minimalną
+        return maxVal > 0 ? maxVal : 10.0
     }
     
     // Zwróć wartość do wyświetlenia

@@ -52,34 +52,39 @@ public final class DefaultActivityRingManager: ActivityRingManager {
     }
     
     public func fetchTodayHourlyData() async throws -> [HourlyActivityData] {
-        let calendar = Calendar.current
-        let now = Date()
         
-        // Pobierz dzisiejszą datę jako komponenty (bez strefy czasowej)
-        let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+        
+        let now = Date()
+        let startOfToday = calendar.startOfDay(for: now)
+        
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+        dateFormatter.timeZone = TimeZone.current
+        print("📅 Start of today (local): \(dateFormatter.string(from: startOfToday))")
         
         var hourlyData: [HourlyActivityData] = []
         
         for hour in 0..<24 {
-            // Stwórz komponenty dla konkretnej godziny
-            var components = DateComponents()
-            components.year = todayComponents.year
-            components.month = todayComponents.month
-            components.day = todayComponents.day
-            components.hour = hour
-            components.minute = 0
-            components.second = 0
-            
-            guard let hourStart = calendar.date(from: components),
+            guard let hourStart = calendar.date(byAdding: .hour, value: hour, to: startOfToday),
                   let hourEnd = calendar.date(byAdding: .hour, value: 1, to: hourStart) else {
                 continue
             }
+        
+            if hour == 0 || hour == 8 || hour == 12 {
+                print("🕐 Hour \(hour): \(dateFormatter.string(from: hourStart)) to \(dateFormatter.string(from: hourEnd))")
+            }
             
-            // Pobierz dane dla danej godziny
             do {
                 let activeEnergy = try await fetchActiveEnergy(from: hourStart, to: hourEnd)
                 let exerciseMinutes = try await fetchExerciseTime(from: hourStart, to: hourEnd)
                 let standHours = try await fetchStandHour(from: hourStart, to: hourEnd)
+                
+                if activeEnergy > 0 || exerciseMinutes > 0 || standHours > 0 {
+                    print("✅ Hour \(hour): energy=\(activeEnergy)kcal, exercise=\(exerciseMinutes)min, stand=\(standHours)")
+                }
                 
                 let data = HourlyActivityData(
                     hour: hour,
@@ -90,8 +95,29 @@ public final class DefaultActivityRingManager: ActivityRingManager {
                 )
                 
                 hourlyData.append(data)
+            } catch let error as NSError {
+                // ✅ Error code 11 = "No data available" - to nie jest błąd, tylko brak danych
+                if error.code == 11 {
+                    // Brak danych to normalna sytuacja (np. użytkownik spał)
+                    hourlyData.append(HourlyActivityData(
+                        hour: hour,
+                        activeEnergyBurned: 0,
+                        exerciseMinutes: 0,
+                        standHours: 0,
+                        date: hourStart
+                    ))
+                } else {
+                    print("❌ Real error fetching hour \(hour): \(error)")
+                    hourlyData.append(HourlyActivityData(
+                        hour: hour,
+                        activeEnergyBurned: 0,
+                        exerciseMinutes: 0,
+                        standHours: 0,
+                        date: hourStart
+                    ))
+                }
             } catch {
-                // Dodaj puste dane dla tej godziny w przypadku błędu
+                print("❌ Unexpected error fetching hour \(hour): \(error)")
                 hourlyData.append(HourlyActivityData(
                     hour: hour,
                     activeEnergyBurned: 0,
@@ -121,8 +147,13 @@ public final class DefaultActivityRingManager: ActivityRingManager {
                 quantitySamplePredicate: predicate,
                 options: .cumulativeSum
             ) { _, statistics, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
+                if let error = error as NSError? {
+                    // ✅ Error 11 = "No data available" - zwróć 0 zamiast rzucać błąd
+                    if error.code == 11 {
+                        continuation.resume(returning: 0.0)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
                 } else if let sum = statistics?.sumQuantity() {
                     let value = sum.doubleValue(for: .kilocalorie())
                     continuation.resume(returning: value)
@@ -148,8 +179,13 @@ public final class DefaultActivityRingManager: ActivityRingManager {
                 quantitySamplePredicate: predicate,
                 options: .cumulativeSum
             ) { _, statistics, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
+                if let error = error as NSError? {
+                    // ✅ Error 11 = "No data available" - zwróć 0 zamiast rzucać błąd
+                    if error.code == 11 {
+                        continuation.resume(returning: 0.0)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
                 } else if let sum = statistics?.sumQuantity() {
                     let value = sum.doubleValue(for: .minute())
                     continuation.resume(returning: value)
@@ -176,8 +212,13 @@ public final class DefaultActivityRingManager: ActivityRingManager {
                 limit: HKObjectQueryNoLimit,
                 sortDescriptors: nil
             ) { _, samples, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
+                if let error = error as NSError? {
+                    // ✅ Error 11 = "No data available" - zwróć 0 zamiast rzucać błąd
+                    if error.code == 11 {
+                        continuation.resume(returning: 0)
+                    } else {
+                        continuation.resume(throwing: error)
+                    }
                 } else if let categorySamples = samples as? [HKCategorySample] {
                     let stood = categorySamples.contains { $0.value == HKCategoryValueAppleStandHour.stood.rawValue }
                     continuation.resume(returning: stood ? 1 : 0)
