@@ -52,6 +52,10 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
         HKQuantityType(.activeEnergyBurned),
         HKQuantityType(.workoutEffortScore),
         
+        /// Activity Rings - Hourly Data
+        HKQuantityType(.appleExerciseTime),
+        HKCategoryType(.appleStandHour),
+        
         /// Sleep
         HKCategoryType(.sleepAnalysis)
     ]

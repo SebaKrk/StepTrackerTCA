@@ -18,4 +18,10 @@ public protocol ActivityRingManager: Sendable {
     /// - Returns: An `ActivityRingData` object containing the user's activity information for today.
     /// - Throws: An error if the data retrieval fails or is unavailable.
     func fetchTodaySummary() async throws -> ActivityRingData
+    
+    /// Fetches hourly activity data for the current day.
+    ///
+    /// - Returns: An array of `HourlyActivityData` objects, one for each hour of the day (0-23).
+    /// - Throws: An error if the data retrieval fails or is unavailable.
+    func fetchTodayHourlyData() async throws -> [HourlyActivityData]
 }

@@ -89,7 +89,7 @@ struct HealthMetricSummaryCardView: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
                 currentValueLabel(data)
-                currentStatusLabel(data)
+                currentStatusLabel(for: metric, data: data)
             }
             Spacer()
             chartView(data)
@@ -108,14 +108,25 @@ struct HealthMetricSummaryCardView: View {
         }
     }
     
-    func currentStatusLabel(_ data: TrainingComponentScore) -> some View {
+    func currentStatusLabel(for metric: HealthMetricType, data: TrainingComponentScore) -> some View {
         HStack(spacing: 4) {
-            Image(systemName: data.status.icon)
-                .foregroundColor(data.status.color)
-                .font(.caption)
-            Text(data.status.text)
-                .font(.caption)
-                .foregroundColor(data.status.color)
+            // ✅ Mapuj na ActivityStatus tylko dla activity metrics
+            if metric == .activity, let activityStatus = data.asActivityStatus {
+                Image(systemName: activityStatus.icon)
+                    .foregroundColor(activityStatus.color)
+                    .font(.caption)
+                Text(activityStatus.title)
+                    .font(.caption)
+                    .foregroundColor(activityStatus.color)
+            } else {
+                // Dla innych metryk użyj standardowego status
+                Image(systemName: data.status.icon)
+                    .foregroundColor(data.status.color)
+                    .font(.caption)
+                Text(data.status.text)
+                    .font(.caption)
+                    .foregroundColor(data.status.color)
+            }
         }
     }
     
