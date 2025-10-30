@@ -80,7 +80,9 @@ struct StatsFeature {
                 
                 // MARK: - Child
             case let .trainingReadiness(.internal(.readinessCalculated(result))):
-                state.color = result.readinessLevel.color
+//                state.$subscriptionTier.withLock { $0 = value }
+//                state.$color.withLock { $0 = result.readinessLevel.color }
+//                state.color = result.readinessLevel.color
                 return .none
                 
             case .trainingReadiness(_):

@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 import HealthHub
+import SwiftUI
 
 @Reducer
 struct RingActivitiesSummaryDetailsFeature {
@@ -104,6 +105,9 @@ extension RingActivitiesSummaryDetailsFeature {
     
     @ObservableState
     struct State {
+        
+        @Shared(.inMemory(.readinessLevelColor))
+        var color: Color = .clear
         
         // MARK: - Properties
         

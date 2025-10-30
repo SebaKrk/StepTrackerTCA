@@ -29,6 +29,9 @@ extension TrainingReadinessFeature {
             /// Action triggered when calculation fails
             case calculationFailed(String)
             
+            ///
+            case changeColor
+            
         }
         
         // MARK: - View actions

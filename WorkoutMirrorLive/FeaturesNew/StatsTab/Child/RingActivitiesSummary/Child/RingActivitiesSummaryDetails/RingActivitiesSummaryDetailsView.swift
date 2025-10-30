@@ -22,10 +22,13 @@ struct RingActivitiesSummaryDetailsView: View {
     var body: some View {
         rootView
             .padding([.leading, .trailing], 8)
+            .background(LinearGradient(colors: [store.color.opacity(0.10), .clear],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing))
             .navigationTitle("Activities Details")
             .onAppear {
                 send(.viewDidAppear)
             }
+
     }
     
     private var rootView: some View {
@@ -34,6 +37,7 @@ struct RingActivitiesSummaryDetailsView: View {
                 moveGroupBox
                 exerciseGroupBox
                 standGroupBox
+                hourlyActivityAnnotationView
                 // TODO: - Dodac funckinolnosc zaznaczania na wykresach danej jedenj godziny i wyswietlenia statystki z tej wlasnie godziny
 //                if selected hour {
 //                    hourlyActivityAnnotationView

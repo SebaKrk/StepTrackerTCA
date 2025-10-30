@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
+import SwiftUI
 
 /// Implementation of `TrainingReadinessFeature` state
 extension TrainingReadinessFeature {
@@ -18,6 +19,9 @@ extension TrainingReadinessFeature {
         //@Shared var subscriptionTier: SubscriptionTier
         @Shared(.appStorage(.subscriptionTier))
         var subscriptionTier: SubscriptionTier = .basic
+        
+        @Shared(.inMemory(.readinessLevelColor))
+        var color: Color = .clear
         
         ///
         var requiredTier: SubscriptionTier = .pro
