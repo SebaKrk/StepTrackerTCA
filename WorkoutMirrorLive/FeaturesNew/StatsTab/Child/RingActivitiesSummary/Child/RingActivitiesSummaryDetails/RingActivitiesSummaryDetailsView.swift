@@ -34,6 +34,10 @@ struct RingActivitiesSummaryDetailsView: View {
                 moveGroupBox
                 exerciseGroupBox
                 standGroupBox
+                // TODO: - Dodac funckinolnosc zaznaczania na wykresach danej jedenj godziny i wyswietlenia statystki z tej wlasnie godziny
+//                if selected hour {
+//                    hourlyActivityAnnotationView
+//                }
             }
         }
     }
@@ -119,6 +123,87 @@ struct RingActivitiesSummaryDetailsView: View {
         .skeleton(isLoading: store.viewState == .loading)
         .styledGroupBox()
     }
+    
+    var hourlyActivityAnnotationView: some View {
+        let data = HourlyActivityData(hour: 5, activeEnergyBurned: 32, exerciseMinutes: 22, standHours: 1, date: .now)
+        return GroupBox {
+            activityView(data)
+        }
+        .styledGroupBox()
+        .frame(maxWidth: .infinity)
+        .frame(height: 100)
+    }
+    
+    private func activityView(_ data: HourlyActivityData) -> some View {
+        VStack {
+            // Header z godziną
+            HStack {
+                Spacer()
+                Text("\(String(format: "%02d:00", data.hour))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Divider()
+            
+            // Metryki w poziomie
+            HStack(spacing: 0) {
+                activityMetric(
+                    title: "W ruchu",
+                    value: Int(data.activeEnergyBurned),
+                    unit: "kcal",
+                    color: .pink
+                )
+                
+                Divider()
+                    .frame(height: 40)
+                
+                activityMetric(
+                    title: "Ćwiczenie",
+                    value: Int(data.exerciseMinutes),
+                    unit: "min",
+                    color: .green
+                )
+                
+                Divider()
+                    .frame(height: 40)
+                
+                activityMetric(
+                    title: "Na nogach",
+                    value: data.standHours,
+                    unit: data.standHours == 1 ? "tak" : "nie",
+                    color: .cyan
+                )
+            }
+        }
+        .font(.subheadline)
+        .padding(.vertical, 4)
+    }
+    
+    private func activityMetric(
+        title: String,
+        value: Int,
+        unit: String,
+        color: Color
+    ) -> some View {
+        VStack(spacing: 4) {
+            Text(title)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+            
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text("\(value)")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(color)
+                
+                Text(unit)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     
 }
 
