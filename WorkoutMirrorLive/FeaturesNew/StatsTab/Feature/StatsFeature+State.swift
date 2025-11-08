@@ -16,8 +16,8 @@ extension StatsFeature {
     struct State {
         
         // MARK: - Properties
-//        @Shared(.inMemory("count"))
-//        var count: Int = 0
+        @Shared(.inMemory(.readinessLevelColor))
+        var color: Color = .clear
         
         @Shared(.appStorage(.subscriptionTier))
         var subscriptionTier: SubscriptionTier = .basic
@@ -29,7 +29,6 @@ extension StatsFeature {
         /// - Default: `.today`
         var context: StatsFeatureContext = .today
         
-        var color: Color = .clear
         
         // MARK: - Destination
         

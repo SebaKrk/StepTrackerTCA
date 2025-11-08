@@ -28,12 +28,17 @@ struct TrainingReadinessFeature {
                 state.contentState = newState
                 return .none
                 
+
+            case .internal(.changeColor):
+                state.$color.withLock { $0 = state.readinessLevel.color }
+                return .none
+                
             case let .internal(.readinessCalculated(result)):
                 state.readinessResult = result
                 return .run {  [tier = state.subscriptionTier] send in
+                    await send(.internal(.changeColor))
                     try await clock.sleep(for: .seconds(2))
                     await send(.internal(.changeContentState(.ready(tier))))
-                    
                 }
                 
             case let .internal(.calculationFailed(error)):
