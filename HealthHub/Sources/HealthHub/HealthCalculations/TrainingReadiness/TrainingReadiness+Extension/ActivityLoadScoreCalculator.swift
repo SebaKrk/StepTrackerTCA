@@ -29,15 +29,12 @@ extension DefaultTrainingReadinessCalculator {
     /// - Heavy training (130-180%): -5 points (moderate fatigue)
     /// - Very heavy training (180%+): -10 points (significant fatigue, recovery needed)
     func calculateActivityLoadScore() async throws -> TrainingComponentScore? {
-        // Fetch yesterday's active energy (full day: 00:00 - 23:59)
         guard let yesterdayLoad = try await personalDataManager.getYesterdayActiveEnergy() else {
             return nil
         }
         
-        // Fetch baseline (7-day average)
         let baselineLoad = try await personalDataManager.getAverageDailyActiveEnergy(days: 7)
         
-        // Calculate score
         let score = calculateLoadComponentScore(
             current: yesterdayLoad.value,
             baseline: baselineLoad?.value
@@ -73,26 +70,25 @@ extension DefaultTrainingReadinessCalculator {
         
         switch percentageOfBaseline {
         case 0..<15:
-            print("    ✅ Activity: Complete rest day (fully recovered)")
+            print("    ✅ Activity: Maximum Recovery - No load day (complete restoration)")
             return 3
         case 15..<45:
-            print("    ✅ Activity: Active recovery (optimal readiness - fresh legs!)")
+            print("    ✅ Activity: Optimal Readiness - Minimal load (peak condition)")
             return 5
         case 45..<80:
-            print("    ✅ Activity: Light training day (well recovered)")
+            print("    ✅ Activity: Good Readiness - Low load (high availability)")
             return 2
         case 80..<130:
-            print("    ⚪ Activity: Normal training load (neutral readiness)")
+            print("    ⚪ Activity: Neutral Readiness - Typical load (standard condition)")
             return 0
         case 130..<180:
-            print("    ⚠️ Activity: Heavy training yesterday (moderate fatigue)")
+            print("    ⚠️ Activity: Moderate Fatigue - High load (reduced availability)")
             return -5
         case 180...:
-            print("    ❌ Activity: Very heavy training (significant fatigue, recovery needed)")
+            print("    ❌ Activity: High Fatigue - Very high load (priority: recovery)")
             return -10
         default:
             return 0
         }
     }
-    
 }

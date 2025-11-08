@@ -465,3 +465,5 @@
 ### IOS-00050 StatTab
     A: RingActivitiesSummary
     B: iOS26 UI improvements 
+    C: RingActivitiesSummaryFeature
+    D: ReadinessLevelColor
