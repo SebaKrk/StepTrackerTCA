@@ -131,7 +131,7 @@ extension AppTabNewFeature {
         /// The currently selected tab in the application.
         ///
         /// Default value is `.summary`.
-        var selectedTab: AppScreen = .live
+        var selectedTab: AppScreen = .stats
         
         // MARK: - Child
         
