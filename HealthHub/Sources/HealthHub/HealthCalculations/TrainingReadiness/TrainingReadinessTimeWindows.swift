@@ -38,10 +38,8 @@ struct TrainingReadinessTimeWindows {
         let calendar = Calendar.current
         let now = Date()
         
-        // End: 10 AM today
         let windowEnd = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: now)!
         
-        // Start: 8 PM yesterday (14 hours before 10 AM today)
         let windowStart = calendar.date(byAdding: .hour, value: -14, to: windowEnd)!
         
         return (start: windowStart, end: windowEnd)
@@ -57,10 +55,8 @@ struct TrainingReadinessTimeWindows {
         let calendar = Calendar.current
         let now = Date()
         
-        // Start: midnight today (00:00)
         let startOfToday = calendar.startOfDay(for: now)
         
-        // End: 11 AM today
         let endOfWindow = calendar.date(byAdding: .hour, value: 11, to: startOfToday)!
         
         return (startOfToday, endOfWindow)
@@ -76,10 +72,8 @@ struct TrainingReadinessTimeWindows {
         let calendar = Calendar.current
         let now = Date()
         
-        // End: 10 AM today
         let endOfWindow = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: now)!
         
-        // Start: 8 PM yesterday
         let startOfWindow = calendar.date(byAdding: .hour, value: -14, to: endOfWindow)!
         
         return (startOfWindow, endOfWindow)
@@ -94,11 +88,9 @@ struct TrainingReadinessTimeWindows {
         let calendar = Calendar.current
         let now = Date()
         
-        // Start of yesterday (00:00)
         let yesterday = calendar.date(byAdding: .day, value: -1, to: now)!
         let startOfYesterday = calendar.startOfDay(for: yesterday)
         
-        // End of yesterday (23:59:59)
         let endOfYesterday = calendar.date(byAdding: .day, value: 1, to: startOfYesterday)!
             .addingTimeInterval(-1)
         
@@ -118,7 +110,6 @@ struct TrainingReadinessTimeWindows {
         for dayOffset in 0..<nights {
             let referenceDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date())!
             
-            // Each night: 6 PM to 2 PM next day
             let endOfWindow = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: referenceDate)!
             let startOfWindow = calendar.date(byAdding: .hour, value: -20, to: endOfWindow)!
             

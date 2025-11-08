@@ -37,12 +37,11 @@ struct StatsFeature {
                 return .none
                 
             case .initializeTrainingReadiness:
-                state.trainingReadiness = .init() //.init(subscriptionTier: state.$subscriptionTier)
+                state.trainingReadiness = .init()
                 return .none
                 
             case .initializeSummaryCard:
                 state.summaryCard = .init()
-                    //.init(subscriptionTier: state.$subscriptionTier)
                 return .none
                 
             case .initializeRingActivitiesSummary:
@@ -79,11 +78,6 @@ struct StatsFeature {
                 return .none
                 
                 // MARK: - Child
-            case let .trainingReadiness(.internal(.readinessCalculated(result))):
-//                state.$subscriptionTier.withLock { $0 = value }
-//                state.$color.withLock { $0 = result.readinessLevel.color }
-//                state.color = result.readinessLevel.color
-                return .none
                 
             case .trainingReadiness(_):
                 return .none
