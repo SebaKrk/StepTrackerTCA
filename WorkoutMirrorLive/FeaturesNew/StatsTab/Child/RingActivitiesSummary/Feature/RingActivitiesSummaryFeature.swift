@@ -52,6 +52,7 @@ struct RingActivitiesSummaryFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
+                
                 guard state.activityRingData == nil else {
                     return .none
                 }

@@ -39,8 +39,9 @@ struct WorkoutMirrorLiveApp: App {
             AppTabNewView(
                 store: Store(initialState: AppTabNewFeature.State()) {
                     AppTabNewFeature()
+                        ._printChanges()
                 }
-            )
+            )   
         }
     }
 }

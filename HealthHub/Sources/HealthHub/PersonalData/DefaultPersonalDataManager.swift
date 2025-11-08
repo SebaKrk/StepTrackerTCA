@@ -215,7 +215,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         let window = TrainingReadinessTimeWindows.thisMorningRHRWindow()
         
-        print("🔍 RHR Debug: Searching window \(window.start) to \(window.end)")
+        // print("🔍 RHR Debug: Searching window \(window.start) to \(window.end)")
         
         let restingHeartRateType = HKQuantityType(.restingHeartRate)
         let predicate = HKQuery.predicateForSamples(
@@ -237,7 +237,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         let results = try await descriptor.result(for: manager.healthStore)
         
-        print("🔍 RHR Debug: Found \(results.count) samples")
+        // print("🔍 RHR Debug: Found \(results.count) samples")
         
         guard let sample = results.first else {
             print("❌ RHR Debug: No samples found in window")
@@ -245,7 +245,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         }
         
         let rhrValue = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
-        print("✅ RHR Debug: Found RHR=\(rhrValue) at \(sample.startDate)")
+        // print("✅ RHR Debug: Found RHR=\(rhrValue) at \(sample.startDate)")
         return HealthKitData(date: sample.startDate, value: rhrValue)
     }
     
@@ -405,7 +405,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         let window = TrainingReadinessTimeWindows.yesterdayFullDay()
         let healthStore = manager.healthStore
 
-        print("📊 Activity Debug: window=\(window.start) → \(window.end)")
+        // print("📊 Activity Debug: window=\(window.start) → \(window.end)")
 
         // 1️⃣ Energy from quantity samples
         let query = HealthKitQueryBuilder.buildQuery(
@@ -423,7 +423,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         )
 
         let sampleEnergy = processedData.first?.value ?? 0
-        print("📊 Activity Debug: activeEnergyBurned samples = \(sampleEnergy) kcal")
+        // print("📊 Activity Debug: activeEnergyBurned samples = \(sampleEnergy) kcal")
 
         // 2️⃣ Energy from workouts
         let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
@@ -441,11 +441,11 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             return total
         }
         
-        print("📊 Activity Debug: HKWorkouts found = \(workouts.count), total energy = \(workoutEnergy) kcal")
+        // print("📊 Activity Debug: HKWorkouts found = \(workouts.count), total energy = \(workoutEnergy) kcal")
 
         // 3️⃣ Combine both
         let totalEnergy = sampleEnergy + workoutEnergy
-        print("📊 Activity Debug: combined total energy = \(totalEnergy) kcal")
+        // print("📊 Activity Debug: combined total energy = \(totalEnergy) kcal")
 
         return HealthKitData(date: window.end, value: totalEnergy)
     }
@@ -523,9 +523,9 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         let results = try await descriptor.result(for: manager.healthStore)
         
-        print("📋 RHR Debug: Found \(results.count) total RHR samples in last 7 days")
-        print("📋 Time range: \(sevenDaysAgo) to \(now)")
-        print("📋 Samples:")
+        // print("📋 RHR Debug: Found \(results.count) total RHR samples in last 7 days")
+        // print("📋 Time range: \(sevenDaysAgo) to \(now)")
+        // print("📋 Samples:")
         
         for (index, sample) in results.enumerated() {
             let value = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
@@ -534,7 +534,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             dateFormatter.timeZone = TimeZone.current
             let dateString = dateFormatter.string(from: sample.startDate)
             
-            print("  [\(index + 1)] \(dateString) - RHR: \(value) bpm")
+            // print("  [\(index + 1)] \(dateString) - RHR: \(value) bpm")
         }
         
         if results.isEmpty {

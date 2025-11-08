@@ -61,31 +61,21 @@ extension DefaultTrainingReadinessCalculator {
     /// - Returns: Score from -10 to +5 based on recovery status
     private func calculateLoadComponentScore(current: Double, baseline: Double?) -> Int {
         guard let baseline = baseline else {
-            print("    ⚠️ Activity: No baseline available, returning 0")
             return 0
         }
-        
         let percentageOfBaseline = (current / baseline) * 100
-        print("    📊 Activity: Yesterday=\(current)kcal, Baseline=\(baseline)kcal, Percentage=\(percentageOfBaseline)%")
-        
         switch percentageOfBaseline {
         case 0..<15:
-            print("    ✅ Activity: Maximum Recovery - No load day (complete restoration)")
             return 3
         case 15..<45:
-            print("    ✅ Activity: Optimal Readiness - Minimal load (peak condition)")
             return 5
         case 45..<80:
-            print("    ✅ Activity: Good Readiness - Low load (high availability)")
             return 2
         case 80..<130:
-            print("    ⚪ Activity: Neutral Readiness - Typical load (standard condition)")
             return 0
         case 130..<180:
-            print("    ⚠️ Activity: Moderate Fatigue - High load (reduced availability)")
             return -5
         case 180...:
-            print("    ❌ Activity: High Fatigue - Very high load (priority: recovery)")
             return -10
         default:
             return 0

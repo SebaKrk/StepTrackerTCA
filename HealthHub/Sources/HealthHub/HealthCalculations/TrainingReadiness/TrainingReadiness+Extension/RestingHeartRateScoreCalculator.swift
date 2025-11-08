@@ -71,15 +71,15 @@ extension DefaultTrainingReadinessCalculator {
         
         switch difference {
         case let diff where diff > 5:
-            return -15 // Significantly elevated HR = poor readiness
+            return -15
         case let diff where diff > 2:
-            return -5  // Moderately elevated HR = suboptimal
+            return -5
         case let diff where diff < -3:
-            return 15  // Significantly lower HR = excellent readiness
+            return 15
         case let diff where diff < -1:
-            return 5   // Moderately lower HR = good readiness
+            return 5
         default:
-            return 0   // Within normal range
+            return 0   
         }
     }
 }

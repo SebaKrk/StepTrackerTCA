@@ -65,25 +65,18 @@ extension DefaultTrainingReadinessCalculator {
             print("    ⚠️ HRV: No baseline available, returning 0")
             return 0
         }
-        
         let difference = current - baseline
-        print("    📊 HRV: Current=\(current)ms, Baseline=\(baseline)ms, Diff=\(difference)ms")
         
         switch difference {
         case let diff where diff > 10:
-            print("    ✅ HRV: Significantly higher (+\(diff) ms)")
             return 15
         case let diff where diff > 5:
-            print("    ✅ HRV: Moderately higher (+\(diff) ms)")
             return 10
         case let diff where diff < -10:
-            print("    ❌ HRV: Significantly lower (\(diff) ms)")
             return -15
         case let diff where diff < -5:
-            print("    ⚠️ HRV: Moderately lower (\(diff) ms)")
             return -10
         default:
-            print("    ⚪ HRV: Within normal range default (0 ms)")
             return 0
         }
     }

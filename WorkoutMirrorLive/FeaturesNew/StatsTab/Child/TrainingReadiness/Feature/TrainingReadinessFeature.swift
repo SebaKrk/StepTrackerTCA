@@ -28,7 +28,7 @@ struct TrainingReadinessFeature {
                 state.contentState = newState
                 return .none
                 
-
+                
             case .internal(.changeColor):
                 state.$color.withLock { $0 = state.readinessLevel.color }
                 return .none
@@ -48,6 +48,9 @@ struct TrainingReadinessFeature {
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
+                guard state.readinessResult == nil else {
+                    return .none
+                }
                 return .run { send in
                     do {
                         let result = try await trainingReadinessClient.calculate()
