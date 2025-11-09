@@ -49,6 +49,9 @@ extension StatsFeature {
             case viewDidAppear
             
             ///
+            case pullToRefresh
+            
+            ///
             case personButtonTapped
             
             ///
