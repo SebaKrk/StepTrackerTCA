@@ -28,7 +28,7 @@ struct TrainingReadinessFeature {
                 state.contentState = newState
                 return .none
                 
-
+                
             case .internal(.changeColor):
                 state.$color.withLock { $0 = state.readinessLevel.color }
                 return .none
@@ -45,9 +45,7 @@ struct TrainingReadinessFeature {
                 state.errorMessage = error
                 return .send(.internal(.changeContentState(.noData)))
                 
-                // MARK: - View Actions
-                
-            case .view(.viewDidAppear):
+            case .internal(.loadReadinessData):
                 return .run { send in
                     do {
                         let result = try await trainingReadinessClient.calculate()
@@ -63,6 +61,17 @@ struct TrainingReadinessFeature {
                         await send(.internal(.calculationFailed(error.localizedDescription)))
                     }
                 }
+                
+                // MARK: - View Actions
+                
+            case .view(.viewDidAppear):
+                guard state.readinessResult == nil else {
+                    return .none
+                }
+                return .send(.internal(.loadReadinessData))
+                
+            case .view(.refresh):
+                return .send(.internal(.loadReadinessData))
             }
         }
     }

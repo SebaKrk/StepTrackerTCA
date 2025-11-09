@@ -27,13 +27,16 @@ extension StatsFeature {
         /// - Parameter: `StatsFeatureContext` representing the selected context.
         case selectedPickerChange(StatsFeatureContext)
         
-        ///
+        /// Initializes all child features after successful authorization.
+        case initializeChildren
+        
+        /// Initializes Training readiness calculator
         case initializeTrainingReadiness
         
-        ///
+        /// Initializes Health metric summary cards
         case initializeSummaryCard
         
-        ///
+        /// Initializes Activity ring summary
         case initializeRingActivitiesSummary
         
         // MARK: - View Actions
@@ -44,6 +47,9 @@ extension StatsFeature {
                     
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            ///
+            case pullToRefresh
             
             ///
             case personButtonTapped

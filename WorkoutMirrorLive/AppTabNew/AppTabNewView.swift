@@ -68,7 +68,7 @@ struct AppTabNewView: View {
         case .sharing:
             Text("sharing")
         default:
-            EmptyView()
+            ProgressView()
         }
     }
     

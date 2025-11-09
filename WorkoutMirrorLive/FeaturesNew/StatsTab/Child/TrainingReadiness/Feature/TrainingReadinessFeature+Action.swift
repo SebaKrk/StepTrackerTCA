@@ -29,9 +29,11 @@ extension TrainingReadinessFeature {
             /// Action triggered when calculation fails
             case calculationFailed(String)
             
-            ///
+            /// Initiates the training readiness data loading process
+            case loadReadinessData
+
+            /// Updates the color state based on the current readiness level
             case changeColor
-            
         }
         
         // MARK: - View actions
@@ -42,6 +44,9 @@ extension TrainingReadinessFeature {
             
             /// The action responsible for completing tasks as soon as the view is displayed.
             case viewDidAppear
+            
+            /// Action triggered when user pulls to refresh
+            case refresh
         }
     }
     

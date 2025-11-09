@@ -36,6 +36,9 @@ struct StatsView: View {
     
     var statsView: some View {
         rootView
+            .refreshable {
+                send(.pullToRefresh)
+            }
             .toolbar {
                 toolbarButton
             }

@@ -48,23 +48,39 @@ struct StatsFeature {
                 state.ringActivitiesSummary = .init()
                 return .none
                 
+            case .initializeChildren:
+                return .merge(
+                    .send(.initializeTrainingReadiness),
+                    .send(.initializeSummaryCard),
+                    .send(.initializeRingActivitiesSummary)
+                )
+                
                 // MARK: - View Action
             case .view(.viewDidAppear):
+                guard state.trainingReadiness == nil else {
+                    return .none
+                }
                 return .run { send in
                     let result = await self.authorizationManager.requestAuthorization()
                     
                     switch result {
                     case .success:
+                        await send(.initializeChildren)
                         await send(.changeViewState(.success))
-                        await send(.initializeTrainingReadiness)
-                        await send(.initializeSummaryCard)
-                        await send(.initializeRingActivitiesSummary)
                         
                     case .failure(let error):
                         print("Authorization failed with error: \(error.localizedDescription)")
                         await send(.changeViewState(.failed))
                     }
                 }
+                
+            case .view(.pullToRefresh):
+                return .merge(
+                    .send(.trainingReadiness(.view(.refresh))),
+                    .send(.summaryCard(.view(.refresh))),
+                    .send(.ringActivitiesSummary(.view(.refresh))),
+                    .send(.changeViewState(.success))
+                )
                 
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())

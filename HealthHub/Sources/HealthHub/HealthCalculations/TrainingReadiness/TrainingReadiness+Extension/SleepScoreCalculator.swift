@@ -57,21 +57,14 @@ extension DefaultTrainingReadinessCalculator {
     ///   - baseline: Average sleep duration in hours (7-night baseline)
     /// - Returns: Score from -10 to +15 based on sleep quality
     private func calculateSleepComponentScore(current: Double, baseline: Double?) -> Int {
-        print("    📊 Sleep: Current=\(current)h, Baseline=\(baseline ?? 0)h")
-        
         var score = 0
-        
-        // Score based on absolute duration (optimal sleep ranges)
         switch current {
         case 7.0...9.0:
             score += 10
-            print("    ✅ Sleep: Optimal duration (7-9h)")
         case 6.0..<7.0, 9.0...10.0:
             score += 5
-            print("    ⚪ Sleep: Acceptable duration")
         default:
             score -= 10
-            print("    ❌ Sleep: Suboptimal duration (<6h or >10h)")
         }
         
         // Additional score based on baseline comparison
@@ -81,16 +74,12 @@ extension DefaultTrainingReadinessCalculator {
             switch difference {
             case let diff where diff > 1.0:
                 score += 5
-                print("    ✅ Sleep: Slept more than usual (+\(diff)h)")
             case let diff where diff < -1.5:
                 score -= 5
-                print("    ⚠️ Sleep: Significantly less than usual (\(diff)h)")
             default:
-                print("    ⚪ Sleep: Within normal range vs baseline")
+                score += 0
             }
         }
-        
-        print("    Final Sleep Score: \(score)")
         return score
     }
 }
