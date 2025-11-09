@@ -37,7 +37,13 @@ struct RingActivitiesSummaryFeature {
                 return .run { send in
                     do {
                         await send(.internal(.changeViewState(.loading)))
-                        let data = try await activityRingManager.fetchTodaySummary()
+                        
+                        var data: ActivityRingData
+#if targetEnvironment(simulator)
+                        data = .mock
+#else
+                        data = try await activityRingManager.fetchTodaySummary()
+#endif
                         try await clock.sleep(for: .seconds(2))
                         await send(.internal(.changeViewState(.success)))
                         await send(.internal(.activityRingDataLoaded(data)))
@@ -148,7 +154,6 @@ extension RingActivitiesSummaryFeature {
         /// The fetched activity ring data containing daily metrics
         /// - `nil` when no data has been fetched yet
         var activityRingData: ActivityRingData? = nil
-        
         
         /// Represents the navigation destination state within `RingActivitiesSummaryFeature`.
         /// This property handles transitions to different screens or modals within the feature.

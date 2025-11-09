@@ -63,6 +63,6 @@ public enum TrainingReadinessClientKey: DependencyKey {
             }
         )
     }()
+    
+    public static let testValue = TrainingReadinessClient.mock
 }
-
-

@@ -8,7 +8,7 @@
 import Foundation
 
 /// A structure representing the data for activity rings, including current values and goals for move, exercise, and stand activities.
-public struct ActivityRingData: Equatable {
+public struct ActivityRingData: Equatable , Sendable {
     
     // MARK: - Properties
     

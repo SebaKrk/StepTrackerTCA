@@ -25,3 +25,4 @@ public protocol ActivityRingManager: Sendable {
     /// - Throws: An error if the data retrieval fails or is unavailable.
     func fetchTodayHourlyData() async throws -> [HourlyActivityData]
 }
+

@@ -8,6 +8,27 @@
 import ComposableArchitecture
 import SwiftUI
 
+@main
+struct WorkoutMirrorLiveApp: App {
+    var body: some Scene {
+        WindowGroup {
+            AppTabNewView(
+                store: Store(initialState: AppTabNewFeature.State()) {
+                    AppTabNewFeature()
+                        ._printChanges()
+                } withDependencies: {
+#if targetEnvironment(simulator)
+                    $0.trainingReadinessClient = .mock
+#endif
+                }
+            )
+        }
+    }
+    
+}
+
+//            HealthMetricCardsView()
+
 //@main
 //struct WorkoutMirrorLiveApp: App {
 //    var body: some Scene {
@@ -30,18 +51,3 @@ import SwiftUI
 //        }
 //    }
 //}
-
-@main
-struct WorkoutMirrorLiveApp: App {
-    var body: some Scene {
-        WindowGroup {
-//            HealthMetricCardsView()
-            AppTabNewView(
-                store: Store(initialState: AppTabNewFeature.State()) {
-                    AppTabNewFeature()
-                        ._printChanges()
-                }
-            )   
-        }
-    }
-}
