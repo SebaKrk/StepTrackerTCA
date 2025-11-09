@@ -74,6 +74,14 @@ struct StatsFeature {
                     }
                 }
                 
+            case .view(.pullToRefresh):
+                return .merge(
+                    .send(.trainingReadiness(.view(.refresh))),
+                    .send(.summaryCard(.view(.refresh))),
+                    .send(.ringActivitiesSummary(.view(.refresh))),
+                    .send(.changeViewState(.success))
+                )
+                
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none

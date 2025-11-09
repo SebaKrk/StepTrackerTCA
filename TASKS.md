@@ -467,3 +467,4 @@
     B: iOS26 UI improvements 
     C: RingActivitiesSummaryFeature
     D: ReadinessLevelColor
+    E: Pull to refresh data

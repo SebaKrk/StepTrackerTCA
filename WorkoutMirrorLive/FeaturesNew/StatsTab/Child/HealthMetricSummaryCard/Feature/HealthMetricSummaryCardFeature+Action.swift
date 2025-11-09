@@ -25,6 +25,9 @@ extension HealthMetricSummaryCardFeature {
             
             ///
             case dataLoaded(TrainingReadinessComponents?)
+            
+            ///
+            case loadSummaryData
         }
         
         // MARK: - View Actions
@@ -39,6 +42,9 @@ extension HealthMetricSummaryCardFeature {
             ///
             //case showDetailsButtonTapped
             case showDetailsButtonTapped(metric: HealthMetricType, data: TrainingComponentScore)
+            
+            /// Action triggered when user pulls to refresh
+            case refresh
         }
         
         // MARK: - Destination

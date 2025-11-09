@@ -52,10 +52,12 @@ struct RingActivitiesSummaryFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                
                 guard state.activityRingData == nil else {
                     return .none
                 }
+                return .send(.internal(.fetchTodaySummary))
+
+            case .view(.refresh):
                 return .send(.internal(.fetchTodaySummary))
                 
             case .view(.showDetailsButtonTapped):
@@ -102,6 +104,7 @@ extension RingActivitiesSummaryFeature {
             
             /// Handles failures during data fetching operations
             case failedToLoadRingData
+            
         }
         
         // MARK: - View Actions
@@ -115,6 +118,9 @@ extension RingActivitiesSummaryFeature {
             
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            /// Action triggered when user pulls to refresh
+            case refresh
         }
         
         // MARK: - Destination

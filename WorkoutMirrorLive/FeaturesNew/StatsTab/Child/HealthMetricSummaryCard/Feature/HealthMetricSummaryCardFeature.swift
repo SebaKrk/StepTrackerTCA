@@ -35,9 +35,7 @@ struct HealthMetricSummaryCardFeature {
                     await send(.internal(.changeContentState(.ready(tier))))
                 }
                 
-                // MARK: - View Action
-                
-            case .view(.viewDidAppear):
+            case .internal(.loadSummaryData):
                 return .run { send in
                     do {
                         let result = try await trainingReadinessClient.calculate()
@@ -52,6 +50,14 @@ struct HealthMetricSummaryCardFeature {
                         print(error.localizedDescription)
                     }
                 }
+                
+                // MARK: - View Action
+                
+            case .view(.viewDidAppear):
+                return .send(.internal(.loadSummaryData))
+                
+            case .view(.refresh):
+                return .send(.internal(.loadSummaryData))
                 
             case let .view(.showDetailsButtonTapped(metric: metric, data: score)):
                 state.destination = .details(HealthMetricSummaryDetailsCardFeature.State(metricType: metric,
