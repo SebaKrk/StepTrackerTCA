@@ -16,6 +16,8 @@ struct StatsView: View {
     
     @Bindable var store: StoreOf<StatsFeature>
     
+    @Namespace var zoomTransition
+    
     // MARK: - Body
     
     var body: some View {
@@ -48,6 +50,7 @@ struct StatsView: View {
             .fullScreenCover(item: $store.scope(state: \.destination?.personSettings,
                                                 action: \.destination.personSettings)) { store in
                 PersonSettingsView(store: store)
+                    .navigationTransition(.zoom(sourceID: "personSettings", in: zoomTransition))
             }
     }
     
@@ -73,6 +76,7 @@ struct StatsView: View {
                 Image(systemName: "person")
             }
         }
+        .matchedTransitionSource(id: "personSettings", in: zoomTransition)
     }
     
     var failedView: some View {
