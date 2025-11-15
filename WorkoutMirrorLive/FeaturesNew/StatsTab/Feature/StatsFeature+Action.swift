@@ -16,7 +16,7 @@ extension StatsFeature {
         
         // MARK: - Actions
         
-        ///
+        /// Updates the user's subscription tier in persistent storage.
         case changeSubscriptionTier(SubscriptionTier)
         
         /// Responsible for changing the state of the view.
@@ -48,15 +48,20 @@ extension StatsFeature {
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
             
-            ///
+            /// Triggered when the user performs a pull-to-refresh gesture.
+            /// Refreshes all child features and reloads the stats view content.
             case pullToRefresh
             
-            ///
+            /// Triggered when the user taps the person/profile button in the navigation bar.
+            /// Typically opens the user settings screen.
             case personButtonTapped
             
-            ///
+            /// Triggered when the user selects a subscription tier option.
+            /// Sends the chosen tier as an associated value.
             case subscriptionTierButtonTapped(SubscriptionTier)
-
+            
+            /// Checks whether the DataAnalyzer API is available on the current device (iOS 26+).
+            case checkDataAnalyzerAvailability
         }
         
         // MARK: - Destination
@@ -66,13 +71,16 @@ extension StatsFeature {
         
         // MARK: - Child
         
-        ///
+        /// Forwards actions to the TrainingReadinessFeature.
+        /// Used to propagate user interactions and data updates to the child reducer.
         case trainingReadiness(TrainingReadinessFeature.Action)
-        
-        ///
+
+        /// Forwards actions to the HealthMetricSummaryCardFeature.
+        /// Handles updates affecting the statistics summary card.
         case summaryCard(HealthMetricSummaryCardFeature.Action)
-        
-        ///
+
+        /// Forwards actions to the RingActivitiesSummaryFeature.
+        /// Manages ring-based activity data and interactions within the stats screen.
         case ringActivitiesSummary(RingActivitiesSummaryFeature.Action)
         
     }
