@@ -47,6 +47,7 @@ struct StatsView: View {
             .task {
                 send(.checkDataAnalyzerAvailability)
             }
+            
             .padding([.leading, .trailing], 8)
             .background(LinearGradient(colors: [store.color.opacity(0.25
                                                              ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -54,6 +55,11 @@ struct StatsView: View {
                                                 action: \.destination.personSettings)) { store in
                 PersonSettingsView(store: store)
                     .navigationTransition(.zoom(sourceID: "personSettings", in: zoomTransition))
+            }
+            .sheet(item: $store.scope(state: \.destination?.readinessAnalysis,
+                                      action: \.destination.readinessAnalysis)) { store in
+                ReadinessAnalysisView(store: store)
+                    .presentationDetents([.medium, .large])
             }
     }
     
@@ -72,16 +78,12 @@ struct StatsView: View {
                 Image(systemName: "crown")
             }
         }
-        if #available(iOS 26, *) {
-            if store.isDataAnalyzerAvailable {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        Task {
-                            send(.dataAnalyzerButtonTapped)
-                        }
-                    } label: {
-                        Image(systemName: "apple.intelligence")
-                    }
+        if store.isDataAnalyzerAvailable {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.dataAnalyzerButtonTapped)
+                } label: {
+                    Image(systemName: "apple.intelligence")
                 }
             }
         }

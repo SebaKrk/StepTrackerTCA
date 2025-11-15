@@ -16,6 +16,7 @@ struct StatsFeature {
     // MARK: - Dependency
     
     @Dependency(\.authorizationManager) var authorizationManager
+    @Dependency(\.dataAnalyzerClient) var dataAnalyzerClient 
     
     // MARK: - Reducer
     
@@ -34,6 +35,10 @@ struct StatsFeature {
                 
             case let .changeSubscriptionTier(value):
                 state.$subscriptionTier.withLock { $0 = value }
+                return .none
+                
+            case let .updateDataAnalyzer(isAvailable):
+                state.isDataAnalyzerAvailable = isAvailable
                 return .none
                 
             case .initializeTrainingReadiness:
@@ -75,16 +80,19 @@ struct StatsFeature {
                 }
                 
             case .view(.checkDataAnalyzerAvailability):
-                if #available(iOS 26, *) {
-                    let isAvailable = DataAnalyzer.shared.available
-                    state.isDataAnalyzerAvailable = isAvailable
+//                if #available(iOS 26, *) {
+//                    let isAvailable = DataAnalyzer.shared.available
+//                    state.isDataAnalyzerAvailable = isAvailable
+//                }
+//                return .none
+                return .run { send in
+                    let isAvailable = await dataAnalyzerClient.isAvailable()
+                    await send((.updateDataAnalyzer(isAvailable)))
                 }
-                return .none
                 
             case .view(.dataAnalyzerButtonTapped):
-                return .run { send in
-                    await DataAnalyzer.shared.analyzeHealthData()
-                }
+                state.destination = .readinessAnalysis(ReadinessAnalysisFeature.State())
+                return .none
                 
             case .view(.pullToRefresh):
                 return .merge(

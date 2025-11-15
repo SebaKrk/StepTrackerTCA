@@ -473,3 +473,4 @@
     A: Setup & Availability Check
     - Prompt
     - Stream
+    B: ReadinessAnalysisFeature
