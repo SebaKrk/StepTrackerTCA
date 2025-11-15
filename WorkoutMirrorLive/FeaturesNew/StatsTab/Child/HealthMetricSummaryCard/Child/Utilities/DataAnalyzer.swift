@@ -15,6 +15,7 @@ final class DataAnalyzer {
     static let shared = DataAnalyzer()
     
     let model: SystemLanguageModel = .default
+    var coachMessage: String.PartiallyGenerated?
     
     var available: Bool {
         switch model.availability {
@@ -42,10 +43,15 @@ final class DataAnalyzer {
      Analyze the returned values and provide a clear interpretation of what they mean for my current condition and daily readiness.
      """
         do {
-            let response = try await session.respond(to: prompt, options: .init(sampling: .greedy,
-                                                                                temperature: 0.1,
-                                                                                       maximumResponseTokens: 200))
-            print(response.content)
+            let stream = session.streamResponse(to: prompt, options: .init(sampling: .greedy,
+                                                                           temperature: 0.1,
+                                                                           maximumResponseTokens: 200))
+            for try await partial in stream {
+                if partial.content != "null" {
+                    coachMessage = partial.content
+                    dump(coachMessage!)
+                }
+            }
         } catch {
             print(error.localizedDescription)
         }

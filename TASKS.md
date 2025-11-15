@@ -472,3 +472,4 @@
 ### IOS-00051 Foundation Models
     A: Setup & Availability Check
     - Prompt
+    - Stream
