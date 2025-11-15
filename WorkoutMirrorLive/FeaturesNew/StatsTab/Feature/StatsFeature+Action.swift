@@ -62,6 +62,9 @@ extension StatsFeature {
             
             /// Checks whether the DataAnalyzer API is available on the current device (iOS 26+).
             case checkDataAnalyzerAvailability
+            
+            ///
+            case dataAnalyzerButtonTapped
         }
         
         // MARK: - Destination

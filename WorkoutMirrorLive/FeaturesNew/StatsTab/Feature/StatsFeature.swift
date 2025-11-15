@@ -28,27 +28,26 @@ struct StatsFeature {
                 state.viewState = viewState
                 return .none
                 
-            /// Updates the user's subscription tier in persistent storage.
+            case let .selectedPickerChange(value):
+                state.context = value
+                return .none
+                
             case let .changeSubscriptionTier(value):
                 state.$subscriptionTier.withLock { $0 = value }
                 return .none
                 
-            /// Initializes the TrainingReadinessFeature state.
             case .initializeTrainingReadiness:
                 state.trainingReadiness = .init()
                 return .none
                 
-            /// Initializes the HealthMetricSummaryCardFeature state.
             case .initializeSummaryCard:
                 state.summaryCard = .init()
                 return .none
                 
-            /// Initializes the RingActivitiesSummaryFeature state.
             case .initializeRingActivitiesSummary:
                 state.ringActivitiesSummary = .init()
                 return .none
                 
-            /// Initializes all child feature states after successful authorization.
             case .initializeChildren:
                 return .merge(
                     .send(.initializeTrainingReadiness),
@@ -75,13 +74,17 @@ struct StatsFeature {
                     }
                 }
                 
-            /// Checks whether the DataAnalyzer API is available on the current device (iOS 26+).
             case .view(.checkDataAnalyzerAvailability):
                 if #available(iOS 26, *) {
                     let isAvailable = DataAnalyzer.shared.available
                     state.isDataAnalyzerAvailable = isAvailable
                 }
                 return .none
+                
+            case .view(.dataAnalyzerButtonTapped):
+                return .run { send in
+                    await DataAnalyzer.shared.analyzeHealthData()
+                }
                 
             case .view(.pullToRefresh):
                 return .merge(
@@ -91,14 +94,10 @@ struct StatsFeature {
                     .send(.changeViewState(.success))
                 )
                 
-            /// Triggered when the user taps the person/profile button in the navigation bar.
-            /// Typically opens the user settings screen.
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
                 
-            /// Triggered when the user selects a subscription tier option.
-            /// Sends the chosen tier as an associated value.
             case let .view(.subscriptionTierButtonTapped(value)):
                 return .send(.changeSubscriptionTier(value))
                 
@@ -107,7 +106,6 @@ struct StatsFeature {
                 return .none
                 
                 // MARK: - Child
-                
             case .trainingReadiness(_):
                 return .none
                 

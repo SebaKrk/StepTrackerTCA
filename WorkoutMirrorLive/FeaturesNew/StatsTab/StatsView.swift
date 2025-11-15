@@ -76,7 +76,9 @@ struct StatsView: View {
             if store.isDataAnalyzerAvailable {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        print("AnalyzerAvailable GO")
+                        Task {
+                            send(.dataAnalyzerButtonTapped)
+                        }
                     } label: {
                         Image(systemName: "apple.intelligence")
                     }
