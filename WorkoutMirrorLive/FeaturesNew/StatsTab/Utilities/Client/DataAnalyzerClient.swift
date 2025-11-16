@@ -16,9 +16,13 @@ import FoundationModels
 
 @DependencyClient
 struct DataAnalyzerClient: Sendable {
+    
+    /// Checks if Apple Intelligence is available on this device
     var isAvailable: @Sendable () async -> Bool = { false }
+    
+    /// Triggers AI analysis (streaming happens via @Observable in DataAnalyzer.shared)
+    var startAnalysis: @Sendable () async -> Void = { }
 }
-
 extension DependencyValues {
     var dataAnalyzerClient: DataAnalyzerClient {
         get { self[DataAnalyzerClient.self] }
@@ -26,15 +30,21 @@ extension DependencyValues {
     }
 }
 
-// MARK: - Live Implementation
-
 extension DataAnalyzerClient: DependencyKey {
     static let liveValue = DataAnalyzerClient(
         isAvailable: {
             #if canImport(FoundationModels)
-                return DataAnalyzer.shared.available
-            #else
+            if #available(iOS 26, *) {
+                return await DataAnalyzer.shared.available
+            }
+            #endif
             return false
+        },
+        startAnalysis: {
+            #if canImport(FoundationModels)
+            if #available(iOS 26, *) {
+                await DataAnalyzer.shared.analyzeHealthData()
+            }
             #endif
         }
     )
