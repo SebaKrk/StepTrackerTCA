@@ -44,6 +44,9 @@ struct StatsView: View {
             .toolbar {
                 toolbarButton
             }
+            .task {
+                send(.checkDataAnalyzerAvailability)
+            }
             .padding([.leading, .trailing], 8)
             .background(LinearGradient(colors: [store.color.opacity(0.25
                                                              ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -67,6 +70,19 @@ struct StatsView: View {
                 Text(store.subscriptionTier.name)
             } label: {
                 Image(systemName: "crown")
+            }
+        }
+        if #available(iOS 26, *) {
+            if store.isDataAnalyzerAvailable {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Task {
+                            send(.dataAnalyzerButtonTapped)
+                        }
+                    } label: {
+                        Image(systemName: "apple.intelligence")
+                    }
+                }
             }
         }
         ToolbarItem(placement: .topBarTrailing) {

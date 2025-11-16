@@ -468,3 +468,8 @@
     C: RingActivitiesSummaryFeature
     D: ReadinessLevelColor
     E: Pull to refresh data
+
+### IOS-00051 Foundation Models
+    A: Setup & Availability Check
+    - Prompt
+    - Stream

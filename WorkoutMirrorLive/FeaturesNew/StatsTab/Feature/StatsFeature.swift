@@ -74,6 +74,18 @@ struct StatsFeature {
                     }
                 }
                 
+            case .view(.checkDataAnalyzerAvailability):
+                if #available(iOS 26, *) {
+                    let isAvailable = DataAnalyzer.shared.available
+                    state.isDataAnalyzerAvailable = isAvailable
+                }
+                return .none
+                
+            case .view(.dataAnalyzerButtonTapped):
+                return .run { send in
+                    await DataAnalyzer.shared.analyzeHealthData()
+                }
+                
             case .view(.pullToRefresh):
                 return .merge(
                     .send(.trainingReadiness(.view(.refresh))),
@@ -86,7 +98,7 @@ struct StatsFeature {
                 state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
                 
-            case let  .view(.subscriptionTierButtonTapped(value)):
+            case let .view(.subscriptionTierButtonTapped(value)):
                 return .send(.changeSubscriptionTier(value))
                 
                 // MARK: - Destination
@@ -94,7 +106,6 @@ struct StatsFeature {
                 return .none
                 
                 // MARK: - Child
-                
             case .trainingReadiness(_):
                 return .none
                 
