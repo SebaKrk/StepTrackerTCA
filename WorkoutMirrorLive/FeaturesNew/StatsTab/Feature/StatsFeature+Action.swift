@@ -27,6 +27,9 @@ extension StatsFeature {
         /// - Parameter: `StatsFeatureContext` representing the selected context.
         case selectedPickerChange(StatsFeatureContext)
         
+        /// Updates the availability state of Apple Intelligence.
+        case updateDataAnalyzer(Bool)
+        
         /// Initializes all child features after successful authorization.
         case initializeChildren
         
@@ -63,7 +66,7 @@ extension StatsFeature {
             /// Checks whether the DataAnalyzer API is available on the current device (iOS 26+).
             case checkDataAnalyzerAvailability
             
-            ///
+            /// Triggered when user taps the Apple Intelligence button
             case dataAnalyzerButtonTapped
         }
         

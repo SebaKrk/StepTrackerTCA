@@ -12,6 +12,11 @@ extension StatsFeature {
     
     @Reducer
     enum Destination {
+        
+        ///
         case personSettings(PersonSettingsFeature)
+        
+        ///
+        case readinessAnalysis(ReadinessAnalysisFeature)
     }
 }
