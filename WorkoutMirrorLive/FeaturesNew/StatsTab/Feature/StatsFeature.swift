@@ -16,6 +16,7 @@ struct StatsFeature {
     // MARK: - Dependency
     
     @Dependency(\.authorizationManager) var authorizationManager
+    @Dependency(\.dataAnalyzerClient) var dataAnalyzerClient 
     
     // MARK: - Reducer
     
@@ -34,6 +35,10 @@ struct StatsFeature {
                 
             case let .changeSubscriptionTier(value):
                 state.$subscriptionTier.withLock { $0 = value }
+                return .none
+                
+            case let .updateDataAnalyzer(isAvailable):
+                state.isDataAnalyzerAvailable = isAvailable
                 return .none
                 
             case .initializeTrainingReadiness:
@@ -74,6 +79,21 @@ struct StatsFeature {
                     }
                 }
                 
+            case .view(.checkDataAnalyzerAvailability):
+//                if #available(iOS 26, *) {
+//                    let isAvailable = DataAnalyzer.shared.available
+//                    state.isDataAnalyzerAvailable = isAvailable
+//                }
+//                return .none
+                return .run { send in
+                    let isAvailable = await dataAnalyzerClient.isAvailable()
+                    await send((.updateDataAnalyzer(isAvailable)))
+                }
+                
+            case .view(.dataAnalyzerButtonTapped):
+                state.destination = .readinessAnalysis(ReadinessAnalysisFeature.State())
+                return .none
+                
             case .view(.pullToRefresh):
                 return .merge(
                     .send(.trainingReadiness(.view(.refresh))),
@@ -86,7 +106,7 @@ struct StatsFeature {
                 state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
                 
-            case let  .view(.subscriptionTierButtonTapped(value)):
+            case let .view(.subscriptionTierButtonTapped(value)):
                 return .send(.changeSubscriptionTier(value))
                 
                 // MARK: - Destination
@@ -94,7 +114,6 @@ struct StatsFeature {
                 return .none
                 
                 // MARK: - Child
-                
             case .trainingReadiness(_):
                 return .none
                 
