@@ -78,7 +78,7 @@ struct StatsView: View {
                 Image(systemName: "crown")
             }
         }
-        if store.isDataAnalyzerAvailable {
+        if store.isDataAnalyzerAvailable && store.subscriptionTier == .elite  {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     send(.dataAnalyzerButtonTapped)
