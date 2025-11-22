@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 #if canImport(FoundationModels)
 import FoundationModels
@@ -38,7 +39,9 @@ extension DataAnalyzerClient: DependencyKey {
     static let liveValue: DataAnalyzerClient = {
         #if canImport(FoundationModels)
         if #available(iOS 26, *) {
-            let analyzer = DataAnalyzer()
+            @Dependency(\.trainingReadinessClient) var readinessClient
+            
+            let analyzer = DataAnalyzer(readinessClient: readinessClient)
             
             return DataAnalyzerClient(
                 isAvailable: {
@@ -48,10 +51,8 @@ extension DataAnalyzerClient: DependencyKey {
                     let available = await analyzer.available
                     
                     if available {
-                        // AI available - return real stream
-                        return await analyzer.streamAnalysis()
+                        return try await analyzer.streamAnalysis()
                     } else {
-                        // AI unavailable - return mock stream
                         return mockStream()
                     }
                 }
@@ -59,7 +60,6 @@ extension DataAnalyzerClient: DependencyKey {
         }
         #endif
         
-        // iOS < 26 - return mock
         return DataAnalyzerClient(
             isAvailable: { false },
             streamAnalysis: { mockStream() }

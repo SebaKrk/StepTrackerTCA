@@ -478,5 +478,4 @@
     D: Refactor - AsyncStream
     E: Refactor - Actor and real data
     - DataAnalyzer
-    - HealthDataTool
-
+    - HealthDataTool -> TrainingReadinessMetricsTool

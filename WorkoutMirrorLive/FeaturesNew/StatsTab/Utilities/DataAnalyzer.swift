@@ -4,14 +4,15 @@
 //
 //  Created by Sebastian Sciuba on 10/11/2025.
 
-
 import Foundation
 import FoundationModels
+import SharedModels
 
 @available(iOS 26, *)
 actor DataAnalyzer {
     
     private let model: SystemLanguageModel = .default
+    private let readinessClient: TrainingReadinessClient
     
     var available: Bool {
         get async {
@@ -24,18 +25,33 @@ actor DataAnalyzer {
         }
     }
     
-    init() {}
+    init(readinessClient: TrainingReadinessClient) {
+        self.readinessClient = readinessClient
+    }
     
     /// Returns AsyncStream of partial responses
-    func streamAnalysis() -> AsyncStream<String> {
+    func streamAnalysis() async throws -> AsyncStream<String> {
         return AsyncStream { continuation in
             Task {
-                await self.performAnalysis(continuation: continuation)
+                do {
+                    // ✅ Pobierz dane z TrainingReadinessClient
+                    let result = try await readinessClient.calculate()
+                    
+                    // ✅ Przekaż do Tool
+                    let tool = TrainingReadinessMetricsTool(result: result)
+                    
+                    // ✅ AI analysis
+                    await self.performAnalysis(tool: tool, continuation: continuation)
+                } catch {
+                    // Jeśli błąd przy fetchowaniu - zakończ stream
+                    continuation.finish()
+                }
             }
         }
     }
     
     private func performAnalysis(
+        tool: TrainingReadinessMetricsTool,
         continuation: AsyncStream<String>.Continuation
     ) async {
         let instructions = """
@@ -45,6 +61,8 @@ actor DataAnalyzer {
         **CRITICAL: Training Readiness Score Scale (0-100):**
         The Training Readiness Score is calculated from 4 components with a baseline of 50 points.
         DO NOT mention point values in your response - only interpret the overall score and components.
+        
+        **CRITICAL: Keep your response concise - maximum 150 words total.**
 
         **Overall Score Interpretation:**
         - 0-30: Critical Recovery Needed
@@ -148,7 +166,7 @@ actor DataAnalyzer {
         
         let session = LanguageModelSession(
             model: .default,
-            tools: [HealthDataTool()],
+            tools: [tool],
             instructions: instructions
         )
         
@@ -163,7 +181,7 @@ actor DataAnalyzer {
                 options: .init(
                     sampling: .greedy,
                     temperature: 0.1,
-                    maximumResponseTokens: 200
+                    maximumResponseTokens: 500
                 )
             )
             
@@ -177,6 +195,7 @@ actor DataAnalyzer {
             continuation.finish()
         }
     }
+    
 }
 
 
