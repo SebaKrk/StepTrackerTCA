@@ -4,21 +4,17 @@
 //
 //  Created by Sebastian Sciuba on 10/11/2025.
 
+
 import Foundation
 import FoundationModels
 import Observation
 
 @available(iOS 26, *)
-@Observable
 final class DataAnalyzer {
     
     static let shared = DataAnalyzer()
     
     let model: SystemLanguageModel = .default
-    
-    var isThinking = false
-    
-    var coachMessage: String.PartiallyGenerated?
     
     var available: Bool {
         get async {
@@ -33,10 +29,18 @@ final class DataAnalyzer {
     
     private init() {}
     
-    func analyzeHealthData() async {
-        isThinking = true
-        coachMessage = nil
-        
+    /// Returns AsyncStream of partial responses
+    func streamAnalysis() async -> AsyncStream<String> {
+        return AsyncStream { continuation in
+            Task {
+                await self.performAnalysis(continuation: continuation)
+            }
+        }
+    }
+    
+    private func performAnalysis(
+        continuation: AsyncStream<String>.Continuation
+    ) async {
         let instructions = """
         You are a fitness data interpreter. Analyze ONLY the values provided in each request.
         Do not guess, do not assume trends, and do not reference past data unless explicitly provided.
@@ -167,18 +171,18 @@ final class DataAnalyzer {
             )
             
             for try await partial in stream {
-                isThinking = false
                 if partial.content != "null" {
-                    coachMessage = partial.content
-                    print(coachMessage!)
+                    continuation.yield(partial.content)
                 }
             }
+            continuation.finish()
         } catch {
-            isThinking = false
-            print("Error: \(error.localizedDescription)")
+            continuation.finish()
         }
     }
 }
+
+// MARK: - Health Data Tool
 
 struct HealthDataTool: Tool {
     var name: String = "fetchHealthMetrics"
@@ -210,6 +214,7 @@ struct HealthDataTool: Tool {
         """
     }
 }
+
 //@available(iOS 26, *)
 //#Playground {
 //    let session = LanguageModelSession()
