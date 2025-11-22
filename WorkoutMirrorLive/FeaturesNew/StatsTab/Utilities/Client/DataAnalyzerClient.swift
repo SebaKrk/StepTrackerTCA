@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 #if canImport(FoundationModels)
 import FoundationModels
@@ -35,33 +36,35 @@ extension DataAnalyzerClient: DependencyKey {
     
     // MARK: - Live Value
     
-    static let liveValue = DataAnalyzerClient(
-        isAvailable: {
-            #if canImport(FoundationModels)
-            if #available(iOS 26, *) {
-                return await DataAnalyzer.shared.available
-            }
-            #endif
-            return false
-        },
-        streamAnalysis: {
-            #if canImport(FoundationModels)
-            if #available(iOS 26, *) {
-                let available = await DataAnalyzer.shared.available
-                
-                if available {
-                    // AI jest - zwróć prawdziwy stream z modelu
-                    return await DataAnalyzer.shared.streamAnalysis()
-                } else {
-                    // AI nie ma - zwróć mock stream
-                    return mockStream()
+    static let liveValue: DataAnalyzerClient = {
+        #if canImport(FoundationModels)
+        if #available(iOS 26, *) {
+            @Dependency(\.trainingReadinessClient) var readinessClient
+            
+            let analyzer = DataAnalyzer(readinessClient: readinessClient)
+            
+            return DataAnalyzerClient(
+                isAvailable: {
+                    await analyzer.available
+                },
+                streamAnalysis: {
+                    let available = await analyzer.available
+                    
+                    if available {
+                        return try await analyzer.streamAnalysis()
+                    } else {
+                        return mockStream()
+                    }
                 }
-            }
-            #endif
-            // iOS < 26 - zwróć mock stream
-            return mockStream()
+            )
         }
-    )
+        #endif
+        
+        return DataAnalyzerClient(
+            isAvailable: { false },
+            streamAnalysis: { mockStream() }
+        )
+    }()
     
     // MARK: - Mock Stream Helper
     
