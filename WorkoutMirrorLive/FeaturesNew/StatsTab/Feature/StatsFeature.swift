@@ -38,7 +38,7 @@ struct StatsFeature {
                 return .none
                 
             case let .updateDataAnalyzer(isAvailable):
-                state.isDataAnalyzerAvailable = isAvailable
+                //state.isDataAnalyzerAvailable = isAvailable
                 return .none
                 
             case .initializeTrainingReadiness:
