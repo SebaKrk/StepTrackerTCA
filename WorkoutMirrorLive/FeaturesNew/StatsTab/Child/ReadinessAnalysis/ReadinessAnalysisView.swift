@@ -17,22 +17,42 @@ struct ReadinessAnalysisView: View {
     
     @Bindable var store: StoreOf<ReadinessAnalysisFeature>
     
-    private var analyzer: DataAnalyzer { DataAnalyzer.shared }
-    
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    if analyzer.isThinking {
+                    switch store.viewState {
+                    case .idle:
+                        EmptyView()
+                        
+                    case .thinking:
                         thinkingView
-                    } else if let message = store.translatedText, !message.isEmpty, store.translate {
-                        aiResponseView(message)
-                    } else if let message = analyzer.coachMessage, !message.isEmpty {
-                        aiResponseView(message)
-                    } else {
-                        aiResponseView(store.fakeMessage)
+                        
+                    case .streaming(let partialText):
+                        aiResponseView(partialText, isStreaming: true)
+                        
+                    case .completed(let message):
+                        if let translatedText = store.translatedText,
+                           !translatedText.isEmpty,
+                           store.translate {
+                            aiResponseView(translatedText, isStreaming: false)
+                        } else {
+                            aiResponseView(message, isStreaming: false)
+                        }
+                        
+                    case .mockResponse(let fakeMessage):
+                        if let translatedText = store.translatedText,
+                           !translatedText.isEmpty,
+                           store.translate {
+                            mockResponseView(translatedText)
+                        } else {
+                            mockResponseView(fakeMessage)
+                        }
+                        
+                    case .failed(let error):
+                        errorView(error)
                     }
                 }
                 .padding()
@@ -48,10 +68,13 @@ struct ReadinessAnalysisView: View {
             .translationTask(store.configuration) { session in
                 if store.translate {
                     do {
-                        let response = try await session.translate(store.analysisText)
+                        let textToTranslate = getTextToTranslate()
+                        guard !textToTranslate.isEmpty else { return }
+                        
+                        let response = try await session.translate(textToTranslate)
                         send(.translateMessage(response.targetText))
                     } catch {
-                        // Handle any errors.
+                        // Handle translation errors
                     }
                 }
             }
@@ -75,7 +98,7 @@ struct ReadinessAnalysisView: View {
         .padding(.top, 60)
     }
     
-    private func aiResponseView(_ message: String) -> some View {
+    private func aiResponseView(_ message: String, isStreaming: Bool) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "apple.intelligence")
@@ -85,7 +108,7 @@ struct ReadinessAnalysisView: View {
                     .font(.headline)
                     .foregroundStyle(store.color)
                 
-                if analyzer.isThinking {
+                if isStreaming {
                     ProgressView()
                         .scaleEffect(0.8)
                 }
@@ -106,6 +129,63 @@ struct ReadinessAnalysisView: View {
         )
     }
     
+    private func mockResponseView(_ message: String) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "apple.intelligence")
+                    .foregroundStyle(store.color.opacity(0.6))
+                
+                Text("AI Coach")
+                    .font(.headline)
+                    .foregroundStyle(store.color.opacity(0.6))
+                
+                // Badge indicating mock data
+                Text("MOCK")
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.orange.opacity(0.2))
+                    .foregroundStyle(.orange)
+                    .clipShape(Capsule())
+            }
+            
+            Text(.init(message))
+                .font(.body)
+                .tint(store.color)
+                .foregroundStyle(.primary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(store.color.opacity(0.2), lineWidth: 1)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.orange.opacity(0.05))
+                )
+        )
+    }
+    
+    private func errorView(_ error: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .resizable()
+                .frame(width: 40, height: 40)
+                .foregroundStyle(.red)
+            
+            Text("Analysis Failed")
+                .font(.headline)
+            
+            Text(error)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+    }
+    
     @ToolbarContentBuilder
     private var toolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
@@ -120,24 +200,30 @@ struct ReadinessAnalysisView: View {
         
         ToolbarItem(placement: .topBarLeading) {
             Button {
-#if DEBUG
-                let message = store.fakeMessage
+                let message = getTextToTranslate()
                 send(.translateButtonTapped(message))
-#else
-                if let message = analyzer.coachMessage, !message.isEmpty {
-                    send(.translateButtonTapped(message))
-                }
-#endif
             } label: {
                 Image(systemName: "translate")
             }
+            .disabled(getTextToTranslate().isEmpty)
+        }
+    }
+    
+    // MARK: - Helpers
+    
+    private func getTextToTranslate() -> String {
+        switch store.viewState {
+        case .completed(let text), .mockResponse(let text):
+            return text
+        default:
+            return ""
         }
     }
 }
 
 // MARK: - Preview
 
-#Preview {
+#Preview("AI Available - Streaming") {
     if #available(iOS 26, *) {
         ReadinessAnalysisView(
             store: Store(
@@ -151,12 +237,30 @@ struct ReadinessAnalysisView: View {
     }
 }
 
+#Preview("AI Unavailable - Mock Response") {
+    if #available(iOS 26, *) {
+        ReadinessAnalysisView(
+            store: Store(
+                initialState: ReadinessAnalysisFeature.State()
+            ) {
+                ReadinessAnalysisFeature()
+            } withDependencies: {
+                $0.dataAnalyzerClient = .mockUnavailable
+            }
+        )
+    }
+}
 
-
-//    private let translationService = TranslationService()
-
-//    @State private var configuration = TranslationSession.Configuration(
-//        source: Locale.Language(identifier: "en"),
-//        target: Locale.Language(identifier: "pl")
-//    )
-//    @State var translate: Bool = false
+#Preview("Error State") {
+    if #available(iOS 26, *) {
+        ReadinessAnalysisView(
+            store: Store(
+                initialState: ReadinessAnalysisFeature.State(
+                    viewState: .failed("Network connection lost. Please try again.")
+                )
+            ) {
+                ReadinessAnalysisFeature()
+            }
+        )
+    }
+}
