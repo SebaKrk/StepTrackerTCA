@@ -80,13 +80,8 @@ struct StatsFeature {
                 }
                 
             case .view(.checkDataAnalyzerAvailability):
-//                if #available(iOS 26, *) {
-//                    let isAvailable = DataAnalyzer.shared.available
-//                    state.isDataAnalyzerAvailable = isAvailable
-//                }
-//                return .none
                 return .run { send in
-                    let isAvailable = await dataAnalyzerClient.isAvailable()
+                    let isAvailable = try await dataAnalyzerClient.isAvailable()
                     await send((.updateDataAnalyzer(isAvailable)))
                 }
                 

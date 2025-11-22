@@ -47,20 +47,20 @@ struct StatsView: View {
             .task {
                 send(.checkDataAnalyzerAvailability)
             }
-            
+        
             .padding([.leading, .trailing], 8)
             .background(LinearGradient(colors: [store.color.opacity(0.25
-                                                             ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                                                   ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
             .fullScreenCover(item: $store.scope(state: \.destination?.personSettings,
                                                 action: \.destination.personSettings)) { store in
                 PersonSettingsView(store: store)
                     .navigationTransition(.zoom(sourceID: "personSettings", in: zoomTransition))
             }
-            .sheet(item: $store.scope(state: \.destination?.readinessAnalysis,
-                                      action: \.destination.readinessAnalysis)) { store in
-                ReadinessAnalysisView(store: store)
-                    .presentationDetents([.medium, .large])
-            }
+                                                .sheet(item: $store.scope(state: \.destination?.readinessAnalysis,
+                                                                          action: \.destination.readinessAnalysis)) { store in
+                                                    ReadinessAnalysisView(store: store)
+                                                        .presentationDetents([.medium, .large])
+                                                }
     }
     
     @ToolbarContentBuilder
@@ -78,7 +78,12 @@ struct StatsView: View {
                 Image(systemName: "crown")
             }
         }
-        if store.isDataAnalyzerAvailable {
+#if DEBUG
+        let showDataAnalyzerButton = true
+#else
+        let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier == .elite
+#endif
+        if showDataAnalyzerButton {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     send(.dataAnalyzerButtonTapped)

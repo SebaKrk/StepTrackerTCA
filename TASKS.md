@@ -474,3 +474,8 @@
     - Prompt
     - Stream
     B: ReadinessAnalysisFeature
+    C: Framework Translation
+    D: Refactor - AsyncStream
+    E: Refactor - Actor and real data
+    - DataAnalyzer
+    - HealthDataTool -> TrainingReadinessMetricsTool
