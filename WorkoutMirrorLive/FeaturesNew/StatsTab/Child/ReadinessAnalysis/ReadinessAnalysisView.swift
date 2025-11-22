@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import Translation
 
 @available(iOS 26, *)
 @ViewAction(for: ReadinessAnalysisFeature.self)
@@ -24,13 +25,14 @@ struct ReadinessAnalysisView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    
                     if analyzer.isThinking {
                         thinkingView
-                    }
-                    
-                    if let message = analyzer.coachMessage, !message.isEmpty {
+                    } else if let message = store.translatedText, !message.isEmpty, store.translate {
                         aiResponseView(message)
+                    } else if let message = analyzer.coachMessage, !message.isEmpty {
+                        aiResponseView(message)
+                    } else {
+                        aiResponseView(store.fakeMessage)
                     }
                 }
                 .padding()
@@ -42,6 +44,16 @@ struct ReadinessAnalysisView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 send(.onAppear)
+            }
+            .translationTask(store.configuration) { session in
+                if store.translate {
+                    do {
+                        let response = try await session.translate(store.analysisText)
+                        send(.translateMessage(response.targetText))
+                    } catch {
+                        // Handle any errors.
+                    }
+                }
             }
         }
     }
@@ -105,6 +117,21 @@ struct ReadinessAnalysisView: View {
             .buttonStyle(.glassProminent)
             .tint(store.color)
         }
+        
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+#if DEBUG
+                let message = store.fakeMessage
+                send(.translateButtonTapped(message))
+#else
+                if let message = analyzer.coachMessage, !message.isEmpty {
+                    send(.translateButtonTapped(message))
+                }
+#endif
+            } label: {
+                Image(systemName: "translate")
+            }
+        }
     }
 }
 
@@ -123,3 +150,13 @@ struct ReadinessAnalysisView: View {
         )
     }
 }
+
+
+
+//    private let translationService = TranslationService()
+
+//    @State private var configuration = TranslationSession.Configuration(
+//        source: Locale.Language(identifier: "en"),
+//        target: Locale.Language(identifier: "pl")
+//    )
+//    @State var translate: Bool = false

@@ -474,3 +474,5 @@
     - Prompt
     - Stream
     B: ReadinessAnalysisFeature
+    C: Framework Translation
+
