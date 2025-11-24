@@ -30,5 +30,11 @@ extension ReadinessAnalysisFeature {
         
         /// Translation toggle
         var translate: Bool = false
+        
+        /// Streaming translation state
+        var isTranslating: Bool = false
+        
+        /// Partial translation during streaming
+        var partialTranslation: String = ""
     }
 }

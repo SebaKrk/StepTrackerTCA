@@ -45,6 +45,15 @@ extension ReadinessAnalysisFeature {
             
             /// Trigger translation toggle
             case triggerTranslation
+            
+            /// Start streaming translation
+            case startStreamingTranslation
+            
+            /// Received partial translation during streaming
+            case partialTranslationReceived(String)
+            
+            /// Translation completed with final text
+            case translationCompleted(String)
         }
         
         case view(View)

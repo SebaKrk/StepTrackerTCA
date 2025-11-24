@@ -34,19 +34,23 @@ struct ReadinessAnalysisView: View {
                         aiResponseView(partialText, isStreaming: true)
                         
                     case .completed(let message):
-                        if let translatedText = store.translatedText,
-                           !translatedText.isEmpty,
-                           store.translate {
-                            aiResponseView(translatedText, isStreaming: false)
+                        if store.isTranslating {
+                            translatingView(store.partialTranslation)
+                        } else if let translatedText = store.translatedText,
+                                  !translatedText.isEmpty,
+                                  store.translate {
+                            aiResponseView(translatedText, isStreaming: false, isTranslated: true)
                         } else {
                             aiResponseView(message, isStreaming: false)
                         }
                         
                     case .mockResponse(let fakeMessage):
-                        if let translatedText = store.translatedText,
-                           !translatedText.isEmpty,
-                           store.translate {
-                            mockResponseView(translatedText)
+                        if store.isTranslating {
+                            translatingView(store.partialTranslation)
+                        } else if let translatedText = store.translatedText,
+                                  !translatedText.isEmpty,
+                                  store.translate {
+                            mockResponseView(translatedText, isTranslated: true)
                         } else {
                             mockResponseView(fakeMessage)
                         }
@@ -66,16 +70,17 @@ struct ReadinessAnalysisView: View {
                 send(.onAppear)
             }
             .translationTask(store.configuration) { session in
-                if store.translate {
-                    do {
-                        let textToTranslate = getTextToTranslate()
-                        guard !textToTranslate.isEmpty else { return }
-                        
-                        let response = try await session.translate(textToTranslate)
-                        send(.translateMessage(response.targetText))
-                    } catch {
-                        // Handle translation errors
-                    }
+                guard store.translate else { return }
+                
+                do {
+                    let textToTranslate = getTextToTranslate()
+                    guard !textToTranslate.isEmpty else { return }
+                    
+                    let response = try await session.translate(textToTranslate)
+                    send(.translateMessage(response.targetText))
+                    
+                } catch {
+                    // TODO: - error
                 }
             }
         }
@@ -98,13 +103,44 @@ struct ReadinessAnalysisView: View {
         .padding(.top, 60)
     }
     
-    private func aiResponseView(_ message: String, isStreaming: Bool) -> some View {
+    private func translatingView(_ partialText: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: "apple.intelligence")
+                Image(systemName: "translate")
                     .foregroundStyle(store.color)
                 
-                Text("AI Coach")
+                Text("Translating...")
+                    .font(.headline)
+                    .foregroundStyle(store.color)
+                
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
+            
+            if !partialText.isEmpty {
+                Text(.init(partialText))
+                    .font(.body)
+                    .tint(store.color)
+                    .foregroundStyle(.primary)
+                    .contentTransition(.interpolate)
+                    .animation(.easeInOut(duration: 0.3), value: partialText)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(store.color.opacity(0.3), lineWidth: 1)
+        )
+    }
+    
+    private func aiResponseView(_ message: String, isStreaming: Bool, isTranslated: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: isTranslated ? "translate" : "apple.intelligence")
+                    .foregroundStyle(store.color)
+                
+                Text(isTranslated ? "AI Coach (Translated)" : "AI Coach")
                     .font(.headline)
                     .foregroundStyle(store.color)
                 
@@ -129,13 +165,13 @@ struct ReadinessAnalysisView: View {
         )
     }
     
-    private func mockResponseView(_ message: String) -> some View {
+    private func mockResponseView(_ message: String, isTranslated: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: "apple.intelligence")
+                Image(systemName: isTranslated ? "translate" : "apple.intelligence")
                     .foregroundStyle(store.color.opacity(0.6))
                 
-                Text("AI Coach")
+                Text(isTranslated ? "AI Coach (Translated)" : "AI Coach")
                     .font(.headline)
                     .foregroundStyle(store.color.opacity(0.6))
                 
@@ -205,7 +241,7 @@ struct ReadinessAnalysisView: View {
             } label: {
                 Image(systemName: "translate")
             }
-            .disabled(getTextToTranslate().isEmpty)
+            .disabled(getTextToTranslate().isEmpty || store.isTranslating)
         }
     }
     
