@@ -96,7 +96,7 @@ struct ReadinessAnalysisFeature {
                 state.viewState = .failed(error)
                 return .none
                 
-                // MARK: - Transaltion
+                // MARK: - Translation
                 
             case .internal(.translateConfiguration):
                 if state.configuration == nil {
@@ -104,14 +104,27 @@ struct ReadinessAnalysisFeature {
                         source: Locale.Language(identifier: "en"),
                         target: Locale.Language(identifier: "pl")
                     )
-                } else {
-                    state.configuration?.invalidate()
                 }
                 
-                return .send(.internal(.triggerTranslation))
+                return .send(.internal(.startStreamingTranslation))
                 
             case .internal(.triggerTranslation):
                 state.translate.toggle()
+                return .none
+                
+            case .internal(.startStreamingTranslation):
+                state.isTranslating = true
+                state.partialTranslation = ""
+                state.translate = true
+                return .none
+                
+            case .internal(.partialTranslationReceived(let partial)):
+                state.partialTranslation = partial
+                return .none
+                
+            case .internal(.translationCompleted(let final)):
+                state.translatedText = final
+                state.isTranslating = false
                 return .none
                 
                 // MARK: - View Actions
@@ -129,7 +142,20 @@ struct ReadinessAnalysisFeature {
                 
             case .view(.translateMessage(let message)):
                 state.translatedText = message
-                return .none
+                
+                // Simulate streaming effect
+                return .run { send in
+                    let words = message.split(separator: " ")
+                    var accumulated = ""
+                    
+                    for word in words {
+                        accumulated += (accumulated.isEmpty ? "" : " ") + word
+                        await send(.internal(.partialTranslationReceived(accumulated)))
+                        try? await Task.sleep(nanoseconds: 50_000_000) // 50ms delay
+                    }
+                    
+                    await send(.internal(.translationCompleted(message)))
+                }
             }
         }
         ._printChanges()

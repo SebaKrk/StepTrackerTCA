@@ -1,5 +1,5 @@
 //
-//  ViewState.swift
+//  ReadinessViewState.swift
 //  MyFitnessJournal
 //
 //  Created by Sebastian Sciuba on 22/11/2025.
