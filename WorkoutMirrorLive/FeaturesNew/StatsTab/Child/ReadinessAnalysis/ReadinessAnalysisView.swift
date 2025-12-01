@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import Translation
+import FoundationModels
 
 @available(iOS 26, *)
 @ViewAction(for: ReadinessAnalysisFeature.self)
@@ -30,25 +31,35 @@ struct ReadinessAnalysisView: View {
                     case .thinking:
                         thinkingView
                         
-                    case .streaming(let partialText):
-                        aiResponseView(partialText, isStreaming: true)
-                        
-                    case .completed(let message):
-                        if let translatedText = store.translatedText,
-                           !translatedText.isEmpty,
-                           store.translate {
-                            aiResponseView(translatedText, isStreaming: false)
+                    case .streaming:
+                        if store.isMockResponse {
+                            // Mock: use regular String
+                            aiResponseView(store.mockMessage, isStreaming: true)
                         } else {
-                            aiResponseView(message, isStreaming: false)
+                            // AI: use String.PartiallyGenerated
+                            aiResponseViewPartial(isStreaming: true)
                         }
                         
-                    case .mockResponse(let fakeMessage):
-                        if let translatedText = store.translatedText,
-                           !translatedText.isEmpty,
-                           store.translate {
-                            mockResponseView(translatedText)
+                    case .completed:
+                        if store.isTranslating {
+                            translatingView(store.partialTranslation)
+                        } else if let translatedText = store.translatedText,
+                                  !translatedText.isEmpty,
+                                  store.translate {
+                            aiResponseView(translatedText, isStreaming: false, isTranslated: true)
                         } else {
-                            mockResponseView(fakeMessage)
+                            aiResponseViewPartial(isStreaming: false)
+                        }
+                        
+                    case .mockResponse:
+                        if store.isTranslating {
+                            translatingView(store.partialTranslation)
+                        } else if let translatedText = store.translatedText,
+                                  !translatedText.isEmpty,
+                                  store.translate {
+                            mockResponseView(translatedText, isTranslated: true)
+                        } else {
+                            mockResponseView(store.mockMessage, isTranslated: false)
                         }
                         
                     case .failed(let error):
@@ -66,16 +77,20 @@ struct ReadinessAnalysisView: View {
                 send(.onAppear)
             }
             .translationTask(store.configuration) { session in
-                if store.translate {
-                    do {
-                        let textToTranslate = getTextToTranslate()
-                        guard !textToTranslate.isEmpty else { return }
-                        
-                        let response = try await session.translate(textToTranslate)
-                        send(.translateMessage(response.targetText))
-                    } catch {
-                        // Handle translation errors
-                    }
+                guard store.translate else { return }
+                
+                do {
+                    let textToTranslate = store.currentMessage
+                    guard !textToTranslate.isEmpty else { return }
+                    
+                    let response = try await session.translate(textToTranslate)
+                    send(.translateMessage(response.targetText))
+                    
+                } catch {
+                    // Fallback: if translation fails, simulate with original text
+                    let textToTranslate = store.currentMessage
+                    guard !textToTranslate.isEmpty else { return }
+                    send(.translateMessage(textToTranslate))
                 }
             }
         }
@@ -98,13 +113,79 @@ struct ReadinessAnalysisView: View {
         .padding(.top, 60)
     }
     
-    private func aiResponseView(_ message: String, isStreaming: Bool) -> some View {
+    private func translatingView(_ partialText: String) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "translate")
+                    .foregroundStyle(store.color)
+                
+                Text("Translating...")
+                    .font(.headline)
+                    .foregroundStyle(store.color)
+                
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
+            
+            if !partialText.isEmpty {
+                Text(.init(partialText))
+                    .font(.body)
+                    .tint(store.color)
+                    .foregroundStyle(.primary)
+                    .contentTransition(.interpolate)
+                    .animation(.easeInOut(duration: 0.3), value: partialText)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(store.color.opacity(0.3), lineWidth: 1)
+        )
+    }
+    
+    /// AI response view using String.PartiallyGenerated directly
+    private func aiResponseViewPartial(isStreaming: Bool) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "apple.intelligence")
                     .foregroundStyle(store.color)
                 
                 Text("AI Coach")
+                    .font(.headline)
+                    .foregroundStyle(store.color)
+                
+                if isStreaming {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                }
+            }
+            
+            if let message = store.coachMessage {
+                Text(.init(message))
+                    .font(.body)
+                    .tint(store.color)
+                    .foregroundStyle(.primary)
+                    .contentTransition(.interpolate)
+                    .animation(.easeInOut(duration: 0.8), value: store.coachMessage)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(store.color.opacity(0.3), lineWidth: 1)
+        )
+    }
+    
+    /// AI response view using regular String (for mock or translated)
+    private func aiResponseView(_ message: String, isStreaming: Bool, isTranslated: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: isTranslated ? "translate" : "apple.intelligence")
+                    .foregroundStyle(store.color)
+                
+                Text(isTranslated ? "AI Coach (Translated)" : "AI Coach")
                     .font(.headline)
                     .foregroundStyle(store.color)
                 
@@ -129,17 +210,16 @@ struct ReadinessAnalysisView: View {
         )
     }
     
-    private func mockResponseView(_ message: String) -> some View {
+    private func mockResponseView(_ message: String, isTranslated: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: "apple.intelligence")
+                Image(systemName: isTranslated ? "translate" : "apple.intelligence")
                     .foregroundStyle(store.color.opacity(0.6))
                 
-                Text("AI Coach")
+                Text(isTranslated ? "AI Coach (Translated)" : "AI Coach")
                     .font(.headline)
                     .foregroundStyle(store.color.opacity(0.6))
                 
-                // Badge indicating mock data
                 Text("MOCK")
                     .font(.caption2)
                     .fontWeight(.bold)
@@ -200,67 +280,53 @@ struct ReadinessAnalysisView: View {
         
         ToolbarItem(placement: .topBarLeading) {
             Button {
-                let message = getTextToTranslate()
+                let message = store.currentMessage
                 send(.translateButtonTapped(message))
             } label: {
                 Image(systemName: "translate")
             }
-            .disabled(getTextToTranslate().isEmpty)
-        }
-    }
-    
-    // MARK: - Helpers
-    
-    private func getTextToTranslate() -> String {
-        switch store.viewState {
-        case .completed(let text), .mockResponse(let text):
-            return text
-        default:
-            return ""
+            .disabled(store.currentMessage.isEmpty || store.isTranslating)
         }
     }
 }
 
 // MARK: - Preview
 
+@available(iOS 26, *)
 #Preview("AI Available - Streaming") {
-    if #available(iOS 26, *) {
-        ReadinessAnalysisView(
-            store: Store(
-                initialState: ReadinessAnalysisFeature.State()
-            ) {
-                ReadinessAnalysisFeature()
-            } withDependencies: {
-                $0.dataAnalyzerClient = .previewValue
-            }
-        )
-    }
+    ReadinessAnalysisView(
+        store: Store(
+            initialState: ReadinessAnalysisFeature.State()
+        ) {
+            ReadinessAnalysisFeature()
+        } withDependencies: {
+            $0.dataAnalyzerClient = .previewValue
+        }
+    )
 }
 
+@available(iOS 26, *)
 #Preview("AI Unavailable - Mock Response") {
-    if #available(iOS 26, *) {
-        ReadinessAnalysisView(
-            store: Store(
-                initialState: ReadinessAnalysisFeature.State()
-            ) {
-                ReadinessAnalysisFeature()
-            } withDependencies: {
-                $0.dataAnalyzerClient = .mockUnavailable
-            }
-        )
-    }
+    ReadinessAnalysisView(
+        store: Store(
+            initialState: ReadinessAnalysisFeature.State()
+        ) {
+            ReadinessAnalysisFeature()
+        } withDependencies: {
+            $0.dataAnalyzerClient = .mockUnavailable
+        }
+    )
 }
 
+@available(iOS 26, *)
 #Preview("Error State") {
-    if #available(iOS 26, *) {
-        ReadinessAnalysisView(
-            store: Store(
-                initialState: ReadinessAnalysisFeature.State(
-                    viewState: .failed("Network connection lost. Please try again.")
-                )
-            ) {
-                ReadinessAnalysisFeature()
-            }
-        )
-    }
+    ReadinessAnalysisView(
+        store: Store(
+            initialState: ReadinessAnalysisFeature.State(
+                viewState: .failed("Network connection lost. Please try again.")
+            )
+        ) {
+            ReadinessAnalysisFeature()
+        }
+    )
 }

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import FoundationModels
 
 extension ReadinessAnalysisFeature {
     
@@ -22,8 +23,8 @@ extension ReadinessAnalysisFeature {
             /// AI is available - start streaming analysis
             case aiAvailable
             
-            /// Received partial message from stream
-            case partialReceived(String)
+            /// Received partial message from AI stream (String.PartiallyGenerated)
+            case partialReceived(String.PartiallyGenerated)
             
             /// Analysis completed successfully
             case analysisCompleted
@@ -31,7 +32,7 @@ extension ReadinessAnalysisFeature {
             /// AI unavailable - show mock response
             case aiUnavailable
             
-            /// Received partial mock message from stream
+            /// Received partial mock message from stream (regular String)
             case mockPartialReceived(String)
             
             /// Mock analysis completed
@@ -45,6 +46,15 @@ extension ReadinessAnalysisFeature {
             
             /// Trigger translation toggle
             case triggerTranslation
+            
+            /// Start streaming translation
+            case startStreamingTranslation
+            
+            /// Received partial translation during streaming
+            case partialTranslationReceived(String)
+            
+            /// Translation completed with final text
+            case translationCompleted(String)
         }
         
         case view(View)
@@ -56,7 +66,7 @@ extension ReadinessAnalysisFeature {
             /// User tapped checkmark to dismiss
             case checkmarkButtonTapped
             
-            /// User tapped translate button
+            /// User tapped translate button with message to translate
             case translateButtonTapped(String)
             
             /// Translated message received
