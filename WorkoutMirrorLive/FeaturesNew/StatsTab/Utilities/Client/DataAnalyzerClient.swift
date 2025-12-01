@@ -17,12 +17,13 @@ import FoundationModels
 struct DataAnalyzerClient: Sendable {
     
     /// Checks if Apple Intelligence is available on this device
-    /// - Throws: If checking availability fails
     var isAvailable: @Sendable () async throws -> Bool
     
-    /// Streams AI analysis character by character
-    /// - Throws: If AI model is unavailable or analysis fails
-    var streamAnalysis: @Sendable () async throws -> AsyncStream<String>
+    /// Streams AI analysis with String.PartiallyGenerated for live updates (real AI)
+    var streamAnalysis: @Sendable () async throws -> AsyncThrowingStream<String.PartiallyGenerated, Error>
+    
+    /// Streams mock analysis with regular String (no AI required)
+    var streamMockAnalysis: @Sendable () async throws -> AsyncStream<String>
 }
 
 extension DependencyValues {
@@ -32,41 +33,30 @@ extension DependencyValues {
     }
 }
 
+@available(iOS 26, *)
 extension DataAnalyzerClient: DependencyKey {
     
     // MARK: - Live Value
     
     static let liveValue: DataAnalyzerClient = {
-        #if canImport(FoundationModels)
-        if #available(iOS 26, *) {
-            @Dependency(\.trainingReadinessClient) var readinessClient
-            
-            let analyzer = DataAnalyzer(readinessClient: readinessClient)
-            
-            return DataAnalyzerClient(
-                isAvailable: {
-                    await analyzer.available
-                },
-                streamAnalysis: {
-                    let available = await analyzer.available
-                    
-                    if available {
-                        return try await analyzer.streamAnalysis()
-                    } else {
-                        return mockStream()
-                    }
-                }
-            )
-        }
-        #endif
+        @Dependency(\.trainingReadinessClient) var readinessClient
+        
+        let analyzer = DataAnalyzer(readinessClient: readinessClient)
         
         return DataAnalyzerClient(
-            isAvailable: { false },
-            streamAnalysis: { mockStream() }
+            isAvailable: {
+                await analyzer.available
+            },
+            streamAnalysis: {
+                try await analyzer.streamAnalysis()
+            },
+            streamMockAnalysis: {
+                mockStream()
+            }
         )
     }()
     
-    // MARK: - Mock Stream Helper
+    // MARK: - Mock Stream Helper (no AI required!)
     
     private static func mockStream() -> AsyncStream<String> {
         AsyncStream { continuation in
@@ -107,15 +97,26 @@ extension DataAnalyzerClient: DependencyKey {
     
     static let previewValue = DataAnalyzerClient(
         isAvailable: { true },
-        streamAnalysis: { mockStream() }
+        streamAnalysis: {
+            AsyncThrowingStream { continuation in
+                continuation.finish()
+            }
+        },
+        streamMockAnalysis: { mockStream() }
     )
 }
 
 // MARK: - Mock Preview (AI Unavailable)
 
+@available(iOS 26, *)
 extension DataAnalyzerClient {
     static let mockUnavailable = DataAnalyzerClient(
         isAvailable: { false },
-        streamAnalysis: { mockStream() }
+        streamAnalysis: {
+            AsyncThrowingStream { continuation in
+                continuation.finish()
+            }
+        },
+        streamMockAnalysis: { mockStream() }
     )
 }

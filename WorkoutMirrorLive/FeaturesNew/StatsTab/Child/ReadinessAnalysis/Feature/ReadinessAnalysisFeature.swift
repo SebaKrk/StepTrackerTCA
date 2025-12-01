@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SwiftUI
 import SharedModels
 import Translation
+import FoundationModels
 
 @Reducer
 struct ReadinessAnalysisFeature {
@@ -42,10 +43,13 @@ struct ReadinessAnalysisFeature {
                 
             case .internal(.aiAvailable):
                 state.viewState = .thinking
+                state.coachMessage = nil
+                state.mockMessage = ""
+                state.isMockResponse = false
                 
                 return .run { send in
                     do {
-                        for await partial in try await dataAnalyzerClient.streamAnalysis() {
+                        for try await partial in try await dataAnalyzerClient.streamAnalysis() {
                             await send(.internal(.partialReceived(partial)))
                         }
                         await send(.internal(.analysisCompleted))
@@ -54,24 +58,27 @@ struct ReadinessAnalysisFeature {
                     }
                 }
                 
-            case .internal(.partialReceived(let text)):
-                state.viewState = .streaming(text)
+            case .internal(.partialReceived(let partial)):
+                state.viewState = .streaming
+                state.coachMessage = partial
                 return .none
                 
             case .internal(.analysisCompleted):
-                if case .streaming(let text) = state.viewState {
-                    state.viewState = .completed(text)
-                }
+                state.viewState = .completed
                 return .none
                 
                 // MARK: - Unavailable & MOCK
                 
             case .internal(.aiUnavailable):
                 state.viewState = .thinking
+                state.coachMessage = nil
+                state.mockMessage = ""
+                state.isMockResponse = true
                 
                 return .run { send in
                     do {
-                        for await partial in try await dataAnalyzerClient.streamAnalysis() {
+                        // Mock uses regular String stream (no AI required!)
+                        for await partial in try await dataAnalyzerClient.streamMockAnalysis() {
                             await send(.internal(.mockPartialReceived(partial)))
                         }
                         await send(.internal(.mockCompleted))
@@ -81,13 +88,12 @@ struct ReadinessAnalysisFeature {
                 }
                 
             case .internal(.mockPartialReceived(let text)):
-                state.viewState = .streaming(text)
+                state.viewState = .streaming
+                state.mockMessage = text
                 return .none
                 
             case .internal(.mockCompleted):
-                if case .streaming(let text) = state.viewState {
-                    state.viewState = .mockResponse(text)
-                }
+                state.viewState = .mockResponse
                 return .none
                 
                 // MARK: - Failed
@@ -133,7 +139,7 @@ struct ReadinessAnalysisFeature {
                 return .send(.internal(.checkAvailability))
                 
             case .view(.checkmarkButtonTapped):
-                return .run { send in
+                return .run { _ in
                     await self.dismiss()
                 }
                 
@@ -143,7 +149,6 @@ struct ReadinessAnalysisFeature {
             case .view(.translateMessage(let message)):
                 state.translatedText = message
                 
-                // Simulate streaming effect
                 return .run { send in
                     let words = message.split(separator: " ")
                     var accumulated = ""
@@ -151,7 +156,7 @@ struct ReadinessAnalysisFeature {
                     for word in words {
                         accumulated += (accumulated.isEmpty ? "" : " ") + word
                         await send(.internal(.partialTranslationReceived(accumulated)))
-                        try? await Task.sleep(nanoseconds: 50_000_000) // 50ms delay
+                        try? await Task.sleep(nanoseconds: 50_000_000)
                     }
                     
                     await send(.internal(.translationCompleted(message)))
@@ -160,5 +165,4 @@ struct ReadinessAnalysisFeature {
         }
         ._printChanges()
     }
-    
 }

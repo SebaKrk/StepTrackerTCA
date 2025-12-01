@@ -14,14 +14,14 @@ enum ReadinessViewState: Equatable {
     /// Model myśli - pokazujemy spinner
     case thinking
     
-    /// Stream partial response - pokazujemy tekst na bieżąco
-    case streaming(String)
+    /// Stream partial response - tekst generowany na bieżąco
+    case streaming
     
     /// Finalna odpowiedź z modelu
-    case completed(String)
+    case completed
     
-    /// Fake response gdy AI niedostępne (możesz testować tłumaczenie)
-    case mockResponse(String)
+    /// Fake response gdy AI niedostępne
+    case mockResponse
     
     /// Error state
     case failed(String)
