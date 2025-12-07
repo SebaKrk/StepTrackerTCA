@@ -480,5 +480,5 @@
     - DataAnalyzer
     - HealthDataTool -> TrainingReadinessMetricsTool
     
-### IOS-00051 Translation
+### IOS-00052 Translation
     A: Stream Translation
