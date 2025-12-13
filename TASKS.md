@@ -485,5 +485,6 @@
 
 ### IOS-00053 ActivityTab
     A: Create Activity Feature
-
+    - create ActivityClient
+    - create ActivityManager
 

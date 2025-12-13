@@ -12,6 +12,10 @@ import SharedModels
 
 @Reducer
 struct ActivitiesFeature {
+        
+    // MARK: - Dependency
+    
+    @Dependency(\.activityClient) var activityClient
     
     // MARK: - Reducer
     
