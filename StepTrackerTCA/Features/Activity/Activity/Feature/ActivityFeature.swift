@@ -47,6 +47,7 @@ struct ActivityFeature {
                     }
                 case let .updateHKData(.success(data)):
                     state.workouts = data
+                    dump(data)
                     return .none
                     
                 case let .updateHKData(.failure(error)):

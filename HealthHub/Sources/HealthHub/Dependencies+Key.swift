@@ -195,3 +195,24 @@ public extension DependencyValues {
     }
 }
 
+/// A TCA dependency key for managing activity/workout history retrieval.
+public enum ActivityManagerKey: DependencyKey {
+    public static let liveValue: ActivityManager = {
+
+        @Dependency(\.healthStore) var healthStore
+        
+        let manager = DefaultActivityManager(healthStore: healthStore)
+
+        print("Dependency - ✅ ActivityManagerKey: ActivityManager created successfully")
+        return manager
+    }()
+}
+
+public extension DependencyValues {
+    var activityManager: ActivityManager {
+        get { self[ActivityManagerKey.self] }
+        set { self[ActivityManagerKey.self] = newValue }
+    }
+}
+
+

@@ -482,3 +482,9 @@
     
 ### IOS-00052 Translation
     A: Stream Translation
+
+### IOS-00053 ActivityTab
+    A: Create Activity Feature
+    - create ActivityClient
+    - create ActivityManager
+
