@@ -66,7 +66,9 @@ struct ActivitiesView: View {
         .navigationTitle("Activity")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            toolbarButton
+            if !store.workouts.isEmpty {
+                toolbarButton
+            }
         }
     }
     
@@ -89,13 +91,21 @@ struct ActivitiesView: View {
     private var personalActivityView: some View {
         List {
             if store.workouts.isEmpty {
-                Text("Brak treningow")
+                emptyWorkoutsView
             } else {
                 ForEach(store.workouts, id: \.uuid) { workout in
                     Text(workout.workoutActivityType.name)
                 }
             }
         }
+    }
+    
+    private var emptyWorkoutsView: some View {
+        ContentUnavailableView(
+            "No Workouts",
+            systemImage: "figure.run",
+            description: Text("No workouts found for the selected period. Make sure you have granted HealthKit access and recorded some workouts.")
+        )
     }
     
     private var teamActivityView: some View {
