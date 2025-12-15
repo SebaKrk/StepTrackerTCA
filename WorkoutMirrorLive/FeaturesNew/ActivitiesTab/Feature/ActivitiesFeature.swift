@@ -7,9 +7,15 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthKit
+import SharedModels
 
 @Reducer
 struct ActivitiesFeature {
+    
+    // MARK: - Dependency
+    
+    @Dependency(\.activityClient) var activityClient
     
     // MARK: - Reducer
     
@@ -19,17 +25,46 @@ struct ActivitiesFeature {
                 
                 // MARK: - Action
                 
+            case let .selectedPickerChange(value):
+                state.context = value
+                return .none
+                
+            case let .changeViewState(value):
+                state.viewState = value
+                return .none
+                
+            case .fetchWorkouts:
+                let days = state.days  
+                let descriptors = state.sortDescriptors
+                return .run { send in
+                    await send(.workoutsFetched(
+                        Result {
+                            try await activityClient.fetchWorkouts(days, descriptors)
+                        }
+                    ))
+                }
+                
+            case let .workoutsFetched(.success(workouts)):
+                state.workouts = workouts
+                return .send(.changeViewState(.success))
+                
+            case let .workoutsFetched(.failure(message)):
+                dump(message)
+                return .send(.changeViewState(.failed))
+                
                 // MARK: - View Action
+                
             case .view(.viewDidAppear):
+                return .send(.fetchWorkouts)
+                
+            case .view(.changeDays(_)):
                 return .none
                 
-            case .view(.settingsButtonTapped):
-                state.destination = .settings(SettingsFeature.State())
-                return .none
+            case let.view(.changeSortOption(value)):
+                state.sortDescriptors = value
+                return .send(.fetchWorkouts)
                 
-            case .view(.activitiesButtonTapped):
-                state.destination = .animationTest(AnimationFeature.State())
-                return .none
+                // MARK: - Destination
                 
             case .destination(_):
                 return .none
@@ -39,65 +74,4 @@ struct ActivitiesFeature {
     }
 }
 
-/// Implementation of `ActivitiesFeature` action
-extension ActivitiesFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Actions
-        
-        // MARK: - View Actions
-        
-        case view(View)
-        
-        enum View {
-                    
-            /// Action triggered when the view appears on the screen.
-            case viewDidAppear
-            
-            case settingsButtonTapped
-            
-            case activitiesButtonTapped
-            
-        }
-        
-        // MARK: - Destination
-        
-        /// Action to handle navigation destinations within this feature.
-        case destination(PresentationAction<Destination.Action>)
-    }
-}
-
-/// Implementation of `ActivitiesFeature` state
-extension ActivitiesFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        var badgeCount: Int = 5
-        
-        // MARK: - Destination
-        
-        /// destination from ActivitiesFeature
-        @Presents var destination: Destination.State?
-    }
-    
-}
-
-/// Implementation of `ActivitiesFeature` destination
-extension ActivitiesFeature {
-    
-    @Reducer
-    enum Destination {
-        
-        /// Represents the destination for displaying in `SettingsFeature`.
-        case settings(SettingsFeature)
-        
-        /// Represents the destination for displaying in `AnimationFeature`.
-        case animationTest(AnimationFeature)
-    }
-}
 
