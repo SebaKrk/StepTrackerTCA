@@ -40,6 +40,8 @@ import SharedModels
 /// ```
 public final class HealthKitQueryBuilder {
     
+    // MARK: - Date Range
+    
     /// Calculates the date range for the last specified number of days.
     ///
     /// This method creates a date range starting from the specified number of days ago
@@ -61,6 +63,8 @@ public final class HealthKitQueryBuilder {
         let startDate = calendar.date(byAdding: .day, value: -days, to: endDate)!
         return (startDate, endDate)
     }
+    
+    // MARK: - Statistics Queries
 
     /// Builds a statistics collection query descriptor for the specified parameters.
     ///
@@ -128,7 +132,11 @@ public final class HealthKitQueryBuilder {
     /// )
     /// // Result: [HealthKitData(date: today, value: 75.2), ...]
     /// ```
-    public static func processHealthKitData(_ statistics: [HKStatistics], unit: HKUnit, options: HKStatisticsOptions) -> [HealthKitData] {
+    public static func processHealthKitData(
+        _ statistics: [HKStatistics],
+        unit: HKUnit,
+        options: HKStatisticsOptions
+    ) -> [HealthKitData] {
         statistics.map {
             let value: Double
             switch options {
@@ -143,11 +151,12 @@ public final class HealthKitQueryBuilder {
         }
     }
     
-    /// Fetches workouts from HealthKit within the specified date range.
+    // MARK: - Workout Queries
+    
+    /// Fetches workouts from HealthKit within the specified date range using continuation-based API.
     ///
-    /// This method retrieves all workout samples that occurred between the start and end dates.
-    /// It's useful for analyzing training load, calculating workout-specific energy expenditure,
-    /// or retrieving workout metadata.
+    /// This method retrieves all workout samples that occurred between the start and end dates
+    /// using the older `HKSampleQuery` API wrapped in async/await.
     ///
     /// - Parameters:
     ///   - startDate: The beginning of the date range for workout retrieval
@@ -155,9 +164,20 @@ public final class HealthKitQueryBuilder {
     ///   - healthStore: The `HKHealthStore` instance to execute the query against
     /// - Returns: Array of `HKWorkout` objects found within the specified range
     /// - Throws: HealthKit errors if data access fails
-    public static func fetchWorkouts(from startDate: Date, to endDate: Date, healthStore: HKHealthStore) async throws -> [HKWorkout] {
+    ///
+    /// - Note: Consider using ``fetchWorkoutsWithDescriptor(from:to:sortOption:healthStore:)``
+    ///   for native async/await support and type-safe sorting.
+    public static func fetchWorkouts(
+        from startDate: Date,
+        to endDate: Date,
+        healthStore: HKHealthStore
+    ) async throws -> [HKWorkout] {
         try await withCheckedThrowingContinuation { continuation in
-            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+            let predicate = HKQuery.predicateForSamples(
+                withStart: startDate,
+                end: endDate,
+                options: .strictStartDate
+            )
             let query = HKSampleQuery(
                 sampleType: .workoutType(),
                 predicate: predicate,
@@ -175,65 +195,53 @@ public final class HealthKitQueryBuilder {
         }
     }
     
-    /// Fetches workouts from HealthKit using the descriptor-based API.
+    /// Fetches workouts from HealthKit using the descriptor-based API with date range.
     ///
     /// This method uses `HKSampleQueryDescriptor` which provides:
     /// - Native async/await support without continuations
-    /// - Type-safe KeyPath-based sorting
+    /// - Type-safe sorting via `ActivitiesSortOption`
     /// - Composable predicate system
     /// - Better compiler checking and code readability
     ///
     /// - Parameters:
     ///   - startDate: The beginning of the date range for workout retrieval
     ///   - endDate: The end of the date range for workout retrieval
-    ///   - sortDescriptors: Array of sort descriptors to order results (default: by endDate descending)
+    ///   - sortOption: Sort option to order results (default: `.newestFirst`)
     ///   - healthStore: The `HKHealthStore` instance to execute the query against
-    /// - Returns: Array of `HKWorkout` objects sorted according to provided descriptors
+    /// - Returns: Array of `HKWorkout` objects sorted according to provided option
     /// - Throws: HealthKit errors if data access fails
     ///
     /// ## Example
     /// ```swift
     /// // Default sorting (newest first)
     /// let workouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-    ///     from: start,
-    ///     to: end,
+    ///     from: startDate,
+    ///     to: endDate,
     ///     healthStore: healthStore
     /// )
     ///
     /// // Custom sorting (longest workouts first)
     /// let workouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-    ///     from: start,
-    ///     to: end,
-    ///     sortDescriptors: [SortDescriptor(\HKWorkout.duration, order: .reverse)],
-    ///     healthStore: healthStore
-    /// )
-    ///
-    /// // Multiple sort criteria
-    /// let workouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-    ///     from: start,
-    ///     to: end,
-    ///     sortDescriptors: [
-    ///         SortDescriptor(\HKWorkout.workoutActivityType, order: .forward),
-    ///         SortDescriptor(\HKWorkout.endDate, order: .reverse)
-    ///     ],
+    ///     from: startDate,
+    ///     to: endDate,
+    ///     sortOption: .longestFirst,
     ///     healthStore: healthStore
     /// )
     /// ```
     public static func fetchWorkoutsWithDescriptor(
         from startDate: Date,
         to endDate: Date,
-        sortDescriptors: [SortDescriptor<HKWorkout>] = [SortDescriptor(\HKWorkout.endDate, order: .reverse)],
+        sortOption: ActivitiesSortOption = .newestFirst,
         healthStore: HKHealthStore
     ) async throws -> [HKWorkout] {
         let predicate = HKQuery.predicateForSamples(
             withStart: startDate,
-            end: endDate,
-            options: .strictStartDate
+            end: endDate
         )
         let workoutPredicate = HKSamplePredicate.workout(predicate)
         let descriptor = HKSampleQueryDescriptor(
             predicates: [workoutPredicate],
-            sortDescriptors: sortDescriptors
+            sortDescriptors: sortOption.descriptors
         )
         return try await descriptor.result(for: healthStore)
     }
@@ -245,7 +253,7 @@ public final class HealthKitQueryBuilder {
     ///
     /// - Parameters:
     ///   - days: Number of days to look back from today (default: 28)
-    ///   - sortDescriptors: Array of sort descriptors to order results (default: by endDate descending)
+    ///   - sortOption: Sort option to order results (default: `.newestFirst`)
     ///   - healthStore: The `HKHealthStore` instance to execute the query against
     /// - Returns: Array of `HKWorkout` objects from the specified period
     /// - Throws: HealthKit errors if data access fails
@@ -261,71 +269,28 @@ public final class HealthKitQueryBuilder {
     /// // Fetch last 7 days sorted by duration
     /// let workouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
     ///     for: 7,
-    ///     sortDescriptors: [SortDescriptor(\HKWorkout.duration, order: .reverse)],
+    ///     sortOption: .longestFirst,
+    ///     healthStore: healthStore
+    /// )
+    ///
+    /// // Fetch last 30 days, oldest first
+    /// let workouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
+    ///     for: 30,
+    ///     sortOption: .oldestFirst,
     ///     healthStore: healthStore
     /// )
     /// ```
     public static func fetchWorkoutsWithDescriptor(
         for days: Int = 28,
-        sortDescriptors: [SortDescriptor<HKWorkout>] = [SortDescriptor(\HKWorkout.endDate, order: .reverse)],
+        sortOption: ActivitiesSortOption = .newestFirst,
         healthStore: HKHealthStore
     ) async throws -> [HKWorkout] {
         let (startDate, endDate) = calculateDateRange(for: days)
         return try await fetchWorkoutsWithDescriptor(
             from: startDate,
             to: endDate,
-            sortDescriptors: sortDescriptors,
+            sortOption: sortOption,
             healthStore: healthStore
         )
     }
-    
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// EXAMPLE 1: Recent workouts for dashboard
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//let recentWorkouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-//    for: 7,
-//    sortDescriptors: [SortDescriptor(\HKWorkout.endDate, order: .reverse)],
-//    healthStore: healthStore
-//)
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// EXAMPLE 2: Personal records (longest runs)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//let longestRuns = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-//    for: 365,
-//    sortDescriptors: [SortDescriptor(\HKWorkout.duration, order: .reverse)],
-//    healthStore: healthStore
-//)
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// EXAMPLE 3: Activity summary grouped by type
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//let groupedWorkouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-//    for: 30,
-//    sortDescriptors: [
-//        SortDescriptor(\HKWorkout.workoutActivityType, order: .forward),
-//        SortDescriptor(\HKWorkout.endDate, order: .reverse)
-//    ],
-//    healthStore: healthStore
-//)
-// Result: All running workouts (newest first), then all cycling (newest first), etc.
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// EXAMPLE 4: Training history (chronological order)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//let chronologicalWorkouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-//    for: 90,
-//    sortDescriptors: [SortDescriptor(\HKWorkout.startDate, order: .forward)],
-//    healthStore: healthStore
-//)
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// EXAMPLE 5: Quick workouts for beginners
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//let quickWorkouts = try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
-//    for: 30,
-//    sortDescriptors: [SortDescriptor(\HKWorkout.duration, order: .forward)],
-//    healthStore: healthStore
-//)

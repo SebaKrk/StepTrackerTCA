@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import SharedModels
+import HealthKit
 
 @ViewAction(for: ActivitiesFeature.self)
 struct ActivitiesView: View {
@@ -29,9 +30,7 @@ struct ActivitiesView: View {
                 Text("failed")
             }
         }
-        .toolbar {
-            toolbarButton
-        }
+
         .onAppear {
             send(.viewDidAppear)
         }
@@ -39,8 +38,18 @@ struct ActivitiesView: View {
     
     @ToolbarContentBuilder
     private var toolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            // TODO: -
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                ForEach(ActivitiesSortOption.allCases) { item in
+                    Button {
+                        send(.changeSortOption(item))
+                    } label: {
+                        Text(item.title)
+                    }
+                }
+            } label: {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+            }
         }
     }
     
@@ -56,6 +65,9 @@ struct ActivitiesView: View {
         }
         .navigationTitle("Activity")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            toolbarButton
+        }
     }
     
     private var trainingTabPicker: some View {
@@ -73,9 +85,16 @@ struct ActivitiesView: View {
         ProgressView()
     }
     
+    @ViewBuilder
     private var personalActivityView: some View {
         List {
-            Text("personalActivityView")
+            if store.workouts.isEmpty {
+                Text("Brak treningow")
+            } else {
+                ForEach(store.workouts, id: \.uuid) { workout in
+                    Text(workout.workoutActivityType.name)
+                }
+            }
         }
     }
     
@@ -87,10 +106,6 @@ struct ActivitiesView: View {
     
 
 }
-
-
-
-
 
 
 //    var body: some View {

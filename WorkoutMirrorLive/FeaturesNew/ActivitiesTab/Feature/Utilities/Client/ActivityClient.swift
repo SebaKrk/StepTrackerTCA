@@ -8,28 +8,26 @@
 import ComposableArchitecture
 import HealthKit
 import HealthHub
+import SharedModels
 
-@DependencyClient
 public struct ActivityClient: Sendable {
-    public var fetchWorkouts: @Sendable (Int, [SortDescriptor<HKWorkout>]) async throws -> [HKWorkout] = { _, _ in [] }
+    public var fetchWorkouts: @Sendable (Int, ActivitiesSortOption) async throws -> [HKWorkout]
 }
 
 extension ActivityClient: DependencyKey {
-    public static let liveValue: ActivityClient = {
-        
-        @Dependency(\.authorizationManager) var authManager
-        
-        let activityManager = DefaultActivityManager(healthStore: authManager.healthStore)
-        
-        return Self(
-            fetchWorkouts: { days, sortDescriptors in
-                try await activityManager.fetchWorkouts(
-                    for: days,
-                    sortBy: sortDescriptors
-                )
-            }
-        )
-    }()
+    public static let liveValue = ActivityClient(
+        fetchWorkouts: { days, sortOption in
+            @Dependency(\.activityManager) var activityManager
+            return try await activityManager.fetchWorkouts(
+                for: days,
+                sortBy: sortOption
+            )
+        }
+    )
+    
+    public static let testValue = ActivityClient(
+        fetchWorkouts: unimplemented("ActivityClient.fetchWorkouts")
+    )
 }
 
 extension DependencyValues {

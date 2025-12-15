@@ -1,24 +1,13 @@
 //
-//  ActivityManager.swift
+//  DefaultActivityManager.swift
 //  HealthHub
 //
-//  Created by Sebastian Sciuba on 13/12/2025.
+//  Created by Sebastian Sciuba on 14/12/2025.
 //
 
+import ComposableArchitecture
 import HealthKit
-
-/// Manager do pobierania i analizy historycznych danych treningowych
-public protocol ActivityManager: Sendable {
-    
-    /// Pobiera listę treningów z określonego okresu
-    func fetchWorkouts(
-        for days: Int,
-        sortBy sortDescriptors: [SortDescriptor<HKWorkout>]
-    ) async throws -> [HKWorkout]
-}
-
-
-import HealthKit
+import SharedModels
 
 public final class DefaultActivityManager: ActivityManager {
     
@@ -36,12 +25,14 @@ public final class DefaultActivityManager: ActivityManager {
     
     public func fetchWorkouts(
         for days: Int,
-        sortBy sortDescriptors: [SortDescriptor<HKWorkout>]
+        sortBy option: ActivitiesSortOption = .newestFirst
     ) async throws -> [HKWorkout] {
         try await HealthKitQueryBuilder.fetchWorkoutsWithDescriptor(
             for: days,
-            sortDescriptors: sortDescriptors,
+            sortOption: option,
             healthStore: healthStore
         )
     }
+    
 }
+
