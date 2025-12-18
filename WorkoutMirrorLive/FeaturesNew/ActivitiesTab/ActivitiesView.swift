@@ -94,7 +94,90 @@ struct ActivitiesView: View {
                 emptyWorkoutsView
             } else {
                 ForEach(store.workouts, id: \.uuid) { workout in
-                    Text(workout.workoutActivityType.name)
+                    VStack {
+                        HStack {
+                            Image(systemName: workout.workoutActivityType.iconNameSimple)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 40,height: 40)
+                                .padding(2)
+                            VStack(alignment: .leading) {
+                                Text(workout.workoutActivityType.name)
+                                    .font(.title2)
+                                    .bold()
+                                HStack {
+                                    Text(workout.startDate.formatted(date: .abbreviated, time: .shortened))
+                                    Text("-")
+                                    Text(workout.endDate, style: .time)
+                                    Spacer()
+                                }
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                        Divider()
+                        HStack {
+                            
+                            VStack {
+                                Text("Duration")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(String(format: "%02d", Int(workout.duration) / 3600))
+                                    .font(.title2)
+                                    .bold()
+                            }
+                            .padding(2)
+                            Divider()
+                            
+                            VStack {
+                                Text("Cal Burned")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(
+                                    workout.statistics(for: HKQuantityType(.activeEnergyBurned))?
+                                        .sumQuantity()?
+                                        .doubleValue(for: .kilocalorie())
+                                        .formatted() ?? "—"
+                                )
+                                .font(.title2)
+                                .bold()
+                            }
+                            .padding(2)
+                            Divider()
+                            
+                            
+                            VStack {
+                                Text("Avg HR")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+//                                Text(String(format: "%.0f bpm",
+//                                            (workout.statistics(for: HKQuantityType(.heartRate))?
+//                                                .averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute()))) ?? 0))
+                                Text(workout.statistics(for: HKQuantityType(.heartRate))?.averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted() ?? "—")
+                                    .font(.title2)
+                                    .bold()
+                            }
+                            .padding(2)
+                            Divider()
+                            VStack {
+                                Text("Max HR")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(workout.statistics(for: HKQuantityType(.heartRate))?.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted() ?? "—")
+                                    .font(.title2)
+                                    .bold()
+                            }
+                            .padding(2)
+                            Divider()
+                            Spacer()
+                        }
+                        Divider()
+                        Text("tu cos bedzie")
+                            .font(.footnote)
+                            .padding(4)
+                    }
+                    
                 }
             }
         }
@@ -110,7 +193,10 @@ struct ActivitiesView: View {
     
     private var teamActivityView: some View {
         List {
-            Text("teamActivityView")
+//            Text("teamActivityView")
+            ForEach(Array(store.workouts.enumerated()), id: \.element.uuid) { index, workout in
+                Text("\(index): \(workout.workoutActivityType.name) (\(workout.workoutActivityType.rawValue)) - \(workout.endDate.formatted(date: .omitted, time: .shortened))")
+            }
         }
     }
     

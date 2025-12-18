@@ -487,4 +487,6 @@
     A: Create Activity Feature
     - create ActivityClient
     - create ActivityManager
+    B: List&Cell
+
 
