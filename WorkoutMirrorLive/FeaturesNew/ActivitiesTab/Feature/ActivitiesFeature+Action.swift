@@ -43,6 +43,9 @@ extension ActivitiesFeature {
             
             /// Changes the sort option for workouts list.
             case changeSortOption(ActivitiesSortOption)
+            
+            ///
+            case openDetails(HKWorkout)
         }
         
         // MARK: - Destination
