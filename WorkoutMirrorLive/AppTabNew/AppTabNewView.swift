@@ -18,6 +18,32 @@ struct AppTabNewView: View {
     // MARK: - View
     
     var body: some View {
+        tabView
+            .tabBarMinimizeBehavior(.onScrollDown)
+            .tint(.primary)
+            .toolbarBackground(.pink, for: .tabBar)
+            .onAppear {
+                send(.viewDidAppear)
+            }
+            .sheet(
+                item: $store.scope(
+                    state: \.destination?.workoutConfiguration,
+                    action: \.destination.workoutConfiguration)
+            ) { store in
+                ConfigurationView(store: store)
+                    .interactiveDismissDisabled(true)
+                    .presentationDetents([.medium])
+            }
+            .fullScreenCover(
+                item: $store.scope(
+                    state: \.destination?.session,
+                    action: \.destination.session)
+            ) { store in
+                SessionView(store: store)
+            }
+    }
+    
+    private var tabView: some View {
         TabView(selection: $store.selectedTab.sending(\.tabChanged)) {
             ForEach(store.tabs) { tab in
                 Tab(value: tab, role: tab == .workout ? .search : nil) {
@@ -32,27 +58,6 @@ struct AppTabNewView: View {
                     }
                 }
             }
-        }
-        .toolbarBackground(.pink, for: .tabBar)
-        .tabBarMinimizeBehavior(.onScrollDown)
-        .onAppear {
-            send(.viewDidAppear)
-        }
-        .sheet(
-            item: $store.scope(
-                state: \.destination?.workoutConfiguration,
-                action: \.destination.workoutConfiguration)
-        ) { store in
-            ConfigurationView(store: store)
-                .interactiveDismissDisabled(true)
-                .presentationDetents([.medium])
-        }
-        .fullScreenCover(
-            item: $store.scope(
-                state: \.destination?.session,
-                action: \.destination.session)
-        ) { store in
-            SessionView(store: store)
         }
     }
     

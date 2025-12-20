@@ -33,25 +33,9 @@ struct ActivitiesView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+
     }
-    
-    @ToolbarContentBuilder
-    private var toolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Menu {
-                ForEach(ActivitiesSortOption.allCases) { item in
-                    Button {
-                        send(.changeSortOption(item))
-                    } label: {
-                        Text(item.title)
-                    }
-                }
-            } label: {
-                Image(systemName: "line.3.horizontal.decrease.circle")
-            }
-        }
-    }
-    
+        
     private var rootView: some View {
         VStack(spacing: 0) {
             trainingTabPicker
@@ -62,12 +46,57 @@ struct ActivitiesView: View {
                 teamActivityView
             }
         }
+        .background(LinearGradient(colors: [store.color.opacity(0.25
+                                                               ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+        .padding([.leading, .trailing], 8)
         .navigationTitle("Activity")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if !store.workouts.isEmpty {
                 toolbarButton
             }
+        }
+        .id(store.workouts.count)
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Section("Sort by") {
+                    ForEach(ActivitiesSortOption.allCases) { item in
+                        Button {
+                            send(.changeSortOption(item))
+                        } label: {
+                            HStack {
+                                Text(item.title)
+                                if store.sortDescriptors == item {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                Section("Date range") {
+                    ForEach(ActivityDateRange.allCases) { range in
+                        Button {
+                            send(.changeDays(range.rawValue))
+                        } label: {
+                            HStack {
+                                Text(range.title)
+                                if store.days == range.rawValue {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            } label: {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+            }
+            .badge(store.workouts.count)
         }
     }
     
@@ -100,9 +129,8 @@ struct ActivitiesView: View {
                 .listRowSeparator(.hidden)
             }
         }
-        .scrollContentBackground(.hidden)
+//        .scrollContentBackground(.hidden)
         .listStyle(.plain)
-        
     }
     
     private var emptyWorkoutsView: some View {

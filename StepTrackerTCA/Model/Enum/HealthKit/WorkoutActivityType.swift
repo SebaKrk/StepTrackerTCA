@@ -15,6 +15,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
     case swimming
     case crossTraining
     case boxing
+    case cooldown
     
     var title: String {
         switch self {
@@ -24,6 +25,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
         case .swimming:       return "Swimming"
         case .crossTraining:  return "Cross Training"
         case .boxing:         return "Boxing"
+        case .cooldown:       return "Cooldown"
         }
     }
     
@@ -35,6 +37,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
         case .swimming:       return "swimmer.circle.fill"
         case .crossTraining:  return "figure.cross.training.circle.fill"
         case .boxing:         return "figure.boxing.circle.fill"
+        case .cooldown:        return "figure.cooldown.circle.fill"
         }
     }
     
@@ -47,6 +50,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
         case .swimming:       return .swimming
         case .crossTraining:  return .crossTraining
         case .boxing:         return .boxing
+        case .cooldown:        return .cooldown
         }
     }
     
@@ -59,6 +63,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
         case .swimming:       self = .swimming
         case .crossTraining:  self = .crossTraining
         case .boxing:         self = .boxing
+        case .cooldown:       self = .cooldown
         default:              return nil
         }
     }
