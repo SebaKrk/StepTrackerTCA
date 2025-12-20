@@ -30,7 +30,6 @@ struct ActivitiesView: View {
                 Text("failed")
             }
         }
-
         .onAppear {
             send(.viewDidAppear)
         }
@@ -94,10 +93,16 @@ struct ActivitiesView: View {
                 emptyWorkoutsView
             } else {
                 ForEach(store.workouts, id: \.uuid) { workout in
-                    Text(workout.workoutActivityType.name)
+                    workoutCard(workout)
                 }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         }
+        .scrollContentBackground(.hidden)
+        .listStyle(.plain)
+        
     }
     
     private var emptyWorkoutsView: some View {
@@ -110,63 +115,120 @@ struct ActivitiesView: View {
     
     private var teamActivityView: some View {
         List {
-            Text("teamActivityView")
+//            Text("teamActivityView")
+            ForEach(Array(store.workouts.enumerated()), id: \.element.uuid) { index, workout in
+                Text("\(index): \(workout.workoutActivityType.name) (\(workout.workoutActivityType.rawValue)) - \(workout.endDate.formatted(date: .omitted, time: .shortened))")
+            }
         }
     }
     
+    private func workoutCard(_ workout: HKWorkout) -> some View {
+        GroupBox {
+            VStack(spacing: 12) {
+                workoutStats(workout)
+                Divider()
+                primaryZoneSection(workout)
+            }
+        } label: {
+            VStack {
+                workoutHeaderButton(workout)
+                Divider()
+            }
+        }
+         .styledGroupBox()
+         .padding(4)
+    }
+    
+    private func workoutHeaderButton(_ workout: HKWorkout) -> some View {
+        Button {
+            send(.openDetails(workout))
+        } label: {
+            workoutHeader(workout)
+        }
+    }
+    
+    private func workoutHeader(_ workout: HKWorkout) -> some View {
+        HStack {
+            Image(systemName: workout.workoutActivityType.iconNameSimple)
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(.primary)
+                .frame(width: 40, height: 40)
+            
+            VStack(alignment: .leading) {
+                Text(workout.workoutActivityType.name)
+                    .foregroundColor(.primary)
+                    .font(.title2)
+                    .bold()
+                HStack {
+                    Text(workout.startDate.formatted(date: .abbreviated, time: .shortened))
+                    Text("-")
+                    Text(workout.endDate, style: .time)
+                    Spacer()
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+        }
+    }
+    
+    private func workoutStats(_ workout: HKWorkout) -> some View {
+        HStack(spacing: 0) {
+            statColumn(
+                title: "Duration",
+                value: String(format: "%d min", Int(workout.duration) / 60)
+            )
+            statColumn(
+                title: "Cal Burned",
+                value: String(workout.statistics(for: HKQuantityType(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie()).formatted(.number.precision(.fractionLength(1))) ?? "—" )
+            )
+            statColumn(
+                title: "Avg HR",
+                value: String(workout.statistics(for: HKQuantityType(.heartRate))?.averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "—")
+            )
+            statColumn(
+                title: "Max HR",
+                value: String(workout.statistics(for: HKQuantityType(.heartRate))?.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "—")
+            )
+
+        }
+    }
+    
+    private func statColumn(title: String, value: String) -> some View {
+        HStack {
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(value)
+                    .font(.title3)
+                    .foregroundColor(.primary)
+                    .bold()
+            }
+            Divider()
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private func primaryZoneSection(_ workout: HKWorkout) -> some View {
+        // TODO: Zone
+        HStack {
+            Text("Primary Zone:")
+                .font(.caption)
+            Text(HeartRateZone.fatBurning.rawValue)
+                .font(.caption)
+                .bold()
+            Spacer()
+            
+            Text("Time in zone:")
+                .font(.caption)
+            Text("23 min 42 sec")
+                .font(.caption)
+                .bold()
+        }
+        .padding(4)
+    }
 
 }
-
-
-//    var body: some View {
-//        NavigationStack {
-//            List(0..<100) { i in
-//                Text("activitie \(i)")
-//            }
-//            .navigationTitle("ActivitiesFeature")
-//            .navigationBarTitleDisplayMode(.inline)
-//            .toolbar {
-//                toolbarButtons
-//            }
-//            .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
-//                SettingsView(store: store)
-//            }
-//            .sheet(item: $store.scope(state: \.destination?.animationTest, action: \.destination.animationTest)) { store in
-//                AnimationView(store: store)
-//            }
-//        }
-//    }
-//
-//    @ToolbarContentBuilder
-//    var toolbarButtons: some ToolbarContent {
-//        ToolbarItem(placement: .topBarTrailing) {
-//            Button {
-//
-//            } label: {
-//                Image(systemName: "apple.intelligence")
-//            }
-//        }
-//
-//        ToolbarItem(placement: .topBarLeading) {
-//            Menu {
-//                Button {
-//                    send(.settingsButtonTapped)
-//                } label: {
-//                    Text("Settings")
-//                }
-//                Button {
-//                    send(.activitiesButtonTapped)
-//                } label: {
-//                    Text("Animation")
-//                }
-//            } label: {
-//                filterImage
-//            }
-//            .badge(store.badgeCount)
-//        }
-//    }
-//
-//    private var filterImage: some View {
-//        Image(systemName: "line.3.horizontal.decrease")
-//    }
-//}

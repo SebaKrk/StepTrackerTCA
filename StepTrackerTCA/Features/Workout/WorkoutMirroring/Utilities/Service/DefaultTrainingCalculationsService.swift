@@ -37,4 +37,5 @@ final class DefaultTrainingCalculationsService: TrainingCalculationsService {
         let percentage = Double(current) / Double(max) * 100
         return Int(percentage)
     }
+    
 }
