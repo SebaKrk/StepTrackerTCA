@@ -27,15 +27,15 @@ struct ActivitiesView: View {
             case .success:
                 rootView
             case .failed:
-                Text("failed")
+                failedView
             }
         }
         .onAppear {
             send(.viewDidAppear)
         }
-
-    }
         
+    }
+    
     private var rootView: some View {
         VStack(spacing: 0) {
             trainingTabPicker
@@ -46,13 +46,12 @@ struct ActivitiesView: View {
                 teamActivityView
             }
         }
-        .background(LinearGradient(colors: [store.color.opacity(0.25
-                                                               ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+        .background(LinearGradient(colors: [store.color.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
         .padding([.leading, .trailing], 8)
         .navigationTitle("Activity")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if !store.workouts.isEmpty {
+            if !store.workouts.isEmpty && store.context == .personal {
                 toolbarButton
             }
         }
@@ -64,39 +63,45 @@ struct ActivitiesView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Section("Sort by") {
-                    ForEach(ActivitiesSortOption.allCases) { item in
-                        Button {
-                            send(.changeSortOption(item))
-                        } label: {
-                            HStack {
-                                Text(item.title)
-                                if store.sortDescriptors == item {
-                                    Image(systemName: "checkmark")
-                                }
-                            }
-                        }
-                    }
+                    activitiesSortOption
                 }
-                
                 Section("Date range") {
-                    ForEach(ActivityDateRange.allCases) { range in
-                        Button {
-                            send(.changeDays(range.rawValue))
-                        } label: {
-                            HStack {
-                                Text(range.title)
-                                if store.days == range.rawValue {
-                                    Image(systemName: "checkmark")
-                                }
-                            }
-                        }
-                    }
+                    activityDateRange
                 }
-                
             } label: {
                 Image(systemName: "line.3.horizontal.decrease.circle")
             }
             .badge(store.workouts.count)
+        }
+    }
+    
+    private var activitiesSortOption: some View {
+        ForEach(ActivitiesSortOption.allCases) { item in
+            Button {
+                send(.changeSortOption(item))
+            } label: {
+                HStack {
+                    Text(item.title)
+                    if store.sortDescriptors == item {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
+        }
+    }
+    
+    private var activityDateRange: some View {
+        ForEach(ActivityDateRange.allCases) { range in
+            Button {
+                send(.changeDays(range.rawValue))
+            } label: {
+                HStack {
+                    Text(range.title)
+                    if store.days == range.rawValue {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
         }
     }
     
@@ -109,10 +114,6 @@ struct ActivitiesView: View {
         }
         .pickerStyle(.segmented)
         .padding([.leading, .trailing, .bottom], 6)
-    }
-    
-    private var progressView: some View {
-        ProgressView()
     }
     
     @ViewBuilder
@@ -129,26 +130,10 @@ struct ActivitiesView: View {
                 .listRowSeparator(.hidden)
             }
         }
-//        .scrollContentBackground(.hidden)
         .listStyle(.plain)
     }
     
-    private var emptyWorkoutsView: some View {
-        ContentUnavailableView(
-            "No Workouts",
-            systemImage: "figure.run",
-            description: Text("No workouts found for the selected period. Make sure you have granted HealthKit access and recorded some workouts.")
-        )
-    }
-    
-    private var teamActivityView: some View {
-        List {
-//            Text("teamActivityView")
-            ForEach(Array(store.workouts.enumerated()), id: \.element.uuid) { index, workout in
-                Text("\(index): \(workout.workoutActivityType.name) (\(workout.workoutActivityType.rawValue)) - \(workout.endDate.formatted(date: .omitted, time: .shortened))")
-            }
-        }
-    }
+    // MARK: - SubView
     
     private func workoutCard(_ workout: HKWorkout) -> some View {
         GroupBox {
@@ -163,8 +148,8 @@ struct ActivitiesView: View {
                 Divider()
             }
         }
-         .styledGroupBox()
-         .padding(4)
+        .styledGroupBox()
+        .padding(4)
     }
     
     private func workoutHeaderButton(_ workout: HKWorkout) -> some View {
@@ -220,7 +205,7 @@ struct ActivitiesView: View {
                 title: "Max HR",
                 value: String(workout.statistics(for: HKQuantityType(.heartRate))?.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "—")
             )
-
+            
         }
     }
     
@@ -258,5 +243,50 @@ struct ActivitiesView: View {
         }
         .padding(4)
     }
-
+    
+    private var progressView: some View {
+        ProgressView()
+    }
+    
+    private var failedView: some View {
+        ContentUnavailableView {
+            Label("HealthKit Access Required", systemImage: "heart.text.square")
+        } description: {
+            Text("To see your workouts, please grant access to HealthKit in Settings.")
+        } actions: {
+            Button {
+                // TODO: - ...
+                //send(.openHealthSettings)
+            } label: {
+                Label("Open Settings", systemImage: "gear")
+            }
+        }
+    }
+    
+    private var emptyWorkoutsView: some View {
+        ContentUnavailableView(
+            "No Workouts",
+            systemImage: "figure.run",
+            description: Text("No workouts found for the selected period. Make sure you have granted HealthKit access and recorded some workouts.")
+        )
+    }
+    
+    private var teamActivityView: some View {
+        emptyTeamActivityView
+    }
+    
+    private var emptyTeamActivityView: some View {
+        ContentUnavailableView {
+            Label("No Team Yet", systemImage: "person.3")
+        } description: {
+            Text("Join a fitness group to track progress with your teammates and stay motivated together.")
+        } actions: {
+            Button {
+                // TODO: - ...
+            } label: {
+                Label("Find a Club", systemImage: "magnifyingglass")
+            }
+        }
+    }
+    
 }
