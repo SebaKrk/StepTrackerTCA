@@ -488,5 +488,6 @@
     - create ActivityClient
     - create ActivityManager
     B: List&Cell
-
+    C: Sort by and Date range 
+    - add new case for WorkoutActivityType
 

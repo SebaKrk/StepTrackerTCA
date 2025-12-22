@@ -47,7 +47,6 @@ struct StatsView: View {
             .task {
                 send(.checkDataAnalyzerAvailability)
             }
-        
             .padding([.leading, .trailing], 8)
             .background(LinearGradient(colors: [store.color.opacity(0.25
                                                                    ), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))

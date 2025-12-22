@@ -20,6 +20,7 @@ extension HKWorkoutActivityType {
         case .boxing:           return "Boxing"
         case .traditionalStrengthTraining: return "Strength"
         case .functionalStrengthTraining: return "Functional"
+        case .cooldown:        return "Cooldown"
         default:                return String(describing: self)
         }
     }
@@ -34,6 +35,7 @@ extension HKWorkoutActivityType {
         case .boxing:           return "figure.boxing.circle.fill"
         case .traditionalStrengthTraining: return "figure.strengthtraining.traditional.circle.fill"
         case .functionalStrengthTraining: return "figure.strengthtraining.functional.circle.fill"
+        case .cooldown:        return "figure.cooldown.circle.fill"
         default:                return String(describing: self)
         }
     }
@@ -48,6 +50,7 @@ extension HKWorkoutActivityType {
         case .boxing:           return "figure.boxing"
         case .traditionalStrengthTraining: return "figure.strengthtraining.traditional"
         case .functionalStrengthTraining: return "figure.strengthtraining.functional"
+        case .cooldown:         return "figure.cooldown"
         default:                return "figure.mixed.cardio"
         }
     }

@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import SharedModels
+import SwiftUI
 import HealthKit
 import HealthHub
 
@@ -10,6 +11,11 @@ extension ActivitiesFeature {
     struct State {
         
         // MARK: - Properties
+        
+        /// The color representing the training readiness level.
+        /// Loaded from shared in‑memory storage to keep UI consistent across features.
+        @Shared(.inMemory(.readinessLevelColor))
+        var color: Color = .clear
         
         /// Current view state (loading, success, or failed).
         var viewState: ViewState = .loading
