@@ -71,7 +71,10 @@ extension HealthMetricSummaryCardView {
             createVerticalSegment(segment: segment)
         }
         
-        metricIndicator(data.score)
+        let clampedScore = max(data.minScore, min(data.maxScore, data.score))
+        
+        
+        metricIndicator(clampedScore)
             .annotation(position: .overlay, alignment: .center) {
                 metricLabel(value: data.score, color: colorForScore(data.score, data: data))
             }
