@@ -20,6 +20,7 @@ extension HKWorkoutActivityType {
         case .boxing:           return "Boxing"
         case .traditionalStrengthTraining: return "Strength"
         case .functionalStrengthTraining: return "Functional"
+        case .cooldown:        return "Cooldown"
         default:                return String(describing: self)
         }
     }
@@ -29,12 +30,28 @@ extension HKWorkoutActivityType {
         case .running:          return "figure.run.circle.fill"
         case .walking:          return "figure.walk.circle.fill"
         case .cycling:          return "figure.outdoor.cycle.circle.fill"
-        case .swimming:         return "swimmer.circle.fill"
+        case .swimming:         return "figure.pool.swim.circle.fill"
         case .crossTraining:    return "figure.cross.training.circle.fill"
         case .boxing:           return "figure.boxing.circle.fill"
         case .traditionalStrengthTraining: return "figure.strengthtraining.traditional.circle.fill"
         case .functionalStrengthTraining: return "figure.strengthtraining.functional.circle.fill"
+        case .cooldown:        return "figure.cooldown.circle.fill"
         default:                return String(describing: self)
+        }
+    }
+    
+    public var iconNameSimple: String {
+        switch self {
+        case .running:          return "figure.run"
+        case .walking:          return "figure.walk"
+        case .cycling:          return "figure.outdoor.cycle"
+        case .swimming:         return "figure.pool.swim"
+        case .crossTraining:    return "figure.cross.training"
+        case .boxing:           return "figure.boxing"
+        case .traditionalStrengthTraining: return "figure.strengthtraining.traditional"
+        case .functionalStrengthTraining: return "figure.strengthtraining.functional"
+        case .cooldown:         return "figure.cooldown"
+        default:                return "figure.mixed.cardio"
         }
     }
     

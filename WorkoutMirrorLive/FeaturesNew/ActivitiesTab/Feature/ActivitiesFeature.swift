@@ -57,13 +57,18 @@ struct ActivitiesFeature {
             case .view(.viewDidAppear):
                 return .send(.fetchWorkouts)
                 
-            case .view(.changeDays(_)):
-                return .none
+            case let .view(.changeDays(value)):
+                state.days = value
+                return .send(.fetchWorkouts)
                 
-            case let.view(.changeSortOption(value)):
+            case let .view(.changeSortOption(value)):
                 state.sortDescriptors = value
                 return .send(.fetchWorkouts)
                 
+            case let .view(.openDetails(workout)):
+                // TODO: - Destination
+                dump(workout)
+                return .none
                 // MARK: - Destination
                 
             case .destination(_):
