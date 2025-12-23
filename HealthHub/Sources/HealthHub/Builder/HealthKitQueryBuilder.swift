@@ -293,4 +293,38 @@ public final class HealthKitQueryBuilder {
             healthStore: healthStore
         )
     }
+    
+    // MARK: - Heart Rate Samples
+
+    /// Fetches heart rate samples recorded during a specific workout.
+    ///
+    /// - Parameters:
+    ///   - workout: The workout to fetch heart rate data for
+    ///   - healthStore: The HKHealthStore instance
+    /// - Returns: Array of HKQuantitySample containing heart rate measurements
+    /// - Throws: HealthKit errors if data access fails
+    public static func fetchHeartRateSamples(
+        for workout: HKWorkout,
+        healthStore: HKHealthStore
+    ) async throws -> [HKQuantitySample] {
+        let heartRateType = HKQuantityType(.heartRate)
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: workout.startDate,
+            end: workout.endDate,
+            options: .strictStartDate
+        )
+        
+        let samplePredicate = HKSamplePredicate.quantitySample(
+            type: heartRateType,
+            predicate: predicate
+        )
+        
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [samplePredicate],
+            sortDescriptors: [SortDescriptor(\.startDate, order: .forward)]
+        )
+        
+        return try await descriptor.result(for: healthStore)
+    }
 }

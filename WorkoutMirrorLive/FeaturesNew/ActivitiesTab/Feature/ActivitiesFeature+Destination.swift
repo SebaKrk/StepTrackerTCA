@@ -1,4 +1,3 @@
-
 //
 //  ActivitiesFeature+Destination.swift
 //  MyFitnessJournal

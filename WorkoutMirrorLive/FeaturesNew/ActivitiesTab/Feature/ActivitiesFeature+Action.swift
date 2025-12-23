@@ -29,6 +29,15 @@ extension ActivitiesFeature {
         /// Handles the result of workout fetch operation.
         case workoutsFetched(Result<[HKWorkout], Error>)
         
+        /// Triggers fetching user's max heart rate for zone calculations.
+        case fetchMaxHeartRate
+        
+        /// Handles the result of max heart rate fetch.
+        case maxHeartRateFetched(Double?)
+        
+        /// Handles the result of all workout zone analyses.
+        case allWorkoutZonesAnalyzed([UUID: PrimaryZoneInfo])
+        
         // MARK: - View Actions
         
         case view(View)
@@ -44,7 +53,7 @@ extension ActivitiesFeature {
             /// Changes the sort option for workouts list.
             case changeSortOption(ActivitiesSortOption)
             
-            ///
+            /// Opens workout details screen.
             case openDetails(HKWorkout)
         }
         
