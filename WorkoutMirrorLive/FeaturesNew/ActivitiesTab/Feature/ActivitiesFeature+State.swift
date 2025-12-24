@@ -1,3 +1,10 @@
+//
+//  ActivitiesFeature+State.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Sciuba on 09/12/2025.
+//
+
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -32,6 +39,12 @@ extension ActivitiesFeature {
         /// Current sort option for ordering workouts.
         var sortDescriptors: ActivitiesSortOption = .newestFirst
         
+        /// User's maximum heart rate for zone calculations.
+        var maxHeartRate: Double?
+        
+        /// Heart rate zone information for each workout, keyed by workout UUID.
+        var zoneInfo: [UUID: PrimaryZoneInfo] = [:]
+        
         // MARK: - Destination
         
         /// Presentation state for navigation destinations.
@@ -39,3 +52,4 @@ extension ActivitiesFeature {
     }
     
 }
+

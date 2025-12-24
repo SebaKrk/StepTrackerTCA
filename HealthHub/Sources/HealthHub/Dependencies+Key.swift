@@ -215,4 +215,17 @@ public extension DependencyValues {
     }
 }
 
+/// A TCA dependency key for analyzing workout heart rate zones.
+public enum WorkoutZoneAnalyzerKey: DependencyKey {
+    public static let liveValue: WorkoutZoneAnalyzer = {
+        DefaultWorkoutZoneAnalyzer()
+    }()
+}
+
+public extension DependencyValues {
+    var workoutZoneAnalyzer: WorkoutZoneAnalyzer {
+        get { self[WorkoutZoneAnalyzerKey.self] }
+        set { self[WorkoutZoneAnalyzerKey.self] = newValue }
+    }
+}
 
