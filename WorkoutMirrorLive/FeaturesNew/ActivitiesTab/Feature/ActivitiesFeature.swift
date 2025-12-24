@@ -110,6 +110,16 @@ struct ActivitiesFeature {
                 dump(workout)
                 return .none
                 
+            case let .view(.showZoneInfo(zone)):
+                state.destination = .zoneInfo(
+                    HeartRateZoneInfoFeature.State(
+                        selectedZone: zone,
+                        descriptionIsExpanded: true,
+                        displayMode: .singleZone(zone)
+                    )
+                )
+                return .none
+                
                 // MARK: - Destination
                 
             case .destination:

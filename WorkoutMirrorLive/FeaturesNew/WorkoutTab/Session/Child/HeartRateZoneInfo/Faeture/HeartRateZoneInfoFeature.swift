@@ -43,49 +43,5 @@ struct HeartRateZoneInfoFeature {
             }
         }
     }
-}
-
-// MARK: - Action
-
-/// Implementation of `HeartRateZoneInfoFeature` action
-extension HeartRateZoneInfoFeature {
     
-    @CasePathable
-    enum Action: ViewAction, BindableAction {
-        
-        // MARK: - Binding Action
-        
-        /// Handles changes in bindings for the state.
-        case binding(BindingAction<State>)
-        
-        // MARK: - View actions
-        
-        /// Used for view actions.
-        case view(View)
-        
-        enum View {
-            
-            /// The action responsible for completing tasks as soon as the view is displayed.
-            case viewDidAppear
-            
-            /// Action for selecting a zone and managing description expansion
-            case selectedZoneDescription(HeartRateZone?)
-        }
-    }
-}
-
-// MARK: - State
-
-/// Implementation of `HeartRateZoneInfoFeature` state
-extension HeartRateZoneInfoFeature {
-    
-    @ObservableState
-    struct State {
-        
-        /// Currently selected zone for description expansion
-        var selectedZone: HeartRateZone?
-        
-        /// A Boolean value indicating whether the description view is expanded.
-        var descriptionIsExpanded: Bool = false
-    }
 }

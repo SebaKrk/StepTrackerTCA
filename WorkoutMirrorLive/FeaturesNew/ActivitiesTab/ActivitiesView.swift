@@ -55,6 +55,12 @@ struct ActivitiesView: View {
                 toolbarButton
             }
         }
+        .sheet(
+            item: $store.scope(state: \.destination?.zoneInfo, action: \.destination.zoneInfo)
+        ) { zoneInfoStore in
+            HeartRateZoneInfoView(store: zoneInfoStore)
+                .presentationDetents([.medium, .large])
+        }
         .id(store.workouts.count)
     }
     
@@ -250,11 +256,18 @@ struct ActivitiesView: View {
                 Text(formatDuration(zoneInfo.duration))
                     .font(.caption)
                     .bold()
+                Button {
+                    send(.showZoneInfo(zoneInfo.zone))
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.caption)
+                }
             } else {
                 Text("–")
                     .font(.caption)
                     .bold()
             }
+            
         }
         .padding(4)
     }

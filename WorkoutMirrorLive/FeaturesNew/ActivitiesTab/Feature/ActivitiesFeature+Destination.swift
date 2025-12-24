@@ -13,5 +13,7 @@ extension ActivitiesFeature {
     @Reducer
     enum Destination {
         
+        ///
+        case zoneInfo(HeartRateZoneInfoFeature)
     }
 }

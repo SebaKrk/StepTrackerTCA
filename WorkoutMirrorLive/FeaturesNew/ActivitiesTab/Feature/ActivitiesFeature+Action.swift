@@ -55,6 +55,9 @@ extension ActivitiesFeature {
             
             /// Opens workout details screen.
             case openDetails(HKWorkout)
+            
+            /// Shows heart rate zone info for the specified zone.
+            case showZoneInfo(HeartRateZone)
         }
         
         // MARK: - Destination
