@@ -55,6 +55,12 @@ struct ActivitiesView: View {
                 toolbarButton
             }
         }
+        .sheet(
+            item: $store.scope(state: \.destination?.zoneInfo, action: \.destination.zoneInfo)
+        ) { zoneInfoStore in
+            HeartRateZoneInfoView(store: zoneInfoStore)
+                .presentationDetents([.medium, .large])
+        }
         .id(store.workouts.count)
     }
     
@@ -195,15 +201,15 @@ struct ActivitiesView: View {
             )
             statColumn(
                 title: "Cal Burned",
-                value: String(workout.statistics(for: HKQuantityType(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie()).formatted(.number.precision(.fractionLength(1))) ?? "—" )
+                value: String(workout.statistics(for: HKQuantityType(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie()).formatted(.number.precision(.fractionLength(1))) ?? "–" )
             )
             statColumn(
                 title: "Avg HR",
-                value: String(workout.statistics(for: HKQuantityType(.heartRate))?.averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "—")
+                value: String(workout.statistics(for: HKQuantityType(.heartRate))?.averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "–")
             )
             statColumn(
                 title: "Max HR",
-                value: String(workout.statistics(for: HKQuantityType(.heartRate))?.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "—")
+                value: String(workout.statistics(for: HKQuantityType(.heartRate))?.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "–")
             )
             
         }
@@ -226,22 +232,52 @@ struct ActivitiesView: View {
     }
     
     private func primaryZoneSection(_ workout: HKWorkout) -> some View {
-        // TODO: Zone
         HStack {
             Text("Primary Zone:")
                 .font(.caption)
-            Text(HeartRateZone.fatBurning.rawValue)
-                .font(.caption)
-                .bold()
+            
+            if let zoneInfo = store.zoneInfo[workout.uuid] {
+                Text(zoneInfo.zone.rawValue)
+                    .font(.caption)
+                    .bold()
+                    .foregroundStyle(zoneInfo.zone.color)
+            } else {
+                Text("–")
+                    .font(.caption)
+                    .bold()
+            }
+            
             Spacer()
             
             Text("Time in zone:")
                 .font(.caption)
-            Text("23 min 42 sec")
-                .font(.caption)
-                .bold()
+            
+            if let zoneInfo = store.zoneInfo[workout.uuid] {
+                Text(formatDuration(zoneInfo.duration))
+                    .font(.caption)
+                    .bold()
+                Button {
+                    send(.showZoneInfo(zoneInfo.zone))
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.caption)
+                }
+            } else {
+                Text("–")
+                    .font(.caption)
+                    .bold()
+            }
+            
         }
         .padding(4)
+    }
+    
+    // MARK: - Helpers
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return "\(minutes) min \(seconds) sec"
     }
     
     private var progressView: some View {

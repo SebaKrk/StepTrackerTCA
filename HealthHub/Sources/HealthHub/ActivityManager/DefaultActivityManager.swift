@@ -13,7 +13,7 @@ public final class DefaultActivityManager: ActivityManager {
     
     // MARK: - Properties
     
-    let healthStore: HKHealthStore
+    private let healthStore: HKHealthStore
     
     // MARK: - Lifecycle
     
@@ -21,8 +21,9 @@ public final class DefaultActivityManager: ActivityManager {
         self.healthStore = healthStore
     }
     
-    // MARK: - ActivityManager Protocol
+    // MARK: - API
     
+    /// Fetches a list of workouts from the specified time period.
     public func fetchWorkouts(
         for days: Int,
         sortBy option: ActivitiesSortOption = .newestFirst
@@ -34,5 +35,14 @@ public final class DefaultActivityManager: ActivityManager {
         )
     }
     
+    /// Fetches heart rate samples recorded during a specific workout.
+    public func fetchHeartRateSamples(
+        for workout: HKWorkout
+    ) async throws -> [HKQuantitySample] {
+        try await HealthKitQueryBuilder.fetchHeartRateSamples(
+            for: workout,
+            healthStore: healthStore
+        )
+    }
+    
 }
-

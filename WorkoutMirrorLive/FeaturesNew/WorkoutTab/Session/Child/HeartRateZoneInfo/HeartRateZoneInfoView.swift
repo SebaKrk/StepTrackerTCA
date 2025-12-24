@@ -22,17 +22,28 @@ struct HeartRateZoneInfoView: View {
         NavigationView {
             ScrollView {
                 LazyVStack(spacing: 16) {
-                    ForEach(HeartRateZone.allCases) { zone in
+                    ForEach(store.zonesToDisplay) { zone in
                         heartRateZoneCell(for: zone)
                     }
                 }
                 .padding()
             }
-            .navigationTitle("Heart Rate Zone")
+            .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
         }
         .onAppear {
             send(.viewDidAppear)
+        }
+    }
+    
+    // MARK: - Computed Properties
+    
+    private var navigationTitle: String {
+        switch store.displayMode {
+        case .allZones:
+            return "Heart Rate Zones"
+        case .singleZone(let zone):
+            return zone.rawValue
         }
     }
     

@@ -22,4 +22,14 @@ public protocol ActivityManager: Sendable {
         for days: Int,
         sortBy option: ActivitiesSortOption
     ) async throws -> [HKWorkout]
+    
+    /// Fetches heart rate samples recorded during a specific workout.
+    ///
+    /// - Parameter workout: The workout to fetch heart rate data for
+    /// - Returns: Array of heart rate samples sorted chronologically
+    /// - Throws: HealthKit errors if data access fails
+    func fetchHeartRateSamples(
+        for workout: HKWorkout
+    ) async throws -> [HKQuantitySample]
+    
 }
