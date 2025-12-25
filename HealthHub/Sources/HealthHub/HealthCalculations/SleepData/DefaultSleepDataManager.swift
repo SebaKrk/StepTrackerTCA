@@ -70,14 +70,16 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
             }
         }
         
-        // Calculate total sleep time in seconds
-        let totalSleepSeconds = sleepSamples.reduce(0.0) { total, sample in
-            total + sample.endDate.timeIntervalSince(sample.startDate)
-        }
-        
-        // Convert to hours
+        let totalSleepSeconds = calculateTotalSleepDuration(from: sleepSamples)
         let totalSleepHours = totalSleepSeconds / 3600.0
         
+        // MARK: - 🔍 DEBUG
+        print("═══════════════════════════════════════════════════")
+        print("🛏️ Sleep window: \(window.start) → \(window.end)")
+        print("🛏️ Raw samples: \(sleepSamples.count)")
+        print("🛏️ Total sleep (after dedup & merge): \(String(format: "%.2f", totalSleepHours))h")
+        print("═══════════════════════════════════════════════════")
+          
         guard totalSleepHours > 0 else { return nil }
         
         return HealthKitData(
@@ -141,12 +143,9 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
                 }
             }
             
-            // Calculate sleep for this night
+            // Calculate sleep for this night with deduplication
             if !sleepSamples.isEmpty {
-                let nightSleepSeconds = sleepSamples.reduce(0.0) { total, sample in
-                    total + sample.endDate.timeIntervalSince(sample.startDate)
-                }
-                
+                let nightSleepSeconds = calculateTotalSleepDuration(from: sleepSamples)
                 let nightSleepHours = nightSleepSeconds / 3600.0
                 
                 if nightSleepHours > 0 {
@@ -164,5 +163,80 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
             date: Date(),
             value: average
         )
+    }
+    
+    // MARK: - Private Methods
+    
+    /// Calculates total sleep duration from samples, handling duplicates and overlapping intervals.
+    ///
+    /// HealthKit often returns duplicate samples (from sync between devices) and overlapping
+    /// intervals. This method:
+    /// 1. Deduplicates samples with identical start/end times
+    /// 2. Merges overlapping time intervals
+    /// 3. Returns accurate total sleep time
+    ///
+    /// - Parameter samples: Array of HKCategorySample representing sleep stages
+    /// - Returns: Total sleep duration in seconds
+    private func calculateTotalSleepDuration(from samples: [HKCategorySample]) -> TimeInterval {
+        guard !samples.isEmpty else { return 0 }
+        
+        // Step 1: Deduplicate - remove samples with identical start/end times
+        var uniqueIntervals = Set<String>()
+        var intervals: [(start: Date, end: Date)] = []
+        
+        for sample in samples {
+            let key = "\(sample.startDate.timeIntervalSince1970)-\(sample.endDate.timeIntervalSince1970)"
+            if !uniqueIntervals.contains(key) {
+                uniqueIntervals.insert(key)
+                intervals.append((sample.startDate, sample.endDate))
+            }
+        }
+        
+        // Step 2: Sort by start time
+        intervals.sort { $0.start < $1.start }
+        
+        // Step 3: Merge overlapping intervals
+        var merged: [(start: Date, end: Date)] = []
+        
+        for interval in intervals {
+            if merged.isEmpty {
+                merged.append(interval)
+            } else {
+                let last = merged[merged.count - 1]
+                
+                // Check if intervals overlap or touch
+                if interval.start <= last.end {
+                    // Merge: extend the end time if needed
+                    merged[merged.count - 1] = (last.start, max(last.end, interval.end))
+                } else {
+                    // No overlap: add as new interval
+                    merged.append(interval)
+                }
+            }
+        }
+        
+        // Step 4: Sum up merged intervals
+        let totalSeconds = merged.reduce(0.0) { total, interval in
+            total + interval.end.timeIntervalSince(interval.start)
+        }
+        
+        return totalSeconds
+    }
+}
+
+// MARK: - Debug Extension
+
+extension HKCategoryValueSleepAnalysis {
+    var debugName: String {
+        switch self {
+        case .asleepCore: return "Core"
+        case .asleepDeep: return "Deep"
+        case .asleepREM: return "REM"
+        case .asleepUnspecified: return "Unspecified"
+        case .asleep: return "Asleep"
+        case .awake: return "Awake"
+        case .inBed: return "InBed"
+        @unknown default: return "Unknown"
+        }
     }
 }

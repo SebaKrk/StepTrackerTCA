@@ -52,7 +52,7 @@ public enum ActivityStatus: Sendable, Equatable {
         case .goodReadiness: return "checkmark.circle.fill"
         case .neutralReadiness: return "minus.circle.fill"
         case .moderateFatigue: return "exclamationmark.triangle.fill"
-        case .highFatigue: return "bed.double.fill"
+        case .highFatigue: return "battery.0percent"
         }
     }
     
