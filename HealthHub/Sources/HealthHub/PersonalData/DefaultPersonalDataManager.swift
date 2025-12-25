@@ -258,7 +258,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     /// - Returns: A `HealthKitData` object containing average morning RHR in bpm, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
     public func getAverageMorningRestingHeartRate(days: Int = 7) async throws -> HealthKitData? {
-     
+        
         let restingHeartRateType = HKQuantityType(.restingHeartRate)
         var allValues: [Double] = []
         
@@ -388,44 +388,35 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         return HealthKitData(date: Date(), value: average)
     }
     
-    /// Retrieves yesterday's total active energy burned from both quantity samples and workouts.
-    ///
-    /// This method combines two sources of active energy data to provide a complete picture
-    /// of yesterday's energy expenditure:
-    /// 1. **Quantity samples** - Background energy from general activity throughout the day
-    /// 2. **Workout sessions** - Energy burned during tracked exercise sessions
+    /// Retrieves yesterday's total active energy burned.
     ///
     /// Fetches activity from full previous day (00:00 - 23:59 yesterday).
+    /// Note: HealthKit's activeEnergyBurned already includes workout energy,
+    /// so we only need to query quantity samples - no need to add workout energy separately.
     ///
     /// - Returns: A `HealthKitData` object containing total active energy in kilocalories,
     ///           or `nil` if no activity data is available for yesterday
     /// - Throws: HealthKit errors if data access fails or permissions are not granted
-    ///
     public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
         let window = TrainingReadinessTimeWindows.yesterdayFullDay()
         let healthStore = manager.healthStore
-
-        // print("📊 Activity Debug: window=\(window.start) → \(window.end)")
-
-        // 1️⃣ Energy from quantity samples
+        
         let query = HealthKitQueryBuilder.buildQuery(
             for: .activeEnergyBurned,
             startDate: window.start,
             endDate: window.end,
             options: .cumulativeSum
         )
-
+        
         let results = try await query.result(for: healthStore)
         let processedData = HealthKitQueryBuilder.processHealthKitData(
             results.statistics(),
             unit: .kilocalorie(),
             options: .cumulativeSum
         )
-
-        let sampleEnergy = processedData.first?.value ?? 0
-        // print("📊 Activity Debug: activeEnergyBurned samples = \(sampleEnergy) kcal")
-
-        // 2️⃣ Energy from workouts
+        
+        let totalEnergy = processedData.first?.value ?? 0
+        
         let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
             from: window.start,
             to: window.end,
@@ -441,12 +432,20 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             return total
         }
         
-        // print("📊 Activity Debug: HKWorkouts found = \(workouts.count), total energy = \(workoutEnergy) kcal")
-
-        // 3️⃣ Combine both
-        let totalEnergy = sampleEnergy + workoutEnergy
-        // print("📊 Activity Debug: combined total energy = \(totalEnergy) kcal")
-
+        let backgroundEnergy = totalEnergy - workoutEnergy
+        
+        // MARK: - 🔍 DEBUG
+        print("═══════════════════════════════════════════════════")
+        print("🏃 Activity window: \(window.start) → \(window.end)")
+        print("🏃 Workout energy: \(String(format: "%.0f", workoutEnergy)) kcal (\(workouts.count) workouts)")
+        print("🏃 Background energy: \(String(format: "%.0f", backgroundEnergy)) kcal")
+        print("🏃 Total energy: \(String(format: "%.0f", totalEnergy)) kcal")
+        print("═══════════════════════════════════════════════════")
+        
+        guard totalEnergy > 0 else {
+            return nil
+        }
+        
         return HealthKitData(date: window.end, value: totalEnergy)
     }
     

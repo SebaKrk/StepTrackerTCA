@@ -492,3 +492,4 @@
     - add new case for WorkoutActivityType
     D: WorkoutZoneAnalyzer
 
+### IOS-00054 Fix
