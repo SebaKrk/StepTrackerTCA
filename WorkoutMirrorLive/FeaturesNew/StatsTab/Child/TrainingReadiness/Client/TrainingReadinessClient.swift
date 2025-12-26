@@ -49,20 +49,87 @@ public extension DependencyValues {
         set { self[TrainingReadinessClientKey.self] = newValue }
     }
 }
+//
+//public enum TrainingReadinessClientKey: DependencyKey {
+//    public static let liveValue: TrainingReadinessClient = {
+//        @Dependency(\.trainingReadinessCalculator) var calculator
+//        
+//        return TrainingReadinessClient(
+//            calculate: {
+//                return try await calculator.calculateTrainingReadiness()
+//            },
+//            history: { days in
+//                try await calculator.getTrainingReadinessHistory(days: days)
+//            }
+//        )
+//    }()
+//    
+//    public static let testValue = TrainingReadinessClient.mock
+//}
+
+//public enum TrainingReadinessClientKey: DependencyKey {
+//    public static let liveValue: TrainingReadinessClient = {
+//        @Dependency(\.trainingReadinessCalculator) var calculator
+//        
+//        let cache = LockIsolated<TrainingReadinessResult?>(nil)
+//        
+//        return TrainingReadinessClient(
+//            calculate: {
+//                // Zwróć z cache jeśli już mamy
+//                if let cached = cache.value {
+//                    print("📦 TrainingReadinessClient - returning CACHED result")
+//                    return cached
+//                }
+//                
+//                print("🔄 TrainingReadinessClient - fetching NEW result")
+//                let result = try await calculator.calculateTrainingReadiness()
+//                cache.setValue(result)
+//                return result
+//            },
+//            history: { days in
+//                try await calculator.getTrainingReadinessHistory(days: days)
+//            }
+//        )
+//    }()
+//}
 
 public enum TrainingReadinessClientKey: DependencyKey {
     public static let liveValue: TrainingReadinessClient = {
         @Dependency(\.trainingReadinessCalculator) var calculator
         
+        let cache = LockIsolated<TrainingReadinessResult?>(nil)
+        let inFlight = LockIsolated<Task<TrainingReadinessResult, Error>?>(nil)
+        
         return TrainingReadinessClient(
             calculate: {
-                try await calculator.calculateTrainingReadiness()
+                // 1. Zwróć z cache jeśli mamy
+                if let cached = cache.value {
+                    print("📦 TrainingReadinessClient - returning CACHED")
+                    return cached
+                }
+                
+                // 2. Jeśli już trwa request, poczekaj na niego
+                if let existingTask = inFlight.value {
+                    print("⏳ TrainingReadinessClient - waiting for IN-FLIGHT request")
+                    return try await existingTask.value
+                }
+                
+                // 3. Nowy request
+                print("🔄 TrainingReadinessClient - fetching NEW")
+                let task = Task {
+                    try await calculator.calculateTrainingReadiness()
+                }
+                inFlight.setValue(task)
+                
+                let result = try await task.value
+                cache.setValue(result)
+                inFlight.setValue(nil)
+                
+                return result
             },
             history: { days in
                 try await calculator.getTrainingReadinessHistory(days: days)
             }
         )
     }()
-    
-    public static let testValue = TrainingReadinessClient.mock
 }
