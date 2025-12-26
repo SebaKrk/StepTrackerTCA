@@ -74,11 +74,11 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
         let totalSleepHours = totalSleepSeconds / 3600.0
         
         // MARK: - 🔍 DEBUG
-        print("═══════════════════════════════════════════════════")
-        print("🛏️ Sleep window: \(window.start) → \(window.end)")
-        print("🛏️ Raw samples: \(sleepSamples.count)")
-        print("🛏️ Total sleep (after dedup & merge): \(String(format: "%.2f", totalSleepHours))h")
-        print("═══════════════════════════════════════════════════")
+//        print("═══════════════════════════════════════════════════")
+//        print("🛏️ Sleep window: \(window.start) → \(window.end)")
+//        print("🛏️ Raw samples: \(sleepSamples.count)")
+//        print("🛏️ Total sleep (after dedup & merge): \(String(format: "%.2f", totalSleepHours))h")
+//        print("═══════════════════════════════════════════════════")
           
         guard totalSleepHours > 0 else { return nil }
         
