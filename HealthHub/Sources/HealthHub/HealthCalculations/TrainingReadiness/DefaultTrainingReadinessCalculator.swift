@@ -24,11 +24,12 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
     // MARK: - API
     
     public func calculateTrainingReadiness() async throws -> TrainingReadinessResult {
+        
         let restingHeartRateComponent = try await calculateRestingHeartRateScore()
         let hrvComponent = try await calculateHRVScore()
         let sleepComponent = try await calculateSleepScore()
         let activityLoadComponent = try await calculateActivityLoadScore()
-        
+
         let components = TrainingReadinessComponents(
             restingHeartRate: restingHeartRateComponent,
             heartRateVariability: hrvComponent,

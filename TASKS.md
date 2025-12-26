@@ -493,3 +493,4 @@
     D: WorkoutZoneAnalyzer
 
 ### IOS-00054 Fix
+### IOS-00055 Fix

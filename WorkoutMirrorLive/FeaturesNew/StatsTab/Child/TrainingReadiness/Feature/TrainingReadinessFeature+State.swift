@@ -27,7 +27,7 @@ extension TrainingReadinessFeature {
         var requiredTier: SubscriptionTier = .pro
         
         ////
-        var contentState: ContentState = .loading
+        var contentState: ContentState = .noData
         
         /// Training readiness calculation result
         var readinessResult: TrainingReadinessResult?

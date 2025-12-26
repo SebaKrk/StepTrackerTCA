@@ -56,7 +56,7 @@ public enum TrainingReadinessClientKey: DependencyKey {
         
         return TrainingReadinessClient(
             calculate: {
-                try await calculator.calculateTrainingReadiness()
+                return try await calculator.calculateTrainingReadiness()
             },
             history: { days in
                 try await calculator.getTrainingReadinessHistory(days: days)
@@ -66,3 +66,45 @@ public enum TrainingReadinessClientKey: DependencyKey {
     
     public static let testValue = TrainingReadinessClient.mock
 }
+
+// tak sie nie robi, 
+//public enum TrainingReadinessClientKey: DependencyKey {
+//    public static let liveValue: TrainingReadinessClient = {
+//        @Dependency(\.trainingReadinessCalculator) var calculator
+//        
+//        let cache = LockIsolated<TrainingReadinessResult?>(nil)
+//        let inFlight = LockIsolated<Task<TrainingReadinessResult, Error>?>(nil)
+//        
+//        return TrainingReadinessClient(
+//            calculate: {
+//                // 1. Zwróć z cache jeśli mamy
+//                if let cached = cache.value {
+//                    print("📦 TrainingReadinessClient - returning CACHED")
+//                    return cached
+//                }
+//                
+//                // 2. Jeśli już trwa request, poczekaj na niego
+//                if let existingTask = inFlight.value {
+//                    print("⏳ TrainingReadinessClient - waiting for IN-FLIGHT request")
+//                    return try await existingTask.value
+//                }
+//                
+//                // 3. Nowy request
+//                print("🔄 TrainingReadinessClient - fetching NEW")
+//                let task = Task {
+//                    try await calculator.calculateTrainingReadiness()
+//                }
+//                inFlight.setValue(task)
+//                
+//                let result = try await task.value
+//                cache.setValue(result)
+//                inFlight.setValue(nil)
+//                
+//                return result
+//            },
+//            history: { days in
+//                try await calculator.getTrainingReadinessHistory(days: days)
+//            }
+//        )
+//    }()
+//}

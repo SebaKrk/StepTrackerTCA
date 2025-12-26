@@ -435,12 +435,12 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         let backgroundEnergy = totalEnergy - workoutEnergy
         
         // MARK: - 🔍 DEBUG
-        print("═══════════════════════════════════════════════════")
-        print("🏃 Activity window: \(window.start) → \(window.end)")
-        print("🏃 Workout energy: \(String(format: "%.0f", workoutEnergy)) kcal (\(workouts.count) workouts)")
-        print("🏃 Background energy: \(String(format: "%.0f", backgroundEnergy)) kcal")
-        print("🏃 Total energy: \(String(format: "%.0f", totalEnergy)) kcal")
-        print("═══════════════════════════════════════════════════")
+//        print("═══════════════════════════════════════════════════")
+//        print("🏃 Activity window: \(window.start) → \(window.end)")
+//        print("🏃 Workout energy: \(String(format: "%.0f", workoutEnergy)) kcal (\(workouts.count) workouts)")
+//        print("🏃 Background energy: \(String(format: "%.0f", backgroundEnergy)) kcal")
+//        print("🏃 Total energy: \(String(format: "%.0f", totalEnergy)) kcal")
+//        print("═══════════════════════════════════════════════════")
         
         guard totalEnergy > 0 else {
             return nil

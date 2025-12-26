@@ -65,15 +65,20 @@ struct TrainingReadinessFeature {
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                guard state.readinessResult == nil else {
+                guard state.readinessResult == nil,
+                      state.contentState == .noData else {
                     return .none
                 }
-                return .send(.internal(.loadReadinessData))
+                return .concatenate(
+                    .send(.internal(.changeContentState(.loading))),
+                    .send(.internal(.loadReadinessData))
+                )
                 
             case .view(.refresh):
                 return .send(.internal(.loadReadinessData))
             }
         }
+        //._printChanges()
     }
     
 }
