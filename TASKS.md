@@ -494,3 +494,5 @@
 
 ### IOS-00054 Fix
 ### IOS-00055 Fix
+### IOS-00055 Activity details card
+    A: ActivityDetailsFeature

@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Foundation
 import HealthKit
 import SharedModels
+
 @Reducer
 struct ActivitiesFeature {
     
@@ -106,8 +107,7 @@ struct ActivitiesFeature {
                 return .send(.fetchWorkouts)
                 
             case let .view(.openDetails(workout)):
-                // TODO: - Destination
-                dump(workout)
+                state.destination = .activityDetails(ActivityDetailsFeature.State(workout: workout))
                 return .none
                 
             case let .view(.showZoneInfo(zone)):

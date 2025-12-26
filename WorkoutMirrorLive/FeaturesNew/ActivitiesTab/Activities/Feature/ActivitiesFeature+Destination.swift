@@ -15,5 +15,8 @@ extension ActivitiesFeature {
         
         ///
         case zoneInfo(HeartRateZoneInfoFeature)
+        
+        ///
+        case activityDetails(ActivityDetailsFeature)
     }
 }
