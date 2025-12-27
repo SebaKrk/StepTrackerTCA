@@ -107,7 +107,7 @@ struct ActivitiesFeature {
                 return .send(.fetchWorkouts)
                 
             case let .view(.openDetails(workout)):
-                state.destination = .activityDetails(ActivityDetailsFeature.State(workout: workout))
+                state.destination = .activityDetails(ActivityDetailsFeature.State(workout: workout, maxHeartRate: state.maxHeartRate ?? 0))
                 return .none
                 
             case let .view(.showZoneInfo(zone)):

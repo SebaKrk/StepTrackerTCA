@@ -16,6 +16,8 @@ struct ActivityDetailsFeature {
     
     // MARK: - Dependency
     
+    @Dependency(\.activityClient) var activityClient
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -23,49 +25,68 @@ struct ActivityDetailsFeature {
             switch action {
                 
             case .view(.viewDidAppear):
+                guard state.zoneDistribution == nil else { return .none }
+                
+                let workout = state.workout
+                let maxHeartRate = state.maxHeartRate
+                
+                return .run { send in
+                    let distribution = try await activityClient.fetchZoneDistribution(workout, maxHeartRate)
+                    await send(.internal(.zoneDistributionLoaded(distribution)))
+                } catch: { error, send in
+                    print("❌ Failed to load zone distribution: \(error)")
+                }
+                
+            case let .internal(.zoneDistributionLoaded(distribution)):
+                state.zoneDistribution = distribution
                 return .none
             }
         }
     }
-    
 }
 
-/// Implementation of `ActivityDetailsFeature` actions.
+// MARK: - Action
+
 extension ActivityDetailsFeature {
     
     @CasePathable
     enum Action: ViewAction {
-        
-        // MARK: - Actions
-        // MARK: - View Actions
-        
         case view(View)
+        case `internal`(Internal)
         
         enum View {
-            
-            /// Triggered when the view appears on screen.
             case viewDidAppear
         }
         
+        enum Internal {
+            case zoneDistributionLoaded([HeartRateZone: TimeInterval])
+        }
     }
 }
 
-/// Implementation of `ActivityDetailsFeature` state.
+// MARK: - State
+
 extension ActivityDetailsFeature {
     
     @ObservableState
     struct State {
         
-        // MARK: - Properties
+        // MARK: - Shared
         
-        /// The color representing the training readiness level.
-        /// Loaded from shared in‑memory storage to keep UI consistent across features.
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
         
-        ///
-        var workout: HKWorkout
+        // MARK: - Properties
         
+        var workout: HKWorkout
+        var maxHeartRate: Double
+        var zoneDistribution: [HeartRateZone: TimeInterval]?
+        
+        // MARK: - Init
+        
+        init(workout: HKWorkout, maxHeartRate: Double) {
+            self.workout = workout
+            self.maxHeartRate = maxHeartRate
+        }
     }
-    
 }

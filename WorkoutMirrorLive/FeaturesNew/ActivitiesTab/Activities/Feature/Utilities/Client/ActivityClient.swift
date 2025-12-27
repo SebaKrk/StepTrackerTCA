@@ -28,6 +28,9 @@ public struct ActivityClient: Sendable {
     ///   - maxHeartRate: User's maximum heart rate for zone calculation
     /// - Returns: PrimaryZoneInfo with dominant zone and duration, or nil if no HR data
     public var analyzeWorkoutZones: @Sendable (HKWorkout, Double) async throws -> PrimaryZoneInfo?
+    
+    /// Returns full zone distribution for a workout.
+    public var fetchZoneDistribution: @Sendable (HKWorkout, Double) async throws -> [HeartRateZone: TimeInterval]
 }
 
 extension ActivityClient: DependencyKey {
@@ -67,6 +70,13 @@ extension ActivityClient: DependencyKey {
                     samples: samples,
                     maxHeartRate: maxHeartRate
                 )
+            },
+            fetchZoneDistribution: { workout, maxHeartRate in
+                let samples = try await activityManager.fetchHeartRateSamples(for: workout)
+                return zoneAnalyzer.calculateZoneDistribution(
+                    samples: samples,
+                    maxHeartRate: maxHeartRate
+                )
             }
         )
     }()
@@ -74,7 +84,8 @@ extension ActivityClient: DependencyKey {
     public static let testValue = ActivityClient(
         fetchWorkouts: unimplemented("ActivityClient.fetchWorkouts", placeholder: []),
         fetchMaxHeartRate: unimplemented("ActivityClient.fetchMaxHeartRate", placeholder: nil),
-        analyzeWorkoutZones: unimplemented("ActivityClient.analyzeWorkoutZones", placeholder: nil)
+        analyzeWorkoutZones: unimplemented("ActivityClient.analyzeWorkoutZones", placeholder: nil),
+        fetchZoneDistribution: unimplemented("ActivityClient.fetchZoneDistribution", placeholder: [:])
     )
 }
 

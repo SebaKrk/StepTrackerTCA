@@ -409,13 +409,14 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         )
         
         let results = try await query.result(for: healthStore)
+        
         let processedData = HealthKitQueryBuilder.processHealthKitData(
             results.statistics(),
             unit: .kilocalorie(),
             options: .cumulativeSum
         )
         
-        let totalEnergy = processedData.first?.value ?? 0
+        let totalEnergy = processedData.last?.value ?? 0
         
         let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
             from: window.start,
@@ -435,7 +436,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         let backgroundEnergy = totalEnergy - workoutEnergy
         
         // MARK: - 🔍 DEBUG
-//        print("═══════════════════════════════════════════════════")
+//        let backgroundEnergy = totalEnergy - workoutEnergy
 //        print("🏃 Activity window: \(window.start) → \(window.end)")
 //        print("🏃 Workout energy: \(String(format: "%.0f", workoutEnergy)) kcal (\(workouts.count) workouts)")
 //        print("🏃 Background energy: \(String(format: "%.0f", backgroundEnergy)) kcal")
