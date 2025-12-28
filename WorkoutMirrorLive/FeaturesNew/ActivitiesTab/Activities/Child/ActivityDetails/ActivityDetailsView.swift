@@ -20,6 +20,64 @@ struct ActivityDetailsView: View {
     // MARK: - Body
     
     var body: some View {
+        rootView
+            .padding([.leading, .trailing], 8)
+            .navigationTitle("\(store.workout.startDate.formatted(date: .abbreviated, time: .omitted))")
+        
+    }
+    
+    private var rootView: some View {
+        ScrollView {
+            HStack {
+                headerTitle
+            }
+        }
+        
+    }
+    
+    private var headerTitle: some View {
+        VStack {
+            headerWorkoutActivityType
+            headerWorkoutDates
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.gray.opacity(0.5), lineWidth: 0.5)
+                .fill(Color(.secondarySystemBackground).gradient.opacity(0.5))
+        )
+    }
+    
+    private var headerWorkoutActivityType: some View {
+        HStack {
+            Text(store.workout.workoutActivityType.name)
+                .foregroundColor(.primary)
+                .font(.title2)
+                .bold()
+            Spacer()
+            Image(systemName: store.workout.workoutActivityType.iconNameSimple)
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(.primary)
+                .frame(width: 25, height: 25)
+        }
+    }
+    
+    private var headerWorkoutDates: some View {
+            HStack {
+                Text(store.workout.startDate,
+                     format: .dateTime.hour().minute().second())
+                Text("-")
+                Text(store.workout.endDate,
+                     format: .dateTime.hour().minute().second())
+                Spacer()
+                Text(store.workout.startDate, format: .dateTime.weekday(.wide))
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+    }
+    
+    private var exampleView: some View {
         ScrollView {
             VStack(spacing: 16) {
                 headerSection
