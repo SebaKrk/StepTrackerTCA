@@ -60,9 +60,9 @@ struct ActivityDetailsView: View {
                 .foregroundColor(.primary)
                 .font(.title2)
                 .bold()
-            Text(formattedDuration)
-                .foregroundColor(.gray)
+            Text(store.workout.startDate, format: .dateTime.weekday(.wide))
                 .font(.footnote)
+                .foregroundStyle(.secondary)
             Spacer()
             Image(systemName: store.workout.workoutActivityType.iconNameSimple)
                 .resizable()
@@ -80,7 +80,9 @@ struct ActivityDetailsView: View {
             Text(store.workout.endDate,
                  format: .dateTime.hour().minute().second())
             Spacer()
-            Text(store.workout.startDate, format: .dateTime.weekday(.wide))
+            Text(formattedDuration)
+                .foregroundColor(.gray)
+                .font(.footnote)
         }
         .font(.footnote)
         .foregroundStyle(.secondary)
