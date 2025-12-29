@@ -24,6 +24,14 @@ struct ActivityDetailsFeature {
         Reduce { state, action in
             switch action {
                 
+            case let .internal(.zoneExpand(value)):
+                state.isExpandZone = value
+                return .none
+                
+            case let .internal(.zoneDistributionLoaded(distribution)):
+                state.zoneDistribution = distribution
+                return .none
+                
             case .view(.viewDidAppear):
                 guard state.zoneDistribution == nil else { return .none }
                 
@@ -37,9 +45,9 @@ struct ActivityDetailsFeature {
                     print("❌ Failed to load zone distribution: \(error)")
                 }
                 
-            case let .internal(.zoneDistributionLoaded(distribution)):
-                state.zoneDistribution = distribution
-                return .none
+            case let .view(.zoneDiscusserButtonTapped(value)):
+                return .send(.internal(.zoneExpand(value)))
+
             }
         }
     }
@@ -51,16 +59,33 @@ extension ActivityDetailsFeature {
     
     @CasePathable
     enum Action: ViewAction {
-        case view(View)
+        
+        ///
         case `internal`(Internal)
         
-        enum View {
-            case viewDidAppear
+        ///
+        enum Internal {
+            
+            ///
+            case zoneDistributionLoaded([HeartRateZone: TimeInterval])
+            
+            ///
+            case zoneExpand(Bool)
         }
         
-        enum Internal {
-            case zoneDistributionLoaded([HeartRateZone: TimeInterval])
+        ///
+        case view(View)
+        
+        ///
+        enum View {
+            
+            ///
+            case viewDidAppear
+            
+            ///
+            case zoneDiscusserButtonTapped(Bool)
         }
+        
     }
 }
 
@@ -78,15 +103,27 @@ extension ActivityDetailsFeature {
         
         // MARK: - Properties
         
+        ///
         var workout: HKWorkout
+        
+        ///
         var maxHeartRate: Double
+        
+        ///
+        var primaryZoneInfo: PrimaryZoneInfo?
+        
+        ///
         var zoneDistribution: [HeartRateZone: TimeInterval]?
+        
+        ///
+        var isExpandZone: Bool = false
         
         // MARK: - Init
         
-        init(workout: HKWorkout, maxHeartRate: Double) {
+        init(workout: HKWorkout, maxHeartRate: Double, primaryZoneInfo: PrimaryZoneInfo? = nil) {
             self.workout = workout
             self.maxHeartRate = maxHeartRate
+            self.primaryZoneInfo = primaryZoneInfo
         }
     }
 }

@@ -23,16 +23,22 @@ struct ActivityDetailsView: View {
         rootView
             .padding([.leading, .trailing], 8)
             .navigationTitle("\(store.workout.startDate.formatted(date: .abbreviated, time: .omitted))")
-        
+            .background(LinearGradient(colors: [store.color.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+            .onAppear {
+                send(.viewDidAppear)
+            }
     }
     
     private var rootView: some View {
         ScrollView {
-            HStack {
+            VStack {
                 headerTitle
+                statsGridView
+                if let distribution = store.zoneDistribution {
+                    zoneDistributionSection(distribution)
+                }
             }
         }
-        
     }
     
     private var headerTitle: some View {
@@ -54,6 +60,9 @@ struct ActivityDetailsView: View {
                 .foregroundColor(.primary)
                 .font(.title2)
                 .bold()
+            Text(formattedDuration)
+                .foregroundColor(.gray)
+                .font(.footnote)
             Spacer()
             Image(systemName: store.workout.workoutActivityType.iconNameSimple)
                 .resizable()
@@ -64,119 +73,86 @@ struct ActivityDetailsView: View {
     }
     
     private var headerWorkoutDates: some View {
-            HStack {
-                Text(store.workout.startDate,
-                     format: .dateTime.hour().minute().second())
-                Text("-")
-                Text(store.workout.endDate,
-                     format: .dateTime.hour().minute().second())
-                Spacer()
-                Text(store.workout.startDate, format: .dateTime.weekday(.wide))
-            }
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-    }
-    
-    private var exampleView: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                headerSection
-                statsGrid
-                
-                if let distribution = store.zoneDistribution {
-                    zoneDistributionSection(distribution)
-                }
-                
-                // TODO: HR Chart
-                // TODO: Map
-            }
-            .padding()
-        }
-        .background(LinearGradient(colors: [store.color.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
-        .navigationTitle(store.workout.workoutActivityType.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            send(.viewDidAppear)
-        }
-    }
-    
-    // MARK: - Header
-    
-    private var headerSection: some View {
         HStack {
-            Image(systemName: store.workout.workoutActivityType.iconNameSimple)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 50, height: 50)
-                .foregroundStyle(store.color)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(store.workout.workoutActivityType.name)
-                    .font(.title2)
-                    .bold()
-                Text(store.workout.startDate.formatted(date: .abbreviated, time: .shortened))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+            Text(store.workout.startDate,
+                 format: .dateTime.hour().minute().second())
+            Text("-")
+            Text(store.workout.endDate,
+                 format: .dateTime.hour().minute().second())
             Spacer()
+            Text(store.workout.startDate, format: .dateTime.weekday(.wide))
         }
+        .font(.footnote)
+        .foregroundStyle(.secondary)
     }
     
-    // MARK: - Stats Grid
-    
-    private var statsGrid: some View {
+    private var statsGridView: some View {
         LazyVGrid(
             columns: [
-                GridItem(.flexible(), spacing: 8),
-                GridItem(.flexible(), spacing: 8)
+                GridItem(.flexible(), spacing: 4),
+                GridItem(.flexible(), spacing: 4)
             ],
-            spacing: 8
+            spacing: 4
         ) {
-            statBox(title: "Duration", value: formattedDuration, icon: "clock")
-            statBox(title: "Calories", value: formattedCalories, icon: "flame.fill")
-            statBox(title: "Avg HR", value: formattedAvgHR, icon: "heart.fill")
-            statBox(title: "Max HR", value: formattedMaxHR, icon: "heart.fill")
+            workoutCardView(title: "Calories Total", value: formattedTotalCalories, unit: "kcla", icon: "flame")
+            workoutCardView(title: "Calories Active", value: formattedCalories, unit: "kcla", icon: "flame.fill")
+            workoutCardView(title: "Avg HR", value: formattedAvgHR, unit: "bpm", icon: "heart.fill")
+            workoutCardView(title: "Max HR", value: formattedMaxHR, unit: "bpm", icon: "heart.fill")
         }
     }
     
-    private func statBox(title: String, value: String, icon: String) -> some View {
+    // cal total
+    // cal active
+    // trimp
+    //hr tss
+    // hr recovery - 1 min
+    // v02 max
+    // METs (Metabolic Equivalent of Task)
+    
+    private func workoutCardView(title: String,
+                                 value: String,
+                                 unit: String,
+                                 icon: String) -> some View {
         GroupBox {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundStyle(store.color)
-                
-                Text(value)
-                    .font(.title)
-                    .bold()
-                
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            VStack(spacing: 12) {
+                HStack {
+                    Text(value)
+                        .font(.title)
+                        .foregroundColor(.primary)
+                        .bold()
+                    Text(unit)
+                        .foregroundColor(.gray)
+                }
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+        } label: {
+            VStack {
+                HStack {
+                    Group {
+                        Image(systemName: icon)
+                        Text(title)
+                        Spacer()
+                    }
+                    .foregroundColor(.gray)
+                    .font(.caption)
+                }
+                Divider()
+            }
         }
-        .backgroundStyle(.clear)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(.gray.opacity(0.5), lineWidth: 0.5)
-                .fill(Color(.secondarySystemBackground).gradient.opacity(0.5))
-        )
+        .styledGroupBox()
     }
     
     // MARK: - Zone Distribution
     
     private func zoneDistributionSection(_ distribution: [HeartRateZone: TimeInterval]) -> some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                ForEach(HeartRateZone.allCases) { zone in
-                    zoneRow(zone: zone, duration: distribution[zone] ?? 0, total: totalZoneDuration(distribution))
-                }
-            }
+            heartRateZone(distribution)
         } label: {
-            Label("Heart Rate Zones", systemImage: "heart.text.square")
-                .font(.headline)
+            VStack(alignment: .leading) {
+                Label("Heart Rate Zones", systemImage: "heart.text.square")
+                    .foregroundColor(.gray)
+                    .font(.caption)
+                Divider()
+            }
         }
         .backgroundStyle(.clear)
         .background(
@@ -184,6 +160,65 @@ struct ActivityDetailsView: View {
                 .stroke(.gray.opacity(0.5), lineWidth: 0.5)
                 .fill(Color(.secondarySystemBackground).gradient.opacity(0.5))
         )
+    }
+    
+    private func heartRateZone(_ distribution: [HeartRateZone: TimeInterval]) -> some View {
+        DisclosureGroup(isExpanded:  Binding(
+            get: { store.isExpandZone },
+            set: { isExpanded in
+                if isExpanded {
+                    send(.zoneDiscusserButtonTapped(true))
+                } else {
+                    send(.zoneDiscusserButtonTapped(false))
+                }
+            }
+        )) {
+            if store.isExpandZone {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(HeartRateZone.allCases) { zone in
+                        zoneRow(zone: zone, duration: distribution[zone] ?? 0, total: totalZoneDuration(distribution))
+                    }
+                }
+            }
+        } label: {
+            if !store.isExpandZone {
+                primaryZone
+            }
+        }
+    }
+    
+    private var primaryZone: some View {
+        HStack {
+            Text("Primary Zone:")
+                .font(.caption)
+            
+            if let zoneInfo = store.primaryZoneInfo {
+                Text(zoneInfo.zone.rawValue)
+                    .font(.caption)
+                    .bold()
+                    .foregroundStyle(zoneInfo.zone.color)
+            } else {
+                Text("–")
+                    .font(.caption)
+                    .bold()
+            }
+            
+            Spacer()
+            
+            Text("Time in zone:")
+                .font(.caption)
+            
+            if let zoneInfo = store.primaryZoneInfo {
+                Text(formatDuration(zoneInfo.duration))
+                    .font(.caption)
+                    .bold()
+            } else {
+                Text("–")
+                    .font(.caption)
+                    .bold()
+            }
+        }
+        .padding(4)
     }
     
     private func zoneRow(zone: HeartRateZone, duration: TimeInterval, total: TimeInterval) -> some View {
@@ -233,6 +268,22 @@ struct ActivityDetailsView: View {
         return "\(Int(calories))"
     }
     
+    private var formattedTotalCalories: String {
+        let active = calories(for: HKQuantityTypeIdentifier.activeEnergyBurned)
+        let basal = calories(for: HKQuantityTypeIdentifier.basalEnergyBurned)
+        let total = active + basal
+        
+        return total > 0 ? "\(Int(total))" : "—"
+    }
+    
+    private func calories(
+        for identifier: HKQuantityTypeIdentifier
+    ) -> Double {
+        store.workout.statistics(for: HKQuantityType(identifier))?
+            .sumQuantity()?
+            .doubleValue(for: .kilocalorie()) ?? 0
+    }
+    
     private var formattedAvgHR: String {
         guard let avgHR = store.workout.statistics(for: HKQuantityType(.heartRate))?
             .averageQuantity()?
@@ -260,7 +311,9 @@ struct ActivityDetailsView: View {
     private func totalZoneDuration(_ distribution: [HeartRateZone: TimeInterval]) -> TimeInterval {
         distribution.values.reduce(0, +)
     }
+    
 }
+
 //
 //ActivityDetailsFeature (parent - koordynator)
 //│
