@@ -18,6 +18,8 @@ struct ActivityDetailsFeature {
     
     @Dependency(\.activityClient) var activityClient
     
+    @Dependency(\.personalDataClient) var personalDataClient
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -32,6 +34,10 @@ struct ActivityDetailsFeature {
                 state.zoneDistribution = distribution
                 return .none
                 
+            case let .internal(.metricsLoaded(mets)):
+                state.mets = mets
+                return .none
+                
             case .view(.viewDidAppear):
                 guard state.zoneDistribution == nil else { return .none }
                 
@@ -39,11 +45,24 @@ struct ActivityDetailsFeature {
                 let maxHeartRate = state.maxHeartRate
                 
                 return .run { send in
-                    let distribution = try await activityClient.fetchZoneDistribution(workout, maxHeartRate)
-                    await send(.internal(.zoneDistributionLoaded(distribution)))
-                } catch: { error, send in
-                    print("❌ Failed to load zone distribution: \(error)")
+                    
+                    async let distributionTask = activityClient.fetchZoneDistribution(workout, maxHeartRate)
+                    
+                    async let metsTask: Double? = {
+                        guard let weightData = try? await personalDataClient.getWeight(30),
+                              weightData.value > 0
+                        else { return nil }
+                        return try? await activityClient.fetchMETs(workout, weightData.value)
+                    }()
+                    
+                    if let distribution = try? await distributionTask {
+                        await send(.internal(.zoneDistributionLoaded(distribution)))
+                    }
+                    
+                    let mets = await metsTask
+                    await send(.internal(.metricsLoaded(mets: mets)))
                 }
+                
                 
             case let .view(.zoneDiscusserButtonTapped(value)):
                 return .send(.internal(.zoneExpand(value)))
@@ -71,6 +90,9 @@ extension ActivityDetailsFeature {
             
             ///
             case zoneExpand(Bool)
+            
+            case metricsLoaded(mets: Double?)
+
         }
         
         ///
@@ -117,6 +139,10 @@ extension ActivityDetailsFeature {
         
         ///
         var isExpandZone: Bool = false
+        
+        var mets: Double?
+        
+        var userWeight: Double?
         
         // MARK: - Init
         

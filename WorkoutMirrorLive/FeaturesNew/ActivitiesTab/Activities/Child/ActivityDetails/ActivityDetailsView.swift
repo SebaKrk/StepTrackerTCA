@@ -96,20 +96,14 @@ struct ActivityDetailsView: View {
             ],
             spacing: 4
         ) {
-            workoutCardView(title: "Calories Total", value: formattedTotalCalories, unit: "kcla", icon: "flame")
-            workoutCardView(title: "Calories Active", value: formattedCalories, unit: "kcla", icon: "flame.fill")
+            //workoutCardView(title: "Calories Total", value: formattedTotalCalories, unit: "kcla", icon: "flame")
+            //workoutCardView(title: "Calories Active", value: formattedCalories, unit: "kcla", icon: "flame.fill")
+            workoutCardView(title: "Calories", value: formattedCalories, unit: "kcal", icon: "flame.fill")
+            workoutCardView(title: "METs", value: formattedMETs, unit: "", icon: "bolt.fill")
             workoutCardView(title: "Avg HR", value: formattedAvgHR, unit: "bpm", icon: "heart.fill")
             workoutCardView(title: "Max HR", value: formattedMaxHR, unit: "bpm", icon: "heart.fill")
         }
     }
-    
-    // cal total
-    // cal active
-    // trimp
-    //hr tss
-    // hr recovery - 1 min
-    // v02 max
-    // METs (Metabolic Equivalent of Task)
     
     private func workoutCardView(title: String,
                                  value: String,
@@ -314,6 +308,10 @@ struct ActivityDetailsView: View {
         distribution.values.reduce(0, +)
     }
     
+    private var formattedMETs: String {
+        guard let mets = store.mets else { return "–" }
+        return String(format: "%.1f", mets)
+    }
 }
 
 //

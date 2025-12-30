@@ -31,6 +31,8 @@ public struct ActivityClient: Sendable {
     
     /// Returns full zone distribution for a workout.
     public var fetchZoneDistribution: @Sendable (HKWorkout, Double) async throws -> [HeartRateZone: TimeInterval]
+    
+    public var fetchMETs: @Sendable (HKWorkout, Double) async throws -> Double?
 }
 
 extension ActivityClient: DependencyKey {
@@ -77,6 +79,20 @@ extension ActivityClient: DependencyKey {
                     samples: samples,
                     maxHeartRate: maxHeartRate
                 )
+            },
+            fetchMETs: { workout, weightKg in
+                guard weightKg > 0,
+                      workout.duration > 0,
+                      let activeCalories = workout.statistics(for: HKQuantityType(.activeEnergyBurned))?
+                          .sumQuantity()?
+                          .doubleValue(for: .kilocalorie()),
+                      activeCalories > 0
+                else {
+                    return nil
+                }
+                
+                let durationHours = workout.duration / 3600
+                return activeCalories / (weightKg * durationHours)
             }
         )
     }()
@@ -85,7 +101,8 @@ extension ActivityClient: DependencyKey {
         fetchWorkouts: unimplemented("ActivityClient.fetchWorkouts", placeholder: []),
         fetchMaxHeartRate: unimplemented("ActivityClient.fetchMaxHeartRate", placeholder: nil),
         analyzeWorkoutZones: unimplemented("ActivityClient.analyzeWorkoutZones", placeholder: nil),
-        fetchZoneDistribution: unimplemented("ActivityClient.fetchZoneDistribution", placeholder: [:])
+        fetchZoneDistribution: unimplemented("ActivityClient.fetchZoneDistribution", placeholder: [:]),
+        fetchMETs: unimplemented("ActivityClient.fetchMETs", placeholder: nil)
     )
 }
 
