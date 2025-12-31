@@ -32,4 +32,18 @@ public protocol ActivityManager: Sendable {
         for workout: HKWorkout
     ) async throws -> [HKQuantitySample]
     
+    /// Fetches heart rate measurement after workout ends.
+    ///
+    /// Used for HR Recovery calculation - measures how quickly heart rate
+    /// drops after exercise stops. A faster drop indicates better cardiovascular fitness.
+    ///
+    /// - Parameters:
+    ///   - workout: The completed workout
+    ///   - afterSeconds: Seconds after workout end to measure (typically 60 for HRR1)
+    /// - Returns: Heart rate in bpm, or nil if no data available in the time window
+    /// - Throws: HealthKit errors if data access fails
+    func fetchHeartRateAfterWorkout(
+        workout: HKWorkout,
+        afterSeconds: TimeInterval
+    ) async throws -> Double?
 }

@@ -18,138 +18,78 @@ struct ActivityDetailsFeature {
     
     @Dependency(\.activityClient) var activityClient
     
-    @Dependency(\.personalDataClient) var personalDataClient
-    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
                 
-            case let .internal(.zoneExpand(value)):
-                state.isExpandZone = value
-                return .none
+                // MARK: - Internal State Updates
                 
             case let .internal(.zoneDistributionLoaded(distribution)):
                 state.zoneDistribution = distribution
                 return .none
                 
-            case let .internal(.metricsLoaded(mets)):
+            case let .internal(.metricsLoaded(mets, trimp, hrTSS, hrRecovery)):
                 state.mets = mets
+                state.trimp = trimp
+                state.hrTSS = hrTSS
+                state.hrRecovery = hrRecovery
                 return .none
                 
-            case .view(.viewDidAppear):
-                guard state.zoneDistribution == nil else { return .none }
+            case let .internal(.zoneExpand(value)):
+                state.isExpandZone = value
+                return .none
                 
+                // MARK: - Internal Data Loading
+                
+            case .internal(.loadZoneDistribution):
                 let workout = state.workout
                 let maxHeartRate = state.maxHeartRate
                 
                 return .run { send in
-                    
-                    async let distributionTask = activityClient.fetchZoneDistribution(workout, maxHeartRate)
-                    
-                    async let metsTask: Double? = {
-                        guard let weightData = try? await personalDataClient.getWeightForDate(workout.startDate),
-                              weightData.value > 0
-                        else { return nil }
-                        return try? await activityClient.fetchMETs(workout, weightData.value)
-                    }()
-                    
-                    if let distribution = try? await distributionTask {
-                        await send(.internal(.zoneDistributionLoaded(distribution)))
-                    }
-                    
-                    let mets = await metsTask
-                    await send(.internal(.metricsLoaded(mets: mets)))
+                    let distribution = try await activityClient.fetchZoneDistribution(workout, maxHeartRate)
+                    await send(.internal(.zoneDistributionLoaded(distribution)))
+                } catch: { error, send in
+                    print("❌ Failed to load zone distribution: \(error)")
                 }
                 
+            case .internal(.loadMetrics):
+                let workout = state.workout
+                let maxHeartRate = state.maxHeartRate
+                
+                return .run { send in
+                    async let metsTask = activityClient.fetchMETs(workout)
+                    async let trimpTask = activityClient.fetchTRIMP(workout, maxHeartRate)
+                    async let hrTSSTask = activityClient.fetchHRTSS(workout, maxHeartRate)
+                    async let hrRecoveryTask = activityClient.fetchHRRecovery(workout)
+                    
+                    let mets = try? await metsTask
+                    let trimp = try? await trimpTask
+                    let hrTSS = try? await hrTSSTask
+                    let hrRecovery = try? await hrRecoveryTask
+                    
+                    await send(.internal(.metricsLoaded(
+                        mets: mets,
+                        trimp: trimp,
+                        hrTSS: hrTSS,
+                        hrRecovery: hrRecovery
+                    )))
+                }
+                
+                // MARK: - View Actions
+                
+            case .view(.viewDidAppear):
+                guard state.zoneDistribution == nil else { return .none }
+                return .merge(
+                    .send(.internal(.loadZoneDistribution)),
+                    .send(.internal(.loadMetrics))
+                )
                 
             case let .view(.zoneDiscusserButtonTapped(value)):
                 return .send(.internal(.zoneExpand(value)))
-
             }
         }
     }
 }
 
-// MARK: - Action
-
-extension ActivityDetailsFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        ///
-        case `internal`(Internal)
-        
-        ///
-        enum Internal {
-            
-            ///
-            case zoneDistributionLoaded([HeartRateZone: TimeInterval])
-            
-            ///
-            case zoneExpand(Bool)
-            
-            case metricsLoaded(mets: Double?)
-
-        }
-        
-        ///
-        case view(View)
-        
-        ///
-        enum View {
-            
-            ///
-            case viewDidAppear
-            
-            ///
-            case zoneDiscusserButtonTapped(Bool)
-        }
-        
-    }
-}
-
-// MARK: - State
-
-extension ActivityDetailsFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Shared
-        
-        @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
-        
-        // MARK: - Properties
-        
-        ///
-        var workout: HKWorkout
-        
-        ///
-        var maxHeartRate: Double
-        
-        ///
-        var primaryZoneInfo: PrimaryZoneInfo?
-        
-        ///
-        var zoneDistribution: [HeartRateZone: TimeInterval]?
-        
-        ///
-        var isExpandZone: Bool = false
-        
-        var mets: Double?
-        
-        var userWeight: Double?
-        
-        // MARK: - Init
-        
-        init(workout: HKWorkout, maxHeartRate: Double, primaryZoneInfo: PrimaryZoneInfo? = nil) {
-            self.workout = workout
-            self.maxHeartRate = maxHeartRate
-            self.primaryZoneInfo = primaryZoneInfo
-        }
-    }
-}

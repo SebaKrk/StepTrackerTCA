@@ -152,6 +152,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         return nil
     }
     
+    
     // MARK: - General Heart Rate API
     
     /// Fetches average resting heart rate from the specified days using HealthKitQueryBuilder for cardiovascular data.
@@ -172,6 +173,57 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         )
         
         return processedData.first
+    }
+    
+    /// Retrieves resting heart rate for a specific date, with fallback to nearest previous measurement.
+    public func getRestingHeartRate(for date: Date) async throws -> HealthKitData? {
+        let restingHRType = HKQuantityType(.restingHeartRate)
+        let calendar = Calendar.current
+        
+        // 1. Szukaj RHR z tego samego dnia (okno poranne 00:00 - 11:00)
+        let startOfDay = calendar.startOfDay(for: date)
+        let morningEnd = calendar.date(byAdding: .hour, value: 11, to: startOfDay)!
+        
+        let sameDayPredicate = HKQuery.predicateForSamples(
+            withStart: startOfDay,
+            end: morningEnd,
+            options: .strictStartDate
+        )
+        
+        let sameDayDescriptor = HKSampleQueryDescriptor(
+            predicates: [.quantitySample(type: restingHRType, predicate: sameDayPredicate)],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)],
+            limit: 1
+        )
+        
+        let sameDayResults = try await sameDayDescriptor.result(for: manager.healthStore)
+        
+        if let sample = sameDayResults.first {
+            let rhr = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            return HealthKitData(date: sample.startDate, value: rhr)
+        }
+        
+        // 2. Fallback - najbliższe RHR PRZED tą datą
+        let beforePredicate = HKQuery.predicateForSamples(
+            withStart: nil,
+            end: startOfDay,
+            options: .strictEndDate
+        )
+        
+        let fallbackDescriptor = HKSampleQueryDescriptor(
+            predicates: [.quantitySample(type: restingHRType, predicate: beforePredicate)],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)],
+            limit: 1
+        )
+        
+        let fallbackResults = try await fallbackDescriptor.result(for: manager.healthStore)
+        
+        if let sample = fallbackResults.first {
+            let rhr = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            return HealthKitData(date: sample.startDate, value: rhr)
+        }
+        
+        return nil
     }
     
     /// Retrieves the user's average heart rate variability from specified time period.
