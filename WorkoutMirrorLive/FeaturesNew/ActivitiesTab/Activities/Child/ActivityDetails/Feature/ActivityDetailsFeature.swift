@@ -49,7 +49,7 @@ struct ActivityDetailsFeature {
                     async let distributionTask = activityClient.fetchZoneDistribution(workout, maxHeartRate)
                     
                     async let metsTask: Double? = {
-                        guard let weightData = try? await personalDataClient.getWeight(30),
+                        guard let weightData = try? await personalDataClient.getWeightForDate(workout.startDate),
                               weightData.value > 0
                         else { return nil }
                         return try? await activityClient.fetchMETs(workout, weightData.value)
