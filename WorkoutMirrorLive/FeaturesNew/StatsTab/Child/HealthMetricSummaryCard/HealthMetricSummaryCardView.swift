@@ -69,6 +69,7 @@ struct HealthMetricSummaryCardView: View {
         data: TrainingComponentScore?
     ) -> some View {
         GroupBox {
+            
             if let data = data {
                 metricContent(for: metric, data: data)
             } else {

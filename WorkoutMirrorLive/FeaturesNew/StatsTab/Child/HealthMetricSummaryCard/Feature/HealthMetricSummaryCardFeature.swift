@@ -36,7 +36,6 @@ struct HealthMetricSummaryCardFeature {
                 }
                 
             case .internal(.loadSummaryData):
-                print("HealthMetricSummaryCardFeature 🔴🔴🔴 loadReadinessData - contentState: \(state.contentState)")
                 return .run { send in
                     do {
                         let result = try await trainingReadinessClient.calculate()

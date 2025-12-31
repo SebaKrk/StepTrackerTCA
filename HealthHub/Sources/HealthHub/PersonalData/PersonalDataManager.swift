@@ -79,6 +79,8 @@ public protocol PersonalDataManager: Sendable {
     /// - Throws: HealthKit errors if data access fails
     func getHeight() async throws -> HealthKitData?
     
+    func getWeight(for date: Date) async throws -> HealthKitData? 
+    
     /// Retrieves the user's average weight measurement from specified time period.
     ///
     /// This method fetches body mass measurements from HealthKit and calculates the average

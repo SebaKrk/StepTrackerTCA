@@ -16,6 +16,7 @@ public struct PersonalDataClient {
     var getBiologicalSex: @Sendable () async throws -> BiologicalSex?
     var getHeight: @Sendable () async throws -> HealthKitData?
     var getWeight: @Sendable (Int) async throws -> HealthKitData?
+    var getWeightForDate: @Sendable (Date) async throws -> HealthKitData?
     var getRestingHeartRate: @Sendable (Int) async throws -> HealthKitData?
 }
 
@@ -44,6 +45,9 @@ private enum PersonalDataClientKey: DependencyKey {
             },
             getWeight: { days in
                 return try await manager.getWeight(days: days)
+            },
+            getWeightForDate: { date in
+                return try await manager.getWeight(for: date)
             },
             getRestingHeartRate: { days in
                 return try await manager.getRestingHeartRate(days: days)

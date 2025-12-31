@@ -94,8 +94,62 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             unit: .gramUnit(with: .kilo),
             options: .discreteAverage
         )
+        print("📊 Weight result: \(processedData.last?.value ?? -1) kg")
         
         return processedData.last
+    }
+    
+    public func getWeight(for date: Date) async throws -> HealthKitData? {
+        let weightType = HKQuantityType(.bodyMass)
+        let calendar = Calendar.current
+        
+        // 1. Szukaj wagi z tego samego dnia
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let sameDayPredicate = HKQuery.predicateForSamples(
+            withStart: startOfDay,
+            end: endOfDay,
+            options: .strictStartDate
+        )
+        
+        let sameDayDescriptor = HKSampleQueryDescriptor(
+            predicates: [.quantitySample(type: weightType, predicate: sameDayPredicate)],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)],
+            limit: 1
+        )
+        
+        let sameDayResults = try await sameDayDescriptor.result(for: manager.healthStore)
+        
+        if let sample = sameDayResults.first {
+            let weight = sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
+            print("⚖️ Weight for \(date): \(weight) kg (same day)")
+            return HealthKitData(date: sample.startDate, value: weight)
+        }
+        
+        // 2. Fallback - najbliższa waga PRZED tą datą
+        let beforePredicate = HKQuery.predicateForSamples(
+            withStart: nil,
+            end: startOfDay,
+            options: .strictEndDate
+        )
+        
+        let fallbackDescriptor = HKSampleQueryDescriptor(
+            predicates: [.quantitySample(type: weightType, predicate: beforePredicate)],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)],
+            limit: 1
+        )
+        
+        let fallbackResults = try await fallbackDescriptor.result(for: manager.healthStore)
+        
+        if let sample = fallbackResults.first {
+            let weight = sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
+            print("⚖️ Weight for \(date): \(weight) kg (fallback from \(sample.startDate))")
+            return HealthKitData(date: sample.startDate, value: weight)
+        }
+        
+        print("⚖️ No weight data found for or before \(date)")
+        return nil
     }
     
     // MARK: - General Heart Rate API
@@ -409,13 +463,14 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         )
         
         let results = try await query.result(for: healthStore)
+        
         let processedData = HealthKitQueryBuilder.processHealthKitData(
             results.statistics(),
             unit: .kilocalorie(),
             options: .cumulativeSum
         )
         
-        let totalEnergy = processedData.first?.value ?? 0
+        let totalEnergy = processedData.last?.value ?? 0
         
         let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
             from: window.start,
@@ -435,7 +490,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         let backgroundEnergy = totalEnergy - workoutEnergy
         
         // MARK: - 🔍 DEBUG
-//        print("═══════════════════════════════════════════════════")
+//        let backgroundEnergy = totalEnergy - workoutEnergy
 //        print("🏃 Activity window: \(window.start) → \(window.end)")
 //        print("🏃 Workout energy: \(String(format: "%.0f", workoutEnergy)) kcal (\(workouts.count) workouts)")
 //        print("🏃 Background energy: \(String(format: "%.0f", backgroundEnergy)) kcal")
