@@ -42,19 +42,15 @@ extension ActivityDetailsFeature {
         // MARK: - Performance Metrics
         
         /// Metabolic Equivalent of Task - workout intensity vs rest.
-        /// Values: <3 light, 3-6 moderate, 6-9 vigorous, 9+ very vigorous.
         var mets: Double?
         
         /// Training Impulse - training load based on time in HR zones.
-        /// Values: 50-100 light, 100-200 moderate, 200-300 hard, 300+ very hard.
         var trimp: Double?
         
         /// Heart Rate Training Stress Score - normalized training stress.
-        /// 100 = 1 hour at lactate threshold. Used for recovery estimation.
         var hrTSS: Double?
         
         /// Heart rate recovery - BPM drop 1 minute after workout.
-        /// Values: <12 poor, 12-20 average, 20-30 good, 30-40 very good, 40+ excellent.
         var hrRecovery: Int?
         
         // MARK: - Init
@@ -63,6 +59,39 @@ extension ActivityDetailsFeature {
             self.workout = workout
             self.maxHeartRate = maxHeartRate
             self.primaryZoneInfo = primaryZoneInfo
+        }
+        
+        // MARK: - Domain Models
+        
+        /// METs intensity classification.
+        var metsIntensity: METsIntensity? {
+            guard let mets else { return nil }
+            return METsIntensity.from(value: mets)
+        }
+        
+        /// TRIMP training load classification.
+        var trimpLevel: TRIMPLevel? {
+            guard let trimp else { return nil }
+            return TRIMPLevel.from(value: trimp)
+        }
+        
+        /// hrTSS stress level classification.
+        var hrTSSLevel: HRTSSLevel? {
+            guard let hrTSS else { return nil }
+            return HRTSSLevel.from(value: hrTSS)
+        }
+        
+        /// HR Recovery fitness level classification.
+        var hrRecoveryLevel: HRRecoveryLevel? {
+            guard let hrRecovery else { return nil }
+            return HRRecoveryLevel.from(value: hrRecovery)
+        }
+        
+        // MARK: - Zone Distribution
+        
+        /// Total time across all heart rate zones.
+        var totalZoneDuration: TimeInterval {
+            zoneDistribution?.values.reduce(0, +) ?? 0
         }
     }
 }

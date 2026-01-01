@@ -31,15 +31,20 @@ struct ActivityDetailsView: View {
     
     private var rootView: some View {
         ScrollView {
-            VStack {
+            VStack(spacing: 8) {
                 headerTitle
-                statsGridView
+                energySection
+                heartRateSection
                 if let distribution = store.zoneDistribution {
                     zoneDistributionSection(distribution)
                 }
+                trainingLoadSection
+                stressRecoverySection
             }
         }
     }
+    
+    // MARK: - Header
     
     private var headerTitle: some View {
         VStack {
@@ -60,9 +65,9 @@ struct ActivityDetailsView: View {
                 .foregroundColor(.primary)
                 .font(.title2)
                 .bold()
-            Text(store.workout.startDate, format: .dateTime.weekday(.wide))
+            Text(formattedDuration)
+                .foregroundColor(.gray)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
             Spacer()
             Image(systemName: store.workout.workoutActivityType.iconNameSimple)
                 .resizable()
@@ -80,15 +85,15 @@ struct ActivityDetailsView: View {
             Text(store.workout.endDate,
                  format: .dateTime.hour().minute().second())
             Spacer()
-            Text(formattedDuration)
-                .foregroundColor(.gray)
-                .font(.footnote)
+            Text(store.workout.startDate, format: .dateTime.weekday(.wide))
         }
         .font(.footnote)
         .foregroundStyle(.secondary)
     }
     
-    private var statsGridView: some View {
+    // MARK: - Energy Section
+    
+    private var energySection: some View {
         LazyVGrid(
             columns: [
                 GridItem(.flexible(), spacing: 4),
@@ -96,45 +101,221 @@ struct ActivityDetailsView: View {
             ],
             spacing: 4
         ) {
-            //workoutCardView(title: "Calories Total", value: formattedTotalCalories, unit: "kcla", icon: "flame")
-            //workoutCardView(title: "Calories Active", value: formattedCalories, unit: "kcla", icon: "flame.fill")
-            workoutCardView(title: "Calories", value: formattedCalories, unit: "kcal", icon: "flame.fill")
-            workoutCardView(title: "METs", value: formattedMETs, unit: "", icon: "bolt.fill")
-            workoutCardView(title: "Avg HR", value: formattedAvgHR, unit: "bpm", icon: "heart.fill")
-            workoutCardView(title: "Max HR", value: formattedMaxHR, unit: "bpm", icon: "heart.fill")
+            simpleMetricCard(
+                title: "Calories Active",
+                value: formattedCalories,
+                unit: "kcal",
+                icon: "flame.fill"
+            )
+            simpleMetricCard(
+                title: "METs",
+                value: formattedMETs,
+                unit: "",
+                icon: "bolt.fill"
+            )
         }
     }
     
-    private func workoutCardView(title: String,
-                                 value: String,
-                                 unit: String,
-                                 icon: String) -> some View {
+    // MARK: - Heart Rate Section
+    
+    private var heartRateSection: some View {
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(), spacing: 4),
+                GridItem(.flexible(), spacing: 4)
+            ],
+            spacing: 4
+        ) {
+            simpleMetricCard(
+                title: "Avg HR",
+                value: formattedAvgHR,
+                unit: "bpm",
+                icon: "heart.fill"
+            )
+            simpleMetricCard(
+                title: "Max HR",
+                value: formattedMaxHR,
+                unit: "bpm",
+                icon: "heart.fill"
+            )
+        }
+    }
+    
+    // MARK: - Training Load Section
+    
+    private var trainingLoadSection: some View {
+        trimpCard
+    }
+    
+    // MARK: - Stress & Recovery Section
+    
+    private var stressRecoverySection: some View {
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(), spacing: 4),
+                GridItem(.flexible(), spacing: 4)
+            ],
+            spacing: 4
+        ) {
+            descriptiveMetricCard(
+                title: "hrTSS",
+                value: formattedHRTSS,
+                unit: "",
+                label: store.hrTSSLevel?.recoveryEstimate ?? "",
+                labelColor: store.hrRecoveryLevel?.color ?? .gray,
+                icon: "waveform.path.ecg"
+            )
+            .contextMenu {
+                if let hrTSSLevel = store.hrTSSLevel {
+                    Text(hrTSSLevel.description)
+                }
+            }
+            descriptiveMetricCard(
+                title: "HR Recovery",
+                value: formattedHRRecovery,
+                unit: "bpm",
+                label: store.hrRecoveryLevel?.rawValue ?? "",
+                labelColor: store.hrRecoveryLevel?.color ?? .gray,
+                icon: "arrow.down.heart.fill"
+            )
+            .contextMenu {
+                if let hrRecoveryLevel = store.hrRecoveryLevel {
+                    Text(hrRecoveryLevel.description)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Card Components
+    
+    /// Simple workout metric card with value and unit.
+    private func simpleMetricCard(
+        title: String,
+        value: String,
+        unit: String,
+        icon: String
+    ) -> some View {
         GroupBox {
-            VStack(spacing: 12) {
+            HStack {
+                Text(value)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                Text(unit)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        } label: {
+            Label(title, systemImage: icon)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .styledGroupBox()
+    }
+    
+    /// Metric card with value, unit and descriptive label.
+    private func descriptiveMetricCard(
+        title: String,
+        value: String,
+        unit: String,
+        label: String,
+        labelColor: Color = .secondary,
+        icon: String
+    ) -> some View {
+        GroupBox {
+            VStack(spacing: 4) {
                 HStack {
                     Text(value)
                         .font(.title)
+                        .fontWeight(.bold)
                         .foregroundColor(.primary)
-                        .bold()
-                    Text(unit)
-                        .foregroundColor(.gray)
+                    if !unit.isEmpty {
+                        Text(unit)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                if !label.isEmpty {
+                    Text(label)
+                        .font(.caption)
+                        .foregroundColor(labelColor)
                 }
             }
         } label: {
-            VStack {
-                HStack {
-                    Group {
-                        Image(systemName: icon)
-                        Text(title)
-                        Spacer()
-                    }
-                    .foregroundColor(.gray)
-                    .font(.caption)
-                }
-                Divider()
-            }
+            Label(title, systemImage: icon)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
         .styledGroupBox()
+    }
+    
+    /// Detailed TRIMP training load card with progress bar and comparison.
+    private var trimpCard: some View {
+        GroupBox {
+            VStack(spacing: 12) {
+                HStack {
+                    Text("TRIMP:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Text(formattedTRIMP)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Spacer()
+                    
+                    trimpProgressBar
+                    
+                    if let level = store.trimpLevel {
+                        Text(level.rawValue)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(level.color)
+                    }
+                }
+                
+                Divider()
+                
+                HStack {
+                    HStack(spacing: 4) {
+                        Text("vs 7d:")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("—")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 4) {
+                        Text("Recovery:")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(store.trimpLevel?.recoveryEstimate ?? "—")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                }
+            }
+        } label: {
+            Label("Training Load", systemImage: "figure.run")
+                .font(.headline)
+        }
+        .styledGroupBox()
+    }
+    
+    private var trimpProgressBar: some View {
+        GeometryReader { geometry in
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.gray.opacity(0.3))
+                .overlay(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(store.trimpLevel?.color ?? .gray)
+                        .frame(width: geometry.size.width * trimpProgress)
+                }
+        }
+        .frame(width: 80, height: 8)
     }
     
     // MARK: - Zone Distribution
@@ -143,12 +324,8 @@ struct ActivityDetailsView: View {
         GroupBox {
             heartRateZone(distribution)
         } label: {
-            VStack(alignment: .leading) {
-                Label("Heart Rate Zones", systemImage: "heart.text.square")
-                    .foregroundColor(.gray)
-                    .font(.caption)
-                Divider()
-            }
+            Label("Heart Rate Zones", systemImage: "heart.text.square")
+                .font(.headline)
         }
         .backgroundStyle(.clear)
         .background(
@@ -159,20 +336,20 @@ struct ActivityDetailsView: View {
     }
     
     private func heartRateZone(_ distribution: [HeartRateZone: TimeInterval]) -> some View {
-        DisclosureGroup(isExpanded:  Binding(
+        DisclosureGroup(isExpanded: Binding(
             get: { store.isExpandZone },
             set: { isExpanded in
-                if isExpanded {
-                    send(.zoneDiscusserButtonTapped(true))
-                } else {
-                    send(.zoneDiscusserButtonTapped(false))
-                }
+                send(.zoneDiscusserButtonTapped(isExpanded))
             }
         )) {
             if store.isExpandZone {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(HeartRateZone.allCases) { zone in
-                        zoneRow(zone: zone, duration: distribution[zone] ?? 0, total: totalZoneDuration(distribution))
+                        zoneRow(
+                            zone: zone,
+                            duration: distribution[zone] ?? 0,
+                            total: store.totalZoneDuration
+                        )
                     }
                 }
             }
@@ -264,22 +441,6 @@ struct ActivityDetailsView: View {
         return "\(Int(calories))"
     }
     
-    private var formattedTotalCalories: String {
-        let active = calories(for: HKQuantityTypeIdentifier.activeEnergyBurned)
-        let basal = calories(for: HKQuantityTypeIdentifier.basalEnergyBurned)
-        let total = active + basal
-        
-        return total > 0 ? "\(Int(total))" : "—"
-    }
-    
-    private func calories(
-        for identifier: HKQuantityTypeIdentifier
-    ) -> Double {
-        store.workout.statistics(for: HKQuantityType(identifier))?
-            .sumQuantity()?
-            .doubleValue(for: .kilocalorie()) ?? 0
-    }
-    
     private var formattedAvgHR: String {
         guard let avgHR = store.workout.statistics(for: HKQuantityType(.heartRate))?
             .averageQuantity()?
@@ -298,19 +459,35 @@ struct ActivityDetailsView: View {
         return "\(Int(maxHR))"
     }
     
+    private var formattedMETs: String {
+        guard let mets = store.mets else { return "—" }
+        return String(format: "%.1f", mets)
+    }
+    
+    private var formattedTRIMP: String {
+        guard let trimp = store.trimp else { return "—" }
+        return "\(Int(trimp))"
+    }
+    
+    private var formattedHRTSS: String {
+        guard let hrTSS = store.hrTSS else { return "—" }
+        return "\(Int(hrTSS))"
+    }
+    
+    private var formattedHRRecovery: String {
+        guard let hrRecovery = store.hrRecovery else { return "—" }
+        return "\(hrRecovery)"
+    }
+    
+    private var trimpProgress: Double {
+        guard let trimp = store.trimp else { return 0 }
+        return min(trimp / 400, 1.0)
+    }
+    
     private func formatDuration(_ seconds: TimeInterval) -> String {
         let minutes = Int(seconds) / 60
         let secs = Int(seconds) % 60
         return "\(minutes)m \(secs)s"
-    }
-    
-    private func totalZoneDuration(_ distribution: [HeartRateZone: TimeInterval]) -> TimeInterval {
-        distribution.values.reduce(0, +)
-    }
-    
-    private var formattedMETs: String {
-        guard let mets = store.mets else { return "–" }
-        return String(format: "%.1f", mets)
     }
 }
 
