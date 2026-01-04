@@ -27,6 +27,12 @@ struct ActivityDetailsView: View {
             .onAppear {
                 send(.viewDidAppear)
             }
+            .navigationDestination(
+                item: $store.scope(
+                    state: \.destination?.metricDetail,
+                    action: \.destination.metricDetail)) { store in
+                        MetricDetailView(store: store)
+                    }
     }
     
     private var rootView: some View {
@@ -141,7 +147,7 @@ struct ActivityDetailsView: View {
     }
     
     // MARK: - Performance Metrics Section
-    
+
     private var performanceMetricsSection: some View {
         VStack(spacing: 4) {
             LazyVGrid(
@@ -151,7 +157,7 @@ struct ActivityDetailsView: View {
                 ],
                 spacing: 4
             ) {
-                // Training Load (hrTSS)
+                // hrTSS
                 tappableMetricCard(
                     title: "hrTSS",
                     value: formattedHRTSS,
@@ -160,9 +166,12 @@ struct ActivityDetailsView: View {
                     labelColor: store.hrTSSLevel?.color ?? .gray,
                     icon: "figure.run"
                 ) {
-                    // TODO: Navigate to Training Load details
+                    if let hrTSS = store.hrTSS, let level = store.hrTSSLevel {
+                        send(.openMetricDetails(.hrTSS(value: hrTSS, level: level)))
+                    }
                 }
                 
+                // Intensity
                 tappableMetricCard(
                     title: "Intensity",
                     value: formattedIntensityFactor,
@@ -171,7 +180,9 @@ struct ActivityDetailsView: View {
                     labelColor: store.intensityFactorLevel?.color ?? .gray,
                     icon: "gauge.with.needle"
                 ) {
-                    // TODO: Navigate to Intensity details
+                    if let intensity = store.intensityFactor, let level = store.intensityFactorLevel {
+                        send(.openMetricDetails(.intensity(value: intensity, level: level)))
+                    }
                 }
             }
             
@@ -182,6 +193,7 @@ struct ActivityDetailsView: View {
                 ],
                 spacing: 4
             ) {
+                // HR Recovery
                 tappableMetricCard(
                     title: "HR Recovery",
                     value: formattedHRRecovery,
@@ -190,9 +202,12 @@ struct ActivityDetailsView: View {
                     labelColor: store.hrRecoveryLevel?.color ?? .gray,
                     icon: "arrow.down.heart.fill"
                 ) {
-                    // TODO: Navigate to HR Recovery details
+                    if let hrRecovery = store.hrRecovery, let level = store.hrRecoveryLevel {
+                        send(.openMetricDetails(.hrRecovery(value: hrRecovery, level: level)))
+                    }
                 }
                 
+                // Recovery Demand
                 tappableMetricCard(
                     title: "Recovery Demand",
                     value: store.recoveryDemandLevel?.valueString ?? "—",
@@ -201,7 +216,9 @@ struct ActivityDetailsView: View {
                     labelColor: store.recoveryDemandLevel?.color ?? .gray,
                     icon: "bed.double.fill"
                 ) {
-                    // TODO: Navigate to Recovery Demand details
+                    if let recoveryDemand = store.recoveryDemand, let level = store.recoveryDemandLevel {
+                        send(.openMetricDetails(.recoveryDemand(value: recoveryDemand, level: level)))
+                    }
                 }
             }
         }

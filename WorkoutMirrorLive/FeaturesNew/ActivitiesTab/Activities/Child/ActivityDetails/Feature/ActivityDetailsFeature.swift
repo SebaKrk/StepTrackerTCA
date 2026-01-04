@@ -96,7 +96,18 @@ struct ActivityDetailsFeature {
                 
             case let .view(.zoneDiscusserButtonTapped(value)):
                 return .send(.internal(.zoneExpand(value)))
+                
+            case let .view(.openMetricDetails(metric)):
+                state.destination = .metricDetail(MetricDetailFeature.State(metricType: metric))
+                return .none
+                
+                // MARK: - Destination
+                
+            case .destination:
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 }
+
