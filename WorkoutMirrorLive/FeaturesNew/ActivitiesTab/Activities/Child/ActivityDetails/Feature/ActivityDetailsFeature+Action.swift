@@ -56,6 +56,14 @@ extension ActivityDetailsFeature {
             
             /// Called when user taps zone disclosure button.
             case zoneDiscusserButtonTapped(Bool)
+            
+            ///
+            case openMetricDetails(MetricTypeDetails)
         }
+        
+        // MARK: - Destination
+        
+        /// Handles navigation destinations within this feature.
+        case destination(PresentationAction<Destination.Action>)
     }
 }

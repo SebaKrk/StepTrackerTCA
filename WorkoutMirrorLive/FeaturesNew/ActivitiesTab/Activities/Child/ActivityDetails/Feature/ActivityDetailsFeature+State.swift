@@ -59,6 +59,11 @@ extension ActivityDetailsFeature {
         /// Recovery Demand - estimated recovery time based on training load and metrics.
         var recoveryDemand: RecoveryDemand?
         
+        // MARK: - Destination
+        
+        /// Presentation state for navigation destinations.
+        @Presents var destination: Destination.State?
+        
         // MARK: - Init
         
         init(workout: HKWorkout, maxHeartRate: Double, primaryZoneInfo: PrimaryZoneInfo? = nil) {
@@ -110,5 +115,7 @@ extension ActivityDetailsFeature {
         var totalZoneDuration: TimeInterval {
             zoneDistribution?.values.reduce(0, +) ?? 0
         }
+        
+        
     }
 }

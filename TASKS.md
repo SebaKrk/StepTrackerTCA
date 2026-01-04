@@ -499,3 +499,4 @@
     - Cal, METs, Avg HR, Max HR, HR Zones details 
     B: WorkoutMetricsCalculator
     - create Metrics calculator for all activity details
+    C: MetricDetail
