@@ -115,7 +115,6 @@ extension ActivityDetailsFeature {
         var totalZoneDuration: TimeInterval {
             zoneDistribution?.values.reduce(0, +) ?? 0
         }
-        
-        
     }
+    
 }
