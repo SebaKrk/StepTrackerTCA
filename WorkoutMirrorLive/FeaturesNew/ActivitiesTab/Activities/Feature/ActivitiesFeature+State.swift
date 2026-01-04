@@ -45,6 +45,7 @@ extension ActivitiesFeature {
         /// Heart rate zone information for each workout, keyed by workout UUID.
         var zoneInfo: [UUID: PrimaryZoneInfo] = [:]
         
+        
         // MARK: - Destination
         
         /// Presentation state for navigation destinations.

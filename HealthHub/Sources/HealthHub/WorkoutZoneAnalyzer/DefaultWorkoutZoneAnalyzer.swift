@@ -64,6 +64,24 @@ public final class DefaultWorkoutZoneAnalyzer: WorkoutZoneAnalyzer {
             distribution[zone, default: 0] += duration
         }
         
+        // 🔍 DEBUG - Zone distribution
+//        print("═══════════════════════════════════════════════════")
+//        if let firstSample = samples.first {
+//            let formatter = DateFormatter()
+//            formatter.dateFormat = "yyyy-MM-dd HH:mm"
+//            print("💓 Workout time: \(formatter.string(from: firstSample.startDate))")
+//        }
+//        print("💓 HR Zone Analysis (maxHR: \(Int(maxHeartRate)) bpm)")
+//        print("💓 Samples count: \(samples.count)")
+//        for zone in HeartRateZone.allCases {
+//            let seconds = distribution[zone] ?? 0
+//            let minutes = Int(seconds / 60)
+//            let secs = Int(seconds.truncatingRemainder(dividingBy: 60))
+//            let percentage = zone.percentageRange
+//            print("   \(zone.rawValue): \(minutes)m \(secs)s (\(Int(percentage.lowerBound * 100))-\(Int(percentage.upperBound * 100))% maxHR)")
+//        }
+//        print("═══════════════════════════════════════════════════")
+        
         return distribution
     }
     

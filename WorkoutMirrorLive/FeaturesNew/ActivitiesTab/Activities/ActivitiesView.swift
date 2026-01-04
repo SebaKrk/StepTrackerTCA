@@ -62,6 +62,12 @@ struct ActivitiesView: View {
                 .presentationDetents([.medium, .large])
         }
         .id(store.workouts.count)
+        .navigationDestination(
+            item: $store.scope(
+                state: \.destination?.activityDetails,
+                action: \.destination.activityDetails)) { store in
+                    ActivityDetailsView(store: store)
+                }
     }
     
     @ToolbarContentBuilder

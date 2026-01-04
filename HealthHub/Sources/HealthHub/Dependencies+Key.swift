@@ -229,3 +229,30 @@ public extension DependencyValues {
     }
 }
 
+/// A TCA dependency key for calculating workout performance metrics.
+public enum WorkoutMetricsCalculatorKey: DependencyKey {
+    public static let liveValue: WorkoutMetricsCalculator = {
+        DefaultWorkoutMetricsCalculator()
+    }()
+}
+
+public extension DependencyValues {
+    var workoutMetricsCalculator: WorkoutMetricsCalculator {
+        get { self[WorkoutMetricsCalculatorKey.self] }
+        set { self[WorkoutMetricsCalculatorKey.self] = newValue }
+    }
+}
+
+/// A TCA dependency key for managing workout metrics retrieval and calculation.
+public enum WorkoutMetricsManagerKey: DependencyKey {
+    public static let liveValue: WorkoutMetricsManager = {
+        DefaultWorkoutMetricsManager()
+    }()
+}
+
+public extension DependencyValues {
+    var workoutMetricsManager: WorkoutMetricsManager {
+        get { self[WorkoutMetricsManagerKey.self] }
+        set { self[WorkoutMetricsManagerKey.self] = newValue }
+    }
+}

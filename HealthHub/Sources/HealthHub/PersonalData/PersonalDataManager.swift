@@ -64,7 +64,6 @@ public protocol PersonalDataManager: Sendable {
     /// - `.female` - Female biological sex
     /// - `.notSet` - User hasn't set biological sex in Health app
     /// - `.unknown` - Biological sex is unknown or unspecified
-    ///
     func getBiologicalSex() async throws -> BiologicalSex?
     
     // MARK: - Body Metrics
@@ -79,6 +78,22 @@ public protocol PersonalDataManager: Sendable {
     /// - Throws: HealthKit errors if data access fails
     func getHeight() async throws -> HealthKitData?
     
+    /// Retrieves weight for a specific date, with fallback to nearest previous measurement.
+    ///
+    /// Used for calculating metrics (like METs) for historical workouts where
+    /// the weight from the workout date should be used, not current weight.
+    ///
+    /// Priority:
+    /// 1. Weight from the same day as the date
+    /// 2. Most recent weight BEFORE that date
+    /// 3. nil if no weight data exists
+    ///
+    /// - Parameter date: The target date (typically workout.startDate)
+    /// - Returns: A `HealthKitData` object containing weight in kilograms,
+    ///           or `nil` if no weight data is available
+    /// - Throws: HealthKit errors if data access fails
+    func getWeight(for date: Date) async throws -> HealthKitData?
+    
     /// Retrieves the user's average weight measurement from specified time period.
     ///
     /// This method fetches body mass measurements from HealthKit and calculates the average
@@ -91,6 +106,22 @@ public protocol PersonalDataManager: Sendable {
     func getWeight(days: Int) async throws -> HealthKitData?
     
     // MARK: - General Heart Rate
+    
+    /// Retrieves resting heart rate for a specific date, with fallback to nearest previous measurement.
+    ///
+    /// Used for calculating hrTSS for historical workouts where
+    /// the resting HR from the workout date should be used.
+    ///
+    /// Priority:
+    /// 1. Resting HR from the same day (morning window 00:00 - 11:00)
+    /// 2. Most recent resting HR BEFORE that date
+    /// 3. nil if no data exists
+    ///
+    /// - Parameter date: The target date (typically workout.startDate)
+    /// - Returns: A `HealthKitData` object containing resting HR in bpm,
+    ///           or `nil` if no data is available
+    /// - Throws: HealthKit errors if data access fails
+    func getRestingHeartRate(for date: Date) async throws -> HealthKitData?
     
     /// Retrieves the user's average resting heart rate from specified time period.
     ///

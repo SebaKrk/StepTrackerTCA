@@ -38,6 +38,7 @@ extension ActivitiesFeature {
         /// Handles the result of all workout zone analyses.
         case allWorkoutZonesAnalyzed([UUID: PrimaryZoneInfo])
         
+        
         // MARK: - View Actions
         
         case view(View)

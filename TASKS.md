@@ -494,3 +494,8 @@
 
 ### IOS-00054 Fix
 ### IOS-00055 Fix
+### IOS-00055 Activity details card
+    A: ActivityDetailsFeature
+    - Cal, METs, Avg HR, Max HR, HR Zones details 
+    B: WorkoutMetricsCalculator
+    - create Metrics calculator for all activity details
