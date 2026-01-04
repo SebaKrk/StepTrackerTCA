@@ -32,7 +32,23 @@ public struct ActivityClient: Sendable {
     /// Returns full zone distribution for a workout.
     public var fetchZoneDistribution: @Sendable (HKWorkout, Double) async throws -> [HeartRateZone: TimeInterval]
     
-    public var fetchMETs: @Sendable (HKWorkout, Double) async throws -> Double?
+    /// Fetches METs for a workout. Weight is automatically retrieved from workout date.
+    public var fetchMETs: @Sendable (HKWorkout) async throws -> Double?
+    
+    /// Fetches TRIMP for a workout.
+    public var fetchTRIMP: @Sendable (HKWorkout, Double) async throws -> Double
+    
+    /// Fetches hrTSS for a workout.
+    public var fetchHRTSS: @Sendable (HKWorkout, Double) async throws -> Double?
+    
+    /// Fetches HR Recovery (1 min) for a workout.
+    public var fetchHRRecovery: @Sendable (HKWorkout) async throws -> Int?
+    
+    /// Fetches Intensity Factor (IF) for a workout.
+    public var fetchIntensityFactor: @Sendable (HKWorkout, Double) async throws -> Double?
+    
+    /// Fetches Recovery Demand for a workout.
+    public var fetchRecoveryDemand: @Sendable (HKWorkout, Double) async throws -> RecoveryDemand?
 }
 
 extension ActivityClient: DependencyKey {
@@ -42,6 +58,7 @@ extension ActivityClient: DependencyKey {
         @Dependency(\.personalDataManager) var personalDataManager
         @Dependency(\.heartRateCalculator) var heartRateCalculator
         @Dependency(\.workoutZoneAnalyzer) var zoneAnalyzer
+        @Dependency(\.workoutMetricsManager) var metricsManager
         
         return ActivityClient(
             fetchWorkouts: { days, sortOption in
@@ -80,19 +97,26 @@ extension ActivityClient: DependencyKey {
                     maxHeartRate: maxHeartRate
                 )
             },
-            fetchMETs: { workout, weightKg in
-                guard weightKg > 0,
-                      workout.duration > 0,
-                      let activeCalories = workout.statistics(for: HKQuantityType(.activeEnergyBurned))?
-                          .sumQuantity()?
-                          .doubleValue(for: .kilocalorie()),
-                      activeCalories > 0
-                else {
-                    return nil
-                }
-                
-                let durationHours = workout.duration / 3600
-                return activeCalories / (weightKg * durationHours)
+            
+            // MARK: - Workout Metrics (delegated to manager)
+            
+            fetchMETs: { workout in
+                try await metricsManager.fetchMETs(for: workout)
+            },
+            fetchTRIMP: { workout, maxHeartRate in
+                try await metricsManager.fetchTRIMP(for: workout, maxHeartRate: maxHeartRate)
+            },
+            fetchHRTSS: { workout, maxHeartRate in
+                try await metricsManager.fetchHRTSS(for: workout, maxHeartRate: maxHeartRate)
+            },
+            fetchHRRecovery: { workout in
+                try await metricsManager.fetchHRRecovery(for: workout)
+            },
+            fetchIntensityFactor: { workout, maxHeartRate in
+                try await metricsManager.fetchIntensityFactor(for: workout, maxHeartRate: maxHeartRate)
+            },
+            fetchRecoveryDemand: { workout, maxHeartRate in
+                try await metricsManager.fetchRecoveryDemand(for: workout, maxHeartRate: maxHeartRate)
             }
         )
     }()
@@ -102,7 +126,12 @@ extension ActivityClient: DependencyKey {
         fetchMaxHeartRate: unimplemented("ActivityClient.fetchMaxHeartRate", placeholder: nil),
         analyzeWorkoutZones: unimplemented("ActivityClient.analyzeWorkoutZones", placeholder: nil),
         fetchZoneDistribution: unimplemented("ActivityClient.fetchZoneDistribution", placeholder: [:]),
-        fetchMETs: unimplemented("ActivityClient.fetchMETs", placeholder: nil)
+        fetchMETs: unimplemented("ActivityClient.fetchMETs", placeholder: nil),
+        fetchTRIMP: unimplemented("ActivityClient.fetchTRIMP", placeholder: 0),
+        fetchHRTSS: unimplemented("ActivityClient.fetchHRTSS", placeholder: nil),
+        fetchHRRecovery: unimplemented("ActivityClient.fetchHRRecovery", placeholder: nil),
+        fetchIntensityFactor: unimplemented("ActivityClient.fetchIntensityFactor", placeholder: nil),
+        fetchRecoveryDemand: unimplemented("ActivityClient.fetchRecoveryDemand", placeholder: nil)
     )
 }
 

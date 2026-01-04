@@ -123,7 +123,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         if let sample = sameDayResults.first {
             let weight = sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
-            print("⚖️ Weight for \(date): \(weight) kg (same day)")
+            ///print("⚖️ Weight for \(date): \(weight) kg (same day)")
             return HealthKitData(date: sample.startDate, value: weight)
         }
         
@@ -144,13 +144,14 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         if let sample = fallbackResults.first {
             let weight = sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
-            print("⚖️ Weight for \(date): \(weight) kg (fallback from \(sample.startDate))")
+            ///print("⚖️ Weight for \(date): \(weight) kg (fallback from \(sample.startDate))")
             return HealthKitData(date: sample.startDate, value: weight)
         }
         
-        print("⚖️ No weight data found for or before \(date)")
+        ///print("⚖️ No weight data found for or before \(date)")
         return nil
     }
+    
     
     // MARK: - General Heart Rate API
     
@@ -172,6 +173,57 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         )
         
         return processedData.first
+    }
+    
+    /// Retrieves resting heart rate for a specific date, with fallback to nearest previous measurement.
+    public func getRestingHeartRate(for date: Date) async throws -> HealthKitData? {
+        let restingHRType = HKQuantityType(.restingHeartRate)
+        let calendar = Calendar.current
+        
+        // 1. Szukaj RHR z tego samego dnia (okno poranne 00:00 - 11:00)
+        let startOfDay = calendar.startOfDay(for: date)
+        let morningEnd = calendar.date(byAdding: .hour, value: 11, to: startOfDay)!
+        
+        let sameDayPredicate = HKQuery.predicateForSamples(
+            withStart: startOfDay,
+            end: morningEnd,
+            options: .strictStartDate
+        )
+        
+        let sameDayDescriptor = HKSampleQueryDescriptor(
+            predicates: [.quantitySample(type: restingHRType, predicate: sameDayPredicate)],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)],
+            limit: 1
+        )
+        
+        let sameDayResults = try await sameDayDescriptor.result(for: manager.healthStore)
+        
+        if let sample = sameDayResults.first {
+            let rhr = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            return HealthKitData(date: sample.startDate, value: rhr)
+        }
+        
+        // 2. Fallback - najbliższe RHR PRZED tą datą
+        let beforePredicate = HKQuery.predicateForSamples(
+            withStart: nil,
+            end: startOfDay,
+            options: .strictEndDate
+        )
+        
+        let fallbackDescriptor = HKSampleQueryDescriptor(
+            predicates: [.quantitySample(type: restingHRType, predicate: beforePredicate)],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)],
+            limit: 1
+        )
+        
+        let fallbackResults = try await fallbackDescriptor.result(for: manager.healthStore)
+        
+        if let sample = fallbackResults.first {
+            let rhr = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            return HealthKitData(date: sample.startDate, value: rhr)
+        }
+        
+        return nil
     }
     
     /// Retrieves the user's average heart rate variability from specified time period.
@@ -451,57 +503,110 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     /// - Returns: A `HealthKitData` object containing total active energy in kilocalories,
     ///           or `nil` if no activity data is available for yesterday
     /// - Throws: HealthKit errors if data access fails or permissions are not granted
-    public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
-        let window = TrainingReadinessTimeWindows.yesterdayFullDay()
-        let healthStore = manager.healthStore
-        
-        let query = HealthKitQueryBuilder.buildQuery(
-            for: .activeEnergyBurned,
-            startDate: window.start,
-            endDate: window.end,
-            options: .cumulativeSum
-        )
-        
-        let results = try await query.result(for: healthStore)
-        
-        let processedData = HealthKitQueryBuilder.processHealthKitData(
-            results.statistics(),
-            unit: .kilocalorie(),
-            options: .cumulativeSum
-        )
-        
-        let totalEnergy = processedData.last?.value ?? 0
-        
-        let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
-            from: window.start,
-            to: window.end,
-            healthStore: healthStore
-        )
-        
-        let energyType = HKQuantityType(.activeEnergyBurned)
-        let workoutEnergy = workouts.reduce(0.0) { total, workout in
-            if let statistics = workout.statistics(for: energyType),
-               let sum = statistics.sumQuantity() {
-                return total + sum.doubleValue(for: HKUnit.kilocalorie())
-            }
-            return total
-        }
-        
-        let backgroundEnergy = totalEnergy - workoutEnergy
-        
-        // MARK: - 🔍 DEBUG
+//    public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
+//        let window = TrainingReadinessTimeWindows.yesterdayFullDay()
+//        let healthStore = manager.healthStore
+//
+//        let query = HealthKitQueryBuilder.buildQuery(
+//            for: .activeEnergyBurned,
+//            startDate: window.start,
+//            endDate: window.end,
+//            options: .cumulativeSum
+//        )
+//
+//        let results = try await query.result(for: healthStore)
+//
+//        let processedData = HealthKitQueryBuilder.processHealthKitData(
+//            results.statistics(),
+//            unit: .kilocalorie(),
+//            options: .cumulativeSum
+//        )
+//
+//        let totalEnergy = processedData.last?.value ?? 0
+//
+//        let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
+//            from: window.start,
+//            to: window.end,
+//            healthStore: healthStore
+//        )
+//
+//        let energyType = HKQuantityType(.activeEnergyBurned)
+//        let workoutEnergy = workouts.reduce(0.0) { total, workout in
+//            if let statistics = workout.statistics(for: energyType),
+//               let sum = statistics.sumQuantity() {
+//                return total + sum.doubleValue(for: HKUnit.kilocalorie())
+//            }
+//            return total
+//        }
+//
 //        let backgroundEnergy = totalEnergy - workoutEnergy
+//
+//        // MARK: - 🔍 DEBUG
 //        print("🏃 Activity window: \(window.start) → \(window.end)")
 //        print("🏃 Workout energy: \(String(format: "%.0f", workoutEnergy)) kcal (\(workouts.count) workouts)")
 //        print("🏃 Background energy: \(String(format: "%.0f", backgroundEnergy)) kcal")
 //        print("🏃 Total energy: \(String(format: "%.0f", totalEnergy)) kcal")
 //        print("═══════════════════════════════════════════════════")
-        
-        guard totalEnergy > 0 else {
-            return nil
+//
+//        guard totalEnergy > 0 else {
+//            return nil
+//        }
+//
+//        return HealthKitData(date: window.end, value: totalEnergy)
+//    }
+
+    public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
+        let window = TrainingReadinessTimeWindows.yesterdayFullDay()
+        let healthStore = manager.healthStore
+
+        let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
+            from: window.start,
+            to: window.end,
+            healthStore: healthStore
+        )
+
+        let energyType = HKQuantityType(.activeEnergyBurned)
+
+        let workoutEnergy = workouts.reduce(0.0) { total, workout in
+            guard
+                let statistics = workout.statistics(for: energyType),
+                let sum = statistics.sumQuantity()
+            else {
+                return total
+            }
+            return total + sum.doubleValue(for: .kilocalorie())
         }
         
-        return HealthKitData(date: window.end, value: totalEnergy)
+        if workoutEnergy > 0 {
+            print("🔥 Energy from workouts: \(workoutEnergy) kcal (\(workouts.count) workouts)")
+            return HealthKitData(date: window.end, value: workoutEnergy)
+        }
+
+        // 2️⃣ Fallback: ACTIVE ENERGY (tylko jeśli NIE było treningu)
+        let activeEnergyQuery = HealthKitQueryBuilder.buildQuery(
+            for: .activeEnergyBurned,
+            startDate: window.start,
+            endDate: window.end,
+            options: .cumulativeSum
+        )
+
+        let results = try await activeEnergyQuery.result(for: healthStore)
+
+        let processedData = HealthKitQueryBuilder.processHealthKitData(
+            results.statistics(),
+            unit: .kilocalorie(),
+            options: .cumulativeSum
+        )
+
+        let activeEnergy = processedData.last?.value ?? 0
+
+        guard activeEnergy > 0 else {
+            print("⚠️ No workout and no active energy data")
+            return nil
+        }
+
+        print("⚡ Energy from active energy fallback: \(activeEnergy) kcal")
+        return HealthKitData(date: window.end, value: activeEnergy)
     }
     
     /// Retrieves average daily active energy from specified number of days.
