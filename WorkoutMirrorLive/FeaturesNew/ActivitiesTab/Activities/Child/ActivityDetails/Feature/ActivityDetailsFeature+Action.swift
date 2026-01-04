@@ -29,7 +29,9 @@ extension ActivityDetailsFeature {
             ///   - trimp: Training Impulse score
             ///   - hrTSS: Heart Rate Training Stress Score
             ///   - hrRecovery: Heart rate recovery after 1 minute (bpm drop)
-            case metricsLoaded(mets: Double?, trimp: Double?, hrTSS: Double?, hrRecovery: Int?)
+            ///   - intensityFactor: Workout effort relative to lactate threshold
+            ///   - recoveryDemand: Estimated recovery time
+            case metricsLoaded(mets: Double?, trimp: Double?, hrTSS: Double?, hrRecovery: Int?, intensityFactor: Double?, recoveryDemand: RecoveryDemand?)
             
             /// Toggles expansion state of heart rate zones section.
             case zoneExpand(Bool)
@@ -39,6 +41,9 @@ extension ActivityDetailsFeature {
             
             /// Triggers loading of all performance metrics.
             case loadMetrics
+            
+            
+            
         }
         
         case view(View)

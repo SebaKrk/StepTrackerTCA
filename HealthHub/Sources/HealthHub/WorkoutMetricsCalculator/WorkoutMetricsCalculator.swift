@@ -73,27 +73,31 @@ public protocol WorkoutMetricsCalculator: Sendable {
     
     /// Calculates hrTSS (Heart Rate Training Stress Score).
     ///
-    /// hrTSS normalizes training stress where 100 = 1 hour at lactate threshold.
-    /// Used to estimate recovery needs:
-    /// - <150: Full recovery next day
-    /// - 150-300: Fatigue for 1-2 days
-    /// - 300-450: Fatigue for 2-4 days
-    /// - 450+: Requires 5+ days recovery
+    /// hrTSS estimates how much recovery a workout requires and helps plan
+    /// subsequent training sessions. The score is normalized so that:
+    /// - 100 hrTSS ≈ 1 hour at lactate threshold intensity
+    ///
+    /// Unlike TRIMP, hrTSS focuses on recovery demand rather than total
+    /// systemic training stress.
+    ///
+    /// Typical interpretation:
+    /// - <150: Low recovery demand (next-day training usually unaffected)
+    /// - 150–300: Moderate recovery demand (careful planning recommended)
+    /// - 300–450: High recovery demand (limit hard sessions)
+    /// - 450+: Very high recovery demand (extended recovery required)
     ///
     /// - Parameters:
-    ///   - avgHR: Average heart rate during workout
+    ///   - avgHR: Average heart rate during the workout
     ///   - restingHR: User's resting heart rate
     ///   - maxHR: User's maximum heart rate
     ///   - durationMinutes: Workout duration in minutes
-    ///   - trimp: Previously calculated TRIMP value
-    /// - Returns: hrTSS score, or nil if heart rate reserve is invalid
+    /// - Returns: hrTSS value, or nil if heart rate reserve is invalid
     func calculateHRTSS(
         avgHR: Double,
         restingHR: Double,
         maxHR: Double,
-        durationMinutes: Double,
-        trimp: Double
-    ) -> Double?
+        durationMinutes: Double
+    ) -> Double? 
     
     // MARK: - Recovery
     
@@ -142,4 +146,43 @@ public protocol WorkoutMetricsCalculator: Sendable {
         currentValue: Double,
         averageValue: Double
     ) -> MetricComparison
+    
+    // MARK: - Intensity
+    
+    /// Calculates Intensity Factor (IF) for a workout.
+    ///
+    /// IF indicates how hard you worked relative to your lactate threshold.
+    /// - < 0.75: Recovery / Easy
+    /// - 0.75-0.85: Aerobic / Endurance
+    /// - 0.85-0.95: Tempo / Threshold
+    /// - 0.95-1.05: VO2max intervals
+    /// - > 1.05: All-out / Race pace
+    ///
+    /// Formula: `IF = avgHR / LTHR` where `LTHR = maxHR × 0.85`
+    ///
+    /// - Parameters:
+    ///   - avgHR: Average heart rate during workout
+    ///   - maxHR: User's maximum heart rate
+    /// - Returns: Intensity Factor value (typically 0.5 - 1.2)
+    func calculateIntensityFactor(
+        avgHR: Double,
+        maxHR: Double
+    ) -> Double?
+    
+    /// Calculates Recovery Demand based on training load and recovery metrics.
+    ///
+    /// Formula: base_hours × HRR_modifier × HRV_modifier × sleep_modifier
+    ///
+    /// - Parameters:
+    ///   - hrTSS: Training stress score
+    ///   - hrRecovery: Heart rate recovery (bpm drop after 1 min), optional
+    ///   - hrvRatio: Morning HRV / 7-day average HRV, optional (default 1.0)
+    ///   - sleepHours: Sleep duration, optional (default assumes normal)
+    /// - Returns: Estimated recovery hours
+    func calculateRecoveryDemand(
+        hrTSS: Double,
+        hrRecovery: Int?,
+        hrvRatio: Double?,
+        sleepHours: Double?
+    ) -> Double
 }

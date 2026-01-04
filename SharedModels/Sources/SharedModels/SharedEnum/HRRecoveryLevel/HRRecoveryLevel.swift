@@ -10,13 +10,14 @@ import SwiftUI
 /// Heart Rate Recovery classification based on BPM drop after exercise.
 ///
 /// HR Recovery measures how quickly heart rate drops in the first minute
-/// after stopping exercise. Faster recovery indicates better cardiovascular fitness.
+/// after stopping exercise. Faster recovery reflects a more responsive
+/// autonomic nervous system and better short-term recovery state.
 public enum HRRecoveryLevel: String, CaseIterable, Identifiable, Sendable {
     
     case poor = "Poor"             // < 12 bpm
-    case average = "Average"       // 12-20 bpm
-    case good = "Good"             // 20-30 bpm
-    case veryGood = "Very Good"    // 30-40 bpm
+    case average = "Average"       // 12–20 bpm
+    case good = "Good"             // 20–30 bpm
+    case veryGood = "Very Good"    // 30–40 bpm
     case excellent = "Excellent"   // > 40 bpm
     
     public var id: String { rawValue }
@@ -46,33 +47,20 @@ public enum HRRecoveryLevel: String, CaseIterable, Identifiable, Sendable {
         }
     }
     
+    /// Short description for context menu.
+    /// Describes current heart rate recovery state without coaching.
     public var description: String {
         switch self {
         case .poor:
-            return "Below average cardiovascular fitness, consider aerobic training"
+            return "Slow heart rate recovery. May indicate fatigue or stress."
         case .average:
-            return "Normal recovery rate, typical for moderately active individuals"
+            return "Typical heart rate recovery within expected range."
         case .good:
-            return "Good cardiovascular fitness, above average recovery"
+            return "Faster-than-average heart rate recovery."
         case .veryGood:
-            return "Very good fitness level, efficient cardiac recovery"
+            return "Rapid heart rate recovery after exercise."
         case .excellent:
-            return "Excellent cardiovascular conditioning, athlete-level recovery"
-        }
-    }
-    
-    public var recommendation: String {
-        switch self {
-        case .poor:
-            return "Focus on consistent low-intensity aerobic exercise to improve cardiac efficiency"
-        case .average:
-            return "Continue regular cardio training to maintain and improve recovery"
-        case .good:
-            return "Your training is paying off, maintain current cardio routine"
-        case .veryGood:
-            return "Excellent progress, consider adding variety to prevent plateau"
-        case .excellent:
-            return "Peak cardiovascular fitness, focus on maintenance and recovery"
+            return "Very rapid heart rate recovery. Strong autonomic response."
         }
     }
     

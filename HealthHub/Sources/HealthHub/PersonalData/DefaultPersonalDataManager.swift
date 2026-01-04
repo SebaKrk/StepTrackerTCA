@@ -123,7 +123,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         if let sample = sameDayResults.first {
             let weight = sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
-            print("⚖️ Weight for \(date): \(weight) kg (same day)")
+            ///print("⚖️ Weight for \(date): \(weight) kg (same day)")
             return HealthKitData(date: sample.startDate, value: weight)
         }
         
@@ -144,11 +144,11 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         if let sample = fallbackResults.first {
             let weight = sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
-            print("⚖️ Weight for \(date): \(weight) kg (fallback from \(sample.startDate))")
+            ///print("⚖️ Weight for \(date): \(weight) kg (fallback from \(sample.startDate))")
             return HealthKitData(date: sample.startDate, value: weight)
         }
         
-        print("⚖️ No weight data found for or before \(date)")
+        ///print("⚖️ No weight data found for or before \(date)")
         return nil
     }
     

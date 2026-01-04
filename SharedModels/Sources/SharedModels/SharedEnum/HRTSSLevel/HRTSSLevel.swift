@@ -9,13 +9,13 @@ import SwiftUI
 
 /// Heart Rate Training Stress Score (hrTSS) classification.
 ///
-/// hrTSS normalizes training stress where 100 = 1 hour at lactate threshold.
-/// Used for periodization and recovery planning.
+/// hrTSS normalizes training load where 100 = 1 hour at lactate threshold.
+/// It is primarily used to estimate recovery needs and guide training planning.
 public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
     
     case low = "Low"               // < 150
-    case moderate = "Moderate"     // 150-300
-    case high = "High"             // 300-450
+    case moderate = "Moderate"     // 150–300
+    case high = "High"             // 300–450
     case veryHigh = "Very High"    // > 450
     
     public var id: String { rawValue }
@@ -43,25 +43,28 @@ public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
         }
     }
     
+    /// Estimated recovery time based on hrTSS.
     public var recoveryEstimate: String {
         switch self {
         case .low: return "1 day recovery"
-        case .moderate: return "1-2 days recovery"
-        case .high: return "2-4 days recovery"
+        case .moderate: return "1–2 days recovery"
+        case .high: return "2–4 days recovery"
         case .veryHigh: return "5+ days recovery"
         }
     }
     
+    /// Short description for context menu.
+    /// Describes recovery demand and impact on subsequent training.
     public var description: String {
         switch self {
         case .low:
-            return "Light training stress, quick recovery expected"
+            return "Low recovery demand. Next-day training unaffected."
         case .moderate:
-            return "Moderate stress, standard recovery time"
+            return "Moderate recovery demand. Plan next session carefully."
         case .high:
-            return "High training stress, extended recovery needed"
+            return "High recovery demand. Limit hard sessions."
         case .veryHigh:
-            return "Very high stress, significant recovery period required"
+            return "Very high recovery demand. Extended recovery required."
         }
     }
     

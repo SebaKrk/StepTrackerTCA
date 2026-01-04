@@ -30,11 +30,13 @@ struct ActivityDetailsFeature {
                 state.zoneDistribution = distribution
                 return .none
                 
-            case let .internal(.metricsLoaded(mets, trimp, hrTSS, hrRecovery)):
+            case let .internal(.metricsLoaded(mets, trimp, hrTSS, hrRecovery, intensityFactor, recoveryDemand)):
                 state.mets = mets
                 state.trimp = trimp
                 state.hrTSS = hrTSS
                 state.hrRecovery = hrRecovery
+                state.intensityFactor = intensityFactor
+                state.recoveryDemand = recoveryDemand
                 return .none
                 
             case let .internal(.zoneExpand(value)):
@@ -63,17 +65,23 @@ struct ActivityDetailsFeature {
                     async let trimpTask = activityClient.fetchTRIMP(workout, maxHeartRate)
                     async let hrTSSTask = activityClient.fetchHRTSS(workout, maxHeartRate)
                     async let hrRecoveryTask = activityClient.fetchHRRecovery(workout)
+                    async let intensityFactorTask = activityClient.fetchIntensityFactor(workout, maxHeartRate)
+                    async let recoveryDemandTask = activityClient.fetchRecoveryDemand(workout, maxHeartRate)
                     
                     let mets = try? await metsTask
                     let trimp = try? await trimpTask
                     let hrTSS = try? await hrTSSTask
                     let hrRecovery = try? await hrRecoveryTask
+                    let intensityFactor = try? await intensityFactorTask
+                    let recoveryDemand = try? await recoveryDemandTask
                     
                     await send(.internal(.metricsLoaded(
                         mets: mets,
                         trimp: trimp,
                         hrTSS: hrTSS,
-                        hrRecovery: hrRecovery
+                        hrRecovery: hrRecovery,
+                        intensityFactor: intensityFactor,
+                        recoveryDemand: recoveryDemand
                     )))
                 }
                 
@@ -92,4 +100,3 @@ struct ActivityDetailsFeature {
         }
     }
 }
-

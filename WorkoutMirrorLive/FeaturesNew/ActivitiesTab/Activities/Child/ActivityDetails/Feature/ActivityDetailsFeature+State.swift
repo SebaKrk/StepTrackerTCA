@@ -53,6 +53,12 @@ extension ActivityDetailsFeature {
         /// Heart rate recovery - BPM drop 1 minute after workout.
         var hrRecovery: Int?
         
+        /// Intensity Factor - workout effort relative to lactate threshold.
+        var intensityFactor: Double?
+        
+        /// Recovery Demand - estimated recovery time based on training load and metrics.
+        var recoveryDemand: RecoveryDemand?
+        
         // MARK: - Init
         
         init(workout: HKWorkout, maxHeartRate: Double, primaryZoneInfo: PrimaryZoneInfo? = nil) {
@@ -85,6 +91,17 @@ extension ActivityDetailsFeature {
         var hrRecoveryLevel: HRRecoveryLevel? {
             guard let hrRecovery else { return nil }
             return HRRecoveryLevel.from(value: hrRecovery)
+        }
+        
+        /// Intensity Factor level classification.
+        var intensityFactorLevel: IntensityFactorLevel? {
+            guard let intensityFactor else { return nil }
+            return IntensityFactorLevel.from(value: intensityFactor)
+        }
+        
+        /// Recovery Demand level classification.
+        var recoveryDemandLevel: RecoveryDemandLevel? {
+            recoveryDemand?.level
         }
         
         // MARK: - Zone Distribution

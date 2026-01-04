@@ -82,7 +82,7 @@ public final class DefaultWorkoutMetricsManager: WorkoutMetricsManager, @uncheck
         }
         
         // Pobierz TRIMP
-        let trimp = try await fetchTRIMP(for: workout, maxHeartRate: maxHeartRate)
+        //let trimp = try await fetchTRIMP(for: workout, maxHeartRate: maxHeartRate)
         
         let durationMinutes = workout.duration / 60
         
@@ -91,7 +91,7 @@ public final class DefaultWorkoutMetricsManager: WorkoutMetricsManager, @uncheck
             restingHR: restingHRData.value,
             maxHR: maxHeartRate,
             durationMinutes: durationMinutes,
-            trimp: trimp
+            //trimp: trimp
         )
     }
     
@@ -118,5 +118,46 @@ public final class DefaultWorkoutMetricsManager: WorkoutMetricsManager, @uncheck
             maxHRDuringWorkout: maxHRDuring,
             hrAfter1Minute: hrAfter1Min
         )
+    }
+    
+    public func fetchIntensityFactor(for workout: HKWorkout, maxHeartRate: Double) async throws -> Double? {
+        guard let avgHR = workout.statistics(for: HKQuantityType(.heartRate))?
+            .averageQuantity()?
+            .doubleValue(for: .count().unitDivided(by: .minute()))
+        else {
+            print("⚠️ WorkoutMetricsManager: No average HR for workout")
+            return nil
+        }
+        
+        return calculator.calculateIntensityFactor(
+            avgHR: avgHR,
+            maxHR: maxHeartRate
+        )
+    }
+    
+    public func fetchRecoveryDemand(for workout: HKWorkout, maxHeartRate: Double) async throws -> RecoveryDemand? {
+        // Get hrTSS (required)
+        guard let hrTSS = try await fetchHRTSS(for: workout, maxHeartRate: maxHeartRate) else {
+            print("⚠️ WorkoutMetricsManager: No hrTSS for recovery demand")
+            return nil
+        }
+        
+        // Get HR Recovery (optional)
+        let hrRecovery = try? await fetchHRRecovery(for: workout)
+        
+        // TODO: Get HRV ratio (morning HRV / 7-day average) when available
+        let hrvRatio: Double? = nil
+        
+        // TODO: Get sleep hours from previous night when available
+        let sleepHours: Double? = nil
+        
+        let hours = calculator.calculateRecoveryDemand(
+            hrTSS: hrTSS,
+            hrRecovery: hrRecovery,
+            hrvRatio: hrvRatio,
+            sleepHours: sleepHours
+        )
+        
+        return RecoveryDemand(hours: hours)
     }
 }

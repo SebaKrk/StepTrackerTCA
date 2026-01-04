@@ -43,6 +43,12 @@ public struct ActivityClient: Sendable {
     
     /// Fetches HR Recovery (1 min) for a workout.
     public var fetchHRRecovery: @Sendable (HKWorkout) async throws -> Int?
+    
+    /// Fetches Intensity Factor (IF) for a workout.
+    public var fetchIntensityFactor: @Sendable (HKWorkout, Double) async throws -> Double?
+    
+    /// Fetches Recovery Demand for a workout.
+    public var fetchRecoveryDemand: @Sendable (HKWorkout, Double) async throws -> RecoveryDemand?
 }
 
 extension ActivityClient: DependencyKey {
@@ -105,6 +111,12 @@ extension ActivityClient: DependencyKey {
             },
             fetchHRRecovery: { workout in
                 try await metricsManager.fetchHRRecovery(for: workout)
+            },
+            fetchIntensityFactor: { workout, maxHeartRate in
+                try await metricsManager.fetchIntensityFactor(for: workout, maxHeartRate: maxHeartRate)
+            },
+            fetchRecoveryDemand: { workout, maxHeartRate in
+                try await metricsManager.fetchRecoveryDemand(for: workout, maxHeartRate: maxHeartRate)
             }
         )
     }()
@@ -117,7 +129,9 @@ extension ActivityClient: DependencyKey {
         fetchMETs: unimplemented("ActivityClient.fetchMETs", placeholder: nil),
         fetchTRIMP: unimplemented("ActivityClient.fetchTRIMP", placeholder: 0),
         fetchHRTSS: unimplemented("ActivityClient.fetchHRTSS", placeholder: nil),
-        fetchHRRecovery: unimplemented("ActivityClient.fetchHRRecovery", placeholder: nil)
+        fetchHRRecovery: unimplemented("ActivityClient.fetchHRRecovery", placeholder: nil),
+        fetchIntensityFactor: unimplemented("ActivityClient.fetchIntensityFactor", placeholder: nil),
+        fetchRecoveryDemand: unimplemented("ActivityClient.fetchRecoveryDemand", placeholder: nil)
     )
 }
 

@@ -38,8 +38,7 @@ struct ActivityDetailsView: View {
                 if let distribution = store.zoneDistribution {
                     zoneDistributionSection(distribution)
                 }
-                trainingLoadSection
-                stressRecoverySection
+                performanceMetricsSection
             }
         }
     }
@@ -141,46 +140,68 @@ struct ActivityDetailsView: View {
         }
     }
     
-    // MARK: - Training Load Section
+    // MARK: - Performance Metrics Section
     
-    private var trainingLoadSection: some View {
-        trimpCard
-    }
-    
-    // MARK: - Stress & Recovery Section
-    
-    private var stressRecoverySection: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: 4),
-                GridItem(.flexible(), spacing: 4)
-            ],
-            spacing: 4
-        ) {
-            descriptiveMetricCard(
-                title: "hrTSS",
-                value: formattedHRTSS,
-                unit: "",
-                label: store.hrTSSLevel?.recoveryEstimate ?? "",
-                labelColor: store.hrRecoveryLevel?.color ?? .gray,
-                icon: "waveform.path.ecg"
-            )
-            .contextMenu {
-                if let hrTSSLevel = store.hrTSSLevel {
-                    Text(hrTSSLevel.description)
+    private var performanceMetricsSection: some View {
+        VStack(spacing: 4) {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 4),
+                    GridItem(.flexible(), spacing: 4)
+                ],
+                spacing: 4
+            ) {
+                // Training Load (hrTSS)
+                tappableMetricCard(
+                    title: "hrTSS",
+                    value: formattedHRTSS,
+                    unit: "",
+                    label: store.hrTSSLevel?.recoveryEstimate ?? "",
+                    labelColor: store.hrTSSLevel?.color ?? .gray,
+                    icon: "figure.run"
+                ) {
+                    // TODO: Navigate to Training Load details
+                }
+                
+                tappableMetricCard(
+                    title: "Intensity",
+                    value: formattedIntensityFactor,
+                    unit: "",
+                    label: store.intensityFactorLevel?.rawValue ?? "",
+                    labelColor: store.intensityFactorLevel?.color ?? .gray,
+                    icon: "gauge.with.needle"
+                ) {
+                    // TODO: Navigate to Intensity details
                 }
             }
-            descriptiveMetricCard(
-                title: "HR Recovery",
-                value: formattedHRRecovery,
-                unit: "bpm",
-                label: store.hrRecoveryLevel?.rawValue ?? "",
-                labelColor: store.hrRecoveryLevel?.color ?? .gray,
-                icon: "arrow.down.heart.fill"
-            )
-            .contextMenu {
-                if let hrRecoveryLevel = store.hrRecoveryLevel {
-                    Text(hrRecoveryLevel.description)
+            
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 4),
+                    GridItem(.flexible(), spacing: 4)
+                ],
+                spacing: 4
+            ) {
+                tappableMetricCard(
+                    title: "HR Recovery",
+                    value: formattedHRRecovery,
+                    unit: "bpm",
+                    label: store.hrRecoveryLevel?.rawValue ?? "",
+                    labelColor: store.hrRecoveryLevel?.color ?? .gray,
+                    icon: "arrow.down.heart.fill"
+                ) {
+                    // TODO: Navigate to HR Recovery details
+                }
+                
+                tappableMetricCard(
+                    title: "Recovery Demand",
+                    value: store.recoveryDemandLevel?.valueString ?? "—",
+                    unit: store.recoveryDemandLevel?.unitString ?? "",
+                    label: store.recoveryDemandLevel?.rawValue ?? "",
+                    labelColor: store.recoveryDemandLevel?.color ?? .gray,
+                    icon: "bed.double.fill"
+                ) {
+                    // TODO: Navigate to Recovery Demand details
                 }
             }
         }
@@ -249,73 +270,48 @@ struct ActivityDetailsView: View {
         .styledGroupBox()
     }
     
-    /// Detailed TRIMP training load card with progress bar and comparison.
-    private var trimpCard: some View {
+    /// Metric card with tappable title for navigation to details.
+    private func tappableMetricCard(
+        title: String,
+        value: String,
+        unit: String,
+        label: String,
+        labelColor: Color = .secondary,
+        icon: String,
+        onTitleTap: @escaping () -> Void
+    ) -> some View {
         GroupBox {
-            VStack(spacing: 12) {
+            VStack(spacing: 4) {
                 HStack {
-                    Text("TRIMP:")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    Text(formattedTRIMP)
-                        .font(.title2)
+                    Text(value)
+                        .font(.title)
                         .fontWeight(.bold)
-                    
-                    Spacer()
-                    
-                    trimpProgressBar
-                    
-                    if let level = store.trimpLevel {
-                        Text(level.rawValue)
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(level.color)
+                        .foregroundColor(.primary)
+                    if !unit.isEmpty {
+                        Text(unit)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
                 }
-                
-                Divider()
-                
-                HStack {
-                    HStack(spacing: 4) {
-                        Text("vs 7d:")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text("—")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 4) {
-                        Text("Recovery:")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(store.trimpLevel?.recoveryEstimate ?? "—")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
+                if !label.isEmpty {
+                    Text(label)
+                        .font(.caption)
+                        .foregroundColor(labelColor)
                 }
             }
+            .frame(minHeight: 50)
         } label: {
-            Label("Training Load", systemImage: "figure.run")
-                .font(.headline)
+            Button(action: onTitleTap) {
+                HStack {
+                    Label(title, systemImage: icon)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
         }
         .styledGroupBox()
-    }
-    
-    private var trimpProgressBar: some View {
-        GeometryReader { geometry in
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color.gray.opacity(0.3))
-                .overlay(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(store.trimpLevel?.color ?? .gray)
-                        .frame(width: geometry.size.width * trimpProgress)
-                }
-        }
-        .frame(width: 80, height: 8)
     }
     
     // MARK: - Zone Distribution
@@ -325,7 +321,8 @@ struct ActivityDetailsView: View {
             heartRateZone(distribution)
         } label: {
             Label("Heart Rate Zones", systemImage: "heart.text.square")
-                .font(.headline)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
         .backgroundStyle(.clear)
         .background(
@@ -464,11 +461,6 @@ struct ActivityDetailsView: View {
         return String(format: "%.1f", mets)
     }
     
-    private var formattedTRIMP: String {
-        guard let trimp = store.trimp else { return "—" }
-        return "\(Int(trimp))"
-    }
-    
     private var formattedHRTSS: String {
         guard let hrTSS = store.hrTSS else { return "—" }
         return "\(Int(hrTSS))"
@@ -479,9 +471,9 @@ struct ActivityDetailsView: View {
         return "\(hrRecovery)"
     }
     
-    private var trimpProgress: Double {
-        guard let trimp = store.trimp else { return 0 }
-        return min(trimp / 400, 1.0)
+    private var formattedIntensityFactor: String {
+        guard let intensityFactor = store.intensityFactor else { return "—" }
+        return String(format: "%.2f", intensityFactor)
     }
     
     private func formatDuration(_ seconds: TimeInterval) -> String {
@@ -489,6 +481,7 @@ struct ActivityDetailsView: View {
         let secs = Int(seconds) % 60
         return "\(minutes)m \(secs)s"
     }
+    
 }
 
 //

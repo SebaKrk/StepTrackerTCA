@@ -106,4 +106,33 @@ public protocol WorkoutMetricsManager: Sendable {
     // ///   - maxHeartRate: User's maximum heart rate
     // /// - Returns: Array of (date, value) for charting
     // func fetchTRIMPHistory(days: Int, maxHeartRate: Double) async throws -> [(Date, Double)]
+    
+    /// Fetches Intensity Factor (IF) for a specific workout.
+    ///
+    /// IF indicates how hard you worked relative to your lactate threshold:
+    /// - < 0.75: Recovery / Easy
+    /// - 0.75-0.85: Aerobic / Endurance
+    /// - 0.85-0.95: Tempo / Threshold
+    /// - 0.95-1.05: VO2max intervals
+    /// - > 1.05: All-out / Race pace
+    ///
+    /// - Parameters:
+    ///   - workout: The workout to analyze
+    ///   - maxHeartRate: User's maximum heart rate
+    /// - Returns: Intensity Factor value, or nil if avg HR unavailable
+    func fetchIntensityFactor(for workout: HKWorkout, maxHeartRate: Double) async throws -> Double?
+    
+    /// Fetches Recovery Demand for a specific workout.
+    ///
+    /// Calculates estimated recovery time based on:
+    /// - hrTSS (training load)
+    /// - HR Recovery (autonomic response)
+    /// - HRV ratio (if available)
+    /// - Sleep duration (if available)
+    ///
+    /// - Parameters:
+    ///   - workout: The workout to analyze
+    ///   - maxHeartRate: User's maximum heart rate
+    /// - Returns: RecoveryDemand with estimated hours, or nil if hrTSS unavailable
+    func fetchRecoveryDemand(for workout: HKWorkout, maxHeartRate: Double) async throws -> RecoveryDemand?
 }
