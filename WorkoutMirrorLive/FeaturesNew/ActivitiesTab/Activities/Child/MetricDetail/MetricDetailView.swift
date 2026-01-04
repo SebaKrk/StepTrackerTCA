@@ -68,7 +68,9 @@ struct MetricDetailView: View {
         } label: {
             VStack(alignment: .leading) {
                 Text("Scale")
+                    .foregroundColor(.primary)
                     .font(.headline)
+                    .bold()
                 Divider()
             }
         }
@@ -107,12 +109,14 @@ struct MetricDetailView: View {
     private var scoreSection: some View {
         GroupBox {
             Text(levelDescription)
-                .font(.body)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
         } label: {
             VStack(alignment: .leading) {
                 Text("Your Score")
+                    .foregroundColor(.primary)
                     .font(.headline)
+                    .bold()
                 Divider()
             }
         }
@@ -125,12 +129,14 @@ struct MetricDetailView: View {
     private var metricInfoSection: some View {
         GroupBox {
             Text(store.metricType.metricDescription)
-                .font(.body)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
         } label: {
             VStack(alignment: .leading) {
                 Text("What is \(store.metricType.title)?")
+                    .foregroundColor(.primary)
                     .font(.headline)
+                    .bold()
                 Divider()
             }
         }
