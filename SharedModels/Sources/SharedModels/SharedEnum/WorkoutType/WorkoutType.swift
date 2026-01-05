@@ -18,10 +18,14 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
     
     public var title: String {
         switch self {
-        case .strength:         return "Strength"
-        case .functional:       return "Functional"
-        case .cross:            return "Cross"
-        case .boxing:           return "Boxing"
+        case .strength:
+            return String(localized: "Strength", bundle: .module)
+        case .functional:
+            return String(localized: "Functional", bundle: .module)
+        case .cross:
+            return String(localized: "Cross", bundle: .module)
+        case .boxing:
+            return String(localized: "Boxing", bundle: .module)
         }
     }
     

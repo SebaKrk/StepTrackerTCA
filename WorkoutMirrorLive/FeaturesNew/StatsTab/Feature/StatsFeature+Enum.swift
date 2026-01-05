@@ -28,12 +28,13 @@ extension StatsFeature {
         var title: String {
             switch self {
             case .today:
-                return "Today"
+                return String(localized: "Today", bundle: .main)
             case .analytics:
-                return "Analytics"
+                return String(localized: "Analytics", bundle: .main)
             }
         }
         
     }
 
 }
+

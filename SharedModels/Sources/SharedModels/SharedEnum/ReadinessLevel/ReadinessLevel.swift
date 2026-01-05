@@ -35,6 +35,11 @@ public enum ReadinessLevel: String, CaseIterable, Sendable {
     
     case excellent = "Excellent"
     
+    /// Localized name of the readiness level
+    public var localizedName: String {
+        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    }
+    
     /// Creates a ReadinessLevel from a numerical score (0-100).
     ///
     /// - Parameter value: Training readiness score from 0 to 100

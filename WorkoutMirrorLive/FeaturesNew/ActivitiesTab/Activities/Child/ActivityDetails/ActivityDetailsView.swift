@@ -107,13 +107,13 @@ struct ActivityDetailsView: View {
             spacing: 4
         ) {
             simpleMetricCard(
-                title: "Calories Active",
+                title: String(localized: "Calories Active", bundle: .main),
                 value: formattedCalories,
                 unit: "kcal",
                 icon: "flame.fill"
             )
             simpleMetricCard(
-                title: "METs",
+                title: String(localized: "METs", bundle: .main),
                 value: formattedMETs,
                 unit: "",
                 icon: "bolt.fill"
@@ -132,13 +132,13 @@ struct ActivityDetailsView: View {
             spacing: 4
         ) {
             simpleMetricCard(
-                title: "Avg HR",
+                title: String(localized: "Avg HR", bundle: .main),
                 value: formattedAvgHR,
                 unit: "bpm",
                 icon: "heart.fill"
             )
             simpleMetricCard(
-                title: "Max HR",
+                title: String(localized: "Max HR", bundle: .main),
                 value: formattedMaxHR,
                 unit: "bpm",
                 icon: "heart.fill"
@@ -159,7 +159,7 @@ struct ActivityDetailsView: View {
             ) {
                 // hrTSS
                 tappableMetricCard(
-                    title: "hrTSS",
+                    title: String(localized: "hrTSS", bundle: .main),
                     value: formattedHRTSS,
                     unit: "",
                     label: store.hrTSSLevel?.recoveryEstimate ?? "",
@@ -173,7 +173,7 @@ struct ActivityDetailsView: View {
                 
                 // Intensity
                 tappableMetricCard(
-                    title: "Intensity",
+                    title: String(localized: "Intensity", bundle: .main),
                     value: formattedIntensityFactor,
                     unit: "",
                     label: store.intensityFactorLevel?.rawValue ?? "",
@@ -195,7 +195,7 @@ struct ActivityDetailsView: View {
             ) {
                 // HR Recovery
                 tappableMetricCard(
-                    title: "HR Recovery",
+                    title: String(localized: "HR Recovery", bundle: .main),
                     value: formattedHRRecovery,
                     unit: "bpm",
                     label: store.hrRecoveryLevel?.rawValue ?? "",
@@ -209,7 +209,7 @@ struct ActivityDetailsView: View {
                 
                 // Recovery Demand
                 tappableMetricCard(
-                    title: "Recovery Demand",
+                    title: String(localized: "Recovery Demand", bundle: .main),
                     value: store.recoveryDemandLevel?.valueString ?? "—",
                     unit: store.recoveryDemandLevel?.unitString ?? "",
                     label: store.recoveryDemandLevel?.rawValue ?? "",
@@ -337,7 +337,7 @@ struct ActivityDetailsView: View {
         GroupBox {
             heartRateZone(distribution)
         } label: {
-            Label("Heart Rate Zones", systemImage: "heart.text.square")
+            Label(String(localized: "Heart Rate Zones", bundle: .main), systemImage: "heart.text.square")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -376,7 +376,7 @@ struct ActivityDetailsView: View {
     
     private var primaryZone: some View {
         HStack {
-            Text("Primary Zone:")
+            Text(String(localized: "Primary Zone", bundle: .main) + ":")
                 .font(.caption)
             
             if let zoneInfo = store.primaryZoneInfo {
@@ -392,7 +392,7 @@ struct ActivityDetailsView: View {
             
             Spacer()
             
-            Text("Time in zone:")
+            Text(String(localized: "Time in zone", bundle: .main) + ":")
                 .font(.caption)
             
             if let zoneInfo = store.primaryZoneInfo {

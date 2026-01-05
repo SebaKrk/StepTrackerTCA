@@ -19,11 +19,16 @@ public enum ActivityDateRange: Int, CaseIterable, Identifiable {
     
     public var title: String {
         switch self {
-        case .week: return "7 Days"
-        case .twoWeeks: return "14 Days"
-        case .month: return "28 Days"
-        case .threeMonths: return "3 Months"
-        case .year: return "Year"
+        case .week:
+            return String(localized: "7 Days", bundle: .module)
+        case .twoWeeks:
+            return String(localized: "14 Days", bundle: .module)
+        case .month:
+            return String(localized: "28 Days", bundle: .module)
+        case .threeMonths:
+            return String(localized: "3 Months", bundle: .module)
+        case .year:
+            return String(localized: "Year", bundle: .module)
         }
     }
 }

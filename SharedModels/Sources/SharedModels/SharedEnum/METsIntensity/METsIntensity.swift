@@ -20,6 +20,10 @@ public enum METsIntensity: String, CaseIterable, Identifiable, Sendable {
     
     public var id: String { rawValue }
     
+    public var localizedName: String {
+        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    }
+    
     // MARK: - Factory
     
     /// Creates a METsIntensity from a raw METs value.

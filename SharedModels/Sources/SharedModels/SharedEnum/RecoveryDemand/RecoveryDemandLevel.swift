@@ -42,18 +42,34 @@ public enum RecoveryDemandLevel: String, CaseIterable, Identifiable, Sendable {
         }
     }
     
+    
     public var description: String {
         switch self {
         case .readySoon:
-            return "Light session. You'll be ready for another hard workout soon."
+            return String(
+                localized: "Light session. You'll be ready for another hard workout soon.",
+                bundle: .module
+            )
         case .oneDay:
-            return "Moderate effort. Allow ~24 hours before next hard session."
+            return String(
+                localized: "Moderate effort. Allow ~24 hours before next hard session.",
+                bundle: .module
+            )
         case .twoDays:
-            return "Significant stress. Consider 1-2 days of easy training."
+            return String(
+                localized: "Significant stress. Consider 1-2 days of easy training.",
+                bundle: .module
+            )
         case .threeDays:
-            return "High training load. Plan 2-3 days of recovery or light work."
+            return String(
+                localized: "High training load. Plan 2-3 days of recovery or light work.",
+                bundle: .module
+            )
         case .extended:
-            return "Very demanding session. Full recovery may take 3+ days."
+            return String(
+                localized: "Very demanding session. Full recovery may take 3+ days.",
+                bundle: .module
+            )
         }
     }
     
@@ -67,13 +83,24 @@ public enum RecoveryDemandLevel: String, CaseIterable, Identifiable, Sendable {
         case .extended: return "3+"
         }
     }
-
+    
     public var unitString: String {
         switch self {
-        case .readySoon: return "hours"
-        case .oneDay: return "day"
-        default: return "days"
-        }
+        case .readySoon:
+            return String(
+                localized: "hours",
+                bundle: .module
+            )
+        case .oneDay:
+            return String(
+                localized: "day",
+                bundle: .module
+            )
+            
+        default:  return String(
+            localized: "day",
+            bundle: .module
+        )}
     }
     
 }

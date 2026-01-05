@@ -20,6 +20,11 @@ public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
     
     public var id: String { rawValue }
     
+    /// Localized name of the hrTSS level
+    public var localizedName: String {
+        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    }
+    
     // MARK: - Factory
     
     /// Creates a HRTSSLevel from a raw hrTSS value.
@@ -46,10 +51,14 @@ public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
     /// Estimated recovery time based on hrTSS.
     public var recoveryEstimate: String {
         switch self {
-        case .low: return "1 day recovery"
-        case .moderate: return "1–2 days recovery"
-        case .high: return "2–4 days recovery"
-        case .veryHigh: return "5+ days recovery"
+        case .low:
+            return String(localized: "1 day recovery", bundle: .module)
+        case .moderate:
+            return String(localized: "1–2 days recovery", bundle: .module)
+        case .high:
+            return String(localized: "2–4 days recovery", bundle: .module)
+        case .veryHigh:
+            return String(localized: "5+ days recovery", bundle: .module)
         }
     }
     
@@ -58,13 +67,13 @@ public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
     public var description: String {
         switch self {
         case .low:
-            return "Low recovery demand. Next-day training unaffected."
+            return String(localized: "Low recovery demand. Next-day training unaffected.", bundle: .module)
         case .moderate:
-            return "Moderate recovery demand. Plan next session carefully."
+            return String(localized: "Moderate recovery demand. Plan next session carefully.", bundle: .module)
         case .high:
-            return "High recovery demand. Limit hard sessions."
+            return String(localized: "High recovery demand. Limit hard sessions.", bundle: .module)
         case .veryHigh:
-            return "Very high recovery demand. Extended recovery required."
+            return String(localized: "Very high recovery demand. Extended recovery required.", bundle: .module)
         }
     }
     

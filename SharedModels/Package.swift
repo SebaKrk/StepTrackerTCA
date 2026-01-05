@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SharedModels",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v18),
         .watchOS(.v11)
@@ -20,6 +21,8 @@ let package = Package(
     targets: [
         .target(
             name: "SharedModels",
-            dependencies: ["Commons"])
+            dependencies: ["Commons"],
+            resources: [.process("Resources")]
+        )
     ]
 )

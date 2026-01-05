@@ -33,9 +33,12 @@ extension SetupPhase {
     public var navTitle: String {
         
         switch self {
-        case .device: return "Chose device"
-        case .activity: return "Chose activity"
-        case .ready: return ""
+        case .device:
+            return String(localized: "Choose device", bundle: .module)
+        case .activity:
+            return String(localized: "Choose activity", bundle: .module)
+        case .ready:
+            return ""
         }
     }
     

@@ -27,19 +27,27 @@ public enum HealthMetricType: String, CaseIterable, Identifiable {
     
     public var title: String {
         switch self {
-        case .rhr: return "RHR"
-        case .hrv: return "HRV"
-        case .sleep: return "Sleep"
-        case .activity: return "Activity"
+        case .rhr:
+            return String(localized: "RHR", bundle: .module)
+        case .hrv:
+            return String(localized: "HRV", bundle: .module)
+        case .sleep:
+            return String(localized: "Sleep", bundle: .module)
+        case .activity:
+            return String(localized: "Activity", bundle: .module)
         }
     }
     
     public var fullName: String {
         switch self {
-        case .rhr: return "Resting Heart Rate"
-        case .hrv: return "Heart Rate Variability"
-        case .sleep: return "Sleep Quality"
-        case .activity: return "Activity Level"
+        case .rhr:
+            return String(localized: "Resting Heart Rate", bundle: .module)
+        case .hrv:
+            return String(localized: "Heart Rate Variability", bundle: .module)
+        case .sleep:
+            return String(localized: "Sleep Quality", bundle: .module)
+        case .activity:
+            return String(localized: "Activity Level", bundle: .module)
         }
     }
 }

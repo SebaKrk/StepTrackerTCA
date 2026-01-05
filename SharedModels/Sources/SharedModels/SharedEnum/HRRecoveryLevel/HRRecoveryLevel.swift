@@ -52,15 +52,15 @@ public enum HRRecoveryLevel: String, CaseIterable, Identifiable, Sendable {
     public var description: String {
         switch self {
         case .poor:
-            return "Slow heart rate recovery. May indicate fatigue or stress."
+            return String(localized: "Slow heart rate recovery. May indicate fatigue or stress.", bundle: .module)
         case .average:
-            return "Typical heart rate recovery within expected range."
+            return String(localized: "Typical heart rate recovery within expected range.", bundle: .module)
         case .good:
-            return "Faster-than-average heart rate recovery."
+            return String(localized: "Faster-than-average heart rate recovery.", bundle: .module)
         case .veryGood:
-            return "Rapid heart rate recovery after exercise."
+            return String(localized: "Rapid heart rate recovery after exercise.", bundle: .module)
         case .excellent:
-            return "Very rapid heart rate recovery. Strong autonomic response."
+            return String(localized: "Very rapid heart rate recovery. Strong autonomic response.", bundle: .module)
         }
     }
     

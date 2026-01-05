@@ -22,6 +22,11 @@ public enum IntensityFactorLevel: String, CaseIterable, Identifiable, Sendable {
     
     public var id: String { rawValue }
     
+    /// Localized name of the intensity factor level
+    public var localizedName: String {
+        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    }
+    
     // MARK: - Factory
     
     /// Creates an IntensityFactorLevel from a raw IF value.
@@ -53,17 +58,17 @@ public enum IntensityFactorLevel: String, CaseIterable, Identifiable, Sendable {
     public var description: String {
         switch self {
         case .recovery:
-            return "Very light effort. Active recovery or warm-up intensity."
+            return String(localized: "Very light effort. Active recovery or warm-up intensity.", bundle: .module)
         case .aerobic:
-            return "Comfortable effort. Building aerobic base and endurance."
+            return String(localized: "Comfortable effort. Building aerobic base and endurance.", bundle: .module)
         case .tempo:
-            return "Moderate-hard effort. Improving lactate threshold."
+            return String(localized: "Moderate-hard effort. Improving lactate threshold.", bundle: .module)
         case .threshold:
-            return "Hard effort at lactate threshold. Maximum sustainable pace."
+            return String(localized: "Hard effort at lactate threshold. Maximum sustainable pace.", bundle: .module)
         case .vo2max:
-            return "Very hard effort. Training maximum oxygen uptake."
+            return String(localized: "Very hard effort. Training maximum oxygen uptake.", bundle: .module)
         case .allOut:
-            return "Maximum effort. Race pace or sprint intervals."
+            return String(localized: "Maximum effort. Race pace or sprint intervals.", bundle: .module)
         }
     }
     
