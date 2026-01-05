@@ -924,7 +924,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "kcal z aktywności"
+            "value" : "Kcal z aktywności"
           }
         }
       }
@@ -1643,7 +1643,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Spadek HR"
+            "value" : "Regeneracja tętna"
           }
         }
       }
