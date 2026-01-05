@@ -25,23 +25,35 @@ public enum ActivityStatus: Sendable, Equatable {
     
     public var title: String {
         switch self {
-        case .maximumRecovery: return "Maximum Recovery"
-        case .optimalReadiness: return "Optimal Readiness"
-        case .goodReadiness: return "Good Readiness"
-        case .neutralReadiness: return "Neutral Readiness"
-        case .moderateFatigue: return "Moderate Fatigue"
-        case .highFatigue: return "High Fatigue"
+        case .maximumRecovery:
+            return String(localized: "Maximum Recovery", bundle: .module)
+        case .optimalReadiness:
+            return String(localized: "Optimal Readiness", bundle: .module)
+        case .goodReadiness:
+            return String(localized: "Good Readiness", bundle: .module)
+        case .neutralReadiness:
+            return String(localized: "Neutral Readiness", bundle: .module)
+        case .moderateFatigue:
+            return String(localized: "Moderate Fatigue", bundle: .module)
+        case .highFatigue:
+            return String(localized: "High Fatigue", bundle: .module)
         }
     }
     
     public var description: String {
         switch self {
-        case .maximumRecovery: return "No load day - complete restoration"
-        case .optimalReadiness: return "Minimal load - peak condition"
-        case .goodReadiness: return "Low load - high availability"
-        case .neutralReadiness: return "Typical load - standard condition"
-        case .moderateFatigue: return "High load - reduced availability"
-        case .highFatigue: return "Very high load - priority: recovery"
+        case .maximumRecovery:
+            return String(localized: "No load day - complete restoration", bundle: .module)
+        case .optimalReadiness:
+            return String(localized: "Minimal load - peak condition", bundle: .module)
+        case .goodReadiness:
+            return String(localized: "Low load - high availability", bundle: .module)
+        case .neutralReadiness:
+            return String(localized: "Typical load - standard condition", bundle: .module)
+        case .moderateFatigue:
+            return String(localized: "High load - reduced availability", bundle: .module)
+        case .highFatigue:
+            return String(localized: "Very high load - priority: recovery", bundle: .module)
         }
     }
     

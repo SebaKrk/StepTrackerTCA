@@ -17,13 +17,13 @@ public enum BiologicalSex: String, CaseIterable, Equatable, Sendable {
     public var displayName: String {
         switch self {
         case .male:
-            return "Male"
+            return String(localized: "Male", bundle: .module)
         case .female:
-            return "Female"
+            return String(localized: "Female", bundle: .module)
         case .notSet:
-            return "Not Set"
+            return String(localized: "Not Set", bundle: .module)
         case .unknown:
-            return "Unknown"
+            return String(localized: "Unknown", bundle: .module)
         }
     }
     

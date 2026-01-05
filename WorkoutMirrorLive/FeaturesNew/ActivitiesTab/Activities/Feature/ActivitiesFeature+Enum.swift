@@ -20,9 +20,9 @@ extension ActivitiesFeature {
         var title: String {
             switch self {
             case .personal:
-                return "Personal"
+                return String(localized: "Personal", bundle: .main)
             case .team:
-                return "Team"
+                return String(localized: "Team", bundle: .main)
             }
         }
         

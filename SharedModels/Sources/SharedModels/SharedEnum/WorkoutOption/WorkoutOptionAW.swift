@@ -27,13 +27,13 @@ public enum WorkoutOptionAW: Codable, Hashable, Identifiable, CaseIterable {
     public var title: String {
         switch self {
         case .scheduled:
-            return "Scheduled"
+            return String(localized: "Scheduled", bundle: .module)
         case .mirroring:
-            return "Mirroring"
+            return String(localized: "Mirroring", bundle: .module)
         case .planned:
-            return "Planned"
+            return String(localized: "Planned", bundle: .module)
         case .free:
-            return "Free"
+            return String(localized: "Free", bundle: .module)
         }
     }
     

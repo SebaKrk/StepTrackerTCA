@@ -11,15 +11,25 @@ import SwiftUI
 ///
 /// hrTSS normalizes training load where 100 = 1 hour at lactate threshold.
 /// It is primarily used to estimate recovery needs and guide training planning.
-public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
+public enum HRTSSLevel: CaseIterable, Identifiable, Sendable {
     
-    case low = "Low"               // < 150
-    case moderate = "Moderate"     // 150–300
-    case high = "High"             // 300–450
-    case veryHigh = "Very High"    // > 450
+    case low
+    case moderate
+    case high
+    case veryHigh
     
-    public var id: String { rawValue }
+    public var id: String { title }
     
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .low: return String(localized: "Low", bundle: .module)
+        case .moderate: return String(localized: "Moderate", bundle: .module)
+        case .high: return String(localized: "High", bundle: .module)
+        case .veryHigh: return String(localized: "Very High", bundle: .module)
+        }
+    }
+ 
     // MARK: - Factory
     
     /// Creates a HRTSSLevel from a raw hrTSS value.
@@ -46,10 +56,14 @@ public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
     /// Estimated recovery time based on hrTSS.
     public var recoveryEstimate: String {
         switch self {
-        case .low: return "1 day recovery"
-        case .moderate: return "1–2 days recovery"
-        case .high: return "2–4 days recovery"
-        case .veryHigh: return "5+ days recovery"
+        case .low:
+            return String(localized: "1 day recovery", bundle: .module)
+        case .moderate:
+            return String(localized: "1–2 days recovery", bundle: .module)
+        case .high:
+            return String(localized: "2–4 days recovery", bundle: .module)
+        case .veryHigh:
+            return String(localized: "5+ days recovery", bundle: .module)
         }
     }
     
@@ -58,13 +72,13 @@ public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
     public var description: String {
         switch self {
         case .low:
-            return "Low recovery demand. Next-day training unaffected."
+            return String(localized: "Low recovery demand. Next-day training unaffected.", bundle: .module)
         case .moderate:
-            return "Moderate recovery demand. Plan next session carefully."
+            return String(localized: "Moderate recovery demand. Plan next session carefully.", bundle: .module)
         case .high:
-            return "High recovery demand. Limit hard sessions."
+            return String(localized: "High recovery demand. Limit hard sessions.", bundle: .module)
         case .veryHigh:
-            return "Very high recovery demand. Extended recovery required."
+            return String(localized: "Very high recovery demand. Extended recovery required.", bundle: .module)
         }
     }
     

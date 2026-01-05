@@ -77,12 +77,18 @@ extension AppScreen {
     
     var title: String {
         switch self {
-        case .live: return "Live"
-        case .workout: return "Workout"
-        case .person: return "Profile"
-        case .activities: return "Activities"
-        case .stats: return "Stats"
-        case .sharing: return "Sharing"
+        case .live:
+            return String(localized: "Live", comment: "The Live Tab displays real-time heart rate and workout data.")
+        case .workout:
+            return String(localized: "Workout", comment: "The Workout Tab lets users review or start workouts.")
+        case .person:
+            return String(localized: "Profile", comment: "The Profile Tab contains user info, connected sensors, and settings.")
+        case .activities:
+            return String(localized: "Activities", comment: "The Activities Tab shows a list of completed workouts with details and quick actions.")
+        case .stats:
+            return String(localized: "Stats", comment: "The Stats Tab presents charts and analytics for workouts and health metrics.")
+        case .sharing:
+            return String(localized: "Sharing", comment: "The Sharing Tab shows the team you joined and shared workout activity.")
         }
     }
     
@@ -169,4 +175,3 @@ extension AppScreen {
 //•    Czas
 //•    Spalone kcal
 //•    Czas w każdej strefie
-

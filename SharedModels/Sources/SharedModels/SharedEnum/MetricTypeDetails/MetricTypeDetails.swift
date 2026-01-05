@@ -40,10 +40,14 @@ public enum MetricTypeDetails: Equatable, Sendable {
     
     public var title: String {
         switch self {
-        case .hrTSS: return "hrTSS"
-        case .intensity: return "Intensity Factor"
-        case .hrRecovery: return "HR Recovery"
-        case .recoveryDemand: return "Recovery Demand"
+        case .hrTSS:
+            return String(localized: "hrTSS", bundle: .module)
+        case .intensity:
+            return String(localized: "Intensity Factor", bundle: .module)
+        case .hrRecovery:
+            return String(localized: "HR Recovery", bundle: .module)
+        case .recoveryDemand:
+            return String(localized: "Recovery Demand", bundle: .module)
         }
     }
     
@@ -51,7 +55,7 @@ public enum MetricTypeDetails: Equatable, Sendable {
     public var metricDescription: String {
         switch self {
         case .hrTSS:
-            return """
+            return String(localized: """
             Heart Rate Training Stress Score (hrTSS) measures training load based on workout intensity and duration. It estimates how much recovery your body needs after a session.
 
             A score of 100 equals approximately one hour at lactate threshold intensity.
@@ -61,10 +65,10 @@ public enum MetricTypeDetails: Equatable, Sendable {
 
             Where Intensity Factor = Average HR / Threshold HR
             Threshold HR = Max HR × 0.93
-            """
+            """, bundle: .module)
             
         case .intensity:
-            return """
+            return String(localized: """
             Intensity Factor (IF) shows how hard you worked relative to your lactate threshold heart rate (LTHR).
 
             An IF of 1.0 means you exercised exactly at threshold intensity. Values above 1.0 indicate efforts harder than threshold pace.
@@ -80,10 +84,10 @@ public enum MetricTypeDetails: Equatable, Sendable {
             • 0.85–0.95: Tempo
             • 0.95–1.00: Threshold
             • > 1.00: VO2max / All-out
-            """
+            """, bundle: .module)
             
         case .hrRecovery:
-            return """
+            return String(localized: """
             HR Recovery measures how many beats per minute (bpm) your heart rate drops in the first minute after stopping exercise.
 
             Faster recovery indicates better cardiovascular fitness and a more responsive autonomic nervous system.
@@ -97,10 +101,10 @@ public enum MetricTypeDetails: Equatable, Sendable {
             • 20–30 bpm: Good
             • 30–40 bpm: Very Good
             • > 40 bpm: Excellent
-            """
+            """, bundle: .module)
             
         case .recoveryDemand:
-            return """
+            return String(localized: """
             Recovery Demand estimates how much rest you need before your next hard workout.
 
             It combines training load (hrTSS), heart rate recovery, and other factors to calculate optimal recovery time.
@@ -117,7 +121,7 @@ public enum MetricTypeDetails: Equatable, Sendable {
             • > 160: 72 hours
 
             Modifiers adjust based on your recovery metrics (better HR Recovery = faster recovery time).
-            """
+            """, bundle: .module)
         }
     }
 }

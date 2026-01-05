@@ -52,6 +52,23 @@
 		93D02EEE2DF4CCBF00F08849 /* Commons */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Commons; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Localizable.xcstrings,
+			);
+			target = 93CE75342D1699CA006D5A4A /* MyFitnessJournal */;
+		};
+		938E65512F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Localizable.xcstrings,
+			);
+			target = 934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -60,6 +77,10 @@
 		};
 		9382096D2E39388600F49046 /* WorkoutMirrorLive */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */,
+				938E65512F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal Watch App" target */,
+			);
 			path = WorkoutMirrorLive;
 			sourceTree = "<group>";
 		};
@@ -255,6 +276,7 @@
 			knownRegions = (
 				en,
 				Base,
+				pl,
 			);
 			mainGroup = 93CE752C2D1699CA006D5A4A;
 			minimizedProjectReferenceProxies = 1;
@@ -532,6 +554,7 @@
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -590,6 +613,7 @@
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

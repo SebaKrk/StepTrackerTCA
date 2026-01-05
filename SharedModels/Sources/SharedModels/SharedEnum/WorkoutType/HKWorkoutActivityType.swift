@@ -12,16 +12,26 @@ extension HKWorkoutActivityType {
     /// Returns a user-friendly name for the workout activity
     public var name: String {
         switch self {
-        case .running:          return "Running"
-        case .walking:          return "Walking"
-        case .cycling:          return "Cycling"
-        case .swimming:         return "Swimming"
-        case .crossTraining:    return "Cross Training"
-        case .boxing:           return "Boxing"
-        case .traditionalStrengthTraining: return "Strength"
-        case .functionalStrengthTraining: return "Functional"
-        case .cooldown:        return "Cooldown"
-        default:                return String(describing: self)
+        case .running:
+            return String(localized: "Running", bundle: .module)
+        case .walking:
+            return String(localized: "Walking", bundle: .module)
+        case .cycling:
+            return String(localized: "Cycling", bundle: .module)
+        case .swimming:
+            return String(localized: "Swimming", bundle: .module)
+        case .crossTraining:
+            return String(localized: "Cross Training", bundle: .module)
+        case .boxing:
+            return String(localized: "Boxing", bundle: .module)
+        case .traditionalStrengthTraining:
+            return String(localized: "Strength", bundle: .module)
+        case .functionalStrengthTraining:
+            return String(localized: "Functional", bundle: .module)
+        case .cooldown:
+            return String(localized: "Cooldown", bundle: .module)
+        default:
+            return String(describing: self)
         }
     }
     
