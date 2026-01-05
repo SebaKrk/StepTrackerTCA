@@ -23,21 +23,23 @@ import SwiftUI
 /// - **Fair (55-69)**: Suitable for light to moderate training
 /// - **Poor (40-54)**: Active recovery or light exercise recommended
 /// - **Very Poor (0-39)**: Rest day strongly recommended
-public enum ReadinessLevel: String, CaseIterable, Sendable {
+public enum ReadinessLevel: CaseIterable, Sendable {
     
-    case veryPoor = "Very Poor"
+    case veryPoor
+    case poor
+    case fair
+    case good
+    case excellent
     
-    case poor = "Poor"
-    
-    case fair = "Fair"
-    
-    case good = "Good"
-    
-    case excellent = "Excellent"
-    
-    /// Localized name of the readiness level
-    public var localizedName: String {
-        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .veryPoor: return String(localized: "Very Poor", bundle: .module)
+        case .poor: return String(localized: "Poor", bundle: .module)
+        case .fair: return String(localized: "Fair", bundle: .module)
+        case .good: return String(localized: "Good", bundle: .module)
+        case .excellent: return String(localized: "Excellent", bundle: .module)
+        }
     }
     
     /// Creates a ReadinessLevel from a numerical score (0-100).

@@ -11,17 +11,23 @@ import SwiftUI
 ///
 /// METs measure the energy cost of physical activity relative to rest.
 /// 1 MET = resting metabolic rate (~3.5 ml O₂/kg/min).
-public enum METsIntensity: String, CaseIterable, Identifiable, Sendable {
+public enum METsIntensity: CaseIterable, Identifiable, Sendable {
     
-    case light = "Light"           // < 3 METs
-    case moderate = "Moderate"     // 3-6 METs
-    case vigorous = "Vigorous"     // 6-9 METs
-    case veryHigh = "Very High"    // > 9 METs
+    case light           // < 3 METs
+    case moderate        // 3-6 METs
+    case vigorous        // 6-9 METs
+    case veryHigh        // > 9 METs
     
-    public var id: String { rawValue }
+    public var id: String { title }
     
-    public var localizedName: String {
-        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .light: return String(localized: "Light", bundle: .module)
+        case .moderate: return String(localized: "Moderate", bundle: .module)
+        case .vigorous: return String(localized: "Vigorous", bundle: .module)
+        case .veryHigh: return String(localized: "Very High", bundle: .module)
+        }
     }
     
     // MARK: - Factory

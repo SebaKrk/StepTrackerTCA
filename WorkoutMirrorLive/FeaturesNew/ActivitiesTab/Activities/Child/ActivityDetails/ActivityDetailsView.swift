@@ -176,7 +176,7 @@ struct ActivityDetailsView: View {
                     title: String(localized: "Intensity", bundle: .main),
                     value: formattedIntensityFactor,
                     unit: "",
-                    label: store.intensityFactorLevel?.rawValue ?? "",
+                    label: store.intensityFactorLevel?.title ?? "",
                     labelColor: store.intensityFactorLevel?.color ?? .gray,
                     icon: "gauge.with.needle"
                 ) {
@@ -198,7 +198,7 @@ struct ActivityDetailsView: View {
                     title: String(localized: "HR Recovery", bundle: .main),
                     value: formattedHRRecovery,
                     unit: "bpm",
-                    label: store.hrRecoveryLevel?.rawValue ?? "",
+                    label: store.hrRecoveryLevel?.title ?? "",
                     labelColor: store.hrRecoveryLevel?.color ?? .gray,
                     icon: "arrow.down.heart.fill"
                 ) {
@@ -212,7 +212,7 @@ struct ActivityDetailsView: View {
                     title: String(localized: "Recovery Demand", bundle: .main),
                     value: store.recoveryDemandLevel?.valueString ?? "—",
                     unit: store.recoveryDemandLevel?.unitString ?? "",
-                    label: store.recoveryDemandLevel?.rawValue ?? "",
+                    label: store.recoveryDemandLevel?.title ?? "",
                     labelColor: store.recoveryDemandLevel?.color ?? .gray,
                     icon: "bed.double.fill"
                 ) {
@@ -380,7 +380,7 @@ struct ActivityDetailsView: View {
                 .font(.caption)
             
             if let zoneInfo = store.primaryZoneInfo {
-                Text(zoneInfo.zone.rawValue)
+                Text(zoneInfo.zone.title)
                     .font(.caption)
                     .bold()
                     .foregroundStyle(zoneInfo.zone.color)
@@ -415,7 +415,7 @@ struct ActivityDetailsView: View {
                     .fill(zone.color)
                     .frame(width: 10, height: 10)
                 
-                Text(zone.rawValue)
+                Text(zone.title)
                     .font(.subheadline)
                 
                 Spacer()

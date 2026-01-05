@@ -243,7 +243,7 @@ struct ActivitiesView: View {
                 .font(.caption)
             
             if let zoneInfo = store.zoneInfo[workout.uuid] {
-                Text(zoneInfo.zone.rawValue)
+                Text(zoneInfo.zone.title)
                     .font(.caption)
                     .bold()
                     .foregroundStyle(zoneInfo.zone.color)

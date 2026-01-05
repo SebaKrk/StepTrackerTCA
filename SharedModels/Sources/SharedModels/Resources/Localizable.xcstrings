@@ -101,6 +101,46 @@
         }
       }
     },
+    "Aerobic" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aerobowa"
+          }
+        }
+      }
+    },
+    "All-out" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksymalny wysiłek"
+          }
+        }
+      }
+    },
+    "Anaerobic" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beztlenowa"
+          }
+        }
+      }
+    },
+    "Average" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnie"
+          }
+        }
+      }
+    },
     "Below Average" : {
       "localizations" : {
         "pl" : {
@@ -231,12 +271,32 @@
         }
       }
     },
+    "Fair" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowana"
+          }
+        }
+      }
+    },
     "Faster-than-average heart rate recovery." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szybszy niż przeciętny spadek tętna."
+          }
+        }
+      }
+    },
+    "Fat Burning" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spalanie tłuszczu"
           }
         }
       }
@@ -276,7 +336,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dobra gotowość"
+            "value" : "Dobra"
           }
         }
       }
@@ -327,6 +387,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zmienność tętna"
+          }
+        }
+      }
+    },
+    "High" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysoki"
           }
         }
       }
@@ -441,6 +511,16 @@
         }
       }
     },
+    "Light" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekki"
+          }
+        }
+      }
+    },
     "Light activity, active recovery" : {
       "localizations" : {
         "pl" : {
@@ -467,6 +547,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Najdłuższe najpierw"
+          }
+        }
+      }
+    },
+    "Low" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niski"
           }
         }
       }
@@ -537,6 +627,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lustrzane odbicie"
+          }
+        }
+      }
+    },
+    "Moderate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowana"
           }
         }
       }
@@ -681,6 +781,26 @@
         }
       }
     },
+    "Ready Soon" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wkrótce gotowy"
+          }
+        }
+      }
+    },
+    "Recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja"
+          }
+        }
+      }
+    },
     "Recovery Demand" : {
       "localizations" : {
         "pl" : {
@@ -697,6 +817,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zapotrzebowanie na Regenerację szacuje, ile odpoczynku potrzebujesz przed następnym ciężkim treningiem.\n\nŁączy obciążenie treningowe (hrTSS), regenerację tętna i inne czynniki, aby obliczyć optymalny czas regeneracji.\n\nWzór:\nRegeneracja (godziny) = Regeneracja Bazowa × Modyfikator HRR × Modyfikator HRV × Modyfikator Snu\n\nRegeneracja Bazowa jest określana przez hrTSS:\n• < 30: 12 godzin\n• 30–50: 18 godzin\n• 50–80: 28 godzin\n• 80–120: 42 godziny\n• 120–160: 56 godzin\n• > 160: 72 godziny\n\nModyfikatory dostosowują się w oparciu o Twoje metryki regeneracji (lepsza Regeneracja Tętna = krótszy czas regeneracji)."
+          }
+        }
+      }
+    },
+    "Resting" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spoczynek"
           }
         }
       }
@@ -747,6 +877,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Najkrótsze najpierw"
+          }
+        }
+      }
+    },
+    "Significant" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Znaczne"
           }
         }
       }
@@ -811,6 +951,16 @@
         }
       }
     },
+    "Tempo" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo"
+          }
+        }
+      }
+    },
     "The aerobic zone forms the foundation of endurance and is crucial for developing the cardiorespiratory system. Training in this range maximizes oxygen uptake, increases the number and size of mitochondria in muscles, and improves heart efficiency. By staying in this zone, you develop base endurance, increase stroke volume, and improve overall physical capacity, which forms the basis for all other forms of activity." : {
       "localizations" : {
         "pl" : {
@@ -871,6 +1021,16 @@
         }
       }
     },
+    "Threshold" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " Próg tlenowy"
+          }
+        }
+      }
+    },
     "Typical heart rate recovery within expected range." : {
       "localizations" : {
         "pl" : {
@@ -911,6 +1071,16 @@
         }
       }
     },
+    "Very Good" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo dobry"
+          }
+        }
+      }
+    },
     "Very hard effort. Training maximum oxygen uptake." : {
       "localizations" : {
         "pl" : {
@@ -927,6 +1097,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bardzo ciężka, moc beztlenowa"
+          }
+        }
+      }
+    },
+    "Very High" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo wysoki"
           }
         }
       }
@@ -961,12 +1141,42 @@
         }
       }
     },
+    "Very Poor" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo niski"
+          }
+        }
+      }
+    },
     "Very rapid heart rate recovery. Strong autonomic response." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bardzo szybki spadek tętna. Silna odpowiedź układu autonomicznego."
+          }
+        }
+      }
+    },
+    "Vigorous" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intensywna"
+          }
+        }
+      }
+    },
+    "VO2max" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VO2max"
           }
         }
       }

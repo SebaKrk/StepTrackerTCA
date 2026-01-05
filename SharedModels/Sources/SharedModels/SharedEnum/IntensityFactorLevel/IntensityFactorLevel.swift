@@ -11,22 +11,29 @@ import SwiftUI
 ///
 /// IF indicates how hard you worked relative to your lactate threshold.
 /// Formula: IF = avgHR / LTHR where LTHR = maxHR × 0.85
-public enum IntensityFactorLevel: String, CaseIterable, Identifiable, Sendable {
+public enum IntensityFactorLevel: CaseIterable, Identifiable, Sendable {
     
-    case recovery = "Recovery"       // < 0.75
-    case aerobic = "Aerobic"         // 0.75–0.85
-    case tempo = "Tempo"             // 0.85–0.95
-    case threshold = "Threshold"     // 0.95–1.00
-    case vo2max = "VO2max"           // 1.00–1.05
-    case allOut = "All-out"          // > 1.05
+    case recovery       // < 0.75
+    case aerobic        // 0.75–0.85
+    case tempo          // 0.85–0.95
+    case threshold      // 0.95–1.00
+    case vo2max         // 1.00–1.05
+    case allOut         // > 1.05
+
+    public var id: String { title }
     
-    public var id: String { rawValue }
-    
-    /// Localized name of the intensity factor level
-    public var localizedName: String {
-        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .recovery: return String(localized: "Recovery", bundle: .module)
+        case .aerobic: return String(localized: "Aerobic", bundle: .module)
+        case .tempo: return String(localized: "Tempo", bundle: .module)
+        case .threshold: return String(localized: "Threshold", bundle: .module)
+        case .vo2max: return String(localized: "VO2max", bundle: .module)
+        case .allOut: return String(localized: "All-out", bundle: .module)
+        }
     }
-    
+
     // MARK: - Factory
     
     /// Creates an IntensityFactorLevel from a raw IF value.

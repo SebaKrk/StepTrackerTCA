@@ -11,20 +11,25 @@ import SwiftUI
 ///
 /// hrTSS normalizes training load where 100 = 1 hour at lactate threshold.
 /// It is primarily used to estimate recovery needs and guide training planning.
-public enum HRTSSLevel: String, CaseIterable, Identifiable, Sendable {
+public enum HRTSSLevel: CaseIterable, Identifiable, Sendable {
     
-    case low = "Low"               // < 150
-    case moderate = "Moderate"     // 150–300
-    case high = "High"             // 300–450
-    case veryHigh = "Very High"    // > 450
+    case low
+    case moderate
+    case high
+    case veryHigh
     
-    public var id: String { rawValue }
+    public var id: String { title }
     
-    /// Localized name of the hrTSS level
-    public var localizedName: String {
-        String(localized: String.LocalizationValue(rawValue), bundle: .module)
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .low: return String(localized: "Low", bundle: .module)
+        case .moderate: return String(localized: "Moderate", bundle: .module)
+        case .high: return String(localized: "High", bundle: .module)
+        case .veryHigh: return String(localized: "Very High", bundle: .module)
+        }
     }
-    
+ 
     // MARK: - Factory
     
     /// Creates a HRTSSLevel from a raw hrTSS value.
