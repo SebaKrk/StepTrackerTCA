@@ -47,7 +47,7 @@ extension TrainingReadinessFeature {
         
         /// Computed readiness label
         var readinessLabel: String {
-            readinessLevel.rawValue
+            readinessLevel.title
         }
         
         /// Whether result is reliable (enough data available)

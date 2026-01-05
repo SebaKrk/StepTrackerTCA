@@ -62,7 +62,7 @@ struct MetricDetailView: View {
     
     private var scaleSection: some View {
         GroupBox {
-            VStack(spacing: 12) {
+            VStack(spacing: 4) {
                 scaleView
             }
         } label: {
@@ -83,22 +83,22 @@ struct MetricDetailView: View {
         switch store.metricType {
         case .hrTSS:
             MetricScaleView(
-                levels: HRTSSLevel.allCases.map { ($0.rawValue, $0.color) },
+                levels: HRTSSLevel.allCases.map { ($0.title, $0.color) },
                 currentIndex: HRTSSLevel.allCases.firstIndex(of: currentHRTSSLevel) ?? 0
             )
         case .intensity:
             MetricScaleView(
-                levels: IntensityFactorLevel.allCases.map { ($0.rawValue, $0.color) },
+                levels: IntensityFactorLevel.allCases.map { ($0.title, $0.color) },
                 currentIndex: IntensityFactorLevel.allCases.firstIndex(of: currentIntensityLevel) ?? 0
             )
         case .hrRecovery:
             MetricScaleView(
-                levels: HRRecoveryLevel.allCases.map { ($0.rawValue, $0.color) },
+                levels: HRRecoveryLevel.allCases.map { ($0.title, $0.color) },
                 currentIndex: HRRecoveryLevel.allCases.firstIndex(of: currentHRRecoveryLevel) ?? 0
             )
         case .recoveryDemand:
             MetricScaleView(
-                levels: RecoveryDemandLevel.allCases.map { ($0.rawValue, $0.color) },
+                levels: RecoveryDemandLevel.allCases.map { ($0.title, $0.color) },
                 currentIndex: RecoveryDemandLevel.allCases.firstIndex(of: currentRecoveryDemandLevel) ?? 0
             )
         }
@@ -161,10 +161,10 @@ struct MetricDetailView: View {
     
     private var levelName: String {
         switch store.metricType {
-        case let .hrTSS(_, level): return level.rawValue
-        case let .intensity(_, level): return level.rawValue
-        case let .hrRecovery(_, level): return level.rawValue
-        case let .recoveryDemand(_, level): return level.rawValue
+        case let .hrTSS(_, level): return level.title
+        case let .intensity(_, level): return level.title
+        case let .hrRecovery(_, level): return level.title
+        case let .recoveryDemand(_, level): return level.title
         }
     }
     
@@ -243,12 +243,13 @@ struct MetricScaleView: View {
             HStack {
                 ForEach(0..<levels.count, id: \.self) { index in
                     Text(levels[index].name)
-                        .font(.caption2)
+                        .font(.system(size: 10)) 
                         .foregroundColor(index == currentIndex ? .primary : .secondary)
                         .fontWeight(index == currentIndex ? .bold : .regular)
                         .frame(maxWidth: .infinity)
-                        .lineLimit(1)
+                        .lineLimit(2)
                         .minimumScaleFactor(0.7)
+                        .multilineTextAlignment(.center)
                 }
             }
         }

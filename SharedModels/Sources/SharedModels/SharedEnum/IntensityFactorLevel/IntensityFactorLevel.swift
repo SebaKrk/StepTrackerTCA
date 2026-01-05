@@ -11,17 +11,29 @@ import SwiftUI
 ///
 /// IF indicates how hard you worked relative to your lactate threshold.
 /// Formula: IF = avgHR / LTHR where LTHR = maxHR × 0.85
-public enum IntensityFactorLevel: String, CaseIterable, Identifiable, Sendable {
+public enum IntensityFactorLevel: CaseIterable, Identifiable, Sendable {
     
-    case recovery = "Recovery"       // < 0.75
-    case aerobic = "Aerobic"         // 0.75–0.85
-    case tempo = "Tempo"             // 0.85–0.95
-    case threshold = "Threshold"     // 0.95–1.00
-    case vo2max = "VO2max"           // 1.00–1.05
-    case allOut = "All-out"          // > 1.05
+    case recovery       // < 0.75
+    case aerobic        // 0.75–0.85
+    case tempo          // 0.85–0.95
+    case threshold      // 0.95–1.00
+    case vo2max         // 1.00–1.05
+    case allOut         // > 1.05
+
+    public var id: String { title }
     
-    public var id: String { rawValue }
-    
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .recovery: return String(localized: "Recovery", bundle: .module)
+        case .aerobic: return String(localized: "Aerobic", bundle: .module)
+        case .tempo: return String(localized: "Tempo", bundle: .module)
+        case .threshold: return String(localized: "Threshold", bundle: .module)
+        case .vo2max: return String(localized: "VO2max", bundle: .module)
+        case .allOut: return String(localized: "All-out", bundle: .module)
+        }
+    }
+
     // MARK: - Factory
     
     /// Creates an IntensityFactorLevel from a raw IF value.
@@ -53,17 +65,17 @@ public enum IntensityFactorLevel: String, CaseIterable, Identifiable, Sendable {
     public var description: String {
         switch self {
         case .recovery:
-            return "Very light effort. Active recovery or warm-up intensity."
+            return String(localized: "Very light effort. Active recovery or warm-up intensity.", bundle: .module)
         case .aerobic:
-            return "Comfortable effort. Building aerobic base and endurance."
+            return String(localized: "Comfortable effort. Building aerobic base and endurance.", bundle: .module)
         case .tempo:
-            return "Moderate-hard effort. Improving lactate threshold."
+            return String(localized: "Moderate-hard effort. Improving lactate threshold.", bundle: .module)
         case .threshold:
-            return "Hard effort at lactate threshold. Maximum sustainable pace."
+            return String(localized: "Hard effort at lactate threshold. Maximum sustainable pace.", bundle: .module)
         case .vo2max:
-            return "Very hard effort. Training maximum oxygen uptake."
+            return String(localized: "Very hard effort. Training maximum oxygen uptake.", bundle: .module)
         case .allOut:
-            return "Maximum effort. Race pace or sprint intervals."
+            return String(localized: "Maximum effort. Race pace or sprint intervals.", bundle: .module)
         }
     }
     

@@ -202,19 +202,19 @@ struct ActivitiesView: View {
     private func workoutStats(_ workout: HKWorkout) -> some View {
         HStack(spacing: 0) {
             statColumn(
-                title: "Duration",
+                title: String(localized: "Duration", bundle: .main),
                 value: String(format: "%d min", Int(workout.duration) / 60)
             )
             statColumn(
-                title: "Cal Burned",
+                title: String(localized: "Cal Burned", bundle: .main),
                 value: String(workout.statistics(for: HKQuantityType(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie()).formatted(.number.precision(.fractionLength(1))) ?? "–" )
             )
             statColumn(
-                title: "Avg HR",
+                title: String(localized: "Avg HR", bundle: .main),
                 value: String(workout.statistics(for: HKQuantityType(.heartRate))?.averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "–")
             )
             statColumn(
-                title: "Max HR",
+                title: String(localized: "Max HR", bundle: .main),
                 value: String(workout.statistics(for: HKQuantityType(.heartRate))?.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())).formatted(.number.precision(.fractionLength(1))) ?? "–")
             )
             
@@ -243,7 +243,7 @@ struct ActivitiesView: View {
                 .font(.caption)
             
             if let zoneInfo = store.zoneInfo[workout.uuid] {
-                Text(zoneInfo.zone.rawValue)
+                Text(zoneInfo.zone.title)
                     .font(.caption)
                     .bold()
                     .foregroundStyle(zoneInfo.zone.color)

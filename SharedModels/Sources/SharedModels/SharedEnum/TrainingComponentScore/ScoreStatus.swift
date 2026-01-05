@@ -23,10 +23,14 @@ public enum ScoreStatus: Sendable, Equatable {
     /// Display text for the status
     public var text: String {
         switch self {
-        case .poor: return "Poor"
-        case .belowAverage: return "Below Average"
-        case .good: return "Good"
-        case .excellent: return "Excellent"
+        case .poor:
+            return String(localized: "Poor", bundle: .module)
+        case .belowAverage:
+            return String(localized: "Below Average", bundle: .module)
+        case .good:
+            return String(localized: "Good", bundle: .module)
+        case .excellent:
+            return String(localized: "Excellent", bundle: .module)
         }
     }
     

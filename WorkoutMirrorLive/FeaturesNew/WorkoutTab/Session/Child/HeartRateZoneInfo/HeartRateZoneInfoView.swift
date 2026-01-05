@@ -43,7 +43,7 @@ struct HeartRateZoneInfoView: View {
         case .allZones:
             return "Heart Rate Zones"
         case .singleZone(let zone):
-            return zone.rawValue
+            return zone.title
         }
     }
     
@@ -57,7 +57,7 @@ struct HeartRateZoneInfoView: View {
                     .frame(width: 20, height: 20)
                     .shadow(color: zone.color.opacity(0.3), radius: 2, x: 0, y: 1)
                 HStack {
-                    Text(zone.rawValue)
+                    Text(zone.title)
                         .font(.headline)
                         .fontWeight(.semibold)
                     Text(formatPercentageRange(zone.percentageRange))

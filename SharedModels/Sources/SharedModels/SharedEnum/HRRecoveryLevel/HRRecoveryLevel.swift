@@ -12,15 +12,26 @@ import SwiftUI
 /// HR Recovery measures how quickly heart rate drops in the first minute
 /// after stopping exercise. Faster recovery reflects a more responsive
 /// autonomic nervous system and better short-term recovery state.
-public enum HRRecoveryLevel: String, CaseIterable, Identifiable, Sendable {
+public enum HRRecoveryLevel: CaseIterable, Identifiable, Sendable {
     
-    case poor = "Poor"             // < 12 bpm
-    case average = "Average"       // 12–20 bpm
-    case good = "Good"             // 20–30 bpm
-    case veryGood = "Very Good"    // 30–40 bpm
-    case excellent = "Excellent"   // > 40 bpm
+    case poor             // < 12 bpm
+    case average          // 12–20 bpm
+    case good             // 20–30 bpm
+    case veryGood         // 30–40 bpm
+    case excellent        // > 40 bpm
     
-    public var id: String { rawValue }
+    public var id: String { title }
+    
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .poor: return String(localized: "Poor", bundle: .module)
+        case .average: return String(localized: "Average", bundle: .module)
+        case .good: return String(localized: "Good", bundle: .module)
+        case .veryGood: return String(localized: "Very Good", bundle: .module)
+        case .excellent: return String(localized: "Excellent", bundle: .module)
+        }
+    }
     
     // MARK: - Factory
     
@@ -52,15 +63,15 @@ public enum HRRecoveryLevel: String, CaseIterable, Identifiable, Sendable {
     public var description: String {
         switch self {
         case .poor:
-            return "Slow heart rate recovery. May indicate fatigue or stress."
+            return String(localized: "Slow heart rate recovery. May indicate fatigue or stress.", bundle: .module)
         case .average:
-            return "Typical heart rate recovery within expected range."
+            return String(localized: "Typical heart rate recovery within expected range.", bundle: .module)
         case .good:
-            return "Faster-than-average heart rate recovery."
+            return String(localized: "Faster-than-average heart rate recovery.", bundle: .module)
         case .veryGood:
-            return "Rapid heart rate recovery after exercise."
+            return String(localized: "Rapid heart rate recovery after exercise.", bundle: .module)
         case .excellent:
-            return "Very rapid heart rate recovery. Strong autonomic response."
+            return String(localized: "Very rapid heart rate recovery. Strong autonomic response.", bundle: .module)
         }
     }
     

@@ -19,10 +19,14 @@ public enum ActivitiesSortOption: Identifiable, CaseIterable, Equatable, Sendabl
     
     public var title: String {
         switch self {
-        case .newestFirst: return "Newest first"
-        case .oldestFirst: return "Oldest first"
-        case .longestFirst: return "Longest first"
-        case .shortestFirst: return "Shortest first"
+        case .newestFirst:
+            return String(localized: "Newest first", bundle: .module)
+        case .oldestFirst:
+            return String(localized: "Oldest first", bundle: .module)
+        case .longestFirst:
+            return String(localized: "Longest first", bundle: .module)
+        case .shortestFirst:
+            return String(localized: "Shortest first", bundle: .module)
         }
     }
     

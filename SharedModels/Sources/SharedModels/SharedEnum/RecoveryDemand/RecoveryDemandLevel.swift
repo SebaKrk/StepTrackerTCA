@@ -8,15 +8,26 @@
 import SwiftUI
 
 /// Recovery Demand classification based on estimated recovery hours.
-public enum RecoveryDemandLevel: String, CaseIterable, Identifiable, Sendable {
+public enum RecoveryDemandLevel: CaseIterable, Identifiable, Sendable {
     
-    case readySoon = "Ready Soon"      // < 12h
-    case oneDay = "Moderate"           // 12-24h
-    case twoDays = "Significant"       // 24-48h
-    case threeDays = "High"            // 48-72h
-    case extended = "Very High"        // > 72h
+    case readySoon      // < 12h
+    case oneDay         // 12-24h
+    case twoDays        // 24-48h
+    case threeDays      // 48-72h
+    case extended       // > 72h
     
-    public var id: String { rawValue }
+    public var id: String { title }
+    
+    /// Title key for localization
+    public var title: String {
+        switch self {
+        case .readySoon: return String(localized: "Ready Soon", bundle: .module)
+        case .oneDay: return String(localized: "Moderate", bundle: .module)
+        case .twoDays: return String(localized: "Significant", bundle: .module)
+        case .threeDays: return String(localized: "High", bundle: .module)
+        case .extended: return String(localized: "Very High", bundle: .module)
+        }
+    }
     
     // MARK: - Factory
     
@@ -42,18 +53,34 @@ public enum RecoveryDemandLevel: String, CaseIterable, Identifiable, Sendable {
         }
     }
     
+    
     public var description: String {
         switch self {
         case .readySoon:
-            return "Light session. You'll be ready for another hard workout soon."
+            return String(
+                localized: "Light session. You'll be ready for another hard workout soon.",
+                bundle: .module
+            )
         case .oneDay:
-            return "Moderate effort. Allow ~24 hours before next hard session."
+            return String(
+                localized: "Moderate effort. Allow ~24 hours before next hard session.",
+                bundle: .module
+            )
         case .twoDays:
-            return "Significant stress. Consider 1-2 days of easy training."
+            return String(
+                localized: "Significant stress. Consider 1-2 days of easy training.",
+                bundle: .module
+            )
         case .threeDays:
-            return "High training load. Plan 2-3 days of recovery or light work."
+            return String(
+                localized: "High training load. Plan 2-3 days of recovery or light work.",
+                bundle: .module
+            )
         case .extended:
-            return "Very demanding session. Full recovery may take 3+ days."
+            return String(
+                localized: "Very demanding session. Full recovery may take 3+ days.",
+                bundle: .module
+            )
         }
     }
     
@@ -67,13 +94,24 @@ public enum RecoveryDemandLevel: String, CaseIterable, Identifiable, Sendable {
         case .extended: return "3+"
         }
     }
-
+    
     public var unitString: String {
         switch self {
-        case .readySoon: return "hours"
-        case .oneDay: return "day"
-        default: return "days"
-        }
+        case .readySoon:
+            return String(
+                localized: "hours",
+                bundle: .module
+            )
+        case .oneDay:
+            return String(
+                localized: "day",
+                bundle: .module
+            )
+            
+        default:  return String(
+            localized: "day",
+            bundle: .module
+        )}
     }
     
 }
