@@ -1799,6 +1799,26 @@
         }
       }
     },
+    "Loading route..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ładuje trasę"
+          }
+        }
+      }
+    },
+    "Localization" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja"
+          }
+        }
+      }
+    },
     "Location" : {
       "localizations" : {
         "pl" : {
@@ -2296,7 +2316,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wymagana regeneracja"
+            "value" : "Regeneracja"
           }
         }
       }
@@ -2347,6 +2367,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rundy"
+          }
+        }
+      }
+    },
+    "Route" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trasa"
           }
         }
       }

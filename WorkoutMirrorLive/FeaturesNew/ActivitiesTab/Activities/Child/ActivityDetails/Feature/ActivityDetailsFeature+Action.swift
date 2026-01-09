@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import MapKit
 
 /// Implementation of `ActivityDetailsFeature` actions.
 extension ActivityDetailsFeature {
@@ -42,8 +43,11 @@ extension ActivityDetailsFeature {
             /// Triggers loading of all performance metrics.
             case loadMetrics
             
+            /// Route/location data loaded successfully (empty array = indoor workout)
+            case locationDataLoaded([CLLocationCoordinate2D])
             
-            
+            /// Triggers loading of route/location data
+            case loadLocationData
         }
         
         case view(View)
@@ -57,7 +61,7 @@ extension ActivityDetailsFeature {
             /// Called when user taps zone disclosure button.
             case zoneDiscusserButtonTapped(Bool)
             
-            ///
+            /// Opens metric details screen
             case openMetricDetails(MetricTypeDetails)
         }
         

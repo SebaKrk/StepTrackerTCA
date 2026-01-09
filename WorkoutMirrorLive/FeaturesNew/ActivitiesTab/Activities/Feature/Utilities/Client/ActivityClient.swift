@@ -9,6 +9,7 @@ import ComposableArchitecture
 import HealthKit
 import HealthHub
 import SharedModels
+import CoreLocation
 
 public struct ActivityClient: Sendable {
     
@@ -49,6 +50,14 @@ public struct ActivityClient: Sendable {
     
     /// Fetches Recovery Demand for a workout.
     public var fetchRecoveryDemand: @Sendable (HKWorkout, Double) async throws -> RecoveryDemand?
+    
+    /// Fetches GPS route for a workout.
+    /// Returns empty array if no route data available.
+    public var fetchWorkoutRoute: @Sendable (HKWorkout) async throws -> [CLLocation]
+    
+    /// Fetches start location for a workout.
+    /// Returns nil if no route data available.
+    public var fetchWorkoutStartLocation: @Sendable (HKWorkout) async throws -> CLLocationCoordinate2D?
 }
 
 extension ActivityClient: DependencyKey {
@@ -59,6 +68,7 @@ extension ActivityClient: DependencyKey {
         @Dependency(\.heartRateCalculator) var heartRateCalculator
         @Dependency(\.workoutZoneAnalyzer) var zoneAnalyzer
         @Dependency(\.workoutMetricsManager) var metricsManager
+        @Dependency(\.workoutLocationManager) var locationManager
         
         return ActivityClient(
             fetchWorkouts: { days, sortOption in
@@ -117,6 +127,15 @@ extension ActivityClient: DependencyKey {
             },
             fetchRecoveryDemand: { workout, maxHeartRate in
                 try await metricsManager.fetchRecoveryDemand(for: workout, maxHeartRate: maxHeartRate)
+            },
+            
+            // MARK: - Workout Location
+            
+            fetchWorkoutRoute: { workout in
+                try await locationManager.fetchWorkoutRoute(workout)
+            },
+            fetchWorkoutStartLocation: { workout in
+                try await locationManager.fetchWorkoutStartLocation(workout)
             }
         )
     }()
@@ -131,7 +150,9 @@ extension ActivityClient: DependencyKey {
         fetchHRTSS: unimplemented("ActivityClient.fetchHRTSS", placeholder: nil),
         fetchHRRecovery: unimplemented("ActivityClient.fetchHRRecovery", placeholder: nil),
         fetchIntensityFactor: unimplemented("ActivityClient.fetchIntensityFactor", placeholder: nil),
-        fetchRecoveryDemand: unimplemented("ActivityClient.fetchRecoveryDemand", placeholder: nil)
+        fetchRecoveryDemand: unimplemented("ActivityClient.fetchRecoveryDemand", placeholder: nil),
+        fetchWorkoutRoute: unimplemented("ActivityClient.fetchWorkoutRoute", placeholder: []),
+        fetchWorkoutStartLocation: unimplemented("ActivityClient.fetchWorkoutStartLocation", placeholder: nil)
     )
 }
 

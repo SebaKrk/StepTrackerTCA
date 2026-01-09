@@ -256,3 +256,22 @@ public extension DependencyValues {
         set { self[WorkoutMetricsManagerKey.self] = newValue }
     }
 }
+
+/// A TCA dependency key for managing workout location and route data.
+public enum WorkoutLocationManagerKey: DependencyKey {
+    public static let liveValue: WorkoutLocationManager = {
+        print("Dependency - 📍 WorkoutLocationManagerKey: Starting creation at \(Date())")
+        @Dependency(\.healthStore) var healthStore
+        print("Dependency - 📦 WorkoutLocationManagerKey: HealthStore dependency resolved")
+        let manager = DefaultWorkoutLocationManager(healthStore: healthStore)
+        print("Dependency - ✅ WorkoutLocationManagerKey: WorkoutLocationManager created successfully")
+        return manager
+    }()
+}
+
+public extension DependencyValues {
+    var workoutLocationManager: WorkoutLocationManager {
+        get { self[WorkoutLocationManagerKey.self] }
+        set { self[WorkoutLocationManagerKey.self] = newValue }
+    }
+}
