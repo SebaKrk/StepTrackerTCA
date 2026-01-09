@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SwiftUI
 import SharedModels
 import HealthKit
+import MapKit
 
 @ViewAction(for: ActivityDetailsFeature.self)
 struct ActivityDetailsView: View {
@@ -45,6 +46,7 @@ struct ActivityDetailsView: View {
                     zoneDistributionSection(distribution)
                 }
                 performanceMetricsSection
+                locationSection
             }
         }
     }
@@ -147,7 +149,7 @@ struct ActivityDetailsView: View {
     }
     
     // MARK: - Performance Metrics Section
-
+    
     private var performanceMetricsSection: some View {
         VStack(spacing: 4) {
             LazyVGrid(
@@ -437,6 +439,103 @@ struct ActivityDetailsView: View {
             }
             .frame(height: 8)
         }
+    }
+    
+    @ViewBuilder
+    private var locationSection: some View {
+        if store.isLoadingLocation {
+            loadingLocationView
+        } else if let coordinates = store.routeCoordinates, !coordinates.isEmpty {
+            if coordinates.count >= 2 {
+                routeMapView(coordinates: coordinates)
+            } else {
+                singleLocationMapView(coordinate: coordinates[0])
+            }
+        }
+    }
+    
+    private func routeMapView(coordinates: [CLLocationCoordinate2D]) -> some View {
+        GroupBox {
+            Map {
+                MapPolyline(coordinates: coordinates)
+                    .stroke(store.color, lineWidth: 3)
+                
+                if let start = coordinates.first {
+                    Annotation("Start", coordinate: start) {
+                        Circle()
+                            .fill(.green)
+                            .stroke(.white, lineWidth: 2)
+                            .frame(width: 16, height: 16)
+                    }
+                }
+                
+                if let end = coordinates.last {
+                    Annotation("Finish", coordinate: end) {
+                        Circle()
+                            .fill(.red)
+                            .stroke(.white, lineWidth: 2)
+                            .frame(width: 16, height: 16)
+                    }
+                }
+            }
+            .disabled(true)
+            .frame(height: 200)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } label: {
+            Button {
+                // TODO: - destination RoutDetails
+            } label: {
+                HStack {
+                    Label("Route", systemImage: "figure.run")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+        }
+        .styledGroupBox()
+    }
+    
+    private func singleLocationMapView(coordinate: CLLocationCoordinate2D) -> some View {
+        GroupBox {
+            Map {
+                Annotation("Workout", coordinate: coordinate) {
+                    Image(systemName: "figure.run.circle.fill")
+                        .font(.title)
+                        .foregroundStyle(store.color)
+                }
+            }
+            .disabled(true)
+            .frame(height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } label: {
+            HStack {
+                Label("Localization", systemImage: "location.fill")
+                Spacer()
+                Image(systemName: "chevron.right")
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+        }
+        .styledGroupBox()
+    }
+    
+    private var loadingLocationView: some View {
+        GroupBox {
+            HStack {
+                ProgressView()
+                Text("Loading route...")
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 200)
+        } label: {
+            Label("Localization", systemImage: "location.fill")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .styledGroupBox()
     }
     
     // MARK: - Formatters
