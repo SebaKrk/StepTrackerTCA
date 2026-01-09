@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SharedModels
 import HealthKit
 import SwiftUI
+import MapKit
 
 /// Implementation of `ActivityDetailsFeature` state.
 extension ActivityDetailsFeature {
@@ -58,6 +59,18 @@ extension ActivityDetailsFeature {
         
         /// Recovery Demand - estimated recovery time based on training load and metrics.
         var recoveryDemand: RecoveryDemand?
+        
+        // MARK: - Location Data
+        
+        /// Full workout location data
+        /// - `nil`: not loaded yet
+        /// - `[]`: indoor workout (no location)
+        /// - `[coordinate]`: single location (show pin)
+        /// - `[coord1, coord2, ...]`: route (draw polyline)
+        var routeCoordinates: [CLLocationCoordinate2D]?
+        
+        /// Whether location data is currently loading
+        var isLoadingLocation: Bool = false
         
         // MARK: - Destination
         
@@ -115,6 +128,30 @@ extension ActivityDetailsFeature {
         var totalZoneDuration: TimeInterval {
             zoneDistribution?.values.reduce(0, +) ?? 0
         }
+        
+        // MARK: - Location Helpers
+        
+        /// Location type based on route coordinates count
+        var locationType: WorkoutLocationType? {
+            guard let coordinates = routeCoordinates else { return nil }
+            return coordinates.isEmpty ? .indoor : .outdoor
+        }
+        
+        /// Whether to show route on map (2+ coordinates)
+        var shouldShowRoute: Bool {
+            guard let coordinates = routeCoordinates else { return false }
+            return coordinates.count >= 2
+        }
+        
+        /// Whether to show single location pin (exactly 1 coordinate)
+        var shouldShowLocation: Bool {
+            guard let coordinates = routeCoordinates else { return false }
+            return coordinates.count == 1
+        }
     }
-    
+}
+
+public enum WorkoutLocationType {
+    case indoor
+    case outdoor
 }

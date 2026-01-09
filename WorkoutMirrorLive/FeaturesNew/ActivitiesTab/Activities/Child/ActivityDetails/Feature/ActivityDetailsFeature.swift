@@ -10,6 +10,7 @@ import Foundation
 import SharedModels
 import SwiftUI
 import HealthKit
+import CoreLocation
 
 @Reducer
 struct ActivityDetailsFeature {
@@ -43,6 +44,11 @@ struct ActivityDetailsFeature {
                 state.isExpandZone = value
                 return .none
                 
+            case let .internal(.locationDataLoaded(coordinates)):
+                state.routeCoordinates = coordinates
+                state.isLoadingLocation = false
+                return .none
+                
                 // MARK: - Internal Data Loading
                 
             case .internal(.loadZoneDistribution):
@@ -52,8 +58,6 @@ struct ActivityDetailsFeature {
                 return .run { send in
                     let distribution = try await activityClient.fetchZoneDistribution(workout, maxHeartRate)
                     await send(.internal(.zoneDistributionLoaded(distribution)))
-                } catch: { error, send in
-                    print("❌ Failed to load zone distribution: \(error)")
                 }
                 
             case .internal(.loadMetrics):
@@ -85,13 +89,30 @@ struct ActivityDetailsFeature {
                     )))
                 }
                 
+            case .internal(.loadLocationData):
+                let workout = state.workout
+                state.isLoadingLocation = true
+                
+                return .run { send in
+                    do {
+                        let locations = try await activityClient.fetchWorkoutRoute(workout)
+                        let coordinates = locations.map { $0.coordinate }
+                        await send(.internal(.locationDataLoaded(coordinates)))
+                    } catch {
+                        // W przypadku błędu zwracamy pustą tablicę (indoor workout)
+                        await send(.internal(.locationDataLoaded([])))
+                    }
+                }
+                
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
                 guard state.zoneDistribution == nil else { return .none }
+                
                 return .merge(
                     .send(.internal(.loadZoneDistribution)),
-                    .send(.internal(.loadMetrics))
+                    .send(.internal(.loadMetrics)),
+                    .send(.internal(.loadLocationData))
                 )
                 
             case let .view(.zoneDiscusserButtonTapped(value)):
@@ -110,4 +131,3 @@ struct ActivityDetailsFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 }
-
