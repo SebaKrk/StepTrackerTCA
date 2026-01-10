@@ -111,6 +111,16 @@
         }
       }
     },
+    "%.0f %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$.0f %2$@"
+          }
+        }
+      }
+    },
     "%.1f" : {
       "localizations" : {
         "pl" : {
@@ -849,6 +859,9 @@
         }
       }
     },
+    "Bladb" : {
+
+    },
     "Bluetooth Devices" : {
       "localizations" : {
         "pl" : {
@@ -1529,6 +1542,7 @@
       }
     },
     "HealthMetricSummaryDetailsCardFeature" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {

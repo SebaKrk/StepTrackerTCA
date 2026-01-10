@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Charts
 import SharedModels
 import SwiftUI
 
@@ -20,9 +21,43 @@ struct HealthMetricSummaryDetailsCardView: View {
     
     var body: some View {
         Group {
-            Text("HealthMetricSummaryDetailsCardFeature")
+            switch store.viewState {
+            case .success:
+                rootView
+            case .failed:
+                Text("Bladb")
+            case .loading:
+                ProgressView()
+            }
         }
         .navigationTitle("\(store.metricType.title) details")
+        .onAppear {
+            send(.viewDidAppear)
+        }
+    }
+    
+    private var rootView: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("\(store.initialData.currentValue, specifier: "%.0f") \(store.initialData.unit)")
+                    .font(.largeTitle)
+                
+                if !store.historicalValues.isEmpty {
+                    Chart {
+                        ForEach(store.historicalValues) { point in
+                            LineMark(
+                                x: .value("Date", point.date),
+                                y: .value("Value", point.value)
+                            )
+                        }
+                    }
+                    .frame(height: 200)
+                }
+                
+                Text(store.metricType.description)
+            }
+            .padding()
+        }
     }
     
 }

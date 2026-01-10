@@ -134,7 +134,7 @@ public protocol PersonalDataManager: Sendable {
     ///           or `nil` if no resting heart rate data is available
     /// - Throws: HealthKit errors if data access fails
     func getRestingHeartRate(days: Int) async throws -> HealthKitData?
-
+    
     /// Retrieves the user's average heart rate variability from specified time period.
     ///
     /// HRV measures the variation in time between heartbeats, indicating autonomic nervous
@@ -214,4 +214,187 @@ public protocol PersonalDataManager: Sendable {
     
     /// DEBUG: Lists all RHR measurements from the last 7 days
     func debugListAllRHR() async throws
+    
+    // MARK: - Historical Data Per-Day
+    
+    /// Retrieves resting heart rate data for each of the last N days as individual data points.
+    ///
+    /// Fetches RHR data for each day separately, returning an array where each element
+    /// represents one day's morning resting heart rate measurement. This is useful for
+    /// displaying historical trends, charts, or day-by-day comparisons of cardiovascular recovery.
+    ///
+    /// - Parameter days: Number of days to retrieve (e.g., 7 for last week, 30 for last month)
+    /// - Returns: Array of `HealthKitData?` where:
+    ///   - Each element represents one day's RHR in beats per minute (bpm)
+    ///   - `nil` elements indicate days with no RHR data available
+    ///   - Array is ordered chronologically (oldest first, most recent last)
+    /// - Throws: HealthKit errors if data access fails
+    ///
+    /// ## Implementation Details
+    /// - Uses morning window (00:00 - 11:00) for each day to capture overnight measurements
+    /// - Fallback: If no morning data exists, uses most recent RHR from before that day
+    /// - Each data point uses the measurement's actual timestamp
+    /// - Apple Watch typically records RHR during sleep periods
+    ///
+    /// ## Example Usage
+    /// ```swift
+    /// let personalData = DefaultPersonalDataManager()
+    ///
+    /// // Get last 7 days for weekly RHR trend
+    /// let weekHistory = try await personalData.getRestingHeartRateHistory(days: 7)
+    /// for (index, dayData) in weekHistory.enumerated() {
+    ///     if let data = dayData {
+    ///         print("Day \(index + 1): \(data.value) bpm")
+    ///     } else {
+    ///         print("Day \(index + 1): No data")
+    ///     }
+    /// }
+    ///
+    /// // Calculate RHR variability over 30 days
+    /// let monthHistory = try await personalData.getRestingHeartRateHistory(days: 30)
+    /// let validDays = monthHistory.compactMap { $0?.value }
+    /// let minRHR = validDays.min()
+    /// let maxRHR = validDays.max()
+    /// ```
+    ///
+    /// ## Common Use Cases
+    /// - **Recovery Monitoring**: Track RHR trends to assess training adaptation
+    /// - **Chart Visualization**: Plot daily RHR in Swift Charts for trend analysis
+    /// - **Baseline Comparison**: Compare current RHR against historical baseline
+    /// - **Training Load Assessment**: Identify elevated RHR indicating inadequate recovery
+    ///
+    /// ## Notes
+    /// - Returned array length always equals the requested `days` parameter
+    /// - Missing data (nil values) can occur if:
+    ///   - User didn't wear Apple Watch overnight
+    ///   - Heart rate tracking was disabled
+    ///   - Data hasn't synced yet
+    /// - Consider using `compactMap` when you need only valid RHR entries
+    /// - Elevated RHR (>5-10 bpm above baseline) may indicate overtraining or illness
+    func getRestingHeartRateHistory(days: Int) async throws -> [HealthKitData?]
+    
+    /// Retrieves heart rate variability data for each of the last N nights as individual data points.
+    ///
+    /// Fetches HRV data for each night separately, returning an array where each element
+    /// represents one night's average HRV measurement. This is useful for tracking autonomic
+    /// nervous system recovery and identifying patterns in cardiovascular health.
+    ///
+    /// - Parameter nights: Number of nights to retrieve (e.g., 7 for last week, 30 for last month)
+    /// - Returns: Array of `HealthKitData?` where:
+    ///   - Each element represents one night's HRV in milliseconds (ms)
+    ///   - `nil` elements indicate nights with no HRV data available
+    ///   - Array is ordered chronologically (oldest first, most recent last)
+    /// - Throws: HealthKit errors if data access fails
+    ///
+    /// ## Implementation Details
+    /// - Uses sleep window (8 PM previous day → 10 AM) for each night
+    /// - Averages all HRV measurements within the window
+    /// - Each data point uses the window end time (10 AM) as its timestamp
+    /// - Apple Watch records HRV during sleep in deep sleep stages
+    /// - Higher HRV generally indicates better recovery and parasympathetic tone
+    ///
+    /// ## Example Usage
+    /// ```swift
+    /// let personalData = DefaultPersonalDataManager()
+    ///
+    /// // Get last 7 nights for weekly HRV trend
+    /// let weekHistory = try await personalData.getHeartRateVariabilityHistory(nights: 7)
+    /// for (index, nightData) in weekHistory.enumerated() {
+    ///     if let data = nightData {
+    ///         print("Night \(index + 1): \(data.value) ms")
+    ///     } else {
+    ///         print("Night \(index + 1): No data")
+    ///     }
+    /// }
+    ///
+    /// // Identify recovery trends over 14 nights
+    /// let twoWeeks = try await personalData.getHeartRateVariabilityHistory(nights: 14)
+    /// let validNights = twoWeeks.compactMap { $0?.value }
+    /// let recentWeek = validNights.suffix(7)
+    /// let previousWeek = validNights.prefix(7)
+    /// let trend = recentWeek.reduce(0, +) / 7.0 - previousWeek.reduce(0, +) / 7.0
+    /// print("HRV trend: \(trend > 0 ? "improving" : "declining")")
+    /// ```
+    ///
+    /// ## Common Use Cases
+    /// - **Recovery Assessment**: Monitor HRV to determine training readiness
+    /// - **Stress Tracking**: Detect periods of elevated stress or fatigue
+    /// - **Chart Visualization**: Display HRV trends to identify recovery patterns
+    /// - **Training Optimization**: Adjust training intensity based on HRV trends
+    ///
+    /// ## Notes
+    /// - Returned array length always equals the requested `nights` parameter
+    /// - Missing data (nil values) can occur if:
+    ///   - User didn't wear Apple Watch during sleep
+    ///   - Sleep tracking was disabled
+    ///   - Insufficient deep sleep for HRV measurement
+    /// - Consider using `compactMap` when you need only valid HRV entries
+    /// - Declining HRV trend may indicate accumulated fatigue or overtraining
+    /// - HRV is highly individual - compare against personal baseline, not absolute values
+    func getHeartRateVariabilityHistory(nights: Int) async throws -> [HealthKitData?]
+    
+    /// Retrieves active energy burned data for each of the last N days as individual data points.
+    ///
+    /// Fetches daily active energy expenditure separately, returning an array where each element
+    /// represents one day's total caloric burn from physical activity. This is useful for
+    /// tracking training load, activity patterns, and cumulative weekly/monthly energy expenditure.
+    ///
+    /// - Parameter days: Number of days to retrieve (e.g., 7 for last week, 30 for last month)
+    /// - Returns: Array of `HealthKitData?` where:
+    ///   - Each element represents one day's active energy in kilocalories (kcal)
+    ///   - `nil` elements indicate days with no activity data available
+    ///   - Array is ordered chronologically (oldest first, most recent last)
+    /// - Throws: HealthKit errors if data access fails
+    ///
+    /// ## Implementation Details
+    /// - Uses full calendar day (00:00 - 23:59) for each day
+    /// - Includes all physical activity energy (excludes basal metabolic rate)
+    /// - Each data point uses the day's end time (23:59) as its timestamp
+    /// - Cumulative sum of all active energy samples throughout the day
+    /// - Includes energy from workouts, daily movement, and exercise
+    ///
+    /// ## Example Usage
+    /// ```swift
+    /// let personalData = DefaultPersonalDataManager()
+    ///
+    /// // Get last 7 days for weekly activity chart
+    /// let weekHistory = try await personalData.getActiveEnergyBurnedHistory(days: 7)
+    /// for (index, dayData) in weekHistory.enumerated() {
+    ///     if let data = dayData {
+    ///         print("Day \(index + 1): \(data.value) kcal")
+    ///     } else {
+    ///         print("Day \(index + 1): No data")
+    ///     }
+    /// }
+    ///
+    /// // Calculate weekly training load
+    /// let weekData = try await personalData.getActiveEnergyBurnedHistory(days: 7)
+    /// let weeklyTotal = weekData.compactMap { $0?.value }.reduce(0, +)
+    /// print("Weekly active energy: \(weeklyTotal) kcal")
+    ///
+    /// // Compare current week to previous week
+    /// let twoWeeks = try await personalData.getActiveEnergyBurnedHistory(days: 14)
+    /// let currentWeek = twoWeeks.suffix(7).compactMap { $0?.value }.reduce(0, +)
+    /// let previousWeek = twoWeeks.prefix(7).compactMap { $0?.value }.reduce(0, +)
+    /// let change = ((currentWeek - previousWeek) / previousWeek) * 100
+    /// print("Activity change: \(change)%")
+    /// ```
+    ///
+    /// ## Common Use Cases
+    /// - **Training Load Tracking**: Monitor daily and cumulative activity levels
+    /// - **Chart Visualization**: Display daily energy expenditure in bar/line charts
+    /// - **Weekly Planning**: Assess whether training volume is increasing appropriately
+    /// - **Recovery Balance**: Identify high-load periods requiring additional recovery
+    /// - **Caloric Balance**: Track energy expenditure for nutrition planning
+    ///
+    /// ## Notes
+    /// - Returned array length always equals the requested `days` parameter
+    /// - Missing data (nil values) can occur if:
+    ///   - User didn't wear Apple Watch throughout the day
+    ///   - Activity tracking was disabled
+    ///   - No physical activity occurred (rest day)
+    /// - Consider using `compactMap` when you need only valid activity days
+    /// - Values include all movement (workouts + daily activity) but exclude BMR
+    /// - Sharp increases in daily energy (>20% week-over-week) may indicate overtraining risk
+    func getActiveEnergyBurnedHistory(days: Int) async throws -> [HealthKitData?]
 }
