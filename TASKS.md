@@ -504,3 +504,10 @@
     
 ### IOS-00058 Translation
     A: Add new Localizable files
+    
+### IOS-00059 HealthMetricSummaryDetails
+    A: Add new HealthMetricSummaryDetailsCardFeature
+    
+IOS-00059 HealthMetricSummaryDetails
+IOS-00059A HealthMetricSummaryDetailsCardFeature
+    
