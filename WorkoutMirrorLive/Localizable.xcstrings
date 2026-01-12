@@ -839,6 +839,9 @@
         }
       }
     },
+    "Baseline" : {
+
+    },
     "Bez animacji:" : {
       "localizations" : {
         "pl" : {
@@ -849,6 +852,9 @@
         }
       }
     },
+    "Blad" : {
+
+    },
     "Bład brak danych" : {
       "localizations" : {
         "pl" : {
@@ -858,9 +864,6 @@
           }
         }
       }
-    },
-    "Bladb" : {
-
     },
     "Bluetooth Devices" : {
       "localizations" : {
