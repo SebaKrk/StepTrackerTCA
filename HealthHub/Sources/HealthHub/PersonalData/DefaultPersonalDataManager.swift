@@ -578,7 +578,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         }
         
         if workoutEnergy > 0 {
-            print("🔥 Energy from workouts: \(workoutEnergy) kcal (\(workouts.count) workouts)")
+            //print("🔥 Energy from workouts: \(workoutEnergy) kcal (\(workouts.count) workouts)")
             return HealthKitData(date: window.end, value: workoutEnergy)
         }
 
@@ -699,6 +699,124 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         if results.isEmpty {
             print("❌ No RHR data found at all in last 7 days!")
         }
+    }
+    
+    // MARK: - Historical Data Per-Day Implementation
+    
+    public func getRestingHeartRateHistory(days: Int) async throws -> [HealthKitData?] {
+        var results: [HealthKitData?] = []
+        let calendar = Calendar.current
+        
+        for daysAgo in 0..<days {
+            guard let date = calendar.date(byAdding: .day, value: -daysAgo, to: Date()) else {
+                results.append(nil)
+                continue
+            }
+            
+            let data = try await getRestingHeartRate(for: date)
+            results.append(data)
+        }
+        
+        return results.reversed()
+    }
+    
+    public func getHeartRateVariabilityHistory(nights: Int) async throws -> [HealthKitData?] {
+        let hrvType = HKQuantityType(.heartRateVariabilitySDNN)
+        var results: [HealthKitData?] = []
+        let calendar = Calendar.current
+        
+        for nightsAgo in 0..<nights {
+            guard let targetDate = calendar.date(byAdding: .day, value: -nightsAgo, to: Date()) else {
+                results.append(nil)
+                continue
+            }
+            
+            // Okno per-night: 8 PM wczoraj → 10 AM dzisiaj (ta sama logika co getLastNightHRV)
+            let windowEnd = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: targetDate)!
+            let windowStart = calendar.date(byAdding: .hour, value: -14, to: windowEnd)!
+            
+            let predicate = HKQuery.predicateForSamples(
+                withStart: windowStart,
+                end: windowEnd,
+                options: .strictStartDate
+            )
+            
+            let samplePredicate = HKSamplePredicate.quantitySample(
+                type: hrvType,
+                predicate: predicate
+            )
+            
+            let descriptor = HKSampleQueryDescriptor(
+                predicates: [samplePredicate],
+                sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)]
+            )
+            
+            let samples = try await descriptor.result(for: manager.healthStore)
+            
+            if !samples.isEmpty {
+                let totalHRV = samples.reduce(0.0) { sum, sample in
+                    sum + sample.quantity.doubleValue(for: .secondUnit(with: .milli))
+                }
+                let averageHRV = totalHRV / Double(samples.count)
+                results.append(HealthKitData(date: windowEnd, value: averageHRV))
+            } else {
+                results.append(nil)
+            }
+        }
+        
+        return results.reversed()
+    }
+    
+    public func getActiveEnergyBurnedHistory(days: Int) async throws -> [HealthKitData?] {
+        let energyType = HKQuantityType(.activeEnergyBurned)
+        var results: [HealthKitData?] = []
+        let calendar = Calendar.current
+        
+        for daysAgo in 0..<days {
+            guard let targetDate = calendar.date(byAdding: .day, value: -daysAgo, to: Date()) else {
+                results.append(nil)
+                continue
+            }
+            
+            // Pełny dzień: 00:00 - 23:59
+            let dayStart = calendar.startOfDay(for: targetDate)
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+            
+            let predicate = HKQuery.predicateForSamples(
+                withStart: dayStart,
+                end: dayEnd,
+                options: .strictStartDate
+            )
+            
+            let statistics = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<HKStatistics?, Error>) in
+                let query = HKStatisticsQuery(
+                    quantityType: energyType,
+                    quantitySamplePredicate: predicate,
+                    options: .cumulativeSum
+                ) { (query: HKStatisticsQuery, statistics: HKStatistics?, error: Error?) in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: statistics)
+                    }
+                }
+                
+                manager.healthStore.execute(query)
+            }
+            
+            if let sum = statistics?.sumQuantity() {
+                let value = sum.doubleValue(for: .kilocalorie())
+                if value > 0 {
+                    results.append(HealthKitData(date: dayEnd, value: value))
+                } else {
+                    results.append(nil)
+                }
+            } else {
+                results.append(nil)
+            }
+        }
+        
+        return results.reversed()
     }
     
 }

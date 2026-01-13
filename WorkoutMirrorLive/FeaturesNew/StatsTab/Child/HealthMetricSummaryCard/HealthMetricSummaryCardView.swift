@@ -111,7 +111,6 @@ struct HealthMetricSummaryCardView: View {
     
     func currentStatusLabel(for metric: HealthMetricType, data: TrainingComponentScore) -> some View {
         HStack(spacing: 4) {
-            // ✅ Mapuj na ActivityStatus tylko dla activity metrics
             if metric == .activity, let activityStatus = data.asActivityStatus {
                 Image(systemName: activityStatus.icon)
                     .foregroundColor(activityStatus.color)
@@ -120,7 +119,6 @@ struct HealthMetricSummaryCardView: View {
                     .font(.caption)
                     .foregroundColor(activityStatus.color)
             } else {
-                // Dla innych metryk użyj standardowego status
                 Image(systemName: data.status.icon)
                     .foregroundColor(data.status.color)
                     .font(.caption)

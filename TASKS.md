@@ -500,6 +500,13 @@
     B: WorkoutMetricsCalculator
     - create Metrics calculator for all activity details
     C: MetricDetail
+    D: LocationSection
     
 ### IOS-00058 Translation
     A: Add new Localizable files
+    
+### IOS-00059 HealthMetricSummaryDetails
+    A: Add new HealthMetricSummaryDetailsCardFeature
+    B: UI
+  
+    

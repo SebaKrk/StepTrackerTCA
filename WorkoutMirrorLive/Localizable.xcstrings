@@ -111,6 +111,22 @@
         }
       }
     },
+    "%.0f %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$.0f %2$@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$.0f %2$@"
+          }
+        }
+      }
+    },
     "%.1f" : {
       "localizations" : {
         "pl" : {
@@ -829,6 +845,16 @@
         }
       }
     },
+    "Baseline" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik wyjściowy"
+          }
+        }
+      }
+    },
     "Bez animacji:" : {
       "localizations" : {
         "pl" : {
@@ -1529,6 +1555,7 @@
       }
     },
     "HealthMetricSummaryDetailsCardFeature" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1718,6 +1745,16 @@
         }
       }
     },
+    "It was not possible to retrieve the health metrics data. Please try again later." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się pobrać danych zdrowotnych. Spróbuj ponownie później."
+          }
+        }
+      }
+    },
     "Join a fitness group to track progress with your teammates and stay motivated together." : {
       "localizations" : {
         "pl" : {
@@ -1795,6 +1832,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "na żywo %lld"
+          }
+        }
+      }
+    },
+    "Loading route..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ładuje trasę"
+          }
+        }
+      }
+    },
+    "Localization" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja"
           }
         }
       }
@@ -2189,6 +2246,16 @@
         }
       }
     },
+    "points" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "punkty"
+          }
+        }
+      }
+    },
     "Porównanie animacji" : {
       "localizations" : {
         "pl" : {
@@ -2296,7 +2363,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wymagana regeneracja"
+            "value" : "Regeneracja"
           }
         }
       }
@@ -2347,6 +2414,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rundy"
+          }
+        }
+      }
+    },
+    "Route" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trasa"
           }
         }
       }
@@ -2613,6 +2690,9 @@
         }
       }
     },
+    "Średnia" : {
+
+    },
     "Start" : {
       "localizations" : {
         "pl" : {
@@ -2690,6 +2770,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "wybór statystyk"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
           }
         }
       }
@@ -2960,6 +3050,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ostrzeżenie"
+          }
+        }
+      }
+    },
+    "Weekly average:" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia tygodnia:"
           }
         }
       }

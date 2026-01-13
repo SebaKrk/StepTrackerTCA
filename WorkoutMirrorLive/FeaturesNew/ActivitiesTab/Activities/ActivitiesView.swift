@@ -30,10 +30,11 @@ struct ActivitiesView: View {
                 failedView
             }
         }
+        .navigationTitle("Activity")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             send(.viewDidAppear)
         }
-        
     }
     
     private var rootView: some View {
@@ -47,9 +48,6 @@ struct ActivitiesView: View {
             }
         }
         .background(LinearGradient(colors: [store.color.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
-        .padding([.leading, .trailing], 8)
-        .navigationTitle("Activity")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if !store.workouts.isEmpty && store.context == .personal {
                 toolbarButton

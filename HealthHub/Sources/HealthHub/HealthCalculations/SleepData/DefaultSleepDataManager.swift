@@ -222,6 +222,74 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
         
         return totalSeconds
     }
+    
+    // MARK: - Historical Data Per-Night Implementation
+    
+    public func getSleepHistory(nights: Int) async throws -> [HealthKitData?] {
+        let sleepType = HKCategoryType(.sleepAnalysis)
+        var results: [HealthKitData?] = []
+        
+        for nightsAgo in 0..<nights {
+            let calendar = Calendar.current
+            guard let targetDate = calendar.date(byAdding: .day, value: -nightsAgo, to: Date()) else {
+                results.append(nil)
+                continue
+            }
+            
+            // Okno per-night: 8 PM wczoraj → 10 AM dzisiaj (ta sama logika co getLastNightSleep)
+            let windowEnd = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: targetDate)!
+            let windowStart = calendar.date(byAdding: .hour, value: -14, to: windowEnd)!
+            
+            let predicate = HKQuery.predicateForSamples(
+                withStart: windowStart,
+                end: windowEnd,
+                options: .strictStartDate
+            )
+            
+            let samplePredicate = HKSamplePredicate.categorySample(
+                type: sleepType,
+                predicate: predicate
+            )
+            
+            let descriptor = HKSampleQueryDescriptor(
+                predicates: [samplePredicate],
+                sortDescriptors: []
+            )
+            
+            let samples = try await descriptor.result(for: manager.healthStore)
+            
+            // Filter for actual sleep stages (exclude awake and in bed)
+            let sleepSamples = samples.filter { sample in
+                guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value) else {
+                    return false
+                }
+                
+                switch value {
+                case .asleepCore, .asleepDeep, .asleepREM, .asleepUnspecified, .asleep:
+                    return true
+                case .awake, .inBed:
+                    return false
+                @unknown default:
+                    return false
+                }
+            }
+            
+            if !sleepSamples.isEmpty {
+                let nightSleepSeconds = calculateTotalSleepDuration(from: sleepSamples)
+                let nightSleepHours = nightSleepSeconds / 3600.0
+                
+                if nightSleepHours > 0 {
+                    results.append(HealthKitData(date: windowEnd, value: nightSleepHours))
+                } else {
+                    results.append(nil)
+                }
+            } else {
+                results.append(nil)
+            }
+        }
+        
+        return results.reversed()
+    }
 }
 
 // MARK: - Debug Extension
