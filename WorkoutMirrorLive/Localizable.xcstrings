@@ -111,6 +111,22 @@
         }
       }
     },
+    "%.0f %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$.0f %2$@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$.0f %2$@"
+          }
+        }
+      }
+    },
     "%.1f" : {
       "localizations" : {
         "pl" : {
@@ -829,6 +845,16 @@
         }
       }
     },
+    "Baseline" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik wyjściowy"
+          }
+        }
+      }
+    },
     "Bez animacji:" : {
       "localizations" : {
         "pl" : {
@@ -1529,6 +1555,7 @@
       }
     },
     "HealthMetricSummaryDetailsCardFeature" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1714,6 +1741,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Intensywność"
+          }
+        }
+      }
+    },
+    "It was not possible to retrieve the health metrics data. Please try again later." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się pobrać danych zdrowotnych. Spróbuj ponownie później."
           }
         }
       }
@@ -2209,6 +2246,16 @@
         }
       }
     },
+    "points" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "punkty"
+          }
+        }
+      }
+    },
     "Porównanie animacji" : {
       "localizations" : {
         "pl" : {
@@ -2643,6 +2690,9 @@
         }
       }
     },
+    "Średnia" : {
+
+    },
     "Start" : {
       "localizations" : {
         "pl" : {
@@ -2720,6 +2770,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "wybór statystyk"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
           }
         }
       }
@@ -2990,6 +3050,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ostrzeżenie"
+          }
+        }
+      }
+    },
+    "Weekly average:" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia tygodnia:"
           }
         }
       }
