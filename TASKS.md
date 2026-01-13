@@ -508,5 +508,5 @@
 ### IOS-00059 HealthMetricSummaryDetails
     A: Add new HealthMetricSummaryDetailsCardFeature
     B: UI
-
+  
     

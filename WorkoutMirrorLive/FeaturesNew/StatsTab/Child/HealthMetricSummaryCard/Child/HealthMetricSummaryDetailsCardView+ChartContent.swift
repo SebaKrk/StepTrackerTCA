@@ -10,8 +10,7 @@ import SwiftUI
 import SharedModels
 
 extension HealthMetricSummaryDetailsCardView {
-    
-    // Tworzy pionową linię z adnotacją dla wybranego punktu
+
     func createRuleMark<Content: View>(
         with selectedPoint: HistoricalDataPoint,
         annotationView: @escaping () -> Content
@@ -45,13 +44,35 @@ extension HealthMetricSummaryDetailsCardView {
             .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
     }
     
-    // Zwraca kolor dla danego typu metryki
-    func colorForMetric(_ metricType: HealthMetricType) -> Color {
-        switch metricType {
-        case .rhr: return .red
-        case .hrv: return .green
-        case .sleep: return .purple
-        case .activity: return .orange
+    // Tworzy poziomą linię dla średniej tygodniowej z adnotacją
+    func createAverageRuleMark(averageValue: Double) -> some ChartContent {
+        RuleMark(y: .value("Średnia", averageValue))
+            .foregroundStyle(Color.primary.opacity(0.8))
+            .lineStyle(StrokeStyle(lineWidth: 2, dash: [3, 3]))
+            .annotation(position: .top, alignment: .leading) {
+                Text(averageValue, format: .number.precision(.fractionLength(1)))
+                    .font(.caption2.bold())
+                    .foregroundColor(.primary)
+            }
+    }
+    
+    // Zwraca kolor na podstawie wyniku (score)
+    func colorForScore(_ score: Int, data: TrainingComponentScore) -> Color {
+        let totalRange = data.maxScore - data.minScore
+        let quarterRange = Double(totalRange) / 4.0
+        
+        let boundary1 = data.minScore + Int(quarterRange)
+        let boundary2 = data.minScore + Int(quarterRange * 2)
+        let boundary3 = data.minScore + Int(quarterRange * 3)
+        
+        if score <= boundary1 {
+            return .red
+        } else if score <= boundary2 {
+            return .orange
+        } else if score <= boundary3 {
+            return .yellow
+        } else {
+            return .green
         }
     }
 }

@@ -25,134 +25,248 @@ struct HealthMetricSummaryDetailsCardView: View {
             case .success:
                 rootView
             case .failed:
-                Text("Blad")
+                errorView
             case .loading:
                 ProgressView()
             }
         }
-        .navigationTitle(store.metricType.title)
         .onAppear {
             send(.viewDidAppear)
         }
+        
     }
     
-    //    private var rootView: some View {
-    //        ScrollView {
-    //            VStack(spacing: 20) {
-    //                Text("\(store.initialData.currentValue, specifier: "%.0f") \(store.initialData.unit)")
-    //                    .font(.largeTitle)
-    //
-    //                if !store.historicalValues.isEmpty {
-    //                    Chart {
-    //                        ForEach(store.historicalValues) { point in
-    //                            LineMark(
-    //                                x: .value("Date", point.date),
-    //                                y: .value("Value", point.value)
-    //                            )
-    //                        }
-    //                    }
-    //                    .frame(height: 200)
-    //                }
-    //
-    //                Text(store.metricType.description)
-    //            }
-    //            .padding()
-    //        }
-    //    }
+    // MARK: - Computed Properties
+    
+    /// Dynamiczny kolor bazowany na wyniku (score)
+    private var scoreColor: Color {
+        colorForScore(store.initialData.score, data: store.initialData)
+    }
+    
+    /// Średnia wartość z całego tygodnia
+    private var weeklyAverage: Double {
+        guard !store.historicalValues.isEmpty else { return 0 }
+        let sum = store.historicalValues.reduce(0.0) { $0 + $1.value }
+        return sum / Double(store.historicalValues.count)
+    }
     
     private var rootView: some View {
         ScrollView {
-            VStack {
-                GroupBox {
-                    Text("\(store.initialData.currentValue, specifier: "%.0f") \(store.initialData.unit)")
-                        .font(.title)
-                        .foregroundStyle(.primary)
-                } label: {
-                    VStack(alignment: .leading) {
-                        Text("Score")
-                            .foregroundColor(.gray)
-                            .font(.caption)
-                        Divider()
-                    }
-                }
-                .styledGroupBox()
-                .padding(4)
-                
-                GroupBox {
-                    if !store.historicalValues.isEmpty {
-                        Chart {
-                            // Linia referencyjna bazowej wartości
-                            createBaselineRuleMark(baselineValue: store.initialData.baselineValue ?? 0)
-                            
-                            // Pionowa linia z adnotacją dla wybranego punktu
-                            if let selectedPoint = store.selectedDataPoint {
-                                createRuleMark(with: selectedPoint) {
-                                    ChartAnnotationView(
-                                        date: selectedPoint.date,
-                                        value: selectedPoint.value,
-                                        color: colorForMetric(store.metricType)
-                                    )
-                                }
-                            }
-                            
-                            // Dane historyczne
-                            ForEach(store.historicalValues) { point in
-                                createLineMark(
-                                    with: point,
-                                    color: colorForMetric(store.metricType)
-                                )
-                            }
-                        }
-                        .chartYScale(domain: .automatic(includesZero: false))
-                        .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
-                        .chartXAxis {
-                            AxisMarks(values: .stride(by: .day)) {
-                                AxisValueLabel(format: .dateTime.weekday(.abbreviated), centered: true)
-                            }
-                        }
-                        .chartYAxis {
-                            AxisMarks { value in
-                                AxisGridLine()
-                                    .foregroundStyle(Color.secondary.opacity(0.3))
-                                AxisValueLabel()
-                            }
-                        }
-                        .frame(height: 250)
-                        //                        .padding()
-                        //                        .background(
-                        //                            RoundedRectangle(cornerRadius: 12)
-                        //                                .fill(Color(.secondarySystemBackground))
-                        //                        )
-                    }
-                }
-                .styledGroupBox()
-                .padding(4)
-                
-                GroupBox {
-                    VStack(spacing: 12) {
-                        Text(store.metricType.description)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                } label: {
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Image(systemName: store.metricType.icon)
-                            Text(store.metricType.title)
-                            Spacer()
-                        }
-                        .foregroundColor(.gray)
-                        .font(.caption)
-                        Divider()
-                    }
-                }
-                .styledGroupBox()
-                .padding(4)
-                
-                
+            VStack(spacing: 2) {
+                descriptionView
+                metricsSummaryView
+                chartView
+                averageView
             }
             .padding()
         }
+        .background(LinearGradient(colors: [scoreColor.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+    }
+    
+    private var metricsSummaryView: some View {
+        HStack(spacing: 4) {
+            metricCard(title: String(localized: "Value")) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(String(format: "%.0f", store.initialData.currentValue))
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    Text(store.initialData.unit)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            metricCard(title: String(localized: "Status")) {
+                if store.metricType == .activity, let activityStatus = store.initialData.asActivityStatus {
+                    HStack(spacing: 4) {
+                        Image(systemName: activityStatus.icon)
+                            .foregroundColor(activityStatus.color)
+                            .font(.caption)
+                        Text(activityStatus.title)
+                            .font(.caption)
+                            .foregroundColor(activityStatus.color)
+                    }
+                } else {
+                    HStack(spacing: 4) {
+                        Image(systemName: store.initialData.status.icon)
+                            .foregroundColor(store.initialData.status.color)
+                            .font(.caption)
+                        Text(store.initialData.status.text)
+                            .font(.caption)
+                            .foregroundColor(store.initialData.status.color)
+                    }
+                }
+            }
+            
+            metricCard(title: String(localized: "Score")) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(store.initialData.score)")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    Text("points")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(4)
+    }
+    
+    private var chartView: some View {
+        GroupBox {
+            if !store.historicalValues.isEmpty {
+                Chart {
+                    // Linia referencyjna bazowej wartości
+                    createBaselineRuleMark(baselineValue: store.initialData.baselineValue ?? 0)
+                    
+                    // Linia średniej tygodniowej
+                    createAverageRuleMark(averageValue: weeklyAverage)
+                    
+                    // Pionowa linia z adnotacją dla wybranego punktu
+                    if let selectedPoint = store.selectedDataPoint {
+                        createRuleMark(with: selectedPoint) {
+                            ChartAnnotationView(
+                                date: selectedPoint.date,
+                                value: selectedPoint.value,
+                                color: scoreColor
+                            )
+                        }
+                    }
+                    
+                    // Dane historyczne
+                    ForEach(store.historicalValues) { point in
+                        createLineMark(
+                            with: point,
+                            color: scoreColor
+                        )
+                    }
+                }
+                .chartYScale(domain: .automatic(includesZero: false))
+                .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .day)) {
+                        AxisValueLabel(format: .dateTime.weekday(.abbreviated), centered: true)
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisGridLine()
+                            .foregroundStyle(Color.secondary.opacity(0.3))
+                        AxisValueLabel()
+                    }
+                }
+                .frame(height: 250)
+            }
+        } label: {
+            VStack(alignment: .leading) {
+                headerTitleDates
+                Divider()
+            }
+        }
+        .styledGroupBox()
+        .padding(4)
+    }
+    
+    private var averageView: some View {
+        GroupBox {
+            HStack(spacing: 0) {
+                Text("Weekly average:")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Spacer()
+                HStack {
+                    Text(weeklyAverage, format: .number.precision(.fractionLength(1)))
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    Text(store.initialData.unit)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .styledGroupBox()
+        .padding(4)
+    }
+    
+    
+    private var headerTitleDates: some View {
+        HStack {
+            Text(chartDateRange.start, format: .dateTime.day().month())
+            Text("-")
+            Text(chartDateRange.end, format: .dateTime.day().month().year())
+            Spacer()
+        }
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+    }
+    
+    private var descriptionView: some View {
+        GroupBox {
+            VStack(spacing: 12) {
+                Text(store.metricType.description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        } label: {
+            VStack(alignment: .leading) {
+                HStack {
+                    Image(systemName: store.metricType.icon)
+                    Text(store.metricType.title)
+                    Spacer()
+                }
+                .foregroundColor(.gray)
+                .font(.caption)
+                Divider()
+            }
+        }
+        .styledGroupBox()
+        .padding(4)
+    }
+    
+    private var errorView: some View {
+        ContentUnavailableView("No Data",
+                               systemImage: "exclamationmark.triangle.fill",
+                               description: Text("It was not possible to retrieve the health metrics data. Please try again later."))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(.secondary)
+        .padding()
+        
+    }
+    
+    private var chartDateRange: (start: Date, end: Date) {
+        let dates = store.historicalValues.map { $0.date }
+        let minDate = dates.min() ?? Date()
+        let maxDate = dates.max() ?? Date()
+        
+        return (minDate, maxDate)
+    }
+    
+    // MARK: - Helper Views
+    
+    /// Generic metric card with custom content
+    @ViewBuilder
+    private func metricCard<Content: View>(
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        GroupBox {
+            content()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } label: {
+            VStack(alignment: .leading) {
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Divider()
+            }
+        }
+        .styledGroupBox()
+        .frame(height: 100)
     }
     
 }

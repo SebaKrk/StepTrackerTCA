@@ -118,6 +118,12 @@
             "state" : "new",
             "value" : "%1$.0f %2$@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$.0f %2$@"
+          }
         }
       }
     },
@@ -840,7 +846,14 @@
       }
     },
     "Baseline" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik wyjściowy"
+          }
+        }
+      }
     },
     "Bez animacji:" : {
       "localizations" : {
@@ -851,9 +864,6 @@
           }
         }
       }
-    },
-    "Blad" : {
-
     },
     "Bład brak danych" : {
       "localizations" : {
@@ -1735,6 +1745,16 @@
         }
       }
     },
+    "It was not possible to retrieve the health metrics data. Please try again later." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się pobrać danych zdrowotnych. Spróbuj ponownie później."
+          }
+        }
+      }
+    },
     "Join a fitness group to track progress with your teammates and stay motivated together." : {
       "localizations" : {
         "pl" : {
@@ -2226,6 +2246,16 @@
         }
       }
     },
+    "points" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "punkty"
+          }
+        }
+      }
+    },
     "Porównanie animacji" : {
       "localizations" : {
         "pl" : {
@@ -2660,6 +2690,9 @@
         }
       }
     },
+    "Średnia" : {
+
+    },
     "Start" : {
       "localizations" : {
         "pl" : {
@@ -2737,6 +2770,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "wybór statystyk"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
           }
         }
       }
@@ -3007,6 +3050,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ostrzeżenie"
+          }
+        }
+      }
+    },
+    "Weekly average:" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia tygodnia:"
           }
         }
       }
