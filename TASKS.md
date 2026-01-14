@@ -508,5 +508,10 @@
 ### IOS-00059 HealthMetricSummaryDetails
     A: Add new HealthMetricSummaryDetailsCardFeature
     B: UI
-  
     
+### IOS-00060 Bugs&Improvements
+    A: StatsTab
+    - HRV discrepancy 
+    - Formatting
+    - Dates
+    - Activity discrepancy

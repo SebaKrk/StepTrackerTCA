@@ -46,7 +46,8 @@ extension DefaultTrainingReadinessCalculator {
             baselineValue: baselineSleep?.value,
             unit: "hours",
             minScore: -10,
-            maxScore: 15
+            maxScore: 15,
+            timestamp: currentSleep.date
         )
     }
     

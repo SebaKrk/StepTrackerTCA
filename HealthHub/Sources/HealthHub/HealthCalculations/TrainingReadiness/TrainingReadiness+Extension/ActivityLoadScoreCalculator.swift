@@ -46,7 +46,8 @@ extension DefaultTrainingReadinessCalculator {
             baselineValue: baselineLoad?.value,
             unit: "kcal",
             minScore: -10,
-            maxScore: 5
+            maxScore: 5,
+            timestamp: yesterdayLoad.date
         )
     }
     

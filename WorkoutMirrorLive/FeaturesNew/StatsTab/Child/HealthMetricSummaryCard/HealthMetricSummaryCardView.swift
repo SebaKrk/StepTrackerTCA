@@ -99,13 +99,24 @@ struct HealthMetricSummaryCardView: View {
     }
     
     func currentValueLabel(_ data: TrainingComponentScore) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text(String(format: "%.1f", data.currentValue))
-                .font(.title2)
-                .fontWeight(.semibold)
-            Text(data.unit)
-                .font(.caption)
-                .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(formatValue(data.currentValue, unit: data.unit))
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                Text(data.unit)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            // Timestamp - only for RHR and HRV (values that sync during the day)
+            if let timestamp = data.timestamp,
+               (data.unit == "bpm" || data.unit == "ms") {
+                Text(formatTimestamp(timestamp))
+                    .font(.caption)  // Slightly larger than caption2 for readability
+                    .foregroundColor(.secondary)
+                    .opacity(0.8)  // Subtle
+            }
         }
     }
     
@@ -176,4 +187,22 @@ struct HealthMetricSummaryCardView: View {
         }
     }
     
+    // MARK: - Helpers
+    
+    /// Formats value based on unit type - kcal without decimals, others with 1 decimal
+    private func formatValue(_ value: Double, unit: String) -> String {
+        if unit == "kcal" {
+            return String(format: "%.0f", value)  // Calories: 652 (not 652.1)
+        } else {
+            return String(format: "%.1f", value)   // Others: 66.1 ms, 7.3 hours
+        }
+    }
+    
+    /// Formats timestamp to just time (8:07) for RHR and HRV cards
+    private func formatTimestamp(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pl_PL")
+        formatter.timeStyle = .short
+        return formatter.string(from: date)  // Just "8:07", no "Dziś o"
+    }
 }

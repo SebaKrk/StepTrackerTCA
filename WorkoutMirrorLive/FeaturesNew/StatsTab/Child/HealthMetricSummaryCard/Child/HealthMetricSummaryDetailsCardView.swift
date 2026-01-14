@@ -67,7 +67,7 @@ struct HealthMetricSummaryDetailsCardView: View {
         HStack(spacing: 4) {
             metricCard(title: String(localized: "Value")) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(String(format: "%.0f", store.initialData.currentValue))
+                    Text(formatValue(store.initialData.currentValue, unit: store.initialData.unit))
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
@@ -244,6 +244,17 @@ struct HealthMetricSummaryDetailsCardView: View {
         let maxDate = dates.max() ?? Date()
         
         return (minDate, maxDate)
+    }
+    
+    // MARK: - Helpers
+    
+    /// Formats value based on unit type - kcal without decimals, others with 1 decimal
+    private func formatValue(_ value: Double, unit: String) -> String {
+        if unit == "kcal" {
+            return String(format: "%.0f", value)  // Calories: 652 (not 652.1)
+        } else {
+            return String(format: "%.1f", value)   // Others: 66.1 ms, 7.3 hours
+        }
     }
     
     // MARK: - Helper Views
