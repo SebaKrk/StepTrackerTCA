@@ -515,3 +515,6 @@
     - Formatting
     - Dates
     - Activity discrepancy
+
+### IOS-00061 LiveActivity
+    A: New target - WorkoutSessionWidget
