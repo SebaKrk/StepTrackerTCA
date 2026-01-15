@@ -28,13 +28,13 @@ extension DefaultTrainingReadinessCalculator {
     /// - HRV moderately lower: -10 points (suboptimal recovery)
     /// - HRV significantly lower: -15 points (poor autonomic balance)
     func calculateHRVScore() async throws -> TrainingComponentScore? {
-        // Fetch current HRV (most recent day)
-        guard let currentHRV = try await personalDataManager.getHeartRateVariability(days: 1) else {
+        // Fetch current HRV (last night's value)
+        guard let currentHRV = try await personalDataManager.getLastNightHRV() else {
             return nil
         }
         
-        // Fetch baseline (7-day average)
-        let baselineHRV = try await personalDataManager.getHeartRateVariability(days: 7)
+        // Fetch baseline (7-night average)
+        let baselineHRV = try await personalDataManager.getAverageNightlyHRV(nights: 7)
         
         // Calculate score
         let score = calculateHRVComponentScore(
@@ -48,7 +48,8 @@ extension DefaultTrainingReadinessCalculator {
             baselineValue: baselineHRV?.value,
             unit: "ms",
             minScore: -15,
-            maxScore: 15    
+            maxScore: 15,
+            timestamp: currentHRV.date
         )
     }
     
