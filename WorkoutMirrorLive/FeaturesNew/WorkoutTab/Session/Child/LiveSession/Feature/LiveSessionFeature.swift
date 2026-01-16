@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import SharedModels
 
 @Reducer
@@ -16,6 +17,7 @@ struct LiveSessionFeature {
     
     @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
+    @Dependency(\.liveActivityClient) var liveActivityClient
      
     // MARK: - Reducer
     
@@ -34,7 +36,8 @@ struct LiveSessionFeature {
                 return .merge(
                     .send(.calculateHeartRateZone(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateHeartRatePercentage(Int(data.heartRate), state.maxHeartRate)),
-                    .send(.calculateSessionHeartRateStats(Int(data.heartRate)))
+                    .send(.calculateSessionHeartRateStats(Int(data.heartRate))),
+                    .send(.updateLiveActivity)
                 )
             case let .calculateSessionHeartRateStats(heartRate):
                 return .run { send in
@@ -61,6 +64,71 @@ struct LiveSessionFeature {
                         await send(.workoutMetrics(metric))
                     }
                 }
+                
+                // MARK: - Live Activity Actions
+                
+            case let .startLiveActivity(workoutName):
+                let initialState = WorkoutSessionActivityAttributes.ContentState(
+                    heartRate: state.workoutMetrics.heartRate,
+                    heartRateZone: state.currentHeartRateZone,
+                    heartRatePercentage: state.currentHeartRatePercentage,
+                    activeEnergy: state.workoutMetrics.activeEnergy,
+                    maxHeartRate: state.sessionMaxHeartRate,
+                    averageHeartRate: state.sessionAverageHeartRate
+                )
+                
+                return .run { send in
+                    do {
+                        let activityId = try await liveActivityClient.start(workoutName, initialState)
+                        await send(.liveActivityStarted(activityId))
+                    } catch {
+                        print("❌ Failed to start Live Activity: \(error)")
+                    }
+                }
+                
+            case let .liveActivityStarted(activityId):
+                state.liveActivityId = activityId
+                return .none
+                
+            case .updateLiveActivity:
+                guard let activityId = state.liveActivityId else {
+                    return .none
+                }
+                
+                let newState = WorkoutSessionActivityAttributes.ContentState(
+                    heartRate: state.workoutMetrics.heartRate,
+                    heartRateZone: state.currentHeartRateZone,
+                    heartRatePercentage: state.currentHeartRatePercentage,
+                    activeEnergy: state.workoutMetrics.activeEnergy,
+                    maxHeartRate: state.sessionMaxHeartRate,
+                    averageHeartRate: state.sessionAverageHeartRate
+                )
+                
+                return .run { _ in
+                    do {
+                        try await liveActivityClient.update(activityId, newState)
+                    } catch {
+                        print("❌ Failed to update Live Activity: \(error)")
+                    }
+                }
+                
+            case .stopLiveActivity:
+                guard let activityId = state.liveActivityId else {
+                    return .none
+                }
+                
+                return .run { send in
+                    do {
+                        try await liveActivityClient.stop(activityId)
+                        await send(.liveActivityStopped)
+                    } catch {
+                        print("❌ Failed to stop Live Activity: \(error)")
+                    }
+                }
+                
+            case .liveActivityStopped:
+                state.liveActivityId = nil
+                return .none
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
@@ -103,6 +171,23 @@ extension LiveSessionFeature {
 
         /// Calculates session-level heart rate statistics based on a new heart rate reading.
         case calculateSessionHeartRateStats(Int)
+        
+        // MARK: - Live Activity Actions
+        
+        /// Starts a new Live Activity for the workout session
+        case startLiveActivity(String)
+        
+        /// Called when Live Activity is successfully started
+        case liveActivityStarted(String)
+        
+        /// Updates the Live Activity with current workout metrics
+        case updateLiveActivity
+        
+        /// Stops the Live Activity
+        case stopLiveActivity
+        
+        /// Called when Live Activity is successfully stopped
+        case liveActivityStopped
         
         // MARK: - View Actions
         
@@ -148,6 +233,9 @@ extension LiveSessionFeature {
         /// Provided by `SessionFeature`, which retrieves the user’s age and biological sex
         /// from `personCalculatorClient` and applies the appropriate calculation strategy.
         var maxHeartRate: Int = 0
+        
+        /// The ID of the active Live Activity. Nil if no Live Activity is running.
+        var liveActivityId: String?
     }
     
 }
