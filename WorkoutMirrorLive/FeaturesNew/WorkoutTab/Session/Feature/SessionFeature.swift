@@ -30,11 +30,16 @@ struct SessionFeature {
             case let .sessionViewStateChange(value):
                 state.sessionState = value
                 if value == .session {
-                    return .run { send in
-                        for await state in await self.sessionClient.workoutSessionStateStream() {
-                            await send(.controls(.sessionStateUpdated(state)))
-                        }
-                    }
+                    return .merge(
+                        .run { send in
+                            for await state in await self.sessionClient.workoutSessionStateStream() {
+                                await send(.controls(.sessionStateUpdated(state)))
+                            }
+                        },
+                        .send(.live(.startLiveActivity(state.selectedWorkout.title)))
+                    )
+                } else if value == .summary {
+                    return .send(.live(.stopLiveActivity))
                 }
                 return .none
 

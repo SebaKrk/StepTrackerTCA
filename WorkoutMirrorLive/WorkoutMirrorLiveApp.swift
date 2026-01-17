@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 
-@main
+@main 
 struct WorkoutMirrorLiveApp: App {
     var body: some Scene {
         WindowGroup {

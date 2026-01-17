@@ -518,3 +518,4 @@
 
 ### IOS-00061 LiveActivity
     A: New target - WorkoutSessionWidget
+    B: WorkoutSessionLiveActivity

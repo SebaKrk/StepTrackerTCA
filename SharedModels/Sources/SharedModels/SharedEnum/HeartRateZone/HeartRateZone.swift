@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable {
+public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable, Codable {
     
     case resting    // 0-50% HR max
     case recovery   // 50-60% HR max

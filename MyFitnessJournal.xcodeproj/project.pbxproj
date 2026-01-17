@@ -23,6 +23,7 @@
 		9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */ = {isa = PBXBuildFile; fileRef = 9388D7F92D8E8B090016D160 /* TASKS.md */; };
 		93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA3E2E48727C00495CD1 /* SharedModels */; };
 		93A6AA412E48735100495CD1 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA402E48735100495CD1 /* HealthHub */; };
+		93C6150A2F18EC0A007D5E82 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93C615092F18EC0A007D5E82 /* SharedModels */; };
 		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
 		93D02EF02DF4D14F00F08849 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D02EEF2DF4D14F00F08849 /* Commons */; };
 		93D199972E50C57800697D06 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D199962E50C57800697D06 /* Commons */; };
@@ -80,6 +81,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"UI/View+Extension/View+StyledGroupBox.swift",
+				UI/ViewModifier/StyledGroupBoxModifier.swift,
+			);
+			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
+		};
 		937198412F18D58B009C583D /* Exceptions for "WorkoutSessionWidget" folder in "WorkoutSessionWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -122,6 +131,7 @@
 			exceptions = (
 				938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */,
 				938E65512F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal Watch App" target */,
+				936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */,
 			);
 			path = WorkoutMirrorLive;
 			sourceTree = "<group>";
@@ -151,6 +161,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				937198302F18D58A009C583D /* SwiftUI.framework in Frameworks */,
+				93C6150A2F18EC0A007D5E82 /* SharedModels in Frameworks */,
 				9371982E2F18D58A009C583D /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -266,6 +277,7 @@
 			);
 			name = WorkoutSessionWidgetExtension;
 			packageProductDependencies = (
+				93C615092F18EC0A007D5E82 /* SharedModels */,
 			);
 			productName = WorkoutSessionWidgetExtension;
 			productReference = 9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */;
@@ -534,7 +546,7 @@
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -565,7 +577,7 @@
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -595,10 +607,12 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -633,10 +647,12 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -987,6 +1003,10 @@
 		93A6AA402E48735100495CD1 /* HealthHub */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HealthHub;
+		};
+		93C615092F18EC0A007D5E82 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
 		};
 		93CE767C2D16A13F006D5A4A /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
