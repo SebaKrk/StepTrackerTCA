@@ -520,3 +520,4 @@
     A: New target - WorkoutSessionWidget
     B: WorkoutSessionLiveActivity
     C: Refactor
+    D: Coordinator

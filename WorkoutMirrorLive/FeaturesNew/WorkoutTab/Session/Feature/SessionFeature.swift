@@ -45,13 +45,10 @@ struct SessionFeature {
                                 await send(.controls(.sessionStateUpdated(state)))
                             }
                         },
-                        .send(.live(.liveActivity(.startWorkout(
-                            workoutName: state.selectedWorkout.title,
-                            initialState: initialState
-                        ))))
+                        .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title,initialState: initialState)))))
                     )
                 } else if value == .summary {
-                    return .send(.live(.liveActivity(.stopWorkout)))
+                    return .send(.live(.liveActivity(.workout(.stop))))
                 }
                 return .none
 

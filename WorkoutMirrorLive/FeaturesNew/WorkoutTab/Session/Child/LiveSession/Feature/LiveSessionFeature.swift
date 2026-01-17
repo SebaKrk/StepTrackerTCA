@@ -46,7 +46,7 @@ struct LiveSessionFeature {
                     .send(.calculateHeartRateZone(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateHeartRatePercentage(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateSessionHeartRateStats(Int(data.heartRate))),
-                    .send(.liveActivity(.updateWorkout(contentState)))
+                    .send(.liveActivity(.workout(.update(contentState))))
                 )
             case let .calculateSessionHeartRateStats(heartRate):
                 return .run { send in
