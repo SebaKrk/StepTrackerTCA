@@ -98,11 +98,18 @@ struct SessionView: View {
     @ToolbarContentBuilder
     private var toolbarButtons: some ToolbarContent {
         if store.sessionState != .summary {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     send(.heartRateZoneButtonTapped)
                 } label: {
                     Image(systemName: "heart.text.clipboard")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.timerButtonTapped)
+                } label: {
+                    Image(systemName: "timer")
                 }
             }
         }

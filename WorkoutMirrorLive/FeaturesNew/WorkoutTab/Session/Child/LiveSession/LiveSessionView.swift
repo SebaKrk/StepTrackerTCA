@@ -20,22 +20,28 @@ struct LiveSessionView: View {
     // MARK: - Body
     
     var body: some View {
-        ScrollView {
-            HStack {
-                secondaryMetricCard("avg hr",
-                                    data: store.sessionAverageHeartRate)
-                secondaryMetricCard("max hr",
-                                    data: store.sessionMaxHeartRate)
+            ScrollView {
+                HStack {
+                    secondaryMetricCard("avg hr",
+                                        data: store.sessionAverageHeartRate)
+                    secondaryMetricCard("max hr",
+                                        data: store.sessionMaxHeartRate)
+                }
+                workoutMetricsCard
+                
+                // Stopwatch view (if visible)
+                if store.isStopwatchVisible {
+                    stopwatchView
+                }
+                
+                Spacer()
             }
-            workoutMetricsCard
-            Spacer()
-        }
-        .padding([.leading, .trailing], 8)
-        .onAppear {
-            UIApplication.shared.isIdleTimerDisabled = true
-            send(.viewDidAppear)
-        }
-        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false}
+            .padding([.leading, .trailing], 8)
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = true
+                send(.viewDidAppear)
+            }
+            .onDisappear { UIApplication.shared.isIdleTimerDisabled = false}
     }
     
     // MARK: - SubView
@@ -121,10 +127,56 @@ struct LiveSessionView: View {
             Text(store.currentHeartRateZone.description)
                 .font(.caption)
                 .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+            }
+    }
+    
+    // MARK: - Stopwatch View
+    
+    private var stopwatchView: some View {
+        GroupBox {
+            VStack(spacing: 16) {
+                // Time display
+                Text(formatStopwatchTime(store.stopwatchTime))
+                    .font(.system(size: 48, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundColor(.primary)
+                
+                // Control buttons - simple text buttons
+                HStack(spacing: 20) {
+                    // Reset button (only when stopped and time > 0)
+                    if !store.isStopwatchRunning && store.stopwatchTime > 0 {
+                        Button(action: { send(.resetStopwatch) }) {
+                            Text("Reset")
+                                .font(.body)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    
+                    // Start/Stop button
+                    Button(action: {
+                        send(store.isStopwatchRunning ? .stopStopwatch : .startStopwatch)
+                    }) {
+                        Text(store.isStopwatchRunning ? "Stop" : "Start")
+                            .font(.body)
+                            .fontWeight(.medium)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(store.isStopwatchRunning ? .orange : .green)
+                }
+            }
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity)
         }
     }
     
+    // Helper - format stopwatch time
+    private func formatStopwatchTime(_ time: TimeInterval) -> String {
+        let minutes = Int(time) / 60
+        let seconds = Int(time) % 60
+        let centiseconds = Int((time.truncatingRemainder(dividingBy: 1)) * 100)
+        return String(format: "%02d:%02d,%02d", minutes, seconds, centiseconds)
+    }
+
 }
 
 #Preview("LiveSessionFeature") {

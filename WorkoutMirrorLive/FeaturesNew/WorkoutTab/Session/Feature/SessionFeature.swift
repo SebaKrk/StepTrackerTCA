@@ -82,6 +82,10 @@ struct SessionFeature {
             case .view(.heartRateZoneButtonTapped):
                 state.destination = .openHeartRateZoneInfo(HeartRateZoneInfoFeature.State())
                 return .none
+                
+            case .view(.timerButtonTapped):
+                // Forward to LiveSessionFeature
+                return .send(.live(.view(.toggleStopwatch)))
 
                 // MARK: - Destination
             case .destination(_):

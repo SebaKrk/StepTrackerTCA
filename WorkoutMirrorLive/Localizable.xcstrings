@@ -2408,6 +2408,9 @@
         }
       }
     },
+    "Reset" : {
+
+    },
     "Rounds" : {
       "localizations" : {
         "pl" : {
@@ -2793,6 +2796,9 @@
           }
         }
       }
+    },
+    "Stop" : {
+
     },
     "Strength" : {
       "localizations" : {

@@ -41,11 +41,11 @@ struct TimerActivityFeature {
     // MARK: - Actions
     
     enum Action: Equatable {
-        /// Start timer Live Activity with workout metrics
-        case start(workoutName: String, initialState: WorkoutSessionActivityAttributes.ContentState)
+        /// Start timer Live Activity with timer metrics
+        case start(timerName: String, initialState: TimerActivityAttributes.ContentState)
         
-        /// Update workout metrics (HR, energy, etc.)
-        case update(WorkoutSessionActivityAttributes.ContentState)
+        /// Update timer metrics (HR, elapsed time, etc.)
+        case update(TimerActivityAttributes.ContentState)
         
         /// Stop and dismiss timer Live Activity
         case stop
@@ -66,17 +66,17 @@ struct TimerActivityFeature {
         Reduce { state, action in
             switch action {
                 
-            case let .start(workoutName, initialState):
+            case let .start(timerName, initialState):
                 guard !state.isActive else {
                     print("⚠️ [TimerActivityFeature] Already active")
                     return .none
                 }
                 
-                print("⏱️ [TimerActivityFeature] Starting: \(workoutName)")
+                print("⏱️ [TimerActivityFeature] Starting: \(timerName)")
                 
                 return .run { send in
                     do {
-                        let activityID = try await liveActivityClient.start(workoutName, initialState)
+                        let activityID = try await liveActivityClient.startTimer(timerName, initialState)
                         await send(.activityStarted(activityID: activityID))
                     } catch {
                         print("❌ [TimerActivityFeature] Start failed: \(error)")
@@ -96,7 +96,7 @@ struct TimerActivityFeature {
                 
                 return .run { _ in
                     do {
-                        try await liveActivityClient.update(activityID, newState)
+                        try await liveActivityClient.updateTimer(activityID, newState)
                     } catch {
                         print("❌ [TimerActivityFeature] Update failed: \(error)")
                     }
@@ -111,7 +111,7 @@ struct TimerActivityFeature {
                 
                 return .run { send in
                     do {
-                        try await liveActivityClient.stop(activityID)
+                        try await liveActivityClient.stopTimer(activityID)
                         await send(.activityStopped)
                     } catch {
                         print("❌ [TimerActivityFeature] Stop failed: \(error)")

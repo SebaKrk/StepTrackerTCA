@@ -43,6 +43,17 @@ extension LiveSessionFeature {
         
         /// Live Activity management (delegated to child reducer)
         var liveActivity = LiveActivityFeature.State()
+        
+        // MARK: - Stopwatch
+        
+        /// Whether stopwatch view is visible
+        var isStopwatchVisible: Bool = false
+        
+        /// Stopwatch elapsed time in seconds
+        var stopwatchTime: TimeInterval = 0
+        
+        /// Whether stopwatch is currently running
+        var isStopwatchRunning: Bool = false
     }
     
 }

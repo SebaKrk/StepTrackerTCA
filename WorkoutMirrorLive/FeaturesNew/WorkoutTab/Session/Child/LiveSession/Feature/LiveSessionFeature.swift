@@ -17,6 +17,7 @@ struct LiveSessionFeature {
     
     @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
+    @Dependency(\.continuousClock) var clock
      
     // MARK: - Reducer
     
@@ -86,6 +87,67 @@ struct LiveSessionFeature {
                 return .run { send in
                     await send(.startWorkoutMetricsStream)
                 }
+                
+            // MARK: - Stopwatch
+                
+            case .view(.toggleStopwatch):
+                state.isStopwatchVisible.toggle()
+                
+                // LiveActivity integration
+                if state.isStopwatchVisible {
+                    // Guard: don't start if already active
+                    guard !state.liveActivity.timer.isActive else {
+                        return .none
+                    }
+                    
+                    // Showing stopwatch → start Timer LA (Coordinator will stop Workout LA)
+                    let timerState = TimerActivityAttributes.ContentState(
+                        heartRate: state.workoutMetrics.heartRate,
+                        heartRateZone: state.currentHeartRateZone,
+                        elapsedTime: state.stopwatchTime,
+                        isRunning: state.isStopwatchRunning
+                    )
+                    return .send(.liveActivity(.timer(.start(timerName: "Stoper", initialState: timerState))))
+                } else {
+                    // Hiding stopwatch → stop Timer LA and restart Workout LA
+                    let contentState = WorkoutSessionActivityAttributes.ContentState(
+                        heartRate: state.workoutMetrics.heartRate,
+                        heartRateZone: state.currentHeartRateZone,
+                        heartRatePercentage: state.currentHeartRatePercentage,
+                        activeEnergy: state.workoutMetrics.activeEnergy,
+                        maxHeartRate: state.sessionMaxHeartRate,
+                        averageHeartRate: state.sessionAverageHeartRate
+                    )
+                    return .merge(
+                        .send(.liveActivity(.timer(.stop))),
+                        .send(.liveActivity(.workout(.start(workoutName: "Workout", initialState: contentState))))
+                    )
+                }
+                
+                
+            case .view(.startStopwatch):
+                guard !state.isStopwatchRunning else { return .none }
+                state.isStopwatchRunning = true
+                
+                return .run { send in
+                    for await _ in clock.timer(interval: .milliseconds(10)) {
+                        await send(.internal(.stopwatchTick))
+                    }
+                }
+                .cancellable(id: "stopwatchTimer")
+                
+            case .view(.stopStopwatch):
+                guard state.isStopwatchRunning else { return .none }
+                state.isStopwatchRunning = false
+                return .cancel(id: "stopwatchTimer")
+                
+            case .view(.resetStopwatch):
+                state.stopwatchTime = 0
+                return .none
+                
+            case .internal(.stopwatchTick):
+                state.stopwatchTime += 0.01
+                return .none
             }
         }
         

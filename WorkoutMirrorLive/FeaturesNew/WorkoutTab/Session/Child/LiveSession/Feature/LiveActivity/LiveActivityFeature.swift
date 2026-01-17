@@ -51,23 +51,19 @@ struct LiveActivityFeature {
                 
             case .workout(.start):
                 // Stop timer if active before starting workout
+                // Scope will automatically forward this action to WorkoutActivityFeature
                 if state.timer.isActive {
                     print("🔄 [LiveActivityFeature] Stopping timer to start workout")
-                    return .merge(
-                        .send(.timer(.stop)),
-                        .send(action) // Forward to child
-                    )
+                    return .send(.timer(.stop))
                 }
                 return .none
                 
             case .timer(.start):
                 // Stop workout if active before starting timer
+                // Scope will automatically forward this action to TimerActivityFeature
                 if state.workout.isActive {
                     print("🔄 [LiveActivityFeature] Stopping workout to start timer")
-                    return .merge(
-                        .send(.workout(.stop)),
-                        .send(action) // Forward to child
-                    )
+                    return .send(.workout(.stop))
                 }
                 return .none
                 
