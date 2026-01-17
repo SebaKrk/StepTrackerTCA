@@ -53,7 +53,7 @@ struct WorkoutSessionLiveActivity: Widget {
             } compactTrailing: {
                 compactHeartRateBadge(context)
             } minimal: {
-                minimalView(context)
+                compactPercentageBadge(context)
             }
             .keylineTint(context.state.heartRateZone.color)
         }
@@ -128,10 +128,4 @@ struct WorkoutSessionLiveActivity: Widget {
         )
     }
     
-    // MARK: - Minimal View
-    
-    private func minimalView(_ context: ActivityViewContext<WorkoutSessionActivityAttributes>) -> some View {
-        Image(systemName: "heart.fill")
-            .foregroundColor(context.state.heartRateZone.color)
-    }
 }
