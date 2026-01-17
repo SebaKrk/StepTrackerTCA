@@ -30,16 +30,28 @@ struct SessionFeature {
             case let .sessionViewStateChange(value):
                 state.sessionState = value
                 if value == .session {
+                    let initialState = WorkoutSessionActivityAttributes.ContentState(
+                        heartRate: 0,
+                        heartRateZone: .resting,
+                        heartRatePercentage: 0,
+                        activeEnergy:  0,
+                        maxHeartRate: 0,
+                        averageHeartRate: 0
+                    )
+                    
                     return .merge(
                         .run { send in
                             for await state in await self.sessionClient.workoutSessionStateStream() {
                                 await send(.controls(.sessionStateUpdated(state)))
                             }
                         },
-                        .send(.live(.startLiveActivity(state.selectedWorkout.title)))
+                        .send(.live(.liveActivity(.startWorkout(
+                            workoutName: state.selectedWorkout.title,
+                            initialState: initialState
+                        ))))
                     )
                 } else if value == .summary {
-                    return .send(.live(.stopLiveActivity))
+                    return .send(.live(.liveActivity(.stopWorkout)))
                 }
                 return .none
 
@@ -49,7 +61,7 @@ struct SessionFeature {
                     let sex = try await personalDataClient.getBiologicalSex()
                     
                     guard let age = age, let sex = sex else {
-                        // zucic blad ze musi byc ustawiony wiek i plec ?
+                        // rzucic blad ze musi byc ustawiony wiek i plec ?
                         return
                     }
                     
