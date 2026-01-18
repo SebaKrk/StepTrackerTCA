@@ -30,7 +30,7 @@ struct LiveSessionView: View {
                 workoutMetricsCard
                 
                 // Stopwatch view (if visible)
-                if store.isStopwatchVisible {
+                if store.stopwatch.isVisible {
                     stopwatchView
                 }
                 
@@ -136,7 +136,7 @@ struct LiveSessionView: View {
         GroupBox {
             VStack(spacing: 16) {
                 // Time display
-                Text(formatStopwatchTime(store.stopwatchTime))
+                Text(formatStopwatchTime(store.stopwatch.time))
                     .font(.system(size: 48, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(.primary)
@@ -144,8 +144,10 @@ struct LiveSessionView: View {
                 // Control buttons - simple text buttons
                 HStack(spacing: 20) {
                     // Reset button (only when stopped and time > 0)
-                    if !store.isStopwatchRunning && store.stopwatchTime > 0 {
-                        Button(action: { send(.resetStopwatch) }) {
+                    if !store.stopwatch.isRunning && store.stopwatch.time > 0 {
+                        Button(action: {
+                            send(.stopwatch(.reset))
+                        }) {
                             Text("Reset")
                                 .font(.body)
                         }
@@ -154,14 +156,14 @@ struct LiveSessionView: View {
                     
                     // Start/Stop button
                     Button(action: {
-                        send(store.isStopwatchRunning ? .stopStopwatch : .startStopwatch)
+                        send(.stopwatch(store.stopwatch.isRunning ? .stop : .start))
                     }) {
-                        Text(store.isStopwatchRunning ? "Stop" : "Start")
+                        Text(store.stopwatch.isRunning ? "Stop" : "Start")
                             .font(.body)
                             .fontWeight(.medium)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(store.isStopwatchRunning ? .orange : .green)
+                    .tint(store.stopwatch.isRunning ? .orange : .green)
                 }
             }
             .padding(.vertical, 12)

@@ -9,6 +9,8 @@ import ComposableArchitecture
 import Foundation
 import SwiftUI
 
+/// A feature responsible for managing the countdown timer before a workout session starts.
+/// It visualizes the remaining time and triggers the workout start upon completion.
 @Reducer
 struct CountDownFeature {
     
@@ -20,12 +22,12 @@ struct CountDownFeature {
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
+    
     var body: some Reducer<State, Action> {
         Reduce<State, Action> { state, action in
             switch action {
                 
-            case .onAppear:
-                return .send(.startCountDown)
+            // MARK: - Internal
                 
             case .startCountDown:
                 state.duration = state.duration
@@ -38,7 +40,6 @@ struct CountDownFeature {
                         await send(.timerTick)
                     }
                 }
-                //.cancellable(id: CancelID.timer)
                 
             case .timerTick:
                 guard let endDate = state.endDate else {
@@ -59,10 +60,8 @@ struct CountDownFeature {
                 
             case .endCountDown:
                 state.isActive = false
-                state.timeRemaining = state.duration
+                state.timeRemaining = 0
                 state.endDate = nil
-                
-                //return .cancel(id: CancelID.timer)
                 return .none
                 
             case .timerFinished:
@@ -70,18 +69,19 @@ struct CountDownFeature {
                 return .send(.startWorkout)
                 
             case .startWorkout:
-                print("Starting workout...1 - CountDownFeature")
                 return .run { send in
-                    print("Closing view first... - CountDownFeature")
                     await send(.closeView)
-                    
-                    print("Starting workout...2 - CountDownFeature")
                     await client.startWorkout()
-                    
                 }
                 
+                
+            // MARK: - View Actions
+                
+            case .onAppear:
+                return .send(.startCountDown)
+                
             case .closeView:
-                /// obsluzone w rodzicu
+                /// Handled by parent feature (SessionFeature) or dismiss dependency if needed.
                 return .none
             }
         }
@@ -94,24 +94,32 @@ extension CountDownFeature {
     
     enum Action {
         
+        /// Triggered when the view appears. Stats the countdown sequence.
+        case onAppear
+        
+        /// Internal action to initialize state and run the timer effect.
         case startCountDown
         
+        /// Internal action to clean up state after countdown completes.
         case endCountDown
         
+        /// Tick action triggered by the timer every 0.1s.
         case timerTick
         
+        /// Triggered when the timer successfully reaches zero.
         case timerFinished
         
+        /// Triggers the actual workout start via the client.
         case startWorkout
         
+        /// Action to signal view dismissal (usually handled by parent).
         case closeView
-        
-        case onAppear
     }
     
 }
 
 extension CountDownFeature {
+    /// ID used for cancelling the timer effect (if needed).
     enum CancelID {
         case timer
     }
@@ -123,20 +131,27 @@ extension CountDownFeature {
     @ObservableState
     struct State: Equatable {
         
+        /// Current time remaining in seconds.
         var timeRemaining: TimeInterval = 3
         
+        /// Total duration of the countdown in seconds.
         var duration: TimeInterval = 3
         
+        /// Indicates if the countdown is currently active.
         var isActive: Bool = false
         
+        /// The calculated end date of the countdown.
         var endDate: Date?
         
+        /// Flag indicating if the timer has finished.
         var timerFinished: Bool = false
         
+        /// Calculated trim value for the circular progress view (0.0 to 1.0).
         var trimValue: Double {
             timeRemaining > 0 ? timeRemaining / duration : 0
         }
         
+        /// Helper to determine if we are in the initial setup state.
         var isSettingTrim: Bool {
             timeRemaining == duration
         }

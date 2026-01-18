@@ -10,30 +10,41 @@ import Foundation
 import HealthHub
 import SharedModels
 
-/// Manages Timer-specific Live Activity (HR + timer controls)
+/// A feature responsible for managing the Timer Live Activity.
+/// It handles starting, updating, and stopping the Live Activity, as well as managing the timer state.
 @Reducer
 struct TimerActivityFeature {
     
+    // MARK: - Dependencies
+
+    /// Client for interacting with the Live Activity API.
     @Dependency(\.liveActivityClient) var liveActivityClient
     
     // MARK: - State
     
     @ObservableState
     struct State: Equatable {
-        /// ID of active timer Live Activity
+        /// The unique identifier of the active Live Activity, if any.
         var activityID: String?
         
-        /// Timer state
+        /// The current operational state of the timer (running, paused, stopped).
         var timerState: TimerState = .stopped
+        
+        /// The elapsed time of the timer in seconds.
         var elapsedTime: TimeInterval = 0
         
+        /// Indicates whether a Live Activity is currently active.
         var isActive: Bool {
             activityID != nil
         }
         
+        /// Enumeration representing possible states of the timer.
         enum TimerState: Equatable {
+            /// Timer is currently running.
             case running
+            /// Timer has been paused.
             case paused
+            /// Timer is stopped.
             case stopped
         }
     }
@@ -41,22 +52,34 @@ struct TimerActivityFeature {
     // MARK: - Actions
     
     enum Action: Equatable {
-        /// Start timer Live Activity with timer metrics
+        // MARK: Live Activity Lifecycle
+        
+        /// Request to start the timer Live Activity with a name and initial content state.
         case start(timerName: String, initialState: TimerActivityAttributes.ContentState)
         
-        /// Update timer metrics (HR, elapsed time, etc.)
+        /// Request to update the existing Live Activity with new content state.
         case update(TimerActivityAttributes.ContentState)
         
-        /// Stop and dismiss timer Live Activity
+        /// Request to stop and dismiss the current Live Activity.
         case stop
         
-        // Timer controls
+        // MARK: Timer Controls
+        
+        /// Pause the timer (logic and UI update).
         case pauseTimer
+        
+        /// Resume the timer (logic and UI update).
         case resumeTimer
+        
+        /// Reset the timer to zero.
         case resetTimer
         
-        // Internal
+        // MARK: Internal Actions
+        
+        /// Internal action triggered when the Live Activity successfully starts.
         case activityStarted(activityID: String)
+        
+        /// Internal action triggered when the Live Activity successfully stops.
         case activityStopped
     }
     
@@ -65,6 +88,8 @@ struct TimerActivityFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+                
+            // MARK: - Lifecycle Handlers
                 
             case let .start(timerName, initialState):
                 guard !state.isActive else {

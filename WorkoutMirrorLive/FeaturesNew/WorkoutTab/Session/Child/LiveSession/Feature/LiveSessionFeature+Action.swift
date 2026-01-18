@@ -44,7 +44,11 @@ extension LiveSessionFeature {
         // MARK: - Live Activity (Child Reducer)
         
         /// Delegates to LiveActivityFeature child reducer
+        /// Delegates to LiveActivityFeature child reducer
         case liveActivity(LiveActivityFeature.Action)
+        
+        /// Delegates to StopwatchFeature child reducer
+        case stopwatch(StopwatchFeature.Action)
         
         // MARK: - View Actions
         
@@ -55,29 +59,9 @@ extension LiveSessionFeature {
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
             
-            // MARK: - Stopwatch
-            
-            /// Toggle stopwatch visibility
-            case toggleStopwatch
-            
-            /// Start stopwatch timer
-            case startStopwatch
-            
-            /// Stop stopwatch timer
-            case stopStopwatch
-            
-            /// Reset stopwatch to 0:00,00
-            case resetStopwatch
-            
-        }
-        
-        // MARK: - Internal Actions
-        
-        case `internal`(Internal)
-        
-        enum Internal {
-            /// Stopwatch tick (called every 0.01s)
-            case stopwatchTick
+            /// Stopwatch View Actions
+            case stopwatch(StopwatchFeature.Action.View)
         }
     }
+    
 }

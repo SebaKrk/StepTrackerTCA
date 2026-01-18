@@ -26,7 +26,7 @@ struct CountDownView: View {
                     .rotationEffect(.degrees(-90))
                     .animation(store.isSettingTrim ? nil : .linear(duration: 1), value: store.timeRemaining)
                     .overlay {
-                        Text("\(Int(store.timeRemaining))")
+                        Text("\(Int(store.timeRemaining.rounded(.up)))")
                             .font(.system(size: 60))
                             .foregroundColor(.pink)
                             .fontWeight(.bold)
