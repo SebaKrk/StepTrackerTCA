@@ -17,7 +17,8 @@ struct LiveSessionFeature {
     
     @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
-     
+    @Dependency(\.continuousClock) var clock
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -46,8 +47,9 @@ struct LiveSessionFeature {
                     .send(.calculateHeartRateZone(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateHeartRatePercentage(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateSessionHeartRateStats(Int(data.heartRate))),
-                    .send(.liveActivity(.updateWorkout(contentState)))
+                    .send(.liveActivity(.workout(.update(contentState))))
                 )
+                
             case let .calculateSessionHeartRateStats(heartRate):
                 return .run { send in
                     let (average, max) = await calculation.processHeartRate(heartRate)
@@ -74,23 +76,46 @@ struct LiveSessionFeature {
                     }
                 }
                 
-            // Live Activity is now handled by child reducer via .liveActivity() action
-                
-            case .liveActivity:
-                // Handled by Scope below
-                return .none
-                
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
                 return .run { send in
                     await send(.startWorkoutMetricsStream)
                 }
+                
+            case let .view(.stopwatch(action)):
+                return .send(.stopwatch(.view(action)))
+                
+                // MARK: - Stopwatch Delegate
+                
+            case .stopwatch(.delegate(.didToggleVisibility)):
+                if state.stopwatch.isVisible {
+                    // Guard: don't start if already active
+                    guard !state.liveActivity.timer.isActive else { return .none }
+                    
+                    // Showing stopwatch → start Timer LA (Coordinator will stop Workout LA)
+                    return .send(.liveActivity(.timer(.start(timerName: "Stoper", initialState: state.timerContentState))))
+                } else {
+                    // Hiding stopwatch → stop Timer LA and restart Workout LA
+                    return .merge(
+                        .send(.liveActivity(.timer(.stop))),
+                        .send(.liveActivity(.workout(.start(workoutName: "Workout", initialState: state.workoutContentState))))
+                    )
+                }
+          
+                // MARK: - Child
+            case .liveActivity:
+                return .none
+                
+            case .stopwatch:
+                return .none
             }
         }
-        
         Scope(state: \.liveActivity, action: \.liveActivity) {
             LiveActivityFeature()
+        }
+        Scope(state: \.stopwatch, action: \.stopwatch) {
+            StopwatchFeature()
         }
     }
     

@@ -520,3 +520,6 @@
     A: New target - WorkoutSessionWidget
     B: WorkoutSessionLiveActivity
     C: Refactor
+    D: Coordinator
+    - create Coordinator for LiveActivity in Workout session 
+    - add timer to  Workout session 

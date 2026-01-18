@@ -44,7 +44,11 @@ extension LiveSessionFeature {
         // MARK: - Live Activity (Child Reducer)
         
         /// Delegates to LiveActivityFeature child reducer
+        /// Delegates to LiveActivityFeature child reducer
         case liveActivity(LiveActivityFeature.Action)
+        
+        /// Delegates to StopwatchFeature child reducer
+        case stopwatch(StopwatchFeature.Action)
         
         // MARK: - View Actions
         
@@ -55,6 +59,9 @@ extension LiveSessionFeature {
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
             
+            /// Stopwatch View Actions
+            case stopwatch(StopwatchFeature.Action.View)
         }
     }
+    
 }

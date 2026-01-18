@@ -41,8 +41,37 @@ extension LiveSessionFeature {
         /// from `personCalculatorClient` and applies the appropriate calculation strategy.
         var maxHeartRate: Int = 0
         
+        // MARK: - Child
+        
         /// Live Activity management (delegated to child reducer)
         var liveActivity = LiveActivityFeature.State()
+        
+        /// Stopwatch state managed by child reducer
+        var stopwatch = StopwatchFeature.State()
+        
+        // MARK: - Helpers
+        
+        /// Creates Timer Activity Content State from current state
+        var timerContentState: TimerActivityAttributes.ContentState {
+            TimerActivityAttributes.ContentState(
+                heartRate: workoutMetrics.heartRate,
+                heartRateZone: currentHeartRateZone,
+                elapsedTime: stopwatch.time,
+                isRunning: stopwatch.isRunning
+            )
+        }
+        
+        /// Creates Workout Activity Content State from current state
+        var workoutContentState: WorkoutSessionActivityAttributes.ContentState {
+            WorkoutSessionActivityAttributes.ContentState(
+                heartRate: workoutMetrics.heartRate,
+                heartRateZone: currentHeartRateZone,
+                heartRatePercentage: currentHeartRatePercentage,
+                activeEnergy: workoutMetrics.activeEnergy,
+                maxHeartRate: sessionMaxHeartRate,
+                averageHeartRate: sessionAverageHeartRate
+            )
+        }
     }
     
 }

@@ -37,6 +37,33 @@ public struct LiveActivityClient: Sendable {
     public var stop: @Sendable (
         _ activityId: String
     ) async throws -> Void
+    
+    // MARK: - Timer Live Activity Methods
+    
+    /// Starts a new Live Activity for timer
+    /// - Parameters:
+    ///   - timerName: Name of the timer
+    ///   - initialState: Initial content state with timer metrics
+    /// - Returns: Activity ID that can be used to update or stop the activity
+    public var startTimer: @Sendable (
+        _ timerName: String,
+        _ initialState: TimerActivityAttributes.ContentState
+    ) async throws -> String = { _, _ in "" }
+    
+    /// Updates the timer Live Activity with new metrics
+    /// - Parameters:
+    ///   - activityId: ID of the activity to update
+    ///   - newState: New content state with updated metrics
+    public var updateTimer: @Sendable (
+        _ activityId: String,
+        _ newState: TimerActivityAttributes.ContentState
+    ) async throws -> Void
+    
+    /// Stops and dismisses the timer Live Activity
+    /// - Parameter activityId: ID of the activity to stop
+    public var stopTimer: @Sendable (
+        _ activityId: String
+    ) async throws -> Void
 }
 
 // MARK: - DependencyKey
@@ -74,6 +101,38 @@ extension LiveActivityClient: DependencyKey {
             }
             
             await activity.end(nil, dismissalPolicy: .immediate)
+        },
+        startTimer: { timerName, initialState in
+            let attributes = TimerActivityAttributes(
+                timerName: timerName,
+                startTime: Date()
+            )
+            
+            let activity = try Activity.request(
+                attributes: attributes,
+                content: .init(state: initialState, staleDate: nil),
+                pushType: nil
+            )
+            
+            return activity.id
+        },
+        updateTimer: { activityId, newState in
+            let activities = Activity<TimerActivityAttributes>.activities
+            guard let activity = activities.first(where: { $0.id == activityId }) else {
+                throw LiveActivityError.activityNotFound
+            }
+            
+            await activity.update(
+                .init(state: newState, staleDate: nil)
+            )
+        },
+        stopTimer: { activityId in
+            let activities = Activity<TimerActivityAttributes>.activities
+            guard let activity = activities.first(where: { $0.id == activityId }) else {
+                throw LiveActivityError.activityNotFound
+            }
+            
+            await activity.end(nil, dismissalPolicy: .immediate)
         }
     )
     
@@ -92,6 +151,22 @@ extension LiveActivityClient: DependencyKey {
         },
         stop: { activityId in
             print("🔴 [LiveActivity Preview] Stopped: \(activityId)")
+        },
+        startTimer: { timerName, initialState in
+            print("⏱️ [Timer Preview] Started: \(timerName)")
+            print("   Initial HR: \(Int(initialState.heartRate)) BPM")
+            print("   Zone: \(initialState.heartRateZone.rawValue)")
+            print("   Elapsed: \(Int(initialState.elapsedTime))s")
+            return "preview-timer-id"
+        },
+        updateTimer: { activityId, newState in
+            print("🔵 [Timer Preview] Updated: \(activityId)")
+            print("   HR: \(Int(newState.heartRate)) BPM")
+            print("   Elapsed: \(Int(newState.elapsedTime))s")
+            print("   Running: \(newState.isRunning)")
+        },
+        stopTimer: { activityId in
+            print("🛑 [Timer Preview] Stopped: \(activityId)")
         }
     )
     

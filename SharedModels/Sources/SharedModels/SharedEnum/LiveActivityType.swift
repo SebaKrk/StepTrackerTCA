@@ -10,4 +10,5 @@ import Foundation
 /// Typ Live Activity obsługiwany przez aplikację
 public enum LiveActivityType: String, Codable, Hashable, Sendable {
     case workout  // Trening z HR/Energy
+    case timer    // Timer z HR + czasem (start/stop/reset)
 }
