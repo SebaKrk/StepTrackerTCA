@@ -63,7 +63,7 @@ struct WorkoutMetricsLockScreenView: View {
     }
     
     private var heartRateZoneView: some View {
-        Text(context.state.heartRateZone.rawValue.capitalized)
+        Text(context.state.heartRateZone.title.capitalized)
             .font(.body.weight(.semibold))
             .foregroundColor(context.state.heartRateZone.color)
     }

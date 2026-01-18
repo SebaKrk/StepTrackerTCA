@@ -531,6 +531,16 @@
         }
       }
     },
+    "Light Effort" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekki wysiłek"
+          }
+        }
+      }
+    },
     "Light session. You'll be ready for another hard workout soon." : {
       "localizations" : {
         "pl" : {
@@ -991,12 +1001,12 @@
         }
       }
     },
-    "The recovery zone is the lightest level of physical activity, perfect for rest days or active recovery after intense training sessions. In this zone, your body effectively removes metabolic waste products, improves blood circulation, and supports muscle repair processes. By staying in this zone, you enhance flexibility, accelerate recovery, and prepare your body for future training challenges without additional physiological stress." : {
+    "The recovery zone is the lightest level of physical activity, perfect for rest days or active recovery after intense training sessions. In this zone, your body effectively removes metabolic waste products, improves blood circulation, and supports muscle repair processes. By staying in this zone, you enhance flexibility, accelerate recovery, and prepare your body for future training challenges without additional physiological stress.\"" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strefa regeneracji to najlżejszy poziom aktywności fizycznej, idealny na dni odpoczynku lub aktywną regenerację po intensywnych sesjach treningowych. W tej strefie Twoje ciało skutecznie usuwa produkty przemiany materii, poprawia krążenie krwi i wspiera procesy naprawy mięśni. Pozostając w tej strefie, zwiększasz elastyczność, przyspieszasz regenerację i przygotowujesz ciało na przyszłe wyzwania treningowe bez dodatkowego stresu fizjologicznego."
+            "value" : "Strefa lekkiego wysiłku to najniższy poziom aktywności fizycznej, idealny na dni odpoczynku lub aktywną regenerację po intensywnych treningach. W tej strefie Twój organizm skutecznie usuwa produkty przemiany materii, poprawia krążenie krwi i wspiera procesy naprawcze mięśni. Utrzymywanie tętna w tym zakresie zwiększa elastyczność, przyspiesza regenerację i przygotowuje ciało do kolejnych wyzwań treningowych bez wywoływania dodatkowego stresu fizjologicznego."
           }
         }
       }

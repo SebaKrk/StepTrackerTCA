@@ -2409,7 +2409,14 @@
       }
     },
     "Reset" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyzeruj"
+          }
+        }
+      }
     },
     "Rounds" : {
       "localizations" : {
@@ -2693,9 +2700,6 @@
         }
       }
     },
-    "Średnia" : {
-
-    },
     "Start" : {
       "localizations" : {
         "pl" : {
@@ -2798,7 +2802,14 @@
       }
     },
     "Stop" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
     },
     "Strength" : {
       "localizations" : {
