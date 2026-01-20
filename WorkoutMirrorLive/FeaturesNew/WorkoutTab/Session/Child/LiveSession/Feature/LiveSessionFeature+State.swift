@@ -53,11 +53,18 @@ extension LiveSessionFeature {
         
         /// Creates Timer Activity Content State from current state
         var timerContentState: TimerActivityAttributes.ContentState {
-            TimerActivityAttributes.ContentState(
+            // Calculate when the timer effectively started relative to now
+            // If running, start = now - elapsed
+            // If paused, start = now - elapsed (but effectively we treat it as if it started then)
+            let adjustedStart = Date().addingTimeInterval(-stopwatch.time)
+            
+            return TimerActivityAttributes.ContentState(
                 heartRate: workoutMetrics.heartRate,
                 heartRateZone: currentHeartRateZone,
                 elapsedTime: stopwatch.time,
-                isRunning: stopwatch.isRunning
+                isRunning: stopwatch.isRunning,
+                adjustedStartDate: adjustedStart,
+                pauseDate: stopwatch.isRunning ? nil : Date()
             )
         }
         

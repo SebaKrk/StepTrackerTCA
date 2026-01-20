@@ -102,8 +102,25 @@ struct LiveSessionFeature {
                         .send(.liveActivity(.workout(.start(workoutName: "Workout", initialState: state.workoutContentState))))
                     )
                 }
-          
-                // MARK: - Child
+                
+            case .stopwatch(.delegate(.didStart)):
+                print("🏁 [LiveSessionFeature] Stopwatch started -> Updating LA")
+                return .send(.liveActivity(.timer(.update(state.timerContentState))))
+                
+            case .stopwatch(.delegate(.didStop)):
+                print("🛑 [LiveSessionFeature] Stopwatch stopped -> Updating LA")
+                return .send(.liveActivity(.timer(.update(state.timerContentState))))
+            case let .liveActivity(.timer(.activityUpdated(newState))):
+                // Prevent redundant updates that cause feedback loops or HK errors
+                if newState.isRunning && !state.stopwatch.isRunning {
+                    print("🔄 [LiveSessionFeature] Syncing from Live Activity: START")
+                    return .send(.stopwatch(.view(.start)))
+                } else if !newState.isRunning && state.stopwatch.isRunning {
+                    print("🔄 [LiveSessionFeature] Syncing from Live Activity: STOP")
+                    return .send(.stopwatch(.view(.stop)))
+                }
+                return .none
+                
             case .liveActivity:
                 return .none
                 

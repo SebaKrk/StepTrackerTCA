@@ -29,6 +29,10 @@
 		93D199972E50C57800697D06 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D199962E50C57800697D06 /* Commons */; };
 		93FA1B1F2EAA991A001809ED /* LNPopupUI in Frameworks */ = {isa = PBXBuildFile; productRef = 93FA1B1E2EAA991A001809ED /* LNPopupUI */; };
 		93FA1B242EAA9D5A001809ED /* LNPopupUI in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 93FA1B1E2EAA991A001809ED /* LNPopupUI */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		DC94111B2F1FAD6500C74C56 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9371982D2F18D58A009C583D /* WidgetKit.framework */; };
+		DC94111C2F1FAD6500C74C56 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9371982F2F18D58A009C583D /* SwiftUI.framework */; };
+		DC94112D2F1FAD6600C74C56 /* TimerActivityWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DC94111A2F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DC9411332F1FB16F00C74C56 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = DC9411322F1FB16F00C74C56 /* SharedModels */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +42,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9371982B2F18D58A009C583D;
 			remoteInfo = WorkoutSessionWidgetExtension;
+		};
+		DC94112B2F1FAD6600C74C56 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 93CE752D2D1699CA006D5A4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DC9411192F1FAD6500C74C56;
+			remoteInfo = TimerActivityWidgetExtensionExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -49,6 +60,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				9371983D2F18D58B009C583D /* WorkoutSessionWidgetExtension.appex in Embed Foundation Extensions */,
+				DC94112D2F1FAD6600C74C56 /* TimerActivityWidgetExtensionExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,6 +90,7 @@
 		93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFitnessJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93D02EED2DF41F4C00F08849 /* HealthHub */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HealthHub; sourceTree = "<group>"; };
 		93D02EEE2DF4CCBF00F08849 /* Commons */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Commons; sourceTree = "<group>"; };
+		DC94111A2F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimerActivityWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -110,6 +123,20 @@
 			);
 			target = 934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */;
 		};
+		DC9411302F1FAD6600C74C56 /* Exceptions for "TimerActivityWidgetExtension" folder in "TimerActivityWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DC9411192F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension */;
+		};
+		DC9411352F1FBA2C00C74C56 /* Exceptions for "TimerActivityWidgetExtension" folder in "WorkoutMirrorLive" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				TimerActivityWidgetExtensionLiveActivity.swift,
+			);
+			target = 9382096B2E39388600F49046 /* WorkoutMirrorLive */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -139,6 +166,15 @@
 		93CE75372D1699CA006D5A4A /* StepTrackerTCA */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = StepTrackerTCA;
+			sourceTree = "<group>";
+		};
+		DC94111D2F1FAD6500C74C56 /* TimerActivityWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DC9411352F1FBA2C00C74C56 /* Exceptions for "TimerActivityWidgetExtension" folder in "WorkoutMirrorLive" target */,
+				DC9411302F1FAD6600C74C56 /* Exceptions for "TimerActivityWidgetExtension" folder in "TimerActivityWidgetExtensionExtension" target */,
+			);
+			path = TimerActivityWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -190,6 +226,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DC9411172F1FAD6500C74C56 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC94111C2F1FAD6500C74C56 /* SwiftUI.framework in Frameworks */,
+				DC9411332F1FB16F00C74C56 /* SharedModels in Frameworks */,
+				DC94111B2F1FAD6500C74C56 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -214,6 +260,7 @@
 				934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */,
 				9382096D2E39388600F49046 /* WorkoutMirrorLive */,
 				937198312F18D58A009C583D /* WorkoutSessionWidget */,
+				DC94111D2F1FAD6500C74C56 /* TimerActivityWidgetExtension */,
 				934A03C62DD9CD8C0089D27C /* Frameworks */,
 				93CE75362D1699CA006D5A4A /* Products */,
 			);
@@ -226,6 +273,7 @@
 				934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */,
 				9382096C2E39388600F49046 /* WorkoutMirrorLive.app */,
 				9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */,
+				DC94111A2F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -297,6 +345,7 @@
 			);
 			dependencies = (
 				9371983C2F18D58B009C583D /* PBXTargetDependency */,
+				DC94112C2F1FAD6600C74C56 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9382096D2E39388600F49046 /* WorkoutMirrorLive */,
@@ -340,6 +389,29 @@
 			productReference = 93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DC9411192F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC9411312F1FAD6600C74C56 /* Build configuration list for PBXNativeTarget "TimerActivityWidgetExtensionExtension" */;
+			buildPhases = (
+				DC9411162F1FAD6500C74C56 /* Sources */,
+				DC9411172F1FAD6500C74C56 /* Frameworks */,
+				DC9411182F1FAD6500C74C56 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DC94111D2F1FAD6500C74C56 /* TimerActivityWidgetExtension */,
+			);
+			name = TimerActivityWidgetExtensionExtension;
+			packageProductDependencies = (
+				DC9411322F1FB16F00C74C56 /* SharedModels */,
+			);
+			productName = TimerActivityWidgetExtensionExtension;
+			productReference = DC94111A2F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -361,6 +433,9 @@
 					};
 					93CE75342D1699CA006D5A4A = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					DC9411192F1FAD6500C74C56 = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -389,6 +464,7 @@
 				934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */,
 				9382096B2E39388600F49046 /* WorkoutMirrorLive */,
 				9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */,
+				DC9411192F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -424,6 +500,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DC9411182F1FAD6500C74C56 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -455,6 +538,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DC9411162F1FAD6500C74C56 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -462,6 +552,11 @@
 			isa = PBXTargetDependency;
 			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
 			targetProxy = 9371983B2F18D58B009C583D /* PBXContainerItemProxy */;
+		};
+		DC94112C2F1FAD6600C74C56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DC9411192F1FAD6500C74C56 /* TimerActivityWidgetExtensionExtension */;
+			targetProxy = DC94112B2F1FAD6600C74C56 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -474,6 +569,7 @@
 				CODE_SIGN_ENTITLEMENTS = "MyFitnessJournal Watch App/MyFitnessJournal Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
@@ -508,6 +604,7 @@
 				CODE_SIGN_ENTITLEMENTS = "MyFitnessJournal Watch App/MyFitnessJournal Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
@@ -541,7 +638,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
@@ -572,7 +669,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
@@ -604,7 +701,7 @@
 				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
@@ -644,7 +741,7 @@
 				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
@@ -810,6 +907,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"StepTrackerTCA/Preview Content\"";
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
@@ -844,6 +942,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"StepTrackerTCA/Preview Content\"";
+				DEVELOPMENT_TEAM = A5L2HU2966;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
@@ -864,6 +963,70 @@
 				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DC94112E2F1FAD6600C74C56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A5L2HU2966;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimerActivityWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TimerActivityWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.TimerActivityWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DC94112F2F1FAD6600C74C56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A5L2HU2966;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimerActivityWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TimerActivityWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.TimerActivityWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -913,6 +1076,15 @@
 			buildConfigurations = (
 				93CE75442D1699CB006D5A4A /* Debug */,
 				93CE75452D1699CB006D5A4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DC9411312F1FAD6600C74C56 /* Build configuration list for PBXNativeTarget "TimerActivityWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DC94112E2F1FAD6600C74C56 /* Debug */,
+				DC94112F2F1FAD6600C74C56 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1025,6 +1197,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */;
 			productName = LNPopupUI;
+		};
+		DC9411322F1FB16F00C74C56 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

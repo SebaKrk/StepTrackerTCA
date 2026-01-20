@@ -38,11 +38,18 @@ public struct TimerActivityAttributes: ActivityAttributes {
         /// Current heart rate zone
         public var heartRateZone: HeartRateZone
         
-        /// Elapsed time in seconds
+        /// Elapsed time in seconds (snapshot)
         public var elapsedTime: TimeInterval
         
         /// Whether timer is currently running
         public var isRunning: Bool
+        
+        /// Date when the timer start was adjusted (accounting for pauses)
+        /// Crucial for displaying live timer in Live Activity
+        public var adjustedStartDate: Date
+        
+        /// Date when timer was paused (nil if running)
+        public var pauseDate: Date?
         
         // MARK: - Lifecycle
         
@@ -50,12 +57,16 @@ public struct TimerActivityAttributes: ActivityAttributes {
             heartRate: Double,
             heartRateZone: HeartRateZone,
             elapsedTime: TimeInterval,
-            isRunning: Bool
+            isRunning: Bool,
+            adjustedStartDate: Date,
+            pauseDate: Date? = nil
         ) {
             self.heartRate = heartRate
             self.heartRateZone = heartRateZone
             self.elapsedTime = elapsedTime
             self.isRunning = isRunning
+            self.adjustedStartDate = adjustedStartDate
+            self.pauseDate = pauseDate
         }
     }
 }
@@ -79,7 +90,8 @@ extension TimerActivityAttributes.ContentState {
             heartRate: 72,
             heartRateZone: .recovery,
             elapsedTime: 125.5,
-            isRunning: true
+            isRunning: true,
+            adjustedStartDate: Date().addingTimeInterval(-125.5)
         )
     }
     
@@ -89,7 +101,9 @@ extension TimerActivityAttributes.ContentState {
             heartRate: 68,
             heartRateZone: .resting,
             elapsedTime: 256.3,
-            isRunning: false
+            isRunning: false,
+            adjustedStartDate: Date().addingTimeInterval(-256.3),
+            pauseDate: Date()
         )
     }
 }

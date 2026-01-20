@@ -155,15 +155,13 @@ extension LiveActivityClient: DependencyKey {
         startTimer: { timerName, initialState in
             print("⏱️ [Timer Preview] Started: \(timerName)")
             print("   Initial HR: \(Int(initialState.heartRate)) BPM")
-            print("   Zone: \(initialState.heartRateZone.rawValue)")
-            print("   Elapsed: \(Int(initialState.elapsedTime))s")
+            print("   Running: \(initialState.isRunning)")
             return "preview-timer-id"
         },
         updateTimer: { activityId, newState in
             print("🔵 [Timer Preview] Updated: \(activityId)")
-            print("   HR: \(Int(newState.heartRate)) BPM")
-            print("   Elapsed: \(Int(newState.elapsedTime))s")
             print("   Running: \(newState.isRunning)")
+            print("   Adj Start: \(newState.adjustedStartDate)")
         },
         stopTimer: { activityId in
             print("🛑 [Timer Preview] Stopped: \(activityId)")

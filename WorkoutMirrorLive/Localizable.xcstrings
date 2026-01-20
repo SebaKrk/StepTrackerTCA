@@ -2216,6 +2216,9 @@
         }
       }
     },
+    "Play/Pause Timer" : {
+
+    },
     "Please choose an option from the tab bar list." : {
       "localizations" : {
         "pl" : {
@@ -2811,6 +2814,9 @@
         }
       }
     },
+    "Stop Timer" : {
+
+    },
     "Strength" : {
       "localizations" : {
         "pl" : {
@@ -2920,6 +2926,9 @@
           }
         }
       }
+    },
+    "Timer Name" : {
+
     },
     "Title" : {
       "localizations" : {
