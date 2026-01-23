@@ -14,7 +14,7 @@ import SharedModels
 @Reducer
 struct WorkoutActivityFeature {
     
-    @Dependency(\.liveActivityClient) var liveActivityClient
+    @Dependency(\.workoutActivityClient) var workoutActivityClient
     
     // MARK: - State
     
@@ -61,7 +61,7 @@ struct WorkoutActivityFeature {
                 
                 return .run { send in
                     do {
-                        let activityID = try await liveActivityClient.start(workoutName, initialState)
+                        let activityID = try await workoutActivityClient.start(workoutName, initialState)
                         await send(.activityStarted(activityID: activityID))
                     } catch {
                         print("❌ [WorkoutActivityFeature] Start failed: \(error)")
@@ -80,7 +80,7 @@ struct WorkoutActivityFeature {
                 
                 return .run { _ in
                     do {
-                        try await liveActivityClient.update(activityID, newState)
+                        try await workoutActivityClient.update(activityID, newState)
                     } catch {
                         print("❌ [WorkoutActivityFeature] Update failed: \(error)")
                     }
@@ -95,7 +95,7 @@ struct WorkoutActivityFeature {
                 
                 return .run { send in
                     do {
-                        try await liveActivityClient.stop(activityID)
+                        try await workoutActivityClient.stop(activityID)
                         await send(.activityStopped)
                     } catch {
                         print("❌ [WorkoutActivityFeature] Stop failed: \(error)")

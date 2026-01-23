@@ -139,9 +139,9 @@ struct LiveSessionView: View {
                 Text(formatStopwatchTime(store.stopwatch.time))
                     .font(.system(size: 48, design: .rounded))
                     .monospacedDigit()
-                    .foregroundColor(.primary)
+                    .foregroundColor(.orange)
                 
-                // Control buttons - simple text buttons
+                // Control buttons
                 HStack(spacing: 20) {
                     // Reset button (only when stopped and time > 0)
                     if !store.stopwatch.isRunning && store.stopwatch.time > 0 {
@@ -152,6 +152,7 @@ struct LiveSessionView: View {
                                 .font(.body)
                         }
                         .buttonStyle(.bordered)
+                        .tint(.orange)
                     }
                     
                     // Start/Stop button
@@ -161,13 +162,19 @@ struct LiveSessionView: View {
                         Text(store.stopwatch.isRunning ? "Stop" : "Start")
                             .font(.body)
                             .fontWeight(.medium)
+                            .frame(minWidth: 80)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(store.stopwatch.isRunning ? .orange : .green)
+                    .tint(.orange)
                 }
             }
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
+            .overlay {
+                RoundedRectangle(cornerRadius: 2)
+                    .inset(by: -10)
+                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+            }
         }
     }
     

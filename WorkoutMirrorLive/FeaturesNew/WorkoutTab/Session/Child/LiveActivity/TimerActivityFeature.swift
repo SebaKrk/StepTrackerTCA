@@ -16,8 +16,8 @@ struct TimerActivityFeature {
     
     // MARK: - Dependencies
 
-    /// Client for interacting with the Live Activity API.
-    @Dependency(\.liveActivityClient) var liveActivityClient
+    /// Client for interacting with the Timer Live Activity.
+    @Dependency(\.timerActivityClient) var timerActivityClient
     
     // MARK: - State
     
@@ -65,7 +65,7 @@ struct TimerActivityFeature {
                 guard !state.isActive else { return .none }
                 return .run { send in
                     do {
-                        let activityID = try await liveActivityClient.startTimer(timerName, initialState)
+                        let activityID = try await timerActivityClient.start(timerName, initialState)
                         await send(.activityStarted(activityID: activityID))
                     } catch {
                         print("❌ [TimerActivityFeature] Start failed: \(error)")
@@ -83,8 +83,24 @@ struct TimerActivityFeature {
                     guard let activity = activities.first(where: { $0.id == activityID }) else { return }
                     
                     print("👁️ [TimerActivityFeature] Observing updates for \(activityID)")
-                    for await contentUpdate in activity.contentUpdates {
-                        await send(.activityUpdated(contentUpdate.state))
+                    
+                    await withTaskGroup(of: Void.self) { group in
+                        // Observe Content Updates (Play/Pause)
+                        group.addTask {
+                            for await contentUpdate in activity.contentUpdates {
+                                await send(.activityUpdated(contentUpdate.state))
+                            }
+                        }
+                        
+                        // Observe State Updates (Stop/Dismiss)
+                        group.addTask {
+                            for await stateUpdate in activity.activityStateUpdates {
+                                if stateUpdate == .dismissed || stateUpdate == .ended {
+                                    print("🛑 [TimerActivityFeature] Activity ended/dismissed externally")
+                                    await send(.activityStopped)
+                                }
+                            }
+                        }
                     }
                 }
                 
@@ -96,13 +112,13 @@ struct TimerActivityFeature {
             case let .update(newState):
                 guard let activityID = state.activityID else { return .none }
                 return .run { _ in
-                    try await liveActivityClient.updateTimer(activityID, newState)
+                    try await timerActivityClient.update(activityID, newState)
                 }
                 
             case .stop:
                 guard let activityID = state.activityID else { return .none }
                 return .run { send in
-                    try await liveActivityClient.stopTimer(activityID)
+                    try await timerActivityClient.stop(activityID)
                     await send(.activityStopped)
                 }
                 
