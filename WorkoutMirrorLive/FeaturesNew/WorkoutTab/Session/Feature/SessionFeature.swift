@@ -48,7 +48,10 @@ struct SessionFeature {
                         .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title,initialState: initialState)))))
                     )
                 } else if value == .summary {
-                    return .send(.live(.liveActivity(.workout(.stop))))
+                    return .merge(
+                        .send(.live(.liveActivity(.workout(.stop)))),
+                        .send(.live(.liveActivity(.timer(.stop))))
+                    )
                 }
                 return .none
 

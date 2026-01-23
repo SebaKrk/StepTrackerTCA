@@ -38,6 +38,9 @@ public struct TimerActivityAttributes: ActivityAttributes {
         /// Current heart rate zone
         public var heartRateZone: HeartRateZone
         
+        /// Heart rate percentage of max heart rate
+        public var heartRatePercentage: Int
+        
         /// Elapsed time in seconds (snapshot)
         public var elapsedTime: TimeInterval
         
@@ -56,6 +59,7 @@ public struct TimerActivityAttributes: ActivityAttributes {
         public init(
             heartRate: Double,
             heartRateZone: HeartRateZone,
+            heartRatePercentage: Int,
             elapsedTime: TimeInterval,
             isRunning: Bool,
             adjustedStartDate: Date,
@@ -63,6 +67,7 @@ public struct TimerActivityAttributes: ActivityAttributes {
         ) {
             self.heartRate = heartRate
             self.heartRateZone = heartRateZone
+            self.heartRatePercentage = heartRatePercentage
             self.elapsedTime = elapsedTime
             self.isRunning = isRunning
             self.adjustedStartDate = adjustedStartDate
@@ -89,6 +94,7 @@ extension TimerActivityAttributes.ContentState {
         TimerActivityAttributes.ContentState(
             heartRate: 72,
             heartRateZone: .recovery,
+            heartRatePercentage: 55,
             elapsedTime: 125.5,
             isRunning: true,
             adjustedStartDate: Date().addingTimeInterval(-125.5)
@@ -100,6 +106,7 @@ extension TimerActivityAttributes.ContentState {
         TimerActivityAttributes.ContentState(
             heartRate: 68,
             heartRateZone: .resting,
+            heartRatePercentage: 45,
             elapsedTime: 256.3,
             isRunning: false,
             adjustedStartDate: Date().addingTimeInterval(-256.3),

@@ -55,6 +55,7 @@ public struct PlayPauseTimerIntent: LiveActivityIntent {
         let updatedState = TimerActivityAttributes.ContentState(
             heartRate: currentState.heartRate,
             heartRateZone: currentState.heartRateZone,
+            heartRatePercentage: currentState.heartRatePercentage,
             elapsedTime: currentState.elapsedTime,
             isRunning: newIsRunning,
             adjustedStartDate: newAdjustedStartDate,

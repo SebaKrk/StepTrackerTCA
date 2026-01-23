@@ -30,7 +30,7 @@ struct WorkoutMetricsLockScreenView: View {
                     Spacer()
                     heartRateZoneView
                 }
-                heartRatePercentageView
+                heartRatePercentageView(48)
                 activeEnergyView
                 heartRateZoneDescriptionView
             }
@@ -68,9 +68,9 @@ struct WorkoutMetricsLockScreenView: View {
             .foregroundColor(context.state.heartRateZone.color)
     }
     
-    private var heartRatePercentageView: some View {
+    private func heartRatePercentageView(_ fontSize: CGFloat) -> some View {
         Text("\(context.state.heartRatePercentage)%")
-            .font(.system(size: 48, weight: .regular, design: .monospaced))
+            .font(.system(size: fontSize, weight: .regular, design: .monospaced))
             .foregroundStyle(.primary)
         
     }

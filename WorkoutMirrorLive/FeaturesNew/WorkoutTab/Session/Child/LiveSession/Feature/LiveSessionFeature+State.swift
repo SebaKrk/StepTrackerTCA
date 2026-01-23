@@ -61,6 +61,7 @@ extension LiveSessionFeature {
             return TimerActivityAttributes.ContentState(
                 heartRate: workoutMetrics.heartRate,
                 heartRateZone: currentHeartRateZone,
+                heartRatePercentage: currentHeartRatePercentage,
                 elapsedTime: stopwatch.time,
                 isRunning: stopwatch.isRunning,
                 adjustedStartDate: adjustedStart,

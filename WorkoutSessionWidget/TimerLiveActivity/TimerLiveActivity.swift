@@ -24,26 +24,39 @@ struct TimerLiveActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     VStack(alignment: .trailing) {
-                        Text(context.attributes.timerName)
+                        HStack(spacing: 4) {
+                            Image(systemName: "heart.fill")
+                                .foregroundStyle(.red)
+                                .font(.system(size: 12))
+                            Text("\(Int(context.state.heartRate))")
+                                .font(.system(size: 16, weight: .bold))
+                                .monospacedDigit()
+                            Text("BPM")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(.secondary)
+                        }
                         timerTimeView(context: context)
                     }
                 }
             } compactLeading: {
-                Image(systemName: "timer")
-                    .foregroundColor(.orange)
-            } compactTrailing: {
-                HStack {
-                    Spacer()
-                    if context.state.isRunning {
-                        Text(timerInterval: context.state.adjustedStartDate...Date.distantFuture, countsDown: false)
-                            .foregroundStyle(.orange)
-                            .monospacedDigit()
-                    } else {
-                        Text(getElapsedTime(from: context.state.adjustedStartDate, to: context.state.pauseDate ?? Date()))
-                            .foregroundStyle(.orange)
-                            .monospacedDigit()
-                    }
+                HStack(spacing: 2) {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.red)
+                    Text("\(Int(context.state.heartRate))")
+                        .font(.system(size: 13, weight: .semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
                 }
+                .padding(.horizontal, 4)
+            } compactTrailing: {
+                HStack(spacing: 2) {
+                    Image(systemName: "timer")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.orange)
+                    timerTimeView(context: context, fontSize: 13)
+                }
+                .padding(.horizontal, 4)
             } minimal: {
                 Image(systemName: "timer")
                     .foregroundColor(.orange)
@@ -57,10 +70,20 @@ struct TimerLiveActivity: Widget {
     func timerLockScreenView(
         context: ActivityViewContext<TimerActivityAttributes>
     ) -> some View {
-        HStack {
-            timerDynamicIslandBottomView(context: context)
-            Spacer()
-            timerTimeView(context: context)
+        VStack {
+            HStack {
+                heartRateView(context)
+                Spacer()
+                heartRatePercentageView(context: context, fontSize: 32)
+                Spacer()
+                heartRateZoneView(context)
+            }
+            Divider().background(Color.orange)
+            HStack {
+                timerDynamicIslandBottomView(context: context)
+                Spacer()
+                timerTimeView(context: context)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding()
@@ -70,17 +93,18 @@ struct TimerLiveActivity: Widget {
     
     @ViewBuilder
     func timerTimeView(
-        context: ActivityViewContext<TimerActivityAttributes>
+        context: ActivityViewContext<TimerActivityAttributes>,
+        fontSize: CGFloat = 24
     ) -> some View {
         if context.state.isRunning {
             Text(timerInterval: context.state.adjustedStartDate...Date.distantFuture, countsDown: false)
-                .font(.system(size: 24, weight: .semibold))
+                .font(.system(size: fontSize, weight: .semibold))
                 .foregroundStyle(.orange)
                 .monospacedDigit()
                 .multilineTextAlignment(.trailing)
         } else {
             Text(getElapsedTime(from: context.state.adjustedStartDate, to: context.state.pauseDate ?? Date()))
-                .font(.system(size: 24, weight: .semibold))
+                .font(.system(size: fontSize, weight: .semibold))
                 .foregroundStyle(.orange)
                 .monospacedDigit()
                 .multilineTextAlignment(.trailing)
@@ -114,6 +138,40 @@ struct TimerLiveActivity: Widget {
         }
     }
     
+    // MARK: SubView
+    
+    @ViewBuilder
+    private func heartRateView(_ context: ActivityViewContext<TimerActivityAttributes>) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "heart.fill")
+                .foregroundColor(.red)
+                .font(.body)
+                .symbolEffect(.pulse, options: .repeating)
+            
+            Text("\(Int(context.state.heartRate))")
+                .font(.title3.bold())
+                .foregroundStyle(.primary)
+            
+            Text("bpm")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+    
+    @ViewBuilder
+    private func heartRatePercentageView(context: ActivityViewContext<TimerActivityAttributes>, fontSize: CGFloat) -> some View {
+        Text("\(context.state.heartRatePercentage)%")
+            .font(.system(size: fontSize, weight: .regular, design: .monospaced))
+            .foregroundStyle(.primary)
+        
+    }
+    
+    @ViewBuilder
+    private func heartRateZoneView(_ context: ActivityViewContext<TimerActivityAttributes>) -> some View {
+        Text(context.state.heartRateZone.rawValue.capitalized)
+            .font(.body.weight(.semibold))
+            .foregroundColor(context.state.heartRateZone.color)
+    }
 
 
     // MARK: - Helpers
@@ -135,6 +193,7 @@ struct TimerLiveActivity: Widget {
         let interval = endDate.timeIntervalSince(startDate)
         return formatTime(interval)
     }
+    
 }
 
 
