@@ -569,7 +569,7 @@
 				CODE_SIGN_ENTITLEMENTS = "MyFitnessJournal Watch App/MyFitnessJournal Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
@@ -604,7 +604,7 @@
 				CODE_SIGN_ENTITLEMENTS = "MyFitnessJournal Watch App/MyFitnessJournal Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
@@ -638,7 +638,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
@@ -669,7 +669,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
@@ -701,7 +701,7 @@
 				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
@@ -741,7 +741,7 @@
 				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
@@ -907,7 +907,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"StepTrackerTCA/Preview Content\"";
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
@@ -942,7 +942,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"StepTrackerTCA/Preview Content\"";
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
@@ -975,7 +975,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TimerActivityWidgetExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TimerActivityWidgetExtension;
@@ -988,7 +988,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.TimerActivityWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.TimerActivityWidgetExtension.aa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1007,7 +1007,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = A5L2HU2966;
+				DEVELOPMENT_TEAM = 8RH4482R36;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TimerActivityWidgetExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TimerActivityWidgetExtension;
@@ -1020,7 +1020,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.TimerActivityWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.TimerActivityWidgetExtension.aa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

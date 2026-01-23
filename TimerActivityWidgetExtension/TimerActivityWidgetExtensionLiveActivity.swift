@@ -16,16 +16,16 @@ struct TimerActivityWidgetExtensionLiveActivity: Widget {
     
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: TimerActivityAttributes.self) { context in
-            // Lock Screen view
             timerLockScreenView(context: context)
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded Dynamic Island Regions
-                DynamicIslandExpandedRegion(.center) {
-                    timerDynamicIslandCenterView(context: context, foregroundColor: .white)
+                DynamicIslandExpandedRegion(.leading) {
+                    timerDynamicIslandBottomView(context: context)
                 }
-                DynamicIslandExpandedRegion(.bottom) {
-                    timerDynamicIslandBottomView(context: context, foregroundColor: .white)
+                DynamicIslandExpandedRegion(.trailing) {
+                    Text(context.attributes.timerName)
+                        .multilineTextAlignment(.trailing)
+                    timerDynamicIslandView(context: context)
                 }
             } compactLeading: {
                 Image(systemName: "timer")
@@ -34,13 +34,11 @@ struct TimerActivityWidgetExtensionLiveActivity: Widget {
                 if context.state.isRunning {
                     Text(timerInterval: context.state.adjustedStartDate...Date.distantFuture, countsDown: false)
                         .foregroundStyle(.orange)
-                        .monospacedDigit()
-                        .frame(maxWidth: 40)
+//                        .monospacedDigit()
                 } else {
                     Text(getElapsedTime(from: context.state.adjustedStartDate, to: context.state.pauseDate ?? Date()))
                         .foregroundStyle(.orange)
-                        .monospacedDigit()
-                        .frame(maxWidth: 40)
+//                        .monospacedDigit()
                 }
             } minimal: {
                 Image(systemName: "timer")
@@ -49,37 +47,44 @@ struct TimerActivityWidgetExtensionLiveActivity: Widget {
         }
     }
     
+    // MARK: - Lock Screen View
+    
+    @ViewBuilder
+    func timerLockScreenView(
+        context: ActivityViewContext<TimerActivityAttributes>
+    ) -> some View {
+        HStack {
+            timerDynamicIslandBottomView(context: context)
+            timerDynamicIslandView(context: context)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+    }
+    
     // MARK: - Center View
     
     @ViewBuilder
-    func timerDynamicIslandCenterView(
-        context: ActivityViewContext<TimerActivityAttributes>,
-        foregroundColor: Color
+    func timerDynamicIslandView(
+        context: ActivityViewContext<TimerActivityAttributes>
     ) -> some View {
-        VStack {
-            Text(context.attributes.timerName)
-                .bold()
-                .foregroundColor(foregroundColor)
+        HStack {
+            Spacer()
             
-            HStack {
-                if context.state.isRunning {
-                    Text(timerInterval: context.state.adjustedStartDate...Date.distantFuture, countsDown: false)
-                        .font(.system(size: 44, weight: .semibold))
-                        .foregroundStyle(.orange)
-                        .multilineTextAlignment(.center)
-                        .monospacedDigit()
-                } else {
-                    // When paused, show static time accumulated so far
-                    Text(getElapsedTime(from: context.state.adjustedStartDate, to: context.state.pauseDate ?? Date()))
-                        .font(.system(size: 44, weight: .semibold))
-                        .foregroundStyle(.orange)
-                        .multilineTextAlignment(.center)
-                        .monospacedDigit()
-                }
+            if context.state.isRunning {
+                Text(timerInterval: context.state.adjustedStartDate...Date.distantFuture, countsDown: false)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .monospacedDigit()
+                    .multilineTextAlignment(.trailing)
+            } else {
+                Text(getElapsedTime(from: context.state.adjustedStartDate, to: context.state.pauseDate ?? Date()))
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .monospacedDigit()
+                    .multilineTextAlignment(.trailing)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal)
         }
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Bottom View
@@ -87,39 +92,29 @@ struct TimerActivityWidgetExtensionLiveActivity: Widget {
     @ViewBuilder
     func timerDynamicIslandBottomView(
         context: ActivityViewContext<TimerActivityAttributes>,
-        foregroundColor: Color
     ) -> some View {
-        HStack(spacing: 20) {
-            // Play/Pause button
+        HStack(spacing: 8) {
             Button(intent: PlayPauseTimerIntent(timerName: context.attributes.timerName)) {
                 Image(systemName: context.state.isRunning ? "pause.fill" : "play.fill")
-                    .bold()
-                    .foregroundColor(foregroundColor)
+                    .foregroundStyle(.orange)
+                    .padding()
+                    .background(Color.orange.opacity(0.1))
+                    .clipShape(Circle())
             }
+            .buttonStyle(.plain)
             
-            // Stop button
             Button(intent: StopTimerIntent(timerName: context.attributes.timerName)) {
                 Image(systemName: "stop.fill")
-                    .bold()
-                    .foregroundColor(foregroundColor)
+                    .foregroundStyle(.orange)
+                    .padding()
+                    .background(Color.orange.opacity(0.1))
+                    .clipShape(Circle())
             }
+            .buttonStyle(.plain)
         }
-        .padding(.horizontal)
     }
     
-    // MARK: - Lock Screen View
-    
-    @ViewBuilder
-    func timerLockScreenView(
-        context: ActivityViewContext<TimerActivityAttributes>
-    ) -> some View {
-        VStack {
-            timerDynamicIslandCenterView(context: context, foregroundColor: .black)
-            timerDynamicIslandBottomView(context: context, foregroundColor: .black)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-    }
+
     
     // MARK: - Helpers
     
@@ -127,9 +122,16 @@ struct TimerActivityWidgetExtensionLiveActivity: Widget {
         let date = Date(timeIntervalSince1970: seconds)
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = seconds >= 3600 ? "HH:mm:ss" : "mm:ss"
+        formatter.dateFormat = seconds >= 3600 ? "mm:ss" : "mm:ss"// "HH:mm:ss" : "HH:mm:ss" //"mm:ss"
         return formatter.string(from: date)
     }
+    
+//    func formatTime(_ seconds: TimeInterval) -> String {
+//        let hours = Int(seconds) / 3600
+//        let minutes = Int(seconds) / 60 % 60
+//        let secs = Int(seconds) % 60
+//        return String(format: "%02d:%02d:%02d", hours, minutes, secs) // ✅ Zawsze HH:MM:SS
+//    }
     
     func getElapsedTime(from startDate: Date, to endDate: Date) -> String {
         let interval = endDate.timeIntervalSince(startDate)
@@ -205,7 +207,7 @@ public struct PlayPauseTimerIntent: LiveActivityIntent {
     }
 }
 
-@available(iOS 16.0, *)
+
 public struct StopTimerIntent: LiveActivityIntent {
     public static var title: LocalizedStringResource = "Stop Timer"
     
