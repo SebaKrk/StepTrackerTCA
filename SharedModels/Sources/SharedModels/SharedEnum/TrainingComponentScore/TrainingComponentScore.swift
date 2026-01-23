@@ -71,6 +71,12 @@ public struct TrainingComponentScore: Sendable, Equatable {
     /// Represents the most favorable score this component can contribute (typically positive).
     public let maxScore: Int
     
+    /// Timestamp when this measurement was taken.
+    ///
+    /// Provides transparency about data freshness. Used to display relative time ("Dziś o 8:07")
+    /// in the UI. May be nil for compatibility with existing code.
+    public let timestamp: Date?
+    
     /// Creates a new TrainingComponentScore.
     ///
     /// - Parameters:
@@ -80,13 +86,15 @@ public struct TrainingComponentScore: Sendable, Equatable {
     ///   - unit: Unit of measurement string
     ///   - minScore: Minimum possible score for this component
     ///   - maxScore: Maximum possible score for this component
+    ///   - timestamp: Optional timestamp when measurement was taken
     public init(
         score: Int,
         currentValue: Double,
         baselineValue: Double?,
         unit: String,
         minScore: Int,
-        maxScore: Int
+        maxScore: Int,
+        timestamp: Date? = nil
     ) {
         self.score = score
         self.currentValue = currentValue
@@ -94,6 +102,7 @@ public struct TrainingComponentScore: Sendable, Equatable {
         self.unit = unit
         self.minScore = minScore
         self.maxScore = maxScore
+        self.timestamp = timestamp
     }
 }
 

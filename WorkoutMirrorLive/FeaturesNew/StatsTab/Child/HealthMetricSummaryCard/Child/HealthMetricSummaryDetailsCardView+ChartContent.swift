@@ -46,7 +46,7 @@ extension HealthMetricSummaryDetailsCardView {
     
     // Tworzy poziomą linię dla średniej tygodniowej z adnotacją
     func createAverageRuleMark(averageValue: Double) -> some ChartContent {
-        RuleMark(y: .value("Średnia", averageValue))
+        RuleMark(y: .value("Average", averageValue))
             .foregroundStyle(Color.primary.opacity(0.8))
             .lineStyle(StrokeStyle(lineWidth: 2, dash: [3, 3]))
             .annotation(position: .top, alignment: .leading) {

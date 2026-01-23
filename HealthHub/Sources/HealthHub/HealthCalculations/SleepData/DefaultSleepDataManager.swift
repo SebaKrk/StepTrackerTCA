@@ -279,7 +279,7 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
                 let nightSleepHours = nightSleepSeconds / 3600.0
                 
                 if nightSleepHours > 0 {
-                    results.append(HealthKitData(date: windowEnd, value: nightSleepHours))
+                    results.append(HealthKitData(date: windowStart, value: nightSleepHours))
                 } else {
                     results.append(nil)
                 }

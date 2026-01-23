@@ -52,7 +52,8 @@ extension DefaultTrainingReadinessCalculator {
             baselineValue: baselineRHR?.value,
             unit: "bpm",
             minScore: -15,
-            maxScore: 15
+            maxScore: 15,
+            timestamp: currentRHR.date
         )
     }
     

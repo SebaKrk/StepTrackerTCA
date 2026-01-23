@@ -2408,6 +2408,16 @@
         }
       }
     },
+    "Reset" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyzeruj"
+          }
+        }
+      }
+    },
     "Rounds" : {
       "localizations" : {
         "pl" : {
@@ -2690,9 +2700,6 @@
         }
       }
     },
-    "Średnia" : {
-
-    },
     "Start" : {
       "localizations" : {
         "pl" : {
@@ -2790,6 +2797,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kroki"
+          }
+        }
+      }
+    },
+    "Stop" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
           }
         }
       }

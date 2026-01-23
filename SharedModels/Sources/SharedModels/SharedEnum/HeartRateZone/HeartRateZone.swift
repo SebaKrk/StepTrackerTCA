@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable {
+public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable, Codable {
     
     case resting    // 0-50% HR max
     case recovery   // 50-60% HR max
@@ -22,7 +22,7 @@ public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable {
     public var title: String {
         switch self {
         case .resting: return String(localized: "Resting", bundle: .module)
-        case .recovery: return String(localized: "Recovery", bundle: .module)
+        case .recovery: return String(localized: "Light Effort", bundle: .module)
         case .fatBurning: return String(localized: "Fat Burning", bundle: .module)
         case .aerobic: return String(localized: "Aerobic", bundle: .module)
         case .threshold: return String(localized: "Threshold", bundle: .module)
@@ -67,8 +67,9 @@ public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable {
             
         case .recovery:
             return String(localized: """
-            The recovery zone is the lightest level of physical activity, perfect for rest days or active recovery after intense training sessions. In this zone, your body effectively removes metabolic waste products, improves blood circulation, and supports muscle repair processes. By staying in this zone, you enhance flexibility, accelerate recovery, and prepare your body for future training challenges without additional physiological stress.
+            The recovery zone is the lightest level of physical activity, perfect for rest days or active recovery after intense training sessions. In this zone, your body effectively removes metabolic waste products, improves blood circulation, and supports muscle repair processes. By staying in this zone, you enhance flexibility, accelerate recovery, and prepare your body for future training challenges without additional physiological stress."
             """, bundle: .module)
+            
             
         case .fatBurning:
             return String(localized: """

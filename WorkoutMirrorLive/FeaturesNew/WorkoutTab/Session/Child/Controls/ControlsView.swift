@@ -20,6 +20,7 @@ struct ControlsView: View {
     
     var body: some View {
         VStack(alignment: .center) {
+            Spacer()
             if store.isLocked {
                 Spacer()
                 timeLineView
@@ -40,7 +41,6 @@ struct ControlsView: View {
                     Spacer()
                 }
             }
-            Spacer()
             if store.isExpanded {
                 endWorkoutButton
                     .padding(.horizontal,12)
@@ -85,12 +85,13 @@ struct ControlsView: View {
     private var mainControlButton: some View {
         return sessionControlButton(
             systemImage: store.sessionState == .running ? "pause" : "play",
-            frame: 100
+            frame: 85
         ) {
             send(.mainControlButtonTapped)
         }
         .opacity(store.isLocked ? 0.7 : 1)
         .disabled(store.isLocked)
+        .padding(.bottom, store.isExpanded ? 8 : 24)
     }
     
     private var expandButton: some View {

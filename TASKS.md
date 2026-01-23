@@ -508,5 +508,19 @@
 ### IOS-00059 HealthMetricSummaryDetails
     A: Add new HealthMetricSummaryDetailsCardFeature
     B: UI
-  
     
+### IOS-00060 Bugs&Improvements
+    A: StatsTab
+    - HRV discrepancy 
+    - Formatting
+    - Dates
+    - Activity discrepancy
+
+### IOS-00061 LiveActivity
+    A: New target - WorkoutSessionWidget
+    B: WorkoutSessionLiveActivity
+    C: Refactor
+    D: Coordinator
+    - create Coordinator for LiveActivity in Workout session 
+    - add timer to  Workout session 
+    E: TimerWidget

@@ -38,6 +38,9 @@ extension SessionFeature {
             ///
             case heartRateZoneButtonTapped
             
+            /// Timer button tapped in toolbar
+            case timerButtonTapped
+            
         }
         
         // MARK: - Destination

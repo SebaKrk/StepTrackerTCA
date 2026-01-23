@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import SharedModels
 
 @Reducer
@@ -16,7 +17,8 @@ struct LiveSessionFeature {
     
     @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
-     
+    @Dependency(\.continuousClock) var clock
+    
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -31,11 +33,23 @@ struct LiveSessionFeature {
                 
             case let .workoutMetrics(data):
                 state.workoutMetrics = data
+                // Delegate Live Activity update to child reducer
+                let contentState = WorkoutSessionActivityAttributes.ContentState(
+                    heartRate: data.heartRate,
+                    heartRateZone: state.currentHeartRateZone,
+                    heartRatePercentage: state.currentHeartRatePercentage,
+                    activeEnergy: data.activeEnergy,
+                    maxHeartRate: state.sessionMaxHeartRate,
+                    averageHeartRate: state.sessionAverageHeartRate
+                )
+                
                 return .merge(
                     .send(.calculateHeartRateZone(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateHeartRatePercentage(Int(data.heartRate), state.maxHeartRate)),
-                    .send(.calculateSessionHeartRateStats(Int(data.heartRate)))
+                    .send(.calculateSessionHeartRateStats(Int(data.heartRate))),
+                    .send(.liveActivity(.workout(.update(contentState))))
                 )
+                
             case let .calculateSessionHeartRateStats(heartRate):
                 return .run { send in
                     let (average, max) = await calculation.processHeartRate(heartRate)
@@ -63,91 +77,78 @@ struct LiveSessionFeature {
                 }
                 
                 // MARK: - View Action
+                
             case .view(.viewDidAppear):
                 return .run { send in
                     await send(.startWorkoutMetricsStream)
                 }
+                
+            case let .view(.stopwatch(action)):
+                return .send(.stopwatch(.view(action)))
+                
+                // MARK: - Stopwatch Delegate
+                
+            case .stopwatch(.delegate(.didToggleVisibility)):
+                if state.stopwatch.isVisible {
+                    // Guard: don't start if already active
+                    guard !state.liveActivity.timer.isActive else { return .none }
+                    
+                    // Showing stopwatch → start Timer LA (Coordinator will stop Workout LA)
+                    return .send(.liveActivity(.timer(.start(timerName: "Stoper", initialState: state.timerContentState))))
+                } else {
+                    // Hiding stopwatch → stop Timer LA and restart Workout LA
+                    return .merge(
+                        .send(.liveActivity(.timer(.stop))),
+                        .send(.liveActivity(.workout(.start(workoutName: "Workout", initialState: state.workoutContentState))))
+                    )
+                }
+                
+            case .stopwatch(.delegate(.didStart)):
+                print("🏁 [LiveSessionFeature] Stopwatch started -> Updating LA")
+                return .send(.liveActivity(.timer(.update(state.timerContentState))))
+                
+            case .stopwatch(.delegate(.didStop)):
+                print("🛑 [LiveSessionFeature] Stopwatch stopped -> Updating LA")
+                return .send(.liveActivity(.timer(.update(state.timerContentState))))
+                
+            case .stopwatch(.delegate(.didReset)):
+                print("🔄 [LiveSessionFeature] Stopwatch reset -> Updating LA")
+                return .send(.liveActivity(.timer(.update(state.timerContentState))))
+                
+            case let .liveActivity(.timer(.activityUpdated(newState))):
+                // Prevent redundant updates that cause feedback loops or HK errors
+                if newState.isRunning && !state.stopwatch.isRunning {
+                    print("🔄 [LiveSessionFeature] Syncing from Live Activity: START")
+                    return .send(.stopwatch(.view(.start)))
+                } else if !newState.isRunning && state.stopwatch.isRunning {
+                    print("🔄 [LiveSessionFeature] Syncing from Live Activity: STOP")
+                    return .send(.stopwatch(.view(.stop)))
+                }
+                return .none
+                
+            case .liveActivity(.timer(.activityStopped)):
+                print("🛑 [LiveSessionFeature] Live Activity killed -> Stopping and Hiding stopwatch")
+                // If the activity was killed (swiped or Stop button), ensure stopwatch stops in UI AND hides
+                return .merge(
+                    .send(.stopwatch(.view(.stop))),
+                    .send(.stopwatch(.view(.setVisibility(false))))
+                )
+                
+            case .liveActivity:
+                return .none
+                
+            case .stopwatch:
+                return .none
             }
         }
-    }
-    
-}
-
-/// Implementation of `LiveSessionFeature` action
-extension LiveSessionFeature {
-    
-    @CasePathable
-    enum Action: ViewAction {
-        
-        // MARK: - Actions
-
-        /// Updates the current workout metrics with new data.
-        /// Triggered whenever a new `WorkoutMetrics` is received from the workout stream.
-        case workoutMetrics(WorkoutMetrics)
-        
-        /// Sets the maximum heart rate (HR max) for the current session.
-        /// Usually calculated at the beginning of the session using age and sex.
-        case setupMaxHeartRate(Int)
-        
-        /// Starts streaming workout metrics (heart rate, active energy, etc.) from the session client.
-        case startWorkoutMetricsStream
-        
-        /// Calculates the current heart rate zone based on the latest heart rate and HR max.
-        case calculateHeartRateZone(Int, Int)
-        
-        /// Calculates the user's current heart rate as a percentage of the HR max.
-        case calculateHeartRatePercentage(Int, Int)
-        
-        /// Updates the session's average and maximum heart rate with the provided values.
-        case updateSessionHeartRateStats(average: Int, max: Int)
-
-        /// Calculates session-level heart rate statistics based on a new heart rate reading.
-        case calculateSessionHeartRateStats(Int)
-        
-        // MARK: - View Actions
-        
-        case view(View)
-        
-        enum View {
-                    
-            /// Action triggered when the view appears on the screen.
-            case viewDidAppear
-            
+        Scope(state: \.liveActivity, action: \.liveActivity) {
+            LiveActivityFeature()
+        }
+        Scope(state: \.stopwatch, action: \.stopwatch) {
+            StopwatchFeature()
         }
     }
-}
-
-/// Implementation of `LiveSessionFeature` state
-extension LiveSessionFeature {
-    
-    @ObservableState
-    struct State {
-        
-        // MARK: - Properties
-        
-        /// The current metrics of the workout, such as heart rate and active energy burned.
-        var workoutMetrics: WorkoutMetrics = WorkoutMetrics(
-            averageHeartRate: 0,
-            heartRate: 0,
-            activeEnergy: 0
-        )
-        
-        /// The currently calculated heart rate zone for the user, based on HR max and current HR.
-        var currentHeartRateZone: HeartRateZone = .resting
-
-        /// The user's current heart rate as a percentage of the maximum heart rate.
-        var currentHeartRatePercentage: Int = 0
-
-        /// The average heart rate calculated across the current session.
-        var sessionAverageHeartRate: Int = 0
-
-        /// The maximum heart rate recorded so far in the current session.
-        var sessionMaxHeartRate: Int = 0
-
-        /// The maximum heart rate (HR max) calculated at the beginning of the session.
-        /// Provided by `SessionFeature`, which retrieves the user’s age and biological sex
-        /// from `personCalculatorClient` and applies the appropriate calculation strategy.
-        var maxHeartRate: Int = 0
-    }
     
 }
+
+
