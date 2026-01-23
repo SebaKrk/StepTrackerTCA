@@ -771,6 +771,9 @@
         }
       }
     },
+    "Play/Pause Timer" : {
+
+    },
     "Poor" : {
       "localizations" : {
         "pl" : {
@@ -941,6 +944,9 @@
         }
       }
     },
+    "Stop Timer" : {
+
+    },
     "Strength" : {
       "localizations" : {
         "pl" : {
@@ -1040,6 +1046,9 @@
           }
         }
       }
+    },
+    "Timer Name" : {
+
     },
     "Typical heart rate recovery within expected range." : {
       "localizations" : {

@@ -13,5 +13,6 @@ struct WorkoutSessionWidgetBundle: WidgetBundle {
     var body: some Widget {
         WorkoutSessionWidget()
         WorkoutSessionLiveActivity()
+        TimerLiveActivity()
     }
 }

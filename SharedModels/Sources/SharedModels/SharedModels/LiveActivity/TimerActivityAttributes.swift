@@ -38,24 +38,40 @@ public struct TimerActivityAttributes: ActivityAttributes {
         /// Current heart rate zone
         public var heartRateZone: HeartRateZone
         
-        /// Elapsed time in seconds
+        /// Heart rate percentage of max heart rate
+        public var heartRatePercentage: Int
+        
+        /// Elapsed time in seconds (snapshot)
         public var elapsedTime: TimeInterval
         
         /// Whether timer is currently running
         public var isRunning: Bool
+        
+        /// Date when the timer start was adjusted (accounting for pauses)
+        /// Crucial for displaying live timer in Live Activity
+        public var adjustedStartDate: Date
+        
+        /// Date when timer was paused (nil if running)
+        public var pauseDate: Date?
         
         // MARK: - Lifecycle
         
         public init(
             heartRate: Double,
             heartRateZone: HeartRateZone,
+            heartRatePercentage: Int,
             elapsedTime: TimeInterval,
-            isRunning: Bool
+            isRunning: Bool,
+            adjustedStartDate: Date,
+            pauseDate: Date? = nil
         ) {
             self.heartRate = heartRate
             self.heartRateZone = heartRateZone
+            self.heartRatePercentage = heartRatePercentage
             self.elapsedTime = elapsedTime
             self.isRunning = isRunning
+            self.adjustedStartDate = adjustedStartDate
+            self.pauseDate = pauseDate
         }
     }
 }
@@ -78,8 +94,10 @@ extension TimerActivityAttributes.ContentState {
         TimerActivityAttributes.ContentState(
             heartRate: 72,
             heartRateZone: .recovery,
+            heartRatePercentage: 55,
             elapsedTime: 125.5,
-            isRunning: true
+            isRunning: true,
+            adjustedStartDate: Date().addingTimeInterval(-125.5)
         )
     }
     
@@ -88,8 +106,11 @@ extension TimerActivityAttributes.ContentState {
         TimerActivityAttributes.ContentState(
             heartRate: 68,
             heartRateZone: .resting,
+            heartRatePercentage: 45,
             elapsedTime: 256.3,
-            isRunning: false
+            isRunning: false,
+            adjustedStartDate: Date().addingTimeInterval(-256.3),
+            pauseDate: Date()
         )
     }
 }

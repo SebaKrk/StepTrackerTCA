@@ -44,6 +44,9 @@ struct StopwatchFeature {
             /// Toggles the visibility of the stopwatch.
             case toggleVisibility
             
+            /// Sets the visibility explicitly.
+            case setVisibility(Bool)
+            
             /// Starts the stopwatch timer.
             case start
             
@@ -76,6 +79,9 @@ struct StopwatchFeature {
             
             /// Notifies parent that the stopwatch has stopped.
             case didStop
+            
+            /// Notifies parent that the stopwatch has been sorted.
+            case didReset
         }
     }
     
@@ -89,6 +95,12 @@ struct StopwatchFeature {
                 
             case .view(.toggleVisibility):
                 state.isVisible.toggle()
+                return .send(.delegate(.didToggleVisibility(unexpected: false)))
+                
+            case let .view(.setVisibility(isVisible)):
+                // Change only if difference exists
+                guard state.isVisible != isVisible else { return .none }
+                state.isVisible = isVisible
                 return .send(.delegate(.didToggleVisibility(unexpected: false)))
                 
             case .view(.start):
@@ -119,7 +131,7 @@ struct StopwatchFeature {
                 
             case .view(.reset):
                 state.time = 0
-                return .none
+                return .send(.delegate(.didReset))
                 
             // MARK: - Internal Actions
                 
