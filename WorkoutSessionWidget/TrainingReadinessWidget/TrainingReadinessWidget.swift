@@ -148,8 +148,9 @@ struct TrainingReadinessWidgetEntryView : View {
                     SectorMark(
                         angle: .value("Value", slice.value),
                         innerRadius: .ratio(0.55),
-                        angularInset: 0
+                        angularInset: 0.1
                     )
+                    .cornerRadius(2)
                     .foregroundStyle(slice.color)
                 }
             }
@@ -157,7 +158,7 @@ struct TrainingReadinessWidgetEntryView : View {
             
             // Foreground
             Chart {
-                ForEach(generateForegroundSlices(for: score)) { slice in
+                ForEach(generateForegroundTrack()) { slice in
                     SectorMark(
                         angle: .value("Value", slice.value),
                         innerRadius: .ratio(0.62),
@@ -243,6 +244,13 @@ struct TrainingReadinessWidgetEntryView : View {
         return slices
     }
     
+    func generateForegroundTrack() -> [ChartSlice] {
+        segments.map { segment in
+            let width = Double(segment.range.upperBound - segment.range.lowerBound)
+            return ChartSlice(value: width, color: segment.color)
+        }
+    }
+    
 }
 
 struct TrainingReadinessWidget: Widget {
@@ -264,7 +272,7 @@ struct TrainingReadinessWidget: Widget {
 extension TrainingReadinessResult {
     static var preview: TrainingReadinessResult {
         TrainingReadinessResult(
-            overallScore: 97,
+            overallScore: 11,
             components: TrainingReadinessComponents(
                 restingHeartRate: TrainingComponentScore(
                     score: 10,
