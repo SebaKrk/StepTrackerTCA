@@ -23,17 +23,27 @@ struct TimerActivityFeature {
     
     @ObservableState
     struct State: Equatable {
+        /// The unique identifier of the active Live Activity.
         var activityID: String?
+        
+        /// The current local state of the timer (running, paused, stopped).
         var timerState: TimerState = .stopped
+        
+        /// The elapsed time of the timer in seconds.
         var elapsedTime: TimeInterval = 0
         
+        /// Indicates if a Live Activity is currently active.
         var isActive: Bool {
             activityID != nil
         }
         
+        /// Represents the operational state of the timer.
         enum TimerState: Equatable {
+            /// The timer is currently counting up.
             case running
+            /// The timer is halted but active.
             case paused
+            /// The timer is fully stopped and inactive.
             case stopped
         }
     }
@@ -41,17 +51,31 @@ struct TimerActivityFeature {
     // MARK: - Actions
     
     enum Action: Equatable {
+        /// Starts the Timer Live Activity with the given name and initial state.
         case start(timerName: String, initialState: TimerActivityAttributes.ContentState)
+        
+        /// Updates the existing Live Activity with new content state.
         case update(TimerActivityAttributes.ContentState)
+        
+        /// Stops and ends the current Live Activity.
         case stop
         
+        /// Pauses the local timer state.
         case pauseTimer
+        
+        /// Resumes the local timer state.
         case resumeTimer
+        
+        /// Resets the local timer elapsed time.
         case resetTimer
         
+        /// Internal action sent when the Live Activity successfully starts.
         case activityStarted(activityID: String)
+        
+        /// Internal action sent when the Live Activity ends or is dismissed.
         case activityStopped
-        /// Internal action triggered when Activity is updated externally (e.g. from Intent)
+        
+        /// Internal action triggered when the Activity is updated externally (e.g., from an App Intent).
         case activityUpdated(TimerActivityAttributes.ContentState)
     }
     
@@ -77,7 +101,6 @@ struct TimerActivityFeature {
                 state.timerState = .running
                 print("✅ [TimerActivityFeature] Started: \(activityID)")
                 
-                // Start observing Activity updates from Intents
                 return .run { send in
                     let activities = Activity<TimerActivityAttributes>.activities
                     guard let activity = activities.first(where: { $0.id == activityID }) else { return }
@@ -85,14 +108,12 @@ struct TimerActivityFeature {
                     print("👁️ [TimerActivityFeature] Observing updates for \(activityID)")
                     
                     await withTaskGroup(of: Void.self) { group in
-                        // Observe Content Updates (Play/Pause)
                         group.addTask {
                             for await contentUpdate in activity.contentUpdates {
                                 await send(.activityUpdated(contentUpdate.state))
                             }
                         }
                         
-                        // Observe State Updates (Stop/Dismiss)
                         group.addTask {
                             for await stateUpdate in activity.activityStateUpdates {
                                 if stateUpdate == .dismissed || stateUpdate == .ended {
@@ -112,13 +133,21 @@ struct TimerActivityFeature {
             case let .update(newState):
                 guard let activityID = state.activityID else { return .none }
                 return .run { _ in
-                    try await timerActivityClient.update(activityID, newState)
+                    do {
+                        try await timerActivityClient.update(activityID, newState)
+                    } catch {
+                        print("⚠️ [TimerActivityFeature] Update failed: \(error)")
+                    }
                 }
                 
             case .stop:
                 guard let activityID = state.activityID else { return .none }
                 return .run { send in
-                    try await timerActivityClient.stop(activityID)
+                    do {
+                        try await timerActivityClient.stop(activityID)
+                    } catch {
+                        print("⚠️ [TimerActivityFeature] Stop failed: \(error)")
+                    }
                     await send(.activityStopped)
                 }
                 
@@ -130,12 +159,10 @@ struct TimerActivityFeature {
                 
             case .pauseTimer:
                 state.timerState = .paused
-                // Logic to update Live Activity via Client if needed from App UI
                 return .none
                 
             case .resumeTimer:
                 state.timerState = .running
-                // Logic to update via Client
                 return .none
                 
             case .resetTimer:

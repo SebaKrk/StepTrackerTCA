@@ -18,15 +18,18 @@ struct LiveActivityFeature {
     
     @ObservableState
     struct State: Equatable {
+        /// State for the Workout Live Activity.
         var workout = WorkoutActivityFeature.State()
+        
+        /// State for the Timer Live Activity.
         var timer = TimerActivityFeature.State()
         
-        /// Convenience: any LA active?
+        /// Indicates if any Live Activity (Workout or Timer) is currently active.
         var hasActiveActivity: Bool {
             workout.isActive || timer.isActive
         }
         
-        /// Convenience: which LA is active?
+        /// Returns the type of the currently active Live Activity, or nil if none.
         var activeType: LiveActivityType? {
             if workout.isActive { return .workout }
             if timer.isActive { return .timer }
@@ -37,7 +40,10 @@ struct LiveActivityFeature {
     // MARK: - Actions
     
     enum Action: Equatable {
+        /// Actions delegated to the Workout Live Activity feature.
         case workout(WorkoutActivityFeature.Action)
+        
+        /// Actions delegated to the Timer Live Activity feature.
         case timer(TimerActivityFeature.Action)
     }
     
@@ -50,8 +56,7 @@ struct LiveActivityFeature {
             // MARK: - Coordination Logic
                 
             case .workout(.start):
-                // Stop timer if active before starting workout
-                // Scope will automatically forward this action to WorkoutActivityFeature
+                // Ensure mutual exclusion: Stop timer if active
                 if state.timer.isActive {
                     print("🔄 [LiveActivityFeature] Stopping timer to start workout")
                     return .send(.timer(.stop))
@@ -59,8 +64,7 @@ struct LiveActivityFeature {
                 return .none
                 
             case .timer(.start):
-                // Stop workout if active before starting timer
-                // Scope will automatically forward this action to TimerActivityFeature
+                // Ensure mutual exclusion: Stop workout if active
                 if state.workout.isActive {
                     print("🔄 [LiveActivityFeature] Stopping workout to start timer")
                     return .send(.workout(.stop))
