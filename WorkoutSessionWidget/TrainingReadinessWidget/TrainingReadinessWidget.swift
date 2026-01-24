@@ -11,20 +11,51 @@ import SharedModels
 import Charts
 
 struct TrainingReadinessProvider: TimelineProvider {
+    
+    private let userDefaults = UserDefaults(suiteName: "group.com.ss.WorkoutMirrorLive")
+    private let key = "widget_readiness_data"
+    
     func placeholder(in context: Context) -> TrainingReadinessEntry {
         TrainingReadinessEntry(date: Date(), result: .preview)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (TrainingReadinessEntry) -> ()) {
-        let entry = TrainingReadinessEntry(date: Date(), result: .preview)
-        completion(entry)
+        let result = loadReadinessResult() ?? .preview
+        completion(TrainingReadinessEntry(date: Date(), result: result))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<TrainingReadinessEntry>) -> ()) {
-        // Hardcoded timeline for now
-        let entry = TrainingReadinessEntry(date: Date(), result: .preview)
+        let result = loadReadinessResult() ?? .preview
+        let entry = TrainingReadinessEntry(date: Date(), result: result)
         let timeline = Timeline(entries: [entry], policy: .never)
         completion(timeline)
+    }
+    
+    private func loadReadinessResult() -> TrainingReadinessResult? {
+        guard let data = userDefaults?.data(forKey: key),
+              let widgetData = try? JSONDecoder().decode(WidgetReadinessData.self, from: data) else {
+            return nil
+        }
+        
+        // Convert DTO to TrainingReadinessResult
+        return TrainingReadinessResult(
+            overallScore: widgetData.overallScore,
+            components: TrainingReadinessComponents(
+                restingHeartRate: widgetData.rhrValue.map {
+                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "bpm", minScore: -15, maxScore: 15)
+                },
+                heartRateVariability: widgetData.hrvValue.map {
+                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "ms", minScore: -15, maxScore: 15)
+                },
+                sleepQuality: widgetData.sleepValue.map {
+                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "hours", minScore: -10, maxScore: 15)
+                },
+                previousDayLoad: widgetData.activityValue.map {
+                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "kcal", minScore: -10, maxScore: 5)
+                }
+            ),
+            isReliable: true
+        )
     }
 }
 
@@ -148,8 +179,9 @@ struct TrainingReadinessWidgetEntryView : View {
                     SectorMark(
                         angle: .value("Value", slice.value),
                         innerRadius: .ratio(0.55),
-                        angularInset: 0
+                        angularInset: 0.1
                     )
+                    .cornerRadius(2)
                     .foregroundStyle(slice.color)
                 }
             }
@@ -157,7 +189,7 @@ struct TrainingReadinessWidgetEntryView : View {
             
             // Foreground
             Chart {
-                ForEach(generateForegroundSlices(for: score)) { slice in
+                ForEach(generateForegroundTrack()) { slice in
                     SectorMark(
                         angle: .value("Value", slice.value),
                         innerRadius: .ratio(0.62),
@@ -243,6 +275,13 @@ struct TrainingReadinessWidgetEntryView : View {
         return slices
     }
     
+    func generateForegroundTrack() -> [ChartSlice] {
+        segments.map { segment in
+            let width = Double(segment.range.upperBound - segment.range.lowerBound)
+            return ChartSlice(value: width, color: segment.color)
+        }
+    }
+    
 }
 
 struct TrainingReadinessWidget: Widget {
@@ -264,7 +303,7 @@ struct TrainingReadinessWidget: Widget {
 extension TrainingReadinessResult {
     static var preview: TrainingReadinessResult {
         TrainingReadinessResult(
-            overallScore: 97,
+            overallScore: 11,
             components: TrainingReadinessComponents(
                 restingHeartRate: TrainingComponentScore(
                     score: 10,
