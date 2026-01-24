@@ -43,12 +43,18 @@ struct LiveSessionFeature {
                     averageHeartRate: state.sessionAverageHeartRate
                 )
                 
-                return .merge(
+                var effects: [Effect<Action>] = [
                     .send(.calculateHeartRateZone(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateHeartRatePercentage(Int(data.heartRate), state.maxHeartRate)),
                     .send(.calculateSessionHeartRateStats(Int(data.heartRate))),
                     .send(.liveActivity(.workout(.update(contentState))))
-                )
+                ]
+                
+                if state.liveActivity.timer.isActive {
+                    effects.append(.send(.liveActivity(.timer(.update(state.timerContentState)))))
+                }
+                
+                return .merge(effects)
                 
             case let .calculateSessionHeartRateStats(heartRate):
                 return .run { send in
