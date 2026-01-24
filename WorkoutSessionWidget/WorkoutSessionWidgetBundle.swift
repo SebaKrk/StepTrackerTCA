@@ -14,5 +14,6 @@ struct WorkoutSessionWidgetBundle: WidgetBundle {
         WorkoutSessionWidget()
         WorkoutSessionLiveActivity()
         TimerLiveActivity()
+        TrainingReadinessWidget()
     }
 }
