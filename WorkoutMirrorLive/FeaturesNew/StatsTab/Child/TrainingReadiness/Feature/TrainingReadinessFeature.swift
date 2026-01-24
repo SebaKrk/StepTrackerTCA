@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import HealthHub
 
 @Reducer
 struct TrainingReadinessFeature {
@@ -15,6 +16,7 @@ struct TrainingReadinessFeature {
     // MARK: - Dependency
     
     @Dependency(\.trainingReadinessClient) var trainingReadinessClient
+    @Dependency(\.widgetDataClient) var widgetDataClient
     @Dependency(\.continuousClock) var clock
     
     // MARK: - Reducer
@@ -36,6 +38,19 @@ struct TrainingReadinessFeature {
             case let .internal(.readinessCalculated(result)):
                 state.readinessResult = result
                 return .run {  [tier = state.subscriptionTier] send in
+                    // Save for widget
+                    let widgetData = WidgetReadinessData(
+                        overallScore: result.overallScore,
+                        readinessLevelRaw: result.readinessLevel.title,
+                        rhrValue: result.components.restingHeartRate?.currentValue,
+                        hrvValue: result.components.heartRateVariability?.currentValue,
+                        sleepValue: result.components.sleepQuality?.currentValue,
+                        activityValue: result.components.previousDayLoad?.currentValue,
+                        calculatedAt: result.calculatedAt
+                    )
+                    
+                    await widgetDataClient.save(widgetData)
+                    
                     await send(.internal(.changeColor))
                     try await clock.sleep(for: .seconds(2))
                     await send(.internal(.changeContentState(.ready(tier))))
