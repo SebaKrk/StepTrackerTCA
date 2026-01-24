@@ -173,7 +173,7 @@ struct TrainingReadinessWidgetEntryView : View {
             if showScore {
                 Text("\(score)")
                     .font(.system(size: diameter != nil ? 32 : 30, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
         }
         .frame(width: diameter, height: diameter)
