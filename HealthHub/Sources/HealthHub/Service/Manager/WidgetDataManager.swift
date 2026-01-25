@@ -28,5 +28,9 @@ public final class WidgetDataManager: @unchecked Sendable {
     public func load() -> WidgetReadinessData? {
         storage.load(forKey: key)
     }
+    /// Requires removing widget readiness data.
+    public func clear() {
+        storage.remove(forKey: key)
+    }
 }
 
