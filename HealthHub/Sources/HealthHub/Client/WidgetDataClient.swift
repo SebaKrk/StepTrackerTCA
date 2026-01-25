@@ -28,12 +28,19 @@ public struct WidgetDataClient: Sendable {
 
 // MARK: - DependencyKey
 
+// MARK: - DependencyKey
+
 extension WidgetDataClient: DependencyKey {
+    
     public static let liveValue: WidgetDataClient = {
+        
         let manager = WidgetDataManager()
+        let widgetCenter = WidgetCenterClient.liveValue
+        
         return WidgetDataClient(
             save: { data in
                 manager.save(data)
+                widgetCenter.reloadTimelines("TrainingReadinessWidget")
             },
             saveReadinessResult: { result in
                 let widgetData = WidgetReadinessData(
@@ -46,6 +53,7 @@ extension WidgetDataClient: DependencyKey {
                     calculatedAt: result.calculatedAt
                 )
                 manager.save(widgetData)
+                widgetCenter.reloadTimelines("TrainingReadinessWidget")
             },
             load: {
                 manager.load()

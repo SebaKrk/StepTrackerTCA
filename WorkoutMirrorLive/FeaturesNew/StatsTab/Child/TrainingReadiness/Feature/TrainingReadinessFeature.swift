@@ -39,7 +39,7 @@ struct TrainingReadinessFeature {
                 state.readinessResult = result
                 return .run {  [tier = state.subscriptionTier] send in
                     await widgetDataClient.saveReadinessResult(result)
-                    
+                    dump(result)
                     await send(.internal(.changeColor))
                     try await clock.sleep(for: .seconds(2))
                     await send(.internal(.changeContentState(.ready(tier))))

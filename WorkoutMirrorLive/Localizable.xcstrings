@@ -337,6 +337,16 @@
         }
       }
     },
+    "%lld kcal" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld kcal"
+          }
+        }
+      }
+    },
     "%lld m" : {
       "localizations" : {
         "pl" : {
@@ -895,6 +905,16 @@
         }
       }
     },
+    "bpm" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bpm"
+          }
+        }
+      }
+    },
     "BPM" : {
       "localizations" : {
         "pl" : {
@@ -1001,6 +1021,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cel"
+          }
+        }
+      }
+    },
+    "Check your daily training readiness." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprawdź swoją codzienną gotowość do treningu."
           }
         }
       }
@@ -2106,6 +2136,16 @@
         }
       }
     },
+    "Open App" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz aplikacje"
+          }
+        }
+      }
+    },
     "Open Settings" : {
       "localizations" : {
         "pl" : {
@@ -2967,6 +3007,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gotowość treningowa"
+          }
+        }
+      }
+    },
+    "TRAINING READINESS" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GOTOWOŚĆ TRENINGOWA"
           }
         }
       }
