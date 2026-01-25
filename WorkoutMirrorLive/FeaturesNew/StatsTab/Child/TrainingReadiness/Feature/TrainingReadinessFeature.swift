@@ -55,8 +55,10 @@ struct TrainingReadinessFeature {
                         let result = try await trainingReadinessClient.calculate()
                         
                         if result.healthKitAccessDenied {
+                            await widgetDataClient.clear()
                             await send(.internal(.changeContentState(.unauthorized)))
                         } else if result.hasInsufficientData {
+                            await widgetDataClient.clear()
                             await send(.internal(.changeContentState(.noData)))
                         } else {
                             await send(.internal(.readinessCalculated(result)))

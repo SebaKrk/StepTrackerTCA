@@ -14,15 +14,18 @@ public struct WidgetDataClient: Sendable {
     public var save: @Sendable (WidgetReadinessData) async -> Void
     public var saveReadinessResult: @Sendable (TrainingReadinessResult) async -> Void
     public var load: @Sendable () async -> WidgetReadinessData?
+    public var clear: @Sendable () async -> Void
     
     public init(
         save: @escaping @Sendable (WidgetReadinessData) async -> Void,
         saveReadinessResult: @escaping @Sendable (TrainingReadinessResult) async -> Void,
-        load: @escaping @Sendable () async -> WidgetReadinessData?
+        load: @escaping @Sendable () async -> WidgetReadinessData?,
+        clear: @escaping @Sendable () async -> Void
     ) {
         self.save = save
         self.saveReadinessResult = saveReadinessResult
         self.load = load
+        self.clear = clear
     }
 }
 
@@ -57,6 +60,10 @@ extension WidgetDataClient: DependencyKey {
             },
             load: {
                 manager.load()
+            },
+            clear: {
+                manager.clear()
+                widgetCenter.reloadTimelines("TrainingReadinessWidget")
             }
         )
     }()
