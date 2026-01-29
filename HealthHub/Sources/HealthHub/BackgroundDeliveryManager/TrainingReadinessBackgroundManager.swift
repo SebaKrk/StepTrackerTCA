@@ -83,6 +83,30 @@ public actor TrainingReadinessBackgroundManager {
         try await backgroundDeliveryManager.disable(for: observedTypes)
     }
     
+    // MARK: - App Broadcasting
+
+    /// Active stream continuations for app updates
+    private var subscribers: [UUID: AsyncStream<HealthDataUpdate>.Continuation] = [:]
+    
+    /// Creates a stream of health data updates for the main app.
+    /// Use this to subscribe to real-time changes in features like StatsView.
+    public func healthDataUpdates() -> AsyncStream<HealthDataUpdate> {
+        AsyncStream { continuation in
+            let id = UUID()
+            self.subscribers[id] = continuation
+            
+            continuation.onTermination = { [weak self] _ in
+                Task { [weak self] in
+                    await self?.removeSubscriber(id: id)
+                }
+            }
+        }
+    }
+    
+    private func removeSubscriber(id: UUID) {
+        subscribers.removeValue(forKey: id)
+    }
+
     // MARK: - Private Helpers
     
     private func observeType(_ type: HKSampleType) async {
@@ -94,26 +118,47 @@ public actor TrainingReadinessBackgroundManager {
     }
     
     private func handleNewData(for type: HKSampleType) async {
-        // Debounce: skip if refreshed recently
+        print("📊 New data detected for \(type.identifier)")
+        
+        // 1. Broadcast to App (Start observing features) - IMMEDIATE
+        let update = HealthDataUpdate(type: type, timestamp: Date())
+        for subscriber in subscribers.values {
+            subscriber.yield(update)
+        }
+        
+        // 2. Widget Refresh - DEBOUNCED
+        // Debounce: skip if refreshed recently (5 minutes)
         if let lastRefresh = lastRefreshDate,
            Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
-            print("⏭️ Skipping refresh - debounced (last refresh: \(Int(Date().timeIntervalSince(lastRefresh)))s ago)")
+            print("⏭️ Skipping WIDGET refresh - debounced (last refresh: \(Int(Date().timeIntervalSince(lastRefresh)))s ago)")
             return
         }
+        
+        // Update timestamp immediately to block subsequent WIDGET refresh calls
+        lastRefreshDate = Date()
         
         await refreshWidget()
     }
     
     private func refreshWidget() async {
+        print("🔄 Refreshing Training Readiness widget...")
+        
         do {
+            // 1. Calculate training readiness
             let result = try await calculator.calculateTrainingReadiness()
+            
+            // 2. Check if we have sufficient data
             guard !result.hasInsufficientData else {
+                print("⚠️ Insufficient data for training readiness")
                 await widgetDataClient.clear()
                 return
             }
+            
+            // 3. Save to widget storage
             await widgetDataClient.saveReadinessResult(result)
             
-            lastRefreshDate = Date()
+            print("✅ Widget refreshed successfully - Score: \(result.overallScore)")
+            
         } catch {
             print("❌ Failed to refresh widget: \(error.localizedDescription)")
         }

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
+import HealthHub
 
 /// Implementation of `StatsFeature` action
 extension StatsFeature {
@@ -42,6 +43,13 @@ extension StatsFeature {
         /// Initializes Activity ring summary
         case initializeRingActivitiesSummary
         
+        /// Start observing real-time health data updates
+        case startObserving
+        
+        /// Handle incoming health data update
+        case healthDataUpdated(HealthDataUpdate)
+
+        
         // MARK: - View Actions
         
         case view(View)
@@ -50,6 +58,10 @@ extension StatsFeature {
                     
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+            
+            /// Action triggered when the view disappears from the screen.
+            case viewDidDisappear
+            
             
             /// Triggered when the user performs a pull-to-refresh gesture.
             /// Refreshes all child features and reloads the stats view content.
