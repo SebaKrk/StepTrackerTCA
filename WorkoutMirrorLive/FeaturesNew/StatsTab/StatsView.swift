@@ -113,13 +113,13 @@ struct StatsView: View {
     }
     
     var rootView: some View {
-        ScrollView {
+        VStack {
             statsContextPicker
             switch store.context {
             case .today:
                 todayView
             case .analytics:
-                Text("Analytics")
+                analyticsActivityView
             }
         }
         .navigationTitle("Stats")
@@ -140,10 +140,32 @@ struct StatsView: View {
     }
     
     private var todayView: some View {
-        VStack(spacing: 12) {
-            ringActivitiesSummaryView()
-            trainingReadinessView()
-            summaryCards()
+        ScrollView {
+            VStack(spacing: 12) {
+                ringActivitiesSummaryView()
+                trainingReadinessView()
+                summaryCards()
+            }
+        }
+    }
+    
+    private var analyticsActivityView: some View {
+        emptyAnalyticsActivityView
+    }
+    
+    // MARK: - Analytics Empty View
+    
+    private var emptyAnalyticsActivityView: some View {
+        ContentUnavailableView {
+            Label("Analytics Dashboard", systemImage: "chart.xyaxis.line")
+        } description: {
+            Text("Unlock insights into your training. Visualize your progress, heart rate zones, and performance trends over time.")
+        } actions: {
+            Button {
+                // TODO: - Scroll to history or open charts
+            } label: {
+                Label("View History", systemImage: "clock.arrow.circlepath")
+            }
         }
     }
     

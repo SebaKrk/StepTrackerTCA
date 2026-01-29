@@ -25,6 +25,6 @@ extension ActivitiesFeature {
                 return String(localized: "Team", bundle: .main)
             }
         }
-        
     }
+    
 }

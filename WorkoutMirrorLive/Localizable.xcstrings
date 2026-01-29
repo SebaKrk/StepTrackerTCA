@@ -775,6 +775,9 @@
         }
       }
     },
+    "Analytics Dashboard" : {
+
+    },
     "Analyze Text" : {
       "localizations" : {
         "pl" : {
@@ -3071,6 +3074,9 @@
         }
       }
     },
+    "Unlock insights into your training. Visualize your progress, heart rate zones, and performance trends over time." : {
+
+    },
     "Usuwa z watcha" : {
       "localizations" : {
         "pl" : {
@@ -3090,6 +3096,9 @@
           }
         }
       }
+    },
+    "View History" : {
+
     },
     "Waiting for Watch workout..." : {
       "localizations" : {
