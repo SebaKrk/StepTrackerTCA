@@ -98,6 +98,13 @@
 			);
 			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
 		};
+		9377FB672F2AC67D0005394D /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutMirrorLive" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9382096B2E39388600F49046 /* WorkoutMirrorLive */;
+		};
 		938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -133,6 +140,7 @@
 			exceptions = (
 				938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */,
 				938E65512F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal Watch App" target */,
+				9377FB672F2AC67D0005394D /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutMirrorLive" target */,
 				936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */,
 			);
 			path = WorkoutMirrorLive;
@@ -614,6 +622,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
@@ -654,6 +663,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
