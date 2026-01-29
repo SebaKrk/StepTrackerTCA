@@ -78,12 +78,14 @@
 		93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFitnessJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93D02EED2DF41F4C00F08849 /* HealthHub */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HealthHub; sourceTree = "<group>"; };
 		93D02EEE2DF4CCBF00F08849 /* Commons */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Commons; sourceTree = "<group>"; };
+		93D961C62F255CCB00C8F7BB /* WorkoutSessionWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WorkoutSessionWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Localizable.xcstrings,
 				"UI/View+Extension/View+StyledGroupBox.swift",
 				UI/ViewModifier/StyledGroupBoxModifier.swift,
 			);
@@ -95,6 +97,13 @@
 				Info.plist,
 			);
 			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
+		};
+		9377FB672F2AC67D0005394D /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutMirrorLive" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9382096B2E39388600F49046 /* WorkoutMirrorLive */;
 		};
 		938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -131,6 +140,7 @@
 			exceptions = (
 				938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */,
 				938E65512F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal Watch App" target */,
+				9377FB672F2AC67D0005394D /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutMirrorLive" target */,
 				936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */,
 			);
 			path = WorkoutMirrorLive;
@@ -205,6 +215,7 @@
 		93CE752C2D1699CA006D5A4A = {
 			isa = PBXGroup;
 			children = (
+				93D961C62F255CCB00C8F7BB /* WorkoutSessionWidgetExtension.entitlements */,
 				934045BE2DF5685B005A00C8 /* SharedModels */,
 				93D02EEE2DF4CCBF00F08849 /* Commons */,
 				93D02EED2DF41F4C00F08849 /* HealthHub */,
@@ -541,6 +552,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WorkoutSessionWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8RH4482R36;
@@ -572,6 +584,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WorkoutSessionWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8RH4482R36;
@@ -609,6 +622,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
@@ -649,6 +663,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";

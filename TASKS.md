@@ -526,3 +526,7 @@
     E: TimerWidget
     F: TrainingReadinessWidget
 
+### IOS-00062 TrainingReadinessWidget
+    A: Deliver data for Widget
+    B: NoData state
+    C: HealthKit Background Delivery

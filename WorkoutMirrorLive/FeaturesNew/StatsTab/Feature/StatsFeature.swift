@@ -17,6 +17,7 @@ struct StatsFeature {
     
     @Dependency(\.authorizationManager) var authorizationManager
     @Dependency(\.dataAnalyzerClient) var dataAnalyzerClient 
+    @Dependency(\.trainingReadinessBackgroundManager) var trainingReadinessBackgroundManager
     
     // MARK: - Reducer
     
@@ -63,7 +64,7 @@ struct StatsFeature {
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 guard state.trainingReadiness == nil else {
-                    return .none
+                    return .send(.startObserving)
                 }
                 return .run { send in
                     let result = await self.authorizationManager.requestAuthorization()
@@ -72,12 +73,28 @@ struct StatsFeature {
                     case .success:
                         await send(.initializeChildren)
                         await send(.changeViewState(.success))
+                        await send(.startObserving)
                         
                     case .failure(let error):
                         print("Authorization failed with error: \(error.localizedDescription)")
                         await send(.changeViewState(.failed))
                     }
                 }
+
+            case .view(.viewDidDisappear):
+                return .cancel(id: StatsFeatureCancelID.observation)
+
+            case .startObserving:
+                return .run { send in
+                    for await update in await trainingReadinessBackgroundManager.healthDataUpdates() {
+                        await send(.healthDataUpdated(update))
+                    }
+                }
+                .cancellable(id: StatsFeatureCancelID.observation)
+                
+            case let .healthDataUpdated(update):
+                // Trigger refresh for all sensitive components
+                return .send(.view(.pullToRefresh))
                 
             case .view(.checkDataAnalyzerAvailability):
                 return .run { send in
@@ -130,5 +147,5 @@ struct StatsFeature {
             RingActivitiesSummaryFeature()
         }
     }
-    
+      
 }

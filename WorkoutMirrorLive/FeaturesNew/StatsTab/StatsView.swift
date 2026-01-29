@@ -34,6 +34,9 @@ struct StatsView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        .onDisappear {
+            send(.viewDidDisappear)
+        }
     }
     
     var statsView: some View {

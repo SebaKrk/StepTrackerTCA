@@ -275,3 +275,51 @@ public extension DependencyValues {
         set { self[WorkoutLocationManagerKey.self] = newValue }
     }
 }
+
+/// A TCA dependency key for managing HealthKit background delivery.
+public enum BackgroundDeliveryManagerKey: DependencyKey {
+    public static let liveValue: BackgroundDeliveryManager = {
+        print("Dependency - 🔔 BackgroundDeliveryManagerKey: Starting creation at \(Date())")
+        @Dependency(\.healthStore) var healthStore
+        print("Dependency - 📦 BackgroundDeliveryManagerKey: HealthStore dependency resolved")
+        let manager = DefaultBackgroundDeliveryManager(healthStore: healthStore)
+        print("Dependency - ✅ BackgroundDeliveryManagerKey: BackgroundDeliveryManager created successfully")
+        return manager
+    }()
+}
+
+public extension DependencyValues {
+    var backgroundDeliveryManager: BackgroundDeliveryManager {
+        get { self[BackgroundDeliveryManagerKey.self] }
+        set { self[BackgroundDeliveryManagerKey.self] = newValue }
+    }
+}
+
+/// A TCA dependency key for managing Training Readiness background updates.
+public enum TrainingReadinessBackgroundManagerKey: DependencyKey {
+    public static let liveValue: TrainingReadinessBackgroundManager = {
+        print("Dependency - 🎯 TrainingReadinessBackgroundManagerKey: Starting creation at \(Date())")
+        
+        @Dependency(\.backgroundDeliveryManager) var backgroundDeliveryManager
+        @Dependency(\.trainingReadinessCalculator) var calculator
+        @Dependency(\.widgetDataClient) var widgetDataClient
+        
+        print("Dependency - 📦 TrainingReadinessBackgroundManagerKey: All dependencies resolved")
+        
+        let manager = TrainingReadinessBackgroundManager(
+            backgroundDeliveryManager: backgroundDeliveryManager,
+            calculator: calculator,
+            widgetDataClient: widgetDataClient
+        )
+        
+        print("Dependency - ✅ TrainingReadinessBackgroundManagerKey: Manager created successfully")
+        return manager
+    }()
+}
+
+public extension DependencyValues {
+    var trainingReadinessBackgroundManager: TrainingReadinessBackgroundManager {
+        get { self[TrainingReadinessBackgroundManagerKey.self] }
+        set { self[TrainingReadinessBackgroundManagerKey.self] = newValue }
+    }
+}
