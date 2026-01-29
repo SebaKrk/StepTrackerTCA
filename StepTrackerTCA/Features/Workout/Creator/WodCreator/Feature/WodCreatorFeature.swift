@@ -152,8 +152,6 @@ struct WodCreatorFeature {
                     rounds: state.selectedRounds,
                     exercises: state.exercises)
                 
-                //dump(traningSession)
-                
                 return .run { send in
                     await send(.delegate(.wodCreated(trainingSession)))
                     await self.dismiss()

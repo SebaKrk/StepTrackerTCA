@@ -175,16 +175,16 @@ struct TrainingReadinessWidgetEntryView : View {
     func breakdownList(for result: TrainingReadinessResult) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if let rhr = result.components.restingHeartRate {
-                componentRow(icon: "heart.fill", title: "RHR", value: "\(Int(rhr.currentValue)) bpm")
+                componentRow(icon: "heart.fill", title: "RHR", value: String(format: "%.0f bpm", rhr.currentValue))
             }
             if let sleep = result.components.sleepQuality {
-                componentRow(icon: "bed.double.fill", title: "Sleep", value: "\(Int(sleep.currentValue)) h")
+                componentRow(icon: "bed.double.fill", title: "Sleep", value: String(format: "%.1f h", sleep.currentValue))
             }
             if let hrv = result.components.heartRateVariability {
-                componentRow(icon: "waveform.path.ecg", title: "HRV", value: "\(Int(hrv.currentValue)) ms")
+                componentRow(icon: "waveform.path.ecg", title: "HRV", value: String(format: "%.0f ms", hrv.currentValue))
             }
             if let act = result.components.previousDayLoad {
-                componentRow(icon: "flame.fill", title: "Act.", value: "\(Int(act.currentValue)) kcal")
+                componentRow(icon: "flame.fill", title: "Act.", value: String(format: "%.0f kcal", act.currentValue))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
