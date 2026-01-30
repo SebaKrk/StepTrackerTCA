@@ -122,10 +122,15 @@ struct StatsFeature {
                 return .send(.changeSubscriptionTier(value))
                 
                 // MARK: - Destination
+                
             case .destination(_):
                 return .none
                 
                 // MARK: - Child
+                
+            case .trainingReadiness(.delegate(.refreshRequested)):
+                return .send(.view(.pullToRefresh))
+                
             case .trainingReadiness(_):
                 return .none
                 

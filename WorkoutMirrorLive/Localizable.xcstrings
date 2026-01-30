@@ -101,6 +101,9 @@
         }
       }
     },
+    "–:–" : {
+
+    },
     "!" : {
       "localizations" : {
         "pl" : {
@@ -949,6 +952,7 @@
       }
     },
     "Brak danych" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1999,6 +2003,17 @@
         }
       }
     },
+    "No calories burned data available." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych spalonych kalorii."
+          }
+        }
+      }
+    },
     "No data" : {
       "localizations" : {
         "pl" : {
@@ -2055,6 +2070,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie znaleziono urządzeń."
+          }
+        }
+      }
+    },
+    "No heart rate data available. Check Health app." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych tętna. Sprawdź aplikację Zdrowie."
+          }
+        }
+      }
+    },
+    "No HRV data found. Regular measurements required." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych HRV. Wymagane regularne pomiary."
+          }
+        }
+      }
+    },
+    "No sleep data. Track your sleep to see insights." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych snu. Śledź sen, aby zobaczyć analizy."
           }
         }
       }
@@ -3075,7 +3123,14 @@
       }
     },
     "Unlock insights into your training. Visualize your progress, heart rate zones, and performance trends over time." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odkryj szczegółowe informacje o swoim treningu. Wizualizuj swoje postępy, strefy tętna oraz trendy wydajności na przestrzeni czasu."
+          }
+        }
+      }
     },
     "Usuwa z watcha" : {
       "localizations" : {
@@ -3098,7 +3153,14 @@
       }
     },
     "View History" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobacz historie"
+          }
+        }
+      }
     },
     "Waiting for Watch workout..." : {
       "localizations" : {
