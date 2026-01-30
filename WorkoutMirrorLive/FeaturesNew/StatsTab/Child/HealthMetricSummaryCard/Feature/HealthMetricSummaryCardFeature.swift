@@ -46,18 +46,25 @@ struct HealthMetricSummaryCardFeature {
                             await send(.internal(.dataLoaded(result.components)))
                         }
                     } catch {
-                        await send(.internal(.changeContentState(.noData)))
-                        print(error.localizedDescription)
+                        // Instead of showing global error, we load nil data to trigger placeholders
+                        await send(.internal(.dataLoaded(nil)))
+                        print("TrainingReadiness Error (Handled as Empty): \(error.localizedDescription)")
                     }
                 }
                 
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                return .send(.internal(.loadSummaryData))
+                return .concatenate(
+                    .send(.internal(.changeContentState(.loading))),
+                    .send(.internal(.loadSummaryData))
+                )
                 
             case .view(.refresh):
-                return .send(.internal(.loadSummaryData))
+                return .concatenate(
+                    .send(.internal(.changeContentState(.loading))),
+                    .send(.internal(.loadSummaryData))
+                )
                 
             case let .view(.showDetailsButtonTapped(metric: metric, data: score)):
                 state.destination = .details(HealthMetricSummaryDetailsCardFeature.State(metricType: metric,

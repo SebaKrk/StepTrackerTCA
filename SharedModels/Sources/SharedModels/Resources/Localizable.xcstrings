@@ -721,6 +721,15 @@
         }
       }
     },
+    "No calories burned data available." : {
+
+    },
+    "No heart rate data available. Check Health app." : {
+
+    },
+    "No HRV data found. Regular measurements required." : {
+
+    },
     "No load day - complete restoration" : {
       "localizations" : {
         "pl" : {
@@ -730,6 +739,9 @@
           }
         }
       }
+    },
+    "No sleep data. Track your sleep to see insights." : {
+
     },
     "Not Set" : {
       "localizations" : {

@@ -66,4 +66,27 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
             return "Poziom aktywności mierzy energię wydatkowaną podczas poprzedniego dnia. Zbyt wysoka aktywność może wpływać negatywnie na dzisiejszą gotowość. Monitoring obciążenia treningowego pomaga uniknąć przetrenowania."
         }
     }
+    
+    public var unit: String {
+        switch self {
+        case .rhr: return "bpm"
+        case .hrv: return "ms"
+        case .sleep: return "hours"
+        case .activity: return "kcal"
+        }
+    }
+    
+    public var missingDataMessage: String {
+        switch self {
+        case .rhr:
+            return String(localized: "No heart rate data available. Check Health app.", defaultValue: "No heart rate data available. Check Health app.")
+        case .hrv:
+            return String(localized: "No HRV data found. Regular measurements required.", defaultValue: "No HRV data found. Regular measurements required.")
+        case .sleep:
+            return String(localized: "No sleep data. Track your sleep to see insights.", defaultValue: "No sleep data. Track your sleep to see insights.")
+        case .activity:
+            return String(localized: "No calories burned data available.", defaultValue: "No calories burned data available.")
+        }
+    }
+    
 }

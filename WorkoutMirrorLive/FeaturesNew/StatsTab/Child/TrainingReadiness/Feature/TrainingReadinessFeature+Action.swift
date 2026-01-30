@@ -47,6 +47,19 @@ extension TrainingReadinessFeature {
             
             /// Action triggered when user pulls to refresh
             case refresh
+            
+            /// Action triggered when retry button is tapped
+            case retryButtonTapped
+        }
+        
+        // MARK: - Delegate Action
+        
+        case delegate(Delegate)
+        
+        enum Delegate {
+            
+            ///
+            case refreshRequested
         }
     }
     

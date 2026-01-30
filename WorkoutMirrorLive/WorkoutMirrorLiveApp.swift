@@ -18,10 +18,10 @@ struct WorkoutMirrorLiveApp: App {
             AppTabNewView(
                 store: Store(initialState: AppTabNewFeature.State()) {
                     AppTabNewFeature()
-                        //._printChanges()
+                        ///._printChanges()
                 } withDependencies: {
 #if targetEnvironment(simulator)
-                    $0.trainingReadinessClient = .mock
+                    $0.trainingReadinessClient = .partialMock
 #endif
                 }
             )
