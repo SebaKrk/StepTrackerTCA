@@ -10,6 +10,13 @@ import Foundation
 import SharedModels
 import HealthHub
 
+/// A feature responsible for managing the Training Readiness state.
+///
+/// This feature handles:
+/// - Calculating the readiness score based on HealthKit data.
+/// - Managing the content state (loading, ready, noData, unauthorized).
+/// - communicating with the WidgetDataClient to update homescreen widgets.
+/// - Delegating refresh requests to the parent feature.
 @Reducer
 struct TrainingReadinessFeature {
     
@@ -50,6 +57,11 @@ struct TrainingReadinessFeature {
                 
             case .internal(.loadReadinessData):
                 return .run { send in
+                    // Simulate loading delay for skeleton visibility
+                    // This ensures the skeleton animation is visible for at least 2 seconds
+                    // providing a consistent UX with other cards even if calculation is instant.
+                    try await clock.sleep(for: .seconds(2))
+                    
                     do {
                         let result = try await trainingReadinessClient.calculate()
                         
@@ -58,6 +70,8 @@ struct TrainingReadinessFeature {
                             await send(.internal(.changeContentState(.unauthorized)))
                         } else if result.hasInsufficientData {
                             await widgetDataClient.clear()
+                            // If data is insufficient (e.g. no RHR/HRV), we enter .noData state.
+                            // This triggers the overlay in the View, which offers a "Refresh" button.
                             await send(.internal(.changeContentState(.noData)))
                         } else {
                             await send(.internal(.readinessCalculated(result)))
@@ -80,7 +94,16 @@ struct TrainingReadinessFeature {
                 )
                 
             case .view(.refresh):
-                return .send(.internal(.loadReadinessData))
+                return .concatenate(
+                    .send(.internal(.changeContentState(.loading))),
+                    .send(.internal(.loadReadinessData))
+                )
+                
+            case .view(.retryButtonTapped):
+                return .send(.delegate(.refreshRequested))
+                
+            case .delegate(.refreshRequested):
+                return .none
             }
         }
         //._printChanges()

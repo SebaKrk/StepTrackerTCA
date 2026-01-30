@@ -69,11 +69,10 @@ struct HealthMetricSummaryCardView: View {
         data: TrainingComponentScore?
     ) -> some View {
         GroupBox {
-            
             if let data = data {
                 metricContent(for: metric, data: data)
             } else {
-                noDataContent()
+                blurredPlaceholderContent(for: metric)
             }
         } label: {
             containerTitle(metric, data: data)
@@ -84,7 +83,7 @@ struct HealthMetricSummaryCardView: View {
             .fill(Color(.secondarySystemBackground).gradient.opacity(0.5)))
         .frame(height: 160)
     }
-    
+
     @ViewBuilder
     func metricContent(for metric: HealthMetricType, data: TrainingComponentScore) -> some View {
         HStack(spacing: 12) {
@@ -176,17 +175,6 @@ struct HealthMetricSummaryCardView: View {
         .foregroundStyle(.secondary)
     }
     
-    @ViewBuilder
-    func noDataContent() -> some View {
-        VStack {
-            Spacer()
-            Text("Brak danych")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Spacer()
-        }
-    }
-    
     // MARK: - Helpers
     
     /// Formats value based on unit type - kcal without decimals, others with 1 decimal
@@ -205,4 +193,5 @@ struct HealthMetricSummaryCardView: View {
         formatter.timeStyle = .short
         return formatter.string(from: date)  // Just "8:07", no "Dziś o"
     }
+    
 }
