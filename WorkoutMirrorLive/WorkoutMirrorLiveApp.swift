@@ -21,7 +21,7 @@ struct WorkoutMirrorLiveApp: App {
                         ///._printChanges()
                 } withDependencies: {
 #if targetEnvironment(simulator)
-                    $0.trainingReadinessClient = .partialMock
+                    $0.trainingReadinessClient = .mock
 #endif
                 }
             )

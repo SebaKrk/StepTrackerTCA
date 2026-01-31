@@ -55,6 +55,7 @@ struct HealthMetricSummaryCardFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
+                guard state.components == nil else { return .none }
                 return .concatenate(
                     .send(.internal(.changeContentState(.loading))),
                     .send(.internal(.loadSummaryData))

@@ -337,7 +337,7 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         let descriptor = HKSampleQueryDescriptor(
             predicates: [samplePredicate],
-            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .forward)],
+            sortDescriptors: [SortDescriptor(\HKQuantitySample.startDate, order: .reverse)],
             limit: 1
         )
         
@@ -346,13 +346,12 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         // print("🔍 RHR Debug: Found \(results.count) samples")
         
         guard let sample = results.first else {
-            print("❌ RHR Debug: No samples found in window")
             return nil
         }
         
         let rhrValue = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
-        // print("✅ RHR Debug: Found RHR=\(rhrValue) at \(sample.startDate)")
-        return HealthKitData(date: sample.startDate, value: rhrValue)
+        // Apple Watch records RHR with startDate at midnight, but endDate contains actual measurement time
+        return HealthKitData(date: sample.endDate, value: rhrValue)
     }
     
     /// Retrieves average morning resting heart rate from specified number of days.
@@ -437,12 +436,16 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         
         guard !results.isEmpty else { return nil }
         
+        // Find the most recent sample for timestamp (endDate = actual measurement time)
+        let mostRecentSample = results.first!
+        
         let totalHRV = results.reduce(0.0) { sum, sample in
             sum + sample.quantity.doubleValue(for: .secondUnit(with: .milli))
         }
         
         let averageHRV = totalHRV / Double(results.count)
-        return HealthKitData(date: results.first!.startDate, value: averageHRV)
+        // Use endDate for actual measurement time (same as RHR fix)
+        return HealthKitData(date: mostRecentSample.endDate, value: averageHRV)
     }
     
     /// Retrieves average nightly HRV from specified number of nights.
