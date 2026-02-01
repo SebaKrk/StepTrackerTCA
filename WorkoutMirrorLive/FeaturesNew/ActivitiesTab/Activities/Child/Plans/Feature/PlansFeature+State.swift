@@ -22,7 +22,7 @@ extension PlansFeature {
         var color: Color = .clear
         
         /// Current view state.
-        var viewState: ViewState = .failed
+        var viewState: ViewState = .success
         
         // MARK: - Destination
         

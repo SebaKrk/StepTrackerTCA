@@ -538,4 +538,5 @@
     A: Workout Plans Feature
     - create Workout Plans Feature
     - Refactor Activities Tab: Add Plans Section
-
+    B: Refactor ActivitiesFeature
+    - Extract workout logic from ActivitiesFeature into a separate PersonalActivityFeature.

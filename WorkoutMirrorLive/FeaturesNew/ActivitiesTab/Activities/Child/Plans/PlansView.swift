@@ -24,7 +24,7 @@ struct PlansView: View {
             case .loading:
                 ProgressView()
             case .success:
-                emptyPlansView
+                plansListView
             case .failed:
                 failedView
             }
@@ -49,6 +49,12 @@ struct PlansView: View {
     }
     
     // MARK: - SubViews
+    
+    @ViewBuilder
+    private var plansListView: some View {
+        // TODO: - implementacja listy
+        emptyPlansView
+    }
     
     private var failedView: some View {
         ContentUnavailableView {
