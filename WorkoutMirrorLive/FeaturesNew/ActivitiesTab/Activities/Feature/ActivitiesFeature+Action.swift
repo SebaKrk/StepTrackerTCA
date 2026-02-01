@@ -61,6 +61,11 @@ extension ActivitiesFeature {
             case showZoneInfo(HeartRateZone)
         }
         
+        // MARK: - Child Features
+        
+        /// Forwards actions to the Plans feature.
+        case plans(PlansFeature.Action)
+        
         // MARK: - Destination
         
         /// Handles navigation destinations within this feature.

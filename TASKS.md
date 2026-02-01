@@ -533,3 +533,9 @@
 
 ### IOS-00063 Refactor Empty States & Refresh Logic for Stats Dashboard
     A: Refactor Empty States & Refresh Logic for Stats Dashboard
+
+### IOS-00064 Plans
+    A: Workout Plans Feature
+    - create Workout Plans Feature
+    - Refactor Activities Tab: Add Plans Section
+

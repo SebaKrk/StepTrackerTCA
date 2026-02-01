@@ -28,7 +28,7 @@ extension ActivitiesFeature {
         var viewState: ViewState = .loading
         
         /// Selected tab context for filtering workouts.
-        var context: TrainingTabContext = .personal
+        var context: TrainingTabContext = .activity
         
         /// List of fetched workouts from HealthKit.
         var workouts: [HKWorkout] = []
@@ -45,6 +45,10 @@ extension ActivitiesFeature {
         /// Heart rate zone information for each workout, keyed by workout UUID.
         var zoneInfo: [UUID: PrimaryZoneInfo] = [:]
         
+        // MARK: - Child Features
+        
+        /// State for the Plans tab.
+        var plans: PlansFeature.State = PlansFeature.State()
         
         // MARK: - Destination
         

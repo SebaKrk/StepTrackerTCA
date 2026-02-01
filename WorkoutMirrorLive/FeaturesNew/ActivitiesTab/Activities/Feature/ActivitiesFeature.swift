@@ -130,9 +130,18 @@ struct ActivitiesFeature {
                 
             case .destination:
                 return .none
+                
+                // MARK: - Child Features
+                
+            case .plans:
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        
+        Scope(state: \.plans, action: \.plans) {
+            PlansFeature()
+        }
     }
     
 }
