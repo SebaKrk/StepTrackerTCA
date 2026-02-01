@@ -8,6 +8,18 @@
         "type": "tabs",
         "children": [
           {
+            "id": "3f9de085ad58ad3c",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.8.10"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.8.10"
+            }
+          },
+          {
             "id": "3814e4d14409556d",
             "type": "leaf",
             "state": {
@@ -22,19 +34,21 @@
             }
           },
           {
-            "id": "3f9de085ad58ad3c",
+            "id": "816e9083f82147fb",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.8.10"
+                "file": "digram.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-book-up",
-              "title": "Release Notes 1.8.10"
+              "icon": "lucide-file",
+              "title": "digram"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -183,22 +197,24 @@
       "command-palette:Otwórz listę poleceń": false
     }
   },
-  "active": "3f9de085ad58ad3c",
+  "active": "816e9083f82147fb",
   "lastOpenFiles": [
-    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scores/Child/WorkoutSubmission/Utilities/Services/DefaultSubmitWorkoutService~.swift",
-    "StepTrackerTCA/Features/Records/ChildFeature/WorkoutsSummary/ChildFeature/Scores/Child/WorkoutSubmission/Utilities/Services/DefaultSetEditGoalService~.swift",
-    "Bez nazwy.md",
-    "CoreDataDiagram~.md",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/ARCHITECTURE-ActivitiesTab~.md",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature/AddPlanFeature.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature/AddPlanFeature+State.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature/AddPlanFeature+Action.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/AddPlanView.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature+Action.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature+State.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature+Destination.swift",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/ARCHITECTURE-ActivitiesTab.md",
+    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/ARCHITECTURE~.md",
     "FeatureDiagram.md",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Utilities/Services/DefaultAddMeasurementServices.swift",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Utilities/Services/AddMeasurementServices.swift",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Utilities/Services",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Feature/AddMeasurementFeature.swift",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Feature/AddMeasurementFeature+State.swift",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Feature/AddMeasurementFeature+AlertState.swift",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Feature/AddMeasurementFeature+Action.swift",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Utilities",
-    "StepTrackerTCA/Features/Records/ChildFeature/AddMeasurement/Feature",
+    "digram.md",
+    "CoreDataDiagram~.md",
     "CoreDataDiagram.md",
     "README~.md",
     "README.md"
