@@ -708,6 +708,9 @@
         }
       }
     },
+    "Add Plan" : {
+
+    },
     "Add your first workout and start planning your activity." : {
       "localizations" : {
         "pl" : {
@@ -1119,6 +1122,9 @@
         }
       }
     },
+    "Create a Workout Plan" : {
+
+    },
     "create single workout" : {
       "localizations" : {
         "pl" : {
@@ -1158,6 +1164,9 @@
           }
         }
       }
+    },
+    "Create workout plans by scanning your training notes or add them manually. Compare your plans with actual HealthKit results." : {
+
     },
     "Cross" : {
       "localizations" : {
@@ -1491,6 +1500,7 @@
       }
     },
     "Find a Club" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1793,6 +1803,7 @@
       }
     },
     "Join a fitness group to track progress with your teammates and stay motivated together." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2108,6 +2119,7 @@
       }
     },
     "No Team Yet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2116,6 +2128,9 @@
           }
         }
       }
+    },
+    "No Workout Plans" : {
+
     },
     "No Workouts" : {
       "localizations" : {
@@ -2248,6 +2263,7 @@
       }
     },
     "Personal" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2296,6 +2312,9 @@
           }
         }
       }
+    },
+    "Plans" : {
+
     },
     "Play" : {
       "localizations" : {
@@ -2609,6 +2628,9 @@
         }
       }
     },
+    "Scan your handwritten notes or enter manually" : {
+
+    },
     "Scanning..." : {
       "localizations" : {
         "pl" : {
@@ -2781,6 +2803,9 @@
         }
       }
     },
+    "Something went wrong" : {
+
+    },
     "Sort by" : {
       "localizations" : {
         "pl" : {
@@ -2933,6 +2958,7 @@
       }
     },
     "Team" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3121,6 +3147,9 @@
           }
         }
       }
+    },
+    "Unable to load workout plans. Please try again." : {
+
     },
     "Unlock insights into your training. Visualize your progress, heart rate zones, and performance trends over time." : {
       "localizations" : {

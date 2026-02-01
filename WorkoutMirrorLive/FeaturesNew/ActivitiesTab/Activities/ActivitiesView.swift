@@ -41,15 +41,15 @@ struct ActivitiesView: View {
         VStack(spacing: 0) {
             trainingTabPicker
             switch store.context {
-            case .personal:
+            case .activity:
                 personalActivityView
-            case .team:
-                teamActivityView
+            case .plans:
+                plansView
             }
         }
         .background(LinearGradient(colors: [store.color.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
         .toolbar {
-            if !store.workouts.isEmpty && store.context == .personal {
+            if !store.workouts.isEmpty && store.context == .activity {
                 toolbarButton
             }
         }
@@ -311,22 +311,10 @@ struct ActivitiesView: View {
         )
     }
     
-    private var teamActivityView: some View {
-        emptyTeamActivityView
-    }
-    
-    private var emptyTeamActivityView: some View {
-        ContentUnavailableView {
-            Label("No Team Yet", systemImage: "person.3")
-        } description: {
-            Text("Join a fitness group to track progress with your teammates and stay motivated together.")
-        } actions: {
-            Button {
-                // TODO: - ...
-            } label: {
-                Label("Find a Club", systemImage: "magnifyingglass")
-            }
-        }
+    private var plansView: some View {
+        PlansView(
+            store: store.scope(state: \.plans, action: \.plans)
+        )
     }
     
 }
