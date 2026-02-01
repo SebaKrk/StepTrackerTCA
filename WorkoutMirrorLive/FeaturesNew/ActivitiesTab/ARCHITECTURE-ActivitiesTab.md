@@ -30,8 +30,8 @@ graph TD
   AddPlanChoice -->|"Camera"| ScanPlan["<b>ScanPlanFeature</b><br>OCR from training notes<br>(TODO)"]
   AddPlanChoice -->|"Manual"| ManualEntry["<b>ManualEntryFeature</b><br>Manual plan form<br>(TODO)"]
 
-  %% Dependencies
-  PersonalActivity -.-|"Dependency"| ActivityClient["activityClient<br>HealthKit fetching"]
+  %% Dependencies (cylinder shape for clients/services)
+  PersonalActivity -.-|"Dependency"| ActivityClient[("activityClient<br>HealthKit fetching")]
 ```
 
 ## Feature Hierarchy (ASCII Art)
