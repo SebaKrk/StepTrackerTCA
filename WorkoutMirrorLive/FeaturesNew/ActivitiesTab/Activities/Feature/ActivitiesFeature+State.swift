@@ -8,8 +8,6 @@
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
-import HealthKit
-import HealthHub
 
 /// Implementation of `ActivitiesFeature` state.
 extension ActivitiesFeature {
@@ -24,33 +22,16 @@ extension ActivitiesFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
         
-        /// Current view state (loading, success, or failed).
-        var viewState: ViewState = .loading
-        
         /// Selected tab context for filtering workouts.
-        var context: TrainingTabContext = .personal
+        var context: TrainingTabContext = .activity
         
-        /// List of fetched workouts from HealthKit.
-        var workouts: [HKWorkout] = []
+        // MARK: - Child Features
         
-        /// Number of days to look back when fetching workouts.
-        var days: Int = 28
+        /// State for the Personal Activity tab.
+        var personalActivity: PersonalActivityFeature.State = PersonalActivityFeature.State()
         
-        /// Current sort option for ordering workouts.
-        var sortDescriptors: ActivitiesSortOption = .newestFirst
-        
-        /// User's maximum heart rate for zone calculations.
-        var maxHeartRate: Double?
-        
-        /// Heart rate zone information for each workout, keyed by workout UUID.
-        var zoneInfo: [UUID: PrimaryZoneInfo] = [:]
-        
-        
-        // MARK: - Destination
-        
-        /// Presentation state for navigation destinations.
-        @Presents var destination: Destination.State?
+        /// State for the Plans tab.
+        var plans: PlansFeature.State = PlansFeature.State()
     }
     
 }
-
