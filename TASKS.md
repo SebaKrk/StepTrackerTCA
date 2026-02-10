@@ -540,3 +540,4 @@
     - Refactor Activities Tab: Add Plans Section
     B: Refactor ActivitiesFeature
     - Extract workout logic from ActivitiesFeature into a separate PersonalActivityFeature.
+    C: Improve OCR accuracy and modernize ScanPlan button styles

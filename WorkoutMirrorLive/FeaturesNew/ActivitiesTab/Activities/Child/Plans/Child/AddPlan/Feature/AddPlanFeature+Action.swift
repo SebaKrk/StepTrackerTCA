@@ -12,6 +12,8 @@ extension AddPlanFeature {
     
     @CasePathable
     enum Action: ViewAction {
+
+        // MARK: - View actions
         
         case view(View)
         
@@ -30,6 +32,11 @@ extension AddPlanFeature {
             /// Called when user taps "Manual Entry" to add plan manually.
             case manualEntryTapped
         }
+        
+        // MARK: - Destination
+
+        /// Handles navigation destinations within this feature.
+        case destination(PresentationAction<Destination.Action>)
         
     }
     

@@ -12,7 +12,7 @@ import SwiftUI
 extension AddPlanFeature {
     
     @ObservableState
-    struct State: Equatable {
+    struct State {
         
         // MARK: - Properties
         
@@ -22,6 +22,10 @@ extension AddPlanFeature {
         
         /// Current view state.
         var viewState: ViewState = .success
+
+        // MARK: - Destination
+
+        @Presents var destination: Destination.State?
     }
     
 }
