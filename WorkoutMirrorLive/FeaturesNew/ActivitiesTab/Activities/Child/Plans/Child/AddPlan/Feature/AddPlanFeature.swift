@@ -16,24 +16,30 @@ struct AddPlanFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-                
+
                 // MARK: - View Action
-                
+
             case .view(.viewDidAppear):
                 return .none
-                
+
             case .view(.dismissTapped):
                 return .none
-                
+
             case .view(.scanPlanTapped):
-                // TODO: - Open camera for OCR
+                state.destination = .scanPlan(ScanPlanFeature.State())
                 return .none
-                
+
             case .view(.manualEntryTapped):
                 // TODO: - Open manual entry form
                 return .none
+
+                // MARK: - Destination
+
+            case .destination:
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
 }

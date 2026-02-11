@@ -45,6 +45,11 @@ struct AddPlanView: View {
                     }
                 }
             }
+            .navigationDestination(
+                item: $store.scope(state: \.destination?.scanPlan, action: \.destination.scanPlan)
+            ) { scanPlanStore in
+                ScanPlanView(store: scanPlanStore)
+            }
             .onAppear {
                 send(.viewDidAppear)
             }
