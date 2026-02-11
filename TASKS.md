@@ -546,3 +546,4 @@
     - Runtime strategy selection: on-device (OCR+FM) vs cloud (Claude API)
     - Add FoundationModelAvailability check in HealthHub
     - Add ClaudeAPIService skeleton in HealthHub
+    E: Foundation models availability check
