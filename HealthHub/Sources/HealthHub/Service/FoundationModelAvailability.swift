@@ -7,17 +7,33 @@
 
 import Foundation
 
+#if canImport(FoundationModels)
+import FoundationModels
+#endif
+
 /// Checks whether on-device Foundation Models are available on this device.
 ///
-/// Foundation Models require iPhone 15 Pro+ or M-series iPad/Mac
-/// running iOS 26.0+. Used by ``WorkoutExtractionClient`` to select
-/// the appropriate workout extraction strategy at runtime.
+/// Foundation Models require an Apple Intelligence-compatible device
+/// (iPhone 15 Pro+, M-series iPad/Mac) running iOS 26.0+
+/// with Apple Intelligence enabled. Used by ``WorkoutExtractionClient``
+/// to select the appropriate workout extraction strategy at runtime.
+///
+/// Possible unavailability reasons:
+/// - Device not eligible (no Apple Intelligence support)
+/// - Apple Intelligence not enabled in Settings
+/// - Model not yet downloaded after enabling Apple Intelligence
 public enum FoundationModelAvailability {
 
     /// Returns `true` if on-device Foundation Models can be used.
     public static var isAvailable: Bool {
-        // TODO: Check actual FoundationModels framework availability
-        // when building with iOS 26 SDK.
-        false
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *) {
+            let availability = SystemLanguageModel.default.availability
+            print("[FoundationModelAvailability] availability: \(availability)")
+            return availability == .available
+        }
+        #endif
+        print("[FoundationModelAvailability] FoundationModels not available (SDK or OS version)")
+        return false
     }
 }
