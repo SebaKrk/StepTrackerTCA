@@ -541,3 +541,8 @@
     B: Refactor ActivitiesFeature
     - Extract workout logic from ActivitiesFeature into a separate PersonalActivityFeature.
     C: Improve OCR accuracy and modernize ScanPlan button styles
+    D: Add WorkoutExtractionClient strategy pattern for device-based extraction pipeline
+    - Replace ScanPlanClient with WorkoutExtractionClient
+    - Runtime strategy selection: on-device (OCR+FM) vs cloud (Claude API)
+    - Add FoundationModelAvailability check in HealthHub
+    - Add ClaudeAPIService skeleton in HealthHub

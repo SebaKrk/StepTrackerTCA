@@ -10,13 +10,15 @@ import PhotosUI
 import SwiftUI
 import SharedModels
 
-/// Feature responsible for scanning a workout plan from a photo using OCR.
+/// Feature responsible for extracting a workout plan from a photo.
 ///
-/// Flow: Select photo → Load image data → Extract text via Vision OCR → Edit extracted text.
+/// Flow: Select photo → Load image data → Extract text → Edit extracted text.
+/// The extraction strategy (on-device OCR+FM vs cloud Claude API) is determined
+/// at runtime by ``WorkoutExtractionClient`` based on device capabilities.
 @Reducer
 struct ScanPlanFeature {
 
-    @Dependency(\.scanPlanClient) var scanPlanClient
+    @Dependency(\.workoutExtractionClient) var extractionClient
 
     // MARK: - Body
 
@@ -50,7 +52,7 @@ struct ScanPlanFeature {
                 state.viewState = .processingOCR
                 return .run { send in
                     do {
-                        let text = try await scanPlanClient.recognizeText(imageData)
+                        let text = try await extractionClient.extractWorkout(imageData)
                         await send(.internal(.ocrCompleted(text)))
                     } catch {
                         await send(.internal(.ocrFailed(error.localizedDescription)))
