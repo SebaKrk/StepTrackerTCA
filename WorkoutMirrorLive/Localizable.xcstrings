@@ -1061,6 +1061,9 @@
         }
       }
     },
+    "Clear" : {
+
+    },
     "Community" : {
       "comment" : "The Community Tab connects users for sharing and interaction.",
       "localizations" : {
@@ -1121,6 +1124,9 @@
           }
         }
       }
+    },
+    "Could not load the selected image." : {
+
     },
     "Create a Workout Plan" : {
 
@@ -1478,6 +1484,15 @@
           }
         }
       }
+    },
+    "Extract Text" : {
+
+    },
+    "Extracted Text" : {
+
+    },
+    "Extracting text..." : {
+
     },
     "failed" : {
       "localizations" : {
@@ -2528,6 +2543,9 @@
         }
       }
     },
+    "Retry" : {
+
+    },
     "Rounds" : {
       "localizations" : {
         "pl" : {
@@ -2628,6 +2646,9 @@
         }
       }
     },
+    "Scan Plan" : {
+
+    },
     "Scan your handwritten notes or enter manually" : {
 
     },
@@ -2671,6 +2692,9 @@
         }
       }
     },
+    "Select a photo of your workout plan" : {
+
+    },
     "Select a Tab" : {
       "localizations" : {
         "pl" : {
@@ -2680,6 +2704,9 @@
           }
         }
       }
+    },
+    "Select Photo" : {
+
     },
     "select workout" : {
       "localizations" : {
