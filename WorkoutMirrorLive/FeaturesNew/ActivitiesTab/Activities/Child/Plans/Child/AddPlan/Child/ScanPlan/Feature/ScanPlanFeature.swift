@@ -52,22 +52,24 @@ struct ScanPlanFeature {
                 state.viewState = .processingOCR
                 return .run { send in
                     do {
-                        let text = try await extractionClient.extractWorkout(imageData)
-                        await send(.internal(.ocrCompleted(text)))
+                        let result = try await extractionClient.extractWorkout(imageData)
+                        await send(.internal(.extractionCompleted(result)))
                     } catch {
-                        await send(.internal(.ocrFailed(error.localizedDescription)))
+                        await send(.internal(.extractionFailed(error.localizedDescription)))
                     }
                 }
 
             case .view(.retryTapped):
                 state.selectedImageData = nil
                 state.extractedText = ""
+                state.extractedWorkout = nil
                 state.viewState = .idle
                 return .none
 
             case .view(.clearImageTapped):
                 state.selectedImageData = nil
                 state.extractedText = ""
+                state.extractedWorkout = nil
                 state.viewState = .idle
                 return .none
 
@@ -82,12 +84,16 @@ struct ScanPlanFeature {
                 state.viewState = .imageSelected
                 return .none
 
-            case let .internal(.ocrCompleted(text)):
-                state.extractedText = text
+            case let .internal(.extractionCompleted(workout)):
+                state.extractedText = workout.rawText
+                state.extractedWorkout = workout
                 state.viewState = .textReady
+                print("[ScanPlanFeature] Extraction completed: \(workout.name)")
+                print("[ScanPlanFeature] Sections: \(workout.sections.map { $0.type.rawValue })")
+                print("[ScanPlanFeature] Estimated time: \(workout.totalEstimatedMinutes) min")
                 return .none
 
-            case let .internal(.ocrFailed(error)):
+            case let .internal(.extractionFailed(error)):
                 state.viewState = .failed(error)
                 return .none
             }
