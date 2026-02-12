@@ -550,5 +550,7 @@
 
 ### IOS-00065 Foundation
     A: Add Foundation Models workout parsing
+    B: Migrate TrainingSession and workout types to SharedModels
+    C:
 
 

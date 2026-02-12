@@ -7,8 +7,8 @@
 
 import HealthKit
 
-enum WorkoutActivityType: CaseIterable, Hashable {
-    
+public enum WorkoutActivityType: CaseIterable, Hashable, Sendable {
+
     case running
     case walking
     case cycling
@@ -16,8 +16,8 @@ enum WorkoutActivityType: CaseIterable, Hashable {
     case crossTraining
     case boxing
     case cooldown
-    
-    var title: String {
+
+    public var title: String {
         switch self {
         case .running:        return "Running"
         case .walking:        return "Walking"
@@ -29,7 +29,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
         }
     }
     
-    var iconName: String {
+    public var iconName: String {
         switch self {
         case .running:        return "figure.run.circle.fill"
         case .walking:        return "figure.walk.circle.fill"
@@ -42,7 +42,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
     }
     
     /// Map to HealthKit equivalent
-    var hkType: HKWorkoutActivityType {
+    public var hkType: HKWorkoutActivityType {
         switch self {
         case .running:        return .running
         case .walking:        return .walking
@@ -55,7 +55,7 @@ enum WorkoutActivityType: CaseIterable, Hashable {
     }
     
     /// Create from HealthKit value
-    init?(hkType: HKWorkoutActivityType) {
+    public init?(hkType: HKWorkoutActivityType) {
         switch hkType {
         case .running:        self = .running
         case .walking:        self = .walking
