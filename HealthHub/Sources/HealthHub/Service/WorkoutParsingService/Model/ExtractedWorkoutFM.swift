@@ -16,17 +16,17 @@ import FoundationModels
 @Generable
 struct ExtractedWorkoutFM {
 
-    @Guide(description: "Workout name based on exercises, e.g. 'Snatch + AMRAP Conditioning'. Fallback: 'CrossFit' + date")
+    @Guide(description: "Workout sections", .count(1...20))
+    var sections: [WorkoutSectionFM]
+
+    @Guide(description: "Workout name")
     var name: String
 
-    @Guide(description: "Date from text or today's date in yyyy-MM-dd format")
+    @Guide(description: "Workout date (yyyy-MM-dd)")
     var date: String
 
-    @Guide(description: "Total estimated duration in minutes including warmup, transitions, cooldown")
+    @Guide(description: "Total duration in minutes (typically 55-60 min for full workout)", .range(40...90))
     var totalEstimatedMinutes: Int
-
-    @Guide(description: "All sections in order: warmup, then workout sections with transitions between them, then cooldown")
-    var sections: [WorkoutSectionFM]
 }
 
 // MARK: - SectionTypeFM
@@ -49,25 +49,25 @@ struct WorkoutSectionFM {
 
     var type: SectionTypeFM
 
-    @Guide(description: "Section name for strength/conditioning, e.g. 'Snatch', 'AMRAP 10'. Nil for warmup/cooldown/transition")
+    @Guide(description: "Section name from text (e.g. 'Snatch', 'AMRAP 10'). Nil for warmup/cooldown/transition")
     var name: String?
 
-    @Guide(description: "Duration in minutes for warmup/cooldown/transition")
-    var durationMinutes: Int?
-
-    @Guide(description: "Description for warmup/cooldown/transition — AI generated based on exercises")
-    var description: String?
-
-    @Guide(description: "Time cap in minutes for conditioning (AMRAP, FOR TIME)")
-    var timeCapMinutes: Int?
-
-    @Guide(description: "Round scheme: 'AMRAP', '5', 'FOR TIME'")
-    var rounds: String?
-
-    @Guide(description: "Exercises in this section")
+    @Guide(description: "Exercises in this section. Required for strength/conditioning. Generate for warmup. Nil for transition and cooldown")
     var exercises: [ExerciseFM]?
 
-    @Guide(description: "Additional notes about the section")
+    @Guide(description: "Time cap for conditioning (e.g. AMRAP 10' → 10)", .range(1...120))
+    var timeCapMinutes: Int?
+
+    @Guide(description: "Round scheme: 'AMRAP', '5 rounds', 'FOR TIME'")
+    var rounds: String?
+
+    @Guide(description: "Duration for warmup/transition/cooldown", .range(1...120))
+    var durationMinutes: Int?
+
+    @Guide(description: "Section description")
+    var description: String?
+
+    @Guide(description: "Additional notes")
     var notes: String?
 }
 
@@ -77,16 +77,16 @@ struct WorkoutSectionFM {
 @Generable
 struct ExerciseFM {
 
-    @Guide(description: "Exercise name, e.g. 'Snatch', 'American Kettlebell Swing', 'HSPU'")
+    @Guide(description: "Exercise name from vocabulary (e.g. 'Snatch', 'American Swing', 'HSPU'). NOT section name!")
     var name: String
 
-    @Guide(description: "Rep count per set, e.g. 16, 8")
+    @Guide(description: "Total reps for conditioning (e.g. '16 SWING' → 16). Nil for strength with set schemes", .range(1...1000))
     var reps: Int?
 
-    @Guide(description: "Individual sets with details — for strength work with varying intensity")
+    @Guide(description: "Set schemes for strength (e.g. '4x5' → [{setNumber:4, reps:5}])")
     var sets: [ExerciseSetFM]?
 
-    @Guide(description: "Scaling options: 'RX: 24/16 kg, Scaled: 16/12 kg'")
+    @Guide(description: "Weight options (e.g. '24/16, 28/20, 32/24')")
     var scalingOptions: String?
 }
 
@@ -96,10 +96,13 @@ struct ExerciseFM {
 @Generable
 struct ExerciseSetFM {
 
+    @Guide(description: "Number of sets (e.g. '4x5' → 4)", .range(1...100))
     var setNumber: Int
+
+    @Guide(description: "Reps per set (e.g. '4x5' → 5)", .range(1...1000))
     var reps: Int
 
-    @Guide(description: "Intensity: '50-60%', '80kg', 'bodyweight'")
+    @Guide(description: "Intensity from text (e.g. '50-60%', '80kg', 'RX')")
     var intensity: String?
 
     @Guide(description: "Rest between sets in seconds")

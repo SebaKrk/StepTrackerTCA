@@ -127,8 +127,8 @@ struct ScanPlanFeature {
                             print()
 
                             if let sets = exercise.sets {
-                                for set in sets {
-                                    print("         Set \(set.setNumber): \(set.reps) reps", terminator: "")
+                                for (index, set) in sets.enumerated() {
+                                    print("         Scheme \(index + 1): \(set.setNumber) sets × \(set.reps) reps", terminator: "")
                                     if let intensity = set.intensity {
                                         print(" @ \(intensity)", terminator: "")
                                     }
