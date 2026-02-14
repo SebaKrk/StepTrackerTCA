@@ -75,6 +75,12 @@ struct ScanPlanFeature {
                 state.viewState = .idle
                 return .none
 
+            case .view(.previewWorkoutTapped):
+                guard let workout = state.extractedWorkout else { return .none }
+                let trainingSession = workout.toTrainingSession()
+                state.workoutPreview = WorkoutPreviewFeature.State(trainingSession: trainingSession)
+                return .none
+
                 // MARK: - Internal Action
 
             case let .internal(.imageLoaded(data)):
@@ -89,84 +95,64 @@ struct ScanPlanFeature {
             case let .internal(.extractionCompleted(workout)):
                 state.extractedText = workout.rawText
                 state.extractedWorkout = workout
-                state.viewState = .textReady
 
-                // MARK: - Detailed Workout Dump
-                print("\n" + String(repeating: "=", count: 80))
-                print("🏋️ EXTRACTED WORKOUT")
-                print(String(repeating: "=", count: 80))
-                print("📝 Name: \(workout.name)")
-                print("📅 Date: \(workout.date)")
-                print("⏱️  Total Duration: \(workout.totalEstimatedMinutes) min")
-                print("📊 Sections Count: \(workout.sections.count)")
-                print(String(repeating: "-", count: 80))
+                // MARK: - Check if extraction returned empty result (FM unavailable fallback)
 
-                for (index, section) in workout.sections.enumerated() {
-                    print("\n🔹 Section \(index + 1): \(section.type.rawValue.uppercased())")
-                    if let name = section.name {
-                        print("   Name: \(name)")
-                    }
-                    if let duration = section.durationMinutes {
-                        print("   Duration: \(duration) min")
-                    }
-                    if let timeCap = section.timeCapMinutes {
-                        print("   Time Cap: \(timeCap) min")
-                    }
-                    if let rounds = section.rounds {
-                        print("   Rounds: \(rounds)")
-                    }
-                    if let description = section.description {
-                        print("   Description: \(description)")
-                    }
+                guard !workout.sections.isEmpty else {
+                    state.viewState = .unavailable("""
+                        Foundation Models unavailable on this device.
 
-                    if let exercises = section.exercises, !exercises.isEmpty {
-                        print("   Exercises:")
-                        for (exIndex, exercise) in exercises.enumerated() {
-                            print("      \(exIndex + 1). \(exercise.name)", terminator: "")
-                            if let reps = exercise.reps {
-                                print(" - \(reps) reps", terminator: "")
-                            }
-                            print()
+                        OCR extracted text successfully, but structured parsing requires:
+                        • iPhone 15 Pro / Pro Max or newer
+                        • iPad with M1+ chip
+                        • Mac with Apple Silicon
+                        • iOS 26+ with Apple Intelligence enabled
 
-                            if let sets = exercise.sets {
-                                for (index, set) in sets.enumerated() {
-                                    print("         Scheme \(index + 1): \(set.setNumber) sets × \(set.reps) reps", terminator: "")
-                                    if let intensity = set.intensity {
-                                        print(" @ \(intensity)", terminator: "")
-                                    }
-                                    if let rest = set.restSeconds {
-                                        print(" (rest: \(rest)s)", terminator: "")
-                                    }
-                                    print()
-                                }
-                            }
-
-                            if let scaling = exercise.scalingOptions {
-                                print("         Scaling: \(scaling)")
-                            }
-                        }
-                    }
-
-                    if let notes = section.notes {
-                        print("   Notes: \(notes)")
-                    }
+                        Cloud API fallback coming soon.
+                        """)
+                    return .none
                 }
 
-                print("\n" + String(repeating: "=", count: 80))
-                print("✅ Extraction completed successfully")
-                print(String(repeating: "=", count: 80) + "\n")
+                // MARK: - Navigation Mode Toggle
 
-                // Test mapper
-                let trainingSession = workout.toTrainingSession()
-                print("\n🔄 TrainingSession dump:")
-                dump(trainingSession)
+                // OPTION A: Manual flow - user clicks "Preview Workout" button
+                state.viewState = .textReady
+
+                // OPTION B: Auto flow - immediate navigation to preview (COMMENTED OUT)
+                // let trainingSession = workout.toTrainingSession()
+                // state.workoutPreview = WorkoutPreviewFeature.State(trainingSession: trainingSession)
 
                 return .none
 
             case let .internal(.extractionFailed(error)):
                 state.viewState = .failed(error)
                 return .none
+
+                // MARK: - Destination Action
+
+            case .destination(.presented(.workoutPreview(.view(.editButtonTapped)))):
+                // User wants to edit - go back to idle state
+                state.workoutPreview = nil  // Dismiss preview
+                state.viewState = .idle
+                state.selectedImageData = nil
+                state.extractedText = ""
+                state.extractedWorkout = nil
+                return .none
+
+            case .destination(.dismiss):
+                // User dismissed preview (back button) - reset to idle
+                state.viewState = .idle
+                state.selectedImageData = nil
+                state.extractedText = ""
+                state.extractedWorkout = nil
+                return .none
+
+            case .destination:
+                return .none
             }
+        }
+        .ifLet(\.$workoutPreview, action: \.destination.workoutPreview) {
+            WorkoutPreviewFeature()
         }
     }
 

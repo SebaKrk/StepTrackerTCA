@@ -32,14 +32,22 @@ extension ExtractedWorkoutFM {
 extension WorkoutSectionFM {
 
     func toWorkoutSection() -> WorkoutSection {
-        WorkoutSection(
+        // CRITICAL: Remove exercises from transition/cooldown (FM may generate despite instructions)
+        let validExercises: [ExtractedExercise]?
+        if type == .transition || type == .cooldown {
+            validExercises = nil
+        } else {
+            validExercises = exercises?.map { $0.toExtractedExercise() }
+        }
+
+        return WorkoutSection(
             type: type.toSectionType(),
             name: name,
             durationMinutes: durationMinutes,
             description: description,
             timeCapMinutes: timeCapMinutes,
             rounds: rounds,
-            exercises: exercises?.map { $0.toExtractedExercise() },
+            exercises: validExercises,  // ← Filtered
             notes: notes
         )
     }

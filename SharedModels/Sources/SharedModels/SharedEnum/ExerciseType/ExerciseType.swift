@@ -15,6 +15,7 @@ public enum ExerciseType: String, CaseIterable, Sendable {
     case backSquat
     case frontSquat
     case benchPress
+    case shoulderPress
     case overheadSquat
     
     // Olympic Weightlifting
@@ -67,6 +68,7 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .backSquat: return "Back Squat"
         case .frontSquat: return "Front Squat"
         case .benchPress: return "Bench Press"
+        case .shoulderPress: return "Shoulder Press"
         case .overheadSquat: return "Overhead Squat"
         case .snatch: return "Snatch"
         case .cleanAndJerk: return "Clean and Jerk"
@@ -109,15 +111,17 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .backSquat:
             return ["back squat", "squat", "BS"]
         case .frontSquat:
-            return ["front squat", "FS"]
+            return ["front squat", "front squats", "FS"]
         case .benchPress:
             return ["bench press", "bench", "BP"]
+        case .shoulderPress:
+            return ["shoulder press", "strict press", "military press", "DB shoulder press", "dumbbell shoulder press", "press"]
         case .overheadSquat:
             return ["overhead squat", "OHS"]
         case .snatch:
             return ["snatch", "full snatch", "squat snatch"]
         case .cleanAndJerk:
-            return ["clean and jerk", "clean & jerk", "C&J", "CJ"]
+            return ["clean and jerk", "clean & jerk", "C&J", "CJ", "hang clean and jerk", "hang clean & jerk", "hang clean jerk"]
         case .powerClean:
             return ["power clean", "PC"]
         case .powerSnatch:
@@ -131,11 +135,11 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .pushUps:
             return ["push-ups", "push ups", "pushups"]
         case .burpees:
-            return ["burpees", "burpee"]
+            return ["burpees", "burpee", "burpee box jump", "burpee box jump over", "burpee over box"]
         case .airSquat:
             return ["air squat", "bodyweight squat", "air squats"]
         case .boxJumps:
-            return ["box jumps", "box jump", "BJ"]
+            return ["box jumps", "box jump", "BJ", "BOB", "box", "box jump-overs", "box jump overs", "box jump over", "jump-overs"]
         case .doubleUnders:
             return ["double unders", "double-unders", "DU"]
         case .toesToBar:
@@ -143,7 +147,7 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .sitUps:
             return ["sit up", "sit-up", "situp"]
         case .running:
-            return ["running", "run", "jog"]
+            return ["running", "run", "jog", "meter run", "m run", "km run", "mile run"]
         case .rowing:
             return ["rowing", "row", "erg"]
         case .cycling:
@@ -157,7 +161,7 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .kettlebellSnatch:
             return ["kettlebell snatch", "KB snatch"]
         case .kettlebellPushPress:
-            return ["kettlebell push press", "KB push press", "KTB push press"]
+            return ["kettlebell push press", "KB push press", "KTB push press", "KB/DB push press", "DB push press", "dumbbell push press"]
         case .turkishGetUp:
             return ["turkish get-up", "turkish getup", "TGU"]
         case .handstandPushUps:
@@ -175,13 +179,13 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .ropeClimb:
             return ["rope climb", "rope climbing", "climb rope"]
         case .lunges:
-            return ["lunges", "lunge", "walking lunges"]
+            return ["lunges", "lunge", "walking lunges", "reverse lunges", "goblet lunges", "goblet reverse lunges"]
         }
     }
     
     public var category: WorkoutCategoryNew {
         switch self {
-        case .deadlift, .backSquat, .frontSquat, .benchPress, .overheadSquat:
+        case .deadlift, .backSquat, .frontSquat, .benchPress, .shoulderPress, .overheadSquat:
             return .strength
         case .snatch, .cleanAndJerk, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch:
             return .weightlifting

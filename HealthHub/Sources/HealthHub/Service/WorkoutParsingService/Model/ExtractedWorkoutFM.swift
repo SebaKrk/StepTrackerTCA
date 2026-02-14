@@ -16,9 +16,6 @@ import FoundationModels
 @Generable
 struct ExtractedWorkoutFM {
 
-    @Guide(description: "Workout sections", .count(1...20))
-    var sections: [WorkoutSectionFM]
-
     @Guide(description: "Workout name")
     var name: String
 
@@ -27,6 +24,9 @@ struct ExtractedWorkoutFM {
 
     @Guide(description: "Total duration in minutes (typically 55-60 min for full workout)", .range(40...90))
     var totalEstimatedMinutes: Int
+
+    @Guide(description: "Workout sections", .count(1...20))
+    var sections: [WorkoutSectionFM]  // ← LAST (complex property, generates better when last)
 }
 
 // MARK: - SectionTypeFM

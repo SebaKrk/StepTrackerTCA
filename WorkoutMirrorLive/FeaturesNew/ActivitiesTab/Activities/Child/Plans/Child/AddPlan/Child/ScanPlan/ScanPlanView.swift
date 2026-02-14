@@ -37,6 +37,10 @@ struct ScanPlanView: View {
                     case .textReady:
                         smallImagePreviewSection
                         textEditorSection
+                        previewButtonSection
+
+                    case let .unavailable(message):
+                        unavailableSection(message: message)
 
                     case let .failed(error):
                         failedSection(error: error)
@@ -67,6 +71,11 @@ struct ScanPlanView: View {
                       selection: $store.selectedItem)
         .onChange(of: store.selectedItem) { _, newItem in
             send(.selectedPhotoChanged(newItem))
+        }
+        .navigationDestination(
+            item: $store.scope(state: \.workoutPreview, action: \.destination.workoutPreview)
+        ) { previewStore in
+            WorkoutPreviewView(store: previewStore)
         }
     }
 
@@ -181,6 +190,40 @@ struct ScanPlanView: View {
                 .padding(8)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
+    // MARK: - Preview Button
+
+    private var previewButtonSection: some View {
+        Button {
+            send(.previewWorkoutTapped)
+        } label: {
+            Label("Preview Workout", systemImage: "eye")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(store.color)
+        .controlSize(.large)
+        .keyboardShortcut(.defaultAction)
+    }
+
+    // MARK: - Unavailable
+
+    private func unavailableSection(message: String) -> some View {
+        ContentUnavailableView {
+            Label("Feature Unavailable", systemImage: "exclamationmark.applewatch")
+        } description: {
+            Text(message)
+        } actions: {
+            Button {
+                send(.retryTapped)
+            } label: {
+                Label("Try Again", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(store.color)
+            .controlSize(.large)
         }
     }
 
