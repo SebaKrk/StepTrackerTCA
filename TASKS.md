@@ -558,5 +558,5 @@
 ### IOS-00066 Claude api
     A: WorkoutParsingStrategy protocol                                                 
     - Define protocol for workout parsing strategies                                             
-
+    B: Add parsing strategy architecture
 
