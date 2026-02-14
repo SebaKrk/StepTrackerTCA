@@ -9,13 +9,13 @@
 import Foundation
 
 // MARK: - Exercise Workout Type
-enum ExerciseWorkoutType: String, CaseIterable {
+public enum ExerciseWorkoutType: String, CaseIterable, Sendable {
     case amrap
     case forTime
     case emom
     case tabata
-    
-    var displayName: String {
+
+    public var displayName: String {
         switch self {
         case .amrap: return "AMRAP"
         case .forTime: return "For Time"
@@ -24,7 +24,7 @@ enum ExerciseWorkoutType: String, CaseIterable {
         }
     }
     
-    var fullDescription: String {
+    public var fullDescription: String {
         switch self {
         case .amrap: return "As Many Rounds As Possible"
         case .forTime: return "Complete as fast as possible"
@@ -33,7 +33,7 @@ enum ExerciseWorkoutType: String, CaseIterable {
         }
     }
     
-    var aliases: [String] {
+    public var aliases: [String] {
         switch self {
         case .amrap:
             return ["AMRAP", "as many rounds as possible", "amrap"]
@@ -46,7 +46,7 @@ enum ExerciseWorkoutType: String, CaseIterable {
         }
     }
     
-    var defaultTimeCapMinutes: Int? {
+    public var defaultTimeCapMinutes: Int? {
         switch self {
         case .amrap: return 15
         case .forTime: return 20
@@ -55,7 +55,7 @@ enum ExerciseWorkoutType: String, CaseIterable {
         }
     }
     
-    var isTimerRequired: Bool {
+    public var isTimerRequired: Bool {
         switch self {
         case .amrap: return true
         case .forTime: return false // może mieć time cap, ale nie jest wymagany

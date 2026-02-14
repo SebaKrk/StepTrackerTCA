@@ -7,26 +7,26 @@
 
 import HealthKit
 
-enum WorkoutLocationType: CaseIterable, Hashable {
-    
+public enum WorkoutLocationType: CaseIterable, Hashable, Sendable {
+
     case indoor
     case outdoor
-    
-    var title: String {
+
+    public var title: String {
         switch self {
         case .indoor:  return "Indoor"
         case .outdoor: return "Outdoor"
         }
     }
     
-    var hkType: HKWorkoutSessionLocationType {
+    public var hkType: HKWorkoutSessionLocationType {
         switch self {
         case .indoor:  return .indoor
         case .outdoor: return .outdoor
         }
     }
     
-    init?(hkType: HKWorkoutSessionLocationType) {
+    public init?(hkType: HKWorkoutSessionLocationType) {
         switch hkType {
         case .indoor:  self = .indoor
         case .outdoor: self = .outdoor

@@ -35,6 +35,14 @@ extension ScanPlanFeature {
 
         /// Text extracted from the image via OCR, editable by user.
         var extractedText: String = ""
+
+        /// Structured workout extracted from OCR text via Foundation Models.
+        var extractedWorkout: ExtractedWorkout?
+
+        // MARK: - Destination
+
+        /// Workout preview destination (navigation).
+        @Presents var workoutPreview: WorkoutPreviewFeature.State?
     }
 
 }

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import PhotosUI
+import SharedModels
 import SwiftUI
 
 extension ScanPlanFeature {
@@ -17,6 +18,7 @@ extension ScanPlanFeature {
         case binding(BindingAction<State>)
         case view(View)
         case `internal`(Internal)
+        case destination(PresentationAction<Destination.Action>)
 
         @CasePathable
         enum View {
@@ -35,6 +37,9 @@ extension ScanPlanFeature {
 
             /// Called when user taps "Clear" to remove selected image.
             case clearImageTapped
+
+            /// Called when user taps "Preview Workout" button.
+            case previewWorkoutTapped
         }
 
         enum Internal {
@@ -42,11 +47,16 @@ extension ScanPlanFeature {
             /// Image data loaded from the selected photo picker item.
             case imageLoaded(Data?)
 
-            /// OCR completed successfully with extracted text.
-            case ocrCompleted(String)
+            /// Workout extraction completed successfully.
+            case extractionCompleted(ExtractedWorkout)
 
-            /// OCR failed with an error message.
-            case ocrFailed(String)
+            /// Workout extraction failed with an error message.
+            case extractionFailed(String)
+        }
+
+        @Reducer
+        enum Destination {
+            case workoutPreview(WorkoutPreviewFeature)
         }
     }
 

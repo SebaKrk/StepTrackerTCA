@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum SimpleWorkoutGoal: CaseIterable, Hashable {
-    
+public enum SimpleWorkoutGoal: CaseIterable, Hashable, Sendable {
+
     case open
     case timeLimit
 
-    var title: String {
+    public var title: String {
         switch self {
         case .open: return "Open"
         case .timeLimit: return "Time Limit"

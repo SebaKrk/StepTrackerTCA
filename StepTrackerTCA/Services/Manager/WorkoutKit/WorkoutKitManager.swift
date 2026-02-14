@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SharedModels
 import WorkoutKit
 
 /// A protocol defining the interface for managing workout scheduling and authorization.

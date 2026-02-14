@@ -547,3 +547,10 @@
     - Add FoundationModelAvailability check in HealthHub
     - Add ClaudeAPIService skeleton in HealthHub
     E: Foundation models availability check
+
+### IOS-00065 Foundation
+    A: Add Foundation Models workout parsing
+    B: Migrate TrainingSession and workout types to SharedModels
+    C: Fix workout parsing accuracy - extract ONLY what's in OCR text
+    D: ExtractedWorkout+Mapper
+    E: Training Session Preview Integration

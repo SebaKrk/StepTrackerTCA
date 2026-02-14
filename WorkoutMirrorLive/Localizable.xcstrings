@@ -12,6 +12,7 @@
       }
     },
     " cal" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -22,6 +23,7 @@
       }
     },
     " laps" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -32,6 +34,7 @@
       }
     },
     " m" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -42,6 +45,7 @@
       }
     },
     " min" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -52,6 +56,7 @@
       }
     },
     " reps" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -62,6 +67,7 @@
       }
     },
     " rounds" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -72,6 +78,7 @@
       }
     },
     " sec" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -369,6 +376,9 @@
           }
         }
       }
+    },
+    "%lld min cap" : {
+
     },
     "%lld reps" : {
       "localizations" : {
@@ -1395,6 +1405,9 @@
         }
       }
     },
+    "Edit" : {
+
+    },
     "Edytuj" : {
       "localizations" : {
         "pl" : {
@@ -1503,6 +1516,9 @@
           }
         }
       }
+    },
+    "Feature Unavailable" : {
+
     },
     "figure.run" : {
       "localizations" : {
@@ -2411,6 +2427,9 @@
         }
       }
     },
+    "Preview Workout" : {
+
+    },
     "Primary Zone" : {
       "localizations" : {
         "pl" : {
@@ -2492,6 +2511,9 @@
           }
         }
       }
+    },
+    "Refresh" : {
+
     },
     "Remove all scheduled workouts" : {
       "localizations" : {
@@ -3154,6 +3176,9 @@
           }
         }
       }
+    },
+    "Try Again" : {
+
     },
     "tu cos bedzie" : {
       "localizations" : {

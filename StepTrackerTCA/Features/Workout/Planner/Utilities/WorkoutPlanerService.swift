@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SharedModels
 import WorkoutKit
 
 protocol WorkoutPlanerService {

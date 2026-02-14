@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SharedModels
 import WorkoutKit
 
 final class DefaultWorkoutKitManager: WorkoutKitManager {
