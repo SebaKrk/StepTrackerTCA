@@ -18,6 +18,7 @@ extension ScanPlanFeature {
         case binding(BindingAction<State>)
         case view(View)
         case `internal`(Internal)
+        case destination(PresentationAction<Destination.Action>)
 
         @CasePathable
         enum View {
@@ -36,6 +37,9 @@ extension ScanPlanFeature {
 
             /// Called when user taps "Clear" to remove selected image.
             case clearImageTapped
+
+            /// Called when user taps "Preview Workout" button.
+            case previewWorkoutTapped
         }
 
         enum Internal {
@@ -48,6 +52,11 @@ extension ScanPlanFeature {
 
             /// Workout extraction failed with an error message.
             case extractionFailed(String)
+        }
+
+        @Reducer
+        enum Destination {
+            case workoutPreview(WorkoutPreviewFeature)
         }
     }
 

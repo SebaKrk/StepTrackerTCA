@@ -22,6 +22,9 @@ public enum ScanPlanViewState: Equatable {
     /// Text successfully extracted and ready for editing.
     case textReady
 
+    /// Feature unavailable (e.g., Foundation Models not supported on device).
+    case unavailable(String)
+
     /// An error occurred during image loading or OCR.
     case failed(String)
 }

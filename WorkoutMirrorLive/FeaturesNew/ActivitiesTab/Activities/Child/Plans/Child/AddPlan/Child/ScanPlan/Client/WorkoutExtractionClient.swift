@@ -51,7 +51,6 @@ extension WorkoutExtractionClient: DependencyKey {
                     if #available(iOS 26.0, *) {
                         let parsingService = WorkoutParsingService()
                         let result = try await parsingService.parseWorkoutText(rawText)
-                        print("[WorkoutExtractionClient] FM parsing completed: \(result.name), \(result.sections.count) sections")
                         return result
                     }
                     #endif

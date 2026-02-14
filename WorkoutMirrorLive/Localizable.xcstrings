@@ -377,6 +377,9 @@
         }
       }
     },
+    "%lld min cap" : {
+
+    },
     "%lld reps" : {
       "localizations" : {
         "pl" : {
@@ -1402,6 +1405,9 @@
         }
       }
     },
+    "Edit" : {
+
+    },
     "Edytuj" : {
       "localizations" : {
         "pl" : {
@@ -1510,6 +1516,9 @@
           }
         }
       }
+    },
+    "Feature Unavailable" : {
+
     },
     "figure.run" : {
       "localizations" : {
@@ -2418,6 +2427,9 @@
         }
       }
     },
+    "Preview Workout" : {
+
+    },
     "Primary Zone" : {
       "localizations" : {
         "pl" : {
@@ -3164,6 +3176,9 @@
           }
         }
       }
+    },
+    "Try Again" : {
+
     },
     "tu cos bedzie" : {
       "localizations" : {

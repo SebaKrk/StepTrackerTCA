@@ -14,12 +14,9 @@ extension ExtractedWorkout {
         // Parse date from "yyyy-MM-dd" string
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
-        let parsedDate = dateFormatter.date(from: date) ?? {
-            print("⚠️ [Mapper] Failed to parse date '\(date)', using current date")
-            return Date()
-        }()
+        let parsedDate = dateFormatter.date(from: date) ?? Date()
 
-        // Extract warmup section
+        // Extract warmup section (take first if duplicates)
         let warmUp = sections
             .first(where: { $0.type == .warmup })?
             .toWarmUpSession()
@@ -29,10 +26,11 @@ extension ExtractedWorkout {
             .filter { $0.type == .strength || $0.type == .conditioning }
             .map { $0.toWorkoutSessionNew() }
 
-        // Extract cooldown section
+        // Extract cooldown section (take first if duplicates)
         let coolDown = sections
             .first(where: { $0.type == .cooldown })?
             .toCoolDownSession()
+
 
         return TrainingSession(
             date: parsedDate,
@@ -179,6 +177,21 @@ extension ExerciseType {
             if exerciseType.aliases.contains(where: { $0.lowercased() == normalized }) {
                 return exerciseType
             }
+        }
+
+        // SPECIAL CASE: Distance-based exercises (e.g., "1,600-meter run", "5km row")
+        // Extract exercise type from suffix
+        if normalized.hasSuffix("run") || normalized.contains("meter run") || normalized.contains("km run") || normalized.contains("mile run") {
+            print("⚠️ [Mapper] Distance-based exercise '\(name)' → extracting 'running'")
+            return .running
+        }
+        if normalized.hasSuffix("row") || normalized.contains("meter row") || normalized.contains("km row") {
+            print("⚠️ [Mapper] Distance-based exercise '\(name)' → extracting 'rowing'")
+            return .rowing
+        }
+        if normalized.hasSuffix("bike") || normalized.contains("meter bike") || normalized.contains("km bike") {
+            print("⚠️ [Mapper] Distance-based exercise '\(name)' → extracting 'cycling'")
+            return .cycling
         }
 
         // Fallback to airSquat with warning

@@ -29,11 +29,9 @@ public enum FoundationModelAvailability {
         #if canImport(FoundationModels)
         if #available(iOS 26.0, *) {
             let availability = SystemLanguageModel.default.availability
-            print("[FoundationModelAvailability] availability: \(availability)")
             return availability == .available
         }
         #endif
-        print("[FoundationModelAvailability] FoundationModels not available (SDK or OS version)")
         return false
     }
 }

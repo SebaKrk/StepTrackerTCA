@@ -38,6 +38,11 @@ extension ScanPlanFeature {
 
         /// Structured workout extracted from OCR text via Foundation Models.
         var extractedWorkout: ExtractedWorkout?
+
+        // MARK: - Destination
+
+        /// Workout preview destination (navigation).
+        @Presents var workoutPreview: WorkoutPreviewFeature.State?
     }
 
 }
