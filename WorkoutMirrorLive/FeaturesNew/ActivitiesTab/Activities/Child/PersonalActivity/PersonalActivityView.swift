@@ -107,10 +107,10 @@ struct PersonalActivityView: View {
     
     @ViewBuilder
     private var workoutsListView: some View {
-        List {
-            if store.workouts.isEmpty {
-                emptyWorkoutsView
-            } else {
+        if store.workouts.isEmpty {
+            emptyWorkoutsView
+        } else {
+            List {
                 ForEach(store.workouts, id: \.uuid) { workout in
                     workoutCard(workout)
                 }
@@ -118,9 +118,9 @@ struct PersonalActivityView: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
     }
     
     // MARK: - Workout Card
@@ -279,11 +279,11 @@ struct PersonalActivityView: View {
     }
     
     private var emptyWorkoutsView: some View {
-        ContentUnavailableView(
-            "No Workouts",
-            systemImage: "figure.run",
-            description: Text("No workouts found for the selected period. Make sure you have granted HealthKit access and recorded some workouts.")
-        )
+        ContentUnavailableView {
+            Label("No Workouts", systemImage: "figure.run")
+        } description: {
+            Text("No workouts found for the selected period. Make sure you have granted HealthKit access and recorded some workouts.")
+        }
     }
     
 }
