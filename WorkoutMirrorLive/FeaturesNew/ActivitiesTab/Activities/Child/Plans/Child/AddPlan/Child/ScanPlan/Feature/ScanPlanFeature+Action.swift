@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import PhotosUI
+import SharedModels
 import SwiftUI
 
 extension ScanPlanFeature {
@@ -42,11 +43,11 @@ extension ScanPlanFeature {
             /// Image data loaded from the selected photo picker item.
             case imageLoaded(Data?)
 
-            /// OCR completed successfully with extracted text.
-            case ocrCompleted(String)
+            /// Workout extraction completed successfully.
+            case extractionCompleted(ExtractedWorkout)
 
-            /// OCR failed with an error message.
-            case ocrFailed(String)
+            /// Workout extraction failed with an error message.
+            case extractionFailed(String)
         }
     }
 

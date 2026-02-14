@@ -547,3 +547,8 @@
     - Add FoundationModelAvailability check in HealthHub
     - Add ClaudeAPIService skeleton in HealthHub
     E: Foundation models availability check
+
+### IOS-00065 Foundation
+    A: Add Foundation Models workout parsing
+
+
