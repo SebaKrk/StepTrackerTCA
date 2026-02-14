@@ -556,7 +556,10 @@
     E: Training Session Preview Integration
 
 ### IOS-00066 Claude api
-    A: WorkoutParsingStrategy protocol                                                 
-    - Define protocol for workout parsing strategies                                             
+    A: WorkoutParsingStrategy protocol
+    - Define protocol for workout parsing strategies
     B: Add parsing strategy architecture
+    C: Integrate strategies with TCA
+    - Replace WorkoutParsingService with WorkoutParsingClient
+    - Use @Dependency in WorkoutExtractionClient
 
