@@ -18,6 +18,8 @@ import SharedModels
 @Reducer
 struct ScanPlanFeature {
 
+    // MARK: - Dependency
+    
     @Dependency(\.workoutExtractionClient) var extractionClient
 
     // MARK: - Body
@@ -153,6 +155,11 @@ struct ScanPlanFeature {
                 print("\n" + String(repeating: "=", count: 80))
                 print("✅ Extraction completed successfully")
                 print(String(repeating: "=", count: 80) + "\n")
+
+                // Test mapper
+                let trainingSession = workout.toTrainingSession()
+                print("\n🔄 TrainingSession dump:")
+                dump(trainingSession)
 
                 return .none
 
