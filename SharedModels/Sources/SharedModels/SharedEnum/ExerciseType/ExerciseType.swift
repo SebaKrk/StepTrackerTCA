@@ -9,7 +9,7 @@
 import Foundation
 
 // MARK: - Exercise Type
-enum ExerciseType: String, CaseIterable {
+public enum ExerciseType: String, CaseIterable, Sendable {
     // Strength/Weightlifting (z obciążeniem)
     case deadlift
     case backSquat
@@ -60,8 +60,8 @@ enum ExerciseType: String, CaseIterable {
     
     // Other
     case lunges
-    
-    var displayName: String {
+
+    public var displayName: String {
         switch self {
         case .deadlift: return "Deadlift"
         case .backSquat: return "Back Squat"
@@ -102,7 +102,7 @@ enum ExerciseType: String, CaseIterable {
         }
     }
     
-    var aliases: [String] {
+    public var aliases: [String] {
         switch self {
         case .deadlift:
             return ["deadlift", "dead lift", "DL"]
@@ -179,7 +179,7 @@ enum ExerciseType: String, CaseIterable {
         }
     }
     
-    var category: WorkoutCategoryNew {
+    public var category: WorkoutCategoryNew {
         switch self {
         case .deadlift, .backSquat, .frontSquat, .benchPress, .overheadSquat:
             return .strength
@@ -200,7 +200,7 @@ enum ExerciseType: String, CaseIterable {
 }
 
 // MARK: - Workout Category
-enum WorkoutCategoryNew {
+public enum WorkoutCategoryNew: Sendable {
     case strength
     case weightlifting
     case crossfit
@@ -208,8 +208,8 @@ enum WorkoutCategoryNew {
     case kettlebell
     case gymnastics
     case other
-    
-    var displayName: String {
+
+    public var displayName: String {
         switch self {
         case .strength: return "Strength"
         case .weightlifting: return "Weightlifting"

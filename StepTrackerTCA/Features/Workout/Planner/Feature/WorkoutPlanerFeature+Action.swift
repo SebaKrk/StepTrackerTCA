@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 import WorkoutKit
 
 /// Implementation of `WorkoutPlanerFeature` action

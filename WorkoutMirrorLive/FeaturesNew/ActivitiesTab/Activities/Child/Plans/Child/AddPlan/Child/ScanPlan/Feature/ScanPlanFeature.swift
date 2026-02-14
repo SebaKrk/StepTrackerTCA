@@ -88,9 +88,72 @@ struct ScanPlanFeature {
                 state.extractedText = workout.rawText
                 state.extractedWorkout = workout
                 state.viewState = .textReady
-                print("[ScanPlanFeature] Extraction completed: \(workout.name)")
-                print("[ScanPlanFeature] Sections: \(workout.sections.map { $0.type.rawValue })")
-                print("[ScanPlanFeature] Estimated time: \(workout.totalEstimatedMinutes) min")
+
+                // MARK: - Detailed Workout Dump
+                print("\n" + String(repeating: "=", count: 80))
+                print("🏋️ EXTRACTED WORKOUT")
+                print(String(repeating: "=", count: 80))
+                print("📝 Name: \(workout.name)")
+                print("📅 Date: \(workout.date)")
+                print("⏱️  Total Duration: \(workout.totalEstimatedMinutes) min")
+                print("📊 Sections Count: \(workout.sections.count)")
+                print(String(repeating: "-", count: 80))
+
+                for (index, section) in workout.sections.enumerated() {
+                    print("\n🔹 Section \(index + 1): \(section.type.rawValue.uppercased())")
+                    if let name = section.name {
+                        print("   Name: \(name)")
+                    }
+                    if let duration = section.durationMinutes {
+                        print("   Duration: \(duration) min")
+                    }
+                    if let timeCap = section.timeCapMinutes {
+                        print("   Time Cap: \(timeCap) min")
+                    }
+                    if let rounds = section.rounds {
+                        print("   Rounds: \(rounds)")
+                    }
+                    if let description = section.description {
+                        print("   Description: \(description)")
+                    }
+
+                    if let exercises = section.exercises, !exercises.isEmpty {
+                        print("   Exercises:")
+                        for (exIndex, exercise) in exercises.enumerated() {
+                            print("      \(exIndex + 1). \(exercise.name)", terminator: "")
+                            if let reps = exercise.reps {
+                                print(" - \(reps) reps", terminator: "")
+                            }
+                            print()
+
+                            if let sets = exercise.sets {
+                                for set in sets {
+                                    print("         Set \(set.setNumber): \(set.reps) reps", terminator: "")
+                                    if let intensity = set.intensity {
+                                        print(" @ \(intensity)", terminator: "")
+                                    }
+                                    if let rest = set.restSeconds {
+                                        print(" (rest: \(rest)s)", terminator: "")
+                                    }
+                                    print()
+                                }
+                            }
+
+                            if let scaling = exercise.scalingOptions {
+                                print("         Scaling: \(scaling)")
+                            }
+                        }
+                    }
+
+                    if let notes = section.notes {
+                        print("   Notes: \(notes)")
+                    }
+                }
+
+                print("\n" + String(repeating: "=", count: 80))
+                print("✅ Extraction completed successfully")
+                print(String(repeating: "=", count: 80) + "\n")
+
                 return .none
 
             case let .internal(.extractionFailed(error)):

@@ -6,20 +6,29 @@
 //
 
 import Foundation
-import SwiftUI
 import HealthKit
 
 // MARK: - Training Session (główny obiekt treningu)
-struct TrainingSession {
-    let date: Date
-    let title: String
-    let activity: WorkoutActivityType
-    let location: WorkoutLocationType
-    let warmUp: WarmUpSession?
-    let workouts: [WorkoutSessionNew]
-    let coolDown: CoolDownSession?
-    
-    static let previewTrainingSession = TrainingSession(
+public struct TrainingSession: Sendable {
+    public let date: Date
+    public let title: String
+    public let activity: WorkoutActivityType
+    public let location: WorkoutLocationType
+    public let warmUp: WarmUpSession?
+    public let workouts: [WorkoutSessionNew]
+    public let coolDown: CoolDownSession?
+
+    public init(date: Date, title: String, activity: WorkoutActivityType, location: WorkoutLocationType, warmUp: WarmUpSession?, workouts: [WorkoutSessionNew], coolDown: CoolDownSession?) {
+        self.date = date
+        self.title = title
+        self.activity = activity
+        self.location = location
+        self.warmUp = warmUp
+        self.workouts = workouts
+        self.coolDown = coolDown
+    }
+
+    public static let previewTrainingSession = TrainingSession(
         date: .now,
         title: "Clean & Jerk + Conditioning",
         activity: .crossTraining,
@@ -76,46 +85,78 @@ struct TrainingSession {
 }
 
 // MARK: - Warm Up Session
-struct WarmUpSession {
-    let goal: SimpleWorkoutGoal
-    let time: Int?
-    let description: String?
+public struct WarmUpSession: Sendable {
+    public let goal: SimpleWorkoutGoal
+    public let time: Int?
+    public let description: String?
+
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String?) {
+        self.goal = goal
+        self.time = time
+        self.description = description
+    }
 }
 
 // MARK: - Cool Down Session
-struct CoolDownSession {
-    let goal: SimpleWorkoutGoal
-    let time: Int?
-    let description: String?
+public struct CoolDownSession: Sendable {
+    public let goal: SimpleWorkoutGoal
+    public let time: Int?
+    public let description: String?
+
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String?) {
+        self.goal = goal
+        self.time = time
+        self.description = description
+    }
 }
 
 // MARK: - Workout Session
-struct WorkoutSessionNew: Identifiable, Equatable {
-    let id = UUID()
-    let name: String
-    let type: ExerciseWorkoutType
-    let timeCap: Int?
-    let rounds: Int?
-    let exercises: [ExerciseSession]
+public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
+    public let id = UUID()
+    public let name: String
+    public let type: ExerciseWorkoutType
+    public let timeCap: Int?
+    public let rounds: Int?
+    public let exercises: [ExerciseSession]
+
+    public init(name: String, type: ExerciseWorkoutType, timeCap: Int?, rounds: Int?, exercises: [ExerciseSession]) {
+        self.name = name
+        self.type = type
+        self.timeCap = timeCap
+        self.rounds = rounds
+        self.exercises = exercises
+    }
 }
 
 // MARK: - Exercise Session
-struct ExerciseSession: Identifiable, Equatable {
-    let id = UUID()
-    let type: ExerciseType
-    let target: ExerciseTarget?
-    let weight: WeightConfiguration?
-    let info: String?
+public struct ExerciseSession: Identifiable, Equatable, Sendable {
+    public let id = UUID()
+    public let type: ExerciseType
+    public let target: ExerciseTarget?
+    public let weight: WeightConfiguration?
+    public let info: String?
+
+    public init(type: ExerciseType, target: ExerciseTarget?, weight: WeightConfiguration?, info: String?) {
+        self.type = type
+        self.target = target
+        self.weight = weight
+        self.info = info
+    }
 }
 
 // MARK: - Weight Configuration
-struct WeightConfiguration: Equatable {
-    let men: Int?
-    let women: Int?
+public struct WeightConfiguration: Equatable, Sendable {
+    public let men: Int?
+    public let women: Int?
+
+    public init(men: Int?, women: Int?) {
+        self.men = men
+        self.women = women
+    }
 }
 
 // MARK: - Exercise Target
-enum ExerciseTarget: Equatable {
+public enum ExerciseTarget: Equatable, Sendable {
     /// Use for repetitions: '10 reps', '5 push-ups', '3 clean and jerks'
     case reps(Int)
     
@@ -137,21 +178,4 @@ enum ExerciseTarget: Equatable {
     /// Use for track/pool laps: '4 laps around track'
     case laps(Int)
     
-    var displayText: Text {
-        switch self {
-        case .reps(let count):
-            return Text("\(count)").bold() + Text(" reps").font(.caption)
-        case .calories(let count):
-            return Text("\(count)").bold() + Text(" cal").font(.caption)
-        case .meters(let count):
-            return Text("\(count)").bold() + Text(" m").font(.caption)
-        case .seconds(let count):
-            return Text("\(count)").bold() + Text(" sec").font(.caption)
-        case .minutes(let count):
-            return Text("\(count)").bold() + Text(" min").font(.caption)
-        case .rounds(let count):
-            return Text("\(count)").bold() + Text(" rounds").font(.caption)
-        case .laps(let count):
-            return Text("\(count)").bold() + Text(" laps").font(.caption)
-        }
-    }}
+}
