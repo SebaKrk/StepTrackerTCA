@@ -562,4 +562,9 @@
     C: Integrate strategies with TCA
     - Replace WorkoutParsingService with WorkoutParsingClient
     - Use @Dependency in WorkoutExtractionClient
+    D: Implement Claude API HTTP client
+    - ClaudePrompt with system/user prompts + JSON schema
+    - ClaudeAPIStrategy HTTP implementation
+    - API key from environment (ANTHROPIC_API_KEY)
+    - Error handling (network, API, JSON decoding)
 

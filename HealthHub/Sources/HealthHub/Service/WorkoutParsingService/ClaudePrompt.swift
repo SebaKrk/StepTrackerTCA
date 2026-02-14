@@ -9,48 +9,73 @@ import Foundation
 
 /// Prompt templates for Claude API workout parsing.
 ///
-/// Based on Foundation Models instructions but optimized for Claude's
-/// capabilities (better model, can be more concise).
+/// Optimized for Claude 3.5 Sonnet - more concise than Foundation Models prompts
+/// since Claude has better reasoning and fewer false positives.
 public enum ClaudePrompt {
 
-    /// System prompt for workout parsing.
+    /// System prompt for Claude API workout parsing.
     ///
-    /// Instructs Claude to parse CrossFit workout OCR text into JSON
-    /// conforming to ``ExtractedWorkout`` schema.
-    ///
-    /// Key differences from FM prompt:
-    /// - More concise (Claude is smarter, needs less hand-holding)
-    /// - JSON schema definition included
-    /// - No emoji warnings (unnecessary for Claude)
-    /// - Focus on examples over rules
-    public static let workoutParsingPrompt: String = """
-    TODO: Implement Claude-optimized prompt
+    /// Instructs Claude to parse CrossFit OCR text into JSON matching ExtractedWorkout schema.
+    public static let systemPrompt: String = """
+    You are a CrossFit workout parser. Parse OCR text from workout photos into structured JSON.
 
-    Based on FM instructions but:
-    - More concise
-    - JSON schema for ExtractedWorkout
-    - Focus on examples
-    - No emoji warnings
-    - Preserve section order rules
-    - CrossFit notation (AMRAP, EMOM, set schemes)
+    CRITICAL: Preserve exact section order from OCR text. Do NOT reorder based on "standard" workout structure.
+
+    Section types: warmup, strength, conditioning, transition, cooldown
+    - Always add warmup (first) and cooldown (last) if missing
+    - Add transition between strength/conditioning only if both exist
+    - Order workout sections EXACTLY as they appear in OCR
+
+    CrossFit notation:
+    - "4x5" = 4 sets × 5 reps (setNumber: 4, reps: 5)
+    - "5-5-5-5-5" = count occurrences → 5 sets × 5 reps
+    - "AMRAP 10'" = timeCapMinutes: 10
+    - "24/16" in exercises = scalingOptions for M/F weights
+
+    Return ONLY valid JSON matching this schema:
+
+    \(jsonSchema)
     """
 
-    /// JSON schema for ExtractedWorkout output.
-    ///
-    /// Defines the structure Claude must follow when generating responses.
-    public static let extractedWorkoutSchema: String = """
-    TODO: Define JSON schema
+    /// User prompt template - OCR text will be inserted here.
+    public static func userPrompt(ocrText: String) -> String {
+        """
+        Parse this CrossFit workout OCR text:
 
+        \(ocrText)
+        """
+    }
+
+    /// JSON schema for ExtractedWorkout.
+    private static let jsonSchema: String = """
     {
-      "name": "string",
-      "date": "yyyy-MM-dd",
+      "name": "string (workout name)",
+      "date": "string (yyyy-MM-dd format)",
       "totalEstimatedMinutes": number,
       "sections": [
         {
           "type": "warmup|strength|conditioning|transition|cooldown",
-          "name": "string?",
-          "exercises": [...],
-          ...
+          "name": "string | null",
+          "durationMinutes": number | null,
+          "description": "string | null",
+          "timeCapMinutes": number | null,
+          "rounds": "string | null",
+          "exercises": [
+            {
+              "name": "string",
+              "reps": number | null,
+              "sets": [
+                {
+                  "setNumber": number,
+                  "reps": number,
+                  "intensity": "string | null",
+                  "restSeconds": number | null
+                }
+              ] | null,
+              "scalingOptions": "string | null"
+            }
+          ] | null,
+          "notes": "string | null"
         }
       ]
     }
