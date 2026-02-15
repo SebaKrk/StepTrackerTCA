@@ -554,3 +554,9 @@
     C: Fix workout parsing accuracy - extract ONLY what's in OCR text
     D: ExtractedWorkout+Mapper
     E: Training Session Preview Integration
+
+### IOS-00066 Claude api
+    A: WorkoutParsingStrategy protocol                                                 
+    - Define protocol for workout parsing strategies                                             
+
+
