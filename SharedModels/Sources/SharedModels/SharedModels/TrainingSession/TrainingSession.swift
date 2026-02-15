@@ -148,6 +148,7 @@ public struct SetScheme: Equatable, Sendable, Codable {
 public struct ExerciseSession: Identifiable, Equatable, Sendable {
     public let id = UUID()
     public let type: ExerciseType
+    public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
     public let sets: [SetScheme]?   // For strength exercises with set schemes
@@ -155,16 +156,26 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
 
     public init(
         type: ExerciseType,
+        customName: String? = nil,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
         sets: [SetScheme]? = nil,
         info: String?
     ) {
         self.type = type
+        self.customName = customName
         self.target = target
         self.weight = weight
         self.sets = sets
         self.info = info
+    }
+
+    /// Display name - uses customName for .unknown exercises, otherwise type.displayName
+    public var displayName: String {
+        if type == .unknown, let custom = customName {
+            return custom.capitalized  // Capitalize first letter
+        }
+        return type.displayName
     }
 }
 

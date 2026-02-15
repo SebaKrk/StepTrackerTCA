@@ -192,7 +192,7 @@ struct WorkoutPreviewView: View {
                 .foregroundStyle(.green)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(exercise.type.displayName)
+                Text(exercise.displayName)  // Uses customName for .unknown exercises
                     .font(.body)
                     .fontWeight(.medium)
 

@@ -1071,9 +1071,6 @@
         }
       }
     },
-    "Clear" : {
-
-    },
     "Community" : {
       "comment" : "The Community Tab connects users for sharing and interaction.",
       "localizations" : {
@@ -1124,6 +1121,9 @@
           }
         }
       }
+    },
+    "Continue" : {
+
     },
     "Cool Down" : {
       "localizations" : {
@@ -1497,9 +1497,6 @@
           }
         }
       }
-    },
-    "Extract Text" : {
-
     },
     "Extracted Text" : {
 
@@ -2283,6 +2280,9 @@
         }
       }
     },
+    "Parsing workout..." : {
+
+    },
     "Person records" : {
       "localizations" : {
         "pl" : {
@@ -2924,6 +2924,9 @@
           }
         }
       }
+    },
+    "Start Over" : {
+
     },
     "Stats" : {
       "comment" : "The Stats Tab presents charts and analytics for workouts and health metrics.",

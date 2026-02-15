@@ -11,17 +11,19 @@ import Foundation
 import HealthHub
 import SharedModels
 
-/// Client responsible for extracting a structured workout from images.
+/// Client responsible for extracting text and parsing workouts from images.
 ///
-/// Pipeline: Image → Vision OCR → Parsing Strategy → ExtractedWorkout
+/// Pipeline: Image → Vision OCR → Text → Parsing Strategy → ExtractedWorkout
 ///
 /// Parsing strategy (Foundation Models vs Claude API) is selected in
 /// ``WorkoutParsingClient.liveValue`` — feature layer is unaware of implementation.
 struct WorkoutExtractionClient: Sendable {
 
-    /// Extracts a structured workout from raw image data.
-    /// Strategy (OCR+FM vs OCR-only fallback) is determined by device capabilities.
-    var extractWorkout: @Sendable (_ imageData: Data) async throws -> ExtractedWorkout
+    /// Extracts raw text from image using Vision OCR.
+    var extractText: @Sendable (_ imageData: Data) async throws -> String
+
+    /// Parses raw OCR text into structured workout.
+    var parseWorkout: @Sendable (_ rawText: String) async throws -> ExtractedWorkout
 }
 
 extension DependencyValues {
@@ -41,14 +43,12 @@ extension WorkoutExtractionClient: DependencyKey {
     /// - `.claude` → Claude API (current selection)
     /// - `.foundationModels` → On-device Foundation Models
     static let liveValue: WorkoutExtractionClient = WorkoutExtractionClient(
-        extractWorkout: { imageData in
-            @Dependency(\.workoutParsingClient) var parsingClient
+        extractText: { imageData in
             let ocrService = ScanPlanService()
-
-            // Step 1: OCR (Vision framework)
-            let rawText = try await ocrService.recognizeText(from: imageData)
-
-            // Step 2: Parsing (strategy selected in WorkoutParsingClient)
+            return try await ocrService.recognizeText(from: imageData)
+        },
+        parseWorkout: { rawText in
+            @Dependency(\.workoutParsingClient) var parsingClient
             return try await parsingClient.parseWorkout(rawText)
         }
     )
@@ -57,7 +57,8 @@ extension WorkoutExtractionClient: DependencyKey {
 
     static var testValue: WorkoutExtractionClient {
         WorkoutExtractionClient(
-            extractWorkout: unimplemented("WorkoutExtractionClient.extractWorkout")
+            extractText: unimplemented("WorkoutExtractionClient.extractText"),
+            parseWorkout: unimplemented("WorkoutExtractionClient.parseWorkout")
         )
     }
 
@@ -65,16 +66,19 @@ extension WorkoutExtractionClient: DependencyKey {
 
     static var previewValue: WorkoutExtractionClient {
         WorkoutExtractionClient(
-            extractWorkout: { _ in
+            extractText: { _ in
+                """
+                Bench Press 4x8 80kg
+                Squat 5x5 100kg
+                Deadlift 3x5 120kg
+                """
+            },
+            parseWorkout: { rawText in
                 ExtractedWorkout(
                     name: "Preview Workout",
                     date: "2026-02-11",
                     totalEstimatedMinutes: 45,
-                    rawText: """
-                    Bench Press 4x8 80kg
-                    Squat 5x5 100kg
-                    Deadlift 3x5 120kg
-                    """,
+                    rawText: rawText,
                     sections: [
                         WorkoutSection(
                             type: .warmup,

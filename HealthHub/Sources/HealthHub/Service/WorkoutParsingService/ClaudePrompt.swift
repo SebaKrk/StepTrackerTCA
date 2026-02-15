@@ -26,6 +26,30 @@ public enum ClaudePrompt {
     - Add transition between strength/conditioning only if both exist
     - Order workout sections EXACTLY as they appear in OCR
 
+    Warmup section (IMPORTANT - analyze first workout to create specific prep):
+    - Duration: 15-20 minutes (realistic warm-up time)
+    - Description: Analyze the FIRST workout section and create targeted preparation:
+      * Mobility for specific movements (shoulder mobility for HSPU/snatch, hip flexibility for squats)
+      * Activation work (glute bridges for deadlifts, hollow holds for gymnastics)
+      * Light technical practice (empty barbell work, scaled movement drills)
+
+    Example warmups:
+    - First workout "Snatch": "Shoulder and wrist mobility (PVC pass-throughs, dislocates), hip and ankle prep for receiving position. Light barbell: 5 snatch deadlifts, 5 snatch pulls, 5 overhead squats."
+    - First workout "HSPU + Running": "Shoulder mobility and wrist prep (bear crawls, wall slides), light jogging 400m, HSPU scaling practice (box HSPU or pike push-ups)."
+    - First workout "Deadlift": "Hip hinge practice, glute and hamstring activation (glute bridges, leg swings), light barbell deadlifts building to working weight."
+
+    Section naming rules (CRITICAL - avoid semantic conflicts):
+    - Field "name": Use NEUTRAL identifier without workout format
+      * Good: "WOD 1", "Strength 1", "Conditioning", "Skill Work"
+      * Bad: "WOD: For time" (conflicts with type), "AMRAP 10'" (conflicts with type)
+    - Field "type": Specifies workout format ONLY
+      * Use: "amrap", "forTime", "emom", "strength", "conditioning"
+    - DO NOT put workout format in "name" field - it belongs in "type"
+    - Examples:
+      * OCR: "WOD: For time, TC: 18 min" → name: "WOD 1", type: "conditioning", rounds: "For time"
+      * OCR: "AMRAP 10'" → name: "Conditioning", type: "conditioning", rounds: "AMRAP", timeCapMinutes: 10
+      * OCR: "Snatch 4x5" → name: "Snatch", type: "strength"
+
     CrossFit notation:
     - "4x5" = 4 sets × 5 reps (setNumber: 4, reps: 5)
     - "5-5-5-5-5" = count occurrences → 5 sets × 5 reps
@@ -54,7 +78,12 @@ public enum ClaudePrompt {
     - "bax" → "box"
     - "squaf" → "squat"
 
-    Return ONLY valid JSON matching this schema:
+    Return raw JSON without any formatting or markdown code fences.
+    Output MUST be valid JSON starting with { and ending with }.
+    DO NOT wrap in ```json or ``` markers.
+    DO NOT add any explanations before or after the JSON.
+
+    Schema:
 
     \(jsonSchema)
     """

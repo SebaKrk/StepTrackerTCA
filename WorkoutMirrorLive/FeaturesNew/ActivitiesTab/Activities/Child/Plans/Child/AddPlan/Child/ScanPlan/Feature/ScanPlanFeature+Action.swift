@@ -29,17 +29,14 @@ extension ScanPlanFeature {
             /// Called when user selects or deselects a photo in the picker.
             case selectedPhotoChanged(PhotosPickerItem?)
 
-            /// Called when user taps "Extract Text" to start OCR.
-            case extractTextTapped
+            /// Called when user taps "Continue" to parse OCR text and preview workout.
+            case continueButtonTapped
 
             /// Called when user taps "Retry" after a failure.
             case retryTapped
 
             /// Called when user taps "Clear" to remove selected image.
             case clearImageTapped
-
-            /// Called when user taps "Preview Workout" button.
-            case previewWorkoutTapped
         }
 
         enum Internal {
@@ -47,10 +44,13 @@ extension ScanPlanFeature {
             /// Image data loaded from the selected photo picker item.
             case imageLoaded(Data?)
 
-            /// Workout extraction completed successfully.
-            case extractionCompleted(ExtractedWorkout)
+            /// OCR text extracted successfully from image.
+            case textExtracted(String)
 
-            /// Workout extraction failed with an error message.
+            /// Workout parsing completed successfully.
+            case parsingCompleted(ExtractedWorkout)
+
+            /// OCR or parsing failed with an error message.
             case extractionFailed(String)
         }
 

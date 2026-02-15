@@ -31,13 +31,25 @@ struct ScanPlanView: View {
                         imagePreviewSection
 
                     case .processingOCR:
-                        imagePreviewSection
+                        // Show image only during OCR, not during parsing
+                        if store.extractedText.isEmpty {
+                            imagePreviewSection
+                        }
                         processingSection
 
                     case .textReady:
                         smallImagePreviewSection
                         textEditorSection
-                        previewButtonSection
+                        continueButtonSection
+
+                        Button {
+                            send(.clearImageTapped)
+                        } label: {
+                            Label("Start Over", systemImage: "arrow.counterclockwise")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.top, 8)
 
                     case let .unavailable(message):
                         unavailableSection(message: message)
@@ -50,7 +62,7 @@ struct ScanPlanView: View {
             }
 
             switch store.viewState {
-            case .idle, .imageSelected:
+            case .idle:
                 actionButtonsSection
                     .padding(.horizontal)
                     .padding(.bottom)
@@ -129,53 +141,33 @@ struct ScanPlanView: View {
     // MARK: - Action Buttons
 
     private var actionButtonsSection: some View {
-        VStack(spacing: 12) {
-            if store.viewState == .idle {
-                Button {
-                    send(.selectPhotoTapped)
-                } label: {
-                    Label("Select Photo", systemImage: "photo.on.rectangle")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(store.color)
-                .controlSize(.large)
-                .keyboardShortcut(.defaultAction)
-            } else if store.viewState == .imageSelected {
-                Button {
-                    send(.extractTextTapped)
-                } label: {
-                    Label("Extract Text", systemImage: "text.viewfinder")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(store.color)
-                .controlSize(.large)
-                .keyboardShortcut(.defaultAction)
-
-                Button {
-                    send(.clearImageTapped)
-                } label: {
-                    Label("Clear", systemImage: "xmark.circle")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
+        Button {
+            send(.selectPhotoTapped)
+        } label: {
+            Label("Select Photo", systemImage: "photo.on.rectangle")
+                .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.borderedProminent)
+        .tint(store.color)
+        .controlSize(.large)
+        .keyboardShortcut(.defaultAction)
     }
 
     // MARK: - Processing
 
     private var processingSection: some View {
         VStack(spacing: 12) {
+            Spacer()
             ProgressView()
                 .controlSize(.large)
 
-            Text("Extracting text...")
+            // Show different text based on whether we're doing OCR or parsing
+            Text(store.extractedText.isEmpty ? "Extracting text..." : "Parsing workout...")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+            Spacer()
         }
-        .padding(.top, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Text Editor
@@ -193,13 +185,13 @@ struct ScanPlanView: View {
         }
     }
 
-    // MARK: - Preview Button
+    // MARK: - Continue Button
 
-    private var previewButtonSection: some View {
+    private var continueButtonSection: some View {
         Button {
-            send(.previewWorkoutTapped)
+            send(.continueButtonTapped)
         } label: {
-            Label("Preview Workout", systemImage: "eye")
+            Label("Continue", systemImage: "arrow.right.circle")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
