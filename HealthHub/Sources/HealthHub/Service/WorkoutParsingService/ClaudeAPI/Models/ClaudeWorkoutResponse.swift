@@ -35,7 +35,7 @@ public struct ClaudeExercise: Decodable, Sendable {
 
 public struct ClaudeExerciseSet: Decodable, Sendable {
     public let setNumber: Int
-    public let reps: Int
+    public let reps: Int?  // Optional - Claude might return null for unknown reps (e.g., "MAX reps")
     public let intensity: String?
     public let restSeconds: Int?
 }

@@ -89,7 +89,8 @@ public struct ClaudeWorkoutMapper {
 
     /// Converts Claude exercise to domain model.
     private func convertExercise(_ exercise: ClaudeExercise) -> ExtractedExercise {
-        let sets = exercise.sets?.map { convertSet($0) }
+        // Filter out sets with null reps (e.g., "MAX reps" or unknown)
+        let sets = exercise.sets?.compactMap { convertSet($0) }
 
         return ExtractedExercise(
             name: exercise.name,
@@ -100,10 +101,15 @@ public struct ClaudeWorkoutMapper {
     }
 
     /// Converts Claude exercise set to domain model.
-    private func convertSet(_ set: ClaudeExerciseSet) -> ExerciseSet {
-        ExerciseSet(
+    /// Returns nil if reps is null (skip invalid sets).
+    private func convertSet(_ set: ClaudeExerciseSet) -> ExerciseSet? {
+        guard let reps = set.reps else {
+            return nil  // Skip sets without reps
+        }
+
+        return ExerciseSet(
             setNumber: set.setNumber,
-            reps: set.reps,
+            reps: reps,
             intensity: set.intensity,
             restSeconds: set.restSeconds
         )
