@@ -56,4 +56,37 @@ public extension TrainingReadinessClient {
             []
         }
     )
+    
+    /// Mock with realistic "Morning" scenario (Sleep & Activity synced, RHR & HRV pending)
+    static let partialMock = Self(
+        calculate: {
+            TrainingReadinessResult(
+                overallScore: 60,
+                components: TrainingReadinessComponents(
+                    restingHeartRate: nil,
+                    heartRateVariability: nil,
+                    sleepQuality: TrainingComponentScore(
+                        score: 10,
+                        currentValue: 7.5,
+                        baselineValue: 7.0,
+                        unit: "hours",
+                        minScore: -10,
+                        maxScore: 15
+                    ),
+                    previousDayLoad: TrainingComponentScore(
+                        score: 5,
+                        currentValue: 550.0,
+                        baselineValue: 400.0,
+                        unit: "kcal",
+                        minScore: -10,
+                        maxScore: 5
+                    )
+                ),
+                calculatedAt: Date(),
+                isReliable: true
+            )
+        },
+        history: { _ in [] }
+    )
+
 }

@@ -7,6 +7,7 @@
 
 import Factory
 import Foundation
+import SharedModels
 import WorkoutKit
 
 final class DefaultWorkoutPlanerService: WorkoutPlanerService {

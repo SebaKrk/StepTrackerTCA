@@ -11,20 +11,20 @@ extension ActivitiesFeature {
     
     enum TrainingTabContext: CaseIterable, Identifiable, Equatable {
         
-        case personal
+        case activity
         
-        case team
+        case plans
         
         var id: Self { self }
         
         var title: String {
             switch self {
-            case .personal:
-                return String(localized: "Personal", bundle: .main)
-            case .team:
-                return String(localized: "Team", bundle: .main)
+            case .activity:
+                return String(localized: "Activity", bundle: .main)
+            case .plans:
+                return String(localized: "Plans", bundle: .main)
             }
         }
-        
     }
+    
 }

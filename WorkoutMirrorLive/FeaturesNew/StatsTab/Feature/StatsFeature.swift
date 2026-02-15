@@ -63,8 +63,9 @@ struct StatsFeature {
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
+                // Already initialized - observation is running, nothing to do
                 guard state.trainingReadiness == nil else {
-                    return .send(.startObserving)
+                    return .none
                 }
                 return .run { send in
                     let result = await self.authorizationManager.requestAuthorization()
@@ -82,7 +83,9 @@ struct StatsFeature {
                 }
 
             case .view(.viewDidDisappear):
-                return .cancel(id: StatsFeatureCancelID.observation)
+                // Don't cancel observation - keep it running for background updates
+                // return .cancel(id: StatsFeatureCancelID.observation)
+                return .none
 
             case .startObserving:
                 return .run { send in
@@ -122,10 +125,15 @@ struct StatsFeature {
                 return .send(.changeSubscriptionTier(value))
                 
                 // MARK: - Destination
+                
             case .destination(_):
                 return .none
                 
                 // MARK: - Child
+                
+            case .trainingReadiness(.delegate(.refreshRequested)):
+                return .send(.view(.pullToRefresh))
+                
             case .trainingReadiness(_):
                 return .none
                 

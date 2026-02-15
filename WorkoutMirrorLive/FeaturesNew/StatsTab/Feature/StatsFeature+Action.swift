@@ -62,7 +62,6 @@ extension StatsFeature {
             /// Action triggered when the view disappears from the screen.
             case viewDidDisappear
             
-            
             /// Triggered when the user performs a pull-to-refresh gesture.
             /// Refreshes all child features and reloads the stats view content.
             case pullToRefresh

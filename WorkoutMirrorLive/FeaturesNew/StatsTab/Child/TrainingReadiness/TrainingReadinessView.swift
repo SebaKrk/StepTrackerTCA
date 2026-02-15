@@ -45,7 +45,7 @@ struct TrainingReadinessView: View {
                  // send(.requestHealthAccessTapped)
              },
              onRetryTapped: {
-                 // send(.retryButtonTapped)
+                 send(.retryButtonTapped)
              })
 
     }

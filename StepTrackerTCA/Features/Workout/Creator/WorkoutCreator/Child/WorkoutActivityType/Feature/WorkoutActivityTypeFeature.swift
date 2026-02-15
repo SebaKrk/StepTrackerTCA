@@ -7,6 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
+import SharedModels
 
 @Reducer
 struct WorkoutActivityTypeFeature {

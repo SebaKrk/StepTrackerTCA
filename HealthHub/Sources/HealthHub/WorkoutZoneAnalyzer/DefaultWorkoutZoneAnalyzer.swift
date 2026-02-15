@@ -45,6 +45,8 @@ public final class DefaultWorkoutZoneAnalyzer: WorkoutZoneAnalyzer {
     ) -> [HeartRateZone: TimeInterval] {
         var distribution: [HeartRateZone: TimeInterval] = [:]
         
+        guard samples.count > 1 else { return distribution }
+        
         for zone in HeartRateZone.allCases {
             distribution[zone] = 0
         }

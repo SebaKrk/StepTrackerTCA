@@ -30,6 +30,7 @@ struct HealthMetricSummaryDetailsCardView: View {
                 ProgressView()
             }
         }
+        .navigationTitle(store.metricType.title)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -53,10 +54,10 @@ struct HealthMetricSummaryDetailsCardView: View {
     private var rootView: some View {
         ScrollView {
             VStack(spacing: 2) {
-                descriptionView
                 metricsSummaryView
                 chartView
                 averageView
+                descriptionView
             }
             .padding()
         }

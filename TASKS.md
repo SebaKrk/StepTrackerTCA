@@ -530,3 +530,33 @@
     A: Deliver data for Widget
     B: NoData state
     C: HealthKit Background Delivery
+
+### IOS-00063 Refactor Empty States & Refresh Logic for Stats Dashboard
+    A: Refactor Empty States & Refresh Logic for Stats Dashboard
+
+### IOS-00064 Plans
+    A: Workout Plans Feature
+    - create Workout Plans Feature
+    - Refactor Activities Tab: Add Plans Section
+    B: Refactor ActivitiesFeature
+    - Extract workout logic from ActivitiesFeature into a separate PersonalActivityFeature.
+    C: Improve OCR accuracy and modernize ScanPlan button styles
+    D: Add WorkoutExtractionClient strategy pattern for device-based extraction pipeline
+    - Replace ScanPlanClient with WorkoutExtractionClient
+    - Runtime strategy selection: on-device (OCR+FM) vs cloud (Claude API)
+    - Add FoundationModelAvailability check in HealthHub
+    - Add ClaudeAPIService skeleton in HealthHub
+    E: Foundation models availability check
+
+### IOS-00065 Foundation
+    A: Add Foundation Models workout parsing
+    B: Migrate TrainingSession and workout types to SharedModels
+    C: Fix workout parsing accuracy - extract ONLY what's in OCR text
+    D: ExtractedWorkout+Mapper
+    E: Training Session Preview Integration
+
+### IOS-00066 Claude api
+    A: WorkoutParsingStrategy protocol                                                 
+    - Define protocol for workout parsing strategies                                             
+    B: Add parsing strategy architecture
+

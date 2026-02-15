@@ -12,6 +12,7 @@
       }
     },
     " cal" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -22,6 +23,7 @@
       }
     },
     " laps" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -32,6 +34,7 @@
       }
     },
     " m" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -42,6 +45,7 @@
       }
     },
     " min" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -52,6 +56,7 @@
       }
     },
     " reps" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -62,6 +67,7 @@
       }
     },
     " rounds" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -72,6 +78,7 @@
       }
     },
     " sec" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -100,6 +107,9 @@
           }
         }
       }
+    },
+    "–:–" : {
+
     },
     "!" : {
       "localizations" : {
@@ -366,6 +376,9 @@
           }
         }
       }
+    },
+    "%lld min cap" : {
+
     },
     "%lld reps" : {
       "localizations" : {
@@ -705,6 +718,9 @@
         }
       }
     },
+    "Add Plan" : {
+
+    },
     "Add your first workout and start planning your activity." : {
       "localizations" : {
         "pl" : {
@@ -774,6 +790,9 @@
           }
         }
       }
+    },
+    "Analytics Dashboard" : {
+
     },
     "Analyze Text" : {
       "localizations" : {
@@ -946,6 +965,7 @@
       }
     },
     "Brak danych" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1051,6 +1071,9 @@
         }
       }
     },
+    "Clear" : {
+
+    },
     "Community" : {
       "comment" : "The Community Tab connects users for sharing and interaction.",
       "localizations" : {
@@ -1112,6 +1135,12 @@
         }
       }
     },
+    "Could not load the selected image." : {
+
+    },
+    "Create a Workout Plan" : {
+
+    },
     "create single workout" : {
       "localizations" : {
         "pl" : {
@@ -1151,6 +1180,9 @@
           }
         }
       }
+    },
+    "Create workout plans by scanning your training notes or add them manually. Compare your plans with actual HealthKit results." : {
+
     },
     "Cross" : {
       "localizations" : {
@@ -1373,6 +1405,9 @@
         }
       }
     },
+    "Edit" : {
+
+    },
     "Edytuj" : {
       "localizations" : {
         "pl" : {
@@ -1463,6 +1498,15 @@
         }
       }
     },
+    "Extract Text" : {
+
+    },
+    "Extracted Text" : {
+
+    },
+    "Extracting text..." : {
+
+    },
     "failed" : {
       "localizations" : {
         "pl" : {
@@ -1472,6 +1516,9 @@
           }
         }
       }
+    },
+    "Feature Unavailable" : {
+
     },
     "figure.run" : {
       "localizations" : {
@@ -1484,6 +1531,7 @@
       }
     },
     "Find a Club" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1786,6 +1834,7 @@
       }
     },
     "Join a fitness group to track progress with your teammates and stay motivated together." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1996,6 +2045,17 @@
         }
       }
     },
+    "No calories burned data available." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych spalonych kalorii."
+          }
+        }
+      }
+    },
     "No data" : {
       "localizations" : {
         "pl" : {
@@ -2056,7 +2116,41 @@
         }
       }
     },
+    "No heart rate data available. Check Health app." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych tętna. Sprawdź aplikację Zdrowie."
+          }
+        }
+      }
+    },
+    "No HRV data found. Regular measurements required." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych HRV. Wymagane regularne pomiary."
+          }
+        }
+      }
+    },
+    "No sleep data. Track your sleep to see insights." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych snu. Śledź sen, aby zobaczyć analizy."
+          }
+        }
+      }
+    },
     "No Team Yet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2065,6 +2159,9 @@
           }
         }
       }
+    },
+    "No Workout Plans" : {
+
     },
     "No Workouts" : {
       "localizations" : {
@@ -2197,6 +2294,7 @@
       }
     },
     "Personal" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2245,6 +2343,9 @@
           }
         }
       }
+    },
+    "Plans" : {
+
     },
     "Play" : {
       "localizations" : {
@@ -2325,6 +2426,9 @@
           }
         }
       }
+    },
+    "Preview Workout" : {
+
     },
     "Primary Zone" : {
       "localizations" : {
@@ -2408,6 +2512,9 @@
         }
       }
     },
+    "Refresh" : {
+
+    },
     "Remove all scheduled workouts" : {
       "localizations" : {
         "pl" : {
@@ -2457,6 +2564,9 @@
           }
         }
       }
+    },
+    "Retry" : {
+
     },
     "Rounds" : {
       "localizations" : {
@@ -2558,6 +2668,12 @@
         }
       }
     },
+    "Scan Plan" : {
+
+    },
+    "Scan your handwritten notes or enter manually" : {
+
+    },
     "Scanning..." : {
       "localizations" : {
         "pl" : {
@@ -2598,6 +2714,9 @@
         }
       }
     },
+    "Select a photo of your workout plan" : {
+
+    },
     "Select a Tab" : {
       "localizations" : {
         "pl" : {
@@ -2607,6 +2726,9 @@
           }
         }
       }
+    },
+    "Select Photo" : {
+
     },
     "select workout" : {
       "localizations" : {
@@ -2729,6 +2851,9 @@
           }
         }
       }
+    },
+    "Something went wrong" : {
+
     },
     "Sort by" : {
       "localizations" : {
@@ -2882,6 +3007,7 @@
       }
     },
     "Team" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3051,6 +3177,9 @@
         }
       }
     },
+    "Try Again" : {
+
+    },
     "tu cos bedzie" : {
       "localizations" : {
         "pl" : {
@@ -3071,6 +3200,19 @@
         }
       }
     },
+    "Unable to load workout plans. Please try again." : {
+
+    },
+    "Unlock insights into your training. Visualize your progress, heart rate zones, and performance trends over time." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odkryj szczegółowe informacje o swoim treningu. Wizualizuj swoje postępy, strefy tętna oraz trendy wydajności na przestrzeni czasu."
+          }
+        }
+      }
+    },
     "Usuwa z watcha" : {
       "localizations" : {
         "pl" : {
@@ -3087,6 +3229,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wartość"
+          }
+        }
+      }
+    },
+    "View History" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobacz historie"
           }
         }
       }
