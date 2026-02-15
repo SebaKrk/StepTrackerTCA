@@ -13,12 +13,10 @@ import SharedModels
 
 /// Client responsible for extracting a structured workout from images.
 ///
-/// The extraction strategy is determined at runtime by device capabilities:
-/// - **On-device** (iPhone 15 Pro+, M-series): Vision OCR → Foundation Models (free)
-/// - **Cloud** (older devices): Vision OCR → fallback with raw text only
+/// Pipeline: Image → Vision OCR → Parsing Strategy → ExtractedWorkout
 ///
-/// Both strategies return ``ExtractedWorkout`` — the feature layer
-/// is unaware of which backend is used.
+/// Parsing strategy (Foundation Models vs Claude API) is selected in
+/// ``WorkoutParsingClient.liveValue`` — feature layer is unaware of implementation.
 struct WorkoutExtractionClient: Sendable {
 
     /// Extracts a structured workout from raw image data.
@@ -37,44 +35,23 @@ extension WorkoutExtractionClient: DependencyKey {
 
     // MARK: - Live Value
 
-    /// Singleton — strategy is selected once at startup based on device capabilities.
-    static let liveValue: WorkoutExtractionClient = {
-        let ocrService = ScanPlanService()
+    /// Production client using Vision OCR + selected parsing strategy.
+    ///
+    /// Parsing strategy is determined by ``WorkoutParsingClient.liveValue``:
+    /// - `.claude` → Claude API (current selection)
+    /// - `.foundationModels` → On-device Foundation Models
+    static let liveValue: WorkoutExtractionClient = WorkoutExtractionClient(
+        extractWorkout: { imageData in
+            @Dependency(\.workoutParsingClient) var parsingClient
+            let ocrService = ScanPlanService()
 
-        if FoundationModelAvailability.isAvailable {
-            // On-device strategy: OCR → Foundation Models (free)
-            return WorkoutExtractionClient(
-                extractWorkout: { imageData in
-                    let rawText = try await ocrService.recognizeText(from: imageData)
+            // Step 1: OCR (Vision framework)
+            let rawText = try await ocrService.recognizeText(from: imageData)
 
-                    #if canImport(FoundationModels)
-                    if #available(iOS 26.0, *) {
-                        let parsingService = WorkoutParsingService()
-                        let result = try await parsingService.parseWorkoutText(rawText)
-                        return result
-                    }
-                    #endif
-
-                    throw WorkoutParsingServiceError.foundationModelsUnavailable
-                }
-            )
-        } else {
-            // Cloud strategy: OCR only (FM unavailable)
-            // TODO: Replace with ClaudeAPIService when implemented
-            return WorkoutExtractionClient(
-                extractWorkout: { imageData in
-                    let rawText = try await ocrService.recognizeText(from: imageData)
-                    return ExtractedWorkout(
-                        name: "CrossFit",
-                        date: "",
-                        totalEstimatedMinutes: 0,
-                        rawText: rawText,
-                        sections: []
-                    )
-                }
-            )
+            // Step 2: Parsing (strategy selected in WorkoutParsingClient)
+            return try await parsingClient.parseWorkout(rawText)
         }
-    }()
+    )
 
     // MARK: - Test Value
 
