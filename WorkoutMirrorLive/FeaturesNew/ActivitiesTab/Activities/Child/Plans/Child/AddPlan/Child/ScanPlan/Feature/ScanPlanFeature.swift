@@ -57,6 +57,8 @@ struct ScanPlanFeature {
                         let result = try await extractionClient.extractWorkout(imageData)
                         await send(.internal(.extractionCompleted(result)))
                     } catch {
+                        print("❌ [ScanPlan] Extraction error: \(error)")
+                        dump(error)
                         await send(.internal(.extractionFailed(error.localizedDescription)))
                     }
                 }
@@ -99,7 +101,7 @@ struct ScanPlanFeature {
                 // Debug: Print final TrainingSession as JSON
                 let trainingSession = workout.toTrainingSession()
                 dump(trainingSession)
-
+                
                 // MARK: - Check if extraction returned empty result (FM unavailable fallback)
 
                 guard !workout.sections.isEmpty else {

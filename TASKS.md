@@ -568,3 +568,6 @@
     - API key from environment (ANTHROPIC_API_KEY)
     - Error handling (network, API, JSON decoding)
     E: Improve Claude parsing and add structured sets model   
+    F: Refactor Claude API implementation                                                          
+    - Split into separate files (strategy, models, errors)                                      
+    - Fix code review issues (force unwraps, race conditions)  
