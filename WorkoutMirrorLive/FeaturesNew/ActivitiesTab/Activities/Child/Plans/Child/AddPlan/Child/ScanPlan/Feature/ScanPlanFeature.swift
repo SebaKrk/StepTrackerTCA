@@ -49,15 +49,15 @@ struct ScanPlanFeature {
                     }
                 }
 
-            case .view(.extractTextTapped):
-                guard let imageData = state.selectedImageData else { return .none }
-                state.viewState = .processingOCR
-                return .run { send in
+            case .view(.continueButtonTapped):
+                guard !state.extractedText.isEmpty else { return .none }
+                state.viewState = .processingOCR  // Reusing same spinner state for parsing
+                return .run { [text = state.extractedText] send in
                     do {
-                        let result = try await extractionClient.extractWorkout(imageData)
-                        await send(.internal(.extractionCompleted(result)))
+                        let workout = try await extractionClient.parseWorkout(text)
+                        await send(.internal(.parsingCompleted(workout)))
                     } catch {
-                        print("❌ [ScanPlan] Extraction error: \(error)")
+                        print("❌ [ScanPlan] Parsing error: \(error)")
                         dump(error)
                         await send(.internal(.extractionFailed(error.localizedDescription)))
                     }
@@ -77,12 +77,6 @@ struct ScanPlanFeature {
                 state.viewState = .idle
                 return .none
 
-            case .view(.previewWorkoutTapped):
-                guard let workout = state.extractedWorkout else { return .none }
-                let trainingSession = workout.toTrainingSession()
-                state.workoutPreview = WorkoutPreviewFeature.State(trainingSession: trainingSession)
-                return .none
-
                 // MARK: - Internal Action
 
             case let .internal(.imageLoaded(data)):
@@ -91,17 +85,31 @@ struct ScanPlanFeature {
                     return .none
                 }
                 state.selectedImageData = data
-                state.viewState = .imageSelected
+                state.viewState = .processingOCR
+                // Auto-start OCR after image loaded
+                return .run { send in
+                    do {
+                        let rawText = try await extractionClient.extractText(data)
+                        await send(.internal(.textExtracted(rawText)))
+                    } catch {
+                        print("❌ [ScanPlan] OCR error: \(error)")
+                        dump(error)
+                        await send(.internal(.extractionFailed(error.localizedDescription)))
+                    }
+                }
+
+            case let .internal(.textExtracted(rawText)):
+                state.extractedText = rawText
+                state.viewState = .textReady
                 return .none
 
-            case let .internal(.extractionCompleted(workout)):
-                state.extractedText = workout.rawText
+            case let .internal(.parsingCompleted(workout)):
                 state.extractedWorkout = workout
 
                 // Debug: Print final TrainingSession as JSON
                 let trainingSession = workout.toTrainingSession()
                 dump(trainingSession)
-                
+
                 // MARK: - Check if extraction returned empty result (FM unavailable fallback)
 
                 guard !workout.sections.isEmpty else {
@@ -119,14 +127,8 @@ struct ScanPlanFeature {
                     return .none
                 }
 
-                // MARK: - Navigation Mode Toggle
-
-                // OPTION A: Manual flow - user clicks "Preview Workout" button
-                state.viewState = .textReady
-
-                // OPTION B: Auto flow - immediate navigation to preview (COMMENTED OUT)
-                // let trainingSession = workout.toTrainingSession()
-                // state.workoutPreview = WorkoutPreviewFeature.State(trainingSession: trainingSession)
+                // Auto-navigate to preview after successful parsing
+                state.workoutPreview = WorkoutPreviewFeature.State(trainingSession: trainingSession)
 
                 return .none
 
