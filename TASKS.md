@@ -567,4 +567,4 @@
     - ClaudeAPIStrategy HTTP implementation
     - API key from environment (ANTHROPIC_API_KEY)
     - Error handling (network, API, JSON decoding)
-
+    E: Improve Claude parsing and add structured sets model   

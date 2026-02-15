@@ -114,11 +114,13 @@ extension ExtractedExercise {
 
         // Determine target from reps or sets
         let target: ExerciseTarget?
-        if let reps = reps {
+        if let reps = reps, sets == nil {
+            // Simple rep target (e.g., AMRAP exercises: "16 swings", "8 HSPU")
             target = .reps(reps)
-        } else if let sets = sets, let firstSet = sets.first {
-            // For set schemes like "4×5", use reps from first scheme
-            target = .reps(firstSet.reps)
+        } else if sets != nil {
+            // Strength exercises with set schemes (e.g., "4×5 @ 50-60%")
+            // Target is nil - full info is in 'info' string with percentages
+            target = nil
         } else {
             target = nil
         }
@@ -126,30 +128,31 @@ extension ExtractedExercise {
         // Parse weight from scalingOptions (e.g. "24/16" → WeightConfiguration)
         let weight = scalingOptions?.parseWeight()
 
-        // Build info string from sets and scaling
-        var infoComponents: [String] = []
+        // Group sets into SetScheme (e.g., 4×5 @ 50-60%, 3×4 @ 60-70%)
+        let setSchemes: [SetScheme]? = sets.map { sets in
+            let grouped = Dictionary(grouping: sets) { set in
+                "\(set.reps)|\(set.intensity ?? "")"
+            }
 
-        if let sets = sets {
-            let setsString = sets.map { set in
-                var s = "\(set.setNumber)×\(set.reps)"
-                if let intensity = set.intensity {
-                    s += " @ \(intensity)"
+            return grouped
+                .sorted { $0.value.first?.setNumber ?? 0 < $1.value.first?.setNumber ?? 0 }
+                .map { _, group in
+                    SetScheme(
+                        count: group.count,
+                        reps: group.first?.reps ?? 0,
+                        intensity: group.first?.intensity
+                    )
                 }
-                return s
-            }.joined(separator: ", ")
-            infoComponents.append(setsString)
         }
 
-        if let scalingOptions = scalingOptions {
-            infoComponents.append("Scaling: \(scalingOptions)")
-        }
-
-        let info = infoComponents.isEmpty ? nil : infoComponents.joined(separator: " | ")
+        // Build info string from scaling only (sets are now in SetScheme)
+        let info = scalingOptions.map { "Scaling: \($0)" }
 
         return ExerciseSession(
             type: exerciseType,
             target: target,
             weight: weight,
+            sets: setSchemes,
             info: info
         )
     }

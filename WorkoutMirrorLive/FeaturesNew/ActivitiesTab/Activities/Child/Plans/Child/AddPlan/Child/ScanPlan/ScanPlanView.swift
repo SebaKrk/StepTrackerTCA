@@ -231,6 +231,7 @@ struct ScanPlanView: View {
 
     private func failedSection(error: String) -> some View {
         VStack(spacing: 16) {
+            Spacer()
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 50))
                 .foregroundStyle(.red)
@@ -239,7 +240,7 @@ struct ScanPlanView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-
+            Spacer()
             Button {
                 send(.retryTapped)
             } label: {

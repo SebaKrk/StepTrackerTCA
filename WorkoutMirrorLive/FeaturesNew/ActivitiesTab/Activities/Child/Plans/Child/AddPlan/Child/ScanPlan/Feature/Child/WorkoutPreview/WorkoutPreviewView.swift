@@ -202,6 +202,12 @@ struct WorkoutPreviewView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                if let sets = exercise.sets {
+                    Text(setsDescription(sets))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 if let weight = exercise.weight {
                     Text(weightDescription(weight))
                         .font(.caption)
@@ -294,6 +300,16 @@ struct WorkoutPreviewView: View {
             parts.append("W: \(women) kg")
         }
         return parts.joined(separator: " / ")
+    }
+
+    private func setsDescription(_ sets: [SetScheme]) -> String {
+        sets.map { set in
+            var description = "\(set.count)×\(set.reps)"
+            if let intensity = set.intensity {
+                description += " @ \(intensity)"
+            }
+            return description
+        }.joined(separator: ", ")
     }
 
 }

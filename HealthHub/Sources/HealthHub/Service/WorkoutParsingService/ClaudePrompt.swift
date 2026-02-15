@@ -32,6 +32,28 @@ public enum ClaudePrompt {
     - "AMRAP 10'" = timeCapMinutes: 10
     - "24/16" in exercises = scalingOptions for M/F weights
 
+    CRITICAL: Multiple weight options on separate lines belong to the SAME exercise:
+    Example OCR:
+    "16 AMERICAN SWING 24/16
+     28/20
+     32/24"
+    → ONE exercise with scalingOptions: "24/16, 28/20, 32/24"
+
+    Lines starting with just numbers (no exercise name) are additional scaling options for the previous exercise.
+
+    Exercise names - use EXACT names (case-insensitive):
+    - Kettlebell: "kettlebell swing", "american swing", "russian swing", "KB swing"
+    - Gymnastics: "handstand push-ups", "HSPU", "bar muscle-ups", "ring muscle-ups"
+    - Cardio: "rowing", "running", "cycling", "swimming"
+    - Barbell: "snatch", "clean", "jerk", "deadlift", "back squat", "front squat"
+    - Basic: "air squat", "push-ups", "pull-ups", "sit-ups", "burpees"
+
+    Common OCR errors to autocorrect:
+    - "ToW" → "row" (rowing)
+    - "mw" → "row"
+    - "bax" → "box"
+    - "squaf" → "squat"
+
     Return ONLY valid JSON matching this schema:
 
     \(jsonSchema)
