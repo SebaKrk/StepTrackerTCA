@@ -112,6 +112,9 @@ extension ExtractedExercise {
         // Map exercise name to ExerciseType
         let exerciseType = ExerciseType.from(name: name)
 
+        // Preserve original name for .unknown exercises
+        let customName = (exerciseType == .unknown) ? name : nil
+
         // Determine target from reps or sets
         let target: ExerciseTarget?
         if let reps = reps, sets == nil {
@@ -150,6 +153,7 @@ extension ExtractedExercise {
 
         return ExerciseSession(
             type: exerciseType,
+            customName: customName,
             target: target,
             weight: weight,
             sets: setSchemes,
@@ -197,9 +201,9 @@ extension ExerciseType {
             return .cycling
         }
 
-        // Fallback to airSquat with warning
-        print("⚠️ [Mapper] Unknown exercise '\(name)' → using fallback '.airSquat'")
-        return .airSquat
+        // Fallback to .unknown - preserve original name in customName
+        print("⚠️ [Mapper] Unknown exercise '\(name)' → using '.unknown'")
+        return .unknown
     }
 
 }

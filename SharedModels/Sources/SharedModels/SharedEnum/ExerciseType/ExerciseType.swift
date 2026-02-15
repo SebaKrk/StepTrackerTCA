@@ -58,9 +58,23 @@ public enum ExerciseType: String, CaseIterable, Sendable {
     case handstandWalk
     case ringDips
     case ropeClimb
-    
+
+    // CrossFit Classics
+    case wallBalls
+    case thrusters
+    case devilPress
+    case burpeeBoxJumps
+    case dumbbellSnatch
+    case dumbbellClean
+    case dumbbellCleanAndJerk
+
+    // Cardio Machines
+    case assaultBike
+    case skiErg
+
     // Other
     case lunges
+    case unknown  // Fallback for unrecognized exercises from OCR/AI parsing
 
     public var displayName: String {
         switch self {
@@ -100,10 +114,20 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .handstandWalk: return "Handstand Walk"
         case .ringDips: return "Ring Dips"
         case .ropeClimb: return "Rope Climb"
+        case .wallBalls: return "Wall Balls"
+        case .thrusters: return "Thrusters"
+        case .devilPress: return "Devil Press"
+        case .burpeeBoxJumps: return "Burpee Box Jumps"
+        case .dumbbellSnatch: return "Dumbbell Snatch"
+        case .dumbbellClean: return "Dumbbell Clean"
+        case .dumbbellCleanAndJerk: return "Dumbbell Clean and Jerk"
+        case .assaultBike: return "Assault Bike"
+        case .skiErg: return "Ski Erg"
         case .lunges: return "Lunges"
+        case .unknown: return "Unknown Exercise"
         }
     }
-    
+
     public var aliases: [String] {
         switch self {
         case .deadlift:
@@ -121,7 +145,7 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .snatch:
             return ["snatch", "full snatch", "squat snatch"]
         case .cleanAndJerk:
-            return ["clean and jerk", "clean & jerk", "C&J", "CJ", "hang clean and jerk", "hang clean & jerk", "hang clean jerk"]
+            return ["clean and jerk", "clean & jerk", "C&J", "CJ", "hang clean and jerk", "hang clean & jerk", "hang clean jerk", "hang C&J", "hang CJ"]
         case .powerClean:
             return ["power clean", "PC"]
         case .powerSnatch:
@@ -135,7 +159,7 @@ public enum ExerciseType: String, CaseIterable, Sendable {
         case .pushUps:
             return ["push-ups", "push ups", "pushups"]
         case .burpees:
-            return ["burpees", "burpee", "burpee box jump", "burpee box jump over", "burpee over box"]
+            return ["burpees", "burpee"]
         case .airSquat:
             return ["air squat", "bodyweight squat", "air squats"]
         case .boxJumps:
@@ -178,11 +202,31 @@ public enum ExerciseType: String, CaseIterable, Sendable {
             return ["ring dips", "gymnastic ring dips"]
         case .ropeClimb:
             return ["rope climb", "rope climbing", "climb rope"]
+        case .wallBalls:
+            return ["wall balls", "wall ball", "WB", "wall ball shots"]
+        case .thrusters:
+            return ["thrusters", "thruster", "barbell thruster", "DB thruster", "dumbbell thruster"]
+        case .devilPress:
+            return ["devil press", "devil presses", "devils press"]
+        case .burpeeBoxJumps:
+            return ["burpee box jumps", "burpee box jump", "BBJ", "burpee over box", "burpee box jump over"]
+        case .dumbbellSnatch:
+            return ["dumbbell snatch", "DB snatch", "single arm dumbbell snatch", "DB power snatch"]
+        case .dumbbellClean:
+            return ["dumbbell clean", "DB clean", "dumbbell power clean", "DB power clean"]
+        case .dumbbellCleanAndJerk:
+            return ["dumbbell clean and jerk", "DB clean and jerk", "dumbbell C&J", "DB C&J", "dumbbell hang clean and jerk", "DB hang clean and jerk", "hang dumbbell clean and jerk"]
+        case .assaultBike:
+            return ["assault bike", "air bike", "echo bike", "bike erg", "AB"]
+        case .skiErg:
+            return ["ski erg", "ski", "skierg", "skiing"]
         case .lunges:
             return ["lunges", "lunge", "walking lunges", "reverse lunges", "goblet lunges", "goblet reverse lunges"]
+        case .unknown:
+            return []
         }
     }
-    
+
     public var category: WorkoutCategoryNew {
         switch self {
         case .deadlift, .backSquat, .frontSquat, .benchPress, .shoulderPress, .overheadSquat:
@@ -197,7 +241,15 @@ public enum ExerciseType: String, CaseIterable, Sendable {
             return .kettlebell
         case .handstandPushUps, .barMuscleUps, .ringMuscleUps, .pistolSquats, .handstandWalk, .ringDips, .ropeClimb:
             return .gymnastics
+        case .wallBalls, .thrusters, .devilPress, .burpeeBoxJumps:
+            return .crossfit
+        case .dumbbellSnatch, .dumbbellClean, .dumbbellCleanAndJerk:
+            return .weightlifting
+        case .assaultBike, .skiErg:
+            return .cardio
         case .lunges:
+            return .other
+        case .unknown:
             return .other
         }
     }
