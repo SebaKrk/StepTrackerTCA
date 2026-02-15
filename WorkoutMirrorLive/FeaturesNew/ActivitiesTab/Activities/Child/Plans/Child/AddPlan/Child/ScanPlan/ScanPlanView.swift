@@ -31,7 +31,10 @@ struct ScanPlanView: View {
                         imagePreviewSection
 
                     case .processingOCR:
-                        imagePreviewSection
+                        // Show image only during OCR, not during parsing
+                        if store.extractedText.isEmpty {
+                            imagePreviewSection
+                        }
                         processingSection
 
                     case .textReady:
@@ -154,6 +157,7 @@ struct ScanPlanView: View {
 
     private var processingSection: some View {
         VStack(spacing: 12) {
+            Spacer()
             ProgressView()
                 .controlSize(.large)
 
@@ -161,8 +165,9 @@ struct ScanPlanView: View {
             Text(store.extractedText.isEmpty ? "Extracting text..." : "Parsing workout...")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+            Spacer()
         }
-        .padding(.top, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Text Editor
