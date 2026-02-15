@@ -38,9 +38,11 @@ public actor ClaudeAPIStrategy: WorkoutParsingStrategy {
     /// Parses OCR text into a structured workout using Claude API.
     ///
     /// - Parameter text: Raw text from Vision OCR.
+    /// - Parameter text: Raw text from Vision OCR.
     /// - Returns: A structured ``ExtractedWorkout`` with parsed sections and exercises.
     /// - Throws: ``ClaudeAPIError`` or JSON decoding errors.
     public func parseWorkoutText(_ text: String) async throws -> ExtractedWorkout {
+        let rawText = text  // Save for later
         guard !apiKey.isEmpty else {
             throw ClaudeAPIError.missingAPIKey
         }
@@ -54,7 +56,7 @@ public actor ClaudeAPIStrategy: WorkoutParsingStrategy {
 
         // Request body
         let requestBody = ClaudeAPIRequest(
-            model: "claude-3-5-sonnet-20241022",
+            model: "claude-sonnet-4-5-20250929",
             maxTokens: 4096,
             system: ClaudePrompt.systemPrompt,
             messages: [
@@ -84,13 +86,75 @@ public actor ClaudeAPIStrategy: WorkoutParsingStrategy {
             throw ClaudeAPIError.emptyResponse
         }
 
-        // Parse ExtractedWorkout from JSON
-        guard let jsonData = contentText.data(using: .utf8) else {
+        // Remove markdown code fence if present (Claude 4.5 wraps JSON in ```json...```)
+        var jsonString = contentText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if jsonString.hasPrefix("```json") {
+            jsonString = jsonString
+                .replacingOccurrences(of: "```json", with: "")
+                .replacingOccurrences(of: "```", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if jsonString.hasPrefix("```") {
+            jsonString = jsonString
+                .replacingOccurrences(of: "```", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        // Parse JSON to intermediate type (without rawText)
+        guard let jsonData = jsonString.data(using: .utf8) else {
             throw ClaudeAPIError.invalidJSON
         }
 
-        let workout = try JSONDecoder().decode(ExtractedWorkout.self, from: jsonData)
-        return workout
+        let workoutResponse = try JSONDecoder().decode(ClaudeWorkoutResponse.self, from: jsonData)
+
+        // Convert to ExtractedWorkout (add rawText)
+        let sections = workoutResponse.sections.map { section in
+            convertSection(section)
+        }
+
+        return ExtractedWorkout(
+            name: workoutResponse.name,
+            date: workoutResponse.date,
+            totalEstimatedMinutes: workoutResponse.totalEstimatedMinutes,
+            rawText: rawText,
+            sections: sections
+        )
+    }
+
+    // MARK: - Conversion Helpers
+
+    private func convertSection(_ section: ClaudeWorkoutSection) -> WorkoutSection {
+        let exercises = section.exercises?.map { convertExercise($0) }
+
+        return WorkoutSection(
+            type: SectionType(rawValue: section.type) ?? .warmup,
+            name: section.name,
+            durationMinutes: section.durationMinutes,
+            description: section.description,
+            timeCapMinutes: section.timeCapMinutes,
+            rounds: section.rounds,
+            exercises: exercises,
+            notes: section.notes
+        )
+    }
+
+    private func convertExercise(_ exercise: ClaudeExercise) -> ExtractedExercise {
+        let sets = exercise.sets?.map { convertSet($0) }
+
+        return ExtractedExercise(
+            name: exercise.name,
+            reps: exercise.reps,
+            sets: sets,
+            scalingOptions: exercise.scalingOptions
+        )
+    }
+
+    private func convertSet(_ set: ClaudeExerciseSet) -> ExerciseSet {
+        ExerciseSet(
+            setNumber: set.setNumber,
+            reps: set.reps,
+            intensity: set.intensity,
+            restSeconds: set.restSeconds
+        )
     }
 }
 
@@ -121,6 +185,40 @@ private struct ClaudeAPIResponse: Decodable {
     struct Content: Decodable {
         let text: String
     }
+}
+
+// MARK: - Claude Workout Response (matches Claude JSON output)
+
+private struct ClaudeWorkoutResponse: Decodable {
+    let name: String
+    let date: String
+    let totalEstimatedMinutes: Int
+    let sections: [ClaudeWorkoutSection]
+}
+
+private struct ClaudeWorkoutSection: Decodable {
+    let type: String
+    let name: String?
+    let durationMinutes: Int?
+    let description: String?
+    let timeCapMinutes: Int?
+    let rounds: String?
+    let exercises: [ClaudeExercise]?
+    let notes: String?
+}
+
+private struct ClaudeExercise: Decodable {
+    let name: String
+    let reps: Int?
+    let sets: [ClaudeExerciseSet]?
+    let scalingOptions: String?
+}
+
+private struct ClaudeExerciseSet: Decodable {
+    let setNumber: Int
+    let reps: Int
+    let intensity: String?
+    let restSeconds: Int?
 }
 
 // MARK: - Errors

@@ -96,6 +96,10 @@ struct ScanPlanFeature {
                 state.extractedText = workout.rawText
                 state.extractedWorkout = workout
 
+                // Debug: Print final TrainingSession as JSON
+                let trainingSession = workout.toTrainingSession()
+                dump(trainingSession)
+
                 // MARK: - Check if extraction returned empty result (FM unavailable fallback)
 
                 guard !workout.sections.isEmpty else {
