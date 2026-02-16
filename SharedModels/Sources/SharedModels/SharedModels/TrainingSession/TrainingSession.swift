@@ -128,19 +128,54 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
     }
 }
 
+// MARK: - Set Scheme
+
+/// Represents a group of sets with same reps and intensity (e.g., "4×5 @ 50-60%")
+public struct SetScheme: Equatable, Sendable, Codable {
+    public let count: Int          // Number of sets (e.g., 4)
+    public let reps: Int            // Reps per set (e.g., 5)
+    public let intensity: String?   // Intensity percentage (e.g., "50-60%")
+
+    public init(count: Int, reps: Int, intensity: String? = nil) {
+        self.count = count
+        self.reps = reps
+        self.intensity = intensity
+    }
+}
+
 // MARK: - Exercise Session
+
 public struct ExerciseSession: Identifiable, Equatable, Sendable {
     public let id = UUID()
     public let type: ExerciseType
+    public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
+    public let sets: [SetScheme]?   // For strength exercises with set schemes
     public let info: String?
 
-    public init(type: ExerciseType, target: ExerciseTarget?, weight: WeightConfiguration?, info: String?) {
+    public init(
+        type: ExerciseType,
+        customName: String? = nil,
+        target: ExerciseTarget?,
+        weight: WeightConfiguration?,
+        sets: [SetScheme]? = nil,
+        info: String?
+    ) {
         self.type = type
+        self.customName = customName
         self.target = target
         self.weight = weight
+        self.sets = sets
         self.info = info
+    }
+
+    /// Display name - uses customName for .unknown exercises, otherwise type.displayName
+    public var displayName: String {
+        if type == .unknown, let custom = customName {
+            return custom.capitalized  // Capitalize first letter
+        }
+        return type.displayName
     }
 }
 

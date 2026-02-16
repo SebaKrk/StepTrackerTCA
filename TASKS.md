@@ -537,7 +537,7 @@
 ### IOS-00064 Plans
     A: Workout Plans Feature
     - create Workout Plans Feature
-    - Refactor Activities Tab: Add Plans Section
+    - Refactor Activities Tab: Add Plans Sectione
     B: Refactor ActivitiesFeature
     - Extract workout logic from ActivitiesFeature into a separate PersonalActivityFeature.
     C: Improve OCR accuracy and modernize ScanPlan button styles
@@ -554,3 +554,23 @@
     C: Fix workout parsing accuracy - extract ONLY what's in OCR text
     D: ExtractedWorkout+Mapper
     E: Training Session Preview Integration
+
+### IOS-00066 Claude api
+    A: WorkoutParsingStrategy protocol
+    - Define protocol for workout parsing strategies
+    B: Add parsing strategy architecture
+    C: Integrate strategies with TCA
+    - Replace WorkoutParsingService with WorkoutParsingClient
+    - Use @Dependency in WorkoutExtractionClient
+    D: Implement Claude API HTTP client
+    - ClaudePrompt with system/user prompts + JSON schema
+    - ClaudeAPIStrategy HTTP implementation
+    - API key from environment (ANTHROPIC_API_KEY)
+    - Error handling (network, API, JSON decoding)
+    E: Improve Claude parsing and add structured sets model   
+    F: Refactor Claude API implementation                                                          
+    - Split into separate files (strategy, models, errors)                                      
+    - Fix code review issues (force unwraps, race conditions)  
+    G: Clean up model duplication and reorganize folder structure
+    -  Remove ClaudeWorkoutResponse duplication
+    -  Organize WorkoutParsingService folder structure

@@ -192,12 +192,18 @@ struct WorkoutPreviewView: View {
                 .foregroundStyle(.green)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(exercise.type.displayName)
+                Text(exercise.displayName)  // Uses customName for .unknown exercises
                     .font(.body)
                     .fontWeight(.medium)
 
                 if let target = exercise.target {
                     Text(targetDescription(target))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let sets = exercise.sets {
+                    Text(setsDescription(sets))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -294,6 +300,16 @@ struct WorkoutPreviewView: View {
             parts.append("W: \(women) kg")
         }
         return parts.joined(separator: " / ")
+    }
+
+    private func setsDescription(_ sets: [SetScheme]) -> String {
+        sets.map { set in
+            var description = "\(set.count)×\(set.reps)"
+            if let intensity = set.intensity {
+                description += " @ \(intensity)"
+            }
+            return description
+        }.joined(separator: ", ")
     }
 
 }

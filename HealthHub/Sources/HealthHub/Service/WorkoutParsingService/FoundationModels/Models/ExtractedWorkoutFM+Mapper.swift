@@ -15,12 +15,11 @@ import SharedModels
 @available(iOS 26.0, *)
 extension ExtractedWorkoutFM {
 
-    func toExtractedWorkout(rawText: String) -> ExtractedWorkout {
+    func toExtractedWorkout() -> ExtractedWorkout {
         ExtractedWorkout(
             name: name,
             date: date,
             totalEstimatedMinutes: totalEstimatedMinutes,
-            rawText: rawText,
             sections: sections.map { $0.toWorkoutSection() }
         )
     }
