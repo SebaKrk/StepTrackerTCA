@@ -78,7 +78,6 @@ extension WorkoutExtractionClient: DependencyKey {
                     name: "Preview Workout",
                     date: "2026-02-11",
                     totalEstimatedMinutes: 45,
-                    rawText: rawText,
                     sections: [
                         WorkoutSection(
                             type: .warmup,

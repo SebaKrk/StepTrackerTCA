@@ -47,7 +47,6 @@ extension WorkoutParsingClient {
                     name: "Mock Workout",
                     date: "2026-02-12",
                     totalEstimatedMinutes: 60,
-                    rawText: text,
                     sections: []
                 )
             }

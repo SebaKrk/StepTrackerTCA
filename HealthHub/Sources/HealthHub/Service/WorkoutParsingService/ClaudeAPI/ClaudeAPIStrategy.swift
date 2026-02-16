@@ -63,6 +63,6 @@ public actor ClaudeAPIStrategy: WorkoutParsingStrategy {
             userMessage: ClaudePrompt.userPrompt(ocrText: text)
         )
 
-        return try mapper.map(response, rawText: text)
+        return try mapper.map(response)
     }
 }

@@ -16,7 +16,7 @@
                 "currentVersion": "1.8.10"
               },
               "icon": "lucide-book-up",
-              "title": "Release Notes 1.8.10"
+              "title": "Informacje o wersji 1.8.10"
             }
           },
           {
@@ -37,18 +37,30 @@
             "id": "816e9083f82147fb",
             "type": "leaf",
             "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.11.5"
+              },
+              "icon": "lucide-book-up",
+              "title": "Informacje o wersji 1.11.5"
+            }
+          },
+          {
+            "id": "245e1e6d9fcc24ef",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
-                "file": "digram.md",
-                "mode": "source",
+                "file": "Diagram.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "digram"
+              "title": "Diagram"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -189,30 +201,34 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "graph:Otwórz podgląd grafu": false,
+      "daily-notes:Otwórz dzisiejszy dziennik": false,
+      "bases:Stwórz nową bazę danych": false,
       "switcher:Otwórz okno szybkiego wyboru": false,
-      "graph:Otwórz graf": false,
       "canvas:Stwórz nową tablicę": false,
-      "daily-notes:Otwórz codzienną notatkę": false,
       "templates:Wstaw szablon": false,
       "command-palette:Otwórz listę poleceń": false
     }
   },
-  "active": "816e9083f82147fb",
+  "active": "245e1e6d9fcc24ef",
   "lastOpenFiles": [
+    "TASKS~.md",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/Strategy/WorkoutParsingServiceError.swift",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/Strategy/WorkoutParsingStrategy.swift",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/Strategy",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/New Folder",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/FoundationModels/Models/ExtractedWorkoutFM+Mapper.swift",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/FoundationModels/Models/ExtractedWorkoutFM.swift",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/FoundationModels/FoundationModelsStrategy.swift",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/ClaudeAPI/ClaudePrompt.swift",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/ClaudeAPI/ClaudeAPIStrategy.swift",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/FoundationModels/Models",
+    "HealthHub/Sources/HealthHub/Service/WorkoutParsingService/ClaudeAPI/CLAUDE_API_FLOW_SEQUENCE.md",
+    "Diagram.md",
+    "FeatureDiagram.md",
     "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/ARCHITECTURE-ActivitiesTab~.md",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature/AddPlanFeature.swift",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature/AddPlanFeature+State.swift",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature/AddPlanFeature+Action.swift",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/AddPlanView.swift",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan/Feature",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Child/AddPlan",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature+Action.swift",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature.swift",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature+State.swift",
-    "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/Activities/Child/Plans/Feature/PlansFeature+Destination.swift",
     "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/ARCHITECTURE-ActivitiesTab.md",
     "WorkoutMirrorLive/FeaturesNew/ActivitiesTab/ARCHITECTURE~.md",
-    "FeatureDiagram.md",
     "digram.md",
     "CoreDataDiagram~.md",
     "CoreDataDiagram.md",
