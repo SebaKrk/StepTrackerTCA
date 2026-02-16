@@ -11,10 +11,10 @@ extension ExtractedWorkout {
 
     /// Converts ExtractedWorkout to TrainingSession for workout execution.
     public func toTrainingSession() -> TrainingSession {
-        // Parse date from "yyyy-MM-dd" string
+        // Parse date from "yyyy-MM-dd" string (fallback to today if nil or invalid)
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
-        let parsedDate = dateFormatter.date(from: date) ?? Date()
+        let parsedDate = date.flatMap { dateFormatter.date(from: $0) } ?? Date()
 
         // Extract warmup section (take first if duplicates)
         let warmUp = sections
@@ -132,9 +132,13 @@ extension ExtractedExercise {
         let weight = scalingOptions?.parseWeight()
 
         // Group sets into SetScheme (e.g., 4×5 @ 50-60%, 3×4 @ 60-70%)
+        // Filter out sets with null reps before grouping
         let setSchemes: [SetScheme]? = sets.map { sets in
-            let grouped = Dictionary(grouping: sets) { set in
-                "\(set.reps)|\(set.intensity ?? "")"
+            let validSets = sets.filter { $0.reps != nil }
+            guard !validSets.isEmpty else { return [] }
+
+            let grouped = Dictionary(grouping: validSets) { set in
+                "\(set.reps!)|\(set.intensity ?? "")"
             }
 
             return grouped
@@ -142,7 +146,7 @@ extension ExtractedExercise {
                 .map { _, group in
                     SetScheme(
                         count: group.count,
-                        reps: group.first?.reps ?? 0,
+                        reps: group.first!.reps!,  // Safe unwrap - we filtered nil reps
                         intensity: group.first?.intensity
                     )
                 }

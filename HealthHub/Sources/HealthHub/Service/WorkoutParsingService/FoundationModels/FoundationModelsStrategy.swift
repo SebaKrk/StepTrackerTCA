@@ -1,8 +1,8 @@
 //
-//  WorkoutParsingService.swift
+//  FoundationModelsStrategy.swift
 //  HealthHub
 //
-//  Created by Sebastian Sciuba on 11/02/2026.
+//  Created by Sebastian Sciuba on 12/02/2026.
 //
 
 import Foundation
@@ -11,22 +11,31 @@ import SharedModels
 #if canImport(FoundationModels)
 import FoundationModels
 
-/// Parses raw OCR text into a structured ``ExtractedWorkout`` using on-device Foundation Models.
+/// On-device workout parsing strategy using Apple Intelligence Foundation Models.
 ///
-/// The service creates a ``LanguageModelSession`` with CrossFit-specific instructions
-/// and uses `@Generable` schema to produce structured output. The model extracts
-/// workout sections, exercises, sets, reps, and weights EXACTLY as they appear
-/// in the OCR text, without adding or enriching content.
+/// This strategy uses a 3B parameter on-device language model to parse OCR text
+/// into structured workouts. Requires iOS 26+ and Apple Intelligence-compatible
+/// device (iPhone 15 Pro+, M-series iPad/Mac).
+///
+/// Benefits:
+/// - Free (no API costs)
+/// - Offline capable
+/// - Privacy (data never leaves device)
+///
+/// Limitations:
+/// - Requires Apple Intelligence device
+/// - Lower accuracy than cloud models (30-40% vs 95%+)
+/// - 4096 token context window
 @available(iOS 26.0, *)
-public actor WorkoutParsingService {
+public actor FoundationModelsStrategy: WorkoutParsingStrategy {
 
     public init() {}
 
-    /// Parses OCR text into a structured workout.
+    /// Parses OCR text into a structured workout using Foundation Models.
     ///
     /// - Parameter text: Raw text from Vision OCR.
     /// - Returns: A structured ``ExtractedWorkout`` with parsed sections and exercises.
-    /// - Throws: ``WorkoutParsingServiceError`` or Foundation Models errors.
+    /// - Throws: ``WorkoutParsingServiceError`` for FM-specific errors.
     public func parseWorkoutText(_ text: String) async throws -> ExtractedWorkout {
         let session = LanguageModelSession(
             instructions: """
@@ -132,7 +141,7 @@ public actor WorkoutParsingService {
                 options: GenerationOptions(sampling: .greedy)
             )
 
-            return result.content.toExtractedWorkout(rawText: text)
+            return result.content.toExtractedWorkout()
 
         } catch LanguageModelSession.GenerationError.exceededContextWindowSize {
             // OCR text too long (>4096 tokens)

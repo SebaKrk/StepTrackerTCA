@@ -571,3 +571,6 @@
     F: Refactor Claude API implementation                                                          
     - Split into separate files (strategy, models, errors)                                      
     - Fix code review issues (force unwraps, race conditions)  
+    G: Clean up model duplication and reorganize folder structure
+    -  Remove ClaudeWorkoutResponse duplication
+    -  Organize WorkoutParsingService folder structure
