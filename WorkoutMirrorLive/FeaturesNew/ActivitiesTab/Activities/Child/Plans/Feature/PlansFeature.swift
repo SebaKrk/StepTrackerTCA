@@ -28,6 +28,10 @@ struct PlansFeature {
                 
                 // MARK: - Destination
                 
+            case .destination(.presented(.addPlan(.destination(.presented(.scanPlan(.destination(.presented(.workoutPreview(.view(.saveButtonTapped)))))))))):
+                state.destination = nil
+                return .none 
+                
             case .destination:
                 return .none
             }

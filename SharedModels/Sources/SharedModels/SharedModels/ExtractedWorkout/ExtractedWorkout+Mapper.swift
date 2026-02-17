@@ -115,14 +115,19 @@ extension ExtractedExercise {
         // Preserve original name for .unknown exercises
         let customName = (exerciseType == .unknown) ? name : nil
 
-        // Determine target from reps or sets
+        // Determine target from reps + unit
         let target: ExerciseTarget?
         if let reps = reps, sets == nil {
-            // Simple rep target (e.g., AMRAP exercises: "16 swings", "8 HSPU")
-            target = .reps(reps)
+            switch unit?.lowercased() {
+            case "seconds": target = .seconds(reps)
+            case "minutes": target = .minutes(reps)
+            case "meters":  target = .meters(reps)
+            case "calories": target = .calories(reps)
+            case "laps":    target = .laps(reps)
+            default:        target = .reps(reps)  // "reps" or nil
+            }
         } else if sets != nil {
             // Strength exercises with set schemes (e.g., "4×5 @ 50-60%")
-            // Target is nil - full info is in 'info' string with percentages
             target = nil
         } else {
             target = nil
@@ -152,7 +157,7 @@ extension ExtractedExercise {
                 }
         }
 
-        // Build info string from scaling only (sets are now in SetScheme)
+        // Build info string from scaling options
         let info = scalingOptions.map { "Scaling: \($0)" }
 
         return ExerciseSession(

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import IdentifiedCollections
 import SharedModels
 import SwiftUI
 
@@ -28,6 +29,10 @@ struct WorkoutPreviewFeature {
         /// The color representing the training readiness level.
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
+
+        /// Planned workouts shared across app.
+        @Shared(.inMemory("plannedWorkouts"))
+        var plannedWorkouts: IdentifiedArrayOf<TrainingSession> = []
 
         /// The training session to preview.
         let trainingSession: TrainingSession
@@ -64,8 +69,14 @@ struct WorkoutPreviewFeature {
                 }
 
             case .view(.saveButtonTapped):
-                // TODO: Save workout to persistence (Subtask F)
-                return .none
+                // Add workout to shared in-memory list
+                let workout = state.trainingSession
+                state.$plannedWorkouts.withLock { $0[id: workout.id] = workout }
+
+                // Dismiss all modals and return to Plans list
+                return .run { _ in
+                    await dismiss()
+                }
             }
         }
     }

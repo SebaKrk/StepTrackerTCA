@@ -1135,6 +1135,9 @@
         }
       }
     },
+    "Cooldown" : {
+
+    },
     "Could not load the selected image." : {
 
     },
@@ -3265,6 +3268,9 @@
           }
         }
       }
+    },
+    "Warmup" : {
+
     },
     "Warning" : {
       "localizations" : {
