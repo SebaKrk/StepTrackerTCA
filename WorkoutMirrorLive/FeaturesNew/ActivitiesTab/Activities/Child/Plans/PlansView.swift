@@ -43,6 +43,11 @@ struct PlansView: View {
         ) { addPlanStore in
             AddPlanView(store: addPlanStore)
         }
+        .navigationDestination(
+            item: $store.scope(state: \.destination?.planDetail, action: \.destination.planDetail)
+        ) { planDetailStore in
+            PlanDetailView(store: planDetailStore)
+        }
         .onAppear {
             send(.viewDidAppear)
         }
@@ -87,7 +92,7 @@ struct PlansView: View {
 
     private func workoutHeaderButton(_ workout: TrainingSession) -> some View {
         Button {
-            // TODO: Navigate to workout details
+            send(.workoutTapped(workout))
         } label: {
             workoutHeader(workout)
         }

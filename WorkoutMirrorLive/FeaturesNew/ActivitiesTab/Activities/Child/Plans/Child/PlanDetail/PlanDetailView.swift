@@ -1,5 +1,5 @@
 //
-//  WorkoutPreviewView.swift
+//  PlanDetailView.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Sciuba on 12/02/2026.
@@ -9,12 +9,12 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
-@ViewAction(for: WorkoutPreviewFeature.self)
-struct WorkoutPreviewView: View {
+@ViewAction(for: PlanDetailFeature.self)
+struct PlanDetailView: View {
 
     // MARK: - Properties
 
-    let store: StoreOf<WorkoutPreviewFeature>
+    @Bindable var store: StoreOf<PlanDetailFeature>
 
     // MARK: - Body
 
@@ -43,29 +43,7 @@ struct WorkoutPreviewView: View {
         )
         .navigationTitle(store.trainingSession.title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            toolbarContent
-        }
     }
 
-    // MARK: - Toolbar
 
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                send(.editButtonTapped)
-            } label: {
-                Label("Edit", systemImage: "pencil")
-            }
-        }
-
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                send(.saveButtonTapped)
-            } label: {
-                Label("Save", systemImage: "checkmark")
-            }
-        }
-    }
 }

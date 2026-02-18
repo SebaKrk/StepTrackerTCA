@@ -12,9 +12,12 @@ extension PlansFeature {
     
     @Reducer
     enum Destination {
-        
+
         ///
         case addPlan(AddPlanFeature)
+
+        ///
+        case planDetail(PlanDetailFeature)
     }
     
 }

@@ -377,9 +377,6 @@
         }
       }
     },
-    "%lld min cap" : {
-
-    },
     "%lld reps" : {
       "localizations" : {
         "pl" : {

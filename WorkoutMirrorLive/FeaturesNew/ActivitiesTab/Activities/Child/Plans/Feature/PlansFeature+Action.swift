@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 extension PlansFeature {
     
@@ -23,6 +24,9 @@ extension PlansFeature {
             
             /// Called when user taps "Add Plan" button.
             case addPlanTapped
+
+            /// Called when user taps on a workout card.
+            case workoutTapped(TrainingSession)
         }
         
         // MARK: - Destination
