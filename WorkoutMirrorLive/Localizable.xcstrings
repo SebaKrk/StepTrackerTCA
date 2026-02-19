@@ -811,6 +811,15 @@
         }
       }
     },
+    "Anthropic API Key" : {
+
+    },
+    "Anuluj" : {
+
+    },
+    "API Key" : {
+
+    },
     "Apple Health Integration" : {
       "localizations" : {
         "pl" : {
@@ -1861,6 +1870,12 @@
         }
       }
     },
+    "Klucz aktywny" : {
+
+    },
+    "Klucz jest przechowywany bezpiecznie w Keychain urządzenia." : {
+
+    },
     "Kobieta" : {
       "localizations" : {
         "pl" : {
@@ -2852,6 +2867,9 @@
         }
       }
     },
+    "sk-ant-..." : {
+
+    },
     "Something went wrong" : {
 
     },
@@ -3216,6 +3234,9 @@
         }
       }
     },
+    "Usuń klucz" : {
+
+    },
     "Usuwa z watcha" : {
       "localizations" : {
         "pl" : {
@@ -3560,6 +3581,9 @@
         }
       }
     },
+    "Wymagany do parsowania treningów przez Claude API. Przechowywany bezpiecznie w Keychain — nie wysyłany nigdzie poza Anthropic." : {
+
+    },
     "X" : {
       "localizations" : {
         "pl" : {
@@ -3629,6 +3653,9 @@
           }
         }
       }
+    },
+    "Zapisz" : {
+
     },
     "zmien" : {
       "localizations" : {

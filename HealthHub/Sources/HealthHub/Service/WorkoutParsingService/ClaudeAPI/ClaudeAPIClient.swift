@@ -27,8 +27,7 @@ public actor ClaudeAPIClient {
         apiKey: String? = nil
     ) {
         self.httpClient = httpClient
-        // API key from parameter or environment variable
-        self.apiKey = apiKey ?? ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"] ?? ""
+        self.apiKey = apiKey ?? ""
     }
 
     // MARK: - Public Methods
