@@ -39,16 +39,25 @@ public enum ClaudePrompt {
     - First workout "Deadlift": "Hip hinge practice, glute and hamstring activation (glute bridges, leg swings), light barbell deadlifts building to working weight."
 
     Section naming rules (CRITICAL - avoid semantic conflicts):
-    - Field "name": Use NEUTRAL identifier without workout format
-      * Good: "WOD 1", "Strength 1", "Conditioning", "Skill Work"
-      * Bad: "WOD: For time" (conflicts with type), "AMRAP 10'" (conflicts with type)
+    - Field "name": Describes WHAT the athlete will be working on (not format, not single exercise name)
+      * Bad: "WOD: For time" (conflicts with type), "AMRAP 10'" (conflicts with type), "Back squat" (too specific)
     - Field "type": Specifies workout format ONLY
       * Use: "amrap", "forTime", "emom", "strength", "conditioning"
     - DO NOT put workout format in "name" field - it belongs in "type"
+    - For CONDITIONING sections: name describes WOD slot ("WOD 1", "WOD 2", "Conditioning")
+    - For STRENGTH sections: name reflects training FOCUS based on all exercises in the section:
+      * Powerlifting (squat, deadlift, bench press, shoulder press) → "Strength"
+      * Olympic lifting (snatch, clean, jerk, clean & jerk) → "Weightlifting"
+      * Gymnastics strength (HSPU, muscle-ups, ring work) → "Gymnastics"
+      * Kettlebell work → "Kettlebell"
+      * Mixed or unclear → "Strength"
     - Examples:
       * OCR: "WOD: For time, TC: 18 min" → name: "WOD 1", type: "conditioning", rounds: "For time"
-      * OCR: "AMRAP 10'" → name: "Conditioning", type: "conditioning", rounds: "AMRAP", timeCapMinutes: 10
-      * OCR: "Snatch 4x5" → name: "Snatch", type: "strength"
+      * OCR: "AMRAP 10'" → name: "WOD 1", type: "conditioning", rounds: "AMRAP", timeCapMinutes: 10
+      * OCR: "Back squat 5-5-5-5-5" → name: "Strength", type: "strength"
+      * OCR: "Snatch 4x5" → name: "Weightlifting", type: "strength"
+      * OCR: "Clean & Jerk 5x3" → name: "Weightlifting", type: "strength"
+      * OCR: "HSPU 5x5" → name: "Gymnastics", type: "strength"
 
     CrossFit notation:
     - "4x5" = 4 sets × 5 reps (setNumber: 4, reps: 5)
