@@ -50,13 +50,6 @@
             ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "ANTHROPIC_API_KEY"
-            value = "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"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
