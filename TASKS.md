@@ -579,3 +579,4 @@
     A: Plans lists 
     B: PlanDetailView
     C: Key
+    D: Settings

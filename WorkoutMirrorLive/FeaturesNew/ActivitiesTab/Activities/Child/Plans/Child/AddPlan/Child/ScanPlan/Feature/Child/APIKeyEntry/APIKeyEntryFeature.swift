@@ -19,6 +19,8 @@ struct APIKeyEntryFeature {
         var draftKey: String = ""
         /// Whether a key is already stored in Keychain.
         var hasExistingKey: Bool
+        /// Whether this screen is presented as a sheet (true) or via navigation (false).
+        var isPresentedAsSheet: Bool = true
     }
 
     // MARK: - Action

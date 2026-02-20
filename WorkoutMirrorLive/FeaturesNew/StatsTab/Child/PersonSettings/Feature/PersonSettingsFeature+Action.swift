@@ -42,12 +42,15 @@ extension PersonSettingsFeature {
         case view(View)
         
         enum View {
-                    
+
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
-            
-            ///
+
+            /// Action triggered when close button is tapped
             case xMarkButtonTapped
+
+            /// Action triggered when API key row is tapped
+            case apiKeyTapped
         }
         
         // MARK: - Destination

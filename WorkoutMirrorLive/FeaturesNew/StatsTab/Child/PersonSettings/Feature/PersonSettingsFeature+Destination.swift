@@ -9,10 +9,12 @@ import ComposableArchitecture
 
 /// Implementation of `PersonSettingsFeature` destination
 extension PersonSettingsFeature {
-    
+
     @Reducer
     enum Destination {
 
+        /// Navigation to API key management screen
+        case apiKey(APIKeyEntryFeature)
     }
 }
 

@@ -27,7 +27,7 @@ struct WorkoutExtractionClient: Sendable {
 }
 
 extension DependencyValues {
-    var workoutExtractionClient: WorkoutExtractionClient {
+    nonisolated var workoutExtractionClient: WorkoutExtractionClient {
         get { self[WorkoutExtractionClient.self] }
         set { self[WorkoutExtractionClient.self] = newValue }
     }
@@ -40,21 +40,25 @@ extension WorkoutExtractionClient: DependencyKey {
     /// Production client using Vision OCR + Claude API parsing.
     ///
     /// API key is read at call-time from Keychain via ``APIKeyClient``.
-    static let liveValue: WorkoutExtractionClient = WorkoutExtractionClient(
-        extractText: { imageData in
-            let ocrService = ScanPlanService()
-            return try await ocrService.recognizeText(from: imageData)
-        },
-        parseWorkout: { rawText in
-            @Dependency(\.apiKeyClient) var apiKeyClient
-            let strategy = ClaudeAPIStrategy(apiKey: apiKeyClient.load())
-            return try await strategy.parseWorkoutText(rawText)
-        }
-    )
+    nonisolated static let liveValue: WorkoutExtractionClient = {
+        
+        let ocrService = ScanPlanService()
+        
+        return WorkoutExtractionClient(
+            extractText: { imageData in
+                try await ocrService.recognizeText(from: imageData)
+            },
+            parseWorkout: { rawText in
+                @Dependency(\.apiKeyClient) var apiKeyClient
+                let strategy = ClaudeAPIStrategy(apiKey: apiKeyClient.load())
+                return try await strategy.parseWorkoutText(rawText)
+            }
+        )
+    }()
 
     // MARK: - Test Value
 
-    static var testValue: WorkoutExtractionClient {
+    nonisolated static var testValue: WorkoutExtractionClient {
         WorkoutExtractionClient(
             extractText: unimplemented("WorkoutExtractionClient.extractText"),
             parseWorkout: unimplemented("WorkoutExtractionClient.parseWorkout")
@@ -63,7 +67,7 @@ extension WorkoutExtractionClient: DependencyKey {
 
     // MARK: - Preview Value
 
-    static var previewValue: WorkoutExtractionClient {
+    nonisolated static var previewValue: WorkoutExtractionClient {
         WorkoutExtractionClient(
             extractText: { _ in
                 """

@@ -17,22 +17,31 @@ struct APIKeyEntryView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            Form {
-                if store.hasExistingKey {
-                    existingKeySection
-                } else {
-                    enterKeySection
-                }
-            }
+        contentView
             .navigationTitle("API Key")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Anuluj") {
-                        store.send(.cancelTapped)
+                if store.isPresentedAsSheet {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            store.send(.cancelTapped)
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
                     }
                 }
+            }
+    }
+
+    // MARK: - Content
+
+    private var contentView: some View {
+        Form {
+            if store.hasExistingKey {
+                existingKeySection
+                deleteSection
+            } else {
+                enterKeySection
             }
         }
     }
@@ -42,40 +51,66 @@ struct APIKeyEntryView: View {
     private var existingKeySection: some View {
         Section {
             HStack {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                Text("Klucz aktywny")
-            }
-            Button(role: .destructive) {
-                store.send(.deleteKeyTapped)
-            } label: {
-                Label("Usuń klucz", systemImage: "trash")
+                Text("Status")
+                Spacer()
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                        .font(.caption)
+                    Text("Active")
+                        .foregroundStyle(.secondary)
+                }
             }
         } header: {
             Text("Anthropic API Key")
         } footer: {
-            Text("Klucz jest przechowywany bezpiecznie w Keychain urządzenia.")
+            Text("The key is stored securely in the device's Keychain.")
+        }
+    }
+
+    // MARK: - Delete Section
+
+    private var deleteSection: some View {
+        Section {
+            Button(role: .destructive) {
+                store.send(.deleteKeyTapped)
+            } label: {
+                HStack {
+                    Spacer()
+                    Label("Delete Key", systemImage: "trash")
+                    Spacer()
+                }
+            }
         }
     }
 
     // MARK: - Enter Key Section
 
     private var enterKeySection: some View {
-        Section {
-            SecureField("sk-ant-...", text: $store.draftKey)
-                .textContentType(.password)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-            Button {
-                store.send(.saveButtonTapped)
-            } label: {
-                Label("Zapisz", systemImage: "checkmark")
+        Group {
+            Section {
+                SecureField("sk-ant-...", text: $store.draftKey)
+                    .textContentType(.password)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+            } header: {
+                Text("Anthropic API Key")
+            } footer: {
+                Text("Required for workout parsing via Claude API. Stored securely in Keychain — never sent anywhere except Anthropic.")
             }
-            .disabled(store.draftKey.trimmingCharacters(in: .whitespaces).isEmpty)
-        } header: {
-            Text("Anthropic API Key")
-        } footer: {
-            Text("Wymagany do parsowania treningów przez Claude API. Przechowywany bezpiecznie w Keychain — nie wysyłany nigdzie poza Anthropic.")
+
+            Section {
+                Button {
+                    store.send(.saveButtonTapped)
+                } label: {
+                    HStack {
+                        Spacer()
+                        Label("Save Key", systemImage: "checkmark")
+                        Spacer()
+                    }
+                }
+                .disabled(store.draftKey.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
         }
     }
 }
