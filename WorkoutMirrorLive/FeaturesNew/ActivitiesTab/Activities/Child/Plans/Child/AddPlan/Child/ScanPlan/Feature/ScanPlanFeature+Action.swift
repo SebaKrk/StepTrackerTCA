@@ -37,6 +37,9 @@ extension ScanPlanFeature {
 
             /// Called when user taps "Clear" to remove selected image.
             case clearImageTapped
+
+            /// Called when user taps the key icon in toolbar (add/manage API key).
+            case apiKeySettingsTapped
         }
 
         enum Internal {
@@ -57,6 +60,7 @@ extension ScanPlanFeature {
         @Reducer
         enum Destination {
             case workoutPreview(WorkoutPreviewFeature)
+            case apiKeyEntry(APIKeyEntryFeature)
         }
     }
 

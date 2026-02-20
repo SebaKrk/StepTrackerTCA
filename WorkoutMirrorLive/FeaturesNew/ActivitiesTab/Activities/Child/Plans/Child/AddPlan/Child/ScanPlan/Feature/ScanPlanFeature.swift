@@ -19,7 +19,8 @@ import SharedModels
 struct ScanPlanFeature {
 
     // MARK: - Dependency
-    
+
+    @Dependency(\.apiKeyClient) var apiKeyClient
     @Dependency(\.workoutExtractionClient) var extractionClient
 
     // MARK: - Body
@@ -49,9 +50,18 @@ struct ScanPlanFeature {
                     }
                 }
 
+            case .view(.apiKeySettingsTapped):
+                let hasKey = apiKeyClient.load() != nil
+                state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: hasKey)
+                return .none
+
             case .view(.continueButtonTapped):
                 guard !state.extractedText.isEmpty else { return .none }
-                state.viewState = .processingOCR  // Reusing same spinner state for parsing
+                guard apiKeyClient.load() != nil else {
+                    state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: false)
+                    return .none
+                }
+                state.viewState = .processingOCR
                 return .run { [text = state.extractedText] send in
                     do {
                         let workout = try await extractionClient.parseWorkout(text)
@@ -138,6 +148,18 @@ struct ScanPlanFeature {
 
                 // MARK: - Destination Action
 
+            case .destination(.presented(.apiKeyEntry(.delegate(.keySaved)))):
+                // Key saved → dismiss sheet and retry continue action
+                state.apiKeyEntry = nil
+                return .run { send in
+                    await send(.view(.continueButtonTapped))
+                }
+
+            case .destination(.presented(.apiKeyEntry(.delegate(.keyDeleted)))):
+                // Key deleted → dismiss sheet
+                state.apiKeyEntry = nil
+                return .none
+
             case .destination(.presented(.workoutPreview(.view(.editButtonTapped)))):
                 // User wants to edit - go back to idle state
                 state.workoutPreview = nil  // Dismiss preview
@@ -161,6 +183,9 @@ struct ScanPlanFeature {
         }
         .ifLet(\.$workoutPreview, action: \.destination.workoutPreview) {
             WorkoutPreviewFeature()
+        }
+        .ifLet(\.$apiKeyEntry, action: \.destination.apiKeyEntry) {
+            APIKeyEntryFeature()
         }
     }
 

@@ -43,6 +43,9 @@ extension ScanPlanFeature {
 
         /// Workout preview destination (navigation).
         @Presents var workoutPreview: WorkoutPreviewFeature.State?
+
+        /// API key entry sheet.
+        @Presents var apiKeyEntry: APIKeyEntryFeature.State?
     }
 
 }

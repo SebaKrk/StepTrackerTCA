@@ -54,6 +54,18 @@ struct ScanPlanView: View {
         )
         .navigationTitle("Scan Plan")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.apiKeySettingsTapped)
+                } label: {
+                    Image(systemName: "key")
+                }
+            }
+        }
+        .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.destination.apiKeyEntry)) { store in
+            APIKeyEntryView(store: store)
+        }
         .photosPicker(isPresented: $store.isPickerPresented,
                       selection: $store.selectedItem)
         .onChange(of: store.selectedItem) { _, newItem in
