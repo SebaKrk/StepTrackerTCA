@@ -266,7 +266,6 @@ struct WorkoutPreviewView: View {
             } label: {
                 Label("Save", systemImage: "checkmark")
             }
-            .disabled(true) // TODO: Enable in Subtask F
         }
     }
 

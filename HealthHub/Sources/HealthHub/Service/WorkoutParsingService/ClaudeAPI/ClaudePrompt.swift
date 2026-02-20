@@ -65,6 +65,28 @@ public enum ClaudePrompt {
 
     Lines starting with just numbers (no exercise name) are additional scaling options for the previous exercise.
 
+    Scaling alternatives - always use full form "exercise or alternative":
+    - "1200m row (scale: run)" → name: "rowing", scalingOptions: "row or run"
+    - "1200m row or run" → name: "rowing", scalingOptions: "row or run"
+    - "Scaling: or run" (OCR shorthand near rowing exercise) → name: "rowing", scalingOptions: "row or run"
+    - "800m run or row" → name: "running", scalingOptions: "run or row"
+
+
+    Exercise units (CRITICAL - always set "unit" field):
+    - Default: "reps" (e.g., "8 HSPU", "30 box jumps")
+    - Distance: "meters" (e.g., "400m run" → reps: 400, unit: "meters")
+    - Time: "seconds" (e.g., "rest 180 sec", "30 sec plank" → reps: 180, unit: "seconds")
+    - Time: "minutes" (e.g., "rest 3 min" → reps: 3, unit: "minutes")
+    - Energy: "calories" (e.g., "15 cal row" → reps: 15, unit: "calories")
+    - Laps: "laps" (e.g., "4 laps" → reps: 4, unit: "laps")
+
+    Rest periods (CRITICAL - rest is NOT a separate exercise):
+    - Rest belongs to the PRECEDING exercise as part of its "scalingOptions" field
+    - "1200m row, rest 3 min" → rowing: scalingOptions: "or run, Rest: 3 min"
+    - "800m run, rest 90s" → running: scalingOptions: "Rest: 90 sec"
+    - "1200m row (scale: run), rest 3 min" → rowing: scalingOptions: "or run, Rest: 3 min"
+    - NEVER create a standalone "rest" exercise entry
+
     Exercise names - use EXACT names (case-insensitive):
     - Kettlebell: "kettlebell swing", "american swing", "russian swing", "KB swing"
     - Gymnastics: "handstand push-ups", "HSPU", "bar muscle-ups", "ring muscle-ups"
@@ -115,6 +137,7 @@ public enum ClaudePrompt {
             {
               "name": "string",
               "reps": number | null,
+              "unit": "reps|seconds|minutes|meters|calories|laps | null",
               "sets": [
                 {
                   "setNumber": number,

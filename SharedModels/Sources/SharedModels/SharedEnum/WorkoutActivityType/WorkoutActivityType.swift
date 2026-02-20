@@ -8,7 +8,7 @@
 import HealthKit
 
 public enum WorkoutActivityType: CaseIterable, Hashable, Sendable {
-
+    
     case running
     case walking
     case cycling
