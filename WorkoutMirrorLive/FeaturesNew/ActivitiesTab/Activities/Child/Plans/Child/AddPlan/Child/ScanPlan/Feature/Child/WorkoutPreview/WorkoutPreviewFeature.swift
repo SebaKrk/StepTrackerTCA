@@ -37,7 +37,10 @@ struct WorkoutPreviewFeature {
         /// The training session to preview.
         let trainingSession: TrainingSession
 
+        ///
         var isWarmupExpanded: Bool = true
+        
+        ///
         var isCooldownExpanded: Bool = true
     }
 
@@ -57,7 +60,10 @@ struct WorkoutPreviewFeature {
             /// Called when user taps "Save" button (placeholder for future).
             case saveButtonTapped
 
+            ///
             case warmupToggleTapped
+            
+            ///
             case cooldownToggleTapped
         }
     }

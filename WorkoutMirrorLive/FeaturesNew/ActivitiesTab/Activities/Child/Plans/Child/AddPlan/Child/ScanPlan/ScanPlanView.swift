@@ -55,16 +55,12 @@ struct ScanPlanView: View {
         .navigationTitle("Scan Plan")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    send(.apiKeySettingsTapped)
-                } label: {
-                    Image(systemName: "key")
-                }
-            }
+            apiKeyToolbarItem
         }
         .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.destination.apiKeyEntry)) { store in
-            APIKeyEntryView(store: store)
+            NavigationStack {
+                APIKeyEntryView(store: store)
+            }
         }
         .photosPicker(isPresented: $store.isPickerPresented,
                       selection: $store.selectedItem)
@@ -264,5 +260,29 @@ struct ScanPlanView: View {
         }
         .padding(.top, 40)
     }
-    
+
+    // MARK: - API Key Toolbar
+
+    private var shouldShowApiKeyButton: Bool {
+        switch store.viewState {
+        case .idle, .failed:
+            return true
+        default:
+            return false
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var apiKeyToolbarItem: some ToolbarContent {
+        if shouldShowApiKeyButton {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.apiKeySettingsTapped)
+                } label: {
+                    Image(systemName: "key")
+                }
+            }
+        }
+    }
+
 }

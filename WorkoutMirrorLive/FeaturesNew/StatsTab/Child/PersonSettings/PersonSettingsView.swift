@@ -29,6 +29,11 @@ struct PersonSettingsView: View {
                 }
                 .navigationTitle("Personal Settings")
                 .navigationBarTitleDisplayMode(.inline)
+                .navigationDestination(
+                    item: $store.scope(state: \.destination?.apiKey, action: \.destination.apiKey)
+                ) { apiKeyStore in
+                    APIKeyEntryView(store: apiKeyStore)
+                }
         }
     }
     
@@ -61,6 +66,26 @@ struct PersonSettingsView: View {
                 Text("Heart Rate & Activity")
             } footer: {
                 Text("Your personal data is used to calculate accurate heart rate zones, calorie burn, and training recommendations. All information remains private on your device.")
+            }
+
+            Section {
+                HStack {
+                    Image(systemName: "key.fill")
+                        .foregroundStyle(.secondary)
+                    Text("API Key")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    send(.apiKeyTapped)
+                }
+            } header: {
+                Text("Developer")
+            } footer: {
+                Text("Manage API keys for AI-powered workout parsing and analysis.")
             }
         }
     }

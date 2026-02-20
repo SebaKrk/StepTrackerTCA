@@ -17,7 +17,7 @@ struct APIKeyClient: Sendable {
 }
 
 extension DependencyValues {
-    var apiKeyClient: APIKeyClient {
+    nonisolated var apiKeyClient: APIKeyClient {
         get { self[APIKeyClient.self] }
         set { self[APIKeyClient.self] = newValue }
     }
