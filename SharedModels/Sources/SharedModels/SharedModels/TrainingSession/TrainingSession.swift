@@ -9,7 +9,8 @@ import Foundation
 import HealthKit
 
 // MARK: - Training Session (główny obiekt treningu)
-public struct TrainingSession: Sendable {
+public struct TrainingSession: Identifiable, Equatable, Sendable {
+    public let id: UUID
     public let date: Date
     public let title: String
     public let activity: WorkoutActivityType
@@ -18,7 +19,17 @@ public struct TrainingSession: Sendable {
     public let workouts: [WorkoutSessionNew]
     public let coolDown: CoolDownSession?
 
-    public init(date: Date, title: String, activity: WorkoutActivityType, location: WorkoutLocationType, warmUp: WarmUpSession?, workouts: [WorkoutSessionNew], coolDown: CoolDownSession?) {
+    public init(
+        id: UUID = UUID(),
+        date: Date,
+        title: String,
+        activity: WorkoutActivityType,
+        location: WorkoutLocationType,
+        warmUp: WarmUpSession?,
+        workouts: [WorkoutSessionNew],
+        coolDown: CoolDownSession?
+    ) {
+        self.id = id
         self.date = date
         self.title = title
         self.activity = activity
@@ -85,7 +96,7 @@ public struct TrainingSession: Sendable {
 }
 
 // MARK: - Warm Up Session
-public struct WarmUpSession: Sendable {
+public struct WarmUpSession: Equatable, Sendable {
     public let goal: SimpleWorkoutGoal
     public let time: Int?
     public let description: String?
@@ -98,7 +109,7 @@ public struct WarmUpSession: Sendable {
 }
 
 // MARK: - Cool Down Session
-public struct CoolDownSession: Sendable {
+public struct CoolDownSession: Equatable, Sendable {
     public let goal: SimpleWorkoutGoal
     public let time: Int?
     public let description: String?

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import IdentifiedCollections
 import SharedModels
 import SwiftUI
 
@@ -29,8 +30,18 @@ struct WorkoutPreviewFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
 
+        /// Planned workouts shared across app.
+        @Shared(.inMemory("plannedWorkouts"))
+        var plannedWorkouts: IdentifiedArrayOf<TrainingSession> = []
+
         /// The training session to preview.
         let trainingSession: TrainingSession
+
+        ///
+        var isWarmupExpanded: Bool = true
+        
+        ///
+        var isCooldownExpanded: Bool = true
     }
 
     // MARK: - Action
@@ -48,6 +59,12 @@ struct WorkoutPreviewFeature {
 
             /// Called when user taps "Save" button (placeholder for future).
             case saveButtonTapped
+
+            ///
+            case warmupToggleTapped
+            
+            ///
+            case cooldownToggleTapped
         }
     }
 
@@ -64,7 +81,21 @@ struct WorkoutPreviewFeature {
                 }
 
             case .view(.saveButtonTapped):
-                // TODO: Save workout to persistence (Subtask F)
+                // Add workout to shared in-memory list
+                let workout = state.trainingSession
+                state.$plannedWorkouts.withLock { $0[id: workout.id] = workout }
+
+                // Dismiss all modals and return to Plans list
+                return .run { _ in
+                    await dismiss()
+                }
+
+            case .view(.warmupToggleTapped):
+                state.isWarmupExpanded.toggle()
+                return .none
+
+            case .view(.cooldownToggleTapped):
+                state.isCooldownExpanded.toggle()
                 return .none
             }
         }

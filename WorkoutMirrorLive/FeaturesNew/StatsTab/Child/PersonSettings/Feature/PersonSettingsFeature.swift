@@ -13,9 +13,10 @@ import SharedModels
 struct PersonSettingsFeature {
     
     // MARK: - Dependency
-    
+
     @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.personCalculatorClient) var calculator
+    @Dependency(\.apiKeyClient) var apiKeyClient
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -94,12 +95,32 @@ struct PersonSettingsFeature {
                 return .run { send in
                     await self.dismiss()
                 }
-                
+
+            case .view(.apiKeyTapped):
+                let hasKey = apiKeyClient.load() != nil
+                state.destination = .apiKey(
+                    APIKeyEntryFeature.State(
+                        hasExistingKey: hasKey,
+                        isPresentedAsSheet: false
+                    )
+                )
+                return .none
+
+            case .destination(.presented(.apiKey(.delegate(.keySaved)))):
+                state.destination = nil
+                return .none
+
+            case .destination(.presented(.apiKey(.delegate(.keyDeleted)))):
+                state.destination = nil
+                return .none
+
             case .destination(_):
                 return .none
             }
         }
-        .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$destination, action: \.destination) {
+            Destination.body
+        }
     }
     
 }

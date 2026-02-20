@@ -39,16 +39,25 @@ public enum ClaudePrompt {
     - First workout "Deadlift": "Hip hinge practice, glute and hamstring activation (glute bridges, leg swings), light barbell deadlifts building to working weight."
 
     Section naming rules (CRITICAL - avoid semantic conflicts):
-    - Field "name": Use NEUTRAL identifier without workout format
-      * Good: "WOD 1", "Strength 1", "Conditioning", "Skill Work"
-      * Bad: "WOD: For time" (conflicts with type), "AMRAP 10'" (conflicts with type)
+    - Field "name": Describes WHAT the athlete will be working on (not format, not single exercise name)
+      * Bad: "WOD: For time" (conflicts with type), "AMRAP 10'" (conflicts with type), "Back squat" (too specific)
     - Field "type": Specifies workout format ONLY
       * Use: "amrap", "forTime", "emom", "strength", "conditioning"
     - DO NOT put workout format in "name" field - it belongs in "type"
+    - For CONDITIONING sections: name describes WOD slot ("WOD 1", "WOD 2", "Conditioning")
+    - For STRENGTH sections: name reflects training FOCUS based on all exercises in the section:
+      * Powerlifting (squat, deadlift, bench press, shoulder press) → "Strength"
+      * Olympic lifting (snatch, clean, jerk, clean & jerk) → "Weightlifting"
+      * Gymnastics strength (HSPU, muscle-ups, ring work) → "Gymnastics"
+      * Kettlebell work → "Kettlebell"
+      * Mixed or unclear → "Strength"
     - Examples:
       * OCR: "WOD: For time, TC: 18 min" → name: "WOD 1", type: "conditioning", rounds: "For time"
-      * OCR: "AMRAP 10'" → name: "Conditioning", type: "conditioning", rounds: "AMRAP", timeCapMinutes: 10
-      * OCR: "Snatch 4x5" → name: "Snatch", type: "strength"
+      * OCR: "AMRAP 10'" → name: "WOD 1", type: "conditioning", rounds: "AMRAP", timeCapMinutes: 10
+      * OCR: "Back squat 5-5-5-5-5" → name: "Strength", type: "strength"
+      * OCR: "Snatch 4x5" → name: "Weightlifting", type: "strength"
+      * OCR: "Clean & Jerk 5x3" → name: "Weightlifting", type: "strength"
+      * OCR: "HSPU 5x5" → name: "Gymnastics", type: "strength"
 
     CrossFit notation:
     - "4x5" = 4 sets × 5 reps (setNumber: 4, reps: 5)
@@ -64,6 +73,28 @@ public enum ClaudePrompt {
     → ONE exercise with scalingOptions: "24/16, 28/20, 32/24"
 
     Lines starting with just numbers (no exercise name) are additional scaling options for the previous exercise.
+
+    Scaling alternatives - always use full form "exercise or alternative":
+    - "1200m row (scale: run)" → name: "rowing", scalingOptions: "row or run"
+    - "1200m row or run" → name: "rowing", scalingOptions: "row or run"
+    - "Scaling: or run" (OCR shorthand near rowing exercise) → name: "rowing", scalingOptions: "row or run"
+    - "800m run or row" → name: "running", scalingOptions: "run or row"
+
+
+    Exercise units (CRITICAL - always set "unit" field):
+    - Default: "reps" (e.g., "8 HSPU", "30 box jumps")
+    - Distance: "meters" (e.g., "400m run" → reps: 400, unit: "meters")
+    - Time: "seconds" (e.g., "rest 180 sec", "30 sec plank" → reps: 180, unit: "seconds")
+    - Time: "minutes" (e.g., "rest 3 min" → reps: 3, unit: "minutes")
+    - Energy: "calories" (e.g., "15 cal row" → reps: 15, unit: "calories")
+    - Laps: "laps" (e.g., "4 laps" → reps: 4, unit: "laps")
+
+    Rest periods (CRITICAL - rest is NOT a separate exercise):
+    - Rest belongs to the PRECEDING exercise as part of its "scalingOptions" field
+    - "1200m row, rest 3 min" → rowing: scalingOptions: "or run, Rest: 3 min"
+    - "800m run, rest 90s" → running: scalingOptions: "Rest: 90 sec"
+    - "1200m row (scale: run), rest 3 min" → rowing: scalingOptions: "or run, Rest: 3 min"
+    - NEVER create a standalone "rest" exercise entry
 
     Exercise names - use EXACT names (case-insensitive):
     - Kettlebell: "kettlebell swing", "american swing", "russian swing", "KB swing"
@@ -115,6 +146,7 @@ public enum ClaudePrompt {
             {
               "name": "string",
               "reps": number | null,
+              "unit": "reps|seconds|minutes|meters|calories|laps | null",
               "sets": [
                 {
                   "setNumber": number,

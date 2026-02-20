@@ -21,53 +21,28 @@ struct ScanPlanView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            ScrollView {
-                VStack(spacing: 24) {
-                    switch store.viewState {
-                    case .idle:
-                        idleSection
-
-                    case .imageSelected:
-                        imagePreviewSection
-
-                    case .processingOCR:
-                        // Show image only during OCR, not during parsing
-                        if store.extractedText.isEmpty {
-                            imagePreviewSection
-                        }
-                        processingSection
-
-                    case .textReady:
-                        smallImagePreviewSection
-                        textEditorSection
-                        continueButtonSection
-
-                        Button {
-                            send(.clearImageTapped)
-                        } label: {
-                            Label("Start Over", systemImage: "arrow.counterclockwise")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.top, 8)
-
-                    case let .unavailable(message):
-                        unavailableSection(message: message)
-
-                    case let .failed(error):
-                        failedSection(error: error)
-                    }
-                }
-                .padding()
-            }
-
             switch store.viewState {
             case .idle:
-                actionButtonsSection
-                    .padding(.horizontal)
-                    .padding(.bottom)
-            default:
-                EmptyView()
+                idleSection
+
+            case .imageSelected:
+                imagePreviewSection
+
+            case .processingOCR:
+                // Show image only during OCR, not during parsing
+                if store.extractedText.isEmpty {
+                    imagePreviewSection
+                }
+                processingSection
+
+            case .textReady:
+                textReadyView
+
+            case let .unavailable(message):
+                unavailableSection(message: message)
+
+            case let .failed(error):
+                failedSection(error: error)
             }
         }
         .background(
@@ -79,6 +54,14 @@ struct ScanPlanView: View {
         )
         .navigationTitle("Scan Plan")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            apiKeyToolbarItem
+        }
+        .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.destination.apiKeyEntry)) { store in
+            NavigationStack {
+                APIKeyEntryView(store: store)
+            }
+        }
         .photosPicker(isPresented: $store.isPickerPresented,
                       selection: $store.selectedItem)
         .onChange(of: store.selectedItem) { _, newItem in
@@ -94,18 +77,23 @@ struct ScanPlanView: View {
     // MARK: - Idle
 
     private var idleSection: some View {
-        VStack(spacing: 20) {
-            Spacer()
-
-            Image(systemName: "camera.viewfinder")
-                .font(.system(size: 60))
-                .foregroundStyle(store.color)
-
-            Text("Select a photo of your workout plan")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-
-            Spacer()
+        VStack(spacing: 24) {
+            VStack(spacing: 20) {
+                Spacer()
+                
+                Image(systemName: "camera.viewfinder")
+                    .font(.system(size: 60))
+                    .foregroundStyle(store.color)
+                
+                Text("Select a photo of your workout plan")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+            }
+            actionButtonsSection
+                .padding(.horizontal)
+                .padding(.bottom)
         }
     }
 
@@ -170,6 +158,20 @@ struct ScanPlanView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    // MARK: - Text Ready View
+
+    private var textReadyView: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                smallImagePreviewSection
+                textEditorSection
+                continueButtonSection
+                startOverButton
+            }
+            .padding()
+        }
+    }
+
     // MARK: - Text Editor
 
     private var textEditorSection: some View {
@@ -198,6 +200,19 @@ struct ScanPlanView: View {
         .tint(store.color)
         .controlSize(.large)
         .keyboardShortcut(.defaultAction)
+    }
+
+    // MARK: - Start Over Button
+
+    private var startOverButton: some View {
+        Button {
+            send(.clearImageTapped)
+        } label: {
+            Label("Start Over", systemImage: "arrow.counterclockwise")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 8)
     }
 
     // MARK: - Unavailable
@@ -245,4 +260,29 @@ struct ScanPlanView: View {
         }
         .padding(.top, 40)
     }
+
+    // MARK: - API Key Toolbar
+
+    private var shouldShowApiKeyButton: Bool {
+        switch store.viewState {
+        case .idle, .failed:
+            return true
+        default:
+            return false
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var apiKeyToolbarItem: some ToolbarContent {
+        if shouldShowApiKeyButton {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.apiKeySettingsTapped)
+                } label: {
+                    Image(systemName: "key")
+                }
+            }
+        }
+    }
+
 }

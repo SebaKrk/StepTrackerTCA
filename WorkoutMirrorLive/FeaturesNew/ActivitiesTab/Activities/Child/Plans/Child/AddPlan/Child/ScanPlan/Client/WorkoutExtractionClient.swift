@@ -27,7 +27,7 @@ struct WorkoutExtractionClient: Sendable {
 }
 
 extension DependencyValues {
-    var workoutExtractionClient: WorkoutExtractionClient {
+    nonisolated var workoutExtractionClient: WorkoutExtractionClient {
         get { self[WorkoutExtractionClient.self] }
         set { self[WorkoutExtractionClient.self] = newValue }
     }
@@ -37,25 +37,28 @@ extension WorkoutExtractionClient: DependencyKey {
 
     // MARK: - Live Value
 
-    /// Production client using Vision OCR + selected parsing strategy.
+    /// Production client using Vision OCR + Claude API parsing.
     ///
-    /// Parsing strategy is determined by ``WorkoutParsingClient.liveValue``:
-    /// - `.claude` → Claude API (current selection)
-    /// - `.foundationModels` → On-device Foundation Models
-    static let liveValue: WorkoutExtractionClient = WorkoutExtractionClient(
-        extractText: { imageData in
-            let ocrService = ScanPlanService()
-            return try await ocrService.recognizeText(from: imageData)
-        },
-        parseWorkout: { rawText in
-            @Dependency(\.workoutParsingClient) var parsingClient
-            return try await parsingClient.parseWorkout(rawText)
-        }
-    )
+    /// API key is read at call-time from Keychain via ``APIKeyClient``.
+    nonisolated static let liveValue: WorkoutExtractionClient = {
+        
+        let ocrService = ScanPlanService()
+        
+        return WorkoutExtractionClient(
+            extractText: { imageData in
+                try await ocrService.recognizeText(from: imageData)
+            },
+            parseWorkout: { rawText in
+                @Dependency(\.apiKeyClient) var apiKeyClient
+                let strategy = ClaudeAPIStrategy(apiKey: apiKeyClient.load())
+                return try await strategy.parseWorkoutText(rawText)
+            }
+        )
+    }()
 
     // MARK: - Test Value
 
-    static var testValue: WorkoutExtractionClient {
+    nonisolated static var testValue: WorkoutExtractionClient {
         WorkoutExtractionClient(
             extractText: unimplemented("WorkoutExtractionClient.extractText"),
             parseWorkout: unimplemented("WorkoutExtractionClient.parseWorkout")
@@ -64,7 +67,7 @@ extension WorkoutExtractionClient: DependencyKey {
 
     // MARK: - Preview Value
 
-    static var previewValue: WorkoutExtractionClient {
+    nonisolated static var previewValue: WorkoutExtractionClient {
         WorkoutExtractionClient(
             extractText: { _ in
                 """

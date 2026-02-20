@@ -377,9 +377,6 @@
         }
       }
     },
-    "%lld min cap" : {
-
-    },
     "%lld reps" : {
       "localizations" : {
         "pl" : {
@@ -562,6 +559,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "19:32"
+          }
+        }
+      }
+    },
+    "Active" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywny"
           }
         }
       }
@@ -810,6 +817,19 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Analizowanie danych zdrowotnych..."
+          }
+        }
+      }
+    },
+    "Anthropic API Key" : {
+
+    },
+    "API Key" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klucz API"
           }
         }
       }
@@ -1135,6 +1155,9 @@
         }
       }
     },
+    "Cooldown" : {
+
+    },
     "Could not load the selected image." : {
 
     },
@@ -1305,6 +1328,16 @@
         }
       }
     },
+    "Delete Key" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń klucz"
+          }
+        }
+      }
+    },
     "Details HR" : {
       "localizations" : {
         "pl" : {
@@ -1321,6 +1354,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szczegóły tętna co minutę"
+          }
+        }
+      }
+    },
+    "Developer" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deweloper"
           }
         }
       }
@@ -1942,6 +1985,16 @@
         }
       }
     },
+    "Manage API keys for AI-powered workout parsing and analysis." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zarządzaj kluczami API do parsowania i analizy treningów przez AI."
+          }
+        }
+      }
+    },
     "manage workout type" : {
       "localizations" : {
         "pl" : {
@@ -2555,6 +2608,16 @@
         }
       }
     },
+    "Required for workout parsing via Claude API. Stored securely in Keychain — never sent anywhere except Anthropic." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymagany do parsowania treningów przez Claude API. Przechowywany bezpiecznie w Keychain — nie wysyłany nigdzie poza Anthropic."
+          }
+        }
+      }
+    },
     "Reset" : {
       "localizations" : {
         "pl" : {
@@ -2648,6 +2711,16 @@
         }
       }
     },
+    "Save Key" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz klucz"
+          }
+        }
+      }
+    },
     "Saving workout" : {
       "localizations" : {
         "pl" : {
@@ -2715,7 +2788,14 @@
       }
     },
     "Select a photo of your workout plan" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz zdjęcie swojego planu treningowego"
+          }
+        }
+      }
     },
     "Select a Tab" : {
       "localizations" : {
@@ -2851,6 +2931,9 @@
           }
         }
       }
+    },
+    "sk-ant-..." : {
+
     },
     "Something went wrong" : {
 
@@ -3026,6 +3109,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tekst (%lld):"
+          }
+        }
+      }
+    },
+    "The key is stored securely in the device's Keychain." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klucz jest przechowywany bezpiecznie w Keychain urządzenia."
           }
         }
       }
@@ -3265,6 +3358,9 @@
           }
         }
       }
+    },
+    "Warmup" : {
+
     },
     "Warning" : {
       "localizations" : {

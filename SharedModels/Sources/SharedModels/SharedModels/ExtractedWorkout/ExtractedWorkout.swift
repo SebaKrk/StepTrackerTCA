@@ -149,13 +149,22 @@ public struct WorkoutSection: Sendable, Equatable, Codable {
 /// An exercise extracted from OCR text.
 public struct ExtractedExercise: Sendable, Equatable, Codable {
 
-    /// Exercise name as extracted from OCR (e.g., "clean and jerk", "pull-ups").
+    /// Exercise name as extracted from OCR (e.g., "clean and jerk", "pull-ups", "rest").
     /// Mapped to ExerciseType enum via aliases during conversion to TrainingSession.
     public let name: String
 
-    /// Simple rep target for AMRAP/conditioning exercises (e.g., 16 swings, 8 HSPU).
-    /// Nil for strength exercises that use set schemes instead.
+    /// Numeric quantity for this exercise (e.g., 16 reps, 400 meters, 180 seconds).
+    /// The meaning depends on `unit` field.
     public let reps: Int?
+
+    /// Unit for the numeric quantity. Determines which ExerciseTarget case is used.
+    /// - "reps" → ExerciseTarget.reps (default)
+    /// - "seconds" → ExerciseTarget.seconds
+    /// - "minutes" → ExerciseTarget.minutes
+    /// - "meters" → ExerciseTarget.meters
+    /// - "calories" → ExerciseTarget.calories
+    /// - "laps" → ExerciseTarget.laps
+    public let unit: String?
 
     /// Set schemes for strength exercises (e.g., 4×5 @ 50-60%, 3×4 @ 60-70%).
     /// Nil for AMRAP/conditioning exercises that use simple reps.
@@ -168,11 +177,13 @@ public struct ExtractedExercise: Sendable, Equatable, Codable {
     public init(
         name: String,
         reps: Int? = nil,
+        unit: String? = nil,
         sets: [ExerciseSet]? = nil,
         scalingOptions: String? = nil
     ) {
         self.name = name
         self.reps = reps
+        self.unit = unit
         self.sets = sets
         self.scalingOptions = scalingOptions
     }
