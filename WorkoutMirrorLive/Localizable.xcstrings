@@ -731,6 +731,12 @@
     "Add Plan" : {
 
     },
+    "Add workouts first to generate cooldown" : {
+
+    },
+    "Add workouts first to generate warmup" : {
+
+    },
     "Add your first workout and start planning your activity." : {
       "localizations" : {
         "pl" : {
@@ -1507,6 +1513,12 @@
         }
       }
     },
+    "Enter cooldown notes..." : {
+
+    },
+    "Enter warmup notes..." : {
+
+    },
     "Error: %@" : {
       "localizations" : {
         "pl" : {
@@ -1617,6 +1629,9 @@
           }
         }
       }
+    },
+    "Generate with AI" : {
+
     },
     "Goal" : {
       "localizations" : {
@@ -2257,6 +2272,9 @@
           }
         }
       }
+    },
+    "Notes" : {
+
     },
     "Numbers" : {
       "localizations" : {

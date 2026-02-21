@@ -41,6 +41,14 @@ extension TrainingSessionEditorFeature {
         @Shared(.inMemory("plannedWorkouts"))
         var plannedWorkouts: IdentifiedArrayOf<TrainingSession> = []
 
+        // MARK: - AI
+
+        /// True while the AI is generating warmup notes.
+        var isGeneratingWarmUpNotes: Bool = false
+        
+        /// True while the AI is generating cooldown notes.
+        var isGeneratingCoolDownNotes: Bool = false
+
         // MARK: - Computed
 
         var isSaveDisabled: Bool {

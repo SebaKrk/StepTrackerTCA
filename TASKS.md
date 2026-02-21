@@ -586,3 +586,5 @@
     - TrainingSessionEditorFeature (Reducer + State + Action + delegate)
     - TrainingSessionEditorView (Form: title, date, activity, location + placeholder sections)
     - AddPlanFeature: manualEntryTapped → editor, dismiss on save
+    B: Warmup + Cooldown editing
+    
