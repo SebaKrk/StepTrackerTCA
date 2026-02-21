@@ -38,6 +38,7 @@ struct TrainingSessionEditorView: View {
         .navigationTitle(store.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     // MARK: - Toolbar
