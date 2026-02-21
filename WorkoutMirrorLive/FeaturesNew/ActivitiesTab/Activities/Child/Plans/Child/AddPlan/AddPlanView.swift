@@ -50,6 +50,11 @@ struct AddPlanView: View {
             ) { scanPlanStore in
                 ScanPlanView(store: scanPlanStore)
             }
+            .navigationDestination(
+                item: $store.scope(state: \.destination?.editor, action: \.destination.editor)
+            ) { editorStore in
+                TrainingSessionEditorView(store: editorStore)
+            }
             .onAppear {
                 send(.viewDidAppear)
             }

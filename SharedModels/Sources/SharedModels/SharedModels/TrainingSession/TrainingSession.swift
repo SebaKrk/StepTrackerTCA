@@ -10,6 +10,7 @@ import HealthKit
 
 // MARK: - Training Session (główny obiekt treningu)
 public struct TrainingSession: Identifiable, Equatable, Sendable {
+    
     public let id: UUID
     public let date: Date
     public let title: String
@@ -37,6 +38,17 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
         self.warmUp = warmUp
         self.workouts = workouts
         self.coolDown = coolDown
+    }
+
+    public init(id: UUID = UUID(), draft: TrainingSessionDraft) {
+        self.id = id
+        self.date = draft.date
+        self.title = draft.title
+        self.activity = draft.activity
+        self.location = draft.location
+        self.warmUp = draft.warmUp
+        self.workouts = draft.workouts
+        self.coolDown = draft.coolDown
     }
 
     public static let previewTrainingSession = TrainingSession(

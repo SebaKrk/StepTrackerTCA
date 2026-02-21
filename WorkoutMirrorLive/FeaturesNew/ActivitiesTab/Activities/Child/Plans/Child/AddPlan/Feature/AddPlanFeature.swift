@@ -10,9 +10,13 @@ import Foundation
 
 @Reducer
 struct AddPlanFeature {
-    
+
+    // MARK: - Dependencies
+
+    @Dependency(\.dismiss) var dismiss
+
     // MARK: - Body
-    
+
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
@@ -30,10 +34,13 @@ struct AddPlanFeature {
                 return .none
 
             case .view(.manualEntryTapped):
-                // TODO: - Open manual entry form
+                state.destination = .editor(TrainingSessionEditorFeature.State())
                 return .none
 
                 // MARK: - Destination
+
+            case .destination(.presented(.editor(.delegate(.saved(_))))):
+                return .run { _ in await dismiss() }
 
             case .destination:
                 return .none
@@ -41,5 +48,5 @@ struct AddPlanFeature {
         }
         .ifLet(\.$destination, action: \.destination)
     }
-    
+
 }
