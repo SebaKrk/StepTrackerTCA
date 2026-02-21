@@ -1460,6 +1460,9 @@
         }
       }
     },
+    "e.g. WOD 1" : {
+
+    },
     "Edit" : {
 
     },
@@ -2116,6 +2119,9 @@
         }
       }
     },
+    "Name" : {
+
+    },
     "No calories burned data available." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2262,6 +2268,9 @@
           }
         }
       }
+    },
+    "None" : {
+
     },
     "Note" : {
       "localizations" : {

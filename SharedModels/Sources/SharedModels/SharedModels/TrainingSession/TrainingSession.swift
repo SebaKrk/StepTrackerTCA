@@ -135,7 +135,7 @@ public struct CoolDownSession: Equatable, Sendable {
 
 // MARK: - Workout Session
 public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
-    public let id = UUID()
+    public let id: UUID
     public let name: String
     public let type: ExerciseWorkoutType
     public let timeCap: Int?
@@ -143,11 +143,21 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
     public let exercises: [ExerciseSession]
 
     public init(name: String, type: ExerciseWorkoutType, timeCap: Int?, rounds: Int?, exercises: [ExerciseSession]) {
+        self.id = UUID()
         self.name = name
         self.type = type
         self.timeCap = timeCap
         self.rounds = rounds
         self.exercises = exercises
+    }
+
+    public init(id: UUID = UUID(), draft: WorkoutSessionDraft) {
+        self.id = id
+        self.name = draft.name
+        self.type = draft.type
+        self.timeCap = draft.timeCap
+        self.rounds = draft.rounds
+        self.exercises = draft.exercises
     }
 }
 

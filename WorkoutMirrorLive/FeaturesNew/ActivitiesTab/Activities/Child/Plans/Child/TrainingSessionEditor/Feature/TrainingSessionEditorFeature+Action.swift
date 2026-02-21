@@ -21,6 +21,15 @@ extension TrainingSessionEditorFeature {
 
         /// User tapped the Save button.
         case saveTapped
+        /// User tapped the + button in the Workouts section.
+        case workoutAddTapped
+        
+        /// User tapped an existing WOD row to edit it.
+        case workoutTapped(WorkoutSessionNew)
+
+        // MARK: - Destination
+
+        case destination(PresentationAction<Destination.Action>)
 
         // MARK: - Warmup
 

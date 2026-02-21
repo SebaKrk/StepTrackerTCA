@@ -1,0 +1,62 @@
+//
+//  WorkoutSessionEditorFeature+State.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Sciuba on 21/02/2026.
+//
+
+import ComposableArchitecture
+import Foundation
+import SharedModels
+
+extension WorkoutSessionEditorFeature {
+
+    @ObservableState
+    struct State {
+
+        // MARK: - Mode
+
+        let mode: Mode
+
+        // MARK: - Draft
+
+        /// The stable identifier preserved across edits — used as `WorkoutSessionNew.id` on save.
+        let originalId: UUID
+        /// Mutable copy of the workout fields being edited.
+        var draft: WorkoutSessionDraft
+
+        // MARK: - Computed
+
+        var isSaveDisabled: Bool {
+            draft.name.trimmingCharacters(in: .whitespaces).isEmpty
+        }
+
+        var navigationTitle: String {
+            mode == .create ? "New WOD" : "Edit WOD"
+        }
+
+        // MARK: - Init
+
+        init(workout: WorkoutSessionNew? = nil) {
+            if let workout {
+                mode = .edit
+                originalId = workout.id
+                draft = WorkoutSessionDraft(workout: workout)
+            } else {
+                mode = .create
+                originalId = UUID()
+                draft = WorkoutSessionDraft()
+            }
+        }
+
+        // MARK: - Mode
+
+        /// Determines whether the editor is creating a new WOD or editing an existing one.
+        enum Mode {
+            /// A new `WorkoutSessionNew` is being created from scratch.
+            case create
+            /// An existing `WorkoutSessionNew` is being modified.
+            case edit
+        }
+    }
+}

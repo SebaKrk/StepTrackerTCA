@@ -39,6 +39,11 @@ struct TrainingSessionEditorView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .navigationDestination(
+            item: $store.scope(state: \.destination?.workoutEditor, action: \.destination.workoutEditor)
+        ) { store in
+            WorkoutSessionEditorView(store: store)
+        }
     }
 
     // MARK: - Toolbar
@@ -210,14 +215,17 @@ struct TrainingSessionEditorView: View {
                 VStack(spacing: 0) {
                     ForEach(Array(store.draft.workouts.enumerated()), id: \.offset) { index, workout in
                         if index > 0 { Divider().padding(.leading) }
-                        editorRow {
-                            workoutRow(workout)
+                        Button { store.send(.workoutTapped(workout)) } label: {
+                            editorRow {
+                                workoutRow(workout)
+                            }
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
         } label: {
-            groupBoxHeader("Workouts")
+            groupBoxHeader("Workouts", addAction: { store.send(.workoutAddTapped) })
         }
         .styledGroupBox()
     }
@@ -249,6 +257,9 @@ struct TrainingSessionEditorView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
         }
     }
 
@@ -335,6 +346,23 @@ struct TrainingSessionEditorView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+            Divider()
+        }
+    }
+
+    private func groupBoxHeader(_ title: String, addAction: @escaping () -> Void) -> some View {
+        VStack(spacing: 4) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Button(action: addAction) {
+                    Image(systemName: "plus")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                }
+            }
             Divider()
         }
     }

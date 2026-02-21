@@ -105,10 +105,32 @@ struct TrainingSessionEditorFeature {
             case .alert:
                 return .none
 
+            // MARK: - Workouts
+
+            case .workoutAddTapped:
+                state.destination = .workoutEditor(WorkoutSessionEditorFeature.State())
+                return .none
+
+            case .workoutTapped(let workout):
+                state.destination = .workoutEditor(WorkoutSessionEditorFeature.State(workout: workout))
+                return .none
+
+            case .destination(.presented(.workoutEditor(.delegate(.saved(let workout))))):
+                if let index = state.draft.workouts.firstIndex(where: { $0.id == workout.id }) {
+                    state.draft.workouts[index] = workout
+                } else {
+                    state.draft.workouts.append(workout)
+                }
+                return .none
+
+            case .destination:
+                return .none
+
             case .delegate:
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$destination, action: \.destination)
     }
 }
