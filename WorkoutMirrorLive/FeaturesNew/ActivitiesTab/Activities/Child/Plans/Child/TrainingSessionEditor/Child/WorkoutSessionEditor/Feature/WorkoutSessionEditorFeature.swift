@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
+import SwiftUI
 
 @Reducer
 struct WorkoutSessionEditorFeature {
@@ -32,9 +33,39 @@ struct WorkoutSessionEditorFeature {
                     await dismiss()
                 }
 
+            // MARK: - Exercises
+
+            case .exerciseAddTapped:
+                state.destination = .exerciseEditor(ExerciseEditorFeature.State())
+                return .none
+
+            case .exerciseTapped(let exercise):
+                state.destination = .exerciseEditor(ExerciseEditorFeature.State(exercise: exercise))
+                return .none
+
+            case .exerciseMoved(let from, let to):
+                state.draft.exercises.move(fromOffsets: from, toOffset: to)
+                return .none
+
+            case .exerciseDeleted(let offsets):
+                state.draft.exercises.remove(atOffsets: offsets)
+                return .none
+
+            case .destination(.presented(.exerciseEditor(.delegate(.saved(let exercise))))):
+                if let index = state.draft.exercises.firstIndex(where: { $0.id == exercise.id }) {
+                    state.draft.exercises[index] = exercise
+                } else {
+                    state.draft.exercises.append(exercise)
+                }
+                return .none
+
+            case .destination:
+                return .none
+
             case .delegate:
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 }

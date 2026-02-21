@@ -46,9 +46,25 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
         self.title = draft.title
         self.activity = draft.activity
         self.location = draft.location
-        self.warmUp = draft.warmUp
+        if let warmUp = draft.warmUp {
+            self.warmUp = WarmUpSession(
+                goal: warmUp.goal,
+                time: warmUp.time,
+                description: draft.warmUpDescription.isEmpty ? nil : draft.warmUpDescription
+            )
+        } else {
+            self.warmUp = nil
+        }
         self.workouts = draft.workouts
-        self.coolDown = draft.coolDown
+        if let coolDown = draft.coolDown {
+            self.coolDown = CoolDownSession(
+                goal: coolDown.goal,
+                time: coolDown.time,
+                description: draft.coolDownDescription.isEmpty ? nil : draft.coolDownDescription
+            )
+        } else {
+            self.coolDown = nil
+        }
     }
 
     public static let previewTrainingSession = TrainingSession(
@@ -179,7 +195,7 @@ public struct SetScheme: Equatable, Sendable, Codable {
 // MARK: - Exercise Session
 
 public struct ExerciseSession: Identifiable, Equatable, Sendable {
-    public let id = UUID()
+    public let id: UUID
     public let type: ExerciseType
     public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
@@ -195,12 +211,23 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
         sets: [SetScheme]? = nil,
         info: String?
     ) {
+        self.id = UUID()
         self.type = type
         self.customName = customName
         self.target = target
         self.weight = weight
         self.sets = sets
         self.info = info
+    }
+
+    public init(id: UUID = UUID(), draft: ExerciseSessionDraft) {
+        self.id = id
+        self.type = draft.type
+        self.customName = draft.type == .unknown ? draft.customName : nil
+        self.target = draft.target
+        self.weight = draft.weight
+        self.sets = nil
+        self.info = draft.info?.isEmpty == true ? nil : draft.info
     }
 
     /// Display name - uses customName for .unknown exercises, otherwise type.displayName
