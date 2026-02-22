@@ -592,3 +592,4 @@
     D: ExercisePicker and ExerciseEditor
     E: Edit action to PlanDetailView  
     F: Edit action to WorkoutPreviewView
+    G: Disable Save button when draft has no changes

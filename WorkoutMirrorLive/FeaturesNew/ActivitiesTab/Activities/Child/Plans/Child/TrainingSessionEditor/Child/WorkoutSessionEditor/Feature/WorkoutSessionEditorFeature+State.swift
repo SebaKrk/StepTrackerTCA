@@ -23,6 +23,10 @@ extension WorkoutSessionEditorFeature {
 
         /// The stable identifier preserved across edits — used as `WorkoutSessionNew.id` on save.
         let originalId: UUID
+
+        /// Snapshot of the draft at the moment the editor was opened — used to detect changes.
+        let originalDraft: WorkoutSessionDraft
+
         /// Mutable copy of the workout fields being edited.
         var draft: WorkoutSessionDraft
 
@@ -40,7 +44,7 @@ extension WorkoutSessionEditorFeature {
         // MARK: - Computed
 
         var isSaveDisabled: Bool {
-            draft.name.trimmingCharacters(in: .whitespaces).isEmpty
+            draft.name.trimmingCharacters(in: .whitespaces).isEmpty || draft == originalDraft
         }
 
         var navigationTitle: String {
@@ -53,12 +57,13 @@ extension WorkoutSessionEditorFeature {
             if let workout {
                 mode = .edit
                 originalId = workout.id
-                draft = WorkoutSessionDraft(workout: workout)
+                originalDraft = WorkoutSessionDraft(workout: workout)
             } else {
                 mode = .create
                 originalId = UUID()
-                draft = WorkoutSessionDraft()
+                originalDraft = WorkoutSessionDraft()
             }
+            draft = originalDraft
         }
 
         // MARK: - Mode
