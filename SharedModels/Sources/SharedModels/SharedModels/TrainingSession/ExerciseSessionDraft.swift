@@ -22,8 +22,11 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
     /// Prescribed weight split by gender.
     public var weight: WeightConfiguration?
 
-    /// Optional notes or coaching cues.
-    public var info: String?
+    /// Coaching cues or scaling notes.
+    public var info: String
+
+    /// Set schemes from AI parsing — preserved across edits, read-only in the editor.
+    public var sets: [SetScheme]?
 
     // MARK: - Init (create)
 
@@ -32,13 +35,15 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
         customName: String? = nil,
         target: ExerciseTarget? = .reps(10),
         weight: WeightConfiguration? = nil,
-        info: String? = nil
+        info: String = "",
+        sets: [SetScheme]? = nil
     ) {
         self.type = type
         self.customName = customName
         self.target = target
         self.weight = weight
         self.info = info
+        self.sets = sets
     }
 
     // MARK: - Init (edit)
@@ -48,6 +53,7 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
         self.customName = exercise.customName
         self.target = exercise.target
         self.weight = exercise.weight
-        self.info = exercise.info
+        self.info = exercise.info ?? ""
+        self.sets = exercise.sets
     }
 }

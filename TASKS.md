@@ -591,3 +591,4 @@
     -  add WorkoutSessionEditor
     D: ExercisePicker and ExerciseEditor
     E: Edit action to PlanDetailView  
+    F: Edit action to WorkoutPreviewView

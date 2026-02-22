@@ -161,12 +161,7 @@ struct ScanPlanFeature {
                 return .none
 
             case .destination(.presented(.workoutPreview(.view(.editButtonTapped)))):
-                // User wants to edit - go back to idle state
-                state.workoutPreview = nil  // Dismiss preview
-                state.viewState = .idle
-                state.selectedImageData = nil
-                state.extractedText = ""
-                state.extractedWorkout = nil
+                // Handled internally by WorkoutPreviewFeature (opens editor).
                 return .none
 
             case .destination(.dismiss):

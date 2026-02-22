@@ -226,8 +226,8 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
         self.customName = draft.type == .unknown ? draft.customName : nil
         self.target = draft.target
         self.weight = draft.weight
-        self.sets = nil
-        self.info = draft.info?.isEmpty == true ? nil : draft.info
+        self.sets = draft.sets
+        self.info = draft.info.isEmpty ? nil : draft.info
     }
 
     /// Display name - uses customName for .unknown exercises, otherwise type.displayName
