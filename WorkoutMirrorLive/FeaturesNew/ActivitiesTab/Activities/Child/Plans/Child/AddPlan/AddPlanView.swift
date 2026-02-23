@@ -55,9 +55,6 @@ struct AddPlanView: View {
             ) { editorStore in
                 TrainingSessionEditorView(store: editorStore)
             }
-            .onAppear {
-                send(.viewDidAppear)
-            }
         }
     }
     

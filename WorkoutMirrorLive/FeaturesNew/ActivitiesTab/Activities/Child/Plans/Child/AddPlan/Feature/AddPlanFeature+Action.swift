@@ -19,10 +19,7 @@ extension AddPlanFeature {
         
         @CasePathable
         enum View {
-            
-            /// Called when view appears.
-            case viewDidAppear
-            
+
             /// Called when user taps dismiss button.
             case dismissTapped
             

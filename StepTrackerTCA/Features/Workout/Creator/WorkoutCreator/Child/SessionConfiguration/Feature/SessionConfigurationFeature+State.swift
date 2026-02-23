@@ -65,16 +65,16 @@ extension SessionConfigurationFeature {
             WarmUpSession(
                 goal: goal,
                 time: goal == .open ? nil : time,
-                description: note.isEmpty ? nil : note
+                description: note
             )
         }
-        
+
         /// Converts current state to CoolDownSession model
         var toCoolDownSession: CoolDownSession {
             CoolDownSession(
                 goal: goal,
                 time: goal == .open ? nil : time,
-                description: note.isEmpty ? nil : note
+                description: note
             )
         }
         

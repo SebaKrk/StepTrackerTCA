@@ -6,7 +6,6 @@
 //
 
 import ComposableArchitecture
-import IdentifiedCollections
 import SharedModels
 import SwiftUI
 
@@ -17,10 +16,6 @@ import SwiftUI
 @Reducer
 struct WorkoutPreviewFeature {
 
-    // MARK: - Dependency
-
-    @Dependency(\.dismiss) var dismiss
-
     // MARK: - State
 
     @ObservableState
@@ -29,10 +24,6 @@ struct WorkoutPreviewFeature {
         /// The color representing the training readiness level.
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
-
-        /// Planned workouts shared across app.
-        @Shared(.inMemory("plannedWorkouts"))
-        var plannedWorkouts: IdentifiedArrayOf<TrainingSession> = []
 
         /// The training session being previewed — updated after editing.
         var trainingSession: TrainingSession
@@ -50,6 +41,7 @@ struct WorkoutPreviewFeature {
 
         case view(View)
         case destination(PresentationAction<Destination.Action>)
+        case delegate(Delegate)
 
         @CasePathable
         enum View {
@@ -62,6 +54,11 @@ struct WorkoutPreviewFeature {
 
             case warmupToggleTapped
             case cooldownToggleTapped
+        }
+
+        enum Delegate {
+            /// User saved the workout — passes session up so parent can persist.
+            case saved(TrainingSession)
         }
     }
 
@@ -76,9 +73,7 @@ struct WorkoutPreviewFeature {
                 return .none
 
             case .view(.saveButtonTapped):
-                let workout = state.trainingSession
-                state.$plannedWorkouts.withLock { $0[id: workout.id] = workout }
-                return .run { _ in await dismiss() }
+                return .send(.delegate(.saved(state.trainingSession)))
 
             case .view(.warmupToggleTapped):
                 state.isWarmupExpanded.toggle()
@@ -93,6 +88,9 @@ struct WorkoutPreviewFeature {
                 return .none
 
             case .destination:
+                return .none
+
+            case .delegate:
                 return .none
             }
         }

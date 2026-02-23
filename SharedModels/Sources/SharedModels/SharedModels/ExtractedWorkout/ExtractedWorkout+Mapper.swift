@@ -53,7 +53,7 @@ extension WorkoutSection {
         WarmUpSession(
             goal: .timeLimit,
             time: durationMinutes,
-            description: description ?? notes
+            description: description ?? ""
         )
     }
 
@@ -61,7 +61,7 @@ extension WorkoutSection {
         CoolDownSession(
             goal: .timeLimit,
             time: durationMinutes,
-            description: description ?? notes
+            description: description ?? ""
         )
     }
 
@@ -139,36 +139,31 @@ extension ExtractedExercise {
         // Parse weight from scalingOptions (e.g. "24/16" → WeightConfiguration)
         let weight = scalingOptions?.parseWeight()
 
-        // Group sets into SetScheme (e.g., 4×5 @ 50-60%, 3×4 @ 60-70%)
-        // Filter out sets with null reps before grouping
-        let setSchemes: [SetScheme]? = sets.map { sets in
+        // Convert sets to readable string (e.g., "4×5 @ 50-60%, 3×4 @ 60-70%")
+        let setsInfo: String? = sets.flatMap { sets -> String? in
             let validSets = sets.filter { $0.reps != nil }
-            guard !validSets.isEmpty else { return [] }
-
-            let grouped = Dictionary(grouping: validSets) { set in
-                "\(set.reps!)|\(set.intensity ?? "")"
-            }
-
-            return grouped
+            guard !validSets.isEmpty else { return nil }
+            let grouped = Dictionary(grouping: validSets) { "\($0.reps!)|\($0.intensity ?? "")" }
+            let schemes = grouped
                 .sorted { $0.value.first?.setNumber ?? 0 < $1.value.first?.setNumber ?? 0 }
-                .map { _, group in
-                    SetScheme(
-                        count: group.count,
-                        reps: group.first!.reps!,  // Safe unwrap - we filtered nil reps
-                        intensity: group.first?.intensity
-                    )
+                .map { _, group -> String in
+                    var desc = "\(group.count)×\(group.first!.reps!)"
+                    if let intensity = group.first?.intensity { desc += " @ \(intensity)" }
+                    return desc
                 }
+            return schemes.joined(separator: ", ")
         }
 
-        // Build info string from scaling options
-        let info = scalingOptions.map { "Scaling: \($0)" }
+        // Combine sets string and scaling options into one info field
+        let scalingInfo = scalingOptions.map { "Scaling: \($0)" }
+        let infoParts = [setsInfo, scalingInfo].compactMap { $0 }
+        let info: String? = infoParts.isEmpty ? nil : infoParts.joined(separator: "\n")
 
         return ExerciseSession(
             type: exerciseType,
             customName: customName,
             target: target,
             weight: weight,
-            sets: setSchemes,
             info: info
         )
     }
