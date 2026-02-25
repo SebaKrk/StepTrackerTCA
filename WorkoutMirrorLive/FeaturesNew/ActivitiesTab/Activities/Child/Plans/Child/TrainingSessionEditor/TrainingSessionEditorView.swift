@@ -39,6 +39,11 @@ struct TrainingSessionEditorView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .safeAreaInset(edge: .bottom) {
+            if store.mode == .edit {
+                bottomBar
+            }
+        }
         .navigationDestination(
             item: $store.scope(state: \.destination?.workoutEditor, action: \.destination.workoutEditor)
         ) { store in
@@ -357,6 +362,26 @@ struct TrainingSessionEditorView: View {
                 .padding(.vertical, 10)
             }
         }
+    }
+
+    // MARK: - Bottom Bar
+
+    private var bottomBar: some View {
+        HStack {
+            Button {
+                store.send(.deleteTapped)
+            } label: {
+                Image(systemName: "trash")
+                    .font(.title3)
+                    .foregroundStyle(.red.opacity(0.6))
+                    .frame(width: 52, height: 52)
+                    .glassEffect(.regular.interactive(), in: Circle())
+            }
+            .buttonStyle(.plain)
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 
     // MARK: - Helpers

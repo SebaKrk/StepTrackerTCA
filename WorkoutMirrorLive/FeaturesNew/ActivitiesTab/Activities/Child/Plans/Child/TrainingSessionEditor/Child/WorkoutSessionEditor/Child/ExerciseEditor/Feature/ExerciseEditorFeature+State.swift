@@ -37,6 +37,10 @@ extension ExerciseEditorFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
 
+        // MARK: - Alert
+
+        @Presents var alert: AlertState<Action.Alert>?
+
         // MARK: - Navigation
 
         /// Navigation destination — exercise picker pushed on top.

@@ -23,6 +23,9 @@ extension WorkoutSessionEditorFeature {
         /// User tapped the Save button.
         case saveTapped
 
+        /// User tapped the Delete button (edit mode only).
+        case deleteTapped
+
         /// User tapped the + button in the Exercises section.
         case exerciseAddTapped
 
@@ -35,6 +38,14 @@ extension WorkoutSessionEditorFeature {
         /// User deleted exercises via swipe.
         case exerciseDeleted(IndexSet)
 
+        // MARK: - Alert
+
+        case alert(PresentationAction<Alert>)
+
+        enum Alert {
+            case deleteConfirmed
+        }
+
         // MARK: - Destination
 
         case destination(PresentationAction<Destination.Action>)
@@ -46,6 +57,8 @@ extension WorkoutSessionEditorFeature {
         enum Delegate {
             /// Editor saved a WOD — parent should update `draft.workouts`.
             case saved(WorkoutSessionNew)
+            /// Editor deleted a WOD — parent should remove it.
+            case deleted(UUID)
         }
     }
 }

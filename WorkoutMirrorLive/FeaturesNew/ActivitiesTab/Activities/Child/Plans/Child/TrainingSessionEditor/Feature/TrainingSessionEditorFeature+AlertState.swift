@@ -35,4 +35,19 @@ extension AlertState where Action == TrainingSessionEditorFeature.Action.Alert {
     } message: {
         TextState("Your cooldown notes will be lost.")
     }
+
+    static func confirmDelete(title: String) -> Self {
+        Self {
+            TextState("Delete Training Session?")
+        } actions: {
+            ButtonState(role: .destructive, action: .deleteConfirmed) {
+                TextState("Delete")
+            }
+            ButtonState(role: .cancel) {
+                TextState("Cancel")
+            }
+        } message: {
+            TextState("\"\(title)\" and all its workouts will be permanently removed.")
+        }
+    }
 }

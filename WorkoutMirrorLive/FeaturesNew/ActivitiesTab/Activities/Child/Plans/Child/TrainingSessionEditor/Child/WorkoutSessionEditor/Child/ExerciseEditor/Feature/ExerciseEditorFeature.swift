@@ -35,6 +35,20 @@ struct ExerciseEditorFeature {
             case .cancelTapped:
                 return .run { _ in await dismiss() }
 
+            case .deleteTapped:
+                state.alert = .confirmDelete(name: state.draft.type.displayName)
+                return .none
+
+            case .alert(.presented(.deleteConfirmed)):
+                let id = state.originalId
+                return .run { send in
+                    await send(.delegate(.deleted(id)))
+                    await dismiss()
+                }
+
+            case .alert:
+                return .none
+
             case .pickExerciseTapped:
                 state.destination = .picker(ExercisePickerFeature.State())
                 return .none
@@ -63,6 +77,7 @@ struct ExerciseEditorFeature {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
     }
 }

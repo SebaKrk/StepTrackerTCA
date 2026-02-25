@@ -121,6 +121,15 @@
         }
       }
     },
+    "\"%@\" and all its exercises will be removed." : {
+
+    },
+    "\"%@\" and all its workouts will be permanently removed." : {
+
+    },
+    "\"%@\" will be removed from this workout." : {
+
+    },
     "%.0f %@" : {
       "localizations" : {
         "en" : {
@@ -1359,6 +1368,9 @@
     "Delete" : {
 
     },
+    "Delete Exercise" : {
+
+    },
     "Delete Key" : {
       "localizations" : {
         "pl" : {
@@ -1368,6 +1380,12 @@
           }
         }
       }
+    },
+    "Delete Training Session?" : {
+
+    },
+    "Delete Workout" : {
+
     },
     "Description" : {
 

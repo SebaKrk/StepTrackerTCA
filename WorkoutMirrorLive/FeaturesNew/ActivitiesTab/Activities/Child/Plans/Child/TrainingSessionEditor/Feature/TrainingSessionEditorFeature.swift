@@ -33,6 +33,17 @@ struct TrainingSessionEditorFeature {
                     await dismiss()
                 }
 
+            case .deleteTapped:
+                state.alert = .confirmDelete(title: state.draft.title)
+                return .none
+
+            case .alert(.presented(.deleteConfirmed)):
+                let id = state.originalId
+                return .run { send in
+                    await send(.delegate(.deleted(id)))
+                    await dismiss()
+                }
+
             // MARK: - Warmup
 
             case .warmUpToggled:
@@ -108,6 +119,10 @@ struct TrainingSessionEditorFeature {
                 } else {
                     state.draft.workouts.append(workout)
                 }
+                return .none
+
+            case .destination(.presented(.workoutEditor(.delegate(.deleted(let id))))):
+                state.draft.workouts.removeAll { $0.id == id }
                 return .none
 
             case .destination:
