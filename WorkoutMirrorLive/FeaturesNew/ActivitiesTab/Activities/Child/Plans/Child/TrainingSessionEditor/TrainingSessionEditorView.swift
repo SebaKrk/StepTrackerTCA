@@ -29,7 +29,7 @@ struct TrainingSessionEditorView: View {
         }
         .background(
             LinearGradient(
-                colors: [store.color.opacity(0.25), .clear],
+                colors: [store.color.opacity(0.2), .clear],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -40,9 +40,7 @@ struct TrainingSessionEditorView: View {
         .toolbar { toolbarContent }
         .alert($store.scope(state: \.alert, action: \.alert))
         .safeAreaInset(edge: .bottom) {
-            if store.mode == .edit {
-                bottomBar
-            }
+            bottomBar
         }
         .navigationDestination(
             item: $store.scope(state: \.destination?.workoutEditor, action: \.destination.workoutEditor)
@@ -241,7 +239,7 @@ struct TrainingSessionEditorView: View {
                 }
             }
         } label: {
-            groupBoxHeader("Workouts", addAction: { store.send(.workoutAddTapped) })
+            groupBoxHeader("Workouts")
         }
         .styledGroupBox()
     }
@@ -368,17 +366,30 @@ struct TrainingSessionEditorView: View {
 
     private var bottomBar: some View {
         HStack {
+            if store.mode == .edit {
+                Button {
+                    store.send(.deleteTapped)
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.title3)
+                        .foregroundStyle(.red.opacity(0.6))
+                        .frame(width: 52, height: 52)
+                        .glassEffect(.regular.interactive(), in: Circle())
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
             Button {
-                store.send(.deleteTapped)
+                store.send(.workoutAddTapped)
             } label: {
-                Image(systemName: "trash")
+                Image(systemName: "plus")
                     .font(.title3)
-                    .foregroundStyle(.red.opacity(0.6))
+                    .fontWeight(.semibold)
+                    .foregroundStyle(store.color)
                     .frame(width: 52, height: 52)
                     .glassEffect(.regular.interactive(), in: Circle())
             }
             .buttonStyle(.plain)
-            Spacer()
         }
         .padding(.horizontal)
         .padding(.vertical, 8)

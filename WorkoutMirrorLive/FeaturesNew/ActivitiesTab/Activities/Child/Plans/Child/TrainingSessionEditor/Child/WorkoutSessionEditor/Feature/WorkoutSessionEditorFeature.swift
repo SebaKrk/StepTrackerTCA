@@ -26,14 +26,14 @@ struct WorkoutSessionEditorFeature {
             case .binding:
                 return .none
 
-            case .saveTapped:
+            case .view(.saveTapped):
                 let workout = WorkoutSessionNew(id: state.originalId, draft: state.draft)
                 return .run { send in
                     await send(.delegate(.saved(workout)))
                     await dismiss()
                 }
 
-            case .deleteTapped:
+            case .view(.deleteTapped):
                 state.alert = .confirmDelete(name: state.draft.name)
                 return .none
 
@@ -49,19 +49,19 @@ struct WorkoutSessionEditorFeature {
 
             // MARK: - Exercises
 
-            case .exerciseAddTapped:
+            case .view(.exerciseAddTapped):
                 state.destination = .exerciseEditor(ExerciseEditorFeature.State())
                 return .none
 
-            case .exerciseTapped(let exercise):
+            case .view(.exerciseTapped(let exercise)):
                 state.destination = .exerciseEditor(ExerciseEditorFeature.State(exercise: exercise))
                 return .none
 
-            case .exerciseMoved(let from, let to):
+            case .view(.exerciseMoved(let from, let to)):
                 state.draft.exercises.move(fromOffsets: from, toOffset: to)
                 return .none
 
-            case .exerciseDeleted(let offsets):
+            case .view(.exerciseDeleted(let offsets)):
                 state.draft.exercises.remove(atOffsets: offsets)
                 return .none
 

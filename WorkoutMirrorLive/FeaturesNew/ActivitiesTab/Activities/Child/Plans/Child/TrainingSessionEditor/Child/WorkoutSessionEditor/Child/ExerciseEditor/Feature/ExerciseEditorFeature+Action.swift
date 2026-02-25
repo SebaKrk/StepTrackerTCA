@@ -12,7 +12,7 @@ import Foundation
 extension ExerciseEditorFeature {
 
     @CasePathable
-    enum Action: BindableAction {
+    enum Action: ViewAction, BindableAction {
 
         // MARK: - Binding
 
@@ -20,23 +20,23 @@ extension ExerciseEditorFeature {
 
         // MARK: - View
 
-        /// User tapped Save.
-        case saveTapped
+        case view(View)
 
-        /// User tapped Cancel.
-        case cancelTapped
-
-        /// User tapped Delete (edit mode only).
-        case deleteTapped
-
-        /// User tapped the exercise type row to open the picker.
-        case pickExerciseTapped
-
-        /// User changed the target type (reps → meters, etc.) preserving the current value.
-        case targetTypeChanged(ExerciseTargetType)
-
-        /// User changed the target value via stepper.
-        case targetValueChanged(Int)
+        @CasePathable
+        enum View {
+            /// User tapped Save.
+            case saveTapped
+            /// User tapped Cancel.
+            case cancelTapped
+            /// User tapped Delete (edit mode only).
+            case deleteTapped
+            /// User tapped the exercise type row to open the picker.
+            case pickExerciseTapped
+            /// User changed the target type (reps → meters, etc.) preserving the current value.
+            case targetTypeChanged(ExerciseTargetType)
+            /// User changed the target value via stepper.
+            case targetValueChanged(Int)
+        }
 
         // MARK: - Alert
 
@@ -55,10 +55,8 @@ extension ExerciseEditorFeature {
         case delegate(Delegate)
 
         enum Delegate {
-            
             /// Editor saved an exercise — parent should upsert it.
             case saved(ExerciseSession)
-            
             /// Editor deleted an exercise — parent should remove it.
             case deleted(UUID)
         }

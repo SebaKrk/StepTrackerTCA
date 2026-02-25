@@ -10,6 +10,7 @@ import Foundation
 import SharedModels
 import SwiftUI
 
+@ViewAction(for: WorkoutSessionEditorFeature.self)
 struct WorkoutSessionEditorView: View {
 
     // MARK: - Properties
@@ -33,7 +34,7 @@ struct WorkoutSessionEditorView: View {
         }
         .background(
             LinearGradient(
-                colors: [store.color.opacity(0.25), .clear],
+                colors: [store.color.opacity(0.2), .clear],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -43,7 +44,7 @@ struct WorkoutSessionEditorView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
         .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(
+        .navigationDestination(
             item: $store.scope(state: \.destination?.exerciseEditor, action: \.destination.exerciseEditor)
         ) { store in
             ExerciseEditorView(store: store)
@@ -55,7 +56,7 @@ struct WorkoutSessionEditorView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button { store.send(.saveTapped) } label: {
+            Button { send(.saveTapped) } label: {
                 Text("Save").fontWeight(.semibold)
             }
             .disabled(store.isSaveDisabled)
@@ -170,7 +171,7 @@ struct WorkoutSessionEditorView: View {
         HStack {
             if store.mode == .edit {
                 Button {
-                    store.send(.deleteTapped)
+                    send(.deleteTapped)
                 } label: {
                     Image(systemName: "trash")
                         .font(.title3)
@@ -182,7 +183,7 @@ struct WorkoutSessionEditorView: View {
             }
             Spacer()
             Button {
-                store.send(.exerciseAddTapped)
+                send(.exerciseAddTapped)
             } label: {
                 Image(systemName: "plus")
                     .font(.title3)
@@ -204,13 +205,13 @@ struct WorkoutSessionEditorView: View {
             VStack(spacing: 0) {
                 ForEach(Array(store.draft.exercises.enumerated()), id: \.element.id) { index, exercise in
                     if index > 0 { Divider().padding(.leading) }
-                    Button { store.send(.exerciseTapped(exercise)) } label: {
+                    Button { send(.exerciseTapped(exercise)) } label: {
                         exerciseRow(exercise)
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
                         Button(role: .destructive) {
-                            store.send(.exerciseDeleted(IndexSet(integer: index)))
+                            send(.exerciseDeleted(IndexSet(integer: index)))
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
@@ -284,23 +285,6 @@ struct WorkoutSessionEditorView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Divider()
-        }
-    }
-
-    private func groupBoxHeader(_ title: String, addAction: @escaping () -> Void) -> some View {
-        VStack(spacing: 4) {
-            HStack {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Spacer()
-                Button(action: addAction) {
-                    Image(systemName: "plus")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                }
-            }
             Divider()
         }
     }

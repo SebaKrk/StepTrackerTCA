@@ -13,6 +13,10 @@ import SwiftUI
 @Reducer
 struct PlanDetailFeature {
 
+    // MARK: - Dependencies
+
+    @Dependency(\.dismiss) var dismiss
+
     // MARK: - State
 
     @ObservableState
@@ -40,6 +44,7 @@ struct PlanDetailFeature {
 
         @CasePathable
         enum View {
+            case doneTapped
             case editTapped
             case warmupToggleTapped
             case cooldownToggleTapped
@@ -51,6 +56,9 @@ struct PlanDetailFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+            case .view(.doneTapped):
+                return .run { _ in await dismiss() }
+
             case .view(.editTapped):
                 state.destination = .editor(TrainingSessionEditorFeature.State(session: state.trainingSession))
                 return .none
@@ -67,6 +75,10 @@ struct PlanDetailFeature {
                 state.trainingSession = session
                 state.$plannedWorkouts.withLock { $0[id: session.id] = session }
                 return .none
+
+            case .destination(.presented(.editor(.delegate(.deleted(let id))))):
+                state.$plannedWorkouts.withLock { $0.remove(id: id) }
+                return .run { _ in await dismiss() }
 
             case .destination:
                 return .none

@@ -12,7 +12,7 @@ import SharedModels
 extension WorkoutSessionEditorFeature {
 
     @CasePathable
-    enum Action: BindableAction {
+    enum Action: ViewAction, BindableAction {
 
         // MARK: - Binding
 
@@ -20,23 +20,23 @@ extension WorkoutSessionEditorFeature {
 
         // MARK: - View
 
-        /// User tapped the Save button.
-        case saveTapped
+        case view(View)
 
-        /// User tapped the Delete button (edit mode only).
-        case deleteTapped
-
-        /// User tapped the + button in the Exercises section.
-        case exerciseAddTapped
-
-        /// User tapped an existing exercise row to edit it.
-        case exerciseTapped(ExerciseSession)
-
-        /// User reordered exercises via drag & drop.
-        case exerciseMoved(from: IndexSet, to: Int)
-
-        /// User deleted exercises via swipe.
-        case exerciseDeleted(IndexSet)
+        @CasePathable
+        enum View {
+            /// User tapped the Save button.
+            case saveTapped
+            /// User tapped the Delete button (edit mode only).
+            case deleteTapped
+            /// User tapped the + button in the Exercises section.
+            case exerciseAddTapped
+            /// User tapped an existing exercise row to edit it.
+            case exerciseTapped(ExerciseSession)
+            /// User reordered exercises via drag & drop.
+            case exerciseMoved(from: IndexSet, to: Int)
+            /// User deleted exercises via swipe.
+            case exerciseDeleted(IndexSet)
+        }
 
         // MARK: - Alert
 

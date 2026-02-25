@@ -43,10 +43,12 @@ struct PlansView: View {
         ) { addPlanStore in
             AddPlanView(store: addPlanStore)
         }
-        .navigationDestination(
+        .fullScreenCover(
             item: $store.scope(state: \.destination?.planDetail, action: \.destination.planDetail)
         ) { planDetailStore in
-            PlanDetailView(store: planDetailStore)
+            NavigationStack {
+                PlanDetailView(store: planDetailStore)
+            }
         }
         .onAppear {
             send(.viewDidAppear)
