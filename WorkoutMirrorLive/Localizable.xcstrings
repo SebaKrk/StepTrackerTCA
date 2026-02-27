@@ -337,6 +337,9 @@
         }
       }
     },
+    "%lld exercises" : {
+
+    },
     "%lld h" : {
       "localizations" : {
         "pl" : {
@@ -1338,6 +1341,9 @@
         }
       }
     },
+    "Details" : {
+
+    },
     "Details HR" : {
       "localizations" : {
         "pl" : {
@@ -2106,6 +2112,9 @@
         }
       }
     },
+    "No cooldown" : {
+
+    },
     "No data" : {
       "localizations" : {
         "pl" : {
@@ -2210,7 +2219,13 @@
         }
       }
     },
+    "No warmup" : {
+
+    },
     "No Workout Plans" : {
+
+    },
+    "No workouts" : {
 
     },
     "No Workouts" : {
@@ -3553,6 +3568,9 @@
         }
       }
     },
+    "Workout name" : {
+
+    },
     "Workout Planer" : {
       "localizations" : {
         "pl" : {
@@ -3642,6 +3660,9 @@
           }
         }
       }
+    },
+    "Workouts" : {
+
     },
     "WorkoutUnit" : {
       "localizations" : {

@@ -580,3 +580,9 @@
     B: PlanDetailView
     C: Key
     D: Settings
+
+### IOS-00068 TrainingSessionEditorFeature
+    A: TrainingSessionEditorFeature scaffold + metadata form
+    - TrainingSessionEditorFeature (Reducer + State + Action + delegate)
+    - TrainingSessionEditorView (Form: title, date, activity, location + placeholder sections)
+    - AddPlanFeature: manualEntryTapped → editor, dismiss on save
