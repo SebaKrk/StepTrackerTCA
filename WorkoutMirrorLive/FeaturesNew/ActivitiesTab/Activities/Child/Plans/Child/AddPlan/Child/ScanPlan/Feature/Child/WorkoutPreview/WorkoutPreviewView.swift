@@ -14,7 +14,7 @@ struct WorkoutPreviewView: View {
 
     // MARK: - Properties
 
-    let store: StoreOf<WorkoutPreviewFeature>
+    @Bindable var store: StoreOf<WorkoutPreviewFeature>
 
     // MARK: - Body
 
@@ -43,8 +43,11 @@ struct WorkoutPreviewView: View {
         )
         .navigationTitle(store.trainingSession.title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            toolbarContent
+        .toolbar { toolbarContent }
+        .navigationDestination(
+            item: $store.scope(state: \.destination?.editor, action: \.destination.editor)
+        ) { editorStore in
+            TrainingSessionEditorView(store: editorStore)
         }
     }
 
@@ -56,7 +59,7 @@ struct WorkoutPreviewView: View {
             Button {
                 send(.editButtonTapped)
             } label: {
-                Label("Edit", systemImage: "pencil")
+                Text("Edit")
             }
         }
 
@@ -64,7 +67,8 @@ struct WorkoutPreviewView: View {
             Button {
                 send(.saveButtonTapped)
             } label: {
-                Label("Save", systemImage: "checkmark")
+                Text("Save")
+                    .fontWeight(.semibold)
             }
         }
     }
