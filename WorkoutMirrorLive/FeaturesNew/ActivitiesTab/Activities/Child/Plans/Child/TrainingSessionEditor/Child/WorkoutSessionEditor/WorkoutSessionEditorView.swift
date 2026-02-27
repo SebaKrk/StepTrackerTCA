@@ -22,9 +22,14 @@ struct WorkoutSessionEditorView: View {
         ScrollView {
             VStack(spacing: 12) {
                 detailsGroupBox
-                exercisesGroupBox
+                if !store.draft.exercises.isEmpty {
+                    exercisesGroupBox
+                }
             }
             .padding()
+        }
+        .safeAreaInset(edge: .bottom) {
+            bottomBar
         }
         .background(
             LinearGradient(
@@ -37,6 +42,7 @@ struct WorkoutSessionEditorView: View {
         .navigationTitle(store.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(
             item: $store.scope(state: \.destination?.exerciseEditor, action: \.destination.exerciseEditor)
         ) { store in
@@ -158,32 +164,61 @@ struct WorkoutSessionEditorView: View {
         }
     }
 
+    // MARK: - Bottom Bar
+
+    private var bottomBar: some View {
+        HStack {
+            if store.mode == .edit {
+                Button {
+                    store.send(.deleteTapped)
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.title3)
+                        .foregroundStyle(.red.opacity(0.6))
+                        .frame(width: 52, height: 52)
+                        .glassEffect(.regular.interactive(), in: Circle())
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
+            Button {
+                store.send(.exerciseAddTapped)
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(store.color)
+                    .frame(width: 52, height: 52)
+                    .glassEffect(.regular.interactive(), in: Circle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+
     // MARK: - Exercises GroupBox
 
     private var exercisesGroupBox: some View {
         GroupBox {
-            if store.draft.exercises.isEmpty {
-                emptyRow("No exercises yet")
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(store.draft.exercises.enumerated()), id: \.element.id) { index, exercise in
-                        if index > 0 { Divider().padding(.leading) }
-                        Button { store.send(.exerciseTapped(exercise)) } label: {
-                            exerciseRow(exercise)
-                        }
-                        .buttonStyle(.plain)
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                store.send(.exerciseDeleted(IndexSet(integer: index)))
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
+            VStack(spacing: 0) {
+                ForEach(Array(store.draft.exercises.enumerated()), id: \.element.id) { index, exercise in
+                    if index > 0 { Divider().padding(.leading) }
+                    Button { store.send(.exerciseTapped(exercise)) } label: {
+                        exerciseRow(exercise)
+                    }
+                    .buttonStyle(.plain)
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            store.send(.exerciseDeleted(IndexSet(integer: index)))
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
                     }
                 }
             }
         } label: {
-            groupBoxHeader("Exercises", addAction: { store.send(.exerciseAddTapped) })
+            groupBoxHeader("Exercises")
         }
         .styledGroupBox()
     }
@@ -199,7 +234,7 @@ struct WorkoutSessionEditorView: View {
                     Text(info)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .lineLimit(3)
                 } else if let target = exercise.target {
                     Text(targetLabel(target))
                         .font(.caption)

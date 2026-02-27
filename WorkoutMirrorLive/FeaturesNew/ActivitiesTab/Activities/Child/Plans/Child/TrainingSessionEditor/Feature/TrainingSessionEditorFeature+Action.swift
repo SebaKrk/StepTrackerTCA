@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 extension TrainingSessionEditorFeature {
@@ -21,6 +22,10 @@ extension TrainingSessionEditorFeature {
 
         /// User tapped the Save button.
         case saveTapped
+
+        /// User tapped the Delete button (edit mode only).
+        case deleteTapped
+
         /// User tapped the + button in the Workouts section.
         case workoutAddTapped
         
@@ -58,12 +63,15 @@ extension TrainingSessionEditorFeature {
         case alert(PresentationAction<Alert>)
 
         enum Alert {
-            
+
             /// User confirmed removing warmup (will delete notes).
             case warmUpRemoveConfirmed
-            
+
             /// User confirmed removing cooldown (will delete notes).
             case coolDownRemoveConfirmed
+
+            /// User confirmed deleting the entire training session.
+            case deleteConfirmed
         }
 
         // MARK: - Delegate
@@ -74,6 +82,9 @@ extension TrainingSessionEditorFeature {
 
             /// Editor saved a session — parent should handle persistence.
             case saved(TrainingSession)
+
+            /// Editor deleted a session — parent should remove it.
+            case deleted(UUID)
         }
     }
 }

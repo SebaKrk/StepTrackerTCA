@@ -36,6 +36,10 @@ extension WorkoutSessionEditorFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
 
+        // MARK: - Alert
+
+        @Presents var alert: AlertState<Action.Alert>?
+
         // MARK: - Navigation
 
         /// Navigation destination — exercise editor presented as a sheet.

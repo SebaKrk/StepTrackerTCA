@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
+import Foundation
 
 extension ExerciseEditorFeature {
 
@@ -25,6 +26,9 @@ extension ExerciseEditorFeature {
         /// User tapped Cancel.
         case cancelTapped
 
+        /// User tapped Delete (edit mode only).
+        case deleteTapped
+
         /// User tapped the exercise type row to open the picker.
         case pickExerciseTapped
 
@@ -33,6 +37,14 @@ extension ExerciseEditorFeature {
 
         /// User changed the target value via stepper.
         case targetValueChanged(Int)
+
+        // MARK: - Alert
+
+        case alert(PresentationAction<Alert>)
+
+        enum Alert {
+            case deleteConfirmed
+        }
 
         // MARK: - Destination
 
@@ -43,8 +55,12 @@ extension ExerciseEditorFeature {
         case delegate(Delegate)
 
         enum Delegate {
+            
             /// Editor saved an exercise — parent should upsert it.
             case saved(ExerciseSession)
+            
+            /// Editor deleted an exercise — parent should remove it.
+            case deleted(UUID)
         }
     }
 }

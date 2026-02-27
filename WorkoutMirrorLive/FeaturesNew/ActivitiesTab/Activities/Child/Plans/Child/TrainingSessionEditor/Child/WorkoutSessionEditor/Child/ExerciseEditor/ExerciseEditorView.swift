@@ -31,6 +31,12 @@ struct ExerciseEditorView: View {
             .navigationTitle(store.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
+            .alert($store.scope(state: \.alert, action: \.alert))
+            .safeAreaInset(edge: .bottom) {
+                if store.mode == .edit {
+                    bottomBar
+                }
+            }
             .navigationDestination(
                 item: $store.scope(state: \.destination?.picker, action: \.destination.picker)
             ) { store in
@@ -208,11 +214,32 @@ struct ExerciseEditorView: View {
         }
     }
 
+    // MARK: - Bottom Bar
+
+    private var bottomBar: some View {
+        HStack {
+            Button {
+                store.send(.deleteTapped)
+            } label: {
+                Image(systemName: "trash")
+                    .font(.title3)
+                    .foregroundStyle(.red.opacity(0.6))
+                    .frame(width: 52, height: 52)
+                    .glassEffect(.regular.interactive(), in: Circle())
+            }
+            .buttonStyle(.plain)
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+
     // MARK: - Notes GroupBox
 
     private var notesGroupBox: some View {
         GroupBox {
             TextField("Coaching cues, scaling options...", text: $store.draft.info, axis: .vertical)
+                .lineLimit(2...)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 10)
         } label: {

@@ -41,6 +41,10 @@ struct AddPlanFeature {
                 state.$plannedWorkouts.withLock { $0[id: session.id] = session }
                 return .run { _ in await dismiss() }
 
+            case .destination(.presented(.editor(.delegate(.deleted(let id))))):
+                state.$plannedWorkouts.withLock { $0.remove(id: id) }
+                return .run { _ in await dismiss() }
+
             case .destination(.presented(.scanPlan(.delegate(.saved(let session))))):
                 state.$plannedWorkouts.withLock { $0[id: session.id] = session }
                 return .run { _ in await dismiss() }

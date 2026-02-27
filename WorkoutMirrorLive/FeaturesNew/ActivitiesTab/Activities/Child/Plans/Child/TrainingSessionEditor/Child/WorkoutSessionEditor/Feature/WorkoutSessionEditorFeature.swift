@@ -33,6 +33,20 @@ struct WorkoutSessionEditorFeature {
                     await dismiss()
                 }
 
+            case .deleteTapped:
+                state.alert = .confirmDelete(name: state.draft.name)
+                return .none
+
+            case .alert(.presented(.deleteConfirmed)):
+                let id = state.originalId
+                return .run { send in
+                    await send(.delegate(.deleted(id)))
+                    await dismiss()
+                }
+
+            case .alert:
+                return .none
+
             // MARK: - Exercises
 
             case .exerciseAddTapped:
@@ -59,6 +73,10 @@ struct WorkoutSessionEditorFeature {
                 }
                 return .none
 
+            case .destination(.presented(.exerciseEditor(.delegate(.deleted(let id))))):
+                state.draft.exercises.removeAll { $0.id == id }
+                return .none
+
             case .destination:
                 return .none
 
@@ -66,6 +84,7 @@ struct WorkoutSessionEditorFeature {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
     }
 }
