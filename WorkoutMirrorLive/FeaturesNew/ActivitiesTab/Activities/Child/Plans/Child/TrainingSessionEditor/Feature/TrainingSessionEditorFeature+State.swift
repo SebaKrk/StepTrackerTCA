@@ -49,6 +49,11 @@ extension TrainingSessionEditorFeature {
         /// True while the AI is generating cooldown notes.
         var isGeneratingCoolDownNotes: Bool = false
 
+        // MARK: - Navigation
+
+        /// Navigation destination — WOD editor pushed on top.
+        @Presents var destination: Destination.State?
+
         // MARK: - Alert
 
         /// Confirmation alert shown when user tries to remove warmup/cooldown with existing notes.
