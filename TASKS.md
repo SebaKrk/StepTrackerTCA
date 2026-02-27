@@ -580,3 +580,19 @@
     B: PlanDetailView
     C: Key
     D: Settings
+
+### IOS-00068 TrainingSessionEditorFeature
+    A: TrainingSessionEditorFeature scaffold + metadata form
+    - TrainingSessionEditorFeature (Reducer + State + Action + delegate)
+    - TrainingSessionEditorView (Form: title, date, activity, location + placeholder sections)
+    - AddPlanFeature: manualEntryTapped → editor, dismiss on save
+    B: Warmup + Cooldown editing
+    C: WOD editing
+    -  add WorkoutSessionEditor
+    D: ExercisePicker and ExerciseEditor
+    E: Edit action to PlanDetailView  
+    F: Edit action to WorkoutPreviewView
+    G: Disable Save button when draft has no changes
+    H: Refactor save flow and simplify exercise data model
+    I: Add and remove workout or exercise
+    J: Refactor/navigation

@@ -39,11 +39,11 @@ struct WorkoutPreviewView: View {
                                 .foregroundColor(.secondary)
                         }
                         
-                        if let description = warmUp.description {
+                        if !warmUp.description.isEmpty {
                             HStack {
                                 Text("Opis")
                                 Spacer()
-                                Text(description)
+                                Text(warmUp.description)
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.trailing)
                             }
@@ -108,11 +108,11 @@ struct WorkoutPreviewView: View {
                                 .foregroundColor(.secondary)
                         }
                         
-                        if let description = coolDown.description {
+                        if !coolDown.description.isEmpty {
                             HStack {
                                 Text("Opis")
                                 Spacer()
-                                Text(description)
+                                Text(coolDown.description)
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.trailing)
                             }

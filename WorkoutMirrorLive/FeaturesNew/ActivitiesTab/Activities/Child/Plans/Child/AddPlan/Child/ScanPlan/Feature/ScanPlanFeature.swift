@@ -146,30 +146,31 @@ struct ScanPlanFeature {
                 state.viewState = .failed(error)
                 return .none
 
-                // MARK: - Destination Action
+                // MARK: - API Key Entry
 
-            case .destination(.presented(.apiKeyEntry(.delegate(.keySaved)))):
-                // Key saved → dismiss sheet and retry continue action
+            case .apiKeyEntry(.presented(.delegate(.keySaved))):
                 state.apiKeyEntry = nil
                 return .run { send in
                     await send(.view(.continueButtonTapped))
                 }
 
-            case .destination(.presented(.apiKeyEntry(.delegate(.keyDeleted)))):
-                // Key deleted → dismiss sheet
+            case .apiKeyEntry(.presented(.delegate(.keyDeleted))):
                 state.apiKeyEntry = nil
                 return .none
 
-            case .destination(.presented(.workoutPreview(.view(.editButtonTapped)))):
-                // User wants to edit - go back to idle state
-                state.workoutPreview = nil  // Dismiss preview
-                state.viewState = .idle
-                state.selectedImageData = nil
-                state.extractedText = ""
-                state.extractedWorkout = nil
+            case .apiKeyEntry:
                 return .none
 
-            case .destination(.dismiss):
+                // MARK: - Workout Preview
+
+            case .workoutPreview(.presented(.view(.editButtonTapped))):
+                // Handled internally by WorkoutPreviewFeature (opens editor).
+                return .none
+
+            case .workoutPreview(.presented(.delegate(.saved(let session)))):
+                return .send(.delegate(.saved(session)))
+
+            case .workoutPreview(.dismiss):
                 // User dismissed preview (back button) - reset to idle
                 state.viewState = .idle
                 state.selectedImageData = nil
@@ -177,14 +178,17 @@ struct ScanPlanFeature {
                 state.extractedWorkout = nil
                 return .none
 
-            case .destination:
+            case .workoutPreview:
+                return .none
+
+            case .delegate:
                 return .none
             }
         }
-        .ifLet(\.$workoutPreview, action: \.destination.workoutPreview) {
+        .ifLet(\.$workoutPreview, action: \.workoutPreview) {
             WorkoutPreviewFeature()
         }
-        .ifLet(\.$apiKeyEntry, action: \.destination.apiKeyEntry) {
+        .ifLet(\.$apiKeyEntry, action: \.apiKeyEntry) {
             APIKeyEntryFeature()
         }
     }

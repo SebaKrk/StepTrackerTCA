@@ -10,16 +10,16 @@ import SharedModels
 import SwiftUI
 
 extension AddPlanFeature {
-    
+
     @ObservableState
     struct State {
-        
+
         // MARK: - Properties
-        
+
         /// The color representing the training readiness level.
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
-        
+
         /// Current view state.
         var viewState: ViewState = .success
 
@@ -27,5 +27,5 @@ extension AddPlanFeature {
 
         @Presents var destination: Destination.State?
     }
-    
+
 }

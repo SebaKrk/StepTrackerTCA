@@ -151,7 +151,3 @@ extension ActivityDetailsFeature {
     }
 }
 
-public enum WorkoutLocationType {
-    case indoor
-    case outdoor
-}

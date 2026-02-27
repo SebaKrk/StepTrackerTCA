@@ -43,7 +43,31 @@ struct PlanDetailView: View {
         )
         .navigationTitle(store.trainingSession.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar { toolbarContent }
+        .navigationDestination(
+            item: $store.scope(state: \.destination?.editor, action: \.destination.editor)
+        ) { editorStore in
+            TrainingSessionEditorView(store: editorStore)
+        }
     }
 
+    // MARK: - Toolbar
 
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                send(.doneTapped)
+            } label: {
+                Text("Done").fontWeight(.semibold)
+            }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.editTapped)
+            } label: {
+                Text("Edit")
+            }
+        }
+    }
 }

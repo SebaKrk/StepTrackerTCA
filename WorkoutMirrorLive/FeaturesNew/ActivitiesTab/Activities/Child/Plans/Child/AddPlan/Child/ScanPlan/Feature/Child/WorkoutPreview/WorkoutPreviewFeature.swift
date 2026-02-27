@@ -6,20 +6,15 @@
 //
 
 import ComposableArchitecture
-import IdentifiedCollections
 import SharedModels
 import SwiftUI
 
 /// Feature responsible for previewing a parsed workout before saving.
 ///
 /// Displays the structured TrainingSession with all sections (warmup, workouts, cooldown)
-/// and exercises. User can review the parsed data and optionally edit or save it.
+/// and exercises. User can review the parsed data, edit it, or save it.
 @Reducer
 struct WorkoutPreviewFeature {
-
-    // MARK: - Dependency
-
-    @Dependency(\.dismiss) var dismiss
 
     // MARK: - State
 
@@ -30,18 +25,13 @@ struct WorkoutPreviewFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
 
-        /// Planned workouts shared across app.
-        @Shared(.inMemory("plannedWorkouts"))
-        var plannedWorkouts: IdentifiedArrayOf<TrainingSession> = []
+        /// The training session being previewed — updated after editing.
+        var trainingSession: TrainingSession
 
-        /// The training session to preview.
-        let trainingSession: TrainingSession
-
-        ///
         var isWarmupExpanded: Bool = true
-        
-        ///
         var isCooldownExpanded: Bool = true
+
+        @Presents var destination: Destination.State?
     }
 
     // MARK: - Action
@@ -50,21 +40,25 @@ struct WorkoutPreviewFeature {
     enum Action: ViewAction {
 
         case view(View)
+        case destination(PresentationAction<Destination.Action>)
+        case delegate(Delegate)
 
         @CasePathable
         enum View {
 
-            /// Called when user taps "Edit" button (placeholder for future).
+            /// Called when user taps "Edit" — opens TrainingSessionEditorFeature.
             case editButtonTapped
 
-            /// Called when user taps "Save" button (placeholder for future).
+            /// Called when user taps "Save" — persists and dismisses.
             case saveButtonTapped
 
-            ///
             case warmupToggleTapped
-            
-            ///
             case cooldownToggleTapped
+        }
+
+        enum Delegate {
+            /// User saved the workout — passes session up so parent can persist.
+            case saved(TrainingSession)
         }
     }
 
@@ -75,20 +69,11 @@ struct WorkoutPreviewFeature {
             switch action {
 
             case .view(.editButtonTapped):
-                // Dismiss preview and go back to scan plan (idle state)
-                return .run { _ in
-                    await dismiss()
-                }
+                state.destination = .editor(TrainingSessionEditorFeature.State(session: state.trainingSession))
+                return .none
 
             case .view(.saveButtonTapped):
-                // Add workout to shared in-memory list
-                let workout = state.trainingSession
-                state.$plannedWorkouts.withLock { $0[id: workout.id] = workout }
-
-                // Dismiss all modals and return to Plans list
-                return .run { _ in
-                    await dismiss()
-                }
+                return .send(.delegate(.saved(state.trainingSession)))
 
             case .view(.warmupToggleTapped):
                 state.isWarmupExpanded.toggle()
@@ -97,8 +82,19 @@ struct WorkoutPreviewFeature {
             case .view(.cooldownToggleTapped):
                 state.isCooldownExpanded.toggle()
                 return .none
+
+            case .destination(.presented(.editor(.delegate(.saved(let session))))):
+                state.trainingSession = session
+                return .none
+
+            case .destination:
+                return .none
+
+            case .delegate:
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 
 }

@@ -11,9 +11,12 @@ extension AddPlanFeature {
 
     @Reducer
     enum Destination {
-        
+
         /// Scan a workout plan from a photo using OCR.
         case scanPlan(ScanPlanFeature)
+
+        /// Manually create or edit a workout plan.
+        case editor(TrainingSessionEditorFeature)
     }
 
 }

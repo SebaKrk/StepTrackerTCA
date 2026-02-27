@@ -10,6 +10,7 @@ import HealthKit
 
 // MARK: - Training Session (główny obiekt treningu)
 public struct TrainingSession: Identifiable, Equatable, Sendable {
+    
     public let id: UUID
     public let date: Date
     public let title: String
@@ -37,6 +38,17 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
         self.warmUp = warmUp
         self.workouts = workouts
         self.coolDown = coolDown
+    }
+
+    public init(id: UUID = UUID(), draft: TrainingSessionDraft) {
+        self.id = id
+        self.date = draft.date
+        self.title = draft.title
+        self.activity = draft.activity
+        self.location = draft.location
+        self.warmUp = draft.warmUp
+        self.workouts = draft.workouts
+        self.coolDown = draft.coolDown
     }
 
     public static let previewTrainingSession = TrainingSession(
@@ -97,11 +109,11 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
 
 // MARK: - Warm Up Session
 public struct WarmUpSession: Equatable, Sendable {
-    public let goal: SimpleWorkoutGoal
-    public let time: Int?
-    public let description: String?
+    public var goal: SimpleWorkoutGoal
+    public var time: Int?
+    public var description: String
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String?) {
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "") {
         self.goal = goal
         self.time = time
         self.description = description
@@ -110,11 +122,11 @@ public struct WarmUpSession: Equatable, Sendable {
 
 // MARK: - Cool Down Session
 public struct CoolDownSession: Equatable, Sendable {
-    public let goal: SimpleWorkoutGoal
-    public let time: Int?
-    public let description: String?
+    public var goal: SimpleWorkoutGoal
+    public var time: Int?
+    public var description: String
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String?) {
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "") {
         self.goal = goal
         self.time = time
         self.description = description
@@ -123,7 +135,7 @@ public struct CoolDownSession: Equatable, Sendable {
 
 // MARK: - Workout Session
 public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
-    public let id = UUID()
+    public let id: UUID
     public let name: String
     public let type: ExerciseWorkoutType
     public let timeCap: Int?
@@ -131,38 +143,32 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
     public let exercises: [ExerciseSession]
 
     public init(name: String, type: ExerciseWorkoutType, timeCap: Int?, rounds: Int?, exercises: [ExerciseSession]) {
+        self.id = UUID()
         self.name = name
         self.type = type
         self.timeCap = timeCap
         self.rounds = rounds
         self.exercises = exercises
     }
-}
 
-// MARK: - Set Scheme
-
-/// Represents a group of sets with same reps and intensity (e.g., "4×5 @ 50-60%")
-public struct SetScheme: Equatable, Sendable, Codable {
-    public let count: Int          // Number of sets (e.g., 4)
-    public let reps: Int            // Reps per set (e.g., 5)
-    public let intensity: String?   // Intensity percentage (e.g., "50-60%")
-
-    public init(count: Int, reps: Int, intensity: String? = nil) {
-        self.count = count
-        self.reps = reps
-        self.intensity = intensity
+    public init(id: UUID = UUID(), draft: WorkoutSessionDraft) {
+        self.id = id
+        self.name = draft.name
+        self.type = draft.type
+        self.timeCap = draft.timeCap
+        self.rounds = draft.rounds
+        self.exercises = draft.exercises
     }
 }
 
 // MARK: - Exercise Session
 
 public struct ExerciseSession: Identifiable, Equatable, Sendable {
-    public let id = UUID()
+    public let id: UUID
     public let type: ExerciseType
     public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
-    public let sets: [SetScheme]?   // For strength exercises with set schemes
     public let info: String?
 
     public init(
@@ -170,15 +176,23 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
         customName: String? = nil,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
-        sets: [SetScheme]? = nil,
         info: String?
     ) {
+        self.id = UUID()
         self.type = type
         self.customName = customName
         self.target = target
         self.weight = weight
-        self.sets = sets
         self.info = info
+    }
+
+    public init(id: UUID = UUID(), draft: ExerciseSessionDraft) {
+        self.id = id
+        self.type = draft.type
+        self.customName = draft.type == .unknown ? draft.customName : nil
+        self.target = draft.target
+        self.weight = draft.weight
+        self.info = draft.info.isEmpty ? nil : draft.info
     }
 
     /// Display name - uses customName for .unknown exercises, otherwise type.displayName
