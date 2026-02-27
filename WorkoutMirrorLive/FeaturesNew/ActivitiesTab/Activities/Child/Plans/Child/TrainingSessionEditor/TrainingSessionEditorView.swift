@@ -38,6 +38,7 @@ struct TrainingSessionEditorView: View {
         .navigationTitle(store.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     // MARK: - Toolbar
@@ -131,35 +132,71 @@ struct TrainingSessionEditorView: View {
             if let warmUp = store.draft.warmUp {
                 VStack(spacing: 0) {
                     warmupDurationRow(warmUp)
-                    if warmUp.description != nil {
-                        Divider().padding(.leading)
-                        warmupDescriptionRow(warmUp)
-                    }
+                    Divider().padding(.leading)
+                    warmupNotesSection(warmUp)
                 }
             } else {
                 emptyRow("No warmup")
             }
         } label: {
-            groupBoxHeader("Warmup")
+            groupBoxHeader("Warmup", isOn: Binding(
+                get: { store.draft.warmUp != nil },
+                set: { _ in store.send(.warmUpToggled) }
+            ))
         }
         .styledGroupBox()
     }
 
     private func warmupDurationRow(_ warmUp: WarmUpSession) -> some View {
-        editorRow(isLast: warmUp.description == nil) {
+        editorRow {
             Text("Duration").foregroundStyle(.secondary)
             Spacer()
-            Text(warmUp.time.map { "\($0) min" } ?? "–")
-                .foregroundStyle(.primary)
+            Stepper(
+                "\(warmUp.time ?? 10) min",
+                value: Binding(
+                    get: { warmUp.time ?? 10 },
+                    set: { store.send(.warmUpTimeChanged($0)) }
+                ),
+                in: 1...120,
+                step: 1
+            )
+            .fixedSize()
         }
     }
 
-    private func warmupDescriptionRow(_ warmUp: WarmUpSession) -> some View {
-        editorRow(isLast: true) {
-            Text(warmUp.description ?? "")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+    private func warmupNotesSection(_ warmUp: WarmUpSession) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            editorRow {
+                Text("Notes").foregroundStyle(.secondary)
+                Spacer()
+                Menu {
+                    if store.draft.workouts.isEmpty {
+                        Text("Add workouts first to generate warmup")
+                    } else {
+                        Button {
+                            store.send(.warmUpGenerateTapped)
+                        } label: {
+                            Label("Generate with AI", systemImage: "apple.intelligence")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "apple.intelligence")
+                        .foregroundStyle(.tint)
+                }
+            }
+            Divider().padding(.leading)
+            if store.isGeneratingWarmUpNotes {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+            } else {
+                TextField("Enter warmup notes...", text: Binding(
+                    get: { warmUp.description ?? "" },
+                    set: { store.send(.warmUpDescriptionChanged($0)) }
+                ), axis: .vertical)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 10)
+            }
         }
     }
 
@@ -173,7 +210,7 @@ struct TrainingSessionEditorView: View {
                 VStack(spacing: 0) {
                     ForEach(Array(store.draft.workouts.enumerated()), id: \.offset) { index, workout in
                         if index > 0 { Divider().padding(.leading) }
-                        editorRow(isLast: index == store.draft.workouts.count - 1) {
+                        editorRow {
                             workoutRow(workout)
                         }
                     }
@@ -222,35 +259,71 @@ struct TrainingSessionEditorView: View {
             if let coolDown = store.draft.coolDown {
                 VStack(spacing: 0) {
                     cooldownDurationRow(coolDown)
-                    if coolDown.description != nil {
-                        Divider().padding(.leading)
-                        cooldownDescriptionRow(coolDown)
-                    }
+                    Divider().padding(.leading)
+                    cooldownNotesSection(coolDown)
                 }
             } else {
                 emptyRow("No cooldown")
             }
         } label: {
-            groupBoxHeader("Cooldown")
+            groupBoxHeader("Cooldown", isOn: Binding(
+                get: { store.draft.coolDown != nil },
+                set: { _ in store.send(.coolDownToggled) }
+            ))
         }
         .styledGroupBox()
     }
 
     private func cooldownDurationRow(_ coolDown: CoolDownSession) -> some View {
-        editorRow(isLast: coolDown.description == nil) {
+        editorRow {
             Text("Duration").foregroundStyle(.secondary)
             Spacer()
-            Text(coolDown.time.map { "\($0) min" } ?? "–")
-                .foregroundStyle(.primary)
+            Stepper(
+                "\(coolDown.time ?? 10) min",
+                value: Binding(
+                    get: { coolDown.time ?? 10 },
+                    set: { store.send(.coolDownTimeChanged($0)) }
+                ),
+                in: 1...120,
+                step: 1
+            )
+            .fixedSize()
         }
     }
 
-    private func cooldownDescriptionRow(_ coolDown: CoolDownSession) -> some View {
-        editorRow(isLast: true) {
-            Text(coolDown.description ?? "")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+    private func cooldownNotesSection(_ coolDown: CoolDownSession) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            editorRow {
+                Text("Notes").foregroundStyle(.secondary)
+                Spacer()
+                Menu {
+                    if store.draft.workouts.isEmpty {
+                        Text("Add workouts first to generate cooldown")
+                    } else {
+                        Button {
+                            store.send(.coolDownGenerateTapped)
+                        } label: {
+                            Label("Generate with AI", systemImage: "apple.intelligence")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "apple.intelligence")
+                        .foregroundStyle(.tint)
+                }
+            }
+            Divider().padding(.leading)
+            if store.isGeneratingCoolDownNotes {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+            } else {
+                TextField("Enter cooldown notes...", text: Binding(
+                    get: { coolDown.description ?? "" },
+                    set: { store.send(.coolDownDescriptionChanged($0)) }
+                ), axis: .vertical)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 10)
+            }
         }
     }
 
@@ -266,9 +339,23 @@ struct TrainingSessionEditorView: View {
         }
     }
 
+    private func groupBoxHeader(_ title: String, isOn: Binding<Bool>) -> some View {
+        VStack(spacing: 4) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Toggle("", isOn: isOn)
+                    .labelsHidden()
+                    .tint(store.color)
+            }
+            Divider()
+        }
+    }
+
     @ViewBuilder
     private func editorRow<Content: View>(
-        isLast: Bool = false,
         @ViewBuilder content: () -> Content
     ) -> some View {
         HStack { content() }

@@ -731,6 +731,12 @@
     "Add Plan" : {
 
     },
+    "Add workouts first to generate cooldown" : {
+
+    },
+    "Add workouts first to generate warmup" : {
+
+    },
     "Add your first workout and start planning your activity." : {
       "localizations" : {
         "pl" : {
@@ -1507,6 +1513,12 @@
         }
       }
     },
+    "Enter cooldown notes..." : {
+
+    },
+    "Enter warmup notes..." : {
+
+    },
     "Error: %@" : {
       "localizations" : {
         "pl" : {
@@ -1617,6 +1629,9 @@
           }
         }
       }
+    },
+    "Generate with AI" : {
+
     },
     "Goal" : {
       "localizations" : {
@@ -2258,6 +2273,9 @@
         }
       }
     },
+    "Notes" : {
+
+    },
     "Numbers" : {
       "localizations" : {
         "pl" : {
@@ -2583,6 +2601,9 @@
     "Refresh" : {
 
     },
+    "Remove" : {
+
+    },
     "Remove all scheduled workouts" : {
       "localizations" : {
         "pl" : {
@@ -2602,6 +2623,12 @@
           }
         }
       }
+    },
+    "Remove Cooldown?" : {
+
+    },
+    "Remove Warmup?" : {
+
     },
     "Reps" : {
       "localizations" : {
@@ -3714,6 +3741,9 @@
         }
       }
     },
+    "Your cooldown notes will be lost." : {
+
+    },
     "Your personal data is used to calculate accurate heart rate zones, calorie burn, and training recommendations. All information remains private on your device." : {
       "localizations" : {
         "pl" : {
@@ -3733,6 +3763,9 @@
           }
         }
       }
+    },
+    "Your warmup notes will be lost." : {
+
     },
     "Zamknij" : {
       "localizations" : {
