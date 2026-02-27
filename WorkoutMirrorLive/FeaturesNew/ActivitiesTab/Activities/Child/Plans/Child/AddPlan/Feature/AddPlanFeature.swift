@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 @Reducer
 struct AddPlanFeature {
@@ -23,9 +24,6 @@ struct AddPlanFeature {
 
                 // MARK: - View Action
 
-            case .view(.viewDidAppear):
-                return .none
-
             case .view(.dismissTapped):
                 return .none
 
@@ -39,7 +37,12 @@ struct AddPlanFeature {
 
                 // MARK: - Destination
 
-            case .destination(.presented(.editor(.delegate(.saved(_))))):
+            case .destination(.presented(.editor(.delegate(.saved(let session))))):
+                state.$plannedWorkouts.withLock { $0[id: session.id] = session }
+                return .run { _ in await dismiss() }
+
+            case .destination(.presented(.scanPlan(.delegate(.saved(let session))))):
+                state.$plannedWorkouts.withLock { $0[id: session.id] = session }
                 return .run { _ in await dismiss() }
 
             case .destination:

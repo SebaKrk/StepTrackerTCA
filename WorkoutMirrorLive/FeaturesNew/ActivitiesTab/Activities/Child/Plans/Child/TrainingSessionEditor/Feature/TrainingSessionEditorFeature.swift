@@ -28,7 +28,6 @@ struct TrainingSessionEditorFeature {
 
             case .saveTapped:
                 let session = TrainingSession(id: state.originalId, draft: state.draft)
-                state.$plannedWorkouts.withLock { $0[id: session.id] = session }
                 return .run { send in
                     await send(.delegate(.saved(session)))
                     await dismiss()
@@ -38,8 +37,8 @@ struct TrainingSessionEditorFeature {
 
             case .warmUpToggled:
                 if state.draft.warmUp == nil {
-                    state.draft.warmUp = WarmUpSession(goal: .timeLimit, time: 10, description: nil)
-                } else if !state.draft.warmUpDescription.isEmpty || state.isGeneratingWarmUpNotes {
+                    state.draft.warmUp = WarmUpSession(goal: .timeLimit, time: 10)
+                } else if state.draft.warmUp?.description.isEmpty == false || state.isGeneratingWarmUpNotes {
                     state.alert = .removeWarmUp
                 } else {
                     state.draft.warmUp = nil
@@ -47,8 +46,7 @@ struct TrainingSessionEditorFeature {
                 return .none
 
             case .warmUpTimeChanged(let time):
-                guard let warmUp = state.draft.warmUp else { return .none }
-                state.draft.warmUp = WarmUpSession(goal: warmUp.goal, time: time, description: nil)
+                state.draft.warmUp?.time = time
                 return .none
 
             case .warmUpGenerateTapped:
@@ -61,8 +59,8 @@ struct TrainingSessionEditorFeature {
 
             case .coolDownToggled:
                 if state.draft.coolDown == nil {
-                    state.draft.coolDown = CoolDownSession(goal: .timeLimit, time: 10, description: nil)
-                } else if !state.draft.coolDownDescription.isEmpty || state.isGeneratingCoolDownNotes {
+                    state.draft.coolDown = CoolDownSession(goal: .timeLimit, time: 10)
+                } else if state.draft.coolDown?.description.isEmpty == false || state.isGeneratingCoolDownNotes {
                     state.alert = .removeCoolDown
                 } else {
                     state.draft.coolDown = nil
@@ -70,8 +68,7 @@ struct TrainingSessionEditorFeature {
                 return .none
 
             case .coolDownTimeChanged(let time):
-                guard let coolDown = state.draft.coolDown else { return .none }
-                state.draft.coolDown = CoolDownSession(goal: coolDown.goal, time: time, description: nil)
+                state.draft.coolDown?.time = time
                 return .none
 
             case .coolDownGenerateTapped:
@@ -84,13 +81,11 @@ struct TrainingSessionEditorFeature {
 
             case .alert(.presented(.warmUpRemoveConfirmed)):
                 state.draft.warmUp = nil
-                state.draft.warmUpDescription = ""
                 state.isGeneratingWarmUpNotes = false
                 return .none
 
             case .alert(.presented(.coolDownRemoveConfirmed)):
                 state.draft.coolDown = nil
-                state.draft.coolDownDescription = ""
                 state.isGeneratingCoolDownNotes = false
                 return .none
 

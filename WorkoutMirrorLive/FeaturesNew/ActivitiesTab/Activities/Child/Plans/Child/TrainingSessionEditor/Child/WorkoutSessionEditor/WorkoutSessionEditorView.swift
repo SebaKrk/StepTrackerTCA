@@ -195,10 +195,11 @@ struct WorkoutSessionEditorView: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundStyle(.primary)
-                if let sets = exercise.sets, !sets.isEmpty {
-                    Text(setsLabel(sets))
+                if let info = exercise.info, !info.isEmpty {
+                    Text(info)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 } else if let target = exercise.target {
                     Text(targetLabel(target))
                         .font(.caption)
@@ -217,14 +218,6 @@ struct WorkoutSessionEditorView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 4)
-    }
-
-    private func setsLabel(_ sets: [SetScheme]) -> String {
-        sets.map { set in
-            var desc = "\(set.count)×\(set.reps)"
-            if let intensity = set.intensity { desc += " @ \(intensity)" }
-            return desc
-        }.joined(separator: ", ")
     }
 
     private func targetLabel(_ target: ExerciseTarget) -> String {

@@ -201,7 +201,15 @@ struct TrainingSessionEditorView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
             } else {
-                TextField("e.g. 5 min light jog, dynamic stretching, mobility...", text: $store.draft.warmUpDescription, axis: .vertical)
+                TextField("e.g. 5 min light jog, dynamic stretching, mobility...", text: Binding(
+                    get: { store.draft.warmUp?.description ?? "" },
+                    set: { newDesc in
+                        if var warmUp = store.draft.warmUp {
+                            warmUp.description = newDesc
+                            store.send(.binding(.set(\.draft.warmUp, warmUp)))
+                        }
+                    }
+                ), axis: .vertical)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 10)
             }
@@ -336,7 +344,15 @@ struct TrainingSessionEditorView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
             } else {
-                TextField("e.g. 10 min walk, static stretching, foam rolling...", text: $store.draft.coolDownDescription, axis: .vertical)
+                TextField("e.g. 10 min walk, static stretching, foam rolling...", text: Binding(
+                    get: { store.draft.coolDown?.description ?? "" },
+                    set: { newDesc in
+                        if var coolDown = store.draft.coolDown {
+                            coolDown.description = newDesc
+                            store.send(.binding(.set(\.draft.coolDown, coolDown)))
+                        }
+                    }
+                ), axis: .vertical)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 10)
             }

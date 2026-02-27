@@ -18,7 +18,14 @@ extension ScanPlanFeature {
         case binding(BindingAction<State>)
         case view(View)
         case `internal`(Internal)
-        case destination(PresentationAction<Destination.Action>)
+        case workoutPreview(PresentationAction<WorkoutPreviewFeature.Action>)
+        case apiKeyEntry(PresentationAction<APIKeyEntryFeature.Action>)
+        case delegate(Delegate)
+
+        enum Delegate {
+            /// WorkoutPreview saved — passes session up so AddPlanFeature can persist.
+            case saved(TrainingSession)
+        }
 
         @CasePathable
         enum View {
@@ -55,12 +62,6 @@ extension ScanPlanFeature {
 
             /// OCR or parsing failed with an error message.
             case extractionFailed(String)
-        }
-
-        @Reducer
-        enum Destination {
-            case workoutPreview(WorkoutPreviewFeature)
-            case apiKeyEntry(APIKeyEntryFeature)
         }
     }
 

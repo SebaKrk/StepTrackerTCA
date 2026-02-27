@@ -57,7 +57,7 @@ struct ScanPlanView: View {
         .toolbar {
             apiKeyToolbarItem
         }
-        .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.destination.apiKeyEntry)) { store in
+        .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.apiKeyEntry)) { store in
             NavigationStack {
                 APIKeyEntryView(store: store)
             }
@@ -68,7 +68,7 @@ struct ScanPlanView: View {
             send(.selectedPhotoChanged(newItem))
         }
         .navigationDestination(
-            item: $store.scope(state: \.workoutPreview, action: \.destination.workoutPreview)
+            item: $store.scope(state: \.workoutPreview, action: \.workoutPreview)
         ) { previewStore in
             WorkoutPreviewView(store: previewStore)
         }

@@ -88,8 +88,8 @@ struct WorkoutDetailContent: View {
         GroupBox {
             DisclosureGroup(isExpanded: isWarmupExpanded) {
                 VStack(alignment: .leading, spacing: 8) {
-                    if let description = warmUp.description {
-                        Text(description)
+                    if !warmUp.description.isEmpty {
+                        Text(warmUp.description)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -192,12 +192,6 @@ struct WorkoutDetailContent: View {
                     }
                 }
 
-                if let sets = exercise.sets {
-                    Text(setsDescription(sets))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
                 if let weight = exercise.weight {
                     Text(weightDescription(weight))
                         .font(.caption)
@@ -219,8 +213,8 @@ struct WorkoutDetailContent: View {
         GroupBox {
             DisclosureGroup(isExpanded: isCooldownExpanded) {
                 VStack(alignment: .leading, spacing: 8) {
-                    if let description = coolDown.description {
-                        Text(description)
+                    if !coolDown.description.isEmpty {
+                        Text(coolDown.description)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -307,11 +301,4 @@ struct WorkoutDetailContent: View {
         return parts.joined(separator: " / ")
     }
 
-    private func setsDescription(_ sets: [SetScheme]) -> String {
-        sets.map { set in
-            var desc = "\(set.count)×\(set.reps)"
-            if let intensity = set.intensity { desc += " @ \(intensity)" }
-            return desc
-        }.joined(separator: ", ")
-    }
 }

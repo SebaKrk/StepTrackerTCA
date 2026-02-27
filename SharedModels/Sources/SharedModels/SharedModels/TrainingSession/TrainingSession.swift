@@ -46,25 +46,9 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
         self.title = draft.title
         self.activity = draft.activity
         self.location = draft.location
-        if let warmUp = draft.warmUp {
-            self.warmUp = WarmUpSession(
-                goal: warmUp.goal,
-                time: warmUp.time,
-                description: draft.warmUpDescription.isEmpty ? nil : draft.warmUpDescription
-            )
-        } else {
-            self.warmUp = nil
-        }
+        self.warmUp = draft.warmUp
         self.workouts = draft.workouts
-        if let coolDown = draft.coolDown {
-            self.coolDown = CoolDownSession(
-                goal: coolDown.goal,
-                time: coolDown.time,
-                description: draft.coolDownDescription.isEmpty ? nil : draft.coolDownDescription
-            )
-        } else {
-            self.coolDown = nil
-        }
+        self.coolDown = draft.coolDown
     }
 
     public static let previewTrainingSession = TrainingSession(
@@ -125,11 +109,11 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
 
 // MARK: - Warm Up Session
 public struct WarmUpSession: Equatable, Sendable {
-    public let goal: SimpleWorkoutGoal
-    public let time: Int?
-    public let description: String?
+    public var goal: SimpleWorkoutGoal
+    public var time: Int?
+    public var description: String
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String?) {
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "") {
         self.goal = goal
         self.time = time
         self.description = description
@@ -138,11 +122,11 @@ public struct WarmUpSession: Equatable, Sendable {
 
 // MARK: - Cool Down Session
 public struct CoolDownSession: Equatable, Sendable {
-    public let goal: SimpleWorkoutGoal
-    public let time: Int?
-    public let description: String?
+    public var goal: SimpleWorkoutGoal
+    public var time: Int?
+    public var description: String
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String?) {
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "") {
         self.goal = goal
         self.time = time
         self.description = description
@@ -177,21 +161,6 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
     }
 }
 
-// MARK: - Set Scheme
-
-/// Represents a group of sets with same reps and intensity (e.g., "4×5 @ 50-60%")
-public struct SetScheme: Equatable, Sendable, Codable {
-    public let count: Int          // Number of sets (e.g., 4)
-    public let reps: Int            // Reps per set (e.g., 5)
-    public let intensity: String?   // Intensity percentage (e.g., "50-60%")
-
-    public init(count: Int, reps: Int, intensity: String? = nil) {
-        self.count = count
-        self.reps = reps
-        self.intensity = intensity
-    }
-}
-
 // MARK: - Exercise Session
 
 public struct ExerciseSession: Identifiable, Equatable, Sendable {
@@ -200,7 +169,6 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
     public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
-    public let sets: [SetScheme]?   // For strength exercises with set schemes
     public let info: String?
 
     public init(
@@ -208,7 +176,6 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
         customName: String? = nil,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
-        sets: [SetScheme]? = nil,
         info: String?
     ) {
         self.id = UUID()
@@ -216,7 +183,6 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
         self.customName = customName
         self.target = target
         self.weight = weight
-        self.sets = sets
         self.info = info
     }
 
@@ -226,7 +192,6 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
         self.customName = draft.type == .unknown ? draft.customName : nil
         self.target = draft.target
         self.weight = draft.weight
-        self.sets = draft.sets
         self.info = draft.info.isEmpty ? nil : draft.info
     }
 

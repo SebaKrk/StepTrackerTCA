@@ -593,3 +593,4 @@
     E: Edit action to PlanDetailView  
     F: Edit action to WorkoutPreviewView
     G: Disable Save button when draft has no changes
+    H: Refactor save flow and simplify exercise data model

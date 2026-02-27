@@ -6,7 +6,6 @@
 //
 
 import ComposableArchitecture
-import IdentifiedCollections
 import SharedModels
 import SwiftUI
 
@@ -39,10 +38,6 @@ extension TrainingSessionEditorFeature {
         /// Accent color for the gradient background, shared with the rest of the app.
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .clear
-
-        /// In-memory store of planned workouts, shared across features.
-        @Shared(.inMemory("plannedWorkouts"))
-        var plannedWorkouts: IdentifiedArrayOf<TrainingSession> = []
 
         // MARK: - AI
 

@@ -193,8 +193,8 @@ public struct ExtractedExercise: Sendable, Equatable, Codable {
 
 /// A single set within an exercise, with optional intensity and rest info.
 ///
-/// Used for strength exercises with set schemes (e.g., "4×5 @ 50-60%").
-/// Multiple sets with the same reps/intensity are grouped into SetScheme during conversion.
+/// Used for strength exercises (e.g., "4×5 @ 50-60%").
+/// Sets are converted to a human-readable string and stored in `ExerciseSession.info`.
 public struct ExerciseSet: Sendable, Equatable, Codable {
 
     /// Set number within the exercise (1-indexed).

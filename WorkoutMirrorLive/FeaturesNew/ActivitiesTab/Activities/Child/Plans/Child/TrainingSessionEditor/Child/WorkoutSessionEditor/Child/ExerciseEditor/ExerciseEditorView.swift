@@ -212,34 +212,13 @@ struct ExerciseEditorView: View {
 
     private var notesGroupBox: some View {
         GroupBox {
-            VStack(spacing: 0) {
-                if let sets = store.draft.sets, !sets.isEmpty {
-                    HStack {
-                        Text(setsDescription(sets))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 10)
-                    Divider().padding(.leading)
-                }
-                TextField("Coaching cues, scaling options...", text: $store.draft.info, axis: .vertical)
+            TextField("Coaching cues, scaling options...", text: $store.draft.info, axis: .vertical)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 10)
-            }
         } label: {
             groupBoxHeader("Notes")
         }
         .styledGroupBox()
-    }
-
-    private func setsDescription(_ sets: [SetScheme]) -> String {
-        sets.map { set in
-            var desc = "\(set.count)×\(set.reps)"
-            if let intensity = set.intensity { desc += " @ \(intensity)" }
-            return desc
-        }.joined(separator: ", ")
     }
 
     // MARK: - Helpers
