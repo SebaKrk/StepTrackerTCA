@@ -35,28 +35,22 @@ extension TrainingSessionEditorFeature {
 
         /// Toggles warmup on (`WarmUpSession` with defaults) or off (`nil`).
         case warmUpToggled
-        
+
         /// Updates the warmup duration in minutes.
         case warmUpTimeChanged(Int)
-        
-        /// Updates the warmup notes text.
-        case warmUpDescriptionChanged(String)
-        
-        /// User requested AI generation of warmup notes.
+
+        /// User requested AI generation of warmup description.
         case warmUpGenerateTapped
 
         // MARK: - Cooldown
 
         /// Toggles cooldown on (`CoolDownSession` with defaults) or off (`nil`).
         case coolDownToggled
-        
+
         /// Updates the cooldown duration in minutes.
         case coolDownTimeChanged(Int)
-        
-        /// Updates the cooldown notes text.
-        case coolDownDescriptionChanged(String)
-        
-        /// User requested AI generation of cooldown notes.
+
+        /// User requested AI generation of cooldown description.
         case coolDownGenerateTapped
 
         // MARK: - Alert

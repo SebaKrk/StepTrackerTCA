@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 import SwiftUI
 
@@ -25,9 +26,22 @@ struct WorkoutSessionEditorView: View {
             }
             .padding()
         }
+        .background(
+            LinearGradient(
+                colors: [store.color.opacity(0.25), .clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+        )
         .navigationTitle(store.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
+        .sheet(
+            item: $store.scope(state: \.destination?.exerciseEditor, action: \.destination.exerciseEditor)
+        ) { store in
+            ExerciseEditorView(store: store)
+        }
     }
 
     // MARK: - Toolbar
@@ -110,6 +124,7 @@ struct WorkoutSessionEditorView: View {
                 set: { store.send(.binding(.set(\.draft.timeCap, $0 ? store.draft.type.defaultTimeCapMinutes ?? 15 : nil))) }
             ))
             .labelsHidden()
+            .tint(store.color)
             .fixedSize()
         }
     }
@@ -137,6 +152,7 @@ struct WorkoutSessionEditorView: View {
                 set: { store.send(.binding(.set(\.draft.rounds, $0 ? 1 : nil))) }
             ))
             .labelsHidden()
+            .tint(store.color)
             .fixedSize()
         }
     }
@@ -145,11 +161,75 @@ struct WorkoutSessionEditorView: View {
 
     private var exercisesGroupBox: some View {
         GroupBox {
-            emptyRow("No exercises yet")
+            if store.draft.exercises.isEmpty {
+                emptyRow("No exercises yet")
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(store.draft.exercises.enumerated()), id: \.element.id) { index, exercise in
+                        if index > 0 { Divider().padding(.leading) }
+                        Button { store.send(.exerciseTapped(exercise)) } label: {
+                            exerciseRow(exercise)
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                store.send(.exerciseDeleted(IndexSet(integer: index)))
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                    }
+                }
+            }
         } label: {
-            groupBoxHeader("Exercises")
+            groupBoxHeader("Exercises", addAction: { store.send(.exerciseAddTapped) })
         }
         .styledGroupBox()
+    }
+
+    private func exerciseRow(_ exercise: ExerciseSession) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(exercise.displayName)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+                if let target = exercise.target {
+                    Text(targetLabel(target))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            if let weight = exercise.weight {
+                Text(weightLabel(weight))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 4)
+    }
+
+    private func targetLabel(_ target: ExerciseTarget) -> String {
+        switch target {
+        case .reps(let v):     return "\(v) reps"
+        case .calories(let v): return "\(v) cal"
+        case .meters(let v):   return "\(v)m"
+        case .seconds(let v):  return "\(v)s"
+        case .minutes(let v):  return "\(v) min"
+        case .rounds(let v):   return "\(v) rounds"
+        case .laps(let v):     return "\(v) laps"
+        }
+    }
+
+    private func weightLabel(_ weight: WeightConfiguration) -> String {
+        switch (weight.men, weight.women) {
+        case let (m?, w?): return "\(m)/\(w) kg"
+        case let (m?, nil): return "\(m) kg"
+        case let (nil, w?): return "\(w) kg"
+        default: return ""
+        }
     }
 
     // MARK: - Helpers
@@ -160,6 +240,23 @@ struct WorkoutSessionEditorView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
+            Divider()
+        }
+    }
+
+    private func groupBoxHeader(_ title: String, addAction: @escaping () -> Void) -> some View {
+        VStack(spacing: 4) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Button(action: addAction) {
+                    Image(systemName: "plus")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                }
+            }
             Divider()
         }
     }

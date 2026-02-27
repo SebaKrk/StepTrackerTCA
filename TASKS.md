@@ -589,4 +589,5 @@
     B: Warmup + Cooldown editing
     C: WOD editing
     -  add WorkoutSessionEditor
-    
+    D: ExercisePicker and ExerciseEditor
+    E: Edit action to PlanDetailView  

@@ -327,6 +327,16 @@
         }
       }
     },
+    "%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
     "%lld BMP" : {
       "localizations" : {
         "pl" : {
@@ -359,6 +369,9 @@
           }
         }
       }
+    },
+    "%lld kg" : {
+
     },
     "%lld m" : {
       "localizations" : {
@@ -1084,6 +1097,9 @@
         }
       }
     },
+    "Choose Exercise" : {
+
+    },
     "Ciężary: M: %lldkg / K: %lldkg" : {
       "localizations" : {
         "en" : {
@@ -1099,6 +1115,9 @@
           }
         }
       }
+    },
+    "Coaching cues, scaling options..." : {
+
     },
     "Community" : {
       "comment" : "The Community Tab connects users for sharing and interaction.",
@@ -1337,6 +1356,9 @@
         }
       }
     },
+    "Delete" : {
+
+    },
     "Delete Key" : {
       "localizations" : {
         "pl" : {
@@ -1346,6 +1368,9 @@
           }
         }
       }
+    },
+    "Description" : {
+
     },
     "Details" : {
 
@@ -1460,6 +1485,15 @@
         }
       }
     },
+    "e.g. 5 min light jog, dynamic stretching, mobility..." : {
+
+    },
+    "e.g. 10 min walk, static stretching, foam rolling..." : {
+
+    },
+    "e.g. Wall Sit" : {
+
+    },
     "e.g. WOD 1" : {
 
     },
@@ -1515,12 +1549,6 @@
           }
         }
       }
-    },
-    "Enter cooldown notes..." : {
-
-    },
-    "Enter warmup notes..." : {
-
     },
     "Error: %@" : {
       "localizations" : {
@@ -1634,6 +1662,12 @@
       }
     },
     "Generate with AI" : {
+
+    },
+    "Generating cooldown..." : {
+
+    },
+    "Generating warmup..." : {
 
     },
     "Goal" : {
@@ -2827,6 +2861,9 @@
           }
         }
       }
+    },
+    "Search exercises..." : {
+
     },
     "select" : {
       "localizations" : {

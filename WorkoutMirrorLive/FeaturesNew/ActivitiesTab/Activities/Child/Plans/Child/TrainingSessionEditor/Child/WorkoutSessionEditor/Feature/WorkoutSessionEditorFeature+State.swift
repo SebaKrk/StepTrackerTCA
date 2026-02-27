@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import SwiftUI
 
 extension WorkoutSessionEditorFeature {
 
@@ -24,6 +25,17 @@ extension WorkoutSessionEditorFeature {
         let originalId: UUID
         /// Mutable copy of the workout fields being edited.
         var draft: WorkoutSessionDraft
+
+        // MARK: - Shared
+
+        /// Accent color shared with the rest of the app.
+        @Shared(.inMemory(.readinessLevelColor))
+        var color: Color = .clear
+
+        // MARK: - Navigation
+
+        /// Navigation destination — exercise editor presented as a sheet.
+        @Presents var destination: Destination.State?
 
         // MARK: - Computed
 

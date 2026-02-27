@@ -138,7 +138,7 @@ struct TrainingSessionEditorView: View {
                 VStack(spacing: 0) {
                     warmupDurationRow(warmUp)
                     Divider().padding(.leading)
-                    warmupNotesSection(warmUp)
+                    warmupNotesSection
                 }
             } else {
                 emptyRow("No warmup")
@@ -169,10 +169,10 @@ struct TrainingSessionEditorView: View {
         }
     }
 
-    private func warmupNotesSection(_ warmUp: WarmUpSession) -> some View {
+    private var warmupNotesSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             editorRow {
-                Text("Notes").foregroundStyle(.secondary)
+                Text("Description").foregroundStyle(.secondary)
                 Spacer()
                 Menu {
                     if store.draft.workouts.isEmpty {
@@ -191,14 +191,16 @@ struct TrainingSessionEditorView: View {
             }
             Divider().padding(.leading)
             if store.isGeneratingWarmUpNotes {
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text("Generating warmup...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
             } else {
-                TextField("Enter warmup notes...", text: Binding(
-                    get: { warmUp.description ?? "" },
-                    set: { store.send(.warmUpDescriptionChanged($0)) }
-                ), axis: .vertical)
+                TextField("e.g. 5 min light jog, dynamic stretching, mobility...", text: $store.draft.warmUpDescription, axis: .vertical)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 10)
             }
@@ -271,7 +273,7 @@ struct TrainingSessionEditorView: View {
                 VStack(spacing: 0) {
                     cooldownDurationRow(coolDown)
                     Divider().padding(.leading)
-                    cooldownNotesSection(coolDown)
+                    cooldownNotesSection
                 }
             } else {
                 emptyRow("No cooldown")
@@ -302,10 +304,10 @@ struct TrainingSessionEditorView: View {
         }
     }
 
-    private func cooldownNotesSection(_ coolDown: CoolDownSession) -> some View {
+    private var cooldownNotesSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             editorRow {
-                Text("Notes").foregroundStyle(.secondary)
+                Text("Description").foregroundStyle(.secondary)
                 Spacer()
                 Menu {
                     if store.draft.workouts.isEmpty {
@@ -324,14 +326,16 @@ struct TrainingSessionEditorView: View {
             }
             Divider().padding(.leading)
             if store.isGeneratingCoolDownNotes {
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text("Generating cooldown...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
             } else {
-                TextField("Enter cooldown notes...", text: Binding(
-                    get: { coolDown.description ?? "" },
-                    set: { store.send(.coolDownDescriptionChanged($0)) }
-                ), axis: .vertical)
+                TextField("e.g. 10 min walk, static stretching, foam rolling...", text: $store.draft.coolDownDescription, axis: .vertical)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 10)
             }
