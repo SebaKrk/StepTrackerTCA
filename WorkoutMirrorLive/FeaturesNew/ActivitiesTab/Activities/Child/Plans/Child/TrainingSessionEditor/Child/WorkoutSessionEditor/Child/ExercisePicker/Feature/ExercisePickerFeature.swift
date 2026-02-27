@@ -24,7 +24,7 @@ struct ExercisePickerFeature {
             case .binding:
                 return .none
 
-            case .exercisePicked(let type):
+            case .view(.exercisePicked(let type)):
                 return .run { send in
                     await send(.delegate(.selected(type)))
                     await dismiss()

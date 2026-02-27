@@ -207,6 +207,7 @@ struct WorkoutSessionEditorView: View {
                     if index > 0 { Divider().padding(.leading) }
                     Button { send(.exerciseTapped(exercise)) } label: {
                         exerciseRow(exercise)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .contextMenu {

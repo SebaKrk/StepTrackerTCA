@@ -60,7 +60,7 @@ extension TrainingSessionEditorFeature {
         // MARK: - Computed
 
         var isSaveDisabled: Bool {
-            draft.title.trimmingCharacters(in: .whitespaces).isEmpty || draft == originalDraft
+            draft.title.trimmingCharacters(in: .whitespaces).isEmpty || draft.workouts.isEmpty || draft == originalDraft
         }
 
         var navigationTitle: String {

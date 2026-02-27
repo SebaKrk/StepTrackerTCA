@@ -15,7 +15,6 @@ struct AddPlanView: View {
     // MARK: - Properties
     
     @Bindable var store: StoreOf<AddPlanFeature>
-    @Environment(\.dismiss) private var dismiss
     
     // MARK: - Body
     
@@ -39,7 +38,7 @@ struct AddPlanView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        dismiss()
+                        send(.dismissTapped)
                     } label: {
                         Image(systemName: "xmark")
                     }

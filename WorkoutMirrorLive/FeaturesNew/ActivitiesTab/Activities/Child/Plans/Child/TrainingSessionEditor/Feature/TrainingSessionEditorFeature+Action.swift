@@ -12,7 +12,7 @@ import SharedModels
 extension TrainingSessionEditorFeature {
 
     @CasePathable
-    enum Action: BindableAction {
+    enum Action: ViewAction, BindableAction {
 
         // MARK: - Binding
 
@@ -20,56 +20,45 @@ extension TrainingSessionEditorFeature {
 
         // MARK: - View
 
-        /// User tapped the Save button.
-        case saveTapped
+        case view(View)
 
-        /// User tapped the Delete button (edit mode only).
-        case deleteTapped
-
-        /// User tapped the + button in the Workouts section.
-        case workoutAddTapped
-        
-        /// User tapped an existing WOD row to edit it.
-        case workoutTapped(WorkoutSessionNew)
+        @CasePathable
+        enum View {
+            /// User tapped the Save button.
+            case saveTapped
+            /// User tapped the Delete button (edit mode only).
+            case deleteTapped
+            /// User tapped the + button in the Workouts section.
+            case workoutAddTapped
+            /// User tapped an existing WOD row to edit it.
+            case workoutTapped(WorkoutSessionNew)
+            /// Toggles warmup on (`WarmUpSession` with defaults) or off (`nil`).
+            case warmUpToggled
+            /// Updates the warmup duration in minutes.
+            case warmUpTimeChanged(Int)
+            /// User requested AI generation of warmup description.
+            case warmUpGenerateTapped
+            /// Toggles cooldown on (`CoolDownSession` with defaults) or off (`nil`).
+            case coolDownToggled
+            /// Updates the cooldown duration in minutes.
+            case coolDownTimeChanged(Int)
+            /// User requested AI generation of cooldown description.
+            case coolDownGenerateTapped
+        }
 
         // MARK: - Destination
 
         case destination(PresentationAction<Destination.Action>)
-
-        // MARK: - Warmup
-
-        /// Toggles warmup on (`WarmUpSession` with defaults) or off (`nil`).
-        case warmUpToggled
-
-        /// Updates the warmup duration in minutes.
-        case warmUpTimeChanged(Int)
-
-        /// User requested AI generation of warmup description.
-        case warmUpGenerateTapped
-
-        // MARK: - Cooldown
-
-        /// Toggles cooldown on (`CoolDownSession` with defaults) or off (`nil`).
-        case coolDownToggled
-
-        /// Updates the cooldown duration in minutes.
-        case coolDownTimeChanged(Int)
-
-        /// User requested AI generation of cooldown description.
-        case coolDownGenerateTapped
 
         // MARK: - Alert
 
         case alert(PresentationAction<Alert>)
 
         enum Alert {
-
             /// User confirmed removing warmup (will delete notes).
             case warmUpRemoveConfirmed
-
             /// User confirmed removing cooldown (will delete notes).
             case coolDownRemoveConfirmed
-
             /// User confirmed deleting the entire training session.
             case deleteConfirmed
         }
@@ -79,10 +68,8 @@ extension TrainingSessionEditorFeature {
         case delegate(Delegate)
 
         enum Delegate {
-
             /// Editor saved a session — parent should handle persistence.
             case saved(TrainingSession)
-
             /// Editor deleted a session — parent should remove it.
             case deleted(UUID)
         }

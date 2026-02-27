@@ -25,7 +25,7 @@ struct AddPlanFeature {
                 // MARK: - View Action
 
             case .view(.dismissTapped):
-                return .none
+                return .run { _ in await dismiss() }
 
             case .view(.scanPlanTapped):
                 state.destination = .scanPlan(ScanPlanFeature.State())
@@ -38,18 +38,24 @@ struct AddPlanFeature {
                 // MARK: - Destination
 
             case .destination(.presented(.editor(.delegate(.saved(let session))))):
-                state.$plannedWorkouts.withLock { $0[id: session.id] = session }
-                return .run { _ in await dismiss() }
+                return .run { send in
+                    await send(.delegate(.saved(session)))
+                    await dismiss()
+                }
 
-            case .destination(.presented(.editor(.delegate(.deleted(let id))))):
-                state.$plannedWorkouts.withLock { $0.remove(id: id) }
+            case .destination(.presented(.editor(.delegate(.deleted(_))))):
                 return .run { _ in await dismiss() }
 
             case .destination(.presented(.scanPlan(.delegate(.saved(let session))))):
-                state.$plannedWorkouts.withLock { $0[id: session.id] = session }
-                return .run { _ in await dismiss() }
+                return .run { send in
+                    await send(.delegate(.saved(session)))
+                    await dismiss()
+                }
 
             case .destination:
+                return .none
+
+            case .delegate:
                 return .none
             }
         }

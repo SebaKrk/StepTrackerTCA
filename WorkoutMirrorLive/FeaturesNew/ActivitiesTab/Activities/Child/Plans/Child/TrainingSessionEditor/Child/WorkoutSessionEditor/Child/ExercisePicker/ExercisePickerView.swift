@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
+@ViewAction(for: ExercisePickerFeature.self)
 struct ExercisePickerView: View {
 
     // MARK: - Properties
@@ -23,7 +24,7 @@ struct ExercisePickerView: View {
                 Section(category.displayName) {
                     ForEach(store.groupedExercises[category] ?? [], id: \.self) { exercise in
                         Button {
-                            store.send(.exercisePicked(exercise))
+                            send(.exercisePicked(exercise))
                         } label: {
                             Text(exercise.displayName)
                                 .foregroundStyle(.primary)
