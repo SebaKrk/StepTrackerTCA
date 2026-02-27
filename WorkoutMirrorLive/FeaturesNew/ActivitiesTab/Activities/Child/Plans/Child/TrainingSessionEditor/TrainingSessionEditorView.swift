@@ -51,9 +51,10 @@ struct TrainingSessionEditorView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button("Save") { store.send(.saveTapped) }
-                .fontWeight(.semibold)
-                .disabled(store.isSaveDisabled)
+            Button { store.send(.saveTapped) } label: {
+                Text("Save").fontWeight(.semibold)
+            }
+            .disabled(store.isSaveDisabled)
         }
     }
 

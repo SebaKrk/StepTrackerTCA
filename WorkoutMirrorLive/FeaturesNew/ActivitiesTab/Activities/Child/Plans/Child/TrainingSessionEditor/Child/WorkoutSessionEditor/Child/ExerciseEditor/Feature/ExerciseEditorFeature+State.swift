@@ -25,6 +25,9 @@ extension ExerciseEditorFeature {
         /// The stable identifier preserved across edits — used as `ExerciseSession.id` on save.
         let originalId: UUID
 
+        /// Snapshot of the draft at the moment the editor was opened — used to detect changes.
+        let originalDraft: ExerciseSessionDraft
+
         /// Mutable copy of the exercise fields being edited.
         var draft: ExerciseSessionDraft
 
@@ -45,7 +48,7 @@ extension ExerciseEditorFeature {
             if draft.type == .unknown {
                 return draft.customName?.trimmingCharacters(in: .whitespaces).isEmpty ?? true
             }
-            return false
+            return draft == originalDraft
         }
 
         var navigationTitle: String {
@@ -58,12 +61,13 @@ extension ExerciseEditorFeature {
             if let exercise {
                 mode = .edit
                 originalId = exercise.id
-                draft = ExerciseSessionDraft(exercise: exercise)
+                originalDraft = ExerciseSessionDraft(exercise: exercise)
             } else {
                 mode = .create
                 originalId = UUID()
-                draft = ExerciseSessionDraft()
+                originalDraft = ExerciseSessionDraft()
             }
+            draft = originalDraft
         }
 
         // MARK: - Mode

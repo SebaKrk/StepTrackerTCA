@@ -44,12 +44,15 @@ struct ExerciseEditorView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button("Cancel") { store.send(.cancelTapped) }
+            Button { store.send(.cancelTapped) } label: {
+                Text("Cancel")
+            }
         }
         ToolbarItem(placement: .topBarTrailing) {
-            Button("Save") { store.send(.saveTapped) }
-                .fontWeight(.semibold)
-                .disabled(store.isSaveDisabled)
+            Button { store.send(.saveTapped) } label: {
+                Text("Save").fontWeight(.semibold)
+            }
+            .disabled(store.isSaveDisabled)
         }
     }
 

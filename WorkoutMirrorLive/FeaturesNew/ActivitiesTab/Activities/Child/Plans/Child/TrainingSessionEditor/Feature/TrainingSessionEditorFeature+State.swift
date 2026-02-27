@@ -20,7 +20,10 @@ extension TrainingSessionEditorFeature {
 
         /// The stable identifier preserved across edits — used as `TrainingSession.id` on save.
         let originalId: UUID
-        
+
+        /// Snapshot of the draft at the moment the editor was opened — used to detect changes.
+        let originalDraft: TrainingSessionDraft
+
         /// Mutable copy of the session fields being edited.
         var draft: TrainingSessionDraft
 
@@ -62,7 +65,7 @@ extension TrainingSessionEditorFeature {
         // MARK: - Computed
 
         var isSaveDisabled: Bool {
-            draft.title.trimmingCharacters(in: .whitespaces).isEmpty
+            draft.title.trimmingCharacters(in: .whitespaces).isEmpty || draft == originalDraft
         }
 
         var navigationTitle: String {
@@ -75,12 +78,13 @@ extension TrainingSessionEditorFeature {
             if let session {
                 mode = .edit
                 originalId = session.id
-                draft = TrainingSessionDraft(session: session)
+                originalDraft = TrainingSessionDraft(session: session)
             } else {
                 mode = .create
                 originalId = UUID()
-                draft = TrainingSessionDraft()
+                originalDraft = TrainingSessionDraft()
             }
+            draft = originalDraft
         }
 
         // MARK: - Mode

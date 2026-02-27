@@ -49,9 +49,10 @@ struct WorkoutSessionEditorView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button("Save") { store.send(.saveTapped) }
-                .fontWeight(.semibold)
-                .disabled(store.isSaveDisabled)
+            Button { store.send(.saveTapped) } label: {
+                Text("Save").fontWeight(.semibold)
+            }
+            .disabled(store.isSaveDisabled)
         }
     }
 
@@ -194,7 +195,11 @@ struct WorkoutSessionEditorView: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundStyle(.primary)
-                if let target = exercise.target {
+                if let sets = exercise.sets, !sets.isEmpty {
+                    Text(setsLabel(sets))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if let target = exercise.target {
                     Text(targetLabel(target))
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -212,6 +217,14 @@ struct WorkoutSessionEditorView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 4)
+    }
+
+    private func setsLabel(_ sets: [SetScheme]) -> String {
+        sets.map { set in
+            var desc = "\(set.count)×\(set.reps)"
+            if let intensity = set.intensity { desc += " @ \(intensity)" }
+            return desc
+        }.joined(separator: ", ")
     }
 
     private func targetLabel(_ target: ExerciseTarget) -> String {
