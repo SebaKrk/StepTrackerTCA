@@ -55,6 +55,13 @@ struct PlanDetailView: View {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                send(.doneTapped)
+            } label: {
+                Text("Done").fontWeight(.semibold)
+            }
+        }
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 send(.editTapped)

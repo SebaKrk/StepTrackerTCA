@@ -48,7 +48,7 @@ extension WorkoutSessionEditorFeature {
         // MARK: - Computed
 
         var isSaveDisabled: Bool {
-            draft.name.trimmingCharacters(in: .whitespaces).isEmpty || draft == originalDraft
+            draft.name.trimmingCharacters(in: .whitespaces).isEmpty || draft.exercises.isEmpty || draft == originalDraft
         }
 
         var navigationTitle: String {

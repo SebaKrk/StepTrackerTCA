@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
+@ViewAction(for: TrainingSessionEditorFeature.self)
 struct TrainingSessionEditorView: View {
 
     // MARK: - Properties
@@ -29,7 +30,7 @@ struct TrainingSessionEditorView: View {
         }
         .background(
             LinearGradient(
-                colors: [store.color.opacity(0.25), .clear],
+                colors: [store.color.opacity(0.2), .clear],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -40,9 +41,7 @@ struct TrainingSessionEditorView: View {
         .toolbar { toolbarContent }
         .alert($store.scope(state: \.alert, action: \.alert))
         .safeAreaInset(edge: .bottom) {
-            if store.mode == .edit {
-                bottomBar
-            }
+            bottomBar
         }
         .navigationDestination(
             item: $store.scope(state: \.destination?.workoutEditor, action: \.destination.workoutEditor)
@@ -56,7 +55,7 @@ struct TrainingSessionEditorView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button { store.send(.saveTapped) } label: {
+            Button { send(.saveTapped) } label: {
                 Text("Save").fontWeight(.semibold)
             }
             .disabled(store.isSaveDisabled)
@@ -152,7 +151,7 @@ struct TrainingSessionEditorView: View {
         } label: {
             groupBoxHeader("Warmup", isOn: Binding(
                 get: { store.draft.warmUp != nil },
-                set: { _ in store.send(.warmUpToggled) }
+                set: { _ in send(.warmUpToggled) }
             ))
         }
         .styledGroupBox()
@@ -166,7 +165,7 @@ struct TrainingSessionEditorView: View {
                 "\(warmUp.time ?? 10) min",
                 value: Binding(
                     get: { warmUp.time ?? 10 },
-                    set: { store.send(.warmUpTimeChanged($0)) }
+                    set: { send(.warmUpTimeChanged($0)) }
                 ),
                 in: 1...120,
                 step: 1
@@ -180,19 +179,22 @@ struct TrainingSessionEditorView: View {
             editorRow {
                 Text("Description").foregroundStyle(.secondary)
                 Spacer()
-                Menu {
-                    if store.draft.workouts.isEmpty {
-                        Text("Add workouts first to generate warmup")
-                    } else {
-                        Button {
-                            store.send(.warmUpGenerateTapped)
-                        } label: {
-                            Label("Generate with AI", systemImage: "apple.intelligence")
+                let warmUpDesc = store.draft.warmUp?.description ?? ""
+                if warmUpDesc.isEmpty {
+                    Menu {
+                        if store.draft.workouts.isEmpty {
+                            Text("Add workouts first to generate warmup")
+                        } else {
+                            Button {
+                                send(.warmUpGenerateTapped)
+                            } label: {
+                                Label("Generate with AI", systemImage: "apple.intelligence")
+                            }
                         }
+                    } label: {
+                        Image(systemName: "apple.intelligence")
+                            .foregroundStyle(.tint)
                     }
-                } label: {
-                    Image(systemName: "apple.intelligence")
-                        .foregroundStyle(.tint)
                 }
             }
             Divider().padding(.leading)
@@ -231,17 +233,18 @@ struct TrainingSessionEditorView: View {
                 VStack(spacing: 0) {
                     ForEach(Array(store.draft.workouts.enumerated()), id: \.offset) { index, workout in
                         if index > 0 { Divider().padding(.leading) }
-                        Button { store.send(.workoutTapped(workout)) } label: {
+                        Button { send(.workoutTapped(workout)) } label: {
                             editorRow {
                                 workoutRow(workout)
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
                 }
             }
         } label: {
-            groupBoxHeader("Workouts", addAction: { store.send(.workoutAddTapped) })
+            groupBoxHeader("Workouts")
         }
         .styledGroupBox()
     }
@@ -295,7 +298,7 @@ struct TrainingSessionEditorView: View {
         } label: {
             groupBoxHeader("Cooldown", isOn: Binding(
                 get: { store.draft.coolDown != nil },
-                set: { _ in store.send(.coolDownToggled) }
+                set: { _ in send(.coolDownToggled) }
             ))
         }
         .styledGroupBox()
@@ -309,7 +312,7 @@ struct TrainingSessionEditorView: View {
                 "\(coolDown.time ?? 10) min",
                 value: Binding(
                     get: { coolDown.time ?? 10 },
-                    set: { store.send(.coolDownTimeChanged($0)) }
+                    set: { send(.coolDownTimeChanged($0)) }
                 ),
                 in: 1...120,
                 step: 1
@@ -323,19 +326,22 @@ struct TrainingSessionEditorView: View {
             editorRow {
                 Text("Description").foregroundStyle(.secondary)
                 Spacer()
-                Menu {
-                    if store.draft.workouts.isEmpty {
-                        Text("Add workouts first to generate cooldown")
-                    } else {
-                        Button {
-                            store.send(.coolDownGenerateTapped)
-                        } label: {
-                            Label("Generate with AI", systemImage: "apple.intelligence")
+                let coolDownDesc = store.draft.coolDown?.description ?? ""
+                if coolDownDesc.isEmpty {
+                    Menu {
+                        if store.draft.workouts.isEmpty {
+                            Text("Add workouts first to generate cooldown")
+                        } else {
+                            Button {
+                                send(.coolDownGenerateTapped)
+                            } label: {
+                                Label("Generate with AI", systemImage: "apple.intelligence")
+                            }
                         }
+                    } label: {
+                        Image(systemName: "apple.intelligence")
+                            .foregroundStyle(.tint)
                     }
-                } label: {
-                    Image(systemName: "apple.intelligence")
-                        .foregroundStyle(.tint)
                 }
             }
             Divider().padding(.leading)
@@ -368,17 +374,30 @@ struct TrainingSessionEditorView: View {
 
     private var bottomBar: some View {
         HStack {
+            if store.mode == .edit {
+                Button {
+                    send(.deleteTapped)
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.title3)
+                        .foregroundStyle(.red.opacity(0.6))
+                        .frame(width: 52, height: 52)
+                        .glassEffect(.regular.interactive(), in: Circle())
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
             Button {
-                store.send(.deleteTapped)
+                send(.workoutAddTapped)
             } label: {
-                Image(systemName: "trash")
+                Image(systemName: "plus")
                     .font(.title3)
-                    .foregroundStyle(.red.opacity(0.6))
+                    .fontWeight(.semibold)
+                    .foregroundStyle(store.color)
                     .frame(width: 52, height: 52)
                     .glassEffect(.regular.interactive(), in: Circle())
             }
             .buttonStyle(.plain)
-            Spacer()
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
@@ -392,23 +411,6 @@ struct TrainingSessionEditorView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Divider()
-        }
-    }
-
-    private func groupBoxHeader(_ title: String, addAction: @escaping () -> Void) -> some View {
-        VStack(spacing: 4) {
-            HStack {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Spacer()
-                Button(action: addAction) {
-                    Image(systemName: "plus")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                }
-            }
             Divider()
         }
     }

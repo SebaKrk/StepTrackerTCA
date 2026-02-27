@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
+@ViewAction(for: ExerciseEditorFeature.self)
 struct ExerciseEditorView: View {
 
     // MARK: - Properties
@@ -18,44 +19,45 @@ struct ExerciseEditorView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 12) {
-                    exerciseGroupBox
-                    targetGroupBox
-                    weightGroupBox
-                    notesGroupBox
-                }
-                .padding()
+        ScrollView {
+            VStack(spacing: 12) {
+                exerciseGroupBox
+                targetGroupBox
+                weightGroupBox
+                notesGroupBox
             }
-            .navigationTitle(store.navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { toolbarContent }
-            .alert($store.scope(state: \.alert, action: \.alert))
-            .safeAreaInset(edge: .bottom) {
-                if store.mode == .edit {
-                    bottomBar
-                }
-            }
-            .navigationDestination(
-                item: $store.scope(state: \.destination?.picker, action: \.destination.picker)
-            ) { store in
-                ExercisePickerView(store: store)
+            .padding()
+        }
+        .navigationTitle(store.navigationTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { toolbarContent }
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .safeAreaInset(edge: .bottom) {
+            if store.mode == .edit {
+                bottomBar
             }
         }
+        .navigationDestination(
+            item: $store.scope(state: \.destination?.picker, action: \.destination.picker)
+        ) { store in
+            ExercisePickerView(store: store)
+        }
+        .background(
+            LinearGradient(
+                colors: [store.color.opacity(0.25), .clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+        )
     }
 
     // MARK: - Toolbar
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button { store.send(.cancelTapped) } label: {
-                Text("Cancel")
-            }
-        }
         ToolbarItem(placement: .topBarTrailing) {
-            Button { store.send(.saveTapped) } label: {
+            Button { send(.saveTapped) } label: {
                 Text("Save").fontWeight(.semibold)
             }
             .disabled(store.isSaveDisabled)
@@ -83,7 +85,7 @@ struct ExerciseEditorView: View {
         editorRow {
             Text("Type").foregroundStyle(.secondary)
             Spacer()
-            Button { store.send(.pickExerciseTapped) } label: {
+            Button { send(.pickExerciseTapped) } label: {
                 HStack(spacing: 4) {
                     Text(store.draft.type.displayName)
                         .foregroundStyle(.primary)
@@ -138,7 +140,7 @@ struct ExerciseEditorView: View {
             Spacer()
             Picker("", selection: Binding(
                 get: { store.draft.target?.targetType ?? .reps },
-                set: { store.send(.targetTypeChanged($0)) }
+                set: { send(.targetTypeChanged($0)) }
             )) {
                 ForEach(ExerciseTargetType.allCases, id: \.self) { type in
                     Text(type.displayName).tag(type)
@@ -158,7 +160,7 @@ struct ExerciseEditorView: View {
                 HStack(spacing: 4) {
                     TextField("", text: Binding(
                         get: { "\(target.value)" },
-                        set: { if let v = Int($0), v > 0 { store.send(.targetValueChanged(v)) } }
+                        set: { if let v = Int($0), v > 0 { send(.targetValueChanged(v)) } }
                     ))
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.trailing)
@@ -219,7 +221,7 @@ struct ExerciseEditorView: View {
     private var bottomBar: some View {
         HStack {
             Button {
-                store.send(.deleteTapped)
+                send(.deleteTapped)
             } label: {
                 Image(systemName: "trash")
                     .font(.title3)

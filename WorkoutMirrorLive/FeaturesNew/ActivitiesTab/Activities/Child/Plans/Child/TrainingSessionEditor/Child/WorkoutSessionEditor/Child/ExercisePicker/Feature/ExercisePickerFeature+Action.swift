@@ -11,7 +11,7 @@ import SharedModels
 extension ExercisePickerFeature {
 
     @CasePathable
-    enum Action: BindableAction {
+    enum Action: ViewAction, BindableAction {
 
         // MARK: - Binding
 
@@ -19,8 +19,13 @@ extension ExercisePickerFeature {
 
         // MARK: - View
 
-        /// User tapped an exercise row — selected and should be returned to caller.
-        case exercisePicked(ExerciseType)
+        case view(View)
+
+        @CasePathable
+        enum View {
+            /// User tapped an exercise row — selected and should be returned to caller.
+            case exercisePicked(ExerciseType)
+        }
 
         // MARK: - Delegate
 

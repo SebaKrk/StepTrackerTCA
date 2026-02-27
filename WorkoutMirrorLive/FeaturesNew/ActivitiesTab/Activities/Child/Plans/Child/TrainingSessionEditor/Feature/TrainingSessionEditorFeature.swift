@@ -26,14 +26,14 @@ struct TrainingSessionEditorFeature {
             case .binding:
                 return .none
 
-            case .saveTapped:
+            case .view(.saveTapped):
                 let session = TrainingSession(id: state.originalId, draft: state.draft)
                 return .run { send in
                     await send(.delegate(.saved(session)))
                     await dismiss()
                 }
 
-            case .deleteTapped:
+            case .view(.deleteTapped):
                 state.alert = .confirmDelete(title: state.draft.title)
                 return .none
 
@@ -46,7 +46,7 @@ struct TrainingSessionEditorFeature {
 
             // MARK: - Warmup
 
-            case .warmUpToggled:
+            case .view(.warmUpToggled):
                 if state.draft.warmUp == nil {
                     state.draft.warmUp = WarmUpSession(goal: .timeLimit, time: 10)
                 } else if state.draft.warmUp?.description.isEmpty == false || state.isGeneratingWarmUpNotes {
@@ -56,11 +56,11 @@ struct TrainingSessionEditorFeature {
                 }
                 return .none
 
-            case .warmUpTimeChanged(let time):
+            case .view(.warmUpTimeChanged(let time)):
                 state.draft.warmUp?.time = time
                 return .none
 
-            case .warmUpGenerateTapped:
+            case .view(.warmUpGenerateTapped):
                 guard !state.draft.workouts.isEmpty else { return .none }
                 state.isGeneratingWarmUpNotes = true
                 // TODO: call AI with state.draft.workouts context
@@ -68,7 +68,7 @@ struct TrainingSessionEditorFeature {
 
             // MARK: - Cooldown
 
-            case .coolDownToggled:
+            case .view(.coolDownToggled):
                 if state.draft.coolDown == nil {
                     state.draft.coolDown = CoolDownSession(goal: .timeLimit, time: 10)
                 } else if state.draft.coolDown?.description.isEmpty == false || state.isGeneratingCoolDownNotes {
@@ -78,11 +78,11 @@ struct TrainingSessionEditorFeature {
                 }
                 return .none
 
-            case .coolDownTimeChanged(let time):
+            case .view(.coolDownTimeChanged(let time)):
                 state.draft.coolDown?.time = time
                 return .none
 
-            case .coolDownGenerateTapped:
+            case .view(.coolDownGenerateTapped):
                 guard !state.draft.workouts.isEmpty else { return .none }
                 state.isGeneratingCoolDownNotes = true
                 // TODO: call AI with state.draft.workouts context
@@ -105,11 +105,11 @@ struct TrainingSessionEditorFeature {
 
             // MARK: - Workouts
 
-            case .workoutAddTapped:
+            case .view(.workoutAddTapped):
                 state.destination = .workoutEditor(WorkoutSessionEditorFeature.State())
                 return .none
 
-            case .workoutTapped(let workout):
+            case .view(.workoutTapped(let workout)):
                 state.destination = .workoutEditor(WorkoutSessionEditorFeature.State(workout: workout))
                 return .none
 

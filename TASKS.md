@@ -594,4 +594,5 @@
     F: Edit action to WorkoutPreviewView
     G: Disable Save button when draft has no changes
     H: Refactor save flow and simplify exercise data model
-    I: Add and remove workout or exercise 
+    I: Add and remove workout or exercise
+    J: Refactor/navigation

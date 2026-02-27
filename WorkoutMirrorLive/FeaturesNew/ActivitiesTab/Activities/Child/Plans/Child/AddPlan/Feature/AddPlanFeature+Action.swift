@@ -7,34 +7,43 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 extension AddPlanFeature {
-    
+
     @CasePathable
     enum Action: ViewAction {
 
         // MARK: - View actions
-        
+
         case view(View)
-        
+
         @CasePathable
         enum View {
 
             /// Called when user taps dismiss button.
             case dismissTapped
-            
+
             /// Called when user taps "Scan Plan" to use camera OCR.
             case scanPlanTapped
-            
+
             /// Called when user taps "Manual Entry" to add plan manually.
             case manualEntryTapped
         }
-        
+
         // MARK: - Destination
 
         /// Handles navigation destinations within this feature.
         case destination(PresentationAction<Destination.Action>)
-        
+
+        // MARK: - Delegate
+
+        case delegate(Delegate)
+
+        enum Delegate {
+            /// A session was saved — parent should persist it.
+            case saved(TrainingSession)
+        }
     }
-    
+
 }

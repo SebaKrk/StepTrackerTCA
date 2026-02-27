@@ -25,17 +25,17 @@ struct ExerciseEditorFeature {
             case .binding:
                 return .none
 
-            case .saveTapped:
+            case .view(.saveTapped):
                 let exercise = ExerciseSession(id: state.originalId, draft: state.draft)
                 return .run { send in
                     await send(.delegate(.saved(exercise)))
                     await dismiss()
                 }
 
-            case .cancelTapped:
+            case .view(.cancelTapped):
                 return .run { _ in await dismiss() }
 
-            case .deleteTapped:
+            case .view(.deleteTapped):
                 state.alert = .confirmDelete(name: state.draft.type.displayName)
                 return .none
 
@@ -49,16 +49,16 @@ struct ExerciseEditorFeature {
             case .alert:
                 return .none
 
-            case .pickExerciseTapped:
+            case .view(.pickExerciseTapped):
                 state.destination = .picker(ExercisePickerFeature.State())
                 return .none
 
-            case .targetTypeChanged(let type):
+            case .view(.targetTypeChanged(let type)):
                 let currentValue = state.draft.target?.value ?? 10
                 state.draft.target = type.makeTarget(value: currentValue)
                 return .none
 
-            case .targetValueChanged(let value):
+            case .view(.targetValueChanged(let value)):
                 let type = state.draft.target?.targetType ?? .reps
                 state.draft.target = type.makeTarget(value: max(1, value))
                 return .none
