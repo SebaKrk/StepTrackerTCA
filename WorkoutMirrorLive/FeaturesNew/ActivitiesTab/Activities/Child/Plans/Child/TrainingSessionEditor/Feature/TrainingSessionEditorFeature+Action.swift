@@ -55,6 +55,19 @@ extension TrainingSessionEditorFeature {
             case coolDownGenerateTapped
         }
 
+        // MARK: - Internal
+
+        case `internal`(Internal)
+
+        @CasePathable
+        enum Internal {
+            /// AI returned a warm-up description.
+            case warmUpGenerationResult(Result<String, any Error>)
+
+            /// AI returned a cool-down description.
+            case coolDownGenerationResult(Result<String, any Error>)
+        }
+
         // MARK: - Destination
 
         case destination(PresentationAction<Destination.Action>)
@@ -70,6 +83,8 @@ extension TrainingSessionEditorFeature {
             case coolDownRemoveConfirmed
             /// User confirmed deleting the entire training session.
             case deleteConfirmed
+            /// User dismissed the AI generation error alert.
+            case generationErrorDismissed
         }
 
         // MARK: - Delegate

@@ -50,4 +50,16 @@ extension AlertState where Action == TrainingSessionEditorFeature.Action.Alert {
             TextState("\"\(title)\" and all its workouts will be permanently removed.")
         }
     }
+
+    static func generationFailed(_ message: String) -> Self {
+        Self {
+            TextState("Generation Failed")
+        } actions: {
+            ButtonState(action: .generationErrorDismissed) {
+                TextState("OK")
+            }
+        } message: {
+            TextState(message)
+        }
+    }
 }
