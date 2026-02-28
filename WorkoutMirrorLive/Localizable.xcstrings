@@ -1688,6 +1688,9 @@
     "Generating warmup..." : {
 
     },
+    "Generation Failed" : {
+
+    },
     "Goal" : {
       "localizations" : {
         "pl" : {
