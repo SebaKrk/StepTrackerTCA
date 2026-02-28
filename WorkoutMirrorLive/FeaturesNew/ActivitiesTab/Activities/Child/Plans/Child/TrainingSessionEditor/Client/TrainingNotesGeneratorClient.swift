@@ -28,35 +28,23 @@ struct TrainingNotesGeneratorClient: Sendable {
 
 extension TrainingNotesGeneratorClient: DependencyKey {
 
-    private static let model = "claude-sonnet-4-5-20250929"
-
     nonisolated static let liveValue: TrainingNotesGeneratorClient = {
         TrainingNotesGeneratorClient(
             generateWarmUp: { context in
                 @Dependency(\.apiKeyClient) var apiKeyClient
-                let apiClient = ClaudeAPIClient(
-                    httpClient: URLSessionHTTPClient(),
-                    apiKey: apiKeyClient.load() ?? ""
+                let strategy = ClaudeStrategy(apiKey: apiKeyClient.load())
+                return try await strategy.generateWarmUp(
+                    workouts: context.workouts,
+                    durationMinutes: context.durationMinutes
                 )
-                let response = try await apiClient.sendMessage(
-                    model: TrainingNotesGeneratorClient.model,
-                    system: "You are a fitness coach. Generate a concise warm-up description (2-4 sentences) for the given workout. Respond with plain text only, no markdown.",
-                    userMessage: warmUpPrompt(for: context)
-                )
-                return response.content.first?.text ?? ""
             },
             generateCoolDown: { context in
                 @Dependency(\.apiKeyClient) var apiKeyClient
-                let apiClient = ClaudeAPIClient(
-                    httpClient: URLSessionHTTPClient(),
-                    apiKey: apiKeyClient.load() ?? ""
+                let strategy = ClaudeStrategy(apiKey: apiKeyClient.load())
+                return try await strategy.generateCoolDown(
+                    workouts: context.workouts,
+                    durationMinutes: context.durationMinutes
                 )
-                let response = try await apiClient.sendMessage(
-                    model: TrainingNotesGeneratorClient.model,
-                    system: "You are a fitness coach. Generate a concise cool-down description (2-4 sentences) for the given workout. Respond with plain text only, no markdown.",
-                    userMessage: coolDownPrompt(for: context)
-                )
-                return response.content.first?.text ?? ""
             }
         )
     }()
@@ -76,36 +64,4 @@ extension DependencyValues {
         get { self[TrainingNotesGeneratorClient.self] }
         set { self[TrainingNotesGeneratorClient.self] = newValue }
     }
-}
-
-// MARK: - Prompt Helpers
-
-private func warmUpPrompt(for context: TrainingNotesContext) -> String {
-    var lines = ["Workout:"]
-    for workout in context.workouts {
-        lines.append("- \(workout.name) (\(workout.type))")
-        for exercise in workout.exercises {
-            lines.append("  • \(exercise.displayName)")
-        }
-    }
-    if let duration = context.durationMinutes {
-        lines.append("Warm-up duration: \(duration) min")
-    }
-    lines.append("\nGenerate a warm-up routine for this workout.")
-    return lines.joined(separator: "\n")
-}
-
-private func coolDownPrompt(for context: TrainingNotesContext) -> String {
-    var lines = ["Workout:"]
-    for workout in context.workouts {
-        lines.append("- \(workout.name) (\(workout.type))")
-        for exercise in workout.exercises {
-            lines.append("  • \(exercise.displayName)")
-        }
-    }
-    if let duration = context.durationMinutes {
-        lines.append("Cool-down duration: \(duration) min")
-    }
-    lines.append("\nGenerate a cool-down routine for this workout.")
-    return lines.joined(separator: "\n")
 }

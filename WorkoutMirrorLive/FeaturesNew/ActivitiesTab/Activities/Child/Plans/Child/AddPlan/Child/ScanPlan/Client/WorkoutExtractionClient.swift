@@ -50,7 +50,7 @@ extension WorkoutExtractionClient: DependencyKey {
             },
             parseWorkout: { rawText in
                 @Dependency(\.apiKeyClient) var apiKeyClient
-                let strategy = ClaudeAPIStrategy(apiKey: apiKeyClient.load())
+                let strategy = ClaudeStrategy(apiKey: apiKeyClient.load())
                 return try await strategy.parseWorkoutText(rawText)
             }
         )

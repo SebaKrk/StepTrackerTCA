@@ -28,7 +28,7 @@ extension WorkoutParsingClient {
     // MARK: - Claude API Strategy
 
     public static let claude: WorkoutParsingClient = {
-        let strategy = ClaudeAPIStrategy()
+        let strategy = ClaudeStrategy()
 
         return WorkoutParsingClient(
             parseWorkout: { text in
