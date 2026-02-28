@@ -102,7 +102,7 @@ struct AddPlanView: View {
         icon: String,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        Button { action() } label: {
             HStack(spacing: 16) {
                 Image(systemName: icon)
                     .font(.title2)

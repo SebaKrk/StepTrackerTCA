@@ -25,12 +25,22 @@ struct APIKeyEntryFeature {
 
     // MARK: - Action
 
-    enum Action: BindableAction {
+    enum Action: ViewAction, BindableAction {
         case binding(BindingAction<State>)
-        case saveButtonTapped
-        case deleteKeyTapped
-        case cancelTapped
+        case view(View)
         case delegate(Delegate)
+
+        @CasePathable
+        enum View {
+            /// User tapped Save to store the API key in Keychain.
+            case saveButtonTapped
+
+            /// User tapped Delete to remove the existing API key.
+            case deleteKeyTapped
+
+            /// User tapped Cancel to dismiss without saving (sheet only).
+            case cancelTapped
+        }
 
         enum Delegate {
             case keySaved
@@ -50,19 +60,19 @@ struct APIKeyEntryFeature {
         Reduce { state, action in
             switch action {
 
-            case .saveButtonTapped:
+            case .view(.saveButtonTapped):
                 let key = state.draftKey.trimmingCharacters(in: .whitespaces)
                 guard !key.isEmpty else { return .none }
                 apiKeyClient.save(key)
                 return .send(.delegate(.keySaved))
                 // Parent dismisses via state.apiKeyEntry = nil
 
-            case .deleteKeyTapped:
+            case .view(.deleteKeyTapped):
                 apiKeyClient.delete()
                 return .send(.delegate(.keyDeleted))
                 // Parent dismisses via state.apiKeyEntry = nil
 
-            case .cancelTapped:
+            case .view(.cancelTapped):
                 return .run { _ in await dismiss() }
 
             case .binding, .delegate:

@@ -26,8 +26,6 @@ extension ExerciseEditorFeature {
         enum View {
             /// User tapped Save.
             case saveTapped
-            /// User tapped Cancel.
-            case cancelTapped
             /// User tapped Delete (edit mode only).
             case deleteTapped
             /// User tapped the exercise type row to open the picker.

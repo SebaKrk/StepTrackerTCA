@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 
+@ViewAction(for: APIKeyEntryFeature.self)
 struct APIKeyEntryView: View {
 
     // MARK: - Properties
@@ -24,7 +25,7 @@ struct APIKeyEntryView: View {
                 if store.isPresentedAsSheet {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            store.send(.cancelTapped)
+                            send(.cancelTapped)
                         } label: {
                             Image(systemName: "xmark")
                         }
@@ -73,7 +74,7 @@ struct APIKeyEntryView: View {
     private var deleteSection: some View {
         Section {
             Button(role: .destructive) {
-                store.send(.deleteKeyTapped)
+                send(.deleteKeyTapped)
             } label: {
                 HStack {
                     Spacer()
@@ -101,7 +102,7 @@ struct APIKeyEntryView: View {
 
             Section {
                 Button {
-                    store.send(.saveButtonTapped)
+                    send(.saveButtonTapped)
                 } label: {
                     HStack {
                         Spacer()

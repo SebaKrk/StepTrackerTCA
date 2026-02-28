@@ -32,9 +32,6 @@ struct ExerciseEditorFeature {
                     await dismiss()
                 }
 
-            case .view(.cancelTapped):
-                return .run { _ in await dismiss() }
-
             case .view(.deleteTapped):
                 state.alert = .confirmDelete(name: state.draft.type.displayName)
                 return .none

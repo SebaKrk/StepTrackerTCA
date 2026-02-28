@@ -26,22 +26,31 @@ extension TrainingSessionEditorFeature {
         enum View {
             /// User tapped the Save button.
             case saveTapped
+
             /// User tapped the Delete button (edit mode only).
             case deleteTapped
+
             /// User tapped the + button in the Workouts section.
             case workoutAddTapped
+
             /// User tapped an existing WOD row to edit it.
             case workoutTapped(WorkoutSessionNew)
+
             /// Toggles warmup on (`WarmUpSession` with defaults) or off (`nil`).
             case warmUpToggled
+
             /// Updates the warmup duration in minutes.
             case warmUpTimeChanged(Int)
+
             /// User requested AI generation of warmup description.
             case warmUpGenerateTapped
+
             /// Toggles cooldown on (`CoolDownSession` with defaults) or off (`nil`).
             case coolDownToggled
+
             /// Updates the cooldown duration in minutes.
             case coolDownTimeChanged(Int)
+
             /// User requested AI generation of cooldown description.
             case coolDownGenerateTapped
         }
