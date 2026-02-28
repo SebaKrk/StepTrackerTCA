@@ -596,3 +596,7 @@
     H: Refactor save flow and simplify exercise data model
     I: Add and remove workout or exercise
     J: Refactor/navigation
+    
+### IOS-00068 AI warmup/cooldown generation
+    A: AI warmup/cooldown generation
+    B: Refactor/unify-claude-strategy

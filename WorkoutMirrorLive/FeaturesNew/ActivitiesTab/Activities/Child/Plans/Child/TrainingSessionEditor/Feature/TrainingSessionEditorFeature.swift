@@ -15,6 +15,7 @@ struct TrainingSessionEditorFeature {
     // MARK: - Dependencies
 
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.trainingNotesGeneratorClient) var notesClient
 
     // MARK: - Body
 
@@ -63,8 +64,16 @@ struct TrainingSessionEditorFeature {
             case .view(.warmUpGenerateTapped):
                 guard !state.draft.workouts.isEmpty else { return .none }
                 state.isGeneratingWarmUpNotes = true
-                // TODO: call AI with state.draft.workouts context
-                return .none
+                let context = TrainingNotesContext(
+                    workouts: state.draft.workouts,
+                    durationMinutes: state.draft.warmUp?.time,
+                )
+                return .run { [notesClient] send in
+                    await send(.`internal`(.warmUpGenerationResult(
+                        Result { try await notesClient.generateWarmUp(context) }
+                    )))
+                }
+                .cancellable(id: TrainingSessionEditorCancelID.warmUpGeneration, cancelInFlight: true)
 
             // MARK: - Cooldown
 
@@ -85,22 +94,52 @@ struct TrainingSessionEditorFeature {
             case .view(.coolDownGenerateTapped):
                 guard !state.draft.workouts.isEmpty else { return .none }
                 state.isGeneratingCoolDownNotes = true
-                // TODO: call AI with state.draft.workouts context
-                return .none
+                let context = TrainingNotesContext(
+                    workouts: state.draft.workouts,
+                    durationMinutes: state.draft.coolDown?.time,
+                )
+                return .run { [notesClient] send in
+                    await send(.`internal`(.coolDownGenerationResult(
+                        Result { try await notesClient.generateCoolDown(context) }
+                    )))
+                }
+                .cancellable(id: TrainingSessionEditorCancelID.coolDownGeneration, cancelInFlight: true)
 
             // MARK: - Alert
 
             case .alert(.presented(.warmUpRemoveConfirmed)):
                 state.draft.warmUp = nil
                 state.isGeneratingWarmUpNotes = false
-                return .none
+                return .cancel(id: TrainingSessionEditorCancelID.warmUpGeneration)
 
             case .alert(.presented(.coolDownRemoveConfirmed)):
                 state.draft.coolDown = nil
                 state.isGeneratingCoolDownNotes = false
-                return .none
+                return .cancel(id: TrainingSessionEditorCancelID.coolDownGeneration)
 
             case .alert:
+                return .none
+
+            // MARK: - Internal (AI generation results)
+
+            case .`internal`(.warmUpGenerationResult(.success(let text))):
+                state.isGeneratingWarmUpNotes = false
+                state.draft.warmUp?.description = text
+                return .none
+
+            case .`internal`(.warmUpGenerationResult(.failure(let error))):
+                state.isGeneratingWarmUpNotes = false
+                state.alert = .generationFailed(error.localizedDescription)
+                return .none
+
+            case .`internal`(.coolDownGenerationResult(.success(let text))):
+                state.isGeneratingCoolDownNotes = false
+                state.draft.coolDown?.description = text
+                return .none
+
+            case .`internal`(.coolDownGenerationResult(.failure(let error))):
+                state.isGeneratingCoolDownNotes = false
+                state.alert = .generationFailed(error.localizedDescription)
                 return .none
 
             // MARK: - Workouts
