@@ -66,7 +66,7 @@ struct TrainingSessionEditorFeature {
                 state.isGeneratingWarmUpNotes = true
                 let context = TrainingNotesContext(
                     workouts: state.draft.workouts,
-                    durationMinutes: state.draft.warmUp?.time
+                    durationMinutes: state.draft.warmUp?.time,
                 )
                 return .run { [notesClient] send in
                     await send(.`internal`(.warmUpGenerationResult(
@@ -96,7 +96,7 @@ struct TrainingSessionEditorFeature {
                 state.isGeneratingCoolDownNotes = true
                 let context = TrainingNotesContext(
                     workouts: state.draft.workouts,
-                    durationMinutes: state.draft.coolDown?.time
+                    durationMinutes: state.draft.coolDown?.time,
                 )
                 return .run { [notesClient] send in
                     await send(.`internal`(.coolDownGenerationResult(
