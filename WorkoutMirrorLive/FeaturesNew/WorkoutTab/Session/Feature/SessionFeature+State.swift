@@ -21,7 +21,10 @@ extension SessionFeature {
         
         ///
         var selectedWorkout: WorkoutType
-                
+
+        /// The training plan to execute, if any. `nil` for free workouts.
+        var trainingSession: TrainingSession? = nil
+
         // MARK: - Destination
         
         /// destination from WorkoutFeature
