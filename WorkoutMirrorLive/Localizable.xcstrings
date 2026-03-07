@@ -2704,6 +2704,26 @@
     "Refresh" : {
 
     },
+    "Could not load summary" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można załadować podsumowania"
+          }
+        }
+      }
+    },
+    "Something went wrong while saving your workout." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coś poszło nie tak podczas zapisywania treningu."
+          }
+        }
+      }
+    },
     "Summary" : {
       "localizations" : {
         "pl" : {

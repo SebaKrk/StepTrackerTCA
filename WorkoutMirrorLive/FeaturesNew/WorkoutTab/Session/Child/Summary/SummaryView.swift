@@ -28,7 +28,7 @@ struct SummaryView: View {
             case .successfullyLoaded:
                 summaryView
             case .failed:
-                Text("failed")
+                failedView
             }
         }
         .onAppear {
@@ -47,6 +47,16 @@ struct SummaryView: View {
         .transition(.opacity)
     }
     
+    // MARK: - Failed
+
+    private var failedView: some View {
+        ContentUnavailableView(
+            String(localized: "Could not load summary"),
+            systemImage: "exclamationmark.triangle",
+            description: Text("Something went wrong while saving your workout.")
+        )
+    }
+
     // MARK: - Summary
     
     @ViewBuilder
@@ -282,6 +292,16 @@ extension TimeInterval {
 }
 
 // MARK: - Preview
+
+#Preview("failed") {
+    SummaryView(store: Store(initialState: SummaryFeature.State(viewState: .failed)) {
+        SummaryFeature()
+    } withDependencies: {
+        $0.sessionClient.getWorkoutSummary = {
+            await withCheckedContinuation { (_: CheckedContinuation<WorkoutSummary, Never>) in }
+        }
+    })
+}
 
 #Preview("loading") {
     SummaryView(store: Store(initialState: SummaryFeature.State(), reducer: {
