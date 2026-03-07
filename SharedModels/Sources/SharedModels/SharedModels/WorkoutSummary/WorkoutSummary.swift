@@ -25,5 +25,19 @@ public struct WorkoutSummary: Equatable, @unchecked Sendable {
         self.workout = workout
         self.metrics = metrics
     }
-    
+
 }
+
+#if DEBUG
+public extension WorkoutSummary {
+    static func previewWorkoutSummary() -> WorkoutSummary {
+        let end = Date()
+        let start = end.addingTimeInterval(-2732)
+        let workout = HKWorkout(activityType: .crossTraining, start: start, end: end)
+        return WorkoutSummary(
+            workout: workout,
+            metrics: WorkoutMetrics(averageHeartRate: 142, heartRate: 163, activeEnergy: 380)
+        )
+    }
+}
+#endif

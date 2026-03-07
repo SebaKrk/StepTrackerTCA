@@ -605,3 +605,4 @@
     A: WorkoutPlanScore and WorkoutSessionResult models
     B: WorkoutPlanScoreClient with temporary JSON stub
     C: Pass trainingSession from SessionFeature to SummaryFeature
+    D: Workout Summary Screen

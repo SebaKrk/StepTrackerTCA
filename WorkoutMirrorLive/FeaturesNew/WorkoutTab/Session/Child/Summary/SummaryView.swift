@@ -18,7 +18,7 @@ struct SummaryView: View {
     
     @Bindable var store: StoreOf<SummaryFeature>
     
-    // MARK: - View
+    // MARK: - Body
     
     var body: some View {
         Group {
@@ -36,6 +36,8 @@ struct SummaryView: View {
         }
     }
     
+    // MARK: - Loading
+    
     private var loadingView: some View {
         VStack {
             Spacer()
@@ -45,84 +47,241 @@ struct SummaryView: View {
         .transition(.opacity)
     }
     
+    // MARK: - Summary
+    
     @ViewBuilder
     private var summaryView: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if let summary = store.summary, let workout = summary.workout {
-                    WorkoutInfoRow(
-                        title: "Typ aktywności",
-                        value: workout.workoutActivityType.name
-                    )
-                    WorkoutInfoRow(
-                        title: "Czas trwania",
-                        value: workout.duration.formattedDuration()
-                    )
-                    WorkoutInfoRow(
-                        title: "Data rozpoczęcia",
-                        value: workout.startDate.formatted(date: .abbreviated, time: .shortened)
-                    )
-                    WorkoutInfoRow(
-                        title: "Data zakończenia",
-                        value: workout.endDate.formatted(date: .abbreviated, time: .shortened)
-                    )
-                    WorkoutInfoRow(
-                        title: "Spalone kalorie",
-                        value: (
-                            workout.statistics(for: .init(.activeEnergyBurned))?.sumQuantity()?.doubleValue(for: .kilocalorie())
-                        ).map {
-                            Measurement(value: $0, unit: UnitEnergy.kilocalories)
-                                .formatted(.measurement(width: .abbreviated, usage: .workout))
-                        } ?? "--"
-                    )
-                    WorkoutInfoRow(
-                        title: "Źródło",
-                        value: workout.sourceRevision.source.name
-                    )
-                    WorkoutInfoRow(
-                        title: "Urządzenie",
-                        value: workout.device?.name ?? "--"
-                    )
-                    WorkoutInfoRow(
-                        title: "Średnie tętno",
-                        value: summary.metrics.averageHeartRate.formatted(.number.precision(.fractionLength(0)))
-                    )
-                    WorkoutInfoRow(
-                        title: "Aktualne tętno",
-                        value: summary.metrics.heartRate.formatted(.number.precision(.fractionLength(0)))
-                    )
-                    WorkoutInfoRow(
-                        title: "Spalone kalorie na podstawie metryk",
-                        value: Measurement(value: summary.metrics.activeEnergy, unit: UnitEnergy.kilocalories)
-                            .formatted(.measurement(width: .abbreviated, usage: .workout))
-                    )
+            VStack(spacing: 12) {
+                if let workout = store.summary?.workout {
+                    headerCard(workout: workout)
+                    metricsGrid(workout: workout)
+                }
+                if !store.resultInputs.isEmpty {
+                    wodResultsSection
                 }
             }
-            .padding()
+            .padding(.horizontal, 8)
+            .padding(.top, 8)
         }
-        .safeAreaInset(edge: .bottom) {
-            doneButton
-                .padding(.horizontal)
-                .padding(.vertical, 16)
+        .contentMargins(.bottom, 40, for: .scrollContent)
+        .navigationTitle(String(localized: "Summary"))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { toolbarContent }
+    }
+    
+    // MARK: - Header Card
+    
+    private func headerCard(workout: HKWorkout) -> some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(workout.workoutActivityType.name)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text(workout.duration.formattedDuration())
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Image(systemName: workout.workoutActivityType.iconNameSimple)
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                }
+                HStack {
+                    Text("\(workout.startDate.formatted(date: .omitted, time: .shortened)) – \(workout.endDate.formatted(date: .omitted, time: .shortened))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(workout.startDate.formatted(.dateTime.weekday(.wide)))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .styledGroupBox()
+    }
+    
+    // MARK: - Metrics Grid
+    
+    private func metricsGrid(workout: HKWorkout) -> some View {
+        let calories = workout.statistics(for: .init(.activeEnergyBurned))?
+            .sumQuantity()
+            .map { Int($0.doubleValue(for: .kilocalorie())) }
+        
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            metricCard(
+                icon: "flame.fill",
+                iconColor: .primary,
+                title: "Calories Active",
+                value: calories.map { "\($0)" } ?? "--",
+                unit: "kcal"
+            )
+            metricCard(
+                icon: "heart.fill",
+                iconColor: .primary,
+                title: "Avg HR",
+                value: Int(store.summary?.metrics.averageHeartRate ?? 0).formatted(.number),
+                unit: "bpm"
+            )
+            metricCard(
+                icon: "heart.fill",
+                iconColor: .primary,
+                title: "Max HR",
+                value: Int(store.summary?.metrics.heartRate ?? 0).formatted(.number),
+                unit: "bpm"
+            )
+            metricCard(
+                icon: "timer",
+                iconColor: .primary,
+                title: "Time",
+                value: workout.duration.formattedDuration(),
+                unit: ""
+            )
         }
     }
     
-    private var doneButton: some View {
-        Button {
-            send(.endWorkoutButtonTapped)
-        } label: {
-            Text("Gotowe")
-                .bold()
-                .frame(maxWidth: .infinity, minHeight: 50)
+    private func metricCard(icon: String, iconColor: Color, title: String, value: String, unit: String) -> some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 4) {
+                    Image(systemName: icon)
+                        .foregroundStyle(iconColor)
+                    Text(title)
+                        .font(.caption)
+                        .textCase(.uppercase)
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(value)
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.primary)
+                    if !unit.isEmpty {
+                        Text(unit)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .buttonStyle(.borderedProminent)
-        .foregroundStyle(.green)
-        .tint(.green.opacity(0.2))
+        .styledGroupBox()
     }
-    //    private var titleView: some View {
-    //
-    //    }
+    
+    // MARK: - WOD Results Section
+
+    private var wodResultsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Results")
+                .font(.headline)
+                .padding(.horizontal, 4)
+
+            ForEach(Array(store.resultInputs.enumerated()), id: \.offset) { index, result in
+                GroupBox {
+                    if index < store.showResults.count && store.showResults[index] {
+                        VStack(spacing: 0) {
+                            if !result.description.isEmpty {
+                                Divider().padding(.leading)
+                                editorRow {
+                                    Text(result.description)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                    Spacer()
+                                }
+                            }
+
+                            Divider().padding(.leading)
+                            TextField("Enter score...", text: Binding(
+                                get: { store.resultInputs[index].score },
+                                set: { send(.updateScore(index, $0)) }
+                            ), axis: .vertical)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 10)
+
+                            Divider().padding(.leading)
+                            if index < store.showNotes.count && store.showNotes[index] {
+                                TextField("Add note...", text: Binding(
+                                    get: { store.resultInputs[index].note },
+                                    set: { send(.updateNote(index, $0)) }
+                                ), axis: .vertical)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 10)
+                            } else {
+                                editorRow {
+                                    Text("Note")
+                                        .foregroundStyle(.secondary)
+                                    Spacer()
+                                    Button {
+                                        send(.toggleNote(index))
+                                    } label: {
+                                        Image(systemName: "plus.circle")
+                                            .font(.title3)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    VStack(spacing: 4) {
+                        HStack {
+                            Text(result.name)
+                                .font(.subheadline)
+                                .bold()
+                            Spacer()
+                            Toggle("", isOn: Binding(
+                                get: { index < store.showResults.count && store.showResults[index] },
+                                set: { _ in send(.toggleResult(index)) }
+                            ))
+                            .labelsHidden()
+                        }
+                        Divider()
+                    }
+                }
+                .styledGroupBox()
+            }
+        }
+    }
+
+    // MARK: - Helpers
+
+    @ViewBuilder
+    private func editorRow<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        HStack { content() }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 4)
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            Spacer()
+            Button {
+                send(.endWorkoutButtonTapped)
+            } label: {
+                Text("Zapisz")
+                    .fontWeight(.semibold)
+            }
+        }
+    }
 }
+
+// MARK: - Helpers
+
+extension TimeInterval {
+    func formattedDuration() -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute, .second]
+        formatter.unitsStyle = .abbreviated
+        return formatter.string(from: self) ?? "--"
+    }
+}
+
+// MARK: - Preview
 
 #Preview("loading") {
     SummaryView(store: Store(initialState: SummaryFeature.State(), reducer: {
@@ -131,33 +290,32 @@ struct SummaryView: View {
 }
 
 #Preview("successfullyLoaded") {
-    SummaryView(store: Store(initialState: SummaryFeature.State(viewState: .successfullyLoaded), reducer: {
-        SummaryFeature()
-    }))
-}
-
-struct WorkoutInfoRow: View {
-    let title: String
-    let value: String
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(value)
-                .font(.headline)
-                .foregroundColor(.primary)
-        }
-        .frame(maxWidth: .infinity)
+    let summary = WorkoutSummary.previewWorkoutSummary()
+    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+    state.summary = summary
+    return NavigationStack {
+        SummaryView(store: Store(initialState: state) {
+            SummaryFeature()
+        } withDependencies: {
+            $0.sessionClient.getWorkoutSummary = { summary }
+        })
     }
 }
 
-extension TimeInterval {
-    func formattedDuration() -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.minute, .second]
-        formatter.unitsStyle = .short
-        return formatter.string(from: self) ?? "--"
+#Preview("withPlan") {
+    let session = TrainingSession.previewTrainingSession
+    let summary = WorkoutSummary.previewWorkoutSummary()
+    let workouts = session.workouts
+    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+    state.summary = summary
+    state.resultInputs = workouts.map { WorkoutSessionResult(name: $0.name, description: $0.snapshotDescription) }
+    state.showResults = Array(repeating: false, count: workouts.count)
+    state.showNotes = Array(repeating: false, count: workouts.count)
+    return NavigationStack {
+        SummaryView(store: Store(initialState: state) {
+            SummaryFeature()
+        } withDependencies: {
+            $0.sessionClient.getWorkoutSummary = { summary }
+        })
     }
 }

@@ -208,6 +208,16 @@
         }
       }
     },
+    "%@ – %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ – %2$@"
+          }
+        }
+      }
+    },
     "%@ %@" : {
       "localizations" : {
         "en" : {
@@ -746,6 +756,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodaj Pomiar"
+          }
+        }
+      }
+    },
+    "Add note..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj notatkę..."
           }
         }
       }
@@ -1517,6 +1537,16 @@
     },
     "Edit" : {
 
+    },
+    "Enter score..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz wynik..."
+          }
+        }
+      }
     },
     "Edytuj" : {
       "localizations" : {
@@ -2327,6 +2357,9 @@
     "None" : {
 
     },
+    "Notatka" : {
+
+    },
     "Note" : {
       "localizations" : {
         "pl" : {
@@ -2338,6 +2371,9 @@
       }
     },
     "Notes" : {
+
+    },
+    "np. 14:32, 80kg, 12+5 rnd" : {
 
     },
     "Numbers" : {
@@ -2369,6 +2405,9 @@
           }
         }
       }
+    },
+    "opcjonalna notatka..." : {
+
     },
     "Open" : {
       "localizations" : {
@@ -2664,6 +2703,26 @@
     },
     "Refresh" : {
 
+    },
+    "Summary" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podsumowanie"
+          }
+        }
+      }
+    },
+    "Results" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyniki"
+          }
+        }
+      }
     },
     "Remove" : {
 
@@ -3768,6 +3827,12 @@
         }
       }
     },
+    "Wynik" : {
+
+    },
+    "Wyniki" : {
+
+    },
     "X" : {
       "localizations" : {
         "pl" : {
@@ -3843,6 +3908,9 @@
           }
         }
       }
+    },
+    "Zapisz" : {
+
     },
     "zmien" : {
       "localizations" : {

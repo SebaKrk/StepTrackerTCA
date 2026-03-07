@@ -67,7 +67,7 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
                 name: "Weightlifting - Clean and Jerk",
                 type: .forTime,
                 timeCap: 20,
-                rounds: 0,
+                rounds: nil,
                 exercises: [
                     ExerciseSession(
                         type: .cleanAndJerk,
@@ -87,13 +87,13 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
                         type: .boxJumps,
                         target: .reps(5),
                         weight: nil,
-                        info: "Box jumps"
+                        info: nil
                     ),
                     ExerciseSession(
                         type: .powerClean,
                         target: .reps(3),
                         weight: .init(men: 80, women: 50),
-                        info: "Power clean @ 80/50kg"
+                        info: nil
                     )
                 ]
             )
@@ -237,5 +237,63 @@ public enum ExerciseTarget: Equatable, Sendable {
     
     /// Use for track/pool laps: '4 laps around track'
     case laps(Int)
-    
+
+    /// Compact string for snapshot display, e.g. "5x", "400m", "15 cal".
+    public var compactString: String {
+        switch self {
+        case .reps(let n):     return "\(n)x"
+        case .calories(let n): return "\(n) cal"
+        case .meters(let n):   return "\(n)m"
+        case .seconds(let n):  return "\(n)s"
+        case .minutes(let n):  return "\(n) min"
+        case .rounds(let n):   return "\(n) rounds"
+        case .laps(let n):     return "\(n) laps"
+        }
+    }
+}
+
+// MARK: - Snapshot
+
+extension WeightConfiguration {
+    /// Compact weight string, e.g. "43/30kg", "80kg".
+    public var compactString: String {
+        switch (men, women) {
+        case let (m?, w?): return "\(m)/\(w)kg"
+        case let (m?, nil): return "\(m)kg"
+        case let (nil, w?): return "\(w)kg"
+        case (nil, nil): return ""
+        }
+    }
+}
+
+extension ExerciseSession {
+    /// Snapshot line(s) for an exercise, e.g. "5x Thruster 43/30kg" or "1x Clean & Jerk\nInfo: find 1RM".
+    public var snapshotLine: String {
+        var parts: [String] = []
+        if let target { parts.append(target.compactString) }
+        parts.append(displayName)
+        if let weight, !weight.compactString.isEmpty { parts.append(weight.compactString) }
+        var result = parts.joined(separator: " ")
+        if let info { result += "\nInfo: \(info)" }
+        return result
+    }
+}
+
+extension WorkoutSessionNew {
+    /// Compact multi-line snapshot of the workout.
+    /// Used as `description` in `WorkoutSessionResult` — immutable history.
+    public var snapshotDescription: String {
+        var lines: [String] = []
+
+        var header: [String] = []
+        if let rounds { header.append("\(rounds) rounds") }
+        if let timeCap { header.append("\(timeCap) min cap") }
+        if !header.isEmpty { lines.append(header.joined(separator: ", ")) }
+
+        for exercise in exercises {
+            lines.append(exercise.snapshotLine)
+        }
+
+        return lines.joined(separator: "\n")
+    }
 }

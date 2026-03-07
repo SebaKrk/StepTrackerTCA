@@ -24,7 +24,7 @@ public struct WorkoutSessionResult: Equatable, Codable, Sendable {
 
     /// Free-form result entered by the user, e.g. "14:32", "12+5 rnd", "80kg".
     public var score: String
-
+    
     /// Optional note for this WOD.
     public var note: String
 
