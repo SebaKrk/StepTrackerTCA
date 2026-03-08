@@ -44,6 +44,14 @@ struct PlansFeature {
                 state.$plannedWorkouts.withLock { $0.remove(id: id) }
                 return .none
 
+            case .destination(.presented(.planDetail(.delegate(.startWorkout(let session))))):
+                state.destination = nil
+                let workout = WorkoutType(hkType: session.activity.hkType) ?? .cross
+                state.destination = .session(
+                    SessionFeature.State(selectedWorkout: workout, trainingSession: session)
+                )
+                return .none
+
             case .destination:
                 return .none
             }

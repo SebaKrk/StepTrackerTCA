@@ -47,6 +47,12 @@ struct ActivityDetailsView: View {
                 }
                 performanceMetricsSection
                 locationSection
+                // TODO: IOS-00070-F — WorkoutPlanScore section
+                // Jeśli trening był wykonany według planu:
+                // workoutPlanScoreClient.fetchByHKWorkoutId(workout.uuid) → WorkoutPlanScore?
+                // → sekcja z wynikami WODów (name + description snapshot + score + note)
+                // → embed WorkoutPlanScoreFeature jako child (loadState: loading/loaded/failed)
+                // → WorkoutPlanScoreView pokazuje sekcję tylko gdy wynik istnieje
             }
         }
     }
@@ -599,63 +605,3 @@ struct ActivityDetailsView: View {
     }
     
 }
-
-//
-//ActivityDetailsFeature (parent - koordynator)
-//│
-//├── State:
-//│   ├── workout: HKWorkout
-//│   ├── maxHeartRate: Double
-//│   ├── color: Color (shared)
-//│   │
-//│   └── Children:
-//│       ├── heartRateAnalysis: HeartRateAnalysisFeature.State?
-//│       └── routeMap: RouteMapFeature.State?
-//│
-//├── Actions:
-//│   ├── view(.viewDidAppear)
-//│   ├── internal(.loadChildren)
-//│   ├── heartRateAnalysis(HeartRateAnalysisFeature.Action)
-//│   └── routeMap(RouteMapFeature.Action)
-//│
-//│
-//├─────────────────────────────────────────────────────────────
-//│
-//├── HeartRateAnalysisFeature (child)
-//│   │
-//│   ├── State:
-//│   │   ├── isLoading: Bool
-//│   │   ├── zoneDistribution: [HeartRateZone: TimeInterval]?
-//│   │   ├── chartData: [HeartRateChartPoint]?  // później
-//│   │   └── error: String?
-//│   │
-//│   ├── Actions:
-//│   │   ├── view(.viewDidAppear)
-//│   │   ├── internal(.loadData(workout, maxHR))
-//│   │   ├── internal(.dataLoaded(distribution, chartData))
-//│   │   └── internal(.loadingFailed(error))
-//│   │
-//│   └── View: HeartRateAnalysisView
-//│       ├── Zone distribution bars
-//│       └── HR Chart (później)
-//│
-//│
-//├─────────────────────────────────────────────────────────────
-//│
-//└── RouteMapFeature (child)
-//    │
-//    ├── State:
-//    │   ├── isLoading: Bool
-//    │   ├── coordinates: [CLLocationCoordinate2D]?
-//    │   ├── region: MKCoordinateRegion?
-//    │   └── error: String?
-//    │
-//    ├── Actions:
-//    │   ├── view(.viewDidAppear)
-//    │   ├── internal(.loadRoute(workout))
-//    │   ├── internal(.routeLoaded(coordinates))
-//    │   └── internal(.loadingFailed(error))
-//    │
-//    └── View: RouteMapView
-//        ├── MKMapView z trasą
-//        └── Start/End markers

@@ -33,7 +33,7 @@ struct LiveSessionView: View {
                 if store.stopwatch.isVisible {
                     stopwatchView
                 }
-                
+
                 Spacer()
             }
             .padding([.leading, .trailing], 8)

@@ -11,7 +11,11 @@ extension PlanDetailFeature {
 
     @Reducer
     enum Destination {
+
         /// Edit the training session.
         case editor(TrainingSessionEditorFeature)
+
+        /// Browse workout history for this plan.
+        case history(WorkoutPlanScoreListFeature)
     }
 }

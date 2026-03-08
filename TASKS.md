@@ -606,3 +606,4 @@
     B: WorkoutPlanScoreClient with temporary JSON stub
     C: Pass trainingSession from SessionFeature to SummaryFeature
     D: Workout Summary Screen
+    E: PlanDetail — workout history & session entry point
