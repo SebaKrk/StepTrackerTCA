@@ -47,12 +47,7 @@ struct ActivityDetailsView: View {
                 }
                 performanceMetricsSection
                 locationSection
-                // TODO: IOS-00070-F — WorkoutPlanScore section
-                // Jeśli trening był wykonany według planu:
-                // workoutPlanScoreClient.fetchByHKWorkoutId(workout.uuid) → WorkoutPlanScore?
-                // → sekcja z wynikami WODów (name + description snapshot + score + note)
-                // → embed WorkoutPlanScoreFeature jako child (loadState: loading/loaded/failed)
-                // → WorkoutPlanScoreView pokazuje sekcję tylko gdy wynik istnieje
+                planScoreSection
             }
         }
     }
@@ -544,6 +539,12 @@ struct ActivityDetailsView: View {
         .styledGroupBox()
     }
     
+    // MARK: - Plan Score
+
+    private var planScoreSection: some View {
+        ActivityPlanScoreView(store: store.scope(state: \.planScore, action: \.planScore))
+    }
+
     // MARK: - Formatters
     
     private var formattedDuration: String {
@@ -603,5 +604,54 @@ struct ActivityDetailsView: View {
         let secs = Int(seconds) % 60
         return "\(minutes)m \(secs)s"
     }
-    
+
+}
+
+// MARK: - Preview
+
+#Preview("without plan") {
+    let workout = HKWorkout(
+        activityType: .crossTraining,
+        start: Date().addingTimeInterval(-3600),
+        end: Date()
+    )
+    return NavigationStack {
+        ActivityDetailsView(store: Store(
+            initialState: ActivityDetailsFeature.State(workout: workout, maxHeartRate: 185)
+        ) {
+            ActivityDetailsFeature()
+        } withDependencies: {
+            $0.workoutPlanScoreClient.fetchByHKWorkoutId = { _ in nil }
+        })
+    }
+}
+
+#Preview("with plan") {
+    let session = TrainingSession.previewTrainingSession
+    let workout = HKWorkout(
+        activityType: .crossTraining,
+        start: Date().addingTimeInterval(-3600),
+        end: Date()
+    )
+    let score = WorkoutPlanScore(
+        trainingSessionId: session.id,
+        hkWorkoutId: workout.uuid,
+        results: session.workouts.map {
+            WorkoutSessionResult(
+                name: $0.name,
+                description: $0.snapshotDescription,
+                score: $0.name == "WOD 1" ? "11:43" : "80kg",
+                note: ""
+            )
+        }
+    )
+    return NavigationStack {
+        ActivityDetailsView(store: Store(
+            initialState: ActivityDetailsFeature.State(workout: workout, maxHeartRate: 185)
+        ) {
+            ActivityDetailsFeature()
+        } withDependencies: {
+            $0.workoutPlanScoreClient.fetchByHKWorkoutId = { _ in score }
+        })
+    }
 }

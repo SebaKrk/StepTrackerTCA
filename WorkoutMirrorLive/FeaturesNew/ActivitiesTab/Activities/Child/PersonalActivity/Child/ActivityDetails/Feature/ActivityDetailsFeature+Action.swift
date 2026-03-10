@@ -65,8 +65,13 @@ extension ActivityDetailsFeature {
             case openMetricDetails(MetricTypeDetails)
         }
         
+        // MARK: - Plan Score
+
+        /// Child feature actions for loading WOD results linked to this workout.
+        case planScore(ActivityPlanScoreFeature.Action)
+
         // MARK: - Destination
-        
+
         /// Handles navigation destinations within this feature.
         case destination(PresentationAction<Destination.Action>)
     }
