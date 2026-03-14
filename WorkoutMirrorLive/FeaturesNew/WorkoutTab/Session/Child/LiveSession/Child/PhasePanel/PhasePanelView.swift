@@ -47,9 +47,12 @@ struct PhasePanelView: View {
     // MARK: - Content
 
     private var panelContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading) {
+            Spacer().frame(height: 8)
             phaseHeader
+            Spacer()
             phaseDescription
+            Spacer()
             phaseNavigation
         }
     }
@@ -62,8 +65,7 @@ struct PhasePanelView: View {
                 .foregroundStyle(.primary)
 
             Spacer()
-
-            timerView
+            timerButton
         }
     }
 
@@ -102,6 +104,11 @@ struct PhasePanelView: View {
                 }
             }
         }
+    }
+
+    private var timerButton: some View {
+        Button { send(.timerTapped) } label: { timerView }
+            .buttonStyle(.plain)
     }
 
     private var timerView: some View {

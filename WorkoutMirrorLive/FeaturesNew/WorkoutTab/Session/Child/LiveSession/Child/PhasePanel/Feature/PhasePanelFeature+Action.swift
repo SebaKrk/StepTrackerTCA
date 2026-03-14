@@ -18,6 +18,9 @@ extension PhasePanelFeature {
         /// Triggered by `.view(.appeared)` and self-schedules via a cancellable effect.
         case timerTick
 
+        /// Delegate actions sent to the parent feature.
+        case delegate(Delegate)
+
         // MARK: - View Actions
 
         enum View {
@@ -34,8 +37,20 @@ extension PhasePanelFeature {
             /// Ignored when already on the first phase.
             case previousPhaseTapped
 
+            /// User tapped the timer display — requests stopwatch to take over timer control.
+            case timerTapped
+
         }
 
+        // MARK: - Delegate Actions
+
+        enum Delegate {
+
+            /// Sent when user taps the timer — parent should show the stopwatch
+            /// pre-seeded with the current elapsed time for manual control.
+            case timerManagementRequested(elapsedSeconds: Int)
+
+        }
     }
 
 }

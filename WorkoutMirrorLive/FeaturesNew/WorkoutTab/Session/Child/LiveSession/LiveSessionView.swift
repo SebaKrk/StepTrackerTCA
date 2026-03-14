@@ -30,7 +30,7 @@ struct LiveSessionView: View {
                 workoutMetricsCard
                 
                 if store.stopwatch.isVisible {
-                    stopwatchView
+                    StopwatchView(store: store.scope(state: \.stopwatch, action: \.stopwatch))
                 }
 
                 phasePanelSection
@@ -131,73 +131,17 @@ struct LiveSessionView: View {
             }
     }
     
-    // MARK: - Stopwatch View
-    
-    private var stopwatchView: some View {
-        GroupBox {
-            VStack(spacing: 16) {
-                // Time display
-                Text(formatStopwatchTime(store.stopwatch.time))
-                    .font(.system(size: 48, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundColor(.orange)
-                
-                // Control buttons
-                HStack(spacing: 20) {
-                    // Reset button (only when stopped and time > 0)
-                    if !store.stopwatch.isRunning && store.stopwatch.time > 0 {
-                        Button(action: {
-                            send(.stopwatch(.reset))
-                        }) {
-                            Text("Reset")
-                                .font(.body)
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.orange)
-                    }
-                    
-                    // Start/Stop button
-                    Button(action: {
-                        send(.stopwatch(store.stopwatch.isRunning ? .stop : .start))
-                    }) {
-                        Text(store.stopwatch.isRunning ? "Stop" : "Start")
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .frame(minWidth: 80)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
-                }
-            }
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity)
-            .overlay {
-                RoundedRectangle(cornerRadius: 2)
-                    .inset(by: -10)
-                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-            }
-        }
-    }
-    
     // MARK: - Phase Panel
 
     @ViewBuilder
     private var phasePanelSection: some View {
-        if let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
+        if !store.stopwatch.isManagingPhase,
+           let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
             PhasePanelView(store: phasePanelStore)
+                .frame(minHeight: 180)
         }
     }
-
-    // MARK: - Helpers
-
-    // Helper - format stopwatch time
-    private func formatStopwatchTime(_ time: TimeInterval) -> String {
-        let minutes = Int(time) / 60
-        let seconds = Int(time) % 60
-        let centiseconds = Int((time.truncatingRemainder(dividingBy: 1)) * 100)
-        return String(format: "%02d:%02d,%02d", minutes, seconds, centiseconds)
-    }
-
+    
 }
 
 #Preview("without plan") {

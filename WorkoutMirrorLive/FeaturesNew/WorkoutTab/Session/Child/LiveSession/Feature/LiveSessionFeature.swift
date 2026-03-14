@@ -89,24 +89,33 @@ struct LiveSessionFeature {
                     await send(.startWorkoutMetricsStream)
                 }
                 
-            case let .view(.stopwatch(action)):
-                return .send(.stopwatch(.view(action)))
-                
                 // MARK: - Stopwatch Delegate
                 
             case .stopwatch(.delegate(.didToggleVisibility)):
                 if state.stopwatch.isVisible {
                     // Guard: don't start if already active
                     guard !state.liveActivity.timer.isActive else { return .none }
-                    
+
                     // Showing stopwatch → start Timer LA (Coordinator will stop Workout LA)
                     return .send(.liveActivity(.timer(.start(timerName: "Stoper", initialState: state.timerContentState))))
                 } else {
                     // Hiding stopwatch → stop Timer LA and restart Workout LA
-                    return .merge(
+                    var effects: [Effect<Action>] = [
                         .send(.liveActivity(.timer(.stop))),
                         .send(.liveActivity(.workout(.start(workoutName: "Workout", initialState: state.workoutContentState))))
-                    )
+                    ]
+                    // If stopwatch was managing the phase timer, sync and resume on hide
+                    if state.stopwatch.isManagingPhase {
+                        let syncedElapsed = Int(state.stopwatch.time)
+                        let wasRunning = state.stopwatch.isRunning
+                        state.phasePanel?.elapsedSeconds = syncedElapsed
+                        state.phasePanel?.timerRunning = wasRunning
+                        state.stopwatch.isManagingPhase = false
+                        if wasRunning {
+                            effects.append(.send(.phasePanel(.timerTick)))
+                        }
+                    }
+                    return .merge(effects)
                 }
                 
             case .stopwatch(.delegate(.didStart)):
@@ -140,6 +149,22 @@ struct LiveSessionFeature {
                     .send(.stopwatch(.view(.setVisibility(false))))
                 )
                 
+            case .stopwatch(.delegate(.returnToPhaseTimerRequested)):
+                guard state.stopwatch.isManagingPhase else { return .none }
+                let syncedElapsed = Int(state.stopwatch.time)
+                let wasRunning = state.stopwatch.isRunning
+                state.phasePanel?.elapsedSeconds = syncedElapsed
+                state.phasePanel?.timerRunning = wasRunning
+                state.stopwatch.isManagingPhase = false
+                var effects: [Effect<Action>] = [
+                    .send(.stopwatch(.view(.stop))),
+                    .send(.stopwatch(.view(.setVisibility(false))))
+                ]
+                if wasRunning {
+                    effects.append(.send(.phasePanel(.timerTick)))
+                }
+                return .merge(effects)
+
             case .liveActivity:
                 return .none
 
@@ -151,6 +176,20 @@ struct LiveSessionFeature {
             case let .setupPhasePanel(phases):
                 state.phasePanel = phases.isEmpty ? nil : PhasePanelFeature.State(phases: phases)
                 return .none
+
+            case let .phasePanel(.delegate(.timerManagementRequested(elapsed))):
+                let wasRunning = state.phasePanel?.timerRunning ?? false
+                state.phasePanel?.timerRunning = false
+                state.stopwatch.isManagingPhase = true
+                state.stopwatch.time = TimeInterval(elapsed)
+                var effects: [Effect<Action>] = [
+                    .cancel(id: PhasePanelFeatureCancelID.timer),
+                    .send(.stopwatch(.view(.setVisibility(true))))
+                ]
+                if wasRunning {
+                    effects.append(.send(.stopwatch(.view(.start))))
+                }
+                return .merge(effects)
 
             case .phasePanel:
                 return .none

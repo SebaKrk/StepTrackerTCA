@@ -31,30 +31,37 @@ struct StopwatchFeature {
         
         /// Indicates if the stopwatch is currently running (ticking).
         var isRunning: Bool = false
+
+        /// True when the stopwatch is controlling the active phase timer (replaces phase panel timer).
+        var isManagingPhase: Bool = false
     }
     
     // MARK: - Actions
     
-    enum Action: Equatable {
-        
+    @CasePathable
+    enum Action: ViewAction {
+
         /// Actions triggered by the user interface.
         case view(View)
-   
+
         enum View: Equatable {
             /// Toggles the visibility of the stopwatch.
             case toggleVisibility
-            
+
             /// Sets the visibility explicitly.
             case setVisibility(Bool)
-            
+
             /// Starts the stopwatch timer.
             case start
-            
+
             /// Stops the stopwatch timer.
             case stop
-            
+
             /// Resets the stopwatch time to zero.
             case reset
+
+            /// User tapped "Back to plan" — requests returning timer control to the phase panel.
+            case returnToPhaseTimerTapped
         }
         
         
@@ -71,17 +78,19 @@ struct StopwatchFeature {
         
         enum Delegate: Equatable {
             /// Notifies parent that visibility has changed.
-            /// - Parameter unexpected: True if visibility changed unexpectedly (not normally used here).
             case didToggleVisibility(unexpected: Bool)
-            
+
             /// Notifies parent that the stopwatch has started.
             case didStart
-            
+
             /// Notifies parent that the stopwatch has stopped.
             case didStop
-            
-            /// Notifies parent that the stopwatch has been sorted.
+
+            /// Notifies parent that the stopwatch has been reset.
             case didReset
+
+            /// Notifies parent that user wants to return timer control to the phase panel.
+            case returnToPhaseTimerRequested
         }
     }
     
@@ -132,6 +141,9 @@ struct StopwatchFeature {
             case .view(.reset):
                 state.time = 0
                 return .send(.delegate(.didReset))
+
+            case .view(.returnToPhaseTimerTapped):
+                return .send(.delegate(.returnToPhaseTimerRequested))
                 
             // MARK: - Internal Actions
                 

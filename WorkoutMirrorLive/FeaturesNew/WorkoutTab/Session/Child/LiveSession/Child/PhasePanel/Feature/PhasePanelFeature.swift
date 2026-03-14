@@ -28,6 +28,12 @@ struct PhasePanelFeature {
             case .view(.appeared):
                 return .send(.timerTick)
 
+            case .view(.timerTapped):
+                return .send(.delegate(.timerManagementRequested(elapsedSeconds: state.elapsedSeconds)))
+
+            case .delegate:
+                return .none
+
             case .view(.nextPhaseTapped):
                 guard state.canGoNext else { return .none }
                 state.currentIndex += 1

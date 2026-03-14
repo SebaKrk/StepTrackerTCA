@@ -63,12 +63,9 @@ extension LiveSessionFeature {
         case view(View)
         
         enum View {
-                    
+
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
-            
-            /// Stopwatch View Actions
-            case stopwatch(StopwatchFeature.Action.View)
         }
     }
     
