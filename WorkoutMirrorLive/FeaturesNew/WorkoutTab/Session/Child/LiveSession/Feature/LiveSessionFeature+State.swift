@@ -42,12 +42,17 @@ extension LiveSessionFeature {
         var maxHeartRate: Int = 0
         
         // MARK: - Child
-        
+
         /// Live Activity management (delegated to child reducer)
         var liveActivity = LiveActivityFeature.State()
-        
+
         /// Stopwatch state managed by child reducer
         var stopwatch = StopwatchFeature.State()
+
+        // MARK: - Phase Panel
+
+        /// Phase panel state. Non-nil only when the workout has an associated training plan.
+        var phasePanel: PhasePanelFeature.State? = nil
         
         // MARK: - Helpers
         

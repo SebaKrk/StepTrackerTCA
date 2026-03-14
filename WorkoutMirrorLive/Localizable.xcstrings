@@ -346,6 +346,16 @@
         }
       }
     },
+    "%lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      }
+    },
     "%lld %@" : {
       "localizations" : {
         "en" : {
@@ -2964,6 +2974,9 @@
         }
       }
     },
+    "Score:" : {
+
+    },
     "Search exercises..." : {
 
     },
@@ -3448,6 +3461,9 @@
           }
         }
       }
+    },
+    "Training Plan" : {
+
     },
     "Training Readiness" : {
       "localizations" : {

@@ -29,10 +29,11 @@ struct LiveSessionView: View {
                 }
                 workoutMetricsCard
                 
-                // Stopwatch view (if visible)
                 if store.stopwatch.isVisible {
                     stopwatchView
                 }
+
+                phasePanelSection
 
                 Spacer()
             }
@@ -178,6 +179,17 @@ struct LiveSessionView: View {
         }
     }
     
+    // MARK: - Phase Panel
+
+    @ViewBuilder
+    private var phasePanelSection: some View {
+        if let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
+            PhasePanelView(store: phasePanelStore)
+        }
+    }
+
+    // MARK: - Helpers
+
     // Helper - format stopwatch time
     private func formatStopwatchTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60
@@ -188,11 +200,37 @@ struct LiveSessionView: View {
 
 }
 
-#Preview("LiveSessionFeature") {
+#Preview("without plan") {
     NavigationStack {
         LiveSessionView(
-            store: Store(initialState: LiveSessionFeature.State(),
-                         reducer: { LiveSessionFeature() })
+            store: Store(initialState: LiveSessionFeature.State()) {
+                LiveSessionFeature()
+            }
+        )
+    }
+}
+
+#Preview("with stopwatch") {
+    var state = LiveSessionFeature.State()
+    state.stopwatch.isVisible = true
+    return NavigationStack {
+        LiveSessionView(
+            store: Store(initialState: state) {
+                LiveSessionFeature()
+            }
+        )
+    }
+}
+
+#Preview("with plan") {
+    let phases = TrainingSession.previewTrainingSession.phases
+    var state = LiveSessionFeature.State()
+    state.phasePanel = PhasePanelFeature.State(phases: phases)
+    return NavigationStack {
+        LiveSessionView(
+            store: Store(initialState: state) {
+                LiveSessionFeature()
+            }
         )
     }
 }

@@ -142,8 +142,17 @@ struct LiveSessionFeature {
                 
             case .liveActivity:
                 return .none
-                
+
             case .stopwatch:
+                return .none
+
+                // MARK: - Phase Panel
+
+            case let .setupPhasePanel(phases):
+                state.phasePanel = phases.isEmpty ? nil : PhasePanelFeature.State(phases: phases)
+                return .none
+
+            case .phasePanel:
                 return .none
             }
         }
@@ -152,6 +161,9 @@ struct LiveSessionFeature {
         }
         Scope(state: \.stopwatch, action: \.stopwatch) {
             StopwatchFeature()
+        }
+        .ifLet(\.phasePanel, action: \.phasePanel) {
+            PhasePanelFeature()
         }
     }
     
