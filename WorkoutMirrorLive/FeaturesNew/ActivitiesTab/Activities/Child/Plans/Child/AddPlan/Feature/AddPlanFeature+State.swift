@@ -18,7 +18,7 @@ extension AddPlanFeature {
 
         /// The color representing the training readiness level.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
 
         /// Current view state.
         var viewState: ViewState = .success

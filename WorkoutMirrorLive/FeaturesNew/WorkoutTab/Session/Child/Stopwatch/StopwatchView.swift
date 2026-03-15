@@ -4,7 +4,10 @@
 //
 
 import ComposableArchitecture
+import Commons
 import SwiftUI
+
+private let stopwatchFormatter = ElapsedTimeFormatter()
 
 @ViewAction(for: StopwatchFeature.self)
 struct StopwatchView: View {
@@ -51,7 +54,7 @@ struct StopwatchView: View {
     }
 
     private var timeDisplay: some View {
-        Text(formattedTime(store.time))
+        Text(stopwatchFormatter.string(for: store.time) ?? "00:00,00")
             .font(.system(size: 48, design: .rounded))
             .monospacedDigit()
             .foregroundStyle(.orange)
@@ -81,7 +84,7 @@ struct StopwatchView: View {
         Button {
             send(store.isRunning ? .stop : .start)
         } label: {
-            Text(store.isRunning ? "Stop" : "Start")
+            Text(startStopLabel)
                 .font(.body)
                 .fontWeight(.medium)
                 .frame(minWidth: 80)
@@ -90,13 +93,10 @@ struct StopwatchView: View {
         .tint(.orange)
     }
 
-    // MARK: - Helpers
-
-    private func formattedTime(_ time: TimeInterval) -> String {
-        let minutes = Int(time) / 60
-        let seconds = Int(time) % 60
-        let centiseconds = Int((time.truncatingRemainder(dividingBy: 1)) * 100)
-        return String(format: "%02d:%02d,%02d", minutes, seconds, centiseconds)
+    private var startStopLabel: String {
+        if store.isRunning { return String(localized: "Stop", bundle: .main) }
+        if store.time > 0  { return String(localized: "Continue", bundle: .main) }
+        return String(localized: "Start", bundle: .main)
     }
 
 }

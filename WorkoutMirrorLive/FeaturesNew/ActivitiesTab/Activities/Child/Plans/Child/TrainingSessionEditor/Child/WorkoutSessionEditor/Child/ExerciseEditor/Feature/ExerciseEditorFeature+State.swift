@@ -35,7 +35,7 @@ extension ExerciseEditorFeature {
 
         /// Accent color shared with the rest of the app.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
 
         // MARK: - Alert
 

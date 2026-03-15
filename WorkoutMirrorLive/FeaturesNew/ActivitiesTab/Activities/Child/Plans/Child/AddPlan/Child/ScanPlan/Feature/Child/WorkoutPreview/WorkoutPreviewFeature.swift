@@ -23,7 +23,7 @@ struct WorkoutPreviewFeature {
 
         /// The color representing the training readiness level.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
 
         /// The training session being previewed — updated after editing.
         var trainingSession: TrainingSession

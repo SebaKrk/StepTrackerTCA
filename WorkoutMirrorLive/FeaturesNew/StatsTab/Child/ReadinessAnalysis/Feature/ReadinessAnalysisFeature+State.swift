@@ -18,7 +18,7 @@ extension ReadinessAnalysisFeature {
         
         /// Shared color state used for gradient backgrounds based on readiness level
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
         
         /// Current view state (idle, thinking, streaming, completed, mock, failed)
         var viewState: ReadinessViewState = .idle

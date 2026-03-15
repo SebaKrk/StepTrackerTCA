@@ -21,7 +21,7 @@ extension TrainingReadinessFeature {
         var subscriptionTier: SubscriptionTier = .basic
         
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
         
         ///
         var requiredTier: SubscriptionTier = .pro

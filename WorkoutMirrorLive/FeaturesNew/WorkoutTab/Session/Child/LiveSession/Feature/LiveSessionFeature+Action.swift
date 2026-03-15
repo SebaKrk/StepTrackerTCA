@@ -46,8 +46,11 @@ extension LiveSessionFeature {
         /// Delegates to LiveActivityFeature child reducer
         case liveActivity(LiveActivityFeature.Action)
 
-        /// Delegates to StopwatchFeature child reducer
-        case stopwatch(StopwatchFeature.Action)
+        /// Delegates to user StopwatchFeature (toolbar button).
+        case userStopwatch(StopwatchFeature.Action)
+
+        /// Delegates to phase StopwatchFeature (phase timer management).
+        case phaseStopwatch(StopwatchFeature.Action)
 
         // MARK: - Phase Panel (Child Reducer)
 

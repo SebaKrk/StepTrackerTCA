@@ -91,7 +91,7 @@ struct SessionFeature {
                 
             case .view(.timerButtonTapped):
                 // Forward to LiveSessionFeature
-                return .send(.live(.stopwatch(.view(.toggleVisibility))))
+                return .send(.live(.userStopwatch(.view(.toggleVisibility))))
 
                 // MARK: - Destination
             case .destination(_):

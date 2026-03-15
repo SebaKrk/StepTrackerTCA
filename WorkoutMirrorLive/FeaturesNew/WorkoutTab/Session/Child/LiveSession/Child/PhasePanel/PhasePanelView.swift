@@ -109,6 +109,7 @@ struct PhasePanelView: View {
     private var timerButton: some View {
         Button { send(.timerTapped) } label: { timerView }
             .buttonStyle(.plain)
+            .disabledWithOpacity(store.isTimerButtonDisabled)
     }
 
     private var timerView: some View {

@@ -29,8 +29,12 @@ struct LiveSessionView: View {
                 }
                 workoutMetricsCard
                 
-                if store.stopwatch.isVisible {
-                    StopwatchView(store: store.scope(state: \.stopwatch, action: \.stopwatch))
+                if store.userStopwatch.isVisible {
+                    StopwatchView(store: store.scope(state: \.userStopwatch, action: \.userStopwatch))
+                }
+
+                if store.phaseStopwatch.isManagingPhase {
+                    StopwatchView(store: store.scope(state: \.phaseStopwatch, action: \.phaseStopwatch))
                 }
 
                 phasePanelSection
@@ -135,7 +139,7 @@ struct LiveSessionView: View {
 
     @ViewBuilder
     private var phasePanelSection: some View {
-        if !store.stopwatch.isManagingPhase,
+        if !store.phaseStopwatch.isManagingPhase,
            let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
             PhasePanelView(store: phasePanelStore)
                 .frame(minHeight: 180)
@@ -156,7 +160,7 @@ struct LiveSessionView: View {
 
 #Preview("with stopwatch") {
     var state = LiveSessionFeature.State()
-    state.stopwatch.isVisible = true
+    state.userStopwatch.isVisible = true
     return NavigationStack {
         LiveSessionView(
             store: Store(initialState: state) {

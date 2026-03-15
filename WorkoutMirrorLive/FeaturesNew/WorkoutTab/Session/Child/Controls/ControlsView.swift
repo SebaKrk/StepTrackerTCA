@@ -89,8 +89,7 @@ struct ControlsView: View {
         ) {
             send(.mainControlButtonTapped)
         }
-        .opacity(store.isLocked ? 0.7 : 1)
-        .disabled(store.isLocked)
+        .disabledWithOpacity(store.isLocked, opacity: 0.7)
         .padding(.bottom, store.isExpanded ? 8 : 24)
     }
     
@@ -98,10 +97,9 @@ struct ControlsView: View {
         sessionControlButton(systemImage: store.isExpanded ? "chevron.down" : "chevron.up", frame: 50) {
             send(.expandButtonTapped)
         }
-        .opacity(store.isLocked ? 0.7 : 1)
-        .disabled(store.isLocked)
+        .disabledWithOpacity(store.isLocked, opacity: 0.7)
     }
-    
+
     private var lockButton: some View {
         sessionControlButton(systemImage: store.isLocked ? "lock.fill" : "lock.open", frame: 50) {
             send(.lockButtonTapped)

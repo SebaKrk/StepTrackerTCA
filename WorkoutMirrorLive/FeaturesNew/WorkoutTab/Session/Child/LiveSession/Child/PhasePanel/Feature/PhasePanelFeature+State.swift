@@ -27,6 +27,9 @@ extension PhasePanelFeature {
         /// Set to `false` to pause the timer without navigating away.
         var timerRunning: Bool = true
 
+        /// Set by the parent when the user stopwatch is open — disables the timer button.
+        var isTimerButtonDisabled: Bool = false
+
         // MARK: - Computed
 
         /// The phase currently displayed in the panel.

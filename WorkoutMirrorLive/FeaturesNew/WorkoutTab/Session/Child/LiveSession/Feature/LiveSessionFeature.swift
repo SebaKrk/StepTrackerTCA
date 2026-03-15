@@ -89,86 +89,67 @@ struct LiveSessionFeature {
                     await send(.startWorkoutMetricsStream)
                 }
                 
-                // MARK: - Stopwatch Delegate
-                
-            case .stopwatch(.delegate(.didToggleVisibility)):
-                if state.stopwatch.isVisible {
-                    // Guard: don't start if already active
-                    guard !state.liveActivity.timer.isActive else { return .none }
+                // MARK: - User Stopwatch Delegate
 
-                    // Showing stopwatch → start Timer LA (Coordinator will stop Workout LA)
+            case .userStopwatch(.delegate(.didToggleVisibility)):
+                if state.userStopwatch.isVisible {
+                    // Mutual exclusion: block if phase stopwatch is managing
+                    if state.phaseStopwatch.isManagingPhase {
+                        state.userStopwatch.isVisible = false
+                        return .none
+                    }
+                    state.phasePanel?.isTimerButtonDisabled = true
+                    guard !state.liveActivity.timer.isActive else { return .none }
                     return .send(.liveActivity(.timer(.start(timerName: "Stoper", initialState: state.timerContentState))))
                 } else {
-                    // Hiding stopwatch → stop Timer LA and restart Workout LA
-                    var effects: [Effect<Action>] = [
+                    state.phasePanel?.isTimerButtonDisabled = false
+                    return .merge(
                         .send(.liveActivity(.timer(.stop))),
                         .send(.liveActivity(.workout(.start(workoutName: "Workout", initialState: state.workoutContentState))))
-                    ]
-                    // If stopwatch was managing the phase timer, sync and resume on hide
-                    if state.stopwatch.isManagingPhase {
-                        let syncedElapsed = Int(state.stopwatch.time)
-                        let wasRunning = state.stopwatch.isRunning
-                        state.phasePanel?.elapsedSeconds = syncedElapsed
-                        state.phasePanel?.timerRunning = wasRunning
-                        state.stopwatch.isManagingPhase = false
-                        if wasRunning {
-                            effects.append(.send(.phasePanel(.timerTick)))
-                        }
-                    }
-                    return .merge(effects)
+                    )
                 }
-                
-            case .stopwatch(.delegate(.didStart)):
-                print("🏁 [LiveSessionFeature] Stopwatch started -> Updating LA")
+
+            case .userStopwatch(.delegate(.didStart)):
                 return .send(.liveActivity(.timer(.update(state.timerContentState))))
-                
-            case .stopwatch(.delegate(.didStop)):
-                print("🛑 [LiveSessionFeature] Stopwatch stopped -> Updating LA")
+
+            case .userStopwatch(.delegate(.didStop)):
                 return .send(.liveActivity(.timer(.update(state.timerContentState))))
-                
-            case .stopwatch(.delegate(.didReset)):
-                print("🔄 [LiveSessionFeature] Stopwatch reset -> Updating LA")
+
+            case .userStopwatch(.delegate(.didReset)):
                 return .send(.liveActivity(.timer(.update(state.timerContentState))))
-                
+
             case let .liveActivity(.timer(.activityUpdated(newState))):
-                // Prevent redundant updates that cause feedback loops or HK errors
-                if newState.isRunning && !state.stopwatch.isRunning {
-                    print("🔄 [LiveSessionFeature] Syncing from Live Activity: START")
-                    return .send(.stopwatch(.view(.start)))
-                } else if !newState.isRunning && state.stopwatch.isRunning {
-                    print("🔄 [LiveSessionFeature] Syncing from Live Activity: STOP")
-                    return .send(.stopwatch(.view(.stop)))
+                if newState.isRunning && !state.userStopwatch.isRunning {
+                    return .send(.userStopwatch(.view(.start)))
+                } else if !newState.isRunning && state.userStopwatch.isRunning {
+                    return .send(.userStopwatch(.view(.stop)))
                 }
                 return .none
-                
+
             case .liveActivity(.timer(.activityStopped)):
-                print("🛑 [LiveSessionFeature] Live Activity killed -> Stopping and Hiding stopwatch")
-                // If the activity was killed (swiped or Stop button), ensure stopwatch stops in UI AND hides
                 return .merge(
-                    .send(.stopwatch(.view(.stop))),
-                    .send(.stopwatch(.view(.setVisibility(false))))
+                    .send(.userStopwatch(.view(.stop))),
+                    .send(.userStopwatch(.view(.setVisibility(false))))
                 )
-                
-            case .stopwatch(.delegate(.returnToPhaseTimerRequested)):
-                guard state.stopwatch.isManagingPhase else { return .none }
-                let syncedElapsed = Int(state.stopwatch.time)
-                let wasRunning = state.stopwatch.isRunning
-                state.phasePanel?.elapsedSeconds = syncedElapsed
-                state.phasePanel?.timerRunning = wasRunning
-                state.stopwatch.isManagingPhase = false
+
+            case .userStopwatch:
+                return .none
+
+                // MARK: - Phase Stopwatch Delegate
+
+            case .phaseStopwatch(.delegate(.returnToPhaseTimerRequested)):
+                guard state.phaseStopwatch.isManagingPhase else { return .none }
                 var effects: [Effect<Action>] = [
-                    .send(.stopwatch(.view(.stop))),
-                    .send(.stopwatch(.view(.setVisibility(false))))
+                    .send(.phaseStopwatch(.view(.stop))),
+                    .send(.phaseStopwatch(.view(.setVisibility(false))))
                 ]
-                if wasRunning {
-                    effects.append(.send(.phasePanel(.timerTick)))
-                }
+                effects += syncPhaseStopwatchToPhasePanel(state: &state)
                 return .merge(effects)
 
-            case .liveActivity:
+            case .phaseStopwatch:
                 return .none
 
-            case .stopwatch:
+            case .liveActivity:
                 return .none
 
                 // MARK: - Phase Panel
@@ -178,16 +159,18 @@ struct LiveSessionFeature {
                 return .none
 
             case let .phasePanel(.delegate(.timerManagementRequested(elapsed))):
+                // Mutual exclusion: block if user stopwatch is already visible
+                guard !state.userStopwatch.isVisible else { return .none }
                 let wasRunning = state.phasePanel?.timerRunning ?? false
                 state.phasePanel?.timerRunning = false
-                state.stopwatch.isManagingPhase = true
-                state.stopwatch.time = TimeInterval(elapsed)
+                state.phaseStopwatch.isManagingPhase = true
+                state.phaseStopwatch.time = TimeInterval(elapsed)
                 var effects: [Effect<Action>] = [
                     .cancel(id: PhasePanelFeatureCancelID.timer),
-                    .send(.stopwatch(.view(.setVisibility(true))))
+                    .send(.phaseStopwatch(.view(.setVisibility(true))))
                 ]
                 if wasRunning {
-                    effects.append(.send(.stopwatch(.view(.start))))
+                    effects.append(.send(.phaseStopwatch(.view(.start))))
                 }
                 return .merge(effects)
 
@@ -198,14 +181,31 @@ struct LiveSessionFeature {
         Scope(state: \.liveActivity, action: \.liveActivity) {
             LiveActivityFeature()
         }
-        Scope(state: \.stopwatch, action: \.stopwatch) {
-            StopwatchFeature()
+        Scope(state: \.userStopwatch, action: \.userStopwatch) {
+            StopwatchFeature(id: StopwatchID.user)
+        }
+        Scope(state: \.phaseStopwatch, action: \.phaseStopwatch) {
+            StopwatchFeature(id: StopwatchID.phase)
         }
         .ifLet(\.phasePanel, action: \.phasePanel) {
             PhasePanelFeature()
         }
     }
-    
+
+    // MARK: - Helpers
+
+    /// Syncs elapsed time and running state from phaseStopwatch back to the phase panel.
+    /// Clears `isManagingPhase`. Returns any additional phase-panel effects needed.
+    private func syncPhaseStopwatchToPhasePanel(state: inout State) -> [Effect<Action>] {
+        let syncedElapsed = Int(state.phaseStopwatch.time)
+        let wasRunning = state.phaseStopwatch.isRunning
+        state.phasePanel?.elapsedSeconds = syncedElapsed
+        state.phasePanel?.timerRunning = wasRunning
+        state.phaseStopwatch.isManagingPhase = false
+        guard wasRunning else { return [] }
+        return [.send(.phasePanel(.timerTick))]
+    }
+
 }
 
 

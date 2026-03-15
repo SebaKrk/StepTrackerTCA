@@ -20,7 +20,7 @@ extension PersonalActivityFeature {
         
         /// The color representing the training readiness level.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
         
         /// Current view state (loading, success, or failed).
         var viewState: ViewState = .loading

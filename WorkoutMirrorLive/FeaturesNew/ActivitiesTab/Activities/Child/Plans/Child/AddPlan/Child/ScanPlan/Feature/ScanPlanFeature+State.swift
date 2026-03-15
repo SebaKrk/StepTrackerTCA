@@ -19,7 +19,7 @@ extension ScanPlanFeature {
 
         /// The color representing the training readiness level.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
 
         /// Current view state of the scan plan flow.
         var viewState: ScanPlanViewState = .idle

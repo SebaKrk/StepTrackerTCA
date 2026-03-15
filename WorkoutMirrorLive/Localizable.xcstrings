@@ -958,6 +958,9 @@
         }
       }
     },
+    "Back to plan" : {
+
+    },
     "Baseline" : {
       "localizations" : {
         "pl" : {
@@ -2826,9 +2829,6 @@
       }
     },
     "Retry" : {
-
-    },
-    "Return to plan" : {
 
     },
     "Rounds" : {
