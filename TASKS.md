@@ -609,4 +609,4 @@
     E: PlanDetail — workout history & session entry point
     F: WOD Results section in ActivityDetailsView                                              
     G: LiveSession with Plan
-
+    H: Fix Keyboard and backgound
