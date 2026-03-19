@@ -478,6 +478,9 @@
         }
       }
     },
+    "+ %lld more" : {
+
+    },
     "+ 10" : {
       "localizations" : {
         "pl" : {
@@ -1116,6 +1119,9 @@
         }
       }
     },
+    "Charts comparing your selected workouts will appear here." : {
+
+    },
     "Check your daily training readiness." : {
       "localizations" : {
         "pl" : {
@@ -1158,6 +1164,12 @@
           }
         }
       }
+    },
+    "Compare" : {
+
+    },
+    "Comparison coming soon" : {
+
     },
     "connect" : {
       "localizations" : {
@@ -1214,6 +1226,19 @@
     },
     "Cooldown" : {
 
+    },
+    "Could not load history" : {
+
+    },
+    "Could not load summary" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można załadować podsumowania"
+          }
+        }
+      }
     },
     "Could not load the selected image." : {
 
@@ -1538,16 +1563,6 @@
     "Edit" : {
 
     },
-    "Enter score..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wpisz wynik..."
-          }
-        }
-      }
-    },
     "Edytuj" : {
       "localizations" : {
         "pl" : {
@@ -1594,6 +1609,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cel energetyczny"
+          }
+        }
+      }
+    },
+    "Enter score..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz wynik..."
           }
         }
       }
@@ -1858,6 +1883,19 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ukryj przyciski dolnego paska"
+          }
+        }
+      }
+    },
+    "Historia" : {
+
+    },
+    "History" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia"
           }
         }
       }
@@ -2354,10 +2392,10 @@
         }
       }
     },
-    "None" : {
+    "No workouts yet" : {
 
     },
-    "Notatka" : {
+    "None" : {
 
     },
     "Note" : {
@@ -2371,9 +2409,6 @@
       }
     },
     "Notes" : {
-
-    },
-    "np. 14:32, 80kg, 12+5 rnd" : {
 
     },
     "Numbers" : {
@@ -2405,9 +2440,6 @@
           }
         }
       }
-    },
-    "opcjonalna notatka..." : {
-
     },
     "Open" : {
       "localizations" : {
@@ -2704,46 +2736,6 @@
     "Refresh" : {
 
     },
-    "Could not load summary" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie można załadować podsumowania"
-          }
-        }
-      }
-    },
-    "Something went wrong while saving your workout." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coś poszło nie tak podczas zapisywania treningu."
-          }
-        }
-      }
-    },
-    "Summary" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podsumowanie"
-          }
-        }
-      }
-    },
-    "Results" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wyniki"
-          }
-        }
-      }
-    },
     "Remove" : {
 
     },
@@ -2809,6 +2801,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyzeruj"
+          }
+        }
+      }
+    },
+    "Results" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyniki"
           }
         }
       }
@@ -2975,6 +2977,9 @@
         }
       }
     },
+    "Select" : {
+
+    },
     "Select a photo of your workout plan" : {
       "localizations" : {
         "pl" : {
@@ -3126,6 +3131,19 @@
     "Something went wrong" : {
 
     },
+    "Something went wrong while loading your workout history." : {
+
+    },
+    "Something went wrong while saving your workout." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coś poszło nie tak podczas zapisywania treningu."
+          }
+        }
+      }
+    },
     "Sort by" : {
       "localizations" : {
         "pl" : {
@@ -3199,6 +3217,16 @@
     "Start Over" : {
 
     },
+    "Start Workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpocznij trening"
+          }
+        }
+      }
+    },
     "Stats" : {
       "comment" : "The Stats Tab presents charts and analytics for workouts and health metrics.",
       "localizations" : {
@@ -3266,6 +3294,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plan subskrypcji"
+          }
+        }
+      }
+    },
+    "Summary" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podsumowanie"
           }
         }
       }
@@ -3847,12 +3885,6 @@
         }
       }
     },
-    "Wynik" : {
-
-    },
-    "Wyniki" : {
-
-    },
     "X" : {
       "localizations" : {
         "pl" : {
@@ -3893,8 +3925,21 @@
         }
       }
     },
+    "Your completed workouts will appear here." : {
+
+    },
     "Your cooldown notes will be lost." : {
 
+    },
+    "Your past results for this plan — track your progress over time." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje poprzednie wyniki dla tego planu — śledź swój progres."
+          }
+        }
+      }
     },
     "Your personal data is used to calculate accurate heart rate zones, calorie burn, and training recommendations. All information remains private on your device." : {
       "localizations" : {

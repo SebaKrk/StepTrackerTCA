@@ -108,11 +108,12 @@ struct ActivityDetailsFeature {
                 
             case .view(.viewDidAppear):
                 guard state.zoneDistribution == nil else { return .none }
-                
+
                 return .merge(
                     .send(.internal(.loadZoneDistribution)),
                     .send(.internal(.loadMetrics)),
-                    .send(.internal(.loadLocationData))
+                    .send(.internal(.loadLocationData)),
+                    .send(.planScore(.fetchScore))
                 )
                 
             case let .view(.zoneDiscusserButtonTapped(value)):
@@ -123,11 +124,20 @@ struct ActivityDetailsFeature {
                 return .none
                 
                 // MARK: - Destination
-                
+
             case .destination:
+                return .none
+
+                // MARK: - Plan Score
+
+            case .planScore:
                 return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
+
+        Scope(state: \.planScore, action: \.planScore) {
+            ActivityPlanScoreFeature()
+        }
     }
 }
