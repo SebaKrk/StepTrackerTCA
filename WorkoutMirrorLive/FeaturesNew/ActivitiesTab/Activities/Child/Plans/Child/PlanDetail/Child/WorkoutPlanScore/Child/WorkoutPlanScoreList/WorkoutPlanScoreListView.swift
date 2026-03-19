@@ -16,6 +16,8 @@ struct WorkoutPlanScoreListView: View {
 
     @Bindable var store: StoreOf<WorkoutPlanScoreListFeature>
 
+    @Shared(.inMemory(.readinessLevelColor)) var color: Color = .gray
+
     @State private var editMode: EditMode = .inactive
     @State private var selection: Set<WorkoutPlanScore.ID> = []
 
@@ -36,6 +38,14 @@ struct WorkoutPlanScoreListView: View {
         }
         .navigationTitle(String(localized: "History"))
         .navigationBarTitleDisplayMode(.inline)
+        .background(
+            LinearGradient(
+                colors: [color.opacity(0.2), .clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+        )
         .onAppear { send(.viewDidAppear) }
         .navigationDestination(
             item: $store.scope(state: \.destination?.detail, action: \.destination.detail)

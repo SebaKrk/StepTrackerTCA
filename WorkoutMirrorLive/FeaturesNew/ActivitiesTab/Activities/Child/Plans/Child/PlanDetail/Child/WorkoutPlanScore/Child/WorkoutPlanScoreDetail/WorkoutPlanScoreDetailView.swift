@@ -15,6 +15,8 @@ struct WorkoutPlanScoreDetailView: View {
 
     let store: StoreOf<WorkoutPlanScoreDetailFeature>
 
+    @Shared(.inMemory(.readinessLevelColor)) var color: Color = .gray
+
     // MARK: - Body
 
     var body: some View {
@@ -29,6 +31,14 @@ struct WorkoutPlanScoreDetailView: View {
             .padding(.top, 8)
         }
         .contentMargins(.bottom, 40, for: .scrollContent)
+        .background(
+            LinearGradient(
+                colors: [color.opacity(0.2), .clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+        )
         .navigationTitle(store.score.date.formatted(date: .abbreviated, time: .omitted))
         .navigationBarTitleDisplayMode(.inline)
     }

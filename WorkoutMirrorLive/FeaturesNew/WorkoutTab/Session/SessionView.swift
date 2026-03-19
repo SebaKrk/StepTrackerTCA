@@ -22,7 +22,7 @@ struct SessionView: View {
             rootView
 //                .ignoresSafeArea()
 //                .ignoresSafeArea(.keyboard, edges: [.top])
-                .ignoresSafeArea(edges: .bottom)
+                .ignoresSafeArea(.container, edges: .bottom)
                 .navigationTitle(store.sessionState.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarTitleDisplayMode(.inline)
