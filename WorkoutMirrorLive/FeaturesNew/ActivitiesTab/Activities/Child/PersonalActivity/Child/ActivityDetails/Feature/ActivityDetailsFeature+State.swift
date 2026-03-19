@@ -21,7 +21,7 @@ extension ActivityDetailsFeature {
         
         /// Color representing training readiness level, shared across features.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
         
         // MARK: - Workout Data
         
@@ -72,17 +72,23 @@ extension ActivityDetailsFeature {
         /// Whether location data is currently loading
         var isLoadingLocation: Bool = false
         
+        // MARK: - Plan Score
+
+        /// WOD results linked to this workout via a training plan.
+        var planScore: ActivityPlanScoreFeature.State
+
         // MARK: - Destination
-        
+
         /// Presentation state for navigation destinations.
         @Presents var destination: Destination.State?
-        
+
         // MARK: - Init
-        
+
         init(workout: HKWorkout, maxHeartRate: Double, primaryZoneInfo: PrimaryZoneInfo? = nil) {
             self.workout = workout
             self.maxHeartRate = maxHeartRate
             self.primaryZoneInfo = primaryZoneInfo
+            self.planScore = ActivityPlanScoreFeature.State(hkWorkoutId: workout.uuid)
         }
         
         // MARK: - Domain Models

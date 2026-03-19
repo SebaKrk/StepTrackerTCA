@@ -24,12 +24,14 @@ struct PersonalActivityView: View {
             switch store.viewState {
             case .loading:
                 ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .success:
                 workoutsListView
             case .failed:
                 failedView
             }
         }
+        .animation(.default, value: store.viewState)
         .toolbar {
             if !store.workouts.isEmpty {
                 toolbarButton

@@ -11,12 +11,18 @@ import HealthKit
 import SwiftUI
 import SharedModels
 
+private enum FocusField: Hashable {
+    case score(Int)
+    case note(Int)
+}
+
 @ViewAction(for: SummaryFeature.self)
 struct SummaryView: View {
-    
+
     // MARK: - Properties
-    
+
     @Bindable var store: StoreOf<SummaryFeature>
+    @FocusState private var focusedField: FocusField?
     
     // MARK: - Body
     
@@ -61,20 +67,40 @@ struct SummaryView: View {
     
     @ViewBuilder
     private var summaryView: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                if let workout = store.summary?.workout {
-                    headerCard(workout: workout)
-                    metricsGrid(workout: workout)
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 12) {
+                    if let workout = store.summary?.workout {
+                        headerCard(workout: workout)
+                        metricsGrid(workout: workout)
+                    }
+                    if !store.resultInputs.isEmpty {
+                        wodResultsSection
+                    }
                 }
-                if !store.resultInputs.isEmpty {
-                    wodResultsSection
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+            }
+            .contentMargins(.bottom, 40, for: .scrollContent)
+            .scrollDismissesKeyboard(.interactively)
+            .task(id: focusedField) {
+                guard let field = focusedField else { return }
+                try? await Task.sleep(nanoseconds: 350_000_000)
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    proxy.scrollTo(field, anchor: .center)
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.top, 8)
         }
-        .contentMargins(.bottom, 40, for: .scrollContent)
+        .background(
+            LinearGradient(
+                colors: [Color.gray.opacity(0.2), .clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+        )
         .navigationTitle(String(localized: "Summary"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
@@ -204,6 +230,9 @@ struct SummaryView: View {
                                 get: { store.resultInputs[index].score },
                                 set: { send(.updateScore(index, $0)) }
                             ), axis: .vertical)
+                            .lineLimit(1...4)
+                            .focused($focusedField, equals: .score(index))
+                            .id(FocusField.score(index))
                             .padding(.horizontal, 4)
                             .padding(.vertical, 10)
 
@@ -213,6 +242,9 @@ struct SummaryView: View {
                                     get: { store.resultInputs[index].note },
                                     set: { send(.updateNote(index, $0)) }
                                 ), axis: .vertical)
+                                .lineLimit(1...4)
+                                .focused($focusedField, equals: .note(index))
+                                .id(FocusField.note(index))
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 10)
                             } else {

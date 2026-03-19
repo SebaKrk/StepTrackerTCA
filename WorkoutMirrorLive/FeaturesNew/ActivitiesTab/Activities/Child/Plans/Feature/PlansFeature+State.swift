@@ -20,7 +20,7 @@ extension PlansFeature {
         /// The color representing the training readiness level.
         /// Loaded from shared in‑memory storage to keep UI consistent across features.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
 
         /// Planned workouts (scanned via OCR or manually created).
         /// Stored in shared in‑memory storage - persists for app lifetime only.

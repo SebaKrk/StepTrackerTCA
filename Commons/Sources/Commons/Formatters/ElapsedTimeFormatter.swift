@@ -10,7 +10,7 @@ import Foundation
 /// A formatter that formats elapsed time as minutes and seconds,
 /// with optional display of hundredths of a second.
 public class ElapsedTimeFormatter: Formatter {
-    
+
     /// Formatter for minutes and seconds using DateComponentsFormatter.
     let componentsFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
