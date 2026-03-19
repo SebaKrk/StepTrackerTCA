@@ -29,10 +29,15 @@ struct LiveSessionView: View {
                 }
                 workoutMetricsCard
                 
-                // Stopwatch view (if visible)
-                if store.stopwatch.isVisible {
-                    stopwatchView
+                if store.userStopwatch.isVisible {
+                    StopwatchView(store: store.scope(state: \.userStopwatch, action: \.userStopwatch))
                 }
+
+                if store.phaseStopwatch.isManagingPhase {
+                    StopwatchView(store: store.scope(state: \.phaseStopwatch, action: \.phaseStopwatch))
+                }
+
+                phasePanelSection
 
                 Spacer()
             }
@@ -130,69 +135,50 @@ struct LiveSessionView: View {
             }
     }
     
-    // MARK: - Stopwatch View
-    
-    private var stopwatchView: some View {
-        GroupBox {
-            VStack(spacing: 16) {
-                // Time display
-                Text(formatStopwatchTime(store.stopwatch.time))
-                    .font(.system(size: 48, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundColor(.orange)
-                
-                // Control buttons
-                HStack(spacing: 20) {
-                    // Reset button (only when stopped and time > 0)
-                    if !store.stopwatch.isRunning && store.stopwatch.time > 0 {
-                        Button(action: {
-                            send(.stopwatch(.reset))
-                        }) {
-                            Text("Reset")
-                                .font(.body)
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.orange)
-                    }
-                    
-                    // Start/Stop button
-                    Button(action: {
-                        send(.stopwatch(store.stopwatch.isRunning ? .stop : .start))
-                    }) {
-                        Text(store.stopwatch.isRunning ? "Stop" : "Start")
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .frame(minWidth: 80)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
-                }
-            }
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity)
-            .overlay {
-                RoundedRectangle(cornerRadius: 2)
-                    .inset(by: -10)
-                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-            }
+    // MARK: - Phase Panel
+
+    @ViewBuilder
+    private var phasePanelSection: some View {
+        if !store.phaseStopwatch.isManagingPhase,
+           let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
+            PhasePanelView(store: phasePanelStore)
+                .frame(minHeight: 180)
         }
     }
     
-    // Helper - format stopwatch time
-    private func formatStopwatchTime(_ time: TimeInterval) -> String {
-        let minutes = Int(time) / 60
-        let seconds = Int(time) % 60
-        let centiseconds = Int((time.truncatingRemainder(dividingBy: 1)) * 100)
-        return String(format: "%02d:%02d,%02d", minutes, seconds, centiseconds)
-    }
-
 }
 
-#Preview("LiveSessionFeature") {
+#Preview("without plan") {
     NavigationStack {
         LiveSessionView(
-            store: Store(initialState: LiveSessionFeature.State(),
-                         reducer: { LiveSessionFeature() })
+            store: Store(initialState: LiveSessionFeature.State()) {
+                LiveSessionFeature()
+            }
+        )
+    }
+}
+
+#Preview("with stopwatch") {
+    var state = LiveSessionFeature.State()
+    state.userStopwatch.isVisible = true
+    return NavigationStack {
+        LiveSessionView(
+            store: Store(initialState: state) {
+                LiveSessionFeature()
+            }
+        )
+    }
+}
+
+#Preview("with plan") {
+    let phases = TrainingSession.previewTrainingSession.phases
+    var state = LiveSessionFeature.State()
+    state.phasePanel = PhasePanelFeature.State(phases: phases)
+    return NavigationStack {
+        LiveSessionView(
+            store: Store(initialState: state) {
+                LiveSessionFeature()
+            }
         )
     }
 }

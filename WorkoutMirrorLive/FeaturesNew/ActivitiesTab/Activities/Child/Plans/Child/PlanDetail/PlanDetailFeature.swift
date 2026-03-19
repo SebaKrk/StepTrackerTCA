@@ -23,7 +23,7 @@ struct PlanDetailFeature {
 
         /// Tint color shared across the app (readiness level).
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
 
         /// The training plan being displayed.
         var trainingSession: TrainingSession

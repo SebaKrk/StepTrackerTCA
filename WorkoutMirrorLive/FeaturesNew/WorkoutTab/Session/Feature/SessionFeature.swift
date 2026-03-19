@@ -38,14 +38,17 @@ struct SessionFeature {
                         maxHeartRate: 0,
                         averageHeartRate: 0
                     )
-                    
+
+                    let phases = state.trainingSession?.phases ?? []
+
                     return .merge(
                         .run { send in
                             for await state in await self.sessionClient.workoutSessionStateStream() {
                                 await send(.controls(.sessionStateUpdated(state)))
                             }
                         },
-                        .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title,initialState: initialState)))))
+                        .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
+                        .send(.live(.setupPhasePanel(phases)))
                     )
                 } else if value == .summary {
                     return .merge(
@@ -88,7 +91,7 @@ struct SessionFeature {
                 
             case .view(.timerButtonTapped):
                 // Forward to LiveSessionFeature
-                return .send(.live(.stopwatch(.view(.toggleVisibility))))
+                return .send(.live(.userStopwatch(.view(.toggleVisibility))))
 
                 // MARK: - Destination
             case .destination(_):

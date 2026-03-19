@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 import HealthHub
+import SwiftUI
 
 /// A feature responsible for managing the Training Readiness state.
 ///
@@ -53,6 +54,7 @@ struct TrainingReadinessFeature {
                 
             case let .internal(.calculationFailed(error)):
                 state.errorMessage = error
+                state.$color.withLock { $0 = .gray }
                 return .send(.internal(.changeContentState(.noData)))
                 
             case .internal(.loadReadinessData):

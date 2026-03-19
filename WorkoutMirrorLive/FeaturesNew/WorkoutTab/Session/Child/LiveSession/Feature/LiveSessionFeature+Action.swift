@@ -42,25 +42,33 @@ extension LiveSessionFeature {
         case calculateSessionHeartRateStats(Int)
         
         // MARK: - Live Activity (Child Reducer)
-        
-        /// Delegates to LiveActivityFeature child reducer
+
         /// Delegates to LiveActivityFeature child reducer
         case liveActivity(LiveActivityFeature.Action)
-        
-        /// Delegates to StopwatchFeature child reducer
-        case stopwatch(StopwatchFeature.Action)
+
+        /// Delegates to user StopwatchFeature (toolbar button).
+        case userStopwatch(StopwatchFeature.Action)
+
+        /// Delegates to phase StopwatchFeature (phase timer management).
+        case phaseStopwatch(StopwatchFeature.Action)
+
+        // MARK: - Phase Panel (Child Reducer)
+
+        /// Initialises the phase panel from the given phases.
+        /// Pass an empty array (or call when `trainingSession` is nil) to hide the panel.
+        case setupPhasePanel([WorkoutPhase])
+
+        /// Delegates to PhasePanelFeature child reducer
+        case phasePanel(PhasePanelFeature.Action)
         
         // MARK: - View Actions
         
         case view(View)
         
         enum View {
-                    
+
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
-            
-            /// Stopwatch View Actions
-            case stopwatch(StopwatchFeature.Action.View)
         }
     }
     

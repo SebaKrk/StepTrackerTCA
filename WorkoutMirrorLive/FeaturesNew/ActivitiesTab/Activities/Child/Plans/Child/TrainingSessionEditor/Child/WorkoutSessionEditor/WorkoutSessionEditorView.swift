@@ -236,7 +236,6 @@ struct WorkoutSessionEditorView: View {
                     Text(info)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .lineLimit(3)
                 } else if let target = exercise.target {
                     Text(targetLabel(target))
                         .font(.caption)

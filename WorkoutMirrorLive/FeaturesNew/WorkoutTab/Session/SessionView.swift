@@ -111,6 +111,7 @@ struct SessionView: View {
                 } label: {
                     Image(systemName: "timer")
                 }
+                .disabledWithOpacity(store.live.phaseStopwatch.isManagingPhase)
             }
         }
     }

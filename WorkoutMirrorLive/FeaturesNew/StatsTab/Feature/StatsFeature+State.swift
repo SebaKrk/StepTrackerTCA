@@ -22,7 +22,7 @@ extension StatsFeature {
         /// The color representing the training readiness level.
         /// Loaded from shared in‑memory storage to keep UI consistent across features.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
         
         /// The user's current subscription tier.
         /// Persisted using `AppStorage` to survive app restarts and sync with settings UI.

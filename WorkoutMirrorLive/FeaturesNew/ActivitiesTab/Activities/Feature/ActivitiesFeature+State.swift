@@ -20,7 +20,7 @@ extension ActivitiesFeature {
         /// The color representing the training readiness level.
         /// Loaded from shared in‑memory storage to keep UI consistent across features.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
         
         /// Selected tab context for filtering workouts.
         var context: TrainingTabContext = .activity

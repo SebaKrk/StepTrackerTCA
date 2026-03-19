@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ViewState {
+public enum ViewState: Equatable {
     
     /// The state in which the view reads the relevant information necessary for it to function correctly.
     case loading

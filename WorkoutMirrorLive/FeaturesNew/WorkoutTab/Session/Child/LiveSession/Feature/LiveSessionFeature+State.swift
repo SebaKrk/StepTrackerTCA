@@ -42,30 +42,34 @@ extension LiveSessionFeature {
         var maxHeartRate: Int = 0
         
         // MARK: - Child
-        
+
         /// Live Activity management (delegated to child reducer)
         var liveActivity = LiveActivityFeature.State()
-        
-        /// Stopwatch state managed by child reducer
-        var stopwatch = StopwatchFeature.State()
+
+        /// Niezależny stopwatch użytkownika (toolbar button).
+        var userStopwatch = StopwatchFeature.State()
+
+        /// Stopwatch zarządzający timerem aktywnej fazy planu.
+        var phaseStopwatch = StopwatchFeature.State()
+
+        // MARK: - Phase Panel
+
+        /// Phase panel state. Non-nil only when the workout has an associated training plan.
+        var phasePanel: PhasePanelFeature.State? = nil
         
         // MARK: - Helpers
         
         /// Creates Timer Activity Content State from current state
         var timerContentState: TimerActivityAttributes.ContentState {
-            // Calculate when the timer effectively started relative to now
-            // If running, start = now - elapsed
-            // If paused, start = now - elapsed (but effectively we treat it as if it started then)
-            let adjustedStart = Date().addingTimeInterval(-stopwatch.time)
-            
+            let adjustedStart = Date().addingTimeInterval(-userStopwatch.time)
             return TimerActivityAttributes.ContentState(
                 heartRate: workoutMetrics.heartRate,
                 heartRateZone: currentHeartRateZone,
                 heartRatePercentage: currentHeartRatePercentage,
-                elapsedTime: stopwatch.time,
-                isRunning: stopwatch.isRunning,
+                elapsedTime: userStopwatch.time,
+                isRunning: userStopwatch.isRunning,
                 adjustedStartDate: adjustedStart,
-                pauseDate: stopwatch.isRunning ? nil : Date()
+                pauseDate: userStopwatch.isRunning ? nil : Date()
             )
         }
         

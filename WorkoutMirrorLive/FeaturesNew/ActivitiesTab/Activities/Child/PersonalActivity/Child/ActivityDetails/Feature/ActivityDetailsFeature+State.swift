@@ -21,7 +21,7 @@ extension ActivityDetailsFeature {
         
         /// Color representing training readiness level, shared across features.
         @Shared(.inMemory(.readinessLevelColor))
-        var color: Color = .clear
+        var color: Color = .gray
         
         // MARK: - Workout Data
         
