@@ -50,6 +50,11 @@ struct PlansView: View {
                 PlanDetailView(store: planDetailStore)
             }
         }
+        .fullScreenCover(
+            item: $store.scope(state: \.destination?.session, action: \.destination.session)
+        ) { sessionStore in
+            SessionView(store: sessionStore)
+        }
         .onAppear {
             send(.viewDidAppear)
         }
