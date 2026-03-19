@@ -75,11 +75,11 @@ struct SessionFeature {
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .run { [workout = state.selectedWorkout] send in
+                return .run { [workout = state.selectedWorkout, trainingSession = state.trainingSession] send in
                     try await self.sessionClient.selectedWorkout(workout.hkType)
-                    
                     await send(.controls(.setWorkoutType(workout)))
                     await send(.makeCalculationForSession)
+                    await send(.summary(.setTrainingSession(trainingSession)))
                 }
  
             case .view(.heartRateZoneButtonTapped):

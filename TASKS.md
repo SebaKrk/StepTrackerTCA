@@ -604,3 +604,4 @@
 ### IOS-00070 Planned Workout Session
     A: WorkoutPlanScore and WorkoutSessionResult models
     B: WorkoutPlanScoreClient with temporary JSON stub
+    C: Pass trainingSession from SessionFeature to SummaryFeature

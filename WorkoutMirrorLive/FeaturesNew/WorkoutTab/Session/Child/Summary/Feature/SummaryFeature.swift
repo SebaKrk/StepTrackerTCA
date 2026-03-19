@@ -34,6 +34,10 @@ struct SummaryFeature {
                     await send(.summaryLoaded(summary))
                 }
                 
+            case let .setTrainingSession(trainingSession):
+                state.trainingSession = trainingSession
+                return .none
+
             case let .summaryLoaded(summary):
                 state.summary = summary
                 
@@ -83,9 +87,12 @@ extension SummaryFeature {
         
         /// Initiates the workout summary check process. If the workout is ready, transitions to a loaded state; otherwise, begins a retry sequence.
         case checkSummary
-        
+
         /// Called when the workout summary has been successfully loaded.
         case summaryLoaded(WorkoutSummary)
+
+        /// Sets the training plan associated with this session. Called by `SessionFeature` on appear.
+        case setTrainingSession(TrainingSession?)
         
         // MARK: - View Actions
         
@@ -110,14 +117,18 @@ extension SummaryFeature {
     
     @ObservableState
     struct State {
-        
+
         // MARK: - Properties
-        
-        ///
+
+        /// Current loading/display state of the summary screen.
         var viewState: SummaryState = .loading
-        
-        ///
+
+        /// HealthKit workout data loaded after the session ends.
         var summary: WorkoutSummary? = nil
+
+        /// The training plan that was executed, if any.
+        /// `nil` for free workouts (no plan selected).
+        var trainingSession: TrainingSession? = nil
     }
     
 }
