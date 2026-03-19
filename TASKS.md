@@ -597,6 +597,10 @@
     I: Add and remove workout or exercise
     J: Refactor/navigation
     
-### IOS-00068 AI warmup/cooldown generation
+### IOS-00069 AI warmup/cooldown generation
     A: AI warmup/cooldown generation
     B: Refactor/unify-claude-strategy
+    
+### IOS-00070 Planned Workout Session
+    A: WorkoutPlanScore and WorkoutSessionResult models
+
