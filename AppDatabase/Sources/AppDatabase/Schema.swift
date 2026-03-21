@@ -6,6 +6,7 @@
 //
 
 import Dependencies
+import Foundation
 import SQLiteData
 
 extension DependencyValues {
@@ -33,10 +34,34 @@ extension DependencyValues {
         #endif
 
         migrator.registerMigration("v1_userProfile") { db in
-            try UserProfileRecord.createTable(db)
+            try #sql("""
+                CREATE TABLE "userProfileRecords" (
+                  "id" TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "name" TEXT NOT NULL DEFAULT '',
+                  "surname" TEXT NOT NULL DEFAULT '',
+                  "nickname" TEXT NOT NULL DEFAULT '',
+                  "createdAt" TEXT NOT NULL,
+                  "updatedAt" TEXT NOT NULL,
+                  "ckRecordData" BLOB
+                ) STRICT
+                """)
+            .execute(db)
+        }
+
+        migrator.registerMigration("v2_addEmail") { db in
+            try #sql("""
+                ALTER TABLE "userProfileRecords"
+                ADD COLUMN "email" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT ''
+                """)
+            .execute(db)
         }
 
         try migrator.migrate(database)
         defaultDatabase = database
+
+        #if DEBUG
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        print("📦 [AppDatabase] path: \(appSupport?.path ?? "unknown")")
+        #endif
     }
 }

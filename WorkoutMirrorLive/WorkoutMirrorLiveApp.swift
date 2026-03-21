@@ -5,14 +5,25 @@
 //  Created by Sebastian Sciuba on 29/07/2025.
 //
 
+import AppDatabase
 import ComposableArchitecture
 import SwiftUI
 
-@main 
+@main
 struct WorkoutMirrorLiveApp: App {
-    
+
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
+    init() {
+        prepareDependencies {
+            do {
+                try $0.bootstrapDatabase()
+            } catch {
+                fatalError("Database failed to initialize: \(error)")
+            }
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             AppTabNewView(
