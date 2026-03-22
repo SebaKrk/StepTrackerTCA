@@ -5,7 +5,9 @@
 //  Created by Sebastian Sciuba on 21/03/2026.
 //
 
+import AppDatabase
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 @ViewAction(for: PersonProfileEditFeature.self)
@@ -97,4 +99,27 @@ struct PersonProfileEditView: View {
         }
     }
 
+}
+
+// MARK: - Preview
+
+#Preview {
+    let _ = prepareDependencies {
+        try? $0.bootstrapDatabase()
+    }
+    PersonProfileEditView(
+        store: Store(
+            initialState: PersonProfileEditFeature.State(
+                profile: UserProfile(
+                    id: UUID(),
+                    email: "jan@example.com",
+                    name: "Jan",
+                    surname: "Kowalski",
+                    nickname: "janek"
+                )
+            )
+        ) {
+            PersonProfileEditFeature()
+        }
+    )
 }
