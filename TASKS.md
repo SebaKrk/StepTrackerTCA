@@ -628,3 +628,6 @@
     - PersonSettingsFeature: ładowanie profilu, editProfileTapped
     - PersonProfileEditFeature + PersonProfileEditView (modal edycji)
     - PersonSettingsView: wyświetlenie danych + sheet do edycji
+    D: Previews
+    - #Preview dla PersonSettingsView z bootstrapDatabase + seed data
+    - #Preview dla PersonProfileEditView z bootstrapDatabase + seed data

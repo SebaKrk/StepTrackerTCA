@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 21/09/2025.
 //
 
+import AppDatabase
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -127,5 +128,28 @@ struct PersonSettingsView: View {
             }
         }
     }
-    
+
+}
+
+// MARK: - Preview
+
+#Preview {
+    let _ = prepareDependencies {
+        try? $0.bootstrapDatabase()
+    }
+    PersonSettingsView(
+        store: Store(
+            initialState: PersonSettingsFeature.State(
+                userProfile: UserProfile(
+                    id: UUID(),
+                    email: "jan@example.com",
+                    name: "Jan",
+                    surname: "Kowalski",
+                    nickname: "janek"
+                )
+            )
+        ) {
+            PersonSettingsFeature()
+        }
+    )
 }
