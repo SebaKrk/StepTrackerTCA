@@ -105,9 +105,7 @@ struct SessionFeature {
                 return .send(.sessionViewStateChange(.summary))
                 
             case .summary(.view(.endWorkoutButtonTapped)):
-                return .run { send in
-                    await self.dismiss()
-                }
+                return .none
                 
             case .countDown(_):
                 return .none

@@ -9,11 +9,12 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
+@ViewAction(for: WorkoutPlanScoreDetailFeature.self)
 struct WorkoutPlanScoreDetailView: View {
 
     // MARK: - Properties
 
-    let store: StoreOf<WorkoutPlanScoreDetailFeature>
+    @Bindable var store: StoreOf<WorkoutPlanScoreDetailFeature>
 
     @Shared(.inMemory(.readinessLevelColor)) var color: Color = .gray
 
@@ -22,9 +23,6 @@ struct WorkoutPlanScoreDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                // TODO: IOS-00070-F — metryki zdrowotne (kalorie, HR avg, HR max, czas)
-                // fetchByHKWorkoutId(score.hkWorkoutId) → HKWorkout → metricsGrid
-
                 wodResultsSection
             }
             .padding(.horizontal, 8)
@@ -41,6 +39,27 @@ struct WorkoutPlanScoreDetailView: View {
         )
         .navigationTitle(store.score.date.formatted(date: .abbreviated, time: .omitted))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.viewActivityTapped)
+                } label: {
+                    if store.isLoadingActivity {
+                        ProgressView()
+                    } else {
+                        Label("Activity", systemImage: "figure.run")
+                    }
+                }
+                .disabled(store.isLoadingActivity)
+            }
+        }
+        .fullScreenCover(
+            item: $store.scope(state: \.destination?.activityDetails, action: \.destination.activityDetails)
+        ) { activityStore in
+            NavigationStack {
+                ActivityDetailsView(store: activityStore)
+            }
+        }
     }
 
     // MARK: - WOD Results
@@ -110,6 +129,9 @@ struct WorkoutPlanScoreDetailView: View {
         WorkoutPlanScoreDetailView(
             store: Store(initialState: WorkoutPlanScoreDetailFeature.State(score: score)) {
                 WorkoutPlanScoreDetailFeature()
+            } withDependencies: {
+                $0.activityClient.fetchWorkoutById = { _ in nil }
+                $0.activityClient.fetchMaxHeartRate = { nil }
             }
         )
     }
