@@ -58,18 +58,23 @@ public struct ActivityClient: Sendable {
     /// Fetches start location for a workout.
     /// Returns nil if no route data available.
     public var fetchWorkoutStartLocation: @Sendable (HKWorkout) async throws -> CLLocationCoordinate2D?
+
+    /// Fetches a single workout by its HealthKit UUID.
+    /// Returns nil if no matching workout is found.
+    public var fetchWorkoutById: @Sendable (UUID) async throws -> HKWorkout?
 }
 
 extension ActivityClient: DependencyKey {
     public static let liveValue: ActivityClient = {
-        
+
         @Dependency(\.activityManager) var activityManager
         @Dependency(\.personalDataManager) var personalDataManager
         @Dependency(\.heartRateCalculator) var heartRateCalculator
         @Dependency(\.workoutZoneAnalyzer) var zoneAnalyzer
         @Dependency(\.workoutMetricsManager) var metricsManager
         @Dependency(\.workoutLocationManager) var locationManager
-        
+        @Dependency(\.healthStore) var healthStore
+
         return ActivityClient(
             fetchWorkouts: { days, sortOption in
                 try await activityManager.fetchWorkouts(
@@ -136,6 +141,24 @@ extension ActivityClient: DependencyKey {
             },
             fetchWorkoutStartLocation: { workout in
                 try await locationManager.fetchWorkoutStartLocation(workout)
+            },
+            fetchWorkoutById: { uuid in
+                try await withCheckedThrowingContinuation { continuation in
+                    let predicate = HKQuery.predicateForObject(with: uuid)
+                    let query = HKSampleQuery(
+                        sampleType: .workoutType(),
+                        predicate: predicate,
+                        limit: 1,
+                        sortDescriptors: nil
+                    ) { _, samples, error in
+                        if let error {
+                            continuation.resume(throwing: error)
+                        } else {
+                            continuation.resume(returning: samples?.first as? HKWorkout)
+                        }
+                    }
+                    healthStore.execute(query)
+                }
             }
         )
     }()
@@ -152,7 +175,8 @@ extension ActivityClient: DependencyKey {
         fetchIntensityFactor: unimplemented("ActivityClient.fetchIntensityFactor", placeholder: nil),
         fetchRecoveryDemand: unimplemented("ActivityClient.fetchRecoveryDemand", placeholder: nil),
         fetchWorkoutRoute: unimplemented("ActivityClient.fetchWorkoutRoute", placeholder: []),
-        fetchWorkoutStartLocation: unimplemented("ActivityClient.fetchWorkoutStartLocation", placeholder: nil)
+        fetchWorkoutStartLocation: unimplemented("ActivityClient.fetchWorkoutStartLocation", placeholder: nil),
+        fetchWorkoutById: unimplemented("ActivityClient.fetchWorkoutById", placeholder: nil)
     )
 }
 

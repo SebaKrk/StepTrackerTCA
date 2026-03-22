@@ -54,7 +54,7 @@ private enum TrainingSessionClientKey: DependencyKey {
                     try TrainingSessionRecord
                         .order { $0.date.desc() }
                         .fetchAll(db)
-                        .compactMap { try? $0.toDomain() }
+                        .map { try $0.toDomain() }
                 }
             },
             delete: { id in

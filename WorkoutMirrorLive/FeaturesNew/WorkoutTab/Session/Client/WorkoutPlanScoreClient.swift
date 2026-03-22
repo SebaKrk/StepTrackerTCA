@@ -66,7 +66,7 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
                         .where { $0.trainingSessionId.eq(id) }
                         .order { $0.date.desc() }
                         .fetchAll(db)
-                        .compactMap { try? $0.toDomain() }
+                        .map { try $0.toDomain() }
                 }
             },
             fetchByHKWorkoutId: { id in
@@ -74,7 +74,7 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
                     try WorkoutPlanScoreRecord
                         .where { $0.hkWorkoutId.eq(id) }
                         .fetchOne(db)
-                        .flatMap { try? $0.toDomain() }
+                        .map { try $0.toDomain() }
                 }
             }
         )
