@@ -648,3 +648,16 @@
     E: SummaryFeature — save WorkoutPlanScore on End Workout
     - Build WorkoutPlanScore from resultInputs + trainingSession + hkWorkoutId
     - workoutPlanScoreClient.save() before dismiss()
+
+### IOS-00073 Watch App HR Sensor Mirror
+    - branch: `feature/IOS-00073`
+    - plan: `PLANS/IOS-00073-Watch-HR-Sensor-Mirror.md`
+    
+    A: feat(SharedModels): add WatchWorkoutEvent codable enum
+    B: feat(HealthHub): extend WatchConnectivityManager with bidirectional event stream
+    C: feat(watch): add HRQueryClient for HealthKit HR reading without workout session
+    D: feat(watch): add WatchConnectivityClientAW dependency
+    E: feat(ios): extend WatchConnectivityClient with workout event send/receive
+    F: feat(ios): trigger and receive watch events in WorkoutMirroringFeature
+    G: feat(watch): add HRMirrorFeature and HRMirrorView
+    H: feat(watch): wire HRMirrorFeature into MainFeatureAW navigation
