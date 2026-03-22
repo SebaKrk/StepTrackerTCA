@@ -64,11 +64,11 @@ struct PlansView: View {
 
     @ViewBuilder
     private var plansListView: some View {
-        if store.plannedWorkouts.isEmpty {
+        if store.sessions.isEmpty {
             emptyPlansView
         } else {
             List {
-                ForEach(store.plannedWorkouts) { workout in
+                ForEach(store.sessions) { workout in
                     workoutCard(workout)
                 }
                 .listRowInsets(EdgeInsets())

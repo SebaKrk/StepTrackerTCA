@@ -9,7 +9,7 @@ import Foundation
 import HealthKit
 
 // MARK: - Training Session (główny obiekt treningu)
-public struct TrainingSession: Identifiable, Equatable, Sendable {
+public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
     
     public let id: UUID
     public let date: Date
@@ -108,7 +108,7 @@ public struct TrainingSession: Identifiable, Equatable, Sendable {
 }
 
 // MARK: - Warm Up Session
-public struct WarmUpSession: Equatable, Sendable {
+public struct WarmUpSession: Equatable, Codable, Sendable {
     public var goal: SimpleWorkoutGoal
     public var time: Int?
     public var description: String
@@ -121,7 +121,7 @@ public struct WarmUpSession: Equatable, Sendable {
 }
 
 // MARK: - Cool Down Session
-public struct CoolDownSession: Equatable, Sendable {
+public struct CoolDownSession: Equatable, Codable, Sendable {
     public var goal: SimpleWorkoutGoal
     public var time: Int?
     public var description: String
@@ -134,7 +134,7 @@ public struct CoolDownSession: Equatable, Sendable {
 }
 
 // MARK: - Workout Session
-public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
+public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     public let id: UUID
     public let name: String
     public let type: ExerciseWorkoutType
@@ -163,7 +163,7 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Sendable {
 
 // MARK: - Exercise Session
 
-public struct ExerciseSession: Identifiable, Equatable, Sendable {
+public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     public let id: UUID
     public let type: ExerciseType
     public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
@@ -205,7 +205,7 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
 }
 
 // MARK: - Weight Configuration
-public struct WeightConfiguration: Equatable, Sendable {
+public struct WeightConfiguration: Equatable, Codable, Sendable {
     public let men: Int?
     public let women: Int?
 
@@ -216,7 +216,7 @@ public struct WeightConfiguration: Equatable, Sendable {
 }
 
 // MARK: - Exercise Target
-public enum ExerciseTarget: Equatable, Sendable {
+public enum ExerciseTarget: Equatable, Codable, Sendable {
     /// Use for repetitions: '10 reps', '5 push-ups', '3 clean and jerks'
     case reps(Int)
     

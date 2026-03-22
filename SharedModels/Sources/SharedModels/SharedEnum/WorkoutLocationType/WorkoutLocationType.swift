@@ -7,7 +7,7 @@
 
 import HealthKit
 
-public enum WorkoutLocationType: CaseIterable, Hashable, Sendable {
+public enum WorkoutLocationType: String, CaseIterable, Hashable, Codable, Sendable {
 
     case indoor
     case outdoor

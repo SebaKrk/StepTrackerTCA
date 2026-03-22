@@ -7,10 +7,15 @@
 
 import ComposableArchitecture
 import Foundation
+import IssueReporting
 import SharedModels
 
 @Reducer
 struct PlansFeature {
+
+    // MARK: - Dependencies
+
+    @Dependency(\.trainingSessionClient) var client
 
     // MARK: - Body
 
@@ -20,6 +25,20 @@ struct PlansFeature {
                 // MARK: - View Action
 
             case .view(.viewDidAppear):
+                state.viewState = .loading
+                return .run { send in
+                    do {
+                        let sessions = try await client.fetchAll()
+                        await send(.sessionsLoaded(sessions))
+                    } catch {
+                        reportIssue(error)
+                        await send(.sessionsLoaded([]))
+                    }
+                }
+
+            case let .sessionsLoaded(sessions):
+                state.sessions = sessions
+                state.viewState = .success
                 return .none
 
             case .view(.addPlanTapped):
@@ -33,16 +52,37 @@ struct PlansFeature {
                 // MARK: - Destination
 
             case .destination(.presented(.addPlan(.delegate(.saved(let session))))):
-                state.$plannedWorkouts.withLock { $0[id: session.id] = session }
-                return .none
+                return .run { send in
+                    do {
+                        try await client.save(session)
+                        let sessions = try await client.fetchAll()
+                        await send(.sessionsLoaded(sessions))
+                    } catch {
+                        reportIssue(error)
+                    }
+                }
 
             case .destination(.presented(.planDetail(.delegate(.saved(let session))))):
-                state.$plannedWorkouts.withLock { $0[id: session.id] = session }
-                return .none
+                return .run { send in
+                    do {
+                        try await client.save(session)
+                        let sessions = try await client.fetchAll()
+                        await send(.sessionsLoaded(sessions))
+                    } catch {
+                        reportIssue(error)
+                    }
+                }
 
             case .destination(.presented(.planDetail(.delegate(.deleted(let id))))):
-                state.$plannedWorkouts.withLock { $0.remove(id: id) }
-                return .none
+                return .run { send in
+                    do {
+                        try await client.delete(id)
+                        let sessions = try await client.fetchAll()
+                        await send(.sessionsLoaded(sessions))
+                    } catch {
+                        reportIssue(error)
+                    }
+                }
 
             case .destination(.presented(.planDetail(.delegate(.startWorkout(let session))))):
                 state.destination = nil

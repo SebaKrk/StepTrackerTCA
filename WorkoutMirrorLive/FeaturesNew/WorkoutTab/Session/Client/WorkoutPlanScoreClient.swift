@@ -5,9 +5,11 @@
 //  Created by Sebastian Sciuba on 03/03/2026.
 //
 
+import AppDatabase
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import SQLiteData
 
 // MARK: - Client
 
@@ -38,30 +40,42 @@ extension DependencyValues {
 
 private enum WorkoutPlanScoreClientKey: DependencyKey {
 
-    // ⚠️ TYMCZASOWA IMPLEMENTACJA — IOS-00070-B2
-    //
-    // liveValue używa pliku JSON w Application Support jako tymczasowego storage.
-    // MUSI zostać zastąpiony CoreData + CloudKit zanim aplikacja trafi do produkcji.
-    //
-    // Problemy tej implementacji:
-    //   - Ładuje WSZYSTKIE rekordy do pamięci przy każdym fetch (fetchAll + filter)
-    //   - Brak synchronizacji między urządzeniami
-    //   - Brak migracji danych
-    //
-    // Docelowe rozwiązanie: NSPersistentCloudKitContainer (IOS-00070-B2)
-    //   - Index na hkWorkoutId → efektywny fetch przy setkach rekordów
-    //   - CloudKit → automatyczny sync iPhone ↔ iPad ↔ Watch
     static let liveValue: WorkoutPlanScoreClient = {
-        let store = WorkoutPlanScoreStore()
+        @Dependency(\.defaultDatabase) var database
+
         return WorkoutPlanScoreClient(
             save: { score in
-                try await store.upsert(score)
+                @Dependency(\.date.now) var now
+                try await database.write { db in
+                    let record = try WorkoutPlanScoreRecord(from: score, createdAt: now, updatedAt: now)
+                    let draft = WorkoutPlanScoreRecord.Draft(
+                        id: record.id,
+                        date: record.date,
+                        trainingSessionId: record.trainingSessionId,
+                        hkWorkoutId: record.hkWorkoutId,
+                        resultsData: record.resultsData,
+                        createdAt: record.createdAt,
+                        updatedAt: record.updatedAt
+                    )
+                    try WorkoutPlanScoreRecord.upsert { draft }.execute(db)
+                }
             },
             fetchByTrainingSessionId: { id in
-                try await store.fetchByTrainingSessionId(id)
+                try await database.read { db in
+                    try WorkoutPlanScoreRecord
+                        .where { $0.trainingSessionId.eq(id) }
+                        .order { $0.date.desc() }
+                        .fetchAll(db)
+                        .compactMap { try? $0.toDomain() }
+                }
             },
             fetchByHKWorkoutId: { id in
-                try await store.fetchByHKWorkoutId(id)
+                try await database.read { db in
+                    try WorkoutPlanScoreRecord
+                        .where { $0.hkWorkoutId.eq(id) }
+                        .fetchOne(db)
+                        .flatMap { try? $0.toDomain() }
+                }
             }
         )
     }()
@@ -72,62 +86,5 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
             fetchByTrainingSessionId: unimplemented("WorkoutPlanScoreClient.fetchByTrainingSessionId"),
             fetchByHKWorkoutId: unimplemented("WorkoutPlanScoreClient.fetchByHKWorkoutId")
         )
-    }
-}
-
-// MARK: - Temporary JSON Store
-
-// ⚠️ TYMCZASOWY AKTOR — USUNĄĆ przy implementacji IOS-00070-B2
-//
-// Zapis do pliku JSON jest rozwiązaniem prototypowym.
-// Nie używać jako wzorca dla innych klientów wymagających persystencji.
-private actor WorkoutPlanScoreStore {
-
-    // MARK: - Properties
-
-    private let fileURL: URL
-
-    // MARK: - Init
-
-    init() {
-        let appSupport = FileManager.default
-            .urls(for: .applicationSupportDirectory, in: .userDomainMask)
-            .first!
-        self.fileURL = appSupport.appendingPathComponent("workoutPlanScores.json")
-    }
-
-    // MARK: - Operations
-
-    func upsert(_ score: WorkoutPlanScore) throws {
-        var all = try load()
-        if let index = all.firstIndex(where: { $0.id == score.id }) {
-            all[index] = score
-        } else {
-            all.append(score)
-        }
-        try persist(all)
-    }
-
-    func fetchByTrainingSessionId(_ id: UUID) throws -> [WorkoutPlanScore] {
-        try load()
-            .filter { $0.trainingSessionId == id }
-            .sorted { $0.date > $1.date }
-    }
-
-    func fetchByHKWorkoutId(_ id: UUID) throws -> WorkoutPlanScore? {
-        try load().first { $0.hkWorkoutId == id }
-    }
-
-    // MARK: - Private
-
-    private func load() throws -> [WorkoutPlanScore] {
-        guard FileManager.default.fileExists(atPath: fileURL.path) else { return [] }
-        let data = try Data(contentsOf: fileURL)
-        return try JSONDecoder().decode([WorkoutPlanScore].self, from: data)
-    }
-
-    private func persist(_ scores: [WorkoutPlanScore]) throws {
-        let data = try JSONEncoder().encode(scores)
-        try data.write(to: fileURL, options: .atomic)
     }
 }

@@ -56,6 +56,46 @@ extension DependencyValues {
             .execute(db)
         }
 
+        migrator.registerMigration("v3_trainingSession") { db in
+            try #sql("""
+                CREATE TABLE "trainingSessionRecords" (
+                  "id"           TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "date"         TEXT NOT NULL,
+                  "title"        TEXT NOT NULL DEFAULT '',
+                  "activity"     TEXT NOT NULL DEFAULT '',
+                  "location"     TEXT NOT NULL DEFAULT '',
+                  "warmUpData"   BLOB,
+                  "workoutsData" BLOB NOT NULL,
+                  "coolDownData" BLOB,
+                  "createdAt"    TEXT NOT NULL,
+                  "updatedAt"    TEXT NOT NULL,
+                  "ckRecordData" BLOB
+                ) STRICT
+                """)
+            .execute(db)
+        }
+
+        migrator.registerMigration("v4_workoutPlanScore") { db in
+            try #sql("""
+                CREATE TABLE "workoutPlanScoreRecords" (
+                  "id"                TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "date"              TEXT NOT NULL,
+                  "trainingSessionId" TEXT NOT NULL,
+                  "hkWorkoutId"       TEXT NOT NULL,
+                  "resultsData"       BLOB NOT NULL,
+                  "createdAt"         TEXT NOT NULL,
+                  "updatedAt"         TEXT NOT NULL,
+                  "ckRecordData"      BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_workoutPlanScoreRecords_on_trainingSessionId"
+                ON "workoutPlanScoreRecords"("trainingSessionId")
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

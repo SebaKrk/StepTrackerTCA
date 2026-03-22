@@ -6,15 +6,18 @@
 //
 
 import ComposableArchitecture
+import HealthKit
+import IssueReporting
 import SharedModels
 import Foundation
 
 @Reducer
 struct SummaryFeature {
-    
+
     // MARK: - Dependency
-    
+
     @Dependency(\.sessionClient) var client
+    @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -64,7 +67,22 @@ struct SummaryFeature {
                 }
                 
             case .view(.endWorkoutButtonTapped):
+                let trainingSession = state.trainingSession
+                let resultInputs = state.resultInputs
+                let hkWorkoutId = state.summary?.workout?.uuid
                 return .run { send in
+                    if let session = trainingSession, let workoutId = hkWorkoutId {
+                        let score = WorkoutPlanScore(
+                            trainingSessionId: session.id,
+                            hkWorkoutId: workoutId,
+                            results: resultInputs
+                        )
+                        do {
+                            try await workoutPlanScoreClient.save(score)
+                        } catch {
+                            reportIssue(error)
+                        }
+                    }
                     await self.dismiss()
                 }
 
