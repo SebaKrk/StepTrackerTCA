@@ -607,6 +607,27 @@
     C: Pass trainingSession from SessionFeature to SummaryFeature
     D: Workout Summary Screen
     E: PlanDetail — workout history & session entry point
-    F: WOD Results section in ActivityDetailsView                                              
+    F: WOD Results section in ActivityDetailsView
     G: LiveSession with Plan
     H: Fix Keyboard and backgound
+
+### IOS-00071 SQLiteData Architecture — UserProfile storage
+    A: AppDatabase Swift Package setup
+    - UserProfile domain model w SharedModels (Identifiable, Equatable, Codable, Sendable)
+    - Nowy lokalny pakiet AppDatabase (obok SharedModels/Commons/HealthHub)
+    - CloudKitSyncable protocol (createdAt, updatedAt, ckRecordData) — furtka iCloud
+    - UserProfileRecord (@Table, flat columns, mapowanie do/z UserProfile)
+    - Schema.swift (bootstrapDatabase() + DatabaseMigrator + v1_userProfile migration)
+    - AppDatabase dodany jako dependency do targetu WorkoutMirrorLive
+    B: UserProfile domain model + Record
+    - UserProfile w SharedModels (Identifiable, Equatable, Codable, Sendable)
+    - UserProfileRecord w AppDatabase (@Table, mapowanie do/z UserProfile)
+    C: UserProfile feature
+    - bootstrapDatabase() w WorkoutMirrorLiveApp.init()
+    - UserProfileClient (save/fetch przez defaultDatabase)
+    - PersonSettingsFeature: ładowanie profilu, editProfileTapped
+    - PersonProfileEditFeature + PersonProfileEditView (modal edycji)
+    - PersonSettingsView: wyświetlenie danych + sheet do edycji
+    D: Previews
+    - #Preview dla PersonSettingsView z bootstrapDatabase + seed data
+    - #Preview dla PersonProfileEditView z bootstrapDatabase + seed data

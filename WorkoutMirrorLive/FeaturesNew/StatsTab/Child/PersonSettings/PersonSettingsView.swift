@@ -5,9 +5,10 @@
 //  Created by Sebastian Sciuba on 21/09/2025.
 //
 
+import AppDatabase
 import ComposableArchitecture
-import SwiftUI
 import SharedModels
+import SwiftUI
 
 @ViewAction(for: PersonSettingsFeature.self)
 struct PersonSettingsView: View {
@@ -34,6 +35,11 @@ struct PersonSettingsView: View {
                 ) { apiKeyStore in
                     APIKeyEntryView(store: apiKeyStore)
                 }
+                .sheet(
+                    item: $store.scope(state: \.destination?.editProfile, action: \.destination.editProfile)
+                ) { editStore in
+                    PersonProfileEditView(store: editStore)
+                }
         }
     }
     
@@ -42,14 +48,24 @@ struct PersonSettingsView: View {
     private var rootView: some View {
         List {
             Section {
-                coreMetricsCell("Name", "Sebastian")
-                coreMetricsCell("Surename", "-")
+                coreMetricsCell("Name", store.userProfile?.name ?? "-")
+                coreMetricsCell("Surname", store.userProfile?.surname ?? "-")
+                coreMetricsCell("Nickname", store.userProfile?.nickname ?? "-")
+                coreMetricsCell("Email", store.userProfile?.email ?? "-")
+            } header: {
+                Text("Identity")
+            } footer: {
+                Text("Tap to edit your profile.")
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                send(.editProfileTapped)
             }
             Section {
-                coreMetricsCell("Height", store.height)
-                coreMetricsCell("Age", store.age)
-                coreMetricsCell("Weight", store.weight)
-                coreMetricsCell("Sex", store.sex)
+                coreMetricsCell("Height", store.height.map { "\($0.value)" })
+                coreMetricsCell("Age", store.age.map { "\($0)" })
+                coreMetricsCell("Weight", store.weight.map { String(format: "%.1f", $0.value) })
+                coreMetricsCell("Sex", store.sex?.displayName)
             } header: {
                 Text("Personal Info")
             }
@@ -59,8 +75,8 @@ struct PersonSettingsView: View {
                 Text("Subscription Plan")
             }
             Section {
-                coreMetricsCell("Resting HR", store.restingHeartRate)
-                coreMetricsCell("Max HR", store.maxHR)
+                coreMetricsCell("Resting HR", store.restingHeartRate.map { "\(Int($0.value))" } ?? "-")
+                coreMetricsCell("Max HR", store.maxHR.map { "\($0)" } ?? "-")
                 
             } header: {
                 Text("Heart Rate & Activity")
@@ -101,12 +117,39 @@ struct PersonSettingsView: View {
         }
     }
     
-    private func coreMetricsCell(_ key: String, _ value: String) -> some View {
+    private func coreMetricsCell(_ key: String, _ value: String?) -> some View {
         HStack {
             Text(key)
             Spacer()
-            Text(value)
+            if let value, !value.isEmpty {
+                Text(value)
+            } else {
+                Text("-")
+            }
         }
     }
-    
+
+}
+
+// MARK: - Preview
+
+#Preview {
+    let _ = prepareDependencies {
+        try? $0.bootstrapDatabase()
+    }
+    PersonSettingsView(
+        store: Store(
+            initialState: PersonSettingsFeature.State(
+                userProfile: UserProfile(
+                    id: UUID(),
+                    email: "jan@example.com",
+                    name: "Jan",
+                    surname: "Kowalski",
+                    nickname: "janek"
+                )
+            )
+        ) {
+            PersonSettingsFeature()
+        }
+    )
 }
