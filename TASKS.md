@@ -619,7 +619,10 @@
     - UserProfileRecord (@Table, flat columns, mapowanie do/z UserProfile)
     - Schema.swift (bootstrapDatabase() + DatabaseMigrator + v1_userProfile migration)
     - AppDatabase dodany jako dependency do targetu WorkoutMirrorLive
-    B: UserProfile feature
+    B: UserProfile domain model + Record
+    - UserProfile w SharedModels (Identifiable, Equatable, Codable, Sendable)
+    - UserProfileRecord w AppDatabase (@Table, mapowanie do/z UserProfile)
+    C: UserProfile feature
     - bootstrapDatabase() w WorkoutMirrorLiveApp.init()
     - UserProfileClient (save/fetch przez defaultDatabase)
     - PersonSettingsFeature: ładowanie profilu, editProfileTapped

@@ -23,18 +23,27 @@ extension PersonSettingsFeature {
         var subscriptionTier: SubscriptionTier = .basic
         
         // MARK: - Properties
-        
-        var age: String = "-"
-        
-        var sex: String = "-"
-        
-        var height: String = "-"
-        
-        var weight: String = "-"
-        
-        var restingHeartRate: String = "-"
-        
-        var maxHR: String = "-"
+
+        /// User profile loaded from local database (name, surname, nickname, email)
+        var userProfile: UserProfile?
+
+        /// User's age fetched from HealthKit
+        var age: Int?
+
+        /// User's biological sex fetched from HealthKit
+        var sex: BiologicalSex?
+
+        /// User's height fetched from HealthKit
+        var height: HealthKitData?
+
+        /// User's weight fetched from HealthKit
+        var weight: HealthKitData?
+
+        /// Resting heart rate fetched from HealthKit
+        var restingHeartRate: HealthKitData?
+
+        /// Max heart rate calculated from age and biological sex
+        var maxHR: Int?
         
         // MARK: - Destination
         

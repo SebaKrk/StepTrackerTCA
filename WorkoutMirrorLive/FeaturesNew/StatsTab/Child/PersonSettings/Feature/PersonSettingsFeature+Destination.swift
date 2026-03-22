@@ -15,6 +15,9 @@ extension PersonSettingsFeature {
 
         /// Navigation to API key management screen
         case apiKey(APIKeyEntryFeature)
+
+        /// Modal for editing user profile (name, surname, nickname)
+        case editProfile(PersonProfileEditFeature)
     }
 }
 

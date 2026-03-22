@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import IssueReporting
 import SharedModels
 
 @Reducer
@@ -17,6 +18,7 @@ struct PersonSettingsFeature {
     @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.personCalculatorClient) var calculator
     @Dependency(\.apiKeyClient) var apiKeyClient
+    @Dependency(\.userProfileClient) var userProfileClient
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -27,43 +29,28 @@ struct PersonSettingsFeature {
                 
                 // MARK: - Action
             case let .changeAge(age):
-                if let age = age {
-                    state.age = "\(age)"
-                }
+                state.age = age
                 return .none
-                
+
             case let .changeSex(sex):
-                if let sex = sex {
-                    state.sex = sex.displayName
-                }
+                state.sex = sex
                 return .none
-                
+
             case let .changeHeight(height):
-                if let height = height?.value {
-                    state.height = "\(height)"
-                }
+                state.height = height
                 return .none
-                
+
             case let .changeWeight(weight):
-                if let weight = weight?.value {
-                    state.weight = String(format: "%.1f", weight)
-                }
+                state.weight = weight
                 return .none
-                
+
             case let .changeRestingHeartRate(restingHeartRate):
-                if let restingHeartRate = restingHeartRate?.value {
-                    state.restingHeartRate = "\(Int(restingHeartRate))"
-                }
+                state.restingHeartRate = restingHeartRate
                 return .none
-                
+
             case let .changeMaxHeartRate(age, sex):
-                guard let age = age, let sex = sex else {
-                    return .none
-                }
-                
-                let maxHR = calculator.calculateMaxHeartRate(age, sex)
-                state.maxHR = "\(maxHR)"
-                
+                guard let age, let sex else { return .none }
+                state.maxHR = calculator.calculateMaxHeartRate(age, sex)
                 return .none
                 
             case .fetchPersonalData:
@@ -74,27 +61,42 @@ struct PersonSettingsFeature {
                         let height = try await personalDataClient.getHeight()
                         let weight = try await personalDataClient.getWeight(30)
                         let restingHR = try await personalDataClient.getRestingHeartRate(7)
-                        
+
                         await send(.changeAge(age))
                         await send(.changeSex(sex))
                         await send(.changeHeight(height))
                         await send(.changeWeight(weight))
                         await send(.changeRestingHeartRate(restingHR))
                         await send(.changeMaxHeartRate(age, sex))
-                        
+
                     } catch {
-                        print("Failed to fetch personal data: \(error)")
+                        reportIssue(error)
                     }
                 }
-                
+
+            case .fetchUserProfile:
+                return .run { send in
+                    do {
+                        let profile = try await userProfileClient.fetch()
+                        await send(.profileLoaded(profile))
+                    } catch {
+                        reportIssue(error)
+                    }
+                }
+
+            case let .profileLoaded(profile):
+                state.userProfile = profile
+                return .none
+
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .send(.fetchPersonalData)
-                
+                return .merge(
+                    .send(.fetchPersonalData),
+                    .send(.fetchUserProfile)
+                )
+
             case .view(.xMarkButtonTapped):
-                return .run { send in
-                    await self.dismiss()
-                }
+                return .run { _ in await self.dismiss() }
 
             case .view(.apiKeyTapped):
                 let hasKey = apiKeyClient.load() != nil
@@ -106,6 +108,12 @@ struct PersonSettingsFeature {
                 )
                 return .none
 
+            case .view(.editProfileTapped):
+                state.destination = .editProfile(
+                    PersonProfileEditFeature.State(profile: state.userProfile)
+                )
+                return .none
+
             case .destination(.presented(.apiKey(.delegate(.keySaved)))):
                 state.destination = nil
                 return .none
@@ -113,6 +121,10 @@ struct PersonSettingsFeature {
             case .destination(.presented(.apiKey(.delegate(.keyDeleted)))):
                 state.destination = nil
                 return .none
+
+            case .destination(.presented(.editProfile(.delegate(.profileSaved)))):
+                state.destination = nil
+                return .send(.fetchUserProfile)
 
             case .destination(_):
                 return .none

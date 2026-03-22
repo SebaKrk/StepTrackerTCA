@@ -1224,6 +1224,9 @@
         }
       }
     },
+    "Contact" : {
+
+    },
     "Continue" : {
 
     },
@@ -1576,6 +1579,9 @@
     "Edit" : {
 
     },
+    "Edit Profile" : {
+
+    },
     "Edytuj" : {
       "localizations" : {
         "pl" : {
@@ -1595,6 +1601,9 @@
           }
         }
       }
+    },
+    "Email" : {
+
     },
     "End" : {
       "localizations" : {
@@ -1973,6 +1982,9 @@
         }
       }
     },
+    "Identity" : {
+
+    },
     "Important message" : {
       "localizations" : {
         "pl" : {
@@ -2256,6 +2268,9 @@
       }
     },
     "Name" : {
+
+    },
+    "Nickname" : {
 
     },
     "No calories burned data available." : {
@@ -3323,6 +3338,12 @@
           }
         }
       }
+    },
+    "Surname" : {
+
+    },
+    "Tap to edit your profile." : {
+
     },
     "Tap to fetch mock data to display in the application." : {
       "localizations" : {
