@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - Exercise Workout Type
-public enum ExerciseWorkoutType: String, CaseIterable, Sendable {
+public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
     case amrap
     case forTime
     case emom

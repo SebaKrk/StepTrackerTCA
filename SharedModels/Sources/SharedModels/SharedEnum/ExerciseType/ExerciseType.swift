@@ -9,7 +9,7 @@
 import Foundation
 
 // MARK: - Exercise Type
-public enum ExerciseType: String, CaseIterable, Sendable {
+public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     // Strength/Weightlifting (z obciążeniem)
     case deadlift
     case backSquat

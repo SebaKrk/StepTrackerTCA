@@ -6,7 +6,6 @@
 //
 
 import ComposableArchitecture
-import IdentifiedCollections
 import SharedModels
 import SwiftUI
 
@@ -22,13 +21,11 @@ extension PlansFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .gray
 
-        /// Planned workouts (scanned via OCR or manually created).
-        /// Stored in shared in‑memory storage - persists for app lifetime only.
-        @Shared(.inMemory("plannedWorkouts"))
-        var plannedWorkouts: IdentifiedArrayOf<TrainingSession> = []
+        /// Training session plans loaded from SQLite.
+        var sessions: [TrainingSession] = []
 
         /// Current view state.
-        var viewState: ViewState = .success
+        var viewState: ViewState = .loading
 
         // MARK: - Destination
 

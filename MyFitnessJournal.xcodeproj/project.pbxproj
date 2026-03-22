@@ -75,6 +75,9 @@
 		9371982D2F18D58A009C583D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		9371982F2F18D58A009C583D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		93779D842F6E8E03008EFEF1 /* AppDatabase */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AppDatabase; sourceTree = "<group>"; };
+		93779D922F6FCF35008EFEF1 /* IOS-00071-SQLiteData-UserProfile.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "IOS-00071-SQLiteData-UserProfile.md"; sourceTree = "<group>"; };
+		93779D932F6FCF35008EFEF1 /* IOS-00072-Persystencja-Planow-Treningowych.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "IOS-00072-Persystencja-Planow-Treningowych.md"; sourceTree = "<group>"; };
+		93779D942F6FCF35008EFEF1 /* plan.ios.00070.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = plan.ios.00070.md; sourceTree = "<group>"; };
 		9382096C2E39388600F49046 /* WorkoutMirrorLive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkoutMirrorLive.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9388D7F92D8E8B090016D160 /* TASKS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TASKS.md; sourceTree = "<group>"; };
 		93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFitnessJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -215,6 +218,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		93779D952F6FCF35008EFEF1 /* PLANS */ = {
+			isa = PBXGroup;
+			children = (
+				93779D922F6FCF35008EFEF1 /* IOS-00071-SQLiteData-UserProfile.md */,
+				93779D932F6FCF35008EFEF1 /* IOS-00072-Persystencja-Planow-Treningowych.md */,
+				93779D942F6FCF35008EFEF1 /* plan.ios.00070.md */,
+			);
+			path = PLANS;
+			sourceTree = "<group>";
+		};
 		93CE752C2D1699CA006D5A4A = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +238,7 @@
 				93D02EED2DF41F4C00F08849 /* HealthHub */,
 				9332A8C52D1809FD00DA426E /* README.md */,
 				9388D7F92D8E8B090016D160 /* TASKS.md */,
+				93779D952F6FCF35008EFEF1 /* PLANS */,
 				93CE75372D1699CA006D5A4A /* StepTrackerTCA */,
 				934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */,
 				9382096D2E39388600F49046 /* WorkoutMirrorLive */,

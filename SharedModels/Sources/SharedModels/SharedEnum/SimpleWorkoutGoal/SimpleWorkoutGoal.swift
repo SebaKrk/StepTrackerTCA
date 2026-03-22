@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum SimpleWorkoutGoal: CaseIterable, Hashable, Sendable {
+public enum SimpleWorkoutGoal: String, CaseIterable, Hashable, Codable, Sendable {
 
     case open
     case timeLimit

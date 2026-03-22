@@ -122,7 +122,6 @@ iOSInjectionProject/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift
 
-# Lokalne notatki, ściągawki i plany — nie idą do repozytorium
+# Lokalne notatki i ściągawki — nie idą do repozytorium
 SQLiteData-Cheatsheet.md
 AppDatabase/SQLiteData-Cheatsheet.md
-PLANS/
