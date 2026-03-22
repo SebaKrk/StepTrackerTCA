@@ -1,5 +1,5 @@
 {
-  "originHash" : "f541f6b435ab11180e624086604c9d30e6eb9d8197811324ac8c45414dd623aa",
+  "originHash" : "e8c6b4f88e4c40d807f97736cd22168b398ea105df17a7cd71fdedc50b23307a",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "ccc898f21992ebc130bc04cc197460a5ae230bcf",
         "version" : "2.5.3"
+      }
+    },
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift",
+      "state" : {
+        "revision" : "36e30a6f1ef10e4194f6af0cff90888526f0c115",
+        "version" : "7.10.0"
       }
     },
     {
@@ -44,6 +53,15 @@
       "state" : {
         "revision" : "181a95b992f84d99a14c562c86e8ebef3cbcdca9",
         "version" : "1.1.5"
+      }
+    },
+    {
+      "identity" : "sqlite-data",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/sqlite-data",
+      "state" : {
+        "revision" : "65502acdb033ec8025a0bcc443abf2f4ca0598f9",
+        "version" : "1.6.0"
       }
     },
     {
@@ -161,6 +179,24 @@
       "state" : {
         "revision" : "3bfc408cc2d0bee2287c174da6b1c76768377818",
         "version" : "2.7.4"
+      }
+    },
+    {
+      "identity" : "swift-snapshot-testing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-snapshot-testing",
+      "state" : {
+        "revision" : "05b6f05b55ff9e2dcdcc21ac78c6ba81ea624791",
+        "version" : "1.19.1"
+      }
+    },
+    {
+      "identity" : "swift-structured-queries",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-structured-queries",
+      "state" : {
+        "revision" : "20db4a2a446f51e67e1207d54a23ad0a03471a7b",
+        "version" : "0.31.0"
       }
     },
     {
