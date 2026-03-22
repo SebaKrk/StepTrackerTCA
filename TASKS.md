@@ -631,3 +631,20 @@
     D: Previews
     - #Preview dla PersonSettingsView z bootstrapDatabase + seed data
     - #Preview dla PersonProfileEditView z bootstrapDatabase + seed data
+
+### IOS-00072 Training plans and session results persistence (SQLiteData)
+    A: Records in AppDatabase
+    - TrainingSessionRecord (@Table, hybrid: flat scalars + nested structures as JSON BLOB)
+    - WorkoutPlanScoreRecord (@Table, resultsData as JSON BLOB)
+    - Migrations v3_trainingSession + v4_workoutPlanScore in Schema.swift
+    B: TrainingSessionClient
+    - save / fetchAll / delete via defaultDatabase
+    C: WorkoutPlanScoreClient — replace JSON storage with SQLite
+    - Remove WorkoutPlanScoreStore (JSON actor)
+    - liveValue via defaultDatabase on WorkoutPlanScoreRecord
+    D: PlansFeature — load/save from SQLite
+    - Replace @Shared(.inMemory) with TrainingSessionClient
+    - fetchAll on viewDidAppear, save on delegate(.saved), delete
+    E: SummaryFeature — save WorkoutPlanScore on End Workout
+    - Build WorkoutPlanScore from resultInputs + trainingSession + hkWorkoutId
+    - workoutPlanScoreClient.save() before dismiss()
