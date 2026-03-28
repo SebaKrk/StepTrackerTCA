@@ -11,6 +11,12 @@ import Foundation
 
 extension HRMirrorFeature {
 
+    enum Tab: Int, Hashable {
+        case controls = 0
+        case hr       = 1
+        case music    = 2
+    }
+
     @ObservableState
     struct State: Equatable {
 
@@ -47,6 +53,9 @@ extension HRMirrorFeature {
         var maxHeartRate: Int
 
         // MARK: - UI
+
+        /// Active tab — defaults to `.hr` so the session view opens first.
+        var selectedTab: Tab = .hr
 
         /// Whether the TabView page indicator dots are visible.
         ///

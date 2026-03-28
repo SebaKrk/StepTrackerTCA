@@ -11,9 +11,9 @@ import SharedModels
 
 @Reducer
 struct AppTabNewFeature {
-    
+
     // MARK: - Reducer
-    
+
     var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce<State, Action> { state, action in

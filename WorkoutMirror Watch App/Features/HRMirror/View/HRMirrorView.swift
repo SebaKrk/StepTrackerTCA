@@ -26,10 +26,13 @@ struct HRMirrorView: View {
     // MARK: - View
 
     var body: some View {
-        TabView {
-            hrTab
-            controlsTab
-            NowPlayingView()
+        TabView(selection: Binding(
+            get: { store.selectedTab },
+            set: { send(.tabSelected($0)) }
+        )) {
+            controlsTab.tag(HRMirrorFeature.Tab.controls)
+            hrTab.tag(HRMirrorFeature.Tab.hr)
+            NowPlayingView().tag(HRMirrorFeature.Tab.music)
         }
         .tabViewStyle(.page(indexDisplayMode: store.showTabIndicator ? .automatic : .never))
         .onTapGesture {
@@ -136,14 +139,14 @@ struct HRMirrorView: View {
     }
 
     private var elapsedTimeView: some View {
-        let total = store.elapsedSeconds
-        let minutes = Int(total) / 60
-        let seconds = Int(total) % 60
-        let centiseconds = Int((total.truncatingRemainder(dividingBy: 1)) * 100)
-        return Text(String(format: "%d:%02d.%02d", minutes, seconds, centiseconds))
-            .font(.system(size: 28, design: .rounded))
-            .monospacedDigit()
+        TimelineView(PeriodicTimelineSchedule(from: .now, by: 1.0 / 30.0)) { context in
+            ElapsedTimeView(
+                elapsedTime: store.elapsedSeconds,
+                showSubseconds: context.cadence == .live
+            )
+            .font(.system(size: 28, design: .rounded).monospacedDigit())
             .foregroundStyle(.yellow)
+        }
     }
 
 }

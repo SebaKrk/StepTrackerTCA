@@ -105,7 +105,8 @@ struct SessionFeature {
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .run { [workout = state.selectedWorkout, trainingSession = state.trainingSession] send in
+                return .run { [workout = state.selectedWorkout, trainingSession = state.trainingSession, watchClient = watchConnectivityClient] send in
+                    async let _ = watchClient.initializeWatchConnectivity()
                     try await self.sessionClient.selectedWorkout(workout.hkType)
                     await send(.controls(.setWorkoutType(workout)))
                     await send(.makeCalculationForSession)
@@ -176,6 +177,14 @@ struct SessionFeature {
                         activeEnergy: current.activeEnergy
                     )
                 )))
+
+            case .watchEventReceived(.workoutPaused):
+                guard state.controls.sessionState == .running else { return .none }
+                return .send(.controls(.view(.mainControlButtonTapped)))
+
+            case .watchEventReceived(.workoutResumed):
+                guard state.controls.sessionState == .paused else { return .none }
+                return .send(.controls(.view(.mainControlButtonTapped)))
 
             case .watchEventReceived:
                 return .none

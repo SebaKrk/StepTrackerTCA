@@ -109,6 +109,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		932130A92F78347500AC8B6D /* Exceptions for "WorkoutMirror Watch App" folder in "WorkoutMirror Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"WorkoutMirror-Watch-App-Info.plist",
+			);
+			target = 93FE94772F74532E00A77CCA /* WorkoutMirror Watch App */;
+		};
 		936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -180,6 +187,9 @@
 		};
 		93FE94792F74532E00A77CCA /* WorkoutMirror Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				932130A92F78347500AC8B6D /* Exceptions for "WorkoutMirror Watch App" folder in "WorkoutMirror Watch App" target */,
+			);
 			path = "WorkoutMirror Watch App";
 			sourceTree = "<group>";
 		};
@@ -1007,6 +1017,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutMirror;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Workout Mirror reads your heart rate from Apple Watch to display it during your workout.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -1042,6 +1053,7 @@
 				DEVELOPMENT_TEAM = 8RH4482R36;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutMirror;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Workout Mirror reads your heart rate from Apple Watch to display it during your workout.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";

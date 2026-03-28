@@ -34,7 +34,7 @@ struct AppFeatureAW {
 
             case .watchEventReceived(.workoutStarted(_, let elapsed, let maxHR)):
                 state.hrMirror = HRMirrorFeature.State(elapsedSeconds: elapsed, maxHeartRate: maxHR)
-                return .none
+                return .send(.hrMirror(.presented(.start)))
 
             case .watchEventReceived(.workoutPaused):
                 return .send(.hrMirror(.presented(.workoutPaused)))
