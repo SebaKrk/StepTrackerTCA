@@ -97,7 +97,7 @@ struct LiveSessionView: View {
             .foregroundColor(.primary)
             Spacer()
             
-            Text(store.currentHeartRateZone.rawValue)
+            Text(store.currentHeartRateZone.title)
                 .font(.title3.weight(.semibold))
                 .foregroundColor(store.currentHeartRateZone.color)
         }

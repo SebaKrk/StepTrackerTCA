@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 23/01/2026.
 //
 
+#if canImport(ActivityKit)
 import ActivityKit
 import AppIntents
 import Foundation
@@ -83,11 +84,12 @@ public struct StopTimerIntent: LiveActivityIntent {
     
     public func perform() async throws -> some IntentResult {
         guard let timerName = timerName else { return .result() }
-        
+
         if let activity = Activity<TimerActivityAttributes>.activities.first(where: { $0.attributes.timerName == timerName }) {
             await activity.end(nil, dismissalPolicy: .immediate)
         }
-        
+
         return .result()
     }
 }
+#endif

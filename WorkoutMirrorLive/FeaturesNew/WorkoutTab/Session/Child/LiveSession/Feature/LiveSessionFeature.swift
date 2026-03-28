@@ -32,28 +32,40 @@ struct LiveSessionFeature {
                 return .none
                 
             case let .workoutMetrics(data):
-                state.workoutMetrics = data
-                // Delegate Live Activity update to child reducer
+                // Watch is the primary HR source. When HealthKit sends HR = 0
+                // (iPhone has no wrist sensor in this mode), preserve the last
+                // known value so Watch readings are not overwritten.
+                let effectiveHR = data.heartRate > 0 ? data.heartRate : state.workoutMetrics.heartRate
+                state.workoutMetrics = WorkoutMetrics(
+                    averageHeartRate: data.averageHeartRate,
+                    heartRate: effectiveHR,
+                    activeEnergy: data.activeEnergy
+                )
                 let contentState = WorkoutSessionActivityAttributes.ContentState(
-                    heartRate: data.heartRate,
+                    heartRate: effectiveHR,
                     heartRateZone: state.currentHeartRateZone,
                     heartRatePercentage: state.currentHeartRatePercentage,
                     activeEnergy: data.activeEnergy,
                     maxHeartRate: state.sessionMaxHeartRate,
                     averageHeartRate: state.sessionAverageHeartRate
                 )
-                
+
                 var effects: [Effect<Action>] = [
-                    .send(.calculateHeartRateZone(Int(data.heartRate), state.maxHeartRate)),
-                    .send(.calculateHeartRatePercentage(Int(data.heartRate), state.maxHeartRate)),
-                    .send(.calculateSessionHeartRateStats(Int(data.heartRate))),
+                    .send(.calculateHeartRateZone(Int(effectiveHR), state.maxHeartRate)),
+                    .send(.calculateHeartRatePercentage(Int(effectiveHR), state.maxHeartRate)),
                     .send(.liveActivity(.workout(.update(contentState))))
                 ]
-                
+
+                // Update session stats only when we have a real reading.
+                // Skipping HealthKit zeros prevents them from skewing AVG HR.
+                if data.heartRate > 0 {
+                    effects.append(.send(.calculateSessionHeartRateStats(Int(effectiveHR))))
+                }
+
                 if state.liveActivity.timer.isActive {
                     effects.append(.send(.liveActivity(.timer(.update(state.timerContentState)))))
                 }
-                
+
                 return .merge(effects)
                 
             case let .calculateSessionHeartRateStats(heartRate):

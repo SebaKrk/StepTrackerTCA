@@ -51,15 +51,16 @@ private enum SessionCalculationsClientKey: DependencyKey {
 
         return SessionCalculationsClient(
             calculateHeartRateZone: { current, max in
-                guard max > 0 else { return .recovery }
+                guard max > 0 else { return .resting }
                 let percentage = Double(current) / Double(max)
                 switch percentage {
-                case 0.5..<0.6: return .recovery
-                case 0.6..<0.7: return .fatBurning
-                case 0.7..<0.8: return .aerobic
-                case 0.8..<0.9: return .threshold
-                case 0.9...1.0: return .anaerobic
-                default: return .recovery
+                case 0..<0.5:    return .resting
+                case 0.5..<0.6:  return .recovery
+                case 0.6..<0.7:  return .fatBurning
+                case 0.7..<0.8:  return .aerobic
+                case 0.8..<0.9:  return .threshold
+                case 0.9...1.0:  return .anaerobic
+                default:         return .resting
                 }
             },
             calculateHeartRatePercentage: { current, max in

@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 17/01/2026.
 //
 
+#if canImport(ActivityKit)
 import ActivityKit
 import Foundation
 
@@ -114,3 +115,4 @@ extension TimerActivityAttributes.ContentState {
         )
     }
 }
+#endif
