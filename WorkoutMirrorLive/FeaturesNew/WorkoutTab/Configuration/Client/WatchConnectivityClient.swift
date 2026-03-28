@@ -5,58 +5,70 @@
 //  Created by Sebastian Sciuba on 17/09/2025.
 //
 
-
 import ComposableArchitecture
 import HealthHub
-//import WatchConnectivity
+import SharedModels
 import Foundation
 
-/// Klient WatchConnectivity dla TCA - most między TCA Feature a WatchConnectivityManager
-/// Zawiera funkcje które TCA może wywoływać jako Effects
+/// TCA dependency that bridges features with `WatchConnectivityManager`.
+///
+/// Provides a composable interface for managing the WatchConnectivity session,
+/// sending workout events to Apple Watch, and receiving heart rate readings back.
 public struct WatchConnectivityClient: Sendable {
-    
-    /// Triggeruje inicjalizację WatchConnectivity managera
+
+    /// Activates the WatchConnectivity session.
     public var initializeWatchConnectivity: @Sendable () async -> Void
-    
-    /// Sprawdza pełny status połączenia
+
+    /// Evaluates and returns the current connection status.
     public var checkWatchStatus: @Sendable () async -> WatchConnectivityStatus
-    
+
+    /// Deactivates the WatchConnectivity session.
     public var stopWatchConnectivity: @Sendable () async -> Void
+
+    /// Sends a workout event to the paired Apple Watch.
+    ///
+    /// Uses `sendMessage` when reachable, falls back to `transferUserInfo`.
+    public var sendWorkoutEvent: @Sendable (WatchWorkoutEvent) async -> Void
+
+    /// A stream of incoming workout events received from the paired Apple Watch.
+    ///
+    /// Yields `WatchWorkoutEvent` values, typically `.hrReading` during an active session.
+    public var incomingEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
 }
 
 // MARK: - Dependency Registration
 
-/// Klucz do rejestracji WatchConnectivityClient w TCA Dependency System
 public enum WatchConnectivityClientKey: DependencyKey {
-    
-    /// Live implementation - rzeczywisty WatchConnectivityClient który używa prawdziwego WatchConnectivityManager
+
+    /// Live implementation backed by `WatchConnectivityManager`.
     public static let liveValue: WatchConnectivityClient = {
         
-        /// Pobieramy WatchConnectivityManager z TCA dependencies
         @Dependency(\.watchConnectivityManager) var watchManager
-        
+
         return WatchConnectivityClient(
-            /// Inicjalizuje WatchConnectivity manager
             initializeWatchConnectivity: {
                 print("🍎 WatchConnectivityClient: Initializing WatchConnectivity...")
                 await watchManager.initializeWatchConnectivity()
             },
-            
-            /// Sprawdza pełny status
             checkWatchStatus: {
                 print("🍎 WatchConnectivityClient: Checking watch status...")
                 return await watchManager.checkConnectionStatus()
             },
-            
-            /// konczy
             stopWatchConnectivity: {
-                return await watchManager.stopWatchConnectivity()
+                await watchManager.stopWatchConnectivity()
+            },
+            sendWorkoutEvent: { event in
+                try? await watchManager.sendWorkoutEvent(event)
+            },
+            incomingEventStream: {
+                watchManager.incomingWorkoutEventStream
             }
         )
     }()
 }
 
-/// Rozszerzenie TCA DependencyValues żeby można było używać watchConnectivityClient
+// MARK: - DependencyValues
+
 public extension DependencyValues {
     var watchConnectivityClient: WatchConnectivityClient {
         get { self[WatchConnectivityClientKey.self] }

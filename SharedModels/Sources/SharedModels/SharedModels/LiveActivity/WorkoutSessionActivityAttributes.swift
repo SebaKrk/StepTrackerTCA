@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 15/01/2026.
 //
 
+#if canImport(ActivityKit)
 import ActivityKit
 import Foundation
 
@@ -131,3 +132,4 @@ extension WorkoutSessionActivityAttributes.ContentState {
         )
     }
 }
+#endif

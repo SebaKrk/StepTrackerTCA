@@ -341,33 +341,33 @@ extension TimeInterval {
     }))
 }
 
-#Preview("successfullyLoaded") {
-    let summary = WorkoutSummary.previewWorkoutSummary()
-    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-    state.summary = summary
-    return NavigationStack {
-        SummaryView(store: Store(initialState: state) {
-            SummaryFeature()
-        } withDependencies: {
-            $0.sessionClient.getWorkoutSummary = { summary }
-        })
-    }
-}
-
-#Preview("withPlan") {
-    let session = TrainingSession.previewTrainingSession
-    let summary = WorkoutSummary.previewWorkoutSummary()
-    let workouts = session.workouts
-    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-    state.summary = summary
-    state.resultInputs = workouts.map { WorkoutSessionResult(name: $0.name, description: $0.snapshotDescription) }
-    state.showResults = Array(repeating: false, count: workouts.count)
-    state.showNotes = Array(repeating: false, count: workouts.count)
-    return NavigationStack {
-        SummaryView(store: Store(initialState: state) {
-            SummaryFeature()
-        } withDependencies: {
-            $0.sessionClient.getWorkoutSummary = { summary }
-        })
-    }
-}
+//#Preview("successfullyLoaded") {
+//    let summary = WorkoutSummary.previewWorkoutSummary()
+//    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+//    state.summary = summary
+//    return NavigationStack {
+//        SummaryView(store: Store(initialState: state) {
+//            SummaryFeature()
+//        } withDependencies: {
+//            $0.sessionClient.getWorkoutSummary = { summary }
+//        })
+//    }
+//}
+//
+//#Preview("withPlan") {
+//    let session = TrainingSession.previewTrainingSession
+//    let summary = WorkoutSummary.previewWorkoutSummary()
+//    let workouts = session.workouts
+//    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+//    state.summary = summary
+//    state.resultInputs = workouts.map { WorkoutSessionResult(name: $0.name, description: $0.snapshotDescription) }
+//    state.showResults = Array(repeating: false, count: workouts.count)
+//    state.showNotes = Array(repeating: false, count: workouts.count)
+//    return NavigationStack {
+//        SummaryView(store: Store(initialState: state) {
+//            SummaryFeature()
+//        } withDependencies: {
+//            $0.sessionClient.getWorkoutSummary = { summary }
+//        })
+//    }
+//}

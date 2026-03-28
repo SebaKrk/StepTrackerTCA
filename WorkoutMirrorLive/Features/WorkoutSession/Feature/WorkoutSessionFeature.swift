@@ -13,8 +13,9 @@ import SharedModels
 struct WorkoutSessionFeature {
     
     // MARK: - Dependency
-    
+
     @Dependency(\.workoutSessionClient) var client
+    @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     
     // MARK: - Reducer
     
@@ -41,11 +42,24 @@ struct WorkoutSessionFeature {
                     //await send(.workoutStart)
                 }
             case .runningWorkout:
-                return .run { send in
-                    for await metric in await self.client.workoutMetricsStream() {
-                        await send(.mirroring(.workoutMetrics(metric)))
+                return .merge(
+                    .run { send in
+                        for await metric in await self.client.workoutMetricsStream() {
+                            await send(.mirroring(.workoutMetrics(metric)))
+                        }
+                    },
+                    .run { send in
+                        await self.watchConnectivityClient.sendWorkoutEvent(
+                            .workoutStarted(activityType: 0, elapsedSeconds: 0, maxHeartRate: 0)
+                        )
+                    },
+                    .run { send in
+                        for await event in await self.watchConnectivityClient.incomingEventStream() {
+                            await send(.watchEventReceived(event))
+                        }
                     }
-                }
+                    .cancellable(id: WorkoutSessionCancelID.watchEventStream)
+                )
                 
             case .prepareWorkout:
                 return .run { send in
@@ -79,16 +93,38 @@ struct WorkoutSessionFeature {
             case .mirroring(.view(.pauseWorkoutButtonTaped)):
                 return .run { send in
                     await self.client.togglePause()
+                    await self.watchConnectivityClient.sendWorkoutEvent(.workoutPaused)
                 }
+
             case .mirroring(.view(.resumeWorkoutButtonTapped)):
-                return .run { send in
+                let elapsed = state.mirroring.pausedElapsedTime
+                return .run { [elapsed] send in
                     await self.client.togglePause()
+                    await self.watchConnectivityClient.sendWorkoutEvent(.workoutResumed(elapsedSeconds: elapsed))
                 }
+
             case .mirroring(.view(.endWorkoutButtonTapped)):
-                return .run { send in
-                    await self.client.endWorkout()
-                    await send(.endingWorkout)
-                }
+                return .merge(
+                    .cancel(id: WorkoutSessionCancelID.watchEventStream),
+                    .run { send in
+                        await self.client.endWorkout()
+                        await self.watchConnectivityClient.sendWorkoutEvent(.workoutEnded)
+                        await send(.endingWorkout)
+                    }
+                )
+
+            case .watchEventReceived(.hrReading(let bpm, _)):
+                let current = state.mirroring.workoutMetrics
+                return .send(.mirroring(.workoutMetrics(
+                    WorkoutMetrics(
+                        averageHeartRate: current.averageHeartRate,
+                        heartRate: bpm,
+                        activeEnergy: current.activeEnergy
+                    )
+                )))
+
+            case .watchEventReceived:
+                return .none
                 
             case .summary(.view(.endWorkoutButtonTapped)):
                 return .none
@@ -136,6 +172,9 @@ extension WorkoutSessionFeature {
         ///
         case runningWorkout
 
+        /// Received when the paired Apple Watch sends a `WatchWorkoutEvent` during an active session.
+        case watchEventReceived(WatchWorkoutEvent)
+
         // MARK: - View Actions
         
         case view(View)
@@ -162,6 +201,19 @@ extension WorkoutSessionFeature {
     }
     
     
+}
+
+// MARK: - Cancel IDs
+
+/// Cancel identifiers used by `WorkoutSessionFeature` long-running effects.
+///
+/// Declared outside the `@Reducer` to avoid `@MainActor` isolation
+/// that would prevent conformance to `Sendable` (required by `cancellable(id:)`).
+private nonisolated enum WorkoutSessionCancelID: Hashable, Sendable {
+
+    /// Identifies the stream listening for incoming Watch workout events.
+    case watchEventStream
+
 }
 
 /// Implementation of `WorkoutSessionFeature` state

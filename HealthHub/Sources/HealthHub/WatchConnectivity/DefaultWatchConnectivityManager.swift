@@ -5,95 +5,122 @@
 //  Created by Sebastian Sciuba on 17/09/2025.
 //
 
+import SharedModels
 import WatchConnectivity
 
+/// Default implementation of `WatchConnectivityManager` backed by `WCSession`.
+///
+/// Manages the full lifecycle of a WatchConnectivity session:
+/// activating the session, tracking connection status via `WatchConnectivityStatusActor`,
+/// and exchanging `WatchWorkoutEvent` messages with the paired device.
+///
+/// Incoming messages (from both `sendMessage` and `transferUserInfo`) are decoded
+/// and forwarded through `incomingWorkoutEventStream`.
 @preconcurrency
 public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityManager, @unchecked Sendable {
-    
-    /// WCSession z WatchConnectivity
+
+    // MARK: - Internal
+
+    /// Key used to encode/decode `WatchWorkoutEvent` in WCSession message dictionaries.
+    static let messageKey = "watchWorkoutEvent"
+
+    /// The underlying WCSession instance.
     private var session: WCSession?
-    
-    /// Actor zarządzający statusem
+
+    /// Actor responsible for thread-safe connection status updates.
     let statusActor = WatchConnectivityStatusActor()
-    
+
+    // MARK: - Incoming Event Stream
+
+    /// A stream of `WatchWorkoutEvent` values received from the paired device.
+    public let incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent>
+
+    /// Continuation used to yield events into `incomingWorkoutEventStream`.
+    let eventContinuation: AsyncStream<WatchWorkoutEvent>.Continuation
+
+    // MARK: - Lifecycle
+
     override init() {
+        let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
+        incomingWorkoutEventStream = stream
+        eventContinuation = continuation
         super.init()
         print("🍎 🟢 Created DefaultWatchConnectivityManager")
     }
-    
+
     deinit {
         print("🪦 -> ❌ DefaultWatchConnectivityManager deinit")
     }
-    
-    // MARK: - WatchConnectivityManager Protocol Implementation
-    
-    /// Czy WatchConnectivity jest obsługiwane na tym urządzeniu
+
+    // MARK: - WatchConnectivityManager
+
+    /// Whether WatchConnectivity is supported on this device.
     public var isSupported: Bool {
-        get async {
-            return WCSession.isSupported()
-        }
+        get async { WCSession.isSupported() }
     }
-    
-    /// Czy Apple Watch jest sparowany
+
+    /// Whether an Apple Watch is currently paired. Always returns `false` on watchOS.
     public var isPaired: Bool {
         get async {
-            guard let session = session else { return false }
-            return session.isPaired
+            #if os(iOS)
+            return session?.isPaired ?? false
+            #else
+            return false
+            #endif
         }
     }
-    
-    /// Czy aplikacja Watch jest zainstalowana
+
+    /// Whether the companion Watch app is installed. Always returns `false` on watchOS.
     public var isWatchAppInstalled: Bool {
         get async {
-            guard let session = session else { return false }
-            return session.isWatchAppInstalled
+            #if os(iOS)
+            return session?.isWatchAppInstalled ?? false
+            #else
+            return false
+            #endif
         }
     }
-    
-    /// Czy można komunikować się z Watch
+
+    /// Whether the paired device is currently reachable.
     public var isReachable: Bool {
-        get async {
-            guard let session = session else { return false }
-            return session.isReachable
-        }
+        get async { session?.isReachable ?? false }
     }
-    
-    /// Aktualny status połączenia
+
+    /// The current connection status.
     public var currentStatus: WatchConnectivityStatus {
-        get async {
-            return await statusActor.status
-        }
+        get async { await statusActor.status }
     }
-    
-    /// Inicjalizuje WatchConnectivity session
+
+    /// Activates the `WCSession` and begins monitoring connection status.
     public func initializeWatchConnectivity() async {
         print("🍎 DefaultWatchConnectivityManager: initializeWatchConnectivity() called")
-        
+
         guard WCSession.isSupported() else {
             print("❌ WatchConnectivity not supported")
             await statusActor.updateStatus(.notSupported)
             return
         }
-        
+
         session = WCSession.default
         session?.delegate = self
         session?.activate()
-        
+
         print("🔄 WCSession activation started...")
     }
-    
-    /// Sprawdza pełny status połączenia
+
+    /// Evaluates and returns the current connection status.
     public func checkConnectionStatus() async -> WatchConnectivityStatus {
         guard WCSession.isSupported() else {
             await statusActor.updateStatus(.notSupported)
             return .notSupported
         }
-        
-        guard let session = session else {
+
+        guard let session else {
             await statusActor.updateStatus(.unknown)
             return .unknown
         }
-        
+
+        #if os(iOS)
         if session.isPaired {
             await statusActor.updateStatus(.ready)
             return .ready
@@ -101,32 +128,45 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
             await statusActor.updateStatus(.notPaired)
             return .notPaired
         }
-        
-//        // Sprawdź w kolejności ważności
-//        if !session.isPaired {
-//            await statusActor.updateStatus(.notPaired)
-//            return .notPaired
-//        }
-//        
-//        if !session.isWatchAppInstalled {
-//            await statusActor.updateStatus(.appNotInstalled)
-//            return .appNotInstalled
-//        }
-//        
-//        if session.isReachable {
-//            await statusActor.updateStatus(.ready)
-//            return .ready
-//        } else {
-//            await statusActor.updateStatus(.unreachable)
-//            return .unreachable
-//        }
+        #else
+        await statusActor.updateStatus(.ready)
+        return .ready
+        #endif
     }
-    
+
+    /// Deactivates the session, resets status, and finishes the event stream.
     public func stopWatchConnectivity() async {
         print("🛑 Stopping WatchConnectivity...")
         session?.delegate = nil
         session = nil
         await statusActor.updateStatus(.unknown)
+        eventContinuation.finish()
     }
-    
+
+    // MARK: - Sending Events
+
+    /// Sends a `WatchWorkoutEvent` to the paired device.
+    ///
+    /// Uses `sendMessage` for immediate delivery when reachable,
+    /// otherwise falls back to `transferUserInfo` for guaranteed delivery.
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not active.
+    public func sendWorkoutEvent(_ event: WatchWorkoutEvent) async throws {
+        print("📡 sendWorkoutEvent: \(event)")
+        guard let session, session.activationState == .activated else {
+            print("❌ sendWorkoutEvent: session not activated")
+            throw WatchConnectivityError.sessionNotActivated
+        }
+        let data = try JSONEncoder().encode(event)
+        let message = [Self.messageKey: data]
+        if session.isReachable {
+            print("📡 sendWorkoutEvent: sending via sendMessage (reachable)")
+            session.sendMessage(message, replyHandler: nil) { error in
+                print("📡 sendMessage failed (\(error.localizedDescription)), falling back to transferUserInfo")
+                session.transferUserInfo(message)
+            }
+        } else {
+            print("📡 sendWorkoutEvent: sending via transferUserInfo (not reachable)")
+            session.transferUserInfo(message)
+        }
+    }
 }

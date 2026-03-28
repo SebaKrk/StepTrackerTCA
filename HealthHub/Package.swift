@@ -6,8 +6,7 @@ import PackageDescription
 let package = Package(
     name: "HealthHub",
     platforms: [
-        .iOS(.v18),
-        .watchOS(.v11)
+        .iOS(.v18)
     ],
     products: [
         .library(

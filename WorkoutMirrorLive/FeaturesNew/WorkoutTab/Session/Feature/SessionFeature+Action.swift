@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 
 /// Implementation of `SessionFeature` action
 extension SessionFeature {
@@ -22,7 +23,15 @@ extension SessionFeature {
         
         
         case setMaxHR(Int)
-        
+
+        /// Fired once per second by the internal clock effect while the workout is running.
+        ///
+        /// Reads `state.controls.elapsedTime` and sends `.workoutTick` to Watch.
+        case watchTickEffect
+
+        /// Received when the paired Apple Watch sends a `WatchWorkoutEvent` during an active session.
+        case watchEventReceived(WatchWorkoutEvent)
+
         // MARK: - View Actions
         
         case view(View)

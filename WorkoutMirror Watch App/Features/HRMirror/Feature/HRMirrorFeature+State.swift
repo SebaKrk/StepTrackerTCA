@@ -1,0 +1,65 @@
+//
+//  HRMirrorFeature+State.swift
+//  WorkoutMirror Watch App
+//
+//  Created by Sebastian Sciuba on 25/03/2026.
+//
+
+import ComposableArchitecture
+import SharedModels
+import Foundation
+
+extension HRMirrorFeature {
+
+    @ObservableState
+    struct State: Equatable {
+
+        // MARK: - Heart Rate
+
+        /// Most recent heart rate reading from the Watch sensor, in beats per minute.
+        ///
+        /// Starts at `0` until the first `HKAnchoredObjectQuery` sample arrives.
+        var heartRate: Int = 0
+
+        /// Heart rate zone derived from `heartRate` relative to `maxHeartRate`.
+        ///
+        /// Updated on every `hrReceived` action.
+        var heartRateZone: HeartRateZone = .resting
+
+        // MARK: - Workout Clock
+
+        /// Elapsed workout time in seconds.
+        ///
+        /// Seeded from iPhone on `.workoutStarted` / `.workoutResumed` events
+        /// so the Watch clock stays in sync with the phone even after pauses.
+        var elapsedSeconds: TimeInterval
+
+        /// Whether the workout is currently paused.
+        ///
+        /// When `true`, `elapsedTimeTick` actions are ignored so the counter freezes.
+        var isPaused: Bool = false
+
+        // MARK: - Configuration
+
+        /// User's estimated maximum heart rate, used to calculate `heartRateZone`.
+        ///
+        /// Set to `0` until iPhone sends the value via `workoutStarted` or `maxHRUpdated`.
+        var maxHeartRate: Int
+
+        // MARK: - UI
+
+        /// Whether the TabView page indicator dots are visible.
+        ///
+        /// Set to `true` on appear and on screen tap, then auto-hidden after 3 s.
+        var showTabIndicator: Bool = true
+
+        // MARK: - Lifecycle
+
+        init(elapsedSeconds: TimeInterval = 0, maxHeartRate: Int = 0) {
+            self.elapsedSeconds = elapsedSeconds
+            self.maxHeartRate = maxHeartRate
+        }
+
+    }
+
+}

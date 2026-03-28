@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import HealthKit
 
 @Reducer
 struct SessionFeature {
@@ -17,7 +18,9 @@ struct SessionFeature {
     @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.personCalculatorClient) var calculator
     @Dependency(\.personalDataClient) var personalDataClient
-    
+    @Dependency(\.watchConnectivityClient) var watchConnectivityClient
+    @Dependency(\.continuousClock) var clock
+
     @Dependency(\.dismiss) var dismiss
     
     // MARK: - Reducer
@@ -48,10 +51,29 @@ struct SessionFeature {
                             }
                         },
                         .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
-                        .send(.live(.setupPhasePanel(phases)))
+                        .send(.live(.setupPhasePanel(phases))),
+                        .run { [maxHR = state.live.maxHeartRate, watchClient = watchConnectivityClient] send in
+                            await watchClient.sendWorkoutEvent(
+                                .workoutStarted(activityType: 0, elapsedSeconds: 0, maxHeartRate: maxHR)
+                            )
+                        },
+                        .run { [watchClient = watchConnectivityClient] send in
+                            for await event in watchClient.incomingEventStream() {
+                                await send(.watchEventReceived(event))
+                            }
+                        }
+                        .cancellable(id: SessionWatchCancelID.watchEventStream),
+                        .run { [clock = clock] send in
+                            for await _ in clock.timer(interval: .seconds(1)) {
+                                await send(.watchTickEffect)
+                            }
+                        }
+                        .cancellable(id: SessionWatchCancelID.watchTickTimer)
                     )
                 } else if value == .summary {
                     return .merge(
+                        .cancel(id: SessionWatchCancelID.watchEventStream),
+                        .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop))))
                     )
@@ -64,7 +86,6 @@ struct SessionFeature {
                     let sex = try await personalDataClient.getBiologicalSex()
                     
                     guard let age = age, let sex = sex else {
-                        // rzucic blad ze musi byc ustawiony wiek i plec ?
                         return
                     }
                     
@@ -73,7 +94,13 @@ struct SessionFeature {
                 }
                 
             case let .setMaxHR(value):
-                return .send(.live(.setupMaxHeartRate(value)))
+                let isSessionActive = state.sessionState == .session
+                return .merge(
+                    .send(.live(.setupMaxHeartRate(value))),
+                    isSessionActive ? .run { [watchClient = watchConnectivityClient] send in
+                        await watchClient.sendWorkoutEvent(.maxHRUpdated(value))
+                    } : .none
+                )
                             
                 
                 // MARK: - View Action
@@ -101,9 +128,58 @@ struct SessionFeature {
             case .countDown(.closeView):
                 return .send(.sessionViewStateChange(.session))
                 
+            case .watchTickEffect:
+                let elapsed = state.controls.elapsedTime
+                return .run { [elapsed] send in
+                    await self.watchConnectivityClient.sendWorkoutEvent(.workoutTick(elapsedSeconds: elapsed))
+                }
+
+            case .controls(.sessionStateUpdated(.paused)):
+                return .merge(
+                    .cancel(id: SessionWatchCancelID.watchTickTimer),
+                    .run { send in
+                        await self.watchConnectivityClient.sendWorkoutEvent(.workoutPaused)
+                    }
+                )
+
+            case .controls(.sessionStateUpdated(.running)):
+                guard state.controls.sessionState == .paused else { return .none }
+                let elapsed = state.controls.elapsedTime
+                return .merge(
+                    .run { [elapsed] send in
+                        await self.watchConnectivityClient.sendWorkoutEvent(.workoutResumed(elapsedSeconds: elapsed))
+                    },
+                    .run { send in
+                        for await _ in self.clock.timer(interval: .seconds(1)) {
+                            await send(.watchTickEffect)
+                        }
+                    }
+                    .cancellable(id: SessionWatchCancelID.watchTickTimer, cancelInFlight: true)
+                )
+
             case .controls(.view(.endWorkoutButtonTapped)):
-                return .send(.sessionViewStateChange(.summary))
-                
+                return .merge(
+                    .cancel(id: SessionWatchCancelID.watchEventStream),
+                    .cancel(id: SessionWatchCancelID.watchTickTimer),
+                    .run { send in
+                        await self.watchConnectivityClient.sendWorkoutEvent(.workoutEnded)
+                        await send(.sessionViewStateChange(.summary))
+                    }
+                )
+
+            case .watchEventReceived(.hrReading(let bpm, _)):
+                let current = state.live.workoutMetrics
+                return .send(.live(.workoutMetrics(
+                    WorkoutMetrics(
+                        averageHeartRate: current.averageHeartRate,
+                        heartRate: bpm,
+                        activeEnergy: current.activeEnergy
+                    )
+                )))
+
+            case .watchEventReceived:
+                return .none
+
             case .summary(.view(.endWorkoutButtonTapped)):
                 return .none
                 
@@ -133,4 +209,18 @@ struct SessionFeature {
     }
 }
 
+// MARK: - Cancel IDs
 
+/// Cancel identifiers used by `SessionFeature` long-running effects.
+///
+/// Declared outside the `@Reducer` to avoid `@MainActor` isolation
+/// that would prevent conformance to `Sendable` (required by `cancellable(id:)`).
+private nonisolated enum SessionWatchCancelID: Hashable, Sendable {
+
+    /// Identifies the stream listening for incoming Watch workout events.
+    case watchEventStream
+
+    /// Identifies the one-second clock effect that sends `workoutTick` to Watch.
+    case watchTickTimer
+
+}
