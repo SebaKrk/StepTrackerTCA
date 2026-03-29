@@ -38,6 +38,12 @@ struct ControlsFeature {
                 
             case let .sessionStateUpdated(value):
                 state.sessionState = value
+                if value == .paused {
+                    state.isPaused = true
+                    state.pausedElapsedTime = state.elapsedTime
+                } else if value == .running {
+                    state.isPaused = false
+                }
                 return .none
                 
                 

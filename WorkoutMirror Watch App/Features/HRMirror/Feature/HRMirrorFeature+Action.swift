@@ -15,6 +15,13 @@ extension HRMirrorFeature {
 
         // MARK: - Internal Actions
 
+        /// Starts HR query, timers and extended runtime session.
+        ///
+        /// Sent by the parent (`AppFeatureAW`) immediately when `workoutStarted`
+        /// is received — before `HRMirrorView` has had a chance to appear.
+        /// This removes the SwiftUI render-cycle delay from the HR acquisition pipeline.
+        case start
+
         /// Delivered when `HRQueryClient` yields a new BPM sample from the Watch sensor.
         ///
         /// Updates `heartRate`, recalculates `heartRateZone`, and forwards
@@ -70,6 +77,9 @@ extension HRMirrorFeature {
             ///
             /// Shows the TabView indicator dots and resets the 3 s auto-hide timer.
             case screenTapped
+
+            /// Called when the user swipes to a different tab.
+            case tabSelected(HRMirrorFeature.Tab)
 
         }
 

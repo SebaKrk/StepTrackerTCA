@@ -27,6 +27,7 @@ struct HRMirrorFeature {
 
     @Dependency(\.hrQueryClient) var hrQueryClient
     @Dependency(\.watchConnectivityClientAW) var watchClient
+    @Dependency(\.extendedRuntimeClient) var extendedRuntimeClient
 
     // MARK: - Body
 
@@ -98,8 +99,17 @@ struct HRMirrorFeature {
                 }
                 .cancellable(id: HRMirrorCancelID.tabIndicatorTimer, cancelInFlight: true)
 
-            case .view(.onAppear):
+            case .view(.tabSelected(let tab)):
+                state.selectedTab = tab
+                return .none
+
+            // MARK: - Internal Start
+
+            case .start:
                 return .merge(
+                    .run { [extendedRuntimeClient = extendedRuntimeClient] send in
+                        await extendedRuntimeClient.start()
+                    },
                     .run { [hrQueryClient = hrQueryClient] send in
                         for await bpm in hrQueryClient.startQuery() {
                             await send(.hrReceived(bpm))
@@ -119,6 +129,9 @@ struct HRMirrorFeature {
                     }
                     .cancellable(id: HRMirrorCancelID.tabIndicatorTimer)
                 )
+
+            case .view(.onAppear):
+                return .none
             }
         }
     }
