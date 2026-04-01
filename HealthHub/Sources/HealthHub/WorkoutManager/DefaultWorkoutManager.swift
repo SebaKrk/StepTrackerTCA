@@ -93,7 +93,12 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     
     // MARK: - Workout Management
     func prepareWorkout(workoutType: HKWorkoutActivityType) async throws {
-        
+
+        // Reset the previous workout result so that SummaryFeature's retry loop
+        // does not find a stale workout from the previous session before
+        // builder.finishWorkout() completes for the new one.
+        workout = nil
+
         print("iOS: Starting prepare workout: \(workoutType)")
         
         let configuration = HKWorkoutConfiguration()
