@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import SharedModels
 import HealthKit
 
@@ -49,12 +50,22 @@ struct SessionFeature {
                             for await state in await self.sessionClient.workoutSessionStateStream() {
                                 await send(.controls(.sessionStateUpdated(state)))
                             }
-                        },
+                        }
+                        .cancellable(id: SessionWatchCancelID.sessionStateStream),
+                        // iPhone-side metrics (calories, HR from BT sensor if present).
+                        .run { send in
+                            for await metrics in self.sessionClient.workoutMetricsStream() {
+                                print("📊 [SessionFeature] iPhoneMetrics — HR: \(metrics.heartRate), energy: \(metrics.activeEnergy)")
+                                await send(.live(.workoutMetrics(metrics)))
+                            }
+                        }
+                        .cancellable(id: SessionWatchCancelID.metricsStream),
                         .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
                         .send(.live(.setupPhasePanel(phases))),
-                        .run { [maxHR = state.live.maxHeartRate, watchClient = watchConnectivityClient] send in
+                        .run { [maxHR = state.live.maxHeartRate, activityTypeRaw = state.selectedWorkout.hkType.rawValue, watchClient = watchConnectivityClient] send in
+                            print("⌚️ [SessionFeature] Sending workoutStarted to Watch — activityType: \(activityTypeRaw), maxHR: \(maxHR)")
                             await watchClient.sendWorkoutEvent(
-                                .workoutStarted(activityType: 0, elapsedSeconds: 0, maxHeartRate: maxHR)
+                                .workoutStarted(activityType: activityTypeRaw, elapsedSeconds: 0, maxHeartRate: maxHR)
                             )
                         },
                         .run { [watchClient = watchConnectivityClient] send in
@@ -72,8 +83,10 @@ struct SessionFeature {
                     )
                 } else if value == .summary {
                     return .merge(
+                        .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchEventStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
+                        .cancel(id: SessionWatchCancelID.metricsStream),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop))))
                     )
@@ -106,8 +119,23 @@ struct SessionFeature {
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .run { [workout = state.selectedWorkout, trainingSession = state.trainingSession, watchClient = watchConnectivityClient] send in
-                    async let _ = watchClient.initializeWatchConnectivity()
+                    await watchClient.initializeWatchConnectivity()
+                    let watchStatus = await watchClient.checkWatchStatus()
+                    print("🏋️ [SessionFeature] viewDidAppear — watchStatus: \(watchStatus.rawValue), workout: \(workout.title)")
+
+                    // Always prepare iPhone session — CountDownClient.startWorkout() requires it.
                     try await self.sessionClient.selectedWorkout(workout.hkType)
+                    print("✅ [SessionFeature] selectedWorkout set → DefaultWorkoutManager.prepareWorkout() triggered")
+
+                    if watchStatus == .ready {
+                        // Additionally launch Watch app so Watch can start its own HKWorkoutSession
+                        // and stream HR readings back via WatchConnectivity.
+                        print("⌚️ [SessionFeature] Watch is ready → launching Watch workout")
+                        try? await self.sessionClient.startWatchWorkout(workout.hkType)
+                    } else {
+                        print("📱 [SessionFeature] Watch unavailable (\(watchStatus.rawValue)) → iPhone-primary path, HKLiveWorkoutDataSource active")
+                    }
+
                     await send(.controls(.setWorkoutType(workout)))
                     await send(.makeCalculationForSession)
                     await send(.summary(.setTrainingSession(trainingSession)))
@@ -168,15 +196,24 @@ struct SessionFeature {
                     }
                 )
 
-            case .watchEventReceived(.hrReading(let bpm, _)):
+            case .watchEventReceived(.hrReading(let bpm, let timestamp)):
+                print("❤️ [SessionFeature] hrReading received from Watch — \(Int(bpm)) bpm")
                 let current = state.live.workoutMetrics
-                return .send(.live(.workoutMetrics(
-                    WorkoutMetrics(
-                        averageHeartRate: current.averageHeartRate,
-                        heartRate: bpm,
-                        activeEnergy: current.activeEnergy
-                    )
-                )))
+                return .merge(
+                    // Update display metrics.
+                    .send(.live(.workoutMetrics(
+                        WorkoutMetrics(
+                            averageHeartRate: current.averageHeartRate,
+                            heartRate: bpm,
+                            activeEnergy: current.activeEnergy
+                        )
+                    ))),
+                    // Persist Watch HR in iPhone's HKLiveWorkoutBuilder so the saved
+                    // HKWorkout contains heart-rate data from Watch sensors.
+                    .run { [bpm, timestamp] _ in
+                        await self.sessionClient.addHeartRateSample(bpm, timestamp)
+                    }
+                )
 
             case .watchEventReceived(.workoutPaused):
                 guard state.controls.sessionState == .running else { return .none }
@@ -226,10 +263,16 @@ struct SessionFeature {
 /// that would prevent conformance to `Sendable` (required by `cancellable(id:)`).
 private nonisolated enum SessionWatchCancelID: Hashable, Sendable {
 
+    /// Identifies the HKWorkoutSessionState stream from DefaultWorkoutManager.
+    case sessionStateStream
+
     /// Identifies the stream listening for incoming Watch workout events.
     case watchEventStream
 
     /// Identifies the one-second clock effect that sends `workoutTick` to Watch.
     case watchTickTimer
+
+    /// Identifies the iPhone-side HKLiveWorkoutBuilder metrics stream.
+    case metricsStream
 
 }

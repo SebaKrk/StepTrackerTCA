@@ -661,3 +661,19 @@
     F: feat(ios): trigger and receive watch events in WorkoutMirroringFeature
     G: feat(watch): add HRMirrorFeature and HRMirrorView
     H: feat(watch): wire HRMirrorFeature into MainFeatureAW navigation
+
+### IOS-00075 iPhone-primary workout session architecture (WWDC25)
+    - branch: feature/IOS-00075
+    - plan: PLANS/IOS-00075-Workout-Session-Architecture-Refactor.md
+
+    A: refactor(HealthHub): remove isWatchPrimary flag — iPhone always calls finishWorkout()
+    B: feat(HealthHub): add addHeartRateSample — Watch HR injected into iPhone's HKLiveWorkoutBuilder
+    C: fix(HealthHub): reset metrics and workoutSessionIsRunning in prepareWorkout
+    D: feat(ios): add addHeartRateSample to SessionClient, remove setWatchPrimary
+    E: feat(ios): forward Watch HR to HKLiveWorkoutBuilder in SessionFeature
+    F: fix(ios): add sessionStateStream cancel ID — no more duplicate effects on second run
+    G: fix(watch): discard instead of finish — iPhone is the canonical HKWorkout owner
+    H: fix(watch): session.end() moved outside do/catch — always called regardless of endCollection result
+    I: fix(HealthHub): incomingWorkoutEventStream creates a new stream per subscription — second workout now receives HR from Watch
+    J: fix(watch): guard against forwarding tick/pause/resume to nil hrMirror destination
+

@@ -10,29 +10,29 @@ import SharedModels
 
 @available(iOS 26.0, *)
 public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked Sendable {
-    
+
     // MARK: - HealthKit Configuration
     let healthStore: HKHealthStore
-    
+
     // MARK: - Workout Session State
     var session: HKWorkoutSession?
-    
+
     public var sessionState: HKWorkoutSessionState = .notStarted
-    
+
     public var builder: HKLiveWorkoutBuilder?
-    
+
     var workout: HKWorkout?
-    
+
     var selectedWorkout: HKWorkoutActivityType? {
         didSet {
             guard let selectedWorkout = selectedWorkout else { return }
-            
+
             Task {
                try await prepareWorkout(workoutType: selectedWorkout)
             }
         }
     }
-    
+
     var showingSummaryView: Bool = false {
         didSet {
             if showingSummaryView == false {
@@ -40,71 +40,100 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
             }
         }
     }
-    
+
     var workoutSessionIsRunning: Bool = false
-    
+
     // MARK: - Workout Metrics
     var metrics = WorkoutMetrics(
         averageHeartRate: 0,
         heartRate: 0,
         activeEnergy: 0
     )
-    
+
+    // MARK: - AsyncStream — internal FIFO queue for serialised state-change handling
+    //
+    // Swift actors don't guarantee FIFO execution order. The stream ensures
+    // that endCollection/finishWorkout always runs *after* the TCA reducer
+    // has received the .stopped event — preventing the summary race condition.
+    let stateChangeTuple = AsyncStream.makeStream(
+        of: (HKWorkoutSessionState, Date).self,
+        bufferingPolicy: .bufferingNewest(1)
+    )
+
+    // MARK: - AsyncStream — external consumer streams (one active at a time)
     var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
     var workoutSessionContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
-    
+
     // MARK: - Lifecycle
-    
+
     public init(healthStore: HKHealthStore) {
         self.healthStore = healthStore
         super.init()
+
+        // Consume the FIFO queue: handles .stopped → endCollection → finishWorkout → session.end()
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            for await (state, date) in stateChangeTuple.stream {
+                await self.consumeStateChange(state: state, date: date)
+            }
+        }
     }
-    
+
     // MARK: - TrainingManager Protocol Implementation
-    
+
     public func setSelectedWorkout(_ type: HKWorkoutActivityType?) {
+        print("🏃 [DefaultWorkoutManager] setSelectedWorkout: \(type?.rawValue ?? 0)")
         selectedWorkout = type
     }
-    
+
     public func setValueForSummaryView(_ value: Bool) {
         showingSummaryView = value
     }
-    
+
     public var workoutSessionStateStream: AsyncStream<HKWorkoutSessionState> {
-        AsyncStream { continuation in
-            self.workoutSessionContinuation = continuation
-            continuation.yield(self.sessionState)
-        }
+        // Finish the previous subscription before handing out a new stream,
+        // so stale TCA effects don't receive events from a dead session.
+        workoutSessionContinuation?.finish()
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: HKWorkoutSessionState.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+        workoutSessionContinuation = continuation
+        print("📡 [DefaultWorkoutManager] workoutSessionStateStream subscribed — initial state: \(sessionState.rawValue)")
+        continuation.yield(sessionState)
+        return stream
     }
-        
+
     public var workoutMetricsStream: AsyncStream<WorkoutMetrics> {
-        AsyncStream { continuation in
-            self.workoutMetricsContinuation = continuation
-        }
+        workoutMetricsContinuation?.finish()
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: WorkoutMetrics.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+        workoutMetricsContinuation = continuation
+        return stream
     }
-    
+
     public func getWorkout() -> HKWorkout? {
         workout
     }
-    
+
     public func getWorkoutMetrics() -> WorkoutMetrics {
         metrics
     }
-    
+
     // MARK: - Workout Management
     func prepareWorkout(workoutType: HKWorkoutActivityType) async throws {
 
-        // Reset the previous workout result so that SummaryFeature's retry loop
-        // does not find a stale workout from the previous session before
-        // builder.finishWorkout() completes for the new one.
+        // Reset per-session state so second/third runs start clean.
         workout = nil
+        workoutSessionIsRunning = false
+        metrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 0, activeEnergy: 0)
 
-        print("iOS: Starting prepare workout: \(workoutType)")
-        
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .indoor
-        
+
         sessionState = .prepared
 
         session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
@@ -115,53 +144,37 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
                                                       workoutConfiguration: configuration)
 
         session?.prepare()
-        print("iOS: session prepare workout end")
+        print("✅ [DefaultWorkoutManager] prepareWorkout complete — session: \(session != nil), builder: \(builder != nil)")
     }
-    
+
     public func startWorkout() async {
-        print("Starting workout...3 - DefaultWorkoutManager")
+        print("🚀 [DefaultWorkoutManager] startWorkout() called — session: \(session != nil)")
         guard session != nil else {
-            print("❌ No workout session prepared")
+            print("❌ [DefaultWorkoutManager] startWorkout FAILED — no session prepared. Was selectedWorkout() called first?")
             return
         }
-//#if os(watchOS)
-//        do {
-//            print("⌚ watchOS: Starting mirroring to companion device")
-//            try await session?.startMirroringToCompanionDevice()
-//            print("✅ watchOS: Mirroring started successfully")
-//        } catch {
-//#if targetEnvironment(simulator)
-//            print("🔧 Simulator: Mirroring not available (expected in simulator)")
-//#else
-//            print("❌ watchOS: Unable to start mirrored workout: \(error.localizedDescription)")
-//#endif
-//        }
-        
+
         let start = Date()
+        print("▶️ [DefaultWorkoutManager] calling session.startActivity()")
         session?.startActivity(with: start)
-        sessionState = .running
-         
-        await withCheckedContinuation { continuation in
-            builder?.beginCollection(withStart: start) { (success, error) in
-                if success {
-                    print("✅ iOS: Workout collection started successfully")
-                } else {
-                    print("❌ iOS: Error starting workout collection: \(error?.localizedDescription ?? "Unknown")")
-                }
-                continuation.resume()
-            }
+        // sessionState is updated exclusively by the HKWorkoutSessionDelegate callback —
+        // setting it here would cause a duplicate yield and potential race condition.
+
+        do {
+            try await builder?.beginCollection(at: start)
+            print("✅ [DefaultWorkoutManager] beginCollection succeeded")
+        } catch {
+            print("❌ iOS: Error starting workout collection: \(error.localizedDescription)")
+            sessionState = .notStarted
         }
-              print("Workout started!")
     }
-    
+
     internal func sendData(_ data: Data) async {
-        print("🔄 sendData called with \(data.count) bytes")
         do {
             try await session?.sendToRemoteWorkoutSession(data: data)
-            print("✅ Data sent successfully")
         } catch {
             let nsError = error as NSError
-            
+
             if nsError.domain == "com.apple.healthkit" && nsError.code == 300 {
 #if targetEnvironment(simulator)
                 print("🔧 Simulator: Remote device communication not available (expected)")
@@ -173,38 +186,83 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
             }
         }
     }
-    
+
     // MARK: - Workout Data Handling
-    
+
     internal func updateForStatistics(_ statistics: HKStatistics?) {
         guard let statistics = statistics else { return }
-        
+
         switch statistics.quantityType {
         case HKQuantityType.quantityType(forIdentifier: .heartRate):
             let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
             self.metrics.heartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0
             self.metrics.averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
-            
-            print("💓 HealthKit HR: \(Int(self.metrics.heartRate)) BPM, Avg: \(Int(self.metrics.averageHeartRate)) BPM")
-            
+            print("❤️ [DefaultWorkoutManager] HR: \(Int(self.metrics.heartRate)) bpm (avg: \(Int(self.metrics.averageHeartRate)))")
+
         case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
             let energyUnit = HKUnit.kilocalorie()
             self.metrics.activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
-            
-            print("🔥 Energy: \(Int(self.metrics.activeEnergy)) kcal")
+            print("🔥 [DefaultWorkoutManager] Energy: \(String(format: "%.1f", self.metrics.activeEnergy)) kcal")
+
         default:
+            print("📊 [DefaultWorkoutManager] Unknown type: \(statistics.quantityType.identifier)")
             return
         }
-        
-        // Yield updated metrics to stream
+
         let currentMetrics = self.metrics
         self.workoutMetricsContinuation?.yield(currentMetrics)
     }
-    
+
+    // MARK: - FIFO State Consumer
+
+    /// Serialised handler for HealthKit session state changes.
+    ///
+    /// Only processes `.stopped` — all other states are handled in the delegate.
+    /// Running on `@MainActor` ensures thread-safe access to `builder` / `session`.
+    @MainActor
+    private func consumeStateChange(state: HKWorkoutSessionState, date: Date) async {
+        print("⚙️ [DefaultWorkoutManager] consumeStateChange: \(state.rawValue)")
+        guard state == .stopped else { return }
+
+        // iPhone is always the canonical HKWorkout owner (WWDC25 iPhone-primary architecture).
+        // Watch discards its own session — only one HKWorkout is saved.
+        guard let builder else { return }
+        print("⏹️ [DefaultWorkoutManager] .stopped → endCollection → finishWorkout → session.end()")
+        do {
+            try await builder.endCollection(at: date)
+            print("✅ [DefaultWorkoutManager] endCollection done")
+            let finishedWorkout = try await builder.finishWorkout()
+            print("✅ [DefaultWorkoutManager] finishWorkout done — workout: \(finishedWorkout)")
+            self.workout = finishedWorkout
+            self.session?.end()
+            self.sessionState = .ended
+            self.workoutSessionContinuation?.yield(.ended)
+            print("✅ [DefaultWorkoutManager] session ended, yielded .ended to TCA")
+        } catch {
+            print("❌ iOS: Failed to finish workout: \(error)")
+        }
+    }
+
+    // MARK: - Watch HR Integration
+
+    /// Adds a single heart-rate sample (received from Watch via WatchConnectivity)
+    /// to the live workout builder so it appears in the saved HKWorkout.
+    public func addHeartRateSample(_ bpm: Double, at date: Date) async {
+        guard let builder else { return }
+        let hrType = HKQuantityType(.heartRate)
+        let bpmUnit = HKUnit.count().unitDivided(by: .minute())
+        let quantity = HKQuantity(unit: bpmUnit, doubleValue: bpm)
+        let sample = HKQuantitySample(type: hrType, quantity: quantity, start: date, end: date)
+        do {
+            _ = try await builder.addSamples([sample])
+        } catch {
+            print("⚠️ [DefaultWorkoutManager] addHeartRateSample failed: \(error)")
+        }
+    }
+
     // MARK: - Helpers
-    
+
     func resetWorkout() {
-        print("🔄 Resetting workout state")
         selectedWorkout = nil
         builder = nil
         workout = nil
@@ -218,4 +276,3 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
         sessionState = .notStarted
     }
 }
-

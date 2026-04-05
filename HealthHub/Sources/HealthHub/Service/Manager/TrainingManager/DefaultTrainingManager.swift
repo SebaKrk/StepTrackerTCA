@@ -61,10 +61,10 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     // MARK: - Lifecycle
     public init(healthStore: HKHealthStore) {
         self.healthStore = healthStore
-        super.init()    
-//#if os(iOS)
-//        setupRemoteSessionHandler()
-//#endif
+        super.init()
+#if os(iOS)
+        setupRemoteSessionHandler()
+#endif
     }
     
     // MARK: - TrainingManager Protocol Implementation
