@@ -19,6 +19,10 @@ extension AppFeatureAW {
         /// Delivered when the WatchConnectivity session receives a new event from iPhone.
         case watchEventReceived(WatchWorkoutEvent)
 
+        /// Dismisses `HRMirrorFeature` after `.stop` has been sent and the
+        /// `HKWorkoutSession` on Watch has finished cleaning up.
+        case dismissHRMirror
+
         // MARK: - View Actions
 
         case view(ViewAction)

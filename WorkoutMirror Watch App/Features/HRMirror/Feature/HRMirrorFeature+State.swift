@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SharedModels
 import Foundation
+import HealthKit
 
 extension HRMirrorFeature {
 
@@ -62,11 +63,24 @@ extension HRMirrorFeature {
         /// Set to `true` on appear and on screen tap, then auto-hidden after 3 s.
         var showTabIndicator: Bool = true
 
+        // MARK: - Workout Configuration
+
+        /// Activity type of the current workout session.
+        ///
+        /// Passed from iPhone via `.workoutStarted` and used by
+        /// `WatchWorkoutSessionClient` to create the correct `HKWorkoutConfiguration`.
+        var activityType: HKWorkoutActivityType
+
         // MARK: - Lifecycle
 
-        init(elapsedSeconds: TimeInterval = 0, maxHeartRate: Int = 0) {
+        init(
+            elapsedSeconds: TimeInterval = 0,
+            maxHeartRate: Int = 0,
+            activityType: HKWorkoutActivityType = HKWorkoutActivityType(rawValue: 37)! // .other
+        ) {
             self.elapsedSeconds = elapsedSeconds
             self.maxHeartRate = maxHeartRate
+            self.activityType = activityType
         }
 
     }

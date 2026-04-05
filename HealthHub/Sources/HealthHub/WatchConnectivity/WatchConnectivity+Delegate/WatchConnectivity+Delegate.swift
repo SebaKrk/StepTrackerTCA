@@ -94,6 +94,8 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
             return
         }
         print("📨 decodeAndYield: received event → \(event)")
-        eventContinuation.yield(event)
+        continuationLock.withLock {
+            _eventContinuation?.yield(event)
+        }
     }
 }

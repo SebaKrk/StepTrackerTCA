@@ -11,21 +11,22 @@ import Foundation
 
 /// Reducer for the HR Mirror screen on Apple Watch.
 ///
-/// The Watch acts as a **passive HR sensor** — it never starts its own `HKWorkoutSession`.
-/// Instead it:
+/// The Watch acts as the **primary workout actor** — it owns a `HKWorkoutSession`
+/// and mirrors it to the paired iPhone via `startMirroringToCompanionDevice()`.
+/// The iPhone receives a mirrored session and displays data; the Watch is
+/// the source of truth for HealthKit recording.
 ///
-/// 1. Reads live heart rate samples from the Watch sensor via `HRQueryClient`
-///    (backed by `HKAnchoredObjectQuery`).
-/// 2. Calculates the current `HeartRateZone` and forwards each reading back to the
-///    paired iPhone as a `WatchWorkoutEvent.hrReading` message.
-/// 3. Maintains an elapsed-time counter that mirrors the workout clock on iPhone,
-///    accounting for pause / resume events sent from the phone.
+/// Data flow:
+/// 1. `WatchWorkoutSessionClient` starts `HKWorkoutSession` + mirroring on `.start`.
+/// 2. `HKLiveWorkoutBuilder` yields live BPM readings, forwarded to iPhone as `.hrReading`.
+/// 3. iPhone sends elapsed-time ticks (`workoutTick`) — Watch uses them as source of truth.
+/// 4. On `.stop`, the session is properly ended before the feature scope is torn down.
 @Reducer
 struct HRMirrorFeature {
 
     // MARK: - Dependencies
 
-    @Dependency(\.hrQueryClient) var hrQueryClient
+    @Dependency(\.watchWorkoutSessionClient) var watchWorkoutSessionClient
     @Dependency(\.watchConnectivityClientAW) var watchClient
     @Dependency(\.extendedRuntimeClient) var extendedRuntimeClient
 
@@ -103,15 +104,18 @@ struct HRMirrorFeature {
                 state.selectedTab = tab
                 return .none
 
-            // MARK: - Internal Start
+            // MARK: - Lifecycle
 
             case .start:
+                let activityType = state.activityType
                 return .merge(
                     .run { [extendedRuntimeClient = extendedRuntimeClient] send in
                         await extendedRuntimeClient.start()
                     },
-                    .run { [hrQueryClient = hrQueryClient] send in
-                        for await bpm in hrQueryClient.startQuery() {
+                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, activityType] send in
+                        // Watch-primary: start HKWorkoutSession + mirror to iPhone.
+                        // HKLiveWorkoutBuilder provides more accurate HR than HKAnchoredObjectQuery.
+                        for await bpm in await watchWorkoutSessionClient.startSession(activityType) {
                             await send(.hrReceived(bpm))
                         }
                     }
@@ -130,6 +134,16 @@ struct HRMirrorFeature {
                     .cancellable(id: HRMirrorCancelID.tabIndicatorTimer)
                 )
 
+            case .stop:
+                return .merge(
+                    .cancel(id: HRMirrorCancelID.hrQuery),
+                    .cancel(id: HRMirrorCancelID.subSecondTimer),
+                    .cancel(id: HRMirrorCancelID.tabIndicatorTimer),
+                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
+                        await watchWorkoutSessionClient.endSession()
+                    }
+                )
+
             case .view(.onAppear):
                 return .none
             }
@@ -139,10 +153,6 @@ struct HRMirrorFeature {
     // MARK: - Private
 
     /// Derives the `HeartRateZone` for a given BPM relative to the user's max heart rate.
-    ///
-    /// Iterates `HeartRateZone.allCases` in order and returns the first zone
-    /// whose `percentageRange` contains the current HR percentage.
-    /// Falls back to `.resting` if no zone matches (e.g. BPM above max).
     private func heartRateZone(bpm: Int, max: Int) -> HeartRateZone {
         guard max > 0 else { return .resting }
         let percentage = Double(bpm) / Double(max)
@@ -159,7 +169,7 @@ struct HRMirrorFeature {
 /// that would prevent conformance to `Sendable` (required by `cancellable(id:)`).
 private nonisolated enum HRMirrorCancelID: Hashable, Sendable {
 
-    /// Identifies the `HKAnchoredObjectQuery` heart rate stream.
+    /// Identifies the `HKLiveWorkoutBuilder` heart rate stream.
     case hrQuery
 
     /// Identifies the 100 ms sub-second timer for smooth centisecond display.

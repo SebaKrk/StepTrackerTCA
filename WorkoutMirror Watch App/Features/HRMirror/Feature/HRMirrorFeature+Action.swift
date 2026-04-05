@@ -22,6 +22,13 @@ extension HRMirrorFeature {
         /// This removes the SwiftUI render-cycle delay from the HR acquisition pipeline.
         case start
 
+        /// Ends the `HKWorkoutSession` on Watch and cancels all running effects.
+        ///
+        /// Sent by the parent (`AppFeatureAW`) before setting `hrMirror = nil`,
+        /// ensuring `WatchWorkoutSessionClient.endSession()` is called before
+        /// TCA tears down the feature scope.
+        case stop
+
         /// Delivered when `HRQueryClient` yields a new BPM sample from the Watch sensor.
         ///
         /// Updates `heartRate`, recalculates `heartRateZone`, and forwards

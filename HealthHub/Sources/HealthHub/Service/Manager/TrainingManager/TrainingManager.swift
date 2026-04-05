@@ -75,6 +75,12 @@ public protocol TrainingManager: Sendable {
     #if os(iOS)
     /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
     func setupRemoteSessionHandler()
+
+    /// Launches the Watch app and requests it to start a workout session of the given type.
+    ///
+    /// The Watch will create `HKWorkoutSession`, call `startMirroringToCompanionDevice()`,
+    /// and iPhone will receive a mirrored session via `workoutSessionMirroringStartHandler`.
+    func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws
     #endif
 
 }

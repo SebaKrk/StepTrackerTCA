@@ -19,6 +19,13 @@ struct SessionClient {
     var togglePause: @Sendable () async -> Void
     var getWorkoutSummary: @Sendable () async -> WorkoutSummary
     var endWorkout: @Sendable () async -> Void
+    /// Adds a Watch HR sample to iPhone's HKLiveWorkoutBuilder so that
+    /// the saved HKWorkout contains heart-rate data collected by Watch sensors.
+    var addHeartRateSample: @Sendable (Double, Date) async -> Void
+
+    /// Launches the Watch app so it can start its HKWorkoutSession and stream HR
+    /// back to iPhone via WatchConnectivity. iPhone remains the HKWorkout owner.
+    var startWatchWorkout: @Sendable (HKWorkoutActivityType) async throws -> Void
 }
 
 extension DependencyValues {
@@ -30,9 +37,10 @@ extension DependencyValues {
 
 private enum SessionClientClientKey: DependencyKey {
     static let liveValue: SessionClient = {
-        
+
         @Dependency(\.workoutManager) var manager
-        
+        @Dependency(\.trainingManager) var trainingManager
+
         return SessionClient { type in
             manager.setSelectedWorkout(type)
         } workoutMetricsStream: {
@@ -48,7 +56,14 @@ private enum SessionClientClientKey: DependencyKey {
                            metrics: manager.getWorkoutMetrics())
         } endWorkout: {
             manager.endWorkout()
+        } addHeartRateSample: { bpm, date in
+            await manager.addHeartRateSample(bpm, at: date)
+        } startWatchWorkout: { activityType in
+            // iPhone is the HKWorkout owner. Watch activates, collects HR via its
+            // HKWorkoutSession, and sends readings back via WatchConnectivity.
+            // Watch calls discardWorkout() at end — no duplicate HKWorkout saved.
+            try await trainingManager.startWatchWorkout(workoutType: activityType)
         }
     }()
-    
+
 }

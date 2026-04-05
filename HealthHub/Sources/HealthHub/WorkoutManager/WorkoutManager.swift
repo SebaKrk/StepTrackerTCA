@@ -27,7 +27,7 @@ public protocol WorkoutManager: Sendable {
     ///
     /// - Parameter type: The workout activity type to be tracked.
     func setSelectedWorkout(_ type: HKWorkoutActivityType?)
-    
+
     /// Sets the state of the summary view (shown at the end of a workout).
     ///
     /// - Parameter value: `true` to show the summary view, `false` to hide it.
@@ -73,6 +73,13 @@ public protocol WorkoutManager: Sendable {
     /// Useful for generating summaries or displaying final statistics after the workout ends.
     /// - Returns: A `WorkoutMetrics` instance containing metrics such as duration, distance, and calories.
     func getWorkoutMetrics() -> WorkoutMetrics
+
+    // MARK: - Watch HR Integration
+
+    /// Adds a heart-rate sample received from Watch via WatchConnectivity to the
+    /// live workout builder. This ensures Watch HR appears in the saved HKWorkout
+    /// even though iPhone owns the workout session (WWDC25 iPhone-primary pattern).
+    func addHeartRateSample(_ bpm: Double, at date: Date) async
     
 //    // MARK: - Platform Setup
 //    

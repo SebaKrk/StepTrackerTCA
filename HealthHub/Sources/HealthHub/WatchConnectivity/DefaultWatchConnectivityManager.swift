@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 17/09/2025.
 //
 
+import Foundation
 import SharedModels
 import WatchConnectivity
 
@@ -32,18 +33,35 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
 
     // MARK: - Incoming Event Stream
 
-    /// A stream of `WatchWorkoutEvent` values received from the paired device.
-    public let incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent>
+    /// Lock protecting `_eventContinuation` across delegate callbacks and stream subscriptions.
+    let continuationLock = NSLock()
 
-    /// Continuation used to yield events into `incomingWorkoutEventStream`.
-    let eventContinuation: AsyncStream<WatchWorkoutEvent>.Continuation
+    /// Current continuation backing `incomingWorkoutEventStream`.
+    ///
+    /// Replaced on each call to `incomingWorkoutEventStream` so that every new
+    /// `for await` subscription (e.g. second workout run) gets a fresh stream.
+    /// The previous continuation is finished first to cleanly terminate any
+    /// lingering iterator from the previous session.
+    var _eventContinuation: AsyncStream<WatchWorkoutEvent>.Continuation?
+
+    /// A stream of `WatchWorkoutEvent` values received from the paired device.
+    ///
+    /// Each access creates a new `AsyncStream` backed by a fresh continuation,
+    /// finishing the previous one. This prevents the "stale iterator" problem
+    /// where a second `for await` loop on the same stream receives no events
+    /// after the first loop was cancelled by TCA's `cancellable(id:)` mechanism.
+    public var incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent> {
+        let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
+        continuationLock.withLock {
+            _eventContinuation?.finish()
+            _eventContinuation = continuation
+        }
+        return stream
+    }
 
     // MARK: - Lifecycle
 
     override init() {
-        let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
-        incomingWorkoutEventStream = stream
-        eventContinuation = continuation
         super.init()
         print("🍎 🟢 Created DefaultWatchConnectivityManager")
     }
@@ -140,7 +158,10 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         session?.delegate = nil
         session = nil
         await statusActor.updateStatus(.unknown)
-        eventContinuation.finish()
+        continuationLock.withLock {
+            _eventContinuation?.finish()
+            _eventContinuation = nil
+        }
     }
 
     // MARK: - Sending Events
