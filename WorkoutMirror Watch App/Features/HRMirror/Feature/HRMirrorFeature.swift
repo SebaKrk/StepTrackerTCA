@@ -29,6 +29,7 @@ struct HRMirrorFeature {
     @Dependency(\.watchWorkoutSessionClient) var watchWorkoutSessionClient
     @Dependency(\.watchConnectivityClientAW) var watchClient
     @Dependency(\.extendedRuntimeClient) var extendedRuntimeClient
+    @Dependency(\.continuousClock) var clock
 
     // MARK: - Body
 
@@ -39,6 +40,7 @@ struct HRMirrorFeature {
             // MARK: - Internal Actions
 
             case .hrReceived(let bpm):
+                state.isPreparing = false
                 state.heartRate = Int(bpm)
                 state.heartRateZone = heartRateZone(bpm: Int(bpm), max: state.maxHeartRate)
                 return .run { [watchClient = watchClient] send in
@@ -59,9 +61,8 @@ struct HRMirrorFeature {
             case .workoutResumed(let elapsed):
                 state.elapsedSeconds = elapsed
                 state.isPaused = false
-                return .run { send in
-                    while !Task.isCancelled {
-                        try await Task.sleep(for: .milliseconds(100))
+                return .run { [clock] send in
+                    for await _ in clock.timer(interval: .milliseconds(100)) {
                         await send(.subSecondTick)
                     }
                 }
@@ -112,21 +113,14 @@ struct HRMirrorFeature {
                     .run { [extendedRuntimeClient = extendedRuntimeClient] send in
                         await extendedRuntimeClient.start()
                     },
+                    // Start HealthKit session immediately — HR readings accumulate
+                    // while iPhone finishes its countdown.
                     .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, activityType] send in
-                        // Watch-primary: start HKWorkoutSession + mirror to iPhone.
-                        // HKLiveWorkoutBuilder provides more accurate HR than HKAnchoredObjectQuery.
                         for await bpm in await watchWorkoutSessionClient.startSession(activityType) {
                             await send(.hrReceived(bpm))
                         }
                     }
                     .cancellable(id: HRMirrorCancelID.hrQuery),
-                    .run { send in
-                        while !Task.isCancelled {
-                            try await Task.sleep(for: .milliseconds(100))
-                            await send(.subSecondTick)
-                        }
-                    }
-                    .cancellable(id: HRMirrorCancelID.subSecondTimer),
                     .run { send in
                         try? await Task.sleep(for: .seconds(3))
                         await send(.hideTabIndicator)
@@ -134,10 +128,22 @@ struct HRMirrorFeature {
                     .cancellable(id: HRMirrorCancelID.tabIndicatorTimer)
                 )
 
+            // Received from iPhone via WatchConnectivity — starts elapsed-time timer.
+            // Preparing overlay stays until first hrReceived (real sensor data).
+            case .countdownFinished:
+                return .run { [clock] send in
+                    for await _ in clock.timer(interval: .milliseconds(100)) {
+                        await send(.subSecondTick)
+                    }
+                }
+                .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+
             case .stop:
+                state.isPreparing = false
                 return .merge(
                     .cancel(id: HRMirrorCancelID.hrQuery),
                     .cancel(id: HRMirrorCancelID.subSecondTimer),
+                    .cancel(id: HRMirrorCancelID.countdown),
                     .cancel(id: HRMirrorCancelID.tabIndicatorTimer),
                     .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
                         await watchWorkoutSessionClient.endSession()
@@ -177,5 +183,8 @@ private nonisolated enum HRMirrorCancelID: Hashable, Sendable {
 
     /// Identifies the 3 s auto-hide timer for TabView indicator dots.
     case tabIndicatorTimer
+
+    /// Identifies the 3-2-1 countdown before the workout begins.
+    case countdown
 
 }

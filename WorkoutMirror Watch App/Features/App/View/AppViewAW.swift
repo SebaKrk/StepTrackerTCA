@@ -44,7 +44,7 @@ struct AppViewAW: View {
                 .font(.system(size: 36))
                 .foregroundStyle(.secondary)
 
-            Text("Waiting for workout…")
+            Text(String(localized: "Waiting for workout…"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

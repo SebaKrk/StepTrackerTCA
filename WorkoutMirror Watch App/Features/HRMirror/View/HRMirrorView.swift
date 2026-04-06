@@ -42,10 +42,44 @@ struct HRMirrorView: View {
             send(.onAppear)
         }
         .toolbar(.hidden)
+        .overlay {
+            if store.isPreparing {
+                preparingOverlay
+                    .transition(.opacity.animation(.easeInOut(duration: 0.4)))
+            }
+        }
+        .animation(.easeInOut(duration: 0.4), value: store.isPreparing)
     }
 
+    // MARK: - Preparing Overlay
+
+    private var preparingOverlay: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack(spacing: 10) {
+                scanningIcon
+                scanningLabel
+            }
+        }
+    }
+
+    private var scanningIcon: some View {
+        Image(systemName: "heart")
+            .font(.system(size: 32))
+            .foregroundStyle(.pink)
+            .symbolEffect(.bounce, options: .repeat(.continuous))
+    }
+
+    private var scanningLabel: some View {
+        Text(String(localized: "Scanning…"))
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    // MARK: - Controls Tab
+
     private var controlsTab: some View {
-        return ZStack {
+        ZStack {
             Color.black.ignoresSafeArea()
             VStack {
                 pauseResumeButton
@@ -53,59 +87,86 @@ struct HRMirrorView: View {
             }
         }
     }
-    
+
     private var pauseResumeButton: some View {
         Button {
             send(.pauseResumeTapped)
         } label: {
-            pauseResumeImage
+            pauseResumeIcon
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
         .controlSize(.large)
     }
-    
-    private var pauseResumeImage: some View {
+
+    private var pauseResumeIcon: some View {
         Image(systemName: store.isPaused ? "play.fill" : "pause.fill")
             .font(.system(size: 26, weight: .semibold))
     }
+
     private var pauseResumeLabel: some View {
-        Text(store.isPaused ? "Wznów" : "Pauza")
+        Text(store.isPaused ? String(localized: "Resume") : String(localized: "Pause"))
             .font(.caption.weight(.semibold))
+    }
+
+    // MARK: - HR Tab
+
+    private var hrZonePercentage: Int {
+        guard store.maxHeartRate > 0 else { return 0 }
+        return min(Int(Double(store.heartRate) / Double(store.maxHeartRate) * 100), 100)
     }
 
     private var hrTab: some View {
         GeometryReader { geometry in
             ZStack {
                 Color.black.ignoresSafeArea()
-                VStack(spacing: 4) {
-                    Spacer()
-                    heartRateView
-                    zoneLabel
-                    Spacer()
-                    elapsedTimeView
-                    Spacer()
-                }
-                .padding(.horizontal, 8)
+                hrContent
+            }
+            .overlay(alignment: .topLeading) {
+                zonePercentageLabel
             }
             .overlay {
-                ZStack(alignment: .bottom) {
-                    RoundedRectangle(
-                        cornerRadius: geometry.size.width * 0.24,
-                        style: .continuous
-                    )
-                    .inset(by: 1)
-                    .strokeBorder(store.heartRateZone.color.opacity(0.6), lineWidth: 1)
-                    .ignoresSafeArea()
-                    .animation(.easeInOut(duration: 0.4), value: store.heartRateZone)
-
-                    Capsule(style: .continuous)
-                        .fill(Color.black)
-                        .frame(width: 56, height: 18)
-                        .offset(y: 4)
-                        .ignoresSafeArea()
-                }
+                zoneBorderOverlay(cornerRadius: geometry.size.width * 0.24)
             }
+        }
+    }
+
+    private var hrContent: some View {
+        VStack(spacing: 4) {
+            Spacer()
+            heartRateView
+            zoneLabel
+            Spacer()
+            elapsedTimeView
+            Spacer()
+        }
+        .padding(.horizontal, 8)
+    }
+
+    private var zonePercentageLabel: some View {
+        Text("\(hrZonePercentage)%")
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(store.heartRateZone.color)
+            .monospacedDigit()
+            .padding(.leading, 24)
+            .padding(.top, 8)
+            .ignoresSafeArea()
+            .animation(.easeInOut(duration: 0.4), value: store.heartRateZone)
+    }
+
+    private func zoneBorderOverlay(cornerRadius: CGFloat) -> some View {
+        ZStack(alignment: .bottom) {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .inset(by: 1)
+                .strokeBorder(store.heartRateZone.color.opacity(0.6), lineWidth: 1)
+                .ignoresSafeArea()
+                .animation(.easeInOut(duration: 0.4), value: store.heartRateZone)
+
+            Capsule(style: .continuous)
+                .fill(Color.black)
+                .frame(width: 56, height: 18)
+                .offset(y: 4)
+                .ignoresSafeArea()
         }
     }
 
@@ -115,7 +176,8 @@ struct HRMirrorView: View {
         HStack(alignment: .firstTextBaseline, spacing: 4) {
             Image(systemName: "heart.fill")
                 .font(.title3)
-                .foregroundStyle(store.heartRateZone.color)
+                .foregroundStyle(.red)
+                .symbolEffect(.bounce, options: .repeat(.continuous))
 
             Text("\(store.heartRate)")
                 .font(.system(size: 52, weight: .bold, design: .rounded))
@@ -153,11 +215,20 @@ struct HRMirrorView: View {
 
 // MARK: - Preview
 
+#Preview("Preparing") {
+    HRMirrorView(store: Store(initialState: {
+        var state = HRMirrorFeature.State(elapsedSeconds: 0, maxHeartRate: 185)
+        state.isPreparing = true
+        return state
+    }()) { HRMirrorFeature() })
+}
+
 #Preview("Resting") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 185, maxHeartRate: 185)
         state.heartRate = 60
         state.heartRateZone = .resting
+        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -167,6 +238,7 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 623, maxHeartRate: 185)
         state.heartRate = 98
         state.heartRateZone = .recovery
+        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -176,6 +248,7 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 1240, maxHeartRate: 185)
         state.heartRate = 117
         state.heartRateZone = .fatBurning
+        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -185,6 +258,7 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 2105, maxHeartRate: 185)
         state.heartRate = 138
         state.heartRateZone = .aerobic
+        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -194,6 +268,7 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 3421, maxHeartRate: 185)
         state.heartRate = 158
         state.heartRateZone = .threshold
+        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -203,6 +278,60 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 4812, maxHeartRate: 185)
         state.heartRate = 177
         state.heartRateZone = .anaerobic
+        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
+}
+
+// MARK: - Full Flow Preview
+
+#Preview("Full Flow") {
+    _HRMirrorFlowPreview()
+}
+
+private struct _HRMirrorFlowPreview: View {
+
+    @State private var isWaiting = true
+    @State private var store = Store(
+        initialState: HRMirrorFeature.State(elapsedSeconds: 0, maxHeartRate: 185)
+    ) { HRMirrorFeature() }
+
+    var body: some View {
+        ZStack {
+            // HRMirrorView always rendered — avoids TabView flash on mount
+            HRMirrorView(store: store)
+
+            if isWaiting {
+                _WaitingPreviewView()
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.5), value: isWaiting)
+        .task {
+            // Phase 1: Waiting screen — 2 s
+            try? await Task.sleep(for: .seconds(2))
+            // Phase 2: Fade out waiting → preparing overlay visible — 2 s
+            isWaiting = false
+            try? await Task.sleep(for: .seconds(2))
+            // Phase 3: First HR reading clears preparing overlay
+            store.send(.hrReceived(72))
+        }
+    }
+}
+
+private struct _WaitingPreviewView: View {
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack(spacing: 12) {
+                Image(systemName: "iphone.radiowaves.left.and.right")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.secondary)
+                Text(String(localized: "Waiting for workout…"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
 }

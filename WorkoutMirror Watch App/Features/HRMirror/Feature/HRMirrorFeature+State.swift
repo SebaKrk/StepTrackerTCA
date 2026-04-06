@@ -53,6 +53,15 @@ extension HRMirrorFeature {
         /// Set to `0` until iPhone sends the value via `workoutStarted` or `maxHRUpdated`.
         var maxHeartRate: Int
 
+        // MARK: - Preparing
+
+        /// `true` from `.start` until iPhone's `.countdownFinished` event arrives.
+        ///
+        /// While `true` a full-screen "Przygotowanie…" overlay is shown.
+        /// The HK session starts immediately in the background so sensor warmup
+        /// happens during iPhone's countdown — HR data is ready when this flips `false`.
+        var isPreparing: Bool = true
+
         // MARK: - UI
 
         /// Active tab — defaults to `.hr` so the session view opens first.
