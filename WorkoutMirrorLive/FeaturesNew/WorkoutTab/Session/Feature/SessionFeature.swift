@@ -67,6 +67,10 @@ struct SessionFeature {
                             await watchClient.sendWorkoutEvent(
                                 .workoutStarted(activityType: activityTypeRaw, elapsedSeconds: 0, maxHeartRate: maxHR)
                             )
+                            // countdownFinished sent immediately after — Watch uses this as the
+                            // signal to start its elapsed-time timer instead of running its own
+                            // countdown, eliminating WatchConnectivity drift.
+                            await watchClient.sendWorkoutEvent(.countdownFinished)
                         },
                         .run { [watchClient = watchConnectivityClient] send in
                             for await event in watchClient.incomingEventStream() {

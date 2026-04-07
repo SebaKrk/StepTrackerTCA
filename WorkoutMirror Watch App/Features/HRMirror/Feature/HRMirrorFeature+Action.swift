@@ -44,6 +44,12 @@ extension HRMirrorFeature {
         /// Fired 3 s after appear or last tap — hides the TabView indicator dots.
         case hideTabIndicator
 
+        /// Received from iPhone via WatchConnectivity when its countdown finishes.
+        ///
+        /// Watch has no independent countdown — it waits for this event to start
+        /// the elapsed-time timer, keeping both devices perfectly in sync.
+        case countdownFinished
+
         // MARK: - iPhone Events
 
         /// Received from the parent when the paired iPhone pauses the workout.

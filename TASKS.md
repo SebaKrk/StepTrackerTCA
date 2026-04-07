@@ -677,3 +677,7 @@
     I: fix(HealthHub): incomingWorkoutEventStream creates a new stream per subscription — second workout now receives HR from Watch
     J: fix(watch): guard against forwarding tick/pause/resume to nil hrMirror destination
 
+### IOS-00076 Small Fixes   
+    - Watch scanning overlay
+    - HR zone % 
+    - SummaryView metric card layout

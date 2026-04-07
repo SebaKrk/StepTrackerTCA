@@ -30,6 +30,13 @@ public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
     /// iPhone notifies Watch that the workout has ended.
     case workoutEnded
 
+    /// iPhone notifies Watch that the pre-workout countdown has finished.
+    ///
+    /// Watch uses this as the signal to start its elapsed-time timer.
+    /// This eliminates the need for an independent countdown on Watch,
+    /// which would drift due to WatchConnectivity delivery latency.
+    case countdownFinished
+
     /// Watch sends a live heart rate reading back to iPhone.
     /// - Parameters:
     ///   - bpm: Heart rate in beats per minute.

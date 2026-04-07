@@ -145,7 +145,7 @@ struct SummaryView: View {
             .sumQuantity()
             .map { Int($0.doubleValue(for: .kilocalorie())) }
         
-        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
             metricCard(
                 icon: "flame.fill",
                 iconColor: .primary,
@@ -187,10 +187,13 @@ struct SummaryView: View {
                         .font(.caption)
                         .textCase(.uppercase)
                 }
+                Spacer(minLength: 0)
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(value)
                         .font(.largeTitle.bold())
                         .foregroundStyle(.primary)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
                     if !unit.isEmpty {
                         Text(unit)
                             .font(.caption)
@@ -198,9 +201,10 @@ struct SummaryView: View {
                     }
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         }
         .styledGroupBox()
+        .frame(maxHeight: .infinity)
     }
     
     // MARK: - WOD Results Section
@@ -341,33 +345,34 @@ extension TimeInterval {
     }))
 }
 
-//#Preview("successfullyLoaded") {
-//    let summary = WorkoutSummary.previewWorkoutSummary()
-//    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-//    state.summary = summary
-//    return NavigationStack {
-//        SummaryView(store: Store(initialState: state) {
-//            SummaryFeature()
-//        } withDependencies: {
-//            $0.sessionClient.getWorkoutSummary = { summary }
-//        })
-//    }
-//}
-//
-//#Preview("withPlan") {
-//    let session = TrainingSession.previewTrainingSession
-//    let summary = WorkoutSummary.previewWorkoutSummary()
-//    let workouts = session.workouts
-//    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-//    state.summary = summary
-//    state.resultInputs = workouts.map { WorkoutSessionResult(name: $0.name, description: $0.snapshotDescription) }
-//    state.showResults = Array(repeating: false, count: workouts.count)
-//    state.showNotes = Array(repeating: false, count: workouts.count)
-//    return NavigationStack {
-//        SummaryView(store: Store(initialState: state) {
-//            SummaryFeature()
-//        } withDependencies: {
-//            $0.sessionClient.getWorkoutSummary = { summary }
-//        })
-//    }
-//}
+#Preview("loaded — short") {
+    let summary = WorkoutSummary.previewWorkoutSummary()
+    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+    state.summary = summary
+    return NavigationStack {
+        SummaryView(store: Store(initialState: state) {
+            SummaryFeature()
+        } withDependencies: {
+            $0.sessionClient.getWorkoutSummary = { summary }
+        })
+    }
+}
+
+#Preview("loaded — long (2h+)") {
+    let end = Date()
+    let start = end.addingTimeInterval(-7890) // 2h 11m 30s
+    let workout = HKWorkout(activityType: .crossTraining, start: start, end: end)
+    let summary = WorkoutSummary(
+        workout: workout,
+        metrics: WorkoutMetrics(averageHeartRate: 155, heartRate: 178, activeEnergy: 1240)
+    )
+    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+    state.summary = summary
+    return NavigationStack {
+        SummaryView(store: Store(initialState: state) {
+            SummaryFeature()
+        } withDependencies: {
+            $0.sessionClient.getWorkoutSummary = { summary }
+        })
+    }
+}
