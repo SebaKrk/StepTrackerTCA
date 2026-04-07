@@ -40,8 +40,19 @@ extension PersonalActivityFeature {
         /// Heart rate zone information for each workout, keyed by workout UUID.
         var zoneInfo: [UUID: PrimaryZoneInfo] = [:]
         
+        /// Workout selected for deletion — set when swipe action fires, cleared after confirm/cancel.
+        var workoutToDelete: HKWorkout? = nil
+
+        // MARK: - Alerts
+
+        /// Confirmation alert before deleting workout from HealthKit.
+        @Presents var deleteAlert: AlertState<Action.DeleteAlert>?
+
+        /// Error alert shown when HealthKit rejects the deletion request.
+        @Presents var errorAlert: AlertState<Never>?
+
         // MARK: - Destination
-        
+
         /// Presentation state for navigation destinations.
         @Presents var destination: Destination.State?
     }

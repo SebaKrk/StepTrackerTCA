@@ -104,6 +104,7 @@ struct SummaryView: View {
         .navigationTitle(String(localized: "Summary"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
+        .alert(store: store.scope(state: \.$discardAlert, action: \.alert))
     }
     
     // MARK: - Header Card
@@ -305,6 +306,12 @@ struct SummaryView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
+            Button {
+                send(.discardWorkoutButtonTapped)
+            } label: {
+                Text("Odrzuć")
+                    .foregroundStyle(.red)
+            }
             Spacer()
             Button {
                 send(.endWorkoutButtonTapped)

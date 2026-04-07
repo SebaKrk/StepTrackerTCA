@@ -888,6 +888,9 @@
     "Anthropic API Key" : {
 
     },
+    "Anuluj" : {
+
+    },
     "API Key" : {
       "localizations" : {
         "pl" : {
@@ -1818,6 +1821,16 @@
         }
       }
     },
+    "HealthKit pozwala usuwać tylko treningi zarejestrowane przez tę aplikację." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HealthKit pozwala usuwać tylko treningi zarejestrowane przez tę aplikację."
+          }
+        }
+      }
+    },
     "HealthMetric" : {
       "localizations" : {
         "pl" : {
@@ -2273,6 +2286,16 @@
     "Nickname" : {
 
     },
+    "Nie można usunąć treningu" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można usunąć treningu"
+          }
+        }
+      }
+    },
     "No calories burned data available." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2445,6 +2468,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Liczby"
+          }
+        }
+      }
+    },
+    "Odrzuć" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzuć"
+          }
+        }
+      }
+    },
+    "Odrzuć trening?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzuć trening?"
           }
         }
       }
@@ -2993,7 +3036,14 @@
       }
     },
     "Score:" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik:"
+          }
+        }
+      }
     },
     "Search exercises..." : {
 
@@ -3539,6 +3589,26 @@
         }
       }
     },
+    "Trening zostanie trwale usunięty z HealthKit." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening zostanie trwale usunięty z HealthKit."
+          }
+        }
+      }
+    },
+    "Trening zostanie usunięty z HealthKit i nie zostanie zapisany." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening zostanie usunięty z HealthKit i nie zostanie zapisany."
+          }
+        }
+      }
+    },
     "Try Again" : {
 
     },
@@ -3571,6 +3641,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Odkryj szczegółowe informacje o swoim treningu. Wizualizuj swoje postępy, strefy tętna oraz trendy wydajności na przestrzeni czasu."
+          }
+        }
+      }
+    },
+    "Usuń" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń"
+          }
+        }
+      }
+    },
+    "Usuń trening?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń trening?"
           }
         }
       }

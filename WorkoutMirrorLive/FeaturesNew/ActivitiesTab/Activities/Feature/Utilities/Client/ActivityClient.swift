@@ -62,6 +62,10 @@ public struct ActivityClient: Sendable {
     /// Fetches a single workout by its HealthKit UUID.
     /// Returns nil if no matching workout is found.
     public var fetchWorkoutById: @Sendable (UUID) async throws -> HKWorkout?
+
+    /// Deletes the given workout from HealthKit.
+    /// Only works for workouts created by this app.
+    public var deleteWorkout: @Sendable (HKWorkout) async throws -> Void
 }
 
 extension ActivityClient: DependencyKey {
@@ -159,6 +163,9 @@ extension ActivityClient: DependencyKey {
                     }
                     healthStore.execute(query)
                 }
+            },
+            deleteWorkout: { workout in
+                try await healthStore.delete(workout)
             }
         )
     }()
@@ -176,7 +183,8 @@ extension ActivityClient: DependencyKey {
         fetchRecoveryDemand: unimplemented("ActivityClient.fetchRecoveryDemand", placeholder: nil),
         fetchWorkoutRoute: unimplemented("ActivityClient.fetchWorkoutRoute", placeholder: []),
         fetchWorkoutStartLocation: unimplemented("ActivityClient.fetchWorkoutStartLocation", placeholder: nil),
-        fetchWorkoutById: unimplemented("ActivityClient.fetchWorkoutById", placeholder: nil)
+        fetchWorkoutById: unimplemented("ActivityClient.fetchWorkoutById", placeholder: nil),
+        deleteWorkout: unimplemented("ActivityClient.deleteWorkout")
     )
 }
 
