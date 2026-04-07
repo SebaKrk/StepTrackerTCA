@@ -51,6 +51,8 @@ struct PersonalActivityView: View {
         ) { detailsStore in
             ActivityDetailsView(store: detailsStore)
         }
+        .alert(store: store.scope(state: \.$deleteAlert, action: \.alert))
+        .alert(store: store.scope(state: \.$errorAlert, action: \.errorAlert))
         .onAppear {
             send(.viewDidAppear)
         }
@@ -115,6 +117,14 @@ struct PersonalActivityView: View {
             List {
                 ForEach(store.workouts, id: \.uuid) { workout in
                     workoutCard(workout)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button {
+                                send(.deleteWorkoutSwiped(workout))
+                            } label: {
+                                Label("Usuń", systemImage: "trash")
+                            }
+                            .tint(.red)
+                        }
                 }
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
@@ -122,6 +132,9 @@ struct PersonalActivityView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
+            .refreshable {
+                send(.refresh)
+            }
         }
     }
     
@@ -159,7 +172,7 @@ struct PersonalActivityView: View {
                 .scaledToFit()
                 .foregroundColor(.primary)
                 .frame(width: 40, height: 40)
-            
+
             VStack(alignment: .leading) {
                 Text(workout.workoutActivityType.name)
                     .foregroundColor(.primary)
@@ -263,7 +276,7 @@ struct PersonalActivityView: View {
         let seconds = Int(duration) % 60
         return "\(minutes) min \(seconds) sec"
     }
-    
+
     // MARK: - Empty/Failed Views
     
     private var failedView: some View {

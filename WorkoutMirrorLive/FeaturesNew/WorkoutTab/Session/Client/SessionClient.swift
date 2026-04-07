@@ -26,6 +26,10 @@ struct SessionClient {
     /// Launches the Watch app so it can start its HKWorkoutSession and stream HR
     /// back to iPhone via WatchConnectivity. iPhone remains the HKWorkout owner.
     var startWatchWorkout: @Sendable (HKWorkoutActivityType) async throws -> Void
+
+    /// Deletes the given workout from HealthKit. Only works for workouts created
+    /// by this app. Used when the user discards a just-finished workout.
+    var deleteWorkout: @Sendable (HKWorkout) async throws -> Void
 }
 
 extension DependencyValues {
@@ -40,6 +44,7 @@ private enum SessionClientClientKey: DependencyKey {
 
         @Dependency(\.workoutManager) var manager
         @Dependency(\.trainingManager) var trainingManager
+        @Dependency(\.healthStore) var healthStore
 
         return SessionClient { type in
             manager.setSelectedWorkout(type)
@@ -63,6 +68,8 @@ private enum SessionClientClientKey: DependencyKey {
             // HKWorkoutSession, and sends readings back via WatchConnectivity.
             // Watch calls discardWorkout() at end — no duplicate HKWorkout saved.
             try await trainingManager.startWatchWorkout(workoutType: activityType)
+        } deleteWorkout: { workout in
+            try await healthStore.delete(workout)
         }
     }()
 

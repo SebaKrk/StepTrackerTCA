@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import HealthKit
+import IssueReporting
 import SharedModels
 
 @Reducer
@@ -121,14 +122,50 @@ struct PersonalActivityFeature {
                     )
                 )
                 return .none
-                
+
+            case .view(.refresh):
+                return .send(.fetchWorkouts)
+
+            case let .view(.deleteWorkoutSwiped(workout)):
+                state.workoutToDelete = workout
+                state.deleteAlert = .deleteWorkout
+                return .none
+
+            case .alert(.presented(.confirmDelete)):
+                let workout = state.workoutToDelete
+                state.workoutToDelete = nil
+                return .run { [activityClient] send in
+                    if let workout {
+                        do {
+                            try await activityClient.deleteWorkout(workout)
+                            await send(.fetchWorkouts)
+                        } catch {
+                            await send(.deleteFailed)
+                        }
+                    }
+                }
+
+            case .alert(.dismiss):
+                state.workoutToDelete = nil
+                return .none
+
+            case .deleteFailed:
+                state.errorAlert = .cannotDelete
+                return .none
+
+            case .errorAlert:
+                return .none
+
                 // MARK: - Destination
-                
+
             case .destination:
                 return .none
             }
         }
+        .ifLet(\.$deleteAlert, action: \.alert)
+        .ifLet(\.$errorAlert, action: \.errorAlert)
         .ifLet(\.$destination, action: \.destination)
     }
-    
+
 }
+

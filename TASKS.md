@@ -681,3 +681,12 @@
     - Watch scanning overlay
     - HR zone % 
     - SummaryView metric card layout
+
+### IOS-00077 Workout deletion & activity improvements
+  - Swipe-to-delete in activities list (TCA AlertState pattern)                                                        
+  - Discard workout button in SummaryView
+  - HealthKit deletion error handling (errorAlert)
+  - Pull-to-refresh in activities list          
+  - SummaryFeature split into separate files                        
+  - Localization fixes
+
