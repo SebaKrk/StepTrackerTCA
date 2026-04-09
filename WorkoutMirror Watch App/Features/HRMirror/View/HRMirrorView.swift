@@ -149,7 +149,7 @@ struct HRMirrorView: View {
             .foregroundStyle(store.heartRateZone.color)
             .monospacedDigit()
             .padding(.leading, 24)
-            .padding(.top, 8)
+            .padding(.top, 16)
             .ignoresSafeArea()
             .animation(.easeInOut(duration: 0.4), value: store.heartRateZone)
     }

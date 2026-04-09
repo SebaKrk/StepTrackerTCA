@@ -61,6 +61,10 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     private var builder: HKLiveWorkoutBuilder?
     private var hrContinuation: AsyncStream<Double>.Continuation?
 
+    /// Resolved by `HKWorkoutSessionDelegate` when session transitions to `.stopped`.
+    /// Used to bridge the async gap between `stopActivity()` and the delegate callback.
+    private var sessionStoppedContinuation: CheckedContinuation<Void, Never>?
+
     func start(activityType: HKWorkoutActivityType) async -> AsyncStream<Double> {
         let (stream, continuation) = AsyncStream.makeStream(
             of: Double.self,
@@ -111,22 +115,43 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             builder = nil
         }
 
-        guard let session, let builder else { return }
-
-        session.stopActivity(with: .now)
-
-        do {
-            try await builder.endCollection(at: .now)
-            // Watch is not the HKWorkout owner — iPhone saves the canonical record.
-            // Discarding prevents a duplicate entry in the Health app.
-            builder.discardWorkout()
-        } catch {
-            print("❌ watchOS: Failed to end workout collection: \(error)")
+        guard let session, let builder else {
+            print("⌚ [DEBUG] end() — session or builder already nil, skipping")
+            return
         }
 
-        // Always end the session regardless of whether endCollection succeeded.
-        // An un-ended HKWorkoutSession would block creation of the next session.
+        print("⌚ [DEBUG] end() — step 1: stopActivityAndWait (state=\(session.state.rawValue))")
+        await stopActivityAndWait(session)
+
+        print("⌚ [DEBUG] end() — step 2: endCollection")
+        do {
+            try await builder.endCollection(at: .now)
+            builder.discardWorkout()
+            print("⌚ [DEBUG] end() — step 2: OK, workout discarded")
+        } catch {
+            print("❌ watchOS: endCollection failed: \(error)")
+        }
+
+        print("⌚ [DEBUG] end() — step 3: session.end()")
         session.end()
+        print("⌚ [DEBUG] end() — done")
+    }
+
+    /// Calls `session.stopActivity()` and suspends until the delegate confirms `.stopped`.
+    ///
+    /// If the session is already stopped or ended (e.g. crash recovery), skips immediately
+    /// to avoid hanging on a continuation that will never be resumed.
+    private func stopActivityAndWait(_ session: HKWorkoutSession) async {
+        guard session.state == .running || session.state == .paused else {
+            print("⌚ [DEBUG] stopActivityAndWait — skipped, state=\(session.state.rawValue)")
+            return
+        }
+        print("⌚ [DEBUG] stopActivityAndWait — calling stopActivity, waiting for .stopped")
+        await withCheckedContinuation { continuation in
+            sessionStoppedContinuation = continuation
+            session.stopActivity(with: .now)
+        }
+        print("⌚ [DEBUG] stopActivityAndWait — delegate confirmed .stopped")
     }
 }
 
@@ -139,7 +164,12 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         didChangeTo toState: HKWorkoutSessionState,
         from fromState: HKWorkoutSessionState,
         date: Date
-    ) {}
+    ) {
+        print("⌚ [DEBUG] session state: \(fromState.rawValue) → \(toState.rawValue)")
+        guard toState == .stopped else { return }
+        sessionStoppedContinuation?.resume()
+        sessionStoppedContinuation = nil
+    }
 
     func workoutSession(
         _ workoutSession: HKWorkoutSession,
