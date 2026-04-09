@@ -245,6 +245,15 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
 
     // MARK: - Watch HR Integration
 
+    /// Resets the internal heart-rate value to 0 so that subsequent HealthKit
+    /// energy/calorie updates do not re-broadcast a stale HR through the metrics
+    /// stream. Called by the Watch HR watchdog when WatchConnectivity goes silent.
+    public func resetWatchHeartRate() {
+        metrics.heartRate = 0
+        workoutMetricsContinuation?.yield(metrics)
+        print("⏱️ [DefaultWorkoutManager] resetWatchHeartRate — metrics.heartRate set to 0")
+    }
+
     /// Adds a single heart-rate sample (received from Watch via WatchConnectivity)
     /// to the live workout builder so it appears in the saved HKWorkout.
     public func addHeartRateSample(_ bpm: Double, at date: Date) async {

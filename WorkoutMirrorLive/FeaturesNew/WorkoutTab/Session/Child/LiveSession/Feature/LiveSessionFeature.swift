@@ -87,6 +87,18 @@ struct LiveSessionFeature {
                 state.sessionMaxHeartRate = max
                 return .none
                 
+            case .resetHeartRate:
+                let current = state.workoutMetrics
+                state.workoutMetrics = WorkoutMetrics(
+                    averageHeartRate: current.averageHeartRate,
+                    heartRate: 0,
+                    activeEnergy: current.activeEnergy
+                )
+                return .merge(
+                    .send(.calculateHeartRateZone(0, state.maxHeartRate)),
+                    .send(.calculateHeartRatePercentage(0, state.maxHeartRate))
+                )
+
             case .startWorkoutMetricsStream:
                 return .run { send in
                     for await metric in await client.workoutMetricsStream() {
