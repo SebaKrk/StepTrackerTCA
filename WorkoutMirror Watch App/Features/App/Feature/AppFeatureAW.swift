@@ -35,6 +35,7 @@ struct AppFeatureAW {
             // MARK: - Internal Actions
 
             case .watchEventReceived(.workoutStarted(let activityTypeRaw, let elapsed, let maxHR)):
+                print("⌚ [DEBUG] watchEventReceived: .workoutStarted (activityType=\(activityTypeRaw))")
                 let activityType = HKWorkoutActivityType(rawValue: activityTypeRaw) ?? .other
                 state.hrMirror = HRMirrorFeature.State(
                     elapsedSeconds: elapsed,
@@ -56,18 +57,17 @@ struct AppFeatureAW {
                 return .send(.hrMirror(.presented(.workoutResumed(elapsedSeconds: elapsed))))
 
             case .watchEventReceived(.workoutEnded):
-                // Send .stop first so HRMirrorFeature can properly end the HKWorkoutSession
-                // before TCA tears down the feature scope via ifLet.
+                print("⌚ [DEBUG] watchEventReceived: .workoutEnded — sending .stop to HRMirrorFeature")
                 return .concatenate(
                     .send(.hrMirror(.presented(.stop))),
                     .run { send in
-                        // Small delay to let endSession() complete before dismissing.
                         try? await Task.sleep(for: .milliseconds(300))
                         await send(.dismissHRMirror)
                     }
                 )
 
             case .dismissHRMirror:
+                print("⌚ [DEBUG] dismissHRMirror — setting hrMirror = nil")
                 state.hrMirror = nil
                 return .none
 

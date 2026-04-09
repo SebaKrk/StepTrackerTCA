@@ -30,6 +30,14 @@ struct AppViewAW: View {
             item: $store.scope(state: \.hrMirror, action: \.hrMirror)
         ) { hrMirrorStore in
             HRMirrorView(store: hrMirrorStore)
+                .onDisappear {
+                    print("⌚ [DEBUG] HRMirrorView disappeared — fullScreenCover dismissed")
+                }
+        }
+        .onChange(of: store.hrMirror == nil) { _, isNil in
+            if isNil {
+                print("⌚ [DEBUG] hrMirror state became nil — cover will dismiss")
+            }
         }
         .onAppear {
             send(.onAppear)
