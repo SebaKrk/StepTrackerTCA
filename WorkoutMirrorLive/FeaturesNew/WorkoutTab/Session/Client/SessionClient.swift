@@ -30,6 +30,10 @@ struct SessionClient {
     /// Deletes the given workout from HealthKit. Only works for workouts created
     /// by this app. Used when the user discards a just-finished workout.
     var deleteWorkout: @Sendable (HKWorkout) async throws -> Void
+
+    /// Resets `metrics.heartRate` to 0 inside `DefaultWorkoutManager` so that
+    /// subsequent HealthKit energy updates do not re-broadcast a stale HR value.
+    var resetWatchHeartRate: @Sendable () -> Void
 }
 
 extension DependencyValues {
@@ -70,6 +74,8 @@ private enum SessionClientClientKey: DependencyKey {
             try await trainingManager.startWatchWorkout(workoutType: activityType)
         } deleteWorkout: { workout in
             try await healthStore.delete(workout)
+        } resetWatchHeartRate: {
+            manager.resetWatchHeartRate()
         }
     }()
 

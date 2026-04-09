@@ -91,6 +91,7 @@ struct SessionFeature {
                         .cancel(id: SessionWatchCancelID.watchEventStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
+                        .cancel(id: SessionWatchCancelID.hrReadingTimeout),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop))))
                     )
@@ -216,7 +217,17 @@ struct SessionFeature {
                     // HKWorkout contains heart-rate data from Watch sensors.
                     .run { [bpm, timestamp] _ in
                         await self.sessionClient.addHeartRateSample(bpm, timestamp)
+                    },
+                    // Watchdog: if no new reading arrives within 20s, reset HR to 0.
+                    // Watch delivers HR every ~5s, with natural pauses up to ~15s.
+                    // 20s sits safely above natural gaps but below a real disconnect (~36s+).
+                    // cancelInFlight: true ensures only one timer runs at a time —
+                    // each new reading restarts the countdown.
+                    .run { [clock = clock] send in
+                        try? await clock.sleep(for: .seconds(20))
+                        await send(.hrReadingTimedOut)
                     }
+                    .cancellable(id: SessionWatchCancelID.hrReadingTimeout, cancelInFlight: true)
                 )
 
             case .watchEventReceived(.workoutPaused):
@@ -226,6 +237,15 @@ struct SessionFeature {
             case .watchEventReceived(.workoutResumed):
                 guard state.controls.sessionState == .paused else { return .none }
                 return .send(.controls(.view(.mainControlButtonTapped)))
+
+            case .hrReadingTimedOut:
+                print("⏱️ [SessionFeature] hrReadingTimeout — no HR from Watch for 20s, resetting to 0")
+                return .merge(
+                    // Reset at the source first so subsequent HealthKit energy updates
+                    // don't carry a stale heartRate back through the metrics stream.
+                    .run { _ in self.sessionClient.resetWatchHeartRate() },
+                    .send(.live(.resetHeartRate))
+                )
 
             case .watchEventReceived:
                 return .none
@@ -278,5 +298,9 @@ private nonisolated enum SessionWatchCancelID: Hashable, Sendable {
 
     /// Identifies the iPhone-side HKLiveWorkoutBuilder metrics stream.
     case metricsStream
+
+    /// Identifies the 20-second watchdog timer that resets heartRate to 0
+    /// when no HR reading has been received from Watch in that window.
+    case hrReadingTimeout
 
 }

@@ -40,6 +40,12 @@ extension LiveSessionFeature {
 
         /// Calculates session-level heart rate statistics based on a new heart rate reading.
         case calculateSessionHeartRateStats(Int)
+
+        /// Resets the displayed heart rate to 0. Used by the Watch HR watchdog timer
+        /// when no reading has been received for an extended period — bypasses the
+        /// HealthKit-zero guard in `.workoutMetrics` which would otherwise preserve
+        /// the last known value.
+        case resetHeartRate
         
         // MARK: - Live Activity (Child Reducer)
 

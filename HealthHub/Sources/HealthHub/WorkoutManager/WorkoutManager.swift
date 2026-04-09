@@ -80,6 +80,14 @@ public protocol WorkoutManager: Sendable {
     /// live workout builder. This ensures Watch HR appears in the saved HKWorkout
     /// even though iPhone owns the workout session (WWDC25 iPhone-primary pattern).
     func addHeartRateSample(_ bpm: Double, at date: Date) async
+
+    /// Resets the internal heart-rate value to 0. Called by the Watch HR watchdog
+    /// timer when no reading has been received for an extended period.
+    ///
+    /// This clears `metrics.heartRate` at the source so that subsequent HealthKit
+    /// calorie/energy updates (which yield the full `metrics` struct) no longer
+    /// carry a stale HR value back into the TCA state.
+    func resetWatchHeartRate()
     
 //    // MARK: - Platform Setup
 //    
