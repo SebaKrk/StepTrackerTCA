@@ -136,7 +136,12 @@ struct SessionFeature {
                         // Additionally launch Watch app so Watch can start its own HKWorkoutSession
                         // and stream HR readings back via WatchConnectivity.
                         print("⌚️ [SessionFeature] Watch is ready → launching Watch workout")
-                        try? await self.sessionClient.startWatchWorkout(workout.hkType)
+                        do {
+                            try await self.sessionClient.startWatchWorkout(workout.hkType)
+                            print("✅ [SessionFeature] startWatchWorkout succeeded")
+                        } catch {
+                            print("❌ [SessionFeature] startWatchWorkout FAILED: \(error)")
+                        }
                     } else {
                         print("📱 [SessionFeature] Watch unavailable (\(watchStatus.rawValue)) → iPhone-primary path, HKLiveWorkoutDataSource active")
                     }

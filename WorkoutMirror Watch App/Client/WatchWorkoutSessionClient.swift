@@ -126,11 +126,16 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         print("⌚ [DEBUG] end() — step 2: endCollection")
         do {
             try await builder.endCollection(at: .now)
-            builder.discardWorkout()
-            print("⌚ [DEBUG] end() — step 2: OK, workout discarded")
+            print("⌚ [DEBUG] end() — step 2: endCollection OK")
         } catch {
             print("❌ watchOS: endCollection failed: \(error)")
         }
+        // Always discard — even if endCollection failed.
+        // Apple requires calling finishWorkout() or discardWorkout() to complete
+        // the builder. Without this, session.end() causes HealthKit to auto-save
+        // a duplicate workout record.
+        builder.discardWorkout()
+        print("⌚ [DEBUG] end() — step 2: workout discarded")
 
         print("⌚ [DEBUG] end() — step 3: session.end()")
         session.end()
