@@ -690,3 +690,39 @@
   - SummaryFeature split into separate files                        
   - Localization fixes
 
+### IOS-00079 Watch-primary + HealthKit mirroring architecture
+    - branch: `feature/IOS-00079-watch-primary-mirroring`
+
+    A: feat(watch): WatchAppDelegate + WorkoutConfigurationStream — Watch auto-launch
+        - WKApplicationDelegate.handle(_:) forwards HKWorkoutConfiguration to TCA via singleton AsyncStream
+        - @WKApplicationDelegateAdaptor in WorkoutMirrorApp
+        - Watch app comes to foreground automatically when iPhone calls startWatchApp(toHandle:)
+    B: feat(watch): WatchWorkoutSessionClient — Watch-primary HKWorkoutSession
+        - Watch owns HKWorkoutSession + HKLiveWorkoutBuilder
+        - startMirroringToCompanionDevice() → iPhone receives mirrored session via workoutSessionMirroringStartHandler
+        - HR forwarded to iPhone via sendToRemoteWorkoutSession (HealthKit channel, not WatchConnectivity)
+        - sessionStateStream: AsyncStream<HKWorkoutSessionState> for pause/resume sync
+        - stopActivityAndWait: withCheckedContinuation awaits delegate .stopped before endCollection
+        - workoutFinished flag guards against double-save (race between end() and .ended safety-net)
+    C: feat(watch): HRMirrorFeature — session lifecycle + pause sync
+        - sessionStateChanged action syncs isPaused when iPhone initiates pause via mirrored session
+        - view(.pauseResumeTapped) manages subSecondTimer directly (restart on resume, cancel on pause)
+          — prevents timer stall when Watch initiates resume (isPaused already cleared before delegate fires)
+        - sessionStateStream cancellable added to .start / .stop
+    D: feat(ios): AppFeatureAW — dual-path workout start
+        - workoutConfigurationReceived: starts HRMirrorFeature before WC event arrives (auto-launch path)
+        - workoutStarted: falls back to WC path if Watch app was already running
+    E: fix(HealthHub): WCSession activation race condition
+        - initializeWatchConnectivity() suspends via withCheckedContinuation until activationDidCompleteWith fires
+        - checkWatchStatus() now always reads correct isPaired value
+    F: fix(ios): double endWorkout() crash in iPhone-standalone mode
+        - ControlsFeature.endWorkoutButtonTapped returns .none — SessionFeature owns the full end sequence
+    G: fix(ios): CountDownClient routed through WorkoutModeRouter
+        - CountDownClient previously called DefaultWorkoutManager.startWorkout() directly
+        - In Watch-primary mode this failed (no iPhone session prepared)
+        - SessionClient.startWorkout added, routed as no-op in watchPrimary / real call in iPhoneStandalone
+    H: refactor: strategic log cleanup
+        - Removed high-frequency prints (workoutTick, HR metrics — fired every 100ms–1s)
+        - Unified prefix format: [WatchSession], [WC], [AppFeatureAW], [HRMirrorFeature], [TrainingManager], [SessionFeature]
+        - Added targeted logs for critical bugs: workoutFinished flag, stopActivityAndWait, sessionStateChanged, pause sync
+
