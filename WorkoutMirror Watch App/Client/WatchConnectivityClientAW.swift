@@ -55,10 +55,21 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
 
     static let shared = WatchSession()
 
-    private let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
+    /// Mutable continuation — replaced on each `eventStream` access so that
+    /// every `incomingEventStream()` call returns a **fresh** `AsyncStream`.
+    /// Without this, all callers share the same stream object and only the
+    /// first `for await` consumer receives events (single-consumer limitation).
+    private var continuation: AsyncStream<WatchWorkoutEvent>.Continuation?
     private static let messageKey = "watchWorkoutEvent"
 
-    var eventStream: AsyncStream<WatchWorkoutEvent> { stream }
+    /// Returns a new `AsyncStream` each time it is accessed.
+    /// The previous continuation is finished so the old consumer terminates cleanly.
+    var eventStream: AsyncStream<WatchWorkoutEvent> {
+        continuation?.finish()
+        let (stream, newContinuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
+        continuation = newContinuation
+        return stream
+    }
 
     override init() {
         super.init()
@@ -123,6 +134,6 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
             return
         }
         print("⌚️ WatchSession: received event → \(event)")
-        continuation.yield(event)
+        continuation?.yield(event)
     }
 }

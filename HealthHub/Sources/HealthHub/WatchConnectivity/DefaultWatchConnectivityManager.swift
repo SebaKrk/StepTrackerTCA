@@ -31,6 +31,10 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
     /// Actor responsible for thread-safe connection status updates.
     let statusActor = WatchConnectivityStatusActor()
 
+    /// Resumed by `activationDidCompleteWith` so that `initializeWatchConnectivity()`
+    /// suspends until WCSession is fully activated and `isPaired` is safe to read.
+    var activationContinuation: CheckedContinuation<Void, Never>?
+
     // MARK: - Incoming Event Stream
 
     /// Lock protecting `_eventContinuation` across delegate callbacks and stream subscriptions.
@@ -63,11 +67,6 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
 
     override init() {
         super.init()
-        print("🍎 🟢 Created DefaultWatchConnectivityManager")
-    }
-
-    deinit {
-        print("🪦 -> ❌ DefaultWatchConnectivityManager deinit")
     }
 
     // MARK: - WatchConnectivityManager
@@ -109,21 +108,33 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         get async { await statusActor.status }
     }
 
-    /// Activates the `WCSession` and begins monitoring connection status.
+    /// Activates the `WCSession` and suspends until activation completes.
+    ///
+    /// `WCSession.activate()` is a callback-based API — `isPaired` and other
+    /// connection properties are only valid inside `activationDidCompleteWith`.
+    /// Suspending here ensures callers can safely call `checkConnectionStatus()`
+    /// immediately after `await initializeWatchConnectivity()` returns.
     public func initializeWatchConnectivity() async {
-        print("🍎 DefaultWatchConnectivityManager: initializeWatchConnectivity() called")
-
         guard WCSession.isSupported() else {
-            print("❌ WatchConnectivity not supported")
+            print("❌ [WC] WatchConnectivity not supported on this device")
             await statusActor.updateStatus(.notSupported)
+            return
+        }
+
+        // Already activated — no need to wait again.
+        if session?.activationState == .activated {
             return
         }
 
         session = WCSession.default
         session?.delegate = self
-        session?.activate()
 
-        print("🔄 WCSession activation started...")
+        // Suspend until activationDidCompleteWith fires.
+        await withCheckedContinuation { continuation in
+            activationContinuation = continuation
+            session?.activate()
+            print("🔄 [WC] WCSession activation started — awaiting delegate callback")
+        }
     }
 
     /// Evaluates and returns the current connection status.
@@ -154,7 +165,7 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
 
     /// Deactivates the session, resets status, and finishes the event stream.
     public func stopWatchConnectivity() async {
-        print("🛑 Stopping WatchConnectivity...")
+        print("🛑 [WC] stopWatchConnectivity — tearing down WCSession")
         session?.delegate = nil
         session = nil
         await statusActor.updateStatus(.unknown)
@@ -172,21 +183,25 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
     /// otherwise falls back to `transferUserInfo` for guaranteed delivery.
     /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not active.
     public func sendWorkoutEvent(_ event: WatchWorkoutEvent) async throws {
-        print("📡 sendWorkoutEvent: \(event)")
         guard let session, session.activationState == .activated else {
-            print("❌ sendWorkoutEvent: session not activated")
+            print("❌ [WC] sendWorkoutEvent: session not activated — event: \(event)")
             throw WatchConnectivityError.sessionNotActivated
+        }
+        // Log only non-tick events to keep console readable.
+        if case .workoutTick = event { } else {
+            print("📡 [WC] sendWorkoutEvent → \(event)")
         }
         let data = try JSONEncoder().encode(event)
         let message = [Self.messageKey: data]
         if session.isReachable {
-            print("📡 sendWorkoutEvent: sending via sendMessage (reachable)")
             session.sendMessage(message, replyHandler: nil) { error in
-                print("📡 sendMessage failed (\(error.localizedDescription)), falling back to transferUserInfo")
+                print("⚠️ [WC] sendMessage failed (\(error.localizedDescription)), falling back to transferUserInfo — event: \(event)")
                 session.transferUserInfo(message)
             }
         } else {
-            print("📡 sendWorkoutEvent: sending via transferUserInfo (not reachable)")
+            if case .workoutTick = event { } else {
+                print("⚠️ [WC] not reachable — sending via transferUserInfo: \(event)")
+            }
             session.transferUserInfo(message)
         }
     }

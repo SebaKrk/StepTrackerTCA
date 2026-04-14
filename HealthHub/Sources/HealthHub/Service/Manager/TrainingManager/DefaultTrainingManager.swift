@@ -57,6 +57,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     
     var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
+    var workoutSessionStateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
     
     // MARK: - Lifecycle
     public init(healthStore: HKHealthStore) {
@@ -88,6 +89,18 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         AsyncStream { continuation in
             self.workoutMetricsContinuation = continuation
         }
+    }
+
+    public var workoutSessionStateStream: AsyncStream<HKWorkoutSessionState> {
+        workoutSessionStateContinuation?.finish()
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: HKWorkoutSessionState.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+        workoutSessionStateContinuation = continuation
+        // Emit current state immediately so subscriber has a baseline.
+        continuation.yield(sessionState)
+        return stream
     }
     
     public func getWorkout() -> HKWorkout? {

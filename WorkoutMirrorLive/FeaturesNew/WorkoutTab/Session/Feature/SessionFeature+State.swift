@@ -18,7 +18,11 @@ extension SessionFeature {
         
         ///
         var sessionState: SessionState = .countdown
-        
+
+        /// Determines whether Watch or iPhone owns the active HKWorkoutSession.
+        /// Set during `viewDidAppear` based on Watch availability.
+        var workoutMode: WorkoutMode = .iPhoneStandalone
+
         ///
         var selectedWorkout: WorkoutType
 

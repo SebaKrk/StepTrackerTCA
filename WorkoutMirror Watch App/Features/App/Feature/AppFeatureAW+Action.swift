@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthKit
 import SharedModels
 
 /// Implementation of `AppFeatureAW` action.
@@ -18,6 +19,14 @@ extension AppFeatureAW {
 
         /// Delivered when the WatchConnectivity session receives a new event from iPhone.
         case watchEventReceived(WatchWorkoutEvent)
+
+        /// Delivered when iPhone calls `HKHealthStore.startWatchApp(toHandle:)`.
+        ///
+        /// `WatchAppDelegate.handle(_:)` yields the activity type to
+        /// `WorkoutConfigurationStream`, which is consumed here. This fires before
+        /// WatchConnectivity `.workoutStarted` — starts `HRMirrorFeature` early so
+        /// `startMirroringToCompanionDevice()` runs and watchOS brings the app to the front.
+        case workoutConfigurationReceived(HKWorkoutActivityType)
 
         /// Dismisses `HRMirrorFeature` after `.stop` has been sent and the
         /// `HKWorkoutSession` on Watch has finished cleaning up.

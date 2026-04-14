@@ -22,7 +22,8 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
         Task { @MainActor in
             self.workoutSessionIsRunning = toState == .running
             self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
-            
+            self.workoutSessionStateContinuation?.yield(toState)
+
 #if os(watchOS)
             // watchOS: Send elapsed time to iOS
             await sendElapsedTimeToCompanion(date: date)
@@ -62,10 +63,11 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     public func workoutSession(_ workoutSession: HKWorkoutSession,
                                didDisconnectFromRemoteDeviceWithError error: Error?) {
         print("📱 iOS: Disconnected from Watch: \(error?.localizedDescription ?? "No error")")
-        
+
         Task { @MainActor in
             self.workoutSessionIsRunning = false
             self.workoutSessionContinuation?.yield(false)
+            self.workoutSessionStateContinuation?.yield(.stopped)
         }
     }
 #endif

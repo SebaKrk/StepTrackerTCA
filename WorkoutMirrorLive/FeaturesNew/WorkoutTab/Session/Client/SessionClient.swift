@@ -11,20 +11,37 @@ import HealthKit
 import HealthHub
 import SharedModels
 
+// MARK: - WorkoutMode
+
+/// Determines which device owns the active `HKWorkoutSession`.
+///
+/// - `watchPrimary`: Apple Watch runs the primary session and mirrors it to iPhone.
+///   iPhone controls the session via the mirrored `HKWorkoutSession`.
+/// - `iPhoneStandalone`: iPhone runs its own primary session (iOS 26).
+///   Used when Watch is unavailable or not paired.
+enum WorkoutMode: Equatable, Sendable {
+    case watchPrimary
+    case iPhoneStandalone
+}
+
+// MARK: - SessionClient
+
 struct SessionClient {
     var selectedWorkout: @Sendable (HKWorkoutActivityType?) async throws -> Void
-    var workoutMetricsStream: @Sendable () -> AsyncStream<WorkoutMetrics>
-    var workoutSessionStateStream: @Sendable () -> AsyncStream<HKWorkoutSessionState>
+    var workoutMetricsStream: @Sendable () async -> AsyncStream<WorkoutMetrics>
+    var workoutSessionStateStream: @Sendable () async -> AsyncStream<HKWorkoutSessionState>
     var elapsedTimeAt: (_ date: Date) -> TimeInterval
     var togglePause: @Sendable () async -> Void
     var getWorkoutSummary: @Sendable () async -> WorkoutSummary
     var endWorkout: @Sendable () async -> Void
     /// Adds a Watch HR sample to iPhone's HKLiveWorkoutBuilder so that
     /// the saved HKWorkout contains heart-rate data collected by Watch sensors.
+    /// Used in iPhone-standalone mode only; Watch-primary sends HR via HealthKit mirroring.
     var addHeartRateSample: @Sendable (Double, Date) async -> Void
 
-    /// Launches the Watch app so it can start its HKWorkoutSession and stream HR
-    /// back to iPhone via WatchConnectivity. iPhone remains the HKWorkout owner.
+    /// Launches the Watch app. In Watch-primary mode Watch then starts its own
+    /// HKWorkoutSession, calls startMirroringToCompanionDevice(), and iPhone
+    /// receives the mirrored session via workoutSessionMirroringStartHandler.
     var startWatchWorkout: @Sendable (HKWorkoutActivityType) async throws -> Void
 
     /// Deletes the given workout from HealthKit. Only works for workouts created
@@ -33,8 +50,40 @@ struct SessionClient {
 
     /// Resets `metrics.heartRate` to 0 inside `DefaultWorkoutManager` so that
     /// subsequent HealthKit energy updates do not re-broadcast a stale HR value.
+    /// Used in iPhone-standalone mode only.
     var resetWatchHeartRate: @Sendable () -> Void
+
+    /// Switches internal routing between Watch-primary and iPhone-standalone mode.
+    /// Must be called in `viewDidAppear` before the session begins.
+    var setWorkoutMode: @Sendable (WorkoutMode) async -> Void
+
+    /// Increments the internal elapsed-time counter by 1 second and returns the new value.
+    ///
+    /// Called from `SessionFeature.watchTickEffect` (which fires every second).
+    /// In Watch-primary mode this is the sole source of truth for elapsed time, since
+    /// the mirrored `HKWorkoutSession` on iPhone has no active `HKLiveWorkoutBuilder`.
+    var incrementElapsed: @Sendable () -> TimeInterval
+
+    /// Resets the internal elapsed-time counter to 0.
+    /// Called at the moment the workout transitions from countdown to active session.
+    var resetElapsed: @Sendable () -> Void
+
+    /// Resets the interpolation baseline (`lastTickDate`) to now without changing the counter.
+    ///
+    /// Must be called on workout resume so sub-second interpolation does not include
+    /// the pause duration. Without this, `elapsedAt(date)` overshoots because
+    /// `lastTickDate` is still the pre-pause tick timestamp.
+    var markResumeElapsed: @Sendable () -> Void
+
+    /// Starts the active `HKWorkoutSession` on iPhone.
+    ///
+    /// In iPhone-standalone mode, calls `workoutManager.startWorkout()` to begin
+    /// HealthKit data collection after the countdown finishes.
+    /// In Watch-primary mode, this is a no-op — Watch owns the session.
+    var startWorkout: @Sendable () async -> Void
 }
+
+// MARK: - Dependency Registration
 
 extension DependencyValues {
     var sessionClient: SessionClient {
@@ -50,33 +99,214 @@ private enum SessionClientClientKey: DependencyKey {
         @Dependency(\.trainingManager) var trainingManager
         @Dependency(\.healthStore) var healthStore
 
-        return SessionClient { type in
-            manager.setSelectedWorkout(type)
-        } workoutMetricsStream: {
-            manager.workoutMetricsStream
-        } workoutSessionStateStream: {
-            manager.workoutSessionStateStream
-        } elapsedTimeAt: { date in
-            manager.builder?.elapsedTime(at: date) ?? 0
-        } togglePause: {
-            manager.togglePause()
-        } getWorkoutSummary: {
-            WorkoutSummary(workout: manager.getWorkout(),
-                           metrics: manager.getWorkoutMetrics())
-        } endWorkout: {
-            manager.endWorkout()
-        } addHeartRateSample: { bpm, date in
-            await manager.addHeartRateSample(bpm, at: date)
-        } startWatchWorkout: { activityType in
-            // iPhone is the HKWorkout owner. Watch activates, collects HR via its
-            // HKWorkoutSession, and sends readings back via WatchConnectivity.
-            // Watch calls discardWorkout() at end — no duplicate HKWorkout saved.
-            try await trainingManager.startWatchWorkout(workoutType: activityType)
-        } deleteWorkout: { workout in
-            try await healthStore.delete(workout)
-        } resetWatchHeartRate: {
-            manager.resetWatchHeartRate()
-        }
-    }()
+        // Actor that holds current mode and routes calls accordingly.
+        let router = WorkoutModeRouter(
+            workoutManager: manager,
+            trainingManager: trainingManager
+        )
 
+        // Synchronous mode holder — allows `elapsedTimeAt` and `getWorkoutSummary`
+        // to route without actor async overhead. Mode is set once at session start
+        // so race conditions are not a concern in practice.
+        let modeHolder = ModeHolder()
+
+        // Elapsed time counter for Watch-primary mode.
+        let elapsedTracker = ElapsedTracker()
+
+        return SessionClient(
+            selectedWorkout: { type in
+                manager.setSelectedWorkout(type)
+            },
+            workoutMetricsStream: {
+                await router.metricsStream()
+            },
+            workoutSessionStateStream: {
+                await router.sessionStateStream()
+            },
+            elapsedTimeAt: { date in
+                switch modeHolder.mode {
+                case .watchPrimary:
+                    // In Watch-primary mode iPhone has no active HKLiveWorkoutBuilder.
+                    // ElapsedTracker interpolates sub-second precision from the last tick.
+                    return elapsedTracker.elapsedAt(date)
+                case .iPhoneStandalone:
+                    return manager.builder?.elapsedTime(at: date) ?? 0
+                }
+            },
+            togglePause: {
+                await router.togglePause()
+            },
+            getWorkoutSummary: {
+                switch modeHolder.mode {
+                case .watchPrimary:
+                    // Workout is saved by Watch; iPhone fetches it from HealthKit
+                    // in handleWorkoutEndIOS and stores it in trainingManager.
+                    return WorkoutSummary(workout: trainingManager.getWorkout(),
+                                         metrics: trainingManager.getWorkoutMetrics())
+                case .iPhoneStandalone:
+                    return WorkoutSummary(workout: manager.getWorkout(),
+                                         metrics: manager.getWorkoutMetrics())
+                }
+            },
+            endWorkout: {
+                await router.endWorkout()
+            },
+            addHeartRateSample: { bpm, date in
+                await manager.addHeartRateSample(bpm, at: date)
+            },
+            startWatchWorkout: { activityType in
+                try await trainingManager.startWatchWorkout(workoutType: activityType)
+            },
+            deleteWorkout: { workout in
+                try await healthStore.delete(workout)
+            },
+            resetWatchHeartRate: {
+                manager.resetWatchHeartRate()
+            },
+            setWorkoutMode: { mode in
+                modeHolder.mode = mode
+                await router.setMode(mode)
+            },
+            incrementElapsed: {
+                elapsedTracker.increment()
+            },
+            resetElapsed: {
+                elapsedTracker.reset()
+            },
+            markResumeElapsed: {
+                elapsedTracker.markResume()
+            },
+            startWorkout: {
+                await router.startWorkout()
+            }
+        )
+    }()
+}
+
+// MARK: - ModeHolder
+
+/// Tracks elapsed workout time for Watch-primary mode.
+///
+/// `elapsed` is the last full-second value set by `watchTickEffect` (every 1s).
+/// `elapsedAt(_:)` interpolates sub-second precision using `lastTickDate`,
+/// giving smooth display at 60 fps from the View's TimelineView — identical to
+/// how `HKLiveWorkoutBuilder.elapsedTime(at:)` works in iPhone-standalone mode.
+private final class ElapsedTracker: @unchecked Sendable {
+    private var elapsed: TimeInterval = 0
+    private var lastTickDate: Date = Date()
+
+    /// Returns interpolated elapsed time at `date`.
+    func elapsedAt(_ date: Date) -> TimeInterval {
+        guard elapsed > 0 else { return 0 }
+        // Clamp fraction to 1s so a paused/delayed tick doesn't overshoot.
+        let fraction = min(date.timeIntervalSince(lastTickDate), 1.0)
+        return elapsed + max(0, fraction)
+    }
+
+    /// Increments the counter by 1 second and records the tick timestamp.
+    @discardableResult
+    func increment() -> TimeInterval {
+        elapsed += 1
+        lastTickDate = Date()
+        return elapsed
+    }
+
+    /// Called on workout resume so the interpolation doesn't include pause duration.
+    func markResume() {
+        lastTickDate = Date()
+    }
+
+    func reset() {
+        elapsed = 0
+        lastTickDate = Date()
+    }
+}
+
+/// Simple reference-type container for synchronous mode access.
+///
+/// `WorkoutModeRouter` is an `actor` (async-only access), but `elapsedTimeAt` and
+/// `getWorkoutSummary` closures must be synchronous. `ModeHolder` bridges this gap:
+/// mode is written once during `viewDidAppear` (before any reads), so no locking needed.
+private final class ModeHolder: @unchecked Sendable {
+    var mode: WorkoutMode = .iPhoneStandalone
+}
+
+// MARK: - WorkoutModeRouter
+
+/// Actor that routes session control calls to the correct manager
+/// depending on whether Watch or iPhone owns the primary session.
+private actor WorkoutModeRouter {
+
+    private var mode: WorkoutMode = .iPhoneStandalone
+    private let workoutManager: WorkoutManager
+    private let trainingManager: TrainingManager
+
+    init(workoutManager: WorkoutManager, trainingManager: TrainingManager) {
+        self.workoutManager = workoutManager
+        self.trainingManager = trainingManager
+    }
+
+    func setMode(_ newMode: WorkoutMode) {
+        mode = newMode
+        print("🔀 [WorkoutModeRouter] mode → \(newMode)")
+    }
+
+    func togglePause() {
+        switch mode {
+        case .watchPrimary:
+            // Mirrored session pause propagates to Watch automatically via HealthKit.
+            trainingManager.togglePause()
+        case .iPhoneStandalone:
+            workoutManager.togglePause()
+        }
+    }
+
+    func endWorkout() {
+        switch mode {
+        case .watchPrimary:
+            // Watch-primary: Watch owns the session and MUST call finishWorkout() before
+            // session.end(). Calling session.end() on the mirrored session here would
+            // propagate via HealthKit and end Watch's primary session BEFORE Watch saves
+            // the workout — causing the workout to be lost.
+            //
+            // Instead, iPhone sends `.workoutEnded` via WatchConnectivity (already done
+            // in SessionFeature before endWorkout() is called). Watch handles the stop
+            // sequence: finishWorkout() → session.end(). HealthKit then automatically
+            // ends iPhone's mirrored session, triggering handleWorkoutEndIOS.
+            print("🔀 [WorkoutModeRouter] endWorkout() — Watch-primary: no-op (Watch owns end sequence)")
+        case .iPhoneStandalone:
+            workoutManager.endWorkout()
+        }
+    }
+
+    func startWorkout() async {
+        switch mode {
+        case .watchPrimary:
+            // Watch-primary: Watch already started the HKWorkoutSession.
+            // iPhone has a mirrored session — no startWorkout() needed.
+            print("🔀 [WorkoutModeRouter] startWorkout() — Watch-primary: no-op")
+        case .iPhoneStandalone:
+            await workoutManager.startWorkout()
+        }
+    }
+
+    func sessionStateStream() -> AsyncStream<HKWorkoutSessionState> {
+        switch mode {
+        case .watchPrimary:
+            return trainingManager.workoutSessionStateStream
+        case .iPhoneStandalone:
+            return workoutManager.workoutSessionStateStream
+        }
+    }
+
+    func metricsStream() -> AsyncStream<WorkoutMetrics> {
+        switch mode {
+        case .watchPrimary:
+            // In Watch-primary, metrics come from Watch via sendToRemoteWorkoutSession
+            // decoded in DefaultTrainingManager.didReceiveDataFromRemoteWorkoutSession.
+            return trainingManager.workoutMetricsStream
+        case .iPhoneStandalone:
+            return workoutManager.workoutMetricsStream
+        }
+    }
 }

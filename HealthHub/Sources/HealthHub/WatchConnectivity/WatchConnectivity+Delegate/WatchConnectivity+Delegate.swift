@@ -13,29 +13,32 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
     // MARK: - Session Lifecycle
 
     /// Called when the WCSession activation attempt completes.
+    ///
+    /// Resumes `activationContinuation` so that `initializeWatchConnectivity()`
+    /// unblocks — only after this point is `isPaired` safe to read.
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("🔄 WCSession activation completed with state: \(activationState.rawValue)")
+        // Unblock `initializeWatchConnectivity()` regardless of outcome.
+        activationContinuation?.resume()
+        activationContinuation = nil
 
         Task {
             if let error = error {
-                print("❌ WCSession activation error: \(error.localizedDescription)")
+                print("❌ [WC] activation error: \(error.localizedDescription)")
                 await statusActor.updateStatus(.unknown)
                 return
             }
 
             switch activationState {
             case .activated:
-                print("✅ WCSession activated successfully")
                 let status = await checkConnectionStatus()
-                print("📊 Final status: \(status)")
+                print("✅ [WC] WCSession activated — status: \(status)")
             case .inactive:
-                print("⚠️ WCSession inactive")
+                print("⚠️ [WC] WCSession inactive after activation")
                 await statusActor.updateStatus(.unknown)
             case .notActivated:
-                print("❌ WCSession not activated")
+                print("❌ [WC] WCSession not activated")
                 await statusActor.updateStatus(.unknown)
             @unknown default:
-                print("❓ Unknown WCSession activation state")
                 await statusActor.updateStatus(.unknown)
             }
         }
@@ -44,13 +47,12 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
     /// Called when the session becomes inactive. iOS only.
     #if os(iOS)
     public func sessionDidBecomeInactive(_ session: WCSession) {
-        print("📴 WCSession became inactive")
         Task { await statusActor.updateStatus(.unknown) }
     }
 
     /// Called when the session deactivates. Reactivates automatically. iOS only.
     public func sessionDidDeactivate(_ session: WCSession) {
-        print("🔄 WCSession deactivated - reactivating...")
+        print("🔄 [WC] WCSession deactivated — reactivating")
         Task { await statusActor.updateStatus(.unknown) }
         session.activate()
     }
@@ -58,11 +60,8 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
 
     /// Called when the reachability of the paired device changes.
     public func sessionReachabilityDidChange(_ session: WCSession) {
-        print("🔄 Watch reachability changed: \(session.isReachable)")
-        Task {
-            let status = await checkConnectionStatus()
-            print("📊 New status after reachability change: \(status)")
-        }
+        print("🔄 WCSession reachability → \(session.isReachable)")
+        Task { await checkConnectionStatus() }
     }
 
     // MARK: - Receiving Messages
@@ -90,10 +89,13 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
         guard let data = dict[Self.messageKey] as? Data,
               let event = try? JSONDecoder().decode(WatchWorkoutEvent.self, from: data)
         else {
-            print("⚠️ decodeAndYield: failed to decode WatchWorkoutEvent from message")
+            print("⚠️ [WC] decodeAndYield: failed to decode WatchWorkoutEvent")
             return
         }
-        print("📨 decodeAndYield: received event → \(event)")
+        // Skip high-frequency tick events to keep logs clean.
+        if case .workoutTick = event { } else {
+            print("📨 [WC] received event → \(event)")
+        }
         continuationLock.withLock {
             _eventContinuation?.yield(event)
         }

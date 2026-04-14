@@ -34,9 +34,30 @@ struct AppFeatureAW {
 
             // MARK: - Internal Actions
 
+            case .workoutConfigurationReceived(let activityType):
+                // Fired by WatchAppDelegate.handle(_:) — before any WC event arrives.
+                // Start HRMirrorFeature so it calls startMirroringToCompanionDevice(),
+                // which automatically brings the Watch app to the foreground.
+                guard state.hrMirror == nil else {
+                    print("⌚ [AppFeatureAW] workoutConfigurationReceived — hrMirror already active, ignoring")
+                    return .none
+                }
+                print("⌚ [AppFeatureAW] workoutConfigurationReceived — activityType: \(activityType.rawValue)")
+                state.hrMirror = HRMirrorFeature.State(activityType: activityType)
+                return .send(.hrMirror(.presented(.start)))
+
             case .watchEventReceived(.workoutStarted(let activityTypeRaw, let elapsed, let maxHR)):
-                print("⌚ [DEBUG] watchEventReceived: .workoutStarted (activityType=\(activityTypeRaw))")
+                print("⌚ [AppFeatureAW] watchEventReceived: .workoutStarted — activityType=\(activityTypeRaw), hrMirrorActive=\(state.hrMirror != nil)")
                 let activityType = HKWorkoutActivityType(rawValue: activityTypeRaw) ?? .other
+
+                if state.hrMirror != nil {
+                    // Already started via handleWorkoutConfiguration — only sync params.
+                    state.hrMirror?.maxHeartRate = maxHR
+                    state.hrMirror?.elapsedSeconds = elapsed
+                    return .none
+                }
+
+                // Fallback: Watch app was already running (e.g. manually opened by user).
                 state.hrMirror = HRMirrorFeature.State(
                     elapsedSeconds: elapsed,
                     maxHeartRate: maxHR,
@@ -57,7 +78,7 @@ struct AppFeatureAW {
                 return .send(.hrMirror(.presented(.workoutResumed(elapsedSeconds: elapsed))))
 
             case .watchEventReceived(.workoutEnded):
-                print("⌚ [DEBUG] watchEventReceived: .workoutEnded — sending .stop to HRMirrorFeature")
+                print("⌚ [AppFeatureAW] watchEventReceived: .workoutEnded — stopping HRMirrorFeature")
                 return .concatenate(
                     .send(.hrMirror(.presented(.stop))),
                     .run { send in
@@ -67,7 +88,7 @@ struct AppFeatureAW {
                 )
 
             case .dismissHRMirror:
-                print("⌚ [DEBUG] dismissHRMirror — setting hrMirror = nil")
+                print("⌚ [AppFeatureAW] dismissHRMirror — tearing down HRMirrorFeature")
                 state.hrMirror = nil
                 return .none
 
@@ -86,11 +107,21 @@ struct AppFeatureAW {
             // MARK: - View Actions
 
             case .view(.onAppear):
-                return .run { [watchClient = watchClient] send in
-                    for await event in watchClient.incomingEventStream() {
-                        await send(.watchEventReceived(event))
+                return .merge(
+                    .run { [watchClient = watchClient] send in
+                        for await event in watchClient.incomingEventStream() {
+                            await send(.watchEventReceived(event))
+                        }
+                    },
+                    // Listen for workout configurations forwarded by WatchAppDelegate.handle(_:).
+                    // This stream fires when iPhone calls startWatchApp(toHandle:) — before
+                    // any WatchConnectivity event is delivered.
+                    .run { send in
+                        for await activityType in WorkoutConfigurationStream.shared.stream {
+                            await send(.workoutConfigurationReceived(activityType))
+                        }
                     }
-                }
+                )
 
             // MARK: - Child Actions
 
