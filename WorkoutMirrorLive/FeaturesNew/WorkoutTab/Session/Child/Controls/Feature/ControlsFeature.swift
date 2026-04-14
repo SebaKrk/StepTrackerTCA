@@ -68,9 +68,10 @@ struct ControlsFeature {
                 }
                 
             case .view(.endWorkoutButtonTapped):
-                return .run { _ in
-                    await client.endWorkout()
-                }
+                // SessionFeature handles the full end sequence (WC event + endWorkout).
+                // ControlsFeature must not call endWorkout() independently — doing so
+                // would call session.end() twice (crash in iPhone-standalone mode).
+                return .none
                 
             case let .view(.updateElapsedTime(date)):
                 guard !state.isPaused else {

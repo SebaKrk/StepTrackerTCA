@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthKit
 
 extension HRMirrorFeature {
 
@@ -64,6 +65,13 @@ extension HRMirrorFeature {
         ///
         /// Watch has no local timer; it displays exactly what iPhone sends.
         case workoutTick(elapsedSeconds: TimeInterval)
+
+        /// Delivered when the Watch `HKWorkoutSession` transitions to `.paused` or `.running`.
+        ///
+        /// Used to sync `isPaused` when iPhone initiates a pause via the mirrored session —
+        /// in that case HealthKit propagates the state to Watch's primary session, but
+        /// `HRMirrorFeature` has no other way to observe it.
+        case sessionStateChanged(HKWorkoutSessionState)
 
         // MARK: - View Actions
 

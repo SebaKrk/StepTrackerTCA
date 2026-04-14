@@ -15,46 +15,34 @@ extension DefaultTrainingManager {
     
     /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
     public func setupRemoteSessionHandler() {
-        print("📱 iOS: Setting up remote session handler")
-        
         healthStore.workoutSessionMirroringStartHandler = { [weak self] mirroredSession in
-            print("🎉 iOS: RECEIVED MIRRORED SESSION! State: \(mirroredSession.state)")
+            print("🎉 [TrainingManager] MIRRORED SESSION received — state: \(mirroredSession.state.rawValue)")
             Task { @MainActor in
-                guard let self = self else { return }
-                
-                print("📱 iOS: Received mirrored session from Watch")
-                
-                // Reset current workout state
-                self.resetWorkout()
-                
-                // Set up the mirrored session
+                guard let self else { return }
+
+                // Store mirrored session — do NOT reset; this session lives alongside
+                // any existing state and is the Watch-primary source of truth.
                 self.session = mirroredSession
                 self.session?.delegate = self
-                
-                
+
                 self.sessionState = mirroredSession.state
-                print("📱 iOS: Updated sessionState to: \(mirroredSession.state)")
-                
-                // Update running state
                 self.workoutSessionIsRunning = mirroredSession.state == .running
+
+                // Yield initial state to both streams.
                 self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
-                
-                print("📱 iOS: Mirrored session state: \(mirroredSession.state.rawValue)")
+                self.workoutSessionStateContinuation?.yield(mirroredSession.state)
             }
         }
-        print("📱 iOS: Handler successfully assigned to healthStore")
     }
     
     /// Starts a workout app on the paired Apple Watch
     public func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws {
-        print("📱 iOS: Starting workout on paired Watch")
-        
+        print("📱 [TrainingManager] startWatchApp — activityType: \(workoutType.rawValue)")
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .outdoor
-        
         try await healthStore.startWatchApp(toHandle: configuration)
-        print("✅ iOS: Successfully requested Watch to start workout")
+        print("✅ [TrainingManager] startWatchApp sent — waiting for mirrored session")
     }
 }
 
@@ -63,63 +51,47 @@ extension DefaultTrainingManager {
     
     /// Process various types of data received from Apple Watch
     internal func processReceivedWatchData(_ data: Data) throws {
-        print("📱 iOS: Processing received data of size: \(data.count) bytes")
-        
         // Try different data formats in order of likelihood
-        
+
         // 1. Try WorkoutElapsedTime (for time synchronization)
         if let elapsedTime = try? JSONDecoder().decode(WorkoutElapsedTime.self, from: data) {
             handleElapsedTimeUpdate(elapsedTime)
             return
         }
-        
+
         // 2. Try custom WorkoutMetrics (JSON format)
         if let receivedMetrics = try? JSONDecoder().decode(WorkoutMetrics.self, from: data) {
             handleWorkoutMetricsUpdate(receivedMetrics)
             return
         }
-        
+
         // 3. Try HKStatistics array (HealthKit archived data)
         if let statisticsArray = try NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: HKStatistics.self, from: data) {
             handleStatisticsUpdate(statisticsArray)
             return
         }
-        
+
         // 4. Try single HKStatistics object
         if let statistics = try? NSKeyedUnarchiver.unarchivedObject(ofClass: HKStatistics.self, from: data) {
             handleStatisticsUpdate([statistics])
             return
         }
-        
-        print("⚠️ iOS: Received unrecognized data format")
+
+        print("⚠️ [TrainingManager] processReceivedWatchData: unrecognized data format (\(data.count) bytes)")
     }
     
     // MARK: - Private Data Processing Methods
     
     private func handleElapsedTimeUpdate(_ elapsedTime: WorkoutElapsedTime) {
-        var currentElapsedTime: TimeInterval = 0
-        
-        if session?.state == .running {
-            currentElapsedTime = elapsedTime.timeInterval + Date().timeIntervalSince(elapsedTime.date)
-        } else {
-            currentElapsedTime = elapsedTime.timeInterval
-        }
-        
-        print("📱 iOS: Updated elapsed time: \(currentElapsedTime)s")
-        // TODO: Update your elapsed time property if you have one
-//         self.elapsedTimeInterval = currentElapsedTime
+        // Elapsed time from Watch — currently unused (iPhone uses its own ElapsedTracker).
     }
-    
+
     private func handleWorkoutMetricsUpdate(_ receivedMetrics: WorkoutMetrics) {
-        print("📱 iOS: Received WorkoutMetrics - HR: \(receivedMetrics.heartRate), Energy: \(receivedMetrics.activeEnergy)")
-        
         self.metrics = receivedMetrics
         self.workoutMetricsContinuation?.yield(receivedMetrics)
     }
-    
+
     private func handleStatisticsUpdate(_ statisticsArray: [HKStatistics]) {
-        print("📱 iOS: Processing \(statisticsArray.count) HKStatistics objects")
-        
         for statistics in statisticsArray {
             updateForStatistics(statistics)
         }
@@ -131,15 +103,12 @@ extension DefaultTrainingManager {
     
     /// Fetch today's workouts of a specific type
     public func fetchTodaysWorkouts(workoutType: HKWorkoutActivityType) async -> [HKWorkout] {
-        print("📱 iOS: Fetching today's workouts for type: \(workoutType.rawValue)")
-        
         let samples = try? await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKSample], Error>) in
             let calendar = Calendar.current
             let components = calendar.dateComponents([.year, .month, .day], from: .now)
-            
+
             guard let startDate = calendar.date(from: components),
                   let endDate = calendar.date(byAdding: .day, value: 1, to: startDate) else {
-                print("❌ iOS: Failed to create dates from: \(components)")
                 continuation.resume(returning: [])
                 return
             }
@@ -155,7 +124,7 @@ extension DefaultTrainingManager {
                                       limit: HKObjectQueryNoLimit,
                                       sortDescriptors: [sortByStartDate]) { (query, samples, error) in
                 if let error {
-                    print("❌ iOS: Failed to run sample query: \(error)")
+                    print("❌ [TrainingManager] fetchTodaysWorkouts query failed: \(error)")
                     continuation.resume(throwing: error)
                     return
                 }
@@ -163,50 +132,43 @@ extension DefaultTrainingManager {
             }
             healthStore.execute(query)
         }
-        
-        let workouts = samples as? [HKWorkout] ?? []
-        print("📱 iOS: Found \(workouts.count) workouts for today")
-        return workouts
+        return samples as? [HKWorkout] ?? []
     }
     
     /// Fetch quantity collection for a specific workout
     public func fetchQuantityCollection(for workout: HKWorkout,
                                        quantityTypeIdentifier: HKQuantityTypeIdentifier,
                                        statisticsOptions: HKStatisticsOptions) async -> [HKStatistics] {
-        
-        print("📱 iOS: Fetching quantity collection for workout: \(quantityTypeIdentifier.rawValue)")
-        
         let results = try? await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKStatistics], Error>) in
             let calendar = Calendar.current
             let interval = DateComponents(minute: 1)
             let components = DateComponents(calendar: calendar, timeZone: calendar.timeZone, second: 59)
-            
+
             guard let anchorDate = calendar.nextDate(after: Date(),
                                                      matching: components,
                                                      matchingPolicy: .nextTime,
                                                      repeatedTimePolicy: .first,
                                                      direction: .backward) else {
-                print("❌ iOS: Failed to calculate anchor date")
                 continuation.resume(returning: [])
                 return
             }
-            
+
             let predicateForWorkout = HKQuery.predicateForObjects(from: workout)
             let quantityType = HKObjectType.quantityType(forIdentifier: quantityTypeIdentifier)!
-            
+
             let query = HKStatisticsCollectionQuery(quantityType: quantityType,
                                                     quantitySamplePredicate: predicateForWorkout,
                                                     options: statisticsOptions,
                                                     anchorDate: anchorDate,
                                                     intervalComponents: interval)
-            
+
             query.initialResultsHandler = { (query, results, error) in
                 if let error = error {
-                    print("❌ iOS: Failed to run statistics collection query: \(error)")
+                    print("❌ [TrainingManager] fetchQuantityCollection query failed: \(error)")
                     continuation.resume(throwing: error)
                     return
                 }
-                
+
                 var collection = [HKStatistics]()
                 results?.enumerateStatistics(from: workout.startDate, to: workout.endDate) { (statistics, stop) in
                     collection.append(statistics)
@@ -215,10 +177,7 @@ extension DefaultTrainingManager {
             }
             healthStore.execute(query)
         }
-        
-        let statistics = results ?? []
-        print("📱 iOS: Found \(statistics.count) statistics entries")
-        return statistics
+        return results ?? []
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthKit
 import SharedModels
 import Foundation
 
@@ -43,8 +44,11 @@ struct HRMirrorFeature {
                 state.isPreparing = false
                 state.heartRate = Int(bpm)
                 state.heartRateZone = heartRateZone(bpm: Int(bpm), max: state.maxHeartRate)
-                return .run { [watchClient = watchClient] send in
-                    await watchClient.sendWorkoutEvent(.hrReading(bpm: bpm, timestamp: Date()))
+                // Watch-primary: send HR via HealthKit's native mirroring channel
+                // (sendToRemoteWorkoutSession) instead of WatchConnectivity.
+                // iPhone receives it in DefaultTrainingManager.didReceiveDataFromRemoteWorkoutSession.
+                return .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
+                    await watchWorkoutSessionClient.sendHRToRemote(bpm, Date())
                 }
 
             case .subSecondTick:
@@ -73,20 +77,62 @@ struct HRMirrorFeature {
                 state.elapsedSeconds = elapsed
                 return .none
 
+            case .sessionStateChanged(let sessionState):
+                // HealthKit propagated a pause/resume from iPhone's mirrored session.
+                // Mirror the state so Watch UI (isPaused, subSecondTimer) stays in sync.
+                print("⌚ [HRMirrorFeature] sessionStateChanged → \(sessionState.rawValue), isPaused was: \(state.isPaused)")
+                switch sessionState {
+                case .paused:
+                    state.isPaused = true
+                    return .cancel(id: HRMirrorCancelID.subSecondTimer)
+                case .running:
+                    guard state.isPaused else {
+                        print("⌚ [HRMirrorFeature] sessionStateChanged .running — already running, skipping timer restart")
+                        return .none
+                    }
+                    state.isPaused = false
+                    return .run { [clock] send in
+                        for await _ in clock.timer(interval: .milliseconds(100)) {
+                            await send(.subSecondTick)
+                        }
+                    }
+                    .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                default:
+                    return .none
+                }
+
             // MARK: - View Actions
 
             case .view(.pauseResumeTapped):
-                if state.isPaused {
-                    state.isPaused = false
-                    let elapsed = state.elapsedSeconds
-                    return .run { [elapsed, watchClient = watchClient] send in
-                        await watchClient.sendWorkoutEvent(.workoutResumed(elapsedSeconds: elapsed))
-                    }
+                // Watch-primary: pause/resume the HKWorkoutSession directly.
+                // HealthKit mirroring propagates the state change to iPhone automatically —
+                // no WatchConnectivity events needed.
+                //
+                // Timer management must happen HERE, not only in sessionStateChanged.
+                // Reason: view action toggles isPaused synchronously; by the time
+                // sessionStateChanged(.running) fires, isPaused is already false
+                // so its guard would skip the timer restart.
+                let isResuming = state.isPaused  // true means we're about to resume
+                state.isPaused.toggle()
+                if isResuming {
+                    return .merge(
+                        .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
+                            await watchWorkoutSessionClient.togglePause()
+                        },
+                        .run { [clock] send in
+                            for await _ in clock.timer(interval: .milliseconds(100)) {
+                                await send(.subSecondTick)
+                            }
+                        }
+                        .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                    )
                 } else {
-                    state.isPaused = true
-                    return .run { [watchClient = watchClient] send in
-                        await watchClient.sendWorkoutEvent(.workoutPaused)
-                    }
+                    return .merge(
+                        .cancel(id: HRMirrorCancelID.subSecondTimer),
+                        .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
+                            await watchWorkoutSessionClient.togglePause()
+                        }
+                    )
                 }
 
             case .hideTabIndicator:
@@ -110,7 +156,7 @@ struct HRMirrorFeature {
             case .start:
                 let activityType = state.activityType
                 return .merge(
-                    .run { [extendedRuntimeClient = extendedRuntimeClient] send in
+                    .run { [extendedRuntimeClient = extendedRuntimeClient] _ in
                         await extendedRuntimeClient.start()
                     },
                     // Start HealthKit session immediately — HR readings accumulate
@@ -121,6 +167,13 @@ struct HRMirrorFeature {
                         }
                     }
                     .cancellable(id: HRMirrorCancelID.hrQuery),
+                    // Listen for pause/resume propagated from iPhone via HealthKit mirroring.
+                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] send in
+                        for await state in watchWorkoutSessionClient.sessionStateStream() {
+                            await send(.sessionStateChanged(state))
+                        }
+                    }
+                    .cancellable(id: HRMirrorCancelID.sessionStateStream),
                     .run { send in
                         try? await Task.sleep(for: .seconds(3))
                         await send(.hideTabIndicator)
@@ -145,6 +198,7 @@ struct HRMirrorFeature {
                     .cancel(id: HRMirrorCancelID.subSecondTimer),
                     .cancel(id: HRMirrorCancelID.countdown),
                     .cancel(id: HRMirrorCancelID.tabIndicatorTimer),
+                    .cancel(id: HRMirrorCancelID.sessionStateStream),
                     .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
                         await watchWorkoutSessionClient.endSession()
                     }
@@ -186,5 +240,8 @@ private nonisolated enum HRMirrorCancelID: Hashable, Sendable {
 
     /// Identifies the 3-2-1 countdown before the workout begins.
     case countdown
+
+    /// Identifies the stream that delivers pause/resume state from the Watch session delegate.
+    case sessionStateStream
 
 }

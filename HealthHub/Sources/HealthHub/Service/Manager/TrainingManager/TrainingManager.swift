@@ -47,14 +47,20 @@ public protocol TrainingManager: Sendable {
     func startWorkout() async
     
     // MARK: - Streams
-    
+
     /// A stream that emits live workout metrics, such as heart rate and calories burned.
     var workoutMetricsStream: AsyncStream<WorkoutMetrics> { get }
-    
+
     /// A stream that emits the running state of the workout session.
     ///
     /// Emits `true` if the workout is currently running, otherwise `false`.
     func workoutSessionIsRunningStream() -> AsyncStream<Bool>
+
+    /// A stream that emits `HKWorkoutSessionState` changes for the managed session.
+    ///
+    /// In Watch-primary mode this reflects the mirrored session state received
+    /// from Apple Watch. In iPhone-standalone mode it reflects the local session.
+    var workoutSessionStateStream: AsyncStream<HKWorkoutSessionState> { get }
     
     
     // MARK: - Workout Snapshot
