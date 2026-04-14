@@ -726,3 +726,24 @@
         - Unified prefix format: [WatchSession], [WC], [AppFeatureAW], [HRMirrorFeature], [TrainingManager], [SessionFeature]
         - Added targeted logs for critical bugs: workoutFinished flag, stopActivityAndWait, sessionStateChanged, pause sync
 
+### IOS-00080 OSLog unified logging
+    - branch: `feature/IOS-00080-oslog-unified-logging`
+
+    A: feat(SharedModels): AppLogger — centralized Logger instances
+        - AppLogger.swift w SharedModels/Sources/SharedModels/Logging/
+        - subsystem: com.ss.WorkoutMirror (filtrowanie w Console.app)
+        - 6 kategorii: watchSession, hrMirror, appAW (Watch) + session, trainingManager, wc (iPhone/Shared)
+        - dostępny na iOS 18 + watchOS 11 — oba targety przez jeden plik
+    B: refactor(watch): replace print() → Logger w Watch targets
+        - WatchWorkoutSessionClient: Logger.watchSession (.info lifecycle, .error failures, .debug simulator)
+        - HRMirrorFeature: Logger.hrMirror (.info sessionStateChanged, .debug already-running guard)
+        - AppFeatureAW: Logger.appAW (.info workoutConfiguration/workoutStarted/workoutEnded/dismiss)
+    C: refactor(ios): replace print() → Logger w iPhone targets
+        - SessionFeature: Logger.session (.info viewDidAppear/mode/startWatchWorkout, .error fallback, .notice hrTimeout)
+        - SessionClient/WorkoutModeRouter: Logger.session (.info mode-switch, endWorkout/startWorkout no-op)
+        - DefaultTrainingManager+iOS: Logger.trainingManager (.info mirrored-session/startWatchApp, .error queries)
+        - TrainingSessionStateControl: Logger.trainingManager (.info pause/resume/end, .notice no-session guards)
+    D: refactor(healthhub): replace print() → Logger w WatchConnectivity
+        - DefaultWatchConnectivityManager: Logger.wc (.info activation/stop, .error not-activated, .notice transferUserInfo fallback)
+        - WatchConnectivity+Delegate: Logger.wc (.info activated/reachability/events, .error decode-fail)
+        - workoutTick pomijany na obu stronach (send + decode guard) — brak szumu co sekundę

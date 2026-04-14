@@ -6,17 +6,19 @@
 //
 
 import CoreBluetooth
+import OSLog
+import SharedModels
 
 /// Actor odpowiedzialny za skanowanie urządzeń Bluetooth
 @preconcurrency
 actor BluetoothScanActor {
     
     init() {
-        print("🟢 BluetoothScanActor init")
+        Logger.bluetooth.debug("[BluetoothScanActor] init")
     }
-    
+
     deinit {
-        print("🪦 -> ❌ BluetoothScanActor deinit - cleanup scan streams")
+        Logger.bluetooth.debug("[BluetoothScanActor] deinit")
         scanContinuation?.finish()
     }
     
@@ -45,30 +47,30 @@ actor BluetoothScanActor {
     }
     
     func startScanning() {
-        print("🚀 BluetoothScanActor: Starting scanning")
+        Logger.bluetooth.info("[BluetoothScanActor] startScanning")
         isScanning = true
         discoveredDevices.removeAll()
     }
-    
+
     func stopScanning() {
-        print("🛑 BluetoothScanActor: Stopping scanning")
+        Logger.bluetooth.info("[BluetoothScanActor] stopScanning")
         isScanning = false
     }
     
     // MARK: - Scan Stream Methods
     
     func newScanStream() -> AsyncStream<CBPeripheral> {
-        print("🔄 BluetoothScanActor: Tworzę nowy scan stream")
-        
+        Logger.bluetooth.debug("[BluetoothScanActor] new scan stream")
+
         // Zakończ poprzedni stream jeśli istnieje
         if let oldContinuation = scanContinuation {
-            print("💀 BluetoothScanActor: Kończę poprzedni scan stream")
+            Logger.bluetooth.debug("[BluetoothScanActor] finishing previous scan stream")
             oldContinuation.finish()
         }
-        
+
         // Utwórz nowy stream z nową kontynuacją
         let newStream = AsyncStream<CBPeripheral> { newContinuation in
-            print("✨ BluetoothScanActor: Otrzymuję nową scan kontynuację")
+            Logger.bluetooth.debug("[BluetoothScanActor] new continuation set")
             self.scanContinuation = newContinuation
             
             // Cleanup przy zakończeniu streamu
@@ -84,21 +86,21 @@ actor BluetoothScanActor {
     
     func yieldDevice(_ peripheral: CBPeripheral) {
         guard isScanning, let continuation = scanContinuation else {
-            print("⚠️ BluetoothScanActor: Próba yield ale nie skanujemy lub brak kontynuacji")
+            Logger.bluetooth.notice("[BluetoothScanActor] yieldDevice — not scanning or no continuation")
             return
         }
-        
+
         // Dodaj do listy znalezionych urządzeń (jeśli nie ma już)
         if !discoveredDevices.contains(where: { $0.identifier == peripheral.identifier }) {
             discoveredDevices.append(peripheral)
         }
-        
-        print("📤 BluetoothScanActor: Yielding peripheral: \(peripheral.name ?? "Unknown")")
+
+        Logger.bluetooth.debug("[BluetoothScanActor] yielding: \(peripheral.name ?? "Unknown")")
         continuation.yield(peripheral)
     }
-    
+
     func finishScanning() {
-        print("🛑 BluetoothScanActor: Finishing scan stream")
+        Logger.bluetooth.debug("[BluetoothScanActor] finishing scan stream")
         
         scanContinuation?.finish()
         scanContinuation = nil
@@ -110,11 +112,11 @@ actor BluetoothScanActor {
     private func handleScanTermination(_ termination: AsyncStream<CBPeripheral>.Continuation.Termination) {
         switch termination {
         case .finished:
-            print("✅ BluetoothScanActor: Scan stream finished normally")
+            Logger.bluetooth.debug("[BluetoothScanActor] scan stream finished")
         case .cancelled:
-            print("❌ BluetoothScanActor: Scan stream was cancelled")
+            Logger.bluetooth.debug("[BluetoothScanActor] scan stream cancelled")
         @unknown default:
-            print("❓ BluetoothScanActor: Scan stream terminated with unknown reason")
+            Logger.bluetooth.notice("[BluetoothScanActor] scan stream unknown termination")
         }
         
         scanContinuation = nil
@@ -128,9 +130,6 @@ actor BluetoothScanActor {
     }
     
     func printScanStatus() {
-        print("📊 BluetoothScanActor Scan Status:")
-        print("   - Is Scanning: \(isScanning)")
-        print("   - Has Scan Continuation: \(hasActiveScanContinuation)")
-        print("   - Discovered Devices: \(discoveredDevices.count)")
+        Logger.bluetooth.debug("[BluetoothScanActor] isScanning=\(self.isScanning) continuation=\(self.hasActiveScanContinuation) discovered=\(self.discoveredDevices.count)")
     }
 }

@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import HealthKit
 import Foundation
+import OSLog
 import SharedModels
 
 /// TCA dependency that manages the primary `HKWorkoutSession` on Apple Watch.
@@ -136,16 +137,16 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
 
             do {
                 try await session?.startMirroringToCompanionDevice()
-                print("✅ [WatchSession] mirroring started → iPhone should receive mirrored session")
+                Logger.watchSession.info("mirroring started → iPhone should receive mirrored session")
             } catch {
 #if targetEnvironment(simulator)
-                print("🔧 [WatchSession] Simulator: mirroring not available (expected)")
+                Logger.watchSession.debug("Simulator: mirroring not available (expected)")
 #else
-                print("❌ [WatchSession] startMirroringToCompanionDevice failed: \(error.localizedDescription)")
+                Logger.watchSession.error("startMirroringToCompanionDevice failed: \(error.localizedDescription)")
 #endif
             }
         } catch {
-            print("❌ [WatchSession] start() failed to create HKWorkoutSession: \(error)")
+            Logger.watchSession.error("start() failed to create HKWorkoutSession: \(error)")
             continuation.finish()
         }
 
@@ -161,41 +162,41 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         }
 
         guard let session, let builder else {
-            print("⌚ [WatchSession] end() — session/builder already nil, skipping (state: already torn down)")
+            Logger.watchSession.info("end() — session/builder already nil, skipping")
             return
         }
 
-        print("⌚ [WatchSession] end() ▶ step 1/3: stopActivityAndWait — sessionState=\(session.state.rawValue)")
+        Logger.watchSession.info("end() ▶ 1/3 stopActivityAndWait — sessionState=\(session.state.rawValue)")
         await stopActivityAndWait(session)
-        print("⌚ [WatchSession] end() ✓ step 1/3: session stopped")
+        Logger.watchSession.info("end() ✓ 1/3 session stopped")
 
-        print("⌚ [WatchSession] end() ▶ step 2/3: endCollection")
+        Logger.watchSession.info("end() ▶ 2/3 endCollection")
         do {
             try await builder.endCollection(at: .now)
-            print("⌚ [WatchSession] end() ✓ step 2/3: endCollection OK")
+            Logger.watchSession.info("end() ✓ 2/3 endCollection OK")
         } catch {
-            print("❌ [WatchSession] endCollection failed: \(error)")
+            Logger.watchSession.error("end() endCollection failed: \(error)")
         }
 
         // Watch-primary: Watch owns the canonical HKWorkout.
         // workoutFinished guards against double-save (race with .ended safety-net handler).
-        print("⌚ [WatchSession] end() — workoutFinished=\(workoutFinished) before finishWorkout check")
+        Logger.watchSession.info("end() — workoutFinished=\(self.workoutFinished) before finishWorkout check")
         if !workoutFinished {
             workoutFinished = true
-            print("⌚ [WatchSession] end() ▶ step 2/3: finishWorkout() — saving to HealthKit")
+            Logger.watchSession.info("end() ▶ 2/3 finishWorkout() — saving to HealthKit")
             do {
                 _ = try await builder.finishWorkout()
-                print("⌚ [WatchSession] end() ✓ workout saved to HealthKit")
+                Logger.watchSession.info("end() ✓ workout saved to HealthKit")
             } catch {
-                print("❌ [WatchSession] finishWorkout failed: \(error)")
+                Logger.watchSession.error("end() finishWorkout failed: \(error)")
             }
         } else {
-            print("⚠️ [WatchSession] end() — skipped finishWorkout (already saved by .ended safety-net)")
+            Logger.watchSession.notice("end() — skipped finishWorkout (already saved by .ended safety-net)")
         }
 
-        print("⌚ [WatchSession] end() ▶ step 3/3: session.end()")
+        Logger.watchSession.info("end() ▶ 3/3 session.end()")
         session.end()
-        print("⌚ [WatchSession] end() ✓ done")
+        Logger.watchSession.info("end() ✓ done")
     }
 
     /// Encodes `bpm` as a `WorkoutMetrics` JSON payload and sends it to iPhone via
@@ -207,13 +208,13 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         guard let session else { return }
         let metrics = WorkoutMetrics(averageHeartRate: 0, heartRate: bpm, activeEnergy: 0)
         guard let data = try? JSONEncoder().encode(metrics) else {
-            print("❌ watchOS: sendHRToRemote — failed to encode WorkoutMetrics")
+            Logger.watchSession.error("sendHRToRemote — failed to encode WorkoutMetrics")
             return
         }
         do {
             try await session.sendToRemoteWorkoutSession(data: data)
         } catch {
-            print("❌ watchOS: sendToRemoteWorkoutSession failed: \(error.localizedDescription)")
+            Logger.watchSession.error("sendToRemoteWorkoutSession failed: \(error.localizedDescription)")
         }
     }
 
@@ -224,12 +225,12 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         switch session.state {
         case .running:
             session.pause()
-            print("⌚ [WatchSession] togglePause → pausing (was running)")
+            Logger.watchSession.info("togglePause → pausing (was running)")
         case .paused:
             session.resume()
-            print("⌚ [WatchSession] togglePause → resuming (was paused)")
+            Logger.watchSession.info("togglePause → resuming (was paused)")
         default:
-            print("⚠️ [WatchSession] togglePause — unexpected state: \(session.state.rawValue)")
+            Logger.watchSession.notice("togglePause — unexpected state: \(session.state.rawValue)")
         }
     }
 
@@ -239,15 +240,15 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// to avoid hanging on a continuation that will never be resumed.
     private func stopActivityAndWait(_ session: HKWorkoutSession) async {
         guard session.state == .running || session.state == .paused else {
-            print("⌚ [WatchSession] stopActivityAndWait — skipped (state=\(session.state.rawValue) is not running/paused)")
+            Logger.watchSession.info("stopActivityAndWait — skipped (state=\(session.state.rawValue) not running/paused)")
             return
         }
-        print("⌚ [WatchSession] stopActivityAndWait — calling stopActivity(), awaiting delegate .stopped callback")
+        Logger.watchSession.info("stopActivityAndWait — calling stopActivity(), awaiting delegate .stopped")
         await withCheckedContinuation { continuation in
             sessionStoppedContinuation = continuation
             session.stopActivity(with: .now)
         }
-        print("⌚ [WatchSession] stopActivityAndWait — .stopped confirmed by delegate")
+        Logger.watchSession.info("stopActivityAndWait — .stopped confirmed by delegate")
     }
 }
 
@@ -261,7 +262,7 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         from fromState: HKWorkoutSessionState,
         date: Date
     ) {
-        print("⌚ [WatchSession] delegate: sessionState \(fromState.rawValue) → \(toState.rawValue)")
+        Logger.watchSession.info("delegate: sessionState \(fromState.rawValue) → \(toState.rawValue)")
 
         if toState == .stopped {
             sessionStoppedContinuation?.resume()
@@ -278,14 +279,14 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
             // Safety net: iPhone may have ended the mirrored session via HealthKit before
             // endSession() was called on Watch. Save the workout here to avoid data loss.
             workoutFinished = true
-            print("⚠️ [WatchSession] session ended externally — saving workout via safety-net (workoutFinished was false)")
+            Logger.watchSession.notice("session ended externally — saving via safety-net (workoutFinished was false)")
             Task {
                 do {
                     try await builder.endCollection(at: date)
                     _ = try await builder.finishWorkout()
-                    print("✅ [WatchSession] safety-net: workout saved to HealthKit")
+                    Logger.watchSession.info("safety-net: workout saved to HealthKit")
                 } catch {
-                    print("❌ [WatchSession] safety-net finishWorkout failed: \(error)")
+                    Logger.watchSession.error("safety-net finishWorkout failed: \(error)")
                 }
             }
         }
@@ -295,7 +296,7 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         _ workoutSession: HKWorkoutSession,
         didFailWithError error: Error
     ) {
-        print("❌ [WatchSession] session failed: \(error)")
+        Logger.watchSession.error("session failed: \(error)")
     }
 }
 

@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Foundation
 import HealthKit
 import HealthHub
+import OSLog
 import SharedModels
 
 // MARK: - WorkoutMode
@@ -248,7 +249,7 @@ private actor WorkoutModeRouter {
 
     func setMode(_ newMode: WorkoutMode) {
         mode = newMode
-        print("🔀 [WorkoutModeRouter] mode → \(newMode)")
+        Logger.session.info("WorkoutModeRouter mode → \(String(describing: newMode))")
     }
 
     func togglePause() {
@@ -273,7 +274,7 @@ private actor WorkoutModeRouter {
             // in SessionFeature before endWorkout() is called). Watch handles the stop
             // sequence: finishWorkout() → session.end(). HealthKit then automatically
             // ends iPhone's mirrored session, triggering handleWorkoutEndIOS.
-            print("🔀 [WorkoutModeRouter] endWorkout() — Watch-primary: no-op (Watch owns end sequence)")
+            Logger.session.info("WorkoutModeRouter endWorkout() — Watch-primary: no-op (Watch owns end sequence)")
         case .iPhoneStandalone:
             workoutManager.endWorkout()
         }
@@ -284,7 +285,7 @@ private actor WorkoutModeRouter {
         case .watchPrimary:
             // Watch-primary: Watch already started the HKWorkoutSession.
             // iPhone has a mirrored session — no startWorkout() needed.
-            print("🔀 [WorkoutModeRouter] startWorkout() — Watch-primary: no-op")
+            Logger.session.info("WorkoutModeRouter startWorkout() — Watch-primary: no-op")
         case .iPhoneStandalone:
             await workoutManager.startWorkout()
         }

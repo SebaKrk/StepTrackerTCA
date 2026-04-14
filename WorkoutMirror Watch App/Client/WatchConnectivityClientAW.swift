@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import OSLog
 import SharedModels
 import WatchConnectivity
 
@@ -23,6 +24,10 @@ struct WatchConnectivityClientAW {
 
     /// A stream of incoming workout events from the paired iPhone.
     var incomingEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
+
+    /// Transfers the workout log file to the paired iPhone via `WCSession.transferFile()`.
+    /// The system queues the transfer and delivers it when the devices are in range.
+    var transferLogFile: @Sendable () async -> Void
 }
 
 // MARK: - Dependency Registration
@@ -41,6 +46,14 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
             await session.send($0)
         } incomingEventStream: {
             session.eventStream
+        } transferLogFile: {
+            let url = await WorkoutFileLogger.shared.currentFileURL()
+            guard WCSession.default.activationState == .activated else {
+                Logger.wc.error("[WatchSession] transferLogFile — session not activated")
+                return
+            }
+            Logger.wc.info("[WatchSession] transferLogFile → \(url.lastPathComponent)")
+            WCSession.default.transferFile(url, metadata: ["type": "workoutLog"])
         }
     }()
 }
@@ -86,18 +99,18 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
     func send(_ event: WatchWorkoutEvent) async {
         guard WCSession.default.activationState == .activated,
               let data = try? JSONEncoder().encode(event) else {
-            print("⌚️ WatchSession send: session not activated or encode failed for \(event)")
+            Logger.wc.error("[WatchSession] send: session not activated or encode failed for \(String(describing: event))")
             return
         }
         let message = [Self.messageKey: data]
         if WCSession.default.isReachable {
-            print("⌚️ WatchSession send: sendMessage → \(event)")
+            Logger.wc.info("[WatchSession] sendMessage → \(String(describing: event))")
             WCSession.default.sendMessage(message, replyHandler: nil) { error in
-                print("⌚️ WatchSession send: sendMessage failed (\(error.localizedDescription)), falling back to transferUserInfo")
+                Logger.wc.error("[WatchSession] sendMessage failed (\(error.localizedDescription)) — falling back to transferUserInfo")
                 WCSession.default.transferUserInfo(message)
             }
         } else {
-            print("⌚️ WatchSession send: not reachable, transferUserInfo → \(event)")
+            Logger.wc.info("[WatchSession] not reachable — transferUserInfo → \(String(describing: event))")
             WCSession.default.transferUserInfo(message)
         }
     }
@@ -105,22 +118,23 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
     // MARK: - WCSessionDelegate
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("⌚️ WatchSession: activated, state=\(activationState.rawValue), error=\(String(describing: error))")
+        if let error {
+            Logger.wc.error("[WatchSession] activation failed — state=\(activationState.rawValue), error=\(error.localizedDescription)")
+        } else {
+            Logger.wc.info("[WatchSession] activated — state=\(activationState.rawValue)")
+        }
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        print("⌚️ WatchSession: didReceiveMessage")
         decodeAndYield(message)
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
-        print("⌚️ WatchSession: didReceiveMessage (with reply)")
         decodeAndYield(message)
         replyHandler([:])
     }
 
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any]) {
-        print("⌚️ WatchSession: didReceiveUserInfo")
         decodeAndYield(userInfo)
     }
 
@@ -130,10 +144,12 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
         guard let data = dict[Self.messageKey] as? Data,
               let event = try? JSONDecoder().decode(WatchWorkoutEvent.self, from: data)
         else {
-            print("⌚️ WatchSession: ⚠️ failed to decode event from message")
+            Logger.wc.error("[WatchSession] failed to decode event from message")
             return
         }
-        print("⌚️ WatchSession: received event → \(event)")
+        if case .workoutTick = event { } else {
+            Logger.wc.info("[WatchSession] received event → \(String(describing: event))")
+        }
         continuation?.yield(event)
     }
 }

@@ -4,6 +4,8 @@
 //
 
 import ComposableArchitecture
+import OSLog
+import SharedModels
 import WatchKit
 
 /// TCA dependency that manages a `WKExtendedRuntimeSession` of type `.workoutProcessing`.
@@ -47,21 +49,21 @@ private final class ExtendedRuntimeManager: NSObject, WKExtendedRuntimeSessionDe
         newSession.delegate = self
         newSession.start()
         session = newSession
-        print("⌚️ ExtendedRuntimeSession: start requested")
+        Logger.appAW.info("[ExtendedRuntimeSession] start requested")
     }
 
     func stop() {
         session?.invalidate()
         session = nil
-        print("⌚️ ExtendedRuntimeSession: stopped")
+        Logger.appAW.info("[ExtendedRuntimeSession] stopped")
     }
 
     func extendedRuntimeSessionDidStart(_ session: WKExtendedRuntimeSession) {
-        print("⌚️ ExtendedRuntimeSession: active")
+        Logger.appAW.info("[ExtendedRuntimeSession] active")
     }
 
     func extendedRuntimeSessionWillExpire(_ session: WKExtendedRuntimeSession) {
-        print("⌚️ ExtendedRuntimeSession: will expire")
+        Logger.appAW.notice("[ExtendedRuntimeSession] will expire — workout may be suspended soon")
     }
 
     func extendedRuntimeSession(
@@ -69,6 +71,10 @@ private final class ExtendedRuntimeManager: NSObject, WKExtendedRuntimeSessionDe
         didInvalidateWith reason: WKExtendedRuntimeSessionInvalidationReason,
         error: (any Error)?
     ) {
-        print("⌚️ ExtendedRuntimeSession: invalidated reason=\(reason.rawValue) error=\(String(describing: error))")
+        if let error {
+            Logger.appAW.error("[ExtendedRuntimeSession] invalidated — reason=\(reason.rawValue), error=\(error.localizedDescription)")
+        } else {
+            Logger.appAW.info("[ExtendedRuntimeSession] invalidated — reason=\(reason.rawValue)")
+        }
     }
 }
