@@ -6,6 +6,8 @@
 //
 
 import ComposableArchitecture
+import OSLog
+import SharedModels
 import SwiftUI
 
 /// Root view of the WorkoutMirror Watch App.
@@ -31,12 +33,12 @@ struct AppViewAW: View {
         ) { hrMirrorStore in
             HRMirrorView(store: hrMirrorStore)
                 .onDisappear {
-                    print("⌚ [DEBUG] HRMirrorView disappeared — fullScreenCover dismissed")
+                    Logger.appAW.info("[AppViewAW] HRMirrorView disappeared — fullScreenCover dismissed")
                 }
         }
         .onChange(of: store.hrMirror == nil) { _, isNil in
             if isNil {
-                print("⌚ [DEBUG] hrMirror state became nil — cover will dismiss")
+                Logger.appAW.info("[AppViewAW] hrMirror state became nil — cover will dismiss")
             }
         }
         .onAppear {

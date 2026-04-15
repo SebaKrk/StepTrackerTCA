@@ -41,6 +41,9 @@ struct LiveSessionFeature {
                     heartRate: effectiveHR,
                     activeEnergy: data.activeEnergy
                 )
+                if effectiveHR > 0 {
+                    Task { await WorkoutFileLogger.shared.logHRIfNeeded(bpm: effectiveHR) }
+                }
                 let contentState = WorkoutSessionActivityAttributes.ContentState(
                     heartRate: effectiveHR,
                     heartRateZone: state.currentHeartRateZone,

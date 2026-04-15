@@ -35,6 +35,9 @@ extension SummaryFeature {
         /// UI flags — whether note input is expanded per WOD index.
         var showNotes: [Bool] = []
 
+        /// Counts how many times checkSummary has been attempted (for debug logging).
+        var summaryRetryCount: Int = 0
+
         // MARK: - Alert
 
         /// Confirmation alert before discarding workout from HealthKit.

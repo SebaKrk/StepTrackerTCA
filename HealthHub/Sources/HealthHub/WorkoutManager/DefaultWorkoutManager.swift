@@ -6,6 +6,7 @@
 //
 
 import HealthKit
+import OSLog
 import SharedModels
 
 @available(iOS 26.0, *)
@@ -55,9 +56,13 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     // Swift actors don't guarantee FIFO execution order. The stream ensures
     // that endCollection/finishWorkout always runs *after* the TCA reducer
     // has received the .stopped event — preventing the summary race condition.
+    //
+    // bufferingOldest(5): guarantees .stopped is NOT dropped when .ended arrives
+    // immediately after. bufferingNewest(1) could discard .stopped, skipping
+    // the endCollection → finishWorkout chain in consumeStateChange.
     let stateChangeTuple = AsyncStream.makeStream(
         of: (HKWorkoutSessionState, Date).self,
-        bufferingPolicy: .bufferingNewest(1)
+        bufferingPolicy: .bufferingOldest(5)
     )
 
     // MARK: - AsyncStream — external consumer streams (one active at a time)
@@ -221,25 +226,27 @@ public final class DefaultWorkoutManager: NSObject, WorkoutManager, @unchecked S
     /// Running on `@MainActor` ensures thread-safe access to `builder` / `session`.
     @MainActor
     private func consumeStateChange(state: HKWorkoutSessionState, date: Date) async {
-        print("⚙️ [DefaultWorkoutManager] consumeStateChange: \(state.rawValue)")
+        Logger.trainingManager.info("consumeStateChange: \(state.rawValue)")
         guard state == .stopped else { return }
 
         // iPhone is always the canonical HKWorkout owner (WWDC25 iPhone-primary architecture).
         // Watch discards its own session — only one HKWorkout is saved.
         guard let builder else { return }
-        print("⏹️ [DefaultWorkoutManager] .stopped → endCollection → finishWorkout → session.end()")
+        Logger.trainingManager.info(".stopped → endCollection → finishWorkout → session.end()")
         do {
             try await builder.endCollection(at: date)
-            print("✅ [DefaultWorkoutManager] endCollection done")
+            Logger.trainingManager.info("endCollection done")
             let finishedWorkout = try await builder.finishWorkout()
-            print("✅ [DefaultWorkoutManager] finishWorkout done — workout: \(finishedWorkout)")
             self.workout = finishedWorkout
+            let workoutId = finishedWorkout?.uuid.uuidString ?? "nil"
+            await WorkoutFileLogger.shared.log("WORKOUT SAVED (iPhone) — id: \(workoutId)")
             self.session?.end()
             self.sessionState = .ended
             self.workoutSessionContinuation?.yield(.ended)
-            print("✅ [DefaultWorkoutManager] session ended, yielded .ended to TCA")
+            await WorkoutFileLogger.shared.log("SESSION ENDED — .ended yielded to TCA")
+            Logger.trainingManager.info("session ended, .ended yielded to TCA")
         } catch {
-            print("❌ iOS: Failed to finish workout: \(error)")
+            Logger.trainingManager.error("finishWorkout failed: \(error)")
         }
     }
 

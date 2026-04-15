@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import HealthHub
+import OSLog
 import SharedModels
 import HealthKit
 
@@ -60,6 +61,12 @@ struct SessionFeature {
                     // from a previous workout in the same app session.
                     sessionClient.resetElapsed()
 
+                    let workoutTitle = state.selectedWorkout.title
+                    Task {
+                        await WorkoutFileLogger.shared.reset()
+                        await WorkoutFileLogger.shared.log("STARTED — mode: \(mode), workout: \(workoutTitle)")
+                    }
+
                     switch mode {
 
                     case .watchPrimary:
@@ -84,7 +91,7 @@ struct SessionFeature {
                             .run { [watchClient = watchConnectivityClient,
                                     maxHR = state.live.maxHeartRate,
                                     activityTypeRaw = state.selectedWorkout.hkType.rawValue] _ in
-                                print("⌚️ [SessionFeature] Watch-primary — sending workoutStarted + countdownFinished")
+                                Logger.session.info("Watch-primary — sending workoutStarted + countdownFinished")
                                 await watchClient.sendWorkoutEvent(
                                     .workoutStarted(activityType: activityTypeRaw, elapsedSeconds: 0, maxHeartRate: maxHR)
                                 )
@@ -125,7 +132,7 @@ struct SessionFeature {
                             .run { [watchClient = watchConnectivityClient,
                                     maxHR = state.live.maxHeartRate,
                                     activityTypeRaw = state.selectedWorkout.hkType.rawValue] _ in
-                                print("⌚️ [SessionFeature] iPhone-standalone — sending workoutStarted to Watch")
+                                Logger.session.info("iPhone-standalone — sending workoutStarted to Watch")
                                 await watchClient.sendWorkoutEvent(
                                     .workoutStarted(activityType: activityTypeRaw, elapsedSeconds: 0, maxHeartRate: maxHR)
                                 )
@@ -190,28 +197,28 @@ struct SessionFeature {
                                sessionClient] send in
                     await watchClient.initializeWatchConnectivity()
                     let watchStatus = await watchClient.checkWatchStatus()
-                    print("🏋️ [SessionFeature] viewDidAppear — watchStatus: \(watchStatus.rawValue), workout: \(workout.title)")
+                    Logger.session.info("viewDidAppear — watchStatus: \(watchStatus.rawValue), workout: \(workout.title)")
 
                     if watchStatus == .ready {
                         // Watch-primary: iPhone does NOT start its own HKWorkoutSession.
                         // Watch starts the primary session and mirrors it to iPhone.
                         await send(.setWorkoutMode(.watchPrimary))
-                        print("⌚️ [SessionFeature] Watch-primary mode — launching Watch workout")
+                        Logger.session.info("Watch-primary mode — launching Watch workout")
                         do {
                             try await sessionClient.startWatchWorkout(workout.hkType)
-                            print("✅ [SessionFeature] startWatchWorkout succeeded")
+                            Logger.session.info("startWatchWorkout succeeded")
                         } catch {
                             // Watch launch failed — fall back to iPhone-standalone.
-                            print("❌ [SessionFeature] startWatchWorkout FAILED: \(error) — falling back to iPhone-standalone")
+                            Logger.session.error("startWatchWorkout FAILED: \(error) — falling back to iPhone-standalone")
                             await send(.setWorkoutMode(.iPhoneStandalone))
                             try await sessionClient.selectedWorkout(workout.hkType)
                         }
                     } else {
                         // iPhone-standalone: iPhone owns the HKWorkoutSession.
                         await send(.setWorkoutMode(.iPhoneStandalone))
-                        print("📱 [SessionFeature] iPhone-standalone mode — Watch unavailable (\(watchStatus.rawValue))")
+                        Logger.session.info("iPhone-standalone mode — Watch unavailable (\(watchStatus.rawValue))")
                         try await sessionClient.selectedWorkout(workout.hkType)
-                        print("✅ [SessionFeature] selectedWorkout set → DefaultWorkoutManager.prepareWorkout() triggered")
+                        Logger.session.info("selectedWorkout set → DefaultWorkoutManager.prepareWorkout() triggered")
                     }
 
                     await send(.controls(.setWorkoutType(workout)))
@@ -248,6 +255,7 @@ struct SessionFeature {
             case .controls(.sessionStateUpdated(.paused)):
                 let mode = state.workoutMode
                 return .merge(
+                    .run { _ in await WorkoutFileLogger.shared.log("PAUSED") },
                     .cancel(id: SessionWatchCancelID.watchTickTimer),
                     mode == .iPhoneStandalone ? .run { [watchClient = watchConnectivityClient] _ in
                         // iPhone-standalone: notify Watch via WatchConnectivity.
@@ -261,6 +269,7 @@ struct SessionFeature {
                 let mode = state.workoutMode
                 let elapsed = state.controls.elapsedTime
                 return .merge(
+                    .run { _ in await WorkoutFileLogger.shared.log("RESUMED") },
                     mode == .iPhoneStandalone ? .run { [elapsed, watchClient = watchConnectivityClient] _ in
                         await watchClient.sendWorkoutEvent(.workoutResumed(elapsedSeconds: elapsed))
                     } : .none,
@@ -281,8 +290,12 @@ struct SessionFeature {
                     .cancel(id: SessionWatchCancelID.watchEventStream),
                     .cancel(id: SessionWatchCancelID.watchTickTimer),
                     .run { [watchClient = watchConnectivityClient, sessionClient] send in
+                        await WorkoutFileLogger.shared.log("STOPPED — ending workout")
                         await watchClient.sendWorkoutEvent(.workoutEnded)
+                        await WorkoutFileLogger.shared.log("END WORKOUT — calling sessionClient.endWorkout()")
                         await sessionClient.endWorkout()
+                        await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned (workout NOT yet saved)")
+                        await WorkoutFileLogger.shared.log("DONE")
                         await send(.sessionViewStateChange(.summary))
                     }
                 )
@@ -328,7 +341,7 @@ struct SessionFeature {
 
             case .hrReadingTimedOut:
                 guard state.workoutMode == .iPhoneStandalone else { return .none }
-                print("⏱️ [SessionFeature] hrReadingTimeout — no HR from Watch for 20s, resetting to 0")
+                Logger.session.notice("hrReadingTimeout — no HR from Watch for 20s, resetting to 0")
                 return .merge(
                     .run { [sessionClient] _ in sessionClient.resetWatchHeartRate() },
                     .send(.live(.resetHeartRate))

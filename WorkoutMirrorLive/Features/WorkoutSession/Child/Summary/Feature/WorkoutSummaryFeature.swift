@@ -71,7 +71,6 @@ struct WorkoutSummaryFeature {
                         }
                     
                 case .view(.endWorkoutButtonTapped):
-                    print("endWorkoutButtonTapped")
                     return .run { send in
                         await self.dismiss()
                     }

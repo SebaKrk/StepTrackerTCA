@@ -33,7 +33,10 @@ struct SummaryFeature {
                 return .none
 
             case .checkSummary:
+                state.summaryRetryCount += 1
+                let attempt = state.summaryRetryCount
                 return .run { send in
+                    await WorkoutFileLogger.shared.log("SUMMARY CHECK — attempt #\(attempt)")
                     let summary = await client.getWorkoutSummary()
                     await send(.summaryLoaded(summary))
                 }
@@ -48,22 +51,33 @@ struct SummaryFeature {
 
             case let .summaryLoaded(summary):
                 state.summary = summary
+                let resultLog = summary.workout.map { "found: \($0.uuid)" } ?? "nil"
 
                 if summary.workout != nil {
                     state.viewState = .successfullyLoaded
-                    return .cancel(id: SummaryFeatureCancelID.retry)
+                    return .merge(
+                        .cancel(id: SummaryFeatureCancelID.retry),
+                        .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog)") }
+                    )
+                } else if state.summaryRetryCount >= 20 {
+                    state.viewState = .failed
+                    return .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog) → giving up after 20 attempts") }
                 } else {
                     state.viewState = .loading
-                    return .run { send in
-                        try? await Task.sleep(for: .milliseconds(3000))
-                        await send(.checkSummary)
-                    }
-                    .cancellable(id: SummaryFeatureCancelID.retry, cancelInFlight: true)
+                    return .merge(
+                        .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog) → will retry in 3s") },
+                        .run { send in
+                            try? await Task.sleep(for: .milliseconds(3000))
+                            await send(.checkSummary)
+                        }
+                        .cancellable(id: SummaryFeatureCancelID.retry, cancelInFlight: true)
+                    )
                 }
 
                 // MARK: - View Action
 
             case .view(.viewDidAppear):
+                state.summaryRetryCount = 0
                 return .run { send in
                     await send(.checkSummary)
                 }

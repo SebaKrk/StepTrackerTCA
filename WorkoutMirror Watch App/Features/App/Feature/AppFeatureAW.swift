@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import OSLog
 import SharedModels
 import HealthKit
 
@@ -39,15 +40,16 @@ struct AppFeatureAW {
                 // Start HRMirrorFeature so it calls startMirroringToCompanionDevice(),
                 // which automatically brings the Watch app to the foreground.
                 guard state.hrMirror == nil else {
-                    print("⌚ [AppFeatureAW] workoutConfigurationReceived — hrMirror already active, ignoring")
+                    Logger.appAW.debug("workoutConfigurationReceived — hrMirror already active, ignoring")
                     return .none
                 }
-                print("⌚ [AppFeatureAW] workoutConfigurationReceived — activityType: \(activityType.rawValue)")
+                Logger.appAW.info("workoutConfigurationReceived — activityType: \(activityType.rawValue)")
                 state.hrMirror = HRMirrorFeature.State(activityType: activityType)
                 return .send(.hrMirror(.presented(.start)))
 
             case .watchEventReceived(.workoutStarted(let activityTypeRaw, let elapsed, let maxHR)):
-                print("⌚ [AppFeatureAW] watchEventReceived: .workoutStarted — activityType=\(activityTypeRaw), hrMirrorActive=\(state.hrMirror != nil)")
+                let hrMirrorActive = state.hrMirror != nil
+                Logger.appAW.info("watchEventReceived: .workoutStarted — activityType=\(activityTypeRaw), hrMirrorActive=\(hrMirrorActive)")
                 let activityType = HKWorkoutActivityType(rawValue: activityTypeRaw) ?? .other
 
                 if state.hrMirror != nil {
@@ -78,7 +80,7 @@ struct AppFeatureAW {
                 return .send(.hrMirror(.presented(.workoutResumed(elapsedSeconds: elapsed))))
 
             case .watchEventReceived(.workoutEnded):
-                print("⌚ [AppFeatureAW] watchEventReceived: .workoutEnded — stopping HRMirrorFeature")
+                Logger.appAW.info("watchEventReceived: .workoutEnded — stopping HRMirrorFeature")
                 return .concatenate(
                     .send(.hrMirror(.presented(.stop))),
                     .run { send in
@@ -88,7 +90,7 @@ struct AppFeatureAW {
                 )
 
             case .dismissHRMirror:
-                print("⌚ [AppFeatureAW] dismissHRMirror — tearing down HRMirrorFeature")
+                Logger.appAW.info("dismissHRMirror — tearing down HRMirrorFeature")
                 state.hrMirror = nil
                 return .none
 

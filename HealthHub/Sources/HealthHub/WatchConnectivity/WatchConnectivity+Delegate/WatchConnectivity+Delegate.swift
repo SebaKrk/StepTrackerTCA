@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 17/09/2025.
 //
 
+import OSLog
 import SharedModels
 import WatchConnectivity
 
@@ -23,7 +24,7 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
 
         Task {
             if let error = error {
-                print("❌ [WC] activation error: \(error.localizedDescription)")
+                Logger.wc.error("activation error: \(error.localizedDescription)")
                 await statusActor.updateStatus(.unknown)
                 return
             }
@@ -31,12 +32,12 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
             switch activationState {
             case .activated:
                 let status = await checkConnectionStatus()
-                print("✅ [WC] WCSession activated — status: \(status)")
+                Logger.wc.info("WCSession activated — status: \(String(describing: status))")
             case .inactive:
-                print("⚠️ [WC] WCSession inactive after activation")
+                Logger.wc.notice("WCSession inactive after activation")
                 await statusActor.updateStatus(.unknown)
             case .notActivated:
-                print("❌ [WC] WCSession not activated")
+                Logger.wc.error("WCSession not activated")
                 await statusActor.updateStatus(.unknown)
             @unknown default:
                 await statusActor.updateStatus(.unknown)
@@ -52,7 +53,7 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
 
     /// Called when the session deactivates. Reactivates automatically. iOS only.
     public func sessionDidDeactivate(_ session: WCSession) {
-        print("🔄 [WC] WCSession deactivated — reactivating")
+        Logger.wc.info("WCSession deactivated — reactivating")
         Task { await statusActor.updateStatus(.unknown) }
         session.activate()
     }
@@ -60,7 +61,7 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
 
     /// Called when the reachability of the paired device changes.
     public func sessionReachabilityDidChange(_ session: WCSession) {
-        print("🔄 WCSession reachability → \(session.isReachable)")
+        Logger.wc.info("reachability → \(session.isReachable)")
         Task { await checkConnectionStatus() }
     }
 
@@ -82,6 +83,23 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
         decodeAndYield(userInfo)
     }
 
+    // MARK: - File Transfer
+
+    /// Receives a file transferred from the Watch (e.g. workout log).
+    /// Saves it to the iPhone app's Documents directory with a timestamp in the filename.
+    public func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        guard let type = file.metadata?["type"] as? String, type == "workoutLog" else { return }
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let timestamp = Int(Date().timeIntervalSince1970)
+        let dest = docs.appendingPathComponent("watch_log_\(timestamp).txt")
+        do {
+            try FileManager.default.copyItem(at: file.fileURL, to: dest)
+            Logger.wc.info("received Watch log → saved: \(dest.lastPathComponent)")
+        } catch {
+            Logger.wc.error("failed to save Watch log: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: - Private
 
     /// Decodes a `WatchWorkoutEvent` from a message dictionary and yields it to the stream.
@@ -89,12 +107,12 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
         guard let data = dict[Self.messageKey] as? Data,
               let event = try? JSONDecoder().decode(WatchWorkoutEvent.self, from: data)
         else {
-            print("⚠️ [WC] decodeAndYield: failed to decode WatchWorkoutEvent")
+            Logger.wc.error("decodeAndYield: failed to decode WatchWorkoutEvent")
             return
         }
-        // Skip high-frequency tick events to keep logs clean.
+        // Skip high-frequency tick events to keep logs readable.
         if case .workoutTick = event { } else {
-            print("📨 [WC] received event → \(event)")
+            Logger.wc.info("received event → \(String(describing: event))")
         }
         continuationLock.withLock {
             _eventContinuation?.yield(event)

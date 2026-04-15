@@ -3,8 +3,10 @@
 //  WorkoutMirror Watch App
 //
 
-import WatchKit
 import HealthKit
+import OSLog
+import SharedModels
+import WatchKit
 
 /// `WKApplicationDelegate` that handles HealthKit workout configuration
 /// forwarded from the paired iPhone via `HKHealthStore.startWatchApp(toHandle:)`.
@@ -18,7 +20,7 @@ import HealthKit
 final class WatchAppDelegate: NSObject, WKApplicationDelegate {
 
     func handle(_ workoutConfiguration: HKWorkoutConfiguration) {
-        print("⌚ [WatchAppDelegate] handle(_:) — activityType: \(workoutConfiguration.activityType.rawValue)")
+        Logger.appAW.info("[WatchAppDelegate] handle(_:) — activityType: \(workoutConfiguration.activityType.rawValue)")
         WorkoutConfigurationStream.shared.yield(workoutConfiguration.activityType)
     }
 }
