@@ -83,7 +83,7 @@ extension WorkoutTypeListFeature {
         
         // MARK: - Properties
         
-        var workoutTypes: [WorkoutType] = [.boxing, .cross, .functional]
+        var workoutTypes: [WorkoutType] = [.boxing, .cross, .functional, .cycling]
         
         var selectedWorkout: WorkoutType?
  

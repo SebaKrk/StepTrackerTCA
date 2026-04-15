@@ -13,6 +13,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
     case functional
     case cross
     case boxing
+    case cycling
     
     public var id: Self { self }
     
@@ -26,6 +27,8 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
             return String(localized: "Cross", bundle: .module)
         case .boxing:
             return String(localized: "Boxing", bundle: .module)
+        case .cycling:
+            return String(localized: "Cycling", bundle: .module)
         }
     }
     
@@ -35,6 +38,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         case .functional:       return "figure.strengthtraining.functional"
         case .cross:            return "figure.cross.training"
         case .boxing:           return "figure.boxing"
+        case .cycling:          return "figure.outdoor.cycle"
         }
     }
     
@@ -44,6 +48,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         case .functional: return "figure.strengthtraining.functional.circle.fill"
         case .cross:      return "figure.cross.training.circle.fill"
         case .boxing:     return "figure.boxing.circle.fill"
+        case .cycling:    return "figure.outdoor.cycle.circle.fill"
         }
     }
     
@@ -54,6 +59,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         case .functional:       return .functionalStrengthTraining
         case .cross:            return .crossTraining
         case .boxing:           return .boxing
+        case .cycling:          return .cycling
         }
     }
     
@@ -64,6 +70,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         case .functionalStrengthTraining:  self = .functional
         case .crossTraining:               self = .cross
         case .boxing:                      self = .boxing
+        case .cycling:                     self = .cycling
         default:                           return nil
         }
     }

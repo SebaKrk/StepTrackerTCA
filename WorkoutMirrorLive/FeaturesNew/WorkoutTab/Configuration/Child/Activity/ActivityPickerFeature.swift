@@ -58,7 +58,7 @@ extension ActivityPickerFeature {
     struct State {
         
         ///
-        var workouts: [WorkoutType] = [.functional, .cross, .boxing]
+        var workouts: [WorkoutType] = [.functional, .cross, .boxing, .cycling]
         
         ///
         var selected: WorkoutType? = nil
