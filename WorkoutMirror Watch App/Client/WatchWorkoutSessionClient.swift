@@ -187,11 +187,13 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             do {
                 _ = try await builder.finishWorkout()
                 Logger.watchSession.info("end() ✓ workout saved to HealthKit")
+                await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED")
             } catch {
                 Logger.watchSession.error("end() finishWorkout failed: \(error)")
             }
         } else {
             Logger.watchSession.notice("end() — skipped finishWorkout (already saved by .ended safety-net)")
+            await WorkoutFileLogger.shared.log("WATCH WORKOUT — skipped (saved by safety-net)")
         }
 
         Logger.watchSession.info("end() ▶ 3/3 session.end()")
@@ -285,6 +287,7 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
                     try await builder.endCollection(at: date)
                     _ = try await builder.finishWorkout()
                     Logger.watchSession.info("safety-net: workout saved to HealthKit")
+                    await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (safety-net)")
                 } catch {
                     Logger.watchSession.error("safety-net finishWorkout failed: \(error)")
                 }

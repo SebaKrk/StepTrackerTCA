@@ -21,8 +21,12 @@ extension DefaultTrainingManager {
             Task { @MainActor in
                 guard let self else { return }
 
-                // Store mirrored session — do NOT reset; this session lives alongside
-                // any existing state and is the Watch-primary source of truth.
+                // Clear stale workout from previous session so SummaryFeature
+                // doesn't display old data while handleWorkoutEndIOS polls HealthKit.
+                self.workout = nil
+
+                // Store mirrored session — do NOT reset other state; this session lives
+                // alongside any existing state and is the Watch-primary source of truth.
                 self.session = mirroredSession
                 self.session?.delegate = self
 

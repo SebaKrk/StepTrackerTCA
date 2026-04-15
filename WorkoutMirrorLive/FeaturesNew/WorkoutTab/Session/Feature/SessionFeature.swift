@@ -292,7 +292,9 @@ struct SessionFeature {
                     .run { [watchClient = watchConnectivityClient, sessionClient] send in
                         await WorkoutFileLogger.shared.log("STOPPED — ending workout")
                         await watchClient.sendWorkoutEvent(.workoutEnded)
+                        await WorkoutFileLogger.shared.log("END WORKOUT — calling sessionClient.endWorkout()")
                         await sessionClient.endWorkout()
+                        await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned (workout NOT yet saved)")
                         await WorkoutFileLogger.shared.log("DONE")
                         await send(.sessionViewStateChange(.summary))
                     }
