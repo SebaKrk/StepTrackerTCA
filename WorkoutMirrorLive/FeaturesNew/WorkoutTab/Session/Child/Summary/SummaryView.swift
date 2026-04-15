@@ -142,10 +142,12 @@ struct SummaryView: View {
     // MARK: - Metrics Grid
     
     private func metricsGrid(workout: HKWorkout) -> some View {
-        let calories = workout.statistics(for: .init(.activeEnergyBurned))?
+        let hkCalories = workout.statistics(for: .init(.activeEnergyBurned))?
             .sumQuantity()
             .map { Int($0.doubleValue(for: .kilocalorie())) }
-        
+        let metricsEnergy = store.summary?.metrics.activeEnergy ?? 0
+        let calories: Int? = hkCalories ?? (metricsEnergy > 0 ? Int(metricsEnergy) : nil)
+
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
             metricCard(
                 icon: "flame.fill",

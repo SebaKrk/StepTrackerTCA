@@ -208,7 +208,25 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// and yields it into `workoutMetricsContinuation`, making it available via `metricsStream`.
     func sendHRToRemote(bpm: Double, date: Date) async {
         guard let session else { return }
-        let metrics = WorkoutMetrics(averageHeartRate: 0, heartRate: bpm, activeEnergy: 0)
+
+        let energy: Double = {
+            guard let builder else { return 0 }
+            let energyType = HKQuantityType(.activeEnergyBurned)
+            return builder.statistics(for: energyType)?
+                .sumQuantity()?
+                .doubleValue(for: .kilocalorie()) ?? 0
+        }()
+
+        let avgHR: Double = {
+            guard let builder else { return 0 }
+            let hrType = HKQuantityType(.heartRate)
+            let unit = HKUnit.count().unitDivided(by: .minute())
+            return builder.statistics(for: hrType)?
+                .averageQuantity()?
+                .doubleValue(for: unit) ?? 0
+        }()
+
+        let metrics = WorkoutMetrics(averageHeartRate: avgHR, heartRate: bpm, activeEnergy: energy)
         guard let data = try? JSONEncoder().encode(metrics) else {
             Logger.watchSession.error("sendHRToRemote — failed to encode WorkoutMetrics")
             return
