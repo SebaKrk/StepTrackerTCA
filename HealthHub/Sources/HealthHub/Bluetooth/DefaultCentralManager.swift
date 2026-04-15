@@ -7,6 +7,8 @@
 
 @preconcurrency
 import CoreBluetooth
+import OSLog
+import SharedModels
 
 public final class DefaultCentralManager: NSObject, CentralManager, @unchecked Sendable {
    
@@ -25,18 +27,18 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
        /// WAŻNE: Ustawiamy siebie jako delegate DOPIERO po inicjalizacji
        cbCentralManager.delegate = self
        
-       print("📱 🟢 Created DefaultCentralManager with separate actors")
+       Logger.bluetooth.debug("[DefaultCentralManager] init")
    }
     
     deinit {
-        print("🪦 -> ❌ DefaultCentralManager deinit")
+        Logger.bluetooth.debug("[DefaultCentralManager] deinit")
     }
    
    // MARK: - CentralManager Protocol Implementation
    
    /// Zwraca NOWY strumień znalezionych urządzeń za każdym wywołaniem
    public func discoveredDevices() async -> AsyncStream<CBPeripheral> {
-       print("scanActor.newScanStream")
+       Logger.bluetooth.debug("[DefaultCentralManager] newScanStream")
        return await scanActor.newScanStream()
    }
    
@@ -67,7 +69,7 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    
    /// Triggeruje inicjalizację managera
    public func initializeBluetooth() async {
-       print("📱 DefaultCentralManager: initializeBluetooth() called")
+       Logger.bluetooth.info("[DefaultCentralManager] initializeBluetooth()")
        let currentCBState = cbCentralManager.state
        await updateStatusFromCBState(currentCBState)
    }
@@ -83,7 +85,7 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
            Gatt.Service.heartRate
        ])
        
-       print("🔍 Started scanning for devices")
+       Logger.bluetooth.info("[DefaultCentralManager] scanning started")
    }
    
    /// Zatrzymuje skanowanie urządzeń
@@ -91,7 +93,7 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
        cbCentralManager.stopScan()
        await scanActor.finishScanning()
        
-       print("ℹ️ Stopped scanning")
+       Logger.bluetooth.info("[DefaultCentralManager] scanning stopped")
    }
    
     /// Zwraca urządzenia aktualnie połączone z systemem iOS które mają określone serwisy
@@ -133,7 +135,7 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
        let newStatus = mapCBStateToBluetoothStatus(cbState)
        await statusActor.updateStatus(newStatus)
        
-       print("🔵 Status updated: \(cbState) → \(newStatus)")
+       Logger.bluetooth.info("[DefaultCentralManager] status: \(String(describing: cbState)) → \(String(describing: newStatus))")
    }
    
    /// Pomocnicza funkcja mapująca CBManagerState na BluetoothStatus

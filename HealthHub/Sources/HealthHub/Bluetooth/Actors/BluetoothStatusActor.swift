@@ -6,17 +6,19 @@
 //
 
 import CoreBluetooth
+import OSLog
+import SharedModels
 
 /// Actor odpowiedzialny za zarządzanie statusem Bluetooth
 @preconcurrency
 actor BluetoothStatusActor {
     
     init() {
-        print("🟢 BluetoothStatusActor init")
+        Logger.bluetooth.debug("[BluetoothStatusActor] init")
     }
     
     deinit {
-        print("🪦 -> ❌ BluetoothStatusActor deinit - cleanup status stream")
+        Logger.bluetooth.debug("[BluetoothStatusActor] deinit")
         statusContinuation?.finish()
     }
     
@@ -50,7 +52,7 @@ actor BluetoothStatusActor {
         
         // Jeśli status się zmienił, wyślij przez stream
         if oldStatus != newStatus {
-            print("📡 BluetoothStatusActor: Status changed from \(oldStatus) to \(newStatus)")
+            Logger.bluetooth.info("[BluetoothStatusActor] status: \(String(describing: oldStatus)) → \(String(describing: newStatus))")
             yieldStatus(newStatus)
         }
     }
@@ -62,17 +64,17 @@ actor BluetoothStatusActor {
     // MARK: - Status Stream Methods
     
     func newStatusStream() -> AsyncStream<BluetoothStatus> {
-        print("🔄 BluetoothStatusActor: Tworzę nowy status stream")
+        Logger.bluetooth.debug("[BluetoothStatusActor] new status stream")
         
         // Zakończ poprzedni stream jeśli istnieje
         if let oldContinuation = statusContinuation {
-            print("💀 BluetoothStatusActor: Kończę poprzedni status stream")
+            Logger.bluetooth.debug("[BluetoothStatusActor] finishing previous status stream")
             oldContinuation.finish()
         }
         
         // Utwórz nowy stream z nową kontynuacją
         let newStream = AsyncStream<BluetoothStatus> { newContinuation in
-            print("✨ BluetoothStatusActor: Otrzymuję nową status kontynuację")
+            Logger.bluetooth.debug("[BluetoothStatusActor] new continuation set")
             self.statusContinuation = newContinuation
             
             // Wyślij aktualny status od razu
@@ -91,16 +93,16 @@ actor BluetoothStatusActor {
     
     private func yieldStatus(_ status: BluetoothStatus) {
         guard let continuation = statusContinuation else {
-            print("⚠️ BluetoothStatusActor: Próba yield status ale brak kontynuacji")
+            Logger.bluetooth.notice("[BluetoothStatusActor] yieldStatus — no continuation")
             return
         }
         
-        print("📤 BluetoothStatusActor: Yielding status: \(status)")
+        Logger.bluetooth.debug("[BluetoothStatusActor] yielding: \(String(describing: status))")
         continuation.yield(status)
     }
     
     func finishStatusStream() {
-        print("🛑 BluetoothStatusActor: Finishing status stream")
+        Logger.bluetooth.debug("[BluetoothStatusActor] finishing status stream")
         
         statusContinuation?.finish()
         statusContinuation = nil
@@ -111,11 +113,11 @@ actor BluetoothStatusActor {
     private func handleStatusTermination(_ termination: AsyncStream<BluetoothStatus>.Continuation.Termination) {
         switch termination {
         case .finished:
-            print("✅ BluetoothStatusActor: Status stream finished normally")
+            Logger.bluetooth.debug("[BluetoothStatusActor] status stream finished")
         case .cancelled:
-            print("❌ BluetoothStatusActor: Status stream was cancelled")
+            Logger.bluetooth.debug("[BluetoothStatusActor] status stream cancelled")
         @unknown default:
-            print("❓ BluetoothStatusActor: Status stream terminated with unknown reason")
+            Logger.bluetooth.notice("[BluetoothStatusActor] status stream unknown termination")
         }
         
         statusContinuation = nil
@@ -128,9 +130,6 @@ actor BluetoothStatusActor {
     }
     
     func printStatusStreamStatus() {
-        print("📊 BluetoothStatusActor Status Stream:")
-        print("   - Current Status: \(status)")
-        print("   - Has Status Continuation: \(hasActiveStatusContinuation)")
-        print("   - Is Powered On: \(isPoweredOn)")
+        Logger.bluetooth.debug("[BluetoothStatusActor] status=\(String(describing: self.status)) continuation=\(self.hasActiveStatusContinuation) poweredOn=\(self.isPoweredOn)")
     }
 }

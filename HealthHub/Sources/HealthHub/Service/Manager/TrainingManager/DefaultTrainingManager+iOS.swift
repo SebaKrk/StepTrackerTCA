@@ -8,6 +8,7 @@
 #if os(iOS)
 import Foundation
 import HealthKit
+import OSLog
 import SharedModels
 
 // MARK: - iOS-specific Setup and Configuration
@@ -16,12 +17,16 @@ extension DefaultTrainingManager {
     /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
     public func setupRemoteSessionHandler() {
         healthStore.workoutSessionMirroringStartHandler = { [weak self] mirroredSession in
-            print("🎉 [TrainingManager] MIRRORED SESSION received — state: \(mirroredSession.state.rawValue)")
+            Logger.trainingManager.info("MIRRORED SESSION received — state: \(mirroredSession.state.rawValue)")
             Task { @MainActor in
                 guard let self else { return }
 
-                // Store mirrored session — do NOT reset; this session lives alongside
-                // any existing state and is the Watch-primary source of truth.
+                // Clear stale workout from previous session so SummaryFeature
+                // doesn't display old data while handleWorkoutEndIOS polls HealthKit.
+                self.workout = nil
+
+                // Store mirrored session — do NOT reset other state; this session lives
+                // alongside any existing state and is the Watch-primary source of truth.
                 self.session = mirroredSession
                 self.session?.delegate = self
 
@@ -37,12 +42,12 @@ extension DefaultTrainingManager {
     
     /// Starts a workout app on the paired Apple Watch
     public func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws {
-        print("📱 [TrainingManager] startWatchApp — activityType: \(workoutType.rawValue)")
+        Logger.trainingManager.info("startWatchApp — activityType: \(workoutType.rawValue)")
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
         configuration.locationType = .outdoor
         try await healthStore.startWatchApp(toHandle: configuration)
-        print("✅ [TrainingManager] startWatchApp sent — waiting for mirrored session")
+        Logger.trainingManager.info("startWatchApp sent — waiting for mirrored session")
     }
 }
 
@@ -55,29 +60,33 @@ extension DefaultTrainingManager {
 
         // 1. Try WorkoutElapsedTime (for time synchronization)
         if let elapsedTime = try? JSONDecoder().decode(WorkoutElapsedTime.self, from: data) {
+            Logger.trainingManager.debug("processReceivedWatchData → WorkoutElapsedTime: \(elapsedTime.timeInterval, format: .fixed(precision: 1))s")
             handleElapsedTimeUpdate(elapsedTime)
             return
         }
 
         // 2. Try custom WorkoutMetrics (JSON format)
         if let receivedMetrics = try? JSONDecoder().decode(WorkoutMetrics.self, from: data) {
+            Logger.trainingManager.info("processReceivedWatchData → WorkoutMetrics: HR=\(receivedMetrics.heartRate, format: .fixed(precision: 0)) energy=\(receivedMetrics.activeEnergy, format: .fixed(precision: 1))")
             handleWorkoutMetricsUpdate(receivedMetrics)
             return
         }
 
         // 3. Try HKStatistics array (HealthKit archived data)
         if let statisticsArray = try NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: HKStatistics.self, from: data) {
+            Logger.trainingManager.info("processReceivedWatchData → HKStatistics[\(statisticsArray.count)]")
             handleStatisticsUpdate(statisticsArray)
             return
         }
 
         // 4. Try single HKStatistics object
         if let statistics = try? NSKeyedUnarchiver.unarchivedObject(ofClass: HKStatistics.self, from: data) {
+            Logger.trainingManager.info("processReceivedWatchData → HKStatistics (single)")
             handleStatisticsUpdate([statistics])
             return
         }
 
-        print("⚠️ [TrainingManager] processReceivedWatchData: unrecognized data format (\(data.count) bytes)")
+        Logger.trainingManager.notice("processReceivedWatchData: unrecognized data format (\(data.count) bytes)")
     }
     
     // MARK: - Private Data Processing Methods
@@ -124,7 +133,7 @@ extension DefaultTrainingManager {
                                       limit: HKObjectQueryNoLimit,
                                       sortDescriptors: [sortByStartDate]) { (query, samples, error) in
                 if let error {
-                    print("❌ [TrainingManager] fetchTodaysWorkouts query failed: \(error)")
+                    Logger.trainingManager.error("fetchTodaysWorkouts query failed: \(error)")
                     continuation.resume(throwing: error)
                     return
                 }
@@ -164,7 +173,7 @@ extension DefaultTrainingManager {
 
             query.initialResultsHandler = { (query, results, error) in
                 if let error = error {
-                    print("❌ [TrainingManager] fetchQuantityCollection query failed: \(error)")
+                    Logger.trainingManager.error("fetchQuantityCollection query failed: \(error)")
                     continuation.resume(throwing: error)
                     return
                 }

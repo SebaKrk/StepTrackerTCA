@@ -7,13 +7,15 @@
 
 import Foundation
 import HealthKit
+import OSLog
+import SharedModels
 
 // MARK: - Session State Control
 extension DefaultTrainingManager {
     
     public func togglePause() {
         guard let session = session else {
-            print("⚠️ [TrainingManager] togglePause — no active session")
+            Logger.trainingManager.notice("togglePause — no active session")
             return
         }
         if workoutSessionIsRunning {
@@ -25,22 +27,22 @@ extension DefaultTrainingManager {
 
     public func endWorkout() {
         guard let session = session else {
-            print("⚠️ [TrainingManager] endWorkout — no active session")
+            Logger.trainingManager.notice("endWorkout — no active session")
             return
         }
-        print("🔚 [TrainingManager] endWorkout — calling session.end() (state=\(session.state.rawValue))")
+        Logger.trainingManager.info("endWorkout — calling session.end() (state=\(session.state.rawValue))")
         session.end()
     }
 
     // MARK: - Private Helpers
 
     private func pause() {
-        print("⏸️ [TrainingManager] pause — calling session.pause()")
+        Logger.trainingManager.info("pause — calling session.pause()")
         session?.pause()
     }
 
     private func resume() {
-        print("▶️ [TrainingManager] resume — calling session.resume()")
+        Logger.trainingManager.info("resume — calling session.resume()")
         session?.resume()
     }
     
@@ -58,7 +60,7 @@ extension DefaultTrainingManager {
     private func handleWorkoutEndWatchOS(date: Date) {
         Task { @MainActor in
             guard let builder = self.builder else {
-                print("⚠️ [TrainingManager] handleWorkoutEndWatchOS — no builder")
+                Logger.trainingManager.notice("handleWorkoutEndWatchOS — no builder")
                 return
             }
             do {
@@ -66,27 +68,37 @@ extension DefaultTrainingManager {
                 let finishedWorkout = try await builder.finishWorkout()
                 self.workout = finishedWorkout
                 self.session?.end()
-                print("✅ [TrainingManager] watchOS: workout finished and saved")
+                Logger.trainingManager.info("watchOS: workout finished and saved")
             } catch {
-                print("❌ [TrainingManager] watchOS: handleWorkoutEnd failed: \(error)")
+                Logger.trainingManager.error("watchOS: handleWorkoutEnd failed: \(error)")
             }
         }
     }
     #else
     private func handleWorkoutEndIOS(date: Date) {
         // In Watch-primary mode, Watch calls finishWorkout() which saves the HKWorkout.
-        // iPhone needs to fetch it from HealthKit after a short delay to allow Watch
-        // to complete the save before we query.
+        // iPhone fetches it from the shared HealthKit store after .ended fires.
+        // Per Apple's WWDC23 sample, there is no push callback — we poll with retries
+        // because Watch sync can take a few seconds to appear on iPhone's HealthKit.
+        // First attempt is fast (1.5s); subsequent attempts every 3s (up to ~30s total).
         Task { @MainActor in
+            // Clear stale workout so SummaryFeature doesn't display previous session data
+            // while we poll HealthKit for the new one.
+            self.workout = nil
             let startDate = self.session?.startDate ?? date.addingTimeInterval(-3600)
-            print("📱 [TrainingManager] handleWorkoutEndIOS — session ended, waiting 2s for Watch to save workout")
-            try? await Task.sleep(for: .milliseconds(2000))
-            if let hkWorkout = await self.fetchWorkoutNear(start: startDate, end: date) {
-                self.workout = hkWorkout
-                print("✅ [TrainingManager] handleWorkoutEndIOS — workout fetched: \(hkWorkout.uuid)")
-            } else {
-                print("⚠️ [TrainingManager] handleWorkoutEndIOS — workout NOT found in HealthKit (Watch may not have saved yet)")
+            Logger.trainingManager.info("handleWorkoutEndIOS — polling HealthKit for Watch workout")
+
+            for attempt in 1...10 {
+                let delay: UInt64 = attempt == 1 ? 1_500 : 3_000
+                try? await Task.sleep(for: .milliseconds(delay))
+                if let hkWorkout = await self.fetchWorkoutNear(start: startDate, end: date) {
+                    self.workout = hkWorkout
+                    Logger.trainingManager.info("handleWorkoutEndIOS — found on attempt #\(attempt): \(hkWorkout.uuid.uuidString)")
+                    return
+                }
+                Logger.trainingManager.notice("handleWorkoutEndIOS — attempt #\(attempt): not yet in HealthKit")
             }
+            Logger.trainingManager.error("handleWorkoutEndIOS — workout NOT found after 10 attempts (~30s)")
         }
     }
 

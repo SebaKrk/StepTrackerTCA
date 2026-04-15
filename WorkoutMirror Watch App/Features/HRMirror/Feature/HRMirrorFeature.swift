@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import HealthKit
+import OSLog
 import SharedModels
 import Foundation
 
@@ -44,11 +45,13 @@ struct HRMirrorFeature {
                 state.isPreparing = false
                 state.heartRate = Int(bpm)
                 state.heartRateZone = heartRateZone(bpm: Int(bpm), max: state.maxHeartRate)
+                let zone = state.heartRateZone
                 // Watch-primary: send HR via HealthKit's native mirroring channel
                 // (sendToRemoteWorkoutSession) instead of WatchConnectivity.
                 // iPhone receives it in DefaultTrainingManager.didReceiveDataFromRemoteWorkoutSession.
-                return .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
+                return .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, bpm, zone] _ in
                     await watchWorkoutSessionClient.sendHRToRemote(bpm, Date())
+                    await WorkoutFileLogger.shared.logHRIfNeeded(bpm: bpm)
                 }
 
             case .subSecondTick:
@@ -60,17 +63,23 @@ struct HRMirrorFeature {
 
             case .workoutPaused:
                 state.isPaused = true
-                return .cancel(id: HRMirrorCancelID.subSecondTimer)
+                return .merge(
+                    .cancel(id: HRMirrorCancelID.subSecondTimer),
+                    .run { _ in await WorkoutFileLogger.shared.log("PAUSED") }
+                )
 
             case .workoutResumed(let elapsed):
                 state.elapsedSeconds = elapsed
                 state.isPaused = false
-                return .run { [clock] send in
-                    for await _ in clock.timer(interval: .milliseconds(100)) {
-                        await send(.subSecondTick)
+                return .merge(
+                    .run { _ in await WorkoutFileLogger.shared.log("RESUMED") },
+                    .run { [clock] send in
+                        for await _ in clock.timer(interval: .milliseconds(100)) {
+                            await send(.subSecondTick)
+                        }
                     }
-                }
-                .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                    .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                )
 
             case .workoutTick(let elapsed):
                 // iPhone is source of truth — reset to exact value each second.
@@ -80,23 +89,30 @@ struct HRMirrorFeature {
             case .sessionStateChanged(let sessionState):
                 // HealthKit propagated a pause/resume from iPhone's mirrored session.
                 // Mirror the state so Watch UI (isPaused, subSecondTimer) stays in sync.
-                print("⌚ [HRMirrorFeature] sessionStateChanged → \(sessionState.rawValue), isPaused was: \(state.isPaused)")
+                let isPausedSnapshot = state.isPaused
+                Logger.hrMirror.info("sessionStateChanged → \(sessionState.rawValue), isPaused was: \(isPausedSnapshot)")
                 switch sessionState {
                 case .paused:
                     state.isPaused = true
-                    return .cancel(id: HRMirrorCancelID.subSecondTimer)
+                    return .merge(
+                        .cancel(id: HRMirrorCancelID.subSecondTimer),
+                        .run { _ in await WorkoutFileLogger.shared.log("PAUSED (HealthKit)") }
+                    )
                 case .running:
                     guard state.isPaused else {
-                        print("⌚ [HRMirrorFeature] sessionStateChanged .running — already running, skipping timer restart")
+                        Logger.hrMirror.debug("sessionStateChanged .running — already running, skipping timer restart")
                         return .none
                     }
                     state.isPaused = false
-                    return .run { [clock] send in
-                        for await _ in clock.timer(interval: .milliseconds(100)) {
-                            await send(.subSecondTick)
+                    return .merge(
+                        .run { _ in await WorkoutFileLogger.shared.log("RESUMED (HealthKit)") },
+                        .run { [clock] send in
+                            for await _ in clock.timer(interval: .milliseconds(100)) {
+                                await send(.subSecondTick)
+                            }
                         }
-                    }
-                    .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                        .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                    )
                 default:
                     return .none
                 }
@@ -116,6 +132,7 @@ struct HRMirrorFeature {
                 state.isPaused.toggle()
                 if isResuming {
                     return .merge(
+                        .run { _ in await WorkoutFileLogger.shared.log("RESUMED (Watch tap)") },
                         .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
                             await watchWorkoutSessionClient.togglePause()
                         },
@@ -128,6 +145,7 @@ struct HRMirrorFeature {
                     )
                 } else {
                     return .merge(
+                        .run { _ in await WorkoutFileLogger.shared.log("PAUSED (Watch tap)") },
                         .cancel(id: HRMirrorCancelID.subSecondTimer),
                         .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
                             await watchWorkoutSessionClient.togglePause()
@@ -148,6 +166,7 @@ struct HRMirrorFeature {
                 .cancellable(id: HRMirrorCancelID.tabIndicatorTimer, cancelInFlight: true)
 
             case .view(.tabSelected(let tab)):
+                Logger.hrMirror.info("tab selected → \(String(describing: tab))")
                 state.selectedTab = tab
                 return .none
 
@@ -156,6 +175,10 @@ struct HRMirrorFeature {
             case .start:
                 let activityType = state.activityType
                 return .merge(
+                    .run { [activityType] _ in
+                        await WorkoutFileLogger.shared.reset()
+                        await WorkoutFileLogger.shared.log("STARTED — activityType: \(activityType.rawValue)")
+                    },
                     .run { [extendedRuntimeClient = extendedRuntimeClient] _ in
                         await extendedRuntimeClient.start()
                     },
@@ -199,8 +222,12 @@ struct HRMirrorFeature {
                     .cancel(id: HRMirrorCancelID.countdown),
                     .cancel(id: HRMirrorCancelID.tabIndicatorTimer),
                     .cancel(id: HRMirrorCancelID.sessionStateStream),
-                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
+                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient,
+                            watchClient = watchClient] _ in
+                        await WorkoutFileLogger.shared.log("STOPPED — ending HealthKit session")
                         await watchWorkoutSessionClient.endSession()
+                        await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
+                        await watchClient.transferLogFile()
                     }
                 )
 

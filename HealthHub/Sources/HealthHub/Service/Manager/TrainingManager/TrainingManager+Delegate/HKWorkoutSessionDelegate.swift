@@ -7,6 +7,7 @@
 
 import Foundation
 import HealthKit
+import OSLog
 import SharedModels
 
 // MARK: - HKWorkoutSessionDelegate (Both Platforms)
@@ -17,7 +18,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
                                from fromState: HKWorkoutSessionState,
                                date: Date) {
         
-        print("💫 Session state changed from \(fromState.rawValue) to \(toState.rawValue)")
+        Logger.trainingManager.info("sessionState \(fromState.rawValue) → \(toState.rawValue)")
         
         Task { @MainActor in
             self.workoutSessionIsRunning = toState == .running
@@ -37,7 +38,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     }
     
     public func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
-        print("❌ Workout session failed with error: \(error)")
+        Logger.trainingManager.error("workoutSession failed: \(error.localizedDescription)")
     }
     
     // MARK: - iOS-specific Delegate Methods
@@ -46,23 +47,24 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     /// iOS-specific: Handle data received from Apple Watch
     public func workoutSession(_ workoutSession: HKWorkoutSession,
                                didReceiveDataFromRemoteWorkoutSession data: [Data]) {
-        print("📱 iOS: Received \(data.count) data objects from Watch")
-        
+        let totalBytes = data.reduce(0) { $0 + $1.count }
+        Logger.trainingManager.info("didReceiveDataFromRemoteWorkoutSession — \(data.count) object(s), \(totalBytes) bytes")
+
         Task { @MainActor in
             do {
                 for dataElement in data {
-                    try processReceivedWatchData(dataElement) 
+                    try processReceivedWatchData(dataElement)
                 }
             } catch {
-                print("❌ iOS: Failed to handle received data: \(error)")
+                Logger.trainingManager.error("processReceivedWatchData failed: \(error.localizedDescription)")
             }
         }
     }
-    
+
     /// iOS-specific: Handle disconnection from Apple Watch
     public func workoutSession(_ workoutSession: HKWorkoutSession,
                                didDisconnectFromRemoteDeviceWithError error: Error?) {
-        print("📱 iOS: Disconnected from Watch: \(error?.localizedDescription ?? "No error")")
+        Logger.trainingManager.notice("disconnected from Watch: \(error?.localizedDescription ?? "no error")")
 
         Task { @MainActor in
             self.workoutSessionIsRunning = false
@@ -76,23 +78,17 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
 
 #if os(watchOS)
     private func sendElapsedTimeToCompanion(date: Date) async {
-        print("🔄 sendElapsedTimeToCompanion called")
-        
         guard let session = self.session else {
-            print("⚠️ No session in sendElapsedTimeToCompanion")
+            Logger.trainingManager.error("sendElapsedTimeToCompanion — no session")
             return
         }
-        
         let elapsedTimeInterval = session.associatedWorkoutBuilder().elapsedTime(at: date)
         let elapsedTime = WorkoutElapsedTime(timeInterval: elapsedTimeInterval, date: date)
-        
-        if let elapsedTimeData = try? JSONEncoder().encode(elapsedTime) {
-            print("🔄 About to call sendData with elapsed time: \(elapsedTimeInterval)s")
-            await sendData(elapsedTimeData)
-            print("⌚ watchOS: Sent elapsed time to iOS: \(elapsedTimeInterval)s")
-        } else {
-            print("❌ Failed to encode elapsed time")
+        guard let elapsedTimeData = try? JSONEncoder().encode(elapsedTime) else {
+            Logger.trainingManager.error("sendElapsedTimeToCompanion — encode failed")
+            return
         }
+        await sendData(elapsedTimeData)
     }
 #endif
     

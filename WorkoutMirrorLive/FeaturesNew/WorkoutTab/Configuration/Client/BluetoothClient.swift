@@ -9,6 +9,8 @@ import ComposableArchitecture
 import CoreBluetooth
 import Foundation
 import HealthHub
+import OSLog
+import SharedModels
 
 /// Klient Bluetooth dla TCA - to jest most między TCA Feature a CentralManager
 /// Zawiera funkcje które TCA może wywoływać jako Effects
@@ -65,63 +67,63 @@ public enum BluetoothClientKey: DependencyKey {
         /// Pobieramy CentralManager z TCA dependencies
         @Dependency(\.centralManager) var centralManager
         
-        print("📱 BluetoothClient: Creating with CentralManager")
-        
+        Logger.bluetooth.debug("[BluetoothClient] liveValue created")
+
         return BluetoothClient(
             /// Inicjalizuje Bluetooth manager
             initializeBluetooth: {
-                print("📱 BluetoothClient: Initializing Bluetooth...")
+                Logger.bluetooth.info("[BluetoothClient] initializeBluetooth")
                 await centralManager.initializeBluetooth()
             },
-            
+
             /// Pobiera aktualny status na żądanie
             getCurrentStatus: {
                 return await centralManager.currentStatus
             },
-            
+
             /// Zwraca NOWY strumień zmian statusu za każdym wywołaniem
             statusUpdates: {
-                print("📱 BluetoothClient: Creating new status updates stream")
+                Logger.bluetooth.debug("[BluetoothClient] statusUpdates — new stream")
                 return await centralManager.statusUpdates()
             },
-            
+
             /// Rozpoczyna skanowanie
             startScanning: {
-                print("📱 BluetoothClient: Starting scan...")
+                Logger.bluetooth.info("[BluetoothClient] startScanning")
                 try await centralManager.startScanning()
             },
-            
+
             /// Zatrzymuje skanowanie
             stopScanning: {
-                print("📱 BluetoothClient: Stopping scan...")
+                Logger.bluetooth.info("[BluetoothClient] stopScanning")
                 await centralManager.stopScanning()
             },
-            
+
             /// Zwraca NOWY strumień znalezionych urządzeń za każdym wywołaniem
             discoveredDevices: {
-                print("📱 BluetoothClient: Creating new discovered devices stream")
+                Logger.bluetooth.debug("[BluetoothClient] discoveredDevices — new stream")
                 return await centralManager.discoveredDevices()
             },
-            
+
             /// Sprawdza czy Bluetooth włączony
             isPoweredOn: {
                 return await centralManager.isPoweredOn
             },
-            
+
             /// Sprawdza czy skanuje
             isScanning: {
                 return await centralManager.isScanning
             },
-            
+
             /// Łączy z urządzeniem
             connect: { peripheral in
-                print("📱 BluetoothClient: Connecting to \(peripheral.name ?? "Unknown")...")
+                Logger.bluetooth.info("[BluetoothClient] connect → \(peripheral.name ?? "Unknown")")
                 try await centralManager.connect(to: peripheral)
             },
-            
+
             /// Rozłącza urządzenie
-            disconnect: { peripheral in 
-                print("📱 BluetoothClient: Disconnecting...")
+            disconnect: { peripheral in
+                Logger.bluetooth.info("[BluetoothClient] disconnect → \(peripheral.name ?? "Unknown")")
                 await centralManager.disconnect(peripheral)
             },
             
