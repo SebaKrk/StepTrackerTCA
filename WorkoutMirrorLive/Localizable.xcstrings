@@ -130,6 +130,9 @@
     "\"%@\" will be removed from this workout." : {
 
     },
+    "/ 100" : {
+
+    },
     "%.0f %@" : {
       "localizations" : {
         "en" : {
@@ -501,6 +504,12 @@
         }
       }
     },
+    "<6h" : {
+
+    },
+    "≥7h" : {
+
+    },
     "⏳ AI model loading..." : {
       "localizations" : {
         "pl" : {
@@ -591,6 +600,9 @@
         }
       }
     },
+    "6–7h" : {
+
+    },
     "7 sierpnia" : {
       "localizations" : {
         "pl" : {
@@ -600,6 +612,22 @@
           }
         }
       }
+    },
+    "7-day avg" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. 7 dni"
+          }
+        }
+      }
+    },
+    "7d avg" : {
+
+    },
+    "7h" : {
+
     },
     "19:32" : {
       "localizations" : {
@@ -951,6 +979,16 @@
         }
       }
     },
+    "Avg" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnio"
+          }
+        }
+      }
+    },
     "Avg HR" : {
       "localizations" : {
         "pl" : {
@@ -1131,6 +1169,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cel"
+          }
+        }
+      }
+    },
+    "Change" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmiana"
           }
         }
       }
@@ -1648,6 +1696,16 @@
         }
       }
     },
+    "Entries" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rekordy"
+          }
+        }
+      }
+    },
     "Error: %@" : {
       "localizations" : {
         "pl" : {
@@ -1811,6 +1869,16 @@
         }
       }
     },
+    "Health Metrics Trends" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trendy metryk zdrowia"
+          }
+        }
+      }
+    },
     "HealthKit Access Required" : {
       "localizations" : {
         "pl" : {
@@ -1945,6 +2013,9 @@
         }
       }
     },
+    "Hours" : {
+
+    },
     "HR max" : {
       "localizations" : {
         "pl" : {
@@ -2069,6 +2140,9 @@
         }
       }
     },
+    "kcal" : {
+
+    },
     "kcla" : {
       "localizations" : {
         "pl" : {
@@ -2105,6 +2179,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Koniec treningu"
+          }
+        }
+      }
+    },
+    "Latest" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatni"
           }
         }
       }
@@ -2190,6 +2274,9 @@
         }
       }
     },
+    "Max" : {
+
+    },
     "Max HR" : {
       "localizations" : {
         "pl" : {
@@ -2220,6 +2307,9 @@
         }
       }
     },
+    "Min" : {
+
+    },
     "Min value" : {
       "localizations" : {
         "pl" : {
@@ -2239,6 +2329,9 @@
           }
         }
       }
+    },
+    "Minutes" : {
+
     },
     "MOCK" : {
       "localizations" : {
@@ -2417,6 +2510,37 @@
     "No warmup" : {
 
     },
+    "No Weight Data" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych o wadze"
+          }
+        }
+      }
+    },
+    "No weight measurements found for this period." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie znaleziono pomiarów wagi w tym okresie."
+          }
+        }
+      }
+    },
+    "No workout data available for this period." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych treningowych w tym okresie."
+          }
+        }
+      }
+    },
     "No Workout Plans" : {
 
     },
@@ -2448,6 +2572,16 @@
     },
     "None" : {
 
+    },
+    "Not enough readiness data for this period." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zbyt mało danych o gotowości w tym okresie."
+          }
+        }
+      }
     },
     "Note" : {
       "localizations" : {
@@ -2574,6 +2708,16 @@
     },
     "Parsing workout..." : {
 
+    },
+    "per workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "na trening"
+          }
+        }
+      }
     },
     "Person records" : {
       "localizations" : {
@@ -3094,6 +3238,9 @@
         }
       }
     },
+    "Selected" : {
+
+    },
     "Selected Data" : {
       "localizations" : {
         "pl" : {
@@ -3133,6 +3280,9 @@
           }
         }
       }
+    },
+    "Series" : {
+
     },
     "Set your goal" : {
       "localizations" : {
@@ -3405,6 +3555,9 @@
         }
       }
     },
+    "Target" : {
+
+    },
     "Team" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3536,6 +3689,26 @@
         }
       }
     },
+    "total" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "łącznie"
+          }
+        }
+      }
+    },
+    "Total" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razem"
+          }
+        }
+      }
+    },
     "Training Plan" : {
 
     },
@@ -3555,6 +3728,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "GOTOWOŚĆ TRENINGOWA"
+          }
+        }
+      }
+    },
+    "Training Readiness Trend" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend gotowości treningowej"
           }
         }
       }
@@ -3728,6 +3911,9 @@
         }
       }
     },
+    "Week" : {
+
+    },
     "Weekly average:" : {
       "localizations" : {
         "pl" : {
@@ -3784,6 +3970,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cel wagowy: "
+          }
+        }
+      }
+    },
+    "Weight Trend" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend wagi"
           }
         }
       }
@@ -3992,12 +4188,32 @@
         }
       }
     },
+    "Workout Volume" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objętość treningów"
+          }
+        }
+      }
+    },
     "WorkoutPlanerFeature" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Funkcja planowania treningów"
+          }
+        }
+      }
+    },
+    "workouts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "treningów"
           }
         }
       }

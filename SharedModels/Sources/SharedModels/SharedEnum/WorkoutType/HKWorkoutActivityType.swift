@@ -7,8 +7,24 @@
 
 import Foundation
 import HealthKit
+import SwiftUI
 
 extension HKWorkoutActivityType {
+
+    public var color: Color {
+        switch self {
+        case .crossTraining:                return .orange
+        case .running:                      return .green
+        case .cycling:                      return .blue
+        case .swimming:                     return .cyan
+        case .walking:                      return .mint
+        case .traditionalStrengthTraining:  return .purple
+        case .functionalStrengthTraining:   return .indigo
+        case .boxing:                       return .red
+        case .cooldown:                     return .gray
+        default:                            return .yellow
+        }
+    }
     
     /// Returns a user-friendly name for the workout activity
     public var name: String {

@@ -44,13 +44,14 @@ extension StatsView {
                                action: \.ringActivitiesSummary)) { store in
             RingActivitiesSummaryView(store: store)
         }
-        //        if let store = store.scope(
-        //            state: \.ringActivitiesSummary,
-        //            action: \.ringActivitiesSummary
-        //        ) {
-        //            RingActivitiesSummaryView(store: store)
-        //        }
-        
     }
-    
+
+    @ViewBuilder
+    func analyticsView() -> some View {
+        if let store = store.scope(state: \.analytics,
+                                   action: \.analytics) {
+            AnalyticsView(store: store)
+        }
+    }
+
 }

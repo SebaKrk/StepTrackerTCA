@@ -747,3 +747,11 @@
         - DefaultWatchConnectivityManager: Logger.wc (.info activation/stop, .error not-activated, .notice transferUserInfo fallback)
         - WatchConnectivity+Delegate: Logger.wc (.info activated/reachability/events, .error decode-fail)
         - workoutTick pomijany na obu stronach (send + decode guard) — brak szumu co sekundę
+
+### IOS-00081 Analytics Tab — chart animations & refactor
+    A: Chart drawing animations (mask left-to-right for lines, bottom-to-top for bars)
+    B: TCA Result pattern refactor — 1 send per .run in all 4 reducers
+    C: File split (Feature + State + Action + Model) + HKWorkoutActivityType.color to SharedModels
+    D: Selection dimming + annotation popup (StepWidget/RHR detail pattern)
+    E: Fix scroll jump and flicker on metric switch
+    F: Fix force-unwrap + stale selectedDataPoint on refresh

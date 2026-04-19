@@ -148,12 +148,17 @@ struct StatsView: View {
         }
     }
     
+    @ViewBuilder
     private var analyticsActivityView: some View {
-        emptyAnalyticsActivityView
+        if store.analytics != nil {
+            analyticsView()
+        } else {
+            emptyAnalyticsActivityView
+        }
     }
-    
+
     // MARK: - Analytics Empty View
-    
+
     private var emptyAnalyticsActivityView: some View {
         ContentUnavailableView {
             Label("Analytics Dashboard", systemImage: "chart.xyaxis.line")
@@ -167,6 +172,6 @@ struct StatsView: View {
             }
         }
     }
-    
+
 }
 

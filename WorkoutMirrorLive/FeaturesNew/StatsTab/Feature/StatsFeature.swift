@@ -32,6 +32,9 @@ struct StatsFeature {
                 
             case let .selectedPickerChange(value):
                 state.context = value
+                if value == .analytics, state.analytics == nil {
+                    return .send(.initializeAnalytics)
+                }
                 return .none
                 
             case let .changeSubscriptionTier(value):
@@ -52,6 +55,10 @@ struct StatsFeature {
                 
             case .initializeRingActivitiesSummary:
                 state.ringActivitiesSummary = .init()
+                return .none
+
+            case .initializeAnalytics:
+                state.analytics = AnalyticsFeature.State()
                 return .none
                 
             case .initializeChildren:
@@ -110,12 +117,16 @@ struct StatsFeature {
                 return .none
                 
             case .view(.pullToRefresh):
-                return .merge(
+                var effects: [Effect<Action>] = [
                     .send(.trainingReadiness(.view(.refresh))),
                     .send(.summaryCard(.view(.refresh))),
                     .send(.ringActivitiesSummary(.view(.refresh))),
                     .send(.changeViewState(.success))
-                )
+                ]
+                if state.analytics != nil {
+                    effects.append(.send(.analytics(.view(.refresh))))
+                }
+                return .merge(effects)
                 
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())
@@ -142,6 +153,9 @@ struct StatsFeature {
                 
             case .ringActivitiesSummary(_):
                 return .none
+
+            case .analytics(_):
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -153,6 +167,9 @@ struct StatsFeature {
         }
         .ifLet(\.ringActivitiesSummary, action: \.ringActivitiesSummary) {
             RingActivitiesSummaryFeature()
+        }
+        .ifLet(\.analytics, action: \.analytics) {
+            AnalyticsFeature()
         }
     }
       
