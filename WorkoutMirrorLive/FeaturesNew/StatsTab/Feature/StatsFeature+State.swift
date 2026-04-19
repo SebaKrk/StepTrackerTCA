@@ -52,12 +52,15 @@ extension StatsFeature {
 
         /// Child feature responsible for training readiness calculations and display.
         var trainingReadiness: TrainingReadinessFeature.State?
-        
+
         /// Child feature providing daily/weekly metric summaries used in the main card UI.
         var summaryCard: HealthMetricSummaryCardFeature.State?
-        
+
         /// Child feature responsible for aggregating and presenting ring‑based activity data.
         var ringActivitiesSummary: RingActivitiesSummaryFeature.State?
+
+        /// Child feature for the Analytics tab — historical trends and performance analysis.
+        var analytics: AnalyticsFeature.State?
     }
     
 }

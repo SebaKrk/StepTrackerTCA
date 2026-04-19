@@ -42,6 +42,9 @@ extension StatsFeature {
         
         /// Initializes Activity ring summary
         case initializeRingActivitiesSummary
+
+        /// Initializes the Analytics child feature (lazy, on first picker switch)
+        case initializeAnalytics
         
         /// Start observing real-time health data updates
         case startObserving
@@ -99,7 +102,11 @@ extension StatsFeature {
         /// Forwards actions to the RingActivitiesSummaryFeature.
         /// Manages ring-based activity data and interactions within the stats screen.
         case ringActivitiesSummary(RingActivitiesSummaryFeature.Action)
-        
+
+        /// Forwards actions to the AnalyticsFeature.
+        /// Handles historical trends and performance analysis within the analytics tab.
+        case analytics(AnalyticsFeature.Action)
+
     }
     
 }
