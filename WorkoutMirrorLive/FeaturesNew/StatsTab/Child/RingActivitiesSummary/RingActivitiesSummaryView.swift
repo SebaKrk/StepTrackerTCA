@@ -119,6 +119,8 @@ struct RingActivitiesSummaryView: View {
                     .font(.title3)
                     .monospacedDigit()
                     .fontWeight(.semibold)
+                    .contentTransition(.numericText(value: Double(value)))
+                    .animation(.snappy(duration: 0.3), value: value)
                 Text(unit)
                     .font(.caption)
                     .foregroundStyle(.secondary)

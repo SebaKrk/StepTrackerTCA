@@ -30,8 +30,9 @@ struct StopwatchView: View {
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
         }
+        .styledGroupBox()
         .overlay {
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .stroke(Color.orange.opacity(0.3), lineWidth: 1)
         }
     }

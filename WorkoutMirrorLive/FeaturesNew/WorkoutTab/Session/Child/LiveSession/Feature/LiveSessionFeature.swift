@@ -18,6 +18,7 @@ struct LiveSessionFeature {
     @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.idleTimer) var idleTimer
     
     // MARK: - Reducer
     
@@ -112,8 +113,14 @@ struct LiveSessionFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                return .run { send in
+                return .run { [idleTimer] send in
+                    await idleTimer.setDisabled(true)
                     await send(.startWorkoutMetricsStream)
+                }
+
+            case .view(.viewDidDisappear):
+                return .run { [idleTimer] _ in
+                    await idleTimer.setDisabled(false)
                 }
                 
                 // MARK: - User Stopwatch Delegate

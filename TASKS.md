@@ -749,9 +749,17 @@
         - workoutTick pomijany na obu stronach (send + decode guard) — brak szumu co sekundę
 
 ### IOS-00081 Analytics Tab — chart animations & refactor
-    A: Chart drawing animations (mask left-to-right for lines, bottom-to-top for bars)
-    B: TCA Result pattern refactor — 1 send per .run in all 4 reducers
-    C: File split (Feature + State + Action + Model) + HKWorkoutActivityType.color to SharedModels
-    D: Selection dimming + annotation popup (StepWidget/RHR detail pattern)
-    E: Fix scroll jump and flicker on metric switch
-    F: Fix force-unwrap + stale selectedDataPoint on refresh
+        A: Chart drawing animations (mask left-to-right for lines, bottom-to-top for bars)
+        B: TCA Result pattern refactor — 1 send per .run in all 4 reducers
+        C: File split (Feature + State + Action + Model) + HKWorkoutActivityType.color to SharedModels
+        D: Selection dimming + annotation popup (StepWidget/RHR detail pattern)
+        E: Fix scroll jump and flicker on metric switch
+        F: Fix force-unwrap + stale selectedDataPoint on refresh
+    
+### IOS-00082 Workout Session — landscape redesign & Liquid Glass                                                                
+      - Fullscreen landscape layout z GeometryReader (75/25)    
+      - iOS 26 .glassEffect() na kartach metrycznych                                                                               
+      - Gradient strefy HR z czarnym tłem na dole   
+      - Dark mode wymuszony podczas sesji                                                                                          
+      - Fix pause/play — poprawna kolejność startWorkout() / .closeView
+      - Live Activity lock screen — dwukolumnowy layout z glass   

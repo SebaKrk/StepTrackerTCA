@@ -103,6 +103,8 @@ struct HealthMetricSummaryCardView: View {
                 Text(formatValue(data.currentValue, unit: data.unit))
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .contentTransition(.numericText(value: data.currentValue))
+                    .animation(.snappy(duration: 0.3), value: data.currentValue)
                 Text(data.unit)
                     .font(.caption)
                     .foregroundColor(.secondary)

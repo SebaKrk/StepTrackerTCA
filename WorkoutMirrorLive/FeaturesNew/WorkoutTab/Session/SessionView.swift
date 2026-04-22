@@ -10,28 +10,29 @@ import SwiftUI
 
 @ViewAction(for: SessionFeature.self)
 struct SessionView: View {
-    
+
     // MARK: - Properties
-    
+
     @Bindable var store: StoreOf<SessionFeature>
-    
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    private var isLandscape: Bool { verticalSizeClass == .compact }
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             rootView
-//                .ignoresSafeArea()
-//                .ignoresSafeArea(.keyboard, edges: [.top])
                 .ignoresSafeArea(.container, edges: .bottom)
                 .navigationTitle(store.sessionState.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarTitleDisplayMode(.inline)
-                .navigationBarHidden(store.sessionState == .countdown ? true : false)
+                .navigationBarHidden(isLandscape || store.sessionState == .countdown)
                 .onAppear {
                     send(.viewDidAppear)
                 }
                 .toolbar {
-                    toolbarButtons
+                    if !isLandscape { toolbarButtons }
                 }
                 .sheet(item: $store.scope(state: \.destination?.openHeartRateZoneInfo,
                                           action: \.destination.openHeartRateZoneInfo)) { store in
@@ -68,8 +69,9 @@ struct SessionView: View {
             state: \.live,
             action: \.live)
         )
+        .allowsHitTesting(!store.controls.isLocked)
         .safeAreaInset(edge: .bottom) {
-            controlsView
+            if !isLandscape { controlsView }
         }
         //.sheet(isPresented: $showPanel) {
         //    SessionControlsView()
@@ -104,6 +106,7 @@ struct SessionView: View {
                 } label: {
                     Image(systemName: "heart.text.clipboard")
                 }
+                .disabledWithOpacity(store.controls.isLocked)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -111,7 +114,8 @@ struct SessionView: View {
                 } label: {
                     Image(systemName: "timer")
                 }
-                .disabledWithOpacity(store.live.phaseStopwatch.isManagingPhase)
+                .tint(store.live.userStopwatch.isVisible ? .orange : nil)
+                .disabledWithOpacity(store.controls.isLocked || store.live.phaseStopwatch.isManagingPhase)
             }
         }
     }
@@ -119,7 +123,7 @@ struct SessionView: View {
     private var xMarkImage: some View {
         Image(systemName: "xmark")
     }
-    
+
 }
 
 // MARK: - Previews
@@ -148,5 +152,16 @@ import SharedModels
             )
         )
     }
+}
+
+#Preview("landscape — Threshold", traits: .landscapeLeft) {
+    var state = SessionFeature.State(sessionState: .session, selectedWorkout: .cross)
+    state.live.currentHeartRateZone = .threshold
+    state.live.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 168, activeEnergy: 520)
+    state.live.currentHeartRatePercentage = 85
+    state.live.sessionMaxHeartRate = 172
+    return SessionView(
+        store: Store(initialState: state) { SessionFeature() }
+    )
 }
 

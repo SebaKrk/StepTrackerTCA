@@ -22,6 +22,7 @@ struct PhasePanelView: View {
         } label: {
             panelLabel
         }
+        .styledGroupBox()
         .onAppear { send(.appeared) }
     }
 

@@ -22,19 +22,19 @@ struct WorkoutSessionLiveActivity: Widget {
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     heartRateBadge(context)
-                        .padding(.leading, 16)
+                        .padding(.leading, 4)
                 }
-                
+
                 DynamicIslandExpandedRegion(.trailing) {
                     zoneBadge(context)
-                        .padding(.trailing, 16)
+                        .padding(.trailing, 4)
                 }
-                
+
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(spacing: 8) {
+                    VStack(spacing: 6) {
                         percentageBadge(context)
-                            .padding(.top, 8)
-                        
+                            .padding(.top, 4)
+
                         HStack {
                             energyBadge(context)
                             Spacer()
@@ -43,8 +43,8 @@ struct WorkoutSessionLiveActivity: Widget {
                                 maxHeartRateBadge(context)
                             }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 8)
+                        .padding(.horizontal, 4)
+                        .padding(.bottom, 4)
                     }
                 }
                 
@@ -57,6 +57,7 @@ struct WorkoutSessionLiveActivity: Widget {
             }
             .keylineTint(context.state.heartRateZone.color)
         }
+        .contentMarginsDisabled()
     }
     
     // MARK: - Expanded Badges

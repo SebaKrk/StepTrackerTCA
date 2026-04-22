@@ -75,6 +75,9 @@ extension LiveSessionFeature {
 
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
+
+            /// Action triggered when the view disappears from the screen.
+            case viewDidDisappear
         }
     }
     

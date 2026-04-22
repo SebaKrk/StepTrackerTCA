@@ -1676,6 +1676,9 @@
         }
       }
     },
+    "Energy" : {
+
+    },
     "Energy Goal" : {
       "localizations" : {
         "pl" : {
