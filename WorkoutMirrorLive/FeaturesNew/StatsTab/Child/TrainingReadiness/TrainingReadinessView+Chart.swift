@@ -82,6 +82,8 @@ extension TrainingReadinessView {
             .background(color)
             .foregroundStyle(.white)
             .clipShape(Capsule())
+            .contentTransition(.numericText(value: Double(value)))
+            .animation(.snappy(duration: 0.3), value: value)
     }
     
 }

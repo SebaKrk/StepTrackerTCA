@@ -45,6 +45,11 @@ struct SessionFeature {
                 state.sessionState = value
 
                 if value == .session {
+                    // Safety net: set .running immediately so controls show pause.
+                    // On real device, workoutSessionStateStream() will confirm with
+                    // the actual HealthKit state. On simulator, HK never emits .running.
+                    state.controls.sessionState = .running
+
                     let mode = state.workoutMode
                     let initialState = WorkoutSessionActivityAttributes.ContentState(
                         heartRate: 0,

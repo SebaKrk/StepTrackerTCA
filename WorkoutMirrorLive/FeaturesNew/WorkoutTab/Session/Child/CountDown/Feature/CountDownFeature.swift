@@ -69,10 +69,10 @@ struct CountDownFeature {
                 return .send(.startWorkout)
                 
             case .startWorkout:
-                return .run { send in
-                    await send(.closeView)
-                    await client.startWorkout()
-                }
+                return .merge(
+                    .send(.closeView),
+                    .run { _ in await client.startWorkout() }
+                )
                 
                 
             // MARK: - View Actions

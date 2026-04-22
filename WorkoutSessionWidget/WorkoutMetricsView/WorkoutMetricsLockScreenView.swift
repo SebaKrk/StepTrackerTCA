@@ -23,7 +23,7 @@ struct WorkoutMetricsLockScreenView: View {
     // MARK: - Body
     
     var body: some View {
-        GroupBox {
+        HStack(spacing: 8) {
             VStack(spacing: 0) {
                 HStack(alignment: .center) {
                     heartRateView
@@ -34,13 +34,23 @@ struct WorkoutMetricsLockScreenView: View {
                 activeEnergyView
                 heartRateZoneDescriptionView
             }
-            .padding(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(context.state.heartRateZone.color.opacity(0.5), lineWidth: 2)
-            )
+            .padding(8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .glassEffect(in: RoundedRectangle(cornerRadius: 16))
+
+            VStack(spacing: 8) {
+                hrStatCard(
+                    title: "MAX HR",
+                    value: "\(context.state.maxHeartRate)"
+                )
+                hrStatCard(
+                    title: "AVG HR",
+                    value: "\(context.state.averageHeartRate)"
+                )
+            }
+            .frame(maxHeight: .infinity)
         }
-        .styledGroupBox()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     // MARK: SubView
@@ -93,6 +103,21 @@ struct WorkoutMetricsLockScreenView: View {
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
             .lineLimit(2)
+    }
+
+    private func hrStatCard(title: String, value: String) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.title2.bold().monospacedDigit())
+                .foregroundStyle(.primary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .glassEffect(in: RoundedRectangle(cornerRadius: 12))
     }
     
 }

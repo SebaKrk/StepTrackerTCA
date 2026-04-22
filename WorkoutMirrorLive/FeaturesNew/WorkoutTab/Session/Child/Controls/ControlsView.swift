@@ -41,7 +41,7 @@ struct ControlsView: View {
                     Spacer()
                 }
             }
-            if store.isExpanded {
+            if store.isExpanded && !store.isLocked {
                 endWorkoutButton
                     .padding(.horizontal,12)
             }
