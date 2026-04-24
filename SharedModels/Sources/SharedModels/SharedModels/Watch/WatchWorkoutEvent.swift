@@ -10,7 +10,7 @@ import Foundation
 /// Events exchanged between iPhone and Apple Watch via WatchConnectivity.
 ///
 /// **iPhone → Watch:** `workoutStarted`, `workoutPaused`, `workoutResumed`, `workoutEnded`, `workoutTick`, `maxHRUpdated`
-/// **Watch → iPhone:** `hrReading`
+/// **Watch → iPhone:** `hrReading`, `workoutSaved`
 public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
 
     /// iPhone notifies Watch that a workout has started.
@@ -54,4 +54,12 @@ public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
     /// Sent when the value becomes available after `workoutStarted` — Watch updates its
     /// zone calculation immediately on receipt.
     case maxHRUpdated(Int)
+
+    /// Watch notifies iPhone that `finishWorkout()` succeeded and the `HKWorkout`
+    /// is now persisted in HealthKit. iPhone can begin fetching the summary.
+    ///
+    /// Sent after `WatchWorkoutSessionClient.endSession()` completes successfully.
+    /// If this event is not received (e.g. Watch unreachable), iPhone falls back to
+    /// HealthKit polling after a timeout.
+    case workoutSaved
 }

@@ -1215,6 +1215,36 @@
         }
       }
     },
+    "Waiting for sensor..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oczekiwanie na sensor..."
+          }
+        }
+      }
+    },
+    "Heart rate data will appear shortly" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane tętna pojawią się wkrótce"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknij"
+          }
+        }
+      }
+    },
     "Coaching cues, scaling options..." : {
 
     },
@@ -1993,9 +2023,6 @@
         }
       }
     },
-    "Historia" : {
-
-    },
     "History" : {
       "localizations" : {
         "pl" : {
@@ -2233,6 +2260,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ładuje trasę"
+          }
+        }
+      }
+    },
+    "Loading summary..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ładowanie podsumowania..."
           }
         }
       }
@@ -3136,6 +3173,16 @@
         }
       }
     },
+    "Saving workout..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisywanie treningu..."
+          }
+        }
+      }
+    },
     "Scale" : {
       "localizations" : {
         "pl" : {
@@ -3877,6 +3924,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zobacz historie"
+          }
+        }
+      }
+    },
+    "Waiting for Apple Watch" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oczekiwanie na Apple Watch"
           }
         }
       }

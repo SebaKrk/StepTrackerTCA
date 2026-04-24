@@ -8,13 +8,16 @@
 import Foundation
 
 enum SummaryState {
-    
-    /// Indicates that the summary view is currently loading data.
+
+    /// Waiting for Watch to confirm that the workout has been saved to HealthKit.
+    case saving
+
+    /// Watch confirmed save — now polling HealthKit for the workout data.
     case loading
-    
+
     /// Indicates that the summary view has successfully loaded the workout data.
     case successfullyLoaded
-        
+
     /// Error has occurred when loading the view.
     case failed
 }

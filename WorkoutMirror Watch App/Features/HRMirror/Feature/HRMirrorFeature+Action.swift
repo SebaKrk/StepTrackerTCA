@@ -73,6 +73,16 @@ extension HRMirrorFeature {
         /// `HRMirrorFeature` has no other way to observe it.
         case sessionStateChanged(HKWorkoutSessionState)
 
+        // MARK: - Delegate
+
+        /// Delegate actions sent to the parent (`AppFeatureAW`).
+        case delegate(Delegate)
+
+        enum Delegate {
+            /// Workout has been saved to HealthKit and log transferred. Safe to dismiss.
+            case didFinishSaving
+        }
+
         // MARK: - View Actions
 
         /// Actions triggered directly by view lifecycle events.

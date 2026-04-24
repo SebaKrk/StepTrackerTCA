@@ -216,6 +216,7 @@ struct HRMirrorFeature {
 
             case .stop:
                 state.isPreparing = false
+                state.isSaving = true
                 return .merge(
                     .cancel(id: HRMirrorCancelID.hrQuery),
                     .cancel(id: HRMirrorCancelID.subSecondTimer),
@@ -223,13 +224,25 @@ struct HRMirrorFeature {
                     .cancel(id: HRMirrorCancelID.tabIndicatorTimer),
                     .cancel(id: HRMirrorCancelID.sessionStateStream),
                     .run { [watchWorkoutSessionClient = watchWorkoutSessionClient,
-                            watchClient = watchClient] _ in
+                            watchClient = watchClient, clock] send in
+                        let savingStart = ContinuousClock.now
                         await WorkoutFileLogger.shared.log("STOPPED — ending HealthKit session")
                         await watchWorkoutSessionClient.endSession()
+                        await WorkoutFileLogger.shared.log("NOTIFY — sending .workoutSaved to iPhone")
+                        await watchClient.sendWorkoutEvent(.workoutSaved)
                         await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
                         await watchClient.transferLogFile()
+                        // Ensure "Saving…" overlay is visible for at least 1.5s
+                        let elapsed = ContinuousClock.now - savingStart
+                        if elapsed < .seconds(1.5) {
+                            try? await clock.sleep(for: .seconds(1.5) - elapsed)
+                        }
+                        await send(.delegate(.didFinishSaving))
                     }
                 )
+
+            case .delegate:
+                return .none
 
             case .view(.onAppear):
                 return .none

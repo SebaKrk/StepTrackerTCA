@@ -159,15 +159,21 @@ struct SessionFeature {
                     }
 
                 } else if value == .summary {
-                    return .merge(
+                    state.summary.failureDebugInfo = "mode: \(state.workoutMode)"
+                    var effects: [Effect<Action>] = [
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
-                        .cancel(id: SessionWatchCancelID.watchEventStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
                         .cancel(id: SessionWatchCancelID.hrReadingTimeout),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop))))
-                    )
+                    ]
+                    // iPhone-standalone: iPhone saved the workout — skip .saving, go straight to polling.
+                    // Watch-primary: keep watchEventStream alive for .workoutSaved from Watch.
+                    if state.workoutMode == .iPhoneStandalone {
+                        effects.append(.send(.summary(.workoutSavedReceived)))
+                    }
+                    return .merge(effects)
                 }
                 return .none
 
@@ -300,7 +306,7 @@ struct SessionFeature {
                         await WorkoutFileLogger.shared.log("END WORKOUT — calling sessionClient.endWorkout()")
                         await sessionClient.endWorkout()
                         await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned (workout NOT yet saved)")
-                        await WorkoutFileLogger.shared.log("DONE")
+                        await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
                         await send(.sessionViewStateChange(.summary))
                     }
                 )
@@ -351,6 +357,10 @@ struct SessionFeature {
                     .run { [sessionClient] _ in sessionClient.resetWatchHeartRate() },
                     .send(.live(.resetHeartRate))
                 )
+
+            case .watchEventReceived(.workoutSaved):
+                guard state.sessionState == .summary else { return .none }
+                return .send(.summary(.workoutSavedReceived))
 
             case .watchEventReceived:
                 return .none

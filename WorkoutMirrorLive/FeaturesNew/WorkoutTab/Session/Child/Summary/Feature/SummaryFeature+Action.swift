@@ -27,6 +27,13 @@ extension SummaryFeature {
         /// Sets the training plan associated with this session. Called by `SessionFeature` on appear.
         case setTrainingSession(TrainingSession?)
 
+        /// Watch confirmed that `finishWorkout()` succeeded. Transitions from `.saving` to `.loading`
+        /// and begins polling HealthKit for the workout data.
+        case workoutSavedReceived
+
+        /// Timeout fired — Watch did not send `.workoutSaved` in time. Fall back to polling.
+        case workoutSavedTimeout
+
         // MARK: - View Actions
 
         case view(View)
@@ -42,6 +49,9 @@ extension SummaryFeature {
 
             ///
             case endWorkoutButtonTapped
+
+            /// Dismisses the summary screen from the failed state.
+            case closeButtonTapped
 
             /// Shows the discard confirmation alert.
             case discardWorkoutButtonTapped

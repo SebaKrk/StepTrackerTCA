@@ -43,12 +43,39 @@ struct HRMirrorView: View {
         }
         .toolbar(.hidden)
         .overlay {
-            if store.isPreparing {
+            if store.isSaving {
+                savingOverlay
+                    .transition(.opacity.animation(.easeInOut(duration: 0.4)))
+            } else if store.isPreparing {
                 preparingOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.4)))
             }
         }
         .animation(.easeInOut(duration: 0.4), value: store.isPreparing)
+        .animation(.easeInOut(duration: 0.4), value: store.isSaving)
+    }
+
+    // MARK: - Saving Overlay
+
+    private var savingOverlay: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack(spacing: 10) {
+                savingIcon
+                savingLabel
+            }
+        }
+    }
+
+    private var savingIcon: some View {
+        ProgressView()
+            .controlSize(.large)
+    }
+
+    private var savingLabel: some View {
+        Text(String(localized: "Saving…"))
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
     }
 
     // MARK: - Preparing Overlay

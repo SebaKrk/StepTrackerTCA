@@ -86,7 +86,8 @@ extension DefaultTrainingManager {
             // while we poll HealthKit for the new one.
             self.workout = nil
             let startDate = self.session?.startDate ?? date.addingTimeInterval(-3600)
-            Logger.trainingManager.info("handleWorkoutEndIOS — polling HealthKit for Watch workout")
+            let activityName = self.selectedWorkout.map { String(describing: $0) } ?? "nil"
+            Logger.trainingManager.info("handleWorkoutEndIOS — polling HealthKit for Watch workout (type: \(activityName), window: \(startDate)–\(date))")
 
             for attempt in 1...10 {
                 let delay: UInt64 = attempt == 1 ? 1_500 : 3_000
@@ -103,10 +104,23 @@ extension DefaultTrainingManager {
     }
 
     /// Queries HealthKit for a workout whose time window overlaps [start, end].
-    /// Returns the most recently created matching workout.
+    /// Returns the most recently ended matching workout.
+    ///
+    /// Filters by activity type when available to avoid returning a previous
+    /// workout that happens to fall in the same time window.
     private func fetchWorkoutNear(start: Date, end: Date) async -> HKWorkout? {
-        let predicate = HKQuery.predicateForSamples(withStart: start, end: end.addingTimeInterval(30))
-        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        let datePredicate = HKQuery.predicateForSamples(withStart: start, end: end.addingTimeInterval(60))
+
+        let predicate: NSPredicate
+        if let activityType = selectedWorkout {
+            let typePredicate = HKQuery.predicateForWorkouts(with: activityType)
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, typePredicate])
+        } else {
+            predicate = datePredicate
+        }
+
+        // Sort by endDate descending — the workout that just finished should be first.
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(
                 sampleType: .workoutType(),

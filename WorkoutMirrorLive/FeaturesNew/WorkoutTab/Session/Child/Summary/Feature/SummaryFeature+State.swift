@@ -16,7 +16,7 @@ extension SummaryFeature {
         // MARK: - Properties
 
         /// Current loading/display state of the summary screen.
-        var viewState: SummaryState = .loading
+        var viewState: SummaryState = .saving
 
         /// HealthKit workout data loaded after the session ends.
         var summary: WorkoutSummary? = nil
@@ -37,6 +37,9 @@ extension SummaryFeature {
 
         /// Counts how many times checkSummary has been attempted (for debug logging).
         var summaryRetryCount: Int = 0
+
+        /// Debug-only context string populated on failure (e.g. workout mode, last result).
+        var failureDebugInfo: String = ""
 
         // MARK: - Alert
 
