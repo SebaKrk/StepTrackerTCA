@@ -80,6 +80,13 @@ extension HRMirrorFeature {
         /// `WatchWorkoutSessionClient` to create the correct `HKWorkoutConfiguration`.
         var activityType: HKWorkoutActivityType
 
+        // MARK: - Saving
+
+        /// `true` from `.stop` until `endSession()` + log transfer completes.
+        ///
+        /// While `true` a full-screen "Saving…" overlay is shown.
+        var isSaving: Bool = false
+
         // MARK: - Lifecycle
 
         init(

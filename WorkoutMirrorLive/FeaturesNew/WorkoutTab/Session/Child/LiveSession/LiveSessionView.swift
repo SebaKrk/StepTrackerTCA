@@ -45,8 +45,49 @@ struct LiveSessionView: View {
         .background(Color.black.ignoresSafeArea())
         .preferredColorScheme(.dark)
         .animation(.easeInOut, value: store.currentHeartRateZone)
+        .overlay {
+            if store.isWaitingForData {
+                connectingOverlay
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.5), value: store.isWaitingForData)
         .onAppear { send(.viewDidAppear) }
         .onDisappear { send(.viewDidDisappear) }
+    }
+
+    // MARK: - Connecting Overlay
+
+    private var connectingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.85).ignoresSafeArea()
+            VStack(spacing: 12) {
+                connectingIcon
+                connectingTitle
+                connectingSubtitle
+            }
+        }
+    }
+
+    private var connectingIcon: some View {
+        Image(systemName: "applewatch.radiowaves.left.and.right")
+            .font(.system(size: 40))
+            .foregroundStyle(.secondary)
+            .symbolEffect(.pulse, options: .repeating)
+    }
+
+    private var connectingTitle: some View {
+        Text(String(localized: "Connecting..."))
+            .font(.headline)
+            .foregroundStyle(.primary)
+    }
+
+    private var connectingSubtitle: some View {
+        Text(String(localized: "Waiting for heart rate data from Apple Watch"))
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 32)
     }
 
     // MARK: - Portrait

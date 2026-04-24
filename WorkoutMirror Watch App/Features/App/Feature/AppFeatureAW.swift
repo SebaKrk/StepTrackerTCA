@@ -81,13 +81,7 @@ struct AppFeatureAW {
 
             case .watchEventReceived(.workoutEnded):
                 Logger.appAW.info("watchEventReceived: .workoutEnded — stopping HRMirrorFeature")
-                return .concatenate(
-                    .send(.hrMirror(.presented(.stop))),
-                    .run { send in
-                        try? await Task.sleep(for: .milliseconds(300))
-                        await send(.dismissHRMirror)
-                    }
-                )
+                return .send(.hrMirror(.presented(.stop)))
 
             case .dismissHRMirror:
                 Logger.appAW.info("dismissHRMirror — tearing down HRMirrorFeature")
@@ -102,9 +96,17 @@ struct AppFeatureAW {
                 state.hrMirror?.maxHeartRate = maxHR
                 return .none
 
+            case .watchEventReceived(.workoutSaved):
+                // Watch-originated — not relevant on the Watch side.
+                return .none
+
             case .watchEventReceived(.hrReading):
                 // iPhone-originated HR readings are not relevant on the Watch side.
                 return .none
+
+            case .hrMirror(.presented(.delegate(.didFinishSaving))):
+                Logger.appAW.info("didFinishSaving — dismissing HRMirrorFeature")
+                return .send(.dismissHRMirror)
 
             // MARK: - View Actions
 

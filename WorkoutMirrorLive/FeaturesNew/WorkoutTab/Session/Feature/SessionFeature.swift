@@ -159,9 +159,11 @@ struct SessionFeature {
                     }
 
                 } else if value == .summary {
+                    state.summary.failureDebugInfo = "mode: \(state.workoutMode)"
+                    // Keep watchEventStream alive — we need .workoutSaved from Watch.
+                    // It will be cancelled when SessionFeature is dismissed.
                     return .merge(
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
-                        .cancel(id: SessionWatchCancelID.watchEventStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
                         .cancel(id: SessionWatchCancelID.hrReadingTimeout),
@@ -300,7 +302,7 @@ struct SessionFeature {
                         await WorkoutFileLogger.shared.log("END WORKOUT — calling sessionClient.endWorkout()")
                         await sessionClient.endWorkout()
                         await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned (workout NOT yet saved)")
-                        await WorkoutFileLogger.shared.log("DONE")
+                        await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
                         await send(.sessionViewStateChange(.summary))
                     }
                 )
@@ -351,6 +353,10 @@ struct SessionFeature {
                     .run { [sessionClient] _ in sessionClient.resetWatchHeartRate() },
                     .send(.live(.resetHeartRate))
                 )
+
+            case .watchEventReceived(.workoutSaved):
+                guard state.sessionState == .summary else { return .none }
+                return .send(.summary(.workoutSavedReceived))
 
             case .watchEventReceived:
                 return .none

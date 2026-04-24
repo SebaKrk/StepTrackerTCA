@@ -29,6 +29,8 @@ struct SummaryView: View {
     var body: some View {
         Group {
             switch store.viewState {
+            case .saving:
+                savingView
             case .loading:
                 loadingView
             case .successfullyLoaded:
@@ -42,12 +44,29 @@ struct SummaryView: View {
         }
     }
     
+    // MARK: - Saving
+
+    private var savingView: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            ProgressView()
+                .controlSize(.large)
+            Text(String(localized: "Saving workout..."))
+                .font(.headline)
+            Text(String(localized: "Waiting for Apple Watch"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .transition(.opacity)
+    }
+
     // MARK: - Loading
-    
+
     private var loadingView: some View {
         VStack {
             Spacer()
-            ProgressView("Saving workout")
+            ProgressView(String(localized: "Loading summary..."))
             Spacer()
         }
         .transition(.opacity)
@@ -56,11 +75,30 @@ struct SummaryView: View {
     // MARK: - Failed
 
     private var failedView: some View {
-        ContentUnavailableView(
-            String(localized: "Could not load summary"),
-            systemImage: "exclamationmark.triangle",
-            description: Text("Something went wrong while saving your workout.")
-        )
+        ContentUnavailableView {
+            Label(String(localized: "Could not load summary"), systemImage: "exclamationmark.triangle")
+        } description: {
+            VStack(spacing: 8) {
+                Text("Something went wrong while saving your workout.")
+                #if DEBUG
+                Text(store.failureDebugInfo)
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.tertiary)
+                    .multilineTextAlignment(.center)
+                #endif
+            }
+        } actions: {
+            closeButton
+        }
+    }
+
+    private var closeButton: some View {
+        Button {
+            send(.closeButtonTapped)
+        } label: {
+            Text(String(localized: "Close"))
+        }
+        .buttonStyle(.borderedProminent)
     }
 
     // MARK: - Summary
@@ -339,7 +377,10 @@ extension TimeInterval {
 // MARK: - Preview
 
 #Preview("failed") {
-    SummaryView(store: Store(initialState: SummaryFeature.State(viewState: .failed)) {
+    var state = SummaryFeature.State(viewState: .failed)
+    state.summaryRetryCount = 20
+    state.failureDebugInfo = "mode: watchPrimary, workout: nil, attempts: 20, metrics: WorkoutMetrics(avg: 145, hr: 0, energy: 520)"
+    return SummaryView(store: Store(initialState: state) {
         SummaryFeature()
     } withDependencies: {
         $0.sessionClient.getWorkoutSummary = {
@@ -348,8 +389,14 @@ extension TimeInterval {
     })
 }
 
-#Preview("loading") {
+#Preview("saving") {
     SummaryView(store: Store(initialState: SummaryFeature.State(), reducer: {
+        SummaryFeature()
+    }))
+}
+
+#Preview("loading") {
+    SummaryView(store: Store(initialState: SummaryFeature.State(viewState: .loading), reducer: {
         SummaryFeature()
     }))
 }

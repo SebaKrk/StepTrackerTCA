@@ -49,6 +49,25 @@ struct SummaryFeature {
                 state.showNotes = Array(repeating: false, count: workouts.count)
                 return .none
 
+            case .workoutSavedReceived:
+                guard state.viewState == .saving else { return .none }
+                return .merge(
+                    .cancel(id: SummaryFeatureCancelID.savingTimeout),
+                    .run { send in
+                        await WorkoutFileLogger.shared.log("SUMMARY — .workoutSaved received from Watch, starting poll")
+                        await send(.changeViewState(.loading))
+                        await send(.checkSummary)
+                    }
+                )
+
+            case .workoutSavedTimeout:
+                guard state.viewState == .saving else { return .none }
+                return .run { send in
+                    await WorkoutFileLogger.shared.log("SUMMARY — .workoutSaved timeout (10s), falling back to poll")
+                    await send(.changeViewState(.loading))
+                    await send(.checkSummary)
+                }
+
             case let .summaryLoaded(summary):
                 state.summary = summary
                 let resultLog = summary.workout.map { "found: \($0.uuid)" } ?? "nil"
@@ -61,7 +80,10 @@ struct SummaryFeature {
                     )
                 } else if state.summaryRetryCount >= 20 {
                     state.viewState = .failed
-                    return .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog) → giving up after 20 attempts") }
+                    state.failureDebugInfo += ", workout: \(resultLog), attempts: \(state.summaryRetryCount), metrics: \(summary.metrics)"
+                    return .run { [debugInfo = state.failureDebugInfo] _ in
+                        await WorkoutFileLogger.shared.log("SUMMARY FAILED — \(debugInfo)")
+                    }
                 } else {
                     state.viewState = .loading
                     return .merge(
@@ -78,8 +100,18 @@ struct SummaryFeature {
 
             case .view(.viewDidAppear):
                 state.summaryRetryCount = 0
+                state.viewState = .saving
                 return .run { send in
-                    await send(.checkSummary)
+                    try? await Task.sleep(for: .seconds(10))
+                    await send(.workoutSavedTimeout)
+                }
+                .cancellable(id: SummaryFeatureCancelID.savingTimeout, cancelInFlight: true)
+
+            case .view(.closeButtonTapped):
+                let retryCount = state.summaryRetryCount
+                return .run { _ in
+                    await WorkoutFileLogger.shared.log("SUMMARY CLOSE — user dismissed failed view after \(retryCount) attempts")
+                    await self.dismiss()
                 }
 
             case .view(.endWorkoutButtonTapped):
@@ -154,7 +186,8 @@ struct SummaryFeature {
             case .view(.viewDidDisappear):
                 return .merge(
                     .cancel(id: SummaryFeatureCancelID.sessionStateListener),
-                    .cancel(id: SummaryFeatureCancelID.retry)
+                    .cancel(id: SummaryFeatureCancelID.retry),
+                    .cancel(id: SummaryFeatureCancelID.savingTimeout)
                 )
             }
         }

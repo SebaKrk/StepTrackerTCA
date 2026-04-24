@@ -39,13 +39,14 @@ struct WorkoutPlanScoreView: View {
     // MARK: - SubView
     
     private var loadingView: some View {
-        HStack {
-            Text("Historia")
-            Spacer()
-            ProgressView()
+        GroupBox {
+            HStack {
+                Text(String(localized: "History"))
+                Spacer()
+                ProgressView()
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding()
+        .styledGroupBox()
     }
 
     private func historyButton(count: Int) -> some View {
@@ -62,18 +63,20 @@ struct WorkoutPlanScoreView: View {
     }
 
     private func historyButtonRow(count: Int) -> some View {
-        HStack {
-            Text(String(localized: "History"))
-                .fontWeight(.semibold)
-            Spacer()
-            Text("\(count)")
-                .foregroundStyle(.secondary)
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+        GroupBox {
+            HStack {
+                Text(String(localized: "History"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text("\(count)")
+                    .foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
-        .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .styledGroupBox()
     }
 
     private var historyDescription: some View {

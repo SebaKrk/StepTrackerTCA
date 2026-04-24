@@ -30,6 +30,16 @@
         }
       }
     },
+    "Saving…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisywanie…"
+          }
+        }
+      }
+    },
     "Scanning…" : {
       "localizations" : {
         "pl" : {
