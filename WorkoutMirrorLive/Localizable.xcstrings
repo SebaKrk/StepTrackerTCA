@@ -1215,22 +1215,22 @@
         }
       }
     },
-    "Connecting..." : {
+    "Waiting for sensor..." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Łączenie..."
+            "value" : "Oczekiwanie na sensor..."
           }
         }
       }
     },
-    "Waiting for heart rate data from Apple Watch" : {
+    "Heart rate data will appear shortly" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oczekiwanie na dane tętna z Apple Watch"
+            "value" : "Dane tętna pojawią się wkrótce"
           }
         }
       }

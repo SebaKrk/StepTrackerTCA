@@ -70,20 +70,20 @@ struct LiveSessionView: View {
     }
 
     private var connectingIcon: some View {
-        Image(systemName: "applewatch.radiowaves.left.and.right")
+        Image(systemName: "heart.fill")
             .font(.system(size: 40))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.pink)
             .symbolEffect(.pulse, options: .repeating)
     }
 
     private var connectingTitle: some View {
-        Text(String(localized: "Connecting..."))
+        Text(String(localized: "Waiting for sensor..."))
             .font(.headline)
             .foregroundStyle(.primary)
     }
 
     private var connectingSubtitle: some View {
-        Text(String(localized: "Waiting for heart rate data from Apple Watch"))
+        Text(String(localized: "Heart rate data will appear shortly"))
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)

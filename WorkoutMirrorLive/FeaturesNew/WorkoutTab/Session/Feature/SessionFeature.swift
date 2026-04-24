@@ -160,16 +160,20 @@ struct SessionFeature {
 
                 } else if value == .summary {
                     state.summary.failureDebugInfo = "mode: \(state.workoutMode)"
-                    // Keep watchEventStream alive — we need .workoutSaved from Watch.
-                    // It will be cancelled when SessionFeature is dismissed.
-                    return .merge(
+                    var effects: [Effect<Action>] = [
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
                         .cancel(id: SessionWatchCancelID.hrReadingTimeout),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop))))
-                    )
+                    ]
+                    // iPhone-standalone: iPhone saved the workout — skip .saving, go straight to polling.
+                    // Watch-primary: keep watchEventStream alive for .workoutSaved from Watch.
+                    if state.workoutMode == .iPhoneStandalone {
+                        effects.append(.send(.summary(.workoutSavedReceived)))
+                    }
+                    return .merge(effects)
                 }
                 return .none
 
