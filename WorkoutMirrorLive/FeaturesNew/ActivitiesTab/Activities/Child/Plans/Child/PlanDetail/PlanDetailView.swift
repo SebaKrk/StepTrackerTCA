@@ -129,8 +129,8 @@ struct PlanDetailView: View {
             trainingSessionId: session.id,
             hkWorkoutId: UUID(),
             results: [
-                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", score: "80kg", note: ""),
-                WorkoutSessionResult(name: "WOD 1", description: "", score: "11:43", note: "ciężkie")
+                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", scoreResult: .forLoad(weight: 80), note: ""),
+                WorkoutSessionResult(name: "WOD 1", description: "", scoreResult: .custom("11:43"), note: "ciężkie")
             ]
         ),
         WorkoutPlanScore(
@@ -138,8 +138,8 @@ struct PlanDetailView: View {
             trainingSessionId: session.id,
             hkWorkoutId: UUID(),
             results: [
-                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", score: "75kg", note: ""),
-                WorkoutSessionResult(name: "WOD 1", description: "", score: "13:21", note: "")
+                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", scoreResult: .forLoad(weight: 75), note: ""),
+                WorkoutSessionResult(name: "WOD 1", description: "", scoreResult: .custom("13:21"), note: "")
             ]
         )
     ]

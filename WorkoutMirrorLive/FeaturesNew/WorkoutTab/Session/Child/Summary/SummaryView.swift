@@ -14,6 +14,8 @@ import SharedModels
 private enum FocusField: Hashable {
     case score(Int)
     case note(Int)
+    case exerciseReps(wodIndex: Int, exerciseIndex: Int)
+    case exerciseWeight(wodIndex: Int, exerciseIndex: Int)
 }
 
 @ViewAction(for: SummaryFeature.self)
@@ -97,8 +99,11 @@ struct SummaryView: View {
             send(.closeButtonTapped)
         } label: {
             Text(String(localized: "Close"))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.bordered)
+        .tint(.gray)
     }
 
     // MARK: - Summary
@@ -121,7 +126,7 @@ struct SummaryView: View {
                 .contentShape(Rectangle())
                 .onTapGesture { focusedField = nil }
             }
-            .contentMargins(.bottom, 40, for: .scrollContent)
+            .contentMargins(.bottom, 80, for: .scrollContent)
             .scrollDismissesKeyboard(.interactively)
             .task(id: focusedField) {
                 guard let field = focusedField else { return }
@@ -143,6 +148,9 @@ struct SummaryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
         .alert(store: store.scope(state: \.$discardAlert, action: \.alert))
+        .sheet(item: $store.scope(state: \.setInput, action: \.setInput)) { store in
+            SetInputView(store: store)
+        }
     }
     
     // MARK: - Header Card
@@ -252,7 +260,7 @@ struct SummaryView: View {
 
     private var wodResultsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Results")
+            Text(String(localized: "Results"))
                 .font(.headline)
                 .padding(.horizontal, 4)
 
@@ -271,19 +279,20 @@ struct SummaryView: View {
                             }
 
                             Divider().padding(.leading)
-                            TextField("Enter score...", text: Binding(
-                                get: { store.resultInputs[index].score },
-                                set: { send(.updateScore(index, $0)) }
-                            ), axis: .vertical)
-                            .lineLimit(1...4)
-                            .focused($focusedField, equals: .score(index))
-                            .id(FocusField.score(index))
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 10)
+                            wodScoreInput(for: index)
+
+                            if !store.resultInputs[index].exercises.isEmpty {
+                                Divider().padding(.leading)
+                                if index < store.exercisesEdited.count && store.exercisesEdited[index] {
+                                    exerciseResultsTable(wodIndex: index)
+                                } else {
+                                    editExercisesButton(wodIndex: index)
+                                }
+                            }
 
                             Divider().padding(.leading)
                             if index < store.showNotes.count && store.showNotes[index] {
-                                TextField("Add note...", text: Binding(
+                                TextField(String(localized: "Add note..."), text: Binding(
                                     get: { store.resultInputs[index].note },
                                     set: { send(.updateNote(index, $0)) }
                                 ), axis: .vertical)
@@ -294,17 +303,10 @@ struct SummaryView: View {
                                 .padding(.vertical, 10)
                             } else {
                                 editorRow {
-                                    Text("Note")
+                                    Text(String(localized: "Note"))
                                         .foregroundStyle(.secondary)
                                     Spacer()
-                                    Button {
-                                        send(.toggleNote(index))
-                                    } label: {
-                                        Image(systemName: "plus.circle")
-                                            .font(.title3)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .buttonStyle(.plain)
+                                    addNoteButton(index: index)
                                 }
                             }
                         }
@@ -328,6 +330,232 @@ struct SummaryView: View {
                 .styledGroupBox()
             }
         }
+    }
+
+    // MARK: - WOD Score Input
+
+    @ViewBuilder
+    private func wodScoreInput(for index: Int) -> some View {
+        HStack {
+            Text(String(localized: "Score:"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            TextField(scorePlaceholder(for: index), text: Binding(
+                get: {
+                    let score = store.resultInputs[index].scoreResult
+                    if case .completed = score { return "" }
+                    return score.displayString
+                },
+                set: { send(.updateScore(index, $0)) }
+            ), axis: .vertical)
+            .lineLimit(1...4)
+            .focused($focusedField, equals: .score(index))
+            .id(FocusField.score(index))
+        }
+        .padding(.horizontal, 4)
+        .padding(.vertical, 10)
+    }
+
+    /// Context-aware placeholder for the score field based on WOD type.
+    private func scorePlaceholder(for index: Int) -> String {
+        let result = store.resultInputs[index]
+        let hasStrengthSets = result.exercises.contains { $0.sets != nil }
+
+        if hasStrengthSets {
+            return String(localized: "Heaviest set (kg)")
+        }
+
+        switch result.scoreResult {
+        case .amrap:   return String(localized: "Rounds + reps")
+        case .forTime: return String(localized: "Time (mm:ss)")
+        case .timeCap: return String(localized: "Remaining reps")
+        case .forLoad: return String(localized: "Max weight (kg)")
+        case .forReps: return String(localized: "Total reps")
+        default:       return String(localized: "Enter score...")
+        }
+    }
+
+    // MARK: - Add Note Button
+
+    private func addNoteButton(index: Int) -> some View {
+        Button {
+            send(.toggleNote(index))
+        } label: {
+            Image(systemName: "plus.circle")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Edit Exercises Button
+
+    private func editExercisesButton(wodIndex: Int) -> some View {
+        Button {
+            send(.openSetInput(wodIndex: wodIndex, exerciseIndex: 0))
+        } label: {
+            editorRow {
+                Text(String(localized: "Log results"))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Image(systemName: "chevron.right.circle")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Exercise Input Row
+
+    private func exerciseInputRow(wodIndex: Int, exerciseIndex: Int) -> some View {
+        let exercise = store.resultInputs[wodIndex].exercises[exerciseIndex]
+
+        return Button {
+            send(.openSetInput(wodIndex: wodIndex, exerciseIndex: exerciseIndex))
+        } label: {
+            GroupBox {
+                VStack(alignment: .leading, spacing: 6) {
+                    exerciseHeader(exercise: exercise)
+
+                    if let reps = exercise.plannedReps {
+                        Text(String(localized: "Plan: \(reps)"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    exerciseValueSummary(exercise: exercise)
+                }
+            }
+            .styledGroupBox()
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Exercise Header
+
+    private func exerciseHeader(exercise: ExerciseLogInput) -> some View {
+        HStack {
+            Text(exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? String(localized: "Unknown"))
+                .font(.subheadline.weight(.semibold))
+            Spacer()
+            if let weight = exercise.plannedWeight {
+                Text("\(Int(weight)) kg")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    // MARK: - Exercise Value Summary
+
+    /// Shows a compact read-only summary of exercise values.
+    /// Pre-filled from plan — user doesn't need to change anything unless they want to.
+    @ViewBuilder
+    private func exerciseValueSummary(exercise: ExerciseLogInput) -> some View {
+        if let sets = exercise.sets, !sets.isEmpty {
+            // Per-set: "10×40 · 10×45 · 10×50"
+            if sets.contains(where: { $0.weight != nil }) {
+                exerciseSetsSummary(sets: sets)
+            } else {
+                Text(String(localized: "No weights logged"))
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+        } else {
+            // Simple: "21-15-9 · 43 kg"
+            HStack(spacing: 4) {
+                if let reps = exercise.actualReps {
+                    Text(reps)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                if let weight = exercise.actualWeight {
+                    Text("· \(Int(weight)) kg")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    // MARK: - Exercise Sets (Strength)
+
+    /// Compact read-only summary: "10×40 · 10×45 · 10×50 · 10×55 · 10×60"
+    private func exerciseSetsSummary(sets: [SetEntry]) -> some View {
+        let summary = sets.map { entry in
+            let w = entry.weight.map { "\(Int($0))" } ?? "BW"
+            return "\(entry.reps)×\(w)"
+        }.joined(separator: " · ")
+
+        return Text(summary)
+            .font(.caption.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Button that opens the set input sheet.
+    private func logSetsButton(wodIndex: Int, exerciseIndex: Int) -> some View {
+        let hasData = store.resultInputs[wodIndex].exercises[exerciseIndex].sets?.contains { $0.weight != nil } ?? false
+
+        return Button {
+            send(.openSetInput(wodIndex: wodIndex, exerciseIndex: exerciseIndex))
+        } label: {
+            HStack {
+                Image(systemName: hasData ? "pencil" : "plus.circle")
+                Text(String(localized: hasData ? "Edit sets" : "Log sets"))
+            }
+            .font(.subheadline)
+        }
+    }
+
+    // MARK: - Exercise Results Table (read-only, after edit)
+
+    /// Returns `true` if at least one exercise in this WOD has user-entered data.
+    /// Read-only table showing entered exercise data. Tappable to re-edit.
+    private func exerciseResultsTable(wodIndex: Int) -> some View {
+        Button {
+            send(.openSetInput(wodIndex: wodIndex, exerciseIndex: 0))
+        } label: {
+            VStack(spacing: 0) {
+                ForEach(Array(store.resultInputs[wodIndex].exercises.enumerated()), id: \.offset) { _, exercise in
+                    exerciseResultRow(exercise: exercise)
+                    if exercise.id != store.resultInputs[wodIndex].exercises.last?.id {
+                        Divider().padding(.leading, 4)
+                    }
+                }
+            }
+            .padding(.horizontal, 4)
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func exerciseResultRow(exercise: ExerciseLogInput) -> some View {
+        HStack {
+            Text(exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? "")
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+            Spacer()
+            if let sets = exercise.sets, !sets.isEmpty {
+                Text(sets.compactMap { entry in
+                    let w = entry.weight.map { "\(Int($0))" } ?? "-"
+                    return "\(entry.reps)×\(w)"
+                }.joined(separator: " · "))
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+            } else if let reps = exercise.actualReps {
+                HStack(spacing: 4) {
+                    Text(reps)
+                    if let w = exercise.actualWeight {
+                        Text("× \(Int(w))kg")
+                    }
+                }
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     // MARK: - Helpers
@@ -429,6 +657,143 @@ extension TimeInterval {
             SummaryFeature()
         } withDependencies: {
             $0.sessionClient.getWorkoutSummary = { summary }
+        })
+    }
+}
+
+#Preview("Monday — AMRAP + Strength") {
+    let workout = HKWorkout(activityType: .crossTraining, start: Date().addingTimeInterval(-3600), end: Date())
+    let summary = WorkoutSummary(workout: workout, metrics: WorkoutMetrics(averageHeartRate: 155, heartRate: 172, activeEnergy: 580))
+    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+    state.summary = summary
+    state.resultInputs = [
+        WorkoutSessionResult(
+            name: "WOD",
+            description: "AMRAP 25': 3 Ring Muscle-ups or 9 Pull-ups, 8 Thrusters @50/35kg, 17 Cal Row",
+            scoreResult: .amrap(rounds: 6, extraReps: 14),
+            exercises: [
+                ExerciseLogInput(
+                    exerciseType: .pullUps,
+                    category: .gymnastics,
+                    target: .reps(9),
+                    plannedReps: "9",
+                    actualReps: "9"
+                ),
+                ExerciseLogInput(
+                    exerciseType: .thrusters,
+                    category: .olympicLifting,
+                    target: .reps(8),
+                    plannedReps: "8",
+                    plannedWeight: 50,
+                    actualWeight: 50,
+                    actualReps: "8"
+                ),
+                ExerciseLogInput(
+                    exerciseType: .rowing,
+                    category: .cardio,
+                    target: .calories(17),
+                    plannedReps: "17 cal",
+                    actualReps: "17"
+                ),
+            ]
+        ),
+        WorkoutSessionResult(
+            name: "Strength",
+            description: "5 sets for load: 10 Close-Grip Bench Press",
+            scoreResult: .forLoad(weight: 60),
+            exercises: [
+                ExerciseLogInput(
+                    exerciseType: .benchPress,
+                    category: .strength,
+                    target: .reps(10),
+                    plannedReps: "10-10-10-10-10",
+                    sets: [
+                        SetEntry(reps: 10, weight: 40),
+                        SetEntry(reps: 10, weight: 45),
+                        SetEntry(reps: 10, weight: 50),
+                        SetEntry(reps: 10, weight: 55),
+                        SetEntry(reps: 10, weight: 60),
+                    ]
+                ),
+            ]
+        ),
+    ]
+    state.showResults = [true, true]
+    state.showNotes = [false, false]
+    return NavigationStack {
+        SummaryView(store: Store(initialState: state) {
+            EmptyReducer()
+        })
+    }
+}
+
+#Preview("CrossFit — FOR TIME") {
+    let workout = HKWorkout(activityType: .crossTraining, start: Date().addingTimeInterval(-2400), end: Date())
+    let summary = WorkoutSummary(workout: workout, metrics: WorkoutMetrics(averageHeartRate: 165, heartRate: 178, activeEnergy: 620))
+    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+    state.summary = summary
+    state.resultInputs = [
+        WorkoutSessionResult(
+            name: "WOD 1",
+            description: "FOR TIME TC 15': 21-15-9 Thrusters 43/30kg + Burpees + T2B",
+            scoreResult: .forTime(time: 872),
+            exercises: [
+                ExerciseLogInput(exerciseType: .thrusters, category: .olympicLifting, plannedReps: "21-15-9", plannedWeight: 43, actualWeight: 43, actualReps: "21-15-9", isPR: true),
+                ExerciseLogInput(exerciseType: .burpees, category: .mixed, plannedReps: "21-15-9", actualReps: "21-15-9"),
+                ExerciseLogInput(exerciseType: .toesToBar, category: .gymnastics, plannedReps: "21-15-9", actualReps: "21-15-9"),
+            ]
+        ),
+        WorkoutSessionResult(
+            name: "WOD 2",
+            description: "FOR TIME: 50 Wall Balls 9kg + 30 Box Jumps + 20 C&J 60/40kg",
+            scoreResult: .timeCap(capSeconds: 900, remainingReps: 12),
+            exercises: [
+                ExerciseLogInput(exerciseType: .wallBalls, category: .mixed, plannedReps: "50", plannedWeight: 9, actualWeight: 9, actualReps: "50"),
+                ExerciseLogInput(exerciseType: .boxJumps, category: .mixed, plannedReps: "30", actualReps: "30"),
+                ExerciseLogInput(exerciseType: .cleanAndJerk, category: .olympicLifting, plannedReps: "20", plannedWeight: 60, actualWeight: 60, actualReps: "8", scaling: .rx),
+            ]
+        ),
+    ]
+    state.showResults = [true, true]
+    state.showNotes = [false, false]
+    return NavigationStack {
+        SummaryView(store: Store(initialState: state) {
+            EmptyReducer()
+        })
+    }
+}
+
+#Preview("CrossFit — AMRAP + EMOM") {
+    let workout = HKWorkout(activityType: .crossTraining, start: Date().addingTimeInterval(-3000), end: Date())
+    let summary = WorkoutSummary(workout: workout, metrics: WorkoutMetrics(averageHeartRate: 158, heartRate: 172, activeEnergy: 550))
+    var state = SummaryFeature.State(viewState: .successfullyLoaded)
+    state.summary = summary
+    state.resultInputs = [
+        WorkoutSessionResult(
+            name: "EMOM 10'",
+            description: "EMOM 10min: 3 Power Clean 70/50kg + 6 Push-ups",
+            scoreResult: .completed,
+            exercises: [
+                ExerciseLogInput(exerciseType: .powerClean, category: .olympicLifting, plannedReps: "3 per min", plannedWeight: 70, actualWeight: 70, actualReps: "3 per min"),
+                ExerciseLogInput(exerciseType: .pushUps, category: .gymnastics, plannedReps: "6 per min", actualReps: "6 per min"),
+            ]
+        ),
+        WorkoutSessionResult(
+            name: "WOD",
+            description: "AMRAP 15': 5 HSPU, 10 KB Swing 24/16kg, 15 Cal Row",
+            scoreResult: .amrap(rounds: 6, extraReps: 8),
+            exercises: [
+                ExerciseLogInput(exerciseType: .handstandPushUps, category: .gymnastics, plannedReps: "5", actualReps: "5"),
+                ExerciseLogInput(exerciseType: .kettlebellSwing, category: .strength, plannedReps: "10", plannedWeight: 24, actualWeight: 24, actualReps: "10"),
+                ExerciseLogInput(exerciseType: .rowing, category: .cardio, plannedReps: "15 cal", actualReps: "15 cal"),
+            ]
+        ),
+    ]
+    state.showResults = [true, true]
+    state.showNotes = [false, false]
+    return NavigationStack {
+        SummaryView(store: Store(initialState: state) {
+            EmptyReducer()
         })
     }
 }

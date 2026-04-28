@@ -763,3 +763,5 @@
       - Dark mode wymuszony podczas sesji                                                                                          
       - Fix pause/play — poprawna kolejność startWorkout() / .closeView
       - Live Activity lock screen — dwukolumnowy layout z glass   
+
+### IOS-0083 Exercise-Analytics-plan

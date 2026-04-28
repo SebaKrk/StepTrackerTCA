@@ -227,53 +227,27 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         }
     }
 
-    public var category: WorkoutCategoryNew {
+    public var category: MovementCategory {
         switch self {
         case .deadlift, .backSquat, .frontSquat, .benchPress, .shoulderPress, .overheadSquat:
             return .strength
-        case .snatch, .cleanAndJerk, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch:
-            return .weightlifting
-        case .pullUps, .pushUps, .burpees, .airSquat, .boxJumps, .doubleUnders, .toesToBar, .sitUps:
-            return .crossfit
-        case .running, .rowing, .cycling, .swimming:
-            return .cardio
-        case .kettlebellSwing, .kettlebellClean, .kettlebellSnatch, .kettlebellPushPress, .turkishGetUp:
-            return .kettlebell
-        case .handstandPushUps, .barMuscleUps, .ringMuscleUps, .pistolSquats, .handstandWalk, .ringDips, .ropeClimb:
+        case .snatch, .cleanAndJerk, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch, .thrusters:
+            return .olympicLifting
+        case .pullUps, .pushUps, .toesToBar, .sitUps, .handstandPushUps, .barMuscleUps, .ringMuscleUps,
+             .pistolSquats, .handstandWalk, .ringDips, .ropeClimb:
             return .gymnastics
-        case .wallBalls, .thrusters, .devilPress, .burpeeBoxJumps:
-            return .crossfit
-        case .dumbbellSnatch, .dumbbellClean, .dumbbellCleanAndJerk:
-            return .weightlifting
-        case .assaultBike, .skiErg:
+        case .running, .rowing, .cycling, .swimming, .assaultBike, .skiErg:
             return .cardio
-        case .lunges:
-            return .other
+        case .burpees, .airSquat, .boxJumps, .doubleUnders, .wallBalls, .devilPress, .burpeeBoxJumps, .lunges:
+            return .mixed
+        case .kettlebellSwing, .kettlebellClean, .kettlebellSnatch, .turkishGetUp:
+            return .strength
+        case .kettlebellPushPress:
+            return .olympicLifting
+        case .dumbbellSnatch, .dumbbellClean, .dumbbellCleanAndJerk:
+            return .olympicLifting
         case .unknown:
-            return .other
-        }
-    }
-}
-
-// MARK: - Workout Category
-public enum WorkoutCategoryNew: Sendable {
-    case strength
-    case weightlifting
-    case crossfit
-    case cardio
-    case kettlebell
-    case gymnastics
-    case other
-
-    public var displayName: String {
-        switch self {
-        case .strength: return "Strength"
-        case .weightlifting: return "Weightlifting"
-        case .crossfit: return "CrossFit"
-        case .cardio: return "Cardio"
-        case .kettlebell: return "Kettlebell"
-        case .gymnastics: return "Gymnastics"
-        case .other: return "Other"
+            return .mixed
         }
     }
 }

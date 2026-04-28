@@ -17,7 +17,7 @@ extension ExercisePickerFeature {
         var searchText: String = ""
 
         /// Optional category filter; `nil` means show all categories.
-        var selectedCategory: WorkoutCategoryNew? = nil
+        var selectedCategory: MovementCategory? = nil
 
         // MARK: - Computed
 
@@ -37,12 +37,12 @@ extension ExercisePickerFeature {
         }
 
         /// Exercises grouped by category, preserving the filtered set.
-        var groupedExercises: [WorkoutCategoryNew: [ExerciseType]] {
+        var groupedExercises: [MovementCategory: [ExerciseType]] {
             Dictionary(grouping: filteredExercises, by: { $0.category })
         }
 
         /// Ordered list of categories present in `groupedExercises`.
-        var visibleCategories: [WorkoutCategoryNew] {
+        var visibleCategories: [MovementCategory] {
             groupedExercises.keys.sorted { $0.displayName < $1.displayName }
         }
     }

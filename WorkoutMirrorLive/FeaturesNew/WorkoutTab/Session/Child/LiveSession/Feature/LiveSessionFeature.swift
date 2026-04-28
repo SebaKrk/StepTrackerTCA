@@ -37,6 +37,9 @@ struct LiveSessionFeature {
                 // (iPhone has no wrist sensor in this mode), preserve the last
                 // known value so Watch readings are not overwritten.
                 let effectiveHR = data.heartRate > 0 ? data.heartRate : state.workoutMetrics.heartRate
+                if effectiveHR > 0 {
+                    state.hrBuffer.append(State.HRSample(date: Date(), bpm: effectiveHR))
+                }
                 state.workoutMetrics = WorkoutMetrics(
                     averageHeartRate: data.averageHeartRate,
                     heartRate: effectiveHR,

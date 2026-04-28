@@ -119,6 +119,8 @@ struct StatsView: View {
                 todayView
             case .analytics:
                 analyticsActivityView
+            case .exercises:
+                exerciseAnalyticsView
             }
         }
         .navigationTitle("Stats")
@@ -155,6 +157,16 @@ struct StatsView: View {
         } else {
             emptyAnalyticsActivityView
         }
+    }
+
+    // MARK: - Exercise Analytics
+
+    private var exerciseAnalyticsView: some View {
+        ExerciseAnalyticsView(
+            store: Store(initialState: ExerciseAnalyticsFeature.State()) {
+                ExerciseAnalyticsFeature()
+            }
+        )
     }
 
     // MARK: - Analytics Empty View

@@ -4,6 +4,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 /// Implementation of `PhasePanelFeature` state.
@@ -29,6 +30,18 @@ extension PhasePanelFeature {
 
         /// Set by the parent when the user stopwatch is open — disables the timer button.
         var isTimerButtonDisabled: Bool = false
+
+        // MARK: - Phase Timestamps
+
+        /// Records when each phase started and ended — used for per-phase HR calculation.
+        struct PhaseTimestamp: Equatable, Sendable {
+            let phaseName: String
+            let startDate: Date
+            var endDate: Date?
+        }
+
+        /// Ordered timestamps for each phase visited during the workout.
+        var phaseTimestamps: [PhaseTimestamp] = []
 
         // MARK: - Computed
 

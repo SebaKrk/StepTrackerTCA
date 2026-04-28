@@ -640,7 +640,7 @@ struct ActivityDetailsView: View {
             WorkoutSessionResult(
                 name: $0.name,
                 description: $0.snapshotDescription,
-                score: $0.name == "WOD 1" ? "11:43" : "80kg",
+                scoreResult: $0.name == "WOD 1" ? .custom("11:43") : .forLoad(weight: 80),
                 note: ""
             )
         }

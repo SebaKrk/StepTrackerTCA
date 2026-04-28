@@ -132,7 +132,7 @@ struct WorkoutPlanScoreListView: View {
     // MARK: - Results Preview
 
     private func resultsPreview(_ results: [WorkoutSessionResult]) -> some View {
-        let visible = results.filter { !$0.score.isEmpty }.prefix(3)
+        let visible = results.filter { $0.scoreResult != .completed }.prefix(3)
 
         return VStack(alignment: .leading, spacing: 6) {
             ForEach(Array(visible.enumerated()), id: \.offset) { _, result in
@@ -142,14 +142,14 @@ struct WorkoutPlanScoreListView: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                     Spacer()
-                    Text(result.score)
+                    Text(result.scoreResult.displayString)
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
                 }
             }
-            if results.filter({ !$0.score.isEmpty }).count > 3 {
-                Text("+ \(results.filter({ !$0.score.isEmpty }).count - 3) more")
+            if results.filter({ $0.scoreResult != .completed }).count > 3 {
+                Text("+ \(results.filter({ $0.scoreResult != .completed }).count - 3) more")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -194,8 +194,8 @@ struct WorkoutPlanScoreListView: View {
             trainingSessionId: session.id,
             hkWorkoutId: UUID(),
             results: [
-                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", score: "80kg", note: ""),
-                WorkoutSessionResult(name: "WOD 1", description: "", score: "11:43", note: "ciężkie")
+                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", scoreResult: .forLoad(weight: 80), note: ""),
+                WorkoutSessionResult(name: "WOD 1", description: "", scoreResult: .custom("11:43"), note: "ciężkie")
             ]
         ),
         WorkoutPlanScore(
@@ -203,8 +203,8 @@ struct WorkoutPlanScoreListView: View {
             trainingSessionId: session.id,
             hkWorkoutId: UUID(),
             results: [
-                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", score: "75kg", note: ""),
-                WorkoutSessionResult(name: "WOD 1", description: "", score: "13:21", note: "")
+                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", scoreResult: .forLoad(weight: 75), note: ""),
+                WorkoutSessionResult(name: "WOD 1", description: "", scoreResult: .custom("13:21"), note: "")
             ]
         )
     ]

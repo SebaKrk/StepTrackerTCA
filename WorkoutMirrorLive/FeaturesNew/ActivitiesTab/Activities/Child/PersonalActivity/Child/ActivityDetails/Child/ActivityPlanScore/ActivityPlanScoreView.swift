@@ -74,7 +74,7 @@ struct ActivityPlanScoreView: View {
         VStack(alignment: .leading, spacing: 6) {
             resultNameView(result.name)
             if !result.description.isEmpty { captionView(result.description) }
-            if !result.score.isEmpty { resultScoreView(result.score) }
+            if result.scoreResult != .completed { resultScoreView(result.scoreResult.displayString) }
             if !result.note.isEmpty { captionView(result.note) }
         }
     }
@@ -139,8 +139,8 @@ struct ActivityPlanScoreView: View {
         trainingSessionId: UUID(),
         hkWorkoutId: UUID(),
         results: [
-            WorkoutSessionResult(name: "WOD 1", description: "21-15-9 Thrusters 43kg + Pull-ups", score: "14:32", note: ""),
-            WorkoutSessionResult(name: "WOD 2", description: "5x5 Back Squat", score: "80kg", note: "Felt strong today")
+            WorkoutSessionResult(name: "WOD 1", description: "21-15-9 Thrusters 43kg + Pull-ups", scoreResult: .custom("14:32"), note: ""),
+            WorkoutSessionResult(name: "WOD 2", description: "5x5 Back Squat", scoreResult: .forLoad(weight: 80), note: "Felt strong today")
         ]
     )
     let store = Store(

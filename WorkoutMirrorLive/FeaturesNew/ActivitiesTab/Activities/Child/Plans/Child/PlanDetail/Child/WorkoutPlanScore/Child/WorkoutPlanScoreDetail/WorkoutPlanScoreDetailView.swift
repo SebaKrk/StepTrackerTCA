@@ -70,7 +70,7 @@ struct WorkoutPlanScoreDetailView: View {
                 .font(.headline)
                 .padding(.horizontal, 4)
 
-            ForEach(store.score.results, id: \.name) { result in
+            ForEach(store.score.results) { result in
                 GroupBox {
                     VStack(alignment: .leading, spacing: 6) {
                         if !result.description.isEmpty {
@@ -79,13 +79,13 @@ struct WorkoutPlanScoreDetailView: View {
                                 .foregroundStyle(.secondary)
                             Divider()
                         }
-                        if !result.score.isEmpty {
+                        if result.scoreResult != .completed {
                             HStack {
                                 Text(String(localized: "Score"))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                 Spacer()
-                                Text(result.score)
+                                Text(result.scoreResult.displayString)
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
                             }
@@ -120,7 +120,7 @@ struct WorkoutPlanScoreDetailView: View {
             WorkoutSessionResult(
                 name: $0.name,
                 description: $0.snapshotDescription,
-                score: $0.name == "WOD 1" ? "11:43" : "80kg",
+                scoreResult: $0.name == "WOD 1" ? .custom("11:43") : .forLoad(weight: 80),
                 note: $0.name == "WOD 1" ? "ciężkie, ale dałem radę" : ""
             )
         }

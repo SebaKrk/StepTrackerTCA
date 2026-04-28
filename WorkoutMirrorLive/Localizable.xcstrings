@@ -121,6 +121,9 @@
         }
       }
     },
+    "· %lld kg" : {
+
+    },
     "\"%@\" and all its exercises will be removed." : {
 
     },
@@ -158,6 +161,9 @@
           }
         }
       }
+    },
+    "%.1f kg" : {
+
     },
     "%@" : {
       "localizations" : {
@@ -329,6 +335,9 @@
         }
       }
     },
+    "%d sessions" : {
+
+    },
     "%lf kcal" : {
       "localizations" : {
         "pl" : {
@@ -481,6 +490,9 @@
         }
       }
     },
+    "%lld×" : {
+
+    },
     "• %@" : {
       "localizations" : {
         "pl" : {
@@ -503,6 +515,9 @@
           }
         }
       }
+    },
+    "× %lldkg" : {
+
     },
     "<6h" : {
 
@@ -999,6 +1014,9 @@
         }
       }
     },
+    "Avg HR per Session" : {
+
+    },
     "Back to plan" : {
 
     },
@@ -1103,6 +1121,9 @@
         }
       }
     },
+    "BW" : {
+
+    },
     "Cal Burned" : {
       "localizations" : {
         "pl" : {
@@ -1112,6 +1133,9 @@
           }
         }
       }
+    },
+    "Calories" : {
+
     },
     "Calories Active" : {
       "localizations" : {
@@ -1211,26 +1235,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ciężadry: M: %1$lldkg / K: %2$lldkg"
-          }
-        }
-      }
-    },
-    "Waiting for sensor..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oczekiwanie na sensor..."
-          }
-        }
-      }
-    },
-    "Heart rate data will appear shortly" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dane tętna pojawią się wkrótce"
           }
         }
       }
@@ -1338,6 +1342,9 @@
       }
     },
     "Could not load the selected image." : {
+
+    },
+    "Count" : {
 
     },
     "Create a Workout Plan" : {
@@ -1829,6 +1836,9 @@
         }
       }
     },
+    "Frequency" : {
+
+    },
     "fuel" : {
       "localizations" : {
         "pl" : {
@@ -1963,6 +1973,16 @@
         }
       }
     },
+    "Heart rate data will appear shortly" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane tętna pojawią się wkrótce"
+          }
+        }
+      }
+    },
     "Heart Rate Details" : {
       "localizations" : {
         "pl" : {
@@ -2002,6 +2022,9 @@
           }
         }
       }
+    },
+    "Heaviest set (kg)" : {
+
     },
     "Hero WOD" : {
       "localizations" : {
@@ -2213,6 +2236,9 @@
         }
       }
     },
+    "Laps" : {
+
+    },
     "Latest" : {
       "localizations" : {
         "pl" : {
@@ -2294,6 +2320,9 @@
         }
       }
     },
+    "Log results" : {
+
+    },
     "Manage API keys for AI-powered workout parsing and analysis." : {
       "localizations" : {
         "pl" : {
@@ -2326,6 +2355,12 @@
           }
         }
       }
+    },
+    "Max weight (kg)" : {
+
+    },
+    "Meters" : {
+
     },
     "METs" : {
       "localizations" : {
@@ -2382,6 +2417,9 @@
           }
         }
       }
+    },
+    "Movement Balance" : {
+
     },
     "Movement history" : {
       "localizations" : {
@@ -2503,6 +2541,12 @@
         }
       }
     },
+    "No exercise data for this month." : {
+
+    },
+    "No exercises logged this month." : {
+
+    },
     "No heart rate data available. Check Health app." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2513,6 +2557,12 @@
           }
         }
       }
+    },
+    "No heart rate data recorded for this exercise." : {
+
+    },
+    "No history yet." : {
+
     },
     "No HRV data found. Regular measurements required." : {
       "extractionState" : "stale",
@@ -2547,6 +2597,9 @@
         }
       }
     },
+    "No volume data recorded for this exercise." : {
+
+    },
     "No warmup" : {
 
     },
@@ -2561,6 +2614,9 @@
         }
       }
     },
+    "No weight data recorded for this exercise." : {
+
+    },
     "No weight measurements found for this period." : {
       "localizations" : {
         "pl" : {
@@ -2570,6 +2626,9 @@
           }
         }
       }
+    },
+    "No weights logged" : {
+
     },
     "No workout data available for this period." : {
       "localizations" : {
@@ -2820,6 +2879,16 @@
         }
       }
     },
+    "Plan: %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan: %@"
+          }
+        }
+      }
+    },
     "Plans" : {
 
     },
@@ -2882,6 +2951,9 @@
           }
         }
       }
+    },
+    "PR" : {
+
     },
     "Present Workout Preview" : {
       "localizations" : {
@@ -2991,6 +3063,9 @@
     "Refresh" : {
 
     },
+    "Remaining reps" : {
+
+    },
     "Remove" : {
 
     },
@@ -3082,6 +3157,9 @@
           }
         }
       }
+    },
+    "Rounds + reps" : {
+
     },
     "Route" : {
       "localizations" : {
@@ -3242,6 +3320,9 @@
     "Search exercises..." : {
 
     },
+    "Seconds" : {
+
+    },
     "select" : {
       "localizations" : {
         "pl" : {
@@ -3332,6 +3413,12 @@
       }
     },
     "Series" : {
+
+    },
+    "Sessions" : {
+
+    },
+    "Set" : {
 
     },
     "Set your goal" : {
@@ -3649,6 +3736,9 @@
         }
       }
     },
+    "Time (mm:ss)" : {
+
+    },
     "Time Cap" : {
       "localizations" : {
         "pl" : {
@@ -3759,6 +3849,9 @@
         }
       }
     },
+    "Total reps" : {
+
+    },
     "Training Plan" : {
 
     },
@@ -3868,6 +3961,16 @@
     "Unable to load workout plans. Please try again." : {
 
     },
+    "Unknown" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieznane"
+          }
+        }
+      }
+    },
     "Unlock insights into your training. Visualize your progress, heart rate zones, and performance trends over time." : {
       "localizations" : {
         "pl" : {
@@ -3928,12 +4031,28 @@
         }
       }
     },
+    "Volume" : {
+
+    },
+    "Volume per Week" : {
+
+    },
     "Waiting for Apple Watch" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oczekiwanie na Apple Watch"
+          }
+        }
+      }
+    },
+    "Waiting for sensor..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oczekiwanie na sensor..."
           }
         }
       }
@@ -4033,6 +4152,9 @@
           }
         }
       }
+    },
+    "Weight Progression" : {
+
     },
     "Weight Trend" : {
       "localizations" : {
