@@ -22,6 +22,7 @@ struct SetInputView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    scoreSection
                     ForEach(Array(store.exercises.enumerated()), id: \.offset) { exIndex, exercise in
                         exerciseCard(exerciseIndex: exIndex, exercise: exercise)
                     }
@@ -36,6 +37,25 @@ struct SetInputView: View {
             }
         }
         .presentationDetents([.medium, .large])
+    }
+
+    // MARK: - Score Section
+
+    private var scoreSection: some View {
+        GroupBox {
+            HStack {
+                Text(String(localized: "Score:"))
+                    .font(.subheadline.weight(.semibold))
+                TextField(store.scorePlaceholder, text: Binding(
+                    get: { store.scoreText },
+                    set: { send(.updateScore($0)) }
+                ))
+                .textFieldStyle(.plain)
+                .padding(8)
+                .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
+            }
+        }
+        .styledGroupBox()
     }
 
     // MARK: - Exercise Card
@@ -206,6 +226,8 @@ struct SetInputView: View {
 #Preview("WOD — AMRAP") {
     SetInputView(store: Store(initialState: SetInputFeature.State(
         wodName: "WOD 1",
+        scoreText: "",
+        scorePlaceholder: "Rounds + reps",
         exercises: [
             ExerciseLogInput(exerciseType: .pullUps, category: .gymnastics, target: .reps(9), plannedReps: "9", actualReps: "9"),
             ExerciseLogInput(exerciseType: .thrusters, category: .olympicLifting, target: .reps(8), plannedReps: "8", plannedWeight: 50, actualWeight: 50, actualReps: "8"),
@@ -220,6 +242,8 @@ struct SetInputView: View {
 #Preview("Strength — 5x10") {
     SetInputView(store: Store(initialState: SetInputFeature.State(
         wodName: "Strength",
+        scoreText: "",
+        scorePlaceholder: "Heaviest set (kg)",
         exercises: [
             ExerciseLogInput(
                 exerciseType: .benchPress,

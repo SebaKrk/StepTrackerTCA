@@ -322,8 +322,29 @@ struct SummaryFeature {
             case let .view(.openSetInput(wodIndex, _)):
                 guard wodIndex < state.resultInputs.count else { return .none }
                 let result = state.resultInputs[wodIndex]
+                let hasStrengthSets = result.exercises.contains { $0.sets != nil }
+
+                let scoreText: String = {
+                    if case .completed = result.scoreResult { return "" }
+                    return result.scoreResult.displayString
+                }()
+
+                let placeholder: String = {
+                    if hasStrengthSets { return String(localized: "Heaviest set (kg)") }
+                    switch result.scoreResult {
+                    case .amrap:   return String(localized: "Rounds + reps")
+                    case .forTime: return String(localized: "Time (mm:ss)")
+                    case .timeCap: return String(localized: "Remaining reps")
+                    case .forLoad: return String(localized: "Max weight (kg)")
+                    case .forReps: return String(localized: "Total reps")
+                    default:       return String(localized: "Enter score...")
+                    }
+                }()
+
                 state.setInput = SetInputFeature.State(
                     wodName: result.name,
+                    scoreText: scoreText,
+                    scorePlaceholder: placeholder,
                     exercises: result.exercises,
                     wodIndex: wodIndex
                 )
@@ -367,11 +388,15 @@ struct SummaryFeature {
                 // MARK: - Set Input
 
             case .setInput(.dismiss):
-                // Write back all exercises only if user confirmed (tapped Add, not Cancel)
+                // Write back exercises + score only if user confirmed (tapped Add, not Cancel)
                 if let setInput = state.setInput, setInput.confirmed {
                     let w = setInput.wodIndex
                     if w < state.resultInputs.count {
                         state.resultInputs[w].exercises = setInput.exercises
+                        // Write back score as .custom(text)
+                        if !setInput.scoreText.isEmpty {
+                            state.resultInputs[w].scoreResult = .custom(setInput.scoreText)
+                        }
                     }
                     if w < state.exercisesEdited.count {
                         state.exercisesEdited[w] = true

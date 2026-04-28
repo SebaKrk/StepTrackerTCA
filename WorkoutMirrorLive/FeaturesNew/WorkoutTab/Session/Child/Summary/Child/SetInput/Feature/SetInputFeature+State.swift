@@ -17,6 +17,12 @@ extension SetInputFeature {
         /// WOD name displayed in the navigation title.
         var wodName: String
 
+        /// WOD score entered by the user (e.g. "14:32", "6+14").
+        var scoreText: String
+
+        /// Placeholder for the score field based on WOD type.
+        var scorePlaceholder: String
+
         /// All exercises in this WOD — user edits reps/weight/sets for each.
         var exercises: [ExerciseLogInput]
 

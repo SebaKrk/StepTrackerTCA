@@ -10,6 +10,7 @@ import Commons
 import HealthKit
 import SwiftUI
 import SharedModels
+import Textual
 
 private enum FocusField: Hashable {
     case score(Int)
@@ -278,9 +279,6 @@ struct SummaryView: View {
                                 }
                             }
 
-                            Divider().padding(.leading)
-                            wodScoreInput(for: index)
-
                             if !store.resultInputs[index].exercises.isEmpty {
                                 Divider().padding(.leading)
                                 if index < store.exercisesEdited.count && store.exercisesEdited[index] {
@@ -509,21 +507,27 @@ struct SummaryView: View {
         }
     }
 
-    // MARK: - Exercise Results Table (read-only, after edit)
+    // MARK: - Exercise Results Table (read-only markdown, after edit)
 
-    /// Returns `true` if at least one exercise in this WOD has user-entered data.
-    /// Read-only table showing entered exercise data. Tappable to re-edit.
+    /// Read-only markdown table showing entered exercise data. Tappable to re-edit.
     private func exerciseResultsTable(wodIndex: Int) -> some View {
-        Button {
+        let result = store.resultInputs[wodIndex]
+        return Button {
             send(.openSetInput(wodIndex: wodIndex, exerciseIndex: 0))
         } label: {
-            VStack(spacing: 0) {
-                ForEach(Array(store.resultInputs[wodIndex].exercises.enumerated()), id: \.offset) { _, exercise in
-                    exerciseResultRow(exercise: exercise)
-                    if exercise.id != store.resultInputs[wodIndex].exercises.last?.id {
-                        Divider().padding(.leading, 4)
+            VStack(alignment: .leading, spacing: 8) {
+                if case .completed = result.scoreResult {} else {
+                    HStack {
+                        Text(String(localized: "Score:"))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text(result.scoreResult.displayString)
+                            .font(.subheadline.weight(.semibold))
                     }
+                    .padding(.horizontal, 4)
                 }
+                StructuredText(markdown: exercisesMarkdownTable(wodIndex: wodIndex))
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 4)
             .padding(.vertical, 8)
@@ -531,31 +535,73 @@ struct SummaryView: View {
         .buttonStyle(.plain)
     }
 
-    private func exerciseResultRow(exercise: ExerciseLogInput) -> some View {
-        HStack {
-            Text(exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? "")
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-            Spacer()
-            if let sets = exercise.sets, !sets.isEmpty {
-                Text(sets.compactMap { entry in
-                    let w = entry.weight.map { "\(Int($0))" } ?? "-"
-                    return "\(entry.reps)×\(w)"
-                }.joined(separator: " · "))
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.secondary)
-            } else if let reps = exercise.actualReps {
-                HStack(spacing: 4) {
-                    Text(reps)
-                    if let w = exercise.actualWeight {
-                        Text("× \(Int(w))kg")
-                    }
-                }
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.secondary)
+    /// Converts exercises for a WOD into a markdown table string.
+    ///
+    /// Two formats:
+    /// - **WOD (simple):** Exercise | Result | kg
+    /// - **Strength (per-set):** Exercise name as header, then Set | Reps | kg per row
+    private func exercisesMarkdownTable(wodIndex: Int) -> String {
+        let exercises = store.resultInputs[wodIndex].exercises
+        let hasStrengthSets = exercises.contains { $0.sets != nil }
+
+        if hasStrengthSets {
+            return strengthMarkdownTable(exercises: exercises)
+        } else {
+            return wodMarkdownTable(exercises: exercises)
+        }
+    }
+
+    /// WOD table: one row per exercise.
+    private func wodMarkdownTable(exercises: [ExerciseLogInput]) -> String {
+        let hasWeight = exercises.contains { $0.actualWeight != nil }
+
+        var md = ""
+        if hasWeight {
+            md += "| Exercise | Result | kg |\n"
+            md += "|----------|--------|----|\n"
+        } else {
+            md += "| Exercise | Result |\n"
+            md += "|----------|--------|\n"
+        }
+
+        for exercise in exercises {
+            let name = exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? "—"
+            let reps = exercise.actualReps ?? "—"
+            if hasWeight {
+                let w = exercise.actualWeight.map { "\(Int($0))" } ?? "—"
+                md += "| \(name) | \(reps) | \(w) |\n"
+            } else {
+                md += "| \(name) | \(reps) |\n"
             }
         }
-        .padding(.vertical, 4)
+
+        return md
+    }
+
+    /// Strength table: per-set rows with set number, reps, weight.
+    private func strengthMarkdownTable(exercises: [ExerciseLogInput]) -> String {
+        var md = ""
+
+        for exercise in exercises {
+            let name = exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? "—"
+
+            if let sets = exercise.sets, !sets.isEmpty {
+                md += "**\(name)**\n\n"
+                md += "| Set | Reps | kg |\n"
+                md += "|-----|------|----|\n"
+                for (i, entry) in sets.enumerated() {
+                    let w = entry.weight.map { "\(Int($0))" } ?? "—"
+                    md += "| \(i + 1) | \(entry.reps) | \(w) |\n"
+                }
+                md += "\n"
+            } else {
+                let reps = exercise.actualReps ?? "—"
+                let w = exercise.actualWeight.map { " · \(Int($0))kg" } ?? ""
+                md += "**\(name):** \(reps)\(w)\n\n"
+            }
+        }
+
+        return md
     }
 
     // MARK: - Helpers

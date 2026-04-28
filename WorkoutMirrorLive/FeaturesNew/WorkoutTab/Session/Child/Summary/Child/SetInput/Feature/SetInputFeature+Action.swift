@@ -21,6 +21,9 @@ extension SetInputFeature {
         @CasePathable
         enum View {
 
+            /// User changed the score text.
+            case updateScore(String)
+
             /// User changed the reps for a simple exercise (WOD).
             case updateExerciseReps(exerciseIndex: Int, String)
 

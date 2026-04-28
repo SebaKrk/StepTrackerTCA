@@ -22,6 +22,12 @@ struct SetInputFeature {
         Reduce { state, action in
             switch action {
 
+            // MARK: - Score
+
+            case let .view(.updateScore(text)):
+                state.scoreText = text
+                return .none
+
             // MARK: - Simple exercise (WOD)
 
             case let .view(.updateExerciseReps(exerciseIndex, text)):
