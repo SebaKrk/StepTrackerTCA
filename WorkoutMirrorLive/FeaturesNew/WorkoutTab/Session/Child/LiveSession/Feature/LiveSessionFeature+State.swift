@@ -38,7 +38,7 @@ extension LiveSessionFeature {
 
         /// The maximum heart rate (HR max) calculated at the beginning of the session.
         /// Provided by `SessionFeature`, which retrieves the user’s age and biological sex
-        /// from `personCalculatorClient` and applies the appropriate calculation strategy.
+        /// from HealthKit and resolves max HR via `maxHeartRateClient.fromAge(age, sex)`.
         var maxHeartRate: Int = 0
         
         // MARK: - Child

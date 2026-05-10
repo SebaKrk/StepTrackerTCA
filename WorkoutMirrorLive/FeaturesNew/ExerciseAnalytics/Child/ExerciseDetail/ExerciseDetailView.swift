@@ -23,17 +23,41 @@ struct ExerciseDetailView: View {
         ScrollView {
             VStack(spacing: 16) {
                 headerCard
-                weightProgressionCard
-                volumePerWeekCard
-                hrPerSessionCard
+                if !store.weightProgression.isEmpty {
+                    weightProgressionCard
+                }
+                if store.weeklyVolume.contains(where: { $0.volume > 0 }) {
+                    volumePerWeekCard
+                }
+                if !store.hrPerSession.isEmpty {
+                    hrPerSessionCard
+                }
                 historyCard
             }
             .padding()
         }
         .navigationTitle(store.displayName)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar { dismissToolbarButton }
         .onAppear {
             send(.onAppear)
+        }
+        .navigationDestination(item: $store.scope(state: \.activityDetail, action: \.activityDetail)) { detailStore in
+            ActivityDetailsView(store: detailStore)
+        }
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var dismissToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                send(.dismissTapped)
+            } label: {
+                Text(String(localized: "Done"))
+                    .fontWeight(.semibold)
+            }
         }
     }
 
@@ -64,50 +88,53 @@ struct ExerciseDetailView: View {
     }
 
     private var headerContent: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ],
-            spacing: 12
-        ) {
+        HStack(spacing: 16) {
             headerMetric(
-                title: String(localized: "Sessions", bundle: .main),
+                title: String(localized: "Sessions"),
                 value: "\(store.count)"
             )
 
+            if store.hasWeight {
+                headerMetric(
+                    title: String(localized: "Weight"),
+                    value: store.pr.map { String(format: "%.0f", $0) } ?? "—",
+                    unit: "kg"
+                )
+            }
+
             headerMetric(
-                title: String(localized: "PR", bundle: .main),
-                value: store.pr.map { String(format: "%.1f kg", $0) }
-                    ?? String(localized: "BW", bundle: .main)
+                title: String(localized: "Avg HR"),
+                value: store.avgHR.map { String(format: "%.0f", $0) } ?? "—",
+                unit: store.avgHR != nil ? "bpm" : ""
             )
 
             headerMetric(
-                title: String(localized: "Avg HR", bundle: .main),
-                value: store.avgHR.map { String(format: "%.0f bpm", $0) }
-                    ?? "—"
+                title: String(localized: "Max HR"),
+                value: store.maxHR.map { String(format: "%.0f", $0) } ?? "—",
+                unit: store.maxHR != nil ? "bpm" : ""
             )
 
-            headerMetric(
-                title: String(localized: "Max HR", bundle: .main),
-                value: store.maxHR.map { String(format: "%.0f bpm", $0) }
-                    ?? "—"
-            )
+            Spacer()
         }
     }
 
-    private func headerMetric(title: String, value: String) -> some View {
+    private func headerMetric(title: String, value: String, unit: String = "") -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .monospacedDigit()
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text(value)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .monospacedDigit()
+                if !unit.isEmpty {
+                    Text(unit)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Weight Progression Card
@@ -124,10 +151,13 @@ struct ExerciseDetailView: View {
     private var weightProgressionHeader: some View {
         VStack {
             HStack {
-                Text(String(localized: "Weight Progression", bundle: .main))
+                Text(String(localized: "Weight Progression"))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()
+                Text("kg")
+                    .foregroundStyle(.tertiary)
+                    .font(.caption2)
             }
             Divider()
         }
@@ -138,7 +168,7 @@ struct ExerciseDetailView: View {
             if store.weightProgression.isEmpty {
                 ChartContentUnavailable(
                     systemImage: "chart.line.uptrend.xyaxis",
-                    description: String(localized: "No weight data recorded for this exercise.", bundle: .main)
+                    description: String(localized: "No weight data recorded for this exercise.")
                 )
                 .frame(height: 200)
             } else {
@@ -149,14 +179,14 @@ struct ExerciseDetailView: View {
 
     private var weightProgressionChart: some View {
         Chart {
-            ForEach(Array(store.weightProgression.enumerated()), id: \.offset) { _, point in
+            ForEach(store.weightProgression) { point in
                 LineMark(
                     x: .value(
-                        String(localized: "Date", bundle: .main),
+                        String(localized: "Date"),
                         point.date
                     ),
                     y: .value(
-                        String(localized: "Weight", bundle: .main),
+                        String(localized: "Weight"),
                         point.weight
                     )
                 )
@@ -165,11 +195,11 @@ struct ExerciseDetailView: View {
 
                 PointMark(
                     x: .value(
-                        String(localized: "Date", bundle: .main),
+                        String(localized: "Date"),
                         point.date
                     ),
                     y: .value(
-                        String(localized: "Weight", bundle: .main),
+                        String(localized: "Weight"),
                         point.weight
                     )
                 )
@@ -188,6 +218,7 @@ struct ExerciseDetailView: View {
                     }
             }
         }
+        .chartYScale(domain: .automatic(includesZero: false))
         .chartYAxis {
             AxisMarks(values: .automatic(desiredCount: 4)) { value in
                 AxisGridLine()
@@ -220,10 +251,13 @@ struct ExerciseDetailView: View {
     private var volumePerWeekHeader: some View {
         VStack {
             HStack {
-                Text(String(localized: "Volume per Week", bundle: .main))
+                Text(String(localized: "Volume per Week"))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()
+                Text(store.hasWeight ? "kg" : String(localized: "reps"))
+                    .foregroundStyle(.tertiary)
+                    .font(.caption2)
             }
             Divider()
         }
@@ -234,7 +268,7 @@ struct ExerciseDetailView: View {
             if store.weeklyVolume.isEmpty {
                 ChartContentUnavailable(
                     systemImage: "chart.bar.fill",
-                    description: String(localized: "No volume data recorded for this exercise.", bundle: .main)
+                    description: String(localized: "No volume data recorded for this exercise.")
                 )
                 .frame(height: 200)
             } else {
@@ -245,14 +279,14 @@ struct ExerciseDetailView: View {
 
     private var volumePerWeekChart: some View {
         Chart {
-            ForEach(Array(store.weeklyVolume.enumerated()), id: \.offset) { _, point in
+            ForEach(store.weeklyVolume) { point in
                 BarMark(
                     x: .value(
-                        String(localized: "Week", bundle: .main),
+                        String(localized: "Week"),
                         point.week, unit: .weekOfYear
                     ),
                     y: .value(
-                        String(localized: "Volume", bundle: .main),
+                        String(localized: "Volume"),
                         point.volume
                     )
                 )
@@ -291,10 +325,13 @@ struct ExerciseDetailView: View {
     private var hrPerSessionHeader: some View {
         VStack {
             HStack {
-                Text(String(localized: "Avg HR per Session", bundle: .main))
+                Text(String(localized: "Avg HR per Session"))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()
+                Text("bpm")
+                    .foregroundStyle(.tertiary)
+                    .font(.caption2)
             }
             Divider()
         }
@@ -305,7 +342,7 @@ struct ExerciseDetailView: View {
             if store.hrPerSession.isEmpty {
                 ChartContentUnavailable(
                     systemImage: "heart.fill",
-                    description: String(localized: "No heart rate data recorded for this exercise.", bundle: .main)
+                    description: String(localized: "No heart rate data recorded for this exercise.")
                 )
                 .frame(height: 200)
             } else {
@@ -316,14 +353,14 @@ struct ExerciseDetailView: View {
 
     private var hrPerSessionChart: some View {
         Chart {
-            ForEach(Array(store.hrPerSession.enumerated()), id: \.offset) { _, point in
+            ForEach(store.hrPerSession) { point in
                 LineMark(
                     x: .value(
-                        String(localized: "Date", bundle: .main),
+                        String(localized: "Date"),
                         point.date
                     ),
                     y: .value(
-                        String(localized: "Avg HR", bundle: .main),
+                        String(localized: "Avg HR"),
                         point.avgHR
                     )
                 )
@@ -332,11 +369,11 @@ struct ExerciseDetailView: View {
 
                 PointMark(
                     x: .value(
-                        String(localized: "Date", bundle: .main),
+                        String(localized: "Date"),
                         point.date
                     ),
                     y: .value(
-                        String(localized: "Avg HR", bundle: .main),
+                        String(localized: "Avg HR"),
                         point.avgHR
                     )
                 )
@@ -355,6 +392,7 @@ struct ExerciseDetailView: View {
                     }
             }
         }
+        .chartYScale(domain: .automatic(includesZero: false))
         .chartYAxis {
             AxisMarks(values: .automatic(desiredCount: 4)) { value in
                 AxisGridLine()
@@ -387,11 +425,11 @@ struct ExerciseDetailView: View {
     private var historyHeader: some View {
         VStack {
             HStack {
-                Text(String(localized: "History", bundle: .main))
+                Text(String(localized: "History"))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()
-                Text(String(format: String(localized: "%d sessions", bundle: .main), store.count))
+                Text(String(format: String(localized: "%d sessions"), store.count))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -402,7 +440,7 @@ struct ExerciseDetailView: View {
     private var historyContent: some View {
         VStack(spacing: 0) {
             if store.logs.isEmpty {
-                Text(String(localized: "No history yet.", bundle: .main))
+                Text(String(localized: "No history yet."))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                     .frame(maxWidth: .infinity)
@@ -467,8 +505,6 @@ struct ExerciseDetailView: View {
                 }
 
                 HStack(spacing: 4) {
-                    scalingBadge(log.scaling)
-
                     if log.isPR {
                         prBadge
                     }
@@ -501,24 +537,6 @@ struct ExerciseDetailView: View {
             .background(.orange, in: RoundedRectangle(cornerRadius: 4))
     }
 
-    private func scalingBadge(_ scaling: ScalingType) -> some View {
-        Text(scaling.displayName)
-            .font(.caption2)
-            .fontWeight(.medium)
-            .foregroundStyle(scalingColor(scaling))
-            .padding(.horizontal, 4)
-            .padding(.vertical, 1)
-            .background(scalingColor(scaling).opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
-    }
-
-    private func scalingColor(_ scaling: ScalingType) -> Color {
-        switch scaling {
-        case .rx: return .green
-        case .scaled: return .orange
-        case .rxPlus: return .purple
-        }
-    }
-
     private func hrLabel(_ hr: Double) -> some View {
         HStack(spacing: 2) {
             Image(systemName: "heart.fill")
@@ -535,79 +553,79 @@ struct ExerciseDetailView: View {
 // MARK: - Preview
 
 #Preview {
-    NavigationStack {
-        ExerciseDetailView(
-            store: Store(
-                initialState: ExerciseDetailFeature.State(
-                    exerciseType: .backSquat,
-                    logs: [
-                        ExerciseLog(
-                            date: Calendar.current.date(byAdding: .day, value: -28, to: Date())!,
-                            exerciseType: .backSquat,
-                            category: .strength,
-                            wodName: "Strength Monday",
-                            actualWeight: 100,
-                            actualReps: "5x5",
-                            isPR: false,
-                            avgHeartRate: 145,
-                            maxHeartRate: 168,
-                            volumeLoad: 2500
-                        ),
-                        ExerciseLog(
-                            date: Calendar.current.date(byAdding: .day, value: -21, to: Date())!,
-                            exerciseType: .backSquat,
-                            category: .strength,
-                            wodName: "Heavy Day",
-                            actualWeight: 105,
-                            actualReps: "5x5",
-                            isPR: false,
-                            avgHeartRate: 150,
-                            maxHeartRate: 172,
-                            volumeLoad: 2625
-                        ),
-                        ExerciseLog(
-                            date: Calendar.current.date(byAdding: .day, value: -14, to: Date())!,
-                            exerciseType: .backSquat,
-                            category: .strength,
-                            wodName: "Strength Monday",
-                            actualWeight: 110,
-                            actualReps: "5x3",
-                            isPR: false,
-                            avgHeartRate: 155,
-                            maxHeartRate: 175,
-                            volumeLoad: 1650
-                        ),
-                        ExerciseLog(
-                            date: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
-                            exerciseType: .backSquat,
-                            category: .strength,
-                            wodName: "PR Attempt",
-                            actualWeight: 120,
-                            actualReps: "1RM",
-                            scaling: .rx,
-                            isPR: true,
-                            avgHeartRate: 165,
-                            maxHeartRate: 185,
-                            volumeLoad: 120
-                        ),
-                        ExerciseLog(
-                            date: Date(),
-                            exerciseType: .backSquat,
-                            category: .strength,
-                            wodName: "Back Squat Day",
-                            actualWeight: 115,
-                            actualReps: "3x5",
-                            isPR: false,
-                            avgHeartRate: 152,
-                            maxHeartRate: 170,
-                            volumeLoad: 1725
-                        ),
-                    ]
-                )
-            ) {
-                ExerciseDetailFeature()
-            }
-        )
+    let now = Date()
+    let calendar = Calendar.current
+    let logs: [ExerciseLog] = [
+        ExerciseLog(
+            date: calendar.date(byAdding: .day, value: -28, to: now)!,
+            exerciseType: .backSquat,
+            category: .strength,
+            wodName: "Strength Monday",
+            actualWeight: 100,
+            actualReps: "5x5",
+            isPR: false,
+            avgHeartRate: 145,
+            maxHeartRate: 168,
+            volumeLoad: 2500
+        ),
+        ExerciseLog(
+            date: calendar.date(byAdding: .day, value: -21, to: now)!,
+            exerciseType: .backSquat,
+            category: .strength,
+            wodName: "Heavy Day",
+            actualWeight: 105,
+            actualReps: "5x5",
+            isPR: false,
+            avgHeartRate: 150,
+            maxHeartRate: 172,
+            volumeLoad: 2625
+        ),
+        ExerciseLog(
+            date: calendar.date(byAdding: .day, value: -14, to: now)!,
+            exerciseType: .backSquat,
+            category: .strength,
+            wodName: "Strength Monday",
+            actualWeight: 110,
+            actualReps: "5x3",
+            isPR: false,
+            avgHeartRate: 155,
+            maxHeartRate: 175,
+            volumeLoad: 1650
+        ),
+        ExerciseLog(
+            date: calendar.date(byAdding: .day, value: -7, to: now)!,
+            exerciseType: .backSquat,
+            category: .strength,
+            wodName: "PR Attempt",
+            actualWeight: 120,
+            actualReps: "1RM",
+            scaling: .rx,
+            isPR: true,
+            avgHeartRate: 165,
+            maxHeartRate: 185,
+            volumeLoad: 120
+        ),
+        ExerciseLog(
+            date: now,
+            exerciseType: .backSquat,
+            category: .strength,
+            wodName: "Back Squat Day",
+            actualWeight: 115,
+            actualReps: "3x5",
+            isPR: false,
+            avgHeartRate: 152,
+            maxHeartRate: 170,
+            volumeLoad: 1725
+        ),
+    ]
+    var state = ExerciseDetailFeature.State(exerciseType: .backSquat)
+    state.logs = logs
+    return NavigationStack {
+        ExerciseDetailView(store: Store(initialState: state) {
+            ExerciseDetailFeature()
+        } withDependencies: {
+            $0.exerciseLogClient.fetchByExerciseType = { _ in logs }
+        })
     }
 }
 
@@ -643,6 +661,72 @@ struct ExerciseDetailView: View {
         ExerciseLog(date: calendar.date(byAdding: .day, value: -1, to: now)!, exerciseType: .pullUps, category: .gymnastics, wodName: "WOD 2", actualReps: "100", scaling: .rx, isPR: true, avgHeartRate: 175, maxHeartRate: 188),
     ]
     var state = ExerciseDetailFeature.State(exerciseType: .pullUps)
+    state.logs = logs
+    return NavigationStack {
+        ExerciseDetailView(store: Store(initialState: state) {
+            ExerciseDetailFeature()
+        } withDependencies: {
+            $0.exerciseLogClient.fetchByExerciseType = { _ in logs }
+        })
+    }
+}
+
+#Preview("Front Squat (Strength)") {
+    let now = Date()
+    let calendar = Calendar.current
+    let logs: [ExerciseLog] = [
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -28, to: now)!, exerciseType: .frontSquat, category: .strength, wodName: "Strength", actualWeight: 80, actualReps: "5-5-5-5-5", scaling: .rx, isPR: false, avgHeartRate: 145, maxHeartRate: 160, volumeLoad: 2000),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -21, to: now)!, exerciseType: .frontSquat, category: .strength, wodName: "Strength", actualWeight: 85, actualReps: "5-5-5-5-5", scaling: .rx, isPR: false, avgHeartRate: 150, maxHeartRate: 165, volumeLoad: 2125),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -14, to: now)!, exerciseType: .frontSquat, category: .strength, wodName: "Strength", actualWeight: 90, actualReps: "5-5-5-5-5", scaling: .rx, isPR: false, avgHeartRate: 152, maxHeartRate: 170, volumeLoad: 2250),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -7, to: now)!, exerciseType: .frontSquat, category: .strength, wodName: "Strength", actualWeight: 95, actualReps: "5-5-5-5-3", scaling: .rx, isPR: false, avgHeartRate: 158, maxHeartRate: 175, volumeLoad: 2185),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -3, to: now)!, exerciseType: .frontSquat, category: .strength, wodName: "Strength", actualWeight: 100, actualReps: "5-5-5-5-5", scaling: .rx, isPR: true, avgHeartRate: 155, maxHeartRate: 172, volumeLoad: 2500),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -1, to: now)!, exerciseType: .frontSquat, category: .strength, wodName: "WOD", actualWeight: 70, actualReps: "15-12-9", scaling: .rx, isPR: false, avgHeartRate: 168, maxHeartRate: 182, volumeLoad: 2520),
+    ]
+    var state = ExerciseDetailFeature.State(exerciseType: .frontSquat)
+    state.logs = logs
+    return NavigationStack {
+        ExerciseDetailView(store: Store(initialState: state) {
+            ExerciseDetailFeature()
+        } withDependencies: {
+            $0.exerciseLogClient.fetchByExerciseType = { _ in logs }
+        })
+    }
+}
+
+#Preview("Burpees (BW, high volume)") {
+    let now = Date()
+    let calendar = Calendar.current
+    let logs: [ExerciseLog] = [
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -27, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 1", actualReps: "30", scaling: .rx, isPR: false, avgHeartRate: 170, maxHeartRate: 185),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -24, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 2", actualReps: "50", scaling: .rx, isPR: false, avgHeartRate: 175, maxHeartRate: 190),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -20, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 1", actualReps: "21-15-9", scaling: .rx, isPR: false, avgHeartRate: 172, maxHeartRate: 188),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -17, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 3", actualReps: "100", scaling: .rx, isPR: false, avgHeartRate: 178, maxHeartRate: 192),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -13, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 1", actualReps: "30", scaling: .rx, isPR: false, avgHeartRate: 168, maxHeartRate: 184),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -10, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 2", actualReps: "50", scaling: .rx, isPR: false, avgHeartRate: 165, maxHeartRate: 182),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -6, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 1", actualReps: "21-15-9", scaling: .rx, isPR: false, avgHeartRate: 162, maxHeartRate: 180),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -2, to: now)!, exerciseType: .burpees, category: .mixed, wodName: "WOD 2", actualReps: "75", scaling: .rx, isPR: true, avgHeartRate: 160, maxHeartRate: 178),
+    ]
+    var state = ExerciseDetailFeature.State(exerciseType: .burpees)
+    state.logs = logs
+    return NavigationStack {
+        ExerciseDetailView(store: Store(initialState: state) {
+            ExerciseDetailFeature()
+        } withDependencies: {
+            $0.exerciseLogClient.fetchByExerciseType = { _ in logs }
+        })
+    }
+}
+
+#Preview("HSPU (Scaled → Rx)") {
+    let now = Date()
+    let calendar = Calendar.current
+    let logs: [ExerciseLog] = [
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -25, to: now)!, exerciseType: .handstandPushUps, category: .gymnastics, wodName: "WOD 1", actualReps: "15", scaling: .scaled, isPR: false, avgHeartRate: 155, maxHeartRate: 168),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -18, to: now)!, exerciseType: .handstandPushUps, category: .gymnastics, wodName: "WOD 2", actualReps: "20", scaling: .scaled, isPR: false, avgHeartRate: 158, maxHeartRate: 172),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -11, to: now)!, exerciseType: .handstandPushUps, category: .gymnastics, wodName: "WOD 1", actualReps: "15", scaling: .rx, isPR: false, avgHeartRate: 162, maxHeartRate: 178),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -4, to: now)!, exerciseType: .handstandPushUps, category: .gymnastics, wodName: "WOD 3", actualReps: "25", scaling: .rx, isPR: true, avgHeartRate: 160, maxHeartRate: 175),
+    ]
+    var state = ExerciseDetailFeature.State(exerciseType: .handstandPushUps)
     state.logs = logs
     return NavigationStack {
         ExerciseDetailView(store: Store(initialState: state) {

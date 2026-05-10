@@ -41,18 +41,87 @@ struct SetInputView: View {
 
     // MARK: - Score Section
 
+    @ViewBuilder
     private var scoreSection: some View {
+        switch store.wodType {
+        case .strength, .olympicWeightlifting:
+            EmptyView()
+        case .amrap:
+            amrapScoreSection
+        case .forTime:
+            forTimeScoreSection
+        case .emom, .tabata:
+            EmptyView()
+        }
+    }
+
+    private var amrapScoreSection: some View {
+        GroupBox {
+            HStack(spacing: 12) {
+                Text(String(localized: "Score:"))
+                    .font(.subheadline.weight(.semibold))
+                TextField(String(localized: "Rounds"), text: amrapRoundsBinding)
+                    .textFieldStyle(.plain)
+                    .keyboardType(.numberPad)
+                    .padding(8)
+                    .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
+                    .frame(maxWidth: .infinity)
+
+                Text("+")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                TextField(String(localized: "Reps"), text: amrapRepsBinding)
+                    .textFieldStyle(.plain)
+                    .keyboardType(.numberPad)
+                    .padding(8)
+                    .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .styledGroupBox()
+    }
+
+    /// Binding that reads/writes the "rounds" part of scoreText ("6+14" → "6").
+    private var amrapRoundsBinding: Binding<String> {
+        Binding(
+            get: {
+                let parts = store.scoreText.split(separator: "+")
+                return parts.first.map(String.init) ?? store.scoreText
+            },
+            set: { rounds in
+                let parts = store.scoreText.split(separator: "+")
+                let reps = parts.count > 1 ? String(parts[1]).trimmingCharacters(in: .whitespaces) : ""
+                store.scoreText = reps.isEmpty ? rounds : "\(rounds)+\(reps)"
+            }
+        )
+    }
+
+    /// Binding that reads/writes the "extra reps" part of scoreText ("6+14" → "14").
+    private var amrapRepsBinding: Binding<String> {
+        Binding(
+            get: {
+                let parts = store.scoreText.split(separator: "+")
+                return parts.count > 1 ? String(parts[1]).trimmingCharacters(in: .whitespaces) : ""
+            },
+            set: { reps in
+                let parts = store.scoreText.split(separator: "+")
+                let rounds = parts.first.map(String.init) ?? ""
+                store.scoreText = reps.isEmpty ? rounds : "\(rounds)+\(reps)"
+            }
+        )
+    }
+
+    private var forTimeScoreSection: some View {
         GroupBox {
             HStack {
                 Text(String(localized: "Score:"))
                     .font(.subheadline.weight(.semibold))
-                TextField(store.scorePlaceholder, text: Binding(
-                    get: { store.scoreText },
-                    set: { send(.updateScore($0)) }
-                ))
-                .textFieldStyle(.plain)
-                .padding(8)
-                .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
+                TextField("mm:ss", text: $store.scoreText)
+                    .textFieldStyle(.plain)
+                    .keyboardType(.numbersAndPunctuation)
+                    .padding(8)
+                    .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
             }
         }
         .styledGroupBox()
@@ -79,8 +148,13 @@ struct SetInputView: View {
 
     private func exerciseCardHeader(exercise: ExerciseLogInput) -> some View {
         HStack {
-            Text(exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? String(localized: "Unknown"))
+            Text(exercise.displayName)
                 .font(.subheadline.weight(.semibold))
+            if exercise.isUnmatched {
+                Image(systemName: "questionmark.circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
             Spacer()
             if let reps = exercise.plannedReps {
                 Text(String(localized: "Plan: \(reps)"))
@@ -233,6 +307,7 @@ struct SetInputView: View {
             ExerciseLogInput(exerciseType: .thrusters, category: .olympicLifting, target: .reps(8), plannedReps: "8", plannedWeight: 50, actualWeight: 50, actualReps: "8"),
             ExerciseLogInput(exerciseType: .rowing, category: .cardio, target: .calories(17), plannedReps: "17 cal", actualReps: "17"),
         ],
+        wodType: .amrap,
         wodIndex: 0
     )) {
         SetInputFeature()
@@ -259,6 +334,7 @@ struct SetInputView: View {
                 ]
             ),
         ],
+        wodType: .strength,
         wodIndex: 1
     )) {
         SetInputFeature()

@@ -14,31 +14,35 @@ public final class DefaultHeartRateCalculator: HeartRateCalculator, @unchecked S
     public init() {}
     
     // MARK: - Public API
-    
-    /// Oblicza maksymalne tętno używając Strategy Pattern
-    /// - Parameters:
-    ///   - age: Wiek użytkownika
-    ///   - biologicalSex: Płeć biologiczna użytkownika
-    /// - Returns: Maksymalne tętno w uderzeniach na minutę
-    public func calculateMaxHeartRate(age: Int, biologicalSex: BiologicalSex) -> Int {
-        
-        let strategy = selectStrategy(for: biologicalSex)
+
+    /// Computes max HR using the chosen `formula` strategy.
+    public func calculateMaxHeartRate(age: Int, biologicalSex: BiologicalSex, formula: HRFormulaType) -> Int {
+        let strategy = selectStrategy(for: biologicalSex, formula: formula)
         return strategy.maxHR(for: age)
     }
-    
+
     // MARK: - Strategy Pattern Implementation
-    
-    /// Strategy Pattern: Context Method
-    /// Wybiera odpowiednią strategię (Concrete Strategy) na podstawie kontekstu
-    private func selectStrategy(for biologicalSex: BiologicalSex) -> HeartRateFormula {
-        switch biologicalSex {
-        case .male:
-            return FairbarnMaleFormula()
-            
-        case .female:
-            return FairbarnFemaleFormula()
-            
-        case .notSet, .unknown:
+
+    /// Strategy Pattern: primary switch on `formula` (selector), secondary on
+    /// `biologicalSex` (only for sex-aware formulas like Fairbarn).
+    ///
+    /// Caller decides the formula — this method is pure dispatch.
+    private func selectStrategy(for biologicalSex: BiologicalSex, formula: HRFormulaType) -> HeartRateFormula {
+        switch formula {
+        case .nes:
+            return NesFormula()
+
+        case .fairbarn:
+            switch biologicalSex {
+            case .male:
+                return FairbarnMaleFormula()
+            case .female:
+                return FairbarnFemaleFormula()
+            case .notSet, .unknown:
+                return FairbarnUnknownFormula()
+            }
+
+        case .classic:
             return FairbarnUnknownFormula()
         }
     }

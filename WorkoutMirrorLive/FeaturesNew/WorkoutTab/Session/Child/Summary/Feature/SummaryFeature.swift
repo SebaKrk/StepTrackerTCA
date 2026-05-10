@@ -232,6 +232,16 @@ struct SummaryFeature {
                                 return Double(totalReps) * weight
                             }()
 
+                            // For Strength (sets), derive actualWeight from max set weight
+                            let effectiveWeight: Double? = exercise.actualWeight
+                                ?? exercise.sets?.compactMap(\.weight).max()
+
+                            // For Strength (sets), derive actualReps from sets
+                            let effectiveReps: String? = exercise.actualReps
+                                ?? exercise.sets.map { sets in
+                                    sets.map { "\($0.reps)" }.joined(separator: "-")
+                                }
+
                             let log = ExerciseLog(
                                 date: now,
                                 exerciseType: exercise.exerciseType,
@@ -241,8 +251,8 @@ struct SummaryFeature {
                                 wodName: result.name,
                                 plannedReps: exercise.plannedReps,
                                 plannedWeight: exercise.plannedWeight,
-                                actualWeight: exercise.actualWeight,
-                                actualReps: exercise.actualReps,
+                                actualWeight: effectiveWeight,
+                                actualReps: effectiveReps,
                                 scaling: exercise.scaling,
                                 isPR: exercise.isPR,
                                 avgHeartRate: phaseHR?.avg,
@@ -253,7 +263,7 @@ struct SummaryFeature {
                                 volumeLoad: volumeLoad,
                                 tempoPerRound: tempo,
                                 note: exercise.note.isEmpty ? nil : exercise.note,
-                                editableUntil: now.addingTimeInterval(12 * 3600)
+                                editableUntil: now.addingTimeInterval(72 * 3600)
                             )
                             exerciseLogs.append(log)
                         }
@@ -322,30 +332,22 @@ struct SummaryFeature {
             case let .view(.openSetInput(wodIndex, _)):
                 guard wodIndex < state.resultInputs.count else { return .none }
                 let result = state.resultInputs[wodIndex]
-                let hasStrengthSets = result.exercises.contains { $0.sets != nil }
 
                 let scoreText: String = {
                     if case .completed = result.scoreResult { return "" }
                     return result.scoreResult.displayString
                 }()
 
-                let placeholder: String = {
-                    if hasStrengthSets { return String(localized: "Heaviest set (kg)") }
-                    switch result.scoreResult {
-                    case .amrap:   return String(localized: "Rounds + reps")
-                    case .forTime: return String(localized: "Time (mm:ss)")
-                    case .timeCap: return String(localized: "Remaining reps")
-                    case .forLoad: return String(localized: "Max weight (kg)")
-                    case .forReps: return String(localized: "Total reps")
-                    default:       return String(localized: "Enter score...")
-                    }
-                }()
+                // Get WOD type from training session
+                let workouts = state.trainingSession?.workouts ?? []
+                let wodType = wodIndex < workouts.count ? workouts[wodIndex].type : .forTime
 
                 state.setInput = SetInputFeature.State(
                     wodName: result.name,
                     scoreText: scoreText,
-                    scorePlaceholder: placeholder,
+                    scorePlaceholder: "",
                     exercises: result.exercises,
+                    wodType: wodType,
                     wodIndex: wodIndex
                 )
                 return .none
@@ -393,10 +395,12 @@ struct SummaryFeature {
                     let w = setInput.wodIndex
                     if w < state.resultInputs.count {
                         state.resultInputs[w].exercises = setInput.exercises
-                        // Write back score as .custom(text)
-                        if !setInput.scoreText.isEmpty {
-                            state.resultInputs[w].scoreResult = .custom(setInput.scoreText)
-                        }
+                        // Parse score into typed WodScoreResult based on WOD type
+                        state.resultInputs[w].scoreResult = parseScore(
+                            text: setInput.scoreText,
+                            wodType: setInput.wodType,
+                            exercises: setInput.exercises
+                        )
                     }
                     if w < state.exercisesEdited.count {
                         state.exercisesEdited[w] = true
@@ -411,6 +415,49 @@ struct SummaryFeature {
         .ifLet(\.$discardAlert, action: \.alert)
         .ifLet(\.$setInput, action: \.setInput) {
             SetInputFeature()
+        }
+    }
+
+    // MARK: - Helpers
+
+    /// Parses user input into a typed `WodScoreResult` based on WOD type.
+    ///
+    /// - Strength/Olympic: auto-computes `.forLoad` from max set weight (ignores text)
+    /// - AMRAP: parses "6+14" → `.amrap(rounds: 6, extraReps: 14)`
+    /// - FOR TIME: parses "14:32" → `.forTime(time: 872)`
+    /// - EMOM/Tabata: `.completed`
+    /// - Fallback: `.custom(text)`
+    private func parseScore(
+        text: String,
+        wodType: ExerciseWorkoutType,
+        exercises: [ExerciseLogInput]
+    ) -> WodScoreResult {
+        switch wodType {
+        case .strength, .olympicWeightlifting:
+            let maxWeight = exercises
+                .flatMap { $0.sets ?? [] }
+                .compactMap(\.weight)
+                .max() ?? 0
+            return .forLoad(weight: maxWeight)
+
+        case .amrap:
+            let parts = text.split(separator: "+").map { $0.trimmingCharacters(in: .whitespaces) }
+            if let rounds = parts.first.flatMap({ Int($0) }) {
+                let extraReps = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
+                return .amrap(rounds: rounds, extraReps: extraReps)
+            }
+            return text.isEmpty ? .completed : .custom(text)
+
+        case .forTime:
+            let parts = text.split(separator: ":").map { $0.trimmingCharacters(in: .whitespaces) }
+            if let minutes = parts.first.flatMap({ Int($0) }) {
+                let seconds = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
+                return .forTime(time: TimeInterval(minutes * 60 + seconds))
+            }
+            return text.isEmpty ? .completed : .custom(text)
+
+        case .emom, .tabata:
+            return .completed
         }
     }
 }

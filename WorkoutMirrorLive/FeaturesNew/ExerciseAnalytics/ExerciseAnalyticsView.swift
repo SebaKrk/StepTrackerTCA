@@ -32,6 +32,11 @@ struct ExerciseAnalyticsView: View {
         .onAppear {
             send(.onAppear)
         }
+        .sheet(item: $store.scope(state: \.detail, action: \.detail)) { store in
+            NavigationStack {
+                ExerciseDetailView(store: store)
+            }
+        }
     }
 
     // MARK: - Month Selector
@@ -49,25 +54,36 @@ struct ExerciseAnalyticsView: View {
     }
 
     private var previousMonthButton: some View {
-        Button {
-            let newDate = Calendar.current.date(byAdding: .month, value: -1, to: store.selectedMonth) ?? store.selectedMonth
+        let isEmpty = store.exerciseLogs.isEmpty
+        let calendar = Calendar.current
+        let isCurrentMonth = calendar.isDate(store.selectedMonth, equalTo: Date(), toGranularity: .month)
+
+        return Button {
+            let newDate = calendar.date(byAdding: .month, value: -1, to: store.selectedMonth) ?? store.selectedMonth
             send(.monthChanged(newDate))
         } label: {
             Image(systemName: "chevron.left")
                 .font(.title3)
                 .fontWeight(.semibold)
         }
+        .disabled(isEmpty && !isCurrentMonth)
+        .opacity(isEmpty && !isCurrentMonth ? 0.3 : 1)
     }
 
     private var nextMonthButton: some View {
-        Button {
-            let newDate = Calendar.current.date(byAdding: .month, value: 1, to: store.selectedMonth) ?? store.selectedMonth
+        let calendar = Calendar.current
+        let isCurrentMonth = calendar.isDate(store.selectedMonth, equalTo: Date(), toGranularity: .month)
+
+        return Button {
+            let newDate = calendar.date(byAdding: .month, value: 1, to: store.selectedMonth) ?? store.selectedMonth
             send(.monthChanged(newDate))
         } label: {
             Image(systemName: "chevron.right")
                 .font(.title3)
                 .fontWeight(.semibold)
         }
+        .disabled(isCurrentMonth)
+        .opacity(isCurrentMonth ? 0.3 : 1)
     }
 
     // MARK: - Movement Balance Card
@@ -84,7 +100,7 @@ struct ExerciseAnalyticsView: View {
     private var movementBalanceHeader: some View {
         VStack {
             HStack {
-                Text(String(localized: "Movement Balance", bundle: .main))
+                Text(String(localized: "Movement Balance"))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()
@@ -98,7 +114,7 @@ struct ExerciseAnalyticsView: View {
             if store.exerciseLogs.isEmpty {
                 ChartContentUnavailable(
                     systemImage: "figure.mixed.cardio",
-                    description: String(localized: "No exercise data for this month.", bundle: .main)
+                    description: String(localized: "No exercise data for this month.")
                 )
                 .frame(height: 200)
             } else {
@@ -116,11 +132,11 @@ struct ExerciseAnalyticsView: View {
                     if let count = breakdown[category], count > 0 {
                         BarMark(
                             x: .value(
-                                String(localized: "Week", bundle: .main),
+                                String(localized: "Week"),
                                 "W\(weekIndex + 1)"
                             ),
                             y: .value(
-                                String(localized: "Count", bundle: .main),
+                                String(localized: "Count"),
                                 count
                             )
                         )
@@ -130,6 +146,13 @@ struct ExerciseAnalyticsView: View {
             }
         }
         .chartLegend(.hidden)
+        .chartPlotStyle { plot in
+            plot.mask(alignment: .bottom) {
+                Rectangle()
+                    .scaleEffect(y: store.isChartAnimated ? 1 : 0, anchor: .bottom)
+            }
+        }
+        .animation(.smooth(duration: 0.6), value: store.isChartAnimated)
         .frame(height: 200)
     }
 
@@ -182,6 +205,17 @@ struct ExerciseAnalyticsView: View {
         .pickerStyle(.segmented)
     }
 
+    private var sortModeDescriptionText: String {
+        switch store.sortMode {
+        case .frequency:
+            return String(localized: "How often each exercise appeared in your training")
+        case .weight:
+            return String(localized: "Peak load recorded per exercise")
+        case .volume:
+            return String(localized: "Total load moved — reps × weight")
+        }
+    }
+
     // MARK: - Exercise List Card
 
     private var exerciseListCard: some View {
@@ -194,13 +228,16 @@ struct ExerciseAnalyticsView: View {
     }
 
     private var exerciseListHeader: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 2) {
             HStack {
-                Text(String(localized: "Exercises", bundle: .main))
+                Text(String(localized: "Exercises"))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()
             }
+            Text(sortModeDescriptionText)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
             Divider()
         }
     }
@@ -208,7 +245,7 @@ struct ExerciseAnalyticsView: View {
     private var exerciseListContent: some View {
         VStack(spacing: 0) {
             if store.exerciseSummaries.isEmpty {
-                Text(String(localized: "No exercises logged this month.", bundle: .main))
+                Text(String(localized: "No exercises logged this month."))
                     .foregroundStyle(.secondary)
                     .font(.caption)
                     .frame(maxWidth: .infinity)
@@ -246,7 +283,7 @@ struct ExerciseAnalyticsView: View {
                     }
                     Text(summary.category.displayName)
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
 
                 Spacer()
@@ -256,7 +293,9 @@ struct ExerciseAnalyticsView: View {
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .monospacedDigit()
-                    exerciseWeightLabel(summary)
+                    if store.sortMode != .frequency {
+                        exerciseWeightLabel(summary)
+                    }
                 }
 
                 Image(systemName: "chevron.right")
@@ -287,7 +326,7 @@ struct ExerciseAnalyticsView: View {
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             } else {
-                Text(String(localized: "BW", bundle: .main))
+                Text(String(localized: "BW"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

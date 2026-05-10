@@ -10,11 +10,11 @@ public enum MovementCategory: String, CaseIterable, Codable, Sendable {
 
     public var displayName: String {
         switch self {
-        case .strength:       return "Strength"
-        case .olympicLifting: return "Olympic Lifting"
-        case .gymnastics:     return "Gymnastics"
-        case .cardio:         return "Cardio"
-        case .mixed:          return "Mixed"
+        case .strength:       return String(localized: "Strength", bundle: .module)
+        case .olympicLifting: return String(localized: "Weightlifting", bundle: .module)
+        case .gymnastics:     return String(localized: "Gymnastics", bundle: .module)
+        case .cardio:         return String(localized: "Cardio", bundle: .module)
+        case .mixed:          return String(localized: "Mixed", bundle: .module)
         }
     }
 

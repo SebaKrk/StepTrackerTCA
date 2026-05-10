@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import SharedModels
 import SwiftUI
 
@@ -131,7 +132,7 @@ struct WorkoutPlanScoreDetailView: View {
                 WorkoutPlanScoreDetailFeature()
             } withDependencies: {
                 $0.activityClient.fetchWorkoutById = { _ in nil }
-                $0.activityClient.fetchMaxHeartRate = { nil }
+                $0.maxHeartRateClient.forWorkout = { _ in 190 }
             }
         )
     }

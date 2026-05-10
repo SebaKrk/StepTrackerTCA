@@ -231,6 +231,26 @@
         }
       }
     },
+    "Cardio" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kardio"
+          }
+        }
+      }
+    },
+    "Climbing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wspinaczka"
+          }
+        }
+      }
+    },
     "Cross Training" : {
       "localizations" : {
         "pl" : {
@@ -327,6 +347,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Funkcjonalny"
+          }
+        }
+      }
+    },
+    "Gymnastics" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gimnastyka"
           }
         }
       }
@@ -437,6 +467,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wysokie obciążenie treningowe. Zaplanuj 2-3 dni regeneracji lub lekkiej pracy."
+          }
+        }
+      }
+    },
+    "Hiking" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wędrówka"
           }
         }
       }
@@ -651,6 +691,16 @@
         }
       }
     },
+    "Mixed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mieszane"
+          }
+        }
+      }
+    },
     "Moderate effort, aerobic base" : {
       "localizations" : {
         "pl" : {
@@ -763,12 +813,32 @@
         }
       }
     },
+    "Weightlifting" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podnoszenie ciężarów"
+          }
+        }
+      }
+    },
     "Optimal Readiness" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Optymalna gotowość"
+          }
+        }
+      }
+    },
+    "Other" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inne"
           }
         }
       }

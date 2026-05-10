@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import SharedModels
 
 @Reducer
@@ -15,6 +16,11 @@ struct ExerciseDetailFeature {
     // MARK: - Dependency
 
     @Dependency(\.exerciseLogClient) var exerciseLogClient
+    @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
+    @Dependency(\.activityClient) var activityClient
+    @Dependency(\.maxHeartRateClient) var maxHeartRateClient
+    @Dependency(\.calendar) var calendar
+    @Dependency(\.dismiss) var dismiss
 
     // MARK: - Reducer
 
@@ -31,12 +37,73 @@ struct ExerciseDetailFeature {
 
             case let .logsLoaded(logs):
                 state.logs = logs
+                state.weeklyVolume = computeWeeklyVolume(from: logs)
                 return .none
 
-            case .view(.historyRowTapped):
-                // Navigation to workout detail handled by parent
+            case let .view(.historyRowTapped(scoreId)):
+                guard !state.isLoadingActivity else { return .none }
+                state.isLoadingActivity = true
+                return .run { [workoutPlanScoreClient, activityClient, maxHeartRateClient] send in
+                    do {
+                        guard let score = try await workoutPlanScoreClient.fetchById(scoreId),
+                              let workout = try await activityClient.fetchWorkoutById(score.hkWorkoutId)
+                        else {
+                            await send(.activityLoadFailed)
+                            return
+                        }
+                        let maxHR = await maxHeartRateClient.forWorkout(workout)
+                        await send(.activityLoaded(workout, maxHR))
+                    } catch {
+                        await send(.activityLoadFailed)
+                    }
+                }
+                .cancellable(id: ExerciseDetailFeatureCancelID.activityFetch, cancelInFlight: true)
+
+            case let .activityLoaded(workout, maxHR):
+                state.isLoadingActivity = false
+                state.activityDetail = ActivityDetailsFeature.State(workout: workout, maxHeartRate: maxHR)
                 return .none
+
+            case .activityLoadFailed:
+                // TODO: Surface a user-visible alert (e.g., "Trening niedostępny — mógł zostać
+                // usunięty z aplikacji Zdrowie") + `reportIssue(...)` for telemetry.
+                // Today this fails silently: loader flag clears, push doesn't happen,
+                // user sees nothing. Pattern reference: `PersonalActivityFeature.errorAlert`.
+                state.isLoadingActivity = false
+                return .none
+
+            case .activityDetail:
+                return .none
+
+            case .view(.dismissTapped):
+                return .run { _ in await self.dismiss() }
             }
         }
+        .ifLet(\.$activityDetail, action: \.activityDetail) {
+            ActivityDetailsFeature()
+        }
+    }
+
+    // MARK: - Private
+
+    private func computeWeeklyVolume(from logs: [ExerciseLog]) -> [State.WeeklyVolumePoint] {
+        let grouped = Dictionary(grouping: logs) { log in
+            calendar.startOfWeek(for: log.date)
+        }
+        return grouped.map { weekStart, weekLogs in
+            let volume = weekLogs.reduce(0.0) { total, log in
+                // Weighted: use volumeLoad (reps × weight)
+                if let vl = log.volumeLoad, vl > 0 { return total + vl }
+                // Bodyweight: sum reps as volume
+                guard let repsStr = log.actualReps else { return total }
+                let reps = repsStr.split(separator: "-")
+                    .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+                    .reduce(0, +)
+                return total + Double(reps)
+            }
+            return State.WeeklyVolumePoint(week: weekStart, volume: volume)
+        }
+        .sorted { $0.week < $1.week }
     }
 }
+

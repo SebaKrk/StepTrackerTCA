@@ -19,6 +19,14 @@ extension ExerciseAnalyticsFeature {
         /// Receives fetched logs from the async effect.
         case logsLoaded([ExerciseLog])
 
+        /// Triggers chart reveal animation after data loads.
+        case revealChart
+
+        // MARK: - Destination
+
+        /// Presentation action for exercise detail drilldown.
+        case detail(PresentationAction<ExerciseDetailFeature.Action>)
+
         // MARK: - View Actions
 
         case view(View)

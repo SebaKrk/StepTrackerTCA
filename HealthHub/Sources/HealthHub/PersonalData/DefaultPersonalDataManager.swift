@@ -26,16 +26,27 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     public func getAge() async throws -> Int? {
         do {
             let dateOfBirthComponents = try manager.healthStore.dateOfBirthComponents()
-            
+
             guard let birthDate = Calendar.current.date(from: dateOfBirthComponents) else {
                 print("Failed to create date from components")
                 return nil
             }
-            
+
             let calendar = Calendar.current
             return calendar.dateComponents([.year], from: birthDate, to: Date()).year
         } catch {
             print("Failed to fetch age: \(error)")
+            return nil
+        }
+    }
+
+    /// Retrieves user's date of birth directly from HealthKit characteristics.
+    public func getBirthDate() async throws -> Date? {
+        do {
+            let dateOfBirthComponents = try manager.healthStore.dateOfBirthComponents()
+            return Calendar.current.date(from: dateOfBirthComponents)
+        } catch {
+            print("Failed to fetch birth date: \(error)")
             return nil
         }
     }

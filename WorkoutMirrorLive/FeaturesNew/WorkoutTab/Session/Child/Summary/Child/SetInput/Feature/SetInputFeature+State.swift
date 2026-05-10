@@ -26,6 +26,9 @@ extension SetInputFeature {
         /// All exercises in this WOD — user edits reps/weight/sets for each.
         var exercises: [ExerciseLogInput]
 
+        /// WOD type — determines score input UI and auto-compute behavior.
+        var wodType: ExerciseWorkoutType
+
         /// Index identifying which WOD this sheet edits.
         var wodIndex: Int
 

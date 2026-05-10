@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import HealthKit
 import IssueReporting
 import SharedModels
@@ -21,6 +22,7 @@ struct WorkoutPlanScoreDetailFeature {
     // MARK: - Dependency
 
     @Dependency(\.activityClient) var activityClient
+    @Dependency(\.maxHeartRateClient) var maxHeartRateClient
 
     // MARK: - State
 
@@ -77,13 +79,13 @@ struct WorkoutPlanScoreDetailFeature {
 
             case .view(.viewActivityTapped):
                 state.isLoadingActivity = true
-                return .run { [id = state.score.hkWorkoutId] send in
+                return .run { [id = state.score.hkWorkoutId, activityClient, maxHeartRateClient] send in
                     do {
                         guard let workout = try await activityClient.fetchWorkoutById(id) else {
                             await send(.activityLoadFailed)
                             return
                         }
-                        let maxHR = await activityClient.fetchMaxHeartRate() ?? 190
+                        let maxHR = await maxHeartRateClient.forWorkout(workout)
                         await send(.activityLoaded(workout, maxHR))
                     } catch {
                         reportIssue(error)
@@ -99,6 +101,9 @@ struct WorkoutPlanScoreDetailFeature {
                 return .none
 
             case .activityLoadFailed:
+                // TODO: Surface a user-visible alert when the linked HKWorkout cannot be
+                // resolved (likely deleted from HealthKit by the user). Today fails silently:
+                // toolbar spinner clears, navigation doesn't happen, user sees nothing.
                 state.isLoadingActivity = false
                 return .none
 

@@ -19,13 +19,11 @@ struct SetInputFeature {
     // MARK: - Reducer
 
     var body: some Reducer<State, Action> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
 
-            // MARK: - Score
-
-            case let .view(.updateScore(text)):
-                state.scoreText = text
+            case .binding:
                 return .none
 
             // MARK: - Simple exercise (WOD)

@@ -132,4 +132,22 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
         self.isPR = isPR
         self.note = note
     }
+
+    /// Builds an `ExerciseLogInput` mirroring an existing `ExerciseLog` for in-place editing.
+    /// Preserves the log's `id` so the edited values can be matched back to the record.
+    public init(from log: ExerciseLog) {
+        self.init(
+            id: log.id,
+            exerciseType: log.exerciseType,
+            unmatchedName: log.unmatchedName,
+            category: log.category,
+            plannedReps: log.plannedReps,
+            plannedWeight: log.plannedWeight,
+            actualWeight: log.actualWeight,
+            actualReps: log.actualReps,
+            scaling: log.scaling,
+            isPR: log.isPR,
+            note: log.note ?? ""
+        )
+    }
 }

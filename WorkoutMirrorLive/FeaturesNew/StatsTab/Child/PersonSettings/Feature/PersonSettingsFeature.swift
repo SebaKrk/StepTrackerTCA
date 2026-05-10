@@ -7,16 +7,17 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import IssueReporting
 import SharedModels
 
 @Reducer
 struct PersonSettingsFeature {
-    
+
     // MARK: - Dependency
 
     @Dependency(\.personalDataClient) var personalDataClient
-    @Dependency(\.personCalculatorClient) var calculator
+    @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.apiKeyClient) var apiKeyClient
     @Dependency(\.userProfileClient) var userProfileClient
     @Dependency(\.dismiss) var dismiss
@@ -50,7 +51,7 @@ struct PersonSettingsFeature {
 
             case let .changeMaxHeartRate(age, sex):
                 guard let age, let sex else { return .none }
-                state.maxHR = calculator.calculateMaxHeartRate(age, sex)
+                state.maxHR = Int(maxHeartRateClient.fromAge(age, sex))
                 return .none
                 
             case .fetchPersonalData:

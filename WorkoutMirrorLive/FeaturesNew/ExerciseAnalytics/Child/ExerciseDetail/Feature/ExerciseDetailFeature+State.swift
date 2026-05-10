@@ -14,10 +14,42 @@ extension ExerciseDetailFeature {
     @ObservableState
     struct State {
 
+        // MARK: - Chart Points
+
+        struct WeightProgressionPoint: Identifiable, Equatable, Hashable {
+            let date: Date
+            let weight: Double
+            var id: Date { date }
+        }
+
+        struct WeeklyVolumePoint: Identifiable, Equatable, Hashable {
+            let week: Date
+            let volume: Double
+            var id: Date { week }
+        }
+
+        struct HRSessionPoint: Identifiable, Equatable, Hashable {
+            let date: Date
+            let avgHR: Double
+            var id: Date { date }
+        }
+
         // MARK: - Properties
 
         let exerciseType: ExerciseType
         var logs: [ExerciseLog] = []
+
+        /// Weekly volume points for the chart.
+        /// Recomputed by the reducer on `.logsLoaded` using `@Dependency(\.calendar)`.
+        var weeklyVolume: [WeeklyVolumePoint] = []
+
+        // MARK: - Navigation
+
+        /// Activity detail presented when user taps a history row.
+        @Presents var activityDetail: ActivityDetailsFeature.State?
+
+        /// Loading indicator when fetching HKWorkout for a tapped history row.
+        var isLoadingActivity: Bool = false
 
         // MARK: - Computed — Header
 
@@ -27,6 +59,11 @@ extension ExerciseDetailFeature {
 
         var pr: Double? {
             logs.compactMap(\.actualWeight).max()
+        }
+
+        /// Whether this exercise uses weight (has any actualWeight recorded).
+        var hasWeight: Bool {
+            logs.contains { ($0.actualWeight ?? 0) > 0 }
         }
 
         var avgHR: Double? {
@@ -41,44 +78,23 @@ extension ExerciseDetailFeature {
 
         // MARK: - Computed — Weight Progression Chart
 
-        var weightProgression: [(date: Date, weight: Double)] {
+        var weightProgression: [WeightProgressionPoint] {
             logs.compactMap { log in
                 guard let w = log.actualWeight else { return nil }
-                return (date: log.date, weight: w)
+                return WeightProgressionPoint(date: log.date, weight: w)
             }
             .sorted { $0.date < $1.date }
-        }
-
-        // MARK: - Computed — Weekly Volume Chart
-
-        var weeklyVolume: [(week: Date, volume: Double)] {
-            let calendar = Calendar.current
-            let grouped = Dictionary(grouping: logs) { log in
-                calendar.startOfWeek(for: log.date)
-            }
-            return grouped.map { weekStart, weekLogs in
-                (week: weekStart, volume: weekLogs.compactMap(\.volumeLoad).reduce(0, +))
-            }
-            .sorted { $0.week < $1.week }
         }
 
         // MARK: - Computed — HR per Session Chart
 
-        var hrPerSession: [(date: Date, avgHR: Double)] {
+        var hrPerSession: [HRSessionPoint] {
             logs.compactMap { log in
                 guard let hr = log.avgHeartRate else { return nil }
-                return (date: log.date, avgHR: hr)
+                return HRSessionPoint(date: log.date, avgHR: hr)
             }
             .sorted { $0.date < $1.date }
         }
     }
 }
 
-// MARK: - Calendar Helper
-
-private extension Calendar {
-    func startOfWeek(for date: Date) -> Date {
-        let components = dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
-        return self.date(from: components) ?? date
-    }
-}

@@ -61,6 +61,9 @@ extension StatsFeature {
 
         /// Child feature for the Analytics tab — historical trends and performance analysis.
         var analytics: AnalyticsFeature.State?
+
+        /// Child feature for the Exercises tab — per-exercise tracking, movement balance.
+        var exerciseAnalytics: ExerciseAnalyticsFeature.State?
     }
     
 }

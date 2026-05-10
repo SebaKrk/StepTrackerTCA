@@ -26,6 +26,18 @@ extension ExerciseAnalyticsFeature {
         /// Active sort mode for the exercise list (frequency / weight / volume).
         var sortMode: ExerciseAnalyticsSortMode = .frequency
 
+        /// Controls chart reveal animation — set to `true` after data loads.
+        var isChartAnimated: Bool = false
+
+        /// Weekly breakdown for stacked bar chart — one dictionary per week.
+        /// Recomputed by the reducer on `.logsLoaded` using `@Dependency(\.calendar)`.
+        var weeklyBreakdown: [[MovementCategory: Int]] = []
+
+        // MARK: - Destination
+
+        /// Navigation destination for exercise detail drilldown.
+        @Presents var detail: ExerciseDetailFeature.State?
+
         // MARK: - Computed
 
         /// Groups logs by exercise type and returns sorted summaries for the list.
@@ -49,20 +61,6 @@ extension ExerciseAnalyticsFeature {
         var categoryBreakdown: [MovementCategory: Int] {
             Dictionary(grouping: exerciseLogs) { $0.category ?? .mixed }
                 .mapValues(\.count)
-        }
-
-        /// Weekly breakdown for stacked bar chart — one dictionary per week.
-        var weeklyBreakdown: [[MovementCategory: Int]] {
-            let calendar = Calendar.current
-            let grouped = Dictionary(grouping: exerciseLogs) { log in
-                calendar.component(.weekOfMonth, from: log.date)
-            }
-            let maxWeek = grouped.keys.max() ?? 4
-            return (1...maxWeek).map { week in
-                let logs = grouped[week] ?? []
-                return Dictionary(grouping: logs) { $0.category ?? .mixed }
-                    .mapValues(\.count)
-            }
         }
 
         /// Compares two summaries according to the active `sortMode`.

@@ -12,7 +12,12 @@ import SharedModels
 extension SetInputFeature {
 
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+
+        /// Binding actions for direct state mutations (TextField bindings).
+        /// Prevents ifLet warning on dismiss — bindings go through BindingReducer
+        /// which is synchronous, not through presentation layer.
+        case binding(BindingAction<State>)
 
         // MARK: - View Actions
 
@@ -20,9 +25,6 @@ extension SetInputFeature {
 
         @CasePathable
         enum View {
-
-            /// User changed the score text.
-            case updateScore(String)
 
             /// User changed the reps for a simple exercise (WOD).
             case updateExerciseReps(exerciseIndex: Int, String)

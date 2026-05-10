@@ -161,12 +161,11 @@ struct StatsView: View {
 
     // MARK: - Exercise Analytics
 
+    @ViewBuilder
     private var exerciseAnalyticsView: some View {
-        ExerciseAnalyticsView(
-            store: Store(initialState: ExerciseAnalyticsFeature.State()) {
-                ExerciseAnalyticsFeature()
-            }
-        )
+        if let exerciseStore = store.scope(state: \.exerciseAnalytics, action: \.exerciseAnalytics) {
+            ExerciseAnalyticsView(store: exerciseStore)
+        }
     }
 
     // MARK: - Analytics Empty View

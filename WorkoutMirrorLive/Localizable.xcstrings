@@ -503,6 +503,9 @@
         }
       }
     },
+    "+" : {
+
+    },
     "+ %lld more" : {
 
     },
@@ -1012,7 +1015,14 @@
       }
     },
     "Avg HR per Session" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. HR na sesję"
+          }
+        }
+      }
     },
     "Back to plan" : {
 
@@ -1119,7 +1129,14 @@
       }
     },
     "BW" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BW"
+          }
+        }
+      }
     },
     "Cal Burned" : {
       "localizations" : {
@@ -1834,7 +1851,14 @@
       }
     },
     "Frequency" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Częstotliwość"
+          }
+        }
+      }
     },
     "fuel" : {
       "localizations" : {
@@ -2354,7 +2378,14 @@
       }
     },
     "Max weight (kg)" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maks. ciężar (kg)"
+          }
+        }
+      }
     },
     "Meters" : {
 
@@ -2403,6 +2434,16 @@
       }
     },
     "Minutes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuty"
+          }
+        }
+      }
+    },
+    "mm:ss" : {
 
     },
     "MOCK" : {
@@ -2415,8 +2456,45 @@
         }
       }
     },
+    "How often each exercise appeared in your training" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak często dane ćwiczenie pojawiało się w treningu"
+          }
+        }
+      }
+    },
+    "Peak load recorded per exercise" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najwyższy ciężar zarejestrowany per ćwiczenie"
+          }
+        }
+      }
+    },
+    "Total load moved — reps × weight" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łączny ciężar — powtórzenia × obciążenie"
+          }
+        }
+      }
+    },
     "Movement Balance" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balans ruchów"
+          }
+        }
+      }
     },
     "Movement history" : {
       "localizations" : {
@@ -2539,10 +2617,24 @@
       }
     },
     "No exercise data for this month." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych o ćwiczeniach w tym miesiącu."
+          }
+        }
+      }
     },
     "No exercises logged this month." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zalogowanych ćwiczeń w tym miesiącu."
+          }
+        }
+      }
     },
     "No heart rate data available. Check Health app." : {
       "extractionState" : "stale",
@@ -2556,10 +2648,24 @@
       }
     },
     "No heart rate data recorded for this exercise." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych tętna dla tego ćwiczenia."
+          }
+        }
+      }
     },
     "No history yet." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak historii."
+          }
+        }
+      }
     },
     "No HRV data found. Regular measurements required." : {
       "extractionState" : "stale",
@@ -2595,7 +2701,14 @@
       }
     },
     "No volume data recorded for this exercise." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych objętościowych dla tego ćwiczenia."
+          }
+        }
+      }
     },
     "No warmup" : {
 
@@ -2950,7 +3063,14 @@
       }
     },
     "PR" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PR"
+          }
+        }
+      }
     },
     "Present Workout Preview" : {
       "localizations" : {
@@ -3061,7 +3181,14 @@
 
     },
     "Remaining reps" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pozostałe powtórzenia"
+          }
+        }
+      }
     },
     "Remove" : {
 
@@ -3090,6 +3217,9 @@
 
     },
     "Remove Warmup?" : {
+
+    },
+    "reps" : {
 
     },
     "Reps" : {
@@ -3413,7 +3543,14 @@
 
     },
     "Sessions" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesje"
+          }
+        }
+      }
     },
     "Set" : {
 
@@ -4029,10 +4166,24 @@
       }
     },
     "Volume" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objętość"
+          }
+        }
+      }
     },
     "Volume per Week" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objętość tygodniowo"
+          }
+        }
+      }
     },
     "Waiting for Apple Watch" : {
       "localizations" : {
@@ -4151,7 +4302,14 @@
       }
     },
     "Weight Progression" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progresja wagi"
+          }
+        }
+      }
     },
     "Weight Trend" : {
       "localizations" : {

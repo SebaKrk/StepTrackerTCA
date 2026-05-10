@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import HealthHub
+import OSLog
 import SharedModels
 
 @Reducer
@@ -35,6 +36,9 @@ struct StatsFeature {
                 if value == .analytics, state.analytics == nil {
                     return .send(.initializeAnalytics)
                 }
+                if value == .exercises, state.exerciseAnalytics == nil {
+                    return .send(.initializeExerciseAnalytics)
+                }
                 return .none
                 
             case let .changeSubscriptionTier(value):
@@ -60,6 +64,10 @@ struct StatsFeature {
             case .initializeAnalytics:
                 state.analytics = AnalyticsFeature.State()
                 return .none
+
+            case .initializeExerciseAnalytics:
+                state.exerciseAnalytics = ExerciseAnalyticsFeature.State()
+                return .none
                 
             case .initializeChildren:
                 return .merge(
@@ -84,14 +92,14 @@ struct StatsFeature {
                         await send(.startObserving)
                         
                     case .failure(let error):
-                        print("Authorization failed with error: \(error.localizedDescription)")
+                        Logger.stats.error("Authorization failed: \(error.localizedDescription, privacy: .public)")
                         await send(.changeViewState(.failed))
                     }
                 }
 
             case .view(.viewDidDisappear):
-                // Don't cancel observation - keep it running for background updates
-                // return .cancel(id: StatsFeatureCancelID.observation)
+                // Observation intentionally kept alive — background updates need to flow
+                // even when the Stats tab is not on screen.
                 return .none
 
             case .startObserving:
@@ -156,6 +164,9 @@ struct StatsFeature {
 
             case .analytics(_):
                 return .none
+
+            case .exerciseAnalytics(_):
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -170,6 +181,9 @@ struct StatsFeature {
         }
         .ifLet(\.analytics, action: \.analytics) {
             AnalyticsFeature()
+        }
+        .ifLet(\.exerciseAnalytics, action: \.exerciseAnalytics) {
+            ExerciseAnalyticsFeature()
         }
     }
       

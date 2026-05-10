@@ -18,7 +18,7 @@ struct SessionFeature {
     // MARK: - Dependency
 
     @Dependency(\.sessionClient) var sessionClient
-    @Dependency(\.personCalculatorClient) var calculator
+    @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.continuousClock) var clock
@@ -194,7 +194,7 @@ struct SessionFeature {
                         return
                     }
 
-                    let maxHR = await calculator.calculateMaxHeartRate(age, sex)
+                    let maxHR = Int(maxHeartRateClient.fromAge(age, sex))
                     await send(.setMaxHR(maxHR))
                 }
 

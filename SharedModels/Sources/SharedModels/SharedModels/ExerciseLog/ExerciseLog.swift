@@ -93,4 +93,12 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
         self.note = note
         self.editableUntil = editableUntil
     }
+
+    /// Whether this log is still within the post-workout edit window.
+    /// Returns `false` for legacy logs (no `editableUntil` set) and for any log
+    /// whose window has already expired.
+    public func isEditable(now: Date) -> Bool {
+        guard let editableUntil else { return false }
+        return editableUntil > now
+    }
 }
