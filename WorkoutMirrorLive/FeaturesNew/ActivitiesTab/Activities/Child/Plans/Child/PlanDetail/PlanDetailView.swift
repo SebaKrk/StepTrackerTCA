@@ -83,27 +83,39 @@ struct PlanDetailView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button {
-                send(.doneTapped)
-            } label: {
-                Text("Done").fontWeight(.semibold)
-            }
+            doneButton
         }
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                send(.editTapped)
-            } label: {
-                Text("Edit")
-            }
+            editButton
         }
         ToolbarItemGroup(placement: .bottomBar) {
             Spacer()
-            Button {
-                send(.startWorkoutTapped)
-            } label: {
-                Label(String(localized: "Start Workout"), systemImage: "play.fill")
-                    .fontWeight(.semibold)
-            }
+            startWorkoutButton
+        }
+    }
+
+    private var doneButton: some View {
+        Button {
+            send(.doneTapped)
+        } label: {
+            Text("Done").fontWeight(.semibold)
+        }
+    }
+
+    private var editButton: some View {
+        Button {
+            send(.editTapped)
+        } label: {
+            Text("Edit")
+        }
+    }
+
+    private var startWorkoutButton: some View {
+        Button {
+            send(.startWorkoutTapped)
+        } label: {
+            Label(String(localized: "Start Workout"), systemImage: "play.fill")
+                .fontWeight(.semibold)
         }
     }
 }
