@@ -36,8 +36,8 @@ struct WorkoutPlanScoreView: View {
         }
     }
 
-    // MARK: - SubView
-    
+    // MARK: - Composite SubViews
+
     private var loadingView: some View {
         GroupBox {
             HStack {
@@ -65,18 +65,32 @@ struct WorkoutPlanScoreView: View {
     private func historyButtonRow(count: Int) -> some View {
         GroupBox {
             HStack {
-                Text(String(localized: "History"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                historyButtonTitle
                 Spacer()
-                Text("\(count)")
-                    .foregroundStyle(.secondary)
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                historyButtonCount(count)
+                historyButtonChevron
             }
         }
         .styledGroupBox()
+    }
+
+    // MARK: - Atomic SubViews
+
+    private var historyButtonTitle: some View {
+        Text(String(localized: "History"))
+            .font(.headline)
+            .foregroundStyle(.primary)
+    }
+
+    private func historyButtonCount(_ count: Int) -> some View {
+        Text("\(count)")
+            .foregroundStyle(.secondary)
+    }
+
+    private var historyButtonChevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 
     private var historyDescription: some View {
