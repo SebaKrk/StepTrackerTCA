@@ -111,6 +111,18 @@ struct SummaryView: View {
     
     @ViewBuilder
     private var summaryView: some View {
+        summaryContent
+            .background(summaryBackground)
+            .navigationTitle(String(localized: "Summary"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbarContent }
+            .alert(store: store.scope(state: \.$discardAlert, action: \.alert))
+            .sheet(item: $store.scope(state: \.setInput, action: \.setInput)) { store in
+                SetInputView(store: store)
+            }
+    }
+
+    private var summaryContent: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: 12) {
@@ -137,21 +149,15 @@ struct SummaryView: View {
                 }
             }
         }
-        .background(
-            LinearGradient(
-                colors: [Color.gray.opacity(0.2), .clear],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+    }
+
+    private var summaryBackground: some View {
+        LinearGradient(
+            colors: [Color.gray.opacity(0.2), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
         )
-        .navigationTitle(String(localized: "Summary"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar { toolbarContent }
-        .alert(store: store.scope(state: \.$discardAlert, action: \.alert))
-        .sheet(item: $store.scope(state: \.setInput, action: \.setInput)) { store in
-            SetInputView(store: store)
-        }
+        .ignoresSafeArea()
     }
     
     // MARK: - Header Card
@@ -189,42 +195,62 @@ struct SummaryView: View {
     // MARK: - Metrics Grid
     
     private func metricsGrid(workout: HKWorkout) -> some View {
+        LazyVGrid(columns: twoColumnGrid, alignment: .leading, spacing: 12) {
+            caloriesCard(workout: workout)
+            avgHRCard
+            maxHRCard
+            timeCard(workout: workout)
+        }
+    }
+
+    private var twoColumnGrid: [GridItem] {
+        [GridItem(.flexible()), GridItem(.flexible())]
+    }
+
+    private func caloriesCard(workout: HKWorkout) -> some View {
         let hkCalories = workout.statistics(for: .init(.activeEnergyBurned))?
             .sumQuantity()
             .map { Int($0.doubleValue(for: .kilocalorie())) }
         let metricsEnergy = store.summary?.metrics.activeEnergy ?? 0
         let calories: Int? = hkCalories ?? (metricsEnergy > 0 ? Int(metricsEnergy) : nil)
 
-        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
-            metricCard(
-                icon: "flame.fill",
-                iconColor: .primary,
-                title: "Calories Active",
-                value: calories.map { "\($0)" } ?? "--",
-                unit: "kcal"
-            )
-            metricCard(
-                icon: "heart.fill",
-                iconColor: .primary,
-                title: "Avg HR",
-                value: Int(store.summary?.metrics.averageHeartRate ?? 0).formatted(.number),
-                unit: "bpm"
-            )
-            metricCard(
-                icon: "heart.fill",
-                iconColor: .primary,
-                title: "Max HR",
-                value: Int(store.summary?.metrics.heartRate ?? 0).formatted(.number),
-                unit: "bpm"
-            )
-            metricCard(
-                icon: "timer",
-                iconColor: .primary,
-                title: "Time",
-                value: workout.duration.formattedDuration(),
-                unit: ""
-            )
-        }
+        return metricCard(
+            icon: "flame.fill",
+            iconColor: .primary,
+            title: String(localized: "Calories Active"),
+            value: calories.map { "\($0)" } ?? "--",
+            unit: "kcal"
+        )
+    }
+
+    private var avgHRCard: some View {
+        metricCard(
+            icon: "heart.fill",
+            iconColor: .primary,
+            title: String(localized: "Avg HR"),
+            value: Int(store.summary?.metrics.averageHeartRate ?? 0).formatted(.number),
+            unit: "bpm"
+        )
+    }
+
+    private var maxHRCard: some View {
+        metricCard(
+            icon: "heart.fill",
+            iconColor: .primary,
+            title: String(localized: "Max HR"),
+            value: Int(store.summary?.metrics.heartRate ?? 0).formatted(.number),
+            unit: "bpm"
+        )
+    }
+
+    private func timeCard(workout: HKWorkout) -> some View {
+        metricCard(
+            icon: "timer",
+            iconColor: .primary,
+            title: String(localized: "Time"),
+            value: workout.duration.formattedDuration(),
+            unit: ""
+        )
     }
     
     private func metricCard(icon: String, iconColor: Color, title: String, value: String, unit: String) -> some View {
@@ -261,75 +287,112 @@ struct SummaryView: View {
 
     private var wodResultsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Results"))
-                .font(.headline)
-                .padding(.horizontal, 4)
-
+            resultsHeader
             ForEach(Array(store.resultInputs.enumerated()), id: \.offset) { index, result in
-                let parsed = result.parsedDescription
-                GroupBox {
-                    if index < store.showResults.count && store.showResults[index] {
-                        VStack(spacing: 0) {
-                            if !parsed.items.isEmpty {
-                                Divider().padding(.leading)
-                                editorRow {
-                                    descriptionItems(parsed.items)
-                                    Spacer()
-                                }
-                            }
-
-                            if !store.resultInputs[index].exercises.isEmpty {
-                                Divider().padding(.leading)
-                                if index < store.exercisesEdited.count && store.exercisesEdited[index] {
-                                    exerciseResultsTable(wodIndex: index)
-                                } else {
-                                    editExercisesButton(wodIndex: index)
-                                }
-                            }
-
-                            Divider().padding(.leading)
-                            if index < store.showNotes.count && store.showNotes[index] {
-                                TextField(String(localized: "Add note..."), text: Binding(
-                                    get: { store.resultInputs[index].note },
-                                    set: { send(.updateNote(index, $0)) }
-                                ), axis: .vertical)
-                                .lineLimit(1...4)
-                                .focused($focusedField, equals: .note(index))
-                                .id(FocusField.note(index))
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 10)
-                            } else {
-                                editorRow {
-                                    Text(String(localized: "Note"))
-                                        .foregroundStyle(.secondary)
-                                    Spacer()
-                                    addNoteButton(index: index)
-                                }
-                            }
-                        }
-                    }
-                } label: {
-                    VStack(spacing: 4) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(result.name)
-                                .font(.subheadline)
-                                .bold()
-                            if let timeCap = parsed.timeCap {
-                                wodTimeCapBadge(timeCap)
-                            }
-                            Spacer()
-                            Toggle("", isOn: Binding(
-                                get: { index < store.showResults.count && store.showResults[index] },
-                                set: { _ in send(.toggleResult(index)) }
-                            ))
-                            .labelsHidden()
-                        }
-                        Divider()
-                    }
-                }
-                .styledGroupBox()
+                resultCard(at: index, result: result)
             }
         }
+    }
+
+    private var resultsHeader: some View {
+        Text(String(localized: "Results"))
+            .font(.headline)
+            .padding(.horizontal, 4)
+    }
+
+    private func resultCard(at index: Int, result: WorkoutSessionResult) -> some View {
+        let parsed = result.parsedDescription
+        return GroupBox {
+            resultCardContent(at: index, parsed: parsed)
+        } label: {
+            resultCardLabel(at: index, result: result, parsed: parsed)
+        }
+        .styledGroupBox()
+    }
+
+    @ViewBuilder
+    private func resultCardContent(at index: Int, parsed: ParsedWodDescription) -> some View {
+        if index < store.showResults.count && store.showResults[index] {
+            VStack(spacing: 0) {
+                resultDescriptionSection(parsed: parsed)
+                resultExercisesSection(at: index)
+                resultNoteSection(at: index)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func resultDescriptionSection(parsed: ParsedWodDescription) -> some View {
+        if !parsed.items.isEmpty {
+            Divider().padding(.leading)
+            editorRow {
+                descriptionItems(parsed.items)
+                Spacer()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func resultExercisesSection(at index: Int) -> some View {
+        if !store.resultInputs[index].exercises.isEmpty {
+            Divider().padding(.leading)
+            if index < store.exercisesEdited.count && store.exercisesEdited[index] {
+                exerciseResultsTable(wodIndex: index)
+            } else {
+                editExercisesButton(wodIndex: index)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func resultNoteSection(at index: Int) -> some View {
+        Divider().padding(.leading)
+        if index < store.showNotes.count && store.showNotes[index] {
+            resultNoteTextField(at: index)
+        } else {
+            editorRow {
+                Text(String(localized: "Note"))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                addNoteButton(index: index)
+            }
+        }
+    }
+
+    private func resultNoteTextField(at index: Int) -> some View {
+        TextField(String(localized: "Add note..."), text: Binding(
+            get: { store.resultInputs[index].note },
+            set: { send(.updateNote(index, $0)) }
+        ), axis: .vertical)
+        .lineLimit(1...4)
+        .focused($focusedField, equals: .note(index))
+        .id(FocusField.note(index))
+        .padding(.horizontal, 4)
+        .padding(.vertical, 10)
+    }
+
+    private func resultCardLabel(at index: Int, result: WorkoutSessionResult, parsed: ParsedWodDescription) -> some View {
+        VStack(spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(result.name)
+                    .font(.subheadline)
+                    .bold()
+                if let timeCap = parsed.timeCap {
+                    wodTimeCapBadge(timeCap)
+                }
+                Spacer()
+                resultToggle(at: index)
+            }
+            Divider()
+        }
+    }
+
+    private func resultToggle(at index: Int) -> some View {
+        Toggle("", isOn: Binding(
+            get: { index < store.showResults.count && store.showResults[index] },
+            set: { _ in send(.toggleResult(index)) }
+        ))
+        .labelsHidden()
     }
 
     // MARK: - WOD Score Input
@@ -436,14 +499,23 @@ struct SummaryView: View {
 
     private func exerciseHeader(exercise: ExerciseLogInput) -> some View {
         HStack {
-            Text(exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? String(localized: "Unknown"))
-                .font(.subheadline.weight(.semibold))
+            exerciseHeaderName(exercise)
             Spacer()
-            if let weight = exercise.plannedWeight {
-                Text("\(Int(weight)) kg")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            exerciseHeaderPlannedWeight(exercise)
+        }
+    }
+
+    private func exerciseHeaderName(_ exercise: ExerciseLogInput) -> some View {
+        Text(exercise.exerciseType?.displayName ?? exercise.unmatchedName ?? String(localized: "Unknown"))
+            .font(.subheadline.weight(.semibold))
+    }
+
+    @ViewBuilder
+    private func exerciseHeaderPlannedWeight(_ exercise: ExerciseLogInput) -> some View {
+        if let weight = exercise.plannedWeight {
+            Text("\(Int(weight)) kg")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -454,28 +526,49 @@ struct SummaryView: View {
     @ViewBuilder
     private func exerciseValueSummary(exercise: ExerciseLogInput) -> some View {
         if let sets = exercise.sets, !sets.isEmpty {
-            // Per-set: "10×40 · 10×45 · 10×50"
-            if sets.contains(where: { $0.weight != nil }) {
-                exerciseSetsSummary(sets: sets)
-            } else {
-                Text(String(localized: "No weights logged"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
+            exerciseValueSetSummary(sets: sets)
         } else {
-            // Simple: "21-15-9 · 43 kg"
-            HStack(spacing: 4) {
-                if let reps = exercise.actualReps {
-                    Text(reps)
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                }
-                if let weight = exercise.actualWeight {
-                    Text("· \(Int(weight)) kg")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            exerciseValueSimpleSummary(exercise: exercise)
+        }
+    }
+
+    @ViewBuilder
+    private func exerciseValueSetSummary(sets: [SetEntry]) -> some View {
+        if sets.contains(where: { $0.weight != nil }) {
+            exerciseSetsSummary(sets: sets)
+        } else {
+            exerciseValueNoWeightsText
+        }
+    }
+
+    private var exerciseValueNoWeightsText: some View {
+        Text(String(localized: "No weights logged"))
+            .font(.caption)
+            .foregroundStyle(.tertiary)
+    }
+
+    private func exerciseValueSimpleSummary(exercise: ExerciseLogInput) -> some View {
+        HStack(spacing: 4) {
+            exerciseValueRepsText(exercise.actualReps)
+            exerciseValueWeightText(exercise.actualWeight)
+        }
+    }
+
+    @ViewBuilder
+    private func exerciseValueRepsText(_ reps: String?) -> some View {
+        if let reps {
+            Text(reps)
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private func exerciseValueWeightText(_ weight: Double?) -> some View {
+        if let weight {
+            Text("· \(Int(weight)) kg")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -554,12 +647,12 @@ struct SummaryView: View {
 
     private func descriptionItems(_ items: [ParsedWodDescription.Item]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(items.indices, id: \.self) { i in
+            ForEach(items.indices, id: \.self) { index in
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(items[i].line)
-                        .font(.body.weight(.medium))
+                    Text(items[index].line)
+                        .font(.headline)
                         .foregroundStyle(.primary)
-                    if let scaling = items[i].scaling {
+                    if let scaling = items[index].scaling {
                         Text(scaling)
                             .font(.caption)
                             .foregroundStyle(.tertiary)
@@ -585,31 +678,28 @@ struct SummaryView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            Button {
-                send(.discardWorkoutButtonTapped)
-            } label: {
-                Text("Odrzuć")
-                    .foregroundStyle(.red)
-            }
+            discardButton
             Spacer()
-            Button {
-                send(.endWorkoutButtonTapped)
-            } label: {
-                Text("Zapisz")
-                    .fontWeight(.semibold)
-            }
+            saveButton
         }
     }
-}
 
-// MARK: - Helpers
+    private var discardButton: some View {
+        Button {
+            send(.discardWorkoutButtonTapped)
+        } label: {
+            Text(String(localized: "Discard"))
+                .foregroundStyle(.red)
+        }
+    }
 
-extension TimeInterval {
-    func formattedDuration() -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute, .second]
-        formatter.unitsStyle = .abbreviated
-        return formatter.string(from: self) ?? "--"
+    private var saveButton: some View {
+        Button {
+            send(.endWorkoutButtonTapped)
+        } label: {
+            Text(String(localized: "Save"))
+                .fontWeight(.semibold)
+        }
     }
 }
 

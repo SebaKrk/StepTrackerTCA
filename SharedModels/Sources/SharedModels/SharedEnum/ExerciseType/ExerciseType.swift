@@ -215,7 +215,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .toesToBar:
             return ["toes to bar", "toes-to-bar", "T2B"]
         case .sitUps:
-            return ["sit up", "sit-up", "situp"]
+            return ["sit up", "sit ups", "sit-up", "sit-ups", "situp", "situps"]
         case .running:
             return ["running", "run", "jog", "meter run", "m run", "km run", "mile run"]
         case .rowing:
@@ -316,6 +316,18 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return .olympicLifting
         case .unknown:
             return .mixed
+        }
+    }
+
+    /// Whether this exercise always involves load (kg).
+    /// `true` means SetInputView should show a weight field even if the plan didn't specify one
+    /// (e.g. Wall Balls always use a 6/9/14kg medicine ball).
+    public var requiresWeight: Bool {
+        switch self {
+        case .wallBalls, .farmersCarry:
+            return true
+        default:
+            return category == .strength || category == .olympicLifting
         }
     }
 }

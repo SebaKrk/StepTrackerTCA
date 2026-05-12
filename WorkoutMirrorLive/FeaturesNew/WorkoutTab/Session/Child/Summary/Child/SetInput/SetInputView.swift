@@ -31,10 +31,7 @@ struct SetInputView: View {
             }
             .navigationTitle(store.wodName)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                cancelToolbarButton
-                addToolbarButton
-            }
+            .toolbar { toolbarContent }
         }
         .presentationDetents([.medium, .large])
     }
@@ -58,28 +55,60 @@ struct SetInputView: View {
     private var amrapScoreSection: some View {
         GroupBox {
             HStack(spacing: 12) {
-                Text(String(localized: "Score:"))
-                    .font(.subheadline.weight(.semibold))
-                TextField(String(localized: "Rounds"), text: amrapRoundsBinding)
-                    .textFieldStyle(.plain)
-                    .keyboardType(.numberPad)
-                    .padding(8)
-                    .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
-                    .frame(maxWidth: .infinity)
-
-                Text("+")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                TextField(String(localized: "Reps"), text: amrapRepsBinding)
-                    .textFieldStyle(.plain)
-                    .keyboardType(.numberPad)
-                    .padding(8)
-                    .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
-                    .frame(maxWidth: .infinity)
+                scoreLabel
+                amrapRoundsField
+                amrapPlusSeparator
+                amrapRepsField
             }
         }
         .styledGroupBox()
+    }
+
+    private var amrapRoundsField: some View {
+        numberField(
+            placeholder: String(localized: "Rounds"),
+            text: amrapRoundsBinding,
+            keyboard: .numberPad
+        )
+        .frame(maxWidth: .infinity)
+    }
+
+    private var amrapPlusSeparator: some View {
+        Text("+")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+    }
+
+    private var amrapRepsField: some View {
+        numberField(
+            placeholder: String(localized: "Reps"),
+            text: amrapRepsBinding,
+            keyboard: .numberPad
+        )
+        .frame(maxWidth: .infinity)
+    }
+
+    private var forTimeScoreSection: some View {
+        GroupBox {
+            HStack {
+                scoreLabel
+                forTimeScoreField
+            }
+        }
+        .styledGroupBox()
+    }
+
+    private var forTimeScoreField: some View {
+        numberField(
+            placeholder: "mm:ss",
+            text: $store.scoreText,
+            keyboard: .numbersAndPunctuation
+        )
+    }
+
+    private var scoreLabel: some View {
+        Text(String(localized: "Score:"))
+            .font(.subheadline.weight(.semibold))
     }
 
     /// Binding that reads/writes the "rounds" part of scoreText ("6+14" → "6").
@@ -112,28 +141,12 @@ struct SetInputView: View {
         )
     }
 
-    private var forTimeScoreSection: some View {
-        GroupBox {
-            HStack {
-                Text(String(localized: "Score:"))
-                    .font(.subheadline.weight(.semibold))
-                TextField("mm:ss", text: $store.scoreText)
-                    .textFieldStyle(.plain)
-                    .keyboardType(.numbersAndPunctuation)
-                    .padding(8)
-                    .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
-            }
-        }
-        .styledGroupBox()
-    }
-
     // MARK: - Exercise Card
 
     private func exerciseCard(exerciseIndex: Int, exercise: ExerciseLogInput) -> some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 8) {
                 exerciseCardHeader(exercise: exercise)
-
                 if exercise.sets != nil {
                     strengthGrid(exerciseIndex: exerciseIndex, exercise: exercise)
                 } else {
@@ -148,19 +161,33 @@ struct SetInputView: View {
 
     private func exerciseCardHeader(exercise: ExerciseLogInput) -> some View {
         HStack {
-            Text(exercise.displayName)
-                .font(.subheadline.weight(.semibold))
-            if exercise.isUnmatched {
-                Image(systemName: "questionmark.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-            }
+            exerciseHeaderName(exercise)
+            unmatchedIndicator(exercise)
             Spacer()
-            if let reps = exercise.plannedReps {
-                Text(String(localized: "Plan: \(reps)"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            plannedRepsText(exercise)
+        }
+    }
+
+    private func exerciseHeaderName(_ exercise: ExerciseLogInput) -> some View {
+        Text(exercise.displayName)
+            .font(.subheadline.weight(.semibold))
+    }
+
+    @ViewBuilder
+    private func unmatchedIndicator(_ exercise: ExerciseLogInput) -> some View {
+        if exercise.isUnmatched {
+            Image(systemName: "questionmark.circle.fill")
+                .font(.caption)
+                .foregroundStyle(.orange)
+        }
+    }
+
+    @ViewBuilder
+    private func plannedRepsText(_ exercise: ExerciseLogInput) -> some View {
+        if let reps = exercise.plannedReps {
+            Text(String(localized: "Plan: \(reps)"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -168,36 +195,40 @@ struct SetInputView: View {
 
     private func simpleInput(exerciseIndex: Int, exercise: ExerciseLogInput) -> some View {
         HStack(spacing: 8) {
-            TextField(unitPlaceholder(exercise), text: Binding(
-                get: { exercise.actualReps ?? "" },
-                set: { send(.updateExerciseReps(exerciseIndex: exerciseIndex, $0)) }
-            ))
-            .textFieldStyle(.plain)
-            .padding(8)
-            .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
-            .keyboardType(.default)
-
-            let needsWeight: Bool = {
-                guard let category = exercise.category else { return exercise.plannedWeight != nil }
-                switch category {
-                case .strength, .olympicLifting:
-                    return true
-                case .gymnastics, .cardio, .mixed:
-                    return exercise.plannedWeight != nil
-                }
-            }()
-            if needsWeight {
-                TextField("kg", text: Binding(
-                    get: { exercise.actualWeight.map { "\(Int($0))" } ?? "" },
-                    set: { send(.updateExerciseWeight(exerciseIndex: exerciseIndex, $0)) }
-                ))
-                .textFieldStyle(.plain)
-            .padding(8)
-            .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
-                .keyboardType(.decimalPad)
-                .frame(width: 70)
+            simpleInputRepsField(exerciseIndex: exerciseIndex, exercise: exercise)
+            if needsWeight(for: exercise) {
+                simpleInputWeightField(exerciseIndex: exerciseIndex, exercise: exercise)
             }
         }
+    }
+
+    private func simpleInputRepsField(exerciseIndex: Int, exercise: ExerciseLogInput) -> some View {
+        numberField(
+            placeholder: unitPlaceholder(exercise),
+            text: Binding(
+                get: { exercise.actualReps ?? "" },
+                set: { send(.updateExerciseReps(exerciseIndex: exerciseIndex, $0)) }
+            )
+        )
+    }
+
+    private func simpleInputWeightField(exerciseIndex: Int, exercise: ExerciseLogInput) -> some View {
+        numberField(
+            placeholder: "kg",
+            text: Binding(
+                get: { exercise.actualWeight.map { "\(Int($0))" } ?? "" },
+                set: { send(.updateExerciseWeight(exerciseIndex: exerciseIndex, $0)) }
+            ),
+            keyboard: .decimalPad
+        )
+        .frame(width: 70)
+    }
+
+    private func needsWeight(for exercise: ExerciseLogInput) -> Bool {
+        if let type = exercise.exerciseType, type.requiresWeight {
+            return true
+        }
+        return exercise.plannedWeight != nil
     }
 
     // MARK: - Strength Grid (per-set)
@@ -228,30 +259,54 @@ struct SetInputView: View {
 
     private func strengthGridRow(exerciseIndex: Int, setIndex: Int, entry: SetEntry) -> some View {
         GridRow {
-            Text("\(setIndex + 1)")
-                .font(.body.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .frame(width: 30)
+            setIndexCell(setIndex)
+            setRepsField(exerciseIndex: exerciseIndex, setIndex: setIndex, entry: entry)
+            setWeightField(exerciseIndex: exerciseIndex, setIndex: setIndex, entry: entry)
+        }
+    }
 
-            TextField(String(localized: "Reps"), text: Binding(
+    private func setIndexCell(_ setIndex: Int) -> some View {
+        Text("\(setIndex + 1)")
+            .font(.body.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .frame(width: 30)
+    }
+
+    private func setRepsField(exerciseIndex: Int, setIndex: Int, entry: SetEntry) -> some View {
+        numberField(
+            placeholder: String(localized: "Reps"),
+            text: Binding(
                 get: { "\(entry.reps)" },
                 set: { send(.updateSetReps(exerciseIndex: exerciseIndex, setIndex: setIndex, $0)) }
-            ))
-            .textFieldStyle(.plain)
-            .padding(8)
-            .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
-            .keyboardType(.numberPad)
+            ),
+            keyboard: .numberPad
+        )
+    }
 
-            TextField("kg", text: Binding(
+    private func setWeightField(exerciseIndex: Int, setIndex: Int, entry: SetEntry) -> some View {
+        numberField(
+            placeholder: "kg",
+            text: Binding(
                 get: { entry.weight.map { "\(Int($0))" } ?? "" },
                 set: { send(.updateSetWeight(exerciseIndex: exerciseIndex, setIndex: setIndex, $0)) }
-            ))
+            ),
+            keyboard: .decimalPad
+        )
+        .frame(width: 80)
+    }
+
+    // MARK: - Number Field Helper
+
+    private func numberField(
+        placeholder: String,
+        text: Binding<String>,
+        keyboard: UIKeyboardType = .default
+    ) -> some View {
+        TextField(placeholder, text: text)
             .textFieldStyle(.plain)
             .padding(8)
             .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
-            .keyboardType(.decimalPad)
-            .frame(width: 80)
-        }
+            .keyboardType(keyboard)
     }
 
     // MARK: - Unit Placeholder
@@ -272,25 +327,29 @@ struct SetInputView: View {
     // MARK: - Toolbar
 
     @ToolbarContentBuilder
-    private var cancelToolbarButton: some ToolbarContent {
+    private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button {
-                send(.cancelTapped)
-            } label: {
-                Text(String(localized: "Cancel"))
-            }
+            cancelButton
+        }
+        ToolbarItem(placement: .confirmationAction) {
+            addButton
         }
     }
 
-    @ToolbarContentBuilder
-    private var addToolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .confirmationAction) {
-            Button {
-                send(.addTapped)
-            } label: {
-                Text(String(localized: "Add"))
-                    .fontWeight(.semibold)
-            }
+    private var cancelButton: some View {
+        Button {
+            send(.cancelTapped)
+        } label: {
+            Text(String(localized: "Cancel"))
+        }
+    }
+
+    private var addButton: some View {
+        Button {
+            send(.addTapped)
+        } label: {
+            Text(String(localized: "Add"))
+                .fontWeight(.semibold)
         }
     }
 }

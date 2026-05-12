@@ -38,14 +38,7 @@ struct WorkoutPlanScoreListView: View {
         }
         .navigationTitle(String(localized: "History"))
         .navigationBarTitleDisplayMode(.inline)
-        .background(
-            LinearGradient(
-                colors: [color.opacity(0.2), .clear],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-        )
+        .background(backgroundGradient)
         .onAppear { send(.viewDidAppear) }
         .navigationDestination(
             item: $store.scope(state: \.destination?.detail, action: \.destination.detail)
@@ -59,104 +52,75 @@ struct WorkoutPlanScoreListView: View {
         }
     }
 
-    // MARK: - Score List
+    // MARK: - Composite SubViews
+
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [color.opacity(0.2), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
 
     private func scoreList(_ scores: [WorkoutPlanScore]) -> some View {
         List(selection: $selection) {
             ForEach(scores) { score in
-                scoreCard(score: score)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        guard !editMode.isEditing else { return }
-                        send(.scoreTapped(score))
-                    }
-                    .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
+                scoreListRow(score)
             }
         }
         .environment(\.editMode, $editMode)
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    withAnimation {
-                        editMode = editMode.isEditing ? .inactive : .active
-                        if !editMode.isEditing { selection = [] }
-                    }
-                } label: {
-                    Text(editMode.isEditing ? String(localized: "Done") : String(localized: "Select"))
-                        .fontWeight(editMode.isEditing ? .semibold : .regular)
-                }
-            }
-            ToolbarItemGroup(placement: .bottomBar) {
-                if editMode.isEditing, selection.count >= 2 {
-                    Spacer()
-                    Button {
-                        let selected = store.scoreLoader.scores.filter { selection.contains($0.id) }
-                        send(.compareTapped(selected))
-                        selection = []
-                        editMode = .inactive
-                    } label: {
-                        Label(String(localized: "Compare"), systemImage: "chart.line.uptrend.xyaxis")
-                            .fontWeight(.semibold)
-                    }
-                }
-            }
-        }
+        .toolbar { scoreListToolbar }
     }
 
-    // MARK: - Score Card
+    private func scoreListRow(_ score: WorkoutPlanScore) -> some View {
+        scoreCard(score: score)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                guard !editMode.isEditing else { return }
+                send(.scoreTapped(score))
+            }
+            .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+    }
 
     private func scoreCard(score: WorkoutPlanScore) -> some View {
         GroupBox {
             resultsPreview(score.results)
         } label: {
-            HStack {
-                Text(score.date.formatted(date: .abbreviated, time: .omitted))
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                Spacer()
-                if !editMode.isEditing {
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            scoreCardLabel(date: score.date)
         }
         .styledGroupBox()
         .padding(4)
     }
 
-    // MARK: - Results Preview
-
-    private func resultsPreview(_ results: [WorkoutSessionResult]) -> some View {
-        let visible = results.filter { $0.scoreResult != .completed }.prefix(3)
-
-        return VStack(alignment: .leading, spacing: 6) {
-            ForEach(Array(visible.enumerated()), id: \.offset) { _, result in
-                HStack {
-                    Text(result.name)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                    Spacer()
-                    Text(result.scoreResult.displayString)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
-                }
-            }
-            if results.filter({ $0.scoreResult != .completed }).count > 3 {
-                Text("+ \(results.filter({ $0.scoreResult != .completed }).count - 3) more")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+    private func scoreCardLabel(date: Date) -> some View {
+        HStack {
+            scoreCardDateText(date)
+            Spacer()
+            if !editMode.isEditing {
+                scoreCardChevron
             }
         }
     }
 
-    // MARK: - Empty / Failed
+    private func resultsPreview(_ results: [WorkoutSessionResult]) -> some View {
+        let scored = results.filter { $0.scoreResult != .completed }
+        let visible = scored.prefix(3)
+        let extraCount = scored.count - visible.count
+
+        return VStack(alignment: .leading, spacing: 6) {
+            ForEach(Array(visible.enumerated()), id: \.offset) { _, result in
+                resultPreviewRow(result)
+            }
+            if extraCount > 0 {
+                resultPreviewMoreText(extraCount)
+            }
+        }
+    }
 
     private var emptyView: some View {
         ContentUnavailableView(
@@ -175,11 +139,86 @@ struct WorkoutPlanScoreListView: View {
         } description: {
             Text("Something went wrong while loading your workout history.")
         } actions: {
-            Button {
-                send(.retryTapped)
-            } label: {
-                Text("Retry")
+            retryButton
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var scoreListToolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            selectButton
+        }
+        ToolbarItemGroup(placement: .bottomBar) {
+            if editMode.isEditing, selection.count >= 2 {
+                Spacer()
+                compareButton
             }
+        }
+    }
+
+    // MARK: - Atomic SubViews
+
+    private func scoreCardDateText(_ date: Date) -> some View {
+        Text(date.formatted(date: .abbreviated, time: .omitted))
+            .font(.headline)
+            .foregroundColor(.primary)
+    }
+
+    private var scoreCardChevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private func resultPreviewRow(_ result: WorkoutSessionResult) -> some View {
+        HStack {
+            Text(result.name)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            Spacer()
+            Text(result.scoreResult.displayString)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+        }
+    }
+
+    private func resultPreviewMoreText(_ count: Int) -> some View {
+        Text("+ \(count) more")
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+    }
+
+    private var selectButton: some View {
+        Button {
+            withAnimation {
+                editMode = editMode.isEditing ? .inactive : .active
+                if !editMode.isEditing { selection = [] }
+            }
+        } label: {
+            Text(editMode.isEditing ? String(localized: "Done") : String(localized: "Select"))
+                .fontWeight(editMode.isEditing ? .semibold : .regular)
+        }
+    }
+
+    private var compareButton: some View {
+        Button {
+            let selected = store.scoreLoader.scores.filter { selection.contains($0.id) }
+            send(.compareTapped(selected))
+            selection = []
+            editMode = .inactive
+        } label: {
+            Label(String(localized: "Compare"), systemImage: "chart.line.uptrend.xyaxis")
+                .fontWeight(.semibold)
+        }
+    }
+
+    private var retryButton: some View {
+        Button {
+            send(.retryTapped)
+        } label: {
+            Text(String(localized: "Retry"))
         }
     }
 }

@@ -5,7 +5,6 @@
 //  Created by Sebastian Sciuba on 24/04/2026.
 //
 
-import Charts
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -45,45 +44,57 @@ struct ExerciseAnalyticsView: View {
         HStack {
             previousMonthButton
             Spacer()
-            Text(store.selectedMonth, format: .dateTime.month(.wide).year())
-                .font(.headline)
+            monthTitleText
             Spacer()
             nextMonthButton
         }
         .padding(.horizontal)
     }
 
-    private var previousMonthButton: some View {
-        let isEmpty = store.exerciseLogs.isEmpty
-        let calendar = Calendar.current
-        let isCurrentMonth = calendar.isDate(store.selectedMonth, equalTo: Date(), toGranularity: .month)
+    private var monthTitleText: some View {
+        Text(store.selectedMonth, format: .dateTime.month(.wide).year())
+            .font(.headline)
+    }
 
-        return Button {
-            let newDate = calendar.date(byAdding: .month, value: -1, to: store.selectedMonth) ?? store.selectedMonth
+    private var previousMonthButton: some View {
+        let isDisabled = store.exerciseLogs.isEmpty && !isCurrentMonth
+        return monthChangeButton(
+            icon: "chevron.left",
+            isDisabled: isDisabled
+        ) {
+            let newDate = Calendar.current.date(byAdding: .month, value: -1, to: store.selectedMonth) ?? store.selectedMonth
             send(.monthChanged(newDate))
-        } label: {
-            Image(systemName: "chevron.left")
-                .font(.title3)
-                .fontWeight(.semibold)
         }
-        .disabled(isEmpty && !isCurrentMonth)
-        .opacity(isEmpty && !isCurrentMonth ? 0.3 : 1)
     }
 
     private var nextMonthButton: some View {
-        let calendar = Calendar.current
-        let isCurrentMonth = calendar.isDate(store.selectedMonth, equalTo: Date(), toGranularity: .month)
-
-        return Button {
-            let newDate = calendar.date(byAdding: .month, value: 1, to: store.selectedMonth) ?? store.selectedMonth
+        monthChangeButton(
+            icon: "chevron.right",
+            isDisabled: isCurrentMonth
+        ) {
+            let newDate = Calendar.current.date(byAdding: .month, value: 1, to: store.selectedMonth) ?? store.selectedMonth
             send(.monthChanged(newDate))
+        }
+    }
+
+    private func monthChangeButton(
+        icon: String,
+        isDisabled: Bool,
+        onTap: @escaping () -> Void
+    ) -> some View {
+        Button {
+            onTap()
         } label: {
-            Image(systemName: "chevron.right")
+            Image(systemName: icon)
                 .font(.title3)
                 .fontWeight(.semibold)
         }
-        .disabled(isCurrentMonth)
-        .opacity(isCurrentMonth ? 0.3 : 1)
+        .disabled(isDisabled)
+        .opacity(isDisabled ? 0.3 : 1)
+    }
+
+    private var isCurrentMonth: Bool {
+        Calendar.current.isDate(store.selectedMonth, equalTo: Date(), toGranularity: .month)
     }
 
     // MARK: - Movement Balance Card
@@ -106,82 +117,6 @@ struct ExerciseAnalyticsView: View {
                 Spacer()
             }
             Divider()
-        }
-    }
-
-    private var movementBalanceContent: some View {
-        VStack(spacing: 12) {
-            if store.exerciseLogs.isEmpty {
-                ChartContentUnavailable(
-                    systemImage: "figure.mixed.cardio",
-                    description: String(localized: "No exercise data for this month.")
-                )
-                .frame(height: 200)
-            } else {
-                movementBalanceChart
-                Divider()
-                categoryLegend
-            }
-        }
-    }
-
-    private var movementBalanceChart: some View {
-        Chart {
-            ForEach(Array(store.weeklyBreakdown.enumerated()), id: \.offset) { weekIndex, breakdown in
-                ForEach(MovementCategory.allCases, id: \.self) { category in
-                    if let count = breakdown[category], count > 0 {
-                        BarMark(
-                            x: .value(
-                                String(localized: "Week"),
-                                "W\(weekIndex + 1)"
-                            ),
-                            y: .value(
-                                String(localized: "Count"),
-                                count
-                            )
-                        )
-                        .foregroundStyle(category.color)
-                    }
-                }
-            }
-        }
-        .chartLegend(.hidden)
-        .chartPlotStyle { plot in
-            plot.mask(alignment: .bottom) {
-                Rectangle()
-                    .scaleEffect(y: store.isChartAnimated ? 1 : 0, anchor: .bottom)
-            }
-        }
-        .animation(.smooth(duration: 0.6), value: store.isChartAnimated)
-        .frame(height: 200)
-    }
-
-    private var categoryLegend: some View {
-        let totalCount = store.categoryBreakdown.values.reduce(0, +)
-
-        return VStack(spacing: 6) {
-            ForEach(MovementCategory.allCases, id: \.self) { category in
-                if let count = store.categoryBreakdown[category], count > 0 {
-                    categoryLegendRow(category: category, count: count, total: totalCount)
-                }
-            }
-        }
-    }
-
-    private func categoryLegendRow(category: MovementCategory, count: Int, total: Int) -> some View {
-        let percentage = total > 0 ? Double(count) / Double(total) * 100 : 0
-
-        return HStack(spacing: 8) {
-            Circle()
-                .fill(category.color)
-                .frame(width: 10, height: 10)
-            Text(category.displayName)
-                .font(.caption)
-            Spacer()
-            Text("\(Int(percentage))%")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
         }
     }
 
@@ -242,15 +177,12 @@ struct ExerciseAnalyticsView: View {
         }
     }
 
+    @ViewBuilder
     private var exerciseListContent: some View {
-        VStack(spacing: 0) {
-            if store.exerciseSummaries.isEmpty {
-                Text(String(localized: "No exercises logged this month."))
-                    .foregroundStyle(.secondary)
-                    .font(.caption)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 24)
-            } else {
+        if store.exerciseSummaries.isEmpty {
+            exerciseListEmpty
+        } else {
+            VStack(spacing: 0) {
                 ForEach(store.exerciseSummaries) { summary in
                     exerciseRow(summary)
                     if summary.id != store.exerciseSummaries.last?.id {
@@ -261,6 +193,14 @@ struct ExerciseAnalyticsView: View {
         }
     }
 
+    private var exerciseListEmpty: some View {
+        Text(String(localized: "No exercises logged this month."))
+            .foregroundStyle(.secondary)
+            .font(.caption)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+    }
+
     // MARK: - Exercise Row
 
     private func exerciseRow(_ summary: ExerciseSummary) -> some View {
@@ -268,44 +208,56 @@ struct ExerciseAnalyticsView: View {
             send(.exerciseTapped(summary.exerciseType))
         } label: {
             HStack(spacing: 12) {
-                Circle()
-                    .fill(summary.category.color)
-                    .frame(width: 8, height: 8)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        Text(summary.exerciseType.displayName)
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        if summary.hasPR {
-                            prBadge
-                        }
-                    }
-                    Text(summary.category.displayName)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-
+                exerciseRowDot(summary)
+                exerciseRowHeader(summary)
                 Spacer()
-
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("\(summary.count)\u{00D7}")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .monospacedDigit()
-                    if store.sortMode != .frequency {
-                        exerciseWeightLabel(summary)
-                    }
-                }
-
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                exerciseRowTrailing(summary)
+                exerciseRowChevron
             }
             .padding(.vertical, 8)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    private func exerciseRowDot(_ summary: ExerciseSummary) -> some View {
+        Circle()
+            .fill(summary.category.color)
+            .frame(width: 8, height: 8)
+    }
+
+    private func exerciseRowHeader(_ summary: ExerciseSummary) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
+                Text(summary.exerciseType.displayName)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                if summary.hasPR {
+                    prBadge
+                }
+            }
+            Text(summary.category.displayName)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+    }
+
+    private func exerciseRowTrailing(_ summary: ExerciseSummary) -> some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            Text("\(summary.count)\u{00D7}")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .monospacedDigit()
+            if store.sortMode != .frequency {
+                exerciseWeightLabel(summary)
+            }
+        }
+    }
+
+    private var exerciseRowChevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption)
+            .foregroundStyle(.tertiary)
     }
 
     private var prBadge: some View {
@@ -318,18 +270,17 @@ struct ExerciseAnalyticsView: View {
             .background(.orange, in: RoundedRectangle(cornerRadius: 4))
     }
 
+    @ViewBuilder
     private func exerciseWeightLabel(_ summary: ExerciseSummary) -> some View {
-        Group {
-            if let maxWeight = summary.maxWeight, maxWeight > 0 {
-                Text("\(maxWeight, specifier: "%.1f") kg")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-            } else {
-                Text(String(localized: "BW"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+        if let maxWeight = summary.maxWeight, maxWeight > 0 {
+            Text("\(maxWeight, specifier: "%.1f") kg")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+        } else {
+            Text(String(localized: "BW"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }

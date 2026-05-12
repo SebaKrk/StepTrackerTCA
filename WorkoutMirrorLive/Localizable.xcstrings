@@ -1596,6 +1596,9 @@
         }
       }
     },
+    "Discard" : {
+
+    },
     "disconnect" : {
       "localizations" : {
         "pl" : {
@@ -1839,6 +1842,9 @@
           }
         }
       }
+    },
+    "Finish" : {
+
     },
     "Fitness" : {
       "localizations" : {
@@ -2089,6 +2095,16 @@
     },
     "Hours" : {
 
+    },
+    "How often each exercise appeared in your training" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak często dane ćwiczenie pojawiało się w treningu"
+          }
+        }
+      }
     },
     "HR max" : {
       "localizations" : {
@@ -2452,36 +2468,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "MOCK"
-          }
-        }
-      }
-    },
-    "How often each exercise appeared in your training" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jak często dane ćwiczenie pojawiało się w treningu"
-          }
-        }
-      }
-    },
-    "Peak load recorded per exercise" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Najwyższy ciężar zarejestrowany per ćwiczenie"
-          }
-        }
-      }
-    },
-    "Total load moved — reps × weight" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Łączny ciężar — powtórzenia × obciążenie"
           }
         }
       }
@@ -2917,6 +2903,16 @@
     },
     "Parsing workout..." : {
 
+    },
+    "Peak load recorded per exercise" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najwyższy ciężar zarejestrowany per ćwiczenie"
+          }
+        }
+      }
     },
     "per workout" : {
       "localizations" : {
@@ -3983,6 +3979,16 @@
         }
       }
     },
+    "Total load moved — reps × weight" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łączny ciężar — powtórzenia × obciążenie"
+          }
+        }
+      }
+    },
     "Total reps" : {
 
     },
@@ -4656,9 +4662,6 @@
           }
         }
       }
-    },
-    "Zapisz" : {
-
     },
     "zmien" : {
       "localizations" : {

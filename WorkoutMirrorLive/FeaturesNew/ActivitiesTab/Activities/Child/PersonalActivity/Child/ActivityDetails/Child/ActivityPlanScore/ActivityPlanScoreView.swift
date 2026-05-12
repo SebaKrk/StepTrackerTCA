@@ -123,9 +123,9 @@ struct ActivityPlanScoreView: View {
 
     private func descriptionItems(_ items: [ParsedWodDescription.Item]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(items.indices, id: \.self) { i in
+            ForEach(items.indices, id: \.self) { index in
                 VStack(alignment: .leading, spacing: 2) {
-                    let split = splitPrefix(items[i].line)
+                    let split = splitPrefix(items[index].line)
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         if let prefix = split.prefix {
                             Text(prefix)
@@ -137,7 +137,7 @@ struct ActivityPlanScoreView: View {
                             .font(.headline)
                             .foregroundStyle(.primary)
                     }
-                    if let scaling = items[i].scaling {
+                    if let scaling = items[index].scaling {
                         Text(scaling)
                             .font(.caption)
                             .foregroundStyle(.tertiary)

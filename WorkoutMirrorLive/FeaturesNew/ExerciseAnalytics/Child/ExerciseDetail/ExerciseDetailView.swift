@@ -5,7 +5,6 @@
 //  Created by Sebastian Sciuba on 24/04/2026.
 //
 
-import Charts
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -38,7 +37,7 @@ struct ExerciseDetailView: View {
         }
         .navigationTitle(store.displayName)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { dismissToolbarButton }
+        .toolbar { toolbarContent }
         .onAppear {
             send(.onAppear)
         }
@@ -50,14 +49,18 @@ struct ExerciseDetailView: View {
     // MARK: - Toolbar
 
     @ToolbarContentBuilder
-    private var dismissToolbarButton: some ToolbarContent {
+    private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                send(.dismissTapped)
-            } label: {
-                Text(String(localized: "Done"))
-                    .fontWeight(.semibold)
-            }
+            dismissButton
+        }
+    }
+
+    private var dismissButton: some View {
+        Button {
+            send(.dismissTapped)
+        } label: {
+            Text(String(localized: "Done"))
+                .fontWeight(.semibold)
         }
     }
 
@@ -149,92 +152,7 @@ struct ExerciseDetailView: View {
     }
 
     private var weightProgressionHeader: some View {
-        VStack {
-            HStack {
-                Text(String(localized: "Weight Progression"))
-                    .foregroundStyle(.secondary)
-                    .font(.caption)
-                Spacer()
-                Text("kg")
-                    .foregroundStyle(.tertiary)
-                    .font(.caption2)
-            }
-            Divider()
-        }
-    }
-
-    private var weightProgressionContent: some View {
-        Group {
-            if store.weightProgression.isEmpty {
-                ChartContentUnavailable(
-                    systemImage: "chart.line.uptrend.xyaxis",
-                    description: String(localized: "No weight data recorded for this exercise.")
-                )
-                .frame(height: 200)
-            } else {
-                weightProgressionChart
-            }
-        }
-    }
-
-    private var weightProgressionChart: some View {
-        Chart {
-            ForEach(store.weightProgression) { point in
-                LineMark(
-                    x: .value(
-                        String(localized: "Date"),
-                        point.date
-                    ),
-                    y: .value(
-                        String(localized: "Weight"),
-                        point.weight
-                    )
-                )
-                .foregroundStyle(store.category.color.opacity(0.8))
-                .lineStyle(StrokeStyle(lineWidth: 2))
-
-                PointMark(
-                    x: .value(
-                        String(localized: "Date"),
-                        point.date
-                    ),
-                    y: .value(
-                        String(localized: "Weight"),
-                        point.weight
-                    )
-                )
-                .foregroundStyle(store.category.color)
-                .symbolSize(20)
-            }
-
-            if let pr = store.pr {
-                RuleMark(y: .value("PR", pr))
-                    .foregroundStyle(.orange)
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                    .annotation(position: .top, alignment: .leading) {
-                        Text(String(format: "PR: %.1f kg", pr))
-                            .font(.caption2.bold())
-                            .foregroundStyle(.orange)
-                    }
-            }
-        }
-        .chartYScale(domain: .automatic(includesZero: false))
-        .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { value in
-                AxisGridLine()
-                AxisValueLabel {
-                    if let kg = value.as(Double.self) {
-                        Text(String(format: "%.0f", kg))
-                    }
-                }
-            }
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-            }
-        }
-        .frame(height: 200)
+        cardHeader(title: String(localized: "Weight Progression"), unit: "kg")
     }
 
     // MARK: - Volume per Week Card
@@ -249,66 +167,10 @@ struct ExerciseDetailView: View {
     }
 
     private var volumePerWeekHeader: some View {
-        VStack {
-            HStack {
-                Text(String(localized: "Volume per Week"))
-                    .foregroundStyle(.secondary)
-                    .font(.caption)
-                Spacer()
-                Text(store.hasWeight ? "kg" : String(localized: "reps"))
-                    .foregroundStyle(.tertiary)
-                    .font(.caption2)
-            }
-            Divider()
-        }
-    }
-
-    private var volumePerWeekContent: some View {
-        Group {
-            if store.weeklyVolume.isEmpty {
-                ChartContentUnavailable(
-                    systemImage: "chart.bar.fill",
-                    description: String(localized: "No volume data recorded for this exercise.")
-                )
-                .frame(height: 200)
-            } else {
-                volumePerWeekChart
-            }
-        }
-    }
-
-    private var volumePerWeekChart: some View {
-        Chart {
-            ForEach(store.weeklyVolume) { point in
-                BarMark(
-                    x: .value(
-                        String(localized: "Week"),
-                        point.week, unit: .weekOfYear
-                    ),
-                    y: .value(
-                        String(localized: "Volume"),
-                        point.volume
-                    )
-                )
-                .foregroundStyle(store.category.color.gradient)
-            }
-        }
-        .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { value in
-                AxisGridLine()
-                AxisValueLabel {
-                    if let vol = value.as(Double.self) {
-                        Text(String(format: "%.0f", vol))
-                    }
-                }
-            }
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-            }
-        }
-        .frame(height: 200)
+        cardHeader(
+            title: String(localized: "Volume per Week"),
+            unit: store.hasWeight ? "kg" : String(localized: "reps")
+        )
     }
 
     // MARK: - HR per Session Card
@@ -323,92 +185,7 @@ struct ExerciseDetailView: View {
     }
 
     private var hrPerSessionHeader: some View {
-        VStack {
-            HStack {
-                Text(String(localized: "Avg HR per Session"))
-                    .foregroundStyle(.secondary)
-                    .font(.caption)
-                Spacer()
-                Text("bpm")
-                    .foregroundStyle(.tertiary)
-                    .font(.caption2)
-            }
-            Divider()
-        }
-    }
-
-    private var hrPerSessionContent: some View {
-        Group {
-            if store.hrPerSession.isEmpty {
-                ChartContentUnavailable(
-                    systemImage: "heart.fill",
-                    description: String(localized: "No heart rate data recorded for this exercise.")
-                )
-                .frame(height: 200)
-            } else {
-                hrPerSessionChart
-            }
-        }
-    }
-
-    private var hrPerSessionChart: some View {
-        Chart {
-            ForEach(store.hrPerSession) { point in
-                LineMark(
-                    x: .value(
-                        String(localized: "Date"),
-                        point.date
-                    ),
-                    y: .value(
-                        String(localized: "Avg HR"),
-                        point.avgHR
-                    )
-                )
-                .foregroundStyle(.red.opacity(0.8))
-                .lineStyle(StrokeStyle(lineWidth: 2))
-
-                PointMark(
-                    x: .value(
-                        String(localized: "Date"),
-                        point.date
-                    ),
-                    y: .value(
-                        String(localized: "Avg HR"),
-                        point.avgHR
-                    )
-                )
-                .foregroundStyle(.red)
-                .symbolSize(20)
-            }
-
-            if let avg = store.avgHR {
-                RuleMark(y: .value("Avg", avg))
-                    .foregroundStyle(.red.opacity(0.5))
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                    .annotation(position: .top, alignment: .leading) {
-                        Text(String(format: "%.0f bpm avg", avg))
-                            .font(.caption2.bold())
-                            .foregroundStyle(.red)
-                    }
-            }
-        }
-        .chartYScale(domain: .automatic(includesZero: false))
-        .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { value in
-                AxisGridLine()
-                AxisValueLabel {
-                    if let hr = value.as(Double.self) {
-                        Text(String(format: "%.0f", hr))
-                    }
-                }
-            }
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-            }
-        }
-        .frame(height: 200)
+        cardHeader(title: String(localized: "Avg HR per Session"), unit: "bpm")
     }
 
     // MARK: - History Card
@@ -437,15 +214,12 @@ struct ExerciseDetailView: View {
         }
     }
 
+    @ViewBuilder
     private var historyContent: some View {
-        VStack(spacing: 0) {
-            if store.logs.isEmpty {
-                Text(String(localized: "No history yet."))
-                    .foregroundStyle(.secondary)
-                    .font(.caption)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 24)
-            } else {
+        if store.logs.isEmpty {
+            historyEmpty
+        } else {
+            VStack(spacing: 0) {
                 ForEach(store.logs) { log in
                     historyRow(log)
                     if log.id != store.logs.last?.id {
@@ -456,73 +230,116 @@ struct ExerciseDetailView: View {
         }
     }
 
+    private var historyEmpty: some View {
+        Text(String(localized: "No history yet."))
+            .foregroundStyle(.secondary)
+            .font(.caption)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+    }
+
     // MARK: - History Row
 
+    @ViewBuilder
     private func historyRow(_ log: ExerciseLog) -> some View {
-        Group {
-            if let scoreId = log.workoutPlanScoreId {
-                Button {
-                    send(.historyRowTapped(scoreId))
-                } label: {
-                    historyRowContent(log)
-                }
-                .buttonStyle(.plain)
-            } else {
+        if let scoreId = log.workoutPlanScoreId {
+            Button {
+                send(.historyRowTapped(scoreId))
+            } label: {
                 historyRowContent(log)
             }
+            .buttonStyle(.plain)
+        } else {
+            historyRowContent(log)
         }
     }
 
     private func historyRowContent(_ log: ExerciseLog) -> some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(log.date, format: .dateTime.month(.abbreviated).day().year())
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-
-                if let wodName = log.wodName {
-                    Text(wodName)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
+            historyRowDateColumn(log)
             Spacer()
-
-            VStack(alignment: .trailing, spacing: 2) {
-                HStack(spacing: 4) {
-                    if let weight = log.actualWeight {
-                        Text(String(format: "%.1f kg", weight))
-                            .font(.caption)
-                            .monospacedDigit()
-                    }
-
-                    if let reps = log.actualReps {
-                        Text(reps)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                HStack(spacing: 4) {
-                    if log.isPR {
-                        prBadge
-                    }
-
-                    if let hr = log.avgHeartRate {
-                        hrLabel(hr)
-                    }
-                }
-            }
-
-            if log.workoutPlanScoreId != nil {
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
+            historyRowMetricsColumn(log)
+            historyRowChevron(log)
         }
         .padding(.vertical, 8)
         .contentShape(Rectangle())
+    }
+
+    private func historyRowDateColumn(_ log: ExerciseLog) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(log.date, format: .dateTime.month(.abbreviated).day().year())
+                .font(.subheadline)
+                .fontWeight(.medium)
+            historyRowWodName(log)
+        }
+    }
+
+    @ViewBuilder
+    private func historyRowWodName(_ log: ExerciseLog) -> some View {
+        if let wodName = log.wodName {
+            Text(wodName)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func historyRowMetricsColumn(_ log: ExerciseLog) -> some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            historyRowWeightReps(log)
+            historyRowBadges(log)
+        }
+    }
+
+    private func historyRowWeightReps(_ log: ExerciseLog) -> some View {
+        HStack(spacing: 4) {
+            if let weight = log.actualWeight {
+                Text(String(format: "%.1f kg", weight))
+                    .font(.caption)
+                    .monospacedDigit()
+            }
+            if let reps = log.actualReps {
+                Text(reps)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func historyRowBadges(_ log: ExerciseLog) -> some View {
+        HStack(spacing: 4) {
+            if log.isPR {
+                prBadge
+            }
+            if let hr = log.avgHeartRate {
+                hrLabel(hr)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func historyRowChevron(_ log: ExerciseLog) -> some View {
+        if log.workoutPlanScoreId != nil {
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+    }
+
+    // MARK: - Card Header Helper
+
+    private func cardHeader(title: String, unit: String) -> some View {
+        VStack {
+            HStack {
+                Text(title)
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                Spacer()
+                Text(unit)
+                    .foregroundStyle(.tertiary)
+                    .font(.caption2)
+            }
+            Divider()
+        }
     }
 
     // MARK: - Badges
