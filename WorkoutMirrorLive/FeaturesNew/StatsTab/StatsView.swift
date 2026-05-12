@@ -67,17 +67,7 @@ struct StatsView: View {
     @ToolbarContentBuilder
     private var toolbarButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Menu {
-                ForEach(SubscriptionTier.allCases.filter { $0 != store.subscriptionTier }) { tier in
-                    Button(tier.name) {
-                        send(.subscriptionTierButtonTapped(tier))
-                    }
-                }
-                Divider()
-                Text(store.subscriptionTier.name)
-            } label: {
-                Image(systemName: "crown")
-            }
+            subscriptionTierMenu
         }
 #if DEBUG
         let showDataAnalyzerButton = true
@@ -86,21 +76,43 @@ struct StatsView: View {
 #endif
         if showDataAnalyzerButton {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    send(.dataAnalyzerButtonTapped)
-                } label: {
-                    Image(systemName: "apple.intelligence")
-                }
+                dataAnalyzerButton
             }
         }
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                send(.personButtonTapped)
-            } label: {
-                Image(systemName: "person")
-            }
+            personButton
         }
         .matchedTransitionSource(id: "personSettings", in: zoomTransition)
+    }
+
+    private var subscriptionTierMenu: some View {
+        Menu {
+            ForEach(SubscriptionTier.allCases.filter { $0 != store.subscriptionTier }) { tier in
+                Button(tier.name) {
+                    send(.subscriptionTierButtonTapped(tier))
+                }
+            }
+            Divider()
+            Text(store.subscriptionTier.name)
+        } label: {
+            Image(systemName: "crown")
+        }
+    }
+
+    private var dataAnalyzerButton: some View {
+        Button {
+            send(.dataAnalyzerButtonTapped)
+        } label: {
+            Image(systemName: "apple.intelligence")
+        }
+    }
+
+    private var personButton: some View {
+        Button {
+            send(.personButtonTapped)
+        } label: {
+            Image(systemName: "person")
+        }
     }
     
     var failedView: some View {
