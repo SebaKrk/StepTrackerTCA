@@ -129,12 +129,12 @@ struct ActivityPlanScoreView: View {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         if let prefix = split.prefix {
                             Text(prefix)
-                                .font(.body.weight(.regular))
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .monospacedDigit()
                         }
                         Text(split.name)
-                            .font(.body.weight(.medium))
+                            .font(.headline)
                             .foregroundStyle(.primary)
                     }
                     if let scaling = items[i].scaling {
