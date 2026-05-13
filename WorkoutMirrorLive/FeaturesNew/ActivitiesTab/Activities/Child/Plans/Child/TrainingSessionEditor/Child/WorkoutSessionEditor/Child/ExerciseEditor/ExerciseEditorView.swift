@@ -211,7 +211,7 @@ struct ExerciseEditorView: View {
         editorRow {
             Text(label).foregroundStyle(.secondary)
             Spacer()
-            Stepper("\(value.wrappedValue) kg", value: value, in: 1...500, step: 5)
+            Stepper("\(value.wrappedValue) kg", value: value, in: 1...500, step: 1)
                 .fixedSize()
         }
     }

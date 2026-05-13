@@ -36,8 +36,8 @@ struct WorkoutPlanScoreView: View {
         }
     }
 
-    // MARK: - SubView
-    
+    // MARK: - Composite SubViews
+
     private var loadingView: some View {
         GroupBox {
             HStack {
@@ -65,18 +65,32 @@ struct WorkoutPlanScoreView: View {
     private func historyButtonRow(count: Int) -> some View {
         GroupBox {
             HStack {
-                Text(String(localized: "History"))
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                historyButtonTitle
                 Spacer()
-                Text("\(count)")
-                    .foregroundStyle(.secondary)
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                historyButtonCount(count)
+                historyButtonChevron
             }
         }
         .styledGroupBox()
+    }
+
+    // MARK: - Atomic SubViews
+
+    private var historyButtonTitle: some View {
+        Text(String(localized: "History"))
+            .font(.headline)
+            .foregroundStyle(.primary)
+    }
+
+    private func historyButtonCount(_ count: Int) -> some View {
+        Text("\(count)")
+            .foregroundStyle(.secondary)
+    }
+
+    private var historyButtonChevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 
     private var historyDescription: some View {
@@ -112,8 +126,8 @@ struct WorkoutPlanScoreView: View {
             trainingSessionId: session.id,
             hkWorkoutId: UUID(),
             results: [
-                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", score: "80kg", note: ""),
-                WorkoutSessionResult(name: "WOD 1", description: "", score: "11:43", note: "")
+                WorkoutSessionResult(name: "Weightlifting - Clean and Jerk", description: "", scoreResult: .forLoad(weight: 80), note: ""),
+                WorkoutSessionResult(name: "WOD 1", description: "", scoreResult: .custom("11:43"), note: "")
             ]
         )
     ]

@@ -53,6 +53,10 @@ extension Logger {
     /// Covers: mirrored session received, pause/resume/end on iPhone, workout fetch.
     public static let trainingManager = Logger(subsystem: subsystem, category: "TrainingManager")
 
+    /// `StatsFeature` + Stats tab children.
+    /// Covers: HealthKit authorization, observation lifecycle, child feature initialization.
+    public static let stats = Logger(subsystem: subsystem, category: "Stats")
+
     // MARK: - Shared
 
     /// `DefaultWatchConnectivityManager` + `WatchConnectivity+Delegate`

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import SharedModels
 import SwiftUI
 
@@ -29,82 +30,132 @@ struct WorkoutPlanScoreDetailView: View {
             .padding(.top, 8)
         }
         .contentMargins(.bottom, 40, for: .scrollContent)
-        .background(
-            LinearGradient(
-                colors: [color.opacity(0.2), .clear],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-        )
-        .navigationTitle(store.score.date.formatted(date: .abbreviated, time: .omitted))
+        .background(backgroundGradient)
+        .navigationTitle(navigationTitleText)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    send(.viewActivityTapped)
-                } label: {
-                    if store.isLoadingActivity {
-                        ProgressView()
-                    } else {
-                        Label("Activity", systemImage: "figure.run")
-                    }
-                }
-                .disabled(store.isLoadingActivity)
-            }
-        }
+        .toolbar { toolbarContent }
         .fullScreenCover(
             item: $store.scope(state: \.destination?.activityDetails, action: \.destination.activityDetails)
         ) { activityStore in
-            NavigationStack {
-                ActivityDetailsView(store: activityStore)
+            activityDetailsCover(activityStore)
+        }
+    }
+
+    // MARK: - Composite SubViews
+
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [color.opacity(0.2), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+
+    private var navigationTitleText: String {
+        store.score.date.formatted(date: .abbreviated, time: .omitted)
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            activityToolbarButton
+        }
+    }
+
+    private func activityDetailsCover(_ store: StoreOf<ActivityDetailsFeature>) -> some View {
+        NavigationStack {
+            ActivityDetailsView(store: store)
+        }
+    }
+
+    private var wodResultsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            resultsHeader
+            ForEach(store.score.results) { result in
+                resultCard(result)
             }
         }
     }
 
-    // MARK: - WOD Results
+    private func resultCard(_ result: WorkoutSessionResult) -> some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 6) {
+                resultDescription(result.description)
+                resultScore(result)
+                resultNote(result.note)
+            }
+        } label: {
+            resultCardLabel(result.name)
+        }
+        .styledGroupBox()
+    }
 
-    private var wodResultsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Results"))
-                .font(.headline)
-                .padding(.horizontal, 4)
+    // MARK: - Atomic SubViews
 
-            ForEach(store.score.results, id: \.name) { result in
-                GroupBox {
-                    VStack(alignment: .leading, spacing: 6) {
-                        if !result.description.isEmpty {
-                            Text(result.description)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Divider()
-                        }
-                        if !result.score.isEmpty {
-                            HStack {
-                                Text(String(localized: "Score"))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(result.score)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                            }
-                        }
-                        if !result.note.isEmpty {
-                            Divider()
-                            Text(result.note)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                } label: {
-                    Text(result.name)
-                        .font(.subheadline)
-                        .bold()
-                }
-                .styledGroupBox()
+    private var resultsHeader: some View {
+        Text(String(localized: "Results"))
+            .font(.headline)
+            .padding(.horizontal, 4)
+    }
+
+    private var activityToolbarButton: some View {
+        Button {
+            send(.viewActivityTapped)
+        } label: {
+            activityToolbarLabel
+        }
+        .disabled(store.isLoadingActivity)
+    }
+
+    @ViewBuilder
+    private var activityToolbarLabel: some View {
+        if store.isLoadingActivity {
+            ProgressView()
+        } else {
+            Label("Activity", systemImage: "figure.run")
+        }
+    }
+
+    @ViewBuilder
+    private func resultDescription(_ description: String) -> some View {
+        if !description.isEmpty {
+            Text(description)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Divider()
+        }
+    }
+
+    @ViewBuilder
+    private func resultScore(_ result: WorkoutSessionResult) -> some View {
+        if result.scoreResult != .completed {
+            HStack {
+                Text(String(localized: "Score"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(result.scoreResult.displayString)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
             }
         }
+    }
+
+    @ViewBuilder
+    private func resultNote(_ note: String) -> some View {
+        if !note.isEmpty {
+            Divider()
+            Text(note)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func resultCardLabel(_ name: String) -> some View {
+        Text(name)
+            .font(.subheadline)
+            .bold()
     }
 }
 
@@ -120,7 +171,7 @@ struct WorkoutPlanScoreDetailView: View {
             WorkoutSessionResult(
                 name: $0.name,
                 description: $0.snapshotDescription,
-                score: $0.name == "WOD 1" ? "11:43" : "80kg",
+                scoreResult: $0.name == "WOD 1" ? .custom("11:43") : .forLoad(weight: 80),
                 note: $0.name == "WOD 1" ? "ciężkie, ale dałem radę" : ""
             )
         }
@@ -131,7 +182,7 @@ struct WorkoutPlanScoreDetailView: View {
                 WorkoutPlanScoreDetailFeature()
             } withDependencies: {
                 $0.activityClient.fetchWorkoutById = { _ in nil }
-                $0.activityClient.fetchMaxHeartRate = { nil }
+                $0.maxHeartRateClient.forWorkout = { _ in 190 }
             }
         )
     }

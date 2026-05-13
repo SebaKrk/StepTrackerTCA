@@ -83,7 +83,7 @@ extension WorkoutSection {
         } else if type == .strength {
             // Differentiate based on first exercise category
             let firstCategory = exerciseSessions.first?.type.category
-            workoutType = firstCategory == .weightlifting ? .olympicWeightlifting : .strength
+            workoutType = firstCategory == .olympicLifting ? .olympicWeightlifting : .strength
         } else {
             workoutType = .amrap
         }

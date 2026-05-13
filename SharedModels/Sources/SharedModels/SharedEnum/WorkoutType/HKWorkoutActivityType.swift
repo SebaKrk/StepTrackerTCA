@@ -22,6 +22,8 @@ extension HKWorkoutActivityType {
         case .functionalStrengthTraining:   return .indigo
         case .boxing:                       return .red
         case .cooldown:                     return .gray
+        case .hiking:                       return .brown
+        case .climbing:                     return .teal
         default:                            return .yellow
         }
     }
@@ -47,8 +49,12 @@ extension HKWorkoutActivityType {
             return String(localized: "Functional", bundle: .module)
         case .cooldown:
             return String(localized: "Cooldown", bundle: .module)
+        case .hiking:
+            return String(localized: "Hiking", bundle: .module)
+        case .climbing:
+            return String(localized: "Climbing", bundle: .module)
         default:
-            return String(describing: self)
+            return String(localized: "Other", bundle: .module)
         }
     }
     
@@ -63,7 +69,9 @@ extension HKWorkoutActivityType {
         case .traditionalStrengthTraining: return "figure.strengthtraining.traditional.circle.fill"
         case .functionalStrengthTraining: return "figure.strengthtraining.functional.circle.fill"
         case .cooldown:        return "figure.cooldown.circle.fill"
-        default:                return String(describing: self)
+        case .hiking:          return "figure.hiking.circle.fill"
+        case .climbing:        return "figure.climbing.circle.fill"
+        default:               return "figure.mixed.cardio.circle.fill"
         }
     }
     
@@ -78,6 +86,8 @@ extension HKWorkoutActivityType {
         case .traditionalStrengthTraining: return "figure.strengthtraining.traditional"
         case .functionalStrengthTraining: return "figure.strengthtraining.functional"
         case .cooldown:         return "figure.cooldown"
+        case .hiking:           return "figure.hiking"
+        case .climbing:         return "figure.climbing"
         default:                return "figure.mixed.cardio"
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 extension SummaryFeature {
@@ -33,6 +34,10 @@ extension SummaryFeature {
 
         /// Timeout fired — Watch did not send `.workoutSaved` in time. Fall back to polling.
         case workoutSavedTimeout
+
+        /// Receives HR samples and phase timestamps from the parent (SessionFeature)
+        /// so that per-phase HR can be calculated at save time.
+        case setHRData(hrBuffer: [(date: Date, bpm: Double)], phaseTimestamps: [(name: String, start: Date, end: Date?)])
 
         // MARK: - View Actions
 
@@ -67,7 +72,26 @@ extension SummaryFeature {
 
             /// Updates the note text for the given WOD index.
             case updateNote(Int, String)
+
+            /// Opens the set input sheet for a specific exercise.
+            case openSetInput(wodIndex: Int, exerciseIndex: Int)
+
+            /// Updates the actual weight text for a specific exercise within a WOD.
+            case updateExerciseWeight(wodIndex: Int, exerciseIndex: Int, String)
+
+            /// Updates the actual reps text for a specific exercise within a WOD.
+            case updateExerciseReps(wodIndex: Int, exerciseIndex: Int, String)
+
+            /// Updates the scaling type for a specific exercise within a WOD.
+            case updateExerciseScaling(wodIndex: Int, exerciseIndex: Int, ScalingType)
+
+            /// Toggles the PR flag for a specific exercise within a WOD.
+            case toggleExercisePR(wodIndex: Int, exerciseIndex: Int)
         }
+
+        // MARK: - Set Input
+
+        case setInput(PresentationAction<SetInputFeature.Action>)
 
         // MARK: - Alert
 

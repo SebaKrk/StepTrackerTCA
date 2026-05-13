@@ -26,6 +26,12 @@ struct PhasePanelFeature {
             switch action {
 
             case .view(.appeared):
+                state.phaseTimestamps.append(
+                    State.PhaseTimestamp(
+                        phaseName: state.currentPhase.title,
+                        startDate: Date()
+                    )
+                )
                 return .send(.timerTick)
 
             case .view(.timerTapped):
@@ -36,14 +42,34 @@ struct PhasePanelFeature {
 
             case .view(.nextPhaseTapped):
                 guard state.canGoNext else { return .none }
+                guard Date().timeIntervalSince(
+                    state.phaseTimestamps.last?.startDate ?? .distantPast
+                ) > 5 else { return .none }
+                state.phaseTimestamps[state.phaseTimestamps.count - 1].endDate = Date()
                 state.currentIndex += 1
                 state.elapsedSeconds = 0
+                state.phaseTimestamps.append(
+                    State.PhaseTimestamp(
+                        phaseName: state.currentPhase.title,
+                        startDate: Date()
+                    )
+                )
                 return .none
 
             case .view(.previousPhaseTapped):
                 guard state.canGoPrevious else { return .none }
+                guard Date().timeIntervalSince(
+                    state.phaseTimestamps.last?.startDate ?? .distantPast
+                ) > 5 else { return .none }
+                state.phaseTimestamps[state.phaseTimestamps.count - 1].endDate = Date()
                 state.currentIndex -= 1
                 state.elapsedSeconds = 0
+                state.phaseTimestamps.append(
+                    State.PhaseTimestamp(
+                        phaseName: state.currentPhase.title,
+                        startDate: Date()
+                    )
+                )
                 return .none
 
             case .timerTick:

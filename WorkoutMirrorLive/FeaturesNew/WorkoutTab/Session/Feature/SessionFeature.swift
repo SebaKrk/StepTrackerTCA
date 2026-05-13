@@ -18,7 +18,7 @@ struct SessionFeature {
     // MARK: - Dependency
 
     @Dependency(\.sessionClient) var sessionClient
-    @Dependency(\.personCalculatorClient) var calculator
+    @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.continuousClock) var clock
@@ -160,13 +160,21 @@ struct SessionFeature {
 
                 } else if value == .summary {
                     state.summary.failureDebugInfo = "mode: \(state.workoutMode)"
+
+                    // Convert hrBuffer and phaseTimestamps to simple tuples for SummaryFeature
+                    let hrData = state.live.hrBuffer.map { (date: $0.date, bpm: $0.bpm) }
+                    let phases = state.live.phasePanel?.phaseTimestamps.map {
+                        (name: $0.phaseName, start: $0.startDate, end: $0.endDate)
+                    } ?? []
+
                     var effects: [Effect<Action>] = [
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
                         .cancel(id: SessionWatchCancelID.hrReadingTimeout),
                         .send(.live(.liveActivity(.workout(.stop)))),
-                        .send(.live(.liveActivity(.timer(.stop))))
+                        .send(.live(.liveActivity(.timer(.stop)))),
+                        .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases)))
                     ]
                     // iPhone-standalone: iPhone saved the workout — skip .saving, go straight to polling.
                     // Watch-primary: keep watchEventStream alive for .workoutSaved from Watch.
@@ -186,7 +194,7 @@ struct SessionFeature {
                         return
                     }
 
-                    let maxHR = await calculator.calculateMaxHeartRate(age, sex)
+                    let maxHR = Int(maxHeartRateClient.fromAge(age, sex))
                     await send(.setMaxHR(maxHR))
                 }
 

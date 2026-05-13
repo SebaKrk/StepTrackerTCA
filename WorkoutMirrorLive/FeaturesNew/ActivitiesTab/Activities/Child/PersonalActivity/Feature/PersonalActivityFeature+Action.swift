@@ -21,16 +21,13 @@ extension PersonalActivityFeature {
         
         /// Triggers fetching workouts from HealthKit.
         case fetchWorkouts
-        
+
         /// Handles the result of workout fetch operation.
         case workoutsFetched(Result<[HKWorkout], Error>)
-        
-        /// Triggers fetching user's max heart rate for zone calculations.
-        case fetchMaxHeartRate
-        
-        /// Handles the result of max heart rate fetch.
-        case maxHeartRateFetched(Double?)
-        
+
+        /// Per-workout max heart rate map resolved (one per visible workout).
+        case maxHRByWorkoutResolved([UUID: Double])
+
         /// Handles the result of all workout zone analyses.
         case allWorkoutZonesAnalyzed([UUID: PrimaryZoneInfo])
 

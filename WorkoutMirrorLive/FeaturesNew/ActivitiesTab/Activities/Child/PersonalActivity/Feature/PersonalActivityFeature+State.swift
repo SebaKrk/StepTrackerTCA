@@ -34,9 +34,11 @@ extension PersonalActivityFeature {
         /// Current sort option for ordering workouts.
         var sortDescriptors: ActivitiesSortOption = .newestFirst
         
-        /// User's maximum heart rate for zone calculations.
-        var maxHeartRate: Double?
-        
+        /// Per-workout max heart rate, keyed by `HKWorkout.uuid`.
+        /// Computed from `birthDate + workout.startDate` via `MaxHeartRateClient`,
+        /// so each row uses its historical maxHR (zones stable as user ages).
+        var maxHRByWorkout: [UUID: Double] = [:]
+
         /// Heart rate zone information for each workout, keyed by workout UUID.
         var zoneInfo: [UUID: PrimaryZoneInfo] = [:]
         

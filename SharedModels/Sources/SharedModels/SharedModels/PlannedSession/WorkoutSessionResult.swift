@@ -10,10 +10,12 @@ import Foundation
 /// Result of a single WOD within a completed planned workout.
 ///
 /// Contains a **snapshot** of the workout description at the time of execution —
-/// immutable even if the source plan is later edited (e.g. weight changed from 40kg to 80kg).
-public struct WorkoutSessionResult: Equatable, Codable, Sendable {
+/// immutable even if the source plan is later edited.
+public struct WorkoutSessionResult: Equatable, Codable, Sendable, Identifiable {
 
     // MARK: - Properties
+
+    public var id: UUID
 
     /// WOD name, e.g. "WOD 1" or a custom name from the plan.
     public var name: String
@@ -22,23 +24,30 @@ public struct WorkoutSessionResult: Equatable, Codable, Sendable {
     /// e.g. "21-15-9 Thrusters 43kg + Pull-ups".
     public var description: String
 
-    /// Free-form result entered by the user, e.g. "14:32", "12+5 rnd", "80kg".
-    public var score: String
-    
+    /// Typed WOD score — replaces free-form string.
+    public var scoreResult: WodScoreResult
+
     /// Optional note for this WOD.
     public var note: String
+
+    /// Per-exercise inputs collected on the Summary screen.
+    public var exercises: [ExerciseLogInput]
 
     // MARK: - Init
 
     public init(
+        id: UUID = UUID(),
         name: String,
         description: String,
-        score: String = "",
-        note: String = ""
+        scoreResult: WodScoreResult = .completed,
+        note: String = "",
+        exercises: [ExerciseLogInput] = []
     ) {
+        self.id = id
         self.name = name
         self.description = description
-        self.score = score
+        self.scoreResult = scoreResult
         self.note = note
+        self.exercises = exercises
     }
 }

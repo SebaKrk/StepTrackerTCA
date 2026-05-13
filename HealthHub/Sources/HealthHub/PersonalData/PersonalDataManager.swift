@@ -49,6 +49,16 @@ public protocol PersonalDataManager: Sendable {
     /// - Returns: The user's age in years, or `nil` if date of birth is not available
     /// - Throws: HealthKit errors if data access fails
     func getAge() async throws -> Int?
+
+    /// Retrieves the user's date of birth directly from HealthKit characteristics.
+    ///
+    /// Use this when you need to compute age at a specific historical date (e.g.,
+    /// for time-stable HR zone calculations on past workouts), rather than the
+    /// current age provided by `getAge()`.
+    ///
+    /// - Returns: The user's birth date, or `nil` if not set in Health app
+    /// - Throws: HealthKit errors if data access fails
+    func getBirthDate() async throws -> Date?
     
     /// Retrieves the user's biological sex from HealthKit.
     ///

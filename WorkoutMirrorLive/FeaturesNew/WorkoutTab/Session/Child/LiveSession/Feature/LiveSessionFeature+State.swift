@@ -38,7 +38,7 @@ extension LiveSessionFeature {
 
         /// The maximum heart rate (HR max) calculated at the beginning of the session.
         /// Provided by `SessionFeature`, which retrieves the user’s age and biological sex
-        /// from `personCalculatorClient` and applies the appropriate calculation strategy.
+        /// from HealthKit and resolves max HR via `maxHeartRateClient.fromAge(age, sex)`.
         var maxHeartRate: Int = 0
         
         // MARK: - Child
@@ -62,6 +62,18 @@ extension LiveSessionFeature {
         /// `true` until the first real heart rate reading arrives from Watch.
         /// Used to show a "Connecting…" overlay on the session screen.
         var isWaitingForData: Bool { workoutMetrics.heartRate == 0 }
+
+        // MARK: - HR Buffer
+
+        /// Single HR reading with timestamp — used to calculate per-phase HR at save time.
+        struct HRSample: Sendable {
+            let date: Date
+            let bpm: Double
+        }
+
+        /// Append-only buffer of HR samples collected during the workout.
+        /// ~720 samples per 60 min (one every ~5s) ≈ 12 KB. Cleared on session end.
+        var hrBuffer: [HRSample] = []
 
         // MARK: - Helpers
         

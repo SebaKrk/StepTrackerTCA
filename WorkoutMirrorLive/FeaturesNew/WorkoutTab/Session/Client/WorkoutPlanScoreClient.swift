@@ -25,6 +25,9 @@ struct WorkoutPlanScoreClient: Sendable {
 
     /// Returns the execution record linked to a specific HKWorkout, or `nil` if none exists.
     var fetchByHKWorkoutId: @Sendable (UUID) async throws -> WorkoutPlanScore?
+
+    /// Returns a single score by its ID, or `nil` if not found.
+    var fetchById: @Sendable (UUID) async throws -> WorkoutPlanScore?
 }
 
 // MARK: - DependencyValues
@@ -76,6 +79,14 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
                         .fetchOne(db)
                         .map { try $0.toDomain() }
                 }
+            },
+            fetchById: { id in
+                try await database.read { db in
+                    try WorkoutPlanScoreRecord
+                        .where { $0.id.eq(id) }
+                        .fetchOne(db)
+                        .map { try $0.toDomain() }
+                }
             }
         )
     }()
@@ -84,7 +95,8 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
         WorkoutPlanScoreClient(
             save: unimplemented("WorkoutPlanScoreClient.save"),
             fetchByTrainingSessionId: unimplemented("WorkoutPlanScoreClient.fetchByTrainingSessionId"),
-            fetchByHKWorkoutId: unimplemented("WorkoutPlanScoreClient.fetchByHKWorkoutId")
+            fetchByHKWorkoutId: unimplemented("WorkoutPlanScoreClient.fetchByHKWorkoutId"),
+            fetchById: unimplemented("WorkoutPlanScoreClient.fetchById")
         )
     }
 }

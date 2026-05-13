@@ -188,10 +188,19 @@ struct HealthMetricsTrendView: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+            AxisMarks(
+                values: store.dateRange.rawValue <= 7
+                    ? .stride(by: .day, roundLowerBound: false, roundUpperBound: false)
+                    : .automatic(desiredCount: 7)
+            ) { _ in
+                AxisValueLabel(
+                    format: store.dateRange.rawValue <= 7
+                        ? .dateTime.day(.twoDigits)
+                        : .dateTime.month(.abbreviated).day()
+                )
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .chartPlotStyle { plot in
             plot.mask(alignment: .leading) {
                 Rectangle()
@@ -268,10 +277,19 @@ struct HealthMetricsTrendView: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+            AxisMarks(
+                values: store.dateRange.rawValue <= 7
+                    ? .stride(by: .day, roundLowerBound: false, roundUpperBound: false)
+                    : .automatic(desiredCount: 7)
+            ) { _ in
+                AxisValueLabel(
+                    format: store.dateRange.rawValue <= 7
+                        ? .dateTime.day(.twoDigits)
+                        : .dateTime.month(.abbreviated).day()
+                )
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .chartPlotStyle { plot in
             plot.mask(alignment: .bottom) {
                 Rectangle()
@@ -370,10 +388,19 @@ struct HealthMetricsTrendView: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+            AxisMarks(
+                values: store.dateRange.rawValue <= 7
+                    ? .stride(by: .day, roundLowerBound: false, roundUpperBound: false)
+                    : .automatic(desiredCount: 7)
+            ) { _ in
+                AxisValueLabel(
+                    format: store.dateRange.rawValue <= 7
+                        ? .dateTime.day(.twoDigits)
+                        : .dateTime.month(.abbreviated).day()
+                )
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .chartPlotStyle { plot in
             plot.mask(alignment: .bottom) {
                 Rectangle()

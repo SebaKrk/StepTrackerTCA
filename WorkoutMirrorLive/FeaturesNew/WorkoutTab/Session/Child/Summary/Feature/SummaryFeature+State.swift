@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 extension SummaryFeature {
@@ -35,11 +36,27 @@ extension SummaryFeature {
         /// UI flags — whether note input is expanded per WOD index.
         var showNotes: [Bool] = []
 
+        /// UI flags — whether exercises were edited via sheet per WOD index.
+        var exercisesEdited: [Bool] = []
+
         /// Counts how many times checkSummary has been attempted (for debug logging).
         var summaryRetryCount: Int = 0
 
         /// Debug-only context string populated on failure (e.g. workout mode, last result).
         var failureDebugInfo: String = ""
+
+        // MARK: - HR Data (passed by parent)
+
+        /// HR samples from the workout — passed by parent for per-phase HR calculation.
+        var hrBuffer: [(date: Date, bpm: Double)] = []
+
+        /// Phase timestamps — passed by parent for per-phase HR calculation.
+        var phaseTimestamps: [(name: String, start: Date, end: Date?)] = []
+
+        // MARK: - Set Input Sheet
+
+        /// Child feature for the per-set input sheet. `nil` = sheet not presented.
+        @Presents var setInput: SetInputFeature.State?
 
         // MARK: - Alert
 

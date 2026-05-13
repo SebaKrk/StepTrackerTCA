@@ -23,7 +23,7 @@ struct ActivityDetailsView: View {
     var body: some View {
         rootView
             .padding([.leading, .trailing], 8)
-            .navigationTitle("\(store.workout.startDate.formatted(date: .abbreviated, time: .omitted))")
+            .navigationTitle(navigationTitleText)
             .background(LinearGradient(colors: [store.color.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
             .onAppear {
                 send(.viewDidAppear)
@@ -36,6 +36,10 @@ struct ActivityDetailsView: View {
                     }
     }
     
+    private var navigationTitleText: String {
+        store.workout.startDate.formatted(date: .abbreviated, time: .omitted)
+    }
+
     private var rootView: some View {
         ScrollView {
             VStack(spacing: 8) {
@@ -69,46 +73,64 @@ struct ActivityDetailsView: View {
     
     private var headerWorkoutActivityType: some View {
         HStack {
-            Text(store.workout.workoutActivityType.name)
-                .foregroundColor(.primary)
-                .font(.title2)
-                .bold()
-            Text(formattedDuration)
-                .foregroundColor(.gray)
-                .font(.footnote)
+            headerActivityTypeName
+            headerDurationText
             Spacer()
-            Image(systemName: store.workout.workoutActivityType.iconNameSimple)
-                .resizable()
-                .scaledToFit()
-                .foregroundColor(.primary)
-                .frame(width: 25, height: 25)
+            headerActivityTypeIcon
         }
     }
-    
+
+    private var headerActivityTypeName: some View {
+        Text(store.workout.workoutActivityType.name)
+            .foregroundColor(.primary)
+            .font(.title2)
+            .bold()
+    }
+
+    private var headerDurationText: some View {
+        Text(formattedDuration)
+            .foregroundColor(.gray)
+            .font(.footnote)
+    }
+
+    private var headerActivityTypeIcon: some View {
+        Image(systemName: store.workout.workoutActivityType.iconNameSimple)
+            .resizable()
+            .scaledToFit()
+            .foregroundColor(.primary)
+            .frame(width: 25, height: 25)
+    }
+
     private var headerWorkoutDates: some View {
         HStack {
-            Text(store.workout.startDate,
-                 format: .dateTime.hour().minute().second())
+            headerStartTimeText
             Text("-")
-            Text(store.workout.endDate,
-                 format: .dateTime.hour().minute().second())
+            headerEndTimeText
             Spacer()
-            Text(store.workout.startDate, format: .dateTime.weekday(.wide))
+            headerWeekdayText
         }
         .font(.footnote)
         .foregroundStyle(.secondary)
+    }
+
+    private var headerStartTimeText: some View {
+        Text(store.workout.startDate,
+             format: .dateTime.hour().minute().second())
+    }
+
+    private var headerEndTimeText: some View {
+        Text(store.workout.endDate,
+             format: .dateTime.hour().minute().second())
+    }
+
+    private var headerWeekdayText: some View {
+        Text(store.workout.startDate, format: .dateTime.weekday(.wide))
     }
     
     // MARK: - Energy Section
     
     private var energySection: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: 4),
-                GridItem(.flexible(), spacing: 4)
-            ],
-            spacing: 4
-        ) {
+        LazyVGrid(columns: twoColumnGrid, spacing: 4) {
             simpleMetricCard(
                 title: String(localized: "Calories Active", bundle: .main),
                 value: formattedCalories,
@@ -127,13 +149,7 @@ struct ActivityDetailsView: View {
     // MARK: - Heart Rate Section
     
     private var heartRateSection: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: 4),
-                GridItem(.flexible(), spacing: 4)
-            ],
-            spacing: 4
-        ) {
+        LazyVGrid(columns: twoColumnGrid, spacing: 4) {
             simpleMetricCard(
                 title: String(localized: "Avg HR", bundle: .main),
                 value: formattedAvgHR,
@@ -153,82 +169,115 @@ struct ActivityDetailsView: View {
     
     private var performanceMetricsSection: some View {
         VStack(spacing: 4) {
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: 4),
-                    GridItem(.flexible(), spacing: 4)
-                ],
-                spacing: 4
-            ) {
-                // hrTSS
-                tappableMetricCard(
-                    title: String(localized: "hrTSS", bundle: .main),
-                    value: formattedHRTSS,
-                    unit: "",
-                    label: store.hrTSSLevel?.recoveryEstimate ?? "",
-                    labelColor: store.hrTSSLevel?.color ?? .gray,
-                    icon: "figure.run"
-                ) {
-                    if let hrTSS = store.hrTSS, let level = store.hrTSSLevel {
-                        send(.openMetricDetails(.hrTSS(value: hrTSS, level: level)))
-                    }
-                }
-                
-                // Intensity
-                tappableMetricCard(
-                    title: String(localized: "Intensity", bundle: .main),
-                    value: formattedIntensityFactor,
-                    unit: "",
-                    label: store.intensityFactorLevel?.title ?? "",
-                    labelColor: store.intensityFactorLevel?.color ?? .gray,
-                    icon: "gauge.with.needle"
-                ) {
-                    if let intensity = store.intensityFactor, let level = store.intensityFactorLevel {
-                        send(.openMetricDetails(.intensity(value: intensity, level: level)))
-                    }
-                }
+            LazyVGrid(columns: twoColumnGrid, spacing: 4) {
+                hrTSSCard
+                intensityCard
             }
-            
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: 4),
-                    GridItem(.flexible(), spacing: 4)
-                ],
-                spacing: 4
-            ) {
-                // HR Recovery
-                tappableMetricCard(
-                    title: String(localized: "HR Recovery", bundle: .main),
-                    value: formattedHRRecovery,
-                    unit: "bpm",
-                    label: store.hrRecoveryLevel?.title ?? "",
-                    labelColor: store.hrRecoveryLevel?.color ?? .gray,
-                    icon: "arrow.down.heart.fill"
-                ) {
-                    if let hrRecovery = store.hrRecovery, let level = store.hrRecoveryLevel {
-                        send(.openMetricDetails(.hrRecovery(value: hrRecovery, level: level)))
-                    }
-                }
-                
-                // Recovery Demand
-                tappableMetricCard(
-                    title: String(localized: "Recovery Demand", bundle: .main),
-                    value: store.recoveryDemandLevel?.valueString ?? "—",
-                    unit: store.recoveryDemandLevel?.unitString ?? "",
-                    label: store.recoveryDemandLevel?.title ?? "",
-                    labelColor: store.recoveryDemandLevel?.color ?? .gray,
-                    icon: "bed.double.fill"
-                ) {
-                    if let recoveryDemand = store.recoveryDemand, let level = store.recoveryDemandLevel {
-                        send(.openMetricDetails(.recoveryDemand(value: recoveryDemand, level: level)))
-                    }
-                }
+            LazyVGrid(columns: twoColumnGrid, spacing: 4) {
+                hrRecoveryCard
+                recoveryDemandCard
+            }
+        }
+    }
+
+    private var hrTSSCard: some View {
+        tappableMetricCard(
+            title: String(localized: "hrTSS", bundle: .main),
+            value: formattedHRTSS,
+            unit: "",
+            label: store.hrTSSLevel?.recoveryEstimate ?? "",
+            labelColor: store.hrTSSLevel?.color ?? .gray,
+            icon: "figure.run"
+        ) {
+            if let hrTSS = store.hrTSS, let level = store.hrTSSLevel {
+                send(.openMetricDetails(.hrTSS(value: hrTSS, level: level)))
+            }
+        }
+    }
+
+    private var intensityCard: some View {
+        tappableMetricCard(
+            title: String(localized: "Intensity", bundle: .main),
+            value: formattedIntensityFactor,
+            unit: "",
+            label: store.intensityFactorLevel?.title ?? "",
+            labelColor: store.intensityFactorLevel?.color ?? .gray,
+            icon: "gauge.with.needle"
+        ) {
+            if let intensity = store.intensityFactor, let level = store.intensityFactorLevel {
+                send(.openMetricDetails(.intensity(value: intensity, level: level)))
+            }
+        }
+    }
+
+    private var hrRecoveryCard: some View {
+        tappableMetricCard(
+            title: String(localized: "HR Recovery", bundle: .main),
+            value: formattedHRRecovery,
+            unit: "bpm",
+            label: store.hrRecoveryLevel?.title ?? "",
+            labelColor: store.hrRecoveryLevel?.color ?? .gray,
+            icon: "arrow.down.heart.fill"
+        ) {
+            if let hrRecovery = store.hrRecovery, let level = store.hrRecoveryLevel {
+                send(.openMetricDetails(.hrRecovery(value: hrRecovery, level: level)))
+            }
+        }
+    }
+
+    private var recoveryDemandCard: some View {
+        tappableMetricCard(
+            title: String(localized: "Recovery Demand", bundle: .main),
+            value: store.recoveryDemandLevel?.valueString ?? "—",
+            unit: store.recoveryDemandLevel?.unitString ?? "",
+            label: store.recoveryDemandLevel?.title ?? "",
+            labelColor: store.recoveryDemandLevel?.color ?? .gray,
+            icon: "bed.double.fill"
+        ) {
+            if let recoveryDemand = store.recoveryDemand, let level = store.recoveryDemandLevel {
+                send(.openMetricDetails(.recoveryDemand(value: recoveryDemand, level: level)))
             }
         }
     }
     
+    private var twoColumnGrid: [GridItem] {
+        [
+            GridItem(.flexible(), spacing: 4),
+            GridItem(.flexible(), spacing: 4)
+        ]
+    }
+
     // MARK: - Card Components
-    
+
+    private func cardValueWithUnit(value: String, unit: String) -> some View {
+        HStack {
+            Text(value)
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+            if !unit.isEmpty {
+                Text(unit)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    private func cardLabel(title: String, icon: String) -> some View {
+        Label(title, systemImage: icon)
+            .font(.caption)
+            .foregroundColor(.secondary)
+    }
+
+    @ViewBuilder
+    private func cardSubLabel(_ label: String, color: Color) -> some View {
+        if !label.isEmpty {
+            Text(label)
+                .font(.caption)
+                .foregroundColor(color)
+        }
+    }
+
     /// Simple workout metric card with value and unit.
     private func simpleMetricCard(
         title: String,
@@ -237,23 +286,13 @@ struct ActivityDetailsView: View {
         icon: String
     ) -> some View {
         GroupBox {
-            HStack {
-                Text(value)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                Text(unit)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
+            cardValueWithUnit(value: value, unit: unit)
         } label: {
-            Label(title, systemImage: icon)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            cardLabel(title: title, icon: icon)
         }
         .styledGroupBox()
     }
-    
+
     /// Metric card with value, unit and descriptive label.
     private func descriptiveMetricCard(
         title: String,
@@ -265,31 +304,15 @@ struct ActivityDetailsView: View {
     ) -> some View {
         GroupBox {
             VStack(spacing: 4) {
-                HStack {
-                    Text(value)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                    if !unit.isEmpty {
-                        Text(unit)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                if !label.isEmpty {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundColor(labelColor)
-                }
+                cardValueWithUnit(value: value, unit: unit)
+                cardSubLabel(label, color: labelColor)
             }
         } label: {
-            Label(title, systemImage: icon)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            cardLabel(title: title, icon: icon)
         }
         .styledGroupBox()
     }
-    
+
     /// Metric card with tappable title for navigation to details.
     private func tappableMetricCard(
         title: String,
@@ -302,33 +325,19 @@ struct ActivityDetailsView: View {
     ) -> some View {
         GroupBox {
             VStack(spacing: 4) {
-                HStack {
-                    Text(value)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                    if !unit.isEmpty {
-                        Text(unit)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                if !label.isEmpty {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundColor(labelColor)
-                }
+                cardValueWithUnit(value: value, unit: unit)
+                cardSubLabel(label, color: labelColor)
             }
             .frame(minHeight: 50)
         } label: {
             Button(action: onTitleTap) {
                 HStack {
-                    Label(title, systemImage: icon)
+                    cardLabel(title: title, icon: icon)
                     Spacer()
                     Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
             }
         }
         .styledGroupBox()
@@ -379,67 +388,85 @@ struct ActivityDetailsView: View {
     
     private var primaryZone: some View {
         HStack {
-            Text(String(localized: "Primary Zone", bundle: .main) + ":")
-                .font(.caption)
-            
-            if let zoneInfo = store.primaryZoneInfo {
-                Text(zoneInfo.zone.title)
-                    .font(.caption)
-                    .bold()
-                    .foregroundStyle(zoneInfo.zone.color)
-            } else {
-                Text("–")
-                    .font(.caption)
-                    .bold()
-            }
-            
+            primaryZoneLabel
+            primaryZoneValue
             Spacer()
-            
-            Text(String(localized: "Time in zone", bundle: .main) + ":")
-                .font(.caption)
-            
-            if let zoneInfo = store.primaryZoneInfo {
-                Text(formatDuration(zoneInfo.duration))
-                    .font(.caption)
-                    .bold()
-            } else {
-                Text("–")
-                    .font(.caption)
-                    .bold()
-            }
+            timeInZoneLabel
+            timeInZoneValue
         }
         .padding(4)
+    }
+
+    private var primaryZoneLabel: some View {
+        Text(String(localized: "Primary Zone", bundle: .main) + ":")
+            .font(.caption)
+    }
+
+    @ViewBuilder
+    private var primaryZoneValue: some View {
+        if let zoneInfo = store.primaryZoneInfo {
+            Text(zoneInfo.zone.title)
+                .font(.caption)
+                .bold()
+                .foregroundStyle(zoneInfo.zone.color)
+        } else {
+            Text("–")
+                .font(.caption)
+                .bold()
+        }
+    }
+
+    private var timeInZoneLabel: some View {
+        Text(String(localized: "Time in zone", bundle: .main) + ":")
+            .font(.caption)
+    }
+
+    @ViewBuilder
+    private var timeInZoneValue: some View {
+        if let zoneInfo = store.primaryZoneInfo {
+            Text(formatDuration(zoneInfo.duration))
+                .font(.caption)
+                .bold()
+        } else {
+            Text("–")
+                .font(.caption)
+                .bold()
+        }
     }
     
     private func zoneRow(zone: HeartRateZone, duration: TimeInterval, total: TimeInterval) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Circle()
-                    .fill(zone.color)
-                    .frame(width: 10, height: 10)
-                
-                Text(zone.title)
-                    .font(.subheadline)
-                
-                Spacer()
-                
-                Text(formatDuration(duration))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            
-            GeometryReader { geometry in
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(zone.color.opacity(0.3))
-                    .frame(width: geometry.size.width)
-                    .overlay(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(zone.color)
-                            .frame(width: total > 0 ? geometry.size.width * (duration / total) : 0)
-                    }
-            }
-            .frame(height: 8)
+            zoneRowHeader(zone: zone, duration: duration)
+            zoneProgressBar(zone: zone, duration: duration, total: total)
         }
+    }
+
+    private func zoneRowHeader(zone: HeartRateZone, duration: TimeInterval) -> some View {
+        HStack {
+            Circle()
+                .fill(zone.color)
+                .frame(width: 10, height: 10)
+            Text(zone.title)
+                .font(.subheadline)
+            Spacer()
+            Text(formatDuration(duration))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func zoneProgressBar(zone: HeartRateZone, duration: TimeInterval, total: TimeInterval) -> some View {
+        GeometryReader { geometry in
+            RoundedRectangle(cornerRadius: 4)
+                .fill(zone.color.opacity(0.3))
+                .frame(width: geometry.size.width)
+                .overlay(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(zone.color)
+                        .frame(width: total > 0 ? geometry.size.width * (duration / total) : 0)
+                }
+        }
+        .frame(height: 8)
     }
     
     @ViewBuilder
@@ -457,51 +484,58 @@ struct ActivityDetailsView: View {
     
     private func routeMapView(coordinates: [CLLocationCoordinate2D]) -> some View {
         GroupBox {
-            Map {
-                MapPolyline(coordinates: coordinates)
-                    .stroke(store.color, lineWidth: 3)
-                
-                if let start = coordinates.first {
-                    Annotation("Start", coordinate: start) {
-                        Circle()
-                            .fill(.green)
-                            .stroke(.white, lineWidth: 2)
-                            .frame(width: 16, height: 16)
-                    }
-                }
-                
-                if let end = coordinates.last {
-                    Annotation("Finish", coordinate: end) {
-                        Circle()
-                            .fill(.red)
-                            .stroke(.white, lineWidth: 2)
-                            .frame(width: 16, height: 16)
-                    }
-                }
-            }
-            .disabled(true)
-            .frame(height: 200)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            routeMap(coordinates: coordinates)
+                .disabled(true)
+                .frame(height: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
         } label: {
-            Button {
-                // TODO: - destination RoutDetails
-            } label: {
-                HStack {
-                    Label("Route", systemImage: "figure.run")
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                }
-                .font(.caption)
-                .foregroundColor(.secondary)
-            }
+            routeLabelButton
         }
         .styledGroupBox()
+    }
+
+    private func routeMap(coordinates: [CLLocationCoordinate2D]) -> some View {
+        Map {
+            MapPolyline(coordinates: coordinates)
+                .stroke(store.color, lineWidth: 3)
+            if let start = coordinates.first {
+                Annotation(String(localized: "Start", bundle: .main), coordinate: start) {
+                    routeMarker(color: .green)
+                }
+            }
+            if let end = coordinates.last {
+                Annotation(String(localized: "Finish", bundle: .main), coordinate: end) {
+                    routeMarker(color: .red)
+                }
+            }
+        }
+    }
+
+    private func routeMarker(color: Color) -> some View {
+        Circle()
+            .fill(color)
+            .stroke(.white, lineWidth: 2)
+            .frame(width: 16, height: 16)
+    }
+
+    private var routeLabelButton: some View {
+        Button {
+            // TODO: - destination RoutDetails
+        } label: {
+            HStack {
+                Label(String(localized: "Route", bundle: .main), systemImage: "figure.run")
+                Spacer()
+                Image(systemName: "chevron.right")
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+        }
     }
     
     private func singleLocationMapView(coordinate: CLLocationCoordinate2D) -> some View {
         GroupBox {
             Map {
-                Annotation("Workout", coordinate: coordinate) {
+                Annotation(String(localized: "Workout", bundle: .main), coordinate: coordinate) {
                     Image(systemName: "figure.run.circle.fill")
                         .font(.title)
                         .foregroundStyle(store.color)
@@ -512,7 +546,7 @@ struct ActivityDetailsView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         } label: {
             HStack {
-                Label("Localization", systemImage: "location.fill")
+                Label(String(localized: "Localization", bundle: .main), systemImage: "location.fill")
                 Spacer()
                 Image(systemName: "chevron.right")
             }
@@ -526,13 +560,13 @@ struct ActivityDetailsView: View {
         GroupBox {
             HStack {
                 ProgressView()
-                Text("Loading route...")
+                Text(String(localized: "Loading route...", bundle: .main))
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 200)
         } label: {
-            Label("Localization", systemImage: "location.fill")
+            Label(String(localized: "Localization", bundle: .main), systemImage: "location.fill")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -640,7 +674,7 @@ struct ActivityDetailsView: View {
             WorkoutSessionResult(
                 name: $0.name,
                 description: $0.snapshotDescription,
-                score: $0.name == "WOD 1" ? "11:43" : "80kg",
+                scoreResult: $0.name == "WOD 1" ? .custom("11:43") : .forLoad(weight: 80),
                 note: ""
             )
         }

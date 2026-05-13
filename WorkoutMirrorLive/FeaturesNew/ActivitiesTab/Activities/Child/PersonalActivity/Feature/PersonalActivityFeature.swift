@@ -7,17 +7,19 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import HealthKit
 import IssueReporting
 import SharedModels
 
 @Reducer
 struct PersonalActivityFeature {
-    
+
     // MARK: - Dependency
-    
+
     @Dependency(\.activityClient) var activityClient
-    
+    @Dependency(\.maxHeartRateClient) var maxHeartRateClient
+
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -30,16 +32,6 @@ struct PersonalActivityFeature {
                 state.viewState = value
                 return .none
                 
-            case .fetchMaxHeartRate:
-                return .run { send in
-                    let maxHR = await activityClient.fetchMaxHeartRate()
-                    await send(.maxHeartRateFetched(maxHR))
-                }
-                
-            case let .maxHeartRateFetched(maxHR):
-                state.maxHeartRate = maxHR
-                return .send(.fetchWorkouts)
-                
             case .fetchWorkouts:
                 let days = state.days
                 let descriptors = state.sortDescriptors
@@ -50,33 +42,56 @@ struct PersonalActivityFeature {
                         }
                     ))
                 }
-                
+
             case let .workoutsFetched(.success(workouts)):
                 state.workouts = workouts
                 state.zoneInfo = [:]
-                
-                guard let maxHR = state.maxHeartRate, !workouts.isEmpty else {
+                state.maxHRByWorkout = [:]
+
+                guard !workouts.isEmpty else {
                     return .send(.allWorkoutZonesAnalyzed([:]))
                 }
-                
-                return .run { send in
+
+                return .run { [maxHeartRateClient] send in
+                    var maxHRMap: [UUID: Double] = [:]
+                    await withTaskGroup(of: (UUID, Double).self) { group in
+                        for workout in workouts {
+                            group.addTask {
+                                let maxHR = await maxHeartRateClient.forWorkout(workout)
+                                return (workout.uuid, maxHR)
+                            }
+                        }
+                        for await (workoutID, maxHR) in group {
+                            maxHRMap[workoutID] = maxHR
+                        }
+                    }
+                    await send(.maxHRByWorkoutResolved(maxHRMap))
+                }
+
+            case let .maxHRByWorkoutResolved(map):
+                state.maxHRByWorkout = map
+                let workouts = state.workouts
+
+                guard !workouts.isEmpty else {
+                    return .send(.allWorkoutZonesAnalyzed([:]))
+                }
+
+                return .run { [activityClient] send in
                     var zoneResults: [UUID: PrimaryZoneInfo] = [:]
-                    
                     await withTaskGroup(of: (UUID, PrimaryZoneInfo?).self) { group in
                         for workout in workouts {
+                            let maxHR = map[workout.uuid] ?? 190
                             group.addTask {
                                 let zoneInfo = try? await activityClient.analyzeWorkoutZones(workout, maxHR)
                                 return (workout.uuid, zoneInfo)
                             }
                         }
-                        
                         for await (workoutID, zoneInfo) in group {
                             if let zoneInfo {
                                 zoneResults[workoutID] = zoneInfo
                             }
                         }
                     }
-                    
                     await send(.allWorkoutZonesAnalyzed(zoneResults))
                 }
                 
@@ -91,7 +106,7 @@ struct PersonalActivityFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                return .send(.fetchMaxHeartRate)
+                return .send(.fetchWorkouts)
                 
             case let .view(.changeDays(value)):
                 state.days = value
@@ -107,7 +122,7 @@ struct PersonalActivityFeature {
                 state.destination = .activityDetails(
                     ActivityDetailsFeature.State(
                         workout: workout,
-                        maxHeartRate: state.maxHeartRate ?? 0,
+                        maxHeartRate: state.maxHRByWorkout[workout.uuid] ?? 190,
                         primaryZoneInfo: state.zoneInfo[workout.uuid]
                     )
                 )

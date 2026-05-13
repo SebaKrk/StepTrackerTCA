@@ -17,10 +17,13 @@ extension StatsFeature {
         
         /// Today's stats - current status, training readiness, and immediate actionable insights
         case today
-        
+
         /// Analytics view - historical data, trends, and long-term performance analysis
         case analytics
-        
+
+        /// Exercise analytics - per-exercise tracking, movement balance, progression charts
+        case exercises
+
         /// Unique identifier for the enum case
         var id: Self { self }
 
@@ -31,6 +34,8 @@ extension StatsFeature {
                 return String(localized: "Today", bundle: .main)
             case .analytics:
                 return String(localized: "Analytics", bundle: .main)
+            case .exercises:
+                return String(localized: "Exercises", bundle: .main)
             }
         }
         

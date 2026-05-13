@@ -96,6 +96,54 @@ extension DependencyValues {
             .execute(db)
         }
 
+        migrator.registerMigration("v5_exerciseLog") { db in
+            try #sql("""
+                CREATE TABLE "exerciseLogRecords" (
+                  "id"                  TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "date"                TEXT NOT NULL,
+                  "exerciseType"        TEXT,
+                  "unmatchedName"       TEXT,
+                  "category"            TEXT,
+                  "workoutPlanScoreId"  TEXT,
+                  "wodName"             TEXT,
+                  "plannedReps"         TEXT,
+                  "plannedWeight"       REAL,
+                  "actualWeight"        REAL,
+                  "actualReps"          TEXT,
+                  "scaling"             TEXT NOT NULL DEFAULT 'rx',
+                  "isPR"                INTEGER NOT NULL DEFAULT 0,
+                  "avgHeartRate"        REAL,
+                  "maxHeartRate"        REAL,
+                  "phaseStartDate"      TEXT,
+                  "phaseEndDate"        TEXT,
+                  "timeInPhase"         REAL,
+                  "volumeLoad"          REAL,
+                  "tempoPerRound"       REAL,
+                  "note"                TEXT,
+                  "editableUntil"       TEXT,
+                  "createdAt"           TEXT NOT NULL,
+                  "updatedAt"           TEXT NOT NULL,
+                  "ckRecordData"        BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_exerciseLogRecords_on_exerciseType"
+                ON "exerciseLogRecords"("exerciseType")
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_exerciseLogRecords_on_workoutPlanScoreId"
+                ON "exerciseLogRecords"("workoutPlanScoreId")
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_exerciseLogRecords_on_date"
+                ON "exerciseLogRecords"("date")
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

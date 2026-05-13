@@ -45,6 +45,9 @@ extension StatsFeature {
 
         /// Initializes the Analytics child feature (lazy, on first picker switch)
         case initializeAnalytics
+
+        /// Initializes the Exercise Analytics child feature (lazy, on first picker switch)
+        case initializeExerciseAnalytics
         
         /// Start observing real-time health data updates
         case startObserving
@@ -106,6 +109,9 @@ extension StatsFeature {
         /// Forwards actions to the AnalyticsFeature.
         /// Handles historical trends and performance analysis within the analytics tab.
         case analytics(AnalyticsFeature.Action)
+
+        /// Forwards actions to the ExerciseAnalyticsFeature.
+        case exerciseAnalytics(ExerciseAnalyticsFeature.Action)
 
     }
     

@@ -12,6 +12,7 @@
 		934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 934045BC2DF561F0005A00C8 /* HealthHub */; };
 		934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C72DD9CD8C0089D27C /* ComposableArchitecture */; };
 		934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C92DD9CD9A0089D27C /* Factory */; };
+		935095362FA139A10041C7B9 /* Textual in Frameworks */ = {isa = PBXBuildFile; productRef = 935095352FA139A10041C7B9 /* Textual */; };
 		93622F162D2C81B000E9863B /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 93622F152D2C81B000E9863B /* Algorithms */; };
 		936D5E372DF6228200E10214 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 936D5E362DF6228200E10214 /* SharedModels */; };
 		9371982E2F18D58A009C583D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9371982D2F18D58A009C583D /* WidgetKit.framework */; };
@@ -216,6 +217,7 @@
 				938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */,
 				93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */,
 				93D199972E50C57800697D06 /* Commons in Frameworks */,
+				935095362FA139A10041C7B9 /* Textual in Frameworks */,
 				93779D862F6E8FF4008EFEF1 /* AppDatabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -376,6 +378,7 @@
 				93D199962E50C57800697D06 /* Commons */,
 				93FA1B1E2EAA991A001809ED /* LNPopupUI */,
 				93779D852F6E8FF4008EFEF1 /* AppDatabase */,
+				935095352FA139A10041C7B9 /* Textual */,
 			);
 			productName = WorkoutMirrorLive;
 			productReference = 9382096C2E39388600F49046 /* WorkoutMirrorLive.app */;
@@ -474,6 +477,7 @@
 				930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */,
 				93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */,
+				935095342FA139A10041C7B9 /* XCRemoteSwiftPackageReference "textual" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 93CE75362D1699CA006D5A4A /* Products */;
@@ -1134,6 +1138,14 @@
 				minimumVersion = 2.4.3;
 			};
 		};
+		935095342FA139A10041C7B9 /* XCRemoteSwiftPackageReference "textual" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/textual";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.1;
+			};
+		};
 		93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-algorithms.git";
@@ -1179,6 +1191,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
 			productName = Factory;
+		};
+		935095352FA139A10041C7B9 /* Textual */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 935095342FA139A10041C7B9 /* XCRemoteSwiftPackageReference "textual" */;
+			productName = Textual;
 		};
 		93622F152D2C81B000E9863B /* Algorithms */ = {
 			isa = XCSwiftPackageProductDependency;
