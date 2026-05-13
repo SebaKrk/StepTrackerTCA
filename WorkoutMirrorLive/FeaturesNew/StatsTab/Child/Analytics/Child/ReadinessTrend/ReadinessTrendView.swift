@@ -148,10 +148,19 @@ struct ReadinessTrendView: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+            AxisMarks(
+                values: store.dateRange.rawValue <= 7
+                    ? .stride(by: .day, roundLowerBound: false, roundUpperBound: false)
+                    : .automatic(desiredCount: 7)
+            ) { value in
+                AxisValueLabel(
+                    format: store.dateRange.rawValue <= 7
+                        ? .dateTime.day(.twoDigits)
+                        : .dateTime.month(.abbreviated).day()
+                )
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .chartScrollableAxes(store.dateRange.rawValue > 28 ? .horizontal : [])
         .chartXVisibleDomain(length: 30 * 24 * 3600)
         .chartScrollPosition(initialX: Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date())

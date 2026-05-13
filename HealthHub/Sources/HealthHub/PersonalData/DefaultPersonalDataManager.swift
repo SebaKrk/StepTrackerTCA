@@ -811,31 +811,58 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     }
     
     public func getActiveEnergyBurnedHistory(days: Int) async throws -> [HealthKitData?] {
-        var results: [HealthKitData?] = []
         let calendar = Calendar.current
-        
-        // Start from 1 (yesterday) instead of 0 (today) to exclude incomplete data
-        for daysAgo in 1...days {
-            guard let targetDate = calendar.date(byAdding: .day, value: -daysAgo, to: Date()) else {
-                results.append(nil)
-                continue
-            }
-            
-            let dayStart = calendar.startOfDay(for: targetDate)
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
-            
-            // Use shared workout + fallback logic
-            if let energy = try await getActiveEnergyForDay(
-                dayStart: dayStart,
-                dayEnd: dayEnd
-            ) {
-                results.append(HealthKitData(date: dayStart, value: energy))
-            } else {
-                results.append(nil)
-            }
+        let now = Date()
+
+        // Exclude today (incomplete data) — anchor on yesterday's startOfDay as range end.
+        guard let yesterday = calendar.date(byAdding: .day, value: -1, to: now),
+              let startDate = calendar.date(byAdding: .day, value: -days, to: now) else {
+            return []
         }
-        
-        return results.reversed()
+        let anchorDate = calendar.startOfDay(for: startDate)
+        let endDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: yesterday))!
+
+        let energyType = HKQuantityType(.activeEnergyBurned)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: anchorDate,
+            end: endDate,
+            options: .strictStartDate
+        )
+
+        let query = HKStatisticsCollectionQuery(
+            quantityType: energyType,
+            quantitySamplePredicate: predicate,
+            options: .cumulativeSum,
+            anchorDate: anchorDate,
+            intervalComponents: DateComponents(day: 1)
+        )
+
+        let healthStore = manager.healthStore
+
+        return try await withCheckedThrowingContinuation { continuation in
+            query.initialResultsHandler = { _, collection, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard let collection else {
+                    continuation.resume(returning: [])
+                    return
+                }
+
+                var results: [HealthKitData?] = []
+                collection.enumerateStatistics(from: anchorDate, to: endDate) { stats, _ in
+                    if let sum = stats.sumQuantity() {
+                        let kcal = sum.doubleValue(for: .kilocalorie())
+                        results.append(HealthKitData(date: stats.startDate, value: kcal))
+                    } else {
+                        results.append(nil)
+                    }
+                }
+                continuation.resume(returning: results)
+            }
+            healthStore.execute(query)
+        }
     }
     
 }

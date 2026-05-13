@@ -79,10 +79,11 @@ extension ExerciseDetailView {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                 AxisValueLabel(format: .dateTime.month(.abbreviated).day())
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .frame(height: 200)
     }
 
@@ -127,10 +128,11 @@ extension ExerciseDetailView {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                 AxisValueLabel(format: .dateTime.month(.abbreviated).day())
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .frame(height: 200)
     }
 
@@ -201,10 +203,11 @@ extension ExerciseDetailView {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
                 AxisValueLabel(format: .dateTime.month(.abbreviated).day())
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .frame(height: 200)
     }
 

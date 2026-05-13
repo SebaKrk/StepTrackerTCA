@@ -116,10 +116,17 @@ struct WeightTrendView: View {
             RuleMark(y: .value("Average", avg))
                 .foregroundStyle(Color.primary.opacity(0.8))
                 .lineStyle(StrokeStyle(lineWidth: 2, dash: [3, 3]))
-                .annotation(position: .top, alignment: .leading) {
+                .annotation(
+                    position: .top,
+                    alignment: .leading,
+                    overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
+                ) {
                     Text(String(format: "%.1f kg avg", avg))
                         .font(.caption2.bold())
                         .foregroundStyle(.primary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.regularMaterial, in: Capsule())
                 }
 
             if let selected = store.selectedDataPoint {
@@ -148,10 +155,19 @@ struct WeightTrendView: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+            AxisMarks(
+                values: store.dateRange.rawValue <= 7
+                    ? .stride(by: .day, roundLowerBound: false, roundUpperBound: false)
+                    : .automatic(desiredCount: 7)
+            ) { _ in
+                AxisValueLabel(
+                    format: store.dateRange.rawValue <= 7
+                        ? .dateTime.day(.twoDigits)
+                        : .dateTime.month(.abbreviated).day()
+                )
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .chartScrollableAxes(store.dateRange.rawValue > 28 ? .horizontal : [])
         .chartXVisibleDomain(length: 30 * 24 * 3600)
         .chartScrollPosition(initialX: Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date())

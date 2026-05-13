@@ -120,6 +120,7 @@ struct WorkoutVolumeView: View {
                 AxisValueLabel(format: .dateTime.month(.abbreviated).day())
             }
         }
+        .chartXScale(range: .plotDimension(startPadding: 8, endPadding: 24))
         .chartScrollableAxes(weekCount > 6 ? .horizontal : [])
         .chartXVisibleDomain(length: 6 * 7 * 24 * 3600)
         .chartScrollPosition(initialX: Calendar.current.date(byAdding: .weekOfYear, value: -6, to: Date()) ?? Date())
