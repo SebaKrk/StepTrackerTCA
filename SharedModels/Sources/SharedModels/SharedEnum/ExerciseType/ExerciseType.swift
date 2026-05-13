@@ -15,6 +15,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case backSquat
     case frontSquat
     case benchPress
+    case floorPress
     case shoulderPress
     case overheadSquat
     case romanianDeadlift
@@ -98,6 +99,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .backSquat: return "Back Squat"
         case .frontSquat: return "Front Squat"
         case .benchPress: return "Bench Press"
+        case .floorPress: return "Floor Press"
         case .shoulderPress: return "Shoulder Press"
         case .overheadSquat: return "Overhead Squat"
         case .romanianDeadlift: return "Romanian Deadlift"
@@ -178,6 +180,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["bulgarian split squat", "bulgarian split squats", "BSS", "split squat", "rear foot elevated split squat", "RFESS"]
         case .benchPress:
             return ["bench press", "bench", "BP"]
+        case .floorPress:
+            return ["floor press", "floor bench press", "FP", "DB floor press", "dumbbell floor press"]
         case .shoulderPress:
             return ["shoulder press", "strict press", "military press", "DB shoulder press", "dumbbell shoulder press", "press"]
         case .overheadSquat:
@@ -293,7 +297,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
 
     public var category: MovementCategory {
         switch self {
-        case .deadlift, .backSquat, .frontSquat, .benchPress, .shoulderPress, .overheadSquat,
+        case .deadlift, .backSquat, .frontSquat, .benchPress, .floorPress, .shoulderPress, .overheadSquat,
              .romanianDeadlift, .bentOverRow, .gobletSquat, .bulgarianSplitSquat:
             return .strength
         case .snatch, .cleanAndJerk, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch,

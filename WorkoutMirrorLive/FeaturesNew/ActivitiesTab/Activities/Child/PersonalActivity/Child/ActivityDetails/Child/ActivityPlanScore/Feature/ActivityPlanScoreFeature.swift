@@ -207,10 +207,9 @@ struct ActivityPlanScoreFeature {
     ) -> WodScoreResult {
         switch wodType {
         case .strength, .olympicWeightlifting:
-            let maxWeight = exercises
-                .flatMap { $0.sets ?? [] }
-                .compactMap(\.weight)
-                .max() ?? 0
+            let setWeights = exercises.flatMap { $0.sets ?? [] }.compactMap(\.weight)
+            let singleWeights = exercises.compactMap(\.actualWeight)
+            let maxWeight = (setWeights + singleWeights).max() ?? 0
             return .forLoad(weight: maxWeight)
 
         case .amrap:
