@@ -25,6 +25,10 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
     /// Coaching cues, scaling notes or set schemes as free text.
     public var info: String
 
+    /// Per-set plan carried through editing — preserves structured sets parsed by AI.
+    /// Without this, opening "Edit Exercise" would silently drop strength workout sets.
+    public var plannedSets: [PlannedSet]?
+
     // MARK: - Init (create)
 
     public init(
@@ -32,13 +36,15 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
         customName: String? = nil,
         target: ExerciseTarget? = .reps(10),
         weight: WeightConfiguration? = nil,
-        info: String = ""
+        info: String = "",
+        plannedSets: [PlannedSet]? = nil
     ) {
         self.type = type
         self.customName = customName
         self.target = target
         self.weight = weight
         self.info = info
+        self.plannedSets = plannedSets
     }
 
     // MARK: - Init (edit)
@@ -49,5 +55,6 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
         self.target = exercise.target
         self.weight = exercise.weight
         self.info = exercise.info ?? ""
+        self.plannedSets = exercise.plannedSets
     }
 }

@@ -118,6 +118,8 @@ struct PlansView: View {
                     .foregroundColor(.primary)
                     .font(.title2)
                     .bold()
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(workout.date, style: .date)
                     .font(.footnote)

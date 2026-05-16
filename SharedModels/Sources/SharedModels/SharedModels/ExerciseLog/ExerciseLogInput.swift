@@ -135,6 +135,7 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
 
     /// Builds an `ExerciseLogInput` mirroring an existing `ExerciseLog` for in-place editing.
     /// Preserves the log's `id` so the edited values can be matched back to the record.
+    /// Carries over `sets` (per-set breakdown) so the markdown table renders Set/Reps/kg rows.
     public init(from log: ExerciseLog) {
         self.init(
             id: log.id,
@@ -145,6 +146,7 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
             plannedWeight: log.plannedWeight,
             actualWeight: log.actualWeight,
             actualReps: log.actualReps,
+            sets: log.sets,
             scaling: log.scaling,
             isPR: log.isPR,
             note: log.note ?? ""

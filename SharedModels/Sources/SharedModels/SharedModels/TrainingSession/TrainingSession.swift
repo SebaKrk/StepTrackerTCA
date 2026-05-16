@@ -170,13 +170,17 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
     public let info: String?
+    /// Per-set plan extracted from AI scan. Used by SetInputView to pre-fill rows.
+    /// Nil when the plan has no structured set scheme (then `rounds`-based fallback is used).
+    public let plannedSets: [PlannedSet]?
 
     public init(
         type: ExerciseType,
         customName: String? = nil,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
-        info: String?
+        info: String?,
+        plannedSets: [PlannedSet]? = nil
     ) {
         self.id = UUID()
         self.type = type
@@ -184,6 +188,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         self.target = target
         self.weight = weight
         self.info = info
+        self.plannedSets = plannedSets
     }
 
     public init(id: UUID = UUID(), draft: ExerciseSessionDraft) {
@@ -193,6 +198,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         self.target = draft.target
         self.weight = draft.weight
         self.info = draft.info.isEmpty ? nil : draft.info
+        self.plannedSets = draft.plannedSets
     }
 
     /// Display name - uses customName for .unknown exercises, otherwise type.displayName

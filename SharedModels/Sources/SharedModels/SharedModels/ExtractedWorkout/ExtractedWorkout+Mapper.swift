@@ -139,7 +139,20 @@ extension ExtractedExercise {
         // Parse weight from scalingOptions (e.g. "24/16" → WeightConfiguration)
         let weight = scalingOptions?.parseWeight()
 
-        // Convert sets to readable string (e.g., "4×5 @ 50-60%, 3×4 @ 60-70%")
+        // Convert AI sets → structured PlannedSet array (used by SetInputView post-workout).
+        let plannedSets: [PlannedSet]? = sets.flatMap { sets -> [PlannedSet]? in
+            let mapped = sets.compactMap { set -> PlannedSet? in
+                guard let reps = set.reps else { return nil }
+                return PlannedSet(
+                    reps: reps,
+                    suggestedWeight: PlannedSet.extractWeightKg(from: set.intensity)
+                )
+            }
+            return mapped.isEmpty ? nil : mapped
+        }
+
+        // Convert AI sets → readable text (e.g., "4×5 @ 50-60%, 3×4 @ 60-70%")
+        // for display in plan preview / Edit WOD / Activity Details before workout starts.
         let setsInfo: String? = sets.flatMap { sets -> String? in
             let validSets = sets.filter { $0.reps != nil }
             guard !validSets.isEmpty else { return nil }
@@ -154,7 +167,7 @@ extension ExtractedExercise {
             return schemes.joined(separator: ", ")
         }
 
-        // Combine sets string and scaling options into one info field
+        // Combine sets text and scaling options into one info field (display layer).
         let scalingInfo = scalingOptions.map { "Scaling: \($0)" }
         let infoParts = [setsInfo, scalingInfo].compactMap { $0 }
         let info: String? = infoParts.isEmpty ? nil : infoParts.joined(separator: "\n")
@@ -164,7 +177,8 @@ extension ExtractedExercise {
             customName: customName,
             target: target,
             weight: weight,
-            info: info
+            info: info,
+            plannedSets: plannedSets
         )
     }
 

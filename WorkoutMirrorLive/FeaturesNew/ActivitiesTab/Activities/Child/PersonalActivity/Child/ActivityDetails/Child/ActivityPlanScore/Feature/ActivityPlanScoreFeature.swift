@@ -60,9 +60,6 @@ struct ActivityPlanScoreFeature {
         /// User tapped "Edytuj" on the WOD at the given index in `score.results`.
         case editTapped(wodIndex: Int)
 
-        /// Edited inputs were saved; persisted ExerciseLogs are passed back here.
-        case logsUpdated([ExerciseLog])
-
         /// Presentation action for the per-set edit sheet.
         case setInput(PresentationAction<SetInputFeature.Action>)
     }
@@ -109,7 +106,13 @@ struct ActivityPlanScoreFeature {
                 guard case let .loaded(score) = state.loadState,
                       score.results.indices.contains(wodIndex) else { return .none }
                 let result = score.results[wodIndex]
-                let logsForWod = state.exerciseLogs.filter { $0.wodName == result.name }
+                // Filter by strict UUID match; fall back to wodName for legacy logs only.
+                let logsForWod = state.exerciseLogs.filter { log in
+                    if let resultId = log.workoutSessionResultId {
+                        return resultId == result.id
+                    }
+                    return log.wodName == result.name
+                }
                 let inputs = logsForWod.map { ExerciseLogInput(from: $0) }
                 state.setInput = SetInputFeature.State(
                     wodName: result.name,
@@ -158,7 +161,7 @@ struct ActivityPlanScoreFeature {
                     }
                 }
 
-            case .setInput, .logsUpdated:
+            case .setInput:
                 return .none
             }
         }
@@ -170,15 +173,28 @@ struct ActivityPlanScoreFeature {
     // MARK: - Helpers
 
     /// Replaces matching ExerciseLogs by id with values from updated inputs.
-    /// Only `actualWeight`, `actualReps`, `scaling`, `isPR`, and `note` are mutated —
-    /// HR/timestamps/derived fields stay intact.
+    /// Mutates user-editable fields (`actualWeight`, `actualReps`, `scaling`, `isPR`,
+    /// `note`, `sets`) — HR/timestamps/derived fields stay intact.
+    ///
+    /// For per-set strength workouts the legacy single-value mirrors
+    /// (`actualWeight` / `actualReps`) are **always** recomputed from the current
+    /// `sets`. Falling back to the input's prefilled `actualWeight` would leak
+    /// stale values from the first save — the SetInputView only mutates `sets[i]`,
+    /// so the input still carries the old prefill.
     private func mergeUpdatedInputs(_ inputs: [ExerciseLogInput], into logs: [ExerciseLog]) -> [ExerciseLog] {
         let inputById = Dictionary(uniqueKeysWithValues: inputs.map { ($0.id, $0) })
         return logs.map { log in
             guard let input = inputById[log.id] else { return log }
             var copy = log
-            copy.actualWeight = input.actualWeight
-            copy.actualReps = input.actualReps
+            if let sets = input.sets, !sets.isEmpty {
+                copy.sets = sets
+                copy.actualWeight = sets.compactMap(\.weight).max()
+                copy.actualReps = sets.map { "\($0.reps)" }.joined(separator: "-")
+            } else {
+                copy.sets = input.sets
+                copy.actualWeight = input.actualWeight
+                copy.actualReps = input.actualReps
+            }
             copy.scaling = input.scaling
             copy.isPR = input.isPR
             copy.note = input.note.isEmpty ? nil : input.note

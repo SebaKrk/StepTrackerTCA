@@ -59,9 +59,20 @@ public enum ClaudePrompt {
       * OCR: "Clean & Jerk 5x3" → name: "Weightlifting", type: "strength"
       * OCR: "HSPU 5x5" → name: "Gymnastics", type: "strength"
 
-    CrossFit notation:
-    - "4x5" = 4 sets × 5 reps (setNumber: 4, reps: 5)
-    - "5-5-5-5-5" = count occurrences → 5 sets × 5 reps
+    CrossFit notation (CRITICAL — always expand to individual entries):
+    - "4x5" = 4 sets × 5 reps → return 4 separate entries in sets[] (setNumber: 1..4, reps: 5)
+    - "5x5 @ 80kg" → return 5 separate entries (setNumber: 1..5), each with reps: 5 and intensity: "80kg"
+    - "5-5-5-5-5" = 5 sets × 5 reps → return 5 separate entries in sets[], each with reps: 5
+    - "2x5 @ 50-60%, 2x4 @ 60-70%" → 4 entries (2+2): first two reps:5 intensity:"50-60%", next two reps:4 intensity:"60-70%"
+    - Worked example — "Back Squat 5×5 @ 80 kg" must produce:
+        sets: [
+            { setNumber: 1, reps: 5, intensity: "80kg" },
+            { setNumber: 2, reps: 5, intensity: "80kg" },
+            { setNumber: 3, reps: 5, intensity: "80kg" },
+            { setNumber: 4, reps: 5, intensity: "80kg" },
+            { setNumber: 5, reps: 5, intensity: "80kg" }
+        ]
+    - NEVER collapse multiple sets into a single entry. ALWAYS expand notation, even for the simplest "NxM" patterns.
     - "AMRAP 10'" = timeCapMinutes: 10
     - "24/16" in exercises = scalingOptions for M/F weights
 
@@ -89,8 +100,36 @@ public enum ClaudePrompt {
     - Energy: "calories" (e.g., "15 cal row" → reps: 15, unit: "calories")
     - Laps: "laps" (e.g., "4 laps" → reps: 4, unit: "laps")
 
-    Rest periods (CRITICAL - rest is NOT a separate exercise):
-    - Rest belongs to the PRECEDING exercise as part of its "scalingOptions" field
+    Rest periods (CRITICAL - rest is SECONDARY metadata, sets are PRIMARY):
+    - Sets MUST be extracted FIRST. Rest is SECONDARY metadata that NEVER replaces sets.
+    - NEVER drop a set notation (like "5×5 @ 80kg") because rest info is nearby on the next line.
+    - Rest belongs to the PRECEDING exercise as part of its "scalingOptions" field — alongside the sets, not replacing them.
+    - Worked example — plan text: "Back Squat 5×5 @ 80kg / Rest 2 min between sets"
+
+      ❌ WRONG OUTPUT (this is the exact failure mode you MUST avoid):
+        {
+          "name": "back squat",
+          "sets": null,
+          "scalingOptions": "Rest: 2 min between sets"
+        }
+      Why wrong: the plan explicitly said "5×5 @ 80kg" — you dropped the sets
+      array because Rest info was nearby. Rest NEVER replaces sets.
+      If you are about to emit "sets": null while the plan text contains
+      "NxM" notation for that exercise, STOP and populate the sets array first.
+
+      ✅ CORRECT OUTPUT:
+        {
+          "name": "back squat",
+          "sets": [
+            { "setNumber": 1, "reps": 5, "intensity": "80kg" },
+            { "setNumber": 2, "reps": 5, "intensity": "80kg" },
+            { "setNumber": 3, "reps": 5, "intensity": "80kg" },
+            { "setNumber": 4, "reps": 5, "intensity": "80kg" },
+            { "setNumber": 5, "reps": 5, "intensity": "80kg" }
+          ],
+          "scalingOptions": "Rest: 2 min between sets"
+        }
+      BOTH fields populated. Sets are primary, rest is additional info.
     - "1200m row, rest 3 min" → rowing: scalingOptions: "or run, Rest: 3 min"
     - "800m run, rest 90s" → running: scalingOptions: "Rest: 90 sec"
     - "1200m row (scale: run), rest 3 min" → rowing: scalingOptions: "or run, Rest: 3 min"

@@ -43,8 +43,14 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
 
     // Training context
 
-    /// Reference to the parent WorkoutPlanScore
+    /// Reference to the parent WorkoutPlanScore (one per training session).
     public var workoutPlanScoreId: UUID?
+
+    /// Reference to the specific `WorkoutSessionResult` within the parent score.
+    /// Required for per-workout filtering when multiple workouts in one session
+    /// share the same `wodName` (e.g. several "Strength" workouts). Nil for
+    /// legacy logs persisted before this column was introduced.
+    public var workoutSessionResultId: UUID?
 
     /// Name of the WOD this exercise belongs to
     public var wodName: String?
@@ -64,6 +70,12 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
 
     /// Actual reps performed
     public var actualReps: String?
+
+    /// Per-set breakdown encoded as JSON `Data` (array of `SetEntry`).
+    /// Populated for strength/olympic workouts to preserve per-set reps and weight.
+    /// Nil for non-strength workouts (AMRAP/forTime) and for logs persisted before
+    /// per-set storage was introduced.
+    public var setsData: Data?
 
     /// ScalingType rawValue — rx / scaled / rxPlus
     public var scaling: String
@@ -122,11 +134,13 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
         unmatchedName: String?,
         category: String?,
         workoutPlanScoreId: UUID?,
+        workoutSessionResultId: UUID?,
         wodName: String?,
         plannedReps: String?,
         plannedWeight: Double?,
         actualWeight: Double?,
         actualReps: String?,
+        setsData: Data?,
         scaling: String,
         isPR: Bool,
         avgHeartRate: Double?,
@@ -148,11 +162,13 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
         self.unmatchedName = unmatchedName
         self.category = category
         self.workoutPlanScoreId = workoutPlanScoreId
+        self.workoutSessionResultId = workoutSessionResultId
         self.wodName = wodName
         self.plannedReps = plannedReps
         self.plannedWeight = plannedWeight
         self.actualWeight = actualWeight
         self.actualReps = actualReps
+        self.setsData = setsData
         self.scaling = scaling
         self.isPR = isPR
         self.avgHeartRate = avgHeartRate
@@ -182,11 +198,13 @@ extension ExerciseLogRecord {
             unmatchedName: log.unmatchedName,
             category: log.category?.rawValue,
             workoutPlanScoreId: log.workoutPlanScoreId,
+            workoutSessionResultId: log.workoutSessionResultId,
             wodName: log.wodName,
             plannedReps: log.plannedReps,
             plannedWeight: log.plannedWeight,
             actualWeight: log.actualWeight,
             actualReps: log.actualReps,
+            setsData: try? log.sets.map { try JSONEncoder().encode($0) },
             scaling: log.scaling.rawValue,
             isPR: log.isPR,
             avgHeartRate: log.avgHeartRate,
@@ -211,11 +229,13 @@ extension ExerciseLogRecord {
             unmatchedName: unmatchedName,
             category: category.flatMap { MovementCategory(rawValue: $0) },
             workoutPlanScoreId: workoutPlanScoreId,
+            workoutSessionResultId: workoutSessionResultId,
             wodName: wodName,
             plannedReps: plannedReps,
             plannedWeight: plannedWeight,
             actualWeight: actualWeight,
             actualReps: actualReps,
+            sets: setsData.flatMap { try? JSONDecoder().decode([SetEntry].self, from: $0) },
             scaling: ScalingType(rawValue: scaling) ?? .rx,
             isPR: isPR,
             avgHeartRate: avgHeartRate,

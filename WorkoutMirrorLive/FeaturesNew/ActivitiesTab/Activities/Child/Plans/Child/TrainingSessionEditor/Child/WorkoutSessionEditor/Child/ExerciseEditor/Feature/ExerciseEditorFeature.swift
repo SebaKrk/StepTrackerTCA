@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 @Reducer
@@ -26,7 +27,16 @@ struct ExerciseEditorFeature {
                 return .none
 
             case .view(.saveTapped):
-                let exercise = ExerciseSession(id: state.originalId, draft: state.draft)
+                var draft = state.draft
+                if draft.info != state.originalDraft.info {
+                    let trimmed = draft.info.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmed.isEmpty {
+                        draft.plannedSets = nil
+                    } else if let parsed = PlannedSet.parse(from: trimmed) {
+                        draft.plannedSets = parsed
+                    }
+                }
+                let exercise = ExerciseSession(id: state.originalId, draft: draft)
                 return .run { send in
                     await send(.delegate(.saved(exercise)))
                     await dismiss()

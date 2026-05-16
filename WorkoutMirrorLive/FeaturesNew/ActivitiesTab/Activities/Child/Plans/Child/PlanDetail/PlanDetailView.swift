@@ -114,7 +114,7 @@ struct PlanDetailView: View {
         Button {
             send(.startWorkoutTapped)
         } label: {
-            Label(String(localized: "Start Workout"), systemImage: "play.fill")
+            Label(String(localized: "Start Workout"), systemImage: "figure.run")
                 .fontWeight(.semibold)
         }
     }

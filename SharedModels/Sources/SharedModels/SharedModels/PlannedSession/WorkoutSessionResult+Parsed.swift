@@ -109,6 +109,13 @@ public extension WorkoutSessionResult {
                 continue
             }
 
+            if lower.hasPrefix("scaling:") {
+                let value = String(line.dropFirst("Scaling:".count))
+                    .trimmingCharacters(in: .whitespaces)
+                attachScaling(value)
+                continue
+            }
+
             // New exercise line — flush previous pending without scaling first.
             flushPending()
             pendingLine = line
