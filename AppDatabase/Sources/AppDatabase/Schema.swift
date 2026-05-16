@@ -144,6 +144,21 @@ extension DependencyValues {
             .execute(db)
         }
 
+        // Per-set tracking columns added in IOS-00084.
+        // NOTE: never edit an already-registered migration body — DatabaseMigrator
+        // tracks migrations by name, so a v5 modification would never re-run for
+        // users who already migrated. Always append a new vN migration.
+        migrator.registerMigration("v6_exerciseLog_addSetsAndResultId") { db in
+            try #sql("""
+                ALTER TABLE "exerciseLogRecords" ADD COLUMN "workoutSessionResultId" TEXT
+                """)
+            .execute(db)
+            try #sql("""
+                ALTER TABLE "exerciseLogRecords" ADD COLUMN "setsData" BLOB
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

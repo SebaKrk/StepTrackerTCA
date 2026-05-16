@@ -179,7 +179,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .bulgarianSplitSquat:
             return ["bulgarian split squat", "bulgarian split squats", "BSS", "split squat", "rear foot elevated split squat", "RFESS"]
         case .benchPress:
-            return ["bench press", "bench", "BP"]
+            return ["bench press", "bench", "BP", "close-grip bench press", "close grip bench press", "close-grip bench", "close grip bench", "CGBP", "narrow grip bench press", "narrow-grip bench press", "wide grip bench press", "wide-grip bench press", "incline bench press", "decline bench press", "DB bench press", "dumbbell bench press"]
         case .floorPress:
             return ["floor press", "floor bench press", "FP", "DB floor press", "dumbbell floor press"]
         case .shoulderPress:

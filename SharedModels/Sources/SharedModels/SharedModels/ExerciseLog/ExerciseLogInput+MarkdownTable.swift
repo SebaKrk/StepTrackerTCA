@@ -55,14 +55,19 @@ public extension Array where Element == ExerciseLogInput {
 
     /// Strength table: per-set rows with set number, reps, weight.
     /// Falls back to a single bold line when no `sets` are present.
+    /// Exercise name is prepended only when more than one exercise is rendered —
+    /// for a single exercise the surrounding view already shows the name as title.
     private func strengthMarkdownTable() -> String {
         var md = ""
+        let includeName = count > 1
 
         for exercise in self {
             let name = exercise.displayName + (exercise.isUnmatched ? " *" : "")
 
             if let sets = exercise.sets, !sets.isEmpty {
-                md += "**\(name)**\n\n"
+                if includeName {
+                    md += "**\(name)**\n\n"
+                }
                 md += "| Set | Reps | kg |\n"
                 md += "|-----|------|----|\n"
                 for (i, entry) in sets.enumerated() {

@@ -765,3 +765,32 @@
       - Live Activity lock screen — dwukolumnowy layout z glass   
 
 ### IOS-0083 Exercise-Analytics-plan
+
+### IOS-00084 Summary & Activity Details — per-set tracking                   
+      A: Per-set input end-to-end                                             
+        - per-set table (Set | Reps | kg) in Summary for strength/olympic     
+        - per-set table in Activity Details (read-back from DB)               
+        - score (max weight) derived from set entries                       
+      B: Persistence                                                          
+        - new column `setsData` BLOB (JSON-encoded [SetEntry])
+        - new column `workoutSessionResultId` UUID (disambiguates multiple WODs of the same wodName)                   
+        - fix Draft init in `ExerciseLogClient.save` (was silently dropping setsData)                                                                     
+        - fix `ExerciseSessionDraft.init(exercise:)` — carry over plannedSets 
+        - fix `mergeUpdatedInputs` — carry over sets + derive actualWeight/Reps                                                             
+      C: AI parsing                                                         
+        - bench press aliases extended (close-grip, wide-grip, incline, decline, DB / dumbbell variants)                                    
+        - negative example in ClaudePrompt for Back Squat + Rest pattern(probabilistic fix, not deterministic)                              
+        - `parsedDescription` parser handles bare "Scaling:" prefix (was only catching "Info: Scaling:")                                
+        - re-parser info → plannedSets in ExerciseEditor save (so user typing "5x5 @80" in Notes generates 5 input rows)          
+        - extractWeightKg regex extended — accepts "@80" without "kg"
+      D: UI polish                                                            
+        - hide actual-values table when WOD is fully untouched
+        - drop duplicate exercise name in single-exercise table               
+        - Edit + Info buttons trailing-aligned, shared `.bordered` style      
+        - info menu shows edit window deadline                                
+      E: Commons                                                              
+        - `DateTimeFormatter.mediumDateShortTime` (reused by info menu)     
+      F: Docs                                                                 
+        - `ExerciseLog` full property documentation                           
+        - `ClaudeWorkoutMapper` diagnostic prints (RAW / CLEANED / DECODED) 
+

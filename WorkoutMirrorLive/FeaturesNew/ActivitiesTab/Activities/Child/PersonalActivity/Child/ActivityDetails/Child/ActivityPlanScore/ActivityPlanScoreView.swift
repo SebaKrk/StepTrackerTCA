@@ -3,6 +3,7 @@
 //  WorkoutMirrorLive
 //
 
+import Commons
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -90,11 +91,40 @@ struct ActivityPlanScoreView: View {
                 resultScoreView(result.scoreResult.displayString)
             }
             if !result.note.isEmpty { captionView(result.note) }
-            actualValuesTable(for: result.name)
-            if isWodEditable(wodName: result.name) {
-                editButton(wodIndex: wodIndex)
+            actualValuesTable(for: result)
+            if isWodEditable(result: result) {
+                editingControls(for: result, wodIndex: wodIndex)
             }
         }
+    }
+
+    /// Right-aligned controls under an editable WOD: Edit button + trailing info menu.
+    private func editingControls(for result: WorkoutSessionResult, wodIndex: Int) -> some View {
+        HStack(spacing: 8) {
+            Spacer()
+            editButton(wodIndex: wodIndex)
+            infoMenu(for: result)
+        }
+        .padding(.top, 4)
+    }
+
+    /// Tap-to-reveal info popup showing the edit deadline as a single short line.
+    /// Visual style mirrors `editButton` so the two trailing controls feel like a pair.
+    private func infoMenu(for result: WorkoutSessionResult) -> some View {
+        let deadline = logsFor(result: result).compactMap(\.editableUntil).min()
+        let message: String = {
+            guard let deadline else { return String(localized: "Edycja zablokowana") }
+            return String(localized: "Edycja możliwa do \(DateTimeFormatter.numericDateTime.string(from: deadline))")
+        }()
+        return Menu {
+            Text(message)
+        } label: {
+            Image(systemName: "info.circle")
+                .font(.caption)
+                .fontWeight(.medium)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
     }
 
     private func wodHeader(name: String, type: ExerciseWorkoutType, timeCap: String?) -> some View {
@@ -161,11 +191,13 @@ struct ActivityPlanScoreView: View {
     }
 
     /// Markdown table with the user's actual exercise values (reps/weight/sets).
-    /// Shown when ExerciseLogs exist for this WOD — mirrors the Summary screen table.
+    /// Visibility is decided per-WOD: if any exercise in the WOD carries
+    /// user-entered data, render the full table for context (including prefilled
+    /// exercises). If no exercise has been touched, hide the table entirely.
     @ViewBuilder
-    private func actualValuesTable(for wodName: String) -> some View {
-        let logs = store.exerciseLogs.filter { $0.wodName == wodName }
-        if !logs.isEmpty {
+    private func actualValuesTable(for result: WorkoutSessionResult) -> some View {
+        let logs = logsFor(result: result)
+        if logs.contains(where: hasMeaningfulData) {
             let inputs = logs.map { ExerciseLogInput(from: $0) }
             StructuredText(markdown: inputs.markdownTable())
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -173,10 +205,41 @@ struct ActivityPlanScoreView: View {
         }
     }
 
+    /// Heuristic deciding whether a log carries data the user has actually entered
+    /// (rather than the prefill copied from the plan).
+    /// `Why:` SummaryFeature pre-fills `actualReps` and `sets` from the plan, so an
+    /// untouched WOD still produces a log with non-nil values. Without this filter
+    /// the Activity Details would always render a table, even for WODs the user
+    /// never opened in Summary.
+    private func hasMeaningfulData(_ log: ExerciseLog) -> Bool {
+        if let sets = log.sets, sets.contains(where: { $0.weight != nil }) {
+            return true
+        }
+        if log.actualWeight != nil {
+            return true
+        }
+        if let actual = log.actualReps,
+           let planned = log.plannedReps,
+           actual != planned {
+            return true
+        }
+        return false
+    }
+
     /// Whether any ExerciseLog from this WOD is still inside its edit window.
-    private func isWodEditable(wodName: String) -> Bool {
-        store.exerciseLogs.contains { log in
-            log.wodName == wodName && log.isEditable(now: Date())
+    private func isWodEditable(result: WorkoutSessionResult) -> Bool {
+        logsFor(result: result).contains { $0.isEditable(now: Date()) }
+    }
+
+    /// Returns logs belonging to the given `WorkoutSessionResult`.
+    /// Prefers the strict UUID match on `workoutSessionResultId`; falls back to
+    /// `wodName` only for legacy logs persisted before that field was introduced.
+    private func logsFor(result: WorkoutSessionResult) -> [ExerciseLog] {
+        store.exerciseLogs.filter { log in
+            if let resultId = log.workoutSessionResultId {
+                return resultId == result.id
+            }
+            return log.wodName == result.name
         }
     }
 
@@ -190,7 +253,6 @@ struct ActivityPlanScoreView: View {
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
-        .padding(.top, 4)
     }
 
     // MARK: - Result Row Components

@@ -1687,6 +1687,12 @@
     "Edit Profile" : {
 
     },
+    "Edycja możliwa do %@" : {
+
+    },
+    "Edycja zablokowana" : {
+
+    },
     "Edytuj" : {
       "localizations" : {
         "pl" : {

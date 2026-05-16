@@ -50,9 +50,20 @@ struct SummaryFeature {
                 }
                 state.resultInputs = workouts.map { workout in
                     let exercises = workout.exercises.map { exercise in
-                        // For Strength/Olympic WODs with rounds → create per-set entries
+                        // For Strength/Olympic WODs → use AI-provided structured plannedSets,
+                        // fallback to rounds-based default sets if AI didn't deliver them.
                         let sets: [SetEntry]? = {
-                            guard isStrength(workout.type), let rounds = workout.rounds else { return nil }
+                            guard isStrength(workout.type) else { return nil }
+
+                            // Path 1: AI-provided structured sets (PRIMARY)
+                            if let planned = exercise.plannedSets, !planned.isEmpty {
+                                return planned.map {
+                                    SetEntry(reps: $0.reps, weight: $0.suggestedWeight)
+                                }
+                            }
+
+                            // Path 2: Fallback — simple rounds count
+                            guard let rounds = workout.rounds else { return nil }
                             let reps: Int
                             if case let .reps(r) = exercise.target { reps = r } else { reps = 0 }
                             return (0..<rounds).map { _ in SetEntry(reps: reps) }
@@ -248,11 +259,13 @@ struct SummaryFeature {
                                 unmatchedName: exercise.unmatchedName,
                                 category: exercise.category,
                                 workoutPlanScoreId: scoreId,
+                                workoutSessionResultId: result.id,
                                 wodName: result.name,
                                 plannedReps: exercise.plannedReps,
                                 plannedWeight: exercise.plannedWeight,
                                 actualWeight: effectiveWeight,
                                 actualReps: effectiveReps,
+                                sets: exercise.sets,
                                 scaling: exercise.scaling,
                                 isPR: exercise.isPR,
                                 avgHeartRate: phaseHR?.avg,
