@@ -1,0 +1,144 @@
+# WorkoutMirrorLive — instrukcje dla Claude
+
+Główny target iOS aplikacji **MyFitnessJournal** (repo: `StepTrackerTCA`). Ten plik jest komplementarny do globalnego `~/CLAUDE.md` — nie powtarza ogólnych zasad (język polski, czytanie przed edycją, minimalne zmiany, konwencje istniejące).
+
+## O projekcie
+
+**MyFitnessJournal** to aplikacja fitness na **iOS + Apple Watch + widgety** do strukturalnego trackingu treningów (siłówka, CrossFit, WOD-y). Inspirowana kursem Sean Allen StepTracker, przepisana na nowoczesny stack: **TCA + SwiftUI + SQLiteData + HealthKit + CloudKit + Claude API**.
+
+### Kluczowe capabilities (z perspektywy użytkownika)
+
+- **Skanowanie planów treningowych (OCR + AI)** — user fotografuje notatnik z planem; OCR + Claude API (`claude-sonnet-4-5`) produkuje strukturalny `TrainingSession` z WOD-ami, `ExerciseType`, `[PlannedSet]` i sugerowaną wagą.
+- **Live workout session na Apple Watch** — timer, strefy HR, countdown, controls, Live Activity, sync z iPhone w czasie rzeczywistym.
+- **Per-set strength tracking** — w Summary po treningu user wpisuje rzeczywiste `reps × weight` per set (np. plan `5×5 @ 80kg` → 5 input rows z osobnym `SetEntry`).
+- **Activity Details + plan mirror** — historia treningów z HealthKit zmatchowana z odpowiadającym planem; per-WOD score (`forTime` / `forLoad` / `AMRAP` / `completed`), edytowalne w oknie 24h po treningu.
+- **Exercise Analytics** — wykresy postępu per ćwiczenie: 1RM, volume load, tempo, PR streaks, scaling progression.
+- **Training Readiness** — dzienny score `-10…+5` z 4 komponentów (RHR, HRV, sleep, activity load) z wyjaśnieniem każdego.
+- **Health metrics summary** — Apple Watch rings, daily stats, heart rate trends, sleep summary.
+- **CloudKit sync** — pełna persystencja via SQLiteData + `CloudKitSyncable` protocol.
+
+## Targety w workspace
+
+- **`WorkoutMirrorLive/`** ← **TEN target.** iPhone app: pełny UI, wszystkie feature'y TCA, lokalizacja, app shell, entry point (`WorkoutMirrorLiveApp.swift`).
+- **`WorkoutMirror Watch App/`** — Apple Watch companion: live workout session (HR, timer, controls, Live Activity).
+- **`MyFitnessJournal Watch App/`** — alternatywny / historyczny watch target (sprawdź zanim coś dotkniesz).
+- **`WorkoutSessionWidget/`** — Home Screen widgets + Live Activities: `TimerLiveActivity`, `TrainingReadinessWidget`, `WorkoutMetricsView`, `WorkoutSessionLive`.
+
+## Stack technologiczny
+
+- **Swift 6** (strict concurrency), **SwiftUI** (iOS 18+).
+- **[TCA](https://github.com/pointfreeco/swift-composable-architecture)** — Point-Free, główny architectural framework.
+- **[SQLiteData](https://github.com/pointfreeco/swift-sqlite-data)** — Point-Free, `@Table` makro, `DatabaseMigrator`, CloudKit sync via `CloudKitSyncable`.
+- **HealthKit** — workouts, active energy, RHR, HRV, sleep analysis, background delivery (observer queries w `AppDelegate`).
+- **CloudKit** — sync container `iCloud.com.ss.WorkoutMirrorLive`, App Group `group.com.ss.WorkoutMirrorLive`.
+- **Claude API** — `claude-sonnet-4-5` dla parsowania zdjęć planu (via `ScanPlanClient`).
+- **WidgetKit + ActivityKit** — Live Activities (workout session), Home Screen widgets (readiness, metrics).
+
+## Build & run
+
+- **Xcode project:** `MyFitnessJournal.xcodeproj` (NIE `StepTrackerTCA.xcodeproj` — to historyczne).
+- **Default branch:** `develop`. Branche feature'owe: `dev/IOS-NNNNN/IOS-NNNNN`.
+- **Build:** otwórz `MyFitnessJournal.xcodeproj`, wybierz scheme `WorkoutMirrorLive` (iOS) lub `WorkoutMirror Watch App`, Cmd+R.
+- **DEBUG erases on schema change** — w `Schema.swift` ustawione `migrator.eraseDatabaseOnSchemaChange = true` dla DEBUG. Po zmianie migracji w DEBUG baza castuje się automatycznie. W RELEASE wymagana jest pełna `DatabaseMigrator` migracja (ALTER TABLE itp.).
+- **Diagramy projektu:** `FeatureDiagram.md` (struktura features), `CoreDataDiagram.md` (schema; nazwa historyczna — projekt nie używa CoreData, używa SQLiteData).
+
+## Architektura modułów
+
+Projekt dzieli się na 3 części; ten target jest jedną z nich:
+
+- **`WorkoutMirrorLive/`** ← **TU jesteś.** Główny target — UI, feature'y TCA, lokalizacja, app shell.
+- **`SharedModels/`** — Swift Package: enumy, modele domenowe, klucze (np. `ViewState`, `ScanPlanViewState`).
+- **`HealthHub/`** — Swift Package: serwisy zdrowotne, klienci HealthKit, kalkulacje (Training Readiness, BMR, Activity Rings).
+- **`AppDatabase/`** — Swift Package: SQLite + migracje (SQLiteData / Point-Free).
+- **`Commons/`** — Swift Package: utility (formattery, extensions niespecyficzne dla domeny).
+
+## Struktura katalogów wewnątrz WorkoutMirrorLive
+
+- **`FeaturesNew/`** — wszystkie utrzymywane feature'y. **Nowe ekrany / reducery dodawaj TYLKO tutaj.**
+- **`Features/`** — **legacy**. Nie tykaj poza explicit ticketem migracyjnym. Jeśli musisz tu coś zmienić — najpierw zapytaj.
+- **`AppScreen/`, `AppTab/`, `AppTabNew/`** — top-level shell + routing między tabami. `AppTabNew/` jest aktualny.
+- **`UI/`** — reusable view components: modifiers, `styledGroupBox()`, custom controls.
+- **`Utilities/`** — drobne helpery niespecyficzne dla featurów.
+- **`Assets.xcassets/`** — kolory, ikony.
+- **`Localizable.xcstrings`** — **jedyne** źródło tłumaczeń (xcstrings catalog, nie `.strings`).
+
+## Konwencja folderów per feature
+
+Każdy feature w `FeaturesNew/` trzyma się tej struktury:
+
+```
+FeatureName/
+├── Feature/             # Reducer.swift, opcjonalnie Reducer+State.swift / Reducer+Action.swift
+├── View/                # FeatureView.swift (czasem inline w Feature/)
+├── Client/              # @DependencyClient + liveValue/testValue/previewValue
+├── Child/               # zagnieżdżone subfeatury rekurencyjnie tym samym wzorcem
+├── Enum/                # enumy specyficzne dla featura
+└── Utilities/           # helpery w obrębie featura
+```
+
+Hierarchia ekranów = hierarchia folderów. Subfeature siedzi w `Child/<NazwaSubfeatury>/` rodzica.
+
+## TCA — twarde konwencje
+
+- **Nawigacja:** `@Presents` + `enum Destination` w State. NIE używaj `StackState` / `Path`.
+- **Akcje z View:** `@ViewAction(for: FeatureName.self)` + `send(.viewAction)`. Brak bezpośredniego `store.send`.
+- **Brak `@State` w View** — cały stan w TCA Store. View ma tylko `@Bindable var store: StoreOf<...>`.
+- **State i `Equatable`** — pomiń `: Equatable` gdy stan zawiera typy nie-Equatable (np. `PhotosPickerItem`).
+- **PhotosPicker** — używaj modifiera `.photosPicker(isPresented:selection:)` + `onChange`. NIE używaj view'a `PhotosPicker` z `@State`.
+
+Przy nowych feature'ach **uruchom skill `/pfw-composable-architecture`** żeby wczytać aktualne wzorce Point-Free.
+
+## TCA Dependencies — Client / Service pattern
+
+- **Client** (`struct` z closure properties, zwykle z `@DependencyClient`) = dependency boundary. Wstrzykiwany przez `@Dependency(\.xxxClient)`.
+- **Service** (`actor` / `final class`) = implementacja, ukryta za clientem. **NIE jest dependency** sam w sobie.
+- **`liveValue`** ze service'em → `static let` (singleton, jedna instancja service'a per proces).
+- **`testValue` / `previewValue`** → `static var` computed (nowa instancja per call jest OK i często pożądana).
+- Reużycie w innym kliencie → wstrzyknij **client** przez `@Dependency` w `liveValue`, nie service.
+
+### Pułapki które już Cię ugryzły
+
+- **`@DependencyClient` gubi `Data` w closure** — workaround: ręczny struct bez makra.
+- **`store.color.gradient` wewnątrz `PhotosPicker`** → Swift 6 `@MainActor` warning.
+- **SQLiteData `try?` w preview** — używaj `try!` w preview helpers, `try?` połknie błąd migracji.
+
+## SwiftUI conventions
+
+- **Button — zawsze verbose:**
+  ```swift
+  Button { action } label: { Text("...") }
+  ```
+  NIE `Button("label") { action }` (utrudnia lokalizację i refactor).
+- **Wyciągaj buttony do `private var` / `private func`** zwracającego `some View`. Łatwiej testować snapshot i lokalizować.
+- **Pętle — żadnych skrótów `i`/`j`/`k`.** Używaj `index`, `item`, lub nazw z domeny (`workout`, `exercise`).
+- **Multi-line action closure → wyciągnij do `private func nameTapped()`.** W closure zostaje tylko `nameTapped()` lub `Task { await nameTapped() }`.
+- **`.task { }`** — jednolinijkowo deleguj do `private func`. Nie inline'uj wielolinijkowej logiki w modifier.
+
+## Lokalizacja
+
+- **Wszystkie** user-facing stringi przez `String(localized: "klucz", bundle: .main)`.
+- Tłumaczenia w `WorkoutMirrorLive/Localizable.xcstrings` (xcstrings catalog — Xcode UI edituje, nie ręcznie JSON).
+- Komunikaty błędów też lokalizuj.
+- Klucze: czytelne po angielsku (np. `"Edycja możliwa do %@"` jako klucz lub `"editable_until %@"` — trzymaj się konwencji istniejącej w xcstrings).
+
+## Top-level pliki
+
+- **`WorkoutMirrorLiveApp.swift`** — entry point. Bootstrap dependencies w `prepareDependencies { try $0.bootstrapDatabase() }`.
+- **`AppDelegate.swift`** — background delivery dla Training Readiness (HealthKit observer queries).
+- **`Info.plist`** — usage descriptions (HealthKit, Camera, PhotoLibrary).
+- **`WorkoutMirrorLive.entitlements`** — capabilities: HealthKit, CloudKit, Background Modes, App Groups (`group.com.ss.WorkoutMirrorLive`).
+
+## Workflow
+
+- **Commity:** użytkownik commituje **zawsze sam**. Claude nigdy nie wywołuje `git commit` autonomicznie, nawet po większej refaktoryzacji.
+- **Plany robocze:** zapisuj do `StepTrackerTCA/PLANS/IOS-NNNNN-<nazwa>.md`. Folder jest w `.gitignore`.
+- **Branche:** konwencja `dev/IOS-NNNNN/IOS-NNNNN`.
+- **Subtaski:** każdy = jeden atomowy commit (kompilujący się, logicznie zamknięty).
+
+## Czego nie robić bez pytania
+
+- Edytować plików w `Features/` (legacy).
+- Modyfikować `Localizable.xcstrings` w innych językach niż polski/angielski.
+- Dotykać `WorkoutMirrorLive.entitlements` ani `Info.plist` bez explicit potrzeby.
+- Wprowadzać nowe `@State` w View'ach.
+- Tworzyć dokumentację (`*.md`) bez prośby — chyba że to plan w `PLANS/`.
