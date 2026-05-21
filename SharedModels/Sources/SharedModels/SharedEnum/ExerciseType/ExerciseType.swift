@@ -77,6 +77,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case thrusters
     case devilPress
     case burpeeBoxJumps
+    case burpeeOverBar
     case dumbbellSnatch
     case dumbbellClean
     case dumbbellCleanAndJerk
@@ -148,6 +149,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .thrusters: return "Thrusters"
         case .devilPress: return "Devil Press"
         case .burpeeBoxJumps: return "Burpee Box Jumps"
+        case .burpeeOverBar: return "Burpee Over Bar"
         case .dumbbellSnatch: return "Dumbbell Snatch"
         case .dumbbellClean: return "Dumbbell Clean"
         case .dumbbellCleanAndJerk: return "Dumbbell Clean and Jerk"
@@ -187,23 +189,23 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .overheadSquat:
             return ["overhead squat", "OHS"]
         case .snatch:
-            return ["snatch", "full snatch", "squat snatch"]
+            return ["snatch", "snatches", "full snatch", "full snatches", "squat snatch", "squat snatches"]
         case .cleanAndJerk:
-            return ["clean and jerk", "clean & jerk", "C&J", "CJ", "hang clean and jerk", "hang clean & jerk", "hang clean jerk", "hang C&J", "hang CJ"]
+            return ["clean and jerk", "cleans and jerks", "clean & jerk", "cleans & jerks", "C&J", "C&Js", "CJ", "CJs", "hang clean and jerk", "hang cleans and jerks", "hang clean & jerk", "hang cleans & jerks", "hang clean jerk", "hang clean jerks", "hang C&J", "hang C&Js", "hang CJ", "hang CJs"]
         case .powerClean:
-            return ["power clean", "PC"]
+            return ["power clean", "power cleans", "PC", "PCs"]
         case .powerSnatch:
-            return ["power snatch", "PS"]
+            return ["power snatch", "power snatches", "PS", "PSs"]
         case .hangPowerClean:
-            return ["power clean", "PC", "HPC", "hang PC", "hang power clean"]
+            return ["HPC", "HPCs", "hang PC", "hang PCs", "hang power clean", "hang power cleans"]
         case .hangPowerSnatch:
-            return ["power snatch", "PS", "HPS", "hang PS", "hang power snatch"]
+            return ["HPS", "HPSs", "hang PS", "hang PSs", "hang power snatch", "hang power snatches"]
         case .hangClean:
-            return ["hang clean", "HC", "BB hang clean", "barbell hang clean"]
+            return ["hang clean", "hang cleans", "HC", "HCs", "BB hang clean", "BB hang cleans", "barbell hang clean", "barbell hang cleans"]
         case .pushPress:
-            return ["push press", "push-press", "PP", "barbell push press", "BB push press"]
+            return ["push press", "push presses", "push-press", "push-presses", "PP", "barbell push press", "barbell push presses", "BB push press", "BB push presses"]
         case .pushJerk:
-            return ["push jerk", "push-jerk", "PJ", "barbell push jerk"]
+            return ["push jerk", "push jerks", "push-jerk", "push-jerks", "PJ", "PJs", "barbell push jerk", "barbell push jerks"]
         case .pullUps:
             return ["pull-ups", "pull ups", "PU"]
         case .pushUps:
@@ -270,6 +272,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["devil press", "devil presses", "devils press"]
         case .burpeeBoxJumps:
             return ["burpee box jumps", "burpee box jump", "BBJ", "burpee over box", "burpee box jump over"]
+        case .burpeeOverBar:
+            return ["burpee over bar", "burpees over bar", "burpee over the bar", "burpees over the bar", "BOTB", "burpee over barbell", "burpees over barbell", "bar facing burpee", "bar facing burpees", "BFB"]
         case .dumbbellSnatch:
             return ["dumbbell snatch", "DB snatch", "single arm dumbbell snatch", "DB power snatch"]
         case .dumbbellClean:
@@ -310,7 +314,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .running, .rowing, .cycling, .swimming, .assaultBike, .skiErg, .singleUnders:
             return .cardio
         case .burpees, .airSquat, .boxJumps, .doubleUnders, .wallBalls, .devilPress, .burpeeBoxJumps,
-             .lunges, .mountainClimbers, .farmersCarry:
+             .burpeeOverBar, .lunges, .mountainClimbers, .farmersCarry:
             return .mixed
         case .kettlebellSwing, .kettlebellClean, .kettlebellSnatch, .turkishGetUp:
             return .strength

@@ -140,16 +140,26 @@ public enum WorkoutVocabulary {
 
         .movement: [
             "AMERICAN SWING",
+            "BENCH PRESS",
+            "BOTB",         // Burpee Over The Bar
             "BOX JUMP",
+            "BURPEE BOX JUMP",
+            "BURPEE OVER BAR",
             "BURPEES",
             "CLEAN",
+            "CLEAN AND JERK",
             "DEADLIFT",
+            "FLOOR PRESS",
             "FRONT SQUATS",
             "GOBLET",
             "HSPU",         // Handstand Push-Up
             "LUNGES",
             "OVERHEAD PRESS",
+            "POWER CLEAN",
+            "POWER CLEANS",
+            "POWER SNATCH",
             "PULL UP",
+            "PUSH JERK",
             "PUSH PRESS",
             "PUSHPRESS",
             "REVERSE",
