@@ -36,6 +36,7 @@ struct AppViewAW: View {
                     Logger.appAW.info("[AppViewAW] HRMirrorView disappeared — fullScreenCover dismissed")
                 }
         }
+        .alert($store.scope(state: \.recoveryAlert, action: \.recoveryAlert))
         .onChange(of: store.hrMirror == nil) { _, isNil in
             if isNil {
                 Logger.appAW.info("[AppViewAW] hrMirror state became nil — cover will dismiss")

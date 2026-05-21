@@ -170,6 +170,13 @@ struct HRMirrorFeature {
                 state.selectedTab = tab
                 return .none
 
+            case .view(.stopLongPressConfirmed):
+                Logger.hrMirror.info("Stop confirmed via long-press on Watch")
+                return .merge(
+                    .run { _ in await WorkoutFileLogger.shared.log("[UserAction] Stop long-press confirmed on Watch") },
+                    .send(.stop)
+                )
+
             // MARK: - Lifecycle
 
             case .start:

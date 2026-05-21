@@ -26,6 +26,7 @@ struct AppFeatureAW {
     // MARK: - Dependency
 
     @Dependency(\.watchConnectivityClientAW) var watchClient
+    @Dependency(\.watchWorkoutSessionClient) var watchWorkoutSessionClient
 
     // MARK: - Reducer
 
@@ -88,6 +89,39 @@ struct AppFeatureAW {
                 state.hrMirror = nil
                 return .none
 
+            case .stuckSessionDetected(let stuck):
+                Logger.appAW.notice("stuck session detected — activityType=\(stuck.activityTypeRaw), startDate=\(stuck.startDate)")
+                state.recoveryAlert = AlertState {
+                    TextState(String(localized: "Unfinished workout detected"))
+                } actions: {
+                    ButtonState(action: .endTapped) {
+                        TextState(String(localized: "End now"))
+                    }
+                    ButtonState(role: .destructive, action: .discardTapped) {
+                        TextState(String(localized: "Discard"))
+                    }
+                } message: {
+                    TextState(String(localized: "Workout started: \(stuck.startDate.formatted(date: .omitted, time: .shortened))"))
+                }
+                return .none
+
+            case .recoveryAlert(.presented(.endTapped)):
+                Logger.appAW.info("recoveryAlert — user chose End")
+                return .run { [watchWorkoutSessionClient] send in
+                    await watchWorkoutSessionClient.recoverAndEnd()
+                    await send(.recoveryAlert(.dismiss))
+                }
+
+            case .recoveryAlert(.presented(.discardTapped)):
+                Logger.appAW.info("recoveryAlert — user chose Discard")
+                return .run { [watchWorkoutSessionClient] send in
+                    await watchWorkoutSessionClient.recoverAndDiscard()
+                    await send(.recoveryAlert(.dismiss))
+                }
+
+            case .recoveryAlert:
+                return .none
+
             case .watchEventReceived(.workoutTick(let elapsed)):
                 guard state.hrMirror != nil else { return .none }
                 return .send(.hrMirror(.presented(.workoutTick(elapsedSeconds: elapsed))))
@@ -124,6 +158,12 @@ struct AppFeatureAW {
                         for await activityType in WorkoutConfigurationStream.shared.stream {
                             await send(.workoutConfigurationReceived(activityType))
                         }
+                    },
+                    // One-shot recovery check: if a previous app run left a stuck HKWorkoutSession
+                    // in HealthKit, present an alert so the user can finalize or discard it.
+                    .run { [watchWorkoutSessionClient] send in
+                        guard let stuck = await watchWorkoutSessionClient.checkForStuckSession() else { return }
+                        await send(.stuckSessionDetected(stuck))
                     }
                 )
 
@@ -136,5 +176,6 @@ struct AppFeatureAW {
         .ifLet(\.$hrMirror, action: \.hrMirror) {
             HRMirrorFeature()
         }
+        .ifLet(\.$recoveryAlert, action: \.recoveryAlert)
     }
 }

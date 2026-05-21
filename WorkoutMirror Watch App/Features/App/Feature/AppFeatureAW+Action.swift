@@ -12,6 +12,15 @@ import SharedModels
 /// Implementation of `AppFeatureAW` action.
 extension AppFeatureAW {
 
+    /// Recovery alert button actions — used by `AlertState<RecoveryAlertAction>`.
+    enum RecoveryAlertAction: Equatable {
+        /// User tapped "Zakończ teraz" — finalize the recovered session and save the `HKWorkout`.
+        case endTapped
+
+        /// User tapped "Odrzuć" — discard the recovered session without saving.
+        case discardTapped
+    }
+
     @CasePathable
     enum Action: ViewAction {
 
@@ -32,6 +41,10 @@ extension AppFeatureAW {
         /// `HKWorkoutSession` on Watch has finished cleaning up.
         case dismissHRMirror
 
+        /// Delivered when `WatchWorkoutSessionClient.checkForStuckSession()` finds an active
+        /// `HKWorkoutSession` left over from the previous app run. Triggers `recoveryAlert`.
+        case stuckSessionDetected(StuckSession)
+
         // MARK: - View Actions
 
         case view(ViewAction)
@@ -49,6 +62,9 @@ extension AppFeatureAW {
 
         /// Delegates to `HRMirrorFeature` child reducer.
         case hrMirror(PresentationAction<HRMirrorFeature.Action>)
+
+        /// Delegates to the recovery alert presentation lifecycle.
+        case recoveryAlert(PresentationAction<RecoveryAlertAction>)
 
     }
 

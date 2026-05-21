@@ -112,6 +112,13 @@ extension HRMirrorFeature {
             /// Called when the user swipes to a different tab.
             case tabSelected(HRMirrorFeature.Tab)
 
+            /// Called when the user completes a 1.5 s long-press on the Stop button.
+            ///
+            /// A short tap intentionally does nothing — long-press is required to
+            /// prevent accidental workout termination from sweaty hands or motion
+            /// during exercise. Triggers the same `.stop` flow as iPhone-initiated ending.
+            case stopLongPressConfirmed
+
         }
 
     }

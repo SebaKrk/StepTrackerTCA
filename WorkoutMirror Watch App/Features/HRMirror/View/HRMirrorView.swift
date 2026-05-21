@@ -108,9 +108,15 @@ struct HRMirrorView: View {
     private var controlsTab: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            VStack {
-                pauseResumeButton
-                pauseResumeLabel
+            HStack(spacing: 12) {
+                VStack {
+                    pauseResumeButton
+                    pauseResumeLabel
+                }
+                VStack {
+                    stopButton
+                    stopButtonLabel
+                }
             }
         }
     }
@@ -134,6 +140,37 @@ struct HRMirrorView: View {
     private var pauseResumeLabel: some View {
         Text(store.isPaused ? String(localized: "Resume") : String(localized: "Pause"))
             .font(.caption.weight(.semibold))
+    }
+
+    private var stopButton: some View {
+        Button {
+            // No-op — short tap intentionally does nothing.
+            // Confirmation requires 1.5 s long-press to prevent accidental taps during workout.
+        } label: {
+            stopButtonIcon
+        }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 1.5)
+                .onEnded { _ in
+                    WKInterfaceDevice.current().play(.success)
+                    send(.stopLongPressConfirmed)
+                }
+        )
+    }
+
+    private var stopButtonIcon: some View {
+        Image(systemName: "stop.fill")
+            .font(.system(size: 26, weight: .semibold))
+            .foregroundStyle(.red)
+    }
+
+    private var stopButtonLabel: some View {
+        Text(String(localized: "Stop"))
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.red)
     }
 
     // MARK: - HR Tab
