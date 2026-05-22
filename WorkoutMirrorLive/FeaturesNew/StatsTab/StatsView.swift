@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import OSLog
 import SwiftUI
 import SharedModels
 
@@ -42,7 +43,11 @@ struct StatsView: View {
     var statsView: some View {
         rootView
             .refreshable {
-                send(.pullToRefresh)
+                Logger.stats.info("[PullToRefresh] closure START")
+                // Wait for the blocking effect (cancelled by all children signalling
+                // .delegate(.refreshDidComplete) — see StatsFeature.pullToRefresh handler).
+                await store.send(.view(.pullToRefresh)).finish()
+                Logger.stats.info("[PullToRefresh] closure END (all children completed)")
             }
             .toolbar {
                 toolbarButton

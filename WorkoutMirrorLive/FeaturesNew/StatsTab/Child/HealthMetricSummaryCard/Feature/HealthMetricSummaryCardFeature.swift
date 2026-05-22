@@ -26,12 +26,17 @@ struct HealthMetricSummaryCardFeature {
                 // MARK: - Internal Action
             case let .internal(.changeContentState(newState)):
                 state.contentState = newState
-                return .none
+                switch newState {
+                case .ready, .noData, .unauthorized:
+                    return .send(.delegate(.refreshDidComplete))
+                case .loading:
+                    return .none
+                }
                 
             case let .internal(.dataLoaded(data)):
                 state.components = data
                 return .run {  [tier = state.subscriptionTier] send in
-                    try await clock.sleep(for: .seconds(2))
+                    try await clock.sleep(for: .milliseconds(500))
                     await send(.internal(.changeContentState(.ready(tier))))
                 }
                 
@@ -73,8 +78,13 @@ struct HealthMetricSummaryCardFeature {
                 return .none
                 
                 // MARK: - Destination
-                
+
             case .destination(_):
+                return .none
+
+                // MARK: - Delegate
+
+            case .delegate(_):
                 return .none
             }
         }

@@ -27,7 +27,12 @@ struct RingActivitiesSummaryFeature {
                 // MARK: - Internal Action
             case let .internal(.changeViewState(value)):
                 state.viewState = value
-                return .none
+                switch value {
+                case .success, .failed:
+                    return .send(.delegate(.refreshDidComplete))
+                case .loading:
+                    return .none
+                }
                 
             case let .internal(.activityRingDataLoaded(data)):
                 state.activityRingData = data
@@ -44,7 +49,7 @@ struct RingActivitiesSummaryFeature {
 #else
                         data = try await activityRingManager.fetchTodaySummary()
 #endif
-                        try await clock.sleep(for: .seconds(2))
+                        try await clock.sleep(for: .milliseconds(500))
                         await send(.internal(.changeViewState(.success)))
                         await send(.internal(.activityRingDataLoaded(data)))
                     } catch {
@@ -75,8 +80,13 @@ struct RingActivitiesSummaryFeature {
                 return .none
                 
                 // MARK: - Destination
-                
+
             case .destination(_):
+                return .none
+
+                // MARK: - Delegate
+
+            case .delegate(_):
                 return .none
             }
         }
@@ -130,10 +140,21 @@ extension RingActivitiesSummaryFeature {
         }
         
         // MARK: - Destination
-        
+
         /// Destination case for handling navigation actions.
         /// - Parameter action: The action to be performed within the destination.
         case destination(PresentationAction<Destination.Action>)
+
+        // MARK: - Delegate Action
+
+        case delegate(Delegate)
+
+        enum Delegate {
+
+            /// Signals to parent that this feature has finished its refresh cycle
+            /// (entered a terminal state — `.success` or `.failed`).
+            case refreshDidComplete
+        }
     }
 }
 

@@ -47,7 +47,7 @@ struct RingActivitiesSummaryDetailsFeature {
                         do {
                             await send(.internal(.changeViewState(.loading)))
                             let data = try await activityRingManager.fetchTodayHourlyData()
-                            try await clock.sleep(for: .seconds(2))
+                            try await clock.sleep(for: .milliseconds(500))
                             await send(.internal(.changeViewState(.success)))
                             await send(.internal(.hourlyActivityDataLoaded(data)))
                         } catch {

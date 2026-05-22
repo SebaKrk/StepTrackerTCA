@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import OSLog
 import SharedModels
 import HealthHub
 import SwiftUI
@@ -36,7 +37,12 @@ struct TrainingReadinessFeature {
                 // MARK: - Action
             case let .internal(.changeContentState(newState)):
                 state.contentState = newState
-                return .none
+                switch newState {
+                case .ready, .noData, .unauthorized:
+                    return .send(.delegate(.refreshDidComplete))
+                case .loading:
+                    return .none
+                }
                 
                 
             case .internal(.changeColor):
@@ -46,9 +52,9 @@ struct TrainingReadinessFeature {
             case let .internal(.readinessCalculated(result)):
                 state.readinessResult = result
                 return .run {  [tier = state.subscriptionTier] send in
+                    Logger.stats.info("[TR-Refresh] readinessCalculated START (saving + color change)")
                     await widgetDataClient.saveReadinessResult(result)
                     await send(.internal(.changeColor))
-                    try await clock.sleep(for: .seconds(2))
                     await send(.internal(.changeContentState(.ready(tier))))
                 }
                 
@@ -59,13 +65,17 @@ struct TrainingReadinessFeature {
                 
             case .internal(.loadReadinessData):
                 return .run { send in
-                    // Simulate loading delay for skeleton visibility
-                    // This ensures the skeleton animation is visible for at least 2 seconds
-                    // providing a consistent UX with other cards even if calculation is instant.
-                    try await clock.sleep(for: .seconds(2))
-                    
+                    Logger.stats.info("[TR-Refresh] loadReadinessData START")
+                    // Anti-flash skeleton: ensure loading state is visible for at least 500ms
+                    // (industry-standard minimum visibility duration) even if HK calculation
+                    // is fast. Without this, skeleton may flash and disappear before the user
+                    // perceives any loading state.
+                    try await clock.sleep(for: .milliseconds(500))
+                    Logger.stats.info("[TR-Refresh] anti-flash sleep DONE (500ms), starting HK calc")
+
                     do {
                         let result = try await trainingReadinessClient.calculate()
+                        Logger.stats.info("[TR-Refresh] HK calc DONE, dispatching readinessCalculated")
                         
                         if result.healthKitAccessDenied {
                             await widgetDataClient.clear()
@@ -104,7 +114,8 @@ struct TrainingReadinessFeature {
             case .view(.retryButtonTapped):
                 return .send(.delegate(.refreshRequested))
                 
-            case .delegate(.refreshRequested):
+            case .delegate(.refreshRequested),
+                 .delegate(.refreshDidComplete):
                 return .none
             }
         }
