@@ -45,26 +45,35 @@ public actor WorkoutFileLogger {
     // MARK: - Public API
 
     /// Clears the log file and writes a header. Call at workout start.
+    /// Debug builds only — no-op in release.
     public func reset() {
+        #if DEBUG
         startDate = Date()
         let header = "=== Workout Log \(startDate) ===\n"
         try? header.write(to: fileURL, atomically: true, encoding: .utf8)
         lastHRLogDate = .distantPast
+        #endif
     }
 
     /// Appends a timestamped line to the log file.
+    /// Debug builds only — no-op in release.
     public func log(_ message: String) {
+        #if DEBUG
         let time = timeFormatter.string(from: Date())
         let line = "[\(time)] \(message)\n"
         append(line)
+        #endif
     }
 
     /// Logs an HR reading, but at most once every 30 seconds.
+    /// Debug builds only — no-op in release.
     public func logHRIfNeeded(bpm: Double) {
+        #if DEBUG
         let now = Date()
         guard now.timeIntervalSince(lastHRLogDate) >= hrLogInterval else { return }
         lastHRLogDate = now
         log("HR: \(Int(bpm)) bpm")
+        #endif
     }
 
     /// Returns the URL of the current log file.

@@ -28,6 +28,14 @@ struct WatchConnectivityClientAW {
     /// Transfers the workout log file to the paired iPhone via `WCSession.transferFile()`.
     /// The system queues the transfer and delivers it when the devices are in range.
     var transferLogFile: @Sendable () async -> Void
+
+    /// Transfers ALL `watch_log_*.txt` files from Documents to paired iPhone.
+    ///
+    /// Used on Watch app launch to deliver historical logs from previous (possibly crashed)
+    /// sessions that never reached the normal `.stop` flow. Each file is sent via
+    /// `WCSession.transferFile()` — OS queues delivery for when iPhone is reachable.
+    /// Files remain on Watch (no cleanup) for redundancy.
+    var transferAllLogFiles: @Sendable () async -> Void
 }
 
 // MARK: - Dependency Registration
@@ -47,6 +55,7 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
         } incomingEventStream: {
             session.eventStream
         } transferLogFile: {
+            #if DEBUG
             let url = await WorkoutFileLogger.shared.currentFileURL()
             guard WCSession.default.activationState == .activated else {
                 Logger.wc.error("[WatchSession] transferLogFile — session not activated")
@@ -54,6 +63,45 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
             }
             Logger.wc.info("[WatchSession] transferLogFile → \(url.lastPathComponent)")
             WCSession.default.transferFile(url, metadata: ["type": "workoutLog"])
+            #endif
+        } transferAllLogFiles: {
+            #if DEBUG
+            guard WCSession.default.activationState == .activated else {
+                Logger.wc.error("[WatchSession] transferAllLogFiles — session not activated")
+                return
+            }
+            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            guard let files = try? FileManager.default.contentsOfDirectory(
+                at: docs,
+                includingPropertiesForKeys: [.contentModificationDateKey]
+            ) else {
+                Logger.wc.error("[WatchSession] transferAllLogFiles — failed to list Documents")
+                return
+            }
+            let logFiles = files.filter { $0.lastPathComponent.hasPrefix("watch_log_") }
+
+            // Cleanup BEFORE transfer — Apple cancels in-flight transfer if file is removed.
+            // Files older than 7 days were drained from the queue long ago; safe to delete.
+            let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
+            var deletedCount = 0
+            let filesToTransfer = logFiles.filter { url in
+                let values = try? url.resourceValues(forKeys: [.contentModificationDateKey])
+                if let mtime = values?.contentModificationDate, mtime < sevenDaysAgo {
+                    try? FileManager.default.removeItem(at: url)
+                    deletedCount += 1
+                    return false
+                }
+                return true
+            }
+            if deletedCount > 0 {
+                Logger.wc.info("[WatchSession] cleanup → deleted \(deletedCount) log files older than 7 days")
+            }
+
+            Logger.wc.info("[WatchSession] transferAllLogFiles → \(filesToTransfer.count) files")
+            for url in filesToTransfer {
+                WCSession.default.transferFile(url, metadata: ["type": "workoutLog"])
+            }
+            #endif
         }
     }()
 }
@@ -118,10 +166,18 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
     // MARK: - WCSessionDelegate
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        if let error {
-            Logger.wc.error("[WatchSession] activation failed — state=\(activationState.rawValue), error=\(error.localizedDescription)")
+        let stateRaw = activationState.rawValue
+        let errorDescription = error?.localizedDescription
+        if let errorDescription {
+            Logger.wc.error("[WatchSession] activation failed — state=\(stateRaw), error=\(errorDescription)")
+            Task {
+                await WorkoutFileLogger.shared.log("[WC] activation FAILED — state=\(stateRaw), error=\(errorDescription)")
+            }
         } else {
-            Logger.wc.info("[WatchSession] activated — state=\(activationState.rawValue)")
+            Logger.wc.info("[WatchSession] activated — state=\(stateRaw)")
+            Task {
+                await WorkoutFileLogger.shared.log("[WC] activated — state=\(stateRaw)")
+            }
         }
     }
 
