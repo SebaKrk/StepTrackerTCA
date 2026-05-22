@@ -22,10 +22,10 @@ struct TrainingReadinessView: View {
                 Text("Training Readiness")
                     .font(.caption)
                 Spacer()
-                if case .ready = store.contentState {
-                    Text(store.readinessLabel)
-                        .foregroundStyle(store.readinessLevel.color)
-                }
+                Text(store.readinessLabel)
+                    .font(.caption)
+                    .foregroundStyle(store.readinessLevel.color)
+                    .opacity(store.contentState.isReady ? 1 : 0)
             }
         }
         .styledGroupBox()

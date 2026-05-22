@@ -41,7 +41,17 @@ extension StatsFeature {
         /// Indicates whether the advanced DataAnalyzer API is available on the device.
         /// (iOS 26+ only)
         var isDataAnalyzerAvailable: Bool = false
-        
+
+        // MARK: - Pull-to-refresh coordination
+
+        /// Number of child features that have signalled `.refreshDidComplete`
+        /// since the most recent `pullToRefresh` action.
+        var refreshCompletionsReceived: Int = 0
+
+        /// Number of child features expected to signal `.refreshDidComplete`
+        /// for the current refresh cycle. `0` means no refresh in progress.
+        var refreshCompletionsExpected: Int = 0
+
         // MARK: - Destination
         
         /// Navigation destination controlled by the stats view.

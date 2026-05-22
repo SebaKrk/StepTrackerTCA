@@ -125,6 +125,7 @@ struct StatsFeature {
                 return .none
                 
             case .view(.pullToRefresh):
+                Logger.stats.info("[PullToRefresh] handler — dispatching child refresh actions")
                 var effects: [Effect<Action>] = [
                     .send(.trainingReadiness(.view(.refresh))),
                     .send(.summaryCard(.view(.refresh))),
@@ -134,6 +135,14 @@ struct StatsFeature {
                 if state.analytics != nil {
                     effects.append(.send(.analytics(.view(.refresh))))
                 }
+                // Hold the blocking effect for ~2s so `await store.send(...).finish()` in view
+                // keeps the progress indicator on-screen while children do their refresh work.
+                // Pragmatic compromise over delegate-counter coordination (which had re-entry
+                // issues with HK observer cascades).
+                effects.append(
+                    .run { _ in try? await Task.sleep(for: .seconds(2)) }
+                        .cancellable(id: StatsFeatureCancelID.refresh, cancelInFlight: true)
+                )
                 return .merge(effects)
                 
             case .view(.personButtonTapped):
@@ -152,13 +161,13 @@ struct StatsFeature {
                 
             case .trainingReadiness(.delegate(.refreshRequested)):
                 return .send(.view(.pullToRefresh))
-                
+
             case .trainingReadiness(_):
                 return .none
-                
+
             case .summaryCard(_):
                 return .none
-                
+
             case .ringActivitiesSummary(_):
                 return .none
 

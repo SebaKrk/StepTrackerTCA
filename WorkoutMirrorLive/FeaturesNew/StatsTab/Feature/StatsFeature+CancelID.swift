@@ -11,6 +11,10 @@ extension StatsFeature {
     
     nonisolated enum StatsFeatureCancelID: Hashable, Sendable {
         case observation
+
+        /// Cancellation ID for the pull-to-refresh "blocking" effect that waits
+        /// until all child features signal `.delegate(.refreshDidComplete)`.
+        case refresh
     }
     
 }

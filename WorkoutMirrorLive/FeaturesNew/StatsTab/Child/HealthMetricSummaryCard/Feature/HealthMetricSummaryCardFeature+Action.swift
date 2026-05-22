@@ -48,10 +48,21 @@ extension HealthMetricSummaryCardFeature {
         }
         
         // MARK: - Destination
-        
+
         /// Destination case for handling navigation actions.
         /// - Parameter action: The action to be performed within the destination.
         case destination(PresentationAction<Destination.Action>)
+
+        // MARK: - Delegate Action
+
+        case delegate(Delegate)
+
+        enum Delegate {
+
+            /// Signals to parent that this feature has finished its refresh cycle
+            /// (entered a terminal state — `.ready`, `.noData`, or `.unauthorized`).
+            case refreshDidComplete
+        }
     }
-    
+
 }
