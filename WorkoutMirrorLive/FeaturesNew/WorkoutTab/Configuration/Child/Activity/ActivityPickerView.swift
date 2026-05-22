@@ -19,7 +19,7 @@ struct ActivityPickerView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            ForEach(store.workouts, id: \.self) { option in
+            ForEach(store.visibleWorkouts, id: \.self) { option in
                 Button {
                     send(.buttonTapped(option))
                 } label: {
@@ -29,7 +29,7 @@ struct ActivityPickerView: View {
                             .glassEffect(.regular.interactive(true), in: .capsule)
                             .animation(.snappy, value: store.selected == option)
                             .foregroundStyle(store.selected == option ? .pink : .secondary)
-                        
+
                         Text(option.title)
                             .font(.footnote)
                             .foregroundStyle(store.selected == option ? .pink : .secondary)
@@ -42,5 +42,5 @@ struct ActivityPickerView: View {
             }
         }
     }
-    
+
 }

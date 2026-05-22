@@ -160,28 +160,64 @@ struct ConfigurationView: View {
     private var activityToolBar: some ToolbarContent {
         Group {
             ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    send(.backToDeviceButtonTapped)
-                } label: {
-                    backwardImage
-                }
+                backToDeviceButton
             }
-            
+
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        
-                    } label: {
-                        Label {
-                            Text("manage workout type")
-                        } icon: {
-                            Image(systemName: "chevron.right")
-                        }
-                    }
-                } label: {
-                    menuInfoImage
-                }
+                manageWorkoutsMenu
             }
+        }
+    }
+
+    private var backToDeviceButton: some View {
+        Button {
+            send(.backToDeviceButtonTapped)
+        } label: {
+            backwardImage
+        }
+    }
+
+    /// Toolbar menu for managing the activity picker's visible 3 workouts.
+    /// Visible (above divider) are read-only — tap a hidden one (below) to FIFO-swap.
+    private var manageWorkoutsMenu: some View {
+        Menu {
+            visibleWorkoutsSection
+
+            if !store.activity.visibleWorkouts.isEmpty && !store.activity.hiddenWorkouts.isEmpty {
+                Divider()
+            }
+
+            hiddenWorkoutsSection
+        } label: {
+            menuInfoImage
+        }
+        // .fixed keeps items in declared order — without this, system priority
+        // ordering may flip visible/hidden groups depending on menu placement.
+        .menuOrder(.fixed)
+    }
+
+    /// Currently visible workouts — primary color, read-only (reducer blocks toggle off).
+    @ViewBuilder
+    private var visibleWorkoutsSection: some View {
+        ForEach(store.activity.visibleWorkouts, id: \.self) { workout in
+            Button {} label: {
+                Text(workout.title)
+            }
+        }
+    }
+
+    /// Hidden workouts — dimmed via .opacity() (Menu overrides .tint / .foregroundStyle
+    /// on items, opacity is the only reliable visual differentiation). Tappable — tap
+    /// swaps with the oldest visible (FIFO) via `toggleWorkoutVisibility`.
+    @ViewBuilder
+    private var hiddenWorkoutsSection: some View {
+        ForEach(store.activity.hiddenWorkouts, id: \.self) { workout in
+            Button {
+                send(.toggleWorkoutVisibility(workout))
+            } label: {
+                Text(workout.title)
+            }
+            .opacity(0.5)
         }
     }
     

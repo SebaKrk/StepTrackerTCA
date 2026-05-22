@@ -1034,7 +1034,17 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siła"
+            "value" : "Trening siłowy"
+          }
+        }
+      }
+    },
+    "Strength Training" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening siłowy"
           }
         }
       }

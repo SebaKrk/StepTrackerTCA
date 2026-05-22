@@ -135,7 +135,12 @@ struct ConfigurationFeature {
                     let status = await watchConnectivityClient.checkWatchStatus()
                     await send(.core(.watchConnectivityStatusChange(status)))
                 }
-                
+
+            case let .view(.toggleWorkoutVisibility(workout)):
+                // Forward to the ActivityPicker child so the view doesn't need to
+                // dispatch into a child store directly (@ViewAction convention).
+                return .send(.activity(.view(.toggleVisibility(workout))))
+
             case let .core(.openBluetoothFeature(bluetoothStatus)):
                 state.destination = .bluetoothFeature(BluetoothFeature.State(bluetoothStatus: bluetoothStatus))
                 return .none
