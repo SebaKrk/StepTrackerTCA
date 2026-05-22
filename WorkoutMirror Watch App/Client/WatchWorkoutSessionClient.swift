@@ -45,6 +45,24 @@ struct WatchWorkoutSessionClient: Sendable {
     /// via the mirrored session — in that case HealthKit propagates to Watch's primary
     /// session but `HRMirrorFeature` has no other way to observe the change.
     var sessionStateStream: @Sendable () -> AsyncStream<HKWorkoutSessionState>
+
+    /// Checks HealthKit for an active `HKWorkoutSession` left over from the previous app run
+    /// (e.g. iPhone died mid-workout, Watch app force-quit). Wraps
+    /// `HKHealthStore.recoverActiveWorkoutSession()` (watchOS 9+).
+    ///
+    /// When a stuck session is found, the manager attaches to it — reconnects delegates and
+    /// recovers the associated builder — so subsequent `recoverAndEnd` / `recoverAndDiscard`
+    /// operates on the live session. Returns `nil` when no stuck session exists; the normal
+    /// start flow is then unaffected.
+    var checkForStuckSession: @Sendable () async -> StuckSession?
+
+    /// Finalizes a previously recovered stuck session: `endCollection` → `finishWorkout` → `session.end`.
+    /// Delegates to the same flow as `endSession()`. Used when the user taps "Zakończ teraz".
+    var recoverAndEnd: @Sendable () async -> Void
+
+    /// Discards a previously recovered stuck session: `builder.discardWorkout` → `session.end`.
+    /// No `HKWorkout` is saved. Used when the user taps "Odrzuć".
+    var recoverAndDiscard: @Sendable () async -> Void
 }
 
 // MARK: - Dependency
@@ -75,6 +93,17 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
             },
             sessionStateStream: {
                 manager.sessionStateStream()
+            },
+            checkForStuckSession: {
+                await manager.recoverActiveSession()
+            },
+            recoverAndEnd: {
+                await WorkoutFileLogger.shared.log("[Recovery] recoverAndEnd — calling manager.end()")
+                await manager.end()
+                await WorkoutFileLogger.shared.log("[Recovery] recoverAndEnd — manager.end() returned")
+            },
+            recoverAndDiscard: {
+                await manager.discardRecoveredSession()
             }
         )
     }()
@@ -117,6 +146,18 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         )
         hrContinuation = continuation
 
+        // Pre-condition diagnostics: detect if a previous session leaks into new start()
+        // (the "Watch timer not running after iPhone restart" bug — a stale session
+        // could bypass startActivity assumptions and reuse a stopped builder).
+        let existingState = session?.state.description ?? "nil"
+        let existingElapsed = builder?.elapsedTime ?? 0
+        if session != nil {
+            Logger.watchSession.error("start() — WARNING: existing session not nil, state=\(existingState), elapsed=\(existingElapsed)s")
+            await WorkoutFileLogger.shared.log("[Start] WARNING — existing session=\(existingState), elapsed=\(existingElapsed)s (possible REUSE)")
+        } else {
+            await WorkoutFileLogger.shared.log("[Start] pre-condition OK: no existing session")
+        }
+
         let config = HKWorkoutConfiguration()
         config.activityType = activityType
         config.locationType = .unknown
@@ -133,6 +174,9 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
 
             let start = Date()
             session?.startActivity(with: start)
+            let stateAfterStart = session?.state.description ?? "nil"
+            Logger.watchSession.info("start() — session.state after startActivity: \(stateAfterStart)")
+            await WorkoutFileLogger.shared.log("[Start] startActivity at \(start), session.state=\(stateAfterStart)")
             try await builder?.beginCollection(at: start)
 
             do {
@@ -163,19 +207,24 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
 
         guard let session, let builder else {
             Logger.watchSession.info("end() — session/builder already nil, skipping")
+            await WorkoutFileLogger.shared.log("[End] session/builder nil — skipping")
             return
         }
 
-        Logger.watchSession.info("end() ▶ 1/3 stopActivityAndWait — sessionState=\(session.state.rawValue)")
+        Logger.watchSession.info("end() ▶ 1/3 stopActivityAndWait — sessionState=\(session.state.description)")
+        await WorkoutFileLogger.shared.log("[End] 1/3 stopActivityAndWait — sessionState=\(session.state.description)")
         await stopActivityAndWait(session)
         Logger.watchSession.info("end() ✓ 1/3 session stopped")
+        await WorkoutFileLogger.shared.log("[End] 1/3 stopActivityAndWait returned, sessionState=\(session.state.description)")
 
         Logger.watchSession.info("end() ▶ 2/3 endCollection")
         do {
             try await builder.endCollection(at: .now)
             Logger.watchSession.info("end() ✓ 2/3 endCollection OK")
+            await WorkoutFileLogger.shared.log("[End] 2/3 endCollection OK")
         } catch {
             Logger.watchSession.error("end() endCollection failed: \(error)")
+            await WorkoutFileLogger.shared.log("[End] 2/3 endCollection FAILED: \(error.localizedDescription)")
         }
 
         // Watch-primary: Watch owns the canonical HKWorkout.
@@ -190,6 +239,7 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED")
             } catch {
                 Logger.watchSession.error("end() finishWorkout failed: \(error)")
+                await WorkoutFileLogger.shared.log("[End] finishWorkout FAILED: \(error.localizedDescription)")
             }
         } else {
             Logger.watchSession.notice("end() — skipped finishWorkout (already saved by .ended safety-net)")
@@ -199,6 +249,7 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         Logger.watchSession.info("end() ▶ 3/3 session.end()")
         session.end()
         Logger.watchSession.info("end() ✓ done")
+        await WorkoutFileLogger.shared.log("[End] DONE — session.end() returned")
     }
 
     /// Encodes `bpm` as a `WorkoutMetrics` JSON payload and sends it to iPhone via
@@ -270,6 +321,54 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         }
         Logger.watchSession.info("stopActivityAndWait — .stopped confirmed by delegate")
     }
+
+    /// Attempts to recover an `HKWorkoutSession` left active by the previous app run.
+    ///
+    /// Wraps `HKHealthStore.recoverActiveWorkoutSession()` (watchOS 9+). On success,
+    /// reattaches the session and its associated builder to this manager — wiring delegates,
+    /// resetting the `workoutFinished` guard so a subsequent `end()` will save the workout —
+    /// and returns a `StuckSession` snapshot for the UI. Returns `nil` if no stuck session
+    /// exists or recovery fails (logged, non-fatal).
+    func recoverActiveSession() async -> StuckSession? {
+        await WorkoutFileLogger.shared.log("[Recovery] checking HK Store for stuck session...")
+        do {
+            guard let recovered = try await healthStore.recoverActiveWorkoutSession() else {
+                Logger.watchSession.debug("recoverActiveWorkoutSession() — no stuck session")
+                await WorkoutFileLogger.shared.log("[Recovery] no stuck session in HK Store — nothing to recover")
+                return nil
+            }
+            let activityTypeRaw = recovered.workoutConfiguration.activityType.rawValue
+            let startDate = recovered.startDate ?? .now
+            Logger.watchSession.notice("[Recovery] stuck session detected — activityType=\(activityTypeRaw), startDate=\(startDate)")
+            await WorkoutFileLogger.shared.log("[Recovery] stuck session detected, activityType=\(activityTypeRaw), startDate=\(startDate)")
+
+            session = recovered
+            builder = recovered.associatedWorkoutBuilder()
+            recovered.delegate = self
+            builder?.delegate = self
+            workoutFinished = false
+
+            return StuckSession(activityTypeRaw: activityTypeRaw, startDate: startDate)
+        } catch {
+            Logger.watchSession.error("recoverActiveWorkoutSession() failed: \(error.localizedDescription)")
+            await WorkoutFileLogger.shared.log("[Recovery] FAILED — \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    /// Discards a previously recovered stuck session without saving an `HKWorkout`.
+    /// Used when the user chooses "Odrzuć" in the recovery alert.
+    func discardRecoveredSession() async {
+        defer {
+            session = nil
+            builder = nil
+            workoutFinished = false
+        }
+        Logger.watchSession.info("discardRecoveredSession() — discarding builder + ending session")
+        builder?.discardWorkout()
+        session?.end()
+        await WorkoutFileLogger.shared.log("[Recovery] discarded — no HKWorkout saved")
+    }
 }
 
 // MARK: - HKWorkoutSessionDelegate
@@ -282,7 +381,10 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         from fromState: HKWorkoutSessionState,
         date: Date
     ) {
-        Logger.watchSession.info("delegate: sessionState \(fromState.rawValue) → \(toState.rawValue)")
+        Logger.watchSession.info("delegate: sessionState \(fromState.description) → \(toState.description)")
+        Task {
+            await WorkoutFileLogger.shared.log("[Delegate] sessionState \(fromState.description) → \(toState.description)")
+        }
 
         if toState == .stopped {
             sessionStoppedContinuation?.resume()
@@ -317,7 +419,15 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         _ workoutSession: HKWorkoutSession,
         didFailWithError error: Error
     ) {
-        Logger.watchSession.error("session failed: \(error)")
+        let nsError = error as NSError
+        let domain = nsError.domain
+        let code = nsError.code
+        let state = workoutSession.state.description
+        let description = error.localizedDescription
+        Logger.watchSession.error("session failed — domain=\(domain), code=\(code), state=\(state), description=\(description)")
+        Task {
+            await WorkoutFileLogger.shared.log("[Delegate] FAILED — domain=\(domain), code=\(code), state=\(state), error=\(description)")
+        }
     }
 }
 

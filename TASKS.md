@@ -794,3 +794,9 @@
         - `ExerciseLog` full property documentation                           
         - `ClaudeWorkoutMapper` diagnostic prints (RAW / CLEANED / DECODED) 
 
+### IOS-00085 Watch session recovery & standalone end
+    - Recovery dialog przy starcie Watch app gdy zostanie stuck workout session
+    - Standalone Stop button na Watch (long-press 1.5s + haptic)
+    - iPhone automatycznie przechodzi do summary po Watch-initiated end
+    - 5 nowych kluczy lokalizacji (EN/PL)
+

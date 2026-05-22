@@ -64,7 +64,12 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     /// iOS-specific: Handle disconnection from Apple Watch
     public func workoutSession(_ workoutSession: HKWorkoutSession,
                                didDisconnectFromRemoteDeviceWithError error: Error?) {
-        Logger.trainingManager.notice("disconnected from Watch: \(error?.localizedDescription ?? "no error")")
+        let state = workoutSession.state.description
+        let errorDescription = error?.localizedDescription ?? "no error"
+        Logger.trainingManager.notice("disconnected from Watch: \(errorDescription), state=\(state)")
+        Task {
+            await WorkoutFileLogger.shared.log("[Disconnect] mirrored session — state=\(state), error=\(errorDescription)")
+        }
 
         Task { @MainActor in
             self.workoutSessionIsRunning = false

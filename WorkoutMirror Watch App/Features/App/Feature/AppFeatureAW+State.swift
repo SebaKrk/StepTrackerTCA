@@ -19,6 +19,11 @@ extension AppFeatureAW {
         /// cleared to `nil` when `.workoutEnded` arrives or the user taps End on Watch.
         @Presents var hrMirror: HRMirrorFeature.State?
 
+        /// Presented on app launch when `WatchWorkoutSessionClient.checkForStuckSession()`
+        /// detects an `HKWorkoutSession` left active by the previous app run (e.g. iPhone died
+        /// mid-workout, Watch app was force-quit). User chooses to finalize or discard.
+        @Presents var recoveryAlert: AlertState<RecoveryAlertAction>?
+
     }
 
 }

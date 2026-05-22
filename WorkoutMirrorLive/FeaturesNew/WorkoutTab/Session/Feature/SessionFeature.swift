@@ -304,6 +304,31 @@ struct SessionFeature {
                     .cancellable(id: SessionWatchCancelID.watchTickTimer, cancelInFlight: true)
                 )
 
+            case .controls(.sessionStateUpdated(.ended)):
+                // Watch-primary: Watch ended the session (e.g. user long-pressed Stop on Watch).
+                // HealthKit mirroring propagated .ended state to iPhone's mirrored session, which
+                // arrived here via workoutSessionStateStream() → .controls(.sessionStateUpdated(.ended)).
+                //
+                // Skip vs. iPhone-initiated end (`case .controls(.view(.endWorkoutButtonTapped))`):
+                //   - sendWorkoutEvent(.workoutEnded): Watch initiated this end — no echo back needed.
+                //     Watch's HRMirror is already dismissed via .delegate(.didFinishSaving).
+                //   - sessionClient.endWorkout(): Watch already called session.end() — calling again
+                //     on iPhone's mirrored session is redundant.
+                //
+                // Only transition iPhone UI to summary. Watch's .workoutSaved event will arrive
+                // shortly via WatchConnectivity, triggering HKWorkout fetch in SummaryFeature.
+                guard state.workoutMode == .watchPrimary else { return .none }
+                guard state.sessionState == .session else { return .none }
+                return .merge(
+                    .cancel(id: SessionWatchCancelID.watchEventStream),
+                    .cancel(id: SessionWatchCancelID.watchTickTimer),
+                    .run { send in
+                        await WorkoutFileLogger.shared.log("WATCH-INITIATED END — mirrored session reached .ended state")
+                        await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
+                        await send(.sessionViewStateChange(.summary))
+                    }
+                )
+
             case .controls(.view(.endWorkoutButtonTapped)):
                 return .merge(
                     .cancel(id: SessionWatchCancelID.watchEventStream),
