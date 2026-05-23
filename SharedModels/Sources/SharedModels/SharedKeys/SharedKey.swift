@@ -18,5 +18,10 @@ extension String {
     public static var readinessLevelColor: String {
         AppStorageKeys.readinessLevelColor
     }
-    
+
+    /// Quick picker workouts (user-configurable visible subset of WorkoutType)
+    public static var quickPickerWorkouts: String {
+        AppStorageKeys.quickPickerWorkouts
+    }
+
 }

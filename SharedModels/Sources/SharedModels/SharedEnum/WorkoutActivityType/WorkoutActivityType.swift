@@ -15,57 +15,62 @@ public enum WorkoutActivityType: String, CaseIterable, Hashable, Codable, Sendab
     case swimming
     case crossTraining
     case boxing
+    case strengthTraining
     case cooldown
 
     public var title: String {
         switch self {
-        case .running:        return "Running"
-        case .walking:        return "Walking"
-        case .cycling:        return "Cycling"
-        case .swimming:       return "Swimming"
-        case .crossTraining:  return "Cross Training"
-        case .boxing:         return "Boxing"
-        case .cooldown:       return "Cooldown"
+        case .running:           return "Running"
+        case .walking:           return "Walking"
+        case .cycling:           return "Cycling"
+        case .swimming:          return "Swimming"
+        case .crossTraining:     return "Cross Training"
+        case .boxing:            return "Boxing"
+        case .strengthTraining:  return "Strength Training"
+        case .cooldown:          return "Cooldown"
         }
     }
-    
+
     public var iconName: String {
         switch self {
-        case .running:        return "figure.run.circle.fill"
-        case .walking:        return "figure.walk.circle.fill"
-        case .cycling:        return "figure.outdoor.cycle.circle.fill"
-        case .swimming:       return "swimmer.circle.fill"
-        case .crossTraining:  return "figure.cross.training.circle.fill"
-        case .boxing:         return "figure.boxing.circle.fill"
-        case .cooldown:        return "figure.cooldown.circle.fill"
+        case .running:           return "figure.run.circle.fill"
+        case .walking:           return "figure.walk.circle.fill"
+        case .cycling:           return "figure.outdoor.cycle.circle.fill"
+        case .swimming:          return "swimmer.circle.fill"
+        case .crossTraining:     return "figure.cross.training.circle.fill"
+        case .boxing:            return "figure.boxing.circle.fill"
+        case .strengthTraining:  return "figure.strengthtraining.traditional.circle.fill"
+        case .cooldown:          return "figure.cooldown.circle.fill"
         }
     }
-    
+
     /// Map to HealthKit equivalent
     public var hkType: HKWorkoutActivityType {
         switch self {
-        case .running:        return .running
-        case .walking:        return .walking
-        case .cycling:        return .cycling
-        case .swimming:       return .swimming
-        case .crossTraining:  return .crossTraining
-        case .boxing:         return .boxing
-        case .cooldown:        return .cooldown
+        case .running:           return .running
+        case .walking:           return .walking
+        case .cycling:           return .cycling
+        case .swimming:          return .swimming
+        case .crossTraining:     return .crossTraining
+        case .boxing:            return .boxing
+        case .strengthTraining:  return .traditionalStrengthTraining
+        case .cooldown:          return .cooldown
         }
     }
-    
+
     /// Create from HealthKit value
     public init?(hkType: HKWorkoutActivityType) {
         switch hkType {
-        case .running:        self = .running
-        case .walking:        self = .walking
-        case .cycling:        self = .cycling
-        case .swimming:       self = .swimming
-        case .crossTraining:  self = .crossTraining
-        case .boxing:         self = .boxing
-        case .cooldown:       self = .cooldown
-        default:              return nil
+        case .running:                     self = .running
+        case .walking:                     self = .walking
+        case .cycling:                     self = .cycling
+        case .swimming:                    self = .swimming
+        case .crossTraining:               self = .crossTraining
+        case .boxing:                      self = .boxing
+        case .traditionalStrengthTraining: self = .strengthTraining
+        case .cooldown:                    self = .cooldown
+        default:                           return nil
         }
     }
-    
+
 }

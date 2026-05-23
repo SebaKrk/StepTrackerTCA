@@ -204,6 +204,17 @@ struct HRMirrorFeature {
                         }
                     }
                     .cancellable(id: HRMirrorCancelID.sessionStateStream),
+                    // Defensive timer start — don't rely on `.countdownFinished` from iPhone.
+                    // If WC delivery drops that event (AsyncStream race / queue latency on
+                    // unreachable iPhone), timer would never start, leaving UI frozen at
+                    // 00:00 even though HK session is running. `.countdownFinished` will
+                    // restart this same cancellable ID — no duplicate timer.
+                    .run { [clock] send in
+                        for await _ in clock.timer(interval: .milliseconds(100)) {
+                            await send(.subSecondTick)
+                        }
+                    }
+                    .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true),
                     .run { send in
                         try? await Task.sleep(for: .seconds(3))
                         await send(.hideTabIndicator)
@@ -211,15 +222,20 @@ struct HRMirrorFeature {
                     .cancellable(id: HRMirrorCancelID.tabIndicatorTimer)
                 )
 
-            // Received from iPhone via WatchConnectivity — starts elapsed-time timer.
-            // Preparing overlay stays until first hrReceived (real sensor data).
+            // Received from iPhone via WatchConnectivity — restarts elapsed-time timer
+            // (defensive: timer already started in `.start`, but cancelInFlight ensures
+            // a single fresh ticker after countdown signal). Preparing overlay stays
+            // until first hrReceived (real sensor data).
             case .countdownFinished:
-                return .run { [clock] send in
-                    for await _ in clock.timer(interval: .milliseconds(100)) {
-                        await send(.subSecondTick)
+                return .merge(
+                    .run { _ in await WorkoutFileLogger.shared.log("[Lifecycle] countdownFinished received") },
+                    .run { [clock] send in
+                        for await _ in clock.timer(interval: .milliseconds(100)) {
+                            await send(.subSecondTick)
+                        }
                     }
-                }
-                .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                    .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
+                )
 
             case .stop:
                 state.isPreparing = false

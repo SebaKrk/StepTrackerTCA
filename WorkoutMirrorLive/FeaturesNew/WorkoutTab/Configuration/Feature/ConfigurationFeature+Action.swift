@@ -66,6 +66,11 @@ extension ConfigurationFeature {
             
             case checkWatch
 
+            /// User toggled visibility of a workout type in the activity picker
+            /// management menu (toolbar). Forwarded to the `ActivityPickerFeature`
+            /// child so it can update its `@Shared(.appStorage)` visible-workouts list.
+            case toggleWorkoutVisibility(WorkoutType)
+
         }
         
         // MARK: - Delegate Actions

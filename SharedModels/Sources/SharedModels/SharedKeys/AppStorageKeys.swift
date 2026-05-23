@@ -26,7 +26,11 @@ public enum AppStorageKeys {
     /// Storage key for user's subscription tier (basic, premium, pro)
     public static let subscriptionTier = "userSubscriptionTier"
     
-    /// Storage key for user's readiness level - color 
+    /// Storage key for user's readiness level - color
     public static let readinessLevelColor = "readinessLevelColor"
-    
+
+    /// Storage key for the user-configurable list of workout types shown in the
+    /// Activity Picker quick row. Stored as `[String]` of `WorkoutType.storageKey` values.
+    public static let quickPickerWorkouts = "quickPickerWorkouts"
+
 }
