@@ -187,14 +187,14 @@ struct SessionFeature {
 
             case .makeCalculationForSession:
                 return .run { send in
-                    let age = try await personalDataClient.getAge()
-                    let sex = try await personalDataClient.getBiologicalSex()
-
-                    guard let age = age, let sex = sex else {
-                        return
-                    }
-
+                    // Fallback values when HK permission for age/sex is missing — without
+                    // these the zone calculation defaults to .resting (every HR is "below 50%
+                    // of 0 = resting") and the UI shows 0% / "SPOCZYNEK" forever. Defaults
+                    // are conservative (age=30, sex=.notSet) and produce ~190 bpm max HR.
+                    let age = (try? await personalDataClient.getAge()) ?? 30
+                    let sex = (try? await personalDataClient.getBiologicalSex()) ?? .notSet
                     let maxHR = Int(maxHeartRateClient.fromAge(age, sex))
+                    await WorkoutFileLogger.shared.log("[MaxHR] computed: \(maxHR) (age=\(age), sex=\(String(describing: sex)))")
                     await send(.setMaxHR(maxHR))
                 }
 
@@ -322,6 +322,9 @@ struct SessionFeature {
                 return .merge(
                     .cancel(id: SessionWatchCancelID.watchEventStream),
                     .cancel(id: SessionWatchCancelID.watchTickTimer),
+                    // Watch acknowledged the end (via mirrored .ended state) — no point
+                    // continuing to retry the .workoutEnded event.
+                    .cancel(id: SessionWatchCancelID.workoutEndedRetry),
                     .run { send in
                         await WorkoutFileLogger.shared.log("WATCH-INITIATED END — mirrored session reached .ended state")
                         await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
@@ -341,7 +344,20 @@ struct SessionFeature {
                         await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned (workout NOT yet saved)")
                         await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
                         await send(.sessionViewStateChange(.summary))
+                    },
+                    // Retry .workoutEnded if Watch doesn't acknowledge within 15s windows.
+                    // WC delivery can take seconds-to-minutes when Watch app is in background
+                    // (transferUserInfo queue latency). Each retry is a fresh send attempt —
+                    // if any of them lands while Watch is reachable, Watch will end and emit
+                    // .workoutSaved, cancelling this effect via the handlers below.
+                    .run { [watchClient = watchConnectivityClient] _ in
+                        for retry in 1...5 {
+                            try? await Task.sleep(for: .seconds(15))
+                            await WorkoutFileLogger.shared.log("[Retry] re-sending .workoutEnded (attempt #\(retry))")
+                            await watchClient.sendWorkoutEvent(.workoutEnded)
+                        }
                     }
+                    .cancellable(id: SessionWatchCancelID.workoutEndedRetry, cancelInFlight: true)
                 )
 
                 // MARK: - Watch Events
@@ -451,5 +467,11 @@ private nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     /// when no HR reading has been received from Watch in that window.
     /// Only active in iPhone-standalone mode.
     case hrReadingTimeout
+
+    /// Identifies the retry effect that periodically re-sends `.workoutEnded`
+    /// to Watch when iPhone-initiated end may have been queued/dropped via WC.
+    /// Cancelled when Watch acknowledges via mirrored `.ended` state or
+    /// `.workoutSaved` event.
+    case workoutEndedRetry
 
 }

@@ -185,18 +185,28 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
     /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not active.
     public func sendWorkoutEvent(_ event: WatchWorkoutEvent) async throws {
         guard let session, session.activationState == .activated else {
-            Logger.wc.error("sendWorkoutEvent: session not activated — event: \(String(describing: event))")
+            let eventDescription = String(describing: event)
+            Logger.wc.error("sendWorkoutEvent: session not activated — event: \(eventDescription)")
+            await WorkoutFileLogger.shared.log("[WC TX] FAILED — session not activated, event=\(eventDescription)")
             throw WatchConnectivityError.sessionNotActivated
         }
         // Log only non-tick events to keep logs readable.
         if case .workoutTick = event { } else {
-            Logger.wc.info("sendWorkoutEvent → \(String(describing: event))")
+            let eventDescription = String(describing: event)
+            let isReachable = session.isReachable
+            Logger.wc.info("sendWorkoutEvent → \(eventDescription)")
+            await WorkoutFileLogger.shared.log("[WC TX] \(eventDescription), reachable=\(isReachable)")
         }
         let data = try JSONEncoder().encode(event)
         let message = [Self.messageKey: data]
         if session.isReachable {
             session.sendMessage(message, replyHandler: nil) { error in
-                Logger.wc.notice("sendMessage failed (\(error.localizedDescription)), falling back to transferUserInfo — event: \(String(describing: event))")
+                let errorDescription = error.localizedDescription
+                let eventDescription = String(describing: event)
+                Logger.wc.notice("sendMessage failed (\(errorDescription)), falling back to transferUserInfo — event: \(eventDescription)")
+                Task {
+                    await WorkoutFileLogger.shared.log("[WC TX] sendMessage FAILED — \(errorDescription), retrying via transferUserInfo, event=\(eventDescription)")
+                }
                 session.transferUserInfo(message)
             }
         } else {

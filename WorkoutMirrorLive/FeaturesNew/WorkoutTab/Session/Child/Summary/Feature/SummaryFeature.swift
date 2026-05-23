@@ -130,7 +130,7 @@ struct SummaryFeature {
                         .cancel(id: SummaryFeatureCancelID.retry),
                         .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog)") }
                     )
-                } else if state.summaryRetryCount >= 20 {
+                } else if state.summaryRetryCount >= 40 {
                     state.viewState = .failed
                     state.failureDebugInfo += ", workout: \(resultLog), attempts: \(state.summaryRetryCount), metrics: \(summary.metrics)"
                     return .run { [debugInfo = state.failureDebugInfo] _ in

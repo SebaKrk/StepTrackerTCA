@@ -201,10 +201,18 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
               let event = try? JSONDecoder().decode(WatchWorkoutEvent.self, from: data)
         else {
             Logger.wc.error("[WatchSession] failed to decode event from message")
+            Task {
+                await WorkoutFileLogger.shared.log("[WC RX] decode FAILED")
+            }
             return
         }
+        // Skip workoutTick (high-frequency, would flood the log file).
         if case .workoutTick = event { } else {
-            Logger.wc.info("[WatchSession] received event → \(String(describing: event))")
+            let eventDescription = String(describing: event)
+            Logger.wc.info("[WatchSession] received event → \(eventDescription)")
+            Task {
+                await WorkoutFileLogger.shared.log("[WC RX] \(eventDescription)")
+            }
         }
         continuation?.yield(event)
     }
