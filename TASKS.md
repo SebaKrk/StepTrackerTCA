@@ -801,3 +801,5 @@
     - 5 nowych kluczy lokalizacji (EN/PL)
 
 ### IOS-00086 Stats — improve refresh UX across all cards
+
+### IPad-0087 Gym Room — iPhone join flow with synthetic HR for PoC

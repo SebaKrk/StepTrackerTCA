@@ -10,30 +10,30 @@
 
 Zobaczyć własne %HR jako kafelek na **iPadzie**, broadcastowane z iPhone'a + Apple Watcha w **lokalnej sieci Wi-Fi**, bez chmury, bez backendu, bez auth.
 
-To jest **walidacja konceptu** — pytanie do którego odpowiada PoC: *"czy wizja TV/iPad-display w boxie CrossFitowym jest technicznie wykonalna i pasuje do user experience'u, który sobie wyobraziłem?"*
+To jest **walidacja konceptu** — pytanie do którego odpowiada Proof of Concept: *"czy wizja TV/iPad-display w boxie CrossFitowym jest technicznie wykonalna i pasuje do user experience'u, który sobie wyobraziłem?"*
 
 ---
 
 ## ✅ Success criterion (Definition of Done)
 
 - [ ] iPad odpala app → wchodzi bezpośrednio w `GymRoomView`, widoczny "START CLASS" button
-- [ ] Tap "START CLASS" → ekran `Waiting for athletes...`, iPad emituje advertisement w LAN (Bonjour `_mfj-gym._tcp`)
+- [ ] Tap "START CLASS" → ekran `Waiting for athletes...`, iPad emituje advertisement w sieci lokalnej (Bonjour `_mfj-gym._tcp`)
 - [ ] iPhone w tej samej Wi-Fi → tap "Join Live Class" → iPhone wykrywa iPada, łączy się, startuje workout session na Watchu
 - [ ] Na iPadzie pojawia się **kafelek z nickiem + BPM + %HR**, aktualizujący się co ~2 s
 - [ ] Drugi iPhone może też dołączyć → drugi kafelek widoczny
 - [ ] Tap "END" na iPadzie → wszystkie kafelki znikają, iPhone'y dostają `.disconnected`, Watch workout session kończy się
-- [ ] Wszystko działa **bez internetu**, tylko w LAN
+- [ ] Wszystko działa **bez internetu**, tylko w sieci lokalnej
 
 ---
 
-## 🧠 Świadome ograniczenia PoC
+## 🧠 Świadome ograniczenia Proof of Concept
 
-Te rzeczy **celowo pomijamy** w PoC. Każda ma swój follow-up ticket — patrz sekcja "Po PoC" na dole.
+Te rzeczy **celowo pomijamy** w Proof of Concept. Każda ma swój follow-up ticket — patrz sekcja "Po Proof of Concept" na dole.
 
-| Pominięte | Czemu w PoC niepotrzebne |
+| Pominięte | Czemu w Proof of Concept niepotrzebne |
 |---|---|
-| `MCEncryptionPreference.required` (używamy `.none`) | LAN-only PoC, mniej overhead. Production: IPAD-0088 |
-| Tile states (`.connecting`/`.stale`/`.lost`) | Tylko `.live` w PoC. Disconnect = kafelek znika natychmiast |
+| `MCEncryptionPreference.required` (używamy `.none`) | Sieć lokalna only, mniej overhead. Production: IPAD-0088 |
+| Tile states (`.connecting`/`.stale`/`.lost`) | Tylko `.live` w Proof of Concept. Disconnect = kafelek znika natychmiast |
 | Stale timer (5s/30s greyout) | Brak — disconnect handled przez delegate |
 | Reconnect / retry logic | Idealne Wi-Fi w testach. Production: IPAD-0090 |
 | Avatar initials + zone gradients | Solid color z hash nicka wystarczy |
@@ -42,8 +42,8 @@ Te rzeczy **celowo pomijamy** w PoC. Każda ma swój follow-up ticket — patrz 
 | HR Zones (5-strefowy system) | %HR sam wystarczy |
 | Push notifications "Class started" | iPhone musi otworzyć app i tap Join |
 | Apple TV target | iPad wystarczy do walidacji |
-| BLE chest strap fallback | Apple Watch wymagany |
-| View Facade refactor (każdy element private var) | Inline OK w PoC. Polish później |
+| Bluetooth chest strap fallback | Apple Watch wymagany |
+| View Facade refactor (każdy element private var) | Inline OK w Proof of Concept. Polish później |
 
 ---
 
@@ -56,14 +56,14 @@ Te rzeczy **celowo pomijamy** w PoC. Każda ma swój follow-up ticket — patrz 
                                       │
 [iPhone] ◄────────────────────────────┘
    │
-   │  MultipeerConnectivity (LAN, no encryption w PoC)
+   │  MultipeerConnectivity (sieć lokalna, no encryption w Proof of Concept)
    │  service type: "mfj-gym"
    │  payload: HRSamplePayload (Codable, ~2s)
    ▼
 [iPad] ── GymRoomView ── kafelki athletów
 ```
 
-Multipeer Connectivity:
+MultipeerConnectivity:
 - **iPad** = host: `MCNearbyServiceAdvertiser.startAdvertisingPeer()`
 - **iPhone** = client: `MCNearbyServiceBrowser.startBrowsingForPeers()`
 - Po `foundPeer` → iPhone auto-invituje iPada
@@ -74,91 +74,85 @@ Multipeer Connectivity:
 
 ## 📦 Subtaski
 
-Każdy subtask = **jeden atomowy commit, kompilujący się i logicznie zamknięty**. Format commit messages: `IPAD-0087-X Gym Room PoC — <konkret>`.
+Każdy subtask = **jeden atomowy commit, kompilujący się i logicznie zamknięty**. Format commit messages: `IPAD-0087-X Gym Room — <konkret>`.
 
 ---
 
 ### Subtask A — iPad target + Info.plist + scaffold
 
 **Czas**: ~2 h
-**Commit**: `IPAD-0087-A Gym Room PoC — enable iPad and configure local network`
+**Commit**: `IPAD-0087-A Gym Room — enable iPad and configure local network`
+**Status**: ✅ DONE
 
-**Co dotykamy:**
-- `WorkoutMirrorLive` target → aktywuj iPad jako destination
+**Co zostało zrobione:**
+- `WorkoutMirrorLive` target → iPad jako destination aktywny (manualnie w Xcode UI)
 - `WorkoutMirrorLive/Info.plist`:
-  - `NSLocalNetworkUsageDescription` = `"Pozwala dołączyć do klasy fitness w boxie."`
+  - `NSLocalNetworkUsageDescription` dodane
   - `NSBonjourServices` = `["_mfj-gym._tcp", "_mfj-gym._udp"]`
-  - `UISupportedInterfaceOrientations~ipad` = landscape only
 - `WorkoutMirrorLive/WorkoutMirrorLiveApp.swift` conditional routing:
   ```swift
   if UIDevice.current.userInterfaceIdiom == .pad {
-      GymRoomView(...)
+      GymRoomView()
   } else {
-      AppTabView(...)  // istniejący flow
+      AppTabNewView(...)
   }
   ```
 - `WorkoutMirrorLive/FeaturesNew/GymRoom/View/GymRoomView.swift` placeholder:
-  - `"START CLASS"` button na środku, no-op na razie
-  - `.onAppear { UIApplication.shared.isIdleTimerDisabled = true }`
+  - "Start class" button na czarnym tle
+  - `isIdleTimerDisabled = true` w `.onAppear`, revert w `.onDisappear`
+  - View Facade pattern: każdy element jako private var
 
-**Acceptance:**
-- iPad simulator (lub real device) → widoczny tylko ekran "START CLASS"
-- Brak crashy, brak warningów
+**Acceptance**: ✅ iPad → "Start class" widoczny, iPhone → istniejący flow nietknięty
 
 ---
 
-### Subtask B — `PeerMirrorClient` + `PeerMirrorService` (minimal)
+### Subtask B — `PeerMirrorClient` + `PeerMirrorService` (host/peer separation)
 
 **Czas**: ~6 h
-**Commit**: `IPAD-0087-B Gym Room PoC — add minimal MultipeerConnectivity transport`
+**Commit**: `IPAD-0087-B Gym Room — add MultipeerConnectivity transport with host/peer separation`
+**Status**: ✅ DONE (kod zapisany)
 
-**Co tworzymy:**
-- `HealthHub/Sources/HealthHub/PeerMirror/PeerMirrorService.swift` — `actor`:
-  - Wraps `MCSession(peer:securityIdentity: nil, encryptionPreference: .none)`
-    - `// TODO IPAD-0088: switch to .required for production`
-  - Wraps `MCNearbyServiceAdvertiser` (host role)
-  - Wraps `MCNearbyServiceBrowser` (peer role)
-  - Service type constant: `"mfj-gym"`
-  - Implementuje `MCSessionDelegate`, `MCNearbyServiceAdvertiserDelegate`, `MCNearbyServiceBrowserDelegate`
-  - Auto-accept invitations: `invitationHandler(true, session)`
-  - Auto-invite first found peer
-- `HealthHub/Sources/HealthHub/PeerMirror/PeerMirrorClient.swift` — `@DependencyClient`:
-  - `startAdvertising(displayName: String) async`
-  - `stopAdvertising() async`
-  - `startBrowsing(displayName: String) async`
-  - `stopBrowsing() async`
-  - `send(_ payload: HRSamplePayload) async`
-  - `samplesStream() -> AsyncStream<HRSamplePayload>`
-  - `peerEventsStream() -> AsyncStream<PeerEvent>`
-- `HealthHub/Sources/HealthHub/PeerMirror/PeerMirrorClient+Live.swift`:
-  - `static let liveValue` z singleton service'em (wzorzec z Twoich existing klientów)
-- `SharedModels/Sources/SharedModels/PeerMirror/HRSamplePayload.swift` — `Codable`:
-  - `userID: UUID`
-  - `nick: String`
-  - `bpm: Int`
-  - `maxHR: Int`
-- `SharedModels/Sources/SharedModels/PeerMirror/PeerEvent.swift` — `enum`:
-  - `.connected(peerID: String, nick: String)`
-  - `.disconnected(peerID: String)`
+**Architektura (zaktualizowana po code review):**
 
-**TODO komentarze (osobne tickety):**
-```swift
-// TODO IPAD-0088: encryptionPreference: .required + cert setup
-// TODO IPAD-0089: stale tile timer + .connecting / .stale states
-// TODO IPAD-0090: reconnect logic + sample buffering
-// TODO IPAD-0094: scale beyond 8 peers (replace MC with Bonjour+WS)
+Zamiast jednego actora z trzema rolami, **3 osobne klasy** zgodne ze Swift 6 strict concurrency:
+
+```
+HealthHub/Sources/HealthHub/PeerMirror/
+├── PeerMirrorHostSession.swift   — host role (iPad), final class : NSObject
+├── PeerMirrorPeerSession.swift   — peer role (iPhone), final class : NSObject
+├── PeerMirrorService.swift       — @MainActor orchestrator + streams
+└── PeerMirrorClient.swift        — TCA dependency (struct: Sendable + DependencyKey)
+
+SharedModels/Sources/SharedModels/PeerMirror/
+├── HRSamplePayload.swift         — Codable + Sendable struct
+└── PeerEvent.swift               — enum Sendable
 ```
 
-**Acceptance:**
-- Compile clean (oba targets — iPad i iPhone)
-- `testValue` minimal (empty stubs OK na razie)
+**Dlaczego nie actor**: `MCSessionDelegate` jest `@objc protocol` → wymaga `NSObject` superclass + delegate methods `nonisolated` (Apple wywołuje z arbitrary queues). Actor by się nie skompilował clean w Swift 6.
+
+**Dlaczego osobne Host/Peer**: każda klasa trzyma `let session: MCSession` (immutable → Sendable-safe across delegate threads). Service re-creates per `start*` call, gwarantując czysty state.
+
+**Co dostarcza `PeerMirrorClient`** (TCA dependency):
+- `startAdvertising(displayName:) async`
+- `stopAdvertising() async`
+- `startBrowsing(displayName:) async`
+- `stopBrowsing() async`
+- `send(_ payload: HRSamplePayload) async`
+- `samplesStream() async -> AsyncStream<HRSamplePayload>`
+- `peerEventsStream() async -> AsyncStream<PeerEvent>`
+
+**TODO komentarze w kodzie (osobne tickety):**
+- `// TODO IPAD-0088: encryptionPreference: .required + konfiguracja certyfikatu dla produkcji`
+
+**Acceptance**: ✅ Compile clean (HealthHub + SharedModels), brak nowych errorów beyond SourceKit cosmetic
 
 ---
 
-### Subtask C — iPad: `GymRoomFeature` + `GymRoomView`
+### Subtask C — iPad: `GymRoomFeature` + live `GymRoomView`
 
 **Czas**: ~5 h
-**Commit**: `IPAD-0087-C Gym Room PoC — iPad reducer and live view`
+**Commit**: `IPAD-0087-C Gym Room — iPad reducer and live view`
+**Status**: 🕓 NEXT
 
 **Co tworzymy:**
 - `WorkoutMirrorLive/FeaturesNew/GymRoom/Feature/GymRoomFeature.swift`:
@@ -177,7 +171,7 @@ Każdy subtask = **jeden atomowy commit, kompilujący się i logicznie zamknięt
     - `internal(.sampleReceived(payload))` → update tile's bpm + maxHR
   - `@Dependency(\.peerMirrorClient)`
 - `WorkoutMirrorLive/FeaturesNew/GymRoom/View/GymRoomView.swift`:
-  - Jeśli `!isLive` → `IdleView()` z `Button "START CLASS"`
+  - Jeśli `!isLive` → `IdleView()` z `Button "START CLASS"` (już mamy z Subtask A)
   - Jeśli `isLive` → `LiveView()` z headerem + `LazyVGrid(columns: 3 stałe)` z `AthleteTileView` per tile
   - END button w headerze
 - `WorkoutMirrorLive/FeaturesNew/GymRoom/View/AthleteTileView.swift`:
@@ -195,7 +189,7 @@ Każdy subtask = **jeden atomowy commit, kompilujący się i logicznie zamknięt
 ### Subtask D — iPhone: `JoinLiveClassFeature` + view
 
 **Czas**: ~5 h
-**Commit**: `IPAD-0087-D Gym Room PoC — iPhone join flow and HR forwarding`
+**Commit**: `IPAD-0087-D Gym Room — iPhone join flow and HR forwarding`
 
 **Co tworzymy:**
 - `WorkoutMirrorLive/FeaturesNew/JoinLiveClass/Feature/JoinLiveClassFeature.swift`:
@@ -233,7 +227,7 @@ Każdy subtask = **jeden atomowy commit, kompilujący się i logicznie zamknięt
 ### Subtask E — Smoke test na real devices
 
 **Czas**: ~2 h
-**Commit**: `IPAD-0087-E Gym Room PoC — smoke test and known issues note`
+**Commit**: `IPAD-0087-E Gym Room — smoke test and known issues note`
 
 **Środowisko**: iPad + iPhone + Apple Watch w tej samej Wi-Fi (dom OK).
 
@@ -248,7 +242,7 @@ Każdy subtask = **jeden atomowy commit, kompilujący się i logicznie zamknięt
 3. **End class**:
    - iPad END → wszystkie kafelki znikają, iPhone'y dostają `.disconnected`, Watch session kończy się
 
-**Świadomie nie testujemy w PoC:**
+**Świadomie nie testujemy w Proof of Concept:**
 - iPhone w background (kieszeń)
 - Wi-Fi handoff (router restart)
 - Force quit app
@@ -267,20 +261,20 @@ Każdy subtask = **jeden atomowy commit, kompilujący się i logicznie zamknięt
 
 ## 📊 Budżet
 
-| Subtask | Czas | Kategoria |
-|---|---|---|
-| A — iPad enable + plist | 2 h | infra |
-| B — PeerMirror transport | 6 h | networking |
-| C — iPad reducer + view | 5 h | UI + TCA |
-| D — iPhone join + forward | 5 h | UI + TCA |
-| E — smoke test | 2 h | walidacja |
-| **TOTAL** | **~20 h (2.5 dnia)** | |
+| Subtask | Czas | Kategoria | Status |
+|---|---|---|---|
+| A — iPad enable + plist | 2 h | infra | ✅ DONE |
+| B — PeerMirror transport | 6 h | networking | ✅ DONE |
+| C — iPad reducer + view | 5 h | UI + TCA | 🕓 NEXT |
+| D — iPhone join + forward | 5 h | UI + TCA | ⏳ |
+| E — smoke test | 2 h | walidacja | ⏳ |
+| **TOTAL** | **~20 h (2.5 dnia)** | | 8 h done / 12 h left |
 
 ---
 
-## 🔒 Po PoC zrobimy (osobne tickety)
+## 🔒 Po Proof of Concept zrobimy (osobne tickety)
 
-Każdy z poniższych = osobny ticket po pozytywnej walidacji PoC. Numeracja propozycja, do uzgodnienia przy implementacji.
+Każdy z poniższych = osobny ticket po pozytywnej walidacji Proof of Concept. Numeracja propozycja, do uzgodnienia przy implementacji.
 
 | # | Ticket | Co dodaje |
 |---|---|---|
@@ -290,13 +284,13 @@ Każdy z poniższych = osobny ticket po pozytywnej walidacji PoC. Numeracja prop
 | 4 | `IPAD-0091` | UI polish: avatar initials, zone gradients, View Facade refactor, animacje |
 | 5 | `IPAD-0092` | HR Zones (5-strefowy system z kolorami) |
 | 6 | `IPAD-0093` | ENDED state + class summary (avg HR, time in zones) |
-| 7 | `IPAD-0094` | Scale >8 peerów: wymiana MC → Bonjour + WebSocket server |
+| 7 | `IPAD-0094` | Scale >8 peerów: wymiana MultipeerConnectivity → Bonjour + WebSocket server |
 | 8 | `IPAD-0095` | Apple TV target — reużycie `PeerMirrorClient` + `GymRoomFeature` |
 | 9 | `IPAD-0096` | Proactive notifications: APNs/Firebase "Class started" |
 | 10 | `IPAD-0097` | Cloud sync (Supabase) — post-class history upload |
-| 11 | `IPAD-0098` | BLE chest strap fallback (CoreBluetooth) dla userów bez Apple Watcha |
+| 11 | `IPAD-0098` | Bluetooth chest strap fallback (CoreBluetooth) dla userów bez Apple Watcha |
 
-Sumarycznie ~3-4 tygodnie pracy na pełny produkt. Każdy ticket osobno, w swoim tempie, na fundamencie PoC.
+Sumarycznie ~3-4 tygodnie pracy na pełny produkt. Każdy ticket osobno, w swoim tempie, na fundamencie Proof of Concept.
 
 ---
 
@@ -314,6 +308,7 @@ Sumarycznie ~3-4 tygodnie pracy na pełny produkt. Każdy ticket osobno, w swoim
 1. **Service type `"mfj-gym"`** musi być ≤15 znaków, lowercase + hyphens (RFC 6335). ✅ 7 chars.
 2. **`NSLocalNetworkUsageDescription` + `NSBonjourServices` w Info.plist** — bez tego iOS 14+ silently fail przy discovery, popup się nie pokaże.
 3. **Advertising stops gdy iPad app idzie w background** → `isIdleTimerDisabled = true` + force foreground.
-4. **iPhone background**: `HKWorkoutSession` aktywna → app trzymana live przez system → MC sesja przeżyje. Bez workout session → MC zerwie w sekundach.
-5. **`MCSession` limit 8 peerów** — w PoC nieosiągalne (1-2 users), ale **udokumentowane jako blokada skalowania** → IPAD-0094.
-6. **`MCEncryptionPreference.none`** w PoC = świadoma decyzja, oznaczona TODO IPAD-0088.
+4. **iPhone background**: `HKWorkoutSession` aktywna → app trzymana live przez system → MultipeerConnectivity sesja przeżyje. Bez workout session → sesja zerwie w sekundach.
+5. **`MCSession` limit 8 peerów** — w Proof of Concept nieosiągalne (1-2 users), ale **udokumentowane jako blokada skalowania** → IPAD-0094.
+6. **`MCEncryptionPreference.none`** w Proof of Concept = świadoma decyzja, oznaczona TODO IPAD-0088.
+7. **`MCSessionDelegate` jest `@objc protocol`** → wymaga `NSObject` superclass + `nonisolated` delegate methods. Dlatego HostSession/PeerSession są `final class : NSObject`, nie actor.
