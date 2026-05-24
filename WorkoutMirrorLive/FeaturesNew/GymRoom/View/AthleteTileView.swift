@@ -33,7 +33,7 @@ struct AthleteTileView: View {
             footer
         }
         .padding(20)
-        .frame(maxWidth: .infinity, minHeight: 300, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(zoneGradient, in: tileShape)
         .glassEffect(in: tileShape)
         .animation(.easeInOut(duration: 0.4), value: athlete.zone)

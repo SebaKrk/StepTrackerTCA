@@ -78,11 +78,20 @@ struct JoinLiveClassFeature {
             case let .userProfileLoaded(profile):
                 // Fallback chain: nickname → name → keep current ("Athlete-XXX" z AppStorage).
                 // Nigdy nie nadpisujemy `state.nick` pustym stringiem.
+                if let profile {
+                    print("[JoinLiveClass] 👤 profile loaded: name='\(profile.name)' surname='\(profile.surname)' nickname='\(profile.nickname)'")
+                } else {
+                    print("[JoinLiveClass] 👤 profile NIL — no UserProfile in database")
+                }
                 guard let profile else { return .none }
                 if !profile.nickname.isEmpty {
+                    print("[JoinLiveClass] 👤 using nickname: '\(profile.nickname)'")
                     state.$nick.withLock { $0 = profile.nickname }
                 } else if !profile.name.isEmpty {
+                    print("[JoinLiveClass] 👤 using name: '\(profile.name)'")
                     state.$nick.withLock { $0 = profile.name }
+                } else {
+                    print("[JoinLiveClass] 👤 both nickname and name empty — keeping default '\(state.nick)'")
                 }
                 return .none
 

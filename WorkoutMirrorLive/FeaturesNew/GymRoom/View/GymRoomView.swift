@@ -94,15 +94,41 @@ struct GymRoomView: View {
     }
 
     private var grid: some View {
-        ScrollView {
-            LazyVGrid(columns: gridColumns, spacing: 20) {
+        // Dynamic grid: tile rozmiar dostosowuje się do liczby athletes.
+        // 1 athlete → full screen. 2 → 2x1. 4 → 2x2. 9 → 3x3. Każdy tile wypełnia
+        // proporcjonalnie dostępną wysokość, dzięki czemu nie ma pustego miejsca.
+        GeometryReader { geo in
+            let count = max(1, store.athletes.count)
+            let cols = columnCount(for: count)
+            let rows = Int(ceil(Double(count) / Double(cols)))
+            let spacing: CGFloat = 16
+            let tileHeight = (geo.size.height - CGFloat(rows - 1) * spacing) / CGFloat(rows)
+            let columnsDef = Array(
+                repeating: GridItem(.flexible(), spacing: spacing),
+                count: cols
+            )
+
+            LazyVGrid(columns: columnsDef, spacing: spacing) {
                 ForEach(store.athletes) { athlete in
                     AthleteTileView(athlete: athlete)
+                        .frame(height: tileHeight)
                 }
             }
             .animation(.snappy, value: store.athletes)
         }
-        .scrollIndicators(.hidden)
+    }
+
+    /// Liczba kolumn dobrana do liczby athletes — typowy "Hollywood Squares" layout.
+    /// Dla iPada landscape preferujemy szerszy układ (więcej kolumn), żeby tile
+    /// były bardziej "card-like" niż "tall strip".
+    private func columnCount(for count: Int) -> Int {
+        switch count {
+        case 0...1: return 1
+        case 2...4: return 2
+        case 5...9: return 3
+        case 10...16: return 4
+        default: return 5
+        }
     }
 
     private var startButton: some View {
@@ -154,12 +180,9 @@ struct GymRoomView: View {
         String(localized: "End", bundle: .main)
     }
 
-    /// Adaptive — system dobiera kolumny do dostępnej szerokości.
-    /// iPad portrait: 2 kolumny (~ 360pt każda). iPad landscape: 3 kolumny.
-    private var gridColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: 360), spacing: 20)]
-    }
 }
+
+// MARK: - Previews
 
 #Preview("Idle") {
     GymRoomView(
@@ -169,19 +192,56 @@ struct GymRoomView: View {
     )
 }
 
-#Preview("Live") {
-    let mockAthletes: IdentifiedArrayOf<GymRoomFeature.AthleteTile> = [
-        .init(id: "Sebastian", bpm: 152, maxHR: 190),
-        .init(id: "Anna", bpm: 175, maxHR: 185),
-        .init(id: "Janek", bpm: 128, maxHR: 195),
-        .init(id: "Maria", bpm: 95, maxHR: 180),
-        .init(id: "Tomek", bpm: 165, maxHR: 192),
-    ]
-    return GymRoomView(
+#Preview("Live — 1") {
+    livePreview(count: 1)
+}
+
+#Preview("Live — 2") {
+    livePreview(count: 2)
+}
+
+#Preview("Live — 4") {
+    livePreview(count: 4)
+}
+
+#Preview("Live — 8") {
+    livePreview(count: 8)
+}
+
+#Preview("Live — 12") {
+    livePreview(count: 12)
+}
+
+/// Helper dla preview'ów — buduje mock athletes z rotacyjną pulą nazw + zmiennymi metrykami.
+@MainActor
+private func livePreview(count: Int) -> some View {
+    GymRoomView(
         store: Store(
-            initialState: GymRoomFeature.State(isLive: true, athletes: mockAthletes)
+            initialState: GymRoomFeature.State(
+                isLive: true,
+                athletes: mockAthletes(count: count)
+            )
         ) {
             GymRoomFeature()
         }
     )
+}
+
+private func mockAthletes(count: Int) -> IdentifiedArrayOf<GymRoomFeature.AthleteTile> {
+    let names = [
+        "Sebastian", "Anna", "Janek", "Maria",
+        "Tomek", "Kasia", "Piotr", "Ola",
+        "Marek", "Ewa", "Adam", "Hania",
+        "Bartek", "Zosia", "Filip", "Lena"
+    ]
+    let bpms = [152, 175, 128, 95, 165, 110, 180, 140, 155, 122, 168, 100, 144, 158, 130, 172]
+    let athletes = (0..<count).map { index in
+        GymRoomFeature.AthleteTile(
+            id: names[index % names.count],
+            bpm: bpms[index % bpms.count],
+            maxHR: 190,
+            activeEnergy: Double(45 + index * 38)
+        )
+    }
+    return IdentifiedArray(uniqueElements: athletes)
 }
