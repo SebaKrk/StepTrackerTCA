@@ -55,7 +55,9 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         activeEnergy: 0
     )
     
-    var workoutMetricsContinuation: AsyncStream<WorkoutMetrics>.Continuation?
+    // Multicast: każdy subskrybent `workoutMetricsStream` dostaje własną continuation.
+    // Wiele feature'ów obserwuje metrics jednocześnie (LiveSession + IPAD-0087 Gym Room).
+    var workoutMetricsContinuations: [UUID: AsyncStream<WorkoutMetrics>.Continuation] = [:]
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
     var workoutSessionStateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
     
@@ -86,8 +88,19 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     }
     
     public var workoutMetricsStream: AsyncStream<WorkoutMetrics> {
-        AsyncStream { continuation in
-            self.workoutMetricsContinuation = continuation
+        let id = UUID()
+        let (stream, continuation) = AsyncStream.makeStream(of: WorkoutMetrics.self)
+        continuation.onTermination = { [weak self] _ in
+            self?.workoutMetricsContinuations.removeValue(forKey: id)
+        }
+        workoutMetricsContinuations[id] = continuation
+        return stream
+    }
+
+    /// Multicast yield — wszystkim aktywnym subskrybentom.
+    func yieldWorkoutMetrics(_ metrics: WorkoutMetrics) {
+        for continuation in workoutMetricsContinuations.values {
+            continuation.yield(metrics)
         }
     }
 
@@ -214,7 +227,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         
         // Yield updated metrics to stream
         let currentMetrics = self.metrics
-        self.workoutMetricsContinuation?.yield(currentMetrics)
+        yieldWorkoutMetrics(currentMetrics)
     }
     
     // MARK: - Helpers

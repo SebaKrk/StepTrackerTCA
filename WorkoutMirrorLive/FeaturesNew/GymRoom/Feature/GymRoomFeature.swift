@@ -64,6 +64,7 @@ struct GymRoomFeature {
                 guard var tile = state.athletes[id: payload.nick] else { return .none }
                 tile.bpm = payload.bpm
                 tile.maxHR = payload.maxHR
+                tile.activeEnergy = payload.activeEnergy
                 state.athletes[id: payload.nick] = tile
                 return .none
 

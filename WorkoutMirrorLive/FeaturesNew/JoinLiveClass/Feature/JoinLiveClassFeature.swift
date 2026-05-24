@@ -10,17 +10,19 @@ import Foundation
 import HealthHub
 import SharedModels
 
-/// Reducer iPhone'a — dołącza do hosta (iPad) w sieci lokalnej i broadcastuje HR.
+/// Reducer iPhone'a — dołącza do hosta (iPad) w sieci lokalnej i broadcastuje real HR
+/// z Apple Watcha (przez `TrainingManager.workoutMetricsStream`).
 ///
-/// **Proof of Concept**: HR jest **generowany syntetycznie** (random 120-180 co 2s).
-/// Real integracja z Watch HR (`HKWorkoutSession` + `WCSession`) → osobny ticket IPAD-0099.
+/// **Wymaganie**: user musi mieć aktywną workout session na Watchu — bez niej
+/// `HKLiveWorkoutBuilder` nie zbiera HR i `WorkoutMetrics` events nie lecą.
 @Reducer
 struct JoinLiveClassFeature {
 
     // MARK: - Dependencies
 
     @Dependency(\.peerMirrorClient) var peerMirrorClient
-    @Dependency(\.continuousClock) var clock
+    @Dependency(\.trainingManager) var trainingManager
+    @Dependency(\.userProfileClient) var userProfileClient
 
     // MARK: - Reducer
 
@@ -34,32 +36,55 @@ struct JoinLiveClassFeature {
                 // Subskrybujemy stream PRZED `joinTapped` — eager subscription
                 // zapobiega race condition z `startBrowsing` capturującym
                 // jeszcze niezainicjalizowaną continuation.
-                return .send(.startObservingPeerEvents)
-
-            case .view(.joinTapped):
-                state.phase = .searching
-                let nick = state.nick
-                return .run { _ in
-                    await peerMirrorClient.startBrowsing(nick)
-                }
-
-            case .view(.leaveTapped):
-                state.phase = .idle
+                // Plus: fetch user profile żeby ustawić display name (nickname → name → fallback).
                 return .merge(
-                    .cancel(id: JoinLiveClassCancelID.hrTimer),
-                    .cancel(id: JoinLiveClassCancelID.peerEvents),
-                    .run { _ in
-                        await peerMirrorClient.stopBrowsing()
+                    .send(.startObservingPeerEvents),
+                    .run { [userProfileClient] send in
+                        let profile = try? await userProfileClient.fetch()
+                        await send(.userProfileLoaded(profile))
                     }
                 )
 
-            case .view(.closeTapped):
+            case .view(.joinTapped):
+                // Start browsing + zamknij sheet od razu. Broadcast trwa w tle,
+                // ikona toolbar SessionView pokazuje connected. User otworzy sheet
+                // ponownie klikając ikonę → zobaczy stan + Leave button.
+                state.phase = .searching
+                let nick = state.nick
                 return .merge(
-                    .send(.view(.leaveTapped)),
+                    .run { _ in await peerMirrorClient.startBrowsing(nick) },
                     .send(.delegate(.didDismiss))
                 )
 
+            case .view(.leaveTapped):
+                // "Zakończ klasę" — broadcast stop + delegate.didLeave (parent kasuje state).
+                state.phase = .idle
+                return .merge(
+                    .cancel(id: JoinLiveClassCancelID.hrStream),
+                    .cancel(id: JoinLiveClassCancelID.peerEvents),
+                    .run { _ in
+                        await peerMirrorClient.stopBrowsing()
+                    },
+                    .send(.delegate(.didLeave))
+                )
+
+            case .view(.closeTapped):
+                // Sheet schowany (X / swipe-down) — broadcast TRWA, state żyje, ikona toolbar
+                // pozostaje "connected". User otworzy sheet znowu klikając ikonę.
+                return .send(.delegate(.didDismiss))
+
                 // MARK: - Internal
+
+            case let .userProfileLoaded(profile):
+                // Fallback chain: nickname → name → keep current ("Athlete-XXX" z AppStorage).
+                // Nigdy nie nadpisujemy `state.nick` pustym stringiem.
+                guard let profile else { return .none }
+                if !profile.nickname.isEmpty {
+                    state.$nick.withLock { $0 = profile.nickname }
+                } else if !profile.name.isEmpty {
+                    state.$nick.withLock { $0 = profile.name }
+                }
+                return .none
 
             case .startObservingPeerEvents:
                 return .run { send in
@@ -75,31 +100,32 @@ struct JoinLiveClassFeature {
                 .cancellable(id: JoinLiveClassCancelID.peerEvents)
 
             case .peerConnected:
+                print("[JoinLiveClass] ✅ peerConnected — starting workoutMetricsStream subscription")
                 state.phase = .connected
-                return .run { [clock] send in
-                    for await _ in clock.timer(interval: .seconds(2)) {
-                        await send(.tickHR)
+                let nick = state.nick
+                let userIDString = state.userIDString
+                return .run { [trainingManager, peerMirrorClient] _ in
+                    for await metrics in trainingManager.workoutMetricsStream {
+                        print("[JoinLiveClass] 📡 metrics received HR=\(Int(metrics.heartRate))")
+                        guard metrics.heartRate > 0 else { continue }
+                        let userUUID = UUID(uuidString: userIDString) ?? UUID()
+                        let payload = HRSamplePayload(
+                            userID: userUUID,
+                            nick: nick,
+                            bpm: Int(metrics.heartRate),
+                            maxHR: 190,
+                            activeEnergy: metrics.activeEnergy
+                        )
+                        print("[JoinLiveClass] 🚀 forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal")
+                        await peerMirrorClient.send(payload)
                     }
                 }
-                .cancellable(id: JoinLiveClassCancelID.hrTimer)
+                .cancellable(id: JoinLiveClassCancelID.hrStream)
 
             case .peerDisconnected:
+                print("[JoinLiveClass] ❌ peerDisconnected — cancelling HR stream, returning to searching")
                 state.phase = .searching
-                return .cancel(id: JoinLiveClassCancelID.hrTimer)
-
-            case .tickHR:
-                // Proof of Concept: fake HR generator — TODO IPAD-0099: real Watch HR.
-                let bpm = Int.random(in: 120...180)
-                let userID = UUID(uuidString: state.userIDString) ?? UUID()
-                let payload = HRSamplePayload(
-                    userID: userID,
-                    nick: state.nick,
-                    bpm: bpm,
-                    maxHR: 190
-                )
-                return .run { _ in
-                    await peerMirrorClient.send(payload)
-                }
+                return .cancel(id: JoinLiveClassCancelID.hrStream)
 
                 // MARK: - Delegate
 

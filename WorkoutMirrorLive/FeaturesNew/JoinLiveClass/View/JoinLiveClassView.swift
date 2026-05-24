@@ -21,7 +21,8 @@ struct JoinLiveClassView: View {
         }
         .padding(40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(background)
+        // BEZ `.background(systemBackground)` — sheet w iOS 26 ma natywny Liquid Glass background.
+        // Nakładanie własnego color przesłoniłoby go.
         .onAppear { send(.viewDidAppear) }
     }
 
@@ -89,37 +90,40 @@ struct JoinLiveClassView: View {
         } label: {
             Text(joinTitle)
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(.blue)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Capsule().fill(.blue))
         }
+        .buttonStyle(.glass)
+        .controlSize(.extraLarge)
+        .buttonBorderShape(.capsule)
     }
 
     private var leaveButton: some View {
-        Button {
+        Button(role: .destructive) {
             send(.leaveTapped)
         } label: {
             Text(leaveTitle)
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(.red)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Capsule().fill(.red))
         }
+        .buttonStyle(.glass)
+        .controlSize(.extraLarge)
+        .buttonBorderShape(.capsule)
     }
 
+    /// Ikona w `Circle` z Liquid Glass background — natywny iOS 26 effect (spójność z całą app).
+    /// `.symbolRenderingMode(.hierarchical)` daje subtelną głębię w SF Symbol.
     private func iconImage(symbol: String, color: Color) -> some View {
         Image(systemName: symbol)
-            .font(.system(size: 80))
+            .font(.system(size: 56, weight: .regular))
             .foregroundStyle(color)
+            .symbolRenderingMode(.hierarchical)
+            .frame(width: 120, height: 120)
+            .glassEffect(in: .circle)
     }
 
     // MARK: - Private content (implementacja)
-
-    private var background: some View {
-        Color(.systemBackground)
-    }
 
     private var nickRowText: String {
         String(localized: "Nick: \(store.nick)", bundle: .main)

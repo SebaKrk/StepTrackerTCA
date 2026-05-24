@@ -39,9 +39,16 @@ struct SessionView: View {
                     HeartRateZoneInfoView(store: store)
                         .presentationDetents([.medium, .large])
                 }
+                .sheet(isPresented: joinLiveClassSheetBinding) {
+                    if let joinStore = store.scope(state: \.joinLiveClass, action: \.joinLiveClass) {
+                        JoinLiveClassView(store: joinStore)
+                            .presentationDetents([.medium, .large])
+                    }
+                }
         }
     }
-    
+
+
     @ViewBuilder
     private var rootView: some View {
         switch store.sessionState {
@@ -101,25 +108,73 @@ struct SessionView: View {
     private var toolbarButtons: some ToolbarContent {
         if store.sessionState != .summary {
             ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    send(.heartRateZoneButtonTapped)
-                } label: {
-                    Image(systemName: "heart.text.clipboard")
-                }
-                .disabledWithOpacity(store.controls.isLocked)
+                heartRateZoneButton
+            }
+            ToolbarItem(placement: .topBarLeading) {
+                joinLiveClassButton
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    send(.timerButtonTapped)
-                } label: {
-                    Image(systemName: "timer")
-                }
-                .tint(store.live.userStopwatch.isVisible ? .orange : nil)
-                .disabledWithOpacity(store.controls.isLocked || store.live.phaseStopwatch.isManagingPhase)
+                timerButton
             }
         }
     }
-    
+
+    private var heartRateZoneButton: some View {
+        Button {
+            send(.heartRateZoneButtonTapped)
+        } label: {
+            Image(systemName: "heart.text.clipboard")
+        }
+        .disabledWithOpacity(store.controls.isLocked)
+    }
+
+    private var joinLiveClassButton: some View {
+        Button {
+            send(.joinLiveClassToolbarButtonTapped)
+        } label: {
+            joinLiveClassIcon
+        }
+        .disabledWithOpacity(store.controls.isLocked)
+    }
+
+    /// Manual binding — `isJoinLiveClassSheetPresented` nie jest BindingState (SessionFeature
+    /// nie ma BindingReducer). Get reads state; set tylko reaguje na dismiss (swipe / X),
+    /// pokazywanie sheet'a inicjuje `joinLiveClassToolbarButtonTapped`.
+    private var joinLiveClassSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.isJoinLiveClassSheetPresented },
+            set: { newValue in
+                if !newValue { store.send(.joinLiveClassSheetDismissed) }
+            }
+        )
+    }
+
+    @ViewBuilder
+    private var joinLiveClassIcon: some View {
+        // Single SF Symbol = native iOS 26 Liquid Glass styling w toolbarze
+        // (spójność z `heart.text.clipboard` + `timer` w tej samej grupie).
+        // Stan komunikujemy przez wariant fill + color + symbol effect.
+        let phase = store.joinLiveClass?.phase
+        let iconName = (phase == .searching || phase == .connected)
+            ? "person.3.sequence.fill"
+            : "person.3"
+        let tint: Color = phase == .connected ? .green : .primary
+
+        Image(systemName: iconName)
+            .foregroundStyle(tint)
+            .symbolEffect(.variableColor.iterative, isActive: phase == .searching)
+    }
+
+    private var timerButton: some View {
+        Button {
+            send(.timerButtonTapped)
+        } label: {
+            Image(systemName: "timer")
+        }
+        .tint(store.live.userStopwatch.isVisible ? .orange : nil)
+        .disabledWithOpacity(store.controls.isLocked || store.live.phaseStopwatch.isManagingPhase)
+    }
+
     private var xMarkImage: some View {
         Image(systemName: "xmark")
     }

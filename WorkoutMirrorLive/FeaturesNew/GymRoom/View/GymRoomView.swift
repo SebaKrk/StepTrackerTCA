@@ -22,6 +22,7 @@ struct GymRoomView: View {
                 idleView
             }
         }
+        .preferredColorScheme(.dark)
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
             send(.viewDidAppear)
@@ -32,8 +33,17 @@ struct GymRoomView: View {
     // MARK: - Private views (struktura)
 
     private var background: some View {
-        Color.black
-            .ignoresSafeArea()
+        // Neutralny dark gradient (jak w tile gradient pattern, ale bez zone color):
+        // czarne u góry → ciemnoszare u dołu. Daje subtelną głębię bez akcentów kolorystycznych.
+        LinearGradient(
+            colors: [
+                .black,
+                Color(white: 0.12)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
     }
 
     private var idleView: some View {
@@ -41,63 +51,99 @@ struct GymRoomView: View {
     }
 
     private var liveView: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 16) {
             header
             grid
-            Spacer()
+            Spacer(minLength: 0)
         }
+        .padding(.horizontal, 24)
+        .padding(.top, 16)
     }
 
     private var header: some View {
-        HStack {
-            Text(headerTitle)
-                .font(.title)
-                .foregroundStyle(.white)
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(headerTitle)
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+                Text(headerSubtitle)
+                    .font(.headline)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
             Spacer()
+            athleteCountBadge
             endButton
         }
-        .padding()
+    }
+
+    private var athleteCountBadge: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "person.3.sequence.fill")
+                .foregroundStyle(.primary)
+                .font(.title3)
+            Text(athleteCountText)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.primary)
+                .monospacedDigit()
+                .contentTransition(.numericText(value: Double(store.athletes.count)))
+                .animation(.snappy, value: store.athletes.count)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .glassEffect(in: .capsule)
     }
 
     private var grid: some View {
-        LazyVGrid(columns: gridColumns, spacing: 20) {
-            ForEach(store.athletes) { athlete in
-                AthleteTileView(athlete: athlete)
+        ScrollView {
+            LazyVGrid(columns: gridColumns, spacing: 20) {
+                ForEach(store.athletes) { athlete in
+                    AthleteTileView(athlete: athlete)
+                }
             }
+            .animation(.snappy, value: store.athletes)
         }
-        .padding()
+        .scrollIndicators(.hidden)
     }
 
     private var startButton: some View {
         Button {
             send(.startTapped)
         } label: {
-            Text(startTitle)
-                .font(startFont)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 60)
-                .padding(.vertical, 30)
-                .background(startBackground)
+            Label(startTitle, systemImage: "play.fill")
+                .font(.title2.weight(.semibold))
+                .padding(.horizontal, 24)
+                .padding(.vertical, 8)
         }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.capsule)
+        .controlSize(.extraLarge)
     }
 
     private var endButton: some View {
-        Button {
+        Button(role: .destructive) {
             send(.endTapped)
         } label: {
             Text(endTitle)
                 .font(.headline)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(endBackground)
+                .foregroundStyle(.red)
         }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.capsule)
+        .controlSize(.large)
     }
 
     // MARK: - Private content (implementacja)
 
     private var headerTitle: String {
-        String(localized: "Gym Room · LIVE · \(store.athletes.count) athletes", bundle: .main)
+        String(localized: "Gym Room", bundle: .main)
+    }
+
+    private var headerSubtitle: String {
+        String(localized: "LIVE", bundle: .main)
+    }
+
+    private var athleteCountText: String {
+        String(localized: "\(store.athletes.count) athletes", bundle: .main)
     }
 
     private var startTitle: String {
@@ -108,20 +154,10 @@ struct GymRoomView: View {
         String(localized: "End", bundle: .main)
     }
 
-    private var startFont: Font {
-        .system(size: 56, weight: .bold, design: .rounded)
-    }
-
-    private var startBackground: some View {
-        Capsule().fill(.green)
-    }
-
-    private var endBackground: some View {
-        Capsule().fill(.red)
-    }
-
+    /// Adaptive — system dobiera kolumny do dostępnej szerokości.
+    /// iPad portrait: 2 kolumny (~ 360pt każda). iPad landscape: 3 kolumny.
     private var gridColumns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 20), count: 3)
+        [GridItem(.adaptive(minimum: 360), spacing: 20)]
     }
 }
 
@@ -138,6 +174,8 @@ struct GymRoomView: View {
         .init(id: "Sebastian", bpm: 152, maxHR: 190),
         .init(id: "Anna", bpm: 175, maxHR: 185),
         .init(id: "Janek", bpm: 128, maxHR: 195),
+        .init(id: "Maria", bpm: 95, maxHR: 180),
+        .init(id: "Tomek", bpm: 165, maxHR: 192),
     ]
     return GymRoomView(
         store: Store(

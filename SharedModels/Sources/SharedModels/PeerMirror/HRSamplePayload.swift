@@ -17,6 +17,7 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
     public let nick: String
     public let bpm: Int
     public let maxHR: Int
+    public let activeEnergy: Double
     public let timestamp: Date
 
     public init(
@@ -24,12 +25,14 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         nick: String,
         bpm: Int,
         maxHR: Int,
+        activeEnergy: Double = 0,
         timestamp: Date = Date()
     ) {
         self.userID = userID
         self.nick = nick
         self.bpm = bpm
         self.maxHR = maxHR
+        self.activeEnergy = activeEnergy
         self.timestamp = timestamp
     }
 

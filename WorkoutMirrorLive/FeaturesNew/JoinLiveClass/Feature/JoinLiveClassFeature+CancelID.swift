@@ -14,8 +14,8 @@ extension JoinLiveClassFeature {
         /// Subskrypcja `peerMirrorClient.peerEventsStream()`.
         case peerEvents
 
-        /// Timer co ~2s emitujący fake HR samples (Proof of Concept).
-        /// TODO IPAD-0099: zastąp real WCSession HR stream subscription.
-        case hrTimer
+        /// Subskrypcja `watchConnectivityManager.incomingWorkoutEventStream`
+        /// filtrowana do `.hrReading` events z Apple Watcha.
+        case hrStream
     }
 }

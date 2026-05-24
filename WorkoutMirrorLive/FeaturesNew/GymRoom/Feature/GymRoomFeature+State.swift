@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 extension GymRoomFeature {
 
@@ -28,11 +29,18 @@ extension GymRoomFeature {
         let id: String
         var bpm: Int = 0
         var maxHR: Int = 190
+        var activeEnergy: Double = 0
 
         /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.
         var percentHR: Int {
             guard maxHR > 0 else { return 0 }
             return Int((Double(bpm) / Double(maxHR)) * 100)
+        }
+
+        /// Aktualna strefa HR — używana do gradient background + color tilea.
+        var zone: HeartRateZone {
+            let value = Double(percentHR) / 100
+            return HeartRateZone.allCases.first { $0.percentageRange.contains(value) } ?? .resting
         }
     }
 }

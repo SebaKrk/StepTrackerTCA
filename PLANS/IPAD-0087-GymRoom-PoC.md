@@ -151,8 +151,8 @@ SharedModels/Sources/SharedModels/PeerMirror/
 ### Subtask C — iPad: `GymRoomFeature` + live `GymRoomView`
 
 **Czas**: ~5 h
-**Commit**: `IPAD-0087-C Gym Room — iPad reducer and live view`
-**Status**: 🕓 NEXT
+**Commit**: `IPAD-0087-C Gym Room — iPad reducer and live view with TCA grid`
+**Status**: ✅ DONE
 
 **Co tworzymy:**
 - `WorkoutMirrorLive/FeaturesNew/GymRoom/Feature/GymRoomFeature.swift`:
@@ -189,7 +189,23 @@ SharedModels/Sources/SharedModels/PeerMirror/
 ### Subtask D — iPhone: `JoinLiveClassFeature` + view
 
 **Czas**: ~5 h
-**Commit**: `IPAD-0087-D Gym Room — iPhone join flow and HR forwarding`
+**Commit**: `IPAD-0087-D Gym Room — iPhone join flow with synthetic HR for PoC`
+**Status**: ✅ DONE
+
+**Architektura zaktualizowana**: dla Proof of Concept iPhone wysyła **syntetyczny HR**
+(timer co 2s, random 120-180 bpm), nie real Watch HR. Real integracja z `WCSession`
+HR stream → osobny ticket `IPAD-0099`.
+
+**Pliki utworzone**:
+- `WorkoutMirrorLive/FeaturesNew/JoinLiveClass/Feature/JoinLiveClassFeature.swift` + `+State`, `+Action`, `+CancelID`
+- `WorkoutMirrorLive/FeaturesNew/JoinLiveClass/View/JoinLiveClassView.swift`
+- Update: `AppTabNew/Feature/AppTabNewFeature.swift` (destination case + action handler)
+- Update: `AppTabNew/AppTabNewView.swift` (floating button + sheet)
+
+**Bugs naprawione podczas implementacji**:
+1. Closure parameter labels — usunięto `displayName:` w call site (closure type używa unnamed)
+2. AppStorage keys — usunięto kropki (KVO incompatibility), camelCase zamiast dot-notation
+3. **Race condition w `PeerMirrorService`** — refactor z lazy `AsyncStream { ... }` (continuation nil dopóki ktoś nie subscribed) na eager `AsyncStream.makeStream()` w `init()`. Bez tego iPhone delegate emit'ował `.connected` event ale yield był no-op, phase tkwił w `.searching`.
 
 **Co tworzymy:**
 - `WorkoutMirrorLive/FeaturesNew/JoinLiveClass/Feature/JoinLiveClassFeature.swift`:
@@ -228,6 +244,16 @@ SharedModels/Sources/SharedModels/PeerMirror/
 
 **Czas**: ~2 h
 **Commit**: `IPAD-0087-E Gym Room — smoke test and known issues note`
+**Status**: 🕓 NEXT
+
+**Validation na symulatorach (2026-05-23)**: ✅ PASSED
+- iPad simulator + iPhone simulator w tej samej Wi-Fi (Mac local network)
+- Tap "Start class" na iPad → "LIVE · 0 athletes"
+- Tap "Join Live Class" na iPhone → po 1-2s "Broadcasting"
+- iPad kafelek "Athlete-675 · 77% · 147 bpm" aktualizuje się co 2s
+- Disconnect (Leave / End) działa symetrycznie
+- Wszystkie 4 fazy lifecycle MultipeerConnectivity zaobserwowane w logach
+  (foundPeer → connecting → connected → received event)
 
 **Środowisko**: iPad + iPhone + Apple Watch w tej samej Wi-Fi (dom OK).
 
@@ -265,10 +291,10 @@ SharedModels/Sources/SharedModels/PeerMirror/
 |---|---|---|---|
 | A — iPad enable + plist | 2 h | infra | ✅ DONE |
 | B — PeerMirror transport | 6 h | networking | ✅ DONE |
-| C — iPad reducer + view | 5 h | UI + TCA | 🕓 NEXT |
-| D — iPhone join + forward | 5 h | UI + TCA | ⏳ |
-| E — smoke test | 2 h | walidacja | ⏳ |
-| **TOTAL** | **~20 h (2.5 dnia)** | | 8 h done / 12 h left |
+| C — iPad reducer + view | 5 h | UI + TCA | ✅ DONE |
+| D — iPhone join + forward | 5 h | UI + TCA | ✅ DONE |
+| E — smoke test on real devices | 2 h | walidacja | 🕓 NEXT |
+| **TOTAL** | **~20 h (2.5 dnia)** | | 18 h done / 2 h left |
 
 ---
 
@@ -289,6 +315,7 @@ Każdy z poniższych = osobny ticket po pozytywnej walidacji Proof of Concept. N
 | 9 | `IPAD-0096` | Proactive notifications: APNs/Firebase "Class started" |
 | 10 | `IPAD-0097` | Cloud sync (Supabase) — post-class history upload |
 | 11 | `IPAD-0098` | Bluetooth chest strap fallback (CoreBluetooth) dla userów bez Apple Watcha |
+| 12 | `IPAD-0099` | **Real Watch HR**: zastąp syntetyczny `tickHR` w `JoinLiveClassFeature` real-time HR samples z `HKWorkoutSession` na Watchu via `WCSession` |
 
 Sumarycznie ~3-4 tygodnie pracy na pełny produkt. Każdy ticket osobno, w swoim tempie, na fundamencie Proof of Concept.
 

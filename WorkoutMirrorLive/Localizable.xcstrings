@@ -378,6 +378,9 @@
         }
       }
     },
+    "%lld athletes" : {
+
+    },
     "%lld BMP" : {
       "localizations" : {
         "pl" : {
@@ -387,9 +390,6 @@
           }
         }
       }
-    },
-    "%lld bpm" : {
-
     },
     "%lld exercises" : {
 
@@ -1951,7 +1951,7 @@
         }
       }
     },
-    "Gym Room · LIVE · %lld athletes" : {
+    "Gym Room" : {
 
     },
     "Health Metrics Trends" : {
@@ -2330,6 +2330,9 @@
           }
         }
       }
+    },
+    "LIVE" : {
+
     },
     "live %lld" : {
       "localizations" : {

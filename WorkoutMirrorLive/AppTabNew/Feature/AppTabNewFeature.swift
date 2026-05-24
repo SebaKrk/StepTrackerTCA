@@ -44,15 +44,7 @@ struct AppTabNewFeature {
             case .view(.viewDidAppear):
                 return .none
 
-            case .view(.joinLiveClassButtonTapped):
-                state.destination = .joinLiveClass(JoinLiveClassFeature.State())
-                return .none
-
                 // MARK: - Destination
-            case .destination(.presented(.joinLiveClass(.delegate(.didDismiss)))):
-                state.destination = nil
-                return .none
-
             case let .destination(.presented(.workoutConfiguration(.delegate(.start(workout))))):
                 return .run { send in
                     await send(.activateWorkoutSessionView(workout))
@@ -106,9 +98,6 @@ extension AppTabNewFeature {
 
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
-
-            /// IPAD-0087 Gym Room: tap floating button "Join Live Class" w AppTabNewView.
-            case joinLiveClassButtonTapped
         }
         
         // MARK: - Child
@@ -172,9 +161,6 @@ extension AppTabNewFeature {
         /// Represents the destination for displaying in `WorkoutSessionFeature`.
         //case session(WorkoutSessionFeature)
         case session(SessionFeature)
-
-        /// IPAD-0087 Gym Room: iPhone dołącza do iPada hosta w sieci lokalnej.
-        case joinLiveClass(JoinLiveClassFeature)
     }
 }
 

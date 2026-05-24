@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 
 extension JoinLiveClassFeature {
 
@@ -20,12 +21,12 @@ extension JoinLiveClassFeature {
         /// Peer (iPad host) connected — switch phase do `.connected`, start HR timer.
         case peerConnected
 
-        /// Peer disconnected — stop HR timer, phase do `.idle`.
+        /// Peer disconnected — stop HR stream, phase do `.idle`.
         case peerDisconnected
 
-        /// Tick HR timera (co ~2s) — wyślij fake HR payload do iPada.
-        /// TODO IPAD-0099: zastąp real Watch HR samples (WCSession integration).
-        case tickHR
+        /// Załadowano user profile — aktualizuje `state.nick` zgodnie z fallback chain:
+        /// `nickname` → `name` → fallback (Athlete-XXX z AppStorage).
+        case userProfileLoaded(UserProfile?)
 
         // MARK: - View Actions
 
@@ -47,13 +48,18 @@ extension JoinLiveClassFeature {
             case closeTapped
         }
 
-        // MARK: - Delegate (dla parenta — AppTabNewFeature)
+        // MARK: - Delegate (dla parenta — SessionFeature)
 
         case delegate(Delegate)
 
         enum Delegate {
-            /// Sheet zamknięty, parent może wyczyścić destination.
+            /// User kliknął "Dołącz" lub zamknął sheet (X / swipe-down).
+            /// Parent: ukryj sheet, ale ZACHOWAJ state — broadcast trwa w tle.
             case didDismiss
+
+            /// User kliknął "Zakończ klasę" — broadcast stop.
+            /// Parent: kasuj `joinLiveClass` state + ukryj sheet.
+            case didLeave
         }
     }
 }

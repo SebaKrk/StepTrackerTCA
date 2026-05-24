@@ -25,11 +25,6 @@ struct AppTabNewView: View {
             .onAppear {
                 send(.viewDidAppear)
             }
-            .overlay(alignment: .topTrailing) {
-                joinLiveClassButton
-                    .padding(.top, 8)
-                    .padding(.trailing, 16)
-            }
             .sheet(
                 item: $store.scope(
                     state: \.destination?.workoutConfiguration,
@@ -46,28 +41,8 @@ struct AppTabNewView: View {
             ) { store in
                 SessionView(store: store)
             }
-            .sheet(
-                item: $store.scope(
-                    state: \.destination?.joinLiveClass,
-                    action: \.destination.joinLiveClass)
-            ) { store in
-                JoinLiveClassView(store: store)
-                    .presentationDetents([.medium, .large])
-            }
     }
 
-    private var joinLiveClassButton: some View {
-        Button {
-            send(.joinLiveClassButtonTapped)
-        } label: {
-            Image(systemName: "wave.3.right.circle.fill")
-                .font(.title)
-                .foregroundStyle(.white)
-                .padding(12)
-                .background(Circle().fill(.blue))
-        }
-    }
-    
     private var tabView: some View {
         TabView(selection: $store.selectedTab.sending(\.tabChanged)) {
             ForEach(store.tabs) { tab in
