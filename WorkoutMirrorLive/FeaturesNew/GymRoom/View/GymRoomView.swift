@@ -108,7 +108,7 @@ struct GymRoomView: View {
                 count: layout.cols
             )
 
-            LazyVGrid(columns: columnsDef, spacing: layout.spacing) {
+            LazyVGrid(columns: columnsDef, alignment: .leading, spacing: layout.spacing) {
                 ForEach(store.athletes) { athlete in
                     AthleteTileView(athlete: athlete, tileHeight: layout.tileHeight)
                         .frame(width: layout.tileWidth, height: layout.tileHeight)

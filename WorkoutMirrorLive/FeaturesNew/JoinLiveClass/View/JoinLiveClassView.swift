@@ -90,10 +90,10 @@ struct JoinLiveClassView: View {
         } label: {
             Text(joinTitle)
                 .font(.headline)
-                .foregroundStyle(.blue)
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.glass)
+        .buttonStyle(.glassProminent)
+        .tint(.blue)
         .controlSize(.extraLarge)
         .buttonBorderShape(.capsule)
     }
@@ -104,10 +104,10 @@ struct JoinLiveClassView: View {
         } label: {
             Text(leaveTitle)
                 .font(.headline)
-                .foregroundStyle(.red)
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.glass)
+        .buttonStyle(.glassProminent)
+        .tint(.red)
         .controlSize(.extraLarge)
         .buttonBorderShape(.capsule)
     }

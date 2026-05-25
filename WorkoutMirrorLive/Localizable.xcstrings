@@ -379,7 +379,56 @@
       }
     },
     "%lld athletes" : {
-
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld athlete"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld athletes"
+                }
+              }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld zawodnik"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld zawodników"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld zawodników"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld zawodników"
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "%lld BMP" : {
       "localizations" : {
@@ -678,7 +727,14 @@
       }
     },
     "Active Energy" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywna energia"
+          }
+        }
+      }
     },
     "Activities" : {
       "comment" : "The Activities Tab shows a list of completed workouts with details and quick actions.",
@@ -1135,7 +1191,14 @@
       }
     },
     "Broadcasting" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nadawanie"
+          }
+        }
+      }
     },
     "BW" : {
       "localizations" : {
@@ -1955,7 +2018,14 @@
       }
     },
     "Gym Room" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sala treningowa"
+          }
+        }
+      }
     },
     "Health Metrics Trends" : {
       "localizations" : {
@@ -2249,10 +2319,24 @@
       }
     },
     "Join a Live Class" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołącz do zajęć"
+          }
+        }
+      }
     },
     "Join Live Class" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołącz do zajęć"
+          }
+        }
+      }
     },
     "kcal" : {
 
@@ -2311,7 +2395,14 @@
       }
     },
     "Leave" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyjdź"
+          }
+        }
+      }
     },
     "Limit czasu" : {
       "localizations" : {
@@ -2335,7 +2426,24 @@
       }
     },
     "LIVE" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NA ŻYWO"
+          }
+        }
+      }
+    },
+    "Looking for class..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szukam zajęć..."
+          }
+        }
+      }
     },
     "live %lld" : {
       "localizations" : {
@@ -2550,7 +2658,14 @@
 
     },
     "Nick: %@" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nick: %@"
+          }
+        }
+      }
     },
     "Nickname" : {
 
@@ -3710,7 +3825,14 @@
       }
     },
     "Start class" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpocznij zajęcia"
+          }
+        }
+      }
     },
     "Start Date" : {
       "localizations" : {
@@ -3850,7 +3972,14 @@
 
     },
     "Tap Join to broadcast your heart rate to the Gym Room display." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tapnij Dołącz, aby transmitować swój puls na ekran sali treningowej."
+          }
+        }
+      }
     },
     "Tap to edit your profile." : {
 
@@ -4664,7 +4793,14 @@
 
     },
     "Your heart rate is visible on the Gym Room display." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój puls jest widoczny na ekranie sali treningowej."
+          }
+        }
+      }
     },
     "Your past results for this plan — track your progress over time." : {
       "localizations" : {
