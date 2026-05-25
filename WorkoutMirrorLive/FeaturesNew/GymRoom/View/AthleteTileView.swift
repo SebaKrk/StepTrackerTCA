@@ -10,119 +10,95 @@ import SwiftUI
 
 /// Pojedynczy kafelek athlety w `GymRoomView` grid.
 ///
-/// Layout 1:1 z `landscapeMetricsCard` z `LiveSessionView` (iPhone landscape):
-/// - Lewy górny: avatar `[X]` + heart icon + BPM
-/// - Prawy górny: zone title
+/// Layout:
+/// - Lewy górny: avatar `[X]`
+/// - Prawy górny: heart icon + BPM
 /// - Środek: BIG %HR + 🔥 kcal Active Energy
 /// - Lewy dolny: pełna nazwa atlety
+/// - Prawy dolny: zone title (secondary opacity)
 ///
 /// Tło: gradient HR zone color + Liquid Glass effect (iOS 26).
 struct AthleteTileView: View {
 
     let athlete: GymRoomFeature.AthleteTile
 
+    /// Wysokość kafelka — używana do proporcjonalnego skalowania fontów i paddingu.
+    /// Default 213pt (= 320/1.5 dla 3:2 aspect). Mniejszy tile → wszystko proporcjonalnie mniejsze.
+    var tileHeight: CGFloat = 213
+
+    // MARK: - Body
+
     var body: some View {
         VStack(spacing: 0) {
             header
-            Spacer()
-            VStack(spacing: 12) {
-                percentageView
-                activeEnergyView
-            }
-            Spacer()
+            Spacer(minLength: 0)
+            middleSection
+            Spacer(minLength: bottomSpacerMinLength)
             footer
         }
-        .padding(20)
+        .padding(tilePadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(zoneGradient, in: tileShape)
         .glassEffect(in: tileShape)
+        .clipShape(tileShape)
         .animation(.easeInOut(duration: 0.4), value: athlete.zone)
-    }
-
-    private var tileShape: some Shape {
-        RoundedRectangle(cornerRadius: 24, style: .continuous)
     }
 
     // MARK: - Private views (struktura)
 
+    /// Wiersz górny: avatar po lewej, serce + BPM po prawej.
     private var header: some View {
         HStack(alignment: .center) {
-            HStack(spacing: 10) {
-                avatarBadge
-                heartRateRow
-            }
+            avatarBadge
             Spacer()
-            zoneTitleLabel
+            heartRateRow
         }
     }
 
+    /// Środkowa sekcja: duży %HR + active energy pod nim.
+    private var middleSection: some View {
+        VStack(spacing: middleVStackSpacing) {
+            percentageView
+            activeEnergyView
+        }
+    }
+
+    /// Wiersz dolny: pełne imię po lewej, zone title (secondary) po prawej.
     private var footer: some View {
-        HStack {
-            Text(athlete.id)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.white)
+        HStack(alignment: .firstTextBaseline) {
+            nameLabel
             Spacer()
+            zoneLabel
         }
     }
 
-    private var activeEnergyView: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "flame.fill")
-                .foregroundStyle(.pink)
-                .font(.system(.body, design: .rounded))
-            Text("\(Int(athlete.activeEnergy)) kcal")
-                .font(.system(.title3, design: .rounded, weight: .semibold).monospacedDigit())
-                .foregroundStyle(.white)
-                .contentTransition(.numericText(value: athlete.activeEnergy))
-                .animation(.snappy(duration: 0.3), value: athlete.activeEnergy)
-            VStack(alignment: .leading, spacing: 0) {
-                Text("Active")
-                Text("Energy")
-            }
-            .font(.caption)
-            .foregroundStyle(.white.opacity(0.75))
-        }
-    }
-
+    /// Avatar z pierwszą literą nicka + Liquid Glass background + zone color border.
     private var avatarBadge: some View {
         Text(initialLetter)
-            .font(.title3.weight(.bold))
+            .font(avatarFont)
             .foregroundStyle(.white)
-            .frame(width: 36, height: 36)
+            .frame(width: avatarSize, height: avatarSize)
             .background(.regularMaterial, in: .circle)
-            .overlay(Circle().stroke(athlete.zone.color.opacity(0.5), lineWidth: 1.5))
+            .overlay(Circle().stroke(avatarBorderColor, lineWidth: avatarBorderWidth))
     }
 
+    /// `❤️ 152 BPM` w jednym wierszu — heart icon (pulse animation) + liczba + caption.
     private var heartRateRow: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "heart.fill")
-                .foregroundStyle(.red)
-                .font(.system(.callout, design: .rounded))
-                .symbolEffect(.pulse, options: .repeating, value: athlete.bpm)
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(athlete.bpm.formatted(.number))
-                    .font(.system(.callout, design: .rounded, weight: .semibold).monospacedDigit())
-                    .foregroundStyle(.white)
-                    .contentTransition(.numericText(value: Double(athlete.bpm)))
-                    .animation(.snappy(duration: 0.3), value: athlete.bpm)
-                Text("BPM")
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.7))
+        HStack(spacing: heartRateInnerSpacing) {
+            heartIcon
+            HStack(alignment: .firstTextBaseline, spacing: heartRateInnerSpacing) {
+                bpmValue
+                bpmCaption
             }
         }
+        .lineLimit(1)
+        .fixedSize(horizontal: true, vertical: false)
     }
 
-    private var zoneTitleLabel: some View {
-        // Spójność z iPhone landscape: kolorowy tekst (bez pilla), foreground = zone color.
-        Text(athlete.zone.title)
-            .font(.title3.weight(.semibold))
-            .foregroundStyle(.white)
-            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
-    }
-
+    /// Duży procent HR — central focal point kafelka.
     private var percentageView: some View {
         Text(percentText)
-            .font(.system(size: 140, weight: .semibold, design: .rounded))
+            .font(bigPercentFont)
             .monospacedDigit()
             .foregroundStyle(.white)
             .contentTransition(.numericText(value: Double(athlete.percentHR)))
@@ -131,14 +107,150 @@ struct AthleteTileView: View {
             .lineLimit(1)
     }
 
-    // MARK: - Private content (implementacja)
-
-    private var percentText: String {
-        "\(athlete.percentHR)%"
+    /// `🔥 45 kcal Active Energy` — flame + liczba + caption w jednym wierszu.
+    private var activeEnergyView: some View {
+        HStack(spacing: kcalInnerSpacing) {
+            kcalIcon
+            kcalValue
+            kcalCaption
+        }
+        .lineLimit(1)
     }
 
-    private var initialLetter: String {
-        String(athlete.id.first ?? "?").uppercased()
+    /// Imię atlety w lewym dolnym rogu.
+    private var nameLabel: some View {
+        Text(athlete.id)
+            .font(nameFont)
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+    }
+
+    /// Zone title (secondary opacity) w prawym dolnym rogu.
+    private var zoneLabel: some View {
+        Text(athlete.zone.title)
+            .font(zoneFont)
+            .foregroundStyle(.white.opacity(zoneSecondaryOpacity))
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+    }
+
+    /// Sub-elementy `heartRateRow` — wyciągnięte dla View Facade clarity.
+    private var heartIcon: some View {
+        Image(systemName: heartSymbol)
+            .foregroundStyle(.red)
+            .font(heartIconFont)
+            .symbolEffect(.pulse, options: .repeating, value: athlete.bpm)
+    }
+
+    private var bpmValue: some View {
+        Text(athlete.bpm.formatted(.number))
+            .font(bpmValueFont)
+            .foregroundStyle(.white)
+            .contentTransition(.numericText(value: Double(athlete.bpm)))
+            .animation(.snappy(duration: 0.3), value: athlete.bpm)
+    }
+
+    private var bpmCaption: some View {
+        Text(bpmCaptionText)
+            .font(bpmCaptionFont)
+            .foregroundStyle(.white.opacity(captionOpacity))
+    }
+
+    /// Sub-elementy `activeEnergyView`.
+    private var kcalIcon: some View {
+        Image(systemName: flameSymbol)
+            .foregroundStyle(.pink)
+            .font(kcalIconFont)
+    }
+
+    private var kcalValue: some View {
+        Text(kcalValueText)
+            .font(kcalValueFont)
+            .foregroundStyle(.white)
+            .contentTransition(.numericText(value: athlete.activeEnergy))
+            .animation(.snappy(duration: 0.3), value: athlete.activeEnergy)
+    }
+
+    private var kcalCaption: some View {
+        Text(kcalCaptionText)
+            .font(kcalCaptionFont)
+            .foregroundStyle(.white.opacity(captionOpacity))
+    }
+
+    // MARK: - Private content (implementacja)
+
+    /// Skala względem default — proporcjonalnie zmniejsza fonty i spacing przy małych tile.
+    /// Clamp 0.5...1.0 — content nigdy mniej niż 50% defaultu (czytelność floor).
+    private var scale: CGFloat {
+        max(0.5, min(1.0, tileHeight / referenceTileHeight))
+    }
+
+    /// Reference height dla scale = 1.0 (default tile 320×213, aspect 3:2).
+    private var referenceTileHeight: CGFloat { 213 }
+
+    // MARK: - Spacing / Sizing
+
+    private var tilePadding: CGFloat { 16 * scale }
+    private var middleVStackSpacing: CGFloat { 4 * scale }
+    private var bottomSpacerMinLength: CGFloat { 16 * scale }
+    private var heartRateInnerSpacing: CGFloat { 4 * scale }
+    private var kcalInnerSpacing: CGFloat { 5 * scale }
+    private var avatarSize: CGFloat { 36 * scale }
+    private var avatarBorderWidth: CGFloat { 1.5 }
+
+    // MARK: - Fonts
+
+    private var avatarFont: Font {
+        .system(size: 18 * scale, weight: .bold)
+    }
+
+    private var bigPercentFont: Font {
+        .system(size: 80 * scale, weight: .semibold, design: .rounded)
+    }
+
+    private var heartIconFont: Font {
+        .system(size: 14 * scale, design: .rounded)
+    }
+
+    private var bpmValueFont: Font {
+        .system(size: 15 * scale, weight: .semibold, design: .rounded).monospacedDigit()
+    }
+
+    private var bpmCaptionFont: Font {
+        .system(size: 10 * scale)
+    }
+
+    private var kcalIconFont: Font {
+        .system(size: 13 * scale, design: .rounded)
+    }
+
+    private var kcalValueFont: Font {
+        .system(size: 15 * scale, weight: .semibold, design: .rounded).monospacedDigit()
+    }
+
+    private var kcalCaptionFont: Font {
+        .system(size: 10 * scale)
+    }
+
+    private var nameFont: Font {
+        .system(size: 17 * scale, weight: .semibold)
+    }
+
+    private var zoneFont: Font {
+        .system(size: 13 * scale, weight: .medium)
+    }
+
+    // MARK: - Colors / Opacity
+
+    private var avatarBorderColor: Color { athlete.zone.color.opacity(0.5) }
+    private var captionOpacity: Double { 0.7 }
+    private var zoneSecondaryOpacity: Double { 0.7 }
+
+    // MARK: - Shapes / Gradients
+
+    private var tileShape: some Shape {
+        RoundedRectangle(cornerRadius: 24, style: .continuous)
     }
 
     private var zoneGradient: LinearGradient {
@@ -152,24 +264,51 @@ struct AthleteTileView: View {
             endPoint: .bottom
         )
     }
+
+    // MARK: - Symbol Names
+
+    private var heartSymbol: String { "heart.fill" }
+    private var flameSymbol: String { "flame.fill" }
+
+    // MARK: - Texts
+
+    private var percentText: String {
+        "\(athlete.percentHR)%"
+    }
+
+    private var kcalValueText: String {
+        "\(Int(athlete.activeEnergy)) kcal"
+    }
+
+    private var kcalCaptionText: String {
+        String(localized: "Active Energy", bundle: .main)
+    }
+
+    private var bpmCaptionText: String {
+        String(localized: "BPM", bundle: .main)
+    }
+
+    private var initialLetter: String {
+        String(athlete.id.first ?? "?").uppercased()
+    }
 }
 
 // MARK: - Previews
 
 /// Wszystkie 6 stref HR naraz — bpm dobrane tak żeby każdy tile miał inną strefę.
 private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
-    .init(id: "Sebastian", bpm: 60,  maxHR: 190, activeEnergy: 0),     // resting     (~31%)
-    .init(id: "Anna",      bpm: 102, maxHR: 190, activeEnergy: 45),    // recovery    (~53%)
-    .init(id: "Janek",     bpm: 124, maxHR: 190, activeEnergy: 120),   // fatBurning  (~65%)
-    .init(id: "Maria",     bpm: 142, maxHR: 190, activeEnergy: 210),   // aerobic     (~74%)
-    .init(id: "Tomek",     bpm: 162, maxHR: 190, activeEnergy: 340),   // threshold   (~85%)
-    .init(id: "Kasia",     bpm: 180, maxHR: 190, activeEnergy: 480),   // anaerobic   (~94%)
+    .init(id: "Sebastian", bpm: 60,  maxHR: 190, activeEnergy: 0),
+    .init(id: "Anna",      bpm: 102, maxHR: 190, activeEnergy: 45),
+    .init(id: "Janek",     bpm: 124, maxHR: 190, activeEnergy: 120),
+    .init(id: "Maria",     bpm: 142, maxHR: 190, activeEnergy: 210),
+    .init(id: "Tomek",     bpm: 162, maxHR: 190, activeEnergy: 340),
+    .init(id: "Kasia",     bpm: 180, maxHR: 190, activeEnergy: 480),
 ]
 
 #Preview("All Zones — Grid") {
     ScrollView {
         LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 360), spacing: 20)],
+            columns: [GridItem(.adaptive(minimum: 320), spacing: 20)],
             spacing: 20
         ) {
             ForEach(allZonesPreviewAthletes) { athlete in
@@ -187,26 +326,25 @@ private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
         athlete: GymRoomFeature.AthleteTile(id: "Anna", bpm: 162, maxHR: 185)
     )
     .padding(20)
-    .frame(width: 420, height: 360)
+    .frame(width: 420, height: 280)
     .background(.black)
     .preferredColorScheme(.dark)
 }
 
 /// Test layoutu dla różnych długości "X kcal" — od 0 do 4-cyfrowych wartości.
-/// Wszyscy w tej samej strefie (Threshold) żeby widać było tylko różnice w energy display.
 private let differentCaloriesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
-    .init(id: "Start",       bpm: 160, maxHR: 190, activeEnergy: 0),      // "0 kcal" — początek treningu
-    .init(id: "Warm-up",     bpm: 160, maxHR: 190, activeEnergy: 85),     // "85 kcal" — 2-cyfra
-    .init(id: "Mid-session", bpm: 160, maxHR: 190, activeEnergy: 420),    // "420 kcal" — 3-cyfra
-    .init(id: "Endurance",   bpm: 160, maxHR: 190, activeEnergy: 1250),   // "1250 kcal" — 4-cyfra
-    .init(id: "Marathon",    bpm: 160, maxHR: 190, activeEnergy: 2800),   // "2800 kcal" — long workout
-    .init(id: "Ultra",       bpm: 160, maxHR: 190, activeEnergy: 4500),   // "4500 kcal" — extreme
+    .init(id: "Start",       bpm: 160, maxHR: 190, activeEnergy: 0),
+    .init(id: "Warm-up",     bpm: 160, maxHR: 190, activeEnergy: 85),
+    .init(id: "Mid-session", bpm: 160, maxHR: 190, activeEnergy: 420),
+    .init(id: "Endurance",   bpm: 160, maxHR: 190, activeEnergy: 1250),
+    .init(id: "Marathon",    bpm: 160, maxHR: 190, activeEnergy: 2800),
+    .init(id: "Ultra",       bpm: 160, maxHR: 190, activeEnergy: 4500),
 ]
 
 #Preview("Different Calories") {
     ScrollView {
         LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 360), spacing: 20)],
+            columns: [GridItem(.adaptive(minimum: 320), spacing: 20)],
             spacing: 20
         ) {
             ForEach(differentCaloriesPreviewAthletes) { athlete in

@@ -94,41 +94,54 @@ struct GymRoomView: View {
     }
 
     private var grid: some View {
-        // Dynamic grid: tile rozmiar dostosowuje się do liczby athletes.
-        // 1 athlete → full screen. 2 → 2x1. 4 → 2x2. 9 → 3x3. Każdy tile wypełnia
-        // proporcjonalnie dostępną wysokość, dzięki czemu nie ma pustego miejsca.
+        // Tile fixed size ~320×213pt (3:2 aspect). Athletes dodawane kolejno z lewej-góry.
+        // Auto-fit dla dużej liczby: zwiększa cols i proporcjonalnie zmniejsza tile szerokość
+        // (zachowując aspect ratio), żeby wszystko zmieściło się w dostępnym obszarze BEZ
+        // pustych obszarów po bokach. Tile NIGDY nie urośnie ponad default size.
         GeometryReader { geo in
-            let count = max(1, store.athletes.count)
-            let cols = columnCount(for: count)
-            let rows = Int(ceil(Double(count) / Double(cols)))
-            let spacing: CGFloat = 16
-            let tileHeight = (geo.size.height - CGFloat(rows - 1) * spacing) / CGFloat(rows)
+            let layout = computeGridLayout(
+                availableSize: geo.size,
+                count: max(1, store.athletes.count)
+            )
             let columnsDef = Array(
-                repeating: GridItem(.flexible(), spacing: spacing),
-                count: cols
+                repeating: GridItem(.fixed(layout.tileWidth), spacing: layout.spacing),
+                count: layout.cols
             )
 
-            LazyVGrid(columns: columnsDef, spacing: spacing) {
+            LazyVGrid(columns: columnsDef, spacing: layout.spacing) {
                 ForEach(store.athletes) { athlete in
-                    AthleteTileView(athlete: athlete)
-                        .frame(height: tileHeight)
+                    AthleteTileView(athlete: athlete, tileHeight: layout.tileHeight)
+                        .frame(width: layout.tileWidth, height: layout.tileHeight)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .topLeading)
             .animation(.snappy, value: store.athletes)
         }
     }
 
-    /// Liczba kolumn dobrana do liczby athletes — typowy "Hollywood Squares" layout.
-    /// Dla iPada landscape preferujemy szerszy układ (więcej kolumn), żeby tile
-    /// były bardziej "card-like" niż "tall strip".
-    private func columnCount(for count: Int) -> Int {
-        switch count {
-        case 0...1: return 1
-        case 2...4: return 2
-        case 5...9: return 3
-        case 10...16: return 4
-        default: return 5
+    /// Iteracyjnie zwiększa liczbę kolumn dopóki wszystkie rzędy nie zmieszczą się w dostępnej wysokości.
+    /// Tile NIGDY nie urośnie ponad default (320×213), tylko shrinkuje gdy potrzeba.
+    private func computeGridLayout(availableSize: CGSize, count: Int) -> GridLayout {
+        let spacing: CGFloat = 16
+        let aspectRatio: CGFloat = 3.0 / 2.0
+        let defaultTileWidth: CGFloat = 320
+        let defaultTileHeight = defaultTileWidth / aspectRatio
+
+        var cols = max(1, Int((availableSize.width + spacing) / (defaultTileWidth + spacing)))
+        var rows = Int(ceil(Double(count) / Double(cols)))
+        var tileWidth = defaultTileWidth
+        var tileHeight = defaultTileHeight
+        var requiredHeight = tileHeight * CGFloat(rows) + spacing * CGFloat(rows - 1)
+
+        while requiredHeight > availableSize.height && cols < count {
+            cols += 1
+            rows = Int(ceil(Double(count) / Double(cols)))
+            tileWidth = max(40, (availableSize.width - spacing * CGFloat(cols - 1)) / CGFloat(cols))
+            tileHeight = tileWidth / aspectRatio
+            requiredHeight = tileHeight * CGFloat(rows) + spacing * CGFloat(rows - 1)
         }
+
+        return GridLayout(cols: cols, tileWidth: tileWidth, tileHeight: tileHeight, spacing: spacing)
     }
 
     private var startButton: some View {
@@ -182,6 +195,43 @@ struct GymRoomView: View {
 
 }
 
+// MARK: - Grid Layout
+
+/// Wynik obliczeń layoutu siatki — używany przez `computeGridLayout(...)`.
+private struct GridLayout {
+    let cols: Int
+    let tileWidth: CGFloat
+    let tileHeight: CGFloat
+    let spacing: CGFloat
+}
+
+// MARK: - Preview Data
+
+private let previewNames = [
+    "Sebastian", "Anna", "Janek", "Maria",
+    "Tomek", "Kasia", "Piotr", "Ola",
+    "Marek", "Ewa", "Adam", "Hania",
+    "Bartek", "Zosia", "Filip", "Lena",
+    "Igor", "Nina", "Karol", "Aga",
+    "Dawid", "Iza", "Wojtek", "Magda"
+]
+private let previewBPMs = [
+    152, 175, 128, 95, 165, 110, 180, 140,
+    155, 122, 168, 100, 144, 158, 130, 172,
+    138, 96, 148, 162, 178, 105, 115, 135
+]
+
+private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.AthleteTile> {
+    IdentifiedArray(uniqueElements: (0..<count).map { index in
+        GymRoomFeature.AthleteTile(
+            id: previewNames[index % previewNames.count],
+            bpm: previewBPMs[index % previewBPMs.count],
+            maxHR: 190,
+            activeEnergy: Double(45 + index * 38)
+        )
+    })
+}
+
 // MARK: - Previews
 
 #Preview("Idle") {
@@ -193,55 +243,49 @@ struct GymRoomView: View {
 }
 
 #Preview("Live — 1") {
-    livePreview(count: 1)
-}
-
-#Preview("Live — 2") {
-    livePreview(count: 2)
-}
-
-#Preview("Live — 4") {
-    livePreview(count: 4)
-}
-
-#Preview("Live — 8") {
-    livePreview(count: 8)
-}
-
-#Preview("Live — 12") {
-    livePreview(count: 12)
-}
-
-/// Helper dla preview'ów — buduje mock athletes z rotacyjną pulą nazw + zmiennymi metrykami.
-@MainActor
-private func livePreview(count: Int) -> some View {
     GymRoomView(
-        store: Store(
-            initialState: GymRoomFeature.State(
-                isLive: true,
-                athletes: mockAthletes(count: count)
-            )
-        ) {
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(1))) {
             GymRoomFeature()
         }
     )
 }
 
-private func mockAthletes(count: Int) -> IdentifiedArrayOf<GymRoomFeature.AthleteTile> {
-    let names = [
-        "Sebastian", "Anna", "Janek", "Maria",
-        "Tomek", "Kasia", "Piotr", "Ola",
-        "Marek", "Ewa", "Adam", "Hania",
-        "Bartek", "Zosia", "Filip", "Lena"
-    ]
-    let bpms = [152, 175, 128, 95, 165, 110, 180, 140, 155, 122, 168, 100, 144, 158, 130, 172]
-    let athletes = (0..<count).map { index in
-        GymRoomFeature.AthleteTile(
-            id: names[index % names.count],
-            bpm: bpms[index % bpms.count],
-            maxHR: 190,
-            activeEnergy: Double(45 + index * 38)
-        )
-    }
-    return IdentifiedArray(uniqueElements: athletes)
+#Preview("Live — 2") {
+    GymRoomView(
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(2))) {
+            GymRoomFeature()
+        }
+    )
+}
+
+#Preview("Live — 4") {
+    GymRoomView(
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(4))) {
+            GymRoomFeature()
+        }
+    )
+}
+
+#Preview("Live — 8") {
+    GymRoomView(
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(8))) {
+            GymRoomFeature()
+        }
+    )
+}
+
+#Preview("Live — 12") {
+    GymRoomView(
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(12))) {
+            GymRoomFeature()
+        }
+    )
+}
+
+#Preview("Live — 24 (auto-shrink)") {
+    GymRoomView(
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(24))) {
+            GymRoomFeature()
+        }
+    )
 }

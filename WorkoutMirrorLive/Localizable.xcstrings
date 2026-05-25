@@ -677,6 +677,9 @@
         }
       }
     },
+    "Active Energy" : {
+
+    },
     "Activities" : {
       "comment" : "The Activities Tab shows a list of completed workouts with details and quick actions.",
       "localizations" : {
