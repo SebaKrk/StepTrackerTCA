@@ -8,14 +8,14 @@
 import Foundation
 import SharedModels
 
-/// Orchestrator nad MultipeerConnectivity dla Proof of Concept Gym Room.
+/// Orchestrator nad Bluetooth Low Energy transportem Gym Room PoC.
 ///
-/// Cienka warstwa na main actor, trzymająca aktualny `PeerMirrorHostSession?` /
-/// `PeerMirrorPeerSession?` i eksponująca dwa stream'y (samples + peer events)
+/// Cienka warstwa na main actor, trzymająca aktualny `PeerMirrorBLEHostSession?` /
+/// `PeerMirrorBLEPeerSession?` i eksponująca dwa stream'y (samples + peer events)
 /// skonsumowane przez warstwę The Composable Architecture (TCA).
 ///
-/// **Lifecycle**: `start*` tworzy świeżą session (`MCPeerID` + `MCSession` ad-hoc),
-/// `stop*` ją drop'uje. Recreation per call gwarantuje czysty state przy każdym join.
+/// **Lifecycle**: `start*` tworzy świeżą session (`CBPeripheralManager` / `CBCentralManager`),
+/// `stop*` ją drop'uje. Recreation per call gwarantuje czysty BLE state przy każdym join.
 ///
 /// **Streams**: tworzone **eagerly w `init()`** przez `AsyncStream.makeStream()` —
 /// continuation jest zawsze set od pierwszej chwili istnienia service'a. To eliminuje
@@ -24,17 +24,10 @@ import SharedModels
 @MainActor
 public final class PeerMirrorService {
 
-    /// Bonjour service type. ≤15 chars, lowercase + hyphens (RFC 6335). 7 chars.
-    ///
-    /// `nonisolated` bo `PeerMirrorService` jest `@MainActor` — bez tego modyfikatora
-    /// `serviceType` dziedziczy isolation i nie da się czytać z non-isolated init'ów
-    /// `PeerMirrorHostSession` / `PeerMirrorPeerSession`. Immutable String → safe.
-    public nonisolated static let serviceType = "mfj-gym"
-
     // MARK: - Sessions
 
-    private var hostSession: PeerMirrorHostSession?
-    private var peerSession: PeerMirrorPeerSession?
+    private var hostSession: PeerMirrorBLEHostSession?
+    private var peerSession: PeerMirrorBLEPeerSession?
 
     // MARK: - Streams (eager init — never nil)
 
@@ -60,7 +53,7 @@ public final class PeerMirrorService {
         stopAdvertising()
         let eventContinuation = peerEventsContinuation
         let sampleContinuation = samplesContinuation
-        hostSession = PeerMirrorHostSession(
+        hostSession = PeerMirrorBLEHostSession(
             displayName: displayName,
             onPeerEvent: { event in
                 eventContinuation.yield(event)
@@ -78,11 +71,14 @@ public final class PeerMirrorService {
 
     // MARK: - Peer (iPhone)
 
+    /// `displayName` ignorowane w BLE — central nie advertise'uje. Nick przekazywany
+    /// per-payload przez `HRSamplePayload.nick` (ustawiany w reducerze `JoinLiveClassFeature`).
+    /// Parameter zachowany dla API-compat z istniejącym `PeerMirrorClient`.
     public func startBrowsing(displayName: String) {
+        _ = displayName
         stopBrowsing()
         let eventContinuation = peerEventsContinuation
-        peerSession = PeerMirrorPeerSession(
-            displayName: displayName,
+        peerSession = PeerMirrorBLEPeerSession(
             onPeerEvent: { event in
                 eventContinuation.yield(event)
             }

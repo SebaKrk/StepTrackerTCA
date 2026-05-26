@@ -75,7 +75,7 @@ struct GymRoomFeature {
                         case let .connected(_, nick):
                             await send(.peerConnected(nick: nick))
                         case let .disconnected(peerID):
-                            // peerID == nick w naszym setupie (MCPeerID.displayName)
+                            // peerID == nick — contract zachowany od MC era (patrz `PeerEvent`)
                             await send(.peerDisconnected(nick: peerID))
                         }
                     }

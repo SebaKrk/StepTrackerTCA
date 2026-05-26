@@ -7,10 +7,13 @@
 
 import Foundation
 
-/// Event lifecycle peera w sesji MultipeerConnectivity.
+/// Event lifecycle peera w sesji peer-to-peer (Bluetooth Low Energy).
 ///
-/// `peerID` to surowy `displayName` z `MCPeerID` — używany jako stable id w UI.
-/// `.connected` niesie też `nick` z displayName (= nick athlety w Proof of Concept).
+/// **Convention `peerID == nick`** zachowana z MC era: reducer `GymRoomFeature`
+/// używa `peerID` z `.disconnected` jako klucz `state.athletes.remove(id:)`,
+/// gdzie kluczem athletes jest nick (= `HRSamplePayload.nick`). BLE host session
+/// emit'uje `.connected(peerID: nick, nick: nick)` po pierwszym otrzymanym payload
+/// (czeka na nick — `CBCentral.identifier.uuidString` nie pasowałby do reducer key).
 public enum PeerEvent: Sendable, Equatable {
     case connected(peerID: String, nick: String)
     case disconnected(peerID: String)

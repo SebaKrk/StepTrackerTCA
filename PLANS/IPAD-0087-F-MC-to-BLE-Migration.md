@@ -104,10 +104,9 @@ Subtask F = cała migracja BLE (jeden topic ticket). Wewnątrz F dzieli się na 
   - `static let hrStreamCharacteristicUUID = CBUUID(string: "<inny UUID>")`
   - `static let discoveryInfoCharacteristicUUID = CBUUID(string: "<inny UUID>")`
 - `WorkoutMirrorLive/Info.plist`:
-  - `NSBluetoothAlwaysUsageDescription` (PL + EN — komunikat dla usera "Wykrywamy iPada trenera w sali...")
-- `WorkoutMirrorLive.entitlements`:
-  - Background Modes: `bluetooth-central` (iPhone)
-  - Background Modes: `bluetooth-peripheral` (iPad)
+  - `NSBluetoothAlwaysUsageDescription` (komunikat dla usera "Wykrywamy iPada trenera w sali...")
+  - `UIBackgroundModes` += `bluetooth-central` + `bluetooth-peripheral` (poprawka vs oryginalny plan: te keys żyją w Info.plist, NIE w entitlements — Apple od iOS 13 trzyma BLE background modes w Info.plist, entitlements rezerwuje dla capabilities wymagających serwera autoryzacji typu HealthKit/iCloud/Sign in with Apple)
+- `WorkoutMirrorLive.entitlements`: BEZ ZMIAN (Bluetooth to common capability, nie wymaga entitlement)
 
 **Acceptance**:
 - UUIDs są stałe i deterministyczne (nie generowane runtime — jeden raz wygenerowane przez `uuidgen` w terminalu)

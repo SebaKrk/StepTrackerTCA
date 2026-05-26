@@ -87,6 +87,8 @@ Dwie implementacje:
 - Nowy protokół `WorkoutSession` w `SharedModels`.
 - Implementacja `iPhoneWorkoutSession` używająca natywnego iOS 26 stacka (`HKWorkoutSession` + `HKLiveWorkoutBuilder` + `HKLiveWorkoutDataSource`).
 - Refactor `DefaultTrainingManager` żeby konsumował abstrakcję przez dependency.
+- **Apple Fitness-style startup flow**: nowy `SessionState.waitingForWatch` (przed `.countdown`). W trybie Watch-primary `SessionFeature.viewDidAppear` ustawia `.waitingForWatch`, startuje `startWatchWorkout(hkType)`, czeka na sygnał z `mirroredSessionStartedStream` przed przejściem na `.countdown`. W trybie iPhone-standalone od razu `.countdown` (brak czekania).
+- **Mirroring start signal stream**: nowy `mirroredSessionStartedStream: AsyncStream<Void>` w `TrainingManager` protokole. `DefaultTrainingManager+iOS` wystawia event z `workoutSessionMirroringStartHandler`. To zastępuje obecne "ślepe" odpalanie countdown równolegle z `startWatchApp`.
 - Authorization flow dla iPhone HealthKit. Typy do share/read:
   - **Share:** `HKWorkoutType.workoutType()`, `HKQuantityType(.activeEnergyBurned)`, `HKQuantityType(.distanceWalkingRunning)`, `HKQuantityType(.distanceCycling)`.
   - **Read:** `HKQuantityType(.heartRate)`, `HKQuantityType(.activeEnergyBurned)`, oraz wszystkie distance/cycling types.
@@ -101,8 +103,12 @@ Dwie implementacje:
 - [ ] `prepare()` wywołane, countdown 3s zaimplementowany w UI.
 - [ ] `Info.plist` + entitlements: workout-processing background mode dodane.
 - [ ] Unit testy `iPhoneWorkoutSession` z mocked `HealthStoreClient`.
+- [ ] **Apple Fitness-style startup**: `SessionState.waitingForWatch` istnieje, `SessionFeature.viewDidAppear` w trybie Watch-primary ustawia ten stan i czeka na `mirroredSessionStartedStream` event.
+- [ ] `TrainingManager.mirroredSessionStartedStream: AsyncStream<Void>` istnieje, wystawia event z `workoutSessionMirroringStartHandler`.
+- [ ] Verified manual: po tap "Start" w trybie Watch-primary, iPhone pokazuje ekran "Rozpoczynam na Apple Watch" do momentu gdy Watch wystartuje mirroring, dopiero potem countdown 3-2-1.
+- [ ] Verified manual: w trybie iPhone-standalone countdown startuje natychmiast bez czekania.
 
-**Pliki dotykane:** ~10-15. **Wpływ ryzyka:** średnie (nowy tor BLE, manual test wymagany). **Złożoność:** L.
+**Pliki dotykane:** ~12-18 (oryginal ~10-15 + dodatkowe: `SessionState.swift`, `SessionFeature+State.swift`, `SessionFeature.swift`, `TrainingManager.swift`, `DefaultTrainingManager+iOS.swift`). **Wpływ ryzyka:** średnie (nowy tor BLE + nowy startup flow). **Złożoność:** L.
 **Depends on:** —
 
 #### SP2 — Fix istniejącego Watch-initiated flow
@@ -114,6 +120,13 @@ Dwie implementacje:
   - Migrowane (HealthKit channel): `workoutStarted`, `workoutPaused`, `workoutResumed`, `workoutEnded`, `workoutSaved`.
   - Pozostają w WCSession (custom dane aplikacji): `countdownFinished`, `workoutTick`, `maxHRUpdated`, fazy treningu, notatki z planu.
   - **Już** w HealthKit channel od IOS-00075: `hrReading` (HR samples) — zostaje bez zmian.
+- **WC queue hygiene (R9, DEBUG-only):** **HOT-FIX JUŻ WDROŻONY** na branchu `dev/IPAD-00087/IPAD-00087-F` (sesja pre-IOS-00088).
+  - Implementacja: `DefaultWatchConnectivityManager.cleanupOutstandingTransfers(_:)` wywoływana z `activationDidCompleteWith(.activated)`.
+  - Anuluje `outstandingFileTransfers` starsze niż 24h (po `metadata["startedAt"]`) lub bez metadata `startedAt` (legacy entries — defensywny cancel).
+  - Wrapper `#if DEBUG` — bo jedyne `transferFile` w aplikacji idą przez `WorkoutFileLogger` (też `#if DEBUG`). Gdy kiedyś dodamy file transfers w release, usunąć `#if DEBUG`.
+  - Watch wysyła `transferFile(url, metadata: ["type": "workoutLog", "startedAt": Date()])` (2 miejsca w `WatchConnectivityClientAW.swift`).
+  - Logowanie: `Logger.wc.info("[WC] cleanup — cancelled N outstanding file transfers")` + `WorkoutFileLogger` dual write.
+  - **Pozostaje do SP2:** verification manual że wysyp `WCFileStorage enumerateFileTransferResultsWithBlock` znika; ewentualna kalibracja threshold (24h może okazać się za krótko/długo).
 
 **Definition of Done:**
 - [ ] `WatchWorkoutSessionClient.start()` wywołuje `session.prepare()` przed `startMirroringToCompanionDevice`.
@@ -122,6 +135,9 @@ Dwie implementacje:
 - [ ] `WatchConnectivity` zostaje wyłącznie dla: fazy treningu, notatki z planu, countdown (custom dane aplikacji).
 - [ ] Verified manual: iPhone-initiated End dochodzi do Watcha gdy `reachable=false` (rozwiązanie pre-existing bug).
 - [ ] Verified manual: end-flow bez 30s timeout, summary pojawia się natychmiast.
+- [x] **DONE (pre-IOS-00088 hot-fix):** `DefaultWatchConnectivityManager.cleanupOutstandingTransfers` anuluje outstanding transfers starsze niż 24h po activation. Watch dodaje `startedAt: Date()` do metadata.
+- [ ] Verified manual: w terminalu brak wysypu `WCFileStorage enumerateFileTransferResultsWithBlock` przy fresh install + kilka treningów (clean baseline).
+- [x] **DONE (pre-IOS-00088 hot-fix):** `WorkoutFileLogger` emit `[WC]` event dla każdego anulowanego transferu (`Logger.wc.info` + WorkoutFileLogger dual write).
 
 **Pliki dotykane:** ~5. **Wpływ ryzyka:** niskie (bug fixy z testami). **Złożoność:** M.
 **Depends on:** SP1 (dla wspólnej abstrakcji), ale może być pisane równolegle.
@@ -197,6 +213,9 @@ Dwie implementacje:
 - Liquid Glass adoption w **głównych workout views aplikacji** (Activity surfaces są w SP4):
   - Watch: `HRMirrorFeature` view, `ControlsFeature` view, `LiveSessionFeature` view.
   - iPhone: `WorkoutSessionView` i child views.
+- **`CountDownView` dual-mode (Apple Fitness style)**: dodanie `enum CountDownPhase { case waitingForWatch, countingDown }` w `CountDownFeature.State`. Render dwóch trybów:
+  - `.waitingForWatch`: statyczny szary ring z pulsującym efektem (`symbolEffect(.pulse)`), ikona activity type, tekst "Rozpoczynam na Apple Watch" pod ringiem. Bez progress.
+  - `.countingDown`: aktualny zielony ring 3-2-1 z gradient + Liquid Glass (`.glassEffect()`).
 - Weryfikacja `HKWorkoutActivityType` mapping (Smart Stack wymóg).
 
 **Definition of Done:**
@@ -204,6 +223,9 @@ Dwie implementacje:
 - [ ] Wszystkie views workout — Liquid Glass adoption.
 - [ ] Manual test: Smart Stack workout suggestion pojawia się na Watchu po kilku treningach.
 - [ ] Snapshot tests workout views (przed/po Liquid Glass).
+- [ ] `CountDownView` dual-mode (waiting/countingDown) z Liquid Glass działa w obu fazach.
+- [ ] Snapshot tests dla obu phase: `.waitingForWatch` (statyczny ring + tekst) oraz `.countingDown` (animowany 3-2-1).
+- [ ] Verified manual: ekran "Rozpoczynam na Apple Watch" wygląda zbliżono do Apple Fitness (image #1 z PLANS reference).
 
 **Pliki dotykane:** UI refactor wielu views. **Wpływ ryzyka:** niskie (kosmetyka, ale szeroki zakres). **Złożoność:** M.
 **Depends on:** wszystkie powyższe SP (UI ostatni).
@@ -257,10 +279,11 @@ SP2 ──┴───────> SP6 ──> SP7
 
 ## Definition of Done dla całego refactoru
 
-- [ ] Wszystkie 8 reguł z `WorkoutMirrorLive/CLAUDE.md` egzekwowane w kodzie (lint or test).
+- [ ] Wszystkie 9 reguł z `WorkoutMirrorLive/CLAUDE.md` egzekwowane w kodzie (lint or test).
 - [ ] Hybrid mode działa: Watch+iPhone (Tor A) i iPhone+BLE (Tor B) end-to-end.
 - [ ] Wszystkie iOS 26 features uruchomione (App Intents, Live Activities, Crash Recovery, Smart Stack-ready, Liquid Glass).
 - [ ] Pre-existing bugs naprawione: WC end-flow reliability, polling 30s timeout, iOS 26.0.1 mirroring rozłączanie.
+- [ ] **Apple Fitness-style startup flow**: iPhone pokazuje "Rozpoczynam na Apple Watch" do momentu mirroring ready, dopiero potem countdown 3-2-1. Watch i iPhone widzą synchronizowany start.
 - [ ] Każdy SP w osobnym branchu + PR + samodzielny atomowy commit history.
 - [ ] Regresja: dwa kolejne treningi z różnych torów bez interferencji.
 

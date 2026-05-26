@@ -31,6 +31,7 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
 
             switch activationState {
             case .activated:
+                cleanupOutstandingTransfers(session)
                 let status = await checkConnectionStatus()
                 Logger.wc.info("WCSession activated — status: \(String(describing: status))")
             case .inactive:
