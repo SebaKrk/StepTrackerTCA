@@ -92,7 +92,8 @@ struct JoinLiveClassFeature {
                     Logger.gymRoom.info("[Profile] using name: '\(profile.name)'")
                     state.$nick.withLock { $0 = profile.name }
                 } else {
-                    Logger.gymRoom.info("[Profile] both nickname and name empty — keeping default '\(state.nick)'")
+                    let currentNick = state.nick
+                    Logger.gymRoom.info("[Profile] both nickname and name empty — keeping default '\(currentNick)'")
                 }
                 return .none
 
@@ -115,11 +116,23 @@ struct JoinLiveClassFeature {
                 let nick = state.nick
                 let userIDString = state.userIDString
                 let maxHR = state.maxHeartRate
-                return .run { [trainingManager, peerMirrorClient] _ in
+                let userUUID = UUID(uuidString: userIDString) ?? UUID()
+                // Initial registration payload (bpm=0) — iPad creates tile immediately
+                // even before HR sensor connects. Subsequent payloads update HR/kcal
+                // when workoutMetricsStream yields values > 0.
+                let initialPayload = HRSamplePayload(
+                    userID: userUUID,
+                    nick: nick,
+                    bpm: 0,
+                    maxHR: maxHR,
+                    activeEnergy: 0
+                )
+                Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
+                return .run { [trainingManager, peerMirrorClient, initialPayload] _ in
+                    await peerMirrorClient.send(initialPayload)
                     for await metrics in trainingManager.workoutMetricsStream {
                         Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
                         guard metrics.heartRate > 0 else { continue }
-                        let userUUID = UUID(uuidString: userIDString) ?? UUID()
                         let payload = HRSamplePayload(
                             userID: userUUID,
                             nick: nick,

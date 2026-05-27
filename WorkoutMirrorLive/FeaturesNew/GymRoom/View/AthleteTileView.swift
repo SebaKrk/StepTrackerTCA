@@ -144,7 +144,7 @@ struct AthleteTileView: View {
     }
 
     private var bpmValue: some View {
-        Text(athlete.bpm.formatted(.number))
+        Text(bpmValueText)
             .font(bpmValueFont)
             .foregroundStyle(.white)
             .contentTransition(.numericText(value: Double(athlete.bpm)))
@@ -272,8 +272,17 @@ struct AthleteTileView: View {
 
     // MARK: - Texts
 
+    /// "—" placeholder gdy bpm == 0 (athlete connected przez BLE ale brak HR sensor).
+    /// Bez tego user widziałby "0 uderzeń/min" — sugerujące zatrzymane serce zamiast
+    /// "czekamy na HR sensor".
+    private var bpmValueText: String {
+        athlete.bpm > 0 ? athlete.bpm.formatted(.number) : "—"
+    }
+
+    /// "—%" placeholder gdy bpm == 0 (percentHR też 0 w tym przypadku).
+    /// Wizualnie spójne z `bpmValueText` — oba pokazują "—" dla "no HR yet" state.
     private var percentText: String {
-        "\(athlete.percentHR)%"
+        athlete.bpm > 0 ? "\(athlete.percentHR)%" : "—%"
     }
 
     private var kcalValueText: String {
