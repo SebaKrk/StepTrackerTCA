@@ -24,6 +24,12 @@ extension JoinLiveClassFeature {
 
         /// Aktualna faza UI.
         var phase: Phase = .idle
+
+        /// Maksymalny HR athlety, propagowany z parent `SessionFeature` przy creation
+        /// w `.joinLiveClassToolbarButtonTapped` i aktualizowany przy `.setMaxHR`.
+        /// Default 190 jako fallback gdy parent nie zdążył jeszcze obliczyć
+        /// (race przy szybkim joinLiveClass tap przed `makeCalculationForSession`).
+        var maxHeartRate: Int = 190
     }
 
     enum Phase: Equatable, Sendable {

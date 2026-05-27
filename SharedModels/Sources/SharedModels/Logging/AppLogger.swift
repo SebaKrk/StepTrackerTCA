@@ -66,4 +66,8 @@ extension Logger {
     /// `DefaultCentralManager` + `BluetoothStatusActor` + `BluetoothScanActor` + `BluetoothClient`
     /// Covers: BT state changes, scan start/stop, connect/disconnect, errors.
     public static let bluetooth = Logger(subsystem: subsystem, category: "Bluetooth")
+
+    /// `GymRoomFeature` + `JoinLiveClassFeature` + `PeerMirrorService` + `PeerMirrorBLE*Session`
+    /// Covers: peer discovery, BLE pairing, HR broadcast iPhone → iPad, room lifecycle.
+    public static let gymRoom = Logger(subsystem: subsystem, category: "GymRoom")
 }
