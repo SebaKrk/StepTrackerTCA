@@ -207,6 +207,8 @@ struct SessionFeature {
                 }
 
             case let .setMaxHR(value):
+                // Propaguj do active joinLiveClass child żeby iPad widział identyczny %HR.
+                state.joinLiveClass?.maxHeartRate = value
                 let isSessionActive = state.sessionState == .session
                 return .merge(
                     .send(.live(.setupMaxHeartRate(value))),
@@ -264,7 +266,9 @@ struct SessionFeature {
                 // Tap ikony obok HR zones: utwórz state przy pierwszym tap'ie, pokaż sheet.
                 // Kolejne tapy: state istnieje (broadcast trwa) — tylko pokaż sheet.
                 if state.joinLiveClass == nil {
-                    state.joinLiveClass = JoinLiveClassFeature.State()
+                    var newState = JoinLiveClassFeature.State()
+                    newState.maxHeartRate = state.live.maxHeartRate
+                    state.joinLiveClass = newState
                 }
                 state.isJoinLiveClassSheetPresented = true
                 return .none

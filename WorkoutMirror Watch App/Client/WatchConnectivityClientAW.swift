@@ -62,7 +62,7 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
                 return
             }
             Logger.wc.info("[WatchSession] transferLogFile → \(url.lastPathComponent)")
-            WCSession.default.transferFile(url, metadata: ["type": "workoutLog"])
+            WCSession.default.transferFile(url, metadata: ["type": "workoutLog", "startedAt": Date()])
             #endif
         } transferAllLogFiles: {
             #if DEBUG
@@ -99,7 +99,7 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
 
             Logger.wc.info("[WatchSession] transferAllLogFiles → \(filesToTransfer.count) files")
             for url in filesToTransfer {
-                WCSession.default.transferFile(url, metadata: ["type": "workoutLog"])
+                WCSession.default.transferFile(url, metadata: ["type": "workoutLog", "startedAt": Date()])
             }
             #endif
         }

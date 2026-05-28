@@ -22,6 +22,12 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
         activationContinuation?.resume()
         activationContinuation = nil
 
+        // Run cleanup synchronously here to avoid capturing non-Sendable `WCSession`
+        // in the async Task below (Swift 6 strict concurrency).
+        if activationState == .activated, error == nil {
+            cleanupOutstandingTransfers(session)
+        }
+
         Task {
             if let error = error {
                 Logger.wc.error("activation error: \(error.localizedDescription)")

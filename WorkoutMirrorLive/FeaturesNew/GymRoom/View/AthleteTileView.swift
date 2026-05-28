@@ -105,6 +105,7 @@ struct AthleteTileView: View {
             .animation(.snappy(duration: 0.3), value: athlete.percentHR)
             .minimumScaleFactor(0.5)
             .lineLimit(1)
+            .waitingPulse(isActive: athlete.bpm == 0)
     }
 
     /// `🔥 45 kcal Active Energy` — flame + liczba + caption w jednym wierszu.
@@ -144,11 +145,12 @@ struct AthleteTileView: View {
     }
 
     private var bpmValue: some View {
-        Text(athlete.bpm.formatted(.number))
+        Text(bpmValueText)
             .font(bpmValueFont)
             .foregroundStyle(.white)
             .contentTransition(.numericText(value: Double(athlete.bpm)))
             .animation(.snappy(duration: 0.3), value: athlete.bpm)
+            .waitingPulse(isActive: athlete.bpm == 0)
     }
 
     private var bpmCaption: some View {
@@ -272,8 +274,17 @@ struct AthleteTileView: View {
 
     // MARK: - Texts
 
+    /// "—" placeholder gdy bpm == 0 (athlete connected przez BLE ale brak HR sensor).
+    /// Bez tego user widziałby "0 uderzeń/min" — sugerujące zatrzymane serce zamiast
+    /// "czekamy na HR sensor".
+    private var bpmValueText: String {
+        athlete.bpm > 0 ? athlete.bpm.formatted(.number) : "—"
+    }
+
+    /// "—%" placeholder gdy bpm == 0 (percentHR też 0 w tym przypadku).
+    /// Wizualnie spójne z `bpmValueText` — oba pokazują "—" dla "no HR yet" state.
     private var percentText: String {
-        "\(athlete.percentHR)%"
+        athlete.bpm > 0 ? "\(athlete.percentHR)%" : "—%"
     }
 
     private var kcalValueText: String {
@@ -355,4 +366,25 @@ private let differentCaloriesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
     }
     .background(.black)
     .preferredColorScheme(.dark)
+}
+
+// MARK: - Waiting Pulse Modifier
+
+/// Subtelny pulse opacity (1.0 ↔ 0.4) dla placeholder'ów gdy czekamy na dane.
+///
+/// Używany w `AthleteTileView` na `bpmValue` i `percentageView` gdy `athlete.bpm == 0`
+/// — komunikuje "aktywnie czekam na HR" zamiast "no data forever". Cykl 1.6s
+/// (~37 bpm tempo) jest świadomie wolniejszy niż prawdziwe HR (60-180 bpm),
+/// żeby user nie pomylił z aktywnym pulsem.
+fileprivate extension View {
+    @ViewBuilder
+    func waitingPulse(isActive: Bool) -> some View {
+        if isActive {
+            self.phaseAnimator([1.0, 0.4]) { content, opacity in
+                content.opacity(opacity)
+            } animation: { _ in .easeInOut(duration: 0.8) }
+        } else {
+            self
+        }
+    }
 }

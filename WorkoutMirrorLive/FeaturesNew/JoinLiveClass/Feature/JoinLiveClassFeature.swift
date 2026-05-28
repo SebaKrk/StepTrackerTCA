@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import HealthHub
+import OSLog
 import SharedModels
 
 /// Reducer iPhone'a — dołącza do hosta (iPad) w sieci lokalnej i broadcastuje real HR
@@ -79,19 +80,20 @@ struct JoinLiveClassFeature {
                 // Fallback chain: nickname → name → keep current ("Athlete-XXX" z AppStorage).
                 // Nigdy nie nadpisujemy `state.nick` pustym stringiem.
                 if let profile {
-                    print("[JoinLiveClass] 👤 profile loaded: name='\(profile.name)' surname='\(profile.surname)' nickname='\(profile.nickname)'")
+                    Logger.gymRoom.info("[Profile] loaded: name='\(profile.name)' surname='\(profile.surname)' nickname='\(profile.nickname)'")
                 } else {
-                    print("[JoinLiveClass] 👤 profile NIL — no UserProfile in database")
+                    Logger.gymRoom.info("[Profile] NIL — no UserProfile in database")
                 }
                 guard let profile else { return .none }
                 if !profile.nickname.isEmpty {
-                    print("[JoinLiveClass] 👤 using nickname: '\(profile.nickname)'")
+                    Logger.gymRoom.info("[Profile] using nickname: '\(profile.nickname)'")
                     state.$nick.withLock { $0 = profile.nickname }
                 } else if !profile.name.isEmpty {
-                    print("[JoinLiveClass] 👤 using name: '\(profile.name)'")
+                    Logger.gymRoom.info("[Profile] using name: '\(profile.name)'")
                     state.$nick.withLock { $0 = profile.name }
                 } else {
-                    print("[JoinLiveClass] 👤 both nickname and name empty — keeping default '\(state.nick)'")
+                    let currentNick = state.nick
+                    Logger.gymRoom.info("[Profile] both nickname and name empty — keeping default '\(currentNick)'")
                 }
                 return .none
 
@@ -109,30 +111,43 @@ struct JoinLiveClassFeature {
                 .cancellable(id: JoinLiveClassCancelID.peerEvents)
 
             case .peerConnected:
-                print("[JoinLiveClass] ✅ peerConnected — starting workoutMetricsStream subscription")
+                Logger.gymRoom.info("[Peer] connected — starting workoutMetricsStream subscription")
                 state.phase = .connected
                 let nick = state.nick
                 let userIDString = state.userIDString
-                return .run { [trainingManager, peerMirrorClient] _ in
+                let maxHR = state.maxHeartRate
+                let userUUID = UUID(uuidString: userIDString) ?? UUID()
+                // Initial registration payload (bpm=0) — iPad creates tile immediately
+                // even before HR sensor connects. Subsequent payloads update HR/kcal
+                // when workoutMetricsStream yields values > 0.
+                let initialPayload = HRSamplePayload(
+                    userID: userUUID,
+                    nick: nick,
+                    bpm: 0,
+                    maxHR: maxHR,
+                    activeEnergy: 0
+                )
+                Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
+                return .run { [trainingManager, peerMirrorClient, initialPayload] _ in
+                    await peerMirrorClient.send(initialPayload)
                     for await metrics in trainingManager.workoutMetricsStream {
-                        print("[JoinLiveClass] 📡 metrics received HR=\(Int(metrics.heartRate))")
+                        Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
                         guard metrics.heartRate > 0 else { continue }
-                        let userUUID = UUID(uuidString: userIDString) ?? UUID()
                         let payload = HRSamplePayload(
                             userID: userUUID,
                             nick: nick,
                             bpm: Int(metrics.heartRate),
-                            maxHR: 190,
+                            maxHR: maxHR,
                             activeEnergy: metrics.activeEnergy
                         )
-                        print("[JoinLiveClass] 🚀 forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal")
+                        Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal")
                         await peerMirrorClient.send(payload)
                     }
                 }
                 .cancellable(id: JoinLiveClassCancelID.hrStream)
 
             case .peerDisconnected:
-                print("[JoinLiveClass] ❌ peerDisconnected — cancelling HR stream, returning to searching")
+                Logger.gymRoom.info("[Peer] disconnected — cancelling HR stream, returning to searching")
                 state.phase = .searching
                 return .cancel(id: JoinLiveClassCancelID.hrStream)
 

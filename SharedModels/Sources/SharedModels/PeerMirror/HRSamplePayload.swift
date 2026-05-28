@@ -7,7 +7,8 @@
 
 import Foundation
 
-/// Payload broadcastowane z iPhone'a do iPada przez MultipeerConnectivity.
+/// Payload broadcastowane z iPhone'a do iPada przez Bluetooth Low Energy
+/// (GATT characteristic write, `BLEServiceConstants.hrStreamCharacteristicUUID`).
 ///
 /// Zawiera tylko minimum potrzebne do wyświetlenia kafelka athlety —
 /// nick (do display), bpm + maxHR (do obliczenia %HR), timestamp (do diagnostyki).

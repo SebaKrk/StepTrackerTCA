@@ -17,13 +17,13 @@ extension GymRoomFeature {
         /// Czy klasa jest aktywna (advertising w sieci lokalnej, kafelki widoczne).
         var isLive: Bool = false
 
-        /// Lista podłączonych athletów. Klucz = nick (= `MCPeerID.displayName`).
+        /// Lista podłączonych athletów. Klucz = nick (= `HRSamplePayload.nick`).
         var athletes: IdentifiedArrayOf<AthleteTile> = []
     }
 
     /// Pojedynczy kafelek athlety w grid.
     ///
-    /// `id` = nick = `MCPeerID.displayName`. Stabilny identyfikator dla całej sesji,
+    /// `id` = nick (= `HRSamplePayload.nick`). Stabilny identyfikator dla całej sesji,
     /// używany do match'owania peer events i HR samples (które też niosą nick).
     struct AthleteTile: Identifiable, Sendable, Equatable {
         let id: String

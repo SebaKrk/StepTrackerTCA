@@ -5,17 +5,14 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>Pozwala dołączyć do klasy fitness w boxie i wyświetlać tętno na wspólnym ekranie.</string>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_mfj-gym._tcp</string>
-		<string>_mfj-gym._udp</string>
-	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Wykrywamy iPada trenera w sali i przesyłamy Twoje tętno na wspólny ekran przez Bluetooth.</string>
 </dict>
 </plist>

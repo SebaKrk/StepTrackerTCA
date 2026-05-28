@@ -176,6 +176,17 @@ NIE stored. `AsyncStream` ma jednego iteratora; TCA cancellation + stored stream
 **R8. Guard `nil` destination dla post-end events**
 `transferUserInfo` ma guaranteed delivery — eventy (`workoutTick`) przychodzą jeszcze po końcu workoutu. Reducer musi guardować destination.
 
+**R9. Cleanup outstanding WC transfers po activation (DEBUG-only)**
+Po `activationDidCompleteWith(.activated)` w `DefaultWatchConnectivityManager` cancel `outstandingFileTransfers` starsze niż **24h** lub bez metadata `startedAt`. Wrapper `#if DEBUG` w ciele metody — bo jedyne `transferFile` w aplikacji idą przez `WorkoutFileLogger`, który sam jest `#if DEBUG`. Jeśli kiedyś dodamy file transfers w release builds — usuń `#if DEBUG` z `cleanupOutstandingTransfers`. Powód R9: `WCFileStorage` akumuluje ghost entries po crashach mid-transfer — bez cleanup'u widać setki linii `enumerateFileTransferResultsWithBlock could not load file data` w terminalu i powolny startup WC. Threshold 24h chroni świeże legitne transfery, ale eliminuje zalegające zombie entries.
+
+```swift
+for transfer in session.outstandingFileTransfers
+    where transfer.file.metadata?["startedAt"].flatMap({ $0 as? Date })
+        .map({ Date.now.timeIntervalSince($0) > 86_400 }) == true {
+    transfer.cancel()
+}
+```
+
 ### iOS 26 features — NORMA dla nowych ekranów workout
 
 Te API są wymagane w każdej nowej funkcji dotykającej workout:
