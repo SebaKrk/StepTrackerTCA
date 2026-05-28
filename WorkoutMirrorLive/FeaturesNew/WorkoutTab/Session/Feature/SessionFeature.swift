@@ -44,6 +44,27 @@ struct SessionFeature {
             case let .sessionViewStateChange(value):
                 state.sessionState = value
 
+                if value == .waitingForWatch {
+                    // Configure CountDownView for waiting mode: same gray ring, no timer, only
+                    // text below. Phase flips to `.countingDown` after Watch starts mirroring,
+                    // and the ring stays continuous — only the overlay content (trim + number) appears.
+                    state.countDown.phase = .waitingForWatch
+                    return .none
+                }
+
+                if value == .countdown && state.countDown.phase == .waitingForWatch {
+                    // Watch-primary transition: Watch acknowledged mirroring start.
+                    // Flip CountDownView from waiting → counting, kick off the local 3-2-1
+                    // timer, AND tell Watch to start its synced 3-2-1 overlay.
+                    state.countDown.phase = .countingDown
+                    return .merge(
+                        .send(.countDown(.startCountDown)),
+                        .run { [watchClient = watchConnectivityClient] _ in
+                            await watchClient.sendWorkoutEvent(.countdownStart)
+                        }
+                    )
+                }
+
                 if value == .session {
                     // Safety net: set .running immediately so controls show pause.
                     // On real device, workoutSessionStateStream() will confirm with
@@ -232,14 +253,21 @@ struct SessionFeature {
                         // Watch-primary: iPhone does NOT start its own HKWorkoutSession.
                         // Watch starts the primary session and mirrors it to iPhone.
                         await send(.setWorkoutMode(.watchPrimary))
+                        // Apple Fitness-style startup — show "waiting for Apple Watch" UI
+                        // until the mirrored session signal arrives from HealthKit.
+                        await send(.sessionViewStateChange(.waitingForWatch))
                         Logger.session.info("Watch-primary mode — launching Watch workout")
                         do {
                             try await sessionClient.startWatchWorkout(workout.hkType)
-                            Logger.session.info("startWatchWorkout succeeded")
+                            Logger.session.info("startWatchWorkout succeeded — subscribing to mirroredSessionStartedStream")
+                            // Dispatch subscription as a separate effect so it lives outside
+                            // this one-shot `viewDidAppear` Task and can be cancelled cleanly.
+                            await send(.subscribeMirroredSessionStarted)
                         } catch {
                             // Watch launch failed — fall back to iPhone-standalone.
                             Logger.session.error("startWatchWorkout FAILED: \(error) — falling back to iPhone-standalone")
                             await send(.setWorkoutMode(.iPhoneStandalone))
+                            await send(.sessionViewStateChange(.countdown))
                             try await sessionClient.selectedWorkout(workout.hkType)
                         }
                     } else {
@@ -274,6 +302,18 @@ struct SessionFeature {
                 return .none
 
                 // MARK: - Gym Room (IPAD-0087)
+
+            case .subscribeMirroredSessionStarted:
+                return .run { [sessionClient] send in
+                    // One-shot wait — exit loop after first emit. mirroredSessionStartedStream
+                    // emits Void once per session when iPhone receives the mirrored HKWorkoutSession
+                    // from Watch via workoutSessionMirroringStartHandler.
+                    for await _ in await sessionClient.mirroredSessionStartedStream() {
+                        await send(.sessionViewStateChange(.countdown))
+                        break
+                    }
+                }
+                .cancellable(id: SessionWatchCancelID.mirroredSessionSignal)
 
             case .joinLiveClassSheetDismissed:
                 // Swipe-down / X — broadcast TRWA, state żyje.
@@ -519,5 +559,10 @@ private nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     /// Cancelled when Watch acknowledges via mirrored `.ended` state or
     /// `.workoutSaved` event.
     case workoutEndedRetry
+
+    /// Identifies the one-shot subscription to `mirroredSessionStartedStream`
+    /// used in Watch-primary mode to transition from `.waitingForWatch` → `.countdown`.
+    /// Auto-cancels itself after the first emit via `break` in the for-await loop.
+    case mirroredSessionSignal
 
 }

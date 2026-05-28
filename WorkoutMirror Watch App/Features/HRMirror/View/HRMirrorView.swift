@@ -46,13 +46,26 @@ struct HRMirrorView: View {
             if store.isSaving {
                 savingOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.4)))
-            } else if store.isPreparing {
-                preparingOverlay
-                    .transition(.opacity.animation(.easeInOut(duration: 0.4)))
+            } else if store.isCountingDown {
+                countdownOverlay
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
             }
         }
-        .animation(.easeInOut(duration: 0.4), value: store.isPreparing)
         .animation(.easeInOut(duration: 0.4), value: store.isSaving)
+        .animation(.easeInOut(duration: 0.3), value: store.isCountingDown)
+    }
+
+    // MARK: - Countdown Overlay
+
+    private var countdownOverlay: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            Text("\(store.countdownRemaining)")
+                .font(.system(size: 96, weight: .bold))
+                .foregroundStyle(.pink)
+                .contentTransition(.numericText(countsDown: true))
+                .animation(.easeInOut, value: store.countdownRemaining)
+        }
     }
 
     // MARK: - Saving Overlay

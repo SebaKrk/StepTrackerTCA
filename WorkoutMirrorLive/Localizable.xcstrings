@@ -401,12 +401,6 @@
         "pl" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld zawodnik"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -417,6 +411,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld zawodników"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld zawodnik"
                 }
               },
               "other" : {
@@ -2089,6 +2089,7 @@
       }
     },
     "Heart rate data will appear shortly" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2435,16 +2436,6 @@
         }
       }
     },
-    "Looking for class..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Szukam zajęć..."
-          }
-        }
-      }
-    },
     "live %lld" : {
       "localizations" : {
         "pl" : {
@@ -2499,7 +2490,14 @@
 
     },
     "Looking for class..." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szukam zajęć..."
+          }
+        }
+      }
     },
     "Manage API keys for AI-powered workout parsing and analysis." : {
       "localizations" : {
@@ -3456,6 +3454,9 @@
         }
       }
     },
+    "Rozpoczynam na Apple Watch" : {
+
+    },
     "Rozpoznany tekst (%lld fragmentów):" : {
       "localizations" : {
         "pl" : {
@@ -4374,6 +4375,7 @@
       }
     },
     "Waiting for sensor..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {

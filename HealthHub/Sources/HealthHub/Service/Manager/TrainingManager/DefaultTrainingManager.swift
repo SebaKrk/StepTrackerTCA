@@ -60,6 +60,13 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     var workoutMetricsContinuations: [UUID: AsyncStream<WorkoutMetrics>.Continuation] = [:]
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
     var workoutSessionStateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
+
+    #if os(iOS)
+    /// Single-shot signal — emitted from `workoutSessionMirroringStartHandler` when iPhone
+    /// receives the mirrored session from Apple Watch. Stored here (not in `+iOS` extension)
+    /// because Swift does not allow stored properties in extensions.
+    var mirroredSessionStartedContinuation: AsyncStream<Void>.Continuation?
+    #endif
     
     // MARK: - Lifecycle
     public init(healthStore: HKHealthStore) {

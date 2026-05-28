@@ -36,8 +36,22 @@ extension DefaultTrainingManager {
                 // Yield initial state to both streams.
                 self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
                 self.workoutSessionStateContinuation?.yield(mirroredSession.state)
+
+                // Apple Fitness-style startup flow signal — SessionFeature uses this
+                // to transition from `.waitingForWatch` → `.countdown`.
+                self.mirroredSessionStartedContinuation?.yield(())
             }
         }
+    }
+
+    /// One-shot signal stream — emit happens in `setupRemoteSessionHandler` when iPhone
+    /// receives the mirrored session from Watch. Convention identical to
+    /// `workoutSessionStateStream`: finish previous continuation, create fresh stream.
+    public var mirroredSessionStartedStream: AsyncStream<Void> {
+        mirroredSessionStartedContinuation?.finish()
+        let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
+        mirroredSessionStartedContinuation = continuation
+        return stream
     }
     
     /// Starts a workout app on the paired Apple Watch
