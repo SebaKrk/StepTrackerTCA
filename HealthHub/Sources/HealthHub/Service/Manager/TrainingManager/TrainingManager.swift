@@ -87,6 +87,14 @@ public protocol TrainingManager: Sendable {
     /// The Watch will create `HKWorkoutSession`, call `startMirroringToCompanionDevice()`,
     /// and iPhone will receive a mirrored session via `workoutSessionMirroringStartHandler`.
     func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws
+
+    /// Emits once when iPhone receives the mirrored session from Apple Watch.
+    ///
+    /// `SessionFeature` subscribes to this stream after calling `startWatchWorkout(...)` to
+    /// know when to transition from `.waitingForWatch` UI state to `.countdown` (Apple
+    /// Fitness-style startup flow). Replaces the previous "blind countdown" that ran in
+    /// parallel with `startWatchApp` without knowing whether the Watch actually responded.
+    var mirroredSessionStartedStream: AsyncStream<Void> { get }
     #endif
 
 }

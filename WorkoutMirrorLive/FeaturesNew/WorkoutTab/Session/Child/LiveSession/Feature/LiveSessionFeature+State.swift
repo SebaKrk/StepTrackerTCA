@@ -57,12 +57,6 @@ extension LiveSessionFeature {
         /// Phase panel state. Non-nil only when the workout has an associated training plan.
         var phasePanel: PhasePanelFeature.State? = nil
         
-        // MARK: - Connecting
-
-        /// `true` until the first real heart rate reading arrives from Watch.
-        /// Used to show a "Connecting…" overlay on the session screen.
-        var isWaitingForData: Bool { workoutMetrics.heartRate == 0 }
-
         // MARK: - HR Buffer
 
         /// Single HR reading with timestamp — used to calculate per-phase HR at save time.

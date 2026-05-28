@@ -45,6 +45,16 @@ extension HRMirrorFeature {
         /// Fired 3 s after appear or last tap — hides the TabView indicator dots.
         case hideTabIndicator
 
+        /// Received from iPhone via WatchConnectivity when its 3-2-1 countdown starts.
+        ///
+        /// Watch flips `isCountingDown = true` and runs a local 1-Hz ticker
+        /// (`countdownTick`) for visual sync with iPhone. Drift ~100-200 ms acceptable.
+        case countdownStart
+
+        /// 1-Hz tick that decrements `countdownRemaining`. Fires while `isCountingDown == true`.
+        /// On reaching 0 the overlay disappears and the ticker self-cancels.
+        case countdownTick
+
         /// Received from iPhone via WatchConnectivity when its countdown finishes.
         ///
         /// Watch has no independent countdown — it waits for this event to start

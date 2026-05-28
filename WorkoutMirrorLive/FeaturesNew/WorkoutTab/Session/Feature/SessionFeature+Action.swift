@@ -54,6 +54,12 @@ extension SessionFeature {
         /// state nie jest kasowany — tylko ukrywamy widok.
         case joinLiveClassSheetDismissed
 
+        /// Watch-primary mode: subscribes to `TrainingManager.mirroredSessionStartedStream`
+        /// to detect when Apple Watch actually started the mirrored session. On first emit,
+        /// transitions `sessionState` from `.waitingForWatch` to `.countdown`.
+        /// Internal action — dispatched from `viewDidAppear` after `startWatchWorkout` succeeds.
+        case subscribeMirroredSessionStarted
+
         // MARK: - View Actions
         
         case view(View)

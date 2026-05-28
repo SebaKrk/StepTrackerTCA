@@ -68,6 +68,10 @@ struct AppFeatureAW {
                 )
                 return .send(.hrMirror(.presented(.start)))
 
+            case .watchEventReceived(.countdownStart):
+                guard state.hrMirror != nil else { return .none }
+                return .send(.hrMirror(.presented(.countdownStart)))
+
             case .watchEventReceived(.countdownFinished):
                 guard state.hrMirror != nil else { return .none }
                 return .send(.hrMirror(.presented(.countdownFinished)))

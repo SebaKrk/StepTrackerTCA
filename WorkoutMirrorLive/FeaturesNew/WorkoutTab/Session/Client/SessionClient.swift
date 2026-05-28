@@ -82,6 +82,15 @@ struct SessionClient {
     /// HealthKit data collection after the countdown finishes.
     /// In Watch-primary mode, this is a no-op — Watch owns the session.
     var startWorkout: @Sendable () async -> Void
+
+    /// One-shot signal stream — emits when iPhone receives the mirrored `HKWorkoutSession`
+    /// from Apple Watch in `workoutSessionMirroringStartHandler`.
+    ///
+    /// Used by `SessionFeature` in Watch-primary mode to transition from
+    /// `.waitingForWatch` UI state → `.countdown` (Apple Fitness-style startup flow).
+    /// Each subscription receives a fresh stream; previous subscriber's continuation
+    /// is finished — semantics match `workoutSessionStateStream`.
+    var mirroredSessionStartedStream: @Sendable () async -> AsyncStream<Void>
 }
 
 // MARK: - Dependency Registration
@@ -99,11 +108,16 @@ private enum SessionClientClientKey: DependencyKey {
         @Dependency(\.workoutManager) var manager
         @Dependency(\.trainingManager) var trainingManager
         @Dependency(\.healthStore) var healthStore
+        @Dependency(\.authorizationManager) var authorizationManager
 
         // Actor that holds current mode and routes calls accordingly.
+        // healthStore + authorizationManager are passed so the router can lazily create
+        // an `iPhoneWorkoutSession` (iOS 26+) for the iPhone-standalone path.
         let router = WorkoutModeRouter(
             workoutManager: manager,
-            trainingManager: trainingManager
+            trainingManager: trainingManager,
+            healthStore: healthStore,
+            authorizationManager: authorizationManager
         )
 
         // Synchronous mode holder — allows `elapsedTimeAt` and `getWorkoutSummary`
@@ -117,6 +131,12 @@ private enum SessionClientClientKey: DependencyKey {
         return SessionClient(
             selectedWorkout: { type in
                 manager.setSelectedWorkout(type)
+                // iOS 26+ iPhone-standalone — prepare `iPhoneWorkoutSession` early so the
+                // 3s countdown gives the BLE HR strap time to warm up before `start(at:)`.
+                // No-op on iOS < 26 (legacy workoutManager path is used in that case).
+                if let type {
+                    await router.prepareIPhoneSession(activityType: type)
+                }
             },
             workoutMetricsStream: {
                 await router.metricsStream()
@@ -179,6 +199,9 @@ private enum SessionClientClientKey: DependencyKey {
             },
             startWorkout: {
                 await router.startWorkout()
+            },
+            mirroredSessionStartedStream: {
+                trainingManager.mirroredSessionStartedStream
             }
         )
     }()
@@ -236,15 +259,35 @@ private final class ModeHolder: @unchecked Sendable {
 
 /// Actor that routes session control calls to the correct manager
 /// depending on whether Watch or iPhone owns the primary session.
+///
+/// **iPhone-standalone routing** is iOS-version-dependent:
+/// - **iOS 26+**: native `iPhoneWorkoutSession` (HKWorkoutSession on iPhone + BLE HR sensor)
+/// - **iOS < 26**: legacy `workoutManager` (Watch-as-HR-sensor via WatchConnectivity)
+///
+/// The dual path exists because `HKWorkoutSession.init(healthStore:configuration:)` on iPhone
+/// is iOS 26+ only. On older systems iPhone cannot own a workout session natively.
 private actor WorkoutModeRouter {
 
     private var mode: WorkoutMode = .iPhoneStandalone
     private let workoutManager: WorkoutManager
     private let trainingManager: TrainingManager
+    private let healthStore: HKHealthStore
+    private let authorizationManager: AuthorizationManager
 
-    init(workoutManager: WorkoutManager, trainingManager: TrainingManager) {
+    /// Active iPhone-standalone session (iOS 26+ only). Reference type `(any WorkoutSession)?`
+    /// is universal across iOS versions — only the instantiation is gated by `#available`.
+    private var iPhoneSession: (any WorkoutSession)?
+
+    init(
+        workoutManager: WorkoutManager,
+        trainingManager: TrainingManager,
+        healthStore: HKHealthStore,
+        authorizationManager: AuthorizationManager
+    ) {
         self.workoutManager = workoutManager
         self.trainingManager = trainingManager
+        self.healthStore = healthStore
+        self.authorizationManager = authorizationManager
     }
 
     func setMode(_ newMode: WorkoutMode) {
@@ -252,31 +295,64 @@ private actor WorkoutModeRouter {
         Logger.session.info("WorkoutModeRouter mode → \(String(describing: newMode))")
     }
 
-    func togglePause() {
+    /// Creates `iPhoneWorkoutSession`, requests HealthKit authorization, and calls `prepare()`.
+    /// No-op on iOS < 26 (legacy workoutManager path handles iPhone-standalone there).
+    /// Called from `selectedWorkout` closure so the 3s countdown overlaps BLE strap warmup.
+    func prepareIPhoneSession(activityType: HKWorkoutActivityType) async {
+        guard #available(iOS 26.0, *) else {
+            Logger.session.info("prepareIPhoneSession — iOS < 26, skipping (legacy workoutManager path)")
+            return
+        }
+        do {
+            _ = await authorizationManager.requestAuthorization()
+            let configuration = HKWorkoutConfiguration()
+            configuration.activityType = activityType
+            configuration.locationType = .outdoor
+            let new = iPhoneWorkoutSession(healthStore: healthStore, configuration: configuration)
+            try await new.prepare()
+            iPhoneSession = new
+            Logger.session.info("prepareIPhoneSession — iPhoneWorkoutSession prepared (activityType: \(activityType.rawValue))")
+        } catch {
+            Logger.session.error("prepareIPhoneSession failed: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    func togglePause() async {
         switch mode {
         case .watchPrimary:
             // Mirrored session pause propagates to Watch automatically via HealthKit.
             trainingManager.togglePause()
         case .iPhoneStandalone:
+            // SP1 pragmatic: pause/resume routing stays on legacy `workoutManager.togglePause()`
+            // even when iPhone-standalone uses `iPhoneWorkoutSession` for start/end. Full
+            // togglePause through `iPhoneSession.pause()` / `.resume()` requires tracking
+            // current session state inside this actor (AsyncStream.first blocks because
+            // `iPhoneWorkoutSession.state` does not emit a baseline on subscription).
+            // Deferred to a follow-up ticket — see WorkoutMirrorLive/CLAUDE.md R6 notes.
             workoutManager.togglePause()
         }
     }
 
-    func endWorkout() {
+    func endWorkout() async {
         switch mode {
         case .watchPrimary:
             // Watch-primary: Watch owns the session and MUST call finishWorkout() before
             // session.end(). Calling session.end() on the mirrored session here would
             // propagate via HealthKit and end Watch's primary session BEFORE Watch saves
             // the workout — causing the workout to be lost.
-            //
-            // Instead, iPhone sends `.workoutEnded` via WatchConnectivity (already done
-            // in SessionFeature before endWorkout() is called). Watch handles the stop
-            // sequence: finishWorkout() → session.end(). HealthKit then automatically
-            // ends iPhone's mirrored session, triggering handleWorkoutEndIOS.
             Logger.session.info("WorkoutModeRouter endWorkout() — Watch-primary: no-op (Watch owns end sequence)")
         case .iPhoneStandalone:
-            workoutManager.endWorkout()
+            if let iPhoneSession {
+                do {
+                    try await iPhoneSession.end()
+                    Logger.session.info("endWorkout — iPhoneWorkoutSession.end() succeeded")
+                } catch {
+                    Logger.session.error("iPhoneWorkoutSession.end() failed: \(error.localizedDescription, privacy: .public)")
+                }
+                self.iPhoneSession = nil
+            } else {
+                workoutManager.endWorkout()
+            }
         }
     }
 
@@ -287,7 +363,16 @@ private actor WorkoutModeRouter {
             // iPhone has a mirrored session — no startWorkout() needed.
             Logger.session.info("WorkoutModeRouter startWorkout() — Watch-primary: no-op")
         case .iPhoneStandalone:
-            await workoutManager.startWorkout()
+            if let iPhoneSession {
+                do {
+                    try await iPhoneSession.start(at: Date())
+                    Logger.session.info("startWorkout — iPhoneWorkoutSession started")
+                } catch {
+                    Logger.session.error("iPhoneWorkoutSession.start failed: \(error.localizedDescription, privacy: .public)")
+                }
+            } else {
+                await workoutManager.startWorkout()
+            }
         }
     }
 
@@ -296,7 +381,11 @@ private actor WorkoutModeRouter {
         case .watchPrimary:
             return trainingManager.workoutSessionStateStream
         case .iPhoneStandalone:
-            return workoutManager.workoutSessionStateStream
+            if let iPhoneSession {
+                return iPhoneSession.state
+            } else {
+                return workoutManager.workoutSessionStateStream
+            }
         }
     }
 
@@ -307,7 +396,11 @@ private actor WorkoutModeRouter {
             // decoded in DefaultTrainingManager.didReceiveDataFromRemoteWorkoutSession.
             return trainingManager.workoutMetricsStream
         case .iPhoneStandalone:
-            return workoutManager.workoutMetricsStream
+            if let iPhoneSession {
+                return iPhoneSession.metrics
+            } else {
+                return workoutManager.workoutMetricsStream
+            }
         }
     }
 }

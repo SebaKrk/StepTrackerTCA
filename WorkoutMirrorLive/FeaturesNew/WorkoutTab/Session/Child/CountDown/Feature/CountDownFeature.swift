@@ -78,6 +78,10 @@ struct CountDownFeature {
             // MARK: - View Actions
                 
             case .onAppear:
+                // Dual-mode: only start the timer when we're already in `.countingDown`.
+                // In `.waitingForWatch` the view sits idle until SessionFeature flips phase
+                // and explicitly dispatches `.startCountDown` after mirroredSessionStartedStream fires.
+                guard state.phase == .countingDown else { return .none }
                 return .send(.startCountDown)
                 
             case .closeView:
@@ -127,34 +131,46 @@ extension CountDownFeature {
 
 
 extension CountDownFeature {
-    
+
+    /// Visual + behavioral phase of the countdown view.
+    /// - `.waitingForWatch`: gray empty ring + activity icon + "Rozpoczynam na Apple Watch" text. No timer.
+    /// - `.countingDown`: existing 3-2-1 countdown with progress ring.
+    enum CountDownPhase: Equatable, Sendable {
+        case waitingForWatch
+        case countingDown
+    }
+
     @ObservableState
     struct State: Equatable {
-        
+
+        /// Drives the dual-mode render. Default `.countingDown` keeps iPhone-standalone flow unchanged.
+        /// Watch-primary `viewDidAppear` switches this to `.waitingForWatch` before launching Watch.
+        var phase: CountDownPhase = .countingDown
+
         /// Current time remaining in seconds.
         var timeRemaining: TimeInterval = 3
-        
+
         /// Total duration of the countdown in seconds.
         var duration: TimeInterval = 3
-        
+
         /// Indicates if the countdown is currently active.
         var isActive: Bool = false
-        
+
         /// The calculated end date of the countdown.
         var endDate: Date?
-        
+
         /// Flag indicating if the timer has finished.
         var timerFinished: Bool = false
-        
+
         /// Calculated trim value for the circular progress view (0.0 to 1.0).
         var trimValue: Double {
             timeRemaining > 0 ? timeRemaining / duration : 0
         }
-        
+
         /// Helper to determine if we are in the initial setup state.
         var isSettingTrim: Bool {
             timeRemaining == duration
         }
     }
-    
+
 }
