@@ -6,6 +6,7 @@
 //
 
 import ActivityKit
+import AppIntents
 import WidgetKit
 import SwiftUI
 import SharedModels
@@ -16,9 +17,7 @@ struct WorkoutSessionLiveActivity: Widget {
         ActivityConfiguration(for: WorkoutSessionActivityAttributes.self) { context in
             
             WorkoutMetricsLockScreenView(context: context)
-                // SP4 — `.clear` tint lets the system Liquid Glass background show through
-                // (iOS 26+). Lock Screen card itself uses `.glassEffect()` internally.
-                .activityBackgroundTint(.clear)
+                .activityBackgroundTint(Color.black.opacity(0.8))
                 .activitySystemActionForegroundColor(Color.white)
         } dynamicIsland: { context in
             DynamicIsland {
@@ -46,7 +45,13 @@ struct WorkoutSessionLiveActivity: Widget {
                             }
                         }
                         .padding(.horizontal, 4)
-                        .padding(.bottom, 4)
+
+                        // SP5 — Pause + End buttons. Each Button(intent:) routes through
+                        // the LiveActivityIntent → NotificationCenter → SessionFeature flow.
+                        // Resume defer'd until `isPaused` flag is added to ContentState
+                        // (currently Activity state doesn't expose paused/running distinction).
+                        controlButtons
+                            .padding(.bottom, 4)
                     }
                 }
                 
@@ -112,6 +117,24 @@ struct WorkoutSessionLiveActivity: Widget {
         )
     }
     
+    // MARK: - SP5 Control Buttons (Pause / End)
+
+    private var controlButtons: some View {
+        HStack(spacing: 16) {
+            Button(intent: PauseWorkoutIntent()) {
+                Image(systemName: "pause.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+            }
+            Button(intent: EndWorkoutIntent()) {
+                Image(systemName: "stop.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.red)
+            }
+        }
+        .padding(.top, 8)
+    }
+
     // MARK: - Compact Badges
     
     private func compactPercentageBadge(_ context: ActivityViewContext<WorkoutSessionActivityAttributes>) -> some View {
