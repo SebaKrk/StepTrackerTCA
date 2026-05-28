@@ -97,6 +97,24 @@ Wszystkie testy na **real devices** (BLE w simulatorze nie działa wiarygodnie).
 - [ ] Tested
 - **Reconnect time**: _s (exponential backoff: 1s → 2s → 4s → 8s → cap 30s)
 
+### BLE failure feedback dla user'a — świadomie pominięte
+
+- [x] **Decyzja podjęta**: silent recovery, brak UI feedback (data: 2026-05-28)
+- **Co user widzi**: jednolite "Looking for class..." dla wszystkich failure cases (transient + persistent)
+- **Rationale**: większość failurów transient (5-10s recovery w tle dzięki naprawom F.A + F.C), explicit feedback by powodował false alarms przy normalnych RSSI dip / wadliwym discovery
+- **Akceptowalne dla**: PoC testowanego przez Sebastian + 2-3 testerów z Console.app access
+- **NIE akceptowalne dla**: external beta / production — user bez Console nie odróżni "BT off" od "klasa nie wystartowała" od "transient retry"
+- **Failure cases które wyglądają identycznie**:
+  - BT off (permission denied / system off) — wymaga user action (Settings → BT on)
+  - Brak iPada w sali (klasa nie wystartowała) — wymaga akcji trenera
+  - Wadliwy peripheral discovery (corrupted GATT) — system recover automatycznie ~5-10s
+  - Persistent reconnect failure (peripheral fizycznie poza zasięgiem >30m) — system retry w nieskończoność z backoff
+- **Future ticket**: `IPAD-0099 — Connection failure UX`
+  - Rozszerz `PeerEvent` enum o `.discoveryRejected(reason:)` + `.bluetoothUnavailable(reason:)`
+  - W `JoinLiveClassFeature` dodaj timer 15s w `.searching` → emit `.showSearchHint`
+  - Toast banner "Nie mogę znaleźć Gym Room. Sprawdź czy trener wystartował klasę i Bluetooth jest włączony." + button "Spróbuj ponownie"
+  - Dla `.bluetoothUnavailable(.unauthorized)` osobny komunikat z deep-linkiem do Settings
+
 ---
 
 ## 🎯 Decyzja po smoke test'cie

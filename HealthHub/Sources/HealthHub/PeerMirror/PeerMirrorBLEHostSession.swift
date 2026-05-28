@@ -140,7 +140,16 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
         case .unsupported:
             Self.logger.error("Bluetooth LE unsupported on this device")
 
-        default:
+        case .resetting:
+            // Transient state — system rebuilds BLE stack. Recovery jest implicit:
+            // po .resetting → .poweredOn Apple, `peripheral.add(service)` + `startAdvertising`
+            // odpalą się ponownie z gałęzi `.poweredOn`.
+            Self.logger.warning("BLE stack resetting — peripheral connections will re-establish after .poweredOn")
+
+        case .unknown:
+            Self.logger.debug("Peripheral state .unknown (initial transient state)")
+
+        @unknown default:
             Self.logger.debug("Peripheral state: \(peripheral.state.rawValue)")
         }
     }
