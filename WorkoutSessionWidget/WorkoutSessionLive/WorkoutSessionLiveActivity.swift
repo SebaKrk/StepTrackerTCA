@@ -16,7 +16,9 @@ struct WorkoutSessionLiveActivity: Widget {
         ActivityConfiguration(for: WorkoutSessionActivityAttributes.self) { context in
             
             WorkoutMetricsLockScreenView(context: context)
-                .activityBackgroundTint(Color.black.opacity(0.8))
+                // SP4 — `.clear` tint lets the system Liquid Glass background show through
+                // (iOS 26+). Lock Screen card itself uses `.glassEffect()` internally.
+                .activityBackgroundTint(.clear)
                 .activitySystemActionForegroundColor(Color.white)
         } dynamicIsland: { context in
             DynamicIsland {

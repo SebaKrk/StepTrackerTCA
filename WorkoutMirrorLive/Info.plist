@@ -19,5 +19,20 @@
 	<string>Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Zapisujemy ukończone treningi (tętno, kalorie, czas trwania, dystans) do aplikacji Zdrowie, żebyś miał wszystko w jednym miejscu i historię na wszystkich Twoich urządzeniach Apple.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 </dict>
 </plist>

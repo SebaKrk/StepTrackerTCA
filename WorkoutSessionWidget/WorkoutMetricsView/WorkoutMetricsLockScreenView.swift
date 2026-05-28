@@ -23,24 +23,25 @@ struct WorkoutMetricsLockScreenView: View {
     // MARK: - Body
 
     var body: some View {
-        GroupBox {
-            VStack(spacing: 0) {
-                HStack(alignment: .center) {
-                    heartRateView
-                    Spacer()
-                    heartRateZoneView
-                }
-                heartRatePercentageView(48)
-                activeEnergyView
-                heartRateZoneDescriptionView
+        VStack(spacing: 0) {
+            HStack(alignment: .center) {
+                heartRateView
+                Spacer()
+                heartRateZoneView
             }
-            .padding(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(context.state.heartRateZone.color.opacity(0.5), lineWidth: 2)
-            )
+            heartRatePercentageView(48)
+            activeEnergyView
+            heartRateZoneDescriptionView
         }
-        .styledGroupBox()
+        .padding(16)
+        // SP4 — Liquid Glass na Activity Lock Screen card (iOS 26+). Replaces previous
+        // `styledGroupBox()` shared modifier (kept for main app views, migrated to Liquid
+        // Glass in SP6). Activity surfaces are scoped here to avoid touching app-wide style.
+        .glassEffect(in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(context.state.heartRateZone.color.opacity(0.5), lineWidth: 2)
+        )
     }
 
     // MARK: SubView
