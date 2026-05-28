@@ -167,6 +167,13 @@ struct SessionFeature {
                         (name: $0.phaseName, start: $0.startDate, end: $0.endDate)
                     } ?? []
 
+                    // IPAD-0087: auto-disconnect Gym Room broadcastu gdy workout kończy się.
+                    // `leaveTapped` zatrzymuje browsing + cancel'uje effecty wewnątrz feature'a;
+                    // potem kasujemy state, żeby `joined` nie pozostał między treningami.
+                    let gymRoomCleanup: Effect<Action> = state.joinLiveClass != nil
+                        ? .send(.joinLiveClass(.view(.leaveTapped)))
+                        : .none
+
                     var effects: [Effect<Action>] = [
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
@@ -174,7 +181,8 @@ struct SessionFeature {
                         .cancel(id: SessionWatchCancelID.hrReadingTimeout),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop)))),
-                        .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases)))
+                        .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases))),
+                        gymRoomCleanup
                     ]
                     // iPhone-standalone: iPhone saved the workout — skip .saving, go straight to polling.
                     // Watch-primary: keep watchEventStream alive for .workoutSaved from Watch.
@@ -199,6 +207,8 @@ struct SessionFeature {
                 }
 
             case let .setMaxHR(value):
+                // Propaguj do active joinLiveClass child żeby iPad widział identyczny %HR.
+                state.joinLiveClass?.maxHeartRate = value
                 let isSessionActive = state.sessionState == .session
                 return .merge(
                     .send(.live(.setupMaxHeartRate(value))),
@@ -251,6 +261,39 @@ struct SessionFeature {
 
             case .view(.timerButtonTapped):
                 return .send(.live(.userStopwatch(.view(.toggleVisibility))))
+
+            case .view(.joinLiveClassToolbarButtonTapped):
+                // Tap ikony obok HR zones: utwórz state przy pierwszym tap'ie, pokaż sheet.
+                // Kolejne tapy: state istnieje (broadcast trwa) — tylko pokaż sheet.
+                if state.joinLiveClass == nil {
+                    var newState = JoinLiveClassFeature.State()
+                    newState.maxHeartRate = state.live.maxHeartRate
+                    state.joinLiveClass = newState
+                }
+                state.isJoinLiveClassSheetPresented = true
+                return .none
+
+                // MARK: - Gym Room (IPAD-0087)
+
+            case .joinLiveClassSheetDismissed:
+                // Swipe-down / X — broadcast TRWA, state żyje.
+                state.isJoinLiveClassSheetPresented = false
+                return .none
+
+            case .joinLiveClass(.delegate(.didDismiss)):
+                // Sheet schowany (Join tapped / X / swipe-down) — broadcast TRWA,
+                // state żyje, ikona toolbar dalej pokazuje connected.
+                state.isJoinLiveClassSheetPresented = false
+                return .none
+
+            case .joinLiveClass(.delegate(.didLeave)):
+                // User explicit zakończył klasę — kasuj state + ukryj sheet.
+                state.joinLiveClass = nil
+                state.isJoinLiveClassSheetPresented = false
+                return .none
+
+            case .joinLiveClass:
+                return .none
 
                 // MARK: - Destination
 
@@ -428,6 +471,9 @@ struct SessionFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.joinLiveClass, action: \.joinLiveClass) {
+            JoinLiveClassFeature()
+        }
         Scope(state: \.countDown, action: \.countDown) {
             CountDownFeature()
         }

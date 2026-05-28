@@ -12,7 +12,7 @@ extension SessionFeature {
     
     @Reducer
     enum Destination {
-        
+
         /// Represents the destination for displaying in `HeartRateZoneInfoFeature`.
         case openHeartRateZoneInfo(HeartRateZoneInfoFeature)
     }

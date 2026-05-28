@@ -42,7 +42,7 @@ struct AppTabNewView: View {
                 SessionView(store: store)
             }
     }
-    
+
     private var tabView: some View {
         TabView(selection: $store.selectedTab.sending(\.tabChanged)) {
             ForEach(store.tabs) { tab in

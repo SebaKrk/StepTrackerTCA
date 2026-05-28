@@ -97,7 +97,7 @@ extension DefaultTrainingManager {
 
     private func handleWorkoutMetricsUpdate(_ receivedMetrics: WorkoutMetrics) {
         self.metrics = receivedMetrics
-        self.workoutMetricsContinuation?.yield(receivedMetrics)
+        yieldWorkoutMetrics(receivedMetrics)
     }
 
     private func handleStatisticsUpdate(_ statisticsArray: [HKStatistics]) {

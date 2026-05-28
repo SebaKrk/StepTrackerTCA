@@ -26,16 +26,24 @@ struct WorkoutMirrorLiveApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AppTabNewView(
-                store: Store(initialState: AppTabNewFeature.State()) {
-                    AppTabNewFeature()
-                        ///._printChanges()
-                } withDependencies: {
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                GymRoomView(
+                    store: Store(initialState: GymRoomFeature.State()) {
+                        GymRoomFeature()
+                    }
+                )
+            } else {
+                AppTabNewView(
+                    store: Store(initialState: AppTabNewFeature.State()) {
+                        AppTabNewFeature()
+                            ///._printChanges()
+                    } withDependencies: {
 #if targetEnvironment(simulator)
-                    $0.trainingReadinessClient = .mock
+                        $0.trainingReadinessClient = .mock
 #endif
-                }
-            )
+                    }
+                )
+            }
         }
     }
     

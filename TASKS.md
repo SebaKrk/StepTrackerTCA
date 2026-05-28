@@ -801,3 +801,10 @@
     - 5 nowych kluczy lokalizacji (EN/PL)
 
 ### IOS-00086 Stats — improve refresh UX across all cards
+
+### IPad-0087 Gym Room — iPhone join flow with synthetic HR for PoC
+    A: iPad target enabled + Bonjour/local network config + GymRoomView scaffold
+    B: PeerMirrorClient + Service — MultipeerConnectivity transport with host/peer separation
+    C: GymRoomFeature + live grid view with AthleteTile components
+    D: JoinLiveClassFeature — iPhone discovery + synthetic HR forward (real Watch HR moved to IPAD-0099)
+    E: UI polish & Polish translations — Liquid Glass, View Facade refactor, adaptive grid, real user profile fetch

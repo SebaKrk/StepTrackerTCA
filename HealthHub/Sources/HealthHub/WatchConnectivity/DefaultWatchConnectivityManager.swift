@@ -176,6 +176,49 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         }
     }
 
+    // MARK: - Outstanding Transfers Cleanup (R9, DEBUG-only)
+
+    /// Cancels outstanding file transfers older than 24h after WCSession activation.
+    ///
+    /// Implements R9 from `WorkoutMirrorLive/CLAUDE.md`. Currently `#if DEBUG` because
+    /// the only source of `transferFile` calls in this app is `WorkoutFileLogger`
+    /// (also `#if DEBUG`). If file transfers are ever added to release builds,
+    /// remove the `#if DEBUG` wrapper.
+    ///
+    /// `WCFileStorage` accumulates ghost entries after mid-transfer crashes. Without
+    /// periodic cleanup, the system log fills with `enumerateFileTransferResultsWithBlock
+    /// could not load file data` warnings. Transfers without `startedAt` metadata are
+    /// cancelled defensively (assumed to be legacy entries from before the metadata
+    /// convention was introduced).
+    func cleanupOutstandingTransfers(_ session: WCSession) {
+        #if DEBUG
+        let cutoff: TimeInterval = 24 * 60 * 60
+        let now = Date.now
+
+        var cancelledFiles = 0
+        for transfer in session.outstandingFileTransfers {
+            let startedAt = transfer.file.metadata?["startedAt"] as? Date
+            let shouldCancel: Bool
+            if let startedAt {
+                shouldCancel = now.timeIntervalSince(startedAt) > cutoff
+            } else {
+                shouldCancel = true
+            }
+            if shouldCancel {
+                transfer.cancel()
+                cancelledFiles += 1
+            }
+        }
+
+        if cancelledFiles > 0 {
+            Logger.wc.info("[WC] cleanup — cancelled \(cancelledFiles) outstanding file transfers")
+            Task {
+                await WorkoutFileLogger.shared.log("[WC] cleanup — cancelled \(cancelledFiles) outstanding file transfers (>24h or no startedAt)")
+            }
+        }
+        #endif
+    }
+
     // MARK: - Sending Events
 
     /// Sends a `WatchWorkoutEvent` to the paired device.

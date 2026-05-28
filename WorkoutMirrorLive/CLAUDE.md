@@ -121,6 +121,88 @@ Przy nowych feature'ach **uruchom skill `/pfw-composable-architecture`** żeby w
 - Komunikaty błędów też lokalizuj.
 - Klucze: czytelne po angielsku (np. `"Edycja możliwa do %@"` jako klucz lub `"editable_until %@"` — trzymaj się konwencji istniejącej w xcstrings).
 
+## HealthKit Workout Architecture — wytyczne iOS 26
+
+> Aplikacja trzyma się sztywno wzorców iOS 26 / WWDC25 dla HealthKit workout.
+> Wszystkie nowe zmiany w obszarze treningów MUSZĄ być z tym spójne. Jeśli
+> planujesz refactor który łamie któryś z punktów — zatrzymaj się i zapytaj.
+
+### Architektura — dwa równorzędne tory
+
+Aplikacja wspiera dwa scenariusze sesji treningowej:
+
+1. **Watch-initiated (Watch-primary + iPhone mirrored)**
+   - Watch tworzy `HKWorkoutSession` jako primary.
+   - `startMirroringToCompanionDevice()` propaguje sesję na iPhone.
+   - HR z Watch sensora → iPhone przez `sendToRemoteWorkoutSession()`.
+   - Pause/Resume/End z dowolnej strony, HealthKit syncuje automatycznie.
+
+2. **iPhone-initiated (iPhone-primary z BLE HR sensor)**
+   - iPhone tworzy `HKWorkoutSession` natywnie (iOS 26+).
+   - `HKLiveWorkoutDataSource` automatycznie pairs sparowane BLE HR sensory (Polar, Wahoo, Powerbeats Pro 2).
+   - Brak Watch app — opcjonalnie Watch tylko jako display.
+
+Obie ścieżki używają tego samego stacka: `HKWorkoutSession` + `HKLiveWorkoutBuilder` + `HKLiveWorkoutDataSource`. Jeden abstract `WorkoutSession` protocol, dwie implementacje.
+
+### Reguły niezmienne
+
+**R1. `session.prepare()` PRZED `startMirroringToCompanionDevice()`**
+Bez tego mirroring rozłącza się na iOS 26.0.1+ (Apple Developer Forums #804276). Po `prepare()` — 3-sekundowy countdown dla warmupu HR sensora.
+
+**R2. `sendToRemoteWorkoutSession` dla state events i HR**
+NIE używamy WatchConnectivity do pause/resume/end/HR podczas aktywnej sesji. WatchConnectivity zostaje TYLKO dla custom danych aplikacji (fazy treningu, notatki z planu, countdown). Powód: HealthKit channel działa nawet gdy `reachable=false`.
+
+**R3. Crash Recovery przez Scene Delegate (iPhone)**
+`UIScene.ConnectionOptions.shouldHandleActiveWorkoutRecovery` + `HKHealthStore.recoverActiveWorkoutSession`. ⚠️ Po recovery TRZEBA ponownie ustawić `builder.dataSource` — to się NIE zachowuje.
+
+**R4. `session.end()` ZAWSZE — nawet jeśli `endCollection()` rzuca**
+W przeciwnym razie `HKWorkoutSession` zostaje w zombie state i blokuje następny workout.
+
+```swift
+do { try await builder.endCollection(at: date) }
+catch { /* log */ }
+session.end()  // zawsze, poza do/catch
+```
+
+**R5. AsyncStream dla end-flow, nie polling**
+`HKAnchoredObjectQueryDescriptor.results(for:)` (iOS 15.4+) — push-based `AsyncSequence`. NIE polling co 3s przez 30s.
+
+**R6. `incomingWorkoutEventStream` jako computed property**
+NIE stored. `AsyncStream` ma jednego iteratora; TCA cancellation + stored stream = drugi `for await` nic nie dostanie.
+
+**R7. Reset state w `prepareWorkout()`**
+`workoutSessionIsRunning`, `metrics`, wszelkie session-specific state MUSZĄ być reset w `prepareWorkout()` przed kolejnym treningiem.
+
+**R8. Guard `nil` destination dla post-end events**
+`transferUserInfo` ma guaranteed delivery — eventy (`workoutTick`) przychodzą jeszcze po końcu workoutu. Reducer musi guardować destination.
+
+**R9. Cleanup outstanding WC transfers po activation (DEBUG-only)**
+Po `activationDidCompleteWith(.activated)` w `DefaultWatchConnectivityManager` cancel `outstandingFileTransfers` starsze niż **24h** lub bez metadata `startedAt`. Wrapper `#if DEBUG` w ciele metody — bo jedyne `transferFile` w aplikacji idą przez `WorkoutFileLogger`, który sam jest `#if DEBUG`. Jeśli kiedyś dodamy file transfers w release builds — usuń `#if DEBUG` z `cleanupOutstandingTransfers`. Powód R9: `WCFileStorage` akumuluje ghost entries po crashach mid-transfer — bez cleanup'u widać setki linii `enumerateFileTransferResultsWithBlock could not load file data` w terminalu i powolny startup WC. Threshold 24h chroni świeże legitne transfery, ale eliminuje zalegające zombie entries.
+
+```swift
+for transfer in session.outstandingFileTransfers
+    where transfer.file.metadata?["startedAt"].flatMap({ $0 as? Date })
+        .map({ Date.now.timeIntervalSince($0) > 86_400 }) == true {
+    transfer.cancel()
+}
+```
+
+### iOS 26 features — NORMA dla nowych ekranów workout
+
+Te API są wymagane w każdej nowej funkcji dotykającej workout:
+
+- **App Intents** — Lock Screen control: `INStartWorkoutIntent`, `INPauseWorkoutIntent`, `INResumeWorkoutIntent`, `INEndWorkoutIntent`.
+- **Live Activities** — Lock Screen + Dynamic Island podczas treningu (ActivityKit).
+- **Smart Stack** (watchOS 26) — wymaga `HKWorkoutRouteBuilder` (outdoor) + accurate `HKWorkoutActivityType`.
+- **Liquid Glass** — workout UI adoptuje nowy design system.
+
+### Referencje
+
+- WWDC25 #322 — Track workouts with HealthKit on iOS and iPadOS
+- WWDC23 #10023 — Build a multi-device workout app
+- Apple Developer Forums #804276 — iOS 26 mirroring bug
+- Apple sample: `BuildingAWorkoutAppForIPhoneAndIPad.zip`
+
 ## Top-level pliki
 
 - **`WorkoutMirrorLiveApp.swift`** — entry point. Bootstrap dependencies w `prepareDependencies { try $0.bootstrapDatabase() }`.

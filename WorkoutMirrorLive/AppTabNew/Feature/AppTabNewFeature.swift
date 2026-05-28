@@ -43,7 +43,7 @@ struct AppTabNewFeature {
                 // MARK: - View Action
             case .view(.viewDidAppear):
                 return .none
-                
+
                 // MARK: - Destination
             case let .destination(.presented(.workoutConfiguration(.delegate(.start(workout))))):
                 return .run { send in
@@ -95,7 +95,7 @@ extension AppTabNewFeature {
         case view(View)
         
         enum View {
-            
+
             /// Action triggered when the view appears on the screen.
             case viewDidAppear
         }
@@ -154,14 +154,13 @@ extension AppTabNewFeature {
     
     @Reducer
     enum Destination {
-        
+
         /// Represents the destination for displaying in `ConfigurationFeature`.
         case workoutConfiguration(ConfigurationFeature)
-        
+
         /// Represents the destination for displaying in `WorkoutSessionFeature`.
         //case session(WorkoutSessionFeature)
         case session(SessionFeature)
-
     }
 }
 

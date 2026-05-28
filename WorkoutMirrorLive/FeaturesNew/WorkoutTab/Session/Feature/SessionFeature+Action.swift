@@ -50,6 +50,10 @@ extension SessionFeature {
         /// in `viewDidAppear` based on Watch availability.
         case setWorkoutMode(WorkoutMode)
 
+        /// IPAD-0087 Gym Room: sheet zamknięty (swipe-down / X). Broadcast TRWA,
+        /// state nie jest kasowany — tylko ukrywamy widok.
+        case joinLiveClassSheetDismissed
+
         // MARK: - View Actions
         
         case view(View)
@@ -67,7 +71,12 @@ extension SessionFeature {
             
             /// Timer button tapped in toolbar
             case timerButtonTapped
-            
+
+            /// IPAD-0087 Gym Room: ikona w toolbar (obok HR zones) — toggle sheet visibility.
+            /// Pierwszy tap: utwórz state + pokaż sheet. Kolejne tapy: tylko pokaż sheet
+            /// (state istnieje, broadcast trwa).
+            case joinLiveClassToolbarButtonTapped
+
         }
         
         // MARK: - Destination
@@ -76,7 +85,7 @@ extension SessionFeature {
         case destination(PresentationAction<Destination.Action>)
         
         // MARK: - Child
-        
+
         /// Delegates to `CountDownFeature` — handles the pre-workout countdown.
         case countDown(CountDownFeature.Action)
 
@@ -88,6 +97,9 @@ extension SessionFeature {
 
         /// Delegates to `SummaryFeature` — displays post-workout summary and save/discard actions.
         case summary(SummaryFeature.Action)
+
+        /// IPAD-0087 Gym Room: delegates to `JoinLiveClassFeature` — trwały broadcast HR.
+        case joinLiveClass(JoinLiveClassFeature.Action)
         
     }
     

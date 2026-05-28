@@ -118,7 +118,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
         if let receivedMetrics = try? JSONDecoder().decode(WorkoutMetrics.self, from: data) {
             print("📱 iOS: Received WorkoutMetrics - HR: \(receivedMetrics.heartRate), Energy: \(receivedMetrics.activeEnergy)")
             self.metrics = receivedMetrics
-            self.workoutMetricsContinuation?.yield(receivedMetrics)
+            yieldWorkoutMetrics(receivedMetrics)
             return
         }
         
