@@ -44,9 +44,18 @@ struct JoinLiveClassView: View {
         VStack(spacing: 16) {
             iconImage(symbol: "wave.3.right.circle", color: .blue)
             Text(idleTitle).font(.title2).foregroundStyle(.primary)
-            Text(idleSubtitle).font(.body).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            idleSubtitleText
             nickRow
         }
+    }
+
+    private var idleSubtitleText: some View {
+        Text(idleSubtitle)
+            .font(.body)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var searchingContent: some View {
@@ -61,9 +70,18 @@ struct JoinLiveClassView: View {
         VStack(spacing: 16) {
             iconImage(symbol: "checkmark.circle.fill", color: .green)
             Text(connectedTitle).font(.title2).foregroundStyle(.primary)
-            Text(connectedSubtitle).font(.body).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            connectedSubtitleText
             Text(nickRowText).font(.caption).foregroundStyle(.secondary)
         }
+    }
+
+    private var connectedSubtitleText: some View {
+        Text(connectedSubtitle)
+            .font(.body)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var nickRow: some View {
