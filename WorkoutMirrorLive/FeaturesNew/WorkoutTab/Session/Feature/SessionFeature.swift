@@ -100,6 +100,27 @@ struct SessionFeature {
                         // through HealthKit mirroring — no WatchConnectivity events needed
                         // for session state. HR comes via sendToRemoteWorkoutSession.
                         return .merge(
+                            // SP5 — App Intent observers (Pause/Resume/End from Live Activity).
+                            // Long-running effects active while session is alive; cancelled on
+                            // transition to .summary alongside other session-scoped streams.
+                            .run { send in
+                                for await _ in NotificationCenter.default.notifications(named: .workoutPauseRequested) {
+                                    await send(.intentPauseRequested)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.intentPauseObserver),
+                            .run { send in
+                                for await _ in NotificationCenter.default.notifications(named: .workoutResumeRequested) {
+                                    await send(.intentResumeRequested)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.intentResumeObserver),
+                            .run { send in
+                                for await _ in NotificationCenter.default.notifications(named: .workoutEndRequested) {
+                                    await send(.intentEndRequested)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.intentEndObserver),
                             .run { [sessionClient] send in
                                 for await sessionState in await sessionClient.workoutSessionStateStream() {
                                     await send(.controls(.sessionStateUpdated(sessionState)))
@@ -200,6 +221,9 @@ struct SessionFeature {
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
                         .cancel(id: SessionWatchCancelID.hrReadingTimeout),
+                        .cancel(id: SessionWatchCancelID.intentPauseObserver),
+                        .cancel(id: SessionWatchCancelID.intentResumeObserver),
+                        .cancel(id: SessionWatchCancelID.intentEndObserver),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop)))),
                         .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases))),
@@ -314,6 +338,21 @@ struct SessionFeature {
                     }
                 }
                 .cancellable(id: SessionWatchCancelID.mirroredSessionSignal)
+
+            // MARK: - App Intents (SP5)
+
+            case .intentPauseRequested:
+                // Only react when currently running — ignore if already paused or session ended.
+                guard state.controls.sessionState == .running else { return .none }
+                return .send(.controls(.view(.mainControlButtonTapped)))
+
+            case .intentResumeRequested:
+                guard state.controls.sessionState == .paused else { return .none }
+                return .send(.controls(.view(.mainControlButtonTapped)))
+
+            case .intentEndRequested:
+                guard state.sessionState == .session else { return .none }
+                return .send(.controls(.view(.endWorkoutButtonTapped)))
 
             case .joinLiveClassSheetDismissed:
                 // Swipe-down / X — broadcast TRWA, state żyje.
@@ -565,5 +604,11 @@ private nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     /// used in Watch-primary mode to transition from `.waitingForWatch` → `.countdown`.
     /// Auto-cancels itself after the first emit via `break` in the for-await loop.
     case mirroredSessionSignal
+
+    /// SP5 — App Intent NotificationCenter observers (Pause/Resume/End from Live Activity).
+    /// Active while sessionState == .session, cancelled on transition to .summary.
+    case intentPauseObserver
+    case intentResumeObserver
+    case intentEndObserver
 
 }

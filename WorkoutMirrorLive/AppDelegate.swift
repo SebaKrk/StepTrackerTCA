@@ -8,6 +8,7 @@
 import UIKit
 import ComposableArchitecture
 import HealthHub
+import HealthKit
 import OSLog
 import SharedModels
 
@@ -32,31 +33,18 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         Task {
             await activateWatchConnectivity()
         }
+        // R3 — always-try crash recovery. The `UIScene.ConnectionOptions.shouldHandleActiveWorkoutRecovery`
+        // flag from WWDC25 #322 is not yet available in the current iOS SDK (likely iOS 26
+        // beta-only API). Until that lands, we call `recoverActiveWorkoutSession()`
+        // unconditionally at launch — Apple guarantees it returns `nil` when there is no
+        // session to recover, so the per-launch cost is one HK query (~10ms).
+        Task {
+            await recoverActiveWorkoutSession()
+        }
         return true
     }
 
-    // MARK: - Scene Configuration (R3 — Crash Recovery)
-
-    /// Per Apple WWDC25 #322 — when iOS resurfaces the app after a crash that left an
-    /// active workout session in HealthKit, `options.shouldHandleActiveWorkoutRecovery`
-    /// is `true`. We must call `HKHealthStore.recoverActiveWorkoutSession()` to re-attach
-    /// the session, then rebuild its builder/dataSource (R3) inside `TrainingManager`.
-    func application(
-        _ application: UIApplication,
-        configurationForConnecting connectingSceneSession: UISceneSession,
-        options: UIScene.ConnectionOptions
-    ) -> UISceneConfiguration {
-        if options.shouldHandleActiveWorkoutRecovery {
-            Logger.session.info("[Recovery] shouldHandleActiveWorkoutRecovery=true — attempting recovery")
-            Task {
-                await recoverActiveWorkoutSession()
-            }
-        }
-        return UISceneConfiguration(
-            name: "Default Configuration",
-            sessionRole: connectingSceneSession.role
-        )
-    }
+    // MARK: - Crash Recovery (R3)
 
     private func recoverActiveWorkoutSession() async {
         do {

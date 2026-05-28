@@ -60,6 +60,18 @@ extension SessionFeature {
         /// Internal action — dispatched from `viewDidAppear` after `startWatchWorkout` succeeds.
         case subscribeMirroredSessionStarted
 
+        /// SP5 (App Intents) — `PauseWorkoutIntent` from Live Activity / Lock Screen posted
+        /// `workoutPauseRequested` notification. Routes to the same flow as on-screen
+        /// pause (`controls.view.mainControlButtonTapped`).
+        case intentPauseRequested
+
+        /// SP5 — `ResumeWorkoutIntent` notification handler. See `intentPauseRequested`.
+        case intentResumeRequested
+
+        /// SP5 — `EndWorkoutIntent` notification handler. Routes to on-screen end flow
+        /// (`controls.view.endWorkoutButtonTapped`) — reuses SP2-C's HK-channel `.workoutEnded`.
+        case intentEndRequested
+
         // MARK: - View Actions
         
         case view(View)

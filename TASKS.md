@@ -813,3 +813,5 @@
     A: WorkoutSession foundation — iPhone-primary tor + Apple Fitness-style startup
     B: TrainingSessionStateControl — AsyncSequence end-flow instead of polling 
     C: SessionFeature/Watch — HK channel for .workoutEnded in Watch-primary mode
+    D: LiveActivity — Liquid Glass on Activity Lock Screen card
+    E: 
