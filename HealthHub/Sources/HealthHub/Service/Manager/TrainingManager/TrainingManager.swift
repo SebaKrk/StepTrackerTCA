@@ -105,6 +105,17 @@ public protocol TrainingManager: Sendable {
     ///
     /// No-op when there is no mirrored session attached.
     func sendDataToWatch(_ data: Data) async
+
+    /// Re-attaches a recovered `HKWorkoutSession` after iPhone app launch following a crash.
+    ///
+    /// Called from `AppDelegate.application(_:configurationForConnecting:options:)` when
+    /// `UIScene.ConnectionOptions.shouldHandleActiveWorkoutRecovery == true` (iOS 26+ flag).
+    ///
+    /// **R3**: builder + dataSource do NOT survive recovery — implementation MUST rebuild
+    /// both via `session.associatedWorkoutBuilder()` and a fresh `HKLiveWorkoutDataSource`
+    /// initialized with `session.workoutConfiguration`. Without this rebuild, no further
+    /// samples will be collected even though the session is technically alive.
+    func recover(session: HKWorkoutSession)
     #endif
 
 }

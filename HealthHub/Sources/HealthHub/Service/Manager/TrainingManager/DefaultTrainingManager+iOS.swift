@@ -54,6 +54,41 @@ extension DefaultTrainingManager {
         return stream
     }
     
+    /// R3: re-attaches an `HKWorkoutSession` recovered after iPhone app crash.
+    ///
+    /// Called from `AppDelegate.application(_:configurationForConnecting:options:)` when
+    /// the OS signals `shouldHandleActiveWorkoutRecovery == true`. The recovered session
+    /// may be `.primary` (iPhone-standalone iOS 26+ owned by `iPhoneWorkoutSession`) or
+    /// `.mirroredFromRemoteDevice` (Watch-primary iPhone-side mirror managed here).
+    ///
+    /// **R3 rebuild**: `HKLiveWorkoutBuilder` and `HKLiveWorkoutDataSource` do NOT survive
+    /// recovery for `.primary` sessions — they must be reattached or no further samples
+    /// will be collected. For `.mirroredFromRemoteDevice` iPhone has no builder anyway
+    /// (Watch owns it) — only the session reference and delegate need to be restored.
+    public func recover(session: HKWorkoutSession) {
+        Logger.trainingManager.info("[Recovery] re-attaching session (type=\(session.type.rawValue), state=\(session.state.rawValue))")
+
+        self.session = session
+        session.delegate = self
+
+        if session.type == .primary {
+            // iPhone-standalone primary session — `iPhoneWorkoutSession` (SP1-D class)
+            // is the canonical owner of primary sessions on iPhone. Full rebuild of its
+            // internal builder + dataSource + continuation registries belongs in a
+            // follow-up ticket bridging `iPhoneWorkoutSession`. SP3 stores the reference
+            // here so subscribers see the state — sample collection remains pending the
+            // bridge integration.
+            Logger.trainingManager.notice("[Recovery] primary session — full iPhoneWorkoutSession bridge defer'd to follow-up ticket")
+        }
+
+        self.sessionState = session.state
+        self.workoutSessionIsRunning = session.state == .running
+        self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
+        self.workoutSessionStateContinuation?.yield(session.state)
+
+        Logger.trainingManager.info("[Recovery] state propagated to subscribers")
+    }
+
     /// Starts a workout app on the paired Apple Watch
     public func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws {
         Logger.trainingManager.info("startWatchApp — activityType: \(workoutType.rawValue)")
