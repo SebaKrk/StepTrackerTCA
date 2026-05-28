@@ -95,6 +95,16 @@ public protocol TrainingManager: Sendable {
     /// Fitness-style startup flow). Replaces the previous "blind countdown" that ran in
     /// parallel with `startWatchApp` without knowing whether the Watch actually responded.
     var mirroredSessionStartedStream: AsyncStream<Void> { get }
+
+    /// Sends arbitrary data to the paired Watch through the HealthKit mirroring channel
+    /// (`HKWorkoutSession.sendToRemoteWorkoutSession(data:)`).
+    ///
+    /// Used in Watch-primary mode for lifecycle events that need reliable delivery even when
+    /// WatchConnectivity is unreachable (R2 — fixes pre-existing iPhone-initiated End bug
+    /// where `.workoutEnded` WC event was dropped if `reachable=false`).
+    ///
+    /// No-op when there is no mirrored session attached.
+    func sendDataToWatch(_ data: Data) async
     #endif
 
 }

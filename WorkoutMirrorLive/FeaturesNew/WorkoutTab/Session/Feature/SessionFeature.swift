@@ -416,31 +416,32 @@ struct SessionFeature {
                 )
 
             case .controls(.view(.endWorkoutButtonTapped)):
+                let mode = state.workoutMode
                 return .merge(
                     .cancel(id: SessionWatchCancelID.watchEventStream),
                     .cancel(id: SessionWatchCancelID.watchTickTimer),
-                    .run { [watchClient = watchConnectivityClient, sessionClient] send in
+                    .run { [mode,
+                            watchClient = watchConnectivityClient,
+                            sessionClient] send in
                         await WorkoutFileLogger.shared.log("STOPPED — ending workout")
-                        await watchClient.sendWorkoutEvent(.workoutEnded)
+                        // R2: in Watch-primary mode use the HK mirroring channel — reliable
+                        // even when WC is unreachable (fixes pre-existing iPhone-initiated
+                        // End bug). In iPhone-standalone mode keep WC (no mirrored session).
+                        if mode == .watchPrimary {
+                            await sessionClient.sendLifecycleEventToWatch(.workoutEnded)
+                        } else {
+                            await watchClient.sendWorkoutEvent(.workoutEnded)
+                        }
                         await WorkoutFileLogger.shared.log("END WORKOUT — calling sessionClient.endWorkout()")
                         await sessionClient.endWorkout()
                         await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned (workout NOT yet saved)")
                         await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
                         await send(.sessionViewStateChange(.summary))
-                    },
-                    // Retry .workoutEnded if Watch doesn't acknowledge within 15s windows.
-                    // WC delivery can take seconds-to-minutes when Watch app is in background
-                    // (transferUserInfo queue latency). Each retry is a fresh send attempt —
-                    // if any of them lands while Watch is reachable, Watch will end and emit
-                    // .workoutSaved, cancelling this effect via the handlers below.
-                    .run { [watchClient = watchConnectivityClient] _ in
-                        for retry in 1...5 {
-                            try? await Task.sleep(for: .seconds(15))
-                            await WorkoutFileLogger.shared.log("[Retry] re-sending .workoutEnded (attempt #\(retry))")
-                            await watchClient.sendWorkoutEvent(.workoutEnded)
-                        }
                     }
-                    .cancellable(id: SessionWatchCancelID.workoutEndedRetry, cancelInFlight: true)
+                    // R2: retry mechanism removed. HK channel does not require reachable=true,
+                    // delivery is OS-managed through the mirrored workout session. If the user
+                    // happens to be in iPhone-standalone mode and WC fails, that path was
+                    // already broken before SP2 — outside SP2-C scope.
                 )
 
                 // MARK: - Watch Events

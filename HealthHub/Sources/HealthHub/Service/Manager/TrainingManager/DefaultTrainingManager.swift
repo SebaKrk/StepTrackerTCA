@@ -200,7 +200,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
             print("✅ Data sent successfully")
         } catch {
             let nsError = error as NSError
-            
+
             if nsError.domain == "com.apple.healthkit" && nsError.code == 300 {
 #if targetEnvironment(simulator)
                 print("🔧 Simulator: Remote device communication not available (expected)")
@@ -212,6 +212,15 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
             }
         }
     }
+
+    #if os(iOS)
+    /// Public surface for the HK mirroring channel send. Forwards to internal `sendData`.
+    /// R2: used by SessionFeature to send lifecycle events (e.g. `.workoutEnded`) to Watch
+    /// without depending on WatchConnectivity reachability.
+    public func sendDataToWatch(_ data: Data) async {
+        await sendData(data)
+    }
+    #endif
     
     // MARK: - Workout Data Handling
     

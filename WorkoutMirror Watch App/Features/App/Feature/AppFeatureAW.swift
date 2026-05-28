@@ -164,6 +164,17 @@ struct AppFeatureAW {
                             await send(.watchEventReceived(event))
                         }
                     },
+                    // R2: parallel stream of events delivered through the HK mirroring
+                    // channel (`didReceiveDataFromRemoteWorkoutSession`). Used by iPhone
+                    // for `.workoutEnded` in Watch-primary mode — reliable when WC is
+                    // unreachable. Receiving the same event twice (WC + HK) is idempotent
+                    // because HRMirrorFeature.stop sets `isSaving = true` and subsequent
+                    // dispatches early-return when already in saving state.
+                    .run { [watchWorkoutSessionClient] send in
+                        for await event in watchWorkoutSessionClient.remoteEventStream() {
+                            await send(.watchEventReceived(event))
+                        }
+                    },
                     // Listen for workout configurations forwarded by WatchAppDelegate.handle(_:).
                     // This stream fires when iPhone calls startWatchApp(toHandle:) — before
                     // any WatchConnectivity event is delivered.
