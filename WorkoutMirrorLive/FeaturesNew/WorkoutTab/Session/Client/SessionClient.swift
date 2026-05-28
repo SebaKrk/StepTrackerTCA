@@ -91,6 +91,14 @@ struct SessionClient {
     /// Each subscription receives a fresh stream; previous subscriber's continuation
     /// is finished — semantics match `workoutSessionStateStream`.
     var mirroredSessionStartedStream: @Sendable () async -> AsyncStream<Void>
+
+    /// Sends a lifecycle event to Watch through the HealthKit mirroring channel
+    /// (`sendToRemoteWorkoutSession`). Reliable even when WatchConnectivity is unreachable.
+    ///
+    /// R2: used for `.workoutEnded` in Watch-primary mode to fix the pre-existing bug where
+    /// iPhone-initiated End would be dropped if `WCSession.isReachable == false`. The HK
+    /// channel does not require reachability — it propagates through the OS-managed mirror.
+    var sendLifecycleEventToWatch: @Sendable (WatchWorkoutEvent) async -> Void
 }
 
 // MARK: - Dependency Registration
@@ -202,6 +210,13 @@ private enum SessionClientClientKey: DependencyKey {
             },
             mirroredSessionStartedStream: {
                 trainingManager.mirroredSessionStartedStream
+            },
+            sendLifecycleEventToWatch: { event in
+                guard let data = try? JSONEncoder().encode(event) else {
+                    Logger.session.error("sendLifecycleEventToWatch — failed to encode \(String(describing: event))")
+                    return
+                }
+                await trainingManager.sendDataToWatch(data)
             }
         )
     }()

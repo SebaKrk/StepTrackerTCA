@@ -76,61 +76,44 @@ extension DefaultTrainingManager {
     }
     #else
     private func handleWorkoutEndIOS(date: Date) {
-        // In Watch-primary mode, Watch calls finishWorkout() which saves the HKWorkout.
-        // iPhone fetches it from the shared HealthKit store after .ended fires.
-        // Per Apple's WWDC23 sample, there is no push callback — we poll with retries
-        // because Watch sync can take a few seconds to appear on iPhone's HealthKit.
-        // First attempt is fast (1.5s); subsequent attempts every 3s (up to ~30s total).
+        // R5: Push-based AsyncSequence via `HKAnchoredObjectQueryDescriptor.results(for:)`.
+        // Replaces the previous 10-attempt polling loop (up to ~30s timeout). The descriptor
+        // registers an HK change observer — when Watch's saved HKWorkout syncs to iPhone's
+        // HealthKit store (~1-2s typically), it emits with `addedSamples`. No polling.
         Task { @MainActor in
-            // Clear stale workout so SummaryFeature doesn't display previous session data
-            // while we poll HealthKit for the new one.
             self.workout = nil
             let startDate = self.session?.startDate ?? date.addingTimeInterval(-3600)
             let activityName = self.selectedWorkout.map { String(describing: $0) } ?? "nil"
-            Logger.trainingManager.info("handleWorkoutEndIOS — polling HealthKit for Watch workout (type: \(activityName), window: \(startDate)–\(date))")
+            Logger.trainingManager.info("handleWorkoutEndIOS — observing HealthKit for Watch workout (type: \(activityName), window: \(startDate)–\(date))")
 
-            for attempt in 1...10 {
-                let delay: UInt64 = attempt == 1 ? 1_500 : 3_000
-                try? await Task.sleep(for: .milliseconds(delay))
-                if let hkWorkout = await self.fetchWorkoutNear(start: startDate, end: date) {
-                    self.workout = hkWorkout
-                    Logger.trainingManager.info("handleWorkoutEndIOS — found on attempt #\(attempt): \(hkWorkout.uuid.uuidString)")
-                    return
+            let datePredicate = HKQuery.predicateForSamples(
+                withStart: startDate,
+                end: date.addingTimeInterval(60)
+            )
+            let predicate: NSPredicate
+            if let activityType = selectedWorkout {
+                let typePredicate = HKQuery.predicateForWorkouts(with: activityType)
+                predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, typePredicate])
+            } else {
+                predicate = datePredicate
+            }
+
+            let descriptor = HKAnchoredObjectQueryDescriptor(
+                predicates: [.workout(predicate)],
+                anchor: nil
+            )
+
+            do {
+                for try await result in descriptor.results(for: self.healthStore) {
+                    if let workout = result.addedSamples.first {
+                        self.workout = workout
+                        Logger.trainingManager.info("handleWorkoutEndIOS — observed: \(workout.uuid.uuidString)")
+                        return
+                    }
                 }
-                Logger.trainingManager.notice("handleWorkoutEndIOS — attempt #\(attempt): not yet in HealthKit")
+            } catch {
+                Logger.trainingManager.error("handleWorkoutEndIOS — anchored query failed: \(error.localizedDescription)")
             }
-            Logger.trainingManager.error("handleWorkoutEndIOS — workout NOT found after 10 attempts (~30s)")
-        }
-    }
-
-    /// Queries HealthKit for a workout whose time window overlaps [start, end].
-    /// Returns the most recently ended matching workout.
-    ///
-    /// Filters by activity type when available to avoid returning a previous
-    /// workout that happens to fall in the same time window.
-    private func fetchWorkoutNear(start: Date, end: Date) async -> HKWorkout? {
-        let datePredicate = HKQuery.predicateForSamples(withStart: start, end: end.addingTimeInterval(60))
-
-        let predicate: NSPredicate
-        if let activityType = selectedWorkout {
-            let typePredicate = HKQuery.predicateForWorkouts(with: activityType)
-            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, typePredicate])
-        } else {
-            predicate = datePredicate
-        }
-
-        // Sort by endDate descending — the workout that just finished should be first.
-        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-        return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(
-                sampleType: .workoutType(),
-                predicate: predicate,
-                limit: 1,
-                sortDescriptors: [sortDescriptor]
-            ) { _, samples, _ in
-                continuation.resume(returning: samples?.first as? HKWorkout)
-            }
-            healthStore.execute(query)
         }
     }
     #endif

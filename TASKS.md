@@ -811,3 +811,5 @@
 
 ### IOS-00088 Workout iOS 26 Hybrid Architecture
     A: WorkoutSession foundation — iPhone-primary tor + Apple Fitness-style startup
+    B: TrainingSessionStateControl — AsyncSequence end-flow instead of polling 
+    C: SessionFeature/Watch — HK channel for .workoutEnded in Watch-primary mode
