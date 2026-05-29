@@ -65,7 +65,7 @@ struct WatchWorkoutSessionClient: Sendable {
     var recoverAndDiscard: @Sendable () async -> Void
 
     /// Stream of `WatchWorkoutEvent`s received from iPhone via the HealthKit mirroring
-    /// channel (`didReceiveDataFromRemoteWorkoutSession`). R2: complementary path to
+    /// channel (`didReceiveDataFromRemoteWorkoutSession`). Complementary path to
     /// `WatchConnectivityClientAW.incomingEventStream` — reliable when WC is unreachable.
     var remoteEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
 }
@@ -128,7 +128,7 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     private var hrContinuation: AsyncStream<Double>.Continuation?
     private var stateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
 
-    /// R2: continuation feeding `remoteEventStream()`. Yielded from
+    /// Continuation feeding `remoteEventStream()`. Yielded from
     /// `didReceiveDataFromRemoteWorkoutSession` after decoding each `Data` as a
     /// `WatchWorkoutEvent`.
     private var remoteEventContinuation: AsyncStream<WatchWorkoutEvent>.Continuation?
@@ -152,7 +152,7 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         return stream
     }
 
-    /// R2: stream of `WatchWorkoutEvent`s received from iPhone via HK mirroring channel.
+    /// Stream of `WatchWorkoutEvent`s received from iPhone via HK mirroring channel.
     /// Single-subscriber semantics matching `sessionStateStream` (latest subscriber wins).
     func remoteEventStream() -> AsyncStream<WatchWorkoutEvent> {
         let (stream, continuation) = AsyncStream.makeStream(of: WatchWorkoutEvent.self)
@@ -194,10 +194,10 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 workoutConfiguration: config
             )
 
-            // R1: `prepare()` MUST be called before `startMirroringToCompanionDevice()`.
-            // Without it mirroring disconnects on iOS 26.0.1+ (Apple Developer Forums #804276,
-            // radar FB20723311). prepare() warms up the HR sensor pipeline and primes the
-            // session for the iPhone-side mirror to attach cleanly.
+            // `prepare()` MUST be called before `startMirroringToCompanionDevice()`.
+            // Without it mirroring disconnects on iOS 26.0.1+ (Apple Developer Forums
+            // #804276, radar FB20723311). prepare() warms up the HR sensor pipeline and
+            // primes the session for the iPhone-side mirror to attach cleanly.
             session?.prepare()
 
             let start = Date()
@@ -443,7 +443,7 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         }
     }
 
-    /// R2: decodes incoming `Data` blobs as `WatchWorkoutEvent` and forwards them to
+    /// Decodes incoming `Data` blobs as `WatchWorkoutEvent` and forwards them to
     /// `remoteEventStream`. Replaces the WatchConnectivity path for events that need
     /// reliable delivery even when `WCSession.isReachable == false` (e.g. `.workoutEnded`
     /// — the pre-existing iPhone-initiated End bug).

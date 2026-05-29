@@ -76,10 +76,10 @@ extension DefaultTrainingManager {
     }
     #else
     private func handleWorkoutEndIOS(date: Date) {
-        // R5: Push-based AsyncSequence via `HKAnchoredObjectQueryDescriptor.results(for:)`.
-        // Replaces the previous 10-attempt polling loop (up to ~30s timeout). The descriptor
-        // registers an HK change observer — when Watch's saved HKWorkout syncs to iPhone's
-        // HealthKit store (~1-2s typically), it emits with `addedSamples`. No polling.
+        // Push-based AsyncSequence via `HKAnchoredObjectQueryDescriptor.results(for:)`.
+        // Replaces the previous polling loop (up to ~30s timeout). The descriptor registers
+        // an HK change observer — when Watch's saved HKWorkout syncs to iPhone's HealthKit
+        // store (~1-2s typically), it emits with `addedSamples`. No polling.
         Task { @MainActor in
             self.workout = nil
             let startDate = self.session?.startDate ?? date.addingTimeInterval(-3600)

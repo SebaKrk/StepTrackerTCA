@@ -215,8 +215,8 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
 
     #if os(iOS)
     /// Public surface for the HK mirroring channel send. Forwards to internal `sendData`.
-    /// R2: used by SessionFeature to send lifecycle events (e.g. `.workoutEnded`) to Watch
-    /// without depending on WatchConnectivity reachability.
+    /// Used by SessionFeature for lifecycle events (e.g. `.workoutEnded`) — delivery
+    /// is reliable regardless of WatchConnectivity reachability.
     public func sendDataToWatch(_ data: Data) async {
         await sendData(data)
     }

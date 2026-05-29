@@ -60,7 +60,7 @@ public struct ResumeWorkoutIntent: LiveActivityIntent {
 ///
 /// Posts `workoutEndRequested` which `SessionFeature` routes to the same
 /// `controls(.view(.endWorkoutButtonTapped))` handler used by the on-screen End button —
-/// including SP2-C's HK-channel `.workoutEnded` send to Watch in Watch-primary mode.
+/// including the HK-channel `.workoutEnded` send to Watch in Watch-primary mode.
 public struct EndWorkoutIntent: LiveActivityIntent {
     public static let title: LocalizedStringResource = "End Workout"
     public static var openAppWhenRun: Bool { true }

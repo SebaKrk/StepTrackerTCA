@@ -39,6 +39,11 @@ struct CountDownView: View {
         Circle()
             .stroke(.gray, style: .init(lineWidth: ringLineWidth))
             .frame(width: ringSize, height: ringSize)
+            // Subtle pulse w `.waitingForWatch` to signal "active waiting".
+            // `store.pulse` toggled przez `pulseToggled` action w CountDownFeature reducer
+            // (timer 600ms). View tylko bindings to TCA Store — zero `@State`.
+            .opacity(store.phase == .waitingForWatch && store.pulse ? 0.55 : 1.0)
+            .animation(.easeInOut(duration: 0.6), value: store.pulse)
             .overlay {
                 if store.phase == .countingDown {
                     progressTrim

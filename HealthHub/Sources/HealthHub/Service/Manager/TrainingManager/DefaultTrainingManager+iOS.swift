@@ -54,17 +54,17 @@ extension DefaultTrainingManager {
         return stream
     }
     
-    /// R3: re-attaches an `HKWorkoutSession` recovered after iPhone app crash.
+    /// Re-attaches an `HKWorkoutSession` recovered after iPhone app crash.
     ///
-    /// Called from `AppDelegate.application(_:configurationForConnecting:options:)` when
-    /// the OS signals `shouldHandleActiveWorkoutRecovery == true`. The recovered session
-    /// may be `.primary` (iPhone-standalone iOS 26+ owned by `iPhoneWorkoutSession`) or
+    /// Called from `AppDelegate.application(_:didFinishLaunchingWithOptions:)` via the
+    /// always-try `recoverActiveWorkoutSession()` path. The recovered session may be
+    /// `.primary` (iPhone-standalone iOS 26+ owned by `iPhoneWorkoutSession`) or
     /// `.mirroredFromRemoteDevice` (Watch-primary iPhone-side mirror managed here).
     ///
-    /// **R3 rebuild**: `HKLiveWorkoutBuilder` and `HKLiveWorkoutDataSource` do NOT survive
-    /// recovery for `.primary` sessions — they must be reattached or no further samples
-    /// will be collected. For `.mirroredFromRemoteDevice` iPhone has no builder anyway
-    /// (Watch owns it) — only the session reference and delegate need to be restored.
+    /// `HKLiveWorkoutBuilder` and `HKLiveWorkoutDataSource` do NOT survive recovery for
+    /// `.primary` sessions — they must be reattached or no further samples will be
+    /// collected. For `.mirroredFromRemoteDevice` iPhone has no builder anyway (Watch
+    /// owns it) — only the session reference and delegate need to be restored.
     public func recover(session: HKWorkoutSession) {
         Logger.trainingManager.info("[Recovery] re-attaching session (type=\(session.type.rawValue), state=\(session.state.rawValue))")
 
@@ -72,13 +72,12 @@ extension DefaultTrainingManager {
         session.delegate = self
 
         if session.type == .primary {
-            // iPhone-standalone primary session — `iPhoneWorkoutSession` (SP1-D class)
-            // is the canonical owner of primary sessions on iPhone. Full rebuild of its
-            // internal builder + dataSource + continuation registries belongs in a
-            // follow-up ticket bridging `iPhoneWorkoutSession`. SP3 stores the reference
-            // here so subscribers see the state — sample collection remains pending the
-            // bridge integration.
-            Logger.trainingManager.notice("[Recovery] primary session — full iPhoneWorkoutSession bridge defer'd to follow-up ticket")
+            // `iPhoneWorkoutSession` is the canonical owner of primary sessions on iPhone.
+            // Full rebuild of its internal builder + dataSource + continuation registries
+            // requires bridging into that class — not yet wired. The session reference is
+            // stored here so subscribers observe the state; sample collection awaits the
+            // bridge.
+            Logger.trainingManager.notice("[Recovery] primary session — iPhoneWorkoutSession bridge not yet wired")
         }
 
         self.sessionState = session.state

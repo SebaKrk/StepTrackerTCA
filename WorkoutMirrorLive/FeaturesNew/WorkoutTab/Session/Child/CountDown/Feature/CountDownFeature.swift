@@ -34,12 +34,16 @@ struct CountDownFeature {
                 state.timeRemaining = state.duration
                 state.endDate = date().addingTimeInterval(state.duration)
                 state.isActive = true
-                
-                return .run { send in
-                    for await _ in await clock.timer(interval: .milliseconds(100)) {
-                        await send(.timerTick)
+
+                return .merge(
+                    // Cancel pulse timer when leaving the waiting phase for the countdown.
+                    .cancel(id: CancelID.pulseTimer),
+                    .run { send in
+                        for await _ in await clock.timer(interval: .milliseconds(100)) {
+                            await send(.timerTick)
+                        }
                     }
-                }
+                )
                 
             case .timerTick:
                 guard let endDate = state.endDate else {
@@ -81,8 +85,20 @@ struct CountDownFeature {
                 // Dual-mode: only start the timer when we're already in `.countingDown`.
                 // In `.waitingForWatch` the view sits idle until SessionFeature flips phase
                 // and explicitly dispatches `.startCountDown` after mirroredSessionStartedStream fires.
-                guard state.phase == .countingDown else { return .none }
+                // In `.waitingForWatch` instead run the pulse timer for subtle ring opacity animation.
+                guard state.phase == .countingDown else {
+                    return .run { [clock] send in
+                        for await _ in clock.timer(interval: .milliseconds(600)) {
+                            await send(.pulseToggled)
+                        }
+                    }
+                    .cancellable(id: CancelID.pulseTimer, cancelInFlight: true)
+                }
                 return .send(.startCountDown)
+
+            case .pulseToggled:
+                state.pulse.toggle()
+                return .none
                 
             case .closeView:
                 /// Handled by parent feature (SessionFeature) or dismiss dependency if needed.
@@ -115,7 +131,11 @@ extension CountDownFeature {
         
         /// Triggers the actual workout start via the client.
         case startWorkout
-        
+
+        /// Pulse timer tick (600 ms cadence). Toggles `state.pulse` to animate ring
+        /// opacity in `.waitingForWatch` phase. Cancelled on `startCountDown`.
+        case pulseToggled
+
         /// Action to signal view dismissal (usually handled by parent).
         case closeView
     }
@@ -126,6 +146,8 @@ extension CountDownFeature {
     /// ID used for cancelling the timer effect (if needed).
     enum CancelID {
         case timer
+        /// Pulse animation timer (600 ms cadence) for the `.waitingForWatch` ring.
+        case pulseTimer
     }
 }
 
@@ -146,6 +168,10 @@ extension CountDownFeature {
         /// Drives the dual-mode render. Default `.countingDown` keeps iPhone-standalone flow unchanged.
         /// Watch-primary `viewDidAppear` switches this to `.waitingForWatch` before launching Watch.
         var phase: CountDownPhase = .countingDown
+
+        /// Pulse animation phase for the `.waitingForWatch` ring opacity.
+        /// Toggled by `pulseToggled` every 600ms while in the waiting phase.
+        var pulse: Bool = false
 
         /// Current time remaining in seconds.
         var timeRemaining: TimeInterval = 3

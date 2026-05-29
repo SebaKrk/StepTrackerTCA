@@ -42,7 +42,6 @@ struct HRMirrorFeature {
             // MARK: - Internal Actions
 
             case .hrReceived(let bpm):
-                state.isPreparing = false
                 state.heartRate = Int(bpm)
                 state.heartRateZone = heartRateZone(bpm: Int(bpm), max: state.maxHeartRate)
                 let zone = state.heartRateZone
@@ -276,7 +275,6 @@ struct HRMirrorFeature {
                 )
 
             case .stop:
-                state.isPreparing = false
                 state.isSaving = true
                 return .merge(
                     .cancel(id: HRMirrorCancelID.hrQuery),

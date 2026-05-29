@@ -100,7 +100,7 @@ struct SessionFeature {
                         // through HealthKit mirroring — no WatchConnectivity events needed
                         // for session state. HR comes via sendToRemoteWorkoutSession.
                         return .merge(
-                            // SP5 — App Intent observers (Pause/Resume/End from Live Activity).
+                            // App Intent observers (Pause/Resume/End from Live Activity).
                             // Long-running effects active while session is alive; cancelled on
                             // transition to .summary alongside other session-scoped streams.
                             .run { send in
@@ -339,7 +339,7 @@ struct SessionFeature {
                 }
                 .cancellable(id: SessionWatchCancelID.mirroredSessionSignal)
 
-            // MARK: - App Intents (SP5)
+            // MARK: - App Intents
 
             case .intentPauseRequested:
                 // Only react when currently running — ignore if already paused or session ended.
@@ -463,9 +463,9 @@ struct SessionFeature {
                             watchClient = watchConnectivityClient,
                             sessionClient] send in
                         await WorkoutFileLogger.shared.log("STOPPED — ending workout")
-                        // R2: in Watch-primary mode use the HK mirroring channel — reliable
-                        // even when WC is unreachable (fixes pre-existing iPhone-initiated
-                        // End bug). In iPhone-standalone mode keep WC (no mirrored session).
+                        // Watch-primary mode uses the HK mirroring channel — reliable even
+                        // when WC is unreachable (fixes pre-existing iPhone-initiated End
+                        // bug). iPhone-standalone keeps WC (no mirrored session exists).
                         if mode == .watchPrimary {
                             await sessionClient.sendLifecycleEventToWatch(.workoutEnded)
                         } else {
@@ -477,10 +477,9 @@ struct SessionFeature {
                         await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
                         await send(.sessionViewStateChange(.summary))
                     }
-                    // R2: retry mechanism removed. HK channel does not require reachable=true,
-                    // delivery is OS-managed through the mirrored workout session. If the user
-                    // happens to be in iPhone-standalone mode and WC fails, that path was
-                    // already broken before SP2 — outside SP2-C scope.
+                    // Retry mechanism removed. HK channel does not require reachable=true,
+                    // delivery is OS-managed through the mirrored workout session. The
+                    // iPhone-standalone WC path remains best-effort — covered separately.
                 )
 
                 // MARK: - Watch Events
@@ -605,7 +604,7 @@ private nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     /// Auto-cancels itself after the first emit via `break` in the for-await loop.
     case mirroredSessionSignal
 
-    /// SP5 — App Intent NotificationCenter observers (Pause/Resume/End from Live Activity).
+    /// App Intent NotificationCenter observers (Pause/Resume/End from Live Activity).
     /// Active while sessionState == .session, cancelled on transition to .summary.
     case intentPauseObserver
     case intentResumeObserver
