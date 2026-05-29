@@ -11,8 +11,8 @@ enum SessionState {
 
     /// Watch-primary mode pre-countdown — iPhone is waiting for Apple Watch to start
     /// the mirrored HKWorkoutSession. Transitions to `.countdown` when
-    /// `TrainingManager.mirroredSessionStartedStream` emits.
-    /// UI rendering lands in SP6 (Apple Fitness-style "Rozpoczynam na Apple Watch" screen).
+    /// `TrainingManager.mirroredSessionStartedStream` emits. The "Rozpoczynam na Apple
+    /// Watch" screen is rendered by `CountDownView` in its waiting phase.
     case waitingForWatch
 
     case countdown

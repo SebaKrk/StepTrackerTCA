@@ -10,31 +10,30 @@ import HealthKit
 import OSLog
 import SharedModels
 
-/// iPhone-primary workout session (Tor B) — natywny iOS 26 stack with BLE HR sensor support.
+/// iPhone-primary workout session — native iOS 26 stack with BLE HR sensor support.
 ///
-/// Wraps `HKWorkoutSession` + `HKLiveWorkoutBuilder` + `HKLiveWorkoutDataSource`. The data source
-/// auto-pairs BLE HR sensors that the user has already paired in iOS Settings → Bluetooth
-/// (Polar H10, Wahoo TICKR, Powerbeats Pro 2 etc.).
+/// Wraps `HKWorkoutSession` + `HKLiveWorkoutBuilder` + `HKLiveWorkoutDataSource`. The data
+/// source auto-pairs BLE HR sensors that the user has already paired in iOS Settings →
+/// Bluetooth (Polar H10, Wahoo TICKR, Powerbeats Pro 2 etc.).
 ///
-/// Conforms to ``WorkoutSession`` (SharedModels). Designed to be wrapped by `WorkoutSessionClient`
-/// (subtask G) and orchestrated by `DefaultTrainingManager` in iPhone-standalone mode.
+/// Conforms to ``WorkoutSession`` (SharedModels). Wrapped by `WorkoutSessionClient` and
+/// orchestrated by `DefaultTrainingManager` in iPhone-standalone mode.
 ///
-/// ## Contracts honoured
+/// ## Lifecycle contract
 ///
-/// - **R1**: `prepare()` calls `HKWorkoutSession.prepare()` before any `start(at:)`. A 3s
+/// - `prepare()` calls `HKWorkoutSession.prepare()` before any `start(at:)`. A 3 s
 ///   countdown in the UI between `prepare` and `start` lets slow straps complete their
 ///   pairing handshake.
-/// - **R4**: `end()` calls `HKWorkoutSession.end()` in `defer`, guaranteeing the session never
+/// - `end()` calls `HKWorkoutSession.end()` in `defer`, guaranteeing the session never
 ///   sticks in zombie state even if `endCollection`/`finishWorkout` throw.
-/// - **R5 (deviated for Tor B)**: The single emit on the `workout` stream uses
-///   `builder.finishWorkout()` return value directly, NOT `HKAnchoredObjectQueryDescriptor`.
-///   Reason: in Tor B we own the builder and the call returns the finalized `HKWorkout`
-///   synchronously — no need to poll/query for it. The ambient R5 prescription targets the
-///   iPhone-side of Tor A (mirrored session) where iPhone has no builder and must observe
-///   the Watch's writes via anchored query — that path lands in SP2.
-/// - **R6**: `metrics`, `state`, `workout` are computed properties returning a fresh
-///   `AsyncStream` per access. `yield()` broadcasts to every active continuation registered
-///   in `[UUID: Continuation]` dictionaries; `onTermination` removes the consumer's entry.
+/// - The single emit on the `workout` stream uses `builder.finishWorkout()` return value
+///   directly, not `HKAnchoredObjectQueryDescriptor`. Reason: in iPhone-standalone mode
+///   we own the builder and the call returns the finalized `HKWorkout` synchronously — no
+///   need to poll. The anchored-query path is used on iPhone-side of Watch-primary
+///   mirroring (no builder available there).
+/// - `metrics`, `state`, `workout` are computed properties returning a fresh `AsyncStream`
+///   per access. `yield()` broadcasts to every active continuation registered in
+///   `[UUID: Continuation]` dictionaries; `onTermination` removes the consumer's entry.
 ///
 /// ## Threading
 ///
@@ -55,7 +54,7 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
 
-    // MARK: - Continuation registries (R6 broadcasting)
+    // MARK: - Continuation registries (broadcasting)
 
     private let metricsLock = NSLock()
     private var metricsContinuations: [UUID: AsyncStream<WorkoutMetrics>.Continuation] = [:]
@@ -96,7 +95,7 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
             workoutConfiguration: configuration
         )
 
-        // R1 — warmup HK + BLE sensor pairing. 3s countdown in UI uses this gap.
+        // Warmup HK + BLE sensor pairing. The 3 s countdown in UI uses this gap.
         session.prepare()
 
         self.session = session
@@ -132,7 +131,7 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
             throw iPhoneWorkoutSessionError.notPrepared
         }
 
-        // R4 — session.end() MUST be called even if builder operations throw, otherwise
+        // session.end() MUST be called even if builder operations throw, otherwise
         // HKWorkoutSession stays in zombie state and blocks the next workout.
         defer {
             session.end()
@@ -155,7 +154,7 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         }
     }
 
-    // MARK: - Streams (R6 — computed, fresh per access)
+    // MARK: - Streams (computed, fresh per access)
 
     public var metrics: AsyncStream<WorkoutMetrics> {
         AsyncStream { continuation in

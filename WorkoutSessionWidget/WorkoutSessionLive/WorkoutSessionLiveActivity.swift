@@ -46,10 +46,9 @@ struct WorkoutSessionLiveActivity: Widget {
                         }
                         .padding(.horizontal, 4)
 
-                        // SP5 — Pause + End buttons. Each Button(intent:) routes through
-                        // the LiveActivityIntent → NotificationCenter → SessionFeature flow.
-                        // Resume defer'd until `isPaused` flag is added to ContentState
-                        // (currently Activity state doesn't expose paused/running distinction).
+                        // Pause + End buttons route through LiveActivityIntent →
+                        // NotificationCenter → SessionFeature. Resume button is not shown
+                        // because Activity ContentState lacks an `isPaused` flag.
                         controlButtons
                             .padding(.bottom, 4)
                     }
@@ -117,7 +116,7 @@ struct WorkoutSessionLiveActivity: Widget {
         )
     }
     
-    // MARK: - SP5 Control Buttons (Pause / End)
+    // MARK: - Control Buttons (Pause / End)
 
     private var controlButtons: some View {
         HStack(spacing: 16) {

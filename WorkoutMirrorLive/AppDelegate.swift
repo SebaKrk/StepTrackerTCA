@@ -33,7 +33,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         Task {
             await activateWatchConnectivity()
         }
-        // R3 — always-try crash recovery. The `UIScene.ConnectionOptions.shouldHandleActiveWorkoutRecovery`
+        // Always-try crash recovery. The `UIScene.ConnectionOptions.shouldHandleActiveWorkoutRecovery`
         // flag from WWDC25 #322 is not yet available in the current iOS SDK (likely iOS 26
         // beta-only API). Until that lands, we call `recoverActiveWorkoutSession()`
         // unconditionally at launch — Apple guarantees it returns `nil` when there is no
@@ -44,7 +44,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 
-    // MARK: - Crash Recovery (R3)
+    // MARK: - Crash Recovery
 
     private func recoverActiveWorkoutSession() async {
         do {

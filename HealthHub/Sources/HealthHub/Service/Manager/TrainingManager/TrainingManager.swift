@@ -99,22 +99,23 @@ public protocol TrainingManager: Sendable {
     /// Sends arbitrary data to the paired Watch through the HealthKit mirroring channel
     /// (`HKWorkoutSession.sendToRemoteWorkoutSession(data:)`).
     ///
-    /// Used in Watch-primary mode for lifecycle events that need reliable delivery even when
-    /// WatchConnectivity is unreachable (R2 — fixes pre-existing iPhone-initiated End bug
-    /// where `.workoutEnded` WC event was dropped if `reachable=false`).
+    /// Used in Watch-primary mode for lifecycle events that need reliable delivery even
+    /// when WatchConnectivity is unreachable (fixes the pre-existing iPhone-initiated End
+    /// bug where `.workoutEnded` WC event was dropped if `reachable=false`).
     ///
     /// No-op when there is no mirrored session attached.
     func sendDataToWatch(_ data: Data) async
 
     /// Re-attaches a recovered `HKWorkoutSession` after iPhone app launch following a crash.
     ///
-    /// Called from `AppDelegate.application(_:configurationForConnecting:options:)` when
-    /// `UIScene.ConnectionOptions.shouldHandleActiveWorkoutRecovery == true` (iOS 26+ flag).
+    /// Called from `AppDelegate.application(_:didFinishLaunchingWithOptions:)` via the
+    /// always-try `recoverActiveWorkoutSession()` path.
     ///
-    /// **R3**: builder + dataSource do NOT survive recovery — implementation MUST rebuild
-    /// both via `session.associatedWorkoutBuilder()` and a fresh `HKLiveWorkoutDataSource`
-    /// initialized with `session.workoutConfiguration`. Without this rebuild, no further
-    /// samples will be collected even though the session is technically alive.
+    /// `HKLiveWorkoutBuilder` and `HKLiveWorkoutDataSource` do NOT survive recovery —
+    /// implementations MUST rebuild both via `session.associatedWorkoutBuilder()` and a
+    /// fresh `HKLiveWorkoutDataSource` initialized with `session.workoutConfiguration`.
+    /// Without this rebuild, no further samples will be collected even though the session
+    /// is technically alive.
     func recover(session: HKWorkoutSession)
     #endif
 

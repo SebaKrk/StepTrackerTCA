@@ -95,7 +95,7 @@ struct SessionClient {
     /// Sends a lifecycle event to Watch through the HealthKit mirroring channel
     /// (`sendToRemoteWorkoutSession`). Reliable even when WatchConnectivity is unreachable.
     ///
-    /// R2: used for `.workoutEnded` in Watch-primary mode to fix the pre-existing bug where
+    /// Used for `.workoutEnded` in Watch-primary mode — fixes the pre-existing bug where
     /// iPhone-initiated End would be dropped if `WCSession.isReachable == false`. The HK
     /// channel does not require reachability — it propagates through the OS-managed mirror.
     var sendLifecycleEventToWatch: @Sendable (WatchWorkoutEvent) async -> Void
@@ -338,12 +338,11 @@ private actor WorkoutModeRouter {
             // Mirrored session pause propagates to Watch automatically via HealthKit.
             trainingManager.togglePause()
         case .iPhoneStandalone:
-            // SP1 pragmatic: pause/resume routing stays on legacy `workoutManager.togglePause()`
-            // even when iPhone-standalone uses `iPhoneWorkoutSession` for start/end. Full
-            // togglePause through `iPhoneSession.pause()` / `.resume()` requires tracking
-            // current session state inside this actor (AsyncStream.first blocks because
-            // `iPhoneWorkoutSession.state` does not emit a baseline on subscription).
-            // Deferred to a follow-up ticket — see WorkoutMirrorLive/CLAUDE.md R6 notes.
+            // Pause/resume routing stays on legacy `workoutManager.togglePause()` even
+            // though `iPhoneWorkoutSession` handles start/end. Routing through
+            // `iPhoneSession.pause()` / `.resume()` would require tracking current session
+            // state inside this actor — `AsyncStream.first` blocks because
+            // `iPhoneWorkoutSession.state` does not emit a baseline on subscription.
             workoutManager.togglePause()
         }
     }
