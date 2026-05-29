@@ -112,14 +112,18 @@ extension SessionFeature {
                             .cancellable(id: SessionWatchCancelID.metricsStream),
                             .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
                             .send(.live(.setupPhasePanel(phases))),
-                            .run { [watchClient = watchConnectivityClient,
+                            .run { [sessionClient,
                                     maxHR = state.live.maxHeartRate,
                                     activityTypeRaw = state.selectedWorkout.hkType.rawValue] _ in
-                                Logger.session.info("Watch-primary — sending workoutStarted + countdownFinished")
-                                await watchClient.sendWorkoutEvent(
+                                Logger.session.info("Watch-primary — sending workoutStarted + countdownFinished via HK channel")
+                                // HK mirroring channel — reliable even when WC `reachable=false`
+                                // (per CLAUDE.md R2). Carries `maxHeartRate` which the Watch needs
+                                // for zone calculations; dropping this event (as the WC path does
+                                // on unreachable) leaves the Watch with `maxHR = 0` → dial stays at 0%.
+                                await sessionClient.sendLifecycleEventToWatch(
                                     .workoutStarted(activityType: activityTypeRaw, elapsedSeconds: 0, maxHeartRate: maxHR)
                                 )
-                                await watchClient.sendWorkoutEvent(.countdownFinished)
+                                await sessionClient.sendLifecycleEventToWatch(.countdownFinished)
                             },
                             .run { [watchClient = watchConnectivityClient] send in
                                 for await event in watchClient.incomingEventStream() {

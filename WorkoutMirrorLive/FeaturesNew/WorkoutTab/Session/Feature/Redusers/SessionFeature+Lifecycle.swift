@@ -96,10 +96,19 @@ extension SessionFeature {
                 // Propaguj do active joinLiveClass child żeby iPad widział identyczny %HR.
                 state.joinLiveClass?.maxHeartRate = value
                 let isSessionActive = state.sessionState == .session
+                let mode = state.workoutMode
                 return .merge(
                     .send(.live(.setupMaxHeartRate(value))),
-                    isSessionActive ? .run { [watchClient = watchConnectivityClient] _ in
-                        await watchClient.sendWorkoutEvent(.maxHRUpdated(value))
+                    isSessionActive ? .run { [mode,
+                                              sessionClient,
+                                              watchClient = watchConnectivityClient] _ in
+                        // Watch-primary: HK mirroring channel — reliable when WC is unreachable
+                        // (per CLAUDE.md R2). iPhone-standalone: WC path (no mirrored session).
+                        if mode == .watchPrimary {
+                            await sessionClient.sendLifecycleEventToWatch(.maxHRUpdated(value))
+                        } else {
+                            await watchClient.sendWorkoutEvent(.maxHRUpdated(value))
+                        }
                     } : .none
                 )
 
