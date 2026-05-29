@@ -143,16 +143,6 @@ extension CountDownFeature {
 }
 
 extension CountDownFeature {
-    /// ID used for cancelling the timer effect (if needed).
-    enum CancelID {
-        case timer
-        /// Pulse animation timer (600 ms cadence) for the `.waitingForWatch` ring.
-        case pulseTimer
-    }
-}
-
-
-extension CountDownFeature {
 
     /// Visual + behavioral phase of the countdown view.
     /// - `.waitingForWatch`: gray empty ring + activity icon + "Rozpoczynam na Apple Watch" text. No timer.
