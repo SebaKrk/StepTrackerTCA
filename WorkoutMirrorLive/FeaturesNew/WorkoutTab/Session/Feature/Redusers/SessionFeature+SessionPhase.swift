@@ -36,8 +36,12 @@ extension SessionFeature {
                     state.countDown.phase = .countingDown
                     return .merge(
                         .send(.countDown(.startCountDown)),
-                        .run { [watchClient = watchConnectivityClient] _ in
-                            await watchClient.sendWorkoutEvent(.countdownStart)
+                        .run { [sessionClient] _ in
+                            // HK mirroring channel — reliable even when WC `reachable=false`
+                            // (per CLAUDE.md R2). This branch is reached only when phase was
+                            // `.waitingForWatch`, which only happens in Watch-primary mode,
+                            // so the mirrored session always exists.
+                            await sessionClient.sendLifecycleEventToWatch(.countdownStart)
                         }
                     )
                 }
