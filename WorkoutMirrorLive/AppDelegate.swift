@@ -8,6 +8,7 @@
 import UIKit
 import ComposableArchitecture
 import HealthHub
+import HealthKit
 import OSLog
 import SharedModels
 
@@ -17,6 +18,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     @Dependency(\.trainingReadinessBackgroundManager) var backgroundManager
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
+    @Dependency(\.trainingManager) var trainingManager
+    @Dependency(\.healthStore) var healthStore
 
     // MARK: - Application Lifecycle
 
@@ -30,7 +33,30 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         Task {
             await activateWatchConnectivity()
         }
+        // Always-try crash recovery. The `UIScene.ConnectionOptions.shouldHandleActiveWorkoutRecovery`
+        // flag from WWDC25 #322 is not yet available in the current iOS SDK (likely iOS 26
+        // beta-only API). Until that lands, we call `recoverActiveWorkoutSession()`
+        // unconditionally at launch — Apple guarantees it returns `nil` when there is no
+        // session to recover, so the per-launch cost is one HK query (~10ms).
+        Task {
+            await recoverActiveWorkoutSession()
+        }
         return true
+    }
+
+    // MARK: - Crash Recovery
+
+    private func recoverActiveWorkoutSession() async {
+        do {
+            guard let session = try await healthStore.recoverActiveWorkoutSession() else {
+                Logger.session.info("[Recovery] no active session to recover")
+                return
+            }
+            Logger.session.info("[Recovery] recovered session (type=\(session.type.rawValue), state=\(session.state.rawValue))")
+            trainingManager.recover(session: session)
+        } catch {
+            Logger.session.error("[Recovery] recoverActiveWorkoutSession failed: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Background Delivery

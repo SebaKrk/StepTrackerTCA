@@ -36,10 +36,58 @@ extension DefaultTrainingManager {
                 // Yield initial state to both streams.
                 self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
                 self.workoutSessionStateContinuation?.yield(mirroredSession.state)
+
+                // Apple Fitness-style startup flow signal — SessionFeature uses this
+                // to transition from `.waitingForWatch` → `.countdown`.
+                self.mirroredSessionStartedContinuation?.yield(())
             }
         }
     }
+
+    /// One-shot signal stream — emit happens in `setupRemoteSessionHandler` when iPhone
+    /// receives the mirrored session from Watch. Convention identical to
+    /// `workoutSessionStateStream`: finish previous continuation, create fresh stream.
+    public var mirroredSessionStartedStream: AsyncStream<Void> {
+        mirroredSessionStartedContinuation?.finish()
+        let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
+        mirroredSessionStartedContinuation = continuation
+        return stream
+    }
     
+    /// Re-attaches an `HKWorkoutSession` recovered after iPhone app crash.
+    ///
+    /// Called from `AppDelegate.application(_:didFinishLaunchingWithOptions:)` via the
+    /// always-try `recoverActiveWorkoutSession()` path. The recovered session may be
+    /// `.primary` (iPhone-standalone iOS 26+ owned by `iPhoneWorkoutSession`) or
+    /// `.mirroredFromRemoteDevice` (Watch-primary iPhone-side mirror managed here).
+    ///
+    /// `HKLiveWorkoutBuilder` and `HKLiveWorkoutDataSource` do NOT survive recovery for
+    /// `.primary` sessions — they must be reattached or no further samples will be
+    /// collected. For `.mirroredFromRemoteDevice` iPhone has no builder anyway (Watch
+    /// owns it) — only the session reference and delegate need to be restored.
+    public func recover(session: HKWorkoutSession) {
+        Logger.trainingManager.info("[Recovery] re-attaching session (type=\(session.type.rawValue), state=\(session.state.rawValue))")
+
+        self.session = session
+        session.delegate = self
+
+        if session.type == .primary {
+            // `iPhoneWorkoutSession` is the canonical owner of primary sessions on iPhone.
+            // Full rebuild of its internal builder + dataSource + continuation registries
+            // requires bridging into that class — not yet wired. The session reference is
+            // stored here so subscribers observe the state; sample collection awaits the
+            // bridge.
+            Logger.trainingManager.notice("[Recovery] primary session — iPhoneWorkoutSession bridge not yet wired")
+        }
+
+        self.sessionState = session.state
+        self.workoutSessionIsRunning = session.state == .running
+        self.workoutSessionContinuation?.yield(self.workoutSessionIsRunning)
+        self.workoutSessionStateContinuation?.yield(session.state)
+
+        Logger.trainingManager.info("[Recovery] state propagated to subscribers")
+    }
+
     /// Starts a workout app on the paired Apple Watch
     public func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws {
         Logger.trainingManager.info("startWatchApp — activityType: \(workoutType.rawValue)")

@@ -53,6 +53,10 @@ extension Logger {
     /// Covers: mirrored session received, pause/resume/end on iPhone, workout fetch.
     public static let trainingManager = Logger(subsystem: subsystem, category: "TrainingManager")
 
+    /// `iPhoneWorkoutSession` (iOS 26+ native Tor B — iPhone-primary with BLE HR sensor).
+    /// Covers: prepare/start/pause/resume/end lifecycle, HK builder data collection, BLE pair events.
+    public static let iPhoneWorkoutSession = Logger(subsystem: subsystem, category: "iPhoneWorkoutSession")
+
     /// `StatsFeature` + Stats tab children.
     /// Covers: HealthKit authorization, observation lifecycle, child feature initialization.
     public static let stats = Logger(subsystem: subsystem, category: "Stats")

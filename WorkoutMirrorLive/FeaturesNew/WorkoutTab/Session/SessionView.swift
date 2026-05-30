@@ -27,7 +27,11 @@ struct SessionView: View {
                 .navigationTitle(store.sessionState.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarTitleDisplayMode(.inline)
-                .navigationBarHidden(isLandscape || store.sessionState == .countdown)
+                .navigationBarHidden(
+                    isLandscape
+                    || store.sessionState == .countdown
+                    || store.sessionState == .waitingForWatch
+                )
                 .onAppear {
                     send(.viewDidAppear)
                 }
@@ -52,7 +56,9 @@ struct SessionView: View {
     @ViewBuilder
     private var rootView: some View {
         switch store.sessionState {
-        case .countdown:
+        case .waitingForWatch, .countdown:
+            // Dual-mode CountDownView — `phase` (set by SessionFeature) drives whether
+            // we render the gray waiting ring or the green 3-2-1 progress ring.
             countdownView
         case .session:
             sessionView
@@ -67,7 +73,6 @@ struct SessionView: View {
             state: \.countDown,
             action: \.countDown)
         )
-        .frame(width: 200, height: 200, alignment: .center)
     }
     
     @ViewBuilder

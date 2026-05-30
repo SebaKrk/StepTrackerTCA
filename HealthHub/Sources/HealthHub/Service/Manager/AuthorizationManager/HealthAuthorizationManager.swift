@@ -19,14 +19,18 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
     let shareTypes: Set<HKSampleType> = [
         ///Activity & Steps
         HKQuantityType(.stepCount),
-        
+
         ///Body Metrics
         HKQuantityType(.bodyMass),
-        
+
         /// Workouts & Heart Rate
         HKQuantityType.workoutType(),
         HKQuantityType(.heartRate),
-        HKQuantityType(.activeEnergyBurned)
+        HKQuantityType(.activeEnergyBurned),
+
+        /// Distance — required for iPhone-primary tor (Tor B) outdoor activities
+        HKQuantityType(.distanceWalkingRunning),
+        HKQuantityType(.distanceCycling)
     ]
 
     let readTypes: Set<HKObjectType> = [
@@ -52,6 +56,10 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
         HKQuantityType(.activeEnergyBurned),
         HKQuantityType(.workoutEffortScore),
         HKSeriesType.workoutRoute(),
+
+        /// Distance — required for iPhone-primary tor (Tor B) outdoor activities
+        HKQuantityType(.distanceWalkingRunning),
+        HKQuantityType(.distanceCycling),
         
         /// Activity Rings - Hourly Data
         HKQuantityType(.appleExerciseTime),

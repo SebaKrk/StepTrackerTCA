@@ -87,6 +87,36 @@ public protocol TrainingManager: Sendable {
     /// The Watch will create `HKWorkoutSession`, call `startMirroringToCompanionDevice()`,
     /// and iPhone will receive a mirrored session via `workoutSessionMirroringStartHandler`.
     func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws
+
+    /// Emits once when iPhone receives the mirrored session from Apple Watch.
+    ///
+    /// `SessionFeature` subscribes to this stream after calling `startWatchWorkout(...)` to
+    /// know when to transition from `.waitingForWatch` UI state to `.countdown` (Apple
+    /// Fitness-style startup flow). Replaces the previous "blind countdown" that ran in
+    /// parallel with `startWatchApp` without knowing whether the Watch actually responded.
+    var mirroredSessionStartedStream: AsyncStream<Void> { get }
+
+    /// Sends arbitrary data to the paired Watch through the HealthKit mirroring channel
+    /// (`HKWorkoutSession.sendToRemoteWorkoutSession(data:)`).
+    ///
+    /// Used in Watch-primary mode for lifecycle events that need reliable delivery even
+    /// when WatchConnectivity is unreachable (fixes the pre-existing iPhone-initiated End
+    /// bug where `.workoutEnded` WC event was dropped if `reachable=false`).
+    ///
+    /// No-op when there is no mirrored session attached.
+    func sendDataToWatch(_ data: Data) async
+
+    /// Re-attaches a recovered `HKWorkoutSession` after iPhone app launch following a crash.
+    ///
+    /// Called from `AppDelegate.application(_:didFinishLaunchingWithOptions:)` via the
+    /// always-try `recoverActiveWorkoutSession()` path.
+    ///
+    /// `HKLiveWorkoutBuilder` and `HKLiveWorkoutDataSource` do NOT survive recovery —
+    /// implementations MUST rebuild both via `session.associatedWorkoutBuilder()` and a
+    /// fresh `HKLiveWorkoutDataSource` initialized with `session.workoutConfiguration`.
+    /// Without this rebuild, no further samples will be collected even though the session
+    /// is technically alive.
+    func recover(session: HKWorkoutSession)
     #endif
 
 }

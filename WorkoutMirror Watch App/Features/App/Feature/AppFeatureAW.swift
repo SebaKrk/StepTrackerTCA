@@ -68,6 +68,10 @@ struct AppFeatureAW {
                 )
                 return .send(.hrMirror(.presented(.start)))
 
+            case .watchEventReceived(.countdownStart):
+                guard state.hrMirror != nil else { return .none }
+                return .send(.hrMirror(.presented(.countdownStart)))
+
             case .watchEventReceived(.countdownFinished):
                 guard state.hrMirror != nil else { return .none }
                 return .send(.hrMirror(.presented(.countdownFinished)))
@@ -157,6 +161,16 @@ struct AppFeatureAW {
                 return .merge(
                     .run { [watchClient = watchClient] send in
                         for await event in watchClient.incomingEventStream() {
+                            await send(.watchEventReceived(event))
+                        }
+                    },
+                    // Parallel stream from the HK mirroring channel
+                    // (`didReceiveDataFromRemoteWorkoutSession`). Used for `.workoutEnded`
+                    // from iPhone in Watch-primary mode — reliable when WC is unreachable.
+                    // Duplicate delivery (WC + HK) is idempotent — `HRMirrorFeature.stop`
+                    // sets `isSaving = true` and subsequent dispatches early-return.
+                    .run { [watchWorkoutSessionClient] send in
+                        for await event in watchWorkoutSessionClient.remoteEventStream() {
                             await send(.watchEventReceived(event))
                         }
                     },

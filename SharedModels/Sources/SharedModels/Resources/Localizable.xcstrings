@@ -161,6 +161,16 @@
         }
       }
     },
+    "Cardio" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kardio"
+          }
+        }
+      }
+    },
     "Choose activity" : {
       "localizations" : {
         "pl" : {
@@ -177,6 +187,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wybierz urządzenie"
+          }
+        }
+      }
+    },
+    "Climbing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wspinaczka"
           }
         }
       }
@@ -231,26 +251,6 @@
         }
       }
     },
-    "Cardio" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kardio"
-          }
-        }
-      }
-    },
-    "Climbing" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wspinaczka"
-          }
-        }
-      }
-    },
     "Cross Training" : {
       "localizations" : {
         "pl" : {
@@ -280,6 +280,9 @@
           }
         }
       }
+    },
+    "End Workout" : {
+
     },
     "Excellent" : {
       "localizations" : {
@@ -351,16 +354,6 @@
         }
       }
     },
-    "Gymnastics" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gimnastyka"
-          }
-        }
-      }
-    },
     "Good" : {
       "localizations" : {
         "pl" : {
@@ -377,6 +370,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dobra gotowość"
+          }
+        }
+      }
+    },
+    "Gymnastics" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gimnastyka"
           }
         }
       }
@@ -681,22 +684,22 @@
         }
       }
     },
-    "Moderate" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Umiarkowana"
-          }
-        }
-      }
-    },
     "Mixed" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mieszane"
+          }
+        }
+      }
+    },
+    "Moderate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowana"
           }
         }
       }
@@ -813,16 +816,6 @@
         }
       }
     },
-    "Weightlifting" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podnoszenie ciężarów"
-          }
-        }
-      }
-    },
     "Optimal Readiness" : {
       "localizations" : {
         "pl" : {
@@ -842,6 +835,9 @@
           }
         }
       }
+    },
+    "Pause Workout" : {
+
     },
     "Planned" : {
       "localizations" : {
@@ -935,6 +931,9 @@
           }
         }
       }
+    },
+    "Resume Workout" : {
+
     },
     "RHR" : {
       "localizations" : {
@@ -1298,6 +1297,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Spacer"
+          }
+        }
+      }
+    },
+    "Weightlifting" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podnoszenie ciężarów"
           }
         }
       }

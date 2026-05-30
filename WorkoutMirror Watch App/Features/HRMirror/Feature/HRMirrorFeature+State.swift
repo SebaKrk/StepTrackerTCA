@@ -53,14 +53,19 @@ extension HRMirrorFeature {
         /// Set to `0` until iPhone sends the value via `workoutStarted` or `maxHRUpdated`.
         var maxHeartRate: Int
 
-        // MARK: - Preparing
+        // MARK: - Countdown (synced with iPhone)
 
-        /// `true` from `.start` until iPhone's `.countdownFinished` event arrives.
-        ///
-        /// While `true` a full-screen "Przygotowanie…" overlay is shown.
-        /// The HK session starts immediately in the background so sensor warmup
-        /// happens during iPhone's countdown — HR data is ready when this flips `false`.
-        var isPreparing: Bool = true
+        /// `true` while the pre-workout 3-2-1 countdown overlay is showing.
+        /// Default `true` so Watch shows the countdown **immediately** on HRMirror appearance,
+        /// before iPhone's countdownStart event arrives (avoids briefly flashing the workout
+        /// view with stopwatch at 00:00). `.countdownStart` from iPhone restarts the timer
+        /// (cancelInFlight) for defensive sync; cleared when local timer hits 0 or
+        /// `.countdownFinished` arrives.
+        var isCountingDown: Bool = true
+
+        /// Remaining seconds in the 3-2-1 countdown overlay. Decremented every second
+        /// by `.countdownTick`. Displayed as a large numeric overlay on the Watch screen.
+        var countdownRemaining: Int = 3
 
         // MARK: - UI
 

@@ -30,6 +30,13 @@ public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
     /// iPhone notifies Watch that the workout has ended.
     case workoutEnded
 
+    /// iPhone notifies Watch that the pre-workout 3-2-1 countdown has just started.
+    ///
+    /// Sent when iPhone transitions `.waitingForWatch` → `.countdown` (after Watch's
+    /// mirrored session signal arrives). Watch displays a synced 3-2-1 number overlay
+    /// until either its local timer reaches zero or `countdownFinished` arrives.
+    case countdownStart
+
     /// iPhone notifies Watch that the pre-workout countdown has finished.
     ///
     /// Watch uses this as the signal to start its elapsed-time timer.

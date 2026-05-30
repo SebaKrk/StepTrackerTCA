@@ -63,6 +63,11 @@ struct WatchWorkoutSessionClient: Sendable {
     /// Discards a previously recovered stuck session: `builder.discardWorkout` → `session.end`.
     /// No `HKWorkout` is saved. Used when the user taps "Odrzuć".
     var recoverAndDiscard: @Sendable () async -> Void
+
+    /// Stream of `WatchWorkoutEvent`s received from iPhone via the HealthKit mirroring
+    /// channel (`didReceiveDataFromRemoteWorkoutSession`). Complementary path to
+    /// `WatchConnectivityClientAW.incomingEventStream` — reliable when WC is unreachable.
+    var remoteEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
 }
 
 // MARK: - Dependency
@@ -104,6 +109,9 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
             },
             recoverAndDiscard: {
                 await manager.discardRecoveredSession()
+            },
+            remoteEventStream: {
+                manager.remoteEventStream()
             }
         )
     }()
@@ -119,6 +127,11 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     private var builder: HKLiveWorkoutBuilder?
     private var hrContinuation: AsyncStream<Double>.Continuation?
     private var stateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
+
+    /// Continuation feeding `remoteEventStream()`. Yielded from
+    /// `didReceiveDataFromRemoteWorkoutSession` after decoding each `Data` as a
+    /// `WatchWorkoutEvent`.
+    private var remoteEventContinuation: AsyncStream<WatchWorkoutEvent>.Continuation?
 
     /// Resolved by `HKWorkoutSessionDelegate` when session transitions to `.stopped`.
     /// Used to bridge the async gap between `stopActivity()` and the delegate callback.
@@ -136,6 +149,15 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         let (stream, continuation) = AsyncStream.makeStream(of: HKWorkoutSessionState.self)
         stateContinuation?.finish()
         stateContinuation = continuation
+        return stream
+    }
+
+    /// Stream of `WatchWorkoutEvent`s received from iPhone via HK mirroring channel.
+    /// Single-subscriber semantics matching `sessionStateStream` (latest subscriber wins).
+    func remoteEventStream() -> AsyncStream<WatchWorkoutEvent> {
+        let (stream, continuation) = AsyncStream.makeStream(of: WatchWorkoutEvent.self)
+        remoteEventContinuation?.finish()
+        remoteEventContinuation = continuation
         return stream
     }
 
@@ -171,6 +193,12 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 healthStore: healthStore,
                 workoutConfiguration: config
             )
+
+            // `prepare()` MUST be called before `startMirroringToCompanionDevice()`.
+            // Without it mirroring disconnects on iOS 26.0.1+ (Apple Developer Forums
+            // #804276, radar FB20723311). prepare() warms up the HR sensor pipeline and
+            // primes the session for the iPhone-side mirror to attach cleanly.
+            session?.prepare()
 
             let start = Date()
             session?.startActivity(with: start)
@@ -412,6 +440,24 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
                     Logger.watchSession.error("safety-net finishWorkout failed: \(error)")
                 }
             }
+        }
+    }
+
+    /// Decodes incoming `Data` blobs as `WatchWorkoutEvent` and forwards them to
+    /// `remoteEventStream`. Replaces the WatchConnectivity path for events that need
+    /// reliable delivery even when `WCSession.isReachable == false` (e.g. `.workoutEnded`
+    /// — the pre-existing iPhone-initiated End bug).
+    func workoutSession(
+        _ workoutSession: HKWorkoutSession,
+        didReceiveDataFromRemoteWorkoutSession data: [Data]
+    ) {
+        for payload in data {
+            guard let event = try? JSONDecoder().decode(WatchWorkoutEvent.self, from: payload) else {
+                Logger.watchSession.debug("didReceiveDataFromRemoteWorkoutSession — payload not a WatchWorkoutEvent (\(payload.count) bytes), ignored")
+                continue
+            }
+            Logger.watchSession.info("didReceiveDataFromRemoteWorkoutSession — decoded \(String(describing: event))")
+            remoteEventContinuation?.yield(event)
         }
     }
 

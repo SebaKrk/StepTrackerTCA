@@ -42,7 +42,6 @@ struct HRMirrorFeature {
             // MARK: - Internal Actions
 
             case .hrReceived(let bpm):
-                state.isPreparing = false
                 state.heartRate = Int(bpm)
                 state.heartRateZone = heartRateZone(bpm: Int(bpm), max: state.maxHeartRate)
                 let zone = state.heartRateZone
@@ -181,11 +180,21 @@ struct HRMirrorFeature {
 
             case .start:
                 let activityType = state.activityType
+                // Show countdown overlay immediately so user never sees the workout view
+                // with stopwatch=00:00 before iPhone's countdownStart event arrives.
+                state.isCountingDown = true
+                state.countdownRemaining = 3
                 return .merge(
                     .run { [activityType] _ in
                         await WorkoutFileLogger.shared.reset()
                         await WorkoutFileLogger.shared.log("STARTED — activityType: \(activityType.rawValue)")
                     },
+                    .run { [clock] send in
+                        for await _ in clock.timer(interval: .seconds(1)) {
+                            await send(.countdownTick)
+                        }
+                    }
+                    .cancellable(id: HRMirrorCancelID.countdown, cancelInFlight: true),
                     .run { [extendedRuntimeClient = extendedRuntimeClient] _ in
                         await extendedRuntimeClient.start()
                     },
@@ -226,9 +235,37 @@ struct HRMirrorFeature {
             // (defensive: timer already started in `.start`, but cancelInFlight ensures
             // a single fresh ticker after countdown signal). Preparing overlay stays
             // until first hrReceived (real sensor data).
+            case .countdownStart:
+                // Watch already starts its countdown in `.start` handler (sec 0, before WC
+                // event arrives). If already counting, ignore — resetting here would visibly
+                // jump back from 2 to 3, looking like "the countdown restarted itself".
+                guard !state.isCountingDown else {
+                    return .run { _ in await WorkoutFileLogger.shared.log("[Lifecycle] countdownStart received — already counting, ignored") }
+                }
+                state.isCountingDown = true
+                state.countdownRemaining = 3
+                return .merge(
+                    .run { _ in await WorkoutFileLogger.shared.log("[Lifecycle] countdownStart received") },
+                    .run { [clock] send in
+                        for await _ in clock.timer(interval: .seconds(1)) {
+                            await send(.countdownTick)
+                        }
+                    }
+                    .cancellable(id: HRMirrorCancelID.countdown, cancelInFlight: true)
+                )
+
+            case .countdownTick:
+                state.countdownRemaining -= 1
+                guard state.countdownRemaining <= 0 else { return .none }
+                state.isCountingDown = false
+                return .cancel(id: HRMirrorCancelID.countdown)
+
             case .countdownFinished:
+                // Defensive: clear overlay even if local ticker hasn't reached zero yet.
+                state.isCountingDown = false
                 return .merge(
                     .run { _ in await WorkoutFileLogger.shared.log("[Lifecycle] countdownFinished received") },
+                    .cancel(id: HRMirrorCancelID.countdown),
                     .run { [clock] send in
                         for await _ in clock.timer(interval: .milliseconds(100)) {
                             await send(.subSecondTick)
@@ -238,7 +275,6 @@ struct HRMirrorFeature {
                 )
 
             case .stop:
-                state.isPreparing = false
                 state.isSaving = true
                 return .merge(
                     .cancel(id: HRMirrorCancelID.hrQuery),

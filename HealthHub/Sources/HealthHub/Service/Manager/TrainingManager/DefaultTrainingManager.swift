@@ -60,6 +60,13 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     var workoutMetricsContinuations: [UUID: AsyncStream<WorkoutMetrics>.Continuation] = [:]
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
     var workoutSessionStateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
+
+    #if os(iOS)
+    /// Single-shot signal — emitted from `workoutSessionMirroringStartHandler` when iPhone
+    /// receives the mirrored session from Apple Watch. Stored here (not in `+iOS` extension)
+    /// because Swift does not allow stored properties in extensions.
+    var mirroredSessionStartedContinuation: AsyncStream<Void>.Continuation?
+    #endif
     
     // MARK: - Lifecycle
     public init(healthStore: HKHealthStore) {
@@ -193,7 +200,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
             print("✅ Data sent successfully")
         } catch {
             let nsError = error as NSError
-            
+
             if nsError.domain == "com.apple.healthkit" && nsError.code == 300 {
 #if targetEnvironment(simulator)
                 print("🔧 Simulator: Remote device communication not available (expected)")
@@ -205,6 +212,15 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
             }
         }
     }
+
+    #if os(iOS)
+    /// Public surface for the HK mirroring channel send. Forwards to internal `sendData`.
+    /// Used by SessionFeature for lifecycle events (e.g. `.workoutEnded`) — delivery
+    /// is reliable regardless of WatchConnectivity reachability.
+    public func sendDataToWatch(_ data: Data) async {
+        await sendData(data)
+    }
+    #endif
     
     // MARK: - Workout Data Handling
     

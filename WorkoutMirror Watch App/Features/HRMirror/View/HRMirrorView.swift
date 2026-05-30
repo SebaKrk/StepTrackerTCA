@@ -46,13 +46,26 @@ struct HRMirrorView: View {
             if store.isSaving {
                 savingOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.4)))
-            } else if store.isPreparing {
-                preparingOverlay
-                    .transition(.opacity.animation(.easeInOut(duration: 0.4)))
+            } else if store.isCountingDown {
+                countdownOverlay
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
             }
         }
-        .animation(.easeInOut(duration: 0.4), value: store.isPreparing)
         .animation(.easeInOut(duration: 0.4), value: store.isSaving)
+        .animation(.easeInOut(duration: 0.3), value: store.isCountingDown)
+    }
+
+    // MARK: - Countdown Overlay
+
+    private var countdownOverlay: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            Text("\(store.countdownRemaining)")
+                .font(.system(size: 96, weight: .bold))
+                .foregroundStyle(.pink)
+                .contentTransition(.numericText(countsDown: true))
+                .animation(.easeInOut, value: store.countdownRemaining)
+        }
     }
 
     // MARK: - Saving Overlay
@@ -74,31 +87,6 @@ struct HRMirrorView: View {
 
     private var savingLabel: some View {
         Text(String(localized: "Saving…"))
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-    }
-
-    // MARK: - Preparing Overlay
-
-    private var preparingOverlay: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            VStack(spacing: 10) {
-                scanningIcon
-                scanningLabel
-            }
-        }
-    }
-
-    private var scanningIcon: some View {
-        Image(systemName: "heart")
-            .font(.system(size: 32))
-            .foregroundStyle(.pink)
-            .symbolEffect(.bounce, options: .repeat(.continuous))
-    }
-
-    private var scanningLabel: some View {
-        Text(String(localized: "Scanning…"))
             .font(.caption.weight(.semibold))
             .foregroundStyle(.secondary)
     }
@@ -279,20 +267,11 @@ struct HRMirrorView: View {
 
 // MARK: - Preview
 
-#Preview("Preparing") {
-    HRMirrorView(store: Store(initialState: {
-        var state = HRMirrorFeature.State(elapsedSeconds: 0, maxHeartRate: 185)
-        state.isPreparing = true
-        return state
-    }()) { HRMirrorFeature() })
-}
-
 #Preview("Resting") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 185, maxHeartRate: 185)
         state.heartRate = 60
         state.heartRateZone = .resting
-        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -302,7 +281,6 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 623, maxHeartRate: 185)
         state.heartRate = 98
         state.heartRateZone = .recovery
-        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -312,7 +290,6 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 1240, maxHeartRate: 185)
         state.heartRate = 117
         state.heartRateZone = .fatBurning
-        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -322,7 +299,6 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 2105, maxHeartRate: 185)
         state.heartRate = 138
         state.heartRateZone = .aerobic
-        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -332,7 +308,6 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 3421, maxHeartRate: 185)
         state.heartRate = 158
         state.heartRateZone = .threshold
-        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }
@@ -342,7 +317,6 @@ struct HRMirrorView: View {
         var state = HRMirrorFeature.State(elapsedSeconds: 4812, maxHeartRate: 185)
         state.heartRate = 177
         state.heartRateZone = .anaerobic
-        state.isPreparing = false
         return state
     }()) { HRMirrorFeature() })
 }

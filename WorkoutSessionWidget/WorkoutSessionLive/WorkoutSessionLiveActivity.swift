@@ -6,6 +6,7 @@
 //
 
 import ActivityKit
+import AppIntents
 import WidgetKit
 import SwiftUI
 import SharedModels
@@ -44,7 +45,12 @@ struct WorkoutSessionLiveActivity: Widget {
                             }
                         }
                         .padding(.horizontal, 4)
-                        .padding(.bottom, 4)
+
+                        // Pause + End buttons route through LiveActivityIntent →
+                        // NotificationCenter → SessionFeature. Resume button is not shown
+                        // because Activity ContentState lacks an `isPaused` flag.
+                        controlButtons
+                            .padding(.bottom, 4)
                     }
                 }
                 
@@ -110,6 +116,24 @@ struct WorkoutSessionLiveActivity: Widget {
         )
     }
     
+    // MARK: - Control Buttons (Pause / End)
+
+    private var controlButtons: some View {
+        HStack(spacing: 16) {
+            Button(intent: PauseWorkoutIntent()) {
+                Image(systemName: "pause.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+            }
+            Button(intent: EndWorkoutIntent()) {
+                Image(systemName: "stop.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.red)
+            }
+        }
+        .padding(.top, 8)
+    }
+
     // MARK: - Compact Badges
     
     private func compactPercentageBadge(_ context: ActivityViewContext<WorkoutSessionActivityAttributes>) -> some View {
