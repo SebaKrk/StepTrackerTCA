@@ -25,9 +25,17 @@ extension SessionFeature {
                 // Increment internal counter (Watch-primary: iPhone has no HealthKit builder).
                 // The updated value is also returned by `elapsedTimeAt` so ControlsView
                 // reads the correct elapsed time on the next TimelineView frame.
-                return .run { [sessionClient, watchClient = watchConnectivityClient] _ in
+                let mode = state.workoutMode
+                return .run { [mode, sessionClient, watchClient = watchConnectivityClient] _ in
                     let elapsed = sessionClient.incrementElapsed()
-                    await watchClient.sendWorkoutEvent(.workoutTick(elapsedSeconds: elapsed))
+                    // Watch-primary: HK mirroring channel (per CLAUDE.md R2) — reliable
+                    // when WC `reachable=false`. iPhone-standalone: WC path (no mirrored
+                    // session exists in that mode, so HK channel is unavailable).
+                    if mode == .watchPrimary {
+                        await sessionClient.sendLifecycleEventToWatch(.workoutTick(elapsedSeconds: elapsed))
+                    } else {
+                        await watchClient.sendWorkoutEvent(.workoutTick(elapsedSeconds: elapsed))
+                    }
                 }
 
             case .controls(.sessionStateUpdated(.paused)):
