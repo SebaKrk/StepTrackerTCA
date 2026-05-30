@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 extension CountDownFeature {
 
@@ -20,6 +21,11 @@ extension CountDownFeature {
 
     @ObservableState
     struct State: Equatable {
+
+        /// AI-classified workout type set when the user starts a plan. Drives the
+        /// header icon + label shown above the countdown ring.
+        /// Nil for ad-hoc workouts started without a plan (header hidden).
+        var workoutType: WorkoutActivityType?
 
         /// Drives the dual-mode render. Default `.countingDown` keeps iPhone-standalone flow unchanged.
         /// Watch-primary `viewDidAppear` switches this to `.waitingForWatch` before launching Watch.

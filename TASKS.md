@@ -820,3 +820,14 @@
      A: Crash recovery for iPhone-standalone  
      B: CountdownStart over HK channel   
      C: WorkoutTick over HKchannel (with measurement spike) 
+
+### IOS-00090 AI-driven workout type classification
+    - branch: `dev/IOS-00090/IOS-00090`
+
+    A: Extend Claude prompt with workoutType classification
+    B: Add workoutType to ExtractedWorkout with decoder fallback
+    C: Propagate classified type via mapper to TrainingSession
+    D: Dynamic icon in Start Workout button
+    E: Workout type header in CountDown view
+
+
