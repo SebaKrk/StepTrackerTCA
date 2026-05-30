@@ -126,7 +126,6 @@ struct WeightTrendView: View {
                         .foregroundStyle(.primary)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(.regularMaterial, in: Capsule())
                 }
 
             if let selected = store.selectedDataPoint {
