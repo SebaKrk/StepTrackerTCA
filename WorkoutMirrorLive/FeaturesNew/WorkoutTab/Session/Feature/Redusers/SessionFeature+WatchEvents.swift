@@ -55,7 +55,9 @@ extension SessionFeature {
                 guard state.controls.sessionState == .paused else { return .none }
                 return .send(.controls(.view(.mainControlButtonTapped)))
 
-            case .watchEventReceived(.workoutSaved):
+            case .watchEventReceived(.workoutSaved(_)):
+                // UUID payload will be consumed in Sub-D — for now Summary still uses
+                // polling fallback. Keep exhaustive switch happy.
                 guard state.sessionState == .summary else { return .none }
                 return .send(.summary(.workoutSavedReceived))
 

@@ -143,7 +143,7 @@ struct AppFeatureAW {
                 state.hrMirror?.maxHeartRate = maxHR
                 return .none
 
-            case .watchEventReceived(.workoutSaved):
+            case .watchEventReceived(.workoutSaved(_)):
                 // Watch-originated — not relevant on the Watch side.
                 return .none
 
