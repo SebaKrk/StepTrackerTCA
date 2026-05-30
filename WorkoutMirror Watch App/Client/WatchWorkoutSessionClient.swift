@@ -266,8 +266,11 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 Logger.watchSession.info("end() ✓ workout saved to HealthKit")
                 await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED")
             } catch {
-                Logger.watchSession.error("end() finishWorkout failed: \(error)")
-                await WorkoutFileLogger.shared.log("[End] finishWorkout FAILED: \(error.localizedDescription)")
+                // Reset flag so .ended safety-net can recover the save.
+                // Without reset: failed finishWorkout() in primary path = workout LOST forever.
+                workoutFinished = false
+                Logger.watchSession.error("end() finishWorkout failed: \(error) — flag reset for safety-net retry")
+                await WorkoutFileLogger.shared.log("[End] finishWorkout FAILED: \(error.localizedDescription) — flag reset")
             }
         } else {
             Logger.watchSession.notice("end() — skipped finishWorkout (already saved by .ended safety-net)")
