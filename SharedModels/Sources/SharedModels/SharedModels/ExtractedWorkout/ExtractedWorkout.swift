@@ -225,3 +225,4 @@ public struct ExerciseSet: Sendable, Equatable, Codable {
         self.restSeconds = restSeconds
     }
 }
+
