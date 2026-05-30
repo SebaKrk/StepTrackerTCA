@@ -99,6 +99,15 @@ struct SessionClient {
     /// iPhone-initiated End would be dropped if `WCSession.isReachable == false`. The HK
     /// channel does not require reachability — it propagates through the OS-managed mirror.
     var sendLifecycleEventToWatch: @Sendable (WatchWorkoutEvent) async -> Void
+
+    /// Rebuilds `HKLiveWorkoutBuilder` + `HKLiveWorkoutDataSource` for a `.primary` session
+    /// recovered after iPhone app crash via `HKHealthStore.recoverActiveWorkoutSession()`.
+    ///
+    /// Called from `AppDelegate` after `trainingManager.recover(session:)` — only for sessions
+    /// of type `.primary` (iPhone-standalone). `.mirroredFromRemoteDevice` recovery is a no-op
+    /// here because Watch owns the builder. Per WWDC25: HealthKit returns the running session
+    /// but builder + dataSource references die with the crashed process.
+    var recoverPrimarySession: @Sendable (HKWorkoutSession) async throws -> Void
 }
 
 // MARK: - Dependency Registration
@@ -217,6 +226,9 @@ private enum SessionClientClientKey: DependencyKey {
                     return
                 }
                 await trainingManager.sendDataToWatch(data)
+            },
+            recoverPrimarySession: { session in
+                try await router.recoverPrimarySession(session)
             }
         )
     }()
@@ -330,6 +342,26 @@ private actor WorkoutModeRouter {
         } catch {
             Logger.session.error("prepareIPhoneSession failed: \(error.localizedDescription, privacy: .public)")
         }
+    }
+
+    /// Recovery after app crash for `.primary` (iPhone-standalone) sessions.
+    /// Creates a fresh `iPhoneWorkoutSession` and reattaches builder + dataSource to the
+    /// recovered HealthKit session. Sets routing to `iPhoneStandalone` because `.primary`
+    /// sessions can only originate from iPhone — Watch-primary sessions appear as
+    /// `.mirroredFromRemoteDevice` on iPhone side and are handled by HealthKit mirroring.
+    func recoverPrimarySession(_ recoveredSession: HKWorkoutSession) async throws {
+        guard #available(iOS 26.0, *) else {
+            Logger.session.info("recoverPrimarySession — iOS < 26, skipping")
+            return
+        }
+        let recovered = iPhoneWorkoutSession(
+            healthStore: healthStore,
+            configuration: recoveredSession.workoutConfiguration
+        )
+        try await recovered.reattach(to: recoveredSession)
+        self.iPhoneSession = recovered
+        self.mode = .iPhoneStandalone
+        Logger.session.info("recoverPrimarySession — iPhoneWorkoutSession reattached (state=\(recoveredSession.state.rawValue))")
     }
 
     func togglePause() async {

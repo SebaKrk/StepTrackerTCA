@@ -72,12 +72,10 @@ extension DefaultTrainingManager {
         session.delegate = self
 
         if session.type == .primary {
-            // `iPhoneWorkoutSession` is the canonical owner of primary sessions on iPhone.
-            // Full rebuild of its internal builder + dataSource + continuation registries
-            // requires bridging into that class — not yet wired. The session reference is
-            // stored here so subscribers observe the state; sample collection awaits the
-            // bridge.
-            Logger.trainingManager.notice("[Recovery] primary session — iPhoneWorkoutSession bridge not yet wired")
+            // Builder + dataSource rebuild is delegated to `SessionClient.recoverPrimarySession`
+            // called separately from AppDelegate. Per SRP: TrainingManager handles state
+            // propagation; SessionClient/WorkoutModeRouter owns iPhoneWorkoutSession lifecycle.
+            Logger.trainingManager.info("[Recovery] primary session — state propagated; builder rebuild via SessionClient")
         }
 
         self.sessionState = session.state
