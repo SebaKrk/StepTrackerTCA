@@ -829,3 +829,12 @@
     C: Propagate classified type via mapper to TrainingSession
     D: Dynamic icon in Start Workout button
     E: Workout type header in CountDown view
+
+### IOS-00091 Workout sync watchPrimary race condition fix
+    - branch: `dev/IOS-00091/IOS-00091`
+
+    A: Reset workoutFinished flag on save failure (safety-net recovery)
+    B: Add workoutUUID payload to .workoutSaved event
+    C: Historical HK fetch before anchored observer in handleWorkoutEndIOS
+    D: Direct HK fetch fallback in getWorkoutSummary (watchPrimary)
+    E: TASKS.md + memory note documentation
