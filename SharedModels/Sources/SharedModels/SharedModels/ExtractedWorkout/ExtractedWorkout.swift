@@ -25,6 +25,10 @@ public struct ExtractedWorkout: Sendable, Equatable, Codable {
     /// Optional - Claude may not find a date in the OCR text. Falls back to today's date when converted to TrainingSession.
     public let date: String?
 
+    /// AI-classified workout type used to drive icons and HealthKit activity on session start.
+    /// Required — Claude is instructed to always classify; decoder falls back to `.crossTraining` if value is unknown.
+    public let workoutType: WorkoutActivityType
+
     /// Total estimated duration in minutes (sum of all sections: warmup + workouts + cooldown).
     public let totalEstimatedMinutes: Int
 
@@ -35,13 +39,36 @@ public struct ExtractedWorkout: Sendable, Equatable, Codable {
     public init(
         name: String,
         date: String?,
+        workoutType: WorkoutActivityType = .crossTraining,
         totalEstimatedMinutes: Int,
         sections: [WorkoutSection]
     ) {
         self.name = name
         self.date = date
+        self.workoutType = workoutType
         self.totalEstimatedMinutes = totalEstimatedMinutes
         self.sections = sections
+    }
+
+    // MARK: - Custom Decoding
+
+    private enum CodingKeys: String, CodingKey {
+        case name, date, workoutType, totalEstimatedMinutes, sections
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.name = try container.decode(String.self, forKey: .name)
+        self.date = try container.decodeIfPresent(String.self, forKey: .date)
+
+        // Fallback to .crossTraining if Claude returns unknown/missing workoutType.
+        // Three-layer defense: schema enum + prompt instruction + this decoder fallback.
+        let typeString = try container.decodeIfPresent(String.self, forKey: .workoutType)
+        self.workoutType = typeString.flatMap(WorkoutActivityType.init(rawValue:)) ?? .crossTraining
+
+        self.totalEstimatedMinutes = try container.decode(Int.self, forKey: .totalEstimatedMinutes)
+        self.sections = try container.decode([WorkoutSection].self, forKey: .sections)
     }
 }
 
