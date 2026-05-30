@@ -114,8 +114,12 @@ struct PlanDetailView: View {
         Button {
             send(.startWorkoutTapped)
         } label: {
-            Label(String(localized: "Start Workout"), systemImage: "figure.run")
-                .fontWeight(.semibold)
+            Label(
+                String(localized: "Start Workout"),
+                systemImage: store.trainingSession.activity.iconName
+                    .replacingOccurrences(of: ".circle.fill", with: "")
+            )
+            .fontWeight(.semibold)
         }
     }
 }
