@@ -814,4 +814,9 @@
     B: TrainingSessionStateControl — AsyncSequence end-flow instead of polling 
     C: SessionFeature/Watch — HK channel for .workoutEnded in Watch-primary mode
     D: LiveActivity — Liquid Glass on Activity Lock Screen card
-    E: CleanUpx 
+    E: CleanUp
+    
+### IOS-00089 WWDC25 compliance gaps
+     A: Crash recovery for iPhone-standalone  
+     B: CountdownStart over HK channel   
+     C: WorkoutTick over HKchannel (with measurement spike) 
