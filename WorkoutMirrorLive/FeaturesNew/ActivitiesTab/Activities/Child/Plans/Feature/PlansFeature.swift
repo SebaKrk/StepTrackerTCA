@@ -88,7 +88,11 @@ struct PlansFeature {
                 state.destination = nil
                 let workout = WorkoutType(hkType: session.activity.hkType) ?? .cross
                 state.destination = .session(
-                    SessionFeature.State(selectedWorkout: workout, trainingSession: session)
+                    SessionFeature.State(
+                        selectedWorkout: workout,
+                        trainingSession: session,
+                        countDown: CountDownFeature.State(workoutType: session.activity)
+                    )
                 )
                 return .none
 
