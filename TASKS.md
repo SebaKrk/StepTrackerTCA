@@ -829,5 +829,3 @@
     C: Propagate classified type via mapper to TrainingSession
     D: Dynamic icon in Start Workout button
     E: Workout type header in CountDown view
-
-
