@@ -1,0 +1,227 @@
+//
+//  SessionFeature+SessionPhase.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Ściuba on 2026-05-29.
+//
+
+import ComposableArchitecture
+import Foundation
+import HealthHub
+import HealthKit
+import OSLog
+import SharedModels
+
+extension SessionFeature {
+
+    var sessionPhaseReducer: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+
+            case let .sessionViewStateChange(value):
+                state.sessionState = value
+
+                if value == .waitingForWatch {
+                    // Configure CountDownView for waiting mode: same gray ring, no timer, only
+                    // text below. Phase flips to `.countingDown` after Watch starts mirroring,
+                    // and the ring stays continuous — only the overlay content (trim + number) appears.
+                    state.countDown.phase = .waitingForWatch
+                    return .none
+                }
+
+                if value == .countdown && state.countDown.phase == .waitingForWatch {
+                    // Watch-primary transition: Watch acknowledged mirroring start.
+                    // Flip CountDownView from waiting → counting, kick off the local 3-2-1
+                    // timer, AND tell Watch to start its synced 3-2-1 overlay.
+                    state.countDown.phase = .countingDown
+                    return .merge(
+                        .send(.countDown(.startCountDown)),
+                        .run { [watchClient = watchConnectivityClient] _ in
+                            await watchClient.sendWorkoutEvent(.countdownStart)
+                        }
+                    )
+                }
+
+                if value == .session {
+                    // Safety net: set .running immediately so controls show pause.
+                    // On real device, workoutSessionStateStream() will confirm with
+                    // the actual HealthKit state. On simulator, HK never emits .running.
+                    state.controls.sessionState = .running
+
+                    let mode = state.workoutMode
+                    let initialState = WorkoutSessionActivityAttributes.ContentState(
+                        heartRate: 0,
+                        heartRateZone: .resting,
+                        heartRatePercentage: 0,
+                        activeEnergy: 0,
+                        maxHeartRate: 0,
+                        averageHeartRate: 0
+                    )
+                    let phases = state.trainingSession?.phases ?? []
+
+                    // Reset elapsed-time counter at session start.
+                    // Must happen before the tick timer starts to avoid stale values
+                    // from a previous workout in the same app session.
+                    sessionClient.resetElapsed()
+
+                    let workoutTitle = state.selectedWorkout.title
+                    Task {
+                        await WorkoutFileLogger.shared.reset()
+                        await WorkoutFileLogger.shared.log("STARTED — mode: \(mode), workout: \(workoutTitle)")
+                    }
+
+                    switch mode {
+
+                    case .watchPrimary:
+                        // Watch owns the HKWorkoutSession. Pause/resume sync automatically
+                        // through HealthKit mirroring — no WatchConnectivity events needed
+                        // for session state. HR comes via sendToRemoteWorkoutSession.
+                        return .merge(
+                            // App Intent observers (Pause/Resume/End from Live Activity).
+                            // Long-running effects active while session is alive; cancelled on
+                            // transition to .summary alongside other session-scoped streams.
+                            .run { send in
+                                for await _ in NotificationCenter.default.notifications(named: .workoutPauseRequested) {
+                                    await send(.intentPauseRequested)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.intentPauseObserver),
+                            .run { send in
+                                for await _ in NotificationCenter.default.notifications(named: .workoutResumeRequested) {
+                                    await send(.intentResumeRequested)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.intentResumeObserver),
+                            .run { send in
+                                for await _ in NotificationCenter.default.notifications(named: .workoutEndRequested) {
+                                    await send(.intentEndRequested)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.intentEndObserver),
+                            .run { [sessionClient] send in
+                                for await sessionState in await sessionClient.workoutSessionStateStream() {
+                                    await send(.controls(.sessionStateUpdated(sessionState)))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.sessionStateStream),
+                            .run { [sessionClient] send in
+                                for await metrics in await sessionClient.workoutMetricsStream() {
+                                    await send(.live(.workoutMetrics(metrics)))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.metricsStream),
+                            .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
+                            .send(.live(.setupPhasePanel(phases))),
+                            .run { [sessionClient,
+                                    maxHR = state.live.maxHeartRate,
+                                    activityTypeRaw = state.selectedWorkout.hkType.rawValue] _ in
+                                Logger.session.info("Watch-primary — sending workoutStarted + countdownFinished via HK channel")
+                                // HK mirroring channel — reliable even when WC `reachable=false`
+                                // (per CLAUDE.md R2). Carries `maxHeartRate` which the Watch needs
+                                // for zone calculations; dropping this event (as the WC path does
+                                // on unreachable) leaves the Watch with `maxHR = 0` → dial stays at 0%.
+                                await sessionClient.sendLifecycleEventToWatch(
+                                    .workoutStarted(activityType: activityTypeRaw, elapsedSeconds: 0, maxHeartRate: maxHR)
+                                )
+                                await sessionClient.sendLifecycleEventToWatch(.countdownFinished)
+                            },
+                            .run { [watchClient = watchConnectivityClient] send in
+                                for await event in watchClient.incomingEventStream() {
+                                    await send(.watchEventReceived(event))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.watchEventStream),
+                            .run { [clock] send in
+                                for await _ in clock.timer(interval: .seconds(1)) {
+                                    await send(.watchTickEffect)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.watchTickTimer)
+                        )
+
+                    case .iPhoneStandalone:
+                        // iPhone owns the HKWorkoutSession. Watch is an optional HR sensor
+                        // sending readings via WatchConnectivity.
+                        return .merge(
+                            .run { [sessionClient] send in
+                                for await sessionState in await sessionClient.workoutSessionStateStream() {
+                                    await send(.controls(.sessionStateUpdated(sessionState)))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.sessionStateStream),
+                            .run { [sessionClient] send in
+                                for await metrics in await sessionClient.workoutMetricsStream() {
+                                    await send(.live(.workoutMetrics(metrics)))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.metricsStream),
+                            .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
+                            .send(.live(.setupPhasePanel(phases))),
+                            .run { [watchClient = watchConnectivityClient,
+                                    maxHR = state.live.maxHeartRate,
+                                    activityTypeRaw = state.selectedWorkout.hkType.rawValue] _ in
+                                Logger.session.info("iPhone-standalone — sending workoutStarted to Watch")
+                                await watchClient.sendWorkoutEvent(
+                                    .workoutStarted(activityType: activityTypeRaw, elapsedSeconds: 0, maxHeartRate: maxHR)
+                                )
+                                await watchClient.sendWorkoutEvent(.countdownFinished)
+                            },
+                            .run { [watchClient = watchConnectivityClient] send in
+                                for await event in watchClient.incomingEventStream() {
+                                    await send(.watchEventReceived(event))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.watchEventStream),
+                            .run { [clock] send in
+                                for await _ in clock.timer(interval: .seconds(1)) {
+                                    await send(.watchTickEffect)
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.watchTickTimer)
+                        )
+                    }
+
+                } else if value == .summary {
+                    state.summary.failureDebugInfo = "mode: \(state.workoutMode)"
+
+                    // Convert hrBuffer and phaseTimestamps to simple tuples for SummaryFeature
+                    let hrData = state.live.hrBuffer.map { (date: $0.date, bpm: $0.bpm) }
+                    let phases = state.live.phasePanel?.phaseTimestamps.map {
+                        (name: $0.phaseName, start: $0.startDate, end: $0.endDate)
+                    } ?? []
+
+                    // Auto-disconnect Gym Room broadcastu gdy workout kończy się.
+                    // `leaveTapped` zatrzymuje browsing + cancel'uje effecty wewnątrz feature'a;
+                    // potem kasujemy state, żeby `joined` nie pozostał między treningami.
+                    let gymRoomCleanup: Effect<Action> = state.joinLiveClass != nil
+                        ? .send(.joinLiveClass(.view(.leaveTapped)))
+                        : .none
+
+                    var effects: [Effect<Action>] = [
+                        .cancel(id: SessionWatchCancelID.sessionStateStream),
+                        .cancel(id: SessionWatchCancelID.watchTickTimer),
+                        .cancel(id: SessionWatchCancelID.metricsStream),
+                        .cancel(id: SessionWatchCancelID.hrReadingTimeout),
+                        .cancel(id: SessionWatchCancelID.intentPauseObserver),
+                        .cancel(id: SessionWatchCancelID.intentResumeObserver),
+                        .cancel(id: SessionWatchCancelID.intentEndObserver),
+                        .send(.live(.liveActivity(.workout(.stop)))),
+                        .send(.live(.liveActivity(.timer(.stop)))),
+                        .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases))),
+                        gymRoomCleanup
+                    ]
+                    // iPhone-standalone: iPhone saved the workout — skip .saving, go straight to polling.
+                    // Watch-primary: keep watchEventStream alive for .workoutSaved from Watch.
+                    if state.workoutMode == .iPhoneStandalone {
+                        effects.append(.send(.summary(.workoutSavedReceived)))
+                    }
+                    return .merge(effects)
+                }
+                return .none
+
+            default:
+                return .none
+            }
+        }
+    }
+}

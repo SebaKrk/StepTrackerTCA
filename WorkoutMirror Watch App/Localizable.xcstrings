@@ -10,6 +10,26 @@
     "BPM" : {
 
     },
+    "Discard" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzuć"
+          }
+        }
+      }
+    },
+    "End now" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ teraz"
+          }
+        }
+      }
+    },
     "Pause" : {
       "localizations" : {
         "pl" : {
@@ -41,41 +61,12 @@
       }
     },
     "Scanning…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Skanowanie…"
-          }
-        }
-      }
-    },
-    "Waiting for workout…" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oczekiwanie na trening…"
-          }
-        }
-      }
-    },
-    "Discard" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odrzuć"
-          }
-        }
-      }
-    },
-    "End now" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zakończ teraz"
           }
         }
       }
@@ -96,6 +87,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wykryto niezakończoną sesję"
+          }
+        }
+      }
+    },
+    "Waiting for workout…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oczekiwanie na trening…"
           }
         }
       }
