@@ -154,6 +154,22 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         }
     }
 
+    public func reattach(to recoveredSession: HKWorkoutSession) async throws {
+        recoveredSession.delegate = self
+
+        let builder = recoveredSession.associatedWorkoutBuilder()
+        builder.delegate = self
+        builder.dataSource = HKLiveWorkoutDataSource(
+            healthStore: healthStore,
+            workoutConfiguration: recoveredSession.workoutConfiguration
+        )
+
+        self.session = recoveredSession
+        self.builder = builder
+
+        Logger.iPhoneWorkoutSession.info("reattach — session+builder restored (state=\(recoveredSession.state.rawValue))")
+    }
+
     // MARK: - Streams (computed, fresh per access)
 
     public var metrics: AsyncStream<WorkoutMetrics> {
@@ -235,7 +251,7 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 // MARK: - WorkoutSession conformance
 
 @available(iOS 26.0, *)
-extension iPhoneWorkoutSession: WorkoutSession {}
+extension iPhoneWorkoutSession: RecoverableWorkoutSession {}
 
 // MARK: - HKWorkoutSessionDelegate
 

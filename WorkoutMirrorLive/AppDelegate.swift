@@ -20,6 +20,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.trainingManager) var trainingManager
     @Dependency(\.healthStore) var healthStore
+    @Dependency(\.sessionClient) var sessionClient
 
     // MARK: - Application Lifecycle
 
@@ -54,6 +55,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             }
             Logger.session.info("[Recovery] recovered session (type=\(session.type.rawValue), state=\(session.state.rawValue))")
             trainingManager.recover(session: session)
+
+            // Per WWDC25: `.primary` sessions need builder + dataSource rebuilt (the crashed
+            // process owned them). `.mirroredFromRemoteDevice` recovery is complete after
+            // `trainingManager.recover` — Watch owns the builder on its side.
+            if session.type == .primary {
+                try await sessionClient.recoverPrimarySession(session)
+            }
         } catch {
             Logger.session.error("[Recovery] recoverActiveWorkoutSession failed: \(error.localizedDescription)")
         }
