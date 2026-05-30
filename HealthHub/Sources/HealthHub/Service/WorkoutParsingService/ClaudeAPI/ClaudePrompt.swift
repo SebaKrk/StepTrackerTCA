@@ -21,6 +21,22 @@ public enum ClaudePrompt {
 
     CRITICAL: Preserve exact section order from OCR text. Do NOT reorder based on "standard" workout structure.
 
+    Workout type classification (ALWAYS classify, never omit):
+    - Analyze the ENTIRE workout to determine dominant training character.
+    - Pick exactly ONE value from: "running" | "walking" | "cycling" | "swimming" | "crossTraining" | "boxing" | "strengthTraining"
+    - Decision rules:
+      * "strengthTraining" — barbell/dumbbell focus, powerlifting (squat, deadlift, bench, OHP), no conditioning element
+      * "crossTraining" — mixed modalities, WODs, AMRAP/EMOM/ForTime, gymnastics + cardio + weights combinations (DEFAULT for CrossFit/functional workouts)
+      * "boxing" — boxing-specific (bag work, sparring, rope, shadow boxing dominates)
+      * "running" / "cycling" / "swimming" / "walking" — single-modality cardio session
+    - If uncertain or mixed: ALWAYS return "crossTraining". NEVER omit this field.
+    - Examples:
+      * "5x5 Back Squat, 3x8 Bench Press" → "strengthTraining"
+      * "WOD: 21-15-9 Thrusters + Pull-ups" → "crossTraining"
+      * "Snatch 5x3, then AMRAP 15: 10 burpees, 10 box jumps" → "crossTraining" (mixed)
+      * "10x3 min rounds boxing + 3 min rest" → "boxing"
+      * "5km run, easy pace" → "running"
+
     Section types: warmup, strength, conditioning, transition, cooldown
     - Always add warmup (first) and cooldown (last) if missing
     - Add transition between strength/conditioning only if both exist
@@ -172,6 +188,7 @@ public enum ClaudePrompt {
     {
       "name": "string (workout name)",
       "date": "string (yyyy-MM-dd format)",
+      "workoutType": "running|walking|cycling|swimming|crossTraining|boxing|strengthTraining (REQUIRED, default: crossTraining if uncertain)",
       "totalEstimatedMinutes": number,
       "sections": [
         {

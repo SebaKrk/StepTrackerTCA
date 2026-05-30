@@ -17,6 +17,7 @@ struct CountDownView: View {
             Color(.systemBackground)
                 .ignoresSafeArea()
             VStack(spacing: 32) {
+                workoutTypeHeader
                 ringWithOverlay
                 if store.phase == .waitingForWatch {
                     waitingText
@@ -30,6 +31,21 @@ struct CountDownView: View {
     }
 
     // MARK: - Private views (struktura)
+
+    private var workoutTypeHeader: some View {
+        Group {
+            if let type = store.workoutType {
+                VStack(spacing: 6) {
+                    Image(systemName: type.iconName.replacingOccurrences(of: ".circle.fill", with: ""))
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+                    Text(type.title)
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
 
     /// Same gray ring drawn for both phases. In `.countingDown` we overlay the pink trim
     /// progress + remaining-seconds number. In `.waitingForWatch` the ring stays empty.

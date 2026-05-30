@@ -35,7 +35,7 @@ extension ExtractedWorkout {
         return TrainingSession(
             date: parsedDate,
             title: name,
-            activity: .crossTraining,
+            activity: workoutType,
             location: .indoor,
             warmUp: warmUp,
             workouts: workouts,
