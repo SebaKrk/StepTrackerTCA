@@ -586,29 +586,9 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     ) async throws -> Double? {
         let healthStore = manager.healthStore
         let energyType = HKQuantityType(.activeEnergyBurned)
-        
-        // 1️⃣ First: Check for workouts
-        let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
-            from: dayStart,
-            to: dayEnd,
-            healthStore: healthStore
-        )
-        
-        let workoutEnergy = workouts.reduce(0.0) { total, workout in
-            guard
-                let statistics = workout.statistics(for: energyType),
-                let sum = statistics.sumQuantity()
-            else {
-                return total
-            }
-            return total + sum.doubleValue(for: .kilocalorie())
-        }
-        
-        if workoutEnergy > 0 {
-            return workoutEnergy  // Return workout energy if available
-        }
-        
-        // 2️⃣ Fallback: Total active energy
+
+        // Total active energy całego dnia (workouts + casual movement + standy).
+        // Spójność z baseline z getAverageDailyActiveEnergy (też cumulativeSum total).
         let predicate = HKQuery.predicateForSamples(
             withStart: dayStart,
             end: dayEnd,
@@ -641,14 +621,21 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     
     public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
         let window = TrainingReadinessTimeWindows.yesterdayFullDay()
-        
+
         guard let energy = try await getActiveEnergyForDay(
             dayStart: window.start,
             dayEnd: window.end
         ) else {
+            #if DEBUG
+            print("🏃 Yesterday active energy: nil (no data for \(window.start) → \(window.end))")
+            #endif
             return nil
         }
-        
+
+        #if DEBUG
+        print("🏃 Yesterday active energy: \(String(format: "%.0f", energy)) kcal (\(window.start) → \(window.end))")
+        #endif
+
         return HealthKitData(date: window.start, value: energy)
     }
     
@@ -852,6 +839,10 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
 
                 var results: [HealthKitData?] = []
                 collection.enumerateStatistics(from: anchorDate, to: endDate) { stats, _ in
+                    // enumerateStatistics jest luźny na końcu — może zwrócić też bucket
+                    // dla dzisiaj (jego end >= endDate). Defensywny filter incomplete day.
+                    guard !calendar.isDateInToday(stats.startDate) else { return }
+
                     if let sum = stats.sumQuantity() {
                         let kcal = sum.doubleValue(for: .kilocalorie())
                         results.append(HealthKitData(date: stats.startDate, value: kcal))

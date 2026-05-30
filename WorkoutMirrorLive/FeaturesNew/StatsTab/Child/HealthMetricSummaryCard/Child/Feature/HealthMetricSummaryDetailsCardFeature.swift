@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import SharedModels
 
 /// A TCA feature that manages the detailed view of a specific health metric's historical data.

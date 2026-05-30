@@ -71,10 +71,12 @@ public enum HealthMetricHistoryClientKey: DependencyKey {
 public extension HealthMetricHistoryClient {
     static let mock = HealthMetricHistoryClient(
         fetchHistory: { metricType, days in
-            // Mock data dla testów - przykładowe wartości dla każdego typu
+            // Mock data dla testów - przykładowe wartości dla każdego typu.
+            // 1...days zamiast 0..<days — pomijamy dzisiaj, spójnie z live managerem
+            // (getActiveEnergyBurnedHistory wyklucza today jako incomplete data).
             let calendar = Calendar.current
-            
-            return (0..<days).compactMap { daysAgo in
+
+            return (1...days).compactMap { daysAgo in
                 guard let date = calendar.date(byAdding: .day, value: -daysAgo, to: Date()) else {
                     return nil
                 }
