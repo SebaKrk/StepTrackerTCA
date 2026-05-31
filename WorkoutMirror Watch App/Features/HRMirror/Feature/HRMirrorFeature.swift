@@ -287,8 +287,12 @@ struct HRMirrorFeature {
                         let savingStart = ContinuousClock.now
                         await WorkoutFileLogger.shared.log("STOPPED — ending HealthKit session")
                         await watchWorkoutSessionClient.endSession()
-                        await WorkoutFileLogger.shared.log("NOTIFY — sending .workoutSaved to iPhone")
-                        await watchClient.sendWorkoutEvent(.workoutSaved)
+                        if let uuid = await watchWorkoutSessionClient.consumeLastSavedWorkoutUUID() {
+                            await WorkoutFileLogger.shared.log("NOTIFY — sending .workoutSaved(uuid=\(uuid.uuidString)) to iPhone")
+                            await watchClient.sendWorkoutEvent(.workoutSaved(workoutUUID: uuid))
+                        } else {
+                            await WorkoutFileLogger.shared.log("NOTIFY — .workoutSaved skipped (no UUID, save likely failed)")
+                        }
                         await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
                         await watchClient.transferLogFile()
                         // Ensure "Saving…" overlay is visible for at least 1.5s

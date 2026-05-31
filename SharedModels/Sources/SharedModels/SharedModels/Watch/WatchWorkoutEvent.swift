@@ -63,10 +63,14 @@ public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
     case maxHRUpdated(Int)
 
     /// Watch notifies iPhone that `finishWorkout()` succeeded and the `HKWorkout`
-    /// is now persisted in HealthKit. iPhone can begin fetching the summary.
+    /// is now persisted in HealthKit. iPhone can begin fetching the summary by UUID.
     ///
-    /// Sent after `WatchWorkoutSessionClient.endSession()` completes successfully.
-    /// If this event is not received (e.g. Watch unreachable), iPhone falls back to
-    /// HealthKit polling after a timeout.
-    case workoutSaved
+    /// - Parameter workoutUUID: UUID of the saved HKWorkout. iPhone uses this to fetch
+    ///   the exact workout via `HKQuery.predicateForObject(with:)` without race-prone
+    ///   timestamp-based predicates.
+    ///
+    /// Sent after `WatchWorkoutSessionClient.endSession()` completes successfully (either
+    /// via primary path or `.ended` safety-net). If this event is not received (e.g. Watch
+    /// unreachable), iPhone falls back to HealthKit polling after a timeout.
+    case workoutSaved(workoutUUID: UUID)
 }

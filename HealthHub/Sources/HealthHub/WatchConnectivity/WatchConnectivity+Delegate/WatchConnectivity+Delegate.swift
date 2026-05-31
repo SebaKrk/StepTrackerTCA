@@ -68,7 +68,10 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
     /// Called when the reachability of the paired device changes.
     public func sessionReachabilityDidChange(_ session: WCSession) {
         let isReachable = session.isReachable
-        Logger.wc.info("reachability → \(isReachable)")
+        // .debug instead of .info — reachability flips frequently during end-flow
+        // (BT/WC renegotiation). Console.app with --level debug still shows it.
+        // Release builds: compile-stripped, zero cost.
+        Logger.wc.debug("reachability → \(isReachable)")
         Task {
             await WorkoutFileLogger.shared.log("[Disconnect] WC reachability → \(isReachable)")
         }

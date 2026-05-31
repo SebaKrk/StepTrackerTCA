@@ -177,9 +177,38 @@ private enum SessionClientClientKey: DependencyKey {
             getWorkoutSummary: {
                 switch modeHolder.mode {
                 case .watchPrimary:
-                    // Workout is saved by Watch; iPhone fetches it from HealthKit
-                    // in handleWorkoutEndIOS and stores it in trainingManager.
-                    return WorkoutSummary(workout: trainingManager.getWorkout(),
+                    // Step 1: trainingManager stored workout (set by handleWorkoutEndIOS
+                    // if the mirrored session's .ended delegate fired).
+                    if let workout = trainingManager.getWorkout() {
+                        return WorkoutSummary(workout: workout,
+                                             metrics: trainingManager.getWorkoutMetrics())
+                    }
+
+                    // Step 2: defense in depth — direct HK fetch when delegate path failed
+                    // (e.g. iPhone backgrounded during Watch end, .ended never observed).
+                    // Newest workout from the last hour wins.
+                    let oneHourAgo = Date().addingTimeInterval(-3600)
+                    let datePredicate = HKQuery.predicateForSamples(
+                        withStart: oneHourAgo,
+                        end: Date()
+                    )
+                    let descriptor = HKSampleQueryDescriptor(
+                        predicates: [.workout(datePredicate)],
+                        sortDescriptors: [SortDescriptor(\.endDate, order: .reverse)],
+                        limit: 1
+                    )
+                    do {
+                        let samples = try await descriptor.result(for: healthStore)
+                        if let workout = samples.first {
+                            Logger.session.info("getWorkoutSummary — direct HK fetch found: \(workout.uuid.uuidString)")
+                            return WorkoutSummary(workout: workout,
+                                                 metrics: trainingManager.getWorkoutMetrics())
+                        }
+                    } catch {
+                        Logger.session.error("getWorkoutSummary — direct HK fetch failed: \(error.localizedDescription)")
+                    }
+
+                    return WorkoutSummary(workout: nil,
                                          metrics: trainingManager.getWorkoutMetrics())
                 case .iPhoneStandalone:
                     return WorkoutSummary(workout: manager.getWorkout(),

@@ -68,6 +68,12 @@ struct WatchWorkoutSessionClient: Sendable {
     /// channel (`didReceiveDataFromRemoteWorkoutSession`). Complementary path to
     /// `WatchConnectivityClientAW.incomingEventStream` — reliable when WC is unreachable.
     var remoteEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
+
+    /// Returns the `HKWorkout.uuid` of the most recently saved workout (set in both `end()`
+    /// primary path and `.ended` safety-net path), and clears it after read.
+    /// One-shot — second call after save returns nil. Used by `HRMirrorFeature.stop` to
+    /// include UUID in the `.workoutSaved` event so iPhone can fetch the exact workout.
+    var consumeLastSavedWorkoutUUID: @Sendable () async -> UUID?
 }
 
 // MARK: - Dependency
@@ -112,6 +118,9 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
             },
             remoteEventStream: {
                 manager.remoteEventStream()
+            },
+            consumeLastSavedWorkoutUUID: {
+                await manager.consumeLastSavedWorkoutUUID()
             }
         )
     }()
@@ -140,6 +149,18 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// Guards against calling `finishWorkout()` twice — once from the explicit `end()` call
     /// and once from the `.ended` safety-net handler in the session delegate.
     private var workoutFinished = false
+
+    /// UUID of the most recently saved HKWorkout. Set in both `end()` primary path and
+    /// `.ended` safety-net path right after `builder.finishWorkout()` returns. Consumed
+    /// (read + cleared) by `HRMirrorFeature` so it can ship UUID in `.workoutSaved` event.
+    private var lastSavedWorkoutUUID: UUID?
+
+    /// Returns the UUID set during the most recent save, then clears it.
+    func consumeLastSavedWorkoutUUID() async -> UUID? {
+        let uuid = lastSavedWorkoutUUID
+        lastSavedWorkoutUUID = nil
+        return uuid
+    }
 
     /// Returns a stream of `.paused` / `.running` states from the Watch session delegate.
     ///
@@ -262,12 +283,16 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             workoutFinished = true
             Logger.watchSession.info("end() ▶ 2/3 finishWorkout() — saving to HealthKit")
             do {
-                _ = try await builder.finishWorkout()
-                Logger.watchSession.info("end() ✓ workout saved to HealthKit")
-                await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED")
+                let workout = try await builder.finishWorkout()
+                lastSavedWorkoutUUID = workout?.uuid
+                Logger.watchSession.info("end() ✓ workout saved to HealthKit (uuid=\(workout?.uuid.uuidString ?? "nil"))")
+                await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (uuid=\(workout?.uuid.uuidString ?? "nil"))")
             } catch {
-                Logger.watchSession.error("end() finishWorkout failed: \(error)")
-                await WorkoutFileLogger.shared.log("[End] finishWorkout FAILED: \(error.localizedDescription)")
+                // Reset flag so .ended safety-net can recover the save.
+                // Without reset: failed finishWorkout() in primary path = workout LOST forever.
+                workoutFinished = false
+                Logger.watchSession.error("end() finishWorkout failed: \(error) — flag reset for safety-net retry")
+                await WorkoutFileLogger.shared.log("[End] finishWorkout FAILED: \(error.localizedDescription) — flag reset")
             }
         } else {
             Logger.watchSession.notice("end() — skipped finishWorkout (already saved by .ended safety-net)")
@@ -433,9 +458,10 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
             Task {
                 do {
                     try await builder.endCollection(at: date)
-                    _ = try await builder.finishWorkout()
-                    Logger.watchSession.info("safety-net: workout saved to HealthKit")
-                    await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (safety-net)")
+                    let workout = try await builder.finishWorkout()
+                    self.lastSavedWorkoutUUID = workout?.uuid
+                    Logger.watchSession.info("safety-net: workout saved (uuid=\(workout?.uuid.uuidString ?? "nil"))")
+                    await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (safety-net, uuid=\(workout?.uuid.uuidString ?? "nil"))")
                 } catch {
                     Logger.watchSession.error("safety-net finishWorkout failed: \(error)")
                 }
