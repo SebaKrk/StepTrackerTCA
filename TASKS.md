@@ -838,3 +838,5 @@
     C: Historical HK fetch before anchored observer in handleWorkoutEndIOS
     D: Direct HK fetch fallback in getWorkoutSummary (watchPrimary)
     E: TASKS.md + memory note documentation
+
+### IOS-00093 Finalize iPhone-standalone integration

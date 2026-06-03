@@ -35,6 +35,10 @@ extension SummaryFeature {
         /// Timeout fired — Watch did not send `.workoutSaved` in time. Fall back to polling.
         case workoutSavedTimeout
 
+        /// Result of the discard operation. `errorMessage == nil` → success (dismiss).
+        /// Non-nil → real HK error (NOT idempotent noData) → show errorAlert + clear isDiscarding.
+        case discardCompleted(errorMessage: String?)
+
         /// Receives HR samples and phase timestamps from the parent (SessionFeature)
         /// so that per-phase HR can be calculated at save time.
         case setHRData(hrBuffer: [(date: Date, bpm: Double)], phaseTimestamps: [(name: String, start: Date, end: Date?)])
@@ -93,16 +97,19 @@ extension SummaryFeature {
 
         case setInput(PresentationAction<SetInputFeature.Action>)
 
-        // MARK: - Alert
+        // MARK: - Alerts
 
         case alert(PresentationAction<DiscardAlert>)
 
         @CasePathable
         enum DiscardAlert {
-            
+
             ///
             case confirmDiscard
         }
+
+        /// Presentation action for the informational error alert (no actions — only dismiss).
+        case errorAlert(PresentationAction<Never>)
     }
 
 }

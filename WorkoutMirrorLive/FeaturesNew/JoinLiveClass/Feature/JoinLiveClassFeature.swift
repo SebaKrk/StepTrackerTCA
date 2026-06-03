@@ -12,17 +12,18 @@ import OSLog
 import SharedModels
 
 /// Reducer iPhone'a — dołącza do hosta (iPad) w sieci lokalnej i broadcastuje real HR
-/// z Apple Watcha (przez `TrainingManager.workoutMetricsStream`).
+/// przez `sessionClient.workoutMetricsStream()` (routuje per WorkoutMode:
+/// watchPrimary → trainingManager (HR z Watcha via HK mirroring),
+/// iPhoneStandalone → iPhoneWorkoutSession.metrics (HR z BLE sensora)).
 ///
-/// **Wymaganie**: user musi mieć aktywną workout session na Watchu — bez niej
-/// `HKLiveWorkoutBuilder` nie zbiera HR i `WorkoutMetrics` events nie lecą.
+/// **Wymaganie**: aktywna workout session — Watch lub iPhone+BLE.
 @Reducer
 struct JoinLiveClassFeature {
 
     // MARK: - Dependencies
 
     @Dependency(\.peerMirrorClient) var peerMirrorClient
-    @Dependency(\.trainingManager) var trainingManager
+    @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.userProfileClient) var userProfileClient
 
     // MARK: - Reducer
@@ -128,9 +129,9 @@ struct JoinLiveClassFeature {
                     activeEnergy: 0
                 )
                 Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
-                return .run { [trainingManager, peerMirrorClient, initialPayload] _ in
+                return .run { [sessionClient, peerMirrorClient, initialPayload] _ in
                     await peerMirrorClient.send(initialPayload)
-                    for await metrics in trainingManager.workoutMetricsStream {
+                    for await metrics in await sessionClient.workoutMetricsStream() {
                         Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
                         guard metrics.heartRate > 0 else { continue }
                         let payload = HRSamplePayload(

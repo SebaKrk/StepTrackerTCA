@@ -14,5 +14,5 @@ public enum WatchConnectivityStatus: String, CaseIterable, Sendable {
     case notPaired = "not paired"
     case appNotInstalled = "app not installed"
     case ready = "connect"
-    case unreachable = "unreax  chable"
+    case unreachable = "unreachable"
 }

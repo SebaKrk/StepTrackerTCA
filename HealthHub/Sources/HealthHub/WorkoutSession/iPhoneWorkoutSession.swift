@@ -133,9 +133,12 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
         // session.end() MUST be called even if builder operations throw, otherwise
         // HKWorkoutSession stays in zombie state and blocks the next workout.
+        // workout-stream MUST also be finished — otherwise downstream cache tasks
+        // (e.g. WorkoutModeRouter awaiting `workout` AsyncStream) hang forever.
         defer {
             session.end()
-            Logger.iPhoneWorkoutSession.info("end() — session.end() invoked")
+            finishWorkoutStream()
+            Logger.iPhoneWorkoutSession.info("end() — session.end() invoked, workout stream finished")
         }
 
         let endDate = Date()
@@ -151,6 +154,19 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         } catch {
             Logger.iPhoneWorkoutSession.error("endCollection/finishWorkout failed: \(error.localizedDescription, privacy: .public)")
             throw error
+        }
+    }
+
+    /// Finishes all `workout` stream continuations without yielding. Called from `end()`
+    /// in `defer` so cache subscribers (e.g. WorkoutModeRouter) always see termination
+    /// even if `finishWorkout()` returned nil or threw.
+    private func finishWorkoutStream() {
+        workoutLock.lock()
+        let continuations = Array(workoutContinuations.values)
+        workoutContinuations.removeAll()
+        workoutLock.unlock()
+        for continuation in continuations {
+            continuation.finish()
         }
     }
 

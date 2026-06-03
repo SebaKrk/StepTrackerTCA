@@ -58,10 +58,20 @@ extension SummaryFeature {
         /// Child feature for the per-set input sheet. `nil` = sheet not presented.
         @Presents var setInput: SetInputFeature.State?
 
-        // MARK: - Alert
+        // MARK: - Discard
+
+        /// True while delete operation is in flight. Drives Discard button → ProgressView swap.
+        /// Guards against double-tap and gives user visual feedback during ~300ms re-fetch + delete.
+        var isDiscarding: Bool = false
+
+        // MARK: - Alerts
 
         /// Confirmation alert before discarding workout from HealthKit.
         @Presents var discardAlert: AlertState<Action.DiscardAlert>?
+
+        /// Informational alert shown when HealthKit deletion fails for a real reason
+        /// (not idempotent "already absent" — that is treated as success in SessionClient.deleteWorkout).
+        @Presents var errorAlert: AlertState<Never>?
     }
 
 }
