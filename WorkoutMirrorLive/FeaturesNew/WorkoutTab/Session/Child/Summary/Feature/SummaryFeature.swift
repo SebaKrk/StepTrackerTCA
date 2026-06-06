@@ -299,19 +299,44 @@ struct SummaryFeature {
                 return .none
 
             case .alert(.presented(.confirmDiscard)):
-                let workout = state.summary?.workout
-                return .run { [client] _ in
-                    if let workout {
-                        do {
-                            try await client.deleteWorkout(workout)
-                        } catch {
-                            reportIssue(error)
-                        }
+                guard let workout = state.summary?.workout else {
+                    return .run { _ in await self.dismiss() }
+                }
+                state.isDiscarding = true
+                return .run { [client] send in
+                    do {
+                        try await client.deleteWorkout(workout)
+                        await send(.discardCompleted(errorMessage: nil))
+                    } catch {
+                        // SessionClient.deleteWorkout already treats HKError.errorNoData
+                        // as idempotent success — anything thrown here is a real failure.
+                        reportIssue(error)
+                        await send(.discardCompleted(errorMessage: error.localizedDescription))
                     }
-                    await self.dismiss()
                 }
 
             case .alert(.dismiss):
+                return .none
+
+            case .discardCompleted(errorMessage: nil):
+                state.isDiscarding = false
+                return .run { _ in await self.dismiss() }
+
+            case let .discardCompleted(errorMessage: .some(message)):
+                state.isDiscarding = false
+                state.errorAlert = AlertState {
+                    TextState(String(localized: "Failed to discard workout"))
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState(String(localized: "OK"))
+                    }
+                } message: {
+                    TextState(message)
+                }
+                return .none
+
+            case .errorAlert:
+                // Presentation reducer handles dismiss; nothing to do here.
                 return .none
 
             case let .view(.toggleResult(index)):
@@ -426,6 +451,7 @@ struct SummaryFeature {
             }
         }
         .ifLet(\.$discardAlert, action: \.alert)
+        .ifLet(\.$errorAlert, action: \.errorAlert)
         .ifLet(\.$setInput, action: \.setInput) {
             SetInputFeature()
         }

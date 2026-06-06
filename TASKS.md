@@ -838,3 +838,12 @@
     C: Historical HK fetch before anchored observer in handleWorkoutEndIOS
     D: Direct HK fetch fallback in getWorkoutSummary (watchPrimary)
     E: TASKS.md + memory note documentation
+
+### IOS-00093 Finalize iPhone-standalone integration
+    - branch: `dev/IOS-00093/IOS-00093`
+
+    A: Stopwatch — `elapsedTimeAt` reads `elapsedTracker` (both modes, replaces nil legacy `manager.builder`)
+    B: HK conflict — drop legacy `manager.setSelectedWorkout` to avoid parallel HKWorkoutSession (code=8 "Another session is starting")
+    C: Summary — actor cache in WorkoutModeRouter subscribes `iPhoneSession.workout` + `metrics` streams for sync getWorkoutSummary
+    D: Gym Room HR — JoinLiveClass routes through `SessionClient.workoutMetricsStream()` (per-mode DI replaces direct `trainingManager`)
+    E: Cleanup — explicit `.countdown` send in iPhone-standalone main, remove diagnostic logs, fix `unreachable` typo, legacy warning block over `@Dependency(\.workoutManager)`

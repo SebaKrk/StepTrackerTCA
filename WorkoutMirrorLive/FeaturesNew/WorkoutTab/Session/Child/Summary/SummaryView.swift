@@ -117,9 +117,13 @@ struct SummaryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .alert(store: store.scope(state: \.$discardAlert, action: \.alert))
+            .alert(store: store.scope(state: \.$errorAlert, action: \.errorAlert))
             .sheet(item: $store.scope(state: \.setInput, action: \.setInput)) { store in
                 SetInputView(store: store)
             }
+            // Block all interactions (Save/End, edit fields, toolbar) during the
+            // ~delete operation. Alerts remain interactive (presented above this layer).
+            .disabled(store.isDiscarding)
     }
 
     private var summaryContent: some View {
@@ -688,9 +692,16 @@ struct SummaryView: View {
         Button {
             send(.discardWorkoutButtonTapped)
         } label: {
-            Text(String(localized: "Discard"))
-                .foregroundStyle(.red)
+            if store.isDiscarding {
+                ProgressView()
+                    .controlSize(.small)
+                    .tint(.red)
+            } else {
+                Text(String(localized: "Discard"))
+                    .foregroundStyle(.red)
+            }
         }
+        .disabled(store.isDiscarding)
     }
 
     private var saveButton: some View {

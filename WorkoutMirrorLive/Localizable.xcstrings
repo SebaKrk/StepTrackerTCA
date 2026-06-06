@@ -1897,6 +1897,16 @@
         }
       }
     },
+    "Failed to discard workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się odrzucić treningu"
+          }
+        }
+      }
+    },
     "Feature Unavailable" : {
 
     },

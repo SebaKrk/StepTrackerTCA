@@ -51,6 +51,7 @@ extension SessionFeature {
                     } else {
                         // iPhone-standalone: iPhone owns the HKWorkoutSession.
                         await send(.setWorkoutMode(.iPhoneStandalone))
+                        await send(.sessionViewStateChange(.countdown))
                         Logger.session.info("iPhone-standalone mode — Watch unavailable (\(watchStatus.rawValue))")
                         try await sessionClient.selectedWorkout(workout.hkType)
                         Logger.session.info("selectedWorkout set → DefaultWorkoutManager.prepareWorkout() triggered")
