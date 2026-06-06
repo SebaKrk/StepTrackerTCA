@@ -137,11 +137,8 @@ private enum SessionClientClientKey: DependencyKey {
         return SessionClient(
             selectedWorkout: { type in
                 // Per WWDC25 #322: exactly ONE HKWorkoutSession owns the iPhone side
-                // per workout cycle. Previous code also called `manager.setSelectedWorkout`
-                // which triggered `DefaultWorkoutManager.prepareWorkout()` → created a
-                // parallel HKWorkoutSession → HK rejected with code=8 "Another session
-                // is starting" → legacy session became zombie → cascade of bugs
-                // (workout: nil in summary, missing metrics broadcasts, etc.).
+                // per workout cycle. Parallel HKWorkoutSession creation was source of
+                // code=8 "Another session is starting" — kept here as a single entry point.
                 //
                 // 3s countdown overlaps BLE strap warmup (CLAUDE.md R1: prepare() before start).
                 if let type {
@@ -159,9 +156,8 @@ private enum SessionClientClientKey: DependencyKey {
                 // watchTickEffect (1Hz) + TimelineView sub-second interpolation.
                 //
                 // Watch-primary: iPhone has no active HKLiveWorkoutBuilder (mirrored session).
-                // iPhone-standalone (iOS 26+): real builder lives inside iPhoneWorkoutSession
-                // (actor-isolated, sync access impossible). Legacy `manager.builder` was nil
-                // in this path → UI stuck on 00:00. ElapsedTracker gives identical UX to
+                // iPhone-standalone: real builder lives inside iPhoneWorkoutSession actor —
+                // sync access impossible. ElapsedTracker gives identical UX to
                 // HKLiveWorkoutBuilder.elapsedTime(at:) — see comment on `ElapsedTracker`.
                 return elapsedTracker.elapsedAt(date)
             },
@@ -205,10 +201,9 @@ private enum SessionClientClientKey: DependencyKey {
                     return WorkoutSummary(workout: nil,
                                          metrics: trainingManager.getWorkoutMetrics())
                 case .iPhoneStandalone:
-                    // iPhone-standalone (iOS 26+): read from WorkoutModeRouter cache,
-                    // populated by background subscription to `iPhoneSession.workout` +
-                    // `iPhoneSession.metrics` streams. Legacy `manager.getWorkout()` always
-                    // returned nil here (DefaultWorkoutManager bypassed by fix #3).
+                    // iPhone-standalone: read from WorkoutModeRouter cache, populated by
+                    // background subscription to `iPhoneSession.workout` + `iPhoneSession.metrics`
+                    // streams (single source of truth for iPhone-owned sessions).
                     return await router.getWorkoutSummary()
                 }
             },
