@@ -398,10 +398,17 @@ private actor WorkoutModeRouter {
     /// Snapshot exposed via `getWorkoutSummary()` for the Summary screen.
     private var lastMetrics: WorkoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 0, activeEnergy: 0)
 
+    /// Cached `HKWorkoutSessionState` from `iPhoneSession.state` stream. Used by `togglePause()`
+    /// to decide between `pause()` and `resume()` without async lookup — pause/resume must be
+    /// fast (user tapped a button), and reading session.state directly would require non-sendable
+    /// reference traversal across actor boundaries.
+    private var lastSessionState: HKWorkoutSessionState = .notStarted
+
     /// Tasks bridging async streams into actor-cached state. Started in `prepareIPhoneSession`
     /// / `recoverPrimarySession`, cancelled in `endWorkout` after the streams have drained.
     private var workoutCacheTask: Task<Void, Never>?
     private var metricsCacheTask: Task<Void, Never>?
+    private var stateCacheTask: Task<Void, Never>?
 
     init(
         workoutManager: WorkoutManager,
@@ -466,10 +473,16 @@ private actor WorkoutModeRouter {
     private func startCachingStreams(from session: any WorkoutSession) {
         workoutCacheTask?.cancel()
         metricsCacheTask?.cancel()
+        stateCacheTask?.cancel()
 
         workoutCacheTask = Task { [weak self] in
             for await workout in session.workout {
                 await self?.cacheWorkout(workout)
+            }
+        }
+        stateCacheTask = Task { [weak self] in
+            for await state in session.state {
+                await self?.cacheState(state)
             }
         }
         metricsCacheTask = Task { [weak self] in
@@ -482,8 +495,10 @@ private actor WorkoutModeRouter {
     private func stopCachingStreams() {
         workoutCacheTask?.cancel()
         metricsCacheTask?.cancel()
+        stateCacheTask?.cancel()
         workoutCacheTask = nil
         metricsCacheTask = nil
+        stateCacheTask = nil
     }
 
     private func cacheWorkout(_ workout: HKWorkout) {
@@ -493,6 +508,10 @@ private actor WorkoutModeRouter {
 
     private func cacheMetrics(_ metrics: WorkoutMetrics) {
         self.lastMetrics = metrics
+    }
+
+    private func cacheState(_ state: HKWorkoutSessionState) {
+        self.lastSessionState = state
     }
 
     /// Synchronous(ish) snapshot for `SessionClient.getWorkoutSummary` in iPhone-standalone path.
@@ -508,12 +527,24 @@ private actor WorkoutModeRouter {
             // Mirrored session pause propagates to Watch automatically via HealthKit.
             trainingManager.togglePause()
         case .iPhoneStandalone:
-            // Pause/resume routing stays on legacy `workoutManager.togglePause()` even
-            // though `iPhoneWorkoutSession` handles start/end. Routing through
-            // `iPhoneSession.pause()` / `.resume()` would require tracking current session
-            // state inside this actor — `AsyncStream.first` blocks because
-            // `iPhoneWorkoutSession.state` does not emit a baseline on subscription.
-            workoutManager.togglePause()
+            guard let iPhoneSession else {
+                Logger.session.error("togglePause — iPhoneSession unexpectedly nil")
+                return
+            }
+            do {
+                switch lastSessionState {
+                case .running:
+                    try await iPhoneSession.pause()
+                    Logger.session.info("togglePause — paused (was .running)")
+                case .paused:
+                    try await iPhoneSession.resume()
+                    Logger.session.info("togglePause — resumed (was .paused)")
+                default:
+                    Logger.session.warning("togglePause — ignored from state \(lastSessionState.rawValue)")
+                }
+            } catch {
+                Logger.session.error("togglePause failed: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
@@ -526,22 +557,22 @@ private actor WorkoutModeRouter {
             // the workout — causing the workout to be lost.
             Logger.session.info("WorkoutModeRouter endWorkout() — Watch-primary: no-op (Watch owns end sequence)")
         case .iPhoneStandalone:
-            if let iPhoneSession {
-                do {
-                    try await iPhoneSession.end()
-                    Logger.session.info("endWorkout — iPhoneWorkoutSession.end() succeeded")
-                } catch {
-                    Logger.session.error("iPhoneWorkoutSession.end() failed: \(error.localizedDescription, privacy: .public)")
-                }
-                // Wait for workout-cache task to drain the final `HKWorkout` emit
-                // from `iPhoneSession.workout` stream (or natural finish on nil/error).
-                // Without this, `getWorkoutSummary()` might race and return nil.
-                await workoutCacheTask?.value
-                stopCachingStreams()
-                self.iPhoneSession = nil
-            } else {
-                workoutManager.endWorkout()
+            guard let iPhoneSession else {
+                Logger.session.error("endWorkout — iPhoneSession unexpectedly nil")
+                return
             }
+            do {
+                try await iPhoneSession.end()
+                Logger.session.info("endWorkout — iPhoneWorkoutSession.end() succeeded")
+            } catch {
+                Logger.session.error("iPhoneWorkoutSession.end() failed: \(error.localizedDescription, privacy: .public)")
+            }
+            // Wait for workout-cache task to drain the final `HKWorkout` emit
+            // from `iPhoneSession.workout` stream (or natural finish on nil/error).
+            // Without this, `getWorkoutSummary()` might race and return nil.
+            await workoutCacheTask?.value
+            stopCachingStreams()
+            self.iPhoneSession = nil
         }
     }
 
@@ -552,15 +583,15 @@ private actor WorkoutModeRouter {
             // iPhone has a mirrored session — no startWorkout() needed.
             Logger.session.info("WorkoutModeRouter startWorkout() — Watch-primary: no-op")
         case .iPhoneStandalone:
-            if let iPhoneSession {
-                do {
-                    try await iPhoneSession.start(at: Date())
-                    Logger.session.info("startWorkout — iPhoneWorkoutSession started")
-                } catch {
-                    Logger.session.error("iPhoneWorkoutSession.start failed: \(error.localizedDescription, privacy: .public)")
-                }
-            } else {
-                await workoutManager.startWorkout()
+            guard let iPhoneSession else {
+                Logger.session.error("startWorkout — iPhoneSession unexpectedly nil")
+                return
+            }
+            do {
+                try await iPhoneSession.start(at: Date())
+                Logger.session.info("startWorkout — iPhoneWorkoutSession started")
+            } catch {
+                Logger.session.error("iPhoneWorkoutSession.start failed: \(error.localizedDescription, privacy: .public)")
             }
         }
     }
@@ -570,11 +601,11 @@ private actor WorkoutModeRouter {
         case .watchPrimary:
             return trainingManager.workoutSessionStateStream
         case .iPhoneStandalone:
-            if let iPhoneSession {
-                return iPhoneSession.state
-            } else {
-                return workoutManager.workoutSessionStateStream
+            guard let iPhoneSession else {
+                Logger.session.error("sessionStateStream — iPhoneSession unexpectedly nil, returning empty stream")
+                return AsyncStream { $0.finish() }
             }
+            return iPhoneSession.state
         }
     }
 
@@ -585,11 +616,11 @@ private actor WorkoutModeRouter {
             // decoded in DefaultTrainingManager.didReceiveDataFromRemoteWorkoutSession.
             return trainingManager.workoutMetricsStream
         case .iPhoneStandalone:
-            if let iPhoneSession {
-                return iPhoneSession.metrics
-            } else {
-                return workoutManager.workoutMetricsStream
+            guard let iPhoneSession else {
+                Logger.session.error("metricsStream — iPhoneSession unexpectedly nil, returning empty stream")
+                return AsyncStream { $0.finish() }
             }
+            return iPhoneSession.metrics
         }
     }
 }
