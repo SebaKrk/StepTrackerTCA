@@ -41,7 +41,6 @@ import SharedModels
 /// `@unchecked Sendable`. All mutable state is guarded by per-stream `NSLock` instances.
 /// HK delegate callbacks land on `HKHealthStore` queue; broadcasting is lock-then-copy
 /// to avoid holding lock during user `yield()` work.
-@available(iOS 26.0, *)
 public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
     // MARK: - Dependencies
@@ -266,12 +265,10 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
 // MARK: - WorkoutSession conformance
 
-@available(iOS 26.0, *)
 extension iPhoneWorkoutSession: RecoverableWorkoutSession {}
 
 // MARK: - HKWorkoutSessionDelegate
 
-@available(iOS 26.0, *)
 extension iPhoneWorkoutSession: HKWorkoutSessionDelegate {
 
     public func workoutSession(
@@ -294,7 +291,6 @@ extension iPhoneWorkoutSession: HKWorkoutSessionDelegate {
 
 // MARK: - HKLiveWorkoutBuilderDelegate
 
-@available(iOS 26.0, *)
 extension iPhoneWorkoutSession: HKLiveWorkoutBuilderDelegate {
 
     public func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {

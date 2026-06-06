@@ -421,13 +421,8 @@ private actor WorkoutModeRouter {
     }
 
     /// Creates `iPhoneWorkoutSession`, requests HealthKit authorization, and calls `prepare()`.
-    /// No-op on iOS < 26 (legacy workoutManager path handles iPhone-standalone there).
     /// Called from `selectedWorkout` closure so the 3s countdown overlaps BLE strap warmup.
     func prepareIPhoneSession(activityType: HKWorkoutActivityType) async {
-        guard #available(iOS 26.0, *) else {
-            Logger.session.info("prepareIPhoneSession — iOS < 26, skipping (legacy workoutManager path)")
-            return
-        }
         do {
             _ = await authorizationManager.requestAuthorization()
             let configuration = HKWorkoutConfiguration()
@@ -449,10 +444,6 @@ private actor WorkoutModeRouter {
     /// sessions can only originate from iPhone — Watch-primary sessions appear as
     /// `.mirroredFromRemoteDevice` on iPhone side and are handled by HealthKit mirroring.
     func recoverPrimarySession(_ recoveredSession: HKWorkoutSession) async throws {
-        guard #available(iOS 26.0, *) else {
-            Logger.session.info("recoverPrimarySession — iOS < 26, skipping")
-            return
-        }
         let recovered = iPhoneWorkoutSession(
             healthStore: healthStore,
             configuration: recoveredSession.workoutConfiguration
