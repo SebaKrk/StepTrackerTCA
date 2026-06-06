@@ -147,10 +147,6 @@ struct AppFeatureAW {
                 // Watch-originated — not relevant on the Watch side.
                 return .none
 
-            case .watchEventReceived(.hrReading):
-                // iPhone-originated HR readings are not relevant on the Watch side.
-                return .none
-
             case .hrMirror(.presented(.delegate(.didFinishSaving))):
                 Logger.appAW.info("didFinishSaving — dismissing HRMirrorFeature")
                 return .send(.dismissHRMirror)

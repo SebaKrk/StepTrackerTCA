@@ -39,13 +39,6 @@ extension SessionFeature {
         /// Received when the paired Apple Watch sends a `WatchWorkoutEvent` during an active session.
         case watchEventReceived(WatchWorkoutEvent)
 
-        /// Fired when no HR reading has been received from Watch for 20 seconds.
-        ///
-        /// Resets the displayed heart rate to 0 so stale data is not shown
-        /// when WatchConnectivity loses contact with the sensor.
-        /// Only active in iPhone-standalone mode.
-        case hrReadingTimedOut
-
         /// Sets the workout mode (Watch-primary vs iPhone-standalone) determined
         /// in `viewDidAppear` based on Watch availability.
         case setWorkoutMode(WorkoutMode)

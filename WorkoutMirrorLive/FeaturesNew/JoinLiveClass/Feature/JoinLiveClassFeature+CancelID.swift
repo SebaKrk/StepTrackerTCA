@@ -14,8 +14,8 @@ extension JoinLiveClassFeature {
         /// Subskrypcja `peerMirrorClient.peerEventsStream()`.
         case peerEvents
 
-        /// Subskrypcja `watchConnectivityManager.incomingWorkoutEventStream`
-        /// filtrowana do `.hrReading` events z Apple Watcha.
+        /// Subskrypcja `sessionClient.workoutMetricsStream()` — per-mode HR source
+        /// (watchPrimary: trainingManager via HK mirroring, iPhoneStandalone: iPhoneSession.metrics).
         case hrStream
     }
 }

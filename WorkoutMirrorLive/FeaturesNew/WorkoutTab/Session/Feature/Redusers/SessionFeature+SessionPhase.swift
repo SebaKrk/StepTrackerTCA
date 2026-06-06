@@ -205,7 +205,6 @@ extension SessionFeature {
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
-                        .cancel(id: SessionWatchCancelID.hrReadingTimeout),
                         .cancel(id: SessionWatchCancelID.intentPauseObserver),
                         .cancel(id: SessionWatchCancelID.intentResumeObserver),
                         .cancel(id: SessionWatchCancelID.intentEndObserver),
