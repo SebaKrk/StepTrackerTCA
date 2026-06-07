@@ -17,10 +17,14 @@ import SharedModels
 /// **Lifecycle**: `start*` tworzy świeżą session (`CBPeripheralManager` / `CBCentralManager`),
 /// `stop*` ją drop'uje. Recreation per call gwarantuje czysty BLE state przy każdym join.
 ///
-/// **Streams**: tworzone **eagerly w `init()`** przez `AsyncStream.makeStream()` —
-/// continuation jest zawsze set od pierwszej chwili istnienia service'a. To eliminuje
-/// race condition gdzie `startBrowsing/startAdvertising` captureowało jeszcze
-/// nieustawioną continuation (gdy subscriber nie zdążył wywołać `peerEventsStream()`).
+/// **peerEvents — multicast** (IOS-00094-I): każdy subscriber dostaje świeży
+/// `AsyncStream<PeerEvent>` zarejestrowany w `peerEventContinuations`. `AsyncStream` z natury
+/// obsługuje tylko jednego iteratora; bez multicast'u drugi `for await` na stored stream
+/// nic nie dostawał — bug ujawniał się przy view re-mount (np. iPhone-standalone + Gym Room).
+/// Cleanup automatyczny przez `onTermination` gdy TCA cancel'uje effect.
+///
+/// **samples** — pozostaje stored single-stream. iPad subscriber jest jeden (GymRoomView),
+/// re-mount na iPadzie jest rzadki. Multicast TODO gdy iPad app będzie multi-room.
 @MainActor
 public final class PeerMirrorService {
 
@@ -29,19 +33,16 @@ public final class PeerMirrorService {
     private var hostSession: PeerMirrorBLEHostSession?
     private var peerSession: PeerMirrorBLEPeerSession?
 
-    // MARK: - Streams (eager init — never nil)
+    // MARK: - peerEvents (multicast — N subscribers)
 
-    private let peerEventsStreamSource: AsyncStream<PeerEvent>
-    private let peerEventsContinuation: AsyncStream<PeerEvent>.Continuation
+    private var peerEventContinuations: [UUID: AsyncStream<PeerEvent>.Continuation] = [:]
+
+    // MARK: - samples (stored single stream — TODO multicast w przyszłości)
 
     private let samplesStreamSource: AsyncStream<HRSamplePayload>
     private let samplesContinuation: AsyncStream<HRSamplePayload>.Continuation
 
     public init() {
-        let (eStream, eCont) = AsyncStream<PeerEvent>.makeStream()
-        self.peerEventsStreamSource = eStream
-        self.peerEventsContinuation = eCont
-
         let (sStream, sCont) = AsyncStream<HRSamplePayload>.makeStream()
         self.samplesStreamSource = sStream
         self.samplesContinuation = sCont
@@ -51,12 +52,13 @@ public final class PeerMirrorService {
 
     public func startAdvertising(displayName: String) {
         stopAdvertising()
-        let eventContinuation = peerEventsContinuation
         let sampleContinuation = samplesContinuation
         hostSession = PeerMirrorBLEHostSession(
             displayName: displayName,
-            onPeerEvent: { event in
-                eventContinuation.yield(event)
+            onPeerEvent: { [weak self] event in
+                Task { @MainActor in
+                    self?.broadcastPeerEvent(event)
+                }
             },
             onSample: { payload in
                 sampleContinuation.yield(payload)
@@ -77,10 +79,11 @@ public final class PeerMirrorService {
     public func startBrowsing(displayName: String) {
         _ = displayName
         stopBrowsing()
-        let eventContinuation = peerEventsContinuation
         peerSession = PeerMirrorBLEPeerSession(
-            onPeerEvent: { event in
-                eventContinuation.yield(event)
+            onPeerEvent: { [weak self] event in
+                Task { @MainActor in
+                    self?.broadcastPeerEvent(event)
+                }
             }
         )
     }
@@ -101,6 +104,22 @@ public final class PeerMirrorService {
     }
 
     public func peerEventsStream() -> AsyncStream<PeerEvent> {
-        peerEventsStreamSource
+        let id = UUID()
+        let (stream, continuation) = AsyncStream.makeStream(of: PeerEvent.self)
+        continuation.onTermination = { [weak self] _ in
+            Task { @MainActor in
+                self?.peerEventContinuations.removeValue(forKey: id)
+            }
+        }
+        peerEventContinuations[id] = continuation
+        return stream
+    }
+
+    // MARK: - Private
+
+    private func broadcastPeerEvent(_ event: PeerEvent) {
+        for continuation in peerEventContinuations.values {
+            continuation.yield(event)
+        }
     }
 }
