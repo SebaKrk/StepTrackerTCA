@@ -10,7 +10,10 @@ import Foundation
 /// Events exchanged between iPhone and Apple Watch via WatchConnectivity.
 ///
 /// **iPhone → Watch:** `workoutStarted`, `workoutPaused`, `workoutResumed`, `workoutEnded`, `workoutTick`, `maxHRUpdated`
-/// **Watch → iPhone:** `hrReading`, `workoutSaved`
+/// **Watch → iPhone:** `workoutSaved`
+///
+/// Note: HR readings flow via HealthKit mirroring channel (`sendToRemoteWorkoutSession`),
+/// NOT WatchConnectivity — per WWDC25 #322 R2.
 public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
 
     /// iPhone notifies Watch that a workout has started.
@@ -43,12 +46,6 @@ public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
     /// This eliminates the need for an independent countdown on Watch,
     /// which would drift due to WatchConnectivity delivery latency.
     case countdownFinished
-
-    /// Watch sends a live heart rate reading back to iPhone.
-    /// - Parameters:
-    ///   - bpm: Heart rate in beats per minute.
-    ///   - timestamp: Time of the measurement.
-    case hrReading(bpm: Double, timestamp: Date)
 
     /// iPhone sends the authoritative elapsed time to Watch once per second.
     ///

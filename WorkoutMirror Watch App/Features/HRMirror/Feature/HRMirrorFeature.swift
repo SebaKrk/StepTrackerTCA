@@ -20,7 +20,8 @@ import Foundation
 ///
 /// Data flow:
 /// 1. `WatchWorkoutSessionClient` starts `HKWorkoutSession` + mirroring on `.start`.
-/// 2. `HKLiveWorkoutBuilder` yields live BPM readings, forwarded to iPhone as `.hrReading`.
+/// 2. `HKLiveWorkoutBuilder` yields live BPM readings, forwarded to iPhone via HealthKit
+///    mirroring channel (`sendToRemoteWorkoutSession`) — NOT WatchConnectivity (R2).
 /// 3. iPhone sends elapsed-time ticks (`workoutTick`) — Watch uses them as source of truth.
 /// 4. On `.stop`, the session is properly ended before the feature scope is torn down.
 @Reducer

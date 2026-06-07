@@ -32,7 +32,8 @@ public struct WatchConnectivityClient: Sendable {
 
     /// A stream of incoming workout events received from the paired Apple Watch.
     ///
-    /// Yields `WatchWorkoutEvent` values, typically `.hrReading` during an active session.
+    /// Yields `WatchWorkoutEvent` values — primarily `.workoutSaved(uuid)` after Watch
+    /// completes `finishWorkout()`. HR readings flow via HealthKit mirroring, NOT WC.
     public var incomingEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
 }
 

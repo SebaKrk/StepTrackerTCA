@@ -35,10 +35,6 @@ struct SessionClient {
     var togglePause: @Sendable () async -> Void
     var getWorkoutSummary: @Sendable () async -> WorkoutSummary
     var endWorkout: @Sendable () async -> Void
-    /// Adds a Watch HR sample to iPhone's HKLiveWorkoutBuilder so that
-    /// the saved HKWorkout contains heart-rate data collected by Watch sensors.
-    /// Used in iPhone-standalone mode only; Watch-primary sends HR via HealthKit mirroring.
-    var addHeartRateSample: @Sendable (Double, Date) async -> Void
 
     /// Launches the Watch app. In Watch-primary mode Watch then starts its own
     /// HKWorkoutSession, calls startMirroringToCompanionDevice(), and iPhone
@@ -48,11 +44,6 @@ struct SessionClient {
     /// Deletes the given workout from HealthKit. Only works for workouts created
     /// by this app. Used when the user discards a just-finished workout.
     var deleteWorkout: @Sendable (HKWorkout) async throws -> Void
-
-    /// Resets `metrics.heartRate` to 0 inside `DefaultWorkoutManager` so that
-    /// subsequent HealthKit energy updates do not re-broadcast a stale HR value.
-    /// Used in iPhone-standalone mode only.
-    var resetWatchHeartRate: @Sendable () -> Void
 
     /// Switches internal routing between Watch-primary and iPhone-standalone mode.
     /// Must be called in `viewDidAppear` before the session begins.
@@ -242,9 +233,6 @@ private enum SessionClientClientKey: DependencyKey {
             endWorkout: {
                 await router.endWorkout()
             },
-            addHeartRateSample: { bpm, date in
-                await manager.addHeartRateSample(bpm, at: date)
-            },
             startWatchWorkout: { activityType in
                 try await trainingManager.startWatchWorkout(workoutType: activityType)
             },
@@ -281,9 +269,6 @@ private enum SessionClientClientKey: DependencyKey {
 
                 let totalElapsed = ContinuousClock.now - totalStart
                 Logger.session.info("deleteWorkout ✓ total \(totalElapsed.components.seconds)s \(totalElapsed.components.attoseconds / 1_000_000_000_000_000)ms")
-            },
-            resetWatchHeartRate: {
-                manager.resetWatchHeartRate()
             },
             setWorkoutMode: { mode in
                 modeHolder.mode = mode

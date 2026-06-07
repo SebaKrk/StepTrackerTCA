@@ -14,7 +14,11 @@ import WatchConnectivity
 ///
 /// Provides a Watch-specific interface for:
 /// - Receiving workout control events from iPhone (`workoutStarted`, `workoutEnded`, etc.)
-/// - Sending live HR readings back to iPhone (`hrReading`)
+/// - Sending `workoutSaved(uuid)` notification to iPhone after `finishWorkout()`
+/// - Transferring log files for diagnostic purposes
+///
+/// Note: HR readings flow via HealthKit mirroring channel (`sendToRemoteWorkoutSession`),
+/// NOT WatchConnectivity — per WWDC25 #322 R2.
 ///
 /// Implemented directly on `WCSession` — does not depend on HealthHub.
 struct WatchConnectivityClientAW {
