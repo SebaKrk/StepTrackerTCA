@@ -493,7 +493,7 @@ private actor WorkoutModeRouter {
                 return
             }
             do {
-                switch lastSessionState {
+                switch self.lastSessionState {
                 case .running:
                     try await iPhoneSession.pause()
                     Logger.session.info("togglePause — paused (was .running)")
@@ -501,7 +501,7 @@ private actor WorkoutModeRouter {
                     try await iPhoneSession.resume()
                     Logger.session.info("togglePause — resumed (was .paused)")
                 default:
-                    Logger.session.warning("togglePause — ignored from state \(lastSessionState.rawValue)")
+                    Logger.session.warning("togglePause — ignored from state \(self.lastSessionState.rawValue)")
                 }
             } catch {
                 Logger.session.error("togglePause failed: \(error.localizedDescription, privacy: .public)")

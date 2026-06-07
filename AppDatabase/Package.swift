@@ -1,11 +1,11 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 import PackageDescription
 
 let package = Package(
     name: "AppDatabase",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v18)
+        .iOS("26.0")
     ],
     products: [
         .library(
