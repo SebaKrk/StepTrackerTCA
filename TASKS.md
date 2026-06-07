@@ -847,3 +847,14 @@
     C: Summary — actor cache in WorkoutModeRouter subscribes `iPhoneSession.workout` + `metrics` streams for sync getWorkoutSummary
     D: Gym Room HR — JoinLiveClass routes through `SessionClient.workoutMetricsStream()` (per-mode DI replaces direct `trainingManager`)
     E: Cleanup — explicit `.countdown` send in iPhone-standalone main, remove diagnostic logs, fix `unreachable` typo, legacy warning block over `@Dependency(\.workoutManager)`
+
+### IOS-00094 Cleanup legacy WorkoutManager + iOS 26 deployment uplift
+    - branch: `dev/IOS-00094/IOS-00094`
+
+    A: Remove @available(iOS 26.0, *) guards (iPhone session + router)
+    B: Replace legacy workoutManager fallbacks with iPhoneSession-driven flow
+    C: Remove dead Watch-as-HR-sensor flow (3-target synchronized: iPhone + Watch + HealthHub)
+    D: Remove @Dependency(\.workoutManager) + LEGACY warning block
+    E: Remove orphan Features/+AppTab/ + raise deployment to iOS 26 (Package.swift × 4 uplift, @available cleanup)
+    G: Remove legacy WorkoutManager (HealthHub WorkoutManager/ folder + Manager+iOS/ folder + Dependencies+Key cleanup + stale comments)
+    H: Memory + TASKS.md update
