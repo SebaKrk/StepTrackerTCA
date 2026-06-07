@@ -35,11 +35,6 @@ nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     /// Started by `sessionPhaseReducer` on `.session`, cancelled there on `.summary`.
     case metricsStream
 
-    /// 20-second watchdog timer that resets heartRate to 0 when no HR reading has been
-    /// received from Watch in that window. Only active in iPhone-standalone mode.
-    /// Started/restarted in `watchEventsReducer`.
-    case hrReadingTimeout
-
     /// Retry effect for `.workoutEnded` propagation. Currently no reducer starts it
     /// (HK-channel send replaced the WC retry mechanism), but the identifier is
     /// preserved for the `.cancel(...)` call in `controlsRoutingReducer` which runs

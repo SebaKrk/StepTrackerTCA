@@ -12,21 +12,21 @@ import SwiftUI
 /// Each case corresponds to a specific tab, with its own unique functionality and purpose.
 /// to enable seamless usage in SwiftUI and navigation systems.
 enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
-    
+
     case live
-    
+
     case workout
-    
+
     case person
-    
+
     case activities
-    
+
     case stats
-    
+
     case sharing
-    
+
     var id: Self { self }
-    
+
 }
 
 extension AppScreen {
@@ -40,7 +40,7 @@ extension AppScreen {
                        comment: "The Live Tab displays real-time heart rate and workout data."),
                 systemImage: "figure"//"waveform.path.ecg"
             )
-            
+
         case .workout:
             Label(
                 String(localized: "Workout",

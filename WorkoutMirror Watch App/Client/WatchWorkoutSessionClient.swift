@@ -30,8 +30,7 @@ struct WatchWorkoutSessionClient: Sendable {
     var endSession: @Sendable () async -> Void
 
     /// Sends a `WorkoutMetrics` snapshot to the paired iPhone via HealthKit's native mirroring channel
-    /// (`sendToRemoteWorkoutSession`). Only used in Watch-primary mode — replaces WatchConnectivity
-    /// `.hrReading` events for HR transfer.
+    /// (`sendToRemoteWorkoutSession`). Only used in Watch-primary mode for HR transfer (R2).
     var sendHRToRemote: @Sendable (Double, Date) async -> Void
 
     /// Pauses or resumes the active `HKWorkoutSession` on Watch. HealthKit mirroring automatically

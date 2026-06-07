@@ -18,31 +18,6 @@ extension SessionFeature {
         Reduce { state, action in
             switch action {
 
-            case .watchEventReceived(.hrReading(let bpm, let timestamp)):
-                // HR readings from Watch via WatchConnectivity are only used in
-                // iPhone-standalone mode. In Watch-primary mode, HR flows through
-                // HealthKit mirroring (sendToRemoteWorkoutSession) and arrives via
-                // the metrics stream — not as a WatchConnectivity event.
-                guard state.workoutMode == .iPhoneStandalone else { return .none }
-                let current = state.live.workoutMetrics
-                return .merge(
-                    .send(.live(.workoutMetrics(
-                        WorkoutMetrics(
-                            averageHeartRate: current.averageHeartRate,
-                            heartRate: bpm,
-                            activeEnergy: current.activeEnergy
-                        )
-                    ))),
-                    .run { [bpm, timestamp, sessionClient] _ in
-                        await sessionClient.addHeartRateSample(bpm, timestamp)
-                    },
-                    .run { [clock] send in
-                        try? await clock.sleep(for: .seconds(20))
-                        await send(.hrReadingTimedOut)
-                    }
-                    .cancellable(id: SessionWatchCancelID.hrReadingTimeout, cancelInFlight: true)
-                )
-
             case .watchEventReceived(.workoutPaused):
                 // In Watch-primary mode, pause is propagated by HealthKit mirroring —
                 // we receive it via sessionStateStream, not WatchConnectivity.
@@ -63,14 +38,6 @@ extension SessionFeature {
 
             case .watchEventReceived:
                 return .none
-
-            case .hrReadingTimedOut:
-                guard state.workoutMode == .iPhoneStandalone else { return .none }
-                Logger.session.notice("hrReadingTimeout — no HR from Watch for 20s, resetting to 0")
-                return .merge(
-                    .run { [sessionClient] _ in sessionClient.resetWatchHeartRate() },
-                    .send(.live(.resetHeartRate))
-                )
 
             default:
                 return .none

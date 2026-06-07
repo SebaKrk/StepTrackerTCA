@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "HealthHub",
     platforms: [
-        .iOS(.v18),
+        .iOS("26.0"),
     ],
     products: [
         .library(

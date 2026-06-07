@@ -1,18 +1,21 @@
 //
 //  ElapsedTimeView.swift
-//  MyFitnessJournal
+//  WorkoutMirrorLive
 //
-//  Created by Sebastian Sciuba on 08/08/2025.
+//  Created by Sebastian Ściuba on 08/08/2025.
+//  Moved from Features/WorkoutSession/Child/Mirroring/SubView/ in IOS-00094-E
+//  (Features/ legacy cleanup). Used by ControlsView in FeaturesNew/.
 //
 
 import SwiftUI
+
 struct ElapsedTimeView: View {
-    
+
     let elapsedTime: TimeInterval
     let showSubseconds: Bool
-    
+
     @State private var timeFormatter = ElapsedTimeFormatter()
-    
+
     var body: some View {
         Text(NSNumber(value: elapsedTime), formatter: timeFormatter)
             .fontWeight(.semibold)
@@ -30,7 +33,7 @@ import Foundation
 /// A formatter that formats elapsed time as minutes and seconds,
 /// with optional display of hundredths of a second.
 public class ElapsedTimeFormatter: Formatter {
-    
+
     /// Formatter for minutes and seconds using DateComponentsFormatter.
     let componentsFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
@@ -38,7 +41,7 @@ public class ElapsedTimeFormatter: Formatter {
         formatter.zeroFormattingBehavior = .pad
         return formatter
     }()
-    
+
     /// Determines whether hundredths of a second should be shown.
     public var showSubseconds = true
 
@@ -62,5 +65,4 @@ public class ElapsedTimeFormatter: Formatter {
 
         return formattedString
     }
-    
 }

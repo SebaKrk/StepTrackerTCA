@@ -112,6 +112,7 @@
 
     },
     "!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -137,6 +138,7 @@
 
     },
     "%.0f %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -228,6 +230,7 @@
       }
     },
     "%@ %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -364,16 +367,6 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld / %2$lld"
-          }
-        }
-      }
-    },
-    "%lld %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld %2$@"
           }
         }
       }
@@ -671,6 +664,7 @@
 
     },
     "7 sierpnia" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -697,6 +691,7 @@
 
     },
     "19:32" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -898,6 +893,7 @@
 
     },
     "Add your first workout and start planning your activity." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1017,6 +1013,7 @@
       }
     },
     "Authorization status: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1110,6 +1107,7 @@
       }
     },
     "Bład brak danych" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1254,6 +1252,7 @@
       }
     },
     "Camera" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1467,6 +1466,7 @@
       }
     },
     "Create Workout" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1581,6 +1581,7 @@
       }
     },
     "debug authorizationStatuses" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1659,6 +1660,7 @@
       }
     },
     "Device Picker" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2163,6 +2165,7 @@
       }
     },
     "Hide bottom bar buttons" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2447,6 +2450,7 @@
       }
     },
     "live %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2653,6 +2657,7 @@
       }
     },
     "Music" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3159,6 +3164,7 @@
 
     },
     "Play" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3528,6 +3534,7 @@
       }
     },
     "Saving workout" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4262,6 +4269,7 @@
 
     },
     "tu cos bedzie" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4532,6 +4540,7 @@
       }
     },
     "welcome" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4623,6 +4632,7 @@
       }
     },
     "Workout Mirroring" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4646,6 +4656,7 @@
       }
     },
     "Workout Schedule" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4706,6 +4717,7 @@
       }
     },
     "Workout type list" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4789,6 +4801,7 @@
       }
     },
     "You haven’t scheduled any workouts yet." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
