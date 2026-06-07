@@ -857,4 +857,3 @@
     D: Remove @Dependency(\.workoutManager) + LEGACY warning block
     E: Remove orphan Features/+AppTab/ + raise deployment to iOS 26 (Package.swift × 4 uplift, @available cleanup)
     G: Remove legacy WorkoutManager (HealthHub WorkoutManager/ folder + Manager+iOS/ folder + Dependencies+Key cleanup + stale comments)
-    H: Memory + TASKS.md update
