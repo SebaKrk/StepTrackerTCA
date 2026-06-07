@@ -15,18 +15,16 @@ public struct CountDownClient {
 
 extension DependencyValues {
     var countDownClient: CountDownClient {
-        get { self[WorkoutManagerClientKey.self] }
-        set { self[WorkoutManagerClientKey.self] = newValue }
+        get { self[CountDownClientKey.self] }
+        set { self[CountDownClientKey.self] = newValue }
     }
 }
 
-private enum WorkoutManagerClientKey: DependencyKey {
+private enum CountDownClientKey: DependencyKey {
 
     static let liveValue: CountDownClient = {
-        // Route through SessionClient so Watch-primary mode is a no-op.
-        // Previously used workoutManager directly — that caused
-        // DefaultWorkoutManager.startWorkout() to fail in Watch-primary mode
-        // because iPhone has no prepared HKWorkoutSession in that mode.
+        // Route through SessionClient so Watch-primary mode is a no-op
+        // (iPhone has no prepared HKWorkoutSession in Watch-primary mode).
         @Dependency(\.sessionClient) var sessionClient
 
         return CountDownClient {

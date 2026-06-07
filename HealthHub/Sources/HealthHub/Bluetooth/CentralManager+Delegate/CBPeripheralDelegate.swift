@@ -98,13 +98,13 @@ extension DefaultCentralManager: CBPeripheralDelegate {
     ///
     /// **Uwaga**: Ta metoda służy tylko do potwierdzenia połączenia z urządzeniem.
     /// Rzeczywiste dane heart rate są automatycznie zbierane przez HealthKit
-    /// podczas sesji treningowej w WorkoutManager.
+    /// podczas aktywnej sesji treningowej (HKLiveWorkoutDataSource auto-pairing).
     ///
     /// **Flow danych:**
     /// 1. Bluetooth łączy się z urządzeniem i subskrybuje notyfikacje
     /// 2. Ta metoda otrzymuje surowe dane (tylko dla potwierdzenia połączenia)
     /// 3. HealthKit automatycznie odbiera te same dane i przetwarza je
-    /// 4. Przetworzone dane trafiają do WorkoutManager przez HKLiveWorkoutBuilder
+    /// 4. Przetworzone dane trafiają do HKLiveWorkoutBuilder przez HKLiveWorkoutDataSource
     ///
     /// - Parameters:
     ///   - peripheral: Urządzenie które wysłało dane
