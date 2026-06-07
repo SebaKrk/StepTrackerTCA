@@ -69,7 +69,7 @@ struct SessionClient {
 
     /// Starts the active `HKWorkoutSession` on iPhone.
     ///
-    /// In iPhone-standalone mode, calls `workoutManager.startWorkout()` to begin
+    /// In iPhone-standalone mode, calls `iPhoneSession.start(at:)` to begin
     /// HealthKit data collection after the countdown finishes.
     /// In Watch-primary mode, this is a no-op — Watch owns the session.
     var startWorkout: @Sendable () async -> Void
@@ -113,23 +113,6 @@ extension DependencyValues {
 private enum SessionClientClientKey: DependencyKey {
     static let liveValue: SessionClient = {
 
-        // ⚠️ ════════════════════════════════════════════════════════════════════════
-        // ⚠️  LEGACY — DO NOT USE IN NEW CODE
-        // ⚠️ ════════════════════════════════════════════════════════════════════════
-        //
-        // `workoutManager` (DefaultWorkoutManager) is the LEGACY iOS<26 path —
-        // Watch-as-HR-sensor model via WatchConnectivity.
-        //
-        // In iOS 26+ iPhone-standalone uses `iPhoneWorkoutSession` (created in
-        // `WorkoutModeRouter.prepareIPhoneSession`). When this path is active,
-        // `manager.builder`, `manager.getWorkout()` etc. are NIL — reading from
-        // them in iOS 26+ flow produces silent failures (e.g. stopwatch stuck at 0,
-        // `workout: nil` in summary polling).
-        //
-        // Existing `manager.*` calls below are kept as iOS<26 fallback only.
-        // Each is marked `// LEGACY iOS<26`. NEW reads of metrics/state/workout
-        // MUST go through `router` (which routes to iPhoneSession in iOS 26+).
-        @Dependency(\.workoutManager) var manager
         @Dependency(\.trainingManager) var trainingManager
         @Dependency(\.healthStore) var healthStore
         @Dependency(\.authorizationManager) var authorizationManager
@@ -138,7 +121,6 @@ private enum SessionClientClientKey: DependencyKey {
         // healthStore + authorizationManager are passed so the router can lazily create
         // an `iPhoneWorkoutSession` (iOS 26+) for the iPhone-standalone path.
         let router = WorkoutModeRouter(
-            workoutManager: manager,
             trainingManager: trainingManager,
             healthStore: healthStore,
             authorizationManager: authorizationManager
@@ -356,16 +338,12 @@ private final class ModeHolder: @unchecked Sendable {
 /// Actor that routes session control calls to the correct manager
 /// depending on whether Watch or iPhone owns the primary session.
 ///
-/// **iPhone-standalone routing** is iOS-version-dependent:
-/// - **iOS 26+**: native `iPhoneWorkoutSession` (HKWorkoutSession on iPhone + BLE HR sensor)
-/// - **iOS < 26**: legacy `workoutManager` (Watch-as-HR-sensor via WatchConnectivity)
-///
-/// The dual path exists because `HKWorkoutSession.init(healthStore:configuration:)` on iPhone
-/// is iOS 26+ only. On older systems iPhone cannot own a workout session natively.
+/// **Routing per mode** (per WWDC25 #322 hybrid architecture):
+/// - **Watch-primary**: `trainingManager` (mirrored session, HR via HK channel)
+/// - **iPhone-primary**: `iPhoneWorkoutSession` (HKWorkoutSession on iPhone + BLE HR via HKLiveWorkoutDataSource)
 private actor WorkoutModeRouter {
 
     private var mode: WorkoutMode = .iPhoneStandalone
-    private let workoutManager: WorkoutManager
     private let trainingManager: TrainingManager
     private let healthStore: HKHealthStore
     private let authorizationManager: AuthorizationManager
@@ -396,12 +374,10 @@ private actor WorkoutModeRouter {
     private var stateCacheTask: Task<Void, Never>?
 
     init(
-        workoutManager: WorkoutManager,
         trainingManager: TrainingManager,
         healthStore: HKHealthStore,
         authorizationManager: AuthorizationManager
     ) {
-        self.workoutManager = workoutManager
         self.trainingManager = trainingManager
         self.healthStore = healthStore
         self.authorizationManager = authorizationManager
