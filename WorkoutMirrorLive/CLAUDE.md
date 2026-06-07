@@ -101,6 +101,22 @@ Przy nowych feature'ach **uruchom skill `/pfw-composable-architecture`** żeby w
 - **`@DependencyClient` gubi `Data` w closure** — workaround: ręczny struct bez makra.
 - **`store.color.gradient` wewnątrz `PhotosPicker`** → Swift 6 `@MainActor` warning.
 - **SQLiteData `try?` w preview** — używaj `try!` w preview helpers, `try?` połknie błąd migracji.
+- **Stored `AsyncStream` w Service = bug czekający na ujawnienie** — drugi `for await` (TCA cancel + restart, view remount) nic nie dostaje. Patrz sekcja "AsyncStream — multicast pattern" niżej.
+
+## AsyncStream — multicast pattern
+
+> `AsyncStream` ma **jednego iteratora**. Drugi `for await` na tym samym stream'ie cisza. W TCA gdzie views remountują a effects są cancellowane — **stored single-stream = bug czekający na ujawnienie**.
+
+- **Default dla streamów wystawianych przez Service = multicast**: `[UUID: Continuation]` dict + `broadcast()` helper + `onTermination` cleanup
+- **Stored single-stream OK** tylko gdy krótko-żyjący lub jeden subscriber known-at-design-time. Inaczej → multicast.
+- **Closure z BLE/HK delegate callback** — różne wątki → `Task { @MainActor in self?.broadcast(event) }` hop
+- **Przykłady poprawnego multicast w projekcie:**
+  - `DefaultTrainingManager.workoutMetricsStream` — Watch HR
+  - `iPhoneWorkoutSession.metrics` — HK collected HR/calories
+  - `PeerMirrorService.peerEventsStream` — peer events (od IOS-00094-I)
+- **Red flag w code review:** `private let xxxStream: AsyncStream<T>` + `private let xxxContinuation: AsyncStream<T>.Continuation` jako stored properties → prawdopodobnie bug, sprawdź czy może być re-subskrybowany
+- **Bug który to ujawnił (IOS-00094-I, 2026-06-07):** `PeerMirrorService.peerEventsStream` był stored. View remount w iPhone-standalone + Gym Room scenario (mode switch watchPrimary→iPhoneStandalone) powodował drugi `for await` cisza → user nie pojawiał się na iPadzie mimo BLE connect.
+- **Pełny guide** (anty-pattern + pattern z kodem + audit checklist): memory `reference_async_stream_multicast.md`
 
 ## SwiftUI conventions
 
