@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
-import HealthHub
+import PeerMirror
 import SharedModels
 
 /// Reducer iPada dla Proof of Concept Gym Room.

@@ -858,3 +858,9 @@
     E: Remove orphan Features/+AppTab/ + raise deployment to iOS 26 (Package.swift × 4 uplift, @available cleanup)
     G: Remove legacy WorkoutManager (HealthHub WorkoutManager/ folder + Manager+iOS/ folder + Dependencies+Key cleanup + stale comments///)
     I: fix PeerMirror peerEventsStream multicast (view re-mount lost events)
+
+### IPAD-00088 GymRoom modularization — PeerMirror package + GymRoomDisplay target
+    - branch: `dev/IPAD-00088/IPAD-00088`
+
+    A: PeerMirror package extraction 
+    — create standalone package from HealthHub, organize BLE delegates, fix Swift 6 races 
