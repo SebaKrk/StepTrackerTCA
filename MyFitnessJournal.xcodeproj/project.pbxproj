@@ -23,6 +23,7 @@
 		9386352D2DFB608000DB5EAC /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 9386352C2DFB608000DB5EAC /* HealthHub */; };
 		938635312DFB608B00DB5EAC /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 938635302DFB608B00DB5EAC /* SharedModels */; };
 		9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */ = {isa = PBXBuildFile; fileRef = 9388D7F92D8E8B090016D160 /* TASKS.md */; };
+		938BF2C62FD9C1B1008F75CC /* PeerMirror in Frameworks */ = {isa = PBXBuildFile; productRef = 938BF2C52FD9C1B1008F75CC /* PeerMirror */; };
 		93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA3E2E48727C00495CD1 /* SharedModels */; };
 		93A6AA412E48735100495CD1 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA402E48735100495CD1 /* HealthHub */; };
 		93C6150A2F18EC0A007D5E82 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93C615092F18EC0A007D5E82 /* SharedModels */; };
@@ -101,6 +102,7 @@
 		93779D932F6FCF35008EFEF1 /* IOS-00072-Persystencja-Planow-Treningowych.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "IOS-00072-Persystencja-Planow-Treningowych.md"; sourceTree = "<group>"; };
 		9382096C2E39388600F49046 /* WorkoutMirrorLive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkoutMirrorLive.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9388D7F92D8E8B090016D160 /* TASKS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TASKS.md; sourceTree = "<group>"; };
+		938BF2C42FD9BE64008F75CC /* PeerMirror */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PeerMirror; sourceTree = "<group>"; };
 		93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFitnessJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93D02EED2DF41F4C00F08849 /* HealthHub */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HealthHub; sourceTree = "<group>"; };
 		93D02EEE2DF4CCBF00F08849 /* Commons */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Commons; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				93FA1B1F2EAA991A001809ED /* LNPopupUI in Frameworks */,
+				938BF2C62FD9C1B1008F75CC /* PeerMirror in Frameworks */,
 				93A6AA412E48735100495CD1 /* HealthHub in Frameworks */,
 				938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */,
 				93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */,
@@ -268,6 +271,7 @@
 			isa = PBXGroup;
 			children = (
 				93D961C62F255CCB00C8F7BB /* WorkoutSessionWidgetExtension.entitlements */,
+				938BF2C42FD9BE64008F75CC /* PeerMirror */,
 				93779D842F6E8E03008EFEF1 /* AppDatabase */,
 				934045BE2DF5685B005A00C8 /* SharedModels */,
 				93D02EEE2DF4CCBF00F08849 /* Commons */,
@@ -379,6 +383,7 @@
 				93FA1B1E2EAA991A001809ED /* LNPopupUI */,
 				93779D852F6E8FF4008EFEF1 /* AppDatabase */,
 				935095352FA139A10041C7B9 /* Textual */,
+				938BF2C52FD9C1B1008F75CC /* PeerMirror */,
 			);
 			productName = WorkoutMirrorLive;
 			productReference = 9382096C2E39388600F49046 /* WorkoutMirrorLive.app */;
@@ -1222,6 +1227,10 @@
 		938635302DFB608B00DB5EAC /* SharedModels */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SharedModels;
+		};
+		938BF2C52FD9C1B1008F75CC /* PeerMirror */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PeerMirror;
 		};
 		93A6AA3E2E48727C00495CD1 /* SharedModels */ = {
 			isa = XCSwiftPackageProductDependency;

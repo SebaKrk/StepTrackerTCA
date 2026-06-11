@@ -15,15 +15,30 @@ import SharedModels
 /// (bez `@DependencyClient` macro żeby uniknąć Data parameter pitfall).
 public struct PeerMirrorClient: Sendable {
 
+    /// Starts advertising iPad as Gym Room host — publikuje GATT service, czeka na iPhone connections.
+    /// Parametr `displayName` widoczny w Discovery Info characteristic.
     public var startAdvertising: @Sendable (_ displayName: String) async -> Void
+
+    /// Stops advertising — zamyka BLE peripheral, emituje `.disconnected` dla aktywnych centralów.
     public var stopAdvertising: @Sendable () async -> Void
 
+    /// Starts scanning iPhone — szuka BLE iPad advertisementów, łączy się i subskrybuje HR stream.
+    /// Parametr `displayName` ustawiany w reducerze (z UserProfile), przesyłany per-payload nie w BLE.
     public var startBrowsing: @Sendable (_ displayName: String) async -> Void
+
+    /// Stops scanning iPhone — zamyka BLE central, emituje `.disconnected`.
     public var stopBrowsing: @Sendable () async -> Void
 
+    /// Sends HR sample payload do iPada — `peerSession?.send(_:)`, brak-op jeśli nie connected.
     public var send: @Sendable (_ payload: HRSamplePayload) async -> Void
 
+    /// Returns stored `AsyncStream<HRSamplePayload>` — odbiera samples z peripheralów (iPada).
+    /// Single subscriber — jeśli drugi `for await` się pojawi, pierwszy dostaje zero (TODO multicast).
     public var samplesStream: @Sendable () async -> AsyncStream<HRSamplePayload>
+
+    /// Returns fresh multicast `AsyncStream<PeerEvent>` — każdy subscriber dostaje swój stream.
+    /// Emituje `.connected(peerID:nick:)` i `.disconnected(peerID:)` dla host + peer roles.
+    /// Cleanup przez `onTermination` gdy effect anuluje TCA (zmiana route, stop browsing, itp).
     public var peerEventsStream: @Sendable () async -> AsyncStream<PeerEvent>
 
     public init(

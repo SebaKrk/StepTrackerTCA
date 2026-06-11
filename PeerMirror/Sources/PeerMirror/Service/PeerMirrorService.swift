@@ -30,16 +30,27 @@ public final class PeerMirrorService {
 
     // MARK: - Sessions
 
+    /// Active iPad host session — tworzy się w `startAdvertising`, drop'owany w `stopAdvertising`.
+    /// `nil` = advertising stopped (idle state).
     private var hostSession: PeerMirrorBLEHostSession?
+
+    /// Active iPhone peer session — tworzy się w `startBrowsing`, drop'owany w `stopBrowsing`.
+    /// `nil` = scanning stopped (idle state).
     private var peerSession: PeerMirrorBLEPeerSession?
 
     // MARK: - peerEvents (multicast — N subscribers)
 
+    /// Registry multicast continuations — każdy `peerEventsStream()` call rejestruje nowy continuation.
+    /// Broadcast na `.connected` / `.disconnected` events. Cleanup automatycznie przez `onTermination`.
     private var peerEventContinuations: [UUID: AsyncStream<PeerEvent>.Continuation] = [:]
 
     // MARK: - samples (stored single stream — TODO multicast w przyszłości)
 
+    /// Stored AsyncStream dla HR samples — jeden subscriber (iPad). Pozostaje żywy przez lifetime service.
+    /// TODO: multicast gdy app wspiera multi-room sessions.
     private let samplesStreamSource: AsyncStream<HRSamplePayload>
+
+    /// Continuation do `samplesStreamSource` — yield'owany z `PeerMirrorBLEHostSession.onSample` callback.
     private let samplesContinuation: AsyncStream<HRSamplePayload>.Continuation
 
     public init() {

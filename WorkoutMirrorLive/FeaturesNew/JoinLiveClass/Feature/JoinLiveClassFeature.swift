@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
-import HealthHub
+import PeerMirror
 import OSLog
 import SharedModels
 
