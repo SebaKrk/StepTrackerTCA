@@ -50,11 +50,12 @@ GymRoomFeature {
             case .view(.startTapped):
                 Logger.gymRoom.info("▶️ Start tapped — advertising as '\(state.gymName)'")
                 state.isLive = true
-                state.sessionToken = UUID()   // fresh token per class — encoded w QR
+                let token = UUID()
+                state.sessionToken = token    // fresh token per class — encoded w QR
                 state.isQRVisible = true      // reset visibility on new class
                 let gymName = state.gymName
                 return .run { _ in
-                    await peerMirrorClient.startAdvertising(gymName)
+                    await peerMirrorClient.startAdvertising(gymName, token)
                 }
 
             case .view(.endTapped):

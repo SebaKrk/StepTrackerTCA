@@ -54,10 +54,11 @@ public final class PeerMirrorService {
 
     // MARK: - Host (iPad)
 
-    public func startAdvertising(displayName: String) {
+    public func startAdvertising(displayName: String, sessionToken: UUID) {
         stopAdvertising()
         hostSession = PeerMirrorBLEHostSession(
             displayName: displayName,
+            sessionToken: sessionToken,
             onPeerEvent: { [weak self] event in
                 Task { @MainActor in
                     self?.broadcastPeerEvent(event)
