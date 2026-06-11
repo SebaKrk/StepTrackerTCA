@@ -113,6 +113,7 @@
 		93D02EEE2DF4CCBF00F08849 /* Commons */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Commons; sourceTree = "<group>"; };
 		93D961C62F255CCB00C8F7BB /* WorkoutSessionWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WorkoutSessionWidgetExtension.entitlements; sourceTree = "<group>"; };
 		93FE94782F74532E00A77CCA /* WorkoutMirror Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WorkoutMirror Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8EE832CBF4CA227AF15A1A5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = GymRoom/Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -153,13 +154,6 @@
 			);
 			target = 934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */;
 		};
-		938B24FF2FDA16F1008F75CC /* Exceptions for "GymRoom" folder in "GymRoom" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 938B24BD2FDA16F1008F75CC /* GymRoom */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -192,7 +186,6 @@
 		938B24BF2FDA16F1008F75CC /* GymRoom */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				938B24FF2FDA16F1008F75CC /* Exceptions for "GymRoom" folder in "GymRoom" target */,
 			);
 			path = GymRoom;
 			sourceTree = "<group>";
@@ -324,6 +317,7 @@
 				934A03C62DD9CD8C0089D27C /* Frameworks */,
 				93CE75362D1699CA006D5A4A /* Products */,
 				8013C866C7F35E7CEA7FFC36 /* GymRoom.entitlements */,
+				C8EE832CBF4CA227AF15A1A5 /* Info.plist */,
 			);
 			sourceTree = "<group>";
 		};

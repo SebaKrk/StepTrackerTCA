@@ -863,4 +863,8 @@
     - branch: `dev/IPAD-00088/IPAD-00088`
 
     A: PeerMirror package extraction 
-    — create standalone package from HealthHub, organize BLE delegates, fix Swift 6 races 
+    - create standalone package from HealthHub, organize BLE delegates, fix Swift 6 races 
+    B: GymRoom standalone iPad app target
+    - fix Info.plist multiple-commands conflict (synchronized folder membership exception), wire OSLog import for Logger.gymRoom, BLE permission descriptions in Info.plist
+    C: PeerMirror samplesStream multicast
+    - replace stored single-stream with [UUID: Continuation] registry + broadcastSample helper (mirrors peerEvents fix from IOS-00094-I), prevents HR sample loss after SwiftUI view re-mount
