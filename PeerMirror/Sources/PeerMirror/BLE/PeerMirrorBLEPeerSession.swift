@@ -18,7 +18,7 @@ import SharedModels
 /// - Connect + discover services + characteristics
 /// - Subscribe do HR Stream characteristic (presence signaling do peripheral)
 /// - **Reads Discovery Info characteristic** żeby pozyskać iPad displayName używany
-///   jako `peerID` + `nick` w `.connected` evencie (zamiast cryptic `CBPeripheral.identifier`)
+///   jako `nick` w `.connected` evencie (`deviceID` = `peripheral.identifier`, BLE-level)
 /// - Wysyła `HRSamplePayload` przez `writeValue(_, for:, type: .withoutResponse)`
 /// - Auto-reconnect z exponential backoff (1s → 2s → 4s → 8s → cap 30s)
 ///

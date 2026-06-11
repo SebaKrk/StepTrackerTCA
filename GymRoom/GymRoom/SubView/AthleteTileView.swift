@@ -120,7 +120,7 @@ struct AthleteTileView: View {
 
     /// Imię atlety w lewym dolnym rogu.
     private var nameLabel: some View {
-        Text(athlete.id)
+        Text(athlete.nick)
             .font(nameFont)
             .foregroundStyle(.white)
             .lineLimit(1)
@@ -300,7 +300,7 @@ struct AthleteTileView: View {
     }
 
     private var initialLetter: String {
-        String(athlete.id.first ?? "?").uppercased()
+        String(athlete.nick.first ?? "?").uppercased()
     }
 }
 
@@ -308,12 +308,12 @@ struct AthleteTileView: View {
 
 /// Wszystkie 6 stref HR naraz — bpm dobrane tak żeby każdy tile miał inną strefę.
 private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
-    .init(id: "Sebastian", bpm: 60,  maxHR: 190, activeEnergy: 0),
-    .init(id: "Anna",      bpm: 102, maxHR: 190, activeEnergy: 45),
-    .init(id: "Janek",     bpm: 124, maxHR: 190, activeEnergy: 120),
-    .init(id: "Maria",     bpm: 142, maxHR: 190, activeEnergy: 210),
-    .init(id: "Tomek",     bpm: 162, maxHR: 190, activeEnergy: 340),
-    .init(id: "Kasia",     bpm: 180, maxHR: 190, activeEnergy: 480),
+    .init(id: UUID(), nick: "Sebastian", bpm: 60,  maxHR: 190, activeEnergy: 0),
+    .init(id: UUID(), nick: "Anna",      bpm: 102, maxHR: 190, activeEnergy: 45),
+    .init(id: UUID(), nick: "Janek",     bpm: 124, maxHR: 190, activeEnergy: 120),
+    .init(id: UUID(), nick: "Maria",     bpm: 142, maxHR: 190, activeEnergy: 210),
+    .init(id: UUID(), nick: "Tomek",     bpm: 162, maxHR: 190, activeEnergy: 340),
+    .init(id: UUID(), nick: "Kasia",     bpm: 180, maxHR: 190, activeEnergy: 480),
 ]
 
 #Preview("All Zones — Grid") {
@@ -334,7 +334,7 @@ private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
 
 #Preview("Single — Threshold") {
     AthleteTileView(
-        athlete: GymRoomFeature.AthleteTile(id: "Anna", bpm: 162, maxHR: 185)
+        athlete: GymRoomFeature.AthleteTile(id: UUID(), nick: "Anna", bpm: 162, maxHR: 185)
     )
     .padding(20)
     .frame(width: 420, height: 280)
@@ -344,12 +344,12 @@ private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
 
 /// Test layoutu dla różnych długości "X kcal" — od 0 do 4-cyfrowych wartości.
 private let differentCaloriesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
-    .init(id: "Start",       bpm: 160, maxHR: 190, activeEnergy: 0),
-    .init(id: "Warm-up",     bpm: 160, maxHR: 190, activeEnergy: 85),
-    .init(id: "Mid-session", bpm: 160, maxHR: 190, activeEnergy: 420),
-    .init(id: "Endurance",   bpm: 160, maxHR: 190, activeEnergy: 1250),
-    .init(id: "Marathon",    bpm: 160, maxHR: 190, activeEnergy: 2800),
-    .init(id: "Ultra",       bpm: 160, maxHR: 190, activeEnergy: 4500),
+    .init(id: UUID(), nick: "Start",       bpm: 160, maxHR: 190, activeEnergy: 0),
+    .init(id: UUID(), nick: "Warm-up",     bpm: 160, maxHR: 190, activeEnergy: 85),
+    .init(id: UUID(), nick: "Mid-session", bpm: 160, maxHR: 190, activeEnergy: 420),
+    .init(id: UUID(), nick: "Endurance",   bpm: 160, maxHR: 190, activeEnergy: 1250),
+    .init(id: UUID(), nick: "Marathon",    bpm: 160, maxHR: 190, activeEnergy: 2800),
+    .init(id: UUID(), nick: "Ultra",       bpm: 160, maxHR: 190, activeEnergy: 4500),
 ]
 
 #Preview("Different Calories") {

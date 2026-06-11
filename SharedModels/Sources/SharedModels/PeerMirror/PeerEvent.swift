@@ -9,12 +9,11 @@ import Foundation
 
 /// Event lifecycle peera w sesji peer-to-peer (Bluetooth Low Energy).
 ///
-/// **Convention `peerID == nick`** zachowana z MC era: reducer `GymRoomFeature`
-/// używa `peerID` z `.disconnected` jako klucz `state.athletes.remove(id:)`,
-/// gdzie kluczem athletes jest nick (= `HRSamplePayload.nick`). BLE host session
-/// emit'uje `.connected(peerID: nick, nick: nick)` po pierwszym otrzymanym payload
-/// (czeka na nick — `CBCentral.identifier.uuidString` nie pasowałby do reducer key).
+/// **Primary key = `deviceID`** (per-install UUID z `HRSamplePayload`). Host indexuje
+/// `connectedCentrals` po `deviceID`, dzięki czemu reconnect detection działa
+/// niezależnie od `CBPeripheral.identifier` (Apple rotuje per BLE connection cycle).
+/// `nick` jest tylko display name — może się powtarzać między peerami.
 public enum PeerEvent: Sendable, Equatable {
-    case connected(peerID: String, nick: String)
-    case disconnected(peerID: String)
+    case connected(deviceID: UUID, nick: String)
+    case disconnected(deviceID: UUID)
 }

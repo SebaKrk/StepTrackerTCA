@@ -875,7 +875,7 @@
     A: Stable peer deviceID foundation
     - rename HRSamplePayload.userID → deviceID, JoinLiveClassFeature+State userIDString → deviceIDString (AppStorage key joinLiveClassUserID → joinLiveClassDeviceID), drop dead UUID fallback, add computed var deviceID: UUID — surrogate key ready for host indexing in subtask B
     B: Host indexes by deviceID
-    - PeerEvent payload reshape, connectedCentrals keyed by deviceID, AthleteTile.id=UUID + nick:String display — fixes nick collision and reconnect detection
+    - PeerEvent reshaped (.connected(deviceID:nick:), .disconnected(deviceID:)), PeerMirrorBLEHostSession: connectedCentrals keyed by deviceID + centralToDevice reverse lookup map + PeerInfo struct, AthleteTile.id: UUID + nick: String, PeerMirrorBLEPeerSession emit sites updated (4 call sites use peripheral.identifier as deviceID since peer ignores payload). Reconnect detection + nick collision fixed.
     C1: iPad QR generation in corner overlay
     - QRSessionPayload Codable + QRCodeView (CIFilter.qrCodeGenerator), sessionToken rotated per-class, toggle visibility for trainer
     C2: iPhone QR scanner + camera permission

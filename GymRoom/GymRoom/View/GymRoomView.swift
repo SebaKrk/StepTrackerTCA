@@ -232,7 +232,8 @@ private let previewBPMs = [
 private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.AthleteTile> {
     IdentifiedArray(uniqueElements: (0..<count).map { index in
         GymRoomFeature.AthleteTile(
-            id: previewNames[index % previewNames.count],
+            id: UUID(),
+            nick: previewNames[index % previewNames.count],
             bpm: previewBPMs[index % previewBPMs.count],
             maxHR: 190,
             activeEnergy: Double(45 + index * 38)
