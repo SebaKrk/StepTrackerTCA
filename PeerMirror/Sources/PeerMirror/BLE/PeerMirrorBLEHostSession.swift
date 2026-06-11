@@ -36,29 +36,45 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
 
     // MARK: - Logger
 
-    private static let logger = Logger(
+    static let logger = Logger(
         subsystem: "com.ss.WorkoutMirrorLive",
         category: "BLE-Host"
     )
 
     // MARK: - GATT
 
-    private let peripheralManager: CBPeripheralManager
-    private let hrCharacteristic: CBMutableCharacteristic
-    private let discoveryInfoCharacteristic: CBMutableCharacteristic
-    private let service: CBMutableService
+    /// BLE Peripheral Manager — publikuje serwis jako BLE peripheral, odbiera connections/writes.
+    let peripheralManager: CBPeripheralManager
+
+    /// HR Stream characteristic — writeWithoutResponse (data transport) + notify (presence detection).
+    /// Notify nie wysyła danych — tylko sygnalizuje subscribe/unsubscribe dla connection tracking.
+    let hrCharacteristic: CBMutableCharacteristic
+
+    /// Discovery Info characteristic — read-only, zawiera displayName iPada jako UTF8 data.
+    /// Umożliwia iPhone'm pobranie nazwy sali zamiast cryptic UUID.
+    let discoveryInfoCharacteristic: CBMutableCharacteristic
+
+    /// GATT Service — zawiera oba characteristics, publikowany przez peripheralManager.
+    let service: CBMutableService
 
     // MARK: - State
 
-    private let displayName: String
+    /// Display name iPada — publikowany w Discovery Info characteristic oraz advertisement data.
+    /// Używany jako `peerID` w `.connected` evencie (contract z MC era).
+    let displayName: String
 
     /// Tracking jakie centrale są aktualnie subscribed do HR characteristic.
     /// Pierwszy klucz `.identifier` widziany = `.connected`, brak = `.disconnected`.
     /// Wartość updates do prawdziwego nick'a gdy przychodzi pierwszy `HRSamplePayload`.
-    private var connectedCentrals: [UUID: String] = [:]
+    var connectedCentrals: [UUID: String] = [:]
 
-    private let onPeerEvent: @Sendable (PeerEvent) -> Void
-    private let onSample: @Sendable (HRSamplePayload) -> Void
+    /// Callback dla `.connected(peerID:nick:)` i `.disconnected(peerID:)` eventów.
+    /// Wywoływane z main thread (CBPeripheralManager delegate queue = nil).
+    let onPeerEvent: @Sendable (PeerEvent) -> Void
+
+    /// Callback dla HR sample payload'ów odebranych od centralów.
+    /// Wywoływane z main thread, forwarded do samplesStream w service.
+    let onSample: @Sendable (HRSamplePayload) -> Void
 
     // MARK: - Init
 

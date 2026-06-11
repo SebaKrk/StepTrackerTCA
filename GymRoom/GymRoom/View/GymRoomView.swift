@@ -1,5 +1,13 @@
 //
 //  GymRoomView.swift
+//  MyFitnessJournal
+//
+//  Created by Sebastian Sciuba on 11/06/2026.
+//
+
+
+//
+//  GymRoomView.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 23/05/2026.

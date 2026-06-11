@@ -11,9 +11,9 @@ import SwiftUI
 
 @main
 struct WorkoutMirrorLiveApp: App {
-
+    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
+    
     init() {
         prepareDependencies {
             do {
@@ -23,30 +23,22 @@ struct WorkoutMirrorLiveApp: App {
             }
         }
     }
-
+    
     var body: some Scene {
         WindowGroup {
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                GymRoomView(
-                    store: Store(initialState: GymRoomFeature.State()) {
-                        GymRoomFeature()
-                    }
-                )
-            } else {
-                AppTabNewView(
-                    store: Store(initialState: AppTabNewFeature.State()) {
-                        AppTabNewFeature()
-                            ///._printChanges()
-                    } withDependencies: {
+            AppTabNewView(
+                store: Store(initialState: AppTabNewFeature.State()) {
+                    AppTabNewFeature()
+                    ///._printChanges()
+                } withDependencies: {
 #if targetEnvironment(simulator)
-                        $0.trainingReadinessClient = .mock
+                    $0.trainingReadinessClient = .mock
 #endif
-                    }
-                )
-            }
+                }
+            )
+            
         }
     }
-    
 }
 
 //            HealthMetricCardsView()

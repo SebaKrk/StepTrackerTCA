@@ -372,6 +372,7 @@
       }
     },
     "%lld athletes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "variations" : {
@@ -722,6 +723,7 @@
       }
     },
     "Active Energy" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2030,6 +2032,7 @@
       }
     },
     "Gym Room" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2440,6 +2443,7 @@
       }
     },
     "LIVE" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3843,6 +3847,7 @@
       }
     },
     "Start class" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {

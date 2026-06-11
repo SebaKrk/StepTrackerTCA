@@ -23,36 +23,39 @@ import SharedModels
 /// nic nie dostawał — bug ujawniał się przy view re-mount (np. iPhone-standalone + Gym Room).
 /// Cleanup automatyczny przez `onTermination` gdy TCA cancel'uje effect.
 ///
-/// **samples** — pozostaje stored single-stream. iPad subscriber jest jeden (GymRoomView),
-/// re-mount na iPadzie jest rzadki. Multicast TODO gdy iPad app będzie multi-room.
+/// **samples — multicast** (ten sam wzorzec): każdy `samplesStream()` call rejestruje swój
+/// continuation w `samplesContinuations`. Bez multicast'u widok Gym Room po SwiftUI re-mount
+/// (memory pressure, scene phase change) gubił próbki HR — dwa `for await` na single stored
+/// stream konkurowały o elementy (race). Cleanup automatyczny przez `onTermination`.
 @MainActor
 public final class PeerMirrorService {
 
     // MARK: - Sessions
 
+    /// Active iPad host session — tworzy się w `startAdvertising`, drop'owany w `stopAdvertising`.
+    /// `nil` = advertising stopped (idle state).
     private var hostSession: PeerMirrorBLEHostSession?
+
+    /// Active iPhone peer session — tworzy się w `startBrowsing`, drop'owany w `stopBrowsing`.
+    /// `nil` = scanning stopped (idle state).
     private var peerSession: PeerMirrorBLEPeerSession?
 
-    // MARK: - peerEvents (multicast — N subscribers)
+    // MARK: - Multicast continuations
 
+    /// Registry multicast continuations dla peer events — każdy `peerEventsStream()` call rejestruje nowy.
+    /// Broadcast na `.connected` / `.disconnected`. Cleanup automatyczny przez `onTermination`.
     private var peerEventContinuations: [UUID: AsyncStream<PeerEvent>.Continuation] = [:]
 
-    // MARK: - samples (stored single stream — TODO multicast w przyszłości)
+    /// Registry multicast continuations dla HR samples — każdy `samplesStream()` call rejestruje nowy.
+    /// Broadcast na każdą próbkę z `PeerMirrorBLEHostSession.onSample`. Cleanup automatyczny przez `onTermination`.
+    private var samplesContinuations: [UUID: AsyncStream<HRSamplePayload>.Continuation] = [:]
 
-    private let samplesStreamSource: AsyncStream<HRSamplePayload>
-    private let samplesContinuation: AsyncStream<HRSamplePayload>.Continuation
-
-    public init() {
-        let (sStream, sCont) = AsyncStream<HRSamplePayload>.makeStream()
-        self.samplesStreamSource = sStream
-        self.samplesContinuation = sCont
-    }
+    public init() {}
 
     // MARK: - Host (iPad)
 
     public func startAdvertising(displayName: String) {
         stopAdvertising()
-        let sampleContinuation = samplesContinuation
         hostSession = PeerMirrorBLEHostSession(
             displayName: displayName,
             onPeerEvent: { [weak self] event in
@@ -60,8 +63,10 @@ public final class PeerMirrorService {
                     self?.broadcastPeerEvent(event)
                 }
             },
-            onSample: { payload in
-                sampleContinuation.yield(payload)
+            onSample: { [weak self] payload in
+                Task { @MainActor in
+                    self?.broadcastSample(payload)
+                }
             }
         )
     }
@@ -100,7 +105,15 @@ public final class PeerMirrorService {
     // MARK: - Streams (accessory)
 
     public func samplesStream() -> AsyncStream<HRSamplePayload> {
-        samplesStreamSource
+        let id = UUID()
+        let (stream, continuation) = AsyncStream.makeStream(of: HRSamplePayload.self)
+        continuation.onTermination = { [weak self] _ in
+            Task { @MainActor in
+                self?.samplesContinuations.removeValue(forKey: id)
+            }
+        }
+        samplesContinuations[id] = continuation
+        return stream
     }
 
     public func peerEventsStream() -> AsyncStream<PeerEvent> {
@@ -120,6 +133,12 @@ public final class PeerMirrorService {
     private func broadcastPeerEvent(_ event: PeerEvent) {
         for continuation in peerEventContinuations.values {
             continuation.yield(event)
+        }
+    }
+
+    private func broadcastSample(_ payload: HRSamplePayload) {
+        for continuation in samplesContinuations.values {
+            continuation.yield(payload)
         }
     }
 }
