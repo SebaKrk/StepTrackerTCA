@@ -44,6 +44,11 @@ extension GymRoomFeature {
 
             /// Tap "End" — iPad przestaje advertising, czyści listę athletów.
             case endTapped
+
+            /// Toggle widoczności QR widgetu (corner overlay). Trener może schować QR
+            /// po dołączeniu wszystkich sportowców — sam ikonowy button zostaje
+            /// w corner żeby można było pokazać znowu.
+            case toggleQR
         }
     }
 }

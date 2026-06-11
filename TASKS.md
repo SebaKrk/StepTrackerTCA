@@ -877,7 +877,7 @@
     B: Host indexes by deviceID
     - PeerEvent reshaped (.connected(deviceID:nick:), .disconnected(deviceID:)), PeerMirrorBLEHostSession: connectedCentrals keyed by deviceID + centralToDevice reverse lookup map + PeerInfo struct, AthleteTile.id: UUID + nick: String, PeerMirrorBLEPeerSession emit sites updated (4 call sites use peripheral.identifier as deviceID since peer ignores payload). Reconnect detection + nick collision fixed.
     C1: iPad QR generation in corner overlay
-    - QRSessionPayload Codable + QRCodeView (CIFilter.qrCodeGenerator), sessionToken rotated per-class, toggle visibility for trainer
+    - QRSessionPayload Codable (token/iPadID/gymName/createdAt) in SharedModels, QRCodeView with CIFilter.qrCodeGenerator + .interpolation(.none) + static CIContext + CGImage Image(decorative:) (no UIKit), State adds @Shared iPadIDString + sessionToken UUID? + gymName + isQRVisible, GymRoomFeature: startTapped generates UUID(), endTapped nils it, toggleQR flips visibility, GymRoomView corner overlay with qrCard/qrToggleButton + JSON payload encoder (ISO-8601 dates).
     C2: iPhone QR scanner + camera permission
     - QRScannerView (UIViewControllerRepresentable + AVCaptureSession), NSCameraUsageDescription
     C3: Handshake with sessionToken + reject logic

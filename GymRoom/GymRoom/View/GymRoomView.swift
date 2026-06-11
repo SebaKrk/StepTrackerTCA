@@ -14,6 +14,8 @@
 //
 
 import ComposableArchitecture
+import Foundation
+import SharedModels
 import SwiftUI
 
 @ViewAction(for: GymRoomFeature.self)
@@ -66,6 +68,12 @@ struct GymRoomView: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 16)
+        .overlay(alignment: .bottomTrailing) {
+            if let token = store.sessionToken {
+                qrCornerWidget(token: token)
+                    .padding(24)
+            }
+        }
     }
 
     private var header: some View {
@@ -179,6 +187,56 @@ struct GymRoomView: View {
         .controlSize(.large)
     }
 
+    // MARK: - QR widget (corner overlay)
+
+    /// Pokaż QR card gdy widoczny, lub ikoniczny toggle button gdy schowany.
+    /// Trener może togglować — wszystko związane z QR żyje tylko gdy `sessionToken != nil`.
+    @ViewBuilder
+    private func qrCornerWidget(token: UUID) -> some View {
+        if store.isQRVisible {
+            qrCard(token: token)
+        } else {
+            qrToggleButton
+        }
+    }
+
+    /// Pełen QR card z code'em + caption + close button.
+    private func qrCard(token: UUID) -> some View {
+        VStack(spacing: 8) {
+            QRCodeView(payload: qrPayloadJSON(token: token))
+                .frame(width: 180, height: 180)
+                .padding(12)
+                .background(.white)
+                .clipShape(.rect(cornerRadius: 12))
+            Text(qrCaption)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.white)
+            Button {
+                send(.toggleQR)
+            } label: {
+                Label(qrHideTitle, systemImage: "xmark.circle.fill")
+                    .font(.caption)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.capsule)
+        }
+        .padding(16)
+        .background(.ultraThinMaterial, in: .rect(cornerRadius: 20))
+    }
+
+    /// Małęj ikoniczny button który pokazuje QR z powrotem.
+    private var qrToggleButton: some View {
+        Button {
+            send(.toggleQR)
+        } label: {
+            Image(systemName: "qrcode")
+                .font(.title)
+                .padding(12)
+        }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.capsule)
+    }
+
     // MARK: - Private content (implementacja)
 
     private var headerTitle: String {
@@ -199,6 +257,32 @@ struct GymRoomView: View {
 
     private var endTitle: String {
         String(localized: "End", bundle: .main)
+    }
+
+    private var qrCaption: String {
+        String(localized: "Skanuj kodem QR", bundle: .main)
+    }
+
+    private var qrHideTitle: String {
+        String(localized: "Schowaj", bundle: .main)
+    }
+
+    /// Buduje JSON payload dla QR z `sessionToken` + `iPadID` + `gymName` + `createdAt`.
+    /// ISO-8601 daty żeby było czytelne po dekodowaniu (peer może debugować w log'u).
+    /// Pusty string fallback jeśli encoding fails (rzadkie — wszystkie pola Codable).
+    private func qrPayloadJSON(token: UUID) -> String {
+        let payload = QRSessionPayload(
+            token: token,
+            iPadID: store.iPadID,
+            gymName: store.gymName
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        guard let data = try? encoder.encode(payload),
+              let json = String(data: data, encoding: .utf8) else {
+            return ""
+        }
+        return json
     }
 
 }
@@ -253,7 +337,7 @@ private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.A
 
 #Preview("Live — 1") {
     GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(1))) {
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(1), sessionToken: UUID())) {
             GymRoomFeature()
         }
     )
@@ -261,7 +345,7 @@ private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.A
 
 #Preview("Live — 2") {
     GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(2))) {
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(2), sessionToken: UUID())) {
             GymRoomFeature()
         }
     )
@@ -269,7 +353,7 @@ private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.A
 
 #Preview("Live — 4") {
     GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(4))) {
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(4), sessionToken: UUID())) {
             GymRoomFeature()
         }
     )
@@ -277,7 +361,7 @@ private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.A
 
 #Preview("Live — 8") {
     GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(8))) {
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(8), sessionToken: UUID())) {
             GymRoomFeature()
         }
     )
@@ -285,7 +369,7 @@ private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.A
 
 #Preview("Live — 12") {
     GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(12))) {
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(12), sessionToken: UUID())) {
             GymRoomFeature()
         }
     )
@@ -293,7 +377,15 @@ private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.A
 
 #Preview("Live — 24 (auto-shrink)") {
     GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(24))) {
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(24), sessionToken: UUID())) {
+            GymRoomFeature()
+        }
+    )
+}
+
+#Preview("Live — QR hidden") {
+    GymRoomView(
+        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(4), sessionToken: UUID(), isQRVisible: false)) {
             GymRoomFeature()
         }
     )
