@@ -60,6 +60,7 @@ extension GymRoomFeature {
         var bpm: Int = 0
         var maxHR: Int = 190
         var activeEnergy: Double = 0
+        var state: TileState = .live
 
         /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.
         var percentHR: Int {
@@ -72,5 +73,17 @@ extension GymRoomFeature {
             let value = Double(percentHR) / 100
             return HeartRateZone.allCases.first { $0.percentageRange.contains(value) } ?? .resting
         }
+    }
+
+    /// Stan kafelka athlety w grace period architecture.
+    ///
+    /// - `.live` — peer aktywnie broadcastuje HR (default state)
+    /// - `.reconnecting` — peer BLE-disconnect, czekamy 10s grace period; kafelek wyświetla
+    ///   subtelny overlay (spinner + grayscale) ale **nie znika** — bo może wrócić
+    /// - `.lost` nie istnieje jako persistent state — po grace timeout reducer od razu
+    ///   usuwa tile z `state.athletes` (transient removal, brak migotania)
+    enum TileState: Sendable, Equatable {
+        case live
+        case reconnecting
     }
 }

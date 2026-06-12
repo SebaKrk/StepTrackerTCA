@@ -129,10 +129,16 @@ struct JoinLiveClassFeature {
                 return .run { send in
                     for await event in await peerMirrorClient.peerEventsStream() {
                         switch event {
-                        case .connected:
+                        case .connected, .reconnected:
+                            // Z perspektywy peer'a (iPhone) reconnect i fresh connect są
+                            // ekwiwalentne — oba znaczą "iPad available, start broadcasting HR".
                             await send(.peerConnected)
                         case .disconnected:
                             await send(.peerDisconnected)
+                        case .suspended:
+                            // Host-side grace period — peer-side ignoruje. Peer ma swój własny
+                            // exponential backoff reconnect w PeerMirrorBLEPeerSession.
+                            break
                         }
                     }
                 }

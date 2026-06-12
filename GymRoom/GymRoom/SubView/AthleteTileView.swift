@@ -41,7 +41,27 @@ struct AthleteTileView: View {
         .background(zoneGradient, in: tileShape)
         .glassEffect(in: tileShape)
         .clipShape(tileShape)
+        .saturation(athlete.state == .reconnecting ? 0.3 : 1.0)
+        .overlay {
+            if athlete.state == .reconnecting {
+                reconnectingOverlay
+            }
+        }
         .animation(.easeInOut(duration: 0.4), value: athlete.zone)
+        .animation(.easeInOut(duration: 0.25), value: athlete.state)
+    }
+
+    /// Pokazuje subtelny dim layer + spinner gdy peer w grace period (10s).
+    /// Grayscale aplikowany przez `.saturation()` na całym tile — wskazuje "stale data".
+    private var reconnectingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+            ProgressView()
+                .progressViewStyle(.circular)
+                .tint(.white)
+                .scaleEffect(1.4)
+        }
+        .clipShape(tileShape)
     }
 
     // MARK: - Private views (struktura)
@@ -335,6 +355,23 @@ private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
 #Preview("Single — Threshold") {
     AthleteTileView(
         athlete: GymRoomFeature.AthleteTile(id: UUID(), nick: "Anna", bpm: 162, maxHR: 185)
+    )
+    .padding(20)
+    .frame(width: 420, height: 280)
+    .background(.black)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Reconnecting (grace period)") {
+    AthleteTileView(
+        athlete: GymRoomFeature.AthleteTile(
+            id: UUID(),
+            nick: "Anna",
+            bpm: 162,
+            maxHR: 185,
+            activeEnergy: 240,
+            state: .reconnecting
+        )
     )
     .padding(20)
     .frame(width: 420, height: 280)
