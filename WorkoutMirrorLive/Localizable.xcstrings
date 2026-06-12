@@ -3999,7 +3999,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tapnij Dołącz, aby transmitować swój puls na ekran sali treningowej."
+            "value" : "Stuknij Dołącz, aby transmitować swoje tętno na ekran Gym Room."
           }
         }
       }
@@ -4827,7 +4827,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Twój puls jest widoczny na ekranie sali treningowej."
+            "value" : "Twoje tętno jest widoczne na ekranie Gym Room."
           }
         }
       }
