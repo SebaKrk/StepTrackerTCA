@@ -48,18 +48,28 @@ GymRoomFeature {
                 )
 
             case .view(.startTapped):
-                Logger.gymRoom.info("▶️ Start tapped — advertising as 'Gym Room'")
+                Logger.gymRoom.info("▶️ Start tapped — advertising as '\(state.gymName)'")
                 state.isLive = true
+                let token = UUID()
+                state.sessionToken = token    // fresh token per class — encoded w QR
+                state.isQRVisible = true      // reset visibility on new class
+                let gymName = state.gymName
                 return .run { _ in
-                    await peerMirrorClient.startAdvertising("Gym Room")
+                    await peerMirrorClient.startAdvertising(gymName, token)
                 }
 
             case .view(.endTapped):
+                Logger.gymRoom.info("⏹️ End tapped — invalidating session token")
                 state.isLive = false
                 state.athletes.removeAll()
+                state.sessionToken = nil      // invalidate — stale QR scans odrzucone (subtask C3)
                 return .run { _ in
                     await peerMirrorClient.stopAdvertising()
                 }
+
+            case .view(.toggleQR):
+                state.isQRVisible.toggle()
+                return .none
 
                 // MARK: - Internal
 

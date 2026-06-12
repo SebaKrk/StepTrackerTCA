@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 extension JoinLiveClassFeature {
 
@@ -40,6 +41,16 @@ extension JoinLiveClassFeature {
         /// Default 190 jako fallback gdy parent nie zdążył jeszcze obliczyć
         /// (race przy szybkim joinLiveClass tap przed `makeCalculationForSession`).
         var maxHeartRate: Int = 190
+
+        /// Zdekodowany QR payload po scan'ie. `nil` = jeszcze nie scanned.
+        /// Ephemeral — NIE persistujemy. Reset na `.leaveTapped` wymusza ponowny scan
+        /// przy następnym Join. `sessionToken` z payload'u wysyłany w `HRSamplePayload`.
+        var scannedQRPayload: QRSessionPayload?
+
+        /// Czy QR scanner (fullScreenCover) jest aktualnie widoczny.
+        /// Set przez `.joinTapped`, unset przez `.qrScanned` (po successful scan)
+        /// lub `.scannerDismissed` (gdy user swipe-down bez scanowania).
+        var isShowingScanner: Bool = false
     }
 
     enum Phase: Equatable, Sendable {

@@ -63,6 +63,12 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
     /// Display name iPada — publikowany w Discovery Info characteristic oraz advertisement data.
     let displayName: String
 
+    /// Token aktywnej klasy (= `QRSessionPayload.token`) — validate'owany przy pierwszym
+    /// `HRSamplePayload` z każdego peer'a. Mismatch = reject (peer ze starego QR ze
+    /// poprzedniej klasy, lub atak replay). Walidacja **tylko on first connect** — subsequent
+    /// HR updates są trust'owane, peer już zaakceptowany w `connectedCentrals`.
+    let currentSessionToken: UUID
+
     /// Info o połączonym peerze — trzymane razem zamiast kilku map, żeby uniknąć desync'u.
     struct PeerInfo: Sendable {
         /// BLE radio identifier — może rotować przy kolejnym connection cycle (Apple privacy).
@@ -95,10 +101,12 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
 
     public init(
         displayName: String,
+        sessionToken: UUID,
         onPeerEvent: @escaping @Sendable (PeerEvent) -> Void,
         onSample: @escaping @Sendable (HRSamplePayload) -> Void
     ) {
         self.displayName = displayName
+        self.currentSessionToken = sessionToken
         self.onPeerEvent = onPeerEvent
         self.onSample = onSample
 
@@ -243,11 +251,19 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
 
             let identifier = request.central.identifier
             let deviceID = payload.deviceID
-            // Pierwszy write z tym `deviceID` — emit `.connected`.
-            // Jeśli ten sam `deviceID` przychodzi z innego `central.identifier`
-            // (BLE radio rotation po reconnect), aktualizujemy mapping ale NIE emit'ujemy
-            // ponownego `.connected` — to ten sam peer.
+            // Pierwszy write z tym `deviceID` — validate token, emit `.connected` jeśli match.
+            // Jeśli ten sam `deviceID` przychodzi z innego `central.identifier` (BLE radio
+            // rotation po reconnect), nie emit'ujemy ponownego `.connected` ani nie
+            // validate'ujemy tokenu — peer już zweryfikowany.
             if connectedCentrals[deviceID] == nil {
+                guard payload.sessionToken == currentSessionToken else {
+                    Self.logger.warning(
+                        "Rejected peer with invalid sessionToken — deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(payload.nick, privacy: .public) token=\(payload.sessionToken.uuidString.prefix(8), privacy: .public)"
+                    )
+                    // NIE forward'ujemy onSample dla odrzuconych peer'ów — żaden tile
+                    // ani %HR update'ów dla nieautoryzowanego connection.
+                    continue
+                }
                 let info = PeerInfo(
                     centralIdentifier: identifier,
                     deviceID: deviceID,

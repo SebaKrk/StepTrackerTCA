@@ -48,19 +48,18 @@ struct JoinLiveClassFeature {
                 )
 
             case .view(.joinTapped):
-                // Start browsing + zamknij sheet od razu. Broadcast trwa w tle,
-                // ikona toolbar SessionView pokazuje connected. User otworzy sheet
-                // ponownie klikając ikonę → zobaczy stan + Leave button.
-                state.phase = .searching
-                let nick = state.nick
-                return .merge(
-                    .run { _ in await peerMirrorClient.startBrowsing(nick) },
-                    .send(.delegate(.didDismiss))
-                )
+                // Tap Join = "chcę dołączyć" — otwieramy scanner, ale jeszcze NIE startujemy
+                // BLE handshake (potrzebny sessionToken z scannedQRPayload). Sheet pozostaje
+                // otwarty, scanner pojawia się jako fullScreenCover.
+                state.isShowingScanner = true
+                return .none
 
             case .view(.leaveTapped):
                 // "Zakończ klasę" — broadcast stop + delegate.didLeave (parent kasuje state).
+                // Reset scannedQRPayload + isShowingScanner — wymusza pełen scan flow ponownie.
                 state.phase = .idle
+                state.scannedQRPayload = nil
+                state.isShowingScanner = false
                 return .merge(
                     .cancel(id: JoinLiveClassCancelID.hrStream),
                     .cancel(id: JoinLiveClassCancelID.peerEvents),
@@ -74,6 +73,34 @@ struct JoinLiveClassFeature {
                 // Sheet schowany (X / swipe-down) — broadcast TRWA, state żyje, ikona toolbar
                 // pozostaje "connected". User otworzy sheet znowu klikając ikonę.
                 return .send(.delegate(.didDismiss))
+
+            case let .view(.qrScanned(jsonString)):
+                // QR scanner odebrał payload — decode JSON. Malformed = log + zamknij scanner
+                // (zostaje w state .idle, user widzi Join button żeby spróbować ponownie).
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                guard let data = jsonString.data(using: .utf8),
+                      let payload = try? decoder.decode(QRSessionPayload.self, from: data) else {
+                    Logger.gymRoom.error("[QR] Failed to decode scanned payload (malformed JSON)")
+                    state.isShowingScanner = false
+                    return .none
+                }
+                Logger.gymRoom.info("[QR] Scanned payload — gym=\(payload.gymName) token=\(payload.token.uuidString.prefix(8))")
+                // Sukces: zamknij scanner, set scannedQRPayload, start BLE handshake.
+                // Sheet parent też się zamyka — broadcast trwa w tle, user widzi toolbar icon.
+                state.scannedQRPayload = payload
+                state.isShowingScanner = false
+                state.phase = .searching
+                let nick = state.nick
+                return .merge(
+                    .run { _ in await peerMirrorClient.startBrowsing(nick) },
+                    .send(.delegate(.didDismiss))
+                )
+
+            case .view(.scannerDismissed):
+                // User swipe-down scanner bez scanowania — wraca do idle z Join button.
+                state.isShowingScanner = false
+                return .none
 
                 // MARK: - Internal
 
@@ -117,11 +144,19 @@ struct JoinLiveClassFeature {
                 let nick = state.nick
                 let deviceID = state.deviceID
                 let maxHR = state.maxHeartRate
+                // Token ze scanned QR — bez niego peer nie powinien tu wejść
+                // (joinTapped wymusza scan first). Defensive log + skip dla scenariusza
+                // gdyby parent feature wymusił joinTapped pomijając scan flow.
+                guard let sessionToken = state.scannedQRPayload?.token else {
+                    Logger.gymRoom.error("[Peer] No scannedQRPayload — cannot broadcast without token")
+                    return .none
+                }
                 // Initial registration payload (bpm=0) — iPad creates tile immediately
                 // even before HR sensor connects. Subsequent payloads update HR/kcal
                 // when workoutMetricsStream yields values > 0.
                 let initialPayload = HRSamplePayload(
                     deviceID: deviceID,
+                    sessionToken: sessionToken,
                     nick: nick,
                     bpm: 0,
                     maxHR: maxHR,
@@ -135,6 +170,7 @@ struct JoinLiveClassFeature {
                         guard metrics.heartRate > 0 else { continue }
                         let payload = HRSamplePayload(
                             deviceID: deviceID,
+                            sessionToken: sessionToken,
                             nick: nick,
                             bpm: Int(metrics.heartRate),
                             maxHR: maxHR,

@@ -24,6 +24,39 @@ struct JoinLiveClassView: View {
         // BEZ `.background(systemBackground)` — sheet w iOS 26 ma natywny Liquid Glass background.
         // Nakładanie własnego color przesłoniłoby go.
         .onAppear { send(.viewDidAppear) }
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { store.isShowingScanner },
+                set: { newValue in
+                    // Swipe-down (newValue=false) → send scannerDismissed żeby reducer
+                    // synchronizował state. iOS automatycznie zamyka cover'a.
+                    if !newValue { send(.scannerDismissed) }
+                }
+            )
+        ) {
+            scannerCover
+        }
+    }
+
+    /// FullScreenCover content z QR scannerem. Po successful scan reducer
+    /// zamknie cover (`isShowingScanner = false`) + auto-trigger BLE handshake.
+    private var scannerCover: some View {
+        ZStack(alignment: .topTrailing) {
+            QRScannerView { jsonString in
+                send(.qrScanned(jsonString: jsonString))
+            }
+            .ignoresSafeArea()
+
+            // Manual close button — fallback gdy swipe-down nie jest oczywisty UX.
+            Button {
+                send(.scannerDismissed)
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title)
+                    .foregroundStyle(.white, .black.opacity(0.5))
+            }
+            .padding(20)
+        }
     }
 
     // MARK: - Private views (struktura)
