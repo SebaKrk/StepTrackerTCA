@@ -139,6 +139,13 @@
 			);
 			target = 9382096B2E39388600F49046 /* WorkoutMirrorLive */;
 		};
+		938B24FF2FDA16F1008F75CC /* Exceptions for "GymRoom" folder in "GymRoom" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 938B24BD2FDA16F1008F75CC /* GymRoom */;
+		};
 		938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -153,20 +160,11 @@
 			);
 			target = 934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */;
 		};
-		938B24FF2FDA16F1008F75CC /* Exceptions for "GymRoom" folder in "GymRoom" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 938B24BD2FDA16F1008F75CC /* GymRoom */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "MyFitnessJournal Watch App";
 			sourceTree = "<group>";
 		};
@@ -199,15 +197,11 @@
 		};
 		93CE75372D1699CA006D5A4A /* StepTrackerTCA */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = StepTrackerTCA;
 			sourceTree = "<group>";
 		};
 		93FE94792F74532E00A77CCA /* WorkoutMirror Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "WorkoutMirror Watch App";
 			sourceTree = "<group>";
 		};

@@ -48,38 +48,64 @@ GymRoomFeature {
                 )
 
             case .view(.startTapped):
-                Logger.gymRoom.info("▶️ Start tapped — advertising as 'Gym Room'")
+                // Extract value PRZED Logger call — Logger.info ma @escaping autoclosure
+                // który nie może capture'ować inout state z reducer closure.
+                let gymName = state.gymName
+                Logger.gymRoom.info("▶️ Start tapped — advertising as '\(gymName)'")
                 state.isLive = true
+                let token = UUID()
+                state.sessionToken = token    // fresh token per class — encoded w QR
+                state.isQRVisible = true      // reset visibility on new class
                 return .run { _ in
-                    await peerMirrorClient.startAdvertising("Gym Room")
+                    await peerMirrorClient.startAdvertising(gymName, token)
                 }
 
             case .view(.endTapped):
+                Logger.gymRoom.info("⏹️ End tapped — invalidating session token")
                 state.isLive = false
                 state.athletes.removeAll()
+                state.sessionToken = nil      // invalidate — stale QR scans odrzucone (subtask C3)
                 return .run { _ in
                     await peerMirrorClient.stopAdvertising()
                 }
 
-                // MARK: - Internal
-
-            case let .peerConnected(nick):
-                Logger.gymRoom.info("✅ Peer connected: \(nick)")
-                guard state.athletes[id: nick] == nil else { return .none }
-                state.athletes.append(AthleteTile(id: nick))
+            case .view(.toggleQR):
+                state.isQRVisible.toggle()
                 return .none
 
-            case let .peerDisconnected(nick):
-                Logger.gymRoom.info("❌ Peer disconnected: \(nick)")
-                state.athletes.remove(id: nick)
+                // MARK: - Internal
+
+            case let .peerConnected(deviceID, nick):
+                Logger.gymRoom.info("✅ Peer connected: \(nick) (deviceID: \(deviceID.uuidString.prefix(8)))")
+                guard state.athletes[id: deviceID] == nil else { return .none }
+                state.athletes.append(AthleteTile(id: deviceID, nick: nick))
+                return .none
+
+            case let .peerSuspended(deviceID):
+                // Grace period — peer może jeszcze wrócić w ciągu 10s. Tile zostaje
+                // widoczny ale w stanie `.reconnecting` (spinner overlay + grayscale).
+                Logger.gymRoom.info("⏸ Peer suspended: \(deviceID.uuidString.prefix(8)) — entering grace period")
+                state.athletes[id: deviceID]?.state = .reconnecting
+                return .none
+
+            case let .peerReconnected(deviceID):
+                // Peer wrócił w oknie — restore stan `.live`. Brak animacji "appear",
+                // tylko subtelny return spinner → normal.
+                Logger.gymRoom.info("🔄 Peer reconnected: \(deviceID.uuidString.prefix(8))")
+                state.athletes[id: deviceID]?.state = .live
+                return .none
+
+            case let .peerDisconnected(deviceID):
+                Logger.gymRoom.info("❌ Peer disconnected: \(deviceID.uuidString.prefix(8))")
+                state.athletes.remove(id: deviceID)
                 return .none
 
             case let .sampleReceived(payload):
-                guard var tile = state.athletes[id: payload.nick] else { return .none }
+                guard var tile = state.athletes[id: payload.deviceID] else { return .none }
                 tile.bpm = payload.bpm
                 tile.maxHR = payload.maxHR
                 tile.activeEnergy = payload.activeEnergy
-                state.athletes[id: payload.nick] = tile
+                state.athletes[id: payload.deviceID] = tile
                 Logger.gymRoom.debug("💓 Updated \(payload.nick): \(payload.bpm) bpm")
                 return .none
 
@@ -88,10 +114,14 @@ GymRoomFeature {
                 return .run { send in
                     for await event in await peerMirrorClient.peerEventsStream() {
                         switch event {
-                        case let .connected(_, nick):
-                            await send(.peerConnected(nick: nick))
-                        case let .disconnected(peerID):
-                            await send(.peerDisconnected(nick: peerID))
+                        case let .connected(deviceID, nick):
+                            await send(.peerConnected(deviceID: deviceID, nick: nick))
+                        case let .suspended(deviceID, _):
+                            await send(.peerSuspended(deviceID: deviceID))
+                        case let .reconnected(deviceID, _):
+                            await send(.peerReconnected(deviceID: deviceID))
+                        case let .disconnected(deviceID):
+                            await send(.peerDisconnected(deviceID: deviceID))
                         }
                     }
                 }

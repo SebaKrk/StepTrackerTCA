@@ -46,6 +46,15 @@ extension JoinLiveClassFeature {
 
             /// Tap "Close" sheet — leave + dismiss.
             case closeTapped
+
+            /// QR scanner odebrał payload — JSON string z `QRSessionPayload`.
+            /// Reducer decode'uje, zapisuje w state, zamyka scanner i auto-triggeruje BLE handshake
+            /// (sam akt celowania na QR = wybór klasy, nie wymaga dodatkowego Join'a).
+            case qrScanned(jsonString: String)
+
+            /// User zamknął scanner bez scanowania (swipe-down na fullScreenCover).
+            /// Reducer resetuje `isShowingScanner` — wraca do idle z Join button.
+            case scannerDismissed
         }
 
         // MARK: - Delegate (dla parenta — SessionFeature)

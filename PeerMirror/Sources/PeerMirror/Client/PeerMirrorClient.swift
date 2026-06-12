@@ -16,8 +16,9 @@ import SharedModels
 public struct PeerMirrorClient: Sendable {
 
     /// Starts advertising iPad as Gym Room host — publikuje GATT service, czeka na iPhone connections.
-    /// Parametr `displayName` widoczny w Discovery Info characteristic.
-    public var startAdvertising: @Sendable (_ displayName: String) async -> Void
+    /// `displayName` widoczny w Discovery Info characteristic. `sessionToken` jest validate'owany
+    /// w `didReceiveWrite` przy pierwszym `HRSamplePayload` z każdego peer'a — mismatch = reject.
+    public var startAdvertising: @Sendable (_ displayName: String, _ sessionToken: UUID) async -> Void
 
     /// Stops advertising — zamyka BLE peripheral, emituje `.disconnected` dla aktywnych centralów.
     public var stopAdvertising: @Sendable () async -> Void
@@ -32,17 +33,17 @@ public struct PeerMirrorClient: Sendable {
     /// Sends HR sample payload do iPada — `peerSession?.send(_:)`, brak-op jeśli nie connected.
     public var send: @Sendable (_ payload: HRSamplePayload) async -> Void
 
-    /// Returns stored `AsyncStream<HRSamplePayload>` — odbiera samples z peripheralów (iPada).
-    /// Single subscriber — jeśli drugi `for await` się pojawi, pierwszy dostaje zero (TODO multicast).
+    /// Returns fresh multicast `AsyncStream<HRSamplePayload>` — każdy subscriber dostaje swój stream.
+    /// Cleanup przez `onTermination` gdy effect anuluje TCA (view re-mount, stop, itp).
     public var samplesStream: @Sendable () async -> AsyncStream<HRSamplePayload>
 
     /// Returns fresh multicast `AsyncStream<PeerEvent>` — każdy subscriber dostaje swój stream.
-    /// Emituje `.connected(peerID:nick:)` i `.disconnected(peerID:)` dla host + peer roles.
+    /// Emituje `.connected(deviceID:nick:)` i `.disconnected(deviceID:)` dla host + peer roles.
     /// Cleanup przez `onTermination` gdy effect anuluje TCA (zmiana route, stop browsing, itp).
     public var peerEventsStream: @Sendable () async -> AsyncStream<PeerEvent>
 
     public init(
-        startAdvertising: @escaping @Sendable (_ displayName: String) async -> Void,
+        startAdvertising: @escaping @Sendable (_ displayName: String, _ sessionToken: UUID) async -> Void,
         stopAdvertising: @escaping @Sendable () async -> Void,
         startBrowsing: @escaping @Sendable (_ displayName: String) async -> Void,
         stopBrowsing: @escaping @Sendable () async -> Void,
@@ -70,8 +71,8 @@ extension PeerMirrorClient: DependencyKey {
         let service = PeerMirrorService()
 
         return PeerMirrorClient(
-            startAdvertising: { displayName in
-                await service.startAdvertising(displayName: displayName)
+            startAdvertising: { displayName, sessionToken in
+                await service.startAdvertising(displayName: displayName, sessionToken: sessionToken)
             },
             stopAdvertising: {
                 await service.stopAdvertising()

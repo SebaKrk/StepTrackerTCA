@@ -15,19 +15,20 @@ import SharedModels
 /// **Responsibilities**:
 /// - Publikuje custom GATT service (`gymRoomServiceUUID`) jako BLE peripheral (`CBPeripheralManager`)
 /// - Eksponuje dwa characteristics: HR Stream (write + notify) + Discovery Info (read)
-/// - Mapuje `central.identifier` → presence przez `didSubscribeTo` / `didUnsubscribeFrom`
+/// - Indexuje peer'y po `deviceID` (per-install UUID z `HRSamplePayload`) — odporne na
+///   `CBPeripheral.identifier` rotation (Apple rotuje per BLE connection cycle)
 /// - Odbiera HR samples przez `didReceiveWrite` i forwarduje do callbacks
 ///
 /// **Connection model**:
-/// 1. iPhone scan + connect (BLE radio level)
+/// 1. iPhone scan + connect (BLE radio level — `central.identifier` rotujący)
 /// 2. iPhone subscribes do HR characteristic — peripheral loguje, ale jeszcze nie emit'uje
-///    (czekamy na pierwszy payload z nickiem — `peerID == nick` zachowuje contract MC era)
-/// 3. iPhone writes pierwszy `HRSamplePayload` → emit `.connected(peerID: nick, nick: nick)`
-/// 4. iPhone unsubscribe / out of range → emit `.disconnected(peerID: nick)`
+///    (czekamy na pierwszy payload z `deviceID` — to nasze "logical identity")
+/// 3. iPhone writes pierwszy `HRSamplePayload` → emit `.connected(deviceID:, nick:)`
+/// 4. iPhone unsubscribe / out of range → emit `.disconnected(deviceID:)`
 ///
-/// **Dlaczego `peerID == nick`**: reducer `GymRoomFeature` używa `peerID` z `.disconnected`
-/// jako klucz do `state.athletes.remove(id:)`, gdzie kluczem jest nick. Trzymamy ten contract
-/// żeby F.D nie wymagało zmian w TCA features.
+/// **Dwie mapy**: `connectedCentrals: [UUID: PeerInfo]` keyed po `deviceID` jest primary.
+/// `centralToDevice: [UUID: UUID]` to reverse lookup — `didUnsubscribeFrom` delegate dostaje
+/// tylko `central.identifier`, musimy go zmapować na `deviceID` żeby znaleźć peer'a.
 ///
 /// **Lifecycle**: stworzona w `PeerMirrorService.startAdvertising`, dropped w `stopAdvertising`.
 /// Wszystkie references są `let` lub `private var` dotykane tylko z delegate callbacks
@@ -60,15 +61,35 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
     // MARK: - State
 
     /// Display name iPada — publikowany w Discovery Info characteristic oraz advertisement data.
-    /// Używany jako `peerID` w `.connected` evencie (contract z MC era).
     let displayName: String
 
-    /// Tracking jakie centrale są aktualnie subscribed do HR characteristic.
-    /// Pierwszy klucz `.identifier` widziany = `.connected`, brak = `.disconnected`.
-    /// Wartość updates do prawdziwego nick'a gdy przychodzi pierwszy `HRSamplePayload`.
-    var connectedCentrals: [UUID: String] = [:]
+    /// Token aktywnej klasy (= `QRSessionPayload.token`) — validate'owany przy pierwszym
+    /// `HRSamplePayload` z każdego peer'a. Mismatch = reject (peer ze starego QR ze
+    /// poprzedniej klasy, lub atak replay). Walidacja **tylko on first connect** — subsequent
+    /// HR updates są trust'owane, peer już zaakceptowany w `connectedCentrals`.
+    let currentSessionToken: UUID
 
-    /// Callback dla `.connected(peerID:nick:)` i `.disconnected(peerID:)` eventów.
+    /// Info o połączonym peerze — trzymane razem zamiast kilku map, żeby uniknąć desync'u.
+    struct PeerInfo: Sendable {
+        /// BLE radio identifier — może rotować przy kolejnym connection cycle (Apple privacy).
+        let centralIdentifier: UUID
+        /// Stabilny per-install identifier peer'a — primary key.
+        let deviceID: UUID
+        /// Display name.
+        let nick: String
+    }
+
+    /// Aktualnie połączeni peer'y, keyed po `deviceID` (primary key).
+    /// Pierwszy `HRSamplePayload` z danym `deviceID` emit'uje `.connected`,
+    /// usunięcie wpisu (przez `didUnsubscribeFrom` lub `stop()`) emit'uje `.disconnected`.
+    var connectedCentrals: [UUID: PeerInfo] = [:]
+
+    /// Reverse lookup `central.identifier` → `deviceID`. Potrzebny w `didUnsubscribeFrom`,
+    /// gdzie BLE delegate daje tylko `CBCentral.identifier`, a my musimy znaleźć
+    /// `deviceID` żeby usunąć właściwy wpis z `connectedCentrals` i emit `.disconnected`.
+    var centralToDevice: [UUID: UUID] = [:]
+
+    /// Callback dla `.connected(deviceID:nick:)` i `.disconnected(deviceID:)` eventów.
     /// Wywoływane z main thread (CBPeripheralManager delegate queue = nil).
     let onPeerEvent: @Sendable (PeerEvent) -> Void
 
@@ -80,10 +101,12 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
 
     public init(
         displayName: String,
+        sessionToken: UUID,
         onPeerEvent: @escaping @Sendable (PeerEvent) -> Void,
         onSample: @escaping @Sendable (HRSamplePayload) -> Void
     ) {
         self.displayName = displayName
+        self.currentSessionToken = sessionToken
         self.onPeerEvent = onPeerEvent
         self.onSample = onSample
 
@@ -124,10 +147,11 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
     public func stop() {
         peripheralManager.stopAdvertising()
         peripheralManager.removeAllServices()
-        for (_, nick) in connectedCentrals {
-            onPeerEvent(.disconnected(peerID: nick))
+        for (deviceID, _) in connectedCentrals {
+            onPeerEvent(.disconnected(deviceID: deviceID))
         }
         connectedCentrals.removeAll()
+        centralToDevice.removeAll()
         Self.logger.info("Host stopped")
     }
 }
@@ -186,9 +210,9 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
         didSubscribeTo characteristic: CBCharacteristic
     ) {
         guard characteristic.uuid == BLEServiceConstants.hrStreamCharacteristicUUID else { return }
-        // No-op emit: czekamy na pierwszy `HRSamplePayload` z nickiem (zachowanie contract
-        // `peerID == nick` z MC era). Subscribe sam w sobie jest tylko presence-marker;
-        // tile w UI pojawi się przy pierwszym sample (latency typowo <2s).
+        // No-op emit: czekamy na pierwszy `HRSamplePayload` z `deviceID` żeby zaindexować
+        // peer'a po stabilnym identifierze (subscribe sam daje tylko BLE-level `central.identifier`).
+        // Tile w UI pojawi się przy pierwszym sample (latency typowo <2s).
         Self.logger.info("Central subscribed: \(central.identifier.uuidString, privacy: .public)")
     }
 
@@ -199,14 +223,19 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
     ) {
         guard characteristic.uuid == BLEServiceConstants.hrStreamCharacteristicUUID else { return }
         let identifier = central.identifier
-        guard let nick = connectedCentrals.removeValue(forKey: identifier) else {
+        // Delegate daje nam tylko BLE-level `central.identifier` — używamy reverse lookup
+        // żeby znaleźć `deviceID` i wyciągnąć właściwy wpis z `connectedCentrals`.
+        guard let deviceID = centralToDevice.removeValue(forKey: identifier),
+              let info = connectedCentrals.removeValue(forKey: deviceID) else {
             // Subscribe bez żadnego write — nic nie emit'owaliśmy, nie ma czego cofać.
-            Self.logger.info("Central unsubscribed without nick: \(identifier.uuidString, privacy: .public)")
+            Self.logger.info("Central unsubscribed without registered deviceID: \(identifier.uuidString, privacy: .public)")
             return
         }
-        onPeerEvent(.disconnected(peerID: nick))
+        // Emit `.suspended` (NIE `.disconnected`) — service buforuje 10s grace period,
+        // peer może wrócić w tym oknie i wtedy emit'ujemy `.reconnected` zamiast `.disconnected`.
+        onPeerEvent(.suspended(deviceID: deviceID, nick: info.nick))
         Self.logger.info(
-            "Central unsubscribed: \(identifier.uuidString, privacy: .public), nick=\(nick, privacy: .public)"
+            "Peer suspended deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(info.nick, privacy: .public) — entering grace period"
         )
     }
 
@@ -223,13 +252,30 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
             }
 
             let identifier = request.central.identifier
-            // Pierwszy write z tego central UUID — emit `.connected` z `peerID == nick`
-            // (contract zachowany z MC era — reducer używa peerID z disconnect jako klucz `nick`).
-            if connectedCentrals[identifier] == nil {
-                connectedCentrals[identifier] = payload.nick
-                onPeerEvent(.connected(peerID: payload.nick, nick: payload.nick))
+            let deviceID = payload.deviceID
+            // Pierwszy write z tym `deviceID` — validate token, emit `.connected` jeśli match.
+            // Jeśli ten sam `deviceID` przychodzi z innego `central.identifier` (BLE radio
+            // rotation po reconnect), nie emit'ujemy ponownego `.connected` ani nie
+            // validate'ujemy tokenu — peer już zweryfikowany.
+            if connectedCentrals[deviceID] == nil {
+                guard payload.sessionToken == currentSessionToken else {
+                    Self.logger.warning(
+                        "Rejected peer with invalid sessionToken — deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(payload.nick, privacy: .public) token=\(payload.sessionToken.uuidString.prefix(8), privacy: .public)"
+                    )
+                    // NIE forward'ujemy onSample dla odrzuconych peer'ów — żaden tile
+                    // ani %HR update'ów dla nieautoryzowanego connection.
+                    continue
+                }
+                let info = PeerInfo(
+                    centralIdentifier: identifier,
+                    deviceID: deviceID,
+                    nick: payload.nick
+                )
+                connectedCentrals[deviceID] = info
+                centralToDevice[identifier] = deviceID
+                onPeerEvent(.connected(deviceID: deviceID, nick: payload.nick))
                 Self.logger.info(
-                    "Central registered nick=\(payload.nick, privacy: .public) for \(identifier.uuidString, privacy: .public)"
+                    "Peer registered deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(payload.nick, privacy: .public) central=\(identifier.uuidString, privacy: .public)"
                 )
             }
 
