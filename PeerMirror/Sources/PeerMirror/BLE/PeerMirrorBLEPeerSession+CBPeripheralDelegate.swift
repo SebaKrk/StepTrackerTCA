@@ -56,17 +56,18 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
         peripheral.setNotifyValue(true, for: hr)
         Self.logger.info("Subscribed to HR characteristic — reading discovery info for displayName")
 
-        // Read discoveryInfo żeby pozyskać iPad displayName używany jako peerID/nick.
+        // Read discoveryInfo żeby pozyskać iPad displayName używany jako nick.
         // `.connected` emit JEST PRZENIESIONY do `didUpdateValueFor` — czeka na prawdziwy nick.
         if let discoveryInfo = service.characteristics?.first(
             where: { $0.uuid == BLEServiceConstants.discoveryInfoCharacteristicUUID }
         ) {
             peripheral.readValue(for: discoveryInfo)
         } else {
-            // Fallback: discoveryInfo nie znaleziony — emit z UUID żeby reducer nie zwisł
-            // w .searching. Rzadkie (iPad publishuje to characteristic), ale defensive.
-            Self.logger.warning("Discovery info characteristic not found — emitting with UUID fallback")
-            onPeerEvent(.connected(peerID: peripheral.identifier.uuidString, nick: ""))
+            // Fallback: discoveryInfo nie znaleziony — emit żeby reducer nie zwisł w .searching.
+            // `deviceID` to BLE-level identifier iPada (nie stable per-install, ale peer ignoruje
+            // payload — używa tylko sygnału `.connected` żeby przejść do phase `.connected`).
+            Self.logger.warning("Discovery info characteristic not found — emitting with empty nick")
+            onPeerEvent(.connected(deviceID: peripheral.identifier, nick: ""))
         }
     }
 
@@ -84,16 +85,16 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
 
         if let error {
             Self.logger.error(
-                "Discovery info read failed: \(error.localizedDescription, privacy: .public) — UUID fallback"
+                "Discovery info read failed: \(error.localizedDescription, privacy: .public) — empty nick fallback"
             )
-            onPeerEvent(.connected(peerID: peripheral.identifier.uuidString, nick: ""))
+            onPeerEvent(.connected(deviceID: peripheral.identifier, nick: ""))
             return
         }
 
         let displayName = characteristic.value
             .flatMap { String(data: $0, encoding: .utf8) }
             ?? peripheral.identifier.uuidString
-        onPeerEvent(.connected(peerID: displayName, nick: displayName))
+        onPeerEvent(.connected(deviceID: peripheral.identifier, nick: displayName))
         Self.logger.info("Discovery info read: iPad displayName=\(displayName, privacy: .public)")
     }
 

@@ -115,14 +115,13 @@ struct JoinLiveClassFeature {
                 Logger.gymRoom.info("[Peer] connected — starting workoutMetricsStream subscription")
                 state.phase = .connected
                 let nick = state.nick
-                let userIDString = state.userIDString
+                let deviceID = state.deviceID
                 let maxHR = state.maxHeartRate
-                let userUUID = UUID(uuidString: userIDString) ?? UUID()
                 // Initial registration payload (bpm=0) — iPad creates tile immediately
                 // even before HR sensor connects. Subsequent payloads update HR/kcal
                 // when workoutMetricsStream yields values > 0.
                 let initialPayload = HRSamplePayload(
-                    userID: userUUID,
+                    deviceID: deviceID,
                     nick: nick,
                     bpm: 0,
                     maxHR: maxHR,
@@ -135,7 +134,7 @@ struct JoinLiveClassFeature {
                         Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
                         guard metrics.heartRate > 0 else { continue }
                         let payload = HRSamplePayload(
-                            userID: userUUID,
+                            deviceID: deviceID,
                             nick: nick,
                             bpm: Int(metrics.heartRate),
                             maxHR: maxHR,

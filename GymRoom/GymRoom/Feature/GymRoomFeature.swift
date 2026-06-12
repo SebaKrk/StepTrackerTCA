@@ -63,23 +63,23 @@ GymRoomFeature {
 
                 // MARK: - Internal
 
-            case let .peerConnected(nick):
-                Logger.gymRoom.info("✅ Peer connected: \(nick)")
-                guard state.athletes[id: nick] == nil else { return .none }
-                state.athletes.append(AthleteTile(id: nick))
+            case let .peerConnected(deviceID, nick):
+                Logger.gymRoom.info("✅ Peer connected: \(nick) (deviceID: \(deviceID.uuidString.prefix(8)))")
+                guard state.athletes[id: deviceID] == nil else { return .none }
+                state.athletes.append(AthleteTile(id: deviceID, nick: nick))
                 return .none
 
-            case let .peerDisconnected(nick):
-                Logger.gymRoom.info("❌ Peer disconnected: \(nick)")
-                state.athletes.remove(id: nick)
+            case let .peerDisconnected(deviceID):
+                Logger.gymRoom.info("❌ Peer disconnected: \(deviceID.uuidString.prefix(8))")
+                state.athletes.remove(id: deviceID)
                 return .none
 
             case let .sampleReceived(payload):
-                guard var tile = state.athletes[id: payload.nick] else { return .none }
+                guard var tile = state.athletes[id: payload.deviceID] else { return .none }
                 tile.bpm = payload.bpm
                 tile.maxHR = payload.maxHR
                 tile.activeEnergy = payload.activeEnergy
-                state.athletes[id: payload.nick] = tile
+                state.athletes[id: payload.deviceID] = tile
                 Logger.gymRoom.debug("💓 Updated \(payload.nick): \(payload.bpm) bpm")
                 return .none
 
@@ -88,10 +88,10 @@ GymRoomFeature {
                 return .run { send in
                     for await event in await peerMirrorClient.peerEventsStream() {
                         switch event {
-                        case let .connected(_, nick):
-                            await send(.peerConnected(nick: nick))
-                        case let .disconnected(peerID):
-                            await send(.peerDisconnected(nick: peerID))
+                        case let .connected(deviceID, nick):
+                            await send(.peerConnected(deviceID: deviceID, nick: nick))
+                        case let .disconnected(deviceID):
+                            await send(.peerDisconnected(deviceID: deviceID))
                         }
                     }
                 }

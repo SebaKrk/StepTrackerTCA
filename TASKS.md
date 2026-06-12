@@ -868,3 +868,19 @@
     - fix Info.plist multiple-commands conflict (synchronized folder membership exception), wire OSLog import for Logger.gymRoom, BLE permission descriptions in Info.plist
     C: PeerMirror samplesStream multicast
     - replace stored single-stream with [UUID: Continuation] registry + broadcastSample helper (mirrors peerEvents fix from IOS-00094-I), prevents HR sample loss after SwiftUI view re-mount
+
+### IPAD-00089 Peer identity + QR access control + reconnect grace
+    - branch: `dev/IPAD-00089/IPAD-00089`
+
+    A: Stable peer deviceID foundation
+    - rename HRSamplePayload.userID → deviceID, JoinLiveClassFeature+State userIDString → deviceIDString (AppStorage key joinLiveClassUserID → joinLiveClassDeviceID), drop dead UUID fallback, add computed var deviceID: UUID — surrogate key ready for host indexing in subtask B
+    B: Host indexes by deviceID
+    - PeerEvent reshaped (.connected(deviceID:nick:), .disconnected(deviceID:)), PeerMirrorBLEHostSession: connectedCentrals keyed by deviceID + centralToDevice reverse lookup map + PeerInfo struct, AthleteTile.id: UUID + nick: String, PeerMirrorBLEPeerSession emit sites updated (4 call sites use peripheral.identifier as deviceID since peer ignores payload). Reconnect detection + nick collision fixed.
+    C1: iPad QR generation in corner overlay
+    - QRSessionPayload Codable + QRCodeView (CIFilter.qrCodeGenerator), sessionToken rotated per-class, toggle visibility for trainer
+    C2: iPhone QR scanner + camera permission
+    - QRScannerView (UIViewControllerRepresentable + AVCaptureSession), NSCameraUsageDescription
+    C3: Handshake with sessionToken + reject logic
+    - Peer sends sessionToken in HRSamplePayload, host validates against currentSessionToken — invalid token logged + rejected
+    D: Reconnect grace period (10s)
+    - PeerEvent +.reconnected, disconnectingPeers buffer with cancellable Task.sleep, AthleteTile.state enum (.live/.reconnecting/.lost), spinner overlay on reconnecting tile

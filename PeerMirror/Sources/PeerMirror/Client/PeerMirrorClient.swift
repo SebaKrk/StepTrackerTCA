@@ -32,12 +32,12 @@ public struct PeerMirrorClient: Sendable {
     /// Sends HR sample payload do iPada — `peerSession?.send(_:)`, brak-op jeśli nie connected.
     public var send: @Sendable (_ payload: HRSamplePayload) async -> Void
 
-    /// Returns stored `AsyncStream<HRSamplePayload>` — odbiera samples z peripheralów (iPada).
-    /// Single subscriber — jeśli drugi `for await` się pojawi, pierwszy dostaje zero (TODO multicast).
+    /// Returns fresh multicast `AsyncStream<HRSamplePayload>` — każdy subscriber dostaje swój stream.
+    /// Cleanup przez `onTermination` gdy effect anuluje TCA (view re-mount, stop, itp).
     public var samplesStream: @Sendable () async -> AsyncStream<HRSamplePayload>
 
     /// Returns fresh multicast `AsyncStream<PeerEvent>` — każdy subscriber dostaje swój stream.
-    /// Emituje `.connected(peerID:nick:)` i `.disconnected(peerID:)` dla host + peer roles.
+    /// Emituje `.connected(deviceID:nick:)` i `.disconnected(deviceID:)` dla host + peer roles.
     /// Cleanup przez `onTermination` gdy effect anuluje TCA (zmiana route, stop browsing, itp).
     public var peerEventsStream: @Sendable () async -> AsyncStream<PeerEvent>
 

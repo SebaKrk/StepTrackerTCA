@@ -15,11 +15,11 @@ extension GymRoomFeature {
 
         // MARK: - Internal (peer event handling)
 
-        /// Nowy athlete dołączył — dodaj kafelek.
-        case peerConnected(nick: String)
+        /// Nowy athlete dołączył — dodaj kafelek. Klucz = `deviceID` (stabilny per-install).
+        case peerConnected(deviceID: UUID, nick: String)
 
-        /// Athlete się rozłączył — usuń kafelek.
-        case peerDisconnected(nick: String)
+        /// Athlete się rozłączył — usuń kafelek po `deviceID`.
+        case peerDisconnected(deviceID: UUID)
 
         /// Nowa próbka HR z iPhone'a athlety — update kafelka.
         case sampleReceived(HRSamplePayload)

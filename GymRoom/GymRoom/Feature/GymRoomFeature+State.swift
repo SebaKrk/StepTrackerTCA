@@ -17,16 +17,19 @@ extension GymRoomFeature {
         /// Czy klasa jest aktywna (advertising w sieci lokalnej, kafelki widoczne).
         var isLive: Bool = false
 
-        /// Lista podłączonych athletów. Klucz = nick (= `HRSamplePayload.nick`).
+        /// Lista podłączonych athletów. Klucz = `deviceID` (per-install UUID peer'a).
         var athletes: IdentifiedArrayOf<AthleteTile> = []
     }
 
     /// Pojedynczy kafelek athlety w grid.
     ///
-    /// `id` = nick (= `HRSamplePayload.nick`). Stabilny identyfikator dla całej sesji,
-    /// używany do match'owania peer events i HR samples (które też niosą nick).
+    /// `id` = `deviceID` (= `HRSamplePayload.deviceID`). Stabilny per-install,
+    /// niezależny od `CBPeripheral.identifier` (rotujący per BLE cycle) — pozwala
+    /// rozpoznać że "ten sam peer wrócił" po disconnect/reconnect.
+    /// `nick` jest tylko display name (może się powtarzać między peerami).
     struct AthleteTile: Identifiable, Sendable, Equatable {
-        let id: String
+        let id: UUID
+        let nick: String
         var bpm: Int = 0
         var maxHR: Int = 190
         var activeEnergy: Double = 0
