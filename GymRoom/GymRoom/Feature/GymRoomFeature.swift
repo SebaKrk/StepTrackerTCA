@@ -48,12 +48,14 @@ GymRoomFeature {
                 )
 
             case .view(.startTapped):
-                Logger.gymRoom.info("▶️ Start tapped — advertising as '\(state.gymName)'")
+                // Extract value PRZED Logger call — Logger.info ma @escaping autoclosure
+                // który nie może capture'ować inout state z reducer closure.
+                let gymName = state.gymName
+                Logger.gymRoom.info("▶️ Start tapped — advertising as '\(gymName)'")
                 state.isLive = true
                 let token = UUID()
                 state.sessionToken = token    // fresh token per class — encoded w QR
                 state.isQRVisible = true      // reset visibility on new class
-                let gymName = state.gymName
                 return .run { _ in
                     await peerMirrorClient.startAdvertising(gymName, token)
                 }
@@ -79,6 +81,20 @@ GymRoomFeature {
                 state.athletes.append(AthleteTile(id: deviceID, nick: nick))
                 return .none
 
+            case let .peerSuspended(deviceID):
+                // Grace period — peer może jeszcze wrócić w ciągu 10s. Tile zostaje
+                // widoczny ale w stanie `.reconnecting` (spinner overlay + grayscale).
+                Logger.gymRoom.info("⏸ Peer suspended: \(deviceID.uuidString.prefix(8)) — entering grace period")
+                state.athletes[id: deviceID]?.state = .reconnecting
+                return .none
+
+            case let .peerReconnected(deviceID):
+                // Peer wrócił w oknie — restore stan `.live`. Brak animacji "appear",
+                // tylko subtelny return spinner → normal.
+                Logger.gymRoom.info("🔄 Peer reconnected: \(deviceID.uuidString.prefix(8))")
+                state.athletes[id: deviceID]?.state = .live
+                return .none
+
             case let .peerDisconnected(deviceID):
                 Logger.gymRoom.info("❌ Peer disconnected: \(deviceID.uuidString.prefix(8))")
                 state.athletes.remove(id: deviceID)
@@ -100,6 +116,10 @@ GymRoomFeature {
                         switch event {
                         case let .connected(deviceID, nick):
                             await send(.peerConnected(deviceID: deviceID, nick: nick))
+                        case let .suspended(deviceID, _):
+                            await send(.peerSuspended(deviceID: deviceID))
+                        case let .reconnected(deviceID, _):
+                            await send(.peerReconnected(deviceID: deviceID))
                         case let .disconnected(deviceID):
                             await send(.peerDisconnected(deviceID: deviceID))
                         }

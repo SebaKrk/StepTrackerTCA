@@ -231,9 +231,11 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
             Self.logger.info("Central unsubscribed without registered deviceID: \(identifier.uuidString, privacy: .public)")
             return
         }
-        onPeerEvent(.disconnected(deviceID: deviceID))
+        // Emit `.suspended` (NIE `.disconnected`) — service buforuje 10s grace period,
+        // peer może wrócić w tym oknie i wtedy emit'ujemy `.reconnected` zamiast `.disconnected`.
+        onPeerEvent(.suspended(deviceID: deviceID, nick: info.nick))
         Self.logger.info(
-            "Peer disconnected deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(info.nick, privacy: .public)"
+            "Peer suspended deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(info.nick, privacy: .public) — entering grace period"
         )
     }
 

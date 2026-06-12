@@ -200,7 +200,9 @@ struct GymRoomView: View {
         }
     }
 
-    /// Pełen QR card z code'em + caption + close button.
+    /// Pełen QR card z code'em + caption. Tap gdziekolwiek w kontener = schowaj QR
+    /// (przejście do `qrToggleButton`). `.contentShape` rozszerza hit area na cały
+    /// container włącznie z paddingami i tłem.
     private func qrCard(token: UUID) -> some View {
         VStack(spacing: 8) {
             QRCodeView(payload: qrPayloadJSON(token: token))
@@ -211,17 +213,13 @@ struct GymRoomView: View {
             Text(qrCaption)
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.white)
-            Button {
-                send(.toggleQR)
-            } label: {
-                Label(qrHideTitle, systemImage: "xmark.circle.fill")
-                    .font(.caption)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.capsule)
         }
         .padding(16)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 20))
+        .contentShape(.rect(cornerRadius: 20))
+        .onTapGesture {
+            send(.toggleQR)
+        }
     }
 
     /// Małęj ikoniczny button który pokazuje QR z powrotem.
@@ -261,10 +259,6 @@ struct GymRoomView: View {
 
     private var qrCaption: String {
         String(localized: "Skanuj kodem QR", bundle: .main)
-    }
-
-    private var qrHideTitle: String {
-        String(localized: "Schowaj", bundle: .main)
     }
 
     /// Buduje JSON payload dla QR z `sessionToken` + `iPadID` + `gymName` + `createdAt`.

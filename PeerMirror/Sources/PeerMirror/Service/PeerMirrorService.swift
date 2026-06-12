@@ -43,12 +43,27 @@ public final class PeerMirrorService {
     // MARK: - Multicast continuations
 
     /// Registry multicast continuations dla peer events — każdy `peerEventsStream()` call rejestruje nowy.
-    /// Broadcast na `.connected` / `.disconnected`. Cleanup automatyczny przez `onTermination`.
+    /// Broadcast na `.connected` / `.suspended` / `.reconnected` / `.disconnected`. Cleanup automatyczny przez `onTermination`.
     private var peerEventContinuations: [UUID: AsyncStream<PeerEvent>.Continuation] = [:]
 
     /// Registry multicast continuations dla HR samples — każdy `samplesStream()` call rejestruje nowy.
     /// Broadcast na każdą próbkę z `PeerMirrorBLEHostSession.onSample`. Cleanup automatyczny przez `onTermination`.
     private var samplesContinuations: [UUID: AsyncStream<HRSamplePayload>.Continuation] = [:]
+
+    // MARK: - Grace period buffer
+
+    /// Tasks pending dla peerów w grace period (po `.suspended`). Key = `deviceID`.
+    /// Po 10s timeout → emit `.disconnected`. Jeśli peer wraca z tym samym `deviceID`
+    /// przed timeout → cancel task + emit `.reconnected` (zamiast `.connected`).
+    /// Przy `stopAdvertising` cancel'ujemy wszystkie + emit `.disconnected` żeby reducer cleanup.
+    private var disconnectingPeers: [UUID: Task<Void, Never>] = [:]
+
+    /// Czas trwania grace window przed finalnym `.disconnected`. 2 minuty pokrywa
+    /// typowe CrossFit-box scenariusze: toaleta, woda, krótki break. Dłuższy okres
+    /// nie kosztuje CPU (Task.sleep suspenduje task bez polling) ale powodowałby że
+    /// faktyczne odejście (kontuzja, hipoglikemia) zostawia stale `.reconnecting`
+    /// kafelek bez jasnego sygnału dla trenera. Krótszy nie pokrywa toalety.
+    private let gracePeriodSeconds: Duration = .seconds(120)
 
     public init() {}
 
@@ -73,6 +88,17 @@ public final class PeerMirrorService {
     }
 
     public func stopAdvertising() {
+        // Cancel wszystkie pending grace timers + emit `.disconnected` dla suspended peerów.
+        // Bez tego: timery wciąż lecą po END Class → memory leak, plus late-emit `.disconnected`
+        // gdy host już nie aktywny. Plus reducer mógłby pokazywać stale `.reconnecting` kafelki.
+        for (deviceID, task) in disconnectingPeers {
+            task.cancel()
+            for continuation in peerEventContinuations.values {
+                continuation.yield(.disconnected(deviceID: deviceID))
+            }
+        }
+        disconnectingPeers.removeAll()
+
         hostSession?.stop()
         hostSession = nil
     }
@@ -131,10 +157,64 @@ public final class PeerMirrorService {
 
     // MARK: - Private
 
+    /// Orchestrates peer events z buforowaniem grace period:
+    /// - `.connected` z deviceID który ma pending grace timer → cancel timer + emit `.reconnected`
+    /// - `.suspended` → forward + start 10s timer (po timeout emit `.disconnected`)
+    /// - `.disconnected` / `.reconnected` → forward direct (plus cleanup pending timer dla `.disconnected`)
     private func broadcastPeerEvent(_ event: PeerEvent) {
+        switch event {
+        case let .connected(deviceID, nick):
+            if let pendingTimer = disconnectingPeers.removeValue(forKey: deviceID) {
+                // Peer wraca w grace window — cancel timer i emit `.reconnected` zamiast `.connected`.
+                pendingTimer.cancel()
+                broadcast(.reconnected(deviceID: deviceID, nick: nick))
+            } else {
+                broadcast(event)
+            }
+
+        case let .suspended(deviceID, _):
+            broadcast(event)
+            startGraceTimer(deviceID: deviceID)
+
+        case let .disconnected(deviceID):
+            // Defensive cleanup — jeśli grace timer wciąż leci (rzadkie, np. host stop()
+            // emit .disconnected zanim timer odpalił), anuluj go żeby nie emit duplikatu.
+            disconnectingPeers.removeValue(forKey: deviceID)?.cancel()
+            broadcast(event)
+
+        case .reconnected:
+            // Reconnected event nigdy nie przychodzi z `onPeerEvent` callback — emit'ujemy go
+            // tylko wewnętrznie w branchu `.connected`. Defensive: forward na wszelki wypadek.
+            broadcast(event)
+        }
+    }
+
+    private func broadcast(_ event: PeerEvent) {
         for continuation in peerEventContinuations.values {
             continuation.yield(event)
         }
+    }
+
+    /// Startuje 10s timer po `.suspended` — po timeout emit `.disconnected` i cleanup.
+    /// Cancel'owany w branchu `.connected` (gdy peer wraca w grace window).
+    private func startGraceTimer(deviceID: UUID) {
+        // Cancel istniejący timer (rzadkie, ale defensive — np. peer suspend→suspend race).
+        disconnectingPeers[deviceID]?.cancel()
+
+        disconnectingPeers[deviceID] = Task { [weak self, gracePeriodSeconds] in
+            do {
+                try await Task.sleep(for: gracePeriodSeconds)
+            } catch {
+                return  // Cancelled przez reconnect lub stopAdvertising
+            }
+            await self?.finalizeDisconnection(deviceID: deviceID)
+        }
+    }
+
+    /// Wywoływane gdy grace timer wygasł — peer faktycznie zniknął, emit `.disconnected`.
+    private func finalizeDisconnection(deviceID: UUID) {
+        disconnectingPeers.removeValue(forKey: deviceID)
+        broadcast(.disconnected(deviceID: deviceID))
     }
 
     private func broadcastSample(_ payload: HRSamplePayload) {
