@@ -28,6 +28,15 @@ extension JoinLiveClassFeature {
         /// `nickname` → `name` → fallback (Athlete-XXX z AppStorage).
         case userProfileLoaded(UserProfile?)
 
+        /// Host (iPad) zakończył klasę — broadcast otrzymany via BLE notify.
+        /// Reducer reset full state + delegate.didLeave (toolbar icon znika).
+        case classEndedReceived
+
+        /// Workout zakończony naturalnie (Watch / iPhone-standalone end) —
+        /// `workoutMetricsStream` zamknięty. Reducer reset full state + delegate.didLeave.
+        /// Identical outcome do `.classEndedReceived` ale różny trigger.
+        case workoutEnded
+
         // MARK: - View Actions
 
         case view(View)

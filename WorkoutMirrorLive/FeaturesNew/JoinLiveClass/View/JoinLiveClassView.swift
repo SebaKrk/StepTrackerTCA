@@ -65,7 +65,7 @@ struct JoinLiveClassView: View {
             Image(systemName: "xmark")
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.white)
-                .padding()
+                .padding(2)
         }
         .buttonStyle(.glass)
         .padding()

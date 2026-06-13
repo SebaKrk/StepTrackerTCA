@@ -142,6 +142,11 @@ GymRoomFeature {
                             await send(.peerReconnected(deviceID: deviceID))
                         case let .disconnected(deviceID):
                             await send(.peerDisconnected(deviceID: deviceID))
+                        case .classEnded:
+                            // Host-side no-op: iPad sam emit'uje classEnded broadcast
+                            // (via PeerMirrorBLEHostSession.broadcastClassEnded), własny event
+                            // nie wymaga reakcji w reducerze (host już wie że robi END).
+                            break
                         }
                     }
                 }

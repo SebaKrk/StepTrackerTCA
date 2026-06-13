@@ -186,6 +186,14 @@ public final class PeerMirrorService {
             // Reconnected event nigdy nie przychodzi z `onPeerEvent` callback — emit'ujemy go
             // tylko wewnętrznie w branchu `.connected`. Defensive: forward na wszelki wypadek.
             broadcast(event)
+
+        case .classEnded:
+            // Host (iPad) zakończył klasę — broadcast do consumer'ów (peer-side reducer
+            // robi reset state). Plus cancel wszystkie pending grace timers (klasa skończona
+            // ↔ wszyscy peerzy są lost, brak sensownego reconnect).
+            for (_, task) in disconnectingPeers { task.cancel() }
+            disconnectingPeers.removeAll()
+            broadcast(event)
         }
     }
 
