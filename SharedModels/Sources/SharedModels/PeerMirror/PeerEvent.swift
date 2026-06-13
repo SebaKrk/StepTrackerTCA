@@ -30,4 +30,10 @@ public enum PeerEvent: Sendable, Equatable {
     case suspended(deviceID: UUID, nick: String)
     case reconnected(deviceID: UUID, nick: String)
     case disconnected(deviceID: UUID)
+
+    /// Host (iPad) zakończył klasę — broadcast do wszystkich subskrybowanych peers przez
+    /// BLE notify channel (`peripheralManager.updateValue` z sentinel byte 0xFF).
+    /// Peer-side: reducer reset state (phase=.idle, delegate.didLeave) — toolbar icon znika.
+    /// NIE peer-specific (host nie wie kto wciąż subskrybuje), więc bez deviceID.
+    case classEnded
 }

@@ -145,6 +145,11 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
     // MARK: - Public
 
     public func stop() {
+        // Wyślij "class ended" notify do wszystkich subskrybowanych peers PRZED teardown.
+        // Sentinel byte 0xFF (1 byte, distinct od JSON HR payloads ~150 bytes). Peer-side
+        // reagent na to żeby reset state + zniknąć z toolbar icon, NIE schodzić do .searching.
+        broadcastClassEnded()
+
         peripheralManager.stopAdvertising()
         peripheralManager.removeAllServices()
         for (deviceID, _) in connectedCentrals {
@@ -153,6 +158,24 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
         connectedCentrals.removeAll()
         centralToDevice.removeAll()
         Self.logger.info("Host stopped")
+    }
+
+    /// Broadcast "class ended" sentinel byte (0xFF) do wszystkich subskrybowanych centrals
+    /// przez BLE notify channel na `hrCharacteristic`. Peer-side handler w
+    /// `PeerMirrorBLEPeerSession+CBPeripheralDelegate.didUpdateValueFor` detect'uje sentinel
+    /// (1 byte = 0xFF) i emit'uje `.classEnded` event.
+    ///
+    /// `onSubscribedCentrals: nil` = broadcast do wszystkich. Returns false jeśli BLE queue
+    /// jest full (i wtedy `peripheralManagerIsReadyToUpdateSubscribers` byłby callback'em
+    /// retry), ale dla single-byte payload + małej liczby peerów ~zawsze success.
+    private func broadcastClassEnded() {
+        let sentinel = Data([0xFF])
+        let success = peripheralManager.updateValue(
+            sentinel,
+            for: hrCharacteristic,
+            onSubscribedCentrals: nil
+        )
+        Self.logger.info("Class ended broadcast — success=\(success)")
     }
 }
 
