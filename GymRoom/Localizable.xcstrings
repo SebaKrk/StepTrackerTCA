@@ -21,6 +21,16 @@
         }
       }
     },
+    "All athletes will be disconnected." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszyscy sportowcy zostaną rozłączeni."
+          }
+        }
+      }
+    },
     "BPM" : {
       "localizations" : {
         "pl" : {
@@ -31,12 +41,32 @@
         }
       }
     },
+    "Cancel" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anuluj"
+          }
+        }
+      }
+    },
     "End" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zakończ"
+          }
+        }
+      }
+    },
+    "End class?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończyć zajęcia?"
           }
         }
       }

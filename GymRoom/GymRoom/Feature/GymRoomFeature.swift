@@ -61,13 +61,33 @@ GymRoomFeature {
                 }
 
             case .view(.endTapped):
-                Logger.gymRoom.info("⏹️ End tapped — invalidating session token")
+                // Tap End → present confirm dialog. Faktyczna end logic w `.alert(.presented(.confirmEnd))`.
+                state.alert = AlertState(
+                    title: { TextState(String(localized: "End class?", bundle: .main)) },
+                    actions: {
+                        ButtonState(role: .destructive, action: .confirmEnd) {
+                            TextState(String(localized: "End", bundle: .main))
+                        }
+                        ButtonState(role: .cancel) {
+                            TextState(String(localized: "Cancel", bundle: .main))
+                        }
+                    },
+                    message: { TextState(String(localized: "All athletes will be disconnected.", bundle: .main)) }
+                )
+                return .none
+
+            case .alert(.presented(.confirmEnd)):
+                Logger.gymRoom.info("⏹️ End confirmed — invalidating session token")
                 state.isLive = false
                 state.athletes.removeAll()
                 state.sessionToken = nil      // invalidate — stale QR scans odrzucone (subtask C3)
                 return .run { _ in
                     await peerMirrorClient.stopAdvertising()
                 }
+
+            case .alert:
+                // Cancel lub dismiss — nic do roboty, presentation reducer sam clearuje state.alert.
+                return .none
 
             case .view(.toggleQR):
                 state.isQRVisible.toggle()
@@ -137,5 +157,6 @@ GymRoomFeature {
                 .cancellable(id: GymRoomCancelID.samples)
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }

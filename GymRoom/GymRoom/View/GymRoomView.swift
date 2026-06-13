@@ -38,6 +38,7 @@ struct GymRoomView: View {
             send(.viewDidAppear)
         }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     // MARK: - Private views (struktura)
