@@ -48,25 +48,46 @@ struct JoinLiveClassFeature {
                 )
 
             case .view(.joinTapped):
-                // Start browsing + zamknij sheet od razu. Broadcast trwa w tle,
-                // ikona toolbar SessionView pokazuje connected. User otworzy sheet
-                // ponownie klikając ikonę → zobaczy stan + Leave button.
-                state.phase = .searching
-                let nick = state.nick
-                return .merge(
-                    .run { _ in await peerMirrorClient.startBrowsing(nick) },
-                    .send(.delegate(.didDismiss))
-                )
+                // Tap Join = "chcę dołączyć" — otwieramy scanner, ale jeszcze NIE startujemy
+                // BLE handshake (potrzebny sessionToken z scannedQRPayload). Sheet pozostaje
+                // otwarty, scanner pojawia się jako fullScreenCover.
+                state.isShowingScanner = true
+                return .none
 
             case .view(.leaveTapped):
                 // "Zakończ klasę" — broadcast stop + delegate.didLeave (parent kasuje state).
+                // Reset scannedQRPayload + isShowingScanner — wymusza pełen scan flow ponownie.
+                //
+                // Graceful disconnect: PRZED stopBrowsing wyślij goodbye payload z `endOfClass=true`,
+                // żeby host od razu usunął tile (skip 2min grace period). Krótki delay (300ms) daje
+                // BLE write'owi czas żeby trafił do iPada zanim peripheral się rozłączy.
+                let goodbyeDeviceID = state.deviceID
+                let goodbyeToken = state.scannedQRPayload?.token
+                let goodbyeNick = state.nick
+                let goodbyeMaxHR = state.maxHeartRate
+
                 state.phase = .idle
+                state.scannedQRPayload = nil
+                state.isShowingScanner = false
                 return .merge(
-                    .cancel(id: JoinLiveClassCancelID.hrStream),
-                    .cancel(id: JoinLiveClassCancelID.peerEvents),
-                    .run { _ in
+                    .run { [peerMirrorClient] _ in
+                        if let token = goodbyeToken {
+                            let goodbye = HRSamplePayload(
+                                deviceID: goodbyeDeviceID,
+                                sessionToken: token,
+                                nick: goodbyeNick,
+                                bpm: 0,
+                                maxHR: goodbyeMaxHR,
+                                endOfClass: true
+                            )
+                            Logger.gymRoom.info("[Peer] Sending goodbye (leaveTapped) — endOfClass=true")
+                            await peerMirrorClient.send(goodbye)
+                            try? await Task.sleep(for: .milliseconds(300))
+                        }
                         await peerMirrorClient.stopBrowsing()
                     },
+                    .cancel(id: JoinLiveClassCancelID.hrStream),
+                    .cancel(id: JoinLiveClassCancelID.peerEvents),
                     .send(.delegate(.didLeave))
                 )
 
@@ -74,6 +95,34 @@ struct JoinLiveClassFeature {
                 // Sheet schowany (X / swipe-down) — broadcast TRWA, state żyje, ikona toolbar
                 // pozostaje "connected". User otworzy sheet znowu klikając ikonę.
                 return .send(.delegate(.didDismiss))
+
+            case let .view(.qrScanned(jsonString)):
+                // QR scanner odebrał payload — decode JSON. Malformed = log + zamknij scanner
+                // (zostaje w state .idle, user widzi Join button żeby spróbować ponownie).
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                guard let data = jsonString.data(using: .utf8),
+                      let payload = try? decoder.decode(QRSessionPayload.self, from: data) else {
+                    Logger.gymRoom.error("[QR] Failed to decode scanned payload (malformed JSON)")
+                    state.isShowingScanner = false
+                    return .none
+                }
+                Logger.gymRoom.info("[QR] Scanned payload — gym=\(payload.gymName) token=\(payload.token.uuidString.prefix(8))")
+                // Sukces: zamknij scanner, set scannedQRPayload, start BLE handshake.
+                // Sheet parent też się zamyka — broadcast trwa w tle, user widzi toolbar icon.
+                state.scannedQRPayload = payload
+                state.isShowingScanner = false
+                state.phase = .searching
+                let nick = state.nick
+                return .merge(
+                    .run { _ in await peerMirrorClient.startBrowsing(nick) },
+                    .send(.delegate(.didDismiss))
+                )
+
+            case .view(.scannerDismissed):
+                // User swipe-down scanner bez scanowania — wraca do idle z Join button.
+                state.isShowingScanner = false
+                return .none
 
                 // MARK: - Internal
 
@@ -102,10 +151,16 @@ struct JoinLiveClassFeature {
                 return .run { send in
                     for await event in await peerMirrorClient.peerEventsStream() {
                         switch event {
-                        case .connected:
+                        case .connected, .reconnected:
+                            // Z perspektywy peer'a (iPhone) reconnect i fresh connect są
+                            // ekwiwalentne — oba znaczą "iPad available, start broadcasting HR".
                             await send(.peerConnected)
                         case .disconnected:
                             await send(.peerDisconnected)
+                        case .suspended:
+                            // Host-side grace period — peer-side ignoruje. Peer ma swój własny
+                            // exponential backoff reconnect w PeerMirrorBLEPeerSession.
+                            break
                         }
                     }
                 }
@@ -115,27 +170,35 @@ struct JoinLiveClassFeature {
                 Logger.gymRoom.info("[Peer] connected — starting workoutMetricsStream subscription")
                 state.phase = .connected
                 let nick = state.nick
-                let userIDString = state.userIDString
+                let deviceID = state.deviceID
                 let maxHR = state.maxHeartRate
-                let userUUID = UUID(uuidString: userIDString) ?? UUID()
+                // Token ze scanned QR — bez niego peer nie powinien tu wejść
+                // (joinTapped wymusza scan first). Defensive log + skip dla scenariusza
+                // gdyby parent feature wymusił joinTapped pomijając scan flow.
+                guard let sessionToken = state.scannedQRPayload?.token else {
+                    Logger.gymRoom.error("[Peer] No scannedQRPayload — cannot broadcast without token")
+                    return .none
+                }
                 // Initial registration payload (bpm=0) — iPad creates tile immediately
                 // even before HR sensor connects. Subsequent payloads update HR/kcal
                 // when workoutMetricsStream yields values > 0.
                 let initialPayload = HRSamplePayload(
-                    userID: userUUID,
+                    deviceID: deviceID,
+                    sessionToken: sessionToken,
                     nick: nick,
                     bpm: 0,
                     maxHR: maxHR,
                     activeEnergy: 0
                 )
                 Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
-                return .run { [sessionClient, peerMirrorClient, initialPayload] _ in
+                return .run { [sessionClient, peerMirrorClient, initialPayload, deviceID, sessionToken, nick, maxHR] _ in
                     await peerMirrorClient.send(initialPayload)
                     for await metrics in await sessionClient.workoutMetricsStream() {
                         Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
                         guard metrics.heartRate > 0 else { continue }
                         let payload = HRSamplePayload(
-                            userID: userUUID,
+                            deviceID: deviceID,
+                            sessionToken: sessionToken,
                             nick: nick,
                             bpm: Int(metrics.heartRate),
                             maxHR: maxHR,
@@ -144,6 +207,19 @@ struct JoinLiveClassFeature {
                         Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal")
                         await peerMirrorClient.send(payload)
                     }
+                    // Stream zakończył się naturalnie (workout end z HK — np. user kończy
+                    // trening na Watchu lub iPhone-side workout session ends). Wyślij goodbye
+                    // żeby iPad usunął tile od razu, bez 2min grace period.
+                    Logger.gymRoom.info("[Peer] workoutMetricsStream ended — sending goodbye (endOfClass=true)")
+                    let goodbye = HRSamplePayload(
+                        deviceID: deviceID,
+                        sessionToken: sessionToken,
+                        nick: nick,
+                        bpm: 0,
+                        maxHR: maxHR,
+                        endOfClass: true
+                    )
+                    await peerMirrorClient.send(goodbye)
                 }
                 .cancellable(id: JoinLiveClassCancelID.hrStream)
 
