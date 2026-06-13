@@ -240,6 +240,15 @@ struct JoinLiveClassFeature {
                 // - .classEndedReceived → host (iPad) tap End Class → BLE notify broadcast
                 // - .workoutEnded → peer-side workoutMetricsStream zakończył (Watch/HK end)
                 // Identical outcome: pełen reset state + delegate.didLeave (toolbar icon znika).
+                //
+                // Idempotency guard — race possible gdy Watch end i iPad END odpalają się
+                // równolegle (oba prowadzą do reset). Drugi action już .idle — skip żeby
+                // uniknąć redundant stopBrowsing/didLeave (BLE stack może log warning,
+                // parent może log "already left").
+                guard state.phase != .idle else {
+                    Logger.gymRoom.info("[Peer] Already .idle — skip duplicate reset")
+                    return .none
+                }
                 Logger.gymRoom.info("[Peer] Session ended — auto-reset state")
                 state.phase = .idle
                 state.scannedQRPayload = nil
