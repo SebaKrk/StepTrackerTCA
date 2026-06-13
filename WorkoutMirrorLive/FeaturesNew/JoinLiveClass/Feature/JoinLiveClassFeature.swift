@@ -57,15 +57,37 @@ struct JoinLiveClassFeature {
             case .view(.leaveTapped):
                 // "Zakończ klasę" — broadcast stop + delegate.didLeave (parent kasuje state).
                 // Reset scannedQRPayload + isShowingScanner — wymusza pełen scan flow ponownie.
+                //
+                // Graceful disconnect: PRZED stopBrowsing wyślij goodbye payload z `endOfClass=true`,
+                // żeby host od razu usunął tile (skip 2min grace period). Krótki delay (300ms) daje
+                // BLE write'owi czas żeby trafił do iPada zanim peripheral się rozłączy.
+                let goodbyeDeviceID = state.deviceID
+                let goodbyeToken = state.scannedQRPayload?.token
+                let goodbyeNick = state.nick
+                let goodbyeMaxHR = state.maxHeartRate
+
                 state.phase = .idle
                 state.scannedQRPayload = nil
                 state.isShowingScanner = false
                 return .merge(
-                    .cancel(id: JoinLiveClassCancelID.hrStream),
-                    .cancel(id: JoinLiveClassCancelID.peerEvents),
-                    .run { _ in
+                    .run { [peerMirrorClient] _ in
+                        if let token = goodbyeToken {
+                            let goodbye = HRSamplePayload(
+                                deviceID: goodbyeDeviceID,
+                                sessionToken: token,
+                                nick: goodbyeNick,
+                                bpm: 0,
+                                maxHR: goodbyeMaxHR,
+                                endOfClass: true
+                            )
+                            Logger.gymRoom.info("[Peer] Sending goodbye (leaveTapped) — endOfClass=true")
+                            await peerMirrorClient.send(goodbye)
+                            try? await Task.sleep(for: .milliseconds(300))
+                        }
                         await peerMirrorClient.stopBrowsing()
                     },
+                    .cancel(id: JoinLiveClassCancelID.hrStream),
+                    .cancel(id: JoinLiveClassCancelID.peerEvents),
                     .send(.delegate(.didLeave))
                 )
 
@@ -139,6 +161,10 @@ struct JoinLiveClassFeature {
                             // Host-side grace period — peer-side ignoruje. Peer ma swój własny
                             // exponential backoff reconnect w PeerMirrorBLEPeerSession.
                             break
+                        case .classEnded:
+                            // Host (iPad) explicit END Class — natychmiast reset state
+                            // (NIE przechodzić do .searching, bo iPad nie wróci).
+                            await send(.classEndedReceived)
                         }
                     }
                 }
@@ -169,7 +195,7 @@ struct JoinLiveClassFeature {
                     activeEnergy: 0
                 )
                 Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
-                return .run { [sessionClient, peerMirrorClient, initialPayload] _ in
+                return .run { [sessionClient, peerMirrorClient, initialPayload, deviceID, sessionToken, nick, maxHR] send in
                     await peerMirrorClient.send(initialPayload)
                     for await metrics in await sessionClient.workoutMetricsStream() {
                         Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
@@ -185,6 +211,22 @@ struct JoinLiveClassFeature {
                         Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal")
                         await peerMirrorClient.send(payload)
                     }
+                    // Stream zakończył się naturalnie (workout end z HK — np. user kończy
+                    // trening na Watchu lub iPhone-side workout session ends). Wyślij goodbye
+                    // żeby iPad usunął tile od razu (subtask F: bez 2min grace period).
+                    Logger.gymRoom.info("[Peer] workoutMetricsStream ended — sending goodbye + emit workoutEnded")
+                    let goodbye = HRSamplePayload(
+                        deviceID: deviceID,
+                        sessionToken: sessionToken,
+                        nick: nick,
+                        bpm: 0,
+                        maxHR: maxHR,
+                        endOfClass: true
+                    )
+                    await peerMirrorClient.send(goodbye)
+                    // Subtask H2: emit `.workoutEnded` żeby reducer reset state — bez tego
+                    // peer-side wciąż w phase .connected, toolbar icon nie znika aż do tap Leave.
+                    await send(.workoutEnded)
                 }
                 .cancellable(id: JoinLiveClassCancelID.hrStream)
 
@@ -192,6 +234,31 @@ struct JoinLiveClassFeature {
                 Logger.gymRoom.info("[Peer] disconnected — cancelling HR stream, returning to searching")
                 state.phase = .searching
                 return .cancel(id: JoinLiveClassCancelID.hrStream)
+
+            case .classEndedReceived, .workoutEnded:
+                // Klasa się zakończyła z dowolnej strony:
+                // - .classEndedReceived → host (iPad) tap End Class → BLE notify broadcast
+                // - .workoutEnded → peer-side workoutMetricsStream zakończył (Watch/HK end)
+                // Identical outcome: pełen reset state + delegate.didLeave (toolbar icon znika).
+                //
+                // Idempotency guard — race possible gdy Watch end i iPad END odpalają się
+                // równolegle (oba prowadzą do reset). Drugi action już .idle — skip żeby
+                // uniknąć redundant stopBrowsing/didLeave (BLE stack może log warning,
+                // parent może log "already left").
+                guard state.phase != .idle else {
+                    Logger.gymRoom.info("[Peer] Already .idle — skip duplicate reset")
+                    return .none
+                }
+                Logger.gymRoom.info("[Peer] Session ended — auto-reset state")
+                state.phase = .idle
+                state.scannedQRPayload = nil
+                state.isShowingScanner = false
+                return .merge(
+                    .cancel(id: JoinLiveClassCancelID.hrStream),
+                    .cancel(id: JoinLiveClassCancelID.peerEvents),
+                    .run { _ in await peerMirrorClient.stopBrowsing() },
+                    .send(.delegate(.didLeave))
+                )
 
                 // MARK: - Delegate
 

@@ -46,6 +46,11 @@ extension GymRoomFeature {
         /// można schować QR po dołączeniu wszystkich sportowców (less visual clutter).
         /// `true` = QR widoczny, `false` = mały toggle button żeby pokazać znowu.
         var isQRVisible: Bool = true
+
+        /// Confirm dialog przed END Class. Trener musi potwierdzić — END affects wszystkich
+        /// sportowców, accidental tap by zerwał klasę dla całej sali. `nil` = brak alertu,
+        /// non-nil = alert visible.
+        @Presents var alert: AlertState<Action.Alert>?
     }
 
     /// Pojedynczy kafelek athlety w grid.

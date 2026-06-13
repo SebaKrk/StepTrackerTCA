@@ -76,9 +76,19 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
         didUpdateValueFor characteristic: CBCharacteristic,
         error: Error?
     ) {
+        // HR characteristic notify: host emit'uje "class ended" sentinel (1 byte 0xFF)
+        // przed stopAdvertising. Distinct od JSON HR payloads (~150 bytes), brak collision.
+        if characteristic.uuid == BLEServiceConstants.hrStreamCharacteristicUUID {
+            guard let value = characteristic.value,
+                  value.count == 1,
+                  value.first == 0xFF
+            else { return }
+            Self.logger.info("Class ended signal received from host")
+            onPeerEvent(.classEnded)
+            return
+        }
+
         // Discovery info read response — odpalany po `peripheral.readValue(for:)`.
-        // HR characteristic ma notify ale peripheral NIE wysyła notify update'ów,
-        // więc tego callback'a nigdy dla HR nie dostaniemy.
         guard characteristic.uuid == BLEServiceConstants.discoveryInfoCharacteristicUUID else {
             return
         }

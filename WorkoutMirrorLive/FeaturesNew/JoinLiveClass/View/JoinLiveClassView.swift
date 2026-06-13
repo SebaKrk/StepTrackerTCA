@@ -41,22 +41,34 @@ struct JoinLiveClassView: View {
     /// FullScreenCover content z QR scannerem. Po successful scan reducer
     /// zamknie cover (`isShowingScanner = false`) + auto-trigger BLE handshake.
     private var scannerCover: some View {
-        ZStack(alignment: .topTrailing) {
-            QRScannerView { jsonString in
-                send(.qrScanned(jsonString: jsonString))
-            }
-            .ignoresSafeArea()
-
-            // Manual close button — fallback gdy swipe-down nie jest oczywisty UX.
-            Button {
-                send(.scannerDismissed)
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.title)
-                    .foregroundStyle(.white, .black.opacity(0.5))
-            }
-            .padding(20)
+        ZStack(alignment: .topLeading) {
+            scannerCameraView
+            scannerCloseButton
         }
+    }
+
+    /// Live camera preview — `AVCaptureSession`-backed scanner. Po pierwszym scan'ie
+    /// wywołuje `qrScanned` action z JSON payload (decoded w reducerze).
+    private var scannerCameraView: some View {
+        QRScannerView { jsonString in
+            send(.qrScanned(jsonString: jsonString))
+        }
+        .ignoresSafeArea()
+    }
+
+    /// Glass-circle close button w lewym górnym rogu (Apple iOS 26 convention dla
+    /// single-symbol dismiss buttons — circle shape pasuje proporcjonalnie do `xmark`).
+    private var scannerCloseButton: some View {
+        Button {
+            send(.scannerDismissed)
+        } label: {
+            Image(systemName: "xmark")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(2)
+        }
+        .buttonStyle(.glass)
+        .padding()
     }
 
     // MARK: - Private views (struktura)

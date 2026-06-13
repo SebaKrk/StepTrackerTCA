@@ -14,6 +14,17 @@ extension GymRoomFeature {
     @CasePathable
     enum Action: ViewAction {
 
+        // MARK: - Alert (END Class confirmation)
+
+        /// Akcje z alert'u — confirm END Class lub cancel (PresentationAction wraps obie).
+        case alert(PresentationAction<Alert>)
+
+        /// Wybory użytkownika w alert'cie END Class.
+        enum Alert: Equatable {
+            /// Trener potwierdził chęć zakończenia klasy — uruchom end logic.
+            case confirmEnd
+        }
+
         // MARK: - Internal (peer event handling)
 
         /// Nowy athlete dołączył — dodaj kafelek. Klucz = `deviceID` (stabilny per-install).

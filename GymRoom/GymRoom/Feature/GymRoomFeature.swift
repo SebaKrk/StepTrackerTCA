@@ -61,13 +61,23 @@ GymRoomFeature {
                 }
 
             case .view(.endTapped):
-                Logger.gymRoom.info("⏹️ End tapped — invalidating session token")
+                // Tap End → present confirm dialog. Faktyczna end logic w `.alert(.presented(.confirmEnd))`.
+                // Alert content w `GymRoomFeature+AlertState.swift` jako static `.endClass`.
+                state.alert = .endClass
+                return .none
+
+            case .alert(.presented(.confirmEnd)):
+                Logger.gymRoom.info("⏹️ End confirmed — invalidating session token")
                 state.isLive = false
                 state.athletes.removeAll()
                 state.sessionToken = nil      // invalidate — stale QR scans odrzucone (subtask C3)
                 return .run { _ in
                     await peerMirrorClient.stopAdvertising()
                 }
+
+            case .alert:
+                // Cancel lub dismiss — nic do roboty, presentation reducer sam clearuje state.alert.
+                return .none
 
             case .view(.toggleQR):
                 state.isQRVisible.toggle()
@@ -122,6 +132,11 @@ GymRoomFeature {
                             await send(.peerReconnected(deviceID: deviceID))
                         case let .disconnected(deviceID):
                             await send(.peerDisconnected(deviceID: deviceID))
+                        case .classEnded:
+                            // Host-side no-op: iPad sam emit'uje classEnded broadcast
+                            // (via PeerMirrorBLEHostSession.broadcastClassEnded), własny event
+                            // nie wymaga reakcji w reducerze (host już wie że robi END).
+                            break
                         }
                     }
                 }
@@ -137,5 +152,6 @@ GymRoomFeature {
                 .cancellable(id: GymRoomCancelID.samples)
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
