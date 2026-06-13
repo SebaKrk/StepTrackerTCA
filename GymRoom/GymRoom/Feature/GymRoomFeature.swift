@@ -62,18 +62,8 @@ GymRoomFeature {
 
             case .view(.endTapped):
                 // Tap End → present confirm dialog. Faktyczna end logic w `.alert(.presented(.confirmEnd))`.
-                state.alert = AlertState(
-                    title: { TextState(String(localized: "End class?", bundle: .main)) },
-                    actions: {
-                        ButtonState(role: .destructive, action: .confirmEnd) {
-                            TextState(String(localized: "End", bundle: .main))
-                        }
-                        ButtonState(role: .cancel) {
-                            TextState(String(localized: "Cancel", bundle: .main))
-                        }
-                    },
-                    message: { TextState(String(localized: "All athletes will be disconnected.", bundle: .main)) }
-                )
+                // Alert content w `GymRoomFeature+AlertState.swift` jako static `.endClass`.
+                state.alert = .endClass
                 return .none
 
             case .alert(.presented(.confirmEnd)):
