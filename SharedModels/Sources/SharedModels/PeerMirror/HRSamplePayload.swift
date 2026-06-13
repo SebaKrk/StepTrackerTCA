@@ -34,6 +34,13 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
     public let activeEnergy: Double
     public let timestamp: Date
 
+    /// Graceful disconnect signal — peer wysyła `true` w final payload przed disconnect
+    /// (Leave button tap, lub naturalny workout end z HK). Host skip'uje grace period
+    /// i emit'uje `.disconnected` natychmiast (zamiast `.suspended` + 2min grace).
+    ///
+    /// Default `false` — normalne HR sample updates. Tylko goodbye payload ma `true`.
+    public let endOfClass: Bool
+
     public init(
         deviceID: UUID,
         sessionToken: UUID,
@@ -41,7 +48,8 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         bpm: Int,
         maxHR: Int,
         activeEnergy: Double = 0,
-        timestamp: Date = Date()
+        timestamp: Date = Date(),
+        endOfClass: Bool = false
     ) {
         self.deviceID = deviceID
         self.sessionToken = sessionToken
@@ -50,6 +58,7 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         self.maxHR = maxHR
         self.activeEnergy = activeEnergy
         self.timestamp = timestamp
+        self.endOfClass = endOfClass
     }
 
     /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.

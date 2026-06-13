@@ -253,6 +253,28 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
 
             let identifier = request.central.identifier
             let deviceID = payload.deviceID
+
+            // Graceful disconnect: peer wysłał goodbye payload (Leave tap lub workout end
+            // z HK). Skip grace period — emit `.disconnected` natychmiast, usuń peer state.
+            // Service patrząc na `.disconnected` cancel'uje pending grace timer (jeśli był)
+            // i broadcast'uje event do reducer'a, który od razu usunie tile z UI.
+            if payload.endOfClass {
+                if let info = connectedCentrals.removeValue(forKey: deviceID) {
+                    centralToDevice.removeValue(forKey: info.centralIdentifier)
+                    onPeerEvent(.disconnected(deviceID: deviceID))
+                    Self.logger.info(
+                        "Peer ended class gracefully — deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(info.nick, privacy: .public)"
+                    )
+                } else {
+                    // Edge case: goodbye payload przyszedł od peer'a który nie był w connectedCentrals
+                    // (np. host już cancel'ował go w stop()). Log + skip.
+                    Self.logger.info(
+                        "Goodbye from unknown peer deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) — skipping"
+                    )
+                }
+                continue  // NIE forward'uj onSample dla goodbye (bpm=0, no real data)
+            }
+
             // Pierwszy write z tym `deviceID` — validate token, emit `.connected` jeśli match.
             // Jeśli ten sam `deviceID` przychodzi z innego `central.identifier` (BLE radio
             // rotation po reconnect), nie emit'ujemy ponownego `.connected` ani nie
