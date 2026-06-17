@@ -159,6 +159,77 @@ extension DependencyValues {
             .execute(db)
         }
 
+        // GymRoom (IPAD-00090) — schedule template + session records + athlete records.
+        // Three tables: templates re-usable, sessions per Start, athletes per peer-in-session.
+        migrator.registerMigration("v7_gymRoom") { db in
+            try #sql("""
+                CREATE TABLE "gymClassRecords" (
+                  "id"              TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "name"            TEXT NOT NULL DEFAULT '',
+                  "location"        TEXT NOT NULL DEFAULT '',
+                  "scheduledAt"     TEXT,
+                  "maxParticipants" INTEGER NOT NULL DEFAULT 8,
+                  "createdAt"       TEXT NOT NULL,
+                  "updatedAt"       TEXT NOT NULL,
+                  "ckRecordData"    BLOB
+                ) STRICT
+                """)
+            .execute(db)
+
+            try #sql("""
+                CREATE TABLE "classSessionRecords" (
+                  "id"           TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "gymClassId"   TEXT NOT NULL,
+                  "className"    TEXT NOT NULL DEFAULT '',
+                  "location"     TEXT NOT NULL DEFAULT '',
+                  "startedAt"    TEXT NOT NULL,
+                  "endedAt"      TEXT,
+                  "createdAt"    TEXT NOT NULL,
+                  "updatedAt"    TEXT NOT NULL,
+                  "ckRecordData" BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_classSessionRecords_on_gymClassId"
+                ON "classSessionRecords"("gymClassId")
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_classSessionRecords_on_startedAt"
+                ON "classSessionRecords"("startedAt")
+                """)
+            .execute(db)
+
+            try #sql("""
+                CREATE TABLE "athleteSessionRecords" (
+                  "id"                  TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "classSessionId"      TEXT NOT NULL,
+                  "deviceID"            TEXT NOT NULL,
+                  "nick"                TEXT NOT NULL DEFAULT '',
+                  "maxHR"               INTEGER NOT NULL DEFAULT 190,
+                  "hrSamplesData"       BLOB NOT NULL,
+                  "aggregatedStatsData" BLOB NOT NULL,
+                  "joinedAt"            TEXT NOT NULL,
+                  "leftAt"              TEXT,
+                  "createdAt"           TEXT NOT NULL,
+                  "updatedAt"           TEXT NOT NULL,
+                  "ckRecordData"        BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_athleteSessionRecords_on_classSessionId"
+                ON "athleteSessionRecords"("classSessionId")
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_athleteSessionRecords_on_deviceID"
+                ON "athleteSessionRecords"("deviceID")
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 
