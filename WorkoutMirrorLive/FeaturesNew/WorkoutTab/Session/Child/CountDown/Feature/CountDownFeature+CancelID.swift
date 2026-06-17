@@ -14,7 +14,7 @@ extension CountDownFeature {
     /// (`defaultIsolation(MainActor.self)`), which would make synthesized `Hashable`
     /// conformance actor-isolated and conflict with the `Sendable` requirement of
     /// `cancellable(id:)`. Matches the convention used by other CancelID enums in
-    /// the project (`GymRoomCancelID`, `JoinLiveClassCancelID`, `StatsFeatureCancelID`).
+    /// the project (`LiveClassCancelID`, `JoinLiveClassCancelID`, `StatsFeatureCancelID`).
     nonisolated enum CancelID: Hashable, Sendable {
         case timer
         /// Pulse animation timer (600 ms cadence) for the `.waitingForWatch` ring.

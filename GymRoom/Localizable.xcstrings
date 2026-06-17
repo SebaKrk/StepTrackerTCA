@@ -1,12 +1,15 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%lld athletes" : {
+    "%lld" : {
+
+    },
+    "%lld/%lld athletes" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld athletes"
+            "value" : "%lld/%lld athletes"
           }
         }
       }
@@ -31,6 +34,16 @@
         }
       }
     },
+    "Athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Athletes"
+          }
+        }
+      }
+    },
     "BPM" : {
       "localizations" : {
         "pl" : {
@@ -47,6 +60,104 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anuluj"
+          }
+        }
+      }
+    },
+    "Capacity" : {
+
+    },
+    "Charts and stats coming soon." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wykresy i statystyki wkrótce."
+          }
+        }
+      }
+    },
+    "Class creation form coming soon." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formularz tworzenia klasy wkrótce."
+          }
+        }
+      }
+    },
+    "Class name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa klasy"
+          }
+        }
+      }
+    },
+    "Class summary" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podsumowanie klasy"
+          }
+        }
+      }
+    },
+    "Classes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klasy"
+          }
+        }
+      }
+    },
+    "Completed" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończona"
+          }
+        }
+      }
+    },
+    "Create" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stwórz"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń"
+          }
+        }
+      }
+    },
+    "Details" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły"
           }
         }
       }
@@ -81,12 +192,180 @@
         }
       }
     },
+    "History" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia"
+          }
+        }
+      }
+    },
     "LIVE" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "NA ŻYWO"
+          }
+        }
+      }
+    },
+    "Live Class" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live Class"
+          }
+        }
+      }
+    },
+    "Live now" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trwa teraz"
+          }
+        }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja"
+          }
+        }
+      }
+    },
+    "Location (e.g. Sala 1)" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja (np. Sala 1)"
+          }
+        }
+      }
+    },
+    "Max athletes" : {
+
+    },
+    "Name" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa"
+          }
+        }
+      }
+    },
+    "New class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowa klasa"
+          }
+        }
+      }
+    },
+    "No classes yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak klas"
+          }
+        }
+      }
+    },
+    "Past classes will appear here soon." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Past klasy pojawią się tutaj wkrótce."
+          }
+        }
+      }
+    },
+    "Planned" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaplanowana"
+          }
+        }
+      }
+    },
+    "Rozpocznij zajęcia" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpocznij zajęcia"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz"
+          }
+        }
+      }
+    },
+    "Schedule" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harmonogram"
+          }
+        }
+      }
+    },
+    "Scheduled" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaplanowane"
+          }
+        }
+      }
+    },
+    "Scheduled at" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data zajęć"
+          }
+        }
+      }
+    },
+    "Set scheduled time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustaw datę zajęć"
           }
         }
       }
@@ -107,6 +386,51 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rozpocznij zajęcia"
+          }
+        }
+      }
+    },
+    "Started %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpoczęta %@"
+          }
+        }
+      }
+    },
+    "Tap + to create your first class." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stuknij +, aby utworzyć pierwszą klasę."
+          }
+        }
+      }
+    },
+    "This device supports up to %lld athletes. Reduce the value to save." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To urządzenie obsługuje maksymalnie %lld sportowców. Zmniejsz wartość, aby zapisać."
+          }
+        }
+      }
+    },
+    "Without date" : {
+
+    },
+    "Wróć do zajęć" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wróć do zajęć"
           }
         }
       }

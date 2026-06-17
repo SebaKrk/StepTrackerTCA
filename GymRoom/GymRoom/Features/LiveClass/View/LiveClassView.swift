@@ -1,5 +1,5 @@
 //
-//  GymRoomView.swift
+//  LiveClassView.swift
 //  MyFitnessJournal
 //
 //  Created by Sebastian Sciuba on 11/06/2026.
@@ -7,7 +7,7 @@
 
 
 //
-//  GymRoomView.swift
+//  LiveClassView.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 23/05/2026.
@@ -18,10 +18,10 @@ import Foundation
 import SharedModels
 import SwiftUI
 
-@ViewAction(for: GymRoomFeature.self)
-struct GymRoomView: View {
+@ViewAction(for: LiveClassFeature.self)
+struct LiveClassView: View {
 
-    @Bindable var store: StoreOf<GymRoomFeature>
+    @Bindable var store: StoreOf<LiveClassFeature>
 
     var body: some View {
         ZStack {
@@ -239,15 +239,16 @@ struct GymRoomView: View {
     // MARK: - Private content (implementacja)
 
     private var headerTitle: String {
-        String(localized: "Gym Room", bundle: .main)
+        store.className
     }
 
     private var headerSubtitle: String {
-        String(localized: "LIVE", bundle: .main)
+        let liveLabel = String(localized: "LIVE", bundle: .main)
+        return store.location.isEmpty ? liveLabel : "\(store.location) · \(liveLabel)"
     }
 
     private var athleteCountText: String {
-        String(localized: "\(store.athletes.count) athletes", bundle: .main)
+        String(localized: "\(store.athletes.count)/\(store.maxParticipants) athletes", bundle: .main)
     }
 
     private var startTitle: String {
@@ -262,14 +263,14 @@ struct GymRoomView: View {
         String(localized: "Skanuj kodem QR", bundle: .main)
     }
 
-    /// Buduje JSON payload dla QR z `sessionToken` + `iPadID` + `gymName` + `createdAt`.
+    /// Buduje JSON payload dla QR z `sessionToken` + `iPadID` + `gymName` (= className) + `createdAt`.
     /// ISO-8601 daty żeby było czytelne po dekodowaniu (peer może debugować w log'u).
     /// Pusty string fallback jeśli encoding fails (rzadkie — wszystkie pola Codable).
     private func qrPayloadJSON(token: UUID) -> String {
         let payload = QRSessionPayload(
             token: token,
             iPadID: store.iPadID,
-            gymName: store.gymName
+            gymName: store.className
         )
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
@@ -308,9 +309,9 @@ private let previewBPMs = [
     138, 96, 148, 162, 178, 105, 115, 135
 ]
 
-private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.AthleteTile> {
+private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<LiveClassFeature.AthleteTile> {
     IdentifiedArray(uniqueElements: (0..<count).map { index in
-        GymRoomFeature.AthleteTile(
+        LiveClassFeature.AthleteTile(
             id: UUID(),
             nick: previewNames[index % previewNames.count],
             bpm: previewBPMs[index % previewBPMs.count],
@@ -323,65 +324,65 @@ private func previewAthletes(_ count: Int) -> IdentifiedArrayOf<GymRoomFeature.A
 // MARK: - Previews
 
 #Preview("Idle") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State()) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State()) {
+            LiveClassFeature()
         }
     )
 }
 
 #Preview("Live — 1") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(1), sessionToken: UUID())) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State(isLive: true, athletes: previewAthletes(1), sessionToken: UUID())) {
+            LiveClassFeature()
         }
     )
 }
 
 #Preview("Live — 2") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(2), sessionToken: UUID())) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State(isLive: true, athletes: previewAthletes(2), sessionToken: UUID())) {
+            LiveClassFeature()
         }
     )
 }
 
 #Preview("Live — 4") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(4), sessionToken: UUID())) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State(isLive: true, athletes: previewAthletes(4), sessionToken: UUID())) {
+            LiveClassFeature()
         }
     )
 }
 
 #Preview("Live — 8") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(8), sessionToken: UUID())) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State(isLive: true, athletes: previewAthletes(8), sessionToken: UUID())) {
+            LiveClassFeature()
         }
     )
 }
 
 #Preview("Live — 12") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(12), sessionToken: UUID())) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State(isLive: true, athletes: previewAthletes(12), sessionToken: UUID())) {
+            LiveClassFeature()
         }
     )
 }
 
 #Preview("Live — 24 (auto-shrink)") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(24), sessionToken: UUID())) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State(isLive: true, athletes: previewAthletes(24), sessionToken: UUID())) {
+            LiveClassFeature()
         }
     )
 }
 
 #Preview("Live — QR hidden") {
-    GymRoomView(
-        store: Store(initialState: GymRoomFeature.State(isLive: true, athletes: previewAthletes(4), sessionToken: UUID(), isQRVisible: false)) {
-            GymRoomFeature()
+    LiveClassView(
+        store: Store(initialState: LiveClassFeature.State(isLive: true, athletes: previewAthletes(4), sessionToken: UUID(), isQRVisible: false)) {
+            LiveClassFeature()
         }
     )
 }

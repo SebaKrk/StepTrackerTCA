@@ -9,7 +9,7 @@ import Foundation
 
 /// Payload kodowany w QR code'zie na iPadzie + skanowany na iPhone'ie.
 ///
-/// Generowany na `GymRoomFeature.view(.startTapped)` (token = `UUID()`),
+/// Generowany na `LiveClassFeature.view(.startTapped)` (token = `UUID()`),
 /// invalid'owany na `.endTapped`. Encoded jako JSON UTF-8 → `CIFilter.qrCodeGenerator`.
 ///
 /// **Warstwy identity**:

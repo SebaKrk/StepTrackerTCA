@@ -1,5 +1,5 @@
 //
-//  GymRoomFeature+Action.swift
+//  LiveClassFeature+Action.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 23/05/2026.
@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 
-extension GymRoomFeature {
+extension LiveClassFeature {
 
     @CasePathable
     enum Action: ViewAction {
@@ -51,6 +51,20 @@ extension GymRoomFeature {
 
         /// Subskrypcja stream'a HR samples z `peerMirrorClient`.
         case startObservingSamples
+
+        // MARK: - Delegate (parent — ClassesListFeature)
+
+        /// Komunikaty do parent reducer'a (ClassesListFeature). Parent reaguje:
+        /// `.classEnded` → set state.liveClass = nil + mark current .live class as .past.
+        case delegate(Delegate)
+
+        enum Delegate: Equatable {
+            /// User tap "Start class" — parent (ClassesListFeature) mark gymClass.phase = .live.
+            case classStarted
+
+            /// User End → confirm — parent close fullScreenCover + mark gymClass.phase = .past.
+            case classEnded
+        }
 
         // MARK: - View Actions
 

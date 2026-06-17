@@ -11,14 +11,16 @@ import SwiftUI
 
 @main
 struct GymRoomApp: App {
-    
-    let store = Store(initialState: GymRoomFeature.State()) {
-        GymRoomFeature()
+
+    /// Root store dla całej app — `GymRoomRootFeature` wraps NavigationSplitView z 2 tabs:
+    /// Classes (main hub, child ClassesListFeature) + History (placeholder, subtask D).
+    let store = Store(initialState: GymRoomRootFeature.State()) {
+        GymRoomRootFeature()
     }
 
     var body: some Scene {
         WindowGroup {
-            GymRoomView(store: store)
+            GymRoomRootView(store: store)
         }
     }
 }

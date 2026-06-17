@@ -893,3 +893,14 @@
 
     H: Bi-directional class lifecycle (host→peer broadcast + peer self-reset)
     - PeerEvent +case classEnded. PeerMirrorBLEHostSession.stop() calls broadcastClassEnded() FIRST — peripheralManager.updateValue(Data([0xFF]), for: hrCharacteristic, onSubscribedCentrals: nil) (BLE notify broadcast). PeerMirrorBLEPeerSession+CBPeripheralDelegate.didUpdateValueFor detects sentinel byte (1 byte = 0xFF) on hrCharacteristic → emits PeerEvent.classEnded. PeerMirrorService.broadcastPeerEvent handles .classEnded: cancel all pending grace timers + forward to consumers. JoinLiveClassFeature: peerEventsStream switch routes .classEnded → .classEndedReceived action. Post-loop in peerConnected effect emits .workoutEnded action (after sending goodbye payload). Both .classEndedReceived AND .workoutEnded share body: phase=.idle + scannedQRPayload=nil + isShowingScanner=false + stopBrowsing + delegate.didLeave (toolbar icon disappears). GymRoomFeature peerEventsStream switch adds .classEnded → break (host-side no-op, iPad already knows it's ending). Solves two symmetric problems: (1) iPad END → iPhone immediately resets (was stuck in .searching), (2) Watch end workout → iPhone immediately resets (was stuck in .connected requiring manual Leave).
+
+### IPAD-00090 GymRoom class management space (history + creation)
+    - branch: `dev/IPAD-00090/IPAD-00090`
+
+    A: GymRoom UI refactor — NavigationSplitView + LiveClass extraction
+    B: Database schema — GymClassRecord + AthleteSessionRecord + migration v7_gymRoom
+    C: LiveClass persistence layer — create class on Start, save athlete sessions, batch HR samples
+    D: ClassHistory list view — reverse-chrono past classes with empty state
+    E: ClassDetail charts — HR over time, calories bar, HR zones pie (Apple Charts)
+    F: ClassCreation form — custom class name with TextField
+    G: PL localization sweep — new keys in GymRoom/Localizable.xcstrings

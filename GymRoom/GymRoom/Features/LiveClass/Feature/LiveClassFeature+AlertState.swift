@@ -1,5 +1,5 @@
 //
-//  GymRoomFeature+AlertState.swift
+//  LiveClassFeature+AlertState.swift
 //  GymRoom
 //
 //  Created by Sebastian Ściuba on 13/06/2026.
@@ -8,8 +8,8 @@
 import ComposableArchitecture
 import Foundation
 
-/// Alert states for `GymRoomFeature`.
-extension AlertState where Action == GymRoomFeature.Action.Alert {
+/// Alert states for `LiveClassFeature`.
+extension AlertState where Action == LiveClassFeature.Action.Alert {
 
     /// Confirmation dialog before ending the class — prevents accidental tap
     /// that would disconnect all athletes mid-session. Destructive style on End
