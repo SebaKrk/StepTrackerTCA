@@ -1,0 +1,139 @@
+//
+//  ClassDetailView.swift
+//  GymRoom
+//
+//  Created by Sebastian Ściuba on 13/06/2026.
+//
+
+import ComposableArchitecture
+import SwiftUI
+
+/// Detail view klasy z metadata (name, location, scheduledAt) + Start class button
+/// w prawym dolnym rogu (floating action). Future: Edit / Delete toolbar actions.
+@ViewAction(for: ClassDetailFeature.self)
+struct ClassDetailView: View {
+
+    @Bindable var store: StoreOf<ClassDetailFeature>
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            content
+            startButton
+                .padding(32)
+        }
+        .navigationTitle(store.gymClass.name)
+        .navigationBarTitleDisplayMode(.large)
+        .preferredColorScheme(.dark)
+    }
+
+    // MARK: - Private views (struktura)
+
+    private var content: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                locationRow
+                if let scheduledAt = store.gymClass.scheduledAt {
+                    scheduledRow(scheduledAt)
+                }
+                athletesRow
+            }
+            .padding(32)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+    }
+
+    private var locationRow: some View {
+        metadataRow(label: locationLabel, value: store.gymClass.location)
+    }
+
+    private func scheduledRow(_ date: Date) -> some View {
+        metadataRow(label: scheduledLabel, value: formattedDate(date))
+    }
+
+    /// Capacity row — pokazuje `0/max` ratio. Pre-live zawsze `0` (klasa to template,
+    /// real-time count w LiveClassView header'ze). Statyczny format `current/max`
+    /// żeby trener od razu widział pojemność klasy.
+    private var athletesRow: some View {
+        metadataRow(label: athletesLabel, value: athletesValue)
+    }
+
+    private func metadataRow(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+            Text(value)
+                .font(.title3.weight(.medium))
+                .foregroundStyle(.primary)
+        }
+    }
+
+    /// Floating Start class button w prawym dolnym rogu — glass capsule z play icon.
+    private var startButton: some View {
+        Button {
+            send(.startTapped)
+        } label: {
+            Label(startTitle, systemImage: "play.fill")
+                .font(.title3.weight(.semibold))
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+        }
+        .buttonStyle(.glassProminent)
+        .tint(.green)
+        .buttonBorderShape(.capsule)
+    }
+
+    // MARK: - Private content (implementacja)
+
+    private var locationLabel: String {
+        String(localized: "Location", bundle: .main)
+    }
+
+    private var scheduledLabel: String {
+        String(localized: "Scheduled", bundle: .main)
+    }
+
+    private var athletesLabel: String {
+        String(localized: "Athletes", bundle: .main)
+    }
+
+    private var athletesValue: String {
+        "0/\(store.gymClass.maxParticipants)"
+    }
+
+    private var startTitle: String {
+        String(localized: "Start class", bundle: .main)
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+}
+
+#Preview("With schedule") {
+    NavigationStack {
+        ClassDetailView(
+            store: Store(initialState: ClassDetailFeature.State(
+                gymClass: GymClass(name: "Morning CrossFit", location: "Sala 1", scheduledAt: .now.addingTimeInterval(3600))
+            )) {
+                ClassDetailFeature()
+            }
+        )
+    }
+}
+
+#Preview("No schedule") {
+    NavigationStack {
+        ClassDetailView(
+            store: Store(initialState: ClassDetailFeature.State(
+                gymClass: GymClass(name: "Anytime WOD", location: "Sala 2")
+            )) {
+                ClassDetailFeature()
+            }
+        )
+    }
+}

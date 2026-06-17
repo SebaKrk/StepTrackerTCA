@@ -1,5 +1,5 @@
 //
-//  GymRoomFeature+CancelID.swift
+//  LiveClassFeature+CancelID.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 23/05/2026.
@@ -7,9 +7,9 @@
 
 import Foundation
 
-extension GymRoomFeature {
+extension LiveClassFeature {
 
-    nonisolated enum GymRoomCancelID: Hashable, Sendable {
+    nonisolated enum LiveClassCancelID: Hashable, Sendable {
 
         /// Subskrypcja `peerMirrorClient.peerEventsStream()`.
         case peerEvents

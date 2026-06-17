@@ -1,5 +1,5 @@
 //
-//  GymRoomFeature.swift
+//  LiveClassFeature.swift
 //  MyFitnessJournal
 //
 //  Created by Sebastian Sciuba on 11/06/2026.
@@ -7,7 +7,7 @@
 
 
 //
-//  GymRoomFeature.swift
+//  LiveClassFeature.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 23/05/2026.
@@ -26,7 +26,7 @@ import SharedModels
 /// oraz wywołanie `startAdvertising` / `stopAdvertising` przy `startTapped` / `endTapped`.
 @Reducer
 struct
-GymRoomFeature {
+LiveClassFeature {
 
     // MARK: - Dependencies
 
@@ -41,28 +41,39 @@ GymRoomFeature {
                 // MARK: - View Actions
 
             case .view(.viewDidAppear):
-                Logger.gymRoom.info("🎬 GymRoomView appeared — starting observations")
+                // Auto-start klasę gdy fullScreenCover pojawia się — user explicit tap'nął
+                // "Start class" w ClassDetailView, ten View jest **live mode**, nie state
+                // machine z idle phase. Idle UI w body jest defensive fallback gdyby
+                // auto-startTapped fail'owało.
+                Logger.gymRoom.info("🎬 LiveClassView appeared — starting observations + auto-start")
                 return .merge(
                     .send(.startObservingPeerEvents),
-                    .send(.startObservingSamples)
+                    .send(.startObservingSamples),
+                    .send(.view(.startTapped))
                 )
 
             case .view(.startTapped):
+                // Idempotency guard — viewDidAppear auto-triggers, ale user może też explicit tap
+                // (defensive). Drugi call gdy isLive=true = no-op (zachowujemy sessionToken).
+                guard !state.isLive else { return .none }
                 // Extract value PRZED Logger call — Logger.info ma @escaping autoclosure
                 // który nie może capture'ować inout state z reducer closure.
-                let gymName = state.gymName
+                let gymName = state.className
                 Logger.gymRoom.info("▶️ Start tapped — advertising as '\(gymName)'")
                 state.isLive = true
                 let token = UUID()
                 state.sessionToken = token    // fresh token per class — encoded w QR
                 state.isQRVisible = true      // reset visibility on new class
-                return .run { _ in
-                    await peerMirrorClient.startAdvertising(gymName, token)
-                }
+                return .merge(
+                    .run { _ in
+                        await peerMirrorClient.startAdvertising(gymName, token)
+                    },
+                    .send(.delegate(.classStarted))
+                )
 
             case .view(.endTapped):
                 // Tap End → present confirm dialog. Faktyczna end logic w `.alert(.presented(.confirmEnd))`.
-                // Alert content w `GymRoomFeature+AlertState.swift` jako static `.endClass`.
+                // Alert content w `LiveClassFeature+AlertState.swift` jako static `.endClass`.
                 state.alert = .endClass
                 return .none
 
@@ -71,12 +82,18 @@ GymRoomFeature {
                 state.isLive = false
                 state.athletes.removeAll()
                 state.sessionToken = nil      // invalidate — stale QR scans odrzucone (subtask C3)
-                return .run { _ in
-                    await peerMirrorClient.stopAdvertising()
-                }
+                return .merge(
+                    .run { _ in
+                        await peerMirrorClient.stopAdvertising()
+                    },
+                    .send(.delegate(.classEnded))
+                )
 
             case .alert:
                 // Cancel lub dismiss — nic do roboty, presentation reducer sam clearuje state.alert.
+                return .none
+
+            case .delegate:
                 return .none
 
             case .view(.toggleQR):
@@ -140,7 +157,7 @@ GymRoomFeature {
                         }
                     }
                 }
-                .cancellable(id: GymRoomCancelID.peerEvents)
+                .cancellable(id: LiveClassCancelID.peerEvents)
 
             case .startObservingSamples:
                 Logger.gymRoom.info("🔥 Starting samples observation...")
@@ -149,7 +166,7 @@ GymRoomFeature {
                         await send(.sampleReceived(sample))
                     }
                 }
-                .cancellable(id: GymRoomCancelID.samples)
+                .cancellable(id: LiveClassCancelID.samples)
             }
         }
         .ifLet(\.$alert, action: \.alert)

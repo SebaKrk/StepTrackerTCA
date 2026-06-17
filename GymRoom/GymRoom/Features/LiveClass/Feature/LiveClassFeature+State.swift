@@ -1,5 +1,5 @@
 //
-//  GymRoomFeature+State.swift
+//  LiveClassFeature+State.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 23/05/2026.
@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 
-extension GymRoomFeature {
+extension LiveClassFeature {
 
     @ObservableState
     struct State {
@@ -38,9 +38,19 @@ extension GymRoomFeature {
         /// `nil` w idle state (przed Start lub po End).
         var sessionToken: UUID?
 
-        /// Display name sali — pokazywany w QR + peer side. PoC: hard-coded.
-        /// Future: configurable (IPAD-0094 multi-room).
-        var gymName: String = "Gym Room"
+        /// Nazwa klasy — z `GymClass.name` (np. "Morning CrossFit"). Pokazana w header
+        /// LiveClassView + wysyłana w QR payload jako `gymName` (peer widzi w `scannedQRPayload`).
+        var className: String = "Gym Room"
+
+        /// Sala — z `GymClass.location` (np. "Sala 1"). iPad-side context tylko —
+        /// wyświetlany w header subtitle obok "LIVE". NIE wysyłany w QR.
+        var location: String = ""
+
+        /// Hard limit BLE z `GymClass.maxParticipants` (8/12/16, set w Class Creation
+        /// z `bleCapacityClient.recommendedMaxConnections()`). Wyświetlany w header
+        /// jako `current/max` ratio (np. "3/8 athletes") — trener widzi capacity od
+        /// razu. Future: reject peer'ów gdy `athletes.count >= maxParticipants`.
+        var maxParticipants: Int = 8
 
         /// Czy QR widget jest widoczny w corner overlay. Toggle dla trenera —
         /// można schować QR po dołączeniu wszystkich sportowców (less visual clutter).
