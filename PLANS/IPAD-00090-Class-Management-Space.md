@@ -1,6 +1,6 @@
 # IPAD-00090 — Class Management Space
 
-> Status: 🚧 **In progress** (~50% done). Update: 2026-06-17.
+> Status: 🚧 **In progress** (~60% done). Update: 2026-06-17 (Subtask B done).
 > Original plan: `~/.claude/plans/deep-mapping-milner.md` (refreshed below pod aktualny stan).
 
 ## Cel
@@ -57,17 +57,23 @@ Dedykowana przestrzeń w GymRoom (iPad app) do zarządzania klasami treningowymi
 
 ## Pending
 
-### Subtask B — Database schema (SQLiteData)
-**Files NEW**:
-- `AppDatabase/Sources/AppDatabase/Records/GymClassRecord.swift` — @Table, CloudKitSyncable
-- `AppDatabase/Sources/AppDatabase/Records/AthleteSessionRecord.swift` — @Table z BLOB dla `hrSamplesData` + `aggregatedStatsData`
-- `SharedModels/Sources/SharedModels/Analytics/HRSample.swift` — Codable struct (timestamp, bpm, activeEnergy)
-- `SharedModels/Sources/SharedModels/Analytics/ClassAnalytics.swift` — Codable (avgHR, peakHR, totalCalories, durationSeconds, timeInZones)
+### ~~Subtask B — Database schema (SQLiteData)~~ ✅ Done (2026-06-17)
 
-**File MOD**:
-- `AppDatabase/Sources/AppDatabase/Schema.swift` — append `v7_gymRoom` migration
+**Decision made**: 3-tabele model (`GymClassRecord` template + `ClassSessionRecord` runtime + `AthleteSessionRecord` peer). Template persistuje, snapshot `className` + `location` w session record (immune na późniejsze rename template'a).
 
-**Decision pending**: `GymClass` (in-memory schedule template) vs `GymClassRecord` (persisted session). Czy schedule template też trafia do bazy (dla cross-launch persistence)?
+**Files created**:
+- ✅ `AppDatabase/Sources/AppDatabase/Records/GymClassRecord.swift` — template (id, name, location, scheduledAt?, maxParticipants)
+- ✅ `AppDatabase/Sources/AppDatabase/Records/ClassSessionRecord.swift` — runtime (id, gymClassId FK, className snapshot, location snapshot, startedAt, endedAt?)
+- ✅ `AppDatabase/Sources/AppDatabase/Records/AthleteSessionRecord.swift` — peer (id, classSessionId FK, deviceID, nick, maxHR, hrSamplesData BLOB, aggregatedStatsData BLOB, joinedAt, leftAt?)
+- ✅ `SharedModels/Sources/SharedModels/Analytics/HRSample.swift` — Codable (timestamp, bpm, activeEnergy)
+- ✅ `SharedModels/Sources/SharedModels/Analytics/ClassAnalytics.swift` — Codable (avgHR, peakHR, totalCalories, durationSeconds, timeInZones: `[HeartRateZone: TimeInterval]`)
+- ✅ `AppDatabase/Sources/AppDatabase/Schema.swift` — migration `v7_gymRoom` (3 tabele + 4 indexy: gymClassId, startedAt, classSessionId, deviceID)
+
+**Indexes rationale**:
+- `classSessionRecords.gymClassId` → query "all sessions for this template"
+- `classSessionRecords.startedAt` → ORDER BY DESC dla History list (reverse-chrono)
+- `athleteSessionRecords.classSessionId` → query "all athletes in this session"
+- `athleteSessionRecords.deviceID` → future query "all sessions for this peer"
 
 ### Subtask C — LiveClass persistence layer
 - `GymClassClient` (dependency boundary nad SQLiteData queries)
