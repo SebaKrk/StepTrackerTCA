@@ -11,7 +11,6 @@
 		9317953E2FDAADB700B5FCF7 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 9317953D2FDAADB700B5FCF7 /* ComposableArchitecture */; };
 		931795402FDAAE1500B5FCF7 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 9317953F2FDAAE1500B5FCF7 /* SharedModels */; };
 		931795422FDAAEA100B5FCF7 /* PeerMirror in Frameworks */ = {isa = PBXBuildFile; productRef = 931795412FDAAEA100B5FCF7 /* PeerMirror */; };
-		938B25112FDAAEAA00B5FCF7 /* AppDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 938B25102FDAAEAA00B5FCF7 /* AppDatabase */; };
 		9332A8C62D1809FD00DA426E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9332A8C52D1809FD00DA426E /* README.md */; };
 		934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 934045BC2DF561F0005A00C8 /* HealthHub */; };
 		934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C72DD9CD8C0089D27C /* ComposableArchitecture */; };
@@ -253,7 +252,6 @@
 				9317953E2FDAADB700B5FCF7 /* ComposableArchitecture in Frameworks */,
 				931795402FDAAE1500B5FCF7 /* SharedModels in Frameworks */,
 				931795422FDAAEA100B5FCF7 /* PeerMirror in Frameworks */,
-				938B25112FDAAEAA00B5FCF7 /* AppDatabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,9 +438,6 @@
 				938B24BF2FDA16F1008F75CC /* GymRoom */,
 			);
 			name = GymRoom;
-			packageProductDependencies = (
-				938B25102FDAAEAA00B5FCF7 /* AppDatabase */,
-			);
 			productName = GymRoom;
 			productReference = 938B24BE2FDA16F1008F75CC /* GymRoom.app */;
 			productType = "com.apple.product-type.application";
@@ -1368,10 +1363,6 @@
 		9317953F2FDAAE1500B5FCF7 /* SharedModels */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SharedModels;
-		};
-		938B25102FDAAEAA00B5FCF7 /* AppDatabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AppDatabase;
 		};
 		931795412FDAAEA100B5FCF7 /* PeerMirror */ = {
 			isa = XCSwiftPackageProductDependency;

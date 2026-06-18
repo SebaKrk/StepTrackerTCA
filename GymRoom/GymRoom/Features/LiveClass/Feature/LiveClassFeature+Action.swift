@@ -52,6 +52,20 @@ extension LiveClassFeature {
         /// Subskrypcja stream'a HR samples z `peerMirrorClient`.
         case startObservingSamples
 
+        // MARK: - Internal (persistence)
+
+        /// Po `gymClassClient.startSession(...)` success — set `state.activeSessionId` +
+        /// start `persistenceTimer` effect (flush buffer co 30s).
+        case sessionStarted(sessionId: UUID)
+
+        /// Po `gymClassClient.addAthlete(...)` success — assign `athleteId` do
+        /// `state.athleteRecordIds[deviceID]`, initialize empty buffer.
+        case athleteAdded(deviceID: UUID, athleteId: UUID)
+
+        /// Timer tick z `persistenceTimer` effect (co 30s) — flush buffered samples
+        /// per athlete (`appendHRSamples` async per peer), clear buffer.
+        case flushBufferedSamples
+
         // MARK: - Delegate (parent — ClassesListFeature)
 
         /// Komunikaty do parent reducer'a (ClassesListFeature). Parent reaguje:

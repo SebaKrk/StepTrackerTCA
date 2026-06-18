@@ -25,6 +25,7 @@ struct ClassesListView: View {
                 ) { detailStore in
                     ClassDetailView(store: detailStore)
                 }
+                .task { send(.viewDidAppear) }
         }
         .preferredColorScheme(.dark)
         .sheet(
