@@ -908,3 +908,5 @@
     F: Final cleanup + cascade delete
     - PL localization sweep
     - Cascade delete template'a (kasuje też powiązane sesje + athlete records) z alert confirmation
+    G: ClassDetail actions menu
+     - ellipsis toolbar z Edit (prefilled sheet, upsert) + Delete (cascade z alert confirmation). Reuse ClassCreationFeature dla edit mode.

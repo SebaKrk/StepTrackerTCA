@@ -147,8 +147,14 @@ struct ClassCreationView: View {
 
     // MARK: - Private content (implementacja)
 
+    /// "Edit class" w edit mode, "New class" w create mode. Wizualnie sygnalizuje
+    /// trenerowi czy modyfikuje istniejący template czy tworzy nowy.
     private var navigationTitle: String {
-        String(localized: "New class", bundle: .main)
+        if store.editingId != nil {
+            String(localized: "Edit class", bundle: .main)
+        } else {
+            String(localized: "New class", bundle: .main)
+        }
     }
 
     private var detailsHeader: String {

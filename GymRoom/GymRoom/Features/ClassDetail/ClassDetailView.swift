@@ -23,7 +23,47 @@ struct ClassDetailView: View {
         }
         .navigationTitle(store.gymClass.name)
         .navigationBarTitleDisplayMode(.large)
+        .toolbar { actionsMenu }
+        .sheet(item: $store.scope(state: \.editSheet, action: \.editSheet)) { editStore in
+            ClassCreationView(store: editStore)
+        }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .preferredColorScheme(.dark)
+    }
+
+    /// Ellipsis menu w prawym górnym rogu — struktura widoku (CO).
+    /// Implementacja przycisków + label jako osobne `private var` poniżej (JAK).
+    @ToolbarContentBuilder
+    private var actionsMenu: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                editButton
+                deleteButton
+            } label: {
+                menuLabel
+            }
+        }
+    }
+
+    private var editButton: some View {
+        Button {
+            send(.editTapped)
+        } label: {
+            Text(editLabel)
+        }
+    }
+
+    private var deleteButton: some View {
+        Button(role: .destructive) {
+            send(.deleteTapped)
+        } label: {
+            Label(deleteLabel, systemImage: "trash")
+        }
+    }
+
+    private var menuLabel: some View {
+        Image(systemName: "ellipsis")
+//            .font(.title3.weight(.semibold))
     }
 
     // MARK: - Private views (struktura)
@@ -69,19 +109,28 @@ struct ClassDetailView: View {
         }
     }
 
-    /// Floating Start class button w prawym dolnym rogu — glass capsule z play icon.
+    /// Floating Start class button w prawym dolnym rogu — manual Liquid Glass capsule
+    /// z green tint (iOS 26 `.glassEffect()` material). Bardziej "natural" niż solid
+    /// `.glassProminent` — depth + refraction Apple Liquid Glass design system.
     private var startButton: some View {
         Button {
             send(.startTapped)
         } label: {
-            Label(startTitle, systemImage: "play.fill")
-                .font(.title3.weight(.semibold))
-                .padding(.horizontal, 24)
-                .padding(.vertical, 14)
+            startButtonLabel
         }
-        .buttonStyle(.glassProminent)
-        .tint(.green)
-        .buttonBorderShape(.capsule)
+        .buttonStyle(.plain)
+    }
+
+    private var startButtonLabel: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "play.fill")
+            Text(startTitle)
+        }
+        .font(.title3.weight(.semibold))
+        .foregroundStyle(.white)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 14)
+        .glassEffect(.regular, in: .capsule)
     }
 
     // MARK: - Private content (implementacja)
@@ -104,6 +153,14 @@ struct ClassDetailView: View {
 
     private var startTitle: String {
         String(localized: "Start class", bundle: .main)
+    }
+
+    private var editLabel: String {
+        String(localized: "Edit", bundle: .main)
+    }
+
+    private var deleteLabel: String {
+        String(localized: "Delete", bundle: .main)
     }
 
     private func formattedDate(_ date: Date) -> String {

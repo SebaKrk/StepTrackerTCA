@@ -44,13 +44,18 @@ struct ClassCreationFeature {
 
             case .view(.saveTapped):
                 guard state.isValid else { return .none }
-                let newClass = GymClass(
+                // Zachowaj `id` w edit mode (upsert → update istniejący rząd).
+                // W create mode fresh UUID → nowy row. SQLiteData `upsert` rozróżnia
+                // per PRIMARY KEY ON CONFLICT REPLACE.
+                let id = state.editingId ?? UUID()
+                let savedClass = GymClass(
+                    id: id,
                     name: state.name.trimmingCharacters(in: .whitespaces),
                     location: state.location.trimmingCharacters(in: .whitespaces),
                     scheduledAt: state.hasSchedule ? state.scheduledAt : nil,
                     maxParticipants: state.maxParticipants
                 )
-                return .send(.delegate(.classCreated(newClass)))
+                return .send(.delegate(.classCreated(savedClass)))
 
             case .view(.cancelTapped):
                 return .run { _ in await self.dismiss() }

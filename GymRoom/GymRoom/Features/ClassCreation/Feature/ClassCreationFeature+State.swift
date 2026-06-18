@@ -13,6 +13,11 @@ extension ClassCreationFeature {
     @ObservableState
     struct State: Equatable {
 
+        /// `nil` = create mode (nowy template z fresh UUID przy Save). Non-nil = edit
+        /// mode (upsert do istniejącego rzędu — SQLite ON CONFLICT REPLACE po id).
+        /// Set przez custom `init(editing: GymClass)` używany w `ClassDetailFeature.editTapped`.
+        var editingId: UUID?
+
         /// Nazwa klasy treningowej (np. "Morning CrossFit"). Mandatory — pusta po trim
         /// blokuje Save button (`isValid == false`).
         var name: String = ""
@@ -57,5 +62,23 @@ extension ClassCreationFeature {
             !location.trimmingCharacters(in: .whitespaces).isEmpty &&
             !exceedsDeviceLimit
         }
+
+        /// Custom init dla edit mode — prefill wszystkie pola z istniejącego template'a.
+        /// `editingId` set'owany na `gymClass.id` → przy Save upsert nadpisze istniejący
+        /// rząd (zamiast tworzyć nowy z fresh UUID).
+        init(editing gymClass: GymClass) {
+            self.editingId = gymClass.id
+            self.name = gymClass.name
+            self.location = gymClass.location
+            self.hasSchedule = gymClass.scheduledAt != nil
+            self.scheduledAt = gymClass.scheduledAt ?? .now
+            self.maxParticipants = gymClass.maxParticipants
+            self.deviceCapacity = gymClass.maxParticipants
+            // maxParticipantsUpperBound zostaje default; viewDidAppear i tak nie nadpisze
+            // bo `maxParticipants != 0` (sentinel check).
+        }
+
+        /// Default init dla create mode — wszystkie pola domyślne (memberwise synthesis).
+        init() {}
     }
 }
