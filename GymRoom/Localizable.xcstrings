@@ -34,6 +34,9 @@
         }
       }
     },
+    "Athlete" : {
+
+    },
     "Athletes" : {
       "localizations" : {
         "pl" : {
@@ -44,12 +47,42 @@
         }
       }
     },
+    "Avg HR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. HR"
+          }
+        }
+      }
+    },
     "BPM" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "BPM"
+          }
+        }
+      }
+    },
+    "Calories" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalorie"
+          }
+        }
+      }
+    },
+    "Calories burned" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spalone kalorie"
           }
         }
       }
@@ -120,6 +153,16 @@
         }
       }
     },
+    "Combined" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razem"
+          }
+        }
+      }
+    },
     "Completed" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -158,6 +201,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szczegóły"
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas"
           }
         }
       }
@@ -201,6 +254,19 @@
           }
         }
       }
+    },
+    "HR over time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR w czasie"
+          }
+        }
+      }
+    },
+    "kcal" : {
+
     },
     "LIVE" : {
       "localizations" : {
@@ -278,6 +344,16 @@
         }
       }
     },
+    "No athletes data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych athletes"
+          }
+        }
+      }
+    },
     "No classes yet" : {
       "localizations" : {
         "pl" : {
@@ -315,6 +391,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Past klasy pojawią się tutaj wkrótce."
+          }
+        }
+      }
+    },
+    "Per athlete" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per athlete"
           }
         }
       }
@@ -442,12 +528,36 @@
         }
       }
     },
+    "This class had no peers connected." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W tej klasie nie było podłączonych athletes."
+          }
+        }
+      }
+    },
     "This device supports up to %lld athletes. Reduce the value to save." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "To urządzenie obsługuje maksymalnie %lld sportowców. Zmniejsz wartość, aby zapisać."
+          }
+        }
+      }
+    },
+    "Time" : {
+
+    },
+    "Time in zones" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas w strefach"
           }
         }
       }

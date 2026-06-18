@@ -21,6 +21,11 @@ struct ClassHistoryView: View {
             content
                 .navigationTitle(navigationTitle)
                 .task { send(.viewDidAppear) }
+                .navigationDestination(
+                    item: $store.scope(state: \.detail, action: \.detail)
+                ) { detailStore in
+                    ClassHistoryDetailView(store: detailStore)
+                }
         }
         .preferredColorScheme(.dark)
     }
@@ -46,26 +51,37 @@ struct ClassHistoryView: View {
 
     private var sessionsList: some View {
         List(store.sessions, id: \.id) { session in
-            sessionRow(for: session)
+            Button {
+                send(.sessionRowTapped(session))
+            } label: {
+                sessionRow(for: session)
+            }
+            .buttonStyle(.plain)
         }
         .listStyle(.insetGrouped)
     }
 
     private func sessionRow(for session: ClassSessionRecord) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(session.className)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Spacer()
-                Text(dateLabel(for: session.startedAt))
-                    .font(.subheadline.monospacedDigit())
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(session.className)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Text(dateLabel(for: session.startedAt))
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+                Text(subtitleLabel(for: session))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Text(subtitleLabel(for: session))
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
         }
+        .contentShape(.rect)
         .padding(.vertical, 4)
     }
 
