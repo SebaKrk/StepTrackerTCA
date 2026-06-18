@@ -38,6 +38,7 @@ struct ClassesListView: View {
         ) { liveStore in
             LiveClassView(store: liveStore)
         }
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     // MARK: - Private views (struktura)

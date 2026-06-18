@@ -905,9 +905,6 @@
     - top stats banner (athletes count + duration + total kcal + avg HR) + HR over time toggle (Per athlete cards / Combined multi-series) + Calories bar chart (sorted desc). Pie chart "Time in zones" removed per user UX decision — data still computed w ClassAnalytics dla future use.
     - ClassCreation sheet — TextField name + location, hasSchedule + DatePicker, maxParticipants Stepper z BLECapacityClient device-aware default (iPad Pro M-series = 16, Air = 12, etc.) + inline error gdy exceeds device limit.
     -  UI poprawki ClassCreation — `@FocusState` + `simultaneousGesture(TapGesture)` (tap-outside dismisses klawiaturę) + keyboard toolbar "Done" + `submitLabel(.next)` / `.done` flow + `.interactiveDismissDisabled()` (sheet zostaje aż explicit Cancel/Save).
-    F: PL localization sweep — remove stale keys (Charts and stats coming soon, Live Class, Past classes will appear here soon, Time in zones, etc.) + fill empty keys (Athlete, Capacity, Max athletes, kcal).
-
-    Bug fix logs:
-    - GRDBSQLite "Unable to find module dependency" — stale `AppDatabase/Package.resolved` lockfile (SQLiteData 1.6.1 → 1.6.5 removed internal product). Fix: delete nested Package.resolved + Reset Package Caches.
-    - AppDatabase linkage do GymRoom target — manual edit `project.pbxproj` (XCSwiftPackageProductDependency + PBXBuildFile + packageProductDependencies section).
-    - ClassSessionRecord / AthleteSessionRecord — added `Sendable` conformance (Swift 6 strict concurrency dla closure return types).
+    F: Final cleanup + cascade delete
+    - PL localization sweep
+    - Cascade delete template'a (kasuje też powiązane sesje + athlete records) z alert confirmation

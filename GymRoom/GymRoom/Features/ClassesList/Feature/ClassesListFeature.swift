@@ -48,11 +48,27 @@ struct ClassesListFeature {
                 return .none
 
             case let .view(.classDeleteTapped(gymClass)):
-                // Optimistic remove ze state + async delete w bazie.
+                // Swipe-to-delete NIE kasuje od razu — present alert z confirmation
+                // (cascade delete kasuje też wszystkie past sessions + athlete records).
+                state.classToDelete = gymClass
+                state.alert = .deleteClass(gymClass.name)
+                return .none
+
+            case .alert(.presented(.confirmDelete)):
+                // User potwierdził → optimistic remove ze state + cascade delete w bazie.
+                guard let gymClass = state.classToDelete else { return .none }
                 state.classes.remove(id: gymClass.id)
+                state.classToDelete = nil
                 return .run { _ in
                     try await gymClassClient.deleteTemplate(gymClass.id)
+                } catch: { error, _ in
+                    Logger.gymRoom.error("❌ cascade delete failed: \(error.localizedDescription)")
                 }
+
+            case .alert(.dismiss), .alert:
+                // Cancel lub dismiss alert'u — wyczyść snapshot, nic nie kasuj.
+                state.classToDelete = nil
+                return .none
 
             case let .destination(.presented(.create(.delegate(.classCreated(newClass))))):
                 // Optimistic append + async save. Sheet zamykany przez parent (TCA dismiss).
@@ -82,6 +98,7 @@ struct ClassesListFeature {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$liveClass, action: \.liveClass) {
             LiveClassFeature()
