@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%lld" : {
+
+    },
     "%lld/%lld athletes" : {
       "localizations" : {
         "pl" : {
@@ -30,6 +33,9 @@
           }
         }
       }
+    },
+    "Athlete" : {
+
     },
     "Athletes" : {
       "localizations" : {
@@ -131,32 +137,22 @@
         }
       }
     },
-    "Delete class?" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usunąć klasę?"
-          }
-        }
-      }
-    },
-    "This will also delete all related sessions and athlete data." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usunie też wszystkie powiązane sesje i dane sportowców."
-          }
-        }
-      }
-    },
     "Delete" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usuń"
+          }
+        }
+      }
+    },
+    "Delete class?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć klasę?"
           }
         }
       }
@@ -240,6 +236,9 @@
           }
         }
       }
+    },
+    "kcal" : {
+
     },
     "LIVE" : {
       "localizations" : {
@@ -461,6 +460,19 @@
           }
         }
       }
+    },
+    "This will also delete all related sessions and athlete data." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunie też wszystkie powiązane sesje i dane sportowców."
+          }
+        }
+      }
+    },
+    "Time" : {
+
     },
     "Today" : {
       "localizations" : {
