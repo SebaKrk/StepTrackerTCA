@@ -15,6 +15,15 @@ struct ClassCreationView: View {
 
     @Bindable var store: StoreOf<ClassCreationFeature>
 
+    /// Focus tracking dla TextField'ów. Tap-outside-form + "Done" button w keyboard
+    /// toolbar resetują na `nil` → dismiss klawiatury.
+    @FocusState private var focusedField: Field?
+
+    private enum Field: Hashable {
+        case name
+        case location
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -24,9 +33,24 @@ struct ClassCreationView: View {
             }
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { toolbarContent }
+            .toolbar {
+                toolbarContent
+                keyboardToolbar
+            }
+            .simultaneousGesture(
+                // Tap w obrębie Form'a ale poza TextField'em → dismiss klawiatury.
+                // `simultaneousGesture` NIE blokuje innych gesture'ów (Toggle, Stepper,
+                // DatePicker dalej działają normalnie) — tap "przechodzi" do nich plus
+                // do tego handler'a paralelnie.
+                TapGesture()
+                    .onEnded { focusedField = nil }
+            )
             .onAppear { send(.viewDidAppear) }
         }
+        // Sheet zamyka się WYŁĄCZNIE przez explicit Cancel/Save w toolbar. Swipe-down
+        // i tap poza sheet są disabled — user musi świadomie zdecydować save vs anuluj.
+        // Zapobiega przypadkowemu zamknięciu sheet'a z wypełnionym formularzem.
+        .interactiveDismissDisabled()
     }
 
     // MARK: - Private views (struktura)
@@ -35,8 +59,14 @@ struct ClassCreationView: View {
         Section {
             TextField(nameFieldPlaceholder, text: $store.name)
                 .textInputAutocapitalization(.words)
+                .focused($focusedField, equals: .name)
+                .submitLabel(.next)
+                .onSubmit { focusedField = .location }
             TextField(locationFieldPlaceholder, text: $store.location)
                 .textInputAutocapitalization(.words)
+                .focused($focusedField, equals: .location)
+                .submitLabel(.done)
+                .onSubmit { focusedField = nil }
         } header: {
             Text(detailsHeader)
         }
@@ -102,6 +132,19 @@ struct ClassCreationView: View {
         }
     }
 
+    /// "Done" button w keyboard toolbar — explicit dismiss klawiatury bez konieczności
+    /// tap'nięcia poza Form. Pomocne na iPad gdy Form pokrywa cały sheet (mało
+    /// "outside space" do tap'nięcia).
+    @ToolbarContentBuilder
+    private var keyboardToolbar: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Spacer()
+            Button(doneTitle) {
+                focusedField = nil
+            }
+        }
+    }
+
     // MARK: - Private content (implementacja)
 
     private var navigationTitle: String {
@@ -138,6 +181,10 @@ struct ClassCreationView: View {
 
     private var cancelTitle: String {
         String(localized: "Cancel", bundle: .main)
+    }
+
+    private var doneTitle: String {
+        String(localized: "Done", bundle: .main)
     }
 
     private var capacityHeader: String {

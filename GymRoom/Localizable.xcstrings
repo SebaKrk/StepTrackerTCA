@@ -205,6 +205,16 @@
         }
       }
     },
+    "Done" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowe"
+          }
+        }
+      }
+    },
     "Duration" : {
       "localizations" : {
         "pl" : {
