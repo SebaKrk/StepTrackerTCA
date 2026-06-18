@@ -157,6 +157,26 @@
         }
       }
     },
+    "Delete session?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć sesję?"
+          }
+        }
+      }
+    },
+    "This will also delete all athlete data from this class." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunie też wszystkie dane sportowców z tej klasy."
+          }
+        }
+      }
+    },
     "Details" : {
       "localizations" : {
         "pl" : {

@@ -35,6 +35,10 @@ struct ClassHistoryDetailFeature {
         /// Toggle widoku HR chart — `combined` (default, multi-series) vs `perAthlete`
         /// (lista kart per peer, każda z indywidualnym mini chart'em).
         var chartViewMode: ChartViewMode = .combined
+
+        /// Confirm alert przed cascade delete sesji z ellipsis menu → "Usuń".
+        /// Aktualnie menu ma jedną akcję; w przyszłości można dodać Share/Export.
+        @Presents var alert: AlertState<Action.Alert>?
     }
 
     /// Tryby wyświetlania HR over time. Switch'owane przez `SegmentedPicker` w View.
@@ -67,11 +71,27 @@ struct ClassHistoryDetailFeature {
         /// Internal — result async fetch + decode.
         case athletesLoaded([AthleteSummary])
 
+        case delegate(Delegate)
+        case alert(PresentationAction<Alert>)
         case view(View)
+
+        enum Delegate: Equatable {
+            /// User skasował sesję z menu w detail → parent ClassHistory pop'uje detail
+            /// + remove ze state.sessions. Parent jest source of truth dla list.
+            case sessionDeleted(UUID)
+        }
+
+        enum Alert: Equatable {
+            /// Trener potwierdził cascade delete sesji + athlete data.
+            case confirmDelete
+        }
 
         enum View {
             /// Lifecycle — fetch athletes na pojawienie się detail. `.task` w View.
             case viewDidAppear
+
+            /// Ellipsis menu → "Usuń" — present alert confirm.
+            case deleteTapped
         }
     }
 
@@ -113,9 +133,21 @@ struct ClassHistoryDetailFeature {
                 state.athletes = summaries
                 return .none
 
-            case .binding:
+            case .view(.deleteTapped):
+                state.alert = .deleteSession(state.className)
+                return .none
+
+            case .alert(.presented(.confirmDelete)):
+                let sessionId = state.sessionId
+                return .run { send in
+                    try? await gymClassClient.deleteSession(sessionId)
+                    await send(.delegate(.sessionDeleted(sessionId)))
+                }
+
+            case .alert, .delegate, .binding:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }

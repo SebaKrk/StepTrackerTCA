@@ -31,7 +31,34 @@ struct ClassHistoryDetailView: View {
         }
         .navigationTitle(store.className)
         .navigationBarTitleDisplayMode(.large)
+        .toolbar { actionsMenu }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .task { send(.viewDidAppear) }
+    }
+
+    /// Ellipsis menu w prawym górnym rogu — struktura (CO).
+    /// Aktualnie 1 akcja (Delete). Future: Share / Export — design ready dla rozbudowy.
+    @ToolbarContentBuilder
+    private var actionsMenu: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                deleteButton
+            } label: {
+                menuLabel
+            }
+        }
+    }
+
+    private var deleteButton: some View {
+        Button(role: .destructive) {
+            send(.deleteTapped)
+        } label: {
+            Label(deleteLabel, systemImage: "trash")
+        }
+    }
+
+    private var menuLabel: some View {
+        Image(systemName: "ellipsis")
     }
 
     // MARK: - Top stats banner
@@ -216,6 +243,10 @@ struct ClassHistoryDetailView: View {
 
     private var emptyChartDescription: String {
         String(localized: "This class had no peers connected.", bundle: .main)
+    }
+
+    private var deleteLabel: String {
+        String(localized: "Delete", bundle: .main)
     }
 
     // MARK: - Computed values

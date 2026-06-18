@@ -27,6 +27,7 @@ struct ClassHistoryView: View {
                     ClassHistoryDetailView(store: detailStore)
                 }
         }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .preferredColorScheme(.dark)
     }
 
@@ -51,14 +52,29 @@ struct ClassHistoryView: View {
 
     private var sessionsList: some View {
         List(store.sessions, id: \.id) { session in
-            Button {
-                send(.sessionRowTapped(session))
-            } label: {
-                sessionRow(for: session)
-            }
-            .buttonStyle(.plain)
+            sessionRowButton(for: session)
         }
         .listStyle(.insetGrouped)
+    }
+
+    private func sessionRowButton(for session: ClassSessionRecord) -> some View {
+        Button {
+            send(.sessionRowTapped(session))
+        } label: {
+            sessionRow(for: session)
+        }
+        .buttonStyle(.plain)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            sessionDeleteButton(for: session)
+        }
+    }
+
+    private func sessionDeleteButton(for session: ClassSessionRecord) -> some View {
+        Button(role: .destructive) {
+            send(.sessionDeleteTapped(session))
+        } label: {
+            Label(deleteLabel, systemImage: "trash")
+        }
     }
 
     private func sessionRow(for session: ClassSessionRecord) -> some View {
@@ -97,6 +113,10 @@ struct ClassHistoryView: View {
 
     private var emptyDescription: String {
         String(localized: "Run a class to see it here.", bundle: .main)
+    }
+
+    private var deleteLabel: String {
+        String(localized: "Delete", bundle: .main)
     }
 
     /// "Today" / "Yesterday" / "17 cze" (locale-aware przez DateFormatter).
