@@ -21,6 +21,9 @@ struct GymRoomRootFeature {
         Scope(state: \.classesList, action: \.classesList) {
             ClassesListFeature()
         }
+        Scope(state: \.history, action: \.history) {
+            ClassHistoryFeature()
+        }
         Reduce<State, Action> { state, action in
             switch action {
 
@@ -28,7 +31,7 @@ struct GymRoomRootFeature {
                 state.selectedItem = item
                 return .none
 
-            case .classesList, .view:
+            case .classesList, .history, .view:
                 return .none
             }
         }

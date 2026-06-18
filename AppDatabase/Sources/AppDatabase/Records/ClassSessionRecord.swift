@@ -26,7 +26,7 @@ import SQLiteData
 /// **Lifecycle**: `endedAt == nil` → ongoing (live). Crash recovery na app launch:
 /// `WHERE endedAt IS NULL → set endedAt = updatedAt` (defensive cleanup).
 @Table
-public struct ClassSessionRecord: Identifiable, CloudKitSyncable {
+public struct ClassSessionRecord: Identifiable, CloudKitSyncable, Sendable {
 
     // MARK: - Properties
 

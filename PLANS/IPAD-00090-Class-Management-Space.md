@@ -1,6 +1,6 @@
 # IPAD-00090 — Class Management Space
 
-> Status: 🚧 **In progress** (~75% done). Update: 2026-06-17 (Subtask C done).
+> Status: 🚧 **In progress** (~85% done). Update: 2026-06-18 (Subtask D minimal done).
 > Original plan: `~/.claude/plans/deep-mapping-milner.md` (refreshed below pod aktualny stan).
 
 ## Cel
@@ -136,11 +136,20 @@ Dedykowana przestrzeń w GymRoom (iPad app) do zarządzania klasami treningowymi
 
 ## Order of execution (next session)
 
-1. **B → Database schema** (foundation dla wszystkiego dalej)
-2. **C → LiveClass persistence** (hr buffer + batch persist)
-3. **D → ClassHistory list real** (placeholder → real list)
+1. ~~**B → Database schema**~~ ✅ Done
+2. ~~**C → LiveClass persistence**~~ ✅ Done (end-to-end verified 2026-06-18, 28 HR samples + analytics persisted)
+3. ~~**D → ClassHistory list real**~~ ✅ Done (2026-06-18, minimal wersja):
+   - `fetchAllSessions` w GymClassClient (ORDER BY startedAt DESC)
+   - `ClassHistoryFeature` + `ClassHistoryView` (single-file reducer, NavigationStack + List)
+   - Row layout: className + date (Today/Yesterday/dMMM) + subtitle "location · duration"
+   - Empty state ContentUnavailableView gdy 0 sessions
+   - Replaced `ClassHistoryPlaceholderView` → wired w `GymRoomRootView`
+   - Brak detail push (subtask E doda push z charts)
 4. **E → ClassHistoryDetail charts** (Apple Charts)
 5. **G → Localization sweep finalization** (cleanup)
+6. **Bug fixes** (z testów end-to-end C):
+   - ~~**Fix endSession cancellation race condition**~~ ✅ Fixed (2026-06-18, w scope D) — refactor `confirmEnd` w `LiveClassFeature.swift`: emit `delegate.classEnded` **w środku** `.run` po wszystkich await'ach (flush + endSession + stopAdvertising). Parent dismiss child **dopiero po** completion persistence cleanup. Teraz `classSessionRecords.endedAt` poprawnie set'owany przy End class.
+   - **Fix `timeInZones` JSON format** — Swift's `Codable` dla `[HeartRateZone: TimeInterval]` Dictionary encoduje jako flat array `[key, value]` zamiast keyed object. Round-trip działa, ale JSON brzydki. Fix: custom `Codable` w `ClassAnalytics` lub zamiana na `[String: TimeInterval]`.
 
 ## Decisions deferred (do ustalenia)
 
