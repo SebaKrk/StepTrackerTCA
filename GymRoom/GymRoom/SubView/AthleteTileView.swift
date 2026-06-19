@@ -8,7 +8,7 @@
 import SharedModels
 import SwiftUI
 
-/// Pojedynczy kafelek athlety w `GymRoomView` grid.
+/// Pojedynczy kafelek athlety w `LiveClassView` grid.
 ///
 /// Layout:
 /// - Lewy górny: avatar `[X]`
@@ -20,7 +20,7 @@ import SwiftUI
 /// Tło: gradient HR zone color + Liquid Glass effect (iOS 26).
 struct AthleteTileView: View {
 
-    let athlete: GymRoomFeature.AthleteTile
+    let athlete: LiveClassFeature.AthleteTile
 
     /// Wysokość kafelka — używana do proporcjonalnego skalowania fontów i paddingu.
     /// Default 213pt (= 320/1.5 dla 3:2 aspect). Mniejszy tile → wszystko proporcjonalnie mniejsze.
@@ -327,7 +327,7 @@ struct AthleteTileView: View {
 // MARK: - Previews
 
 /// Wszystkie 6 stref HR naraz — bpm dobrane tak żeby każdy tile miał inną strefę.
-private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
+private let allZonesPreviewAthletes: [LiveClassFeature.AthleteTile] = [
     .init(id: UUID(), nick: "Sebastian", bpm: 60,  maxHR: 190, activeEnergy: 0),
     .init(id: UUID(), nick: "Anna",      bpm: 102, maxHR: 190, activeEnergy: 45),
     .init(id: UUID(), nick: "Janek",     bpm: 124, maxHR: 190, activeEnergy: 120),
@@ -354,7 +354,7 @@ private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
 
 #Preview("Single — Threshold") {
     AthleteTileView(
-        athlete: GymRoomFeature.AthleteTile(id: UUID(), nick: "Anna", bpm: 162, maxHR: 185)
+        athlete: LiveClassFeature.AthleteTile(id: UUID(), nick: "Anna", bpm: 162, maxHR: 185)
     )
     .padding(20)
     .frame(width: 420, height: 280)
@@ -364,7 +364,7 @@ private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
 
 #Preview("Reconnecting (grace period)") {
     AthleteTileView(
-        athlete: GymRoomFeature.AthleteTile(
+        athlete: LiveClassFeature.AthleteTile(
             id: UUID(),
             nick: "Anna",
             bpm: 162,
@@ -380,7 +380,7 @@ private let allZonesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
 }
 
 /// Test layoutu dla różnych długości "X kcal" — od 0 do 4-cyfrowych wartości.
-private let differentCaloriesPreviewAthletes: [GymRoomFeature.AthleteTile] = [
+private let differentCaloriesPreviewAthletes: [LiveClassFeature.AthleteTile] = [
     .init(id: UUID(), nick: "Start",       bpm: 160, maxHR: 190, activeEnergy: 0),
     .init(id: UUID(), nick: "Warm-up",     bpm: 160, maxHR: 190, activeEnergy: 85),
     .init(id: UUID(), nick: "Mid-session", bpm: 160, maxHR: 190, activeEnergy: 420),

@@ -893,3 +893,22 @@
 
     H: Bi-directional class lifecycle (host→peer broadcast + peer self-reset)
     - PeerEvent +case classEnded. PeerMirrorBLEHostSession.stop() calls broadcastClassEnded() FIRST — peripheralManager.updateValue(Data([0xFF]), for: hrCharacteristic, onSubscribedCentrals: nil) (BLE notify broadcast). PeerMirrorBLEPeerSession+CBPeripheralDelegate.didUpdateValueFor detects sentinel byte (1 byte = 0xFF) on hrCharacteristic → emits PeerEvent.classEnded. PeerMirrorService.broadcastPeerEvent handles .classEnded: cancel all pending grace timers + forward to consumers. JoinLiveClassFeature: peerEventsStream switch routes .classEnded → .classEndedReceived action. Post-loop in peerConnected effect emits .workoutEnded action (after sending goodbye payload). Both .classEndedReceived AND .workoutEnded share body: phase=.idle + scannedQRPayload=nil + isShowingScanner=false + stopBrowsing + delegate.didLeave (toolbar icon disappears). GymRoomFeature peerEventsStream switch adds .classEnded → break (host-side no-op, iPad already knows it's ending). Solves two symmetric problems: (1) iPad END → iPhone immediately resets (was stuck in .searching), (2) Watch end workout → iPhone immediately resets (was stuck in .connected requiring manual Leave).
+
+### IPAD-00090 GymRoom class management space (history + creation)
+    - branch: `dev/IPAD-00090/IPAD-00090`
+
+    A: GymRoom UI refactor — NavigationSplitView + 2 sidebar (Classes / History)
+    B: Database schema — 3 tables (gymClassRecords, classSessionRecords, athleteSessionRecords) + 4 indexes + migration v7_gymRoom
+    C: LiveClass persistence — GymClassClient (8 closures) + bootstrap database + HR buffer + 30s timer flush + endAthlete with analytics. Plus endSession cancellation fix (race condition w confirmEnd — `delegate.classEnded` emit'owany w środku `.run` po `await endSession()`).
+    D: ClassHistory list — reverse-chrono z empty state + date labels (Today/Yesterday/d MMM) + duration formatter ("Xh Ym" / "Xm Ys" / "Ongoing").
+    E: ClassHistoryDetail charts 
+    - top stats banner (athletes count + duration + total kcal + avg HR) + HR over time toggle (Per athlete cards / Combined multi-series) + Calories bar chart (sorted desc). Pie chart "Time in zones" removed per user UX decision — data still computed w ClassAnalytics dla future use.
+    - ClassCreation sheet — TextField name + location, hasSchedule + DatePicker, maxParticipants Stepper z BLECapacityClient device-aware default (iPad Pro M-series = 16, Air = 12, etc.) + inline error gdy exceeds device limit.
+    -  UI poprawki ClassCreation — `@FocusState` + `simultaneousGesture(TapGesture)` (tap-outside dismisses klawiaturę) + keyboard toolbar "Done" + `submitLabel(.next)` / `.done` flow + `.interactiveDismissDisabled()` (sheet zostaje aż explicit Cancel/Save).
+    F: Final cleanup + cascade delete
+    - PL localization sweep
+    - Cascade delete template'a (kasuje też powiązane sesje + athlete records) z alert confirmation
+    G: ClassDetail actions menu
+     - ellipsis toolbar z Edit (prefilled sheet, upsert) + Delete (cascade z alert confirmation). Reuse ClassCreationFeature dla edit mode.
+    H: Delete z History 
+    - swipe-to-delete sesji w ClassHistoryView + ellipsis menu w ClassHistoryDetailView (na razie 1 akcja Delete, ready na Share/Export future). Oba z alert confirm. Cascade kasuje athleteSessionRecords + classSessionRecord (template nietknięty). Bez Edit — sesje są historical fact, immutable.

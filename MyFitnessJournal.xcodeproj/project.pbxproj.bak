@@ -26,7 +26,6 @@
 		9386352D2DFB608000DB5EAC /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 9386352C2DFB608000DB5EAC /* HealthHub */; };
 		938635312DFB608B00DB5EAC /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 938635302DFB608B00DB5EAC /* SharedModels */; };
 		9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */ = {isa = PBXBuildFile; fileRef = 9388D7F92D8E8B090016D160 /* TASKS.md */; };
-		938B25112FDAAEAA00B5FCF7 /* AppDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 938B25102FDAAEAA00B5FCF7 /* AppDatabase */; };
 		938BF2C62FD9C1B1008F75CC /* PeerMirror in Frameworks */ = {isa = PBXBuildFile; productRef = 938BF2C52FD9C1B1008F75CC /* PeerMirror */; };
 		93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA3E2E48727C00495CD1 /* SharedModels */; };
 		93A6AA412E48735100495CD1 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA402E48735100495CD1 /* HealthHub */; };
@@ -253,7 +252,6 @@
 				9317953E2FDAADB700B5FCF7 /* ComposableArchitecture in Frameworks */,
 				931795402FDAAE1500B5FCF7 /* SharedModels in Frameworks */,
 				931795422FDAAEA100B5FCF7 /* PeerMirror in Frameworks */,
-				938B25112FDAAEAA00B5FCF7 /* AppDatabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,9 +438,6 @@
 				938B24BF2FDA16F1008F75CC /* GymRoom */,
 			);
 			name = GymRoom;
-			packageProductDependencies = (
-				938B25102FDAAEAA00B5FCF7 /* AppDatabase */,
-			);
 			productName = GymRoom;
 			productReference = 938B24BE2FDA16F1008F75CC /* GymRoom.app */;
 			productType = "com.apple.product-type.application";
@@ -1341,10 +1336,8 @@
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.26.0;
+				minimumVersion = 1.20.2;
 			};
-			traits = (
-			);
 		};
 		93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1419,10 +1412,6 @@
 		938635302DFB608B00DB5EAC /* SharedModels */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SharedModels;
-		};
-		938B25102FDAAEAA00B5FCF7 /* AppDatabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AppDatabase;
 		};
 		938BF2C52FD9C1B1008F75CC /* PeerMirror */ = {
 			isa = XCSwiftPackageProductDependency;

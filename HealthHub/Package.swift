@@ -18,7 +18,7 @@ let package = Package(
         .package(path: "../SharedModels"),
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture.git",
-            from: "1.20.2" 
+            from: "1.26.0"
         ),
     ],
     targets: [

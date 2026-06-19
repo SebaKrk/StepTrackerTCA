@@ -1,12 +1,15 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%lld athletes" : {
+    "%lld" : {
+
+    },
+    "%lld/%lld athletes" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld athletes"
+            "value" : "%lld/%lld athletes"
           }
         }
       }
@@ -31,6 +34,29 @@
         }
       }
     },
+    "Athlete" : {
+
+    },
+    "Athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Athletes"
+          }
+        }
+      }
+    },
+    "Avg HR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. HR"
+          }
+        }
+      }
+    },
     "BPM" : {
       "localizations" : {
         "pl" : {
@@ -41,12 +67,162 @@
         }
       }
     },
+    "Calories" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalorie"
+          }
+        }
+      }
+    },
+    "Calories burned" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spalone kalorie"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anuluj"
+          }
+        }
+      }
+    },
+    "Capacity" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pojemność"
+          }
+        }
+      }
+    },
+    "Class name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa klasy"
+          }
+        }
+      }
+    },
+    "Classes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klasy"
+          }
+        }
+      }
+    },
+    "Combined" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razem"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń"
+          }
+        }
+      }
+    },
+    "Delete class?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć klasę?"
+          }
+        }
+      }
+    },
+    "Delete session?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć sesję?"
+          }
+        }
+      }
+    },
+    "This will also delete all athlete data from this class." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunie też wszystkie dane sportowców z tej klasy."
+          }
+        }
+      }
+    },
+    "Details" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj"
+          }
+        }
+      }
+    },
+    "Edit class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj klasę"
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas"
           }
         }
       }
@@ -81,12 +257,185 @@
         }
       }
     },
+    "History" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia"
+          }
+        }
+      }
+    },
+    "HR over time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR w czasie"
+          }
+        }
+      }
+    },
+    "kcal" : {
+
+    },
     "LIVE" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "NA ŻYWO"
+          }
+        }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja"
+          }
+        }
+      }
+    },
+    "Location (e.g. Sala 1)" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja (np. Sala 1)"
+          }
+        }
+      }
+    },
+    "Max athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Max athletes"
+          }
+        }
+      }
+    },
+    "New class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowa klasa"
+          }
+        }
+      }
+    },
+    "No athletes data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych athletes"
+          }
+        }
+      }
+    },
+    "No classes yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak klas"
+          }
+        }
+      }
+    },
+    "No past classes yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zajęć w historii"
+          }
+        }
+      }
+    },
+    "Ongoing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trwa"
+          }
+        }
+      }
+    },
+    "Per athlete" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per athlete"
+          }
+        }
+      }
+    },
+    "Run a class to see it here." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uruchom zajęcia, aby pojawiły się tutaj."
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz"
+          }
+        }
+      }
+    },
+    "Schedule" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harmonogram"
+          }
+        }
+      }
+    },
+    "Scheduled" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaplanowane"
+          }
+        }
+      }
+    },
+    "Scheduled at" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data zajęć"
+          }
+        }
+      }
+    },
+    "Set scheduled time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustaw datę zajęć"
           }
         }
       }
@@ -107,6 +456,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rozpocznij zajęcia"
+          }
+        }
+      }
+    },
+    "Started %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpoczęta %@"
+          }
+        }
+      }
+    },
+    "Tap + to create your first class." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stuknij +, aby utworzyć pierwszą klasę."
+          }
+        }
+      }
+    },
+    "This class had no peers connected." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W tej klasie nie było podłączonych athletes."
+          }
+        }
+      }
+    },
+    "This device supports up to %lld athletes. Reduce the value to save." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To urządzenie obsługuje maksymalnie %lld sportowców. Zmniejsz wartość, aby zapisać."
+          }
+        }
+      }
+    },
+    "This will also delete all related sessions and athlete data." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunie też wszystkie powiązane sesje i dane sportowców."
+          }
+        }
+      }
+    },
+    "Time" : {
+
+    },
+    "Today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dziś"
+          }
+        }
+      }
+    },
+    "Without date" : {
+
+    },
+    "Wróć do zajęć" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wróć do zajęć"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczoraj"
           }
         }
       }

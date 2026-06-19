@@ -1,5 +1,5 @@
 //
-//  GymRoomFeature+State.swift
+//  LiveClassFeature+State.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 23/05/2026.
@@ -9,7 +9,7 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 
-extension GymRoomFeature {
+extension LiveClassFeature {
 
     @ObservableState
     struct State {
@@ -38,9 +38,25 @@ extension GymRoomFeature {
         /// `nil` w idle state (przed Start lub po End).
         var sessionToken: UUID?
 
-        /// Display name sali — pokazywany w QR + peer side. PoC: hard-coded.
-        /// Future: configurable (IPAD-0094 multi-room).
-        var gymName: String = "Gym Room"
+        /// Foreign key do `GymClassRecord` (template). Snapshot z momentu `startLiveClass`.
+        /// Używany przy `gymClassClient.startSession(gymClassId:className:location:)` —
+        /// trafia jako FK do nowego `ClassSessionRecord`. Domyślny `UUID()` tylko dla
+        /// preview/test contexts (real flow zawsze passuje z parent ClassesListFeature).
+        var gymClassId: UUID = UUID()
+
+        /// Nazwa klasy — z `GymClass.name` (np. "Morning CrossFit"). Pokazana w header
+        /// LiveClassView + wysyłana w QR payload jako `gymName` (peer widzi w `scannedQRPayload`).
+        var className: String = "Gym Room"
+
+        /// Sala — z `GymClass.location` (np. "Sala 1"). iPad-side context tylko —
+        /// wyświetlany w header subtitle obok "LIVE". NIE wysyłany w QR.
+        var location: String = ""
+
+        /// Hard limit BLE z `GymClass.maxParticipants` (8/12/16, set w Class Creation
+        /// z `bleCapacityClient.recommendedMaxConnections()`). Wyświetlany w header
+        /// jako `current/max` ratio (np. "3/8 athletes") — trener widzi capacity od
+        /// razu. Future: reject peer'ów gdy `athletes.count >= maxParticipants`.
+        var maxParticipants: Int = 8
 
         /// Czy QR widget jest widoczny w corner overlay. Toggle dla trenera —
         /// można schować QR po dołączeniu wszystkich sportowców (less visual clutter).
@@ -51,6 +67,24 @@ extension GymRoomFeature {
         /// sportowców, accidental tap by zerwał klasę dla całej sali. `nil` = brak alertu,
         /// non-nil = alert visible.
         @Presents var alert: AlertState<Action.Alert>?
+
+        // MARK: - Persistence (SQLiteData via gymClassClient)
+
+        /// FK do current `ClassSessionRecord`. `nil` przed `startTapped` succeeds.
+        /// Set'owany przez `sessionStarted` po async `gymClassClient.startSession(...)`.
+        /// Używany przy `addAthlete` (classSessionId param) + `endSession` (confirmEnd).
+        var activeSessionId: UUID?
+
+        /// Mapping `deviceID` → `AthleteSessionRecord.id`. Set'owany przez `athleteAdded`,
+        /// lookup przy `appendHRSamples` / `endAthlete` per peer. Cleared per peer w
+        /// `peerDisconnected`, all-clear w `confirmEnd`.
+        var athleteRecordIds: [UUID: UUID] = [:]
+
+        /// In-memory buffer surowych próbek per peer, keyed po `deviceID`. Append na każdą
+        /// próbkę z BLE stream'a (`sampleReceived`). Flushed co 30s przez `persistenceTimer`
+        /// effect lub na peer disconnect / class end. Po flush'u — clear (już persisted w BLOB).
+        /// Trade-off: max 30s utraconych próbek na app crash. Acceptable dla MVP.
+        var hrSamplesBuffer: [UUID: [HRSample]] = [:]
     }
 
     /// Pojedynczy kafelek athlety w grid.
