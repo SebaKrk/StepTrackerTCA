@@ -323,6 +323,7 @@
       }
     },
     "%@: %@ - %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1628,9 +1629,6 @@
     "Description" : {
 
     },
-    "Details" : {
-
-    },
     "Details HR" : {
       "localizations" : {
         "pl" : {
@@ -2617,9 +2615,6 @@
         }
       }
     },
-    "mm:ss" : {
-
-    },
     "MOCK" : {
       "localizations" : {
         "pl" : {
@@ -2707,9 +2702,6 @@
           }
         }
       }
-    },
-    "No cooldown" : {
-
     },
     "No data" : {
       "localizations" : {
@@ -2865,9 +2857,6 @@
         }
       }
     },
-    "No warmup" : {
-
-    },
     "No Weight Data" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2906,9 +2895,6 @@
       }
     },
     "No Workout Plans" : {
-
-    },
-    "No workouts" : {
 
     },
     "No Workouts" : {
@@ -2956,9 +2942,6 @@
           }
         }
       }
-    },
-    "Notes" : {
-
     },
     "Numbers" : {
       "localizations" : {
@@ -3258,9 +3241,6 @@
         }
       }
     },
-    "Preview Workout" : {
-
-    },
     "Primary Zone" : {
       "localizations" : {
         "pl" : {
@@ -3342,9 +3322,6 @@
           }
         }
       }
-    },
-    "Refresh" : {
-
     },
     "Remaining reps" : {
       "localizations" : {
