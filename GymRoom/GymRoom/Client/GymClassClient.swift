@@ -46,6 +46,11 @@ struct GymClassClient: Sendable {
 
     // MARK: - Athletes (AthleteSessionRecord)
 
+    /// Wszyscy athletes podłączeni do danej sesji (FK match) — dla detail view w History.
+    /// Returns raw records z BLOB-ami (`hrSamplesData`, `aggregatedStatsData`); decode
+    /// w Reducer wrapping na `AthleteSummary` domain model.
+    var fetchAthletesForSession: @Sendable (_ classSessionId: UUID) async throws -> [AthleteSessionRecord]
+
     /// Returns: `athleteId` (UUID) do batch HR persistence keyed po nim.
     var addAthlete: @Sendable (_ classSessionId: UUID, _ deviceID: UUID, _ nick: String, _ maxHR: Int) async throws -> UUID
 
@@ -194,6 +199,15 @@ private enum GymClassClientKey: DependencyKey {
                 }
             },
 
+            fetchAthletesForSession: { sessionId in
+                try await database.read { db in
+                    try AthleteSessionRecord
+                        .where { $0.classSessionId.eq(sessionId) }
+                        .order { $0.joinedAt.asc() }
+                        .fetchAll(db)
+                }
+            },
+
             addAthlete: { classSessionId, deviceID, nick, maxHR in
                 @Dependency(\.date.now) var now
                 let encoder = JSONEncoder()
@@ -301,6 +315,7 @@ private enum GymClassClientKey: DependencyKey {
             fetchAllSessions: unimplemented("GymClassClient.fetchAllSessions", placeholder: []),
             startSession: unimplemented("GymClassClient.startSession", placeholder: UUID()),
             endSession: unimplemented("GymClassClient.endSession"),
+            fetchAthletesForSession: unimplemented("GymClassClient.fetchAthletesForSession", placeholder: []),
             addAthlete: unimplemented("GymClassClient.addAthlete", placeholder: UUID()),
             appendHRSamples: unimplemented("GymClassClient.appendHRSamples"),
             endAthlete: unimplemented("GymClassClient.endAthlete")

@@ -11,13 +11,13 @@ import Foundation
 import OSLog
 import SharedModels
 
-/// Reducer dla History tab — lista past sessions reverse-chrono.
-///
-/// **Scope (mini-D)**: tylko list view bez detail push / charts. Pełny detail z
-/// wykresami HR przyjdzie w subtask E (`ClassHistoryDetailFeature`).
+/// Reducer dla History tab — lista past sessions reverse-chrono + push do detail.
 ///
 /// **Source of truth**: `gymClassClient.fetchAllSessions()` zwraca wszystkie
 /// `classSessionRecords` ORDER BY startedAt DESC.
+///
+/// **Navigation**: tap row → `@Presents` child `ClassHistoryDetailFeature` z 4
+/// sekcjami charts (top stats, HR per athlete/combined, calories bar, zones pie).
 @Reducer
 struct ClassHistoryFeature {
 
@@ -29,6 +29,9 @@ struct ClassHistoryFeature {
         /// Past sessions reverse-chrono. Empty po pierwszym launchu, populated
         /// w `viewDidAppear` przez async fetch.
         var sessions: [ClassSessionRecord] = []
+
+        /// Pushed detail view dla tap'niętej sesji. Nil = lista visible.
+        @Presents var detail: ClassHistoryDetailFeature.State?
     }
 
     @CasePathable
@@ -37,12 +40,18 @@ struct ClassHistoryFeature {
         /// Internal — result `gymClassClient.fetchAllSessions()`.
         case sessionsLoaded([ClassSessionRecord])
 
+        /// Child reducer navigation actions.
+        case detail(PresentationAction<ClassHistoryDetailFeature.Action>)
+
         case view(View)
 
         enum View {
             /// Lifecycle — fetch sessions przy każdym pojawieniu się tab'a History.
             /// `.task` w View triggeruje re-fetch (auto-refresh po wróceniu z innej tab).
             case viewDidAppear
+
+            /// User tap row → push detail view z sesją snapshot'em.
+            case sessionRowTapped(ClassSessionRecord)
         }
     }
 
@@ -61,7 +70,23 @@ struct ClassHistoryFeature {
             case let .sessionsLoaded(sessions):
                 state.sessions = sessions
                 return .none
+
+            case let .view(.sessionRowTapped(session)):
+                state.detail = ClassHistoryDetailFeature.State(
+                    sessionId: session.id,
+                    className: session.className,
+                    location: session.location,
+                    startedAt: session.startedAt,
+                    endedAt: session.endedAt
+                )
+                return .none
+
+            case .detail:
+                return .none
             }
+        }
+        .ifLet(\.$detail, action: \.detail) {
+            ClassHistoryDetailFeature()
         }
     }
 }

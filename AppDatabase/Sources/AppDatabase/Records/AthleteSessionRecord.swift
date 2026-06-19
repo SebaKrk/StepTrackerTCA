@@ -24,7 +24,7 @@ import SQLiteData
 /// **Lifecycle**: `leftAt == nil` → athlete jeszcze podłączony (mid-class). Crash
 /// recovery analogiczne do `ClassSessionRecord.endedAt`.
 @Table
-public struct AthleteSessionRecord: Identifiable, CloudKitSyncable {
+public struct AthleteSessionRecord: Identifiable, CloudKitSyncable, Sendable {
 
     // MARK: - Properties
 

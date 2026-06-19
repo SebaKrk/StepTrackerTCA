@@ -1,6 +1,6 @@
 # IPAD-00090 — Class Management Space
 
-> Status: 🚧 **In progress** (~85% done). Update: 2026-06-18 (Subtask D minimal done).
+> Status: 🚧 **In progress** (~95% done). Update: 2026-06-18 (Subtask E charts done).
 > Original plan: `~/.claude/plans/deep-mapping-milner.md` (refreshed below pod aktualny stan).
 
 ## Cel
@@ -114,11 +114,90 @@ Dedykowana przestrzeń w GymRoom (iPad app) do zarządzania klasami treningowymi
 - Empty state: "Brak klas w historii"
 
 ### Subtask E — ClassDetail z Apple Charts
-**NEW** osobny `ClassHistoryDetailFeature` + `ClassHistoryDetailView` (różny od pre-class `ClassDetailView`):
-- Top stats banner: total athletes, duration, total kcal, avgHR
-- Bar chart: top calories burned per athlete (sorted desc, top 10)
-- Line chart: HR over time per athlete (color per athlete, downsample 1Hz → 1/30Hz dla rendering)
-- Pie chart: aggregated time in HR zones (5 colors z `HeartRateZone`)
+
+**NEW** osobny `ClassHistoryDetailFeature` + `ClassHistoryDetailView`. Tap row w History → push do detail (`NavigationStack` push w obrębie History tab).
+
+**Layout sekcji (top → bottom)**:
+
+1. **Top stats banner** — HStack z 4 stat cards (read-only, computed z `[AthleteSessionRecord]`):
+   - Total athletes (count)
+   - Duration (z `classSessionRecord.endedAt - startedAt`)
+   - Total calories burned (sum across all athletes z `aggregatedStats.totalCalories`)
+   - Average HR (average z `aggregatedStats.avgHR` across athletes)
+
+2. **HR over time** — kluczowa sekcja z **toggle widoku** (Picker SegmentedControl):
+   - **Tab "Per athlete"** — `ScrollView` z N kart, każda karta = jeden athlete:
+     ```
+     ┌────────────────────────────────────┐
+     │ SebaB98          avgHR 71 · peak 73│
+     │ ╭──────────────────────────────╮   │
+     │ │ ─────────(mini line chart)   │   │
+     │ ╰──────────────────────────────╯   │
+     └────────────────────────────────────┘
+     ```
+     User widzi indywidualny przebieg HR każdego sportowca z jego unique color.
+   - **Tab "Combined"** — jeden duży line chart z **wszystkimi athletes** jako multi-series (`series: .value("Athlete", nick)` + `.foregroundStyle(by:)`) + auto-generated legend:
+     ```
+     ┌──────────────────────────────────────┐
+     │ ─── SebaB98                          │
+     │ ─── Karolina                         │
+     │ ─── Marek                            │
+     │ [multi-series line chart]            │
+     └──────────────────────────────────────┘
+     ```
+     User widzi porównanie wszystkich athletes na jednej skali czasu.
+   - State: `enum ChartViewMode { case perAthlete, combined }` w State, default `.combined`
+
+3. **Calories burned** — bar chart (Apple Charts) per athlete, sorted descending. Zawsze "combined view" (lista wszystkich athletes z bar'em proporcjonalnym do `totalCalories`).
+
+4. ~~**Time in zones** — pie chart z aggregated time across all athletes~~ ❌ Removed per user decision (2026-06-18) — nie potrzebne w MVP detail view. Jeśli kiedyś będzie potrzeba intensywności analytics, można dodać back jako toggle/expandable section. Aktualnie `ClassAnalytics.timeInZones` dalej **jest** computed i persistowany w BLOB (na wypadek future use), tylko UI section usunięta.
+
+**Files NEW**:
+- `Features/ClassHistory/Child/ClassHistoryDetail/Feature/ClassHistoryDetailFeature.swift`
+- `Features/ClassHistory/Child/ClassHistoryDetail/View/ClassHistoryDetailView.swift`
+- Plus może components: `View/Components/HRChartPerAthleteCard.swift`, `HRChartCombinedSection.swift`
+
+**Files MODIFIED**:
+- `GymClassClient.swift` — + `fetchAthletesForSession(sessionId: UUID) async throws -> [AthleteSessionRecord]`
+- `AthleteSessionRecord` — + `Sendable` conformance (tak jak `ClassSessionRecord` z D)
+- `ClassHistoryFeature` — + `@Presents var detail: ClassHistoryDetailFeature.State?` + handle `classRowTapped` action
+- `ClassHistoryView` — make row tappable + navigation destination
+
+**Performance considerations** (real klasy mogą mieć 10 athletes × 60min):
+- Downsample raw `[HRSample]` (~5s interval) z BLOB do display rate (~30s interval) dla rendering. Raw zostaje w bazie, downsampled tylko dla chart.
+- Charts framework optymalny dla ~5k points; 10 athletes × 720 points (60min @ 5s) = 7200 points — borderline. Downsample do 1/30s = ~120 points/athlete × 10 = 1200 total — fast.
+- Decode JSON `hrSamplesData` BLOB async w `.run` effect (nie sync w View body).
+
+**Konkretne pattern dla "Per athlete" mini chart** (Apple Charts):
+```swift
+Chart(samples) { sample in
+    LineMark(
+        x: .value("Time", sample.timestamp),
+        y: .value("BPM", sample.bpm)
+    )
+    .foregroundStyle(athlete.color)  // deterministic per deviceID
+}
+.frame(height: 80)  // mały, mieści się w karcie
+```
+
+**Konkretne pattern dla "Combined" multi-series**:
+```swift
+Chart {
+    ForEach(athletes) { athlete in
+        ForEach(athlete.samples) { sample in
+            LineMark(
+                x: .value("Time", sample.timestamp),
+                y: .value("BPM", sample.bpm),
+                series: .value("Athlete", athlete.nick)
+            )
+            .foregroundStyle(by: .value("Athlete", athlete.nick))
+        }
+    }
+}
+.chartLegend(position: .bottom)
+```
+
+**User requirement (potwierdzony 2026-06-18)**: switch tab/picker między dwoma trybami HR chart jest kluczowy — trener chce widzieć indywidualne przebiegi (problem detection per athlete) i porównanie wszystkich (kto się rozkręcił, kto został w resting). Calories i zones zostają jako global views.
 
 ### Subtask G — Localization sweep finalization
 - Usuń stale keys (`extractionState: "stale"`) po build verification
