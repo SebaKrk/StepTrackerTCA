@@ -112,7 +112,8 @@ LiveClassFeature {
                 state.hrSamplesBuffer = [:]
                 state.athleteRecordIds = [:]
                 return .merge(
-                    .run { _ in
+                    .cancel(id: LiveClassCancelID.persistenceTimer),
+                    .run { send in
                         // 1. Flush remaining buffer per athlete (samples z ostatnich <30s).
                         for (deviceID, samples) in buffer where !samples.isEmpty {
                             guard let athleteId = mappings[deviceID] else { continue }
@@ -131,9 +132,12 @@ LiveClassFeature {
                             }
                         }
                         await peerMirrorClient.stopAdvertising()
-                    },
-                    .cancel(id: LiveClassCancelID.persistenceTimer),
-                    .send(.delegate(.classEnded))
+                        // 3. Emit delegate DOPIERO PO completion async cleanup — parent ClassesListFeature
+                        // ustawi `liveClass = nil` co triggeruje `.ifLet` cancel child effects, ale w tym
+                        // momencie .run już completed (poprzednie await'y zwróciły). Race condition unik-
+                        // nięty: persistence first, dismiss second.
+                        await send(.delegate(.classEnded))
+                    }
                 )
 
             case .alert:

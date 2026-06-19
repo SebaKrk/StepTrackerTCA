@@ -16,6 +16,7 @@ extension GymRoomRootFeature {
         // MARK: - Child reducer actions
 
         case classesList(ClassesListFeature.Action)
+        case history(ClassHistoryFeature.Action)
 
         // MARK: - View Actions
 

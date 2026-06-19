@@ -288,7 +288,28 @@
         }
       }
     },
+    "No past classes yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zajęć w historii"
+          }
+        }
+      }
+    },
+    "Ongoing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trwa"
+          }
+        }
+      }
+    },
     "Past classes will appear here soon." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -316,6 +337,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rozpocznij zajęcia"
+          }
+        }
+      }
+    },
+    "Run a class to see it here." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uruchom zajęcia, aby pojawiły się tutaj."
           }
         }
       }
@@ -421,6 +452,16 @@
         }
       }
     },
+    "Today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dziś"
+          }
+        }
+      }
+    },
     "Without date" : {
 
     },
@@ -431,6 +472,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wróć do zajęć"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczoraj"
           }
         }
       }

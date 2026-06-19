@@ -33,6 +33,9 @@ struct GymClassClient: Sendable {
 
     // MARK: - Sessions (ClassSessionRecord)
 
+    /// Wszystkie session records reverse-chrono (newest first) — dla History tab.
+    var fetchAllSessions: @Sendable () async throws -> [ClassSessionRecord]
+
     /// Returns: `sessionId` (UUID) do trzymania w State pod batch HR persistence.
     var startSession: @Sendable (_ gymClassId: UUID, _ className: String, _ location: String) async throws -> UUID
 
@@ -104,6 +107,14 @@ private enum GymClassClientKey: DependencyKey {
                         .find(id)
                         .delete()
                         .execute(db)
+                }
+            },
+
+            fetchAllSessions: {
+                try await database.read { db in
+                    try ClassSessionRecord
+                        .order { $0.startedAt.desc() }
+                        .fetchAll(db)
                 }
             },
 
@@ -287,6 +298,7 @@ private enum GymClassClientKey: DependencyKey {
             fetchAllTemplates: unimplemented("GymClassClient.fetchAllTemplates", placeholder: []),
             saveTemplate: unimplemented("GymClassClient.saveTemplate"),
             deleteTemplate: unimplemented("GymClassClient.deleteTemplate"),
+            fetchAllSessions: unimplemented("GymClassClient.fetchAllSessions", placeholder: []),
             startSession: unimplemented("GymClassClient.startSession", placeholder: UUID()),
             endSession: unimplemented("GymClassClient.endSession"),
             addAthlete: unimplemented("GymClassClient.addAthlete", placeholder: UUID()),

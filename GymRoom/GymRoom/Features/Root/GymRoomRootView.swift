@@ -62,7 +62,9 @@ struct GymRoomRootView: View {
                 store: store.scope(state: \.classesList, action: \.classesList)
             )
         case .history:
-            ClassHistoryPlaceholderView()
+            ClassHistoryView(
+                store: store.scope(state: \.history, action: \.history)
+            )
         }
     }
 

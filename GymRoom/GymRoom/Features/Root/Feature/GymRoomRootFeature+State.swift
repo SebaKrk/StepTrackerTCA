@@ -18,6 +18,10 @@ extension GymRoomRootFeature {
 
         /// State dziecka ClassesList — orchestrates list + create + detail + liveClass.
         var classesList: ClassesListFeature.State = .init()
+
+        /// State dziecka ClassHistory — past sessions reverse-chrono w History tab.
+        /// Fetch async w `viewDidAppear` (przy każdym powrocie do tab History).
+        var history: ClassHistoryFeature.State = .init()
     }
 
     /// Sekcje w sidebar. Subtask D rozszerzy `.history` placeholder do filtered list view.

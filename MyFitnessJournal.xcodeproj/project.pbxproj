@@ -11,7 +11,6 @@
 		9317953E2FDAADB700B5FCF7 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 9317953D2FDAADB700B5FCF7 /* ComposableArchitecture */; };
 		931795402FDAAE1500B5FCF7 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 9317953F2FDAAE1500B5FCF7 /* SharedModels */; };
 		931795422FDAAEA100B5FCF7 /* PeerMirror in Frameworks */ = {isa = PBXBuildFile; productRef = 931795412FDAAEA100B5FCF7 /* PeerMirror */; };
-		938B25112FDAAEAA00B5FCF7 /* AppDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 938B25102FDAAEAA00B5FCF7 /* AppDatabase */; };
 		9332A8C62D1809FD00DA426E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9332A8C52D1809FD00DA426E /* README.md */; };
 		934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 934045BC2DF561F0005A00C8 /* HealthHub */; };
 		934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C72DD9CD8C0089D27C /* ComposableArchitecture */; };
@@ -27,6 +26,7 @@
 		9386352D2DFB608000DB5EAC /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 9386352C2DFB608000DB5EAC /* HealthHub */; };
 		938635312DFB608B00DB5EAC /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 938635302DFB608B00DB5EAC /* SharedModels */; };
 		9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */ = {isa = PBXBuildFile; fileRef = 9388D7F92D8E8B090016D160 /* TASKS.md */; };
+		938B25112FDAAEAA00B5FCF7 /* AppDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 938B25102FDAAEAA00B5FCF7 /* AppDatabase */; };
 		938BF2C62FD9C1B1008F75CC /* PeerMirror in Frameworks */ = {isa = PBXBuildFile; productRef = 938BF2C52FD9C1B1008F75CC /* PeerMirror */; };
 		93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA3E2E48727C00495CD1 /* SharedModels */; };
 		93A6AA412E48735100495CD1 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA402E48735100495CD1 /* HealthHub */; };
@@ -1369,10 +1369,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = SharedModels;
 		};
-		938B25102FDAAEAA00B5FCF7 /* AppDatabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AppDatabase;
-		};
 		931795412FDAAEA100B5FCF7 /* PeerMirror */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PeerMirror;
@@ -1421,6 +1417,10 @@
 		938635302DFB608B00DB5EAC /* SharedModels */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SharedModels;
+		};
+		938B25102FDAAEAA00B5FCF7 /* AppDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppDatabase;
 		};
 		938BF2C52FD9C1B1008F75CC /* PeerMirror */ = {
 			isa = XCSwiftPackageProductDependency;
