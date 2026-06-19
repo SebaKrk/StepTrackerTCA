@@ -38,6 +38,12 @@ extension LiveClassFeature {
         /// `nil` w idle state (przed Start lub po End).
         var sessionToken: UUID?
 
+        /// Foreign key do `GymClassRecord` (template). Snapshot z momentu `startLiveClass`.
+        /// Używany przy `gymClassClient.startSession(gymClassId:className:location:)` —
+        /// trafia jako FK do nowego `ClassSessionRecord`. Domyślny `UUID()` tylko dla
+        /// preview/test contexts (real flow zawsze passuje z parent ClassesListFeature).
+        var gymClassId: UUID = UUID()
+
         /// Nazwa klasy — z `GymClass.name` (np. "Morning CrossFit"). Pokazana w header
         /// LiveClassView + wysyłana w QR payload jako `gymName` (peer widzi w `scannedQRPayload`).
         var className: String = "Gym Room"
@@ -61,6 +67,24 @@ extension LiveClassFeature {
         /// sportowców, accidental tap by zerwał klasę dla całej sali. `nil` = brak alertu,
         /// non-nil = alert visible.
         @Presents var alert: AlertState<Action.Alert>?
+
+        // MARK: - Persistence (SQLiteData via gymClassClient)
+
+        /// FK do current `ClassSessionRecord`. `nil` przed `startTapped` succeeds.
+        /// Set'owany przez `sessionStarted` po async `gymClassClient.startSession(...)`.
+        /// Używany przy `addAthlete` (classSessionId param) + `endSession` (confirmEnd).
+        var activeSessionId: UUID?
+
+        /// Mapping `deviceID` → `AthleteSessionRecord.id`. Set'owany przez `athleteAdded`,
+        /// lookup przy `appendHRSamples` / `endAthlete` per peer. Cleared per peer w
+        /// `peerDisconnected`, all-clear w `confirmEnd`.
+        var athleteRecordIds: [UUID: UUID] = [:]
+
+        /// In-memory buffer surowych próbek per peer, keyed po `deviceID`. Append na każdą
+        /// próbkę z BLE stream'a (`sampleReceived`). Flushed co 30s przez `persistenceTimer`
+        /// effect lub na peer disconnect / class end. Po flush'u — clear (już persisted w BLOB).
+        /// Trade-off: max 30s utraconych próbek na app crash. Acceptable dla MVP.
+        var hrSamplesBuffer: [UUID: [HRSample]] = [:]
     }
 
     /// Pojedynczy kafelek athlety w grid.

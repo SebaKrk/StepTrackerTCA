@@ -1,6 +1,6 @@
 # IPAD-00090 — Class Management Space
 
-> Status: 🚧 **In progress** (~60% done). Update: 2026-06-17 (Subtask B done).
+> Status: 🚧 **In progress** (~75% done). Update: 2026-06-17 (Subtask C done).
 > Original plan: `~/.claude/plans/deep-mapping-milner.md` (refreshed below pod aktualny stan).
 
 ## Cel
@@ -75,12 +75,37 @@ Dedykowana przestrzeń w GymRoom (iPad app) do zarządzania klasami treningowymi
 - `athleteSessionRecords.classSessionId` → query "all athletes in this session"
 - `athleteSessionRecords.deviceID` → future query "all sessions for this peer"
 
-### Subtask C — LiveClass persistence layer
-- `GymClassClient` (dependency boundary nad SQLiteData queries)
-- HR samples in-memory buffer (`[UUID: [HRSample]]` keyed by deviceID)
-- Batch persist co 30s przez timer effect lub on `.peerSuspended/.peerDisconnected`
-- `LiveClassFeature.State` extensions: `activeClassId`, `hrSamplesBuffer`
-- On `.confirmEnd` → finalize all ongoing sessions, set `GymClassRecord.endedAt`
+### ~~Subtask C — LiveClass persistence layer~~ ✅ Done (2026-06-17, branch C)
+
+**Architecture**: 3-etap wire — Client + ClassesList + LiveClass.
+
+**Files NEW**:
+- ✅ `GymRoom/Client/GymClassClient.swift` — TCA boundary, **8 closure'ów** (templates: fetch/save/delete, sessions: start/end, athletes: add/appendHR/end)
+- ✅ `GymRoom/Mapping/GymClass+Record.swift` — `init(domain:updatedAt:)` + `toDomain()`
+- ✅ `SharedModels/Analytics/ClassAnalytics+Compute.swift` — `static let empty` + `compute(samples:maxHR:duration:)` (avgHR, peakHR, totalCalories = last-first delta, timeInZones iteration)
+
+**Files MODIFIED (ClassesList wire)**:
+- ✅ `ClassesListFeature.swift` — `viewDidAppear` → fetch, `classCreated` → save, `classDeleteTapped` → delete (optimistic + async)
+- ✅ `ClassesListFeature+Action.swift` — `viewDidAppear` (View) + `classesLoaded([GymClass])` (internal)
+- ✅ `ClassesListView.swift` — `.task { send(.viewDidAppear) }`
+
+**Files MODIFIED (LiveClass wire)**:
+- ✅ `LiveClassFeature.swift` — wire session lifecycle:
+  - `startTapped` → `startSession()` + `sessionStarted` callback
+  - `sessionStarted` → start 30s persistenceTimer
+  - `peerConnected` → `addAthlete()` (maxHR=190 default)
+  - `sampleReceived` → buffer push
+  - `flushBufferedSamples` → batch `appendHRSamples` per peer
+  - `peerDisconnected` → flush + `endAthlete` (analytics)
+  - `confirmEnd` → final flush + `endSession` (finalize ongoing) + cancel timer
+- ✅ `LiveClassFeature+State.swift` — `activeSessionId`, `athleteRecordIds: [UUID: UUID]`, `hrSamplesBuffer: [UUID: [HRSample]]`, `gymClassId`
+- ✅ `LiveClassFeature+Action.swift` — `sessionStarted(UUID)`, `athleteAdded(deviceID, athleteId)`, `flushBufferedSamples`
+- ✅ `LiveClassFeature+CancelID.swift` — `case persistenceTimer`
+
+**Known MVP limitations** (osobne tickety):
+- `maxHR=190` hardcoded przy `addAthlete` — precise per-athlete maxHR update na first sample = future
+- Crash window max 30s utraconych próbek (buffer flush interval)
+- Brak retry logic dla failed DB writes (Logger.error only)
 
 ### Subtask D — ClassHistory real implementation
 - Dziś: placeholder ContentUnavailableView ("History coming soon")
