@@ -89,6 +89,14 @@ struct ClassesListFeature {
                 )
                 return .none
 
+            case let .destination(.presented(.detail(.delegate(.classDeleted(id))))):
+                // User skasował template z menu w ClassDetailView. Cascade delete już
+                // wykonany w child (gymClassClient). Tu: optimistic remove ze state.classes
+                // + pop detail. Następny `viewDidAppear` re-fetch potwierdzi zgodność z DB.
+                state.classes.remove(id: id)
+                state.destination = nil
+                return .none
+
             case .liveClass(.presented(.delegate(.classEnded))):
                 // Live class skończona — close cover. Klasa **zostaje** w liście (template).
                 state.liveClass = nil

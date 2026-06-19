@@ -177,6 +177,26 @@
         }
       }
     },
+    "Edit" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj"
+          }
+        }
+      }
+    },
+    "Edit class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj klasę"
+          }
+        }
+      }
+    },
     "Duration" : {
       "localizations" : {
         "pl" : {
