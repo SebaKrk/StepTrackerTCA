@@ -32,6 +32,12 @@ struct ClassHistoryFeature {
 
         /// Pushed detail view dla tap'niętej sesji. Nil = lista visible.
         @Presents var detail: ClassHistoryDetailFeature.State?
+
+        /// Confirm alert przed cascade delete sesji (kasuje też athleteSessionRecords).
+        @Presents var alert: AlertState<Action.Alert>?
+
+        /// Snapshot sesji do delete — alert `confirmDelete` używa jej id.
+        var sessionToDelete: ClassSessionRecord?
     }
 
     @CasePathable
@@ -43,6 +49,13 @@ struct ClassHistoryFeature {
         /// Child reducer navigation actions.
         case detail(PresentationAction<ClassHistoryDetailFeature.Action>)
 
+        case alert(PresentationAction<Alert>)
+
+        enum Alert: Equatable {
+            /// Trener potwierdził cascade delete sesji + athlete data.
+            case confirmDelete
+        }
+
         case view(View)
 
         enum View {
@@ -52,6 +65,9 @@ struct ClassHistoryFeature {
 
             /// User tap row → push detail view z sesją snapshot'em.
             case sessionRowTapped(ClassSessionRecord)
+
+            /// User swipe-to-delete row → present alert confirm cascade delete.
+            case sessionDeleteTapped(ClassSessionRecord)
         }
     }
 
@@ -81,6 +97,33 @@ struct ClassHistoryFeature {
                 )
                 return .none
 
+            case let .view(.sessionDeleteTapped(session)):
+                state.sessionToDelete = session
+                state.alert = .deleteSession(session.className)
+                return .none
+
+            case .alert(.presented(.confirmDelete)):
+                guard let session = state.sessionToDelete else { return .none }
+                // Optimistic remove ze state + cascade delete w bazie.
+                state.sessions.removeAll { $0.id == session.id }
+                state.sessionToDelete = nil
+                return .run { _ in
+                    try await gymClassClient.deleteSession(session.id)
+                } catch: { error, _ in
+                    Logger.gymRoom.error("❌ deleteSession failed: \(error.localizedDescription)")
+                }
+
+            case .alert(.dismiss), .alert:
+                state.sessionToDelete = nil
+                return .none
+
+            case let .detail(.presented(.delegate(.sessionDeleted(id)))):
+                // Detail child skasował sesję z menu ellipsis. Cascade delete już
+                // wykonany w child (gymClassClient). Pop detail + remove ze state.sessions.
+                state.detail = nil
+                state.sessions.removeAll { $0.id == id }
+                return .none
+
             case .detail:
                 return .none
             }
@@ -88,5 +131,6 @@ struct ClassHistoryFeature {
         .ifLet(\.$detail, action: \.detail) {
             ClassHistoryDetailFeature()
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }

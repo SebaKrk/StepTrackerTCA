@@ -910,3 +910,5 @@
     - Cascade delete template'a (kasuje też powiązane sesje + athlete records) z alert confirmation
     G: ClassDetail actions menu
      - ellipsis toolbar z Edit (prefilled sheet, upsert) + Delete (cascade z alert confirmation). Reuse ClassCreationFeature dla edit mode.
+    H: Delete z History 
+    - swipe-to-delete sesji w ClassHistoryView + ellipsis menu w ClassHistoryDetailView (na razie 1 akcja Delete, ready na Share/Export future). Oba z alert confirm. Cascade kasuje athleteSessionRecords + classSessionRecord (template nietknięty). Bez Edit — sesje są historical fact, immutable.

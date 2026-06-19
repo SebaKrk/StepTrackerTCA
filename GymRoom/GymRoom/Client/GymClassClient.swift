@@ -44,6 +44,12 @@ struct GymClassClient: Sendable {
     /// dla każdego z nich, set `leftAt = endedAt`.
     var endSession: @Sendable (_ sessionId: UUID, _ endedAt: Date) async throws -> Void
 
+    /// Cascade delete pojedynczej sesji z History — kasuje session record + wszystkie
+    /// athleteSessionRecords FK do niej. NIE rusza template'a (gymClassRecord zostaje).
+    /// W odróżnieniu od `deleteTemplate` (kasuje template + WSZYSTKIE jego sesje), ten
+    /// usuwa **jeden konkretny historical entry** wraz z HR data sportowców.
+    var deleteSession: @Sendable (_ sessionId: UUID) async throws -> Void
+
     // MARK: - Athletes (AthleteSessionRecord)
 
     /// Wszyscy athletes podłączeni do danej sesji (FK match) — dla detail view w History.
@@ -224,6 +230,24 @@ private enum GymClassClientKey: DependencyKey {
                 }
             },
 
+            deleteSession: { sessionId in
+                // Cascade delete pojedynczej sesji — atomically usuń athletes + session.
+                // Template zostaje (multi-session re-use pattern).
+                try await database.write { db in
+                    // 1. Delete athleteSessionRecords FK do tej sesji.
+                    try AthleteSessionRecord
+                        .where { $0.classSessionId.eq(sessionId) }
+                        .delete()
+                        .execute(db)
+
+                    // 2. Delete session record.
+                    try ClassSessionRecord
+                        .find(sessionId)
+                        .delete()
+                        .execute(db)
+                }
+            },
+
             fetchAthletesForSession: { sessionId in
                 try await database.read { db in
                     try AthleteSessionRecord
@@ -340,6 +364,7 @@ private enum GymClassClientKey: DependencyKey {
             fetchAllSessions: unimplemented("GymClassClient.fetchAllSessions", placeholder: []),
             startSession: unimplemented("GymClassClient.startSession", placeholder: UUID()),
             endSession: unimplemented("GymClassClient.endSession"),
+            deleteSession: unimplemented("GymClassClient.deleteSession"),
             fetchAthletesForSession: unimplemented("GymClassClient.fetchAthletesForSession", placeholder: []),
             addAthlete: unimplemented("GymClassClient.addAthlete", placeholder: UUID()),
             appendHRSamples: unimplemented("GymClassClient.appendHRSamples"),
