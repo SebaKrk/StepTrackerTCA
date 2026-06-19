@@ -107,7 +107,32 @@ private enum GymClassClientKey: DependencyKey {
             },
 
             deleteTemplate: { id in
+                // Cascade delete w jednej transakcji: usunięcie template'a kasuje też
+                // wszystkie powiązane session records + athlete records. Bez tego —
+                // orphan'ed past sessions zostaną w History tab bez działającego back-link.
+                // Wymóg z user feedback dla wersji 0.1: "usuń wszystko z athlete data".
                 try await database.write { db in
+                    // 1. Find wszystkie classSessionRecords dla tego template'a.
+                    let sessions = try ClassSessionRecord
+                        .where { $0.gymClassId.eq(id) }
+                        .fetchAll(db)
+                    let sessionIds = sessions.map { $0.id }
+
+                    // 2. Delete wszystkie athleteSessionRecords FK do tych sessions.
+                    if !sessionIds.isEmpty {
+                        try AthleteSessionRecord
+                            .where { $0.classSessionId.in(sessionIds) }
+                            .delete()
+                            .execute(db)
+                    }
+
+                    // 3. Delete wszystkie classSessionRecords dla template'a.
+                    try ClassSessionRecord
+                        .where { $0.gymClassId.eq(id) }
+                        .delete()
+                        .execute(db)
+
+                    // 4. Finally delete sam template.
                     try GymClassRecord
                         .find(id)
                         .delete()

@@ -98,26 +98,11 @@
       }
     },
     "Capacity" : {
-
-    },
-    "Charts and stats coming soon." : {
-      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wykresy i statystyki wkrótce."
-          }
-        }
-      }
-    },
-    "Class creation form coming soon." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Formularz tworzenia klasy wkrótce."
+            "value" : "Pojemność"
           }
         }
       }
@@ -128,17 +113,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nazwa klasy"
-          }
-        }
-      }
-    },
-    "Class summary" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podsumowanie klasy"
           }
         }
       }
@@ -163,34 +137,22 @@
         }
       }
     },
-    "Completed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zakończona"
-          }
-        }
-      }
-    },
-    "Create" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stwórz"
-          }
-        }
-      }
-    },
     "Delete" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usuń"
+          }
+        }
+      }
+    },
+    "Delete class?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć klasę?"
           }
         }
       }
@@ -288,28 +250,6 @@
         }
       }
     },
-    "Live Class" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Live Class"
-          }
-        }
-      }
-    },
-    "Live now" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trwa teraz"
-          }
-        }
-      }
-    },
     "Location" : {
       "localizations" : {
         "pl" : {
@@ -331,15 +271,11 @@
       }
     },
     "Max athletes" : {
-
-    },
-    "Name" : {
-      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nazwa"
+            "value" : "Max athletes"
           }
         }
       }
@@ -394,45 +330,12 @@
         }
       }
     },
-    "Past classes will appear here soon." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Past klasy pojawią się tutaj wkrótce."
-          }
-        }
-      }
-    },
     "Per athlete" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Per athlete"
-          }
-        }
-      }
-    },
-    "Planned" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaplanowana"
-          }
-        }
-      }
-    },
-    "Rozpocznij zajęcia" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rozpocznij zajęcia"
           }
         }
       }
@@ -558,19 +461,18 @@
         }
       }
     },
-    "Time" : {
-
-    },
-    "Time in zones" : {
-      "extractionState" : "stale",
+    "This will also delete all related sessions and athlete data." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Czas w strefach"
+            "value" : "Usunie też wszystkie powiązane sesje i dane sportowców."
           }
         }
       }
+    },
+    "Time" : {
+
     },
     "Today" : {
       "localizations" : {

@@ -41,7 +41,18 @@ extension ClassesListFeature {
         // MARK: - Destination + child reducer actions
 
         case destination(PresentationAction<Destination.Action>)
-        
+
         case liveClass(PresentationAction<LiveClassFeature.Action>)
+
+        // MARK: - Alert (delete confirmation)
+
+        /// Akcje z alert'u — confirm cascade delete lub cancel (PresentationAction wraps obie).
+        case alert(PresentationAction<Alert>)
+
+        /// Wybory użytkownika w alert'cie cascade delete.
+        enum Alert: Equatable {
+            /// Trener potwierdził chęć usunięcia template'a + powiązanych danych.
+            case confirmDelete
+        }
     }
 }
