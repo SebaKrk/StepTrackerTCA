@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 /// Classes tab — schedule template list. NavigationStack z listą klas, toolbar `+` button
@@ -45,11 +46,24 @@ struct ClassesListView: View {
 
     @ViewBuilder
     private var content: some View {
-        if store.classes.isEmpty {
-            emptyState
-        } else {
-            classesList
+        switch store.viewState {
+        case .loading:
+            loadingState
+        case .success:
+            if store.classes.isEmpty {
+                emptyState
+            } else {
+                classesList
+            }
+        case .failed:
+            failedState
         }
+    }
+
+    private var loadingState: some View {
+        ProgressView()
+            .controlSize(.large)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var emptyState: some View {
@@ -57,6 +71,22 @@ struct ClassesListView: View {
             Label(emptyTitle, systemImage: "figure.cross.training")
         } description: {
             Text(emptyDescription)
+        }
+    }
+
+    /// Failed state z retry button — re-emit `.viewDidAppear` resetuje
+    /// viewState do `.loading` i ponawia fetch.
+    private var failedState: some View {
+        ContentUnavailableView {
+            Label(failedTitle, systemImage: "exclamationmark.triangle")
+        } description: {
+            Text(failedDescription)
+        } actions: {
+            Button {
+                send(.viewDidAppear)
+            } label: {
+                Label(retryTitle, systemImage: "arrow.clockwise")
+            }
         }
     }
 
@@ -190,6 +220,18 @@ struct ClassesListView: View {
         String(localized: "Without date", bundle: .main)
     }
 
+    private var failedTitle: String {
+        String(localized: "Loading failed", bundle: .main)
+    }
+
+    private var failedDescription: String {
+        String(localized: "Couldn't load classes. Please try again.", bundle: .main)
+    }
+
+    private var retryTitle: String {
+        String(localized: "Try again", bundle: .main)
+    }
+
     /// "Środa" / "Wednesday" — sam dzień tygodnia, capitalized (lokalizacja przez current locale).
     private func weekday(for day: Date) -> String {
         let formatter = DateFormatter()
@@ -214,7 +256,7 @@ struct ClassesListView: View {
 
 #Preview("Empty") {
     ClassesListView(
-        store: Store(initialState: ClassesListFeature.State()) {
+        store: Store(initialState: ClassesListFeature.State(viewState: .success)) {
             ClassesListFeature()
         }
     )
@@ -223,12 +265,29 @@ struct ClassesListView: View {
 #Preview("With classes") {
     ClassesListView(
         store: Store(initialState: ClassesListFeature.State(
+            viewState: .success,
             classes: [
                 GymClass(name: "Morning CrossFit", location: "Sala 1", scheduledAt: .now.addingTimeInterval(3600)),
                 GymClass(name: "Evening WOD", location: "Sala 2"),
                 GymClass(name: "HIIT Tuesday", location: "Sala 1", scheduledAt: .now.addingTimeInterval(86400))
             ]
         )) {
+            ClassesListFeature()
+        }
+    )
+}
+
+#Preview("Loading") {
+    ClassesListView(
+        store: Store(initialState: ClassesListFeature.State(viewState: .loading)) {
+            ClassesListFeature()
+        }
+    )
+}
+
+#Preview("Failed") {
+    ClassesListView(
+        store: Store(initialState: ClassesListFeature.State(viewState: .failed)) {
             ClassesListFeature()
         }
     )

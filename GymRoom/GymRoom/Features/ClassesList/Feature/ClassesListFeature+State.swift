@@ -7,11 +7,17 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 extension ClassesListFeature {
 
     @ObservableState
     struct State {
+
+        /// Loading state listy klas — `.loading` na start (nie empty),
+        /// `.success` po `classesLoaded`, `.failed` na `fetchFailed`.
+        /// Bez tego user widzi "No classes yet" zanim fetch dojdzie.
+        var viewState: ViewState = .loading
 
         /// Schedule template entries — wszystkie klasy w grafiku. Persisted przez
         /// `gymClassClient` w SQLiteData. Fetch w `viewDidAppear`.

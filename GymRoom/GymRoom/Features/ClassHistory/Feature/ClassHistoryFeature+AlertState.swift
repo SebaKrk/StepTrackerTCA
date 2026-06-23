@@ -29,4 +29,22 @@ extension AlertState where Action == ClassHistoryFeature.Action.Alert {
             TextState(String(localized: "This will also delete all athlete data from this class.", bundle: .main))
         }
     }
+
+    /// Force-end ongoing session z History — workaround dla pre-existing bug C
+    /// (WC end-flow gdy Watch unreachable). Trener może wymusić `endedAt = .now`
+    /// na sesji która `endedAt == nil`. Sets analytics dla athletes z leftAt nil.
+    static func endSession(_ className: String) -> Self {
+        Self {
+            TextState(String(localized: "End session?", bundle: .main))
+        } actions: {
+            ButtonState(action: .confirmEnd) {
+                TextState(String(localized: "End", bundle: .main))
+            }
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "Cancel", bundle: .main))
+            }
+        } message: {
+            TextState(String(localized: "End time will be set to now. Athletes still active will be finalized.", bundle: .main))
+        }
+    }
 }

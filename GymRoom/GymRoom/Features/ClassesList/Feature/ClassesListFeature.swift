@@ -26,17 +26,22 @@ struct ClassesListFeature {
             switch action {
 
             case .view(.viewDidAppear):
+                state.viewState = .loading
                 return .run { send in
                     let classes = try await gymClassClient.fetchAllTemplates()
                     await send(.classesLoaded(classes))
-                } catch: { error, _ in
-                    // Silent log — empty list zostaje (state.classes = []), user widzi empty state.
-                    // Real-world MVP: brak rollback / retry — defer do future ticket.
+                } catch: { error, send in
                     Logger.gymRoom.error("❌ fetchAllTemplates failed: \(error.localizedDescription)")
+                    await send(.fetchFailed)
                 }
 
             case let .classesLoaded(classes):
                 state.classes = IdentifiedArrayOf(uniqueElements: classes)
+                state.viewState = .success
+                return .none
+
+            case .fetchFailed:
+                state.viewState = .failed
                 return .none
 
             case .view(.addClassTapped):

@@ -1,0 +1,88 @@
+//
+//  ClassHistoryDetailFeature+State.swift
+//  GymRoom
+//
+//  Created by Sebastian Ściuba on 22/06/2026.
+//
+
+import ComposableArchitecture
+import Foundation
+import SharedModels
+
+extension ClassHistoryDetailFeature {
+
+    @ObservableState
+    struct State: Equatable {
+
+        /// Snapshot session metadata (z `ClassSessionRecord` przy push z History row).
+        let sessionId: UUID
+        let className: String
+        let location: String
+        let startedAt: Date
+        let endedAt: Date?
+
+        /// Loading state widoku — `.loading` na start (gdy decode BLOB-ów trwa
+        /// 1-3 sek), `.success` po `athletesLoaded`, `.failed` na `fetchFailed`.
+        /// Bez tego user widzi pusty topStatsBanner (0/0/—) zanim decode dojdzie.
+        var viewState: ViewState = .loading
+
+        /// Decoded athletes z BLOB-ów — async fetch + decode w `viewDidAppear`.
+        var athletes: [AthleteSummary] = []
+
+        /// Pre-aggregated range bars per athlete. Liczone raz w `athletesLoaded`
+        /// (off main thread, w `.run`), trzymane do końca życia feature'a.
+        /// Klucz = `athlete.id`. Empty = nie liczone albo athlete bez samples.
+        var hrRangesByAthlete: [UUID: [HRMinuteRange]] = [:]
+
+        /// Wybrana minuta per athlete (klucz = `athlete.id`). Brak entry w dict =
+        /// brak selection dla danego athlete'a. Każda karta ma własną selection
+        /// (combined mode nie używa).
+        var selectedMinutes: [UUID: Date] = [:]
+
+        /// Cumulative angular position w pie chart kalorii (`.combined` mode).
+        /// Charts wysyła kąt jako cumulative `Double` w skali sumy kcal — View
+        /// helper mapuje na konkretnego athletę. `nil` = brak selection
+        /// (center label pokazuje TOTAL klasy).
+        var selectedKcalAngle: Double? = nil
+
+        /// Cumulative angular position w donucie stref HR (`.combined` mode) — analog
+        /// `selectedKcalAngle`. Charts wysyła kąt w skali sumy sekund wszystkich stref;
+        /// View helper mapuje na konkretną strefę. `nil` = brak selection (center label
+        /// pokazuje TOTAL czasu klasy w strefach).
+        var selectedZoneAngle: Double? = nil
+
+        /// Wybrany timestamp w combined HR chart (multi-series LineMark). Charts wysyła
+        /// dokładny Date; View helper mapuje na najbliższy sample każdego atlety i
+        /// pokazuje annotation z listą `nick + BPM` (sorted descending). `nil` = brak
+        /// selection (chart bez RuleMark/PointMark/annotation).
+        var selectedCombinedTime: Date? = nil
+
+        /// Toggle widoku HR chart — `combined` (multi-series LineMark + donut pie kalorii)
+        /// vs `perAthlete` (lista kart per peer z BarMark range + selection).
+        var chartViewMode: ChartViewMode = .combined
+
+        /// Confirm alert przed cascade delete sesji z ellipsis menu → "Usuń".
+        @Presents var alert: AlertState<Action.Alert>?
+    }
+
+    /// Tryby wyświetlania HR over time. Switch'owane przez `SegmentedPicker` w View.
+    enum ChartViewMode: String, CaseIterable, Identifiable, Sendable, Equatable {
+
+        /// Multi-series LineMark — wszyscy athletes na jednej skali czasu, kolor per nick.
+        /// Bez selection (niepotrzebne dla overlay comparison).
+        case combined
+
+        /// Lista kart per athlete, każda z **BarMark range** per-minute + selection.
+        /// Range bar pokazuje min/max BPM w danej minucie.
+        case perAthlete
+
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .combined: String(localized: "Combined", bundle: .main)
+            case .perAthlete: String(localized: "Individually", bundle: .main)
+            }
+        }
+    }
+}

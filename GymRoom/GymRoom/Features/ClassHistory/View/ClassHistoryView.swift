@@ -7,6 +7,7 @@
 
 import AppDatabase
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 /// History tab — lista past sessions reverse-chrono. Tap row → nothing (subtask E
@@ -35,11 +36,24 @@ struct ClassHistoryView: View {
 
     @ViewBuilder
     private var content: some View {
-        if store.sessions.isEmpty {
-            emptyState
-        } else {
-            sessionsList
+        switch store.viewState {
+        case .loading:
+            loadingState
+        case .success:
+            if store.sessions.isEmpty {
+                emptyState
+            } else {
+                sessionsList
+            }
+        case .failed:
+            failedState
         }
+    }
+
+    private var loadingState: some View {
+        ProgressView()
+            .controlSize(.large)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var emptyState: some View {
@@ -47,6 +61,22 @@ struct ClassHistoryView: View {
             Label(emptyTitle, systemImage: "clock.arrow.circlepath")
         } description: {
             Text(emptyDescription)
+        }
+    }
+
+    /// Failed state z retry button — re-emit `.viewDidAppear` resetuje
+    /// viewState do `.loading` i ponawia fetch.
+    private var failedState: some View {
+        ContentUnavailableView {
+            Label(failedTitle, systemImage: "exclamationmark.triangle")
+        } description: {
+            Text(failedDescription)
+        } actions: {
+            Button {
+                send(.viewDidAppear)
+            } label: {
+                Label(retryTitle, systemImage: "arrow.clockwise")
+            }
         }
     }
 
@@ -66,6 +96,9 @@ struct ClassHistoryView: View {
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             sessionDeleteButton(for: session)
+            if session.endedAt == nil {
+                sessionEndButton(for: session)
+            }
         }
     }
 
@@ -75,6 +108,18 @@ struct ClassHistoryView: View {
         } label: {
             Label(deleteLabel, systemImage: "trash")
         }
+    }
+
+    /// Force-end button — visible **tylko gdy `endedAt == nil`** (ongoing sesja).
+    /// Recovery dla pre-existing bug C (WC end-flow gdy Watch unreachable).
+    /// `.tint(.orange)` differentiates od destructive delete (czerwony).
+    private func sessionEndButton(for session: ClassSessionRecord) -> some View {
+        Button {
+            send(.sessionEndTapped(session))
+        } label: {
+            Label(endLabel, systemImage: "stop.circle")
+        }
+        .tint(.orange)
     }
 
     private func sessionRow(for session: ClassSessionRecord) -> some View {
@@ -117,6 +162,22 @@ struct ClassHistoryView: View {
 
     private var deleteLabel: String {
         String(localized: "Delete", bundle: .main)
+    }
+
+    private var endLabel: String {
+        String(localized: "End", bundle: .main)
+    }
+
+    private var failedTitle: String {
+        String(localized: "Loading failed", bundle: .main)
+    }
+
+    private var failedDescription: String {
+        String(localized: "Couldn't load class history. Please try again.", bundle: .main)
+    }
+
+    private var retryTitle: String {
+        String(localized: "Try again", bundle: .main)
     }
 
     /// "Today" / "Yesterday" / "17 cze" (locale-aware przez DateFormatter).
@@ -169,7 +230,23 @@ struct ClassHistoryView: View {
 
 #Preview("Empty") {
     ClassHistoryView(
-        store: Store(initialState: ClassHistoryFeature.State()) {
+        store: Store(initialState: ClassHistoryFeature.State(viewState: .success)) {
+            ClassHistoryFeature()
+        }
+    )
+}
+
+#Preview("Loading") {
+    ClassHistoryView(
+        store: Store(initialState: ClassHistoryFeature.State(viewState: .loading)) {
+            ClassHistoryFeature()
+        }
+    )
+}
+
+#Preview("Failed") {
+    ClassHistoryView(
+        store: Store(initialState: ClassHistoryFeature.State(viewState: .failed)) {
             ClassHistoryFeature()
         }
     )

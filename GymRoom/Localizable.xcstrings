@@ -4,6 +4,16 @@
     "%lld" : {
 
     },
+    "%lld–%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld–%2$lld"
+          }
+        }
+      }
+    },
     "%lld/%lld athletes" : {
       "localizations" : {
         "pl" : {
@@ -13,6 +23,9 @@
           }
         }
       }
+    },
+    "%lld%% of class" : {
+
     },
     "Active Energy" : {
       "localizations" : {
@@ -24,6 +37,9 @@
         }
       }
     },
+    "active time" : {
+
+    },
     "All athletes will be disconnected." : {
       "localizations" : {
         "pl" : {
@@ -33,6 +49,9 @@
           }
         }
       }
+    },
+    "All zones" : {
+
     },
     "Athlete" : {
 
@@ -137,6 +156,15 @@
         }
       }
     },
+    "Couldn't load athlete data for this class. Please try again." : {
+
+    },
+    "Couldn't load class history. Please try again." : {
+
+    },
+    "Couldn't load classes. Please try again." : {
+
+    },
     "Delete" : {
       "localizations" : {
         "pl" : {
@@ -167,16 +195,6 @@
         }
       }
     },
-    "This will also delete all athlete data from this class." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usunie też wszystkie dane sportowców z tej klasy."
-          }
-        }
-      }
-    },
     "Details" : {
       "localizations" : {
         "pl" : {
@@ -193,6 +211,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas"
           }
         }
       }
@@ -217,16 +245,6 @@
         }
       }
     },
-    "Duration" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Czas"
-          }
-        }
-      }
-    },
     "End" : {
       "localizations" : {
         "pl" : {
@@ -246,6 +264,12 @@
           }
         }
       }
+    },
+    "End session?" : {
+
+    },
+    "End time will be set to now. Athletes still active will be finalized." : {
+
     },
     "Gym Room" : {
       "localizations" : {
@@ -267,6 +291,12 @@
         }
       }
     },
+    "HR max" : {
+
+    },
+    "HR min" : {
+
+    },
     "HR over time" : {
       "localizations" : {
         "pl" : {
@@ -276,6 +306,9 @@
           }
         }
       }
+    },
+    "Individually" : {
+
     },
     "kcal" : {
 
@@ -289,6 +322,9 @@
           }
         }
       }
+    },
+    "Loading failed" : {
+
     },
     "Location" : {
       "localizations" : {
@@ -319,6 +355,9 @@
           }
         }
       }
+    },
+    "Minute" : {
+
     },
     "New class" : {
       "localizations" : {
@@ -360,6 +399,9 @@
         }
       }
     },
+    "No samples" : {
+
+    },
     "Ongoing" : {
       "localizations" : {
         "pl" : {
@@ -371,6 +413,7 @@
       }
     },
     "Per athlete" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -430,6 +473,15 @@
         }
       }
     },
+    "Seconds" : {
+
+    },
+    "Selected Minute" : {
+
+    },
+    "Selected Time" : {
+
+    },
     "Set scheduled time" : {
       "localizations" : {
         "pl" : {
@@ -481,6 +533,9 @@
         }
       }
     },
+    "This athlete didn't send any HR data." : {
+
+    },
     "This class had no peers connected." : {
       "localizations" : {
         "pl" : {
@@ -501,6 +556,16 @@
         }
       }
     },
+    "This will also delete all athlete data from this class." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunie też wszystkie dane sportowców z tej klasy."
+          }
+        }
+      }
+    },
     "This will also delete all related sessions and athlete data." : {
       "localizations" : {
         "pl" : {
@@ -514,6 +579,9 @@
     "Time" : {
 
     },
+    "Time in zones" : {
+
+    },
     "Today" : {
       "localizations" : {
         "pl" : {
@@ -523,6 +591,15 @@
           }
         }
       }
+    },
+    "Total class" : {
+
+    },
+    "Trening był zbyt krótki, by zanalizować HR — minimum 5 minut." : {
+
+    },
+    "Try again" : {
+
     },
     "Without date" : {
 
@@ -547,6 +624,12 @@
           }
         }
       }
+    },
+    "Za mało danych" : {
+
+    },
+    "Zone" : {
+
     }
   },
   "version" : "1.0"

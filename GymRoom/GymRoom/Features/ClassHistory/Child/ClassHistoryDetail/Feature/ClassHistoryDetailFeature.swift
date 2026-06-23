@@ -12,88 +12,13 @@ import OSLog
 import SharedModels
 
 /// Reducer dla detail view klasy z History tab. Fetch athletes async, decode BLOB-y,
-/// hold `[AthleteSummary]` w State. View renderuje 4 sekcje: top stats, HR chart
-/// (per athlete / combined toggle), bar chart calories, pie chart zones.
+/// pre-aggregate range bars per athlete (off main), hold w State. View renderuje:
+/// top stats banner, HR chart toggle (combined LineMark / perAthlete BarMark range
+/// z selection), calories bar chart.
 @Reducer
 struct ClassHistoryDetailFeature {
 
     @Dependency(\.gymClassClient) var gymClassClient
-
-    @ObservableState
-    struct State: Equatable {
-
-        /// Snapshot session metadata (z `ClassSessionRecord` przy push z History row).
-        let sessionId: UUID
-        let className: String
-        let location: String
-        let startedAt: Date
-        let endedAt: Date?
-
-        /// Decoded athletes z BLOB-ów — async fetch + decode w `viewDidAppear`.
-        var athletes: [AthleteSummary] = []
-
-        /// Toggle widoku HR chart — `combined` (default, multi-series) vs `perAthlete`
-        /// (lista kart per peer, każda z indywidualnym mini chart'em).
-        var chartViewMode: ChartViewMode = .combined
-
-        /// Confirm alert przed cascade delete sesji z ellipsis menu → "Usuń".
-        /// Aktualnie menu ma jedną akcję; w przyszłości można dodać Share/Export.
-        @Presents var alert: AlertState<Action.Alert>?
-    }
-
-    /// Tryby wyświetlania HR over time. Switch'owane przez `SegmentedPicker` w View.
-    enum ChartViewMode: String, CaseIterable, Identifiable, Sendable, Equatable {
-
-        /// Multi-series line chart — wszyscy athletes na jednej skali czasu, kolor per nick.
-        /// Dobry do porównania "kto się wyróżniał" w klasie.
-        case combined
-
-        /// Lista kart, każda z mini chart'em jednego athlete'a. Dobry do indywidualnego
-        /// debugging "jak Seba sobie radził w drugiej rundzie".
-        case perAthlete
-
-        var id: String { rawValue }
-
-        var title: String {
-            switch self {
-            case .combined: String(localized: "Combined", bundle: .main)
-            case .perAthlete: String(localized: "Per athlete", bundle: .main)
-            }
-        }
-    }
-
-    @CasePathable
-    enum Action: ViewAction, BindableAction {
-
-        /// Bindings dla Picker'a chartViewMode (SegmentedControl).
-        case binding(BindingAction<State>)
-
-        /// Internal — result async fetch + decode.
-        case athletesLoaded([AthleteSummary])
-
-        case delegate(Delegate)
-        case alert(PresentationAction<Alert>)
-        case view(View)
-
-        enum Delegate: Equatable {
-            /// User skasował sesję z menu w detail → parent ClassHistory pop'uje detail
-            /// + remove ze state.sessions. Parent jest source of truth dla list.
-            case sessionDeleted(UUID)
-        }
-
-        enum Alert: Equatable {
-            /// Trener potwierdził cascade delete sesji + athlete data.
-            case confirmDelete
-        }
-
-        enum View {
-            /// Lifecycle — fetch athletes na pojawienie się detail. `.task` w View.
-            case viewDidAppear
-
-            /// Ellipsis menu → "Usuń" — present alert confirm.
-            case deleteTapped
-        }
-    }
 
     var body: some Reducer<State, Action> {
         BindingReducer()
@@ -102,6 +27,7 @@ struct ClassHistoryDetailFeature {
 
             case .view(.viewDidAppear):
                 let sessionId = state.sessionId
+                state.viewState = .loading
                 return .run { send in
                     let records = try await gymClassClient.fetchAthletesForSession(sessionId)
                     let decoder = JSONDecoder()
@@ -124,13 +50,37 @@ struct ClassHistoryDetailFeature {
                             analytics: analytics
                         )
                     }
-                    await send(.athletesLoaded(summaries))
-                } catch: { error, _ in
+                    let ranges = Dictionary(
+                        uniqueKeysWithValues: summaries.map { athlete in
+                            (athlete.id, HRSample.minuteRanges(from: athlete.samples))
+                        }
+                    )
+                    await send(.athletesLoaded(summaries, ranges))
+                } catch: { error, send in
                     Logger.gymRoom.error("❌ fetchAthletesForSession failed: \(error.localizedDescription)")
+                    await send(.fetchFailed)
                 }
 
-            case let .athletesLoaded(summaries):
+            case let .athletesLoaded(summaries, ranges):
                 state.athletes = summaries
+                state.hrRangesByAthlete = ranges
+                state.viewState = .success
+                return .none
+
+            case .fetchFailed:
+                state.viewState = .failed
+                return .none
+
+            case let .minuteSelected(athleteID, date):
+                if let date {
+                    state.selectedMinutes[athleteID] = date
+                } else {
+                    state.selectedMinutes.removeValue(forKey: athleteID)
+                }
+                return .none
+
+            case let .combinedTimeSelected(date):
+                state.selectedCombinedTime = date
                 return .none
 
             case .view(.deleteTapped):
