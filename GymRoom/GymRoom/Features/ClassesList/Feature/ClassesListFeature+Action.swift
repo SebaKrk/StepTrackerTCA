@@ -20,6 +20,10 @@ extension ClassesListFeature {
         /// Wywoływane po `.view(.viewDidAppear)` lub re-fetch po create/delete.
         case classesLoaded([GymClass])
 
+        /// `gymClassClient.fetchAllTemplates()` rzucił błąd — `viewState = .failed`,
+        /// View pokazuje retry placeholder zamiast pustej listy.
+        case fetchFailed
+
         // MARK: - View Actions
 
         case view(View)

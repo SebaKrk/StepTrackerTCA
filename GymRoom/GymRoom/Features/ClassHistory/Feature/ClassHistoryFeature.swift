@@ -26,6 +26,11 @@ struct ClassHistoryFeature {
     @ObservableState
     struct State {
 
+        /// Loading state listy sesji — `.loading` na start, `.success` po
+        /// `sessionsLoaded`, `.failed` na `fetchFailed`. Bez tego user widzi
+        /// "No past classes yet" zanim fetch dojdzie.
+        var viewState: ViewState = .loading
+
         /// Past sessions reverse-chrono. Empty po pierwszym launchu, populated
         /// w `viewDidAppear` przez async fetch.
         var sessions: [ClassSessionRecord] = []
@@ -38,6 +43,10 @@ struct ClassHistoryFeature {
 
         /// Snapshot sesji do delete — alert `confirmDelete` używa jej id.
         var sessionToDelete: ClassSessionRecord?
+
+        /// Snapshot sesji do force-end — alert `confirmEnd` używa jej id.
+        /// Force-end ongoing session (endedAt == nil) gdy WC end-flow zawiódł.
+        var sessionToEnd: ClassSessionRecord?
     }
 
     @CasePathable
@@ -45,6 +54,10 @@ struct ClassHistoryFeature {
 
         /// Internal — result `gymClassClient.fetchAllSessions()`.
         case sessionsLoaded([ClassSessionRecord])
+
+        /// `gymClassClient.fetchAllSessions()` rzucił błąd — `viewState = .failed`,
+        /// View pokazuje retry placeholder.
+        case fetchFailed
 
         /// Child reducer navigation actions.
         case detail(PresentationAction<ClassHistoryDetailFeature.Action>)
@@ -54,6 +67,10 @@ struct ClassHistoryFeature {
         enum Alert: Equatable {
             /// Trener potwierdził cascade delete sesji + athlete data.
             case confirmDelete
+
+            /// Trener potwierdził force-end ongoing session — `endedAt = .now`,
+            /// finalize wszystkich athletes z `leftAt == nil` (analytics computed).
+            case confirmEnd
         }
 
         case view(View)
@@ -68,6 +85,10 @@ struct ClassHistoryFeature {
 
             /// User swipe-to-delete row → present alert confirm cascade delete.
             case sessionDeleteTapped(ClassSessionRecord)
+
+            /// User swipe → "End" button na ongoing sesji (endedAt == nil).
+            /// Present alert confirm force-end.
+            case sessionEndTapped(ClassSessionRecord)
         }
     }
 
@@ -76,15 +97,22 @@ struct ClassHistoryFeature {
             switch action {
 
             case .view(.viewDidAppear):
+                state.viewState = .loading
                 return .run { send in
                     let sessions = try await gymClassClient.fetchAllSessions()
                     await send(.sessionsLoaded(sessions))
-                } catch: { error, _ in
+                } catch: { error, send in
                     Logger.gymRoom.error("❌ fetchAllSessions failed: \(error.localizedDescription)")
+                    await send(.fetchFailed)
                 }
 
             case let .sessionsLoaded(sessions):
                 state.sessions = sessions
+                state.viewState = .success
+                return .none
+
+            case .fetchFailed:
+                state.viewState = .failed
                 return .none
 
             case let .view(.sessionRowTapped(session)):
@@ -102,6 +130,11 @@ struct ClassHistoryFeature {
                 state.alert = .deleteSession(session.className)
                 return .none
 
+            case let .view(.sessionEndTapped(session)):
+                state.sessionToEnd = session
+                state.alert = .endSession(session.className)
+                return .none
+
             case .alert(.presented(.confirmDelete)):
                 guard let session = state.sessionToDelete else { return .none }
                 // Optimistic remove ze state + cascade delete w bazie.
@@ -113,8 +146,22 @@ struct ClassHistoryFeature {
                     Logger.gymRoom.error("❌ deleteSession failed: \(error.localizedDescription)")
                 }
 
+            case .alert(.presented(.confirmEnd)):
+                guard let session = state.sessionToEnd else { return .none }
+                let endedAt = Date()
+                state.sessionToEnd = nil
+                // Force-end + refetch (ClassSessionRecord ma let'y, najprościej refresh listy).
+                return .run { send in
+                    try await gymClassClient.endSession(session.id, endedAt)
+                    let sessions = try await gymClassClient.fetchAllSessions()
+                    await send(.sessionsLoaded(sessions))
+                } catch: { error, _ in
+                    Logger.gymRoom.error("❌ endSession failed: \(error.localizedDescription)")
+                }
+
             case .alert(.dismiss), .alert:
                 state.sessionToDelete = nil
+                state.sessionToEnd = nil
                 return .none
 
             case let .detail(.presented(.delegate(.sessionDeleted(id)))):
