@@ -41,14 +41,50 @@ struct AthleteTileView: View {
         .background(zoneGradient, in: tileShape)
         .glassEffect(in: tileShape)
         .clipShape(tileShape)
-        .saturation(athlete.state == .reconnecting ? 0.3 : 1.0)
+        .saturation(saturationLevel)
         .overlay {
-            if athlete.state == .reconnecting {
+            switch athlete.state {
+            case .loading:
+                loadingOverlay
+            case .reconnecting:
                 reconnectingOverlay
+            case .live:
+                EmptyView()
             }
         }
         .animation(.easeInOut(duration: 0.4), value: athlete.zone)
         .animation(.easeInOut(duration: 0.25), value: athlete.state)
+    }
+
+    /// Saturation per state — `.loading` lekko zdesaturowany (peer connected ale brak
+    /// real BPM/maxHR), `.reconnecting` mocno zdesaturowany (stale data warning),
+    /// `.live` pełna saturation.
+    private var saturationLevel: Double {
+        switch athlete.state {
+        case .loading: 0.5
+        case .reconnecting: 0.3
+        case .live: 1.0
+        }
+    }
+
+    /// Pokazuje subtelny dim layer + spinner gdy peer wykonał BLE handshake ale
+    /// jeszcze nie wysłał pierwszego `HRSamplePayload` (brak real maxHR + BPM).
+    /// Tile widoczny od razu (nick znany z handshake), ale czekamy na first sample
+    /// żeby zrobić DB CREATE z prawdziwą wartością maxHR (no fake 190 placeholder).
+    private var loadingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.4)
+            VStack(spacing: 8) {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(.white)
+                    .scaleEffect(1.2)
+                Text(connectingLabel)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white)
+            }
+        }
+        .clipShape(tileShape)
     }
 
     /// Pokazuje subtelny dim layer + spinner gdy peer w grace period (10s).
@@ -62,6 +98,10 @@ struct AthleteTileView: View {
                 .scaleEffect(1.4)
         }
         .clipShape(tileShape)
+    }
+
+    private var connectingLabel: String {
+        String(localized: "Łączenie…", bundle: .main)
     }
 
     // MARK: - Private views (struktura)

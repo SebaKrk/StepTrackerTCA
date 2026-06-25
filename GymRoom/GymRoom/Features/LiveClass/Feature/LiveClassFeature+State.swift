@@ -116,12 +116,17 @@ extension LiveClassFeature {
 
     /// Stan kafelka athlety w grace period architecture.
     ///
-    /// - `.live` — peer aktywnie broadcastuje HR (default state)
+    /// - `.loading` — peer wykonał BLE handshake, ale **jeszcze nie wysłał pierwszego
+    ///   `HRSamplePayload`**. Brak `maxHR` (real), brak BPM. Kafelek z spinner +
+    ///   "Łączenie..." overlay. Po pierwszym sample → `.live` + CREATE w bazie z
+    ///   real maxHR (lazy DB persistence, no fake placeholder).
+    /// - `.live` — peer aktywnie broadcastuje HR (steady state)
     /// - `.reconnecting` — peer BLE-disconnect, czekamy 10s grace period; kafelek wyświetla
     ///   subtelny overlay (spinner + grayscale) ale **nie znika** — bo może wrócić
     /// - `.lost` nie istnieje jako persistent state — po grace timeout reducer od razu
     ///   usuwa tile z `state.athletes` (transient removal, brak migotania)
     enum TileState: Sendable, Equatable {
+        case loading
         case live
         case reconnecting
     }

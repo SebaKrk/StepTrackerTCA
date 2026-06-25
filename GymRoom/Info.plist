@@ -9,5 +9,9 @@
 	</array>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Wyświetlamy metryki treningowe z Apple Watch i iPhone'a na ekranie grupy. Tętno oraz dane aktywności są przesyłane przez Bluetooth.</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 </dict>
 </plist>

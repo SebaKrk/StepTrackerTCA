@@ -281,6 +281,7 @@ struct ClassHistoryDetailView: View {
                         }
                     }
                 }
+                .chartYScale(domain: .automatic(includesZero: false))
                 .chartLegend(position: .bottom, alignment: .leading)
                 .chartXSelection(value: combinedSelectionBinding.animation(.easeInOut))
                 .frame(height: 280)
@@ -306,6 +307,7 @@ struct ClassHistoryDetailView: View {
             abs($0.timestamp.timeIntervalSince(date)) < abs($1.timestamp.timeIntervalSince(date))
         })
     }
+
 
     /// Annotation widoczna nad RuleMark — lista nick + BPM per athlete, sorted
     /// malejąco po BPM (najwyższy first = czytelny ranking w moment scrub'a).

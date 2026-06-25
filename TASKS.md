@@ -918,3 +918,13 @@
     - Layout athlete card
     - Insufficient data placeholders
     - Preview infrastructure
+
+### IPAD-00092 Peer connection robustness & diagnostics
+    - branch: `dev/IPAD-00092/IPAD-00092`
+
+    A: BLE peer resume on reconnect — `findAthlete` + `resumeAthlete` w GymClassClient. Jeden athleteSessionRecord per (sessionId, deviceID) niezależnie od liczby disconnect/reconnect w trakcie zajęć.
+    B: Lazy athlete creation — bez fake placeholder maxHR=190. LiveClassFeature tworzy DB record dopiero przy pierwszym realnym samplu (z payload.maxHR).
+    C: TileState.loading + UI overlay — ProgressView + "Łączenie…" w AthleteTileView do czasu odebrania pierwszego sample (informuje że peer connected ale jeszcze nie ma HR).
+    D: GymRoomFileLogger — actor singleton, plik `ipad_gymroom_log_<timestamp>.txt` per sesja, eksport do Files.app (UIFileSharingEnabled + LSSupportsOpeningDocumentsInPlace w Info.plist). Logi: join/handshake/resume/suspend/reconnect/leave/end.
+    E: Force-end ongoing sessions z History — swipe action "Zakończ zajęcia" gdy `endedAt == nil` (workaround dla sesji których iPad nie zamknął cleanly). + ViewState (.loading/.success/.failed) dla ClassesList i ClassHistory.
+    F: Charts polish — combined chart Y-axis `includesZero: false` (tighter range), per-athlete insufficient data placeholders (5-min threshold) z różnymi SF Symbols per chart type.

@@ -60,6 +60,22 @@ struct GymClassClient: Sendable {
     /// Returns: `athleteId` (UUID) do batch HR persistence keyed po nim.
     var addAthlete: @Sendable (_ classSessionId: UUID, _ deviceID: UUID, _ nick: String, _ maxHR: Int) async throws -> UUID
 
+    /// Sprawdza czy w sesji istnieje już `AthleteSessionRecord` z tym `deviceID`
+    /// (per-install peer identifier). Używane w `peerConnected` żeby zdecydować:
+    /// **resume** (existing record) vs **create** (new). Recovery dla scenariusza
+    /// gdy peer wybiega poza BLE range > grace period — wraca jako fresh `.connected`
+    /// event ale to ten sam athlete.
+    ///
+    /// Returns: `athleteId` jeśli istnieje, nil jeśli ten deviceID nigdy nie był w tej sesji.
+    var findAthlete: @Sendable (_ classSessionId: UUID, _ deviceID: UUID) async throws -> UUID?
+
+    /// Wznawia athletę po reconnect — clear `leftAt = nil`. Zachowuje istniejące
+    /// `hrSamplesData` BLOB; następne `appendHRSamples` doda nowe samples do
+    /// istniejących. Total kcal liczone z delta cumulative `activeEnergy` (Watch
+    /// nie resetuje liczników przy BLE disconnect), więc final kcal poprawne
+    /// niezależnie od gap'ów w BLE.
+    var resumeAthlete: @Sendable (_ athleteId: UUID) async throws -> Void
+
     /// Append `[HRSample]` do BLOB `hrSamplesData`. Read existing → decode →
     /// append → encode → upsert. Wywoływane co 30s przez timer effect.
     var appendHRSamples: @Sendable (_ athleteId: UUID, _ samples: [HRSample]) async throws -> Void
@@ -113,18 +129,18 @@ private enum GymClassClientKey: DependencyKey {
             },
 
             deleteTemplate: { id in
-                // Cascade delete w jednej transakcji: usunięcie template'a kasuje też
-                // wszystkie powiązane session records + athlete records. Bez tego —
-                // orphan'ed past sessions zostaną w History tab bez działającego back-link.
-                // Wymóg z user feedback dla wersji 0.1: "usuń wszystko z athlete data".
+                /// Cascade delete w jednej transakcji: usunięcie template'a kasuje też
+                /// wszystkie powiązane session records + athlete records. Bez tego —
+                /// orphan'ed past sessions zostaną w History tab bez działającego back-link.
+                /// Wymóg z user feedback dla wersji 0.1: "usuń wszystko z athlete data".
                 try await database.write { db in
-                    // 1. Find wszystkie classSessionRecords dla tego template'a.
+                    /// 1. Find wszystkie classSessionRecords dla tego template'a.
                     let sessions = try ClassSessionRecord
                         .where { $0.gymClassId.eq(id) }
                         .fetchAll(db)
                     let sessionIds = sessions.map { $0.id }
 
-                    // 2. Delete wszystkie athleteSessionRecords FK do tych sessions.
+                    /// 2. Delete wszystkie athleteSessionRecords FK do tych sessions.
                     if !sessionIds.isEmpty {
                         try AthleteSessionRecord
                             .where { $0.classSessionId.in(sessionIds) }
@@ -132,13 +148,13 @@ private enum GymClassClientKey: DependencyKey {
                             .execute(db)
                     }
 
-                    // 3. Delete wszystkie classSessionRecords dla template'a.
+                    /// 3. Delete wszystkie classSessionRecords dla template'a.
                     try ClassSessionRecord
                         .where { $0.gymClassId.eq(id) }
                         .delete()
                         .execute(db)
 
-                    // 4. Finally delete sam template.
+                    /// 4. Finally delete sam template.
                     try GymClassRecord
                         .find(id)
                         .delete()
@@ -178,7 +194,7 @@ private enum GymClassClientKey: DependencyKey {
                 let encoder = JSONEncoder()
                 let decoder = JSONDecoder()
                 try await database.write { db in
-                    // 1. Set endedAt na session'ie (read existing → build draft z modifications).
+                    /// 1. Set endedAt na session'ie (read existing → build draft z modifications).
                     let existingSession = try ClassSessionRecord
                         .where { $0.id.eq(sessionId) }
                         .fetchOne(db)
@@ -196,8 +212,8 @@ private enum GymClassClientKey: DependencyKey {
                     )
                     try ClassSessionRecord.upsert { sessionDraft }.execute(db)
 
-                    // 2. Finalize wszystkich ongoing athletes (leftAt == nil).
-                    // Compute analytics z BLOB samples + set leftAt = endedAt klasy.
+                    /// 2. Finalize wszystkich ongoing athletes (leftAt == nil).
+                    /// Compute analytics z BLOB samples + set leftAt = endedAt klasy.
                     let athletes = try AthleteSessionRecord
                         .where { $0.classSessionId.eq(sessionId) }
                         .fetchAll(db)
@@ -231,16 +247,16 @@ private enum GymClassClientKey: DependencyKey {
             },
 
             deleteSession: { sessionId in
-                // Cascade delete pojedynczej sesji — atomically usuń athletes + session.
-                // Template zostaje (multi-session re-use pattern).
+                /// Cascade delete pojedynczej sesji — atomically usuń athletes + session.
+                /// Template zostaje (multi-session re-use pattern).
                 try await database.write { db in
-                    // 1. Delete athleteSessionRecords FK do tej sesji.
+                    /// 1. Delete athleteSessionRecords FK do tej sesji.
                     try AthleteSessionRecord
                         .where { $0.classSessionId.eq(sessionId) }
                         .delete()
                         .execute(db)
 
-                    // 2. Delete session record.
+                    /// 2. Delete session record.
                     try ClassSessionRecord
                         .find(sessionId)
                         .delete()
@@ -280,6 +296,42 @@ private enum GymClassClientKey: DependencyKey {
                     try AthleteSessionRecord.upsert { draft }.execute(db)
                 }
                 return id
+            },
+
+            findAthlete: { classSessionId, deviceID in
+                try await database.read { db in
+                    try AthleteSessionRecord
+                        .where { $0.classSessionId.eq(classSessionId) && $0.deviceID.eq(deviceID) }
+                        .fetchOne(db)?
+                        .id
+                }
+            },
+
+            resumeAthlete: { athleteId in
+                @Dependency(\.date.now) var now
+                try await database.write { db in
+                    let fetched = try AthleteSessionRecord
+                        .where { $0.id.eq(athleteId) }
+                        .fetchOne(db)
+                    guard let athlete = fetched else { return }
+                    /// Clear leftAt — athlete znowu active po reconnect. Zachowujemy
+                    /// istniejące hrSamplesData + aggregatedStatsData; następne
+                    /// appendHRSamples dorzuci nowe samples do istniejącego BLOB'u.
+                    let draft = AthleteSessionRecord.Draft(
+                        id: athlete.id,
+                        classSessionId: athlete.classSessionId,
+                        deviceID: athlete.deviceID,
+                        nick: athlete.nick,
+                        maxHR: athlete.maxHR,
+                        hrSamplesData: athlete.hrSamplesData,
+                        aggregatedStatsData: athlete.aggregatedStatsData,
+                        joinedAt: athlete.joinedAt,
+                        leftAt: nil,
+                        createdAt: athlete.createdAt,
+                        updatedAt: now
+                    )
+                    try AthleteSessionRecord.upsert { draft }.execute(db)
+                }
             },
 
             appendHRSamples: { athleteId, newSamples in
@@ -324,8 +376,8 @@ private enum GymClassClientKey: DependencyKey {
                         .fetchOne(db)
                     guard let athlete = fetched else { return }
 
-                    // Idempotent: jeśli już final (leftAt != nil — np. `endSession`
-                    // sfinalizował przed nami), skip.
+                    /// Idempotent: jeśli już final (leftAt != nil — np. `endSession`
+                    /// sfinalizował przed nami), skip.
                     guard athlete.leftAt == nil else { return }
 
                     let samples = (try? decoder.decode([HRSample].self, from: athlete.hrSamplesData)) ?? []
@@ -367,6 +419,8 @@ private enum GymClassClientKey: DependencyKey {
             deleteSession: unimplemented("GymClassClient.deleteSession"),
             fetchAthletesForSession: unimplemented("GymClassClient.fetchAthletesForSession", placeholder: []),
             addAthlete: unimplemented("GymClassClient.addAthlete", placeholder: UUID()),
+            findAthlete: unimplemented("GymClassClient.findAthlete", placeholder: nil),
+            resumeAthlete: unimplemented("GymClassClient.resumeAthlete"),
             appendHRSamples: unimplemented("GymClassClient.appendHRSamples"),
             endAthlete: unimplemented("GymClassClient.endAthlete")
         )
