@@ -137,7 +137,7 @@ struct ClassHistoryFeature {
 
             case .alert(.presented(.confirmDelete)):
                 guard let session = state.sessionToDelete else { return .none }
-                // Optimistic remove ze state + cascade delete w bazie.
+                /// Optimistic remove ze state + cascade delete w bazie.
                 state.sessions.removeAll { $0.id == session.id }
                 state.sessionToDelete = nil
                 return .run { _ in
@@ -150,7 +150,7 @@ struct ClassHistoryFeature {
                 guard let session = state.sessionToEnd else { return .none }
                 let endedAt = Date()
                 state.sessionToEnd = nil
-                // Force-end + refetch (ClassSessionRecord ma let'y, najprościej refresh listy).
+                /// Force-end + refetch (ClassSessionRecord ma let'y, najprościej refresh listy).
                 return .run { send in
                     try await gymClassClient.endSession(session.id, endedAt)
                     let sessions = try await gymClassClient.fetchAllSessions()
@@ -165,8 +165,8 @@ struct ClassHistoryFeature {
                 return .none
 
             case let .detail(.presented(.delegate(.sessionDeleted(id)))):
-                // Detail child skasował sesję z menu ellipsis. Cascade delete już
-                // wykonany w child (gymClassClient). Pop detail + remove ze state.sessions.
+                /// Detail child skasował sesję z menu ellipsis. Cascade delete już
+                /// wykonany w child (gymClassClient). Pop detail + remove ze state.sessions.
                 state.detail = nil
                 state.sessions.removeAll { $0.id == id }
                 return .none

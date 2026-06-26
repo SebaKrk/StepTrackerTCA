@@ -89,7 +89,7 @@ private struct AthletePhaseProfile {
     static func preset(_ index: Int) -> AthletePhaseProfile {
         switch index % 4 {
         case 0:
-            // Beast mode — wysoki HR wszędzie, duże swings. ~390 kcal / klasa.
+            /// Beast mode — wysoki HR wszędzie, duże swings. ~390 kcal / klasa.
             return AthletePhaseProfile(
                 warmup:   PhaseBand(mean: 115, variance: 10),
                 wod1:     PhaseBand(mean: 180, variance: 14),
@@ -97,7 +97,7 @@ private struct AthletePhaseProfile {
                 cooldown: PhaseBand(mean: 130, variance: 12)
             )
         case 1:
-            // Standard intensity — średnie HR, umiarkowane swings. ~320 kcal / klasa.
+            /// Standard intensity — średnie HR, umiarkowane swings. ~320 kcal / klasa.
             return AthletePhaseProfile(
                 warmup:   PhaseBand(mean: 100, variance: 6),
                 wod1:     PhaseBand(mean: 155, variance: 10),
@@ -105,7 +105,7 @@ private struct AthletePhaseProfile {
                 cooldown: PhaseBand(mean: 105, variance: 8)
             )
         case 2:
-            // Beginner — niski HR, mała wariancja (jeszcze nie umie wycisnąć z siebie max). ~220 kcal.
+            /// Beginner — niski HR, mała wariancja (jeszcze nie umie wycisnąć z siebie max). ~220 kcal.
             return AthletePhaseProfile(
                 warmup:   PhaseBand(mean: 82,  variance: 5),
                 wod1:     PhaseBand(mean: 120, variance: 7),
@@ -113,7 +113,7 @@ private struct AthletePhaseProfile {
                 cooldown: PhaseBand(mean: 88,  variance: 5)
             )
         default:
-            // Cardio queen — stabilny średni HR, świetny szybki cooldown. ~280 kcal.
+            /// Cardio queen — stabilny średni HR, świetny szybki cooldown. ~280 kcal.
             return AthletePhaseProfile(
                 warmup:   PhaseBand(mean: 95,  variance: 4),
                 wod1:     PhaseBand(mean: 140, variance: 6),

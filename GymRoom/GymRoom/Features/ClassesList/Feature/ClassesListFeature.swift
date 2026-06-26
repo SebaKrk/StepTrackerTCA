@@ -53,14 +53,14 @@ struct ClassesListFeature {
                 return .none
 
             case let .view(.classDeleteTapped(gymClass)):
-                // Swipe-to-delete NIE kasuje od razu — present alert z confirmation
-                // (cascade delete kasuje też wszystkie past sessions + athlete records).
+                /// Swipe-to-delete NIE kasuje od razu — present alert z confirmation
+                /// (cascade delete kasuje też wszystkie past sessions + athlete records).
                 state.classToDelete = gymClass
                 state.alert = .deleteClass(gymClass.name)
                 return .none
 
             case .alert(.presented(.confirmDelete)):
-                // User potwierdził → optimistic remove ze state + cascade delete w bazie.
+                /// User potwierdził → optimistic remove ze state + cascade delete w bazie.
                 guard let gymClass = state.classToDelete else { return .none }
                 state.classes.remove(id: gymClass.id)
                 state.classToDelete = nil
@@ -71,12 +71,12 @@ struct ClassesListFeature {
                 }
 
             case .alert(.dismiss), .alert:
-                // Cancel lub dismiss alert'u — wyczyść snapshot, nic nie kasuj.
+                /// Cancel lub dismiss alert'u — wyczyść snapshot, nic nie kasuj.
                 state.classToDelete = nil
                 return .none
 
             case let .destination(.presented(.create(.delegate(.classCreated(newClass))))):
-                // Optimistic append + async save. Sheet zamykany przez parent (TCA dismiss).
+                /// Optimistic append + async save. Sheet zamykany przez parent (TCA dismiss).
                 state.classes.append(newClass)
                 state.destination = nil
                 return .run { _ in
@@ -84,7 +84,7 @@ struct ClassesListFeature {
                 }
 
             case let .destination(.presented(.detail(.delegate(.startLiveClass(gymClass))))):
-                // Pop detail + open fullScreenCover z context (name + location dla header).
+                /// Pop detail + open fullScreenCover z context (name + location dla header).
                 state.destination = nil
                 state.liveClass = LiveClassFeature.State(
                     gymClassId: gymClass.id,
@@ -95,15 +95,15 @@ struct ClassesListFeature {
                 return .none
 
             case let .destination(.presented(.detail(.delegate(.classDeleted(id))))):
-                // User skasował template z menu w ClassDetailView. Cascade delete już
-                // wykonany w child (gymClassClient). Tu: optimistic remove ze state.classes
-                // + pop detail. Następny `viewDidAppear` re-fetch potwierdzi zgodność z DB.
+                /// User skasował template z menu w ClassDetailView. Cascade delete już
+                /// wykonany w child (gymClassClient). Tu: optimistic remove ze state.classes
+                /// + pop detail. Następny `viewDidAppear` re-fetch potwierdzi zgodność z DB.
                 state.classes.remove(id: id)
                 state.destination = nil
                 return .none
 
             case .liveClass(.presented(.delegate(.classEnded))):
-                // Live class skończona — close cover. Klasa **zostaje** w liście (template).
+                /// Live class skończona — close cover. Klasa **zostaje** w liście (template).
                 state.liveClass = nil
                 return .none
 
