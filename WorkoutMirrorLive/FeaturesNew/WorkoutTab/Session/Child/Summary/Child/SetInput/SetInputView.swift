@@ -206,8 +206,10 @@ struct SetInputView: View {
         numberField(
             placeholder: unitPlaceholder(exercise),
             text: Binding(
-                get: { exercise.actualReps ?? "" },
-                set: { send(.updateExerciseReps(exerciseIndex: exerciseIndex, $0)) }
+                get: { store.exercises[exerciseIndex].actualReps ?? "" },
+                set: { newText in
+                    store.exercises[exerciseIndex].actualReps = newText.isEmpty ? nil : newText
+                }
             )
         )
     }
@@ -216,8 +218,10 @@ struct SetInputView: View {
         numberField(
             placeholder: "kg",
             text: Binding(
-                get: { exercise.actualWeight.map { "\(Int($0))" } ?? "" },
-                set: { send(.updateExerciseWeight(exerciseIndex: exerciseIndex, $0)) }
+                get: { store.exercises[exerciseIndex].actualWeight.map { "\(Int($0))" } ?? "" },
+                set: { newText in
+                    store.exercises[exerciseIndex].actualWeight = Double(newText)
+                }
             ),
             keyboard: .decimalPad
         )
@@ -276,8 +280,14 @@ struct SetInputView: View {
         numberField(
             placeholder: String(localized: "Reps"),
             text: Binding(
-                get: { "\(entry.reps)" },
-                set: { send(.updateSetReps(exerciseIndex: exerciseIndex, setIndex: setIndex, $0)) }
+                get: {
+                    guard let sets = store.exercises[exerciseIndex].sets,
+                          setIndex < sets.count else { return "" }
+                    return "\(sets[setIndex].reps)"
+                },
+                set: { newText in
+                    store.exercises[exerciseIndex].sets?[setIndex].reps = Int(newText) ?? 0
+                }
             ),
             keyboard: .numberPad
         )
@@ -287,8 +297,14 @@ struct SetInputView: View {
         numberField(
             placeholder: "kg",
             text: Binding(
-                get: { entry.weight.map { "\(Int($0))" } ?? "" },
-                set: { send(.updateSetWeight(exerciseIndex: exerciseIndex, setIndex: setIndex, $0)) }
+                get: {
+                    guard let sets = store.exercises[exerciseIndex].sets,
+                          setIndex < sets.count else { return "" }
+                    return sets[setIndex].weight.map { "\(Int($0))" } ?? ""
+                },
+                set: { newText in
+                    store.exercises[exerciseIndex].sets?[setIndex].weight = Double(newText)
+                }
             ),
             keyboard: .decimalPad
         )

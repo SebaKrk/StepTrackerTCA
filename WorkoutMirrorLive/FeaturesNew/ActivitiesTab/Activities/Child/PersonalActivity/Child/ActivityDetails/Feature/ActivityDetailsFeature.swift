@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import SharedModels
 import SwiftUI
 import HealthKit
@@ -14,10 +15,12 @@ import CoreLocation
 
 @Reducer
 struct ActivityDetailsFeature {
-    
+
     // MARK: - Dependency
-    
+
     @Dependency(\.activityClient) var activityClient
+    @Dependency(\.healthStore) var healthStore
+    @Dependency(\.trainingSessionClient) var trainingSessionClient
     
     // MARK: - Reducer
     
@@ -92,7 +95,7 @@ struct ActivityDetailsFeature {
             case .internal(.loadLocationData):
                 let workout = state.workout
                 state.isLoadingLocation = true
-                
+
                 return .run { send in
                     do {
                         let locations = try await activityClient.fetchWorkoutRoute(workout)
@@ -103,7 +106,34 @@ struct ActivityDetailsFeature {
                         await send(.internal(.locationDataLoaded([])))
                     }
                 }
-                
+
+                // MARK: - Manual entry
+
+            case let .internal(.manualSummaryLoaded(summary, trainingSession, hrBuffer)):
+                state.destination = .summary(.manualEntry(
+                    summary: summary,
+                    trainingSession: trainingSession,
+                    hrBuffer: hrBuffer
+                ))
+                return .none
+
+            case .internal(.manualSummaryLoadFailed):
+                // TODO: alert userowi. Na razie silent fail — TemplatePicker już dismissed.
+                return .none
+
+            case let .internal(.editScoreLoaded(summary, trainingSession, hrBuffer, existingResults)):
+                state.destination = .summary(.manualEntry(
+                    summary: summary,
+                    trainingSession: trainingSession,
+                    hrBuffer: hrBuffer,
+                    existingResults: existingResults
+                ))
+                return .none
+
+            case .internal(.editScoreLoadFailed):
+                // TODO: alert userowi. Na razie silent fail.
+                return .none
+
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
@@ -122,8 +152,64 @@ struct ActivityDetailsFeature {
             case let .view(.openMetricDetails(metric)):
                 state.destination = .metricDetail(MetricDetailFeature.State(metricType: metric))
                 return .none
-                
+
+            case .view(.linkTemplateTapped):
+                state.destination = .linkTemplate(TemplatePickerFeature.State())
+                return .none
+
+            case .view(.editExistingScoreTapped):
+                // Wyciągamy score ze state'a planScore (już załadowany z DB). Bez score'a guard
+                // returnuje — button i tak jest schowany w UI gdy loadState != .loaded.
+                guard case let .loaded(score) = state.planScore.loadState else { return .none }
+                let workout = state.workout
+                let trainingSessionId = score.trainingSessionId
+                let existingResults = score.results
+                return .run { [healthStore, trainingSessionClient] send in
+                    do {
+                        // Najpierw fetch templates — guard'ujemy że template istnieje przed
+                        // expensive HK query. Edge case: user usunął template po treningu.
+                        let templates = try await trainingSessionClient.fetchAll()
+                        guard let trainingSession = templates.first(where: { $0.id == trainingSessionId }) else {
+                            await send(.internal(.editScoreLoadFailed))
+                            return
+                        }
+                        let (summary, hrBuffer) = try await WorkoutSummaryLoader.loadComplete(
+                            for: workout,
+                            healthStore: healthStore
+                        )
+                        await send(.internal(.editScoreLoaded(
+                            summary: summary,
+                            trainingSession: trainingSession,
+                            hrBuffer: hrBuffer,
+                            existingResults: existingResults
+                        )))
+                    } catch {
+                        await send(.internal(.editScoreLoadFailed))
+                    }
+                }
+
                 // MARK: - Destination
+
+                // Manual-entry: TemplatePicker emit'uje wybrany template → ładujemy WorkoutSummary
+                // + hrBuffer z HealthKit dla istniejącego HKWorkout, potem push SummaryFeature
+                // w manual-init mode (skip checkSummary, pre-filled state).
+            case let .destination(.presented(.linkTemplate(.delegate(.didSelectTemplate(template))))):
+                let workout = state.workout
+                return .run { [healthStore] send in
+                    do {
+                        let (summary, hrBuffer) = try await WorkoutSummaryLoader.loadComplete(
+                            for: workout,
+                            healthStore: healthStore
+                        )
+                        await send(.internal(.manualSummaryLoaded(
+                            summary: summary,
+                            trainingSession: template,
+                            hrBuffer: hrBuffer
+                        )))
+                    } catch {
+                        await send(.internal(.manualSummaryLoadFailed))
+                    }
+                }
 
             case .destination:
                 return .none

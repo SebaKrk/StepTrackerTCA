@@ -511,6 +511,17 @@
         }
       }
     },
+    "%lld WOD'y" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld WOD'y"
+          }
+        }
+      }
+    },
     "%lld/%lld %@" : {
       "localizations" : {
         "en" : {
@@ -1120,6 +1131,16 @@
         }
       }
     },
+    "Błąd ładowania" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd ładowania"
+          }
+        }
+      }
+    },
     "Bluetooth Devices" : {
       "localizations" : {
         "pl" : {
@@ -1187,6 +1208,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych"
+          }
+        }
+      }
+    },
+    "Brak treningów" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak treningów"
           }
         }
       }
@@ -1783,6 +1814,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Edytuj tekst"
+          }
+        }
+      }
+    },
+    "Edytuj wynik" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj wynik"
           }
         }
       }
@@ -2692,6 +2733,16 @@
         }
       }
     },
+    "Nie udało się załadować treningów." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się załadować treningów."
+          }
+        }
+      }
+    },
     "No calories burned data available." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3171,6 +3222,17 @@
         }
       }
     },
+    "Podgląd" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podgląd"
+          }
+        }
+      }
+    },
     "Podgląd OCR" : {
       "localizations" : {
         "pl" : {
@@ -3187,6 +3249,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Podgląd treningu"
+          }
+        }
+      }
+    },
+    "Podpnij plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podpnij plan"
           }
         }
       }
@@ -3571,6 +3643,17 @@
         }
       }
     },
+    "Schładzanie" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schładzanie"
+          }
+        }
+      }
+    },
     "Score" : {
       "localizations" : {
         "pl" : {
@@ -3944,6 +4027,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Siła"
+          }
+        }
+      }
+    },
+    "Stwórz najpierw plan treningu w zakładce Plany." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stwórz najpierw plan treningu w zakładce Plany."
           }
         }
       }
@@ -4542,6 +4635,17 @@
         }
       }
     },
+    "WOD" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WOD"
+          }
+        }
+      }
+    },
     "WOD timer picker" : {
       "localizations" : {
         "pl" : {
@@ -4752,6 +4856,26 @@
         }
       }
     },
+    "Wybierz" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz"
+          }
+        }
+      }
+    },
+    "Wybierz trening" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz trening"
+          }
+        }
+      }
+    },
     "X" : {
       "localizations" : {
         "pl" : {
@@ -4858,6 +4982,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "zmień"
+          }
+        }
+      }
+    },
+    "Zwiń" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwiń"
           }
         }
       }

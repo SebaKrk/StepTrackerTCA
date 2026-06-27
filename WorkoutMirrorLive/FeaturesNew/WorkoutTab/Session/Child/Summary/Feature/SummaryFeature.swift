@@ -151,6 +151,19 @@ struct SummaryFeature {
                 // MARK: - View Action
 
             case .view(.viewDidAppear):
+                // Manual entry (z ActivityDetailsFeature): State już ma summary + trainingSession + hrBuffer.
+                // Pomijamy 10s timeout + 40-attempt poll — workout już znaleziony, dane gotowe.
+                // Jeśli resultInputs są puste (init nie pre-fill'uje ich), domapuj z trainingSession
+                // — używamy istniejącej akcji `.setTrainingSession` żeby uniknąć duplikacji logiki.
+                if state.summary != nil, let trainingSession = state.trainingSession {
+                    state.viewState = .successfullyLoaded
+                    if state.resultInputs.isEmpty {
+                        return .send(.setTrainingSession(trainingSession))
+                    }
+                    return .none
+                }
+
+                // Happy path — czekamy 10s na `.workoutSaved` z Watcha, potem fallback na poll.
                 state.summaryRetryCount = 0
                 state.viewState = .saving
                 return .run { send in

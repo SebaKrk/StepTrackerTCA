@@ -26,18 +26,6 @@ extension SetInputFeature {
         @CasePathable
         enum View {
 
-            /// User changed the reps for a simple exercise (WOD).
-            case updateExerciseReps(exerciseIndex: Int, String)
-
-            /// User changed the weight for a simple exercise (WOD).
-            case updateExerciseWeight(exerciseIndex: Int, String)
-
-            /// User changed the reps for a specific set within a Strength exercise.
-            case updateSetReps(exerciseIndex: Int, setIndex: Int, String)
-
-            /// User changed the weight for a specific set within a Strength exercise.
-            case updateSetWeight(exerciseIndex: Int, setIndex: Int, String)
-
             /// User tapped Add — save and dismiss.
             case addTapped
 
