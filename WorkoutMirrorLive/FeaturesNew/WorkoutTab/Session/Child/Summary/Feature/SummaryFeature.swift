@@ -48,7 +48,7 @@ struct SummaryFeature {
                 let isStrength = { (type: ExerciseWorkoutType) -> Bool in
                     type == .strength || type == .olympicWeightlifting
                 }
-                state.resultInputs = workouts.map { workout in
+                let results = workouts.map { workout -> WorkoutSessionResult in
                     let exercises = workout.exercises.map { exercise in
                         // For Strength/Olympic WODs → use AI-provided structured plannedSets,
                         // fallback to rounds-based default sets if AI didn't deliver them.
@@ -91,9 +91,11 @@ struct SummaryFeature {
                         exercises: exercises
                     )
                 }
-                state.showResults = Array(repeating: false, count: workouts.count)
-                state.showNotes = Array(repeating: false, count: workouts.count)
-                state.exercisesEdited = Array(repeating: false, count: workouts.count)
+                state.wodScorings = IdentifiedArrayOf(
+                    uniqueElements: results.enumerated().map { index, result in
+                        WODScoringFeature.State(wodIndex: index, result: result)
+                    }
+                )
                 return .none
 
             case .workoutSavedReceived:
@@ -151,13 +153,14 @@ struct SummaryFeature {
                 // MARK: - View Action
 
             case .view(.viewDidAppear):
-                // Manual entry (z ActivityDetailsFeature): State już ma summary + trainingSession + hrBuffer.
-                // Pomijamy 10s timeout + 40-attempt poll — workout już znaleziony, dane gotowe.
-                // Jeśli resultInputs są puste (init nie pre-fill'uje ich), domapuj z trainingSession
-                // — używamy istniejącej akcji `.setTrainingSession` żeby uniknąć duplikacji logiki.
-                if state.summary != nil, let trainingSession = state.trainingSession {
+                // Manual entry (z ActivityDetailsFeature): State pre-filled przez `manualEntry(...)`
+                // factory, `isManualEntry = true`. Pomijamy 10s timeout + 40-attempt poll —
+                // workout już istnieje w HealthKit od dawna. Jeśli `resultInputs` puste (link-new
+                // flow z `existingResults: nil`), domapuj z trainingSession — używamy istniejącej
+                // akcji `.setTrainingSession` żeby uniknąć duplikacji logiki.
+                if state.isManualEntry, let trainingSession = state.trainingSession {
                     state.viewState = .successfullyLoaded
-                    if state.resultInputs.isEmpty {
+                    if state.wodScorings.isEmpty {
                         return .send(.setTrainingSession(trainingSession))
                     }
                     return .none
@@ -182,7 +185,7 @@ struct SummaryFeature {
             case .view(.endWorkoutButtonTapped):
 
                 let trainingSession = state.trainingSession
-                let resultInputs = state.resultInputs
+                let resultInputs = state.wodScorings.map(\.result)
                 let hkWorkoutId = state.summary?.workout?.uuid
                 let hrBuffer = state.hrBuffer
                 let phaseTimestamps = state.phaseTimestamps
@@ -353,36 +356,40 @@ struct SummaryFeature {
                 return .none
 
             case let .view(.toggleResult(index)):
-                guard index < state.showResults.count else { return .none }
-                state.showResults[index].toggle()
-                if !state.showResults[index] {
-                    state.showNotes[index] = false
-                    state.resultInputs[index].scoreResult = .completed
-                    state.resultInputs[index].note = ""
+                guard var scoring = state.wodScorings[id: index] else { return .none }
+                scoring.showResults.toggle()
+                if !scoring.showResults {
+                    scoring.showNotes = false
+                    scoring.result.scoreResult = .completed
+                    scoring.result.note = ""
                 }
+                state.wodScorings[id: index] = scoring
                 return .none
 
             case let .view(.toggleNote(index)):
-                guard index < state.showNotes.count else { return .none }
-                state.showNotes[index].toggle()
-                if !state.showNotes[index] {
-                    state.resultInputs[index].note = ""
+                guard var scoring = state.wodScorings[id: index] else { return .none }
+                scoring.showNotes.toggle()
+                if !scoring.showNotes {
+                    scoring.result.note = ""
                 }
+                state.wodScorings[id: index] = scoring
                 return .none
 
             case let .view(.updateScore(index, text)):
-                guard index < state.resultInputs.count else { return .none }
-                state.resultInputs[index].scoreResult = .custom(text)
+                guard var scoring = state.wodScorings[id: index] else { return .none }
+                scoring.result.scoreResult = .custom(text)
+                state.wodScorings[id: index] = scoring
                 return .none
 
             case let .view(.updateNote(index, text)):
-                guard index < state.resultInputs.count else { return .none }
-                state.resultInputs[index].note = text
+                guard var scoring = state.wodScorings[id: index] else { return .none }
+                scoring.result.note = text
+                state.wodScorings[id: index] = scoring
                 return .none
 
             case let .view(.openSetInput(wodIndex, _)):
-                guard wodIndex < state.resultInputs.count else { return .none }
-                let result = state.resultInputs[wodIndex]
+                guard let scoring = state.wodScorings[id: wodIndex] else { return .none }
+                let result = scoring.result
 
                 let scoreText: String = {
                     if case .completed = result.scoreResult { return "" }
@@ -404,31 +411,35 @@ struct SummaryFeature {
                 return .none
 
             case let .view(.updateExerciseWeight(wodIndex, exerciseIndex, text)):
-                guard wodIndex < state.resultInputs.count,
-                      exerciseIndex < state.resultInputs[wodIndex].exercises.count
+                guard var scoring = state.wodScorings[id: wodIndex],
+                      exerciseIndex < scoring.result.exercises.count
                 else { return .none }
-                state.resultInputs[wodIndex].exercises[exerciseIndex].actualWeight = Double(text)
+                scoring.result.exercises[exerciseIndex].actualWeight = Double(text)
+                state.wodScorings[id: wodIndex] = scoring
                 return .none
 
             case let .view(.updateExerciseReps(wodIndex, exerciseIndex, text)):
-                guard wodIndex < state.resultInputs.count,
-                      exerciseIndex < state.resultInputs[wodIndex].exercises.count
+                guard var scoring = state.wodScorings[id: wodIndex],
+                      exerciseIndex < scoring.result.exercises.count
                 else { return .none }
-                state.resultInputs[wodIndex].exercises[exerciseIndex].actualReps = text.isEmpty ? nil : text
+                scoring.result.exercises[exerciseIndex].actualReps = text.isEmpty ? nil : text
+                state.wodScorings[id: wodIndex] = scoring
                 return .none
 
             case let .view(.updateExerciseScaling(wodIndex, exerciseIndex, scaling)):
-                guard wodIndex < state.resultInputs.count,
-                      exerciseIndex < state.resultInputs[wodIndex].exercises.count
+                guard var scoring = state.wodScorings[id: wodIndex],
+                      exerciseIndex < scoring.result.exercises.count
                 else { return .none }
-                state.resultInputs[wodIndex].exercises[exerciseIndex].scaling = scaling
+                scoring.result.exercises[exerciseIndex].scaling = scaling
+                state.wodScorings[id: wodIndex] = scoring
                 return .none
 
             case let .view(.toggleExercisePR(wodIndex, exerciseIndex)):
-                guard wodIndex < state.resultInputs.count,
-                      exerciseIndex < state.resultInputs[wodIndex].exercises.count
+                guard var scoring = state.wodScorings[id: wodIndex],
+                      exerciseIndex < scoring.result.exercises.count
                 else { return .none }
-                state.resultInputs[wodIndex].exercises[exerciseIndex].isPR.toggle()
+                scoring.result.exercises[exerciseIndex].isPR.toggle()
+                state.wodScorings[id: wodIndex] = scoring
                 return .none
 
             case .view(.viewDidDisappear):
@@ -444,24 +455,52 @@ struct SummaryFeature {
                 // Write back exercises + score only if user confirmed (tapped Add, not Cancel)
                 if let setInput = state.setInput, setInput.confirmed {
                     let w = setInput.wodIndex
-                    if w < state.resultInputs.count {
-                        state.resultInputs[w].exercises = setInput.exercises
+                    if var scoring = state.wodScorings[id: w] {
+                        scoring.result.exercises = setInput.exercises
                         // Parse score into typed WodScoreResult based on WOD type
-                        state.resultInputs[w].scoreResult = parseScore(
+                        scoring.result.scoreResult = parseScore(
                             text: setInput.scoreText,
                             wodType: setInput.wodType,
                             exercises: setInput.exercises
                         )
-                    }
-                    if w < state.exercisesEdited.count {
-                        state.exercisesEdited[w] = true
+                        scoring.exercisesEdited = true
+                        state.wodScorings[id: w] = scoring
                     }
                 }
                 return .none
 
             case .setInput:
                 return .none
+
+                // MARK: - WOD Scorings (child feature)
+
+                // Delegate: child WODScoring chce otworzyć SetInputSheet → parent prezentuje.
+            case let .wodScorings(.element(id: _, action: .delegate(.requestEditExercises(wodIndex)))):
+                guard let scoring = state.wodScorings[id: wodIndex] else { return .none }
+                let result = scoring.result
+                let scoreText: String = {
+                    if case .completed = result.scoreResult { return "" }
+                    return result.scoreResult.displayString
+                }()
+                let workouts = state.trainingSession?.workouts ?? []
+                let wodType = wodIndex < workouts.count ? workouts[wodIndex].type : .forTime
+                state.setInput = SetInputFeature.State(
+                    wodName: result.name,
+                    scoreText: scoreText,
+                    scorePlaceholder: "",
+                    exercises: result.exercises,
+                    wodType: wodType,
+                    wodIndex: wodIndex
+                )
+                return .none
+
+            case .wodScorings:
+                // Pozostałe akcje child'ów (binding, toggle) — child reducer obsługuje sam.
+                return .none
             }
+        }
+        .forEach(\.wodScorings, action: \.wodScorings) {
+            WODScoringFeature()
         }
         .ifLet(\.$discardAlert, action: \.alert)
         .ifLet(\.$errorAlert, action: \.errorAlert)

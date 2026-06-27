@@ -101,6 +101,7 @@ struct ActivityDetailsView: View {
                 headerTitle
                 energySection
                 heartRateSection
+                hrRangeChartSection()
                 if let distribution = store.zoneDistribution {
                     zoneDistributionSection(distribution)
                 }

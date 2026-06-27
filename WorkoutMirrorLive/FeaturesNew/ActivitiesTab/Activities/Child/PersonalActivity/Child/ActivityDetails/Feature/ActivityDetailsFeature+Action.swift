@@ -62,6 +62,12 @@ extension ActivityDetailsFeature {
 
             /// Edit-mode: ładowanie failed (TrainingSession nie istnieje, brak HR samples, etc.).
             case editScoreLoadFailed
+
+            /// Triggers fetch HR samples z HealthKit + bucketing do `[HRMinuteRange]`.
+            case loadHRMinuteRanges
+
+            /// HR samples załadowane i pogrupowane po minutach — zasilenie range BarMark chart'u.
+            case hrMinuteRangesLoaded([HRMinuteRange])
         }
         
         case view(View)
@@ -86,6 +92,10 @@ extension ActivityDetailsFeature {
             /// i pushuje SummaryFeature w edit mode z pre-filled resultInputs.
             /// Dostępne tylko gdy `planScore.loadState == .loaded(score)` (workout ma już zapisany plan).
             case editExistingScoreTapped
+
+            /// User scrub'nął HR range chart — `chartXSelection` zwraca wybraną minutę (lub `nil` przy
+            /// deselect tap-poza). Zasila RuleMark + annotation z BPM range tej minuty.
+            case minuteSelected(Date?)
         }
         
         // MARK: - Plan Score

@@ -107,6 +107,30 @@ struct ActivityDetailsFeature {
                     }
                 }
 
+            case .internal(.loadHRMinuteRanges):
+                let workout = state.workout
+                return .run { [healthStore] send in
+                    do {
+                        let samples = try await WorkoutSummaryLoader.heartRateSamples(
+                            for: workout,
+                            healthStore: healthStore
+                        )
+                        // Tuple → HRSample (activeEnergy nie potrzebne dla aggregation, daje 0).
+                        let hrSamples = samples.map {
+                            HRSample(timestamp: $0.date, bpm: Int($0.bpm.rounded()), activeEnergy: 0)
+                        }
+                        let ranges = HRSample.minuteRanges(from: hrSamples)
+                        await send(.internal(.hrMinuteRangesLoaded(ranges)))
+                    } catch {
+                        // Silent fail — brak HR samples (np. indoor bez Watcha) = chart hidden.
+                        await send(.internal(.hrMinuteRangesLoaded([])))
+                    }
+                }
+
+            case let .internal(.hrMinuteRangesLoaded(ranges)):
+                state.hrMinuteRanges = ranges
+                return .none
+
                 // MARK: - Manual entry
 
             case let .internal(.manualSummaryLoaded(summary, trainingSession, hrBuffer)):
@@ -143,6 +167,7 @@ struct ActivityDetailsFeature {
                     .send(.internal(.loadZoneDistribution)),
                     .send(.internal(.loadMetrics)),
                     .send(.internal(.loadLocationData)),
+                    .send(.internal(.loadHRMinuteRanges)),
                     .send(.planScore(.fetchScore))
                 )
                 
@@ -155,6 +180,10 @@ struct ActivityDetailsFeature {
 
             case .view(.linkTemplateTapped):
                 state.destination = .linkTemplate(TemplatePickerFeature.State())
+                return .none
+
+            case let .view(.minuteSelected(date)):
+                state.selectedMinute = date
                 return .none
 
             case .view(.editExistingScoreTapped):

@@ -26,18 +26,14 @@ extension SummaryFeature {
         /// `nil` for free workouts (no plan selected).
         var trainingSession: TrainingSession? = nil
 
-        /// Editable WOD results — one per workout in the plan.
-        /// Built from `trainingSession.workouts` when the plan is set.
-        var resultInputs: [WorkoutSessionResult] = []
-
-        /// UI flags — whether the result section is expanded per WOD index.
-        var showResults: [Bool] = []
-
-        /// UI flags — whether note input is expanded per WOD index.
-        var showNotes: [Bool] = []
-
-        /// UI flags — whether exercises were edited via sheet per WOD index.
-        var exercisesEdited: [Bool] = []
+        /// WOD scoring child features — jedno per workout w planie. Każdy element zarządza
+        /// własnym `WorkoutSessionResult` (score, note, exercises) + UI toggle flags
+        /// (showResults, showNotes, exercisesEdited).
+        ///
+        /// **Refactor IOS-00096-B**: zastępuje 4 paralelne arrays (`resultInputs` +
+        /// `showResults` + `showNotes` + `exercisesEdited`) jednym `IdentifiedArrayOf` —
+        /// eliminuje drift index'ów + cascading re-renders gdy zmienia się pojedyncze pole.
+        var wodScorings: IdentifiedArrayOf<WODScoringFeature.State> = []
 
         /// Counts how many times checkSummary has been attempted (for debug logging).
         var summaryRetryCount: Int = 0
@@ -63,6 +59,12 @@ extension SummaryFeature {
         /// True while delete operation is in flight. Drives Discard button → ProgressView swap.
         /// Guards against double-tap and gives user visual feedback during ~300ms re-fetch + delete.
         var isDiscarding: Bool = false
+
+        /// True gdy SummaryFeature otwarty przez **manual entry** z History (Podpnij plan / Edytuj wynik).
+        /// Workout już istnieje w HealthKit od dawna — Discard button = katastrofa (kasuje HKWorkout).
+        /// Ten flag ukrywa Discard z toolbar'a + reducer'owi `.viewDidAppear` pomija polling/timeout.
+        /// Ustawiany przez `manualEntry(...)` factory, false dla happy path Watch-primary.
+        var isManualEntry: Bool = false
 
         // MARK: - Alerts
 
@@ -106,12 +108,13 @@ extension SummaryFeature.State {
         state.hrBuffer = hrBuffer
         state.phaseTimestamps = phaseTimestamps
         state.viewState = .successfullyLoaded
+        state.isManualEntry = true
         if let existingResults {
-            state.resultInputs = existingResults
-            let count = existingResults.count
-            state.showResults = Array(repeating: false, count: count)
-            state.showNotes = Array(repeating: false, count: count)
-            state.exercisesEdited = Array(repeating: false, count: count)
+            state.wodScorings = IdentifiedArrayOf(
+                uniqueElements: existingResults.enumerated().map { index, result in
+                    WODScoringFeature.State(wodIndex: index, result: result)
+                }
+            )
         }
         return state
     }
