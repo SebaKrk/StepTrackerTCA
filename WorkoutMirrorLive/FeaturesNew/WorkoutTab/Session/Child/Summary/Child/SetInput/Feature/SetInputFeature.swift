@@ -24,36 +24,11 @@ struct SetInputFeature {
             switch action {
 
             case .binding:
-                return .none
-
-            // MARK: - Simple exercise (WOD)
-
-            case let .view(.updateExerciseReps(exerciseIndex, text)):
-                guard exerciseIndex < state.exercises.count else { return .none }
-                state.exercises[exerciseIndex].actualReps = text.isEmpty ? nil : text
-                return .none
-
-            case let .view(.updateExerciseWeight(exerciseIndex, text)):
-                guard exerciseIndex < state.exercises.count else { return .none }
-                state.exercises[exerciseIndex].actualWeight = Double(text)
-                return .none
-
-            // MARK: - Per-set (Strength)
-
-            case let .view(.updateSetReps(exerciseIndex, setIndex, text)):
-                guard exerciseIndex < state.exercises.count,
-                      let sets = state.exercises[exerciseIndex].sets,
-                      setIndex < sets.count
-                else { return .none }
-                state.exercises[exerciseIndex].sets?[setIndex].reps = Int(text) ?? 0
-                return .none
-
-            case let .view(.updateSetWeight(exerciseIndex, setIndex, text)):
-                guard exerciseIndex < state.exercises.count,
-                      let sets = state.exercises[exerciseIndex].sets,
-                      setIndex < sets.count
-                else { return .none }
-                state.exercises[exerciseIndex].sets?[setIndex].weight = Double(text)
+                // TextField'y dla reps/weight (simple + per-set) bind'ują się BEZPOŚREDNIO
+                // do `store.exercises[i].actualReps/actualWeight/sets[].reps/weight` przez
+                // `@Bindable` w View → BindingReducer obsługuje mutacje synchronicznie.
+                // To zapobiega ifLet warning'owi: gdy sheet dismissie, SwiftUI invalidate'uje
+                // bindingi (NIE wysyła pending updates jako presentation actions).
                 return .none
 
             // MARK: - Confirm / Cancel

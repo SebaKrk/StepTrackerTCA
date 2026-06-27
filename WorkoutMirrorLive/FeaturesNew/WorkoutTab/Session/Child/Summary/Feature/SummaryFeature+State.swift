@@ -75,3 +75,44 @@ extension SummaryFeature {
     }
 
 }
+
+extension SummaryFeature.State {
+
+    /// Manual entry factory — używany z `ActivityDetailsFeature` gdy user re-attache'uje plan
+    /// do istniejącego HKWorkout (escape hatch dla failed `.saving → .summary` flow).
+    /// Buduje pre-filled State: `summary` + `trainingSession` + `hrBuffer`, ustawia
+    /// `viewState = .successfullyLoaded`. Reducer w `.viewDidAppear` widzi pre-filled state
+    /// i pomija poll/timeout.
+    ///
+    /// Static factory (nie init) — żeby NIE blokować auto-generated member-wise init'a
+    /// (`SummaryFeature.State(viewState:)`) używanego w previews i happy path
+    /// (`SessionFeature.State.summary = .init()`).
+    ///
+    /// **`existingResults`**:
+    /// - `nil` (link-new flow) → `.viewDidAppear` zmapuje świeże `resultInputs` z template'a
+    ///   (puste wyniki do wpisania).
+    /// - non-nil (edit flow) → factory ustawia `resultInputs` na zapisane wyniki, `.viewDidAppear`
+    ///   pomija remapping. User widzi UI z wypełnionymi polami i może je edytować.
+    static func manualEntry(
+        summary: WorkoutSummary,
+        trainingSession: TrainingSession,
+        hrBuffer: [(date: Date, bpm: Double)],
+        phaseTimestamps: [(name: String, start: Date, end: Date?)] = [],
+        existingResults: [WorkoutSessionResult]? = nil
+    ) -> Self {
+        var state = Self()
+        state.summary = summary
+        state.trainingSession = trainingSession
+        state.hrBuffer = hrBuffer
+        state.phaseTimestamps = phaseTimestamps
+        state.viewState = .successfullyLoaded
+        if let existingResults {
+            state.resultInputs = existingResults
+            let count = existingResults.count
+            state.showResults = Array(repeating: false, count: count)
+            state.showNotes = Array(repeating: false, count: count)
+            state.exercisesEdited = Array(repeating: false, count: count)
+        }
+        return state
+    }
+}

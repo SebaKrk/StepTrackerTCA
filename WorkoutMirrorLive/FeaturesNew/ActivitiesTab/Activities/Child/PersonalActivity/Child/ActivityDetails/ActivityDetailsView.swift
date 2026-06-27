@@ -25,6 +25,7 @@ struct ActivityDetailsView: View {
             .padding([.leading, .trailing], 8)
             .navigationTitle(navigationTitleText)
             .background(LinearGradient(colors: [store.color.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+            .toolbar { linkTemplateToolbarItem }
             .onAppear {
                 send(.viewDidAppear)
             }
@@ -34,6 +35,60 @@ struct ActivityDetailsView: View {
                     action: \.destination.metricDetail)) { store in
                         MetricDetailView(store: store)
                     }
+            .sheet(
+                item: $store.scope(
+                    state: \.destination?.linkTemplate,
+                    action: \.destination.linkTemplate)) { store in
+                        TemplatePickerView(store: store)
+                    }
+            .fullScreenCover(
+                item: $store.scope(
+                    state: \.destination?.summary,
+                    action: \.destination.summary)) { store in
+                        NavigationStack {
+                            SummaryView(store: store)
+                        }
+                    }
+    }
+
+    // MARK: - Link Template Toolbar Item
+
+    /// Toolbar button:
+    /// - "Podpnij plan" gdy workout nie ma podpiętego planu (`loadState == .notFound`)
+    ///   — escape hatch dla nieudanego `.saving → .summary` flow.
+    /// - "Edytuj wynik" gdy workout ma już podpięty plan (`loadState == .loaded(_)`)
+    ///   — pre-fill SummaryView istniejącymi wynikami, user może modyfikować.
+    /// Loading/failed → button schowany.
+    @ToolbarContentBuilder
+    private var linkTemplateToolbarItem: some ToolbarContent {
+        switch store.planScore.loadState {
+        case .notFound:
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.linkTemplateTapped)
+                } label: {
+                    Text(linkTemplateButtonTitle)
+                }
+            }
+        case .loaded:
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    send(.editExistingScoreTapped)
+                } label: {
+                    Text(editScoreButtonTitle)
+                }
+            }
+        case .loading, .failed:
+            ToolbarItem(placement: .topBarTrailing) { EmptyView() }
+        }
+    }
+
+    private var linkTemplateButtonTitle: String {
+        String(localized: "Podpnij plan")
+    }
+
+    private var editScoreButtonTitle: String {
+        String(localized: "Edytuj wynik")
     }
     
     private var navigationTitleText: String {

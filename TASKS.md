@@ -928,3 +928,16 @@
     D: GymRoomFileLogger — actor singleton, plik `ipad_gymroom_log_<timestamp>.txt` per sesja, eksport do Files.app (UIFileSharingEnabled + LSSupportsOpeningDocumentsInPlace w Info.plist). Logi: join/handshake/resume/suspend/reconnect/leave/end.
     E: Force-end ongoing sessions z History — swipe action "Zakończ zajęcia" gdy `endedAt == nil` (workaround dla sesji których iPad nie zamknął cleanly). + ViewState (.loading/.success/.failed) dla ClassesList i ClassHistory.
     F: Charts polish — combined chart Y-axis `includesZero: false` (tighter range), per-athlete insufficient data placeholders (5-min threshold) z różnymi SF Symbols per chart type.
+
+### IOS-00095 Workout post-mortem — manual link plan & enter results
+    - branch: `dev/IOS-00095/IOS-00095`
+
+    Escape hatch z History dla scenariusza gdy live `.saving → .summary` flow zawiódł (np. WC reachability=false po endWorkout). User otwiera workout z History i ręcznie podpina plan + wpisuje wyniki — identyczne zachowanie jak happy path (ten sam `SummaryFeature`, te same writes do `WorkoutPlanScoreRecord` + `ExerciseLogRecord`). Brak nowej migration — model już ma `WorkoutSessionResult.note` (per-WOD) i `ExerciseLog.note` (per-exercise).
+
+    A: SummaryFeature manual init — `State.manualEntry(summary:trainingSession:hrBuffer:phaseTimestamps:existingResults:)` static factory. Reducer `.viewDidAppear` guarduje `.checkSummary` gdy state pre-filled (skip 10s timeout + 40-attempt poll). Backward-compat z happy path: `init()` zachowany, member-wise auto-init dla previews działa.
+    B: WorkoutSummaryLoader (HealthHub) — bezstanowa utility, mapuje `HKWorkout → WorkoutSummary` + fetch'uje `[(date: Date, bpm: Double)]` HR samples z HealthKit dla `workout.startDate...endDate`. Jedno query (samples), average HR liczone w Swift z `samples.map(\.bpm).reduce(0,+) / count`.
+    C: TemplatePickerFeature — nowa feature wybór `TrainingSession`. Sheet z listą template'ów (Liquid Glass cards jak PlansView). Tap karty → sheet z `WorkoutDetailContent` (shared component, bez Edit/Start/History). Toolbar "Wybierz" emit `.delegate(.didSelectTemplate)`. `@ViewAction` pattern.
+    D: Entry point w ActivityDetailsFeature — toolbar "Podpnij plan" (gdy `planScore.loadState == .notFound`). Po wyborze template'a: `WorkoutSummaryLoader.loadComplete` ładuje summary+hrBuffer → push SummaryFeature w manual-init mode.
+    E: Edit mode — toolbar "Edytuj wynik" (gdy `planScore.loadState == .loaded(score)`). Pre-fill `SummaryFeature.State.resultInputs` z `score.results` przez `existingResults: [WorkoutSessionResult]?` param w manual init. Reducer `.viewDidAppear` skip remappingu z template'a gdy resultInputs non-empty.
+    F: SetInputFeature TextField fix — bonus: usunięty ifLet warning dla `.setInput(.presented(.view(.updateExerciseWeight)))`. Migracja 4 TextField'ów z `Binding(get:set:)` + `send(.updateXxx)` na direct mutation `store.exercises[i].X = ...` przez BindingReducer. Usunięte 4 view actions z Action enum (no longer needed).
+    G: Code review fixes (post-merge polish) — `WorkoutSummaryLoader.loadComplete` zwraca tuple `(summary, hrBuffer)` jednym HK query'em (-50ms latency vs 2× round-trip). TemplatePicker migrated na `@ViewAction` pattern (compile-time enforcement view ≠ delegate/internal actions). PL localization sweep dla nowych stringów.
