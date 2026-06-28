@@ -39,6 +39,15 @@ extension ActivityDetailsFeature {
         
         /// Whether the zone distribution section is expanded.
         var isExpandZone: Bool = false
+
+        /// Per-minute HR aggregation (min/max BPM) — dane dla range BarMark chart'u stref
+        /// pokazywanego nad rozwijalnym `zoneDistributionSection`. Ładowane on-appear z
+        /// HealthKit przez `WorkoutSummaryLoader.heartRateSamples` + bucketing 60s.
+        var hrMinuteRanges: [HRMinuteRange] = []
+
+        /// Wybrana minuta na HR range chart'cie (`chartXSelection`). `nil` = brak selekcji.
+        /// Selection wzbudza RuleMark + annotation z BPM range na danej minucie.
+        var selectedMinute: Date?
         
         // MARK: - Performance Metrics
         

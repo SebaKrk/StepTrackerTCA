@@ -941,3 +941,16 @@
     E: Edit mode — toolbar "Edytuj wynik" (gdy `planScore.loadState == .loaded(score)`). Pre-fill `SummaryFeature.State.resultInputs` z `score.results` przez `existingResults: [WorkoutSessionResult]?` param w manual init. Reducer `.viewDidAppear` skip remappingu z template'a gdy resultInputs non-empty.
     F: SetInputFeature TextField fix — bonus: usunięty ifLet warning dla `.setInput(.presented(.view(.updateExerciseWeight)))`. Migracja 4 TextField'ów z `Binding(get:set:)` + `send(.updateXxx)` na direct mutation `store.exercises[i].X = ...` przez BindingReducer. Usunięte 4 view actions z Action enum (no longer needed).
     G: Code review fixes (post-merge polish) — `WorkoutSummaryLoader.loadComplete` zwraca tuple `(summary, hrBuffer)` jednym HK query'em (-50ms latency vs 2× round-trip). TemplatePicker migrated na `@ViewAction` pattern (compile-time enforcement view ≠ delegate/internal actions). PL localization sweep dla nowych stringów.
+    H: Data loss prevention w manual entry — `isManualEntry` flag, Discard ukryty (kasował HKWorkout), Cancel button w toolbar.
+    I: HR range chart w ActivityDetailsView — sekcja "Tętno minuta po minucie" z range bars + gradient color per HR zone + long-press scrub.
+    J: TemplatePicker UX polish — Plans-style card layout, sheet preview używa `WorkoutDetailContent`, accessibilityLabel, divider.
+
+### IOS-00096 SummaryView decomposition — WODScoringFeature child + view extract
+    - branch: `dev/IOS-00095/IOS-00095` (kontynuacja, sugerowany osobny PR)
+
+    Refactor monolithic `SummaryView` (880 linii) i `SummaryFeature.State` (4 paralelne arrays). Decomposition: WOD scoring jako TCA child feature + extract loading/toolbar/previews do osobnych plików. Po refactor SummaryView ~635 linii (-245), reszta w 3 extension plikach.
+
+    A: WODScoringFeature foundation — child feature per-WOD: `State { wodIndex, result, showResults, showNotes, exercisesEdited }` + BindableAction + delegate `requestEditExercises`. Stand-alone testowalna.
+    B: SummaryFeature refactor — 4 paralelne arrays (`resultInputs/showResults/showNotes/exercisesEdited`) → jeden `IdentifiedArrayOf<WODScoringFeature.State>`. `forEach` scope + delegate handling.
+    C: SummaryView call sites adapt — `store.X[i]` → `store.wodScorings[id: i]?.Y`. 15 touchpointów, ForEach przez wodScorings.
+    D: View extract — `SummaryView+Toolbar.swift`, `+LoadingStates.swift`, `+Previews.swift` jako osobne extension files.

@@ -47,65 +47,9 @@ struct SummaryView: View {
         }
     }
     
-    // MARK: - Saving
+    // MARK: - Loading States
 
-    private var savingView: some View {
-        VStack(spacing: 12) {
-            Spacer()
-            ProgressView()
-                .controlSize(.large)
-            Text(String(localized: "Saving workout..."))
-                .font(.headline)
-            Text(String(localized: "Waiting for Apple Watch"))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
-        }
-        .transition(.opacity)
-    }
-
-    // MARK: - Loading
-
-    private var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView(String(localized: "Loading summary..."))
-            Spacer()
-        }
-        .transition(.opacity)
-    }
-    
-    // MARK: - Failed
-
-    private var failedView: some View {
-        ContentUnavailableView {
-            Label(String(localized: "Could not load summary"), systemImage: "exclamationmark.triangle")
-        } description: {
-            VStack(spacing: 8) {
-                Text("Something went wrong while saving your workout.")
-                #if DEBUG
-                Text(store.failureDebugInfo)
-                    .font(.caption2.monospaced())
-                    .foregroundStyle(.tertiary)
-                    .multilineTextAlignment(.center)
-                #endif
-            }
-        } actions: {
-            closeButton
-        }
-    }
-
-    private var closeButton: some View {
-        Button {
-            send(.closeButtonTapped)
-        } label: {
-            Text(String(localized: "Close"))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 16)
-        }
-        .buttonStyle(.bordered)
-        .tint(.gray)
-    }
+    // `savingView` / `loadingView` / `failedView` wydzielone do `SummaryView+LoadingStates.swift`
 
     // MARK: - Summary
     
@@ -134,7 +78,7 @@ struct SummaryView: View {
                         headerCard(workout: workout)
                         metricsGrid(workout: workout)
                     }
-                    if !store.resultInputs.isEmpty {
+                    if !store.wodScorings.isEmpty {
                         wodResultsSection
                     }
                 }
@@ -292,8 +236,8 @@ struct SummaryView: View {
     private var wodResultsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             resultsHeader
-            ForEach(Array(store.resultInputs.enumerated()), id: \.offset) { index, result in
-                resultCard(at: index, result: result)
+            ForEach(store.wodScorings) { scoring in
+                resultCard(at: scoring.wodIndex, result: scoring.result)
             }
         }
     }
@@ -316,7 +260,7 @@ struct SummaryView: View {
 
     @ViewBuilder
     private func resultCardContent(at index: Int, parsed: ParsedWodDescription) -> some View {
-        if index < store.showResults.count && store.showResults[index] {
+        if store.wodScorings[id: index]?.showResults == true {
             VStack(spacing: 0) {
                 resultDescriptionSection(parsed: parsed)
                 resultExercisesSection(at: index)
@@ -338,9 +282,9 @@ struct SummaryView: View {
 
     @ViewBuilder
     private func resultExercisesSection(at index: Int) -> some View {
-        if !store.resultInputs[index].exercises.isEmpty {
+        if let scoring = store.wodScorings[id: index], !scoring.result.exercises.isEmpty {
             Divider().padding(.leading)
-            if index < store.exercisesEdited.count && store.exercisesEdited[index] {
+            if scoring.exercisesEdited {
                 exerciseResultsTable(wodIndex: index)
             } else {
                 editExercisesButton(wodIndex: index)
@@ -351,7 +295,7 @@ struct SummaryView: View {
     @ViewBuilder
     private func resultNoteSection(at index: Int) -> some View {
         Divider().padding(.leading)
-        if index < store.showNotes.count && store.showNotes[index] {
+        if store.wodScorings[id: index]?.showNotes == true {
             resultNoteTextField(at: index)
         } else {
             editorRow {
@@ -365,7 +309,7 @@ struct SummaryView: View {
 
     private func resultNoteTextField(at index: Int) -> some View {
         TextField(String(localized: "Add note..."), text: Binding(
-            get: { store.resultInputs[index].note },
+            get: { store.wodScorings[id: index]?.result.note ?? "" },
             set: { send(.updateNote(index, $0)) }
         ), axis: .vertical)
         .lineLimit(1...4)
@@ -393,7 +337,7 @@ struct SummaryView: View {
 
     private func resultToggle(at index: Int) -> some View {
         Toggle("", isOn: Binding(
-            get: { index < store.showResults.count && store.showResults[index] },
+            get: { store.wodScorings[id: index]?.showResults ?? false },
             set: { _ in send(.toggleResult(index)) }
         ))
         .labelsHidden()
@@ -409,7 +353,7 @@ struct SummaryView: View {
                 .foregroundStyle(.secondary)
             TextField(scorePlaceholder(for: index), text: Binding(
                 get: {
-                    let score = store.resultInputs[index].scoreResult
+                    guard let score = store.wodScorings[id: index]?.result.scoreResult else { return "" }
                     if case .completed = score { return "" }
                     return score.displayString
                 },
@@ -425,7 +369,7 @@ struct SummaryView: View {
 
     /// Context-aware placeholder for the score field based on WOD type.
     private func scorePlaceholder(for index: Int) -> String {
-        let result = store.resultInputs[index]
+        guard let result = store.wodScorings[id: index]?.result else { return "" }
         let hasStrengthSets = result.exercises.contains { $0.sets != nil }
 
         if hasStrengthSets {
@@ -475,28 +419,31 @@ struct SummaryView: View {
 
     // MARK: - Exercise Input Row
 
+    @ViewBuilder
     private func exerciseInputRow(wodIndex: Int, exerciseIndex: Int) -> some View {
-        let exercise = store.resultInputs[wodIndex].exercises[exerciseIndex]
+        if let scoring = store.wodScorings[id: wodIndex],
+           exerciseIndex < scoring.result.exercises.count {
+            let exercise = scoring.result.exercises[exerciseIndex]
+            Button {
+                send(.openSetInput(wodIndex: wodIndex, exerciseIndex: exerciseIndex))
+            } label: {
+                GroupBox {
+                    VStack(alignment: .leading, spacing: 6) {
+                        exerciseHeader(exercise: exercise)
 
-        return Button {
-            send(.openSetInput(wodIndex: wodIndex, exerciseIndex: exerciseIndex))
-        } label: {
-            GroupBox {
-                VStack(alignment: .leading, spacing: 6) {
-                    exerciseHeader(exercise: exercise)
+                        if let reps = exercise.plannedReps {
+                            Text(String(localized: "Plan: \(reps)"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
 
-                    if let reps = exercise.plannedReps {
-                        Text(String(localized: "Plan: \(reps)"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        exerciseValueSummary(exercise: exercise)
                     }
-
-                    exerciseValueSummary(exercise: exercise)
                 }
+                .styledGroupBox()
             }
-            .styledGroupBox()
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Exercise Header
@@ -593,7 +540,9 @@ struct SummaryView: View {
 
     /// Button that opens the set input sheet.
     private func logSetsButton(wodIndex: Int, exerciseIndex: Int) -> some View {
-        let hasData = store.resultInputs[wodIndex].exercises[exerciseIndex].sets?.contains { $0.weight != nil } ?? false
+        let exercises = store.wodScorings[id: wodIndex]?.result.exercises ?? []
+        let hasData = exerciseIndex < exercises.count
+            && (exercises[exerciseIndex].sets?.contains { $0.weight != nil } ?? false)
 
         return Button {
             send(.openSetInput(wodIndex: wodIndex, exerciseIndex: exerciseIndex))
@@ -609,29 +558,31 @@ struct SummaryView: View {
     // MARK: - Exercise Results Table (read-only markdown, after edit)
 
     /// Read-only markdown table showing entered exercise data. Tappable to re-edit.
+    @ViewBuilder
     private func exerciseResultsTable(wodIndex: Int) -> some View {
-        let result = store.resultInputs[wodIndex]
-        return Button {
-            send(.openSetInput(wodIndex: wodIndex, exerciseIndex: 0))
-        } label: {
-            VStack(alignment: .leading, spacing: 8) {
-                if case .completed = result.scoreResult {} else {
-                    HStack {
-                        Text(String(localized: "Score:"))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text(result.scoreResult.displayString)
-                            .font(.subheadline.weight(.semibold))
+        if let result = store.wodScorings[id: wodIndex]?.result {
+            Button {
+                send(.openSetInput(wodIndex: wodIndex, exerciseIndex: 0))
+            } label: {
+                VStack(alignment: .leading, spacing: 8) {
+                    if case .completed = result.scoreResult {} else {
+                        HStack {
+                            Text(String(localized: "Score:"))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Text(result.scoreResult.displayString)
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .padding(.horizontal, 4)
                     }
-                    .padding(.horizontal, 4)
+                    StructuredText(markdown: result.exercises.markdownTable())
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                StructuredText(markdown: store.resultInputs[wodIndex].exercises.markdownTable())
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 8)
             }
-            .padding(.horizontal, 4)
-            .padding(.vertical, 8)
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Description rendering
@@ -679,233 +630,6 @@ struct SummaryView: View {
 
     // MARK: - Toolbar
 
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
-            discardButton
-            Spacer()
-            saveButton
-        }
-    }
-
-    private var discardButton: some View {
-        Button {
-            send(.discardWorkoutButtonTapped)
-        } label: {
-            if store.isDiscarding {
-                ProgressView()
-                    .controlSize(.small)
-                    .tint(.red)
-            } else {
-                Text(String(localized: "Discard"))
-                    .foregroundStyle(.red)
-            }
-        }
-        .disabled(store.isDiscarding)
-    }
-
-    private var saveButton: some View {
-        Button {
-            send(.endWorkoutButtonTapped)
-        } label: {
-            Text(String(localized: "Save"))
-                .fontWeight(.semibold)
-        }
-    }
+    // `toolbarContent` + buttons (cancel/discard/save) wydzielone do `SummaryView+Toolbar.swift`
 }
 
-// MARK: - Preview
-
-#Preview("failed") {
-    var state = SummaryFeature.State(viewState: .failed)
-    state.summaryRetryCount = 20
-    state.failureDebugInfo = "mode: watchPrimary, workout: nil, attempts: 20, metrics: WorkoutMetrics(avg: 145, hr: 0, energy: 520)"
-    return SummaryView(store: Store(initialState: state) {
-        SummaryFeature()
-    } withDependencies: {
-        $0.sessionClient.getWorkoutSummary = {
-            await withCheckedContinuation { (_: CheckedContinuation<WorkoutSummary, Never>) in }
-        }
-    })
-}
-
-#Preview("saving") {
-    SummaryView(store: Store(initialState: SummaryFeature.State(), reducer: {
-        SummaryFeature()
-    }))
-}
-
-#Preview("loading") {
-    SummaryView(store: Store(initialState: SummaryFeature.State(viewState: .loading), reducer: {
-        SummaryFeature()
-    }))
-}
-
-#Preview("loaded — short") {
-    let summary = WorkoutSummary.previewWorkoutSummary()
-    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-    state.summary = summary
-    return NavigationStack {
-        SummaryView(store: Store(initialState: state) {
-            SummaryFeature()
-        } withDependencies: {
-            $0.sessionClient.getWorkoutSummary = { summary }
-        })
-    }
-}
-
-#Preview("loaded — long (2h+)") {
-    let end = Date()
-    let start = end.addingTimeInterval(-7890) // 2h 11m 30s
-    let workout = HKWorkout(activityType: .crossTraining, start: start, end: end)
-    let summary = WorkoutSummary(
-        workout: workout,
-        metrics: WorkoutMetrics(averageHeartRate: 155, heartRate: 178, activeEnergy: 1240)
-    )
-    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-    state.summary = summary
-    return NavigationStack {
-        SummaryView(store: Store(initialState: state) {
-            SummaryFeature()
-        } withDependencies: {
-            $0.sessionClient.getWorkoutSummary = { summary }
-        })
-    }
-}
-
-#Preview("Monday — AMRAP + Strength") {
-    let workout = HKWorkout(activityType: .crossTraining, start: Date().addingTimeInterval(-3600), end: Date())
-    let summary = WorkoutSummary(workout: workout, metrics: WorkoutMetrics(averageHeartRate: 155, heartRate: 172, activeEnergy: 580))
-    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-    state.summary = summary
-    state.resultInputs = [
-        WorkoutSessionResult(
-            name: "WOD",
-            description: "AMRAP 25': 3 Ring Muscle-ups or 9 Pull-ups, 8 Thrusters @50/35kg, 17 Cal Row",
-            scoreResult: .amrap(rounds: 6, extraReps: 14),
-            exercises: [
-                ExerciseLogInput(
-                    exerciseType: .pullUps,
-                    category: .gymnastics,
-                    target: .reps(9),
-                    plannedReps: "9",
-                    actualReps: "9"
-                ),
-                ExerciseLogInput(
-                    exerciseType: .thrusters,
-                    category: .olympicLifting,
-                    target: .reps(8),
-                    plannedReps: "8",
-                    plannedWeight: 50,
-                    actualWeight: 50,
-                    actualReps: "8"
-                ),
-                ExerciseLogInput(
-                    exerciseType: .rowing,
-                    category: .cardio,
-                    target: .calories(17),
-                    plannedReps: "17 cal",
-                    actualReps: "17"
-                ),
-            ]
-        ),
-        WorkoutSessionResult(
-            name: "Strength",
-            description: "5 sets for load: 10 Close-Grip Bench Press",
-            scoreResult: .forLoad(weight: 60),
-            exercises: [
-                ExerciseLogInput(
-                    exerciseType: .benchPress,
-                    category: .strength,
-                    target: .reps(10),
-                    plannedReps: "10-10-10-10-10",
-                    sets: [
-                        SetEntry(reps: 10, weight: 40),
-                        SetEntry(reps: 10, weight: 45),
-                        SetEntry(reps: 10, weight: 50),
-                        SetEntry(reps: 10, weight: 55),
-                        SetEntry(reps: 10, weight: 60),
-                    ]
-                ),
-            ]
-        ),
-    ]
-    state.showResults = [true, true]
-    state.showNotes = [false, false]
-    return NavigationStack {
-        SummaryView(store: Store(initialState: state) {
-            EmptyReducer()
-        })
-    }
-}
-
-#Preview("CrossFit — FOR TIME") {
-    let workout = HKWorkout(activityType: .crossTraining, start: Date().addingTimeInterval(-2400), end: Date())
-    let summary = WorkoutSummary(workout: workout, metrics: WorkoutMetrics(averageHeartRate: 165, heartRate: 178, activeEnergy: 620))
-    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-    state.summary = summary
-    state.resultInputs = [
-        WorkoutSessionResult(
-            name: "WOD 1",
-            description: "FOR TIME TC 15': 21-15-9 Thrusters 43/30kg + Burpees + T2B",
-            scoreResult: .forTime(time: 872),
-            exercises: [
-                ExerciseLogInput(exerciseType: .thrusters, category: .olympicLifting, plannedReps: "21-15-9", plannedWeight: 43, actualWeight: 43, actualReps: "21-15-9", isPR: true),
-                ExerciseLogInput(exerciseType: .burpees, category: .mixed, plannedReps: "21-15-9", actualReps: "21-15-9"),
-                ExerciseLogInput(exerciseType: .toesToBar, category: .gymnastics, plannedReps: "21-15-9", actualReps: "21-15-9"),
-            ]
-        ),
-        WorkoutSessionResult(
-            name: "WOD 2",
-            description: "FOR TIME: 50 Wall Balls 9kg + 30 Box Jumps + 20 C&J 60/40kg",
-            scoreResult: .timeCap(capSeconds: 900, remainingReps: 12),
-            exercises: [
-                ExerciseLogInput(exerciseType: .wallBalls, category: .mixed, plannedReps: "50", plannedWeight: 9, actualWeight: 9, actualReps: "50"),
-                ExerciseLogInput(exerciseType: .boxJumps, category: .mixed, plannedReps: "30", actualReps: "30"),
-                ExerciseLogInput(exerciseType: .cleanAndJerk, category: .olympicLifting, plannedReps: "20", plannedWeight: 60, actualWeight: 60, actualReps: "8", scaling: .rx),
-            ]
-        ),
-    ]
-    state.showResults = [true, true]
-    state.showNotes = [false, false]
-    return NavigationStack {
-        SummaryView(store: Store(initialState: state) {
-            EmptyReducer()
-        })
-    }
-}
-
-#Preview("CrossFit — AMRAP + EMOM") {
-    let workout = HKWorkout(activityType: .crossTraining, start: Date().addingTimeInterval(-3000), end: Date())
-    let summary = WorkoutSummary(workout: workout, metrics: WorkoutMetrics(averageHeartRate: 158, heartRate: 172, activeEnergy: 550))
-    var state = SummaryFeature.State(viewState: .successfullyLoaded)
-    state.summary = summary
-    state.resultInputs = [
-        WorkoutSessionResult(
-            name: "EMOM 10'",
-            description: "EMOM 10min: 3 Power Clean 70/50kg + 6 Push-ups",
-            scoreResult: .completed,
-            exercises: [
-                ExerciseLogInput(exerciseType: .powerClean, category: .olympicLifting, plannedReps: "3 per min", plannedWeight: 70, actualWeight: 70, actualReps: "3 per min"),
-                ExerciseLogInput(exerciseType: .pushUps, category: .gymnastics, plannedReps: "6 per min", actualReps: "6 per min"),
-            ]
-        ),
-        WorkoutSessionResult(
-            name: "WOD",
-            description: "AMRAP 15': 5 HSPU, 10 KB Swing 24/16kg, 15 Cal Row",
-            scoreResult: .amrap(rounds: 6, extraReps: 8),
-            exercises: [
-                ExerciseLogInput(exerciseType: .handstandPushUps, category: .gymnastics, plannedReps: "5", actualReps: "5"),
-                ExerciseLogInput(exerciseType: .kettlebellSwing, category: .strength, plannedReps: "10", plannedWeight: 24, actualWeight: 24, actualReps: "10"),
-                ExerciseLogInput(exerciseType: .rowing, category: .cardio, plannedReps: "15 cal", actualReps: "15 cal"),
-            ]
-        ),
-    ]
-    state.showResults = [true, true]
-    state.showNotes = [false, false]
-    return NavigationStack {
-        SummaryView(store: Store(initialState: state) {
-            EmptyReducer()
-        })
-    }
-}

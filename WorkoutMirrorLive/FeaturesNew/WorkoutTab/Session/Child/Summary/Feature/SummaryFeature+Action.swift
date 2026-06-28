@@ -77,7 +77,8 @@ extension SummaryFeature {
             /// Updates the note text for the given WOD index.
             case updateNote(Int, String)
 
-            /// Opens the set input sheet for a specific exercise.
+            /// Opens the set input sheet for a specific exercise (legacy entry — child feature
+            /// `WODScoringFeature` emit'uje `requestEditExercises` delegate który parent łapie).
             case openSetInput(wodIndex: Int, exerciseIndex: Int)
 
             /// Updates the actual weight text for a specific exercise within a WOD.
@@ -92,6 +93,12 @@ extension SummaryFeature {
             /// Toggles the PR flag for a specific exercise within a WOD.
             case toggleExercisePR(wodIndex: Int, exerciseIndex: Int)
         }
+
+        // MARK: - WOD Scorings (child feature actions)
+
+        /// Forwarded actions from per-WOD `WODScoringFeature` child stores. Includes binding
+        /// updates (scoreText, note), toggle expand actions, and delegate.requestEditExercises.
+        case wodScorings(IdentifiedActionOf<WODScoringFeature>)
 
         // MARK: - Set Input
 
