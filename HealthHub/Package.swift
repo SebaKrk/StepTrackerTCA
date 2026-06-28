@@ -16,10 +16,12 @@ let package = Package(
     dependencies: [
         .package(path: "../Commons"),
         .package(path: "../SharedModels"),
+        .package(path: "../AppDatabase"),
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture.git",
             from: "1.26.0"
         ),
+        .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
     ],
     targets: [
         .target(
@@ -27,7 +29,9 @@ let package = Package(
             dependencies: [
                 "Commons",
                 "SharedModels",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+                "AppDatabase",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "SQLiteData", package: "sqlite-data")
             ]
         )
     ]

@@ -32,6 +32,12 @@ public final class DefaultHeartRateCalculator: HeartRateCalculator, @unchecked S
         case .nes:
             return NesFormula()
 
+        case .tanaka:
+            return TanakaFormula()
+
+        case .gulati:
+            return GulatiFormula()
+
         case .fairbarn:
             switch biologicalSex {
             case .male:
@@ -43,7 +49,7 @@ public final class DefaultHeartRateCalculator: HeartRateCalculator, @unchecked S
             }
 
         case .classic:
-            return FairbarnUnknownFormula()
+            return ClassicFormula()
         }
     }
 }

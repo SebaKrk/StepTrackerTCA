@@ -954,3 +954,16 @@
     B: SummaryFeature refactor — 4 paralelne arrays (`resultInputs/showResults/showNotes/exercisesEdited`) → jeden `IdentifiedArrayOf<WODScoringFeature.State>`. `forEach` scope + delegate handling.
     C: SummaryView call sites adapt — `store.X[i]` → `store.wodScorings[id: i]?.Y`. 15 touchpointów, ForEach przez wodScorings.
     D: View extract — `SummaryView+Toolbar.swift`, `+LoadingStates.swift`, `+Previews.swift` jako osobne extension files.
+
+### IOS-00097 HR formula picker — user-selectable maxHR formula + per-workout snapshot freeze
+    - branch: `dev/IOS-00097/IOS-00097`
+
+    Previously hardcoded `.nes` for all maxHR calculations. Ticket: user selects formula in Settings (Tanaka/Nes/Gulati/Fairbarn/Classic) with preview values + descriptions. Per-workout snapshot freeze: changing the formula only affects NEW workouts; historical workouts keep the formula from their first calculation.
+
+    A: New formulas — Tanaka (208−0.7×age, modern standard), Gulati (206−0.88×age, female-calibrated), Classic as standalone struct (220−age, instead of reusing FairbarnUnknown).
+    B: HRFormulaType extend + DefaultHeartRateCalculator dispatch — 2 new cases + ClassicFormula route.
+    C: File rename — `FairbarnUknowFormula.swift` → `FairbarnUnknownFormula.swift`.
+    D: HRFormulaSettingsFeature + View — DisclosureGroup list with preview maxHR per formula + description + target audience badge. Gulati hidden for males (`isAvailable(for: BiologicalSex)`).
+    E: @Shared(.appStorage("hrFormula")) persistence + MaxHeartRateClient integration — choice persists across restarts, propagates instantly.
+    F: Snapshot freeze — `WorkoutHRSnapshotRecord` + migration v8 + `WorkoutHRSnapshotClient` + `MaxHeartRateClient.forWorkout` refactor (fetchOrCreate). CloudKit sync via CloudKitSyncable.
+    G: PersonSettings entry — "Formula maxHR" row shows current value, tap → push picker. PL localization sweep for "Tętno i aktywność" section.

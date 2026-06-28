@@ -230,6 +230,31 @@ extension DependencyValues {
             .execute(db)
         }
 
+        // Per-workout HR formula freeze snapshot (IOS-00097-F).
+        // Snapshot table stores maxHR + formula z momentu pierwszej kalkulacji per HKWorkout.
+        // Freeze zachowuje stare wartości gdy user zmieni formułę w Settings.
+        migrator.registerMigration("v8_workoutHRSnapshot") { db in
+            try #sql("""
+                CREATE TABLE "workoutHRSnapshotRecords" (
+                  "id"                     TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "hkWorkoutId"            TEXT NOT NULL,
+                  "maxHR"                  REAL NOT NULL,
+                  "formulaRawValue"        TEXT NOT NULL,
+                  "ageAtWorkout"           INTEGER NOT NULL,
+                  "biologicalSexRawValue"  TEXT NOT NULL,
+                  "createdAt"              TEXT NOT NULL,
+                  "updatedAt"              TEXT NOT NULL,
+                  "ckRecordData"           BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE UNIQUE INDEX "index_workoutHRSnapshotRecords_on_hkWorkoutId"
+                ON "workoutHRSnapshotRecords"("hkWorkoutId")
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

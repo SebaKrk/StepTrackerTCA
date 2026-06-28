@@ -40,14 +40,28 @@ public enum MaxHeartRateClientKey: DependencyKey {
     public static let liveValue: MaxHeartRateClient = {
         @Dependency(\.personalDataManager) var personalDataManager
         @Dependency(\.heartRateCalculator) var heartRateCalculator
+        @Dependency(\.workoutHRSnapshotClient) var snapshotClient
         @Dependency(\.calendar) var calendar
+        @Dependency(\.uuid) var uuid
 
-        // Single point of truth for which formula the whole app uses.
-        // Change this constant to switch every consumer (settings, workouts, analytics).
-        let formula: HRFormulaType = .nes
-
+        // User's choice persisted via `@Shared(.appStorage)` w `HRFormulaSettingsFeature`.
+        // Default `.tanaka` — modern statistical standard (Apple Health baseline).
+        //
+        // `@Shared` declared **wewnątrz** każdej closure — Swift 6 strict concurrency wymóg.
+        //
+        // ✅ **Snapshot freeze (IOS-00097-F)**: `forWorkout` najpierw sprawdza istniejący
+        //    snapshot per HKWorkout. Jeśli istnieje → cached value (formuła z momentu pierwszej
+        //    kalkulacji). Jeśli brak → liczy z current `@Shared` formula + zapisuje snapshot.
+        //    Konsekwencja: zmiana formuły w Settings NIE zmienia historycznych workout'ów.
         return MaxHeartRateClient(
             forWorkout: { workout in
+                // Step 1: try cached snapshot (per-workout freeze).
+                if let snapshot = try? await snapshotClient.fetchByHKWorkoutId(workout.uuid) {
+                    return snapshot.maxHR
+                }
+
+                // Step 2: brak snapshot'u — compute z current formula + persist.
+                @Shared(.appStorage("hrFormula")) var formula: HRFormulaType = .tanaka
                 guard let birthDate = try? await personalDataManager.getBirthDate() else {
                     return 190
                 }
@@ -58,14 +72,29 @@ public enum MaxHeartRateClientKey: DependencyKey {
                 ).year ?? 30
                 let age = max(years, 0)
                 let sex = (try? await personalDataManager.getBiologicalSex()) ?? .unknown
-                return Double(heartRateCalculator.calculateMaxHeartRate(
+                let maxHR = Double(heartRateCalculator.calculateMaxHeartRate(
                     age: age,
                     biologicalSex: sex,
                     formula: formula
                 ))
+
+                // Step 3: save snapshot — następne wywołania dla tego workout'u
+                // zwrócą cached value, niezależnie od późniejszej zmiany formuły.
+                let snapshot = WorkoutHRSnapshot(
+                    id: uuid(),
+                    hkWorkoutId: workout.uuid,
+                    maxHR: maxHR,
+                    formulaRawValue: formula.rawValue,
+                    ageAtWorkout: age,
+                    biologicalSex: sex
+                )
+                try? await snapshotClient.save(snapshot)
+                return maxHR
             },
             fromAge: { age, sex in
-                Double(heartRateCalculator.calculateMaxHeartRate(
+                // Settings preview — używa current formula bez snapshot'u (nie dotyczy workout'u).
+                @Shared(.appStorage("hrFormula")) var formula: HRFormulaType = .tanaka
+                return Double(heartRateCalculator.calculateMaxHeartRate(
                     age: age,
                     biologicalSex: sex,
                     formula: formula

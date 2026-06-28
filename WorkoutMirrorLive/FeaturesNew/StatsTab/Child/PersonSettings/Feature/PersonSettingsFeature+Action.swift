@@ -60,6 +60,9 @@ extension PersonSettingsFeature {
 
             /// Action triggered when edit profile row is tapped
             case editProfileTapped
+
+            /// Action triggered when HR formula settings row is tapped — opens picker.
+            case hrFormulaTapped
         }
         
         // MARK: - Destination

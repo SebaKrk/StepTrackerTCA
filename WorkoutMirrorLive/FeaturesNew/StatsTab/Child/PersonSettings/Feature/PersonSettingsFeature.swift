@@ -115,6 +115,10 @@ struct PersonSettingsFeature {
                 )
                 return .none
 
+            case .view(.hrFormulaTapped):
+                state.destination = .hrFormulaSettings(HRFormulaSettingsFeature.State())
+                return .none
+
             case .destination(.presented(.apiKey(.delegate(.keySaved)))):
                 state.destination = nil
                 return .none
