@@ -450,6 +450,7 @@ struct ActivityDetailsView: View {
             timeInZoneLabel
             timeInZoneValue
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(4)
     }
 
