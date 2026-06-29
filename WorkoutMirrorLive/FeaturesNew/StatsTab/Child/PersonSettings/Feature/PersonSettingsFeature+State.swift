@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import SharedModels
 
 /// Implementation of `PersonSettingsFeature` state
@@ -21,6 +22,12 @@ extension PersonSettingsFeature {
         
         @Shared(.appStorage(.subscriptionTier))
         var subscriptionTier: SubscriptionTier = .basic
+
+        /// User'owy wybór formuły obliczania maxHR — persisted w UserDefaults pod kluczem
+        /// "hrFormula". Czytane w PersonSettingsView żeby pokazać current value obok labelka
+        /// "Formuła maxHR". Zmiana w `HRFormulaSettingsView` propaguje się natychmiast.
+        @Shared(.appStorage("hrFormula"))
+        var hrFormula: HRFormulaType = .tanaka
         
         // MARK: - Properties
 

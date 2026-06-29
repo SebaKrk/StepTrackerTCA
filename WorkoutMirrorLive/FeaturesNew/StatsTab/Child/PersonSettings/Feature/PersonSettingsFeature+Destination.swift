@@ -18,6 +18,10 @@ extension PersonSettingsFeature {
 
         /// Modal for editing user profile (name, surname, nickname)
         case editProfile(PersonProfileEditFeature)
+
+        /// Heart rate formula picker — user wybiera formułę obliczania maxHR
+        /// (Nes/Tanaka/Gulati/Fairbarn/Classic) z preview values per formuła.
+        case hrFormulaSettings(HRFormulaSettingsFeature)
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import HealthKit
 import IssueReporting
 import SharedModels
@@ -19,6 +20,7 @@ struct SummaryFeature {
     @Dependency(\.sessionClient) var client
     @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
     @Dependency(\.exerciseLogClient) var exerciseLogClient
+    @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.dismiss) var dismiss
 
     // MARK: - Reducer
@@ -187,11 +189,12 @@ struct SummaryFeature {
                 let trainingSession = state.trainingSession
                 let resultInputs = state.wodScorings.map(\.result)
                 let hkWorkoutId = state.summary?.workout?.uuid
+                let workoutForSnapshot = state.summary?.workout
                 let hrBuffer = state.hrBuffer
                 let phaseTimestamps = state.phaseTimestamps
                 let now = Date()
 
-                return .run { [exerciseLogClient, workoutPlanScoreClient] send in
+                return .run { [exerciseLogClient, workoutPlanScoreClient, maxHeartRateClient] send in
                     // 1. Save WorkoutPlanScore (existing logic)
                     var scoreId: UUID?
                     if let session = trainingSession, let workoutId = hkWorkoutId {
@@ -306,7 +309,16 @@ struct SummaryFeature {
                         }
                     }
 
-                    // 3. Dismiss
+                    // 3. Eager HR snapshot creation (IOS-00097-F).
+                    // Snapshot freeze formuły **z dnia treningu** — niezależnie czy user
+                    // kiedykolwiek otworzy detail, formula i maxHR z momentu save'a
+                    // zachowują się na zawsze. `forWorkout` = fetchOrCreate, więc dla
+                    // workout'u który już ma snapshot (np. manual entry edit) = no-op.
+                    if let workout = workoutForSnapshot {
+                        _ = await maxHeartRateClient.forWorkout(workout)
+                    }
+
+                    // 4. Dismiss
                     await self.dismiss()
                 }
 

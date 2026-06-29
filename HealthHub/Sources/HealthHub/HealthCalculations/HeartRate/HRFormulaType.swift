@@ -19,11 +19,21 @@ public enum HRFormulaType: String, CaseIterable, Sendable, Codable {
     /// Nes 2013 (`211 - 0.64 × age`) — sex-agnostic, calibrated for active populations.
     case nes
 
+    /// Tanaka 2001 (`208 - 0.7 × age`) — sex-agnostic, modern statistical replacement
+    /// for Classic. Recommended default dla general population (Apple Health baseline).
+    case tanaka
+
+    /// Gulati 2010 (`206 - 0.88 × age`) — calibrated specifically dla **kobiet**.
+    /// Sex-agnostic implementation, ale rekomendowana primarily dla kobiet
+    /// (Classic/Tanaka overestimate ich maxHR).
+    case gulati
+
     /// Fairbarn — sex-aware general population. Selects between
     /// `FairbarnMaleFormula`, `FairbarnFemaleFormula`, or `FairbarnUnknownFormula`
     /// based on `biologicalSex`.
     case fairbarn
 
-    /// Classic (`220 - age`) — simplest baseline, sex-agnostic.
+    /// Classic (`220 - age`) — Fox & Haskell 1971, simplest baseline, sex-agnostic.
+    /// Najmniej dokładna statystycznie ale najbardziej rozpoznawalna.
     case classic
 }

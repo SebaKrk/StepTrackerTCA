@@ -435,6 +435,9 @@
         }
       }
     },
+    "%lld BPM" : {
+
+    },
     "%lld exercises" : {
 
     },
@@ -2000,6 +2003,16 @@
         }
       }
     },
+    "Formuła maxHR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formuła maxHR"
+          }
+        }
+      }
+    },
     "Frequency" : {
       "localizations" : {
         "pl" : {
@@ -2146,6 +2159,7 @@
       }
     },
     "Heart Rate & Activity" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2565,6 +2579,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szukam zajęć..."
+          }
+        }
+      }
+    },
+    "Maks. tętno" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maks. tętno"
           }
         }
       }
@@ -4127,12 +4151,32 @@
         }
       }
     },
+    "Tętno i aktywność" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno i aktywność"
+          }
+        }
+      }
+    },
     "Tętno minuta po minucie" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tętno minuta po minucie"
+          }
+        }
+      }
+    },
+    "Tętno spoczynkowe" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno spoczynkowe"
           }
         }
       }
@@ -4376,6 +4420,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "tu coś będzie"
+          }
+        }
+      }
+    },
+    "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."
           }
         }
       }
@@ -4970,6 +5024,7 @@
       }
     },
     "Your personal data is used to calculate accurate heart rate zones, calorie burn, and training recommendations. All information remains private on your device." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4998,6 +5053,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zamknij"
+          }
+        }
+      }
+    },
+    "Zmiana formuły nie wpłynie na zapisane treningi — każdy trening zachowuje formułę z momentu zapisania." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmiana formuły nie wpłynie na zapisane treningi — każdy trening zachowuje formułę z momentu zapisania."
           }
         }
       }

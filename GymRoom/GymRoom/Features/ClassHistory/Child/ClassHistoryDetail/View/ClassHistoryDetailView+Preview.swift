@@ -6,41 +6,84 @@
 //
 
 #if DEBUG
+import AppDatabase
 import ComposableArchitecture
 import Foundation
 import SharedModels
 import SwiftUI
 
-/// Helper budujący `State` z syntetycznymi 4 atletami (Seba/Anna/Marek/Kasia)
-/// dla CrossFit-style klasy (warmup + WOD1 + WOD2 + cooldown). `phaseScale: 1.0` =
-/// 30-min, `2.0` = 60-min — skaluje proporcjonalnie wszystkie 4 fazy.
-private func previewState(
+private let baseClassDuration: TimeInterval = 30 * 60
+
+/// Błąd wstrzykiwany do `fetchAthletesForSession` w preview "Failed state" —
+/// reducer złapie go w `catch` i wyśle `.fetchFailed` → `viewState = .failed`.
+private struct PreviewFetchError: Error {}
+
+// MARK: - Preview store factory
+
+/// Buduje `Store` dla preview z **nadpisanym** `gymClassClient`. Bez tego override
+/// `.task { viewDidAppear }` w View dotyka live SQLiteData (`defaultDatabase`),
+/// którego preview nie konfiguruje → crash agenta preview ("failed to load").
+///
+/// Dane płyną prawdziwą ścieżką reducera: override zwraca syntetyczne
+/// `AthleteSessionRecord` (z zakodowanymi BLOB-ami), reducer dekoduje je z powrotem
+/// na `AthleteSummary`, liczy `hrRangesByAthlete` i ustawia `.success`.
+private func previewStore(
     chartViewMode: ClassHistoryDetailFeature.ChartViewMode,
     phaseScale: Double = 1.0,
     includeAthletes: Bool = true
-) -> ClassHistoryDetailFeature.State {
+) -> StoreOf<ClassHistoryDetailFeature> {
     let classStart = Calendar.current.date(
         bySettingHour: 9, minute: 0, second: 0, of: Date()
     ) ?? Date()
-    let baseClassDuration: TimeInterval = 30 * 60
     let athletes: [AthleteSummary] = includeAthletes
         ? AthleteSummary.previewClass(classStart: classStart, phaseScale: phaseScale)
         : []
-    let ranges = Dictionary(uniqueKeysWithValues: athletes.map {
-        ($0.id, HRSample.minuteRanges(from: $0.samples))
-    })
-    return ClassHistoryDetailFeature.State(
-        sessionId: UUID(),
-        className: "CrossFit · Open Class",
-        location: "Studio A",
-        startedAt: classStart,
-        endedAt: classStart.addingTimeInterval(baseClassDuration * phaseScale),
-        viewState: .success,
-        athletes: athletes,
-        hrRangesByAthlete: ranges,
-        chartViewMode: chartViewMode
-    )
+
+    return Store(
+        initialState: ClassHistoryDetailFeature.State(
+            sessionId: UUID(),
+            className: "CrossFit · Open Class",
+            location: "Studio A",
+            startedAt: classStart,
+            endedAt: classStart.addingTimeInterval(baseClassDuration * phaseScale),
+            viewState: .loading,
+            chartViewMode: chartViewMode
+        )
+    ) {
+        ClassHistoryDetailFeature()
+    } withDependencies: {
+        $0.gymClassClient.fetchAthletesForSession = { _ in
+            athletes.map(AthleteSessionRecord.preview(from:))
+        }
+    }
 }
+
+// MARK: - AthleteSessionRecord preview factory
+
+private extension AthleteSessionRecord {
+
+    /// Koduje syntetyczny `AthleteSummary` z powrotem do persisted record (BLOB-y JSON),
+    /// tak jak production zapis. Dzięki temu preview przechodzi przez ten sam decode
+    /// w reducerze co prawdziwy fetch z bazy — zero rozjazdu z runtime'em.
+    static func preview(from summary: AthleteSummary) -> AthleteSessionRecord {
+        let encoder = JSONEncoder()
+        return AthleteSessionRecord(
+            id: summary.id,
+            classSessionId: UUID(),
+            deviceID: summary.deviceID,
+            nick: summary.nick,
+            maxHR: summary.maxHR,
+            hrSamplesData: (try? encoder.encode(summary.samples)) ?? Data(),
+            aggregatedStatsData: (try? encoder.encode(summary.analytics)) ?? Data(),
+            joinedAt: summary.joinedAt,
+            leftAt: summary.leftAt,
+            createdAt: summary.joinedAt,
+            updatedAt: summary.leftAt ?? summary.joinedAt
+        )
+    }
+}
+
+// MARK: - Previews
 
 #Preview("Loading state") {
     NavigationStack {
@@ -56,6 +99,12 @@ private func previewState(
                 )
             ) {
                 ClassHistoryDetailFeature()
+            } withDependencies: {
+                // Zawiesza fetch na zawsze → widok zostaje w `.loading`.
+                $0.gymClassClient.fetchAthletesForSession = { _ in
+                    try await Task.sleep(for: .seconds(3600))
+                    return []
+                }
             }
         )
     }
@@ -71,10 +120,15 @@ private func previewState(
                     location: "Studio A",
                     startedAt: Date(),
                     endedAt: nil,
-                    viewState: .failed
+                    viewState: .loading
                 )
             ) {
                 ClassHistoryDetailFeature()
+            } withDependencies: {
+                // Rzuca błąd → reducer `catch` → `.fetchFailed` → `.failed`.
+                $0.gymClassClient.fetchAthletesForSession = { _ in
+                    throw PreviewFetchError()
+                }
             }
         )
     }
@@ -82,41 +136,25 @@ private func previewState(
 
 #Preview("Per athlete · 30-min class") {
     NavigationStack {
-        ClassHistoryDetailView(
-            store: Store(initialState: previewState(chartViewMode: .perAthlete)) {
-                ClassHistoryDetailFeature()
-            }
-        )
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .perAthlete))
     }
 }
 
 #Preview("Per athlete · 60-min class") {
     NavigationStack {
-        ClassHistoryDetailView(
-            store: Store(initialState: previewState(chartViewMode: .perAthlete, phaseScale: 2.0)) {
-                ClassHistoryDetailFeature()
-            }
-        )
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .perAthlete, phaseScale: 2.0))
     }
 }
 
 #Preview("Combined · multi-series line") {
     NavigationStack {
-        ClassHistoryDetailView(
-            store: Store(initialState: previewState(chartViewMode: .combined)) {
-                ClassHistoryDetailFeature()
-            }
-        )
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .combined))
     }
 }
 
 #Preview("Empty class") {
     NavigationStack {
-        ClassHistoryDetailView(
-            store: Store(initialState: previewState(chartViewMode: .perAthlete, includeAthletes: false)) {
-                ClassHistoryDetailFeature()
-            }
-        )
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .perAthlete, includeAthletes: false))
     }
 }
 
@@ -125,21 +163,13 @@ private func previewState(
 /// = 30 min × 0.04 = ~72 sek (analog real-world Strength 1m 18s case).
 #Preview("Insufficient data · combined") {
     NavigationStack {
-        ClassHistoryDetailView(
-            store: Store(initialState: previewState(chartViewMode: .combined, phaseScale: 0.04)) {
-                ClassHistoryDetailFeature()
-            }
-        )
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .combined, phaseScale: 0.04))
     }
 }
 
 #Preview("Insufficient data · per athlete") {
     NavigationStack {
-        ClassHistoryDetailView(
-            store: Store(initialState: previewState(chartViewMode: .perAthlete, phaseScale: 0.04)) {
-                ClassHistoryDetailFeature()
-            }
-        )
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .perAthlete, phaseScale: 0.04))
     }
 }
 

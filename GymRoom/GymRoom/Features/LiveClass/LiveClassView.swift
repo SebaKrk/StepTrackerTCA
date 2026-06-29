@@ -5,14 +5,6 @@
 //  Created by Sebastian Sciuba on 11/06/2026.
 //
 
-
-//
-//  LiveClassView.swift
-//  WorkoutMirrorLive
-//
-//  Created by Sebastian Ściuba on 23/05/2026.
-//
-
 import ComposableArchitecture
 import Foundation
 import SharedModels
@@ -20,9 +12,9 @@ import SwiftUI
 
 @ViewAction(for: LiveClassFeature.self)
 struct LiveClassView: View {
-
+    
     @Bindable var store: StoreOf<LiveClassFeature>
-
+    
     var body: some View {
         ZStack {
             background
@@ -40,12 +32,10 @@ struct LiveClassView: View {
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         .alert($store.scope(state: \.alert, action: \.alert))
     }
-
+    
     // MARK: - Private views (struktura)
-
+    
     private var background: some View {
-        // Neutralny dark gradient (jak w tile gradient pattern, ale bez zone color):
-        // czarne u góry → ciemnoszare u dołu. Daje subtelną głębię bez akcentów kolorystycznych.
         LinearGradient(
             colors: [
                 .black,
@@ -56,11 +46,11 @@ struct LiveClassView: View {
         )
         .ignoresSafeArea()
     }
-
+    
     private var idleView: some View {
         startButton
     }
-
+    
     private var liveView: some View {
         VStack(spacing: 16) {
             header
@@ -76,7 +66,7 @@ struct LiveClassView: View {
             }
         }
     }
-
+    
     private var header: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 4) {
@@ -92,7 +82,7 @@ struct LiveClassView: View {
             endButton
         }
     }
-
+    
     private var athleteCountBadge: some View {
         HStack(spacing: 6) {
             Image(systemName: "person.3.sequence.fill")
@@ -109,12 +99,8 @@ struct LiveClassView: View {
         .padding(.vertical, 8)
         .glassEffect(in: .capsule)
     }
-
+    
     private var grid: some View {
-        // Tile fixed size ~320×213pt (3:2 aspect). Athletes dodawane kolejno z lewej-góry.
-        // Auto-fit dla dużej liczby: zwiększa cols i proporcjonalnie zmniejsza tile szerokość
-        // (zachowując aspect ratio), żeby wszystko zmieściło się w dostępnym obszarze BEZ
-        // pustych obszarów po bokach. Tile NIGDY nie urośnie ponad default size.
         GeometryReader { geo in
             let layout = computeGridLayout(
                 availableSize: geo.size,
@@ -124,7 +110,7 @@ struct LiveClassView: View {
                 repeating: GridItem(.fixed(layout.tileWidth), spacing: layout.spacing),
                 count: layout.cols
             )
-
+            
             LazyVGrid(columns: columnsDef, alignment: .leading, spacing: layout.spacing) {
                 ForEach(store.athletes) { athlete in
                     AthleteTileView(athlete: athlete, tileHeight: layout.tileHeight)
@@ -135,7 +121,7 @@ struct LiveClassView: View {
             .animation(.snappy, value: store.athletes)
         }
     }
-
+    
     /// Iteracyjnie zwiększa liczbę kolumn dopóki wszystkie rzędy nie zmieszczą się w dostępnej wysokości.
     /// Tile NIGDY nie urośnie ponad default (320×213), tylko shrinkuje gdy potrzeba.
     private func computeGridLayout(availableSize: CGSize, count: Int) -> GridLayout {
@@ -143,13 +129,13 @@ struct LiveClassView: View {
         let aspectRatio: CGFloat = 3.0 / 2.0
         let defaultTileWidth: CGFloat = 320
         let defaultTileHeight = defaultTileWidth / aspectRatio
-
+        
         var cols = max(1, Int((availableSize.width + spacing) / (defaultTileWidth + spacing)))
         var rows = Int(ceil(Double(count) / Double(cols)))
         var tileWidth = defaultTileWidth
         var tileHeight = defaultTileHeight
         var requiredHeight = tileHeight * CGFloat(rows) + spacing * CGFloat(rows - 1)
-
+        
         while requiredHeight > availableSize.height && cols < count {
             cols += 1
             rows = Int(ceil(Double(count) / Double(cols)))
@@ -157,10 +143,10 @@ struct LiveClassView: View {
             tileHeight = tileWidth / aspectRatio
             requiredHeight = tileHeight * CGFloat(rows) + spacing * CGFloat(rows - 1)
         }
-
+        
         return GridLayout(cols: cols, tileWidth: tileWidth, tileHeight: tileHeight, spacing: spacing)
     }
-
+    
     private var startButton: some View {
         Button {
             send(.startTapped)
@@ -174,7 +160,7 @@ struct LiveClassView: View {
         .buttonBorderShape(.capsule)
         .controlSize(.extraLarge)
     }
-
+    
     private var endButton: some View {
         Button(role: .destructive) {
             send(.endTapped)
@@ -187,9 +173,9 @@ struct LiveClassView: View {
         .buttonBorderShape(.capsule)
         .controlSize(.large)
     }
-
+    
     // MARK: - QR widget (corner overlay)
-
+    
     /// Pokaż QR card gdy widoczny, lub ikoniczny toggle button gdy schowany.
     /// Trener może togglować — wszystko związane z QR żyje tylko gdy `sessionToken != nil`.
     @ViewBuilder
@@ -200,7 +186,7 @@ struct LiveClassView: View {
             qrToggleButton
         }
     }
-
+    
     /// Pełen QR card z code'em + caption. Tap gdziekolwiek w kontener = schowaj QR
     /// (przejście do `qrToggleButton`). `.contentShape` rozszerza hit area na cały
     /// container włącznie z paddingami i tłem.
@@ -222,7 +208,7 @@ struct LiveClassView: View {
             send(.toggleQR)
         }
     }
-
+    
     /// Małęj ikoniczny button który pokazuje QR z powrotem.
     private var qrToggleButton: some View {
         Button {
@@ -235,34 +221,34 @@ struct LiveClassView: View {
         .buttonStyle(.glass)
         .buttonBorderShape(.capsule)
     }
-
+    
     // MARK: - Private content (implementacja)
-
+    
     private var headerTitle: String {
         store.className
     }
-
+    
     private var headerSubtitle: String {
         let liveLabel = String(localized: "LIVE", bundle: .main)
         return store.location.isEmpty ? liveLabel : "\(store.location) · \(liveLabel)"
     }
-
+    
     private var athleteCountText: String {
         String(localized: "\(store.athletes.count)/\(store.maxParticipants) athletes", bundle: .main)
     }
-
+    
     private var startTitle: String {
         String(localized: "Start class", bundle: .main)
     }
-
+    
     private var endTitle: String {
         String(localized: "End", bundle: .main)
     }
-
+    
     private var qrCaption: String {
         String(localized: "Skanuj kodem QR", bundle: .main)
     }
-
+    
     /// Buduje JSON payload dla QR z `sessionToken` + `iPadID` + `gymName` (= className) + `createdAt`.
     /// ISO-8601 daty żeby było czytelne po dekodowaniu (peer może debugować w log'u).
     /// Pusty string fallback jeśli encoding fails (rzadkie — wszystkie pola Codable).
@@ -280,7 +266,7 @@ struct LiveClassView: View {
         }
         return json
     }
-
+    
 }
 
 // MARK: - Grid Layout

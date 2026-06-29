@@ -7,6 +7,7 @@
 
 import AppDatabase
 import ComposableArchitecture
+import HealthHub
 import SharedModels
 import SwiftUI
 
@@ -39,6 +40,11 @@ struct PersonSettingsView: View {
                     item: $store.scope(state: \.destination?.editProfile, action: \.destination.editProfile)
                 ) { editStore in
                     PersonProfileEditView(store: editStore)
+                }
+                .navigationDestination(
+                    item: $store.scope(state: \.destination?.hrFormulaSettings, action: \.destination.hrFormulaSettings)
+                ) { hrStore in
+                    HRFormulaSettingsView(store: hrStore)
                 }
         }
     }
@@ -75,13 +81,13 @@ struct PersonSettingsView: View {
                 Text("Subscription Plan")
             }
             Section {
-                coreMetricsCell("Resting HR", store.restingHeartRate.map { "\(Int($0.value))" } ?? "-")
-                coreMetricsCell("Max HR", store.maxHR.map { "\($0)" } ?? "-")
-                
+                coreMetricsCell(String(localized: "Tętno spoczynkowe"), store.restingHeartRate.map { "\(Int($0.value))" } ?? "-")
+                coreMetricsCell(String(localized: "Maks. tętno"), store.maxHR.map { "\($0)" } ?? "-")
+                hrFormulaRow
             } header: {
-                Text("Heart Rate & Activity")
+                Text(String(localized: "Tętno i aktywność"))
             } footer: {
-                Text("Your personal data is used to calculate accurate heart rate zones, calorie burn, and training recommendations. All information remains private on your device.")
+                Text(String(localized: "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."))
             }
 
             Section {
@@ -117,6 +123,22 @@ struct PersonSettingsView: View {
         }
     }
     
+    private var hrFormulaRow: some View {
+        HStack {
+            Text(String(localized: "Formuła maxHR"))
+            Spacer()
+            Text(store.hrFormula.title)
+                .foregroundStyle(.secondary)
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            send(.hrFormulaTapped)
+        }
+    }
+
     private func coreMetricsCell(_ key: String, _ value: String?) -> some View {
         HStack {
             Text(key)
