@@ -125,3 +125,7 @@ iOSInjectionProject/
 # Lokalne notatki i ściągawki — nie idą do repozytorium
 SQLiteData-Cheatsheet.md
 AppDatabase/SQLiteData-Cheatsheet.md
+
+# Local development tooling — nie idą do repo
+.claude/
+PLANS/
