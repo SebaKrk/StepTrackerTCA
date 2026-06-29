@@ -92,12 +92,13 @@ The dashboard adapts to your daily recovery state. Two snapshots from the same w
   &nbsp;
   <img src="docs/screenshots/03-exercise-balance.png" width="220" alt="Exercise balance per movement category">
   &nbsp;
-  <img src="docs/screenshots/04-activity-trend.png" width="220" alt="Activity trend — weekly energy burn">
+  <img src="docs/screenshots/04-activity-trend.png" width="220" alt="Activity tile drill-down">
 </p>
 
 <p align="center">
   <em>Training volume bars (workout categories), weight trend line, exercise balance pie
-  per movement type, weekly activity trend with daily breakdown.</em>
+  per movement type, and any tile from the Today dashboard taps into its own detail
+  (right — weekly activity breakdown).</em>
 </p>
 
 #### Workout journal
@@ -135,7 +136,27 @@ gym wall.
 - **Connection robustness** — BLE peer resume on reconnect (no duplicate athletes when
   someone runs outside class range), file logging exportable through the Files app.
 
-> Screenshots coming soon.
+### Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/08-gymroom-live-class.png" width="400" alt="Gym Room live with 4 athletes">
+  &nbsp;
+  <img src="docs/screenshots/09-gymroom-live-full.png" width="400" alt="Gym Room full class with QR code">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/10-gymroom-class-combined.png" width="265" alt="HR over time — combined view">
+  &nbsp;
+  <img src="docs/screenshots/11-gymroom-class-individual.png" width="265" alt="HR over time — per athlete">
+  &nbsp;
+  <img src="docs/screenshots/12-gymroom-class-zones.png" width="265" alt="Time in zones stacked bar">
+</p>
+
+<p align="center">
+  <em>Top: live class monitoring — one tile per athlete (left) and full class with QR
+  pairing for new participants (right). Bottom: post-class analytics — combined HR
+  over time, per-athlete BarMark ranges by minute, and stacked time-in-zones.</em>
+</p>
 
 ---
 
