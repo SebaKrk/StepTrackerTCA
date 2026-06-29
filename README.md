@@ -142,23 +142,20 @@ WatchConnectivity is unreachable). The whole UI repaints to the current zone
 color so the athlete sees their intensity at a glance:
 
 <p align="center">
-  <img src="docs/screenshots/13-zone-resting.png" width="130" alt="Resting zone (38% maxHR)">
+  <img src="docs/screenshots/13-zone-resting.png" width="200" alt="Resting zone (38% maxHR)">
   &nbsp;
-  <img src="docs/screenshots/14-zone-recovery.png" width="130" alt="Recovery zone (55% maxHR)">
+  <img src="docs/screenshots/15-zone-fatburning.png" width="200" alt="Fat Burning zone (65% maxHR)">
   &nbsp;
-  <img src="docs/screenshots/15-zone-fatburning.png" width="130" alt="Fat Burning zone (65% maxHR)">
+  <img src="docs/screenshots/17-zone-threshold.png" width="200" alt="Threshold zone (85% maxHR)">
   &nbsp;
-  <img src="docs/screenshots/16-zone-aerobic.png" width="130" alt="Aerobic zone (75% maxHR)">
-  &nbsp;
-  <img src="docs/screenshots/17-zone-threshold.png" width="130" alt="Threshold zone (85% maxHR)">
-  &nbsp;
-  <img src="docs/screenshots/18-zone-anaerobic.png" width="130" alt="Anaerobic zone (95% maxHR)">
+  <img src="docs/screenshots/18-zone-anaerobic.png" width="200" alt="Anaerobic zone (95% maxHR)">
 </p>
 
 <p align="center">
-  <em>Six zones from Resting (gray, 38%) through Recovery, Fat Burning, Aerobic,
-  Threshold, up to Anaerobic (red, 95%). Live BPM, %maxHR, calories, session avg/max
-  and elapsed time — all updated per HR sample, no polling.</em>
+  <em>Four representative tiers across the full spectrum — Resting (gray, 38%),
+  Fat Burning (green, 65%), Threshold (orange, 85%) and Anaerobic (red, 95%). Live
+  BPM, %maxHR, calories, session avg/max and elapsed time — all updated per HR
+  sample, no polling.</em>
 </p>
 
 ---
