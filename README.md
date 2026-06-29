@@ -85,20 +85,36 @@ The dashboard adapts to your daily recovery state. Two snapshots from the same w
   Right: high-readiness day (full green across all metrics).</em>
 </p>
 
-#### Analytics & trends
+#### Stat drill-downs — any tile taps into a weekly detail
+
+Every metric on the Today dashboard (HRV, sleep, activity, RHR, ...) opens its own
+detail screen with a weekly chart, score points, average and an explanation of what
+the metric means and how to act on it:
 
 <p align="center">
-  <img src="docs/screenshots/02-analytics.png" width="220" alt="Analytics — volume + weight">
+  <img src="docs/screenshots/19-stat-sleep.png" width="220" alt="Sleep detail — weekly hours chart">
   &nbsp;
-  <img src="docs/screenshots/03-exercise-balance.png" width="220" alt="Exercise balance per movement category">
+  <img src="docs/screenshots/04-activity-trend.png" width="220" alt="Activity detail — weekly kcal chart">
   &nbsp;
-  <img src="docs/screenshots/04-activity-trend.png" width="220" alt="Activity tile drill-down">
+  <img src="docs/screenshots/20-stat-hrv.png" width="220" alt="HRV detail — weekly ms chart">
 </p>
 
 <p align="center">
-  <em>Training volume bars (workout categories), weight trend line, exercise balance pie
-  per movement type, and any tile from the Today dashboard taps into its own detail
-  (right — weekly activity breakdown).</em>
+  <em>Same layout per metric: current value + status + score chip on top, weekly
+  chart with average dashed line in the middle, contextual explanation on the bottom.</em>
+</p>
+
+#### Analytics & trends
+
+<p align="center">
+  <img src="docs/screenshots/02-analytics.png" width="280" alt="Analytics — volume + weight">
+  &nbsp;
+  <img src="docs/screenshots/03-exercise-balance.png" width="280" alt="Exercise balance per movement category">
+</p>
+
+<p align="center">
+  <em>Training volume bars per workout category + weight trend line (left),
+  exercise balance pie per movement type (right).</em>
 </p>
 
 #### Workout journal
@@ -115,6 +131,34 @@ The dashboard adapts to your daily recovery state. Two snapshots from the same w
   <em>Workout history list, per-workout detail with heart-rate over time (color-coded by
   zone) + zone distribution, full WOD plan with warmup / WOD / cooldown and per-exercise
   scaling.</em>
+</p>
+
+#### Live HR zones — real-time heart rate monitoring
+
+During a workout the app streams heart rate in real time from either a paired
+**BLE chest strap** (Polar H10, Wahoo TICKR, etc. via `HKLiveWorkoutDataSource`)
+or **Apple Watch** (`HKWorkoutSession` mirroring channel — reliable even when
+WatchConnectivity is unreachable). The whole UI repaints to the current zone
+color so the athlete sees their intensity at a glance:
+
+<p align="center">
+  <img src="docs/screenshots/13-zone-resting.png" width="130" alt="Resting zone (38% maxHR)">
+  &nbsp;
+  <img src="docs/screenshots/14-zone-recovery.png" width="130" alt="Recovery zone (55% maxHR)">
+  &nbsp;
+  <img src="docs/screenshots/15-zone-fatburning.png" width="130" alt="Fat Burning zone (65% maxHR)">
+  &nbsp;
+  <img src="docs/screenshots/16-zone-aerobic.png" width="130" alt="Aerobic zone (75% maxHR)">
+  &nbsp;
+  <img src="docs/screenshots/17-zone-threshold.png" width="130" alt="Threshold zone (85% maxHR)">
+  &nbsp;
+  <img src="docs/screenshots/18-zone-anaerobic.png" width="130" alt="Anaerobic zone (95% maxHR)">
+</p>
+
+<p align="center">
+  <em>Six zones from Resting (gray, 38%) through Recovery, Fat Burning, Aerobic,
+  Threshold, up to Anaerobic (red, 95%). Live BPM, %maxHR, calories, session avg/max
+  and elapsed time — all updated per HR sample, no polling.</em>
 </p>
 
 ---
