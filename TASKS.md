@@ -967,3 +967,11 @@
     E: @Shared(.appStorage("hrFormula")) persistence + MaxHeartRateClient integration — choice persists across restarts, propagates instantly.
     F: Snapshot freeze — `WorkoutHRSnapshotRecord` + migration v8 + `WorkoutHRSnapshotClient` + `MaxHeartRateClient.forWorkout` refactor (fetchOrCreate). CloudKit sync via CloudKitSyncable.
     G: PersonSettings entry — "Formula maxHR" row shows current value, tap → push picker. PL localization sweep for "Tętno i aktywność" section.
+
+### IPAD-00093 GymRoom peer reconnect robustness — pending connect + search timeout
+    - branch: `dev/IPAD-00093/IPAD-00093`
+
+    A: Host grace period 2→5 min (PeerMirrorService.gracePeriodSeconds)
+    B: DEBUG BLE peer diagnostics to workout file log (fileLog seam, #if DEBUG)
+    C: Pending-connect reconnect to known host (retrievePeripherals) — fixes stuck "searching" (RSSI gate + allowDuplicates trap)
+    D: Peer search timeout → .connectionLost state with "Scan to rejoin" (symmetric to host grace)
