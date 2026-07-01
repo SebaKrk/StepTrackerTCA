@@ -25,6 +25,23 @@ struct JoinLiveClassFeature {
     @Dependency(\.peerMirrorClient) var peerMirrorClient
     @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.userProfileClient) var userProfileClient
+    @Dependency(\.continuousClock) var clock
+
+    /// Okno reconnectu po stronie peera — odpowiada host-side grace
+    /// (`PeerMirrorService.gracePeriodSeconds`). Po nim peer wychodzi ze `.searching`
+    /// do `.connectionLost`, bo host i tak usunął kafelek po tym czasie.
+    static let searchTimeout: Duration = .seconds(300)
+
+    /// Timer odpalany przy każdym wejściu w `.searching`. `cancelInFlight: true`
+    /// restartuje go przy ponownym suspendzie / ponownym scanie. Anulowany w
+    /// `.peerConnected` (wróciliśmy) oraz przy leave / class end.
+    private var startSearchTimeout: Effect<Action> {
+        .run { send in
+            try await clock.sleep(for: Self.searchTimeout)
+            await send(.searchTimeoutElapsed)
+        }
+        .cancellable(id: JoinLiveClassCancelID.searchTimeout, cancelInFlight: true)
+    }
 
     // MARK: - Reducer
 
@@ -88,6 +105,7 @@ struct JoinLiveClassFeature {
                     },
                     .cancel(id: JoinLiveClassCancelID.hrStream),
                     .cancel(id: JoinLiveClassCancelID.peerEvents),
+                    .cancel(id: JoinLiveClassCancelID.searchTimeout),
                     .send(.delegate(.didLeave))
                 )
 
@@ -116,6 +134,7 @@ struct JoinLiveClassFeature {
                 let nick = state.nick
                 return .merge(
                     .run { _ in await peerMirrorClient.startBrowsing(nick) },
+                    startSearchTimeout,
                     .send(.delegate(.didDismiss))
                 )
 
@@ -195,7 +214,9 @@ struct JoinLiveClassFeature {
                     activeEnergy: 0
                 )
                 Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
-                return .run { [sessionClient, peerMirrorClient, initialPayload, deviceID, sessionToken, nick, maxHR] send in
+                return .merge(
+                    .cancel(id: JoinLiveClassCancelID.searchTimeout),
+                    .run { [sessionClient, peerMirrorClient, initialPayload, deviceID, sessionToken, nick, maxHR] send in
                     await peerMirrorClient.send(initialPayload)
                     for await metrics in await sessionClient.workoutMetricsStream() {
                         Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
@@ -228,12 +249,25 @@ struct JoinLiveClassFeature {
                     // peer-side wciąż w phase .connected, toolbar icon nie znika aż do tap Leave.
                     await send(.workoutEnded)
                 }
-                .cancellable(id: JoinLiveClassCancelID.hrStream)
+                    .cancellable(id: JoinLiveClassCancelID.hrStream)
+                )
 
             case .peerDisconnected:
-                Logger.gymRoom.info("[Peer] disconnected — cancelling HR stream, returning to searching")
+                Logger.gymRoom.info("[Peer] disconnected — searching + start 5min reconnect timeout")
                 state.phase = .searching
-                return .cancel(id: JoinLiveClassCancelID.hrStream)
+                return .merge(
+                    .cancel(id: JoinLiveClassCancelID.hrStream),
+                    startSearchTimeout
+                )
+
+            case .searchTimeoutElapsed:
+                // Race guard: jeśli zdążyliśmy wrócić (.peerConnected) timer jest cancel'owany,
+                // ale action mógł być już in-flight — guard chroni przed fałszywym connectionLost.
+                guard state.phase == .searching else { return .none }
+                Logger.gymRoom.info("[Peer] reconnect timeout (5 min) — connection lost, stopping browse")
+                state.phase = .connectionLost
+                state.scannedQRPayload = nil
+                return .run { _ in await peerMirrorClient.stopBrowsing() }
 
             case .classEndedReceived, .workoutEnded:
                 // Klasa się zakończyła z dowolnej strony:
@@ -256,6 +290,7 @@ struct JoinLiveClassFeature {
                 return .merge(
                     .cancel(id: JoinLiveClassCancelID.hrStream),
                     .cancel(id: JoinLiveClassCancelID.peerEvents),
+                    .cancel(id: JoinLiveClassCancelID.searchTimeout),
                     .run { _ in await peerMirrorClient.stopBrowsing() },
                     .send(.delegate(.didLeave))
                 )

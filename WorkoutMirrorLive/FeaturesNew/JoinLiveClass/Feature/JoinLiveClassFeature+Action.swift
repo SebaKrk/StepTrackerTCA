@@ -21,8 +21,12 @@ extension JoinLiveClassFeature {
         /// Peer (iPad host) connected — switch phase do `.connected`, start HR timer.
         case peerConnected
 
-        /// Peer disconnected — stop HR stream, phase do `.idle`.
+        /// Peer disconnected — stop HR stream, phase do `.searching` + start 5min timeout.
         case peerDisconnected
+
+        /// 5-minutowy timer reconnectu wygasł w `.searching` — host już usunął kafelek.
+        /// Przejście do `.connectionLost` + stopBrowsing (anuluje pending connect).
+        case searchTimeoutElapsed
 
         /// Załadowano user profile — aktualizuje `state.nick` zgodnie z fallback chain:
         /// `nickname` → `name` → fallback (Athlete-XXX z AppStorage).

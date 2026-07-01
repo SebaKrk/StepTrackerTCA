@@ -82,6 +82,8 @@ struct JoinLiveClassView: View {
             searchingContent
         case .connected:
             connectedContent
+        case .connectionLost:
+            connectionLostContent
         }
     }
 
@@ -120,6 +122,24 @@ struct JoinLiveClassView: View {
         }
     }
 
+    private var connectionLostContent: some View {
+        VStack(spacing: 16) {
+            iconImage(symbol: "wifi.exclamationmark", color: .orange)
+            Text(connectionLostTitle).font(.title2).foregroundStyle(.primary)
+            connectionLostSubtitleText
+            Text(nickRowText).font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private var connectionLostSubtitleText: some View {
+        Text(connectionLostSubtitle)
+            .font(.body)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(3)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
     private var connectedSubtitleText: some View {
         Text(connectedSubtitle)
             .font(.body)
@@ -144,7 +164,31 @@ struct JoinLiveClassView: View {
             joinButton
         case .searching, .connected:
             leaveButton
+        case .connectionLost:
+            connectionLostButtons
         }
+    }
+
+    /// Po utracie połączenia: ponowny skan QR (primary) nad pełnym wyjściem.
+    private var connectionLostButtons: some View {
+        VStack(spacing: 12) {
+            rejoinButton
+            leaveButton
+        }
+    }
+
+    private var rejoinButton: some View {
+        Button {
+            send(.joinTapped)
+        } label: {
+            Text(rejoinTitle)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glassProminent)
+        .tint(.blue)
+        .controlSize(.extraLarge)
+        .buttonBorderShape(.capsule)
     }
 
     private var joinButton: some View {
@@ -197,7 +241,10 @@ struct JoinLiveClassView: View {
     private var searchingTitle: String { String(localized: "Looking for class...", bundle: .main) }
     private var connectedTitle: String { String(localized: "Broadcasting", bundle: .main) }
     private var connectedSubtitle: String { String(localized: "Your heart rate is visible on the Gym Room display.", bundle: .main) }
+    private var connectionLostTitle: String { String(localized: "Connection lost", bundle: .main) }
+    private var connectionLostSubtitle: String { String(localized: "Couldn't reach the class for 5 minutes. Your workout is still recording.", bundle: .main) }
     private var joinTitle: String { String(localized: "Join Live Class", bundle: .main) }
+    private var rejoinTitle: String { String(localized: "Scan to rejoin", bundle: .main) }
     private var leaveTitle: String { String(localized: "Leave", bundle: .main) }
 }
 

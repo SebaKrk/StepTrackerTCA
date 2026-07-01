@@ -15,10 +15,12 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .poweredOn:
-            startScanning()
+            fileLog("central state: poweredOn")
+            if !connectKnownHostIfPossible() { startScanning() }
 
         case .poweredOff:
             Self.logger.error("Bluetooth powered off")
+            fileLog("central state: poweredOff")
 
         case .unauthorized:
             Self.logger.error("Bluetooth permission denied")
@@ -31,6 +33,7 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
             // po .resetting → .poweredOn Apple, `startScanning()` odpali się ponownie
             // z gałęzi `.poweredOn`.
             Self.logger.warning("BLE stack resetting — central will re-scan after .poweredOn")
+            fileLog("central state: resetting (BLE stack rebuild)")
 
         case .unknown:
             Self.logger.debug("Central state .unknown (initial transient state)")
@@ -49,12 +52,14 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
         let rssi = RSSI.intValue
         guard rssi >= Self.rssiThreshold else {
             // Słaby signal — user prawdopodobnie nie w sali. Ignorujemy.
+            fileLog("discovered RSSI=\(rssi)dBm — REJECTED (gate \(Self.rssiThreshold))")
             return
         }
 
         Self.logger.info(
             "Discovered peripheral RSSI=\(rssi)dBm id=\(peripheral.identifier.uuidString, privacy: .public)"
         )
+        fileLog("discovered RSSI=\(rssi)dBm — connecting")
 
         central.stopScan()
         hostPeripheral = peripheral
@@ -69,7 +74,9 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
     ) {
         connectTimeoutTask?.cancel()
         connectTimeoutTask = nil
+        knownHostID = peripheral.identifier
         Self.logger.info("Connected to iPad: \(peripheral.identifier.uuidString, privacy: .public)")
+        fileLog("connected — discovering services")
         resetReconnectBackoff()
         peripheral.discoverServices([BLEServiceConstants.gymRoomServiceUUID])
     }
@@ -84,6 +91,7 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
         Self.logger.error(
             "Connect failed: \(error?.localizedDescription ?? "unknown", privacy: .public)"
         )
+        fileLog("connect FAILED: \(error?.localizedDescription ?? "unknown")")
         hostPeripheral = nil
         hrCharacteristic = nil
         scheduleReconnect()
@@ -97,6 +105,7 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
         Self.logger.info(
             "Disconnected: \(peripheral.identifier.uuidString, privacy: .public) error=\(error?.localizedDescription ?? "clean", privacy: .public)"
         )
+        fileLog("disconnected: \(error?.localizedDescription ?? "clean")")
         onPeerEvent(.disconnected(deviceID: peripheral.identifier))
         hostPeripheral = nil
         hrCharacteristic = nil

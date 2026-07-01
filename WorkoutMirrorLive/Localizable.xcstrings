@@ -1441,6 +1441,9 @@
         }
       }
     },
+    "Connection lost" : {
+
+    },
     "Contact" : {
 
     },
@@ -1474,6 +1477,9 @@
       }
     },
     "Could not load the selected image." : {
+
+    },
+    "Couldn't reach the class for 5 minutes. Your workout is still recording." : {
 
     },
     "Count" : {
@@ -3655,6 +3661,9 @@
       }
     },
     "Scan Plan" : {
+
+    },
+    "Scan to rejoin" : {
 
     },
     "Scan your handwritten notes or enter manually" : {

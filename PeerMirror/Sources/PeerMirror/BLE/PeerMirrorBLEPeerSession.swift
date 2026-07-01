@@ -61,6 +61,11 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
     private var reconnectDelaySeconds: TimeInterval = 1
     private var shouldAutoReconnect = true
 
+    /// Identifier ostatnio połączonego hosta. Ustawiany w `didConnect`, używany
+    /// do pending-connect reconnectu (`retrievePeripherals`) zamiast skanu + RSSI
+    /// gate — wraca w zasięg → iOS dokańcza połączenie sam.
+    nonisolated(unsafe) var knownHostID: UUID?
+
     /// Active connect watchdog. Cancel'owany w `didConnect` / `didFailToConnect`.
     /// Bez tego stale `connect()` może wisieć ~30s przed Apple `didFailToConnect`.
     var connectTimeoutTask: Task<Void, Never>?
@@ -94,7 +99,9 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
         }
         hostPeripheral = nil
         hrCharacteristic = nil
+        knownHostID = nil
         Self.logger.info("Peer stopped")
+        fileLog("peer stopped (auto-reconnect off)")
     }
 
     public func send(_ payload: HRSamplePayload) {
@@ -115,19 +122,45 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
     // MARK: - Private (scan/reconnect)
 
     func startScanning() {
-        guard centralManager.state == .poweredOn, !centralManager.isScanning else { return }
+        guard centralManager.state == .poweredOn, !centralManager.isScanning else {
+            fileLog("scan SKIPPED (state=\(centralManager.state.rawValue) scanning=\(centralManager.isScanning))")
+            return
+        }
         centralManager.scanForPeripherals(
             withServices: [BLEServiceConstants.gymRoomServiceUUID],
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
         )
         Self.logger.info("Scanning started")
+        fileLog("scan started")
+    }
+
+    /// Pending connect do znanego hosta. iOS dokańcza połączenie gdy host wróci
+    /// w zasięg — bez skanu, RSSI gate'u i watchdoga (`connect()` do znanego
+    /// peripherala nie wygasa). Zwraca `false` gdy hosta nie znamy (pierwsze
+    /// uruchomienie) — wtedy caller skanuje.
+    func connectKnownHostIfPossible() -> Bool {
+        guard centralManager.state == .poweredOn,
+              let knownHostID,
+              let peripheral = centralManager.retrievePeripherals(withIdentifiers: [knownHostID]).first
+        else { return false }
+        fileLog("pending connect to known host \(knownHostID.uuidString.prefix(8)) (no scan/gate)")
+        hostPeripheral = peripheral
+        peripheral.delegate = self
+        centralManager.connect(peripheral, options: nil)
+        return true
     }
 
     func scheduleReconnect() {
-        guard shouldAutoReconnect else { return }
+        guard shouldAutoReconnect else {
+            fileLog("reconnect SKIPPED (auto-reconnect off)")
+            return
+        }
+        // Znany host → pending connect od ręki, bez backoffu/skanu/gate.
+        if connectKnownHostIfPossible() { return }
         let delay = reconnectDelaySeconds
         reconnectDelaySeconds = min(reconnectDelaySeconds * 2, Self.maxReconnectDelaySeconds)
         Self.logger.info("Reconnect scheduled in \(delay, format: .fixed(precision: 1))s")
+        fileLog("reconnect scheduled in \(String(format: "%.1f", delay))s")
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.startScanning()
         }
@@ -154,7 +187,22 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
             Self.logger.warning(
                 "connect() timeout after \(Self.connectTimeoutSeconds, format: .fixed(precision: 0))s — forcing cancel to trigger reconnect"
             )
+            self.fileLog("connect() TIMEOUT \(Int(Self.connectTimeoutSeconds))s — forcing cancel")
             self.centralManager.cancelPeripheralConnection(hostPeripheral)
         }
     }
+
+    // MARK: - Diagnostics (DEBUG only)
+
+    /// Mirrors key BLE lifecycle events into the shared workout file log so they
+    /// interleave with HR readings — making reconnect failures visible without a Mac.
+    /// No-op in release. Fire-and-forget Task: sub-second ordering not guaranteed,
+    /// but every line carries an `HH:mm:ss` timestamp.
+    #if DEBUG
+    func fileLog(_ message: String) {
+        Task { await WorkoutFileLogger.shared.log("[BLE-Peer] \(message)") }
+    }
+    #else
+    func fileLog(_ message: String) {}
+    #endif
 }

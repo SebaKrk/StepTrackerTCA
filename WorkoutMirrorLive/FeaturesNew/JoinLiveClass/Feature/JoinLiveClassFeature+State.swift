@@ -57,5 +57,9 @@ extension JoinLiveClassFeature {
         case idle
         case searching
         case connected
+
+        /// Po 5 min w `.searching` bez reconnectu — host już nas usunął. Terminalny
+        /// stan z opcją ponownego skanu QR. Trening HK leci dalej niezależnie.
+        case connectionLost
     }
 }

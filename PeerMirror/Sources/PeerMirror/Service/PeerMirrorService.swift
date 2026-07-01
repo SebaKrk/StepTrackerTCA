@@ -58,12 +58,13 @@ public final class PeerMirrorService {
     /// Przy `stopAdvertising` cancel'ujemy wszystkie + emit `.disconnected` żeby reducer cleanup.
     private var disconnectingPeers: [UUID: Task<Void, Never>] = [:]
 
-    /// Czas trwania grace window przed finalnym `.disconnected`. 2 minuty pokrywa
-    /// typowe CrossFit-box scenariusze: toaleta, woda, krótki break. Dłuższy okres
-    /// nie kosztuje CPU (Task.sleep suspenduje task bez polling) ale powodowałby że
-    /// faktyczne odejście (kontuzja, hipoglikemia) zostawia stale `.reconnecting`
-    /// kafelek bez jasnego sygnału dla trenera. Krótszy nie pokrywa toalety.
-    private let gracePeriodSeconds: Duration = .seconds(120)
+    /// Czas trwania grace window przed finalnym `.disconnected`. 5 minut pokrywa
+    /// typowe CrossFit-box scenariusze z większym zapasem: toaleta, woda, dłuższy
+    /// break, słaby zasięg BLE między strefami sali. Dłuższy okres nie kosztuje CPU
+    /// (Task.sleep suspenduje task bez polling) ale powodowałby że faktyczne odejście
+    /// (kontuzja, hipoglikemia) zostawia stale `.reconnecting` kafelek bez jasnego
+    /// sygnału dla trenera. Krótszy (2 min) gubił peerów przy normalnym reconnect.
+    private let gracePeriodSeconds: Duration = .seconds(300)
 
     public init() {}
 

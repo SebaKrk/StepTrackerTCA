@@ -17,5 +17,10 @@ extension JoinLiveClassFeature {
         /// Subskrypcja `sessionClient.workoutMetricsStream()` — per-mode HR source
         /// (watchPrimary: trainingManager via HK mirroring, iPhoneStandalone: iPhoneSession.metrics).
         case hrStream
+
+        /// 5-minutowy timer reconnectu w `.searching`. Po nim peer wychodzi do
+        /// `.connectionLost` (host-side grace już usunął kafelek). `cancelInFlight`
+        /// restartuje go przy każdym ponownym wejściu w `.searching`.
+        case searchTimeout
     }
 }
