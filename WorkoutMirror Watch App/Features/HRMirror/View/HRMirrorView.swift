@@ -46,12 +46,16 @@ struct HRMirrorView: View {
             if store.isSaving {
                 savingOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.4)))
+            } else if case .presented(let summary) = store.summaryPhase {
+                summaryOverlay(summary)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.4)))
             } else if store.isCountingDown {
                 countdownOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
             }
         }
         .animation(.easeInOut(duration: 0.4), value: store.isSaving)
+        .animation(.easeInOut(duration: 0.4), value: store.summaryPhase)
         .animation(.easeInOut(duration: 0.3), value: store.isCountingDown)
     }
 
@@ -89,6 +93,102 @@ struct HRMirrorView: View {
         Text(String(localized: "Saving…"))
             .font(.caption.weight(.semibold))
             .foregroundStyle(.secondary)
+    }
+
+    // MARK: - Summary Overlay
+
+    /// Post-save mini-summary (IOS-00098-D). Watch is the primary session owner,
+    /// so it confirms the save immediately — metrics come straight from
+    /// `finishWorkout()`, no HealthKit query, no dependency on iPhone reachability.
+    ///
+    /// Layout mirrors the legacy `TrainingSummaryView` (MyFitnessJournal Watch App):
+    /// left-aligned metric blocks — title + large rounded small-caps value + divider —
+    /// in a ScrollView, with Done at the bottom.
+    private func summaryOverlay(_ summary: WatchWorkoutSummary?) -> some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading) {
+                    summaryTitle(hasData: summary != nil)
+                    if let summary {
+                        summaryMetric(
+                            title: String(localized: "Total Time"),
+                            value: Duration.seconds(summary.duration)
+                                .formatted(.time(pattern: .hourMinuteSecond)),
+                            .yellow
+                        )
+                        summaryMetric(
+                            title: String(localized: "Total Energy"),
+                            value: Measurement(value: summary.activeEnergyKcal, unit: UnitEnergy.kilocalories)
+                                .formatted(.measurement(
+                                    width: .abbreviated,
+                                    usage: .workout,
+                                    numberFormatStyle: .number.precision(.fractionLength(0))
+                                )),
+                            .pink
+                        )
+                        summaryMetric(
+                            title: String(localized: "Avg. Heart Rate"),
+                            value: summary.averageHeartRate
+                                .formatted(.number.precision(.fractionLength(0))) + " bpm",
+                            .red
+                        )
+                    } else {
+                        summaryUnavailableLabel
+                    }
+                    summaryDoneButton
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    /// Green "Workout saved" only when we actually hold the saved workout's data —
+    /// with no data the save is unconfirmed, and claiming success would be the same
+    /// false-positive this ticket removes elsewhere (IOS-00098).
+    private func summaryTitle(hasData: Bool) -> some View {
+        Label {
+            Text(hasData
+                 ? String(localized: "Workout saved")
+                 : String(localized: "Workout ended"))
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+        } icon: {
+            Image(systemName: hasData ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                .foregroundStyle(hasData ? .green : .orange)
+        }
+        .padding(.bottom, 4)
+    }
+
+    /// Metric block in the legacy `SummaryMetricView` style: plain title,
+    /// large rounded small-caps value in the metric color, divider below.
+    @ViewBuilder
+    private func summaryMetric(title: String, value: String, _ valueColor: Color) -> some View {
+        Text(title)
+            .foregroundStyle(.foreground)
+        Text(value)
+            .font(.system(.title2, design: .rounded).lowercaseSmallCaps())
+            .foregroundStyle(valueColor)
+        Divider()
+    }
+
+    private var summaryUnavailableLabel: some View {
+        Text(String(localized: "Workout data unavailable"))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+    }
+
+    private var summaryDoneButton: some View {
+        Button {
+            send(.summaryDoneTapped)
+        } label: {
+            Text(String(localized: "Done"))
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.top, 8)
     }
 
     // MARK: - Controls Tab
@@ -270,6 +370,7 @@ struct HRMirrorView: View {
 #Preview("Resting") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 185, maxHeartRate: 185)
+        state.isCountingDown = false
         state.heartRate = 60
         state.heartRateZone = .resting
         return state
@@ -279,6 +380,7 @@ struct HRMirrorView: View {
 #Preview("Recovery") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 623, maxHeartRate: 185)
+        state.isCountingDown = false
         state.heartRate = 98
         state.heartRateZone = .recovery
         return state
@@ -288,6 +390,7 @@ struct HRMirrorView: View {
 #Preview("Fat Burning") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 1240, maxHeartRate: 185)
+        state.isCountingDown = false
         state.heartRate = 117
         state.heartRateZone = .fatBurning
         return state
@@ -297,6 +400,7 @@ struct HRMirrorView: View {
 #Preview("Aerobic") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 2105, maxHeartRate: 185)
+        state.isCountingDown = false
         state.heartRate = 138
         state.heartRateZone = .aerobic
         return state
@@ -306,6 +410,7 @@ struct HRMirrorView: View {
 #Preview("Threshold") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 3421, maxHeartRate: 185)
+        state.isCountingDown = false
         state.heartRate = 158
         state.heartRateZone = .threshold
         return state
@@ -315,8 +420,40 @@ struct HRMirrorView: View {
 #Preview("Anaerobic") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 4812, maxHeartRate: 185)
+        state.isCountingDown = false
         state.heartRate = 177
         state.heartRateZone = .anaerobic
+        return state
+    }()) { HRMirrorFeature() })
+}
+
+#Preview("Summary") {
+    HRMirrorView(store: Store(initialState: {
+        var state = HRMirrorFeature.State(elapsedSeconds: 2105, maxHeartRate: 185)
+        state.isCountingDown = false
+        state.summaryPhase = .presented(
+            WatchWorkoutSummary(duration: 2105, activeEnergyKcal: 412, averageHeartRate: 132)
+        )
+        return state
+    }()) { HRMirrorFeature() })
+}
+
+#Preview("Summary — long workout") {
+    HRMirrorView(store: Store(initialState: {
+        var state = HRMirrorFeature.State(elapsedSeconds: 4356, maxHeartRate: 185)
+        state.isCountingDown = false
+        state.summaryPhase = .presented(
+            WatchWorkoutSummary(duration: 4356, activeEnergyKcal: 856, averageHeartRate: 145)
+        )
+        return state
+    }()) { HRMirrorFeature() })
+}
+
+#Preview("Summary — no data") {
+    HRMirrorView(store: Store(initialState: {
+        var state = HRMirrorFeature.State(elapsedSeconds: 0, maxHeartRate: 185)
+        state.isCountingDown = false
+        state.summaryPhase = .presented(nil)
         return state
     }()) { HRMirrorFeature() })
 }
@@ -348,10 +485,12 @@ private struct _HRMirrorFlowPreview: View {
         .task {
             // Phase 1: Waiting screen — 2 s
             try? await Task.sleep(for: .seconds(2))
-            // Phase 2: Fade out waiting → preparing overlay visible — 2 s
+            // Phase 2: Fade out waiting → countdown overlay visible — 2 s
             isWaiting = false
             try? await Task.sleep(for: .seconds(2))
-            // Phase 3: First HR reading clears preparing overlay
+            // Phase 3: countdown cleared (state default isCountingDown=true),
+            // first HR reading lands on the live HR view
+            store.send(.countdownFinished)
             store.send(.hrReceived(72))
         }
     }

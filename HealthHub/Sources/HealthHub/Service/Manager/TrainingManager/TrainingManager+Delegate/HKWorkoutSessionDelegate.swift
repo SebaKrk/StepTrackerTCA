@@ -17,7 +17,8 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
                                didChangeTo toState: HKWorkoutSessionState,
                                from fromState: HKWorkoutSessionState,
                                date: Date) {
-        
+        guard isCurrentSession(workoutSession, callback: "didChangeTo \(toState.rawValue)") else { return }
+
         Logger.trainingManager.info("sessionState \(fromState.rawValue) → \(toState.rawValue)")
         
         Task { @MainActor in
@@ -38,6 +39,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     }
     
     public func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
+        guard isCurrentSession(workoutSession, callback: "didFailWithError") else { return }
         Logger.trainingManager.error("workoutSession failed: \(error.localizedDescription)")
     }
     
@@ -47,6 +49,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     /// iOS-specific: Handle data received from Apple Watch
     public func workoutSession(_ workoutSession: HKWorkoutSession,
                                didReceiveDataFromRemoteWorkoutSession data: [Data]) {
+        guard isCurrentSession(workoutSession, callback: "didReceiveData") else { return }
         let totalBytes = data.reduce(0) { $0 + $1.count }
         Logger.trainingManager.info("didReceiveDataFromRemoteWorkoutSession — \(data.count) object(s), \(totalBytes) bytes")
 
@@ -64,6 +67,7 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
     /// iOS-specific: Handle disconnection from Apple Watch
     public func workoutSession(_ workoutSession: HKWorkoutSession,
                                didDisconnectFromRemoteDeviceWithError error: Error?) {
+        guard isCurrentSession(workoutSession, callback: "didDisconnect") else { return }
         let state = workoutSession.state.description
         let errorDescription = error?.localizedDescription ?? "no error"
         Logger.trainingManager.notice("disconnected from Watch: \(errorDescription), state=\(state)")
@@ -72,14 +76,38 @@ extension DefaultTrainingManager: HKWorkoutSessionDelegate {
         }
 
         Task { @MainActor in
-            self.workoutSessionIsRunning = false
-            self.workoutSessionContinuation?.yield(false)
-            self.workoutSessionStateContinuation?.yield(.stopped)
+            // Disconnect ≠ stopped (IOS-00098-G). The old `.stopped` yield here made the
+            // UI fake a workout end while the Watch kept measuring. A dead link is a
+            // separate signal — the primary session may still be running and the system
+            // auto-reconnects (start handler will deliver a fresh mirrored session).
+            //
+            // Mirroring also disconnects on a NORMAL end (logs: "state=ended, no error")
+            // — that teardown must not raise a connection-lost banner.
+            guard workoutSession.state == .running || workoutSession.state == .paused else {
+                Logger.trainingManager.info("didDisconnect during teardown (state=\(state)) — not a link loss")
+                return
+            }
+            self.yieldWatchConnectionStatus(.lost)
         }
     }
 #endif
     
     // MARK: - Helper Methods
+
+    /// Identity guard against stale-session callbacks.
+    ///
+    /// After a mirroring reconnect, `workoutSessionMirroringStartHandler` replaces
+    /// `self.session` with a fresh instance, but the abandoned one can still fire
+    /// delegate callbacks — without this guard they would mutate state belonging
+    /// to the new session (e.g. a late `didDisconnect` yielding `.stopped` right
+    /// after a successful reconnect).
+    private func isCurrentSession(_ workoutSession: HKWorkoutSession, callback: String) -> Bool {
+        guard workoutSession === session else {
+            Logger.trainingManager.notice("ignoring \(callback) from stale session (state=\(workoutSession.state.rawValue))")
+            return false
+        }
+        return true
+    }
 
 #if os(watchOS)
     private func sendElapsedTimeToCompanion(date: Date) async {

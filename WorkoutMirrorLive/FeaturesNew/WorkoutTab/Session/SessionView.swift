@@ -49,7 +49,36 @@ struct SessionView: View {
                             .presentationDetents([.medium, .large])
                     }
                 }
+                .alert($store.scope(state: \.connectionLostAlert, action: \.connectionLostAlert))
+                .safeAreaInset(edge: .top) {
+                    if store.isWatchConnectionLost && store.sessionState == .session {
+                        connectionLostBanner
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                }
+                .animation(.easeInOut(duration: 0.3), value: store.isWatchConnectionLost)
         }
+    }
+
+    // MARK: - Connection Lost Banner (IOS-00098-G)
+
+    /// Shown while the HealthKit mirroring link is down. The workout keeps running
+    /// on the Watch (its own sensors, its own storage) — only live preview and remote
+    /// control are unavailable until the system reconnects.
+    private var connectionLostBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "applewatch.slash")
+                .foregroundStyle(.orange)
+            Text(String(localized: "Utracono połączenie z Watchem — trening trwa dalej"))
+                .font(.footnote.weight(.semibold))
+                .multilineTextAlignment(.leading)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(.orange.opacity(0.18), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.horizontal, 12)
+        .padding(.top, 4)
     }
 
 
@@ -64,6 +93,10 @@ struct SessionView: View {
             sessionView
         case .summary:
             summaryView
+        case .finishedOnWatch:
+            // Przejściowa faza teardownu — sesja dismissuje się sama (SessionPhase),
+            // podsumowanie pokazuje Watch, badge w Historii prowadzi do wyników.
+            ProgressView()
         }
     }
     
@@ -108,6 +141,7 @@ struct SessionView: View {
             action: \.summary)
         )
     }
+
     
     @ToolbarContentBuilder
     private var toolbarButtons: some ToolbarContent {
@@ -216,6 +250,44 @@ import SharedModels
     }
 }
 
+
+#Preview("connection lost — banner") {
+    NavigationStack {
+        SessionView(
+            store: Store(initialState: {
+                var state = SessionFeature.State(
+                    sessionState: .session,
+                    selectedWorkout: .cross)
+                state.workoutMode = .watchPrimary
+                state.isWatchConnectionLost = true
+                return state
+            }(), reducer: { SessionFeature() })
+        )
+    }
+}
+
+#Preview("connection lost — End alert") {
+    NavigationStack {
+        SessionView(
+            store: Store(initialState: {
+                var state = SessionFeature.State(
+                    sessionState: .session,
+                    selectedWorkout: .cross)
+                state.workoutMode = .watchPrimary
+                state.isWatchConnectionLost = true
+                state.connectionLostAlert = AlertState {
+                    TextState(String(localized: "Brak połączenia z Apple Watch"))
+                } actions: {
+                    ButtonState(role: .cancel) { TextState(String(localized: "OK")) }
+                } message: {
+                    TextState(String(localized: "Trening nadal trwa na zegarku. Zakończ go na Apple Watch, przytrzymując przycisk Stop."))
+                }
+                return state
+            }(), reducer: { SessionFeature() })
+        )
+    }
+}
+
 // HR zone previews — STATIC widoki z produktowo skalibrowanymi wartościami per strefa.
 // Wartości HR/avgHR/maxHR/energy zsynchronizowane z LiveSessionView.swift:358-428.
 // Stopwatch hidden (isVisible=false) — w session view stopwatch ma tylko expanded
@@ -313,6 +385,7 @@ private func previewSessionClient(elapsed: TimeInterval) -> SessionClient {
         markResumeElapsed: {},
         startWorkout: {},
         mirroredSessionStartedStream: { AsyncStream { $0.finish() } },
+        watchConnectionStatusStream: { AsyncStream { $0.finish() } },
         sendLifecycleEventToWatch: { _ in },
         recoverPrimarySession: { _ in }
     )

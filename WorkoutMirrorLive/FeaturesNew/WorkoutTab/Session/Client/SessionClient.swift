@@ -83,6 +83,14 @@ struct SessionClient {
     /// is finished — semantics match `workoutSessionStateStream`.
     var mirroredSessionStartedStream: @Sendable () async -> AsyncStream<Void>
 
+    /// Multicast stream of the mirroring-link connection status (IOS-00098-G).
+    ///
+    /// `.lost` after `didDisconnectFromRemoteDeviceWithError` mid-workout (NOT on the
+    /// normal end-teardown disconnect), `.connected` when the system reconnect delivers
+    /// a fresh mirrored session. Watch-primary only — drives the connection-lost banner,
+    /// tick suspension and the End-button gating in `SessionFeature`.
+    var watchConnectionStatusStream: @Sendable () async -> AsyncStream<WatchMirroringConnectionStatus>
+
     /// Sends a lifecycle event to Watch through the HealthKit mirroring channel
     /// (`sendToRemoteWorkoutSession`). Reliable even when WatchConnectivity is unreachable.
     ///
@@ -265,6 +273,9 @@ private enum SessionClientClientKey: DependencyKey {
             },
             mirroredSessionStartedStream: {
                 trainingManager.mirroredSessionStartedStream
+            },
+            watchConnectionStatusStream: {
+                trainingManager.watchConnectionStatusStream
             },
             sendLifecycleEventToWatch: { event in
                 guard let data = try? JSONEncoder().encode(event) else {

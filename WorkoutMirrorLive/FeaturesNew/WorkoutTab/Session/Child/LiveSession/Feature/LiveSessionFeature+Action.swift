@@ -21,6 +21,11 @@ extension LiveSessionFeature {
         /// Updates the current workout metrics with new data.
         /// Triggered whenever a new `WorkoutMetrics` is received from the workout stream.
         case workoutMetrics(WorkoutMetrics)
+
+        /// Mirroring-link status forwarded by `SessionFeature` (IOS-00098-G).
+        /// Stores the flag and pushes an immediate Live Activity update so
+        /// Dynamic Island / Lock Screen flag stale metrics right away.
+        case setWatchConnectionLost(Bool)
         
         /// Sets the maximum heart rate (HR max) for the current session.
         /// Usually calculated at the beginning of the session using age and sex.

@@ -13,7 +13,4 @@ nonisolated enum SummaryFeatureCancelID: Hashable, Sendable {
 
     /// Cancels the retry loop that polls for workout summary availability.
     case retry
-
-    /// Cancels the timeout that waits for `.workoutSaved` from Watch before falling back to polling.
-    case savingTimeout
 }

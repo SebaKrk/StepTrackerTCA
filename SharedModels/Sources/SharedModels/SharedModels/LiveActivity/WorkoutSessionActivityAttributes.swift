@@ -50,16 +50,22 @@ public struct WorkoutSessionActivityAttributes: ActivityAttributes {
         
         /// Average heart rate during this session
         public var averageHeartRate: Int
-        
+
+        /// `true` while the HealthKit mirroring link with the Watch is down (IOS-00098-G).
+        /// The workout keeps running on the Watch — the Live Activity shows a stale-data
+        /// indicator instead of silently frozen metrics.
+        public var isWatchConnectionLost: Bool
+
         // MARK: - Lifecycle
-        
+
         public init(
             heartRate: Double,
             heartRateZone: HeartRateZone,
             heartRatePercentage: Int,
             activeEnergy: Double,
             maxHeartRate: Int,
-            averageHeartRate: Int
+            averageHeartRate: Int,
+            isWatchConnectionLost: Bool = false
         ) {
             self.heartRate = heartRate
             self.heartRateZone = heartRateZone
@@ -67,6 +73,7 @@ public struct WorkoutSessionActivityAttributes: ActivityAttributes {
             self.activeEnergy = activeEnergy
             self.maxHeartRate = maxHeartRate
             self.averageHeartRate = averageHeartRate
+            self.isWatchConnectionLost = isWatchConnectionLost
         }
     }
 }

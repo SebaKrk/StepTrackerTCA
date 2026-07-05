@@ -66,6 +66,18 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     /// receives the mirrored session from Apple Watch. Stored here (not in `+iOS` extension)
     /// because Swift does not allow stored properties in extensions.
     var mirroredSessionStartedContinuation: AsyncStream<Void>.Continuation?
+
+    /// Multicast: mirroring-link connection status subscribers (IOS-00098-G).
+    /// `.lost` on `didDisconnectFromRemoteDeviceWithError`, `.connected` when the
+    /// system reconnect delivers a fresh mirrored session via the start handler.
+    ///
+    /// Guarded by `watchConnectionLock` — subscriptions come from TCA `.run` effects
+    /// (background executor), yields/cleanup from the main actor and stream
+    /// terminations. Same pattern as `DefaultWatchConnectivityManager.eventContinuations`.
+    var watchConnectionContinuations: [UUID: AsyncStream<WatchMirroringConnectionStatus>.Continuation] = [:]
+
+    /// Lock protecting `watchConnectionContinuations` across executors.
+    let watchConnectionLock = NSLock()
     #endif
     
     // MARK: - Lifecycle
@@ -196,7 +208,9 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     internal func sendData(_ data: Data) async {
         print("🔄 sendData called with \(data.count) bytes")
         do {
-            try await session?.sendToRemoteWorkoutSession(data: data)
+            // Guarded variant (SharedModels) — hard timeout against Apple bug #769355
+            // where the native async send never resumes.
+            try await session?.sendToRemoteWorkoutSession(data: data, timeout: 3)
             print("✅ Data sent successfully")
         } catch {
             let nsError = error as NSError

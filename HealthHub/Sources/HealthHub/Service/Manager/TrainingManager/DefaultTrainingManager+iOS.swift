@@ -11,6 +11,14 @@ import HealthKit
 import OSLog
 import SharedModels
 
+/// Connection status of the HealthKit mirroring link with the Watch-primary session
+/// (IOS-00098-G). Distinct from `HKWorkoutSessionState` — a lost link does NOT mean
+/// the workout stopped; the Watch keeps measuring and the system auto-reconnects.
+public enum WatchMirroringConnectionStatus: Equatable, Sendable {
+    case connected
+    case lost
+}
+
 // MARK: - iOS-specific Setup and Configuration
 extension DefaultTrainingManager {
     
@@ -18,6 +26,9 @@ extension DefaultTrainingManager {
     public func setupRemoteSessionHandler() {
         healthStore.workoutSessionMirroringStartHandler = { [weak self] mirroredSession in
             Logger.trainingManager.info("MIRRORED SESSION received — state: \(mirroredSession.state.rawValue)")
+            Task {
+                await WorkoutFileLogger.shared.log("[Connection] MIRRORED SESSION received (first start or reconnect) — state=\(mirroredSession.state.rawValue)")
+            }
             Task { @MainActor in
                 guard let self else { return }
 
@@ -40,7 +51,41 @@ extension DefaultTrainingManager {
                 // Apple Fitness-style startup flow signal — SessionFeature uses this
                 // to transition from `.waitingForWatch` → `.countdown`.
                 self.mirroredSessionStartedContinuation?.yield(())
+
+                // Fresh mirrored session = link alive again (first start OR system
+                // auto-reconnect after a drop) — clear any connection-lost banner.
+                self.yieldWatchConnectionStatus(.connected)
             }
+        }
+    }
+
+    /// Multicast stream of the mirroring-link connection status (IOS-00098-G).
+    /// Every subscriber gets its own continuation; see `reference_async_stream_multicast`.
+    ///
+    /// Dict access is lock-guarded: the getter runs on the SUBSCRIBER's executor
+    /// (TCA `.run` effect = background), while yields and terminations arrive from
+    /// the main actor — without the lock this was a concurrent Dictionary mutation.
+    public var watchConnectionStatusStream: AsyncStream<WatchMirroringConnectionStatus> {
+        let (stream, continuation) = AsyncStream.makeStream(of: WatchMirroringConnectionStatus.self)
+        let id = UUID()
+        continuation.onTermination = { [weak self] _ in
+            guard let self else { return }
+            self.watchConnectionLock.withLock {
+                _ = self.watchConnectionContinuations.removeValue(forKey: id)
+            }
+        }
+        watchConnectionLock.withLock {
+            watchConnectionContinuations[id] = continuation
+        }
+        return stream
+    }
+
+    /// Multicast yield — delivers the status to all active subscribers.
+    /// Snapshot under lock, yield outside it (yield can synchronously resume awaiters).
+    func yieldWatchConnectionStatus(_ status: WatchMirroringConnectionStatus) {
+        let continuations = watchConnectionLock.withLock { Array(watchConnectionContinuations.values) }
+        for continuation in continuations {
+            continuation.yield(status)
         }
     }
 

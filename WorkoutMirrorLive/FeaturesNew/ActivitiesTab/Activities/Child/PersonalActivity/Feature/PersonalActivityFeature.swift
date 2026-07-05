@@ -106,7 +106,18 @@ struct PersonalActivityFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                return .send(.fetchWorkouts)
+                return .merge(
+                    .send(.fetchWorkouts),
+                    // Push-based refresh (R5): HealthKit sam sygnalizuje zmianę kolekcji
+                    // workoutów (np. sync Watch→iPhone dojechał po zakończonym treningu) —
+                    // lista odświeża się bez pollingu i bez akcji usera.
+                    .run { [activityClient] send in
+                        for await _ in activityClient.observeWorkoutChanges() {
+                            await send(.fetchWorkouts)
+                        }
+                    }
+                    .cancellable(id: PersonalActivityCancelID.workoutChangesObserver, cancelInFlight: true)
+                )
                 
             case let .view(.changeDays(value)):
                 state.days = value
@@ -174,6 +185,9 @@ struct PersonalActivityFeature {
                 // MARK: - Destination
 
             case .destination:
+                // Badge "Uzupełnij wyniki" aktualizuje się sam — `planScores` to
+                // obserwowana query SQLiteData, zapis wyników w details/Summary
+                // trafia tu bez ręcznego refetchu.
                 return .none
             }
         }
@@ -182,5 +196,18 @@ struct PersonalActivityFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 
+}
+
+// MARK: - Cancel IDs
+
+/// Cancel identifiers used by `PersonalActivityFeature` long-running effects.
+///
+/// `nonisolated` — see `SessionWatchCancelID` for rationale (project-wide
+/// `defaultIsolation(MainActor.self)` vs `cancellable(id:)` Sendable requirement).
+nonisolated enum PersonalActivityCancelID: Hashable, Sendable {
+
+    /// App-lifetime HealthKit workout-collection observer (R5 push refresh).
+    /// Started on `viewDidAppear`; `cancelInFlight` guards re-appear duplicates.
+    case workoutChangesObserver
 }
 

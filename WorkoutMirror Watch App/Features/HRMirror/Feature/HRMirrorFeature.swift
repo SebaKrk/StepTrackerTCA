@@ -301,9 +301,28 @@ struct HRMirrorFeature {
                         if elapsed < .seconds(1.5) {
                             try? await clock.sleep(for: .seconds(1.5) - elapsed)
                         }
-                        await send(.delegate(.didFinishSaving))
+                        // Watch is the primary session owner — it shows the immediate
+                        // summary from finishWorkout(); dismissal happens on Done tap.
+                        var summary = await watchWorkoutSessionClient.consumeLastSavedWorkoutSummary()
+                        if summary == nil {
+                            // The `.ended` safety-net saves in a detached Task — give it
+                            // one beat before declaring the data unavailable.
+                            try? await clock.sleep(for: .seconds(1))
+                            summary = await watchWorkoutSessionClient.consumeLastSavedWorkoutSummary()
+                        }
+                        await send(.savedSummaryLoaded(summary))
                     }
                 )
+
+            case .savedSummaryLoaded(let summary):
+                state.isSaving = false
+                state.summaryPhase = .presented(summary)
+                return .run { _ in
+                    await WorkoutFileLogger.shared.log("SUMMARY (Watch) — shown (hasData=\(summary != nil))")
+                }
+
+            case .view(.summaryDoneTapped):
+                return .send(.delegate(.didFinishSaving))
 
             case .delegate:
                 return .none

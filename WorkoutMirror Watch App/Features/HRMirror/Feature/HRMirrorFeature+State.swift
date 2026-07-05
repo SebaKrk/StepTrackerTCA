@@ -18,6 +18,16 @@ extension HRMirrorFeature {
         case music    = 2
     }
 
+    /// Post-save mini-summary lifecycle (IOS-00098-D).
+    ///
+    /// `presented(nil)` means the workout was saved-attempted but `finishWorkout()`
+    /// returned no workout (e.g. save failure) — the view shows a fallback message
+    /// instead of metrics.
+    enum SummaryPhase: Equatable {
+        case hidden
+        case presented(WatchWorkoutSummary?)
+    }
+
     @ObservableState
     struct State: Equatable {
 
@@ -91,6 +101,16 @@ extension HRMirrorFeature {
         ///
         /// While `true` a full-screen "Saving…" overlay is shown.
         var isSaving: Bool = false
+
+        // MARK: - Summary
+
+        /// Mini-summary shown after the workout is saved (IOS-00098-D).
+        ///
+        /// The Watch is the primary session owner, so it presents the immediate
+        /// summary from the `finishWorkout()` return value; detailed results entry
+        /// happens later on iPhone (History). Dismissed via the Done button, which
+        /// triggers `.delegate(.didFinishSaving)`.
+        var summaryPhase: SummaryPhase = .hidden
 
         // MARK: - Lifecycle
 

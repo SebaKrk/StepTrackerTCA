@@ -38,30 +38,43 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
 
     // MARK: - Incoming Event Stream
 
-    /// Lock protecting `_eventContinuation` across delegate callbacks and stream subscriptions.
+    /// Lock protecting `eventContinuations` across delegate callbacks and stream subscriptions.
     let continuationLock = NSLock()
 
-    /// Current continuation backing `incomingWorkoutEventStream`.
+    /// Multicast: każdy subskrybent `incomingWorkoutEventStream` dostaje własną continuation.
     ///
-    /// Replaced on each call to `incomingWorkoutEventStream` so that every new
-    /// `for await` subscription (e.g. second workout run) gets a fresh stream.
-    /// The previous continuation is finished first to cleanly terminate any
-    /// lingering iterator from the previous session.
-    var _eventContinuation: AsyncStream<WatchWorkoutEvent>.Continuation?
+    /// Poprzednia implementacja (single stored continuation, "latest subscriber wins")
+    /// była bugiem klasy `reference_async_stream_multicast`: subskrypcja SessionFeature
+    /// przy starcie treningu FINISZOWAŁA stream app-level listenera (`AppTabNewFeature`,
+    /// IOS-00098-C) — `.workoutSaved` nie miał odbiorcy, plan-link i badge nie powstawały.
+    var eventContinuations: [UUID: AsyncStream<WatchWorkoutEvent>.Continuation] = [:]
 
     /// A stream of `WatchWorkoutEvent` values received from the paired device.
     ///
-    /// Each access creates a new `AsyncStream` backed by a fresh continuation,
-    /// finishing the previous one. This prevents the "stale iterator" problem
-    /// where a second `for await` loop on the same stream receives no events
-    /// after the first loop was cancelled by TCA's `cancellable(id:)` mechanism.
+    /// Each access creates an independent `AsyncStream`; all active subscribers receive
+    /// every event (multicast). Terminated/cancelled subscribers are cleaned up via
+    /// `onTermination`.
     public var incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent> {
         let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
+        let id = UUID()
+        continuation.onTermination = { [weak self] _ in
+            guard let self else { return }
+            self.continuationLock.withLock {
+                _ = self.eventContinuations.removeValue(forKey: id)
+            }
+        }
         continuationLock.withLock {
-            _eventContinuation?.finish()
-            _eventContinuation = continuation
+            eventContinuations[id] = continuation
         }
         return stream
+    }
+
+    /// Multicast yield — delivers the event to all active subscribers.
+    func yieldIncomingEvent(_ event: WatchWorkoutEvent) {
+        let continuations = continuationLock.withLock { Array(eventContinuations.values) }
+        for continuation in continuations {
+            continuation.yield(event)
+        }
     }
 
     // MARK: - Lifecycle
@@ -170,9 +183,13 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         session?.delegate = nil
         session = nil
         await statusActor.updateStatus(.unknown)
-        continuationLock.withLock {
-            _eventContinuation?.finish()
-            _eventContinuation = nil
+        let continuations = continuationLock.withLock { () -> [AsyncStream<WatchWorkoutEvent>.Continuation] in
+            let values = Array(eventContinuations.values)
+            eventContinuations.removeAll()
+            return values
+        }
+        for continuation in continuations {
+            continuation.finish()
         }
     }
 

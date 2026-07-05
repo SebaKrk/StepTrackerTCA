@@ -31,6 +31,22 @@ struct LiveSessionFeature {
             case let .setupMaxHeartRate(value):
                 state.maxHeartRate = value
                 return .none
+
+            case let .setWatchConnectionLost(isLost):
+                guard state.isWatchConnectionLost != isLost else { return .none }
+                state.isWatchConnectionLost = isLost
+                // Immediate LA push — with the link down no metrics update will arrive
+                // to carry the flag, so rebuild ContentState from the last known values.
+                let contentState = WorkoutSessionActivityAttributes.ContentState(
+                    heartRate: state.workoutMetrics.heartRate,
+                    heartRateZone: state.currentHeartRateZone,
+                    heartRatePercentage: state.currentHeartRatePercentage,
+                    activeEnergy: state.workoutMetrics.activeEnergy,
+                    maxHeartRate: state.sessionMaxHeartRate,
+                    averageHeartRate: state.sessionAverageHeartRate,
+                    isWatchConnectionLost: isLost
+                )
+                return .send(.liveActivity(.workout(.update(contentState))))
                 
             case let .workoutMetrics(data):
                 // Watch is the primary HR source. When HealthKit sends HR = 0
@@ -54,7 +70,8 @@ struct LiveSessionFeature {
                     heartRatePercentage: state.currentHeartRatePercentage,
                     activeEnergy: data.activeEnergy,
                     maxHeartRate: state.sessionMaxHeartRate,
-                    averageHeartRate: state.sessionAverageHeartRate
+                    averageHeartRate: state.sessionAverageHeartRate,
+                    isWatchConnectionLost: state.isWatchConnectionLost
                 )
 
                 var effects: [Effect<Action>] = [

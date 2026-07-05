@@ -26,12 +26,19 @@ extension SessionFeature {
                 // The updated value is also returned by `elapsedTimeAt` so ControlsView
                 // reads the correct elapsed time on the next TimelineView frame.
                 let mode = state.workoutMode
-                return .run { [mode, sessionClient, watchClient = watchConnectivityClient] _ in
+                let isLinkLost = state.isWatchConnectionLost
+                return .run { [mode, isLinkLost, sessionClient, watchClient = watchConnectivityClient] _ in
                     let elapsed = sessionClient.incrementElapsed()
                     // Watch-primary: HK mirroring channel (per CLAUDE.md R2) — reliable
                     // when WC `reachable=false`. iPhone-standalone: WC path (no mirrored
                     // session exists in that mode, so HK channel is unavailable).
+                    //
+                    // Link down (IOS-00098-G): keep INCREMENTING (the counter is the tick
+                    // payload — freezing it would rewind the Watch clock after reconnect,
+                    // because Watch treats iPhone ticks as the source of truth) but skip
+                    // the send — each attempt into a dead link costs a 3s timeout + retry.
                     if mode == .watchPrimary {
+                        guard !isLinkLost else { return }
                         await sessionClient.sendLifecycleEventToWatch(.workoutTick(elapsedSeconds: elapsed))
                     } else {
                         await watchClient.sendWorkoutEvent(.workoutTick(elapsedSeconds: elapsed))
@@ -82,8 +89,9 @@ extension SessionFeature {
                 //   - sessionClient.endWorkout(): Watch already called session.end() — calling again
                 //     on iPhone's mirrored session is redundant.
                 //
-                // Only transition iPhone UI to summary. Watch's .workoutSaved event will arrive
-                // shortly via WatchConnectivity, triggering HKWorkout fetch in SummaryFeature.
+                // Only transition iPhone UI to the finished screen. The Watch (primary owner)
+                // shows the immediate summary; `.workoutSaved` is consumed by the app-level
+                // listener in AppTabNewFeature for the plan link (IOS-00098-E).
                 guard state.workoutMode == .watchPrimary else { return .none }
                 guard state.sessionState == .session else { return .none }
                 return .merge(
@@ -94,12 +102,31 @@ extension SessionFeature {
                     .cancel(id: SessionWatchCancelID.workoutEndedRetry),
                     .run { send in
                         await WorkoutFileLogger.shared.log("WATCH-INITIATED END — mirrored session reached .ended state")
-                        await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
-                        await send(.sessionViewStateChange(.summary))
+                        await send(.sessionViewStateChange(.finishedOnWatch))
                     }
                 )
 
             case .controls(.view(.endWorkoutButtonTapped)):
+                // Mirroring link down (IOS-00098-G): the `.workoutEnded` send has no
+                // route and state control is not queued after a disconnect — instead of
+                // faking success, follow Apple's guidance and instruct the user to end
+                // the workout on the Watch. The session stays alive; if the system
+                // reconnects, End becomes functional again.
+                if state.workoutMode == .watchPrimary, state.isWatchConnectionLost {
+                    state.connectionLostAlert = AlertState {
+                        TextState(String(localized: "Brak połączenia z Apple Watch"))
+                    } actions: {
+                        ButtonState(role: .cancel) {
+                            TextState(String(localized: "OK"))
+                        }
+                    } message: {
+                        TextState(String(localized: "Trening nadal trwa na zegarku. Zakończ go na Apple Watch, przytrzymując przycisk Stop."))
+                    }
+                    return .run { _ in
+                        await WorkoutFileLogger.shared.log("[Connection] End tapped while link LOST — instruction alert shown")
+                    }
+                }
+
                 let mode = state.workoutMode
                 return .merge(
                     .cancel(id: SessionWatchCancelID.watchEventStream),
@@ -118,9 +145,15 @@ extension SessionFeature {
                         }
                         await WorkoutFileLogger.shared.log("END WORKOUT — calling sessionClient.endWorkout()")
                         await sessionClient.endWorkout()
-                        await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned (workout NOT yet saved)")
-                        await WorkoutFileLogger.shared.log("SUMMARY — entering .saving state, waiting for .workoutSaved from Watch")
-                        await send(.sessionViewStateChange(.summary))
+                        await WorkoutFileLogger.shared.log("END WORKOUT — endWorkout() returned")
+                        // Watch-primary: Watch shows the summary (primary owner) — iPhone only
+                        // confirms the end. iPhone-standalone: iPhone owns the workout and
+                        // presents the full summary from the router cache (IOS-00098-E).
+                        if mode == .watchPrimary {
+                            await send(.sessionViewStateChange(.finishedOnWatch))
+                        } else {
+                            await send(.sessionViewStateChange(.summary))
+                        }
                     }
                     // Retry mechanism removed. HK channel does not require reachable=true,
                     // delivery is OS-managed through the mirrored workout session. The

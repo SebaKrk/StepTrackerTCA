@@ -40,6 +40,11 @@ extension LiveSessionFeature {
         /// Provided by `SessionFeature`, which retrieves the user’s age and biological sex
         /// from HealthKit and resolves max HR via `maxHeartRateClient.fromAge(age, sex)`.
         var maxHeartRate: Int = 0
+
+        /// Mirroring-link status forwarded by `SessionFeature` (IOS-00098-G). Included
+        /// in every Live Activity `ContentState` so Dynamic Island / Lock Screen can
+        /// flag stale metrics while the Watch link is down.
+        var isWatchConnectionLost: Bool = false
         
         // MARK: - Child
 

@@ -83,6 +83,12 @@ extension HRMirrorFeature {
         /// `HRMirrorFeature` has no other way to observe it.
         case sessionStateChanged(HKWorkoutSessionState)
 
+        /// Sent at the end of the `.stop` flow once the workout is saved and the log
+        /// transferred. Carries the mini-summary built from `finishWorkout()`; `nil`
+        /// when the save produced no workout. Transitions the UI from "Saving…" to
+        /// the summary screen (IOS-00098-D).
+        case savedSummaryLoaded(WatchWorkoutSummary?)
+
         // MARK: - Delegate
 
         /// Delegate actions sent to the parent (`AppFeatureAW`).
@@ -128,6 +134,13 @@ extension HRMirrorFeature {
             /// prevent accidental workout termination from sweaty hands or motion
             /// during exercise. Triggers the same `.stop` flow as iPhone-initiated ending.
             case stopLongPressConfirmed
+
+            /// Called when the user taps Done on the post-save mini-summary.
+            ///
+            /// Forwards `.delegate(.didFinishSaving)` so `AppFeatureAW` dismisses
+            /// the feature — the same teardown as before IOS-00098-D, just deferred
+            /// until the user has seen the summary.
+            case summaryDoneTapped
 
         }
 

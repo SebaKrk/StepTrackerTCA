@@ -27,6 +27,16 @@ extension SessionFeature {
                     let watchStatus = await watchClient.checkWatchStatus()
                     Logger.session.info("viewDidAppear — watchStatus: \(watchStatus.rawValue), workout: \(workout.title)")
 
+                    if let trainingSession {
+                        // Plan-based workout: remember the plan so the app-level listener
+                        // can link it with the HKWorkout UUID from `.workoutSaved` (IOS-00098-C).
+                        @Shared(.pendingPlanLink) var pendingPlanLink
+                        $pendingPlanLink.withLock {
+                            $0 = PendingPlanLink(trainingSessionId: trainingSession.id, workoutStartDate: Date())
+                        }
+                        Logger.session.info("pendingPlanLink set — plan \(trainingSession.id)")
+                    }
+
                     if watchStatus == .ready {
                         // Watch-primary: iPhone does NOT start its own HKWorkoutSession.
                         // Watch starts the primary session and mirrors it to iPhone.

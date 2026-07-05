@@ -7,10 +7,17 @@
 
 import ComposableArchitecture
 import Foundation
+import OSLog
 import SharedModels
 
 @Reducer
 struct AppTabNewFeature {
+
+    // MARK: - Dependencies
+
+    @Dependency(\.watchConnectivityClient) var watchConnectivityClient
+    @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
+    @Dependency(\.uuid) var uuid
 
     // MARK: - Reducer
 
@@ -42,14 +49,61 @@ struct AppTabNewFeature {
                 
                 // MARK: - View Action
             case .view(.viewDidAppear):
-                return .none
+                // App-level listener — `.workoutSaved` must be consumed regardless of
+                // which screen is open (SessionFeature may be long dismissed when
+                // `transferUserInfo` delivers the event, even on a later app launch).
+                return .run { [watchClient = watchConnectivityClient] send in
+                    for await event in watchClient.incomingEventStream() {
+                        guard case let .workoutSaved(workoutUUID) = event else { continue }
+                        await send(.workoutSavedEventReceived(workoutUUID))
+                    }
+                }
+                .cancellable(id: AppTabNewCancelID.watchSavedEventListener, cancelInFlight: true)
+
+            case let .workoutSavedEventReceived(workoutId):
+                // Refresh listy/badge'a dzieje się bez naszego udziału: lista obserwuje
+                // HealthKit (observeWorkoutChanges), badge obserwuje bazę (@FetchAll).
+                // Tu zostaje wyłącznie zapis powiązania plan↔workout.
+                return .run { [scoreClient = workoutPlanScoreClient, uuid] _ in
+                    @Shared(.pendingPlanLink) var pendingPlanLink
+                    guard let pending = pendingPlanLink else { return }
+
+                    // Staleness guard — a pending link from an abandoned start must not
+                    // claim an unrelated workout saved hours later.
+                    guard Date().timeIntervalSince(pending.workoutStartDate) < Self.pendingLinkMaxAge else {
+                        $pendingPlanLink.withLock { $0 = nil }
+                        Logger.session.notice("pendingPlanLink stale — dropped without linking")
+                        return
+                    }
+
+                    // Idempotency — duplicate event delivery (sendMessage + transferUserInfo
+                    // fallback) or an already-existing score must not be overwritten.
+                    guard try await scoreClient.fetchByHKWorkoutId(workoutId) == nil else {
+                        $pendingPlanLink.withLock { $0 = nil }
+                        return
+                    }
+
+                    let score = WorkoutPlanScore(
+                        id: uuid(),
+                        date: pending.workoutStartDate,
+                        trainingSessionId: pending.trainingSessionId,
+                        hkWorkoutId: workoutId,
+                        results: []
+                    )
+                    try await scoreClient.save(score)
+                    $pendingPlanLink.withLock { $0 = nil }
+                    Logger.session.info("plan↔workout linked — plan \(pending.trainingSessionId), workout \(workoutId)")
+                    await WorkoutFileLogger.shared.log("[PlanLink] linked plan \(pending.trainingSessionId) ↔ workout \(workoutId)")
+                } catch: { error, _ in
+                    Logger.session.error("plan↔workout link failed: \(error.localizedDescription)")
+                }
 
                 // MARK: - Destination
             case let .destination(.presented(.workoutConfiguration(.delegate(.start(workout))))):
                 return .run { send in
                     await send(.activateWorkoutSessionView(workout))
                 }
-                
+
             case .destination:
                 return .none
                 
@@ -66,6 +120,25 @@ struct AppTabNewFeature {
         }
         .ifLet(\.$destination, action: \.destination)
     }
+}
+
+extension AppTabNewFeature {
+
+    /// Maximum age of a pending plan link at consume time. Older entries come from
+    /// abandoned starts (workout never saved) and must not claim unrelated workouts.
+    static let pendingLinkMaxAge: TimeInterval = 12 * 3600
+}
+
+/// Cancel identifiers used by `AppTabNewFeature` long-running effects.
+///
+/// `nonisolated` — see `SessionWatchCancelID` for rationale (project-wide
+/// `defaultIsolation(MainActor.self)` vs `cancellable(id:)` Sendable requirement).
+nonisolated enum AppTabNewCancelID: Hashable, Sendable {
+
+    /// App-lifetime listener for `.workoutSaved` events from Watch (IOS-00098-C).
+    /// Started on root `viewDidAppear`; `cancelInFlight` guards against duplicate
+    /// listeners on view re-appear.
+    case watchSavedEventListener
 }
 
 /// Implementation of `AppTabNewFeature` action
@@ -89,6 +162,10 @@ extension AppTabNewFeature {
         
         ///
         case activateWorkoutSessionView(WorkoutType)
+
+        /// Watch reported a saved `HKWorkout` (`.workoutSaved` via WatchConnectivity).
+        /// Consumes the pending plan link and writes an empty-results score record (IOS-00098-C).
+        case workoutSavedEventReceived(UUID)
         
         // MARK: - View Actions
         

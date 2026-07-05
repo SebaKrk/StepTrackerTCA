@@ -54,4 +54,8 @@ nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     case intentResumeObserver
     case intentEndObserver
 
+    /// Mirroring-link connection status stream (IOS-00098-G, Watch-primary only).
+    /// Started by `sessionPhaseReducer` on `.session`, cancelled on end transitions.
+    case watchConnectionStream
+
 }

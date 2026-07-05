@@ -96,6 +96,15 @@ public protocol TrainingManager: Sendable {
     /// parallel with `startWatchApp` without knowing whether the Watch actually responded.
     var mirroredSessionStartedStream: AsyncStream<Void> { get }
 
+    /// Multicast stream of the mirroring-link connection status (IOS-00098-G).
+    ///
+    /// `.lost` after `didDisconnectFromRemoteDeviceWithError` while the session is
+    /// running/paused (a normal end-teardown disconnect does NOT emit), `.connected`
+    /// when the system reconnect delivers a fresh mirrored session via the start
+    /// handler. Drives the connection-lost banner, tick-send gating and End-button
+    /// instruction alert in `SessionFeature`.
+    var watchConnectionStatusStream: AsyncStream<WatchMirroringConnectionStatus> { get }
+
     /// Sends arbitrary data to the paired Watch through the HealthKit mirroring channel
     /// (`HKWorkoutSession.sendToRemoteWorkoutSession(data:)`).
     ///

@@ -60,6 +60,13 @@ public struct ActivityClient: Sendable {
     /// Deletes the given workout from HealthKit.
     /// Only works for workouts created by this app.
     public var deleteWorkout: @Sendable (HKWorkout) async throws -> Void
+
+    /// Push-based change signal: emits whenever the HealthKit workout collection
+    /// changes (a new workout lands — e.g. Watch→iPhone sync completes — or one is
+    /// deleted). The initial snapshot is skipped, so every emission is a real change.
+    /// Wzorzec R5 (`HKAnchoredObjectQueryDescriptor.results(for:)`) — subscribers
+    /// refetch on emission instead of polling.
+    public var observeWorkoutChanges: @Sendable () -> AsyncStream<Void>
 }
 
 extension ActivityClient: DependencyKey {
@@ -145,6 +152,33 @@ extension ActivityClient: DependencyKey {
             },
             deleteWorkout: { workout in
                 try await healthStore.delete(workout)
+            },
+            observeWorkoutChanges: {
+                AsyncStream { continuation in
+                    let task = Task {
+                        let descriptor = HKAnchoredObjectQueryDescriptor(
+                            predicates: [.workout()],
+                            anchor: nil
+                        )
+                        do {
+                            var isInitialSnapshot = true
+                            for try await _ in descriptor.results(for: healthStore) {
+                                // Pierwsza emisja to pełny snapshot istniejących workoutów —
+                                // pomijamy, subskrybent interesuje się tylko ZMIANAMI.
+                                if isInitialSnapshot {
+                                    isInitialSnapshot = false
+                                    continue
+                                }
+                                continuation.yield(())
+                            }
+                        } catch {
+                            // Query padło (np. cofnięte uprawnienia) — kończymy stream,
+                            // subskrybent zostaje przy triggerach manualnych (pull-to-refresh).
+                        }
+                        continuation.finish()
+                    }
+                    continuation.onTermination = { _ in task.cancel() }
+                }
             }
         )
     }()
@@ -162,7 +196,11 @@ extension ActivityClient: DependencyKey {
         fetchWorkoutRoute: unimplemented("ActivityClient.fetchWorkoutRoute", placeholder: []),
         fetchWorkoutStartLocation: unimplemented("ActivityClient.fetchWorkoutStartLocation", placeholder: nil),
         fetchWorkoutById: unimplemented("ActivityClient.fetchWorkoutById", placeholder: nil),
-        deleteWorkout: unimplemented("ActivityClient.deleteWorkout")
+        deleteWorkout: unimplemented("ActivityClient.deleteWorkout"),
+        observeWorkoutChanges: unimplemented(
+            "ActivityClient.observeWorkoutChanges",
+            placeholder: { AsyncStream { $0.finish() } }()
+        )
     )
 }
 

@@ -73,6 +73,12 @@ struct WatchWorkoutSessionClient: Sendable {
     /// One-shot — second call after save returns nil. Used by `HRMirrorFeature.stop` to
     /// include UUID in the `.workoutSaved` event so iPhone can fetch the exact workout.
     var consumeLastSavedWorkoutUUID: @Sendable () async -> UUID?
+
+    /// Returns a `WatchWorkoutSummary` built from the most recently saved workout
+    /// (duration, kcal, avg HR — straight from the `finishWorkout()` return value),
+    /// and clears it after read. One-shot, same semantics as `consumeLastSavedWorkoutUUID`.
+    /// `nil` when the save failed or `finishWorkout()` returned no workout (IOS-00098-D).
+    var consumeLastSavedWorkoutSummary: @Sendable () async -> WatchWorkoutSummary?
 }
 
 // MARK: - Dependency
@@ -120,6 +126,9 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
             },
             consumeLastSavedWorkoutUUID: {
                 await manager.consumeLastSavedWorkoutUUID()
+            },
+            consumeLastSavedWorkoutSummary: {
+                await manager.consumeLastSavedWorkoutSummary()
             }
         )
     }()
@@ -154,11 +163,39 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// (read + cleared) by `HRMirrorFeature` so it can ship UUID in `.workoutSaved` event.
     private var lastSavedWorkoutUUID: UUID?
 
+    /// Summary snapshot of the most recently saved HKWorkout — set alongside
+    /// `lastSavedWorkoutUUID` in both save paths. Consumed by `HRMirrorFeature`
+    /// to feed the Watch mini-summary screen (IOS-00098-D).
+    private var lastSavedWorkoutSummary: WatchWorkoutSummary?
+
     /// Returns the UUID set during the most recent save, then clears it.
     func consumeLastSavedWorkoutUUID() async -> UUID? {
         let uuid = lastSavedWorkoutUUID
         lastSavedWorkoutUUID = nil
         return uuid
+    }
+
+    /// Returns the summary snapshot from the most recent save, then clears it.
+    func consumeLastSavedWorkoutSummary() async -> WatchWorkoutSummary? {
+        let summary = lastSavedWorkoutSummary
+        lastSavedWorkoutSummary = nil
+        return summary
+    }
+
+    /// Maps a finished `HKWorkout` to the mini-summary snapshot. Reads statistics
+    /// off the in-memory workout — no HealthKit query (Apple iOS 26 sample pattern).
+    private func makeSummary(from workout: HKWorkout?) -> WatchWorkoutSummary? {
+        guard let workout else { return nil }
+        let heartRateUnit = HKUnit.count().unitDivided(by: .minute())
+        return WatchWorkoutSummary(
+            duration: workout.duration,
+            activeEnergyKcal: workout.statistics(for: HKQuantityType(.activeEnergyBurned))?
+                .sumQuantity()?
+                .doubleValue(for: .kilocalorie()) ?? 0,
+            averageHeartRate: workout.statistics(for: HKQuantityType(.heartRate))?
+                .averageQuantity()?
+                .doubleValue(for: heartRateUnit) ?? 0
+        )
     }
 
     /// Returns a stream of `.paused` / `.running` states from the Watch session delegate.
@@ -199,6 +236,14 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         } else {
             await WorkoutFileLogger.shared.log("[Start] pre-condition OK: no existing session")
         }
+
+        // Per-workout state reset (R7). Without it, `workoutFinished` left true by the
+        // previous save makes end() SKIP finishWorkout() for every subsequent workout
+        // in the same app session — no HKWorkout, no `.workoutSaved` UUID, no summary.
+        // watchOS keeps the app resident between workouts, so this hit workout #2+.
+        workoutFinished = false
+        lastSavedWorkoutUUID = nil
+        lastSavedWorkoutSummary = nil
 
         let config = HKWorkoutConfiguration()
         config.activityType = activityType
@@ -284,6 +329,7 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             do {
                 let workout = try await builder.finishWorkout()
                 lastSavedWorkoutUUID = workout?.uuid
+                lastSavedWorkoutSummary = makeSummary(from: workout)
                 Logger.watchSession.info("end() ✓ workout saved to HealthKit (uuid=\(workout?.uuid.uuidString ?? "nil"))")
                 await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (uuid=\(workout?.uuid.uuidString ?? "nil"))")
             } catch {
@@ -335,7 +381,9 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             return
         }
         do {
-            try await session.sendToRemoteWorkoutSession(data: data)
+            // Guarded variant (SharedModels) — hard timeout against Apple bug #769355
+            // where the native async send never resumes.
+            try await session.sendToRemoteWorkoutSession(data: data, timeout: 3)
         } catch {
             Logger.watchSession.error("sendToRemoteWorkoutSession failed: \(error.localizedDescription)")
         }
@@ -433,6 +481,15 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         from fromState: HKWorkoutSessionState,
         date: Date
     ) {
+        // Identity guard (mirror of IOS-00098-B on the iPhone side): a late callback
+        // from a previous, already-replaced session must not touch current state —
+        // in particular a stale `.ended` would fire the safety-net against the NEW
+        // builder and flip `workoutFinished`, silently skipping the next real save.
+        guard workoutSession === session else {
+            Logger.watchSession.notice("ignoring didChangeTo \(toState.description) from stale session")
+            return
+        }
+
         Logger.watchSession.info("delegate: sessionState \(fromState.description) → \(toState.description)")
         Task {
             await WorkoutFileLogger.shared.log("[Delegate] sessionState \(fromState.description) → \(toState.description)")
@@ -459,6 +516,7 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
                     try await builder.endCollection(at: date)
                     let workout = try await builder.finishWorkout()
                     self.lastSavedWorkoutUUID = workout?.uuid
+                    self.lastSavedWorkoutSummary = self.makeSummary(from: workout)
                     Logger.watchSession.info("safety-net: workout saved (uuid=\(workout?.uuid.uuidString ?? "nil"))")
                     await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (safety-net, uuid=\(workout?.uuid.uuidString ?? "nil"))")
                 } catch {

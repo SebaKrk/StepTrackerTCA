@@ -975,3 +975,19 @@
     B: DEBUG BLE peer diagnostics to workout file log (fileLog seam, #if DEBUG)
     C: Pending-connect reconnect to known host (retrievePeripherals) — fixes stuck "searching" (RSSI gate + allowDuplicates trap)
     D: Peer search timeout → .connectionLost state with "Scan to rejoin" (symmetric to host grace)
+
+### IOS-00098 Workout end-flow — primary-device summary + deferred results entry
+    - branch: `dev/IOS-00098/IOS-00098`
+    - plan + pełna historia bugów: `PLANS/IOS-00098-endflow-primary-summary.md`
+    - research: Apple docs / WWDC25 #322 / sample iOS 26 — zasada "summary pokazuje właściciel sesji"
+
+    A: Send timeout — guarded `sendToRemoteWorkoutSession` (3s + retry, Apple bug 769355), oba kierunki
+    B: Stale-session identity guards — delegaty HKWorkoutSession na iPhonie ORAZ Watchu (spóźniony `.ended` starej sesji odpalał safety-net na nowym builderze)
+    C: Auto-link plan↔workout — app-level listener `.workoutSaved(UUID)` + `PendingPlanLink` (`.fileStorage`, przeżywa kill). Po drodze: WC event stream przepisany na multicast ("latest-wins" zabijał równoległych subskrybentów — listener głuchł przy starcie treningu)
+    D: Watch mini-summary z `finishWorkout()` (layout jak legacy TrainingSummaryView, `presented(nil)` = uczciwe "Workout ended" bez zielonego checka) + fix zapisu: reset `workoutFinished` per-workout (trening #2+ w tej samej sesji apki NIE zapisywał się — zweryfikowane logami, 66-min siłowy przepadł)
+    E: Watch-primary End → teardown + auto-dismiss, bez ekranu pośredniego (rewizja: interstitial skasowany). Wycięta maszyneria oczekiwania: 10s timeout `.workoutSaved` + poll 40×3s + SUMMARY FAILED; standalone: bounded retry 5×1s
+    F: Historia — badge "Uzupełnij wyniki" (chip przy dacie) + wejście w manual entry z pre-podpiętym planem; 3 stany toolbara (Podpnij plan / Uzupełnij wyniki / Edytuj wynik)
+    G: Connection-lost — banner "trening trwa dalej", wstrzymanie WYSYŁEK ticków (licznik tyka — inaczej zegar Watcha cofałby się po reconnect), End → alert "zakończ na Watchu" (per Apple docs), S4 (koniec+zapis przy martwym linku → uczciwe domknięcie), wskaźnik w Dynamic Island
+
+    * Refresh przez OBSERWACJĘ zamiast ręcznych triggerów: lista = `HKAnchoredObjectQueryDescriptor` observer (HealthKit pcha zmianę po syncu); badge = `@FetchAll` (pierwsze użycie SQLiteData observation w projekcie); tabela score = refetch na dismiss formularza
+    * Code review 3 agentami (concurrency / architektura TCA / data flows): naprawiony CRITICAL (brak NSLock na multicast dict w TrainingManagerze); klastry findings A–E (plan-link false claiming, launch race listenera, wyścigi konsumpcji na Watchu, fire-and-forget End, refresh storm) — spisane w planie, do naprawy przed/po commicie

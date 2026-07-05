@@ -108,6 +108,14 @@ extension SessionFeature {
                                 }
                             }
                             .cancellable(id: SessionWatchCancelID.sessionStateStream),
+                            // Mirroring-link status (IOS-00098-G) — drives the connection-lost
+                            // banner, tick suspension and End-button gating.
+                            .run { [sessionClient] send in
+                                for await status in await sessionClient.watchConnectionStatusStream() {
+                                    await send(.watchConnectionStatusChanged(status))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.watchConnectionStream),
                             .run { [sessionClient] send in
                                 for await metrics in await sessionClient.workoutMetricsStream() {
                                     await send(.live(.workoutMetrics(metrics)))
@@ -201,24 +209,46 @@ extension SessionFeature {
                         ? .send(.joinLiveClass(.view(.leaveTapped)))
                         : .none
 
-                    var effects: [Effect<Action>] = [
+                    return .merge(
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
                         .cancel(id: SessionWatchCancelID.intentPauseObserver),
                         .cancel(id: SessionWatchCancelID.intentResumeObserver),
                         .cancel(id: SessionWatchCancelID.intentEndObserver),
+                        .cancel(id: SessionWatchCancelID.watchConnectionStream),
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop)))),
                         .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases))),
                         gymRoomCleanup
-                    ]
-                    // iPhone-standalone: iPhone saved the workout — skip .saving, go straight to polling.
-                    // Watch-primary: keep watchEventStream alive for .workoutSaved from Watch.
-                    if state.workoutMode == .iPhoneStandalone {
-                        effects.append(.send(.summary(.workoutSavedReceived)))
-                    }
-                    return .merge(effects)
+                    )
+                } else if value == .finishedOnWatch {
+                    // Watch-primary post-end (IOS-00098-E): same session teardown as `.summary`,
+                    // but no summary data wiring — the Watch (primary owner) shows the immediate
+                    // summary and the app-level listener (AppTabNewFeature) consumes `.workoutSaved`
+                    // for the plan link, so `watchEventStream` can be cancelled too.
+                    //
+                    // No interstitial screen on iPhone (decyzja usera 2026-07-03): after teardown
+                    // the session simply dismisses — the confirmation lives on the wrist, and
+                    // "wyniki w Historii" is carried durably by the pending-results badge (F).
+                    let gymRoomCleanup: Effect<Action> = state.joinLiveClass != nil
+                        ? .send(.joinLiveClass(.view(.leaveTapped)))
+                        : .none
+
+                    return .merge(
+                        .cancel(id: SessionWatchCancelID.sessionStateStream),
+                        .cancel(id: SessionWatchCancelID.watchTickTimer),
+                        .cancel(id: SessionWatchCancelID.metricsStream),
+                        .cancel(id: SessionWatchCancelID.intentPauseObserver),
+                        .cancel(id: SessionWatchCancelID.intentResumeObserver),
+                        .cancel(id: SessionWatchCancelID.intentEndObserver),
+                        .cancel(id: SessionWatchCancelID.watchEventStream),
+                        .cancel(id: SessionWatchCancelID.watchConnectionStream),
+                        .send(.live(.liveActivity(.workout(.stop)))),
+                        .send(.live(.liveActivity(.timer(.stop)))),
+                        gymRoomCleanup,
+                        .run { _ in await self.dismiss() }
+                    )
                 }
                 return .none
 

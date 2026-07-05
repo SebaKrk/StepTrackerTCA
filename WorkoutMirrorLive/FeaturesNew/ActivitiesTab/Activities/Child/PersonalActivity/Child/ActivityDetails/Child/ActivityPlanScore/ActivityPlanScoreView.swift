@@ -58,11 +58,28 @@ struct ActivityPlanScoreView: View {
 
     private func resultsView(_ score: WorkoutPlanScore) -> some View {
         GroupBox {
-            resultsList(score.results)
+            if score.results.isEmpty {
+                pendingResultsHint
+            } else {
+                resultsList(score.results)
+            }
         } label: {
             resultsLabel
         }
         .styledGroupBox()
+    }
+
+    /// Plan auto-linked (IOS-00098-C) but no results yet — points the user to the
+    /// "Uzupełnij wyniki" toolbar button instead of rendering an empty list.
+    private var pendingResultsHint: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "square.and.pencil")
+                .foregroundStyle(.orange)
+            Text(String(localized: "Plan podpięty — wyniki czekają na uzupełnienie"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
     }
 
     private func resultsList(_ results: [WorkoutSessionResult]) -> some View {

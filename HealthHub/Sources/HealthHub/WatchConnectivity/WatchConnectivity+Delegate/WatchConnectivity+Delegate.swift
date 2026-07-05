@@ -127,8 +127,6 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
         if case .workoutTick = event { } else {
             Logger.wc.info("received event → \(String(describing: event))")
         }
-        continuationLock.withLock {
-            _eventContinuation?.yield(event)
-        }
+        yieldIncomingEvent(event)
     }
 }

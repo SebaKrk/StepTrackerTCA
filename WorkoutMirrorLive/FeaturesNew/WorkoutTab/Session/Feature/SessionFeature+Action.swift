@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import SharedModels
 
 /// Implementation of `SessionFeature` action
@@ -38,6 +39,15 @@ extension SessionFeature {
 
         /// Received when the paired Apple Watch sends a `WatchWorkoutEvent` during an active session.
         case watchEventReceived(WatchWorkoutEvent)
+
+        /// Mirroring-link status changed (IOS-00098-G): `.lost` mid-workout raises the
+        /// banner and suspends ticks; `.connected` (system auto-reconnect delivered a
+        /// fresh mirrored session) clears the banner and resumes ticks.
+        case watchConnectionStatusChanged(WatchMirroringConnectionStatus)
+
+        /// Presentation plumbing for the "end on Watch" instruction alert (`Never` —
+        /// alert has a single dismiss button, no domain actions).
+        case connectionLostAlert(PresentationAction<Never>)
 
         /// Sets the workout mode (Watch-primary vs iPhone-standalone) determined
         /// in `viewDidAppear` based on Watch availability.
