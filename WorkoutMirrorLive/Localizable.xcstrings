@@ -1225,6 +1225,9 @@
         }
       }
     },
+    "Brak połączenia z Apple Watch" : {
+
+    },
     "Brak treningów" : {
       "localizations" : {
         "pl" : {
@@ -2919,6 +2922,9 @@
         }
       }
     },
+    "No link" : {
+
+    },
     "No sleep data. Track your sleep to see insights." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3230,6 +3236,9 @@
           }
         }
       }
+    },
+    "Plan podpięty — wyniki czekają na uzupełnienie" : {
+
     },
     "Plan: %@" : {
       "localizations" : {
@@ -3641,6 +3650,7 @@
       }
     },
     "Saving workout..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4399,6 +4409,9 @@
         }
       }
     },
+    "Trening nadal trwa na zegarku. Zakończ go na Apple Watch, przytrzymując przycisk Stop." : {
+
+    },
     "Trening zostanie trwale usunięty z HealthKit." : {
       "localizations" : {
         "pl" : {
@@ -4506,6 +4519,12 @@
         }
       }
     },
+    "Utracono połączenie z Watchem — trening trwa dalej" : {
+
+    },
+    "Uzupełnij wyniki" : {
+
+    },
     "Value" : {
       "localizations" : {
         "pl" : {
@@ -4547,6 +4566,7 @@
       }
     },
     "Waiting for Apple Watch" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {

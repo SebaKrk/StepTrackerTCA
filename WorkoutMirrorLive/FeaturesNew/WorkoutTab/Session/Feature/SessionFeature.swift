@@ -40,6 +40,7 @@ struct SessionFeature {
             joinLiveClassReducer
         }
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$connectionLostAlert, action: \.connectionLostAlert)
         .ifLet(\.joinLiveClass, action: \.joinLiveClass) {
             JoinLiveClassFeature()
         }

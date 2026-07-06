@@ -38,30 +38,70 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
 
     // MARK: - Incoming Event Stream
 
-    /// Lock protecting `_eventContinuation` across delegate callbacks and stream subscriptions.
+    /// Lock protecting `eventContinuations` across delegate callbacks and stream subscriptions.
     let continuationLock = NSLock()
 
-    /// Current continuation backing `incomingWorkoutEventStream`.
+    /// Multicast: each `incomingWorkoutEventStream` subscriber gets its own continuation.
     ///
-    /// Replaced on each call to `incomingWorkoutEventStream` so that every new
-    /// `for await` subscription (e.g. second workout run) gets a fresh stream.
-    /// The previous continuation is finished first to cleanly terminate any
-    /// lingering iterator from the previous session.
-    var _eventContinuation: AsyncStream<WatchWorkoutEvent>.Continuation?
+    /// The previous implementation (single stored continuation, "latest subscriber wins")
+    /// was a bug of the `reference_async_stream_multicast` class: the SessionFeature
+    /// subscription at workout start FINISHED the app-level listener's stream (`AppTabNewFeature`,
+    /// IOS-00098-C) — `.workoutSaved` had no receiver, the plan-link and badge were never created.
+    var eventContinuations: [UUID: AsyncStream<WatchWorkoutEvent>.Continuation] = [:]
+
+    /// Events received while NO subscriber was registered (launch race: WCSession is
+    /// activated in AppDelegate and can deliver a queued `transferUserInfo` — e.g.
+    /// `.workoutSaved` from a previous run — BEFORE the root view's `onAppear` starts
+    /// the app-level listener). Replayed in order to the FIRST subscriber, then cleared.
+    /// Bounded FIFO — post-end `workoutTick` floods must not evict a lifecycle event.
+    var bufferedEvents: [WatchWorkoutEvent] = []
+
+    /// Upper bound for `bufferedEvents` (drop-oldest beyond it).
+    static let eventBufferLimit = 16
 
     /// A stream of `WatchWorkoutEvent` values received from the paired device.
     ///
-    /// Each access creates a new `AsyncStream` backed by a fresh continuation,
-    /// finishing the previous one. This prevents the "stale iterator" problem
-    /// where a second `for await` loop on the same stream receives no events
-    /// after the first loop was cancelled by TCA's `cancellable(id:)` mechanism.
+    /// Each access creates an independent `AsyncStream`; all active subscribers receive
+    /// every event (multicast). Terminated/cancelled subscribers are cleaned up via
+    /// `onTermination`. The first subscriber additionally receives events buffered
+    /// during the no-subscriber window (see `bufferedEvents`).
     public var incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent> {
         let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
-        continuationLock.withLock {
-            _eventContinuation?.finish()
-            _eventContinuation = continuation
+        let id = UUID()
+        continuation.onTermination = { [weak self] _ in
+            guard let self else { return }
+            self.continuationLock.withLock {
+                _ = self.eventContinuations.removeValue(forKey: id)
+            }
+        }
+        let replay = continuationLock.withLock { () -> [WatchWorkoutEvent] in
+            eventContinuations[id] = continuation
+            let buffered = bufferedEvents
+            bufferedEvents.removeAll()
+            return buffered
+        }
+        for event in replay {
+            continuation.yield(event)
         }
         return stream
+    }
+
+    /// Multicast yield — delivers the event to all active subscribers; with zero
+    /// subscribers the event is buffered for replay (launch race, review cluster B).
+    func yieldIncomingEvent(_ event: WatchWorkoutEvent) {
+        let continuations = continuationLock.withLock { () -> [AsyncStream<WatchWorkoutEvent>.Continuation] in
+            let values = Array(eventContinuations.values)
+            if values.isEmpty {
+                bufferedEvents.append(event)
+                if bufferedEvents.count > Self.eventBufferLimit {
+                    bufferedEvents.removeFirst(bufferedEvents.count - Self.eventBufferLimit)
+                }
+            }
+            return values
+        }
+        for continuation in continuations {
+            continuation.yield(event)
+        }
     }
 
     // MARK: - Lifecycle
@@ -170,9 +210,13 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         session?.delegate = nil
         session = nil
         await statusActor.updateStatus(.unknown)
-        continuationLock.withLock {
-            _eventContinuation?.finish()
-            _eventContinuation = nil
+        let continuations = continuationLock.withLock { () -> [AsyncStream<WatchWorkoutEvent>.Continuation] in
+            let values = Array(eventContinuations.values)
+            eventContinuations.removeAll()
+            return values
+        }
+        for continuation in continuations {
+            continuation.finish()
         }
     }
 

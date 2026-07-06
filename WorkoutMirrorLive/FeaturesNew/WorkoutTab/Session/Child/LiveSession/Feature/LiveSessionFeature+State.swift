@@ -40,16 +40,21 @@ extension LiveSessionFeature {
         /// Provided by `SessionFeature`, which retrieves the user’s age and biological sex
         /// from HealthKit and resolves max HR via `maxHeartRateClient.fromAge(age, sex)`.
         var maxHeartRate: Int = 0
+
+        /// Mirroring-link status forwarded by `SessionFeature` (IOS-00098-G). Included
+        /// in every Live Activity `ContentState` so Dynamic Island / Lock Screen can
+        /// flag stale metrics while the Watch link is down.
+        var isWatchConnectionLost: Bool = false
         
         // MARK: - Child
 
         /// Live Activity management (delegated to child reducer)
         var liveActivity = LiveActivityFeature.State()
 
-        /// Niezależny stopwatch użytkownika (toolbar button).
+        /// Independent user stopwatch (toolbar button).
         var userStopwatch = StopwatchFeature.State()
 
-        /// Stopwatch zarządzający timerem aktywnej fazy planu.
+        /// Stopwatch managing the active plan phase timer.
         var phaseStopwatch = StopwatchFeature.State()
 
         // MARK: - Phase Panel
@@ -93,7 +98,8 @@ extension LiveSessionFeature {
                 heartRatePercentage: currentHeartRatePercentage,
                 activeEnergy: workoutMetrics.activeEnergy,
                 maxHeartRate: sessionMaxHeartRate,
-                averageHeartRate: sessionAverageHeartRate
+                averageHeartRate: sessionAverageHeartRate,
+                isWatchConnectionLost: isWatchConnectionLost
             )
         }
     }

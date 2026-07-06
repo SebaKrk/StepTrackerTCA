@@ -240,6 +240,13 @@ struct ActivityDetailsFeature {
                     }
                 }
 
+            case .destination(.dismiss):
+                // Manual-entry sheet (SummaryFeature) zamknięty — jeśli user zapisał
+                // wyniki, sekcja Score musi je pokazać od razu, bez ponownego wejścia
+                // w ekran. Refetch jest tani (fetchOne po hkWorkoutId).
+                guard case .summary = state.destination else { return .none }
+                return .send(.planScore(.fetchScore))
+
             case .destination:
                 return .none
 

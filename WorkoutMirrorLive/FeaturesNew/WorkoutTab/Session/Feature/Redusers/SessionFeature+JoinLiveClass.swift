@@ -15,8 +15,8 @@ extension SessionFeature {
         Reduce { state, action in
             switch action {
 
-            case .joinLiveClassSheetDismissed:
-                // Swipe-down / X — broadcast TRWA, state żyje.
+            case .view(.joinLiveClassSheetDismissed):
+                // Swipe-down / X — the broadcast CONTINUES, state stays alive.
                 state.isJoinLiveClassSheetPresented = false
                 return .none
 

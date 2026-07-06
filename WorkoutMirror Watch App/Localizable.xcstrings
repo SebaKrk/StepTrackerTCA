@@ -7,6 +7,9 @@
     "%lld%%" : {
 
     },
+    "Avg. Heart Rate" : {
+
+    },
     "BPM" : {
 
     },
@@ -19,6 +22,9 @@
           }
         }
       }
+    },
+    "Done" : {
+
     },
     "End now" : {
       "localizations" : {
@@ -81,6 +87,12 @@
         }
       }
     },
+    "Total Energy" : {
+
+    },
+    "Total Time" : {
+
+    },
     "Unfinished workout detected" : {
       "localizations" : {
         "pl" : {
@@ -100,6 +112,15 @@
           }
         }
       }
+    },
+    "Workout data unavailable" : {
+
+    },
+    "Workout ended" : {
+
+    },
+    "Workout saved" : {
+
     },
     "Workout started: %@" : {
       "localizations" : {

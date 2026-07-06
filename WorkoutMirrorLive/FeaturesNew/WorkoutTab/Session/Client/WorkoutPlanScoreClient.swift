@@ -50,7 +50,18 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
             save: { score in
                 @Dependency(\.date.now) var now
                 try await database.write { db in
-                    let record = try WorkoutPlanScoreRecord(from: score, createdAt: now, updatedAt: now)
+                    // Upsert overwrites all columns — the `createdAt` of an existing
+                    // record must survive (the auto-link → save results sequence
+                    // would shift the creation date to the moment of editing).
+                    let existingCreatedAt = try WorkoutPlanScoreRecord
+                        .where { $0.id.eq(score.id) }
+                        .fetchOne(db)?
+                        .createdAt
+                    let record = try WorkoutPlanScoreRecord(
+                        from: score,
+                        createdAt: existingCreatedAt ?? now,
+                        updatedAt: now
+                    )
                     let draft = WorkoutPlanScoreRecord.Draft(
                         id: record.id,
                         date: record.date,

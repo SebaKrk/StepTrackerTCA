@@ -31,6 +31,13 @@ struct LiveSessionFeature {
             case let .setupMaxHeartRate(value):
                 state.maxHeartRate = value
                 return .none
+
+            case let .setWatchConnectionLost(isLost):
+                guard state.isWatchConnectionLost != isLost else { return .none }
+                state.isWatchConnectionLost = isLost
+                // Immediate LA push — with the link down no metrics update will arrive
+                // to carry the flag, so push ContentState from the last known values.
+                return .send(.liveActivity(.workout(.update(state.workoutContentState))))
                 
             case let .workoutMetrics(data):
                 // Watch is the primary HR source. When HealthKit sends HR = 0
@@ -48,14 +55,9 @@ struct LiveSessionFeature {
                 if effectiveHR > 0 {
                     Task { await WorkoutFileLogger.shared.logHRIfNeeded(bpm: effectiveHR) }
                 }
-                let contentState = WorkoutSessionActivityAttributes.ContentState(
-                    heartRate: effectiveHR,
-                    heartRateZone: state.currentHeartRateZone,
-                    heartRatePercentage: state.currentHeartRatePercentage,
-                    activeEnergy: data.activeEnergy,
-                    maxHeartRate: state.sessionMaxHeartRate,
-                    averageHeartRate: state.sessionAverageHeartRate
-                )
+                // state.workoutMetrics updated above — the computed property assembles
+                // ContentState from a single source (no manual duplication of the field list).
+                let contentState = state.workoutContentState
 
                 var effects: [Effect<Action>] = [
                     .send(.calculateHeartRateZone(Int(effectiveHR), state.maxHeartRate)),

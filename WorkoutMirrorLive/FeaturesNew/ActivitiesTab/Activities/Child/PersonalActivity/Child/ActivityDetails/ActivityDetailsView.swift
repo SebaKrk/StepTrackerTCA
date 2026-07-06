@@ -56,7 +56,9 @@ struct ActivityDetailsView: View {
     /// Toolbar button:
     /// - "Podpnij plan" gdy workout nie ma podpiętego planu (`loadState == .notFound`)
     ///   — escape hatch dla nieudanego `.saving → .summary` flow.
-    /// - "Edytuj wynik" gdy workout ma już podpięty plan (`loadState == .loaded(_)`)
+    /// - "Uzupełnij wyniki" gdy plan został auto-podpięty przez app-level listener
+    ///   (IOS-00098-C) ale wyniki są puste — ten sam edit flow, pre-podpięty plan.
+    /// - "Edytuj wynik" gdy workout ma już podpięty plan z wynikami (`loadState == .loaded(_)`)
     ///   — pre-fill SummaryView istniejącymi wynikami, user może modyfikować.
     /// Loading/failed → button schowany.
     @ToolbarContentBuilder
@@ -70,12 +72,12 @@ struct ActivityDetailsView: View {
                     Text(linkTemplateButtonTitle)
                 }
             }
-        case .loaded:
+        case let .loaded(score):
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     send(.editExistingScoreTapped)
                 } label: {
-                    Text(editScoreButtonTitle)
+                    Text(score.results.isEmpty ? fillResultsButtonTitle : editScoreButtonTitle)
                 }
             }
         case .loading, .failed:
@@ -85,6 +87,10 @@ struct ActivityDetailsView: View {
 
     private var linkTemplateButtonTitle: String {
         String(localized: "Podpnij plan")
+    }
+
+    private var fillResultsButtonTitle: String {
+        String(localized: "Uzupełnij wyniki")
     }
 
     private var editScoreButtonTitle: String {

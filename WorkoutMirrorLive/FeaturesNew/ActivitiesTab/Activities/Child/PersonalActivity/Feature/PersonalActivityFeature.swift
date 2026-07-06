@@ -42,6 +42,11 @@ struct PersonalActivityFeature {
                         }
                     ))
                 }
+                // cancelInFlight: a new fetch (observer burst, filter change) kills the ENTIRE
+                // previous pipeline (fetch → maxHR → zones) — without this, parallel
+                // runs flickered badges and could complete in the wrong order
+                // (review cluster E).
+                .cancellable(id: PersonalActivityCancelID.fetchPipeline, cancelInFlight: true)
 
             case let .workoutsFetched(.success(workouts)):
                 state.workouts = workouts
@@ -67,6 +72,9 @@ struct PersonalActivityFeature {
                     }
                     await send(.maxHRByWorkoutResolved(maxHRMap))
                 }
+                // Pipeline stage — same ID as the fetch (without cancelInFlight): a new fetch
+                // also kills this stage if it is in flight.
+                .cancellable(id: PersonalActivityCancelID.fetchPipeline)
 
             case let .maxHRByWorkoutResolved(map):
                 state.maxHRByWorkout = map
@@ -94,6 +102,7 @@ struct PersonalActivityFeature {
                     }
                     await send(.allWorkoutZonesAnalyzed(zoneResults))
                 }
+                .cancellable(id: PersonalActivityCancelID.fetchPipeline)
                 
             case let .workoutsFetched(.failure(error)):
                 dump(error)
@@ -106,7 +115,27 @@ struct PersonalActivityFeature {
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                return .send(.fetchWorkouts)
+                return .merge(
+                    .send(.fetchWorkouts),
+                    // Push-based refresh (R5): HealthKit itself signals a change in the workout
+                    // collection (e.g. Watch→iPhone sync arrived after a finished workout) —
+                    // the list refreshes without polling and without user action.
+                    .run { [activityClient] send in
+                        for await _ in activityClient.observeWorkoutChanges() {
+                            await send(.workoutStoreChanged)
+                        }
+                    }
+                    .cancellable(id: PersonalActivityCancelID.workoutChangesObserver, cancelInFlight: true)
+                )
+
+            case .workoutStoreChanged:
+                // Debounce (review cluster E): an emission burst (multi-workout sync) restarts
+                // the 500 ms counter — the pipeline starts ONCE, after the changes settle.
+                return .run { send in
+                    try? await Task.sleep(for: .milliseconds(500))
+                    await send(.fetchWorkouts)
+                }
+                .cancellable(id: PersonalActivityCancelID.observerDebounce, cancelInFlight: true)
                 
             case let .view(.changeDays(value)):
                 state.days = value
@@ -174,6 +203,9 @@ struct PersonalActivityFeature {
                 // MARK: - Destination
 
             case .destination:
+                // The "Uzupełnij wyniki" badge updates itself — `pendingScores` is an
+                // observed SQLiteData query, saving results in details/Summary
+                // lands here without a manual refetch.
                 return .none
             }
         }
@@ -182,5 +214,28 @@ struct PersonalActivityFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 
+}
+
+// MARK: - Cancel IDs
+
+/// Cancel identifiers used by `PersonalActivityFeature` long-running effects.
+///
+/// `nonisolated` — see `SessionWatchCancelID` for rationale (project-wide
+/// `defaultIsolation(MainActor.self)` vs `cancellable(id:)` Sendable requirement).
+nonisolated enum PersonalActivityCancelID: Hashable, Sendable {
+
+    /// HealthKit workout-collection observer (R5 push refresh). Lives as long as the
+    /// list feature; started on `viewDidAppear`, `cancelInFlight` guards re-appear
+    /// duplicates.
+    case workoutChangesObserver
+
+    /// 500 ms debounce between an observer emission and the actual fetch —
+    /// collapses multi-workout sync bursts into a single pipeline run.
+    case observerDebounce
+
+    /// The whole fetch pipeline (fetch → per-workout maxHR → zone analysis).
+    /// A new `fetchWorkouts` cancels any in-flight stage (`cancelInFlight` on the
+    /// first stage), preventing interleaved snapshots and badge flicker.
+    case fetchPipeline
 }
 

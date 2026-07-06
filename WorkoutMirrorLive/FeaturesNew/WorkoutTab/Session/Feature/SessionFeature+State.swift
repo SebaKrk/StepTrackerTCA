@@ -29,6 +29,19 @@ extension SessionFeature {
         /// The training plan to execute, if any. `nil` for free workouts.
         var trainingSession: TrainingSession? = nil
 
+        // MARK: - Watch Connection (IOS-00098-G)
+
+        /// `true` while the HealthKit mirroring link with the Watch-primary session is
+        /// down (`didDisconnectFromRemoteDeviceWithError` mid-workout). The workout keeps
+        /// running on the Watch — UI shows a banner, ticks are suspended, and the End
+        /// button routes to an instruction alert instead of sending into a dead link.
+        /// Cleared when the system reconnect delivers a fresh mirrored session.
+        var isWatchConnectionLost: Bool = false
+
+        /// Instruction alert shown when the user taps End while the link is down —
+        /// per Apple docs the app should tell the user to end the workout on the Watch.
+        @Presents var connectionLostAlert: AlertState<Never>?
+
         // MARK: - Destination
 
         /// destination from WorkoutFeature

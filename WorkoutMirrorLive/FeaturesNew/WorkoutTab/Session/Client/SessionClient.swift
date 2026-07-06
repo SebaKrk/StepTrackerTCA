@@ -83,13 +83,24 @@ struct SessionClient {
     /// is finished — semantics match `workoutSessionStateStream`.
     var mirroredSessionStartedStream: @Sendable () async -> AsyncStream<Void>
 
+    /// Multicast stream of the mirroring-link connection status (IOS-00098-G).
+    ///
+    /// `.lost` after `didDisconnectFromRemoteDeviceWithError` mid-workout (NOT on the
+    /// normal end-teardown disconnect), `.connected` when the system reconnect delivers
+    /// a fresh mirrored session. Watch-primary only — drives the connection-lost banner,
+    /// tick suspension and the End-button gating in `SessionFeature`.
+    var watchConnectionStatusStream: @Sendable () async -> AsyncStream<WatchMirroringConnectionStatus>
+
     /// Sends a lifecycle event to Watch through the HealthKit mirroring channel
     /// (`sendToRemoteWorkoutSession`). Reliable even when WatchConnectivity is unreachable.
     ///
     /// Used for `.workoutEnded` in Watch-primary mode — fixes the pre-existing bug where
     /// iPhone-initiated End would be dropped if `WCSession.isReachable == false`. The HK
     /// channel does not require reachability — it propagates through the OS-managed mirror.
-    var sendLifecycleEventToWatch: @Sendable (WatchWorkoutEvent) async -> Void
+    /// Returns `true` when HealthKit confirmed delivery — the End flow branches on it
+    /// (failure → "zakończ na Watchu" alert instead of a false-success dismiss).
+    /// Non-critical callers (ticks, countdown) discard the result with `_ =`.
+    var sendLifecycleEventToWatch: @Sendable (WatchWorkoutEvent) async -> Bool
 
     /// Rebuilds `HKLiveWorkoutBuilder` + `HKLiveWorkoutDataSource` for a `.primary` session
     /// recovered after iPhone app crash via `HKHealthStore.recoverActiveWorkoutSession()`.
@@ -266,12 +277,15 @@ private enum SessionClientClientKey: DependencyKey {
             mirroredSessionStartedStream: {
                 trainingManager.mirroredSessionStartedStream
             },
+            watchConnectionStatusStream: {
+                trainingManager.watchConnectionStatusStream
+            },
             sendLifecycleEventToWatch: { event in
                 guard let data = try? JSONEncoder().encode(event) else {
                     Logger.session.error("sendLifecycleEventToWatch — failed to encode \(String(describing: event))")
-                    return
+                    return false
                 }
-                await trainingManager.sendDataToWatch(data)
+                return await trainingManager.sendDataToWatch(data)
             },
             recoverPrimarySession: { session in
                 try await router.recoverPrimarySession(session)

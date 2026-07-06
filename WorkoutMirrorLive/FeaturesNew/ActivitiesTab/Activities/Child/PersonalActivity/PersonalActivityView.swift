@@ -182,6 +182,9 @@ struct PersonalActivityView: View {
                     Text(workout.startDate.formatted(date: .abbreviated, time: .shortened))
                     Text("-")
                     Text(workout.endDate, style: .time)
+                    if store.pendingResultWorkoutIds.contains(workout.uuid) {
+                        pendingResultsBadge
+                    }
                     Spacer()
                 }
                 .font(.footnote)
@@ -190,6 +193,19 @@ struct PersonalActivityView: View {
             Spacer()
             Image(systemName: "chevron.right")
         }
+    }
+
+    /// Plan auto-linked (IOS-00098-C) but results not entered yet — nudges the user
+    /// into the manual-entry flow in ActivityDetails (IOS-00098-F).
+    /// Sits inline in the date row (user decision 2026-07-04) — compact paddings
+    /// so the chip does not stretch the row height.
+    private var pendingResultsBadge: some View {
+        Text(String(localized: "Uzupełnij wyniki"))
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.orange)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 1.5)
+            .background(.orange.opacity(0.15), in: Capsule())
     }
     
     private func workoutStats(_ workout: HKWorkout) -> some View {

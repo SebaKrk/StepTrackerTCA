@@ -28,13 +28,6 @@ extension SummaryFeature {
         /// Sets the training plan associated with this session. Called by `SessionFeature` on appear.
         case setTrainingSession(TrainingSession?)
 
-        /// Watch confirmed that `finishWorkout()` succeeded. Transitions from `.saving` to `.loading`
-        /// and begins polling HealthKit for the workout data.
-        case workoutSavedReceived
-
-        /// Timeout fired — Watch did not send `.workoutSaved` in time. Fall back to polling.
-        case workoutSavedTimeout
-
         /// Result of the discard operation. `errorMessage == nil` → success (dismiss).
         /// Non-nil → real HK error (NOT idempotent noData) → show errorAlert + clear isDiscarding.
         case discardCompleted(errorMessage: String?)

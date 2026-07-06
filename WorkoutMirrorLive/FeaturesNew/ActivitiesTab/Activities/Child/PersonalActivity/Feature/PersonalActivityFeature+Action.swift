@@ -22,6 +22,10 @@ extension PersonalActivityFeature {
         /// Triggers fetching workouts from HealthKit.
         case fetchWorkouts
 
+        /// HealthKit workout collection changed (anchored-query observer emission).
+        /// Debounced into `fetchWorkouts` — bursts collapse into one pipeline run.
+        case workoutStoreChanged
+
         /// Handles the result of workout fetch operation.
         case workoutsFetched(Result<[HKWorkout], Error>)
 

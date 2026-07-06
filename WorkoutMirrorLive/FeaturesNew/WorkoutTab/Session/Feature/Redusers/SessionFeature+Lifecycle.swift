@@ -27,6 +27,19 @@ extension SessionFeature {
                     let watchStatus = await watchClient.checkWatchStatus()
                     Logger.session.info("viewDidAppear — watchStatus: \(watchStatus.rawValue), workout: \(workout.title)")
 
+                    // Every NEW session start invalidates the old plan-link note —
+                    // an abandoned earlier start must not "claim" this workout
+                    // (review cluster A: false claiming). Writing a fresh note happens
+                    // only at the actual mirroring start (below), so
+                    // standalone and abandoned starts never leave a pending one behind.
+                    do {
+                        @Shared(.pendingPlanLink) var pendingPlanLink
+                        if pendingPlanLink != nil {
+                            $pendingPlanLink.withLock { $0 = nil }
+                            Logger.session.notice("pendingPlanLink cleared — new session start invalidates it")
+                        }
+                    }
+
                     if watchStatus == .ready {
                         // Watch-primary: iPhone does NOT start its own HKWorkoutSession.
                         // Watch starts the primary session and mirrors it to iPhone.
@@ -69,11 +82,23 @@ extension SessionFeature {
                 }
 
             case .subscribeMirroredSessionStarted:
-                return .run { [sessionClient] send in
+                @Dependency(\.date.now) var now
+                return .run { [sessionClient, trainingSession = state.trainingSession, now] send in
                     // One-shot wait — exit loop after first emit. mirroredSessionStartedStream
                     // emits Void once per session when iPhone receives the mirrored HKWorkoutSession
                     // from Watch via workoutSessionMirroringStartHandler.
                     for await _ in await sessionClient.mirroredSessionStartedStream() {
+                        if let trainingSession {
+                            // The Watch ACTUALLY started the session — only now is it worth
+                            // remembering the plan intent (review cluster A: writing at
+                            // viewDidAppear left a note behind after abandoned starts
+                            // and in standalone, where nobody consumes it).
+                            @Shared(.pendingPlanLink) var pendingPlanLink
+                            $pendingPlanLink.withLock {
+                                $0 = PendingPlanLink(trainingSessionId: trainingSession.id, workoutStartDate: now)
+                            }
+                            Logger.session.info("pendingPlanLink set — plan \(trainingSession.id) (mirrored session started)")
+                        }
                         await send(.sessionViewStateChange(.countdown))
                         break
                     }
@@ -94,7 +119,7 @@ extension SessionFeature {
                 }
 
             case let .setMaxHR(value):
-                // Propaguj do active joinLiveClass child żeby iPad widział identyczny %HR.
+                // Propagate to the active joinLiveClass child so the iPad sees the identical %HR.
                 state.joinLiveClass?.maxHeartRate = value
                 let isSessionActive = state.sessionState == .session
                 let mode = state.workoutMode
@@ -106,7 +131,7 @@ extension SessionFeature {
                         // Watch-primary: HK mirroring channel — reliable when WC is unreachable
                         // (per CLAUDE.md R2). iPhone-standalone: WC path (no mirrored session).
                         if mode == .watchPrimary {
-                            await sessionClient.sendLifecycleEventToWatch(.maxHRUpdated(value))
+                            _ = await sessionClient.sendLifecycleEventToWatch(.maxHRUpdated(value))
                         } else {
                             await watchClient.sendWorkoutEvent(.maxHRUpdated(value))
                         }

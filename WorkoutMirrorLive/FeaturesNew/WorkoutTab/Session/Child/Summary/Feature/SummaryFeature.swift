@@ -15,6 +15,12 @@ import Foundation
 @Reducer
 struct SummaryFeature {
 
+    /// Bounded local retry for the iPhone-standalone happy path — covers the brief
+    /// race between `finishWorkout()` and the router-cache broadcast. This is NOT
+    /// a cross-device wait; the watch-primary machinery (10s `.workoutSaved` timeout
+    /// + 40×3s HealthKit poll) was removed in IOS-00098-E.
+    static let maxSummaryAttempts = 5
+
     // MARK: - Dependency
 
     @Dependency(\.sessionClient) var client
@@ -22,6 +28,8 @@ struct SummaryFeature {
     @Dependency(\.exerciseLogClient) var exerciseLogClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.uuid) var uuid
+    @Dependency(\.date.now) var now
 
     // MARK: - Reducer
 
@@ -100,25 +108,6 @@ struct SummaryFeature {
                 )
                 return .none
 
-            case .workoutSavedReceived:
-                guard state.viewState == .saving else { return .none }
-                return .merge(
-                    .cancel(id: SummaryFeatureCancelID.savingTimeout),
-                    .run { send in
-                        await WorkoutFileLogger.shared.log("SUMMARY — .workoutSaved received from Watch, starting poll")
-                        await send(.changeViewState(.loading))
-                        await send(.checkSummary)
-                    }
-                )
-
-            case .workoutSavedTimeout:
-                guard state.viewState == .saving else { return .none }
-                return .run { send in
-                    await WorkoutFileLogger.shared.log("SUMMARY — .workoutSaved timeout (10s), falling back to poll")
-                    await send(.changeViewState(.loading))
-                    await send(.checkSummary)
-                }
-
             case let .setHRData(hrBuffer, phaseTimestamps):
                 state.hrBuffer = hrBuffer
                 state.phaseTimestamps = phaseTimestamps
@@ -134,7 +123,11 @@ struct SummaryFeature {
                         .cancel(id: SummaryFeatureCancelID.retry),
                         .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog)") }
                     )
-                } else if state.summaryRetryCount >= 40 {
+                } else if state.summaryRetryCount >= Self.maxSummaryAttempts {
+                    // iPhone-standalone only: the workout is saved locally by
+                    // iPhoneWorkoutSession, so the router cache should be populated within
+                    // a beat — this is a rare edge fallback, not a cross-device wait
+                    // (the watch-primary waiting machinery was removed in IOS-00098-E).
                     state.viewState = .failed
                     state.failureDebugInfo += ", workout: \(resultLog), attempts: \(state.summaryRetryCount), metrics: \(summary.metrics)"
                     return .run { [debugInfo = state.failureDebugInfo] _ in
@@ -143,9 +136,9 @@ struct SummaryFeature {
                 } else {
                     state.viewState = .loading
                     return .merge(
-                        .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog) → will retry in 3s") },
+                        .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog) → will retry in 1s") },
                         .run { send in
-                            try? await Task.sleep(for: .milliseconds(3000))
+                            try? await Task.sleep(for: .milliseconds(1000))
                             await send(.checkSummary)
                         }
                         .cancellable(id: SummaryFeatureCancelID.retry, cancelInFlight: true)
@@ -155,11 +148,11 @@ struct SummaryFeature {
                 // MARK: - View Action
 
             case .view(.viewDidAppear):
-                // Manual entry (z ActivityDetailsFeature): State pre-filled przez `manualEntry(...)`
-                // factory, `isManualEntry = true`. Pomijamy 10s timeout + 40-attempt poll —
-                // workout już istnieje w HealthKit od dawna. Jeśli `resultInputs` puste (link-new
-                // flow z `existingResults: nil`), domapuj z trainingSession — używamy istniejącej
-                // akcji `.setTrainingSession` żeby uniknąć duplikacji logiki.
+                // Manual entry (from ActivityDetailsFeature): State pre-filled by the `manualEntry(...)`
+                // factory, `isManualEntry = true`. We skip the 10s timeout + 40-attempt poll —
+                // the workout has existed in HealthKit for a long time. If `resultInputs` is empty (link-new
+                // flow with `existingResults: nil`), map from trainingSession — we use the existing
+                // `.setTrainingSession` action to avoid duplicating logic.
                 if state.isManualEntry, let trainingSession = state.trainingSession {
                     state.viewState = .successfullyLoaded
                     if state.wodScorings.isEmpty {
@@ -168,14 +161,13 @@ struct SummaryFeature {
                     return .none
                 }
 
-                // Happy path — czekamy 10s na `.workoutSaved` z Watcha, potem fallback na poll.
+                // Happy path (iPhone-standalone only after IOS-00098-E) — the workout is saved
+                // locally by iPhoneWorkoutSession and waits in the router cache. We check right
+                // away; a short retry (5×1s) protects against the race between finishWorkout()
+                // and the broadcast to the cache — without waiting for any data from the Watch.
                 state.summaryRetryCount = 0
-                state.viewState = .saving
-                return .run { send in
-                    try? await Task.sleep(for: .seconds(10))
-                    await send(.workoutSavedTimeout)
-                }
-                .cancellable(id: SummaryFeatureCancelID.savingTimeout, cancelInFlight: true)
+                state.viewState = .loading
+                return .send(.checkSummary)
 
             case .view(.closeButtonTapped):
                 let retryCount = state.summaryRetryCount
@@ -192,13 +184,19 @@ struct SummaryFeature {
                 let workoutForSnapshot = state.summary?.workout
                 let hrBuffer = state.hrBuffer
                 let phaseTimestamps = state.phaseTimestamps
-                let now = Date()
+                let now = self.now
 
-                return .run { [exerciseLogClient, workoutPlanScoreClient, maxHeartRateClient] send in
+                return .run { [exerciseLogClient, workoutPlanScoreClient, maxHeartRateClient, uuid] send in
                     // 1. Save WorkoutPlanScore (existing logic)
                     var scoreId: UUID?
                     if let session = trainingSession, let workoutId = hkWorkoutId {
+                        // Reuse the record created by the app-level plan-link listener
+                        // (IOS-00098-C) — a fresh id for the same hkWorkoutId would
+                        // duplicate the score row (upsert keys on id, not workout).
+                        let existing = try? await workoutPlanScoreClient.fetchByHKWorkoutId(workoutId)
                         let score = WorkoutPlanScore(
+                            id: existing?.id ?? uuid(),
+                            date: existing?.date ?? now,
                             trainingSessionId: session.id,
                             hkWorkoutId: workoutId,
                             results: resultInputs
@@ -310,10 +308,10 @@ struct SummaryFeature {
                     }
 
                     // 3. Eager HR snapshot creation (IOS-00097-F).
-                    // Snapshot freeze formuły **z dnia treningu** — niezależnie czy user
-                    // kiedykolwiek otworzy detail, formula i maxHR z momentu save'a
-                    // zachowują się na zawsze. `forWorkout` = fetchOrCreate, więc dla
-                    // workout'u który już ma snapshot (np. manual entry edit) = no-op.
+                    // Snapshot freezes the formula **from the workout day** — regardless of whether
+                    // the user ever opens the detail, the formula and maxHR from the moment of save
+                    // are preserved forever. `forWorkout` = fetchOrCreate, so for a
+                    // workout that already has a snapshot (e.g. manual entry edit) = no-op.
                     if let workout = workoutForSnapshot {
                         _ = await maxHeartRateClient.forWorkout(workout)
                     }
@@ -457,8 +455,7 @@ struct SummaryFeature {
             case .view(.viewDidDisappear):
                 return .merge(
                     .cancel(id: SummaryFeatureCancelID.sessionStateListener),
-                    .cancel(id: SummaryFeatureCancelID.retry),
-                    .cancel(id: SummaryFeatureCancelID.savingTimeout)
+                    .cancel(id: SummaryFeatureCancelID.retry)
                 )
 
                 // MARK: - Set Input
@@ -486,7 +483,7 @@ struct SummaryFeature {
 
                 // MARK: - WOD Scorings (child feature)
 
-                // Delegate: child WODScoring chce otworzyć SetInputSheet → parent prezentuje.
+                // Delegate: child WODScoring wants to open SetInputSheet → parent presents it.
             case let .wodScorings(.element(id: _, action: .delegate(.requestEditExercises(wodIndex)))):
                 guard let scoring = state.wodScorings[id: wodIndex] else { return .none }
                 let result = scoring.result
@@ -507,7 +504,7 @@ struct SummaryFeature {
                 return .none
 
             case .wodScorings:
-                // Pozostałe akcje child'ów (binding, toggle) — child reducer obsługuje sam.
+                // Remaining child actions (binding, toggle) — the child reducer handles them itself.
                 return .none
             }
         }

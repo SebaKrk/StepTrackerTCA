@@ -27,8 +27,15 @@ struct WorkoutSessionLiveActivity: Widget {
                 }
 
                 DynamicIslandExpandedRegion(.trailing) {
-                    zoneBadge(context)
-                        .padding(.trailing, 4)
+                    // Link down (IOS-00098-G): metrics on screen are stale — show the
+                    // indicator in place of the zone label instead of pretending live data.
+                    if context.state.isWatchConnectionLost {
+                        connectionLostBadge
+                            .padding(.trailing, 4)
+                    } else {
+                        zoneBadge(context)
+                            .padding(.trailing, 4)
+                    }
                 }
 
                 DynamicIslandExpandedRegion(.bottom) {
@@ -57,11 +64,16 @@ struct WorkoutSessionLiveActivity: Widget {
             } compactLeading: {
                 compactPercentageBadge(context)
             } compactTrailing: {
-                compactHeartRateBadge(context)
+                if context.state.isWatchConnectionLost {
+                    Image(systemName: "applewatch.slash")
+                        .foregroundColor(.orange)
+                } else {
+                    compactHeartRateBadge(context)
+                }
             } minimal: {
                 compactPercentageBadge(context)
             }
-            .keylineTint(context.state.heartRateZone.color)
+            .keylineTint(context.state.isWatchConnectionLost ? .orange : context.state.heartRateZone.color)
         }
         .contentMarginsDisabled()
     }
@@ -81,6 +93,15 @@ struct WorkoutSessionLiveActivity: Widget {
         Text(context.state.heartRateZone.rawValue.uppercased())
             .font(.caption.weight(.semibold))
             .foregroundColor(context.state.heartRateZone.color)
+    }
+
+    private var connectionLostBadge: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "applewatch.slash")
+            Text(String(localized: "No link"))
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundColor(.orange)
     }
     
     private func percentageBadge(_ context: ActivityViewContext<WorkoutSessionActivityAttributes>) -> some View {
