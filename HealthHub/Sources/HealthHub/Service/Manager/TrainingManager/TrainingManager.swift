@@ -82,6 +82,8 @@ public protocol TrainingManager: Sendable {
     /// Sets up the handler to receive mirrored sessions from Apple Watch (iOS only)
     func setupRemoteSessionHandler()
 
+    // (protocol helper type — see `WatchMirroringConnectionStatus` at the bottom of the file)
+
     /// Launches the Watch app and requests it to start a workout session of the given type.
     ///
     /// The Watch will create `HKWorkoutSession`, call `startMirroringToCompanionDevice()`,
@@ -112,8 +114,11 @@ public protocol TrainingManager: Sendable {
     /// when WatchConnectivity is unreachable (fixes the pre-existing iPhone-initiated End
     /// bug where `.workoutEnded` WC event was dropped if `reachable=false`).
     ///
-    /// No-op when there is no mirrored session attached.
-    func sendDataToWatch(_ data: Data) async
+    /// Returns `true` when HealthKit confirmed delivery to the mirroring channel;
+    /// `false` when there is no mirrored session, the send failed, or timed out.
+    /// Critical lifecycle events (iPhone-initiated End) MUST branch on the result.
+    @discardableResult
+    func sendDataToWatch(_ data: Data) async -> Bool
 
     /// Re-attaches a recovered `HKWorkoutSession` after iPhone app launch following a crash.
     ///
@@ -129,3 +134,15 @@ public protocol TrainingManager: Sendable {
     #endif
 
 }
+
+#if os(iOS)
+/// Connection status of the HealthKit mirroring link with the Watch-primary session
+/// (IOS-00098-G). Distinct from `HKWorkoutSessionState` — a lost link does NOT mean
+/// the workout stopped; the Watch keeps measuring and the system auto-reconnects.
+/// Declared next to the protocol (not in the implementation file) — the type is part of the
+/// `watchConnectionStatusStream` contract.
+public enum WatchMirroringConnectionStatus: Equatable, Sendable {
+    case connected
+    case lost
+}
+#endif

@@ -28,6 +28,8 @@ struct SummaryFeature {
     @Dependency(\.exerciseLogClient) var exerciseLogClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.uuid) var uuid
+    @Dependency(\.date.now) var now
 
     // MARK: - Reducer
 
@@ -146,11 +148,11 @@ struct SummaryFeature {
                 // MARK: - View Action
 
             case .view(.viewDidAppear):
-                // Manual entry (z ActivityDetailsFeature): State pre-filled przez `manualEntry(...)`
-                // factory, `isManualEntry = true`. Pomijamy 10s timeout + 40-attempt poll —
-                // workout już istnieje w HealthKit od dawna. Jeśli `resultInputs` puste (link-new
-                // flow z `existingResults: nil`), domapuj z trainingSession — używamy istniejącej
-                // akcji `.setTrainingSession` żeby uniknąć duplikacji logiki.
+                // Manual entry (from ActivityDetailsFeature): State pre-filled by the `manualEntry(...)`
+                // factory, `isManualEntry = true`. We skip the 10s timeout + 40-attempt poll —
+                // the workout has existed in HealthKit for a long time. If `resultInputs` is empty (link-new
+                // flow with `existingResults: nil`), map from trainingSession — we use the existing
+                // `.setTrainingSession` action to avoid duplicating logic.
                 if state.isManualEntry, let trainingSession = state.trainingSession {
                     state.viewState = .successfullyLoaded
                     if state.wodScorings.isEmpty {
@@ -159,10 +161,10 @@ struct SummaryFeature {
                     return .none
                 }
 
-                // Happy path (iPhone-standalone only po IOS-00098-E) — workout jest zapisany
-                // lokalnie przez iPhoneWorkoutSession i czeka w router cache. Sprawdzamy od
-                // razu; krótki retry (5×1s) chroni przed race'em między finishWorkout()
-                // a broadcastem do cache — bez czekania na jakiekolwiek dane z Watcha.
+                // Happy path (iPhone-standalone only after IOS-00098-E) — the workout is saved
+                // locally by iPhoneWorkoutSession and waits in the router cache. We check right
+                // away; a short retry (5×1s) protects against the race between finishWorkout()
+                // and the broadcast to the cache — without waiting for any data from the Watch.
                 state.summaryRetryCount = 0
                 state.viewState = .loading
                 return .send(.checkSummary)
@@ -182,9 +184,9 @@ struct SummaryFeature {
                 let workoutForSnapshot = state.summary?.workout
                 let hrBuffer = state.hrBuffer
                 let phaseTimestamps = state.phaseTimestamps
-                let now = Date()
+                let now = self.now
 
-                return .run { [exerciseLogClient, workoutPlanScoreClient, maxHeartRateClient] send in
+                return .run { [exerciseLogClient, workoutPlanScoreClient, maxHeartRateClient, uuid] send in
                     // 1. Save WorkoutPlanScore (existing logic)
                     var scoreId: UUID?
                     if let session = trainingSession, let workoutId = hkWorkoutId {
@@ -193,8 +195,8 @@ struct SummaryFeature {
                         // duplicate the score row (upsert keys on id, not workout).
                         let existing = try? await workoutPlanScoreClient.fetchByHKWorkoutId(workoutId)
                         let score = WorkoutPlanScore(
-                            id: existing?.id ?? UUID(),
-                            date: existing?.date ?? Date(),
+                            id: existing?.id ?? uuid(),
+                            date: existing?.date ?? now,
                             trainingSessionId: session.id,
                             hkWorkoutId: workoutId,
                             results: resultInputs
@@ -306,10 +308,10 @@ struct SummaryFeature {
                     }
 
                     // 3. Eager HR snapshot creation (IOS-00097-F).
-                    // Snapshot freeze formuły **z dnia treningu** — niezależnie czy user
-                    // kiedykolwiek otworzy detail, formula i maxHR z momentu save'a
-                    // zachowują się na zawsze. `forWorkout` = fetchOrCreate, więc dla
-                    // workout'u który już ma snapshot (np. manual entry edit) = no-op.
+                    // Snapshot freezes the formula **from the workout day** — regardless of whether
+                    // the user ever opens the detail, the formula and maxHR from the moment of save
+                    // are preserved forever. `forWorkout` = fetchOrCreate, so for a
+                    // workout that already has a snapshot (e.g. manual entry edit) = no-op.
                     if let workout = workoutForSnapshot {
                         _ = await maxHeartRateClient.forWorkout(workout)
                     }
@@ -481,7 +483,7 @@ struct SummaryFeature {
 
                 // MARK: - WOD Scorings (child feature)
 
-                // Delegate: child WODScoring chce otworzyć SetInputSheet → parent prezentuje.
+                // Delegate: child WODScoring wants to open SetInputSheet → parent presents it.
             case let .wodScorings(.element(id: _, action: .delegate(.requestEditExercises(wodIndex)))):
                 guard let scoring = state.wodScorings[id: wodIndex] else { return .none }
                 let result = scoring.result
@@ -502,7 +504,7 @@ struct SummaryFeature {
                 return .none
 
             case .wodScorings:
-                // Pozostałe akcje child'ów (binding, toggle) — child reducer obsługuje sam.
+                // Remaining child actions (binding, toggle) — the child reducer handles them itself.
                 return .none
             }
         }

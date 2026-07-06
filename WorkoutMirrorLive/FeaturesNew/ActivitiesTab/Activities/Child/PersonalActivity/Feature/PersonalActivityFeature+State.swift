@@ -44,24 +44,21 @@ extension PersonalActivityFeature {
         /// Heart rate zone information for each workout, keyed by workout UUID.
         var zoneInfo: [UUID: PrimaryZoneInfo] = [:]
 
-        /// Obserwowana query (SQLiteData) — wszystkie rekordy plan↔workout. Baza sama
-        /// pcha aktualizacje przy każdym zapisie (auto-link z C, save wyników w Summary),
-        /// więc badge "Uzupełnij wyniki" odświeża się bez ręcznych refetchy.
-        /// `@ObservationStateIgnored` — FetchAll ma własną obserwację (SharedReader).
+        /// Observed query (SQLiteData) — ONLY plan↔workout records with empty
+        /// results (pending). SQLite performs the filter (review cluster E: filtering
+        /// all records in Swift per render was O(records×rows)). The database itself
+        /// pushes updates on every write (auto-link from C, saving results in Summary).
+        /// `@ObservationStateIgnored` — FetchAll has its own observation (SharedReader).
+        /// Pending = `resultsData == "[]"` — JSONEncoder emits exactly these 2 bytes
+        /// for an empty array; all writes go through the same encoder.
         @ObservationStateIgnored
-        @FetchAll(WorkoutPlanScoreRecord.all)
-        var planScores
+        @FetchAll(WorkoutPlanScoreRecord.where { $0.resultsData.eq(Data("[]".utf8)) })
+        var pendingScores
 
         /// Workouts with an auto-linked plan but no results entered yet (IOS-00098-F).
-        /// Drives the "Uzupełnij wyniki" badge on list rows. Derived from the observed
-        /// `planScores` — pending = zapisany rekord z pustymi wynikami (JSON `[]`).
+        /// Drives the "Uzupełnij wyniki" badge on list rows.
         var pendingResultWorkoutIds: Set<UUID> {
-            let emptyResults = Data("[]".utf8)
-            return Set(
-                planScores
-                    .filter { $0.resultsData == emptyResults }
-                    .map(\.hkWorkoutId)
-            )
+            Set(pendingScores.map(\.hkWorkoutId))
         }
 
         /// Workout selected for deletion — set when swipe action fires, cleared after confirm/cancel.

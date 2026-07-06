@@ -51,10 +51,10 @@ extension LiveSessionFeature {
         /// Live Activity management (delegated to child reducer)
         var liveActivity = LiveActivityFeature.State()
 
-        /// Niezależny stopwatch użytkownika (toolbar button).
+        /// Independent user stopwatch (toolbar button).
         var userStopwatch = StopwatchFeature.State()
 
-        /// Stopwatch zarządzający timerem aktywnej fazy planu.
+        /// Stopwatch managing the active plan phase timer.
         var phaseStopwatch = StopwatchFeature.State()
 
         // MARK: - Phase Panel
@@ -98,7 +98,8 @@ extension LiveSessionFeature {
                 heartRatePercentage: currentHeartRatePercentage,
                 activeEnergy: workoutMetrics.activeEnergy,
                 maxHeartRate: sessionMaxHeartRate,
-                averageHeartRate: sessionAverageHeartRate
+                averageHeartRate: sessionAverageHeartRate,
+                isWatchConnectionLost: isWatchConnectionLost
             )
         }
     }

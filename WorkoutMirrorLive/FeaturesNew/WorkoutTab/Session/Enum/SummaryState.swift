@@ -9,10 +9,10 @@ import Foundation
 
 enum SummaryState {
 
-    /// Waiting for Watch to confirm that the workout has been saved to HealthKit.
-    case saving
-
-    /// Watch confirmed save — now polling HealthKit for the workout data.
+    /// Loading the workout from the local router cache (iPhone-standalone) —
+    /// bounded 5×1s retry covers the finishWorkout→cache broadcast race.
+    /// The old `.saving` case ("waiting for Watch confirmation") was removed in
+    /// IOS-00098-E along with the cross-device waiting machinery.
     case loading
 
     /// Indicates that the summary view has successfully loaded the workout data.

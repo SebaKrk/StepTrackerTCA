@@ -17,7 +17,7 @@ extension SummaryFeature {
         // MARK: - Properties
 
         /// Current loading/display state of the summary screen.
-        var viewState: SummaryState = .saving
+        var viewState: SummaryState = .loading
 
         /// HealthKit workout data loaded after the session ends.
         var summary: WorkoutSummary? = nil
@@ -26,13 +26,13 @@ extension SummaryFeature {
         /// `nil` for free workouts (no plan selected).
         var trainingSession: TrainingSession? = nil
 
-        /// WOD scoring child features — jedno per workout w planie. Każdy element zarządza
-        /// własnym `WorkoutSessionResult` (score, note, exercises) + UI toggle flags
+        /// WOD scoring child features — one per workout in the plan. Each element manages
+        /// its own `WorkoutSessionResult` (score, note, exercises) + UI toggle flags
         /// (showResults, showNotes, exercisesEdited).
         ///
-        /// **Refactor IOS-00096-B**: zastępuje 4 paralelne arrays (`resultInputs` +
-        /// `showResults` + `showNotes` + `exercisesEdited`) jednym `IdentifiedArrayOf` —
-        /// eliminuje drift index'ów + cascading re-renders gdy zmienia się pojedyncze pole.
+        /// **Refactor IOS-00096-B**: replaces 4 parallel arrays (`resultInputs` +
+        /// `showResults` + `showNotes` + `exercisesEdited`) with a single `IdentifiedArrayOf` —
+        /// eliminates index drift + cascading re-renders when a single field changes.
         var wodScorings: IdentifiedArrayOf<WODScoringFeature.State> = []
 
         /// Counts how many times checkSummary has been attempted (for debug logging).
@@ -60,10 +60,10 @@ extension SummaryFeature {
         /// Guards against double-tap and gives user visual feedback during ~300ms re-fetch + delete.
         var isDiscarding: Bool = false
 
-        /// True gdy SummaryFeature otwarty przez **manual entry** z History (Podpnij plan / Edytuj wynik).
-        /// Workout już istnieje w HealthKit od dawna — Discard button = katastrofa (kasuje HKWorkout).
-        /// Ten flag ukrywa Discard z toolbar'a + reducer'owi `.viewDidAppear` pomija polling/timeout.
-        /// Ustawiany przez `manualEntry(...)` factory, false dla happy path Watch-primary.
+        /// True when SummaryFeature is opened via **manual entry** from History (Podpnij plan / Edytuj wynik).
+        /// The workout has existed in HealthKit for a long time — Discard button = disaster (deletes the HKWorkout).
+        /// This flag hides Discard from the toolbar + the reducer's `.viewDidAppear` skips polling/timeout.
+        /// Set by the `manualEntry(...)` factory, false for the Watch-primary happy path.
         var isManualEntry: Bool = false
 
         // MARK: - Alerts
@@ -80,21 +80,22 @@ extension SummaryFeature {
 
 extension SummaryFeature.State {
 
-    /// Manual entry factory — używany z `ActivityDetailsFeature` gdy user re-attache'uje plan
-    /// do istniejącego HKWorkout (escape hatch dla failed `.saving → .summary` flow).
-    /// Buduje pre-filled State: `summary` + `trainingSession` + `hrBuffer`, ustawia
-    /// `viewState = .successfullyLoaded`. Reducer w `.viewDidAppear` widzi pre-filled state
-    /// i pomija poll/timeout.
+    /// Manual entry factory — used from `ActivityDetailsFeature` when the user re-attaches a plan
+    /// to an existing HKWorkout (after IOS-00098-E this is the main path for entering results
+    /// for watch-primary workouts — from History, via the "Uzupełnij wyniki" badge).
+    /// Builds a pre-filled State: `summary` + `trainingSession` + `hrBuffer`, sets
+    /// `viewState = .successfullyLoaded`. The reducer in `.viewDidAppear` sees the pre-filled state
+    /// and skips the poll/timeout.
     ///
-    /// Static factory (nie init) — żeby NIE blokować auto-generated member-wise init'a
-    /// (`SummaryFeature.State(viewState:)`) używanego w previews i happy path
+    /// Static factory (not an init) — so it does NOT block the auto-generated member-wise init
+    /// (`SummaryFeature.State(viewState:)`) used in previews and the happy path
     /// (`SessionFeature.State.summary = .init()`).
     ///
     /// **`existingResults`**:
-    /// - `nil` (link-new flow) → `.viewDidAppear` zmapuje świeże `resultInputs` z template'a
-    ///   (puste wyniki do wpisania).
-    /// - non-nil (edit flow) → factory ustawia `resultInputs` na zapisane wyniki, `.viewDidAppear`
-    ///   pomija remapping. User widzi UI z wypełnionymi polami i może je edytować.
+    /// - `nil` (link-new flow) → `.viewDidAppear` maps fresh `resultInputs` from the template
+    ///   (empty results to fill in).
+    /// - non-nil (edit flow) → the factory sets `resultInputs` to the saved results, `.viewDidAppear`
+    ///   skips the remapping. The user sees the UI with filled-in fields and can edit them.
     static func manualEntry(
         summary: WorkoutSummary,
         trainingSession: TrainingSession,

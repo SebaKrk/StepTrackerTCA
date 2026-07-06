@@ -94,8 +94,8 @@ struct SessionView: View {
         case .summary:
             summaryView
         case .finishedOnWatch:
-            // Przejściowa faza teardownu — sesja dismissuje się sama (SessionPhase),
-            // podsumowanie pokazuje Watch, badge w Historii prowadzi do wyników.
+            // Transient teardown phase — the session dismisses itself (SessionPhase),
+            // the Watch shows the summary, the badge in History leads to the results.
             ProgressView()
         }
     }
@@ -176,23 +176,23 @@ struct SessionView: View {
         .disabledWithOpacity(store.controls.isLocked)
     }
 
-    /// Manual binding — `isJoinLiveClassSheetPresented` nie jest BindingState (SessionFeature
-    /// nie ma BindingReducer). Get reads state; set tylko reaguje na dismiss (swipe / X),
-    /// pokazywanie sheet'a inicjuje `joinLiveClassToolbarButtonTapped`.
+    /// Manual binding — `isJoinLiveClassSheetPresented` is not BindingState (SessionFeature
+    /// has no BindingReducer). Get reads state; set only reacts to dismiss (swipe / X),
+    /// showing the sheet is initiated by `joinLiveClassToolbarButtonTapped`.
     private var joinLiveClassSheetBinding: Binding<Bool> {
         Binding(
             get: { store.isJoinLiveClassSheetPresented },
             set: { newValue in
-                if !newValue { store.send(.joinLiveClassSheetDismissed) }
+                if !newValue { send(.joinLiveClassSheetDismissed) }
             }
         )
     }
 
     @ViewBuilder
     private var joinLiveClassIcon: some View {
-        // Single SF Symbol = native iOS 26 Liquid Glass styling w toolbarze
-        // (spójność z `heart.text.clipboard` + `timer` w tej samej grupie).
-        // Stan komunikujemy przez wariant fill + color + symbol effect.
+        // Single SF Symbol = native iOS 26 Liquid Glass styling in the toolbar
+        // (consistency with `heart.text.clipboard` + `timer` in the same group).
+        // State is communicated via the fill variant + color + symbol effect.
         let phase = store.joinLiveClass?.phase
         let iconName = (phase == .searching || phase == .connected)
             ? "person.3.sequence.fill"
@@ -275,23 +275,17 @@ import SharedModels
                     selectedWorkout: .cross)
                 state.workoutMode = .watchPrimary
                 state.isWatchConnectionLost = true
-                state.connectionLostAlert = AlertState {
-                    TextState(String(localized: "Brak połączenia z Apple Watch"))
-                } actions: {
-                    ButtonState(role: .cancel) { TextState(String(localized: "OK")) }
-                } message: {
-                    TextState(String(localized: "Trening nadal trwa na zegarku. Zakończ go na Apple Watch, przytrzymując przycisk Stop."))
-                }
+                state.connectionLostAlert = .connectionLost
                 return state
             }(), reducer: { SessionFeature() })
         )
     }
 }
 
-// HR zone previews — STATIC widoki z produktowo skalibrowanymi wartościami per strefa.
-// Wartości HR/avgHR/maxHR/energy zsynchronizowane z LiveSessionView.swift:358-428.
-// Stopwatch hidden (isVisible=false) — w session view stopwatch ma tylko expanded
-// panel (z Reset/Continue), nie always-on display. Ukrywamy → clean HR-focused view.
+// HR zone previews — STATIC views with product-calibrated values per zone.
+// HR/avgHR/maxHR/energy values synchronized with LiveSessionView.swift:358-428.
+// Stopwatch hidden (isVisible=false) — in the session view the stopwatch has only the expanded
+// panel (with Reset/Continue), not an always-on display. Hiding it → clean HR-focused view.
 
 #Preview("HR — resting", traits: .landscapeLeft) {
     SessionView(store: previewStore(state: previewState(
@@ -362,10 +356,10 @@ private func previewStore(state: SessionFeature.State) -> StoreOf<SessionFeature
     }
 }
 
-// Noop SessionClient — wszystkie streams empty (finished), wszystkie actions no-op.
-// `elapsed` param: ControlsView ma TimelineView 30Hz który wywołuje
-// `elapsedTimeAt(date)` co 33ms i nadpisuje `state.controls.elapsedTime`. Bez
-// zwracania ustalonej wartości tutaj — timer w preview pokazuje 00:00,00.
+// Noop SessionClient — all streams empty (finished), all actions no-op.
+// `elapsed` param: ControlsView has a 30Hz TimelineView which calls
+// `elapsedTimeAt(date)` every 33ms and overwrites `state.controls.elapsedTime`. Without
+// returning a fixed value here — the timer in the preview shows 00:00,00.
 private func previewSessionClient(elapsed: TimeInterval) -> SessionClient {
     SessionClient(
         selectedWorkout: { _ in },
@@ -386,13 +380,13 @@ private func previewSessionClient(elapsed: TimeInterval) -> SessionClient {
         startWorkout: {},
         mirroredSessionStartedStream: { AsyncStream { $0.finish() } },
         watchConnectionStatusStream: { AsyncStream { $0.finish() } },
-        sendLifecycleEventToWatch: { _ in },
+        sendLifecycleEventToWatch: { _ in true },
         recoverPrimarySession: { _ in }
     )
 }
 
-// Watch noop — `initializeWatchConnectivity` wisi 24h, blokując viewDidAppear
-// effect przed `sessionViewStateChange(.countdown)` które nadpisałoby sessionState.
+// Watch noop — `initializeWatchConnectivity` hangs for 24h, blocking the viewDidAppear
+// effect before `sessionViewStateChange(.countdown)` which would overwrite sessionState.
 private let previewWatchClient = WatchConnectivityClient(
     initializeWatchConnectivity: {
         try? await Task.sleep(for: .seconds(86_400))
@@ -403,13 +397,13 @@ private let previewWatchClient = WatchConnectivityClient(
     incomingEventStream: { AsyncStream { $0.finish() } }
 )
 
-// PersonalDataClient defensywnie — `makeCalculationForSession` używa go, ale w preview
-// viewDidAppear wisi w `previewWatchClient.initializeWatchConnectivity` przed dotarciem
-// tu. Override zostawiony jako safety net gdyby kolejność zmian w lifecycle.swift.
+// PersonalDataClient defensively — `makeCalculationForSession` uses it, but in the preview
+// viewDidAppear hangs in `previewWatchClient.initializeWatchConnectivity` before reaching
+// here. Override kept as a safety net in case the order of changes in lifecycle.swift shifts.
 //
-// UWAGA: `MaxHeartRateClient` ma internal memberwise init (mimo public struct), więc
-// nie da się go zainicjalizować z poza HealthHub. Pomijamy override — z hangiem
-// w viewDidAppear `makeCalculationForSession` i tak nie pójdzie do końca.
+// NOTE: `MaxHeartRateClient` has an internal memberwise init (despite being a public struct), so
+// it cannot be initialized from outside HealthHub. We skip the override — with the hang
+// in viewDidAppear, `makeCalculationForSession` will not run to completion anyway.
 private let previewPersonalDataClient = PersonalDataClient(
     getAge: { 40 },
     getBiologicalSex: { nil },

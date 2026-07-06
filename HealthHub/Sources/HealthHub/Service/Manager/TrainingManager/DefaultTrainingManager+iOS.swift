@@ -11,14 +11,6 @@ import HealthKit
 import OSLog
 import SharedModels
 
-/// Connection status of the HealthKit mirroring link with the Watch-primary session
-/// (IOS-00098-G). Distinct from `HKWorkoutSessionState` — a lost link does NOT mean
-/// the workout stopped; the Watch keeps measuring and the system auto-reconnects.
-public enum WatchMirroringConnectionStatus: Equatable, Sendable {
-    case connected
-    case lost
-}
-
 // MARK: - iOS-specific Setup and Configuration
 extension DefaultTrainingManager {
     

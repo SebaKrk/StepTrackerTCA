@@ -32,8 +32,6 @@ struct SummaryView: View {
     var body: some View {
         Group {
             switch store.viewState {
-            case .saving:
-                savingView
             case .loading:
                 loadingView
             case .successfullyLoaded:
@@ -49,7 +47,7 @@ struct SummaryView: View {
     
     // MARK: - Loading States
 
-    // `savingView` / `loadingView` / `failedView` wydzielone do `SummaryView+LoadingStates.swift`
+    // `loadingView` / `failedView` wydzielone do `SummaryView+LoadingStates.swift`
 
     // MARK: - Summary
     

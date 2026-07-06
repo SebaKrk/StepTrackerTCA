@@ -18,6 +18,7 @@ struct AppTabNewFeature {
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
     @Dependency(\.uuid) var uuid
+    @Dependency(\.date.now) var now
 
     // MARK: - Reducer
 
@@ -61,16 +62,16 @@ struct AppTabNewFeature {
                 .cancellable(id: AppTabNewCancelID.watchSavedEventListener, cancelInFlight: true)
 
             case let .workoutSavedEventReceived(workoutId):
-                // Refresh listy/badge'a dzieje się bez naszego udziału: lista obserwuje
-                // HealthKit (observeWorkoutChanges), badge obserwuje bazę (@FetchAll).
-                // Tu zostaje wyłącznie zapis powiązania plan↔workout.
-                return .run { [scoreClient = workoutPlanScoreClient, uuid] _ in
+                // The list/badge refresh happens without our involvement: the list observes
+                // HealthKit (observeWorkoutChanges), the badge observes the database (@FetchAll).
+                // Only persisting the plan↔workout link remains here.
+                return .run { [scoreClient = workoutPlanScoreClient, uuid, now] _ in
                     @Shared(.pendingPlanLink) var pendingPlanLink
                     guard let pending = pendingPlanLink else { return }
 
                     // Staleness guard — a pending link from an abandoned start must not
                     // claim an unrelated workout saved hours later.
-                    guard Date().timeIntervalSince(pending.workoutStartDate) < Self.pendingLinkMaxAge else {
+                    guard now.timeIntervalSince(pending.workoutStartDate) < Self.pendingLinkMaxAge else {
                         $pendingPlanLink.withLock { $0 = nil }
                         Logger.session.notice("pendingPlanLink stale — dropped without linking")
                         return

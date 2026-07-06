@@ -71,13 +71,16 @@ extension HKWorkoutSession {
                 }
             }
 
-            sendToRemoteWorkoutSession(data: data) { success, error in
-                resumeOnce(success ? .success(()) : .failure(MirroringSendError.failed(underlying: error)))
-            }
-
-            Task {
+            let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(seconds))
                 resumeOnce(.failure(MirroringSendError.timedOut(seconds: seconds)))
+            }
+
+            sendToRemoteWorkoutSession(data: data) { success, error in
+                resumeOnce(success ? .success(()) : .failure(MirroringSendError.failed(underlying: error)))
+                // Without cancel, every fast send left a 3-second zombie Task behind
+                // (1 tick/s = ~3 dangling tasks throughout the workout — pure waste).
+                timeoutTask.cancel()
             }
         }
     }

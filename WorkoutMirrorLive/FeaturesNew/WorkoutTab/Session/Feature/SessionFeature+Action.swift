@@ -49,13 +49,14 @@ extension SessionFeature {
         /// alert has a single dismiss button, no domain actions).
         case connectionLostAlert(PresentationAction<Never>)
 
+        /// The `.workoutEnded` HK send failed/timed out BEFORE the system reported a
+        /// disconnect — instead of a false-success dismiss, show the "end on Watch"
+        /// instruction and keep the session alive (IOS-00098 review, cluster D).
+        case endDeliveryFailed
+
         /// Sets the workout mode (Watch-primary vs iPhone-standalone) determined
         /// in `viewDidAppear` based on Watch availability.
         case setWorkoutMode(WorkoutMode)
-
-        /// IPAD-0087 Gym Room: sheet zamknięty (swipe-down / X). Broadcast TRWA,
-        /// state nie jest kasowany — tylko ukrywamy widok.
-        case joinLiveClassSheetDismissed
 
         /// Watch-primary mode: subscribes to `TrainingManager.mirroredSessionStartedStream`
         /// to detect when Apple Watch actually started the mirrored session. On first emit,
@@ -94,10 +95,16 @@ extension SessionFeature {
             /// Timer button tapped in toolbar
             case timerButtonTapped
 
-            /// IPAD-0087 Gym Room: ikona w toolbar (obok HR zones) — toggle sheet visibility.
-            /// Pierwszy tap: utwórz state + pokaż sheet. Kolejne tapy: tylko pokaż sheet
-            /// (state istnieje, broadcast trwa).
+            /// IPAD-0087 Gym Room: toolbar icon (next to HR zones) — toggles sheet visibility.
+            /// First tap: create state + show sheet. Subsequent taps: only show the sheet
+            /// (state exists, broadcast continues).
             case joinLiveClassToolbarButtonTapped
+
+            /// IPAD-0087 Gym Room: sheet closed by the user (swipe-down / X). The
+            /// broadcast CONTINUES, state is not cleared — we only hide the view.
+            /// Moved into View actions (was a plain action) — dispatched from the sheet
+            /// binding, per the `@ViewAction` no-direct-`store.send` rule.
+            case joinLiveClassSheetDismissed
 
         }
         
@@ -120,7 +127,7 @@ extension SessionFeature {
         /// Delegates to `SummaryFeature` — displays post-workout summary and save/discard actions.
         case summary(SummaryFeature.Action)
 
-        /// IPAD-0087 Gym Room: delegates to `JoinLiveClassFeature` — trwały broadcast HR.
+        /// IPAD-0087 Gym Room: delegates to `JoinLiveClassFeature` — persistent HR broadcast.
         case joinLiveClass(JoinLiveClassFeature.Action)
         
     }

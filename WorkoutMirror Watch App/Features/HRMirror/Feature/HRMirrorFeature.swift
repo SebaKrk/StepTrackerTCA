@@ -276,6 +276,16 @@ struct HRMirrorFeature {
                 )
 
             case .stop:
+                // Idempotency guard: `.workoutEnded` can arrive DUPLICATED (the wrapper's
+                // timeout-retry re-sends even though the first delivery may have arrived) or
+                // race with the long-press. A second pass re-enabled "Saving…",
+                // consumed the already-consumed values (nil) and REPLACED the real summary
+                // with the "unavailable" fallback.
+                guard !state.isSaving, state.summaryPhase == .hidden else {
+                    return .run { _ in
+                        await WorkoutFileLogger.shared.log("[End] duplicate .stop ignored (already saving/summarized)")
+                    }
+                }
                 state.isSaving = true
                 return .merge(
                     .cancel(id: HRMirrorCancelID.hrQuery),
@@ -288,11 +298,29 @@ struct HRMirrorFeature {
                         let savingStart = ContinuousClock.now
                         await WorkoutFileLogger.shared.log("STOPPED — ending HealthKit session")
                         await watchWorkoutSessionClient.endSession()
-                        if let uuid = await watchWorkoutSessionClient.consumeLastSavedWorkoutUUID() {
+
+                        // UUID and summary are consumed TOGETHER, after a shared retry window —
+                        // the save may be done by an asynchronous safety-net (`.ended`), and the UUID
+                        // drives the whole plan-link/badge on the iPhone. Previously the retry covered
+                        // only the summary: the Watch showed "saved" while `.workoutSaved`
+                        // silently never went out.
+                        var uuid = await watchWorkoutSessionClient.consumeLastSavedWorkoutUUID()
+                        var summary = await watchWorkoutSessionClient.consumeLastSavedWorkoutSummary()
+                        if uuid == nil || summary == nil {
+                            try? await clock.sleep(for: .seconds(1))
+                            if uuid == nil {
+                                uuid = await watchWorkoutSessionClient.consumeLastSavedWorkoutUUID()
+                            }
+                            if summary == nil {
+                                summary = await watchWorkoutSessionClient.consumeLastSavedWorkoutSummary()
+                            }
+                        }
+
+                        if let uuid {
                             await WorkoutFileLogger.shared.log("NOTIFY — sending .workoutSaved(uuid=\(uuid.uuidString)) to iPhone")
                             await watchClient.sendWorkoutEvent(.workoutSaved(workoutUUID: uuid))
                         } else {
-                            await WorkoutFileLogger.shared.log("NOTIFY — .workoutSaved skipped (no UUID, save likely failed)")
+                            await WorkoutFileLogger.shared.log("NOTIFY — .workoutSaved skipped (no UUID after retry, save likely failed)")
                         }
                         await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
                         await watchClient.transferLogFile()
@@ -303,13 +331,6 @@ struct HRMirrorFeature {
                         }
                         // Watch is the primary session owner — it shows the immediate
                         // summary from finishWorkout(); dismissal happens on Done tap.
-                        var summary = await watchWorkoutSessionClient.consumeLastSavedWorkoutSummary()
-                        if summary == nil {
-                            // The `.ended` safety-net saves in a detached Task — give it
-                            // one beat before declaring the data unavailable.
-                            try? await clock.sleep(for: .seconds(1))
-                            summary = await watchWorkoutSessionClient.consumeLastSavedWorkoutSummary()
-                        }
                         await send(.savedSummaryLoaded(summary))
                     }
                 )

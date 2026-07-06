@@ -41,19 +41,30 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
     /// Lock protecting `eventContinuations` across delegate callbacks and stream subscriptions.
     let continuationLock = NSLock()
 
-    /// Multicast: każdy subskrybent `incomingWorkoutEventStream` dostaje własną continuation.
+    /// Multicast: each `incomingWorkoutEventStream` subscriber gets its own continuation.
     ///
-    /// Poprzednia implementacja (single stored continuation, "latest subscriber wins")
-    /// była bugiem klasy `reference_async_stream_multicast`: subskrypcja SessionFeature
-    /// przy starcie treningu FINISZOWAŁA stream app-level listenera (`AppTabNewFeature`,
-    /// IOS-00098-C) — `.workoutSaved` nie miał odbiorcy, plan-link i badge nie powstawały.
+    /// The previous implementation (single stored continuation, "latest subscriber wins")
+    /// was a bug of the `reference_async_stream_multicast` class: the SessionFeature
+    /// subscription at workout start FINISHED the app-level listener's stream (`AppTabNewFeature`,
+    /// IOS-00098-C) — `.workoutSaved` had no receiver, the plan-link and badge were never created.
     var eventContinuations: [UUID: AsyncStream<WatchWorkoutEvent>.Continuation] = [:]
+
+    /// Events received while NO subscriber was registered (launch race: WCSession is
+    /// activated in AppDelegate and can deliver a queued `transferUserInfo` — e.g.
+    /// `.workoutSaved` from a previous run — BEFORE the root view's `onAppear` starts
+    /// the app-level listener). Replayed in order to the FIRST subscriber, then cleared.
+    /// Bounded FIFO — post-end `workoutTick` floods must not evict a lifecycle event.
+    var bufferedEvents: [WatchWorkoutEvent] = []
+
+    /// Upper bound for `bufferedEvents` (drop-oldest beyond it).
+    static let eventBufferLimit = 16
 
     /// A stream of `WatchWorkoutEvent` values received from the paired device.
     ///
     /// Each access creates an independent `AsyncStream`; all active subscribers receive
     /// every event (multicast). Terminated/cancelled subscribers are cleaned up via
-    /// `onTermination`.
+    /// `onTermination`. The first subscriber additionally receives events buffered
+    /// during the no-subscriber window (see `bufferedEvents`).
     public var incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent> {
         let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
         let id = UUID()
@@ -63,15 +74,31 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
                 _ = self.eventContinuations.removeValue(forKey: id)
             }
         }
-        continuationLock.withLock {
+        let replay = continuationLock.withLock { () -> [WatchWorkoutEvent] in
             eventContinuations[id] = continuation
+            let buffered = bufferedEvents
+            bufferedEvents.removeAll()
+            return buffered
+        }
+        for event in replay {
+            continuation.yield(event)
         }
         return stream
     }
 
-    /// Multicast yield — delivers the event to all active subscribers.
+    /// Multicast yield — delivers the event to all active subscribers; with zero
+    /// subscribers the event is buffered for replay (launch race, review cluster B).
     func yieldIncomingEvent(_ event: WatchWorkoutEvent) {
-        let continuations = continuationLock.withLock { Array(eventContinuations.values) }
+        let continuations = continuationLock.withLock { () -> [AsyncStream<WatchWorkoutEvent>.Continuation] in
+            let values = Array(eventContinuations.values)
+            if values.isEmpty {
+                bufferedEvents.append(event)
+                if bufferedEvents.count > Self.eventBufferLimit {
+                    bufferedEvents.removeFirst(bufferedEvents.count - Self.eventBufferLimit)
+                }
+            }
+            return values
+        }
         for continuation in continuations {
             continuation.yield(event)
         }

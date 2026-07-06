@@ -3650,6 +3650,7 @@
       }
     },
     "Saving workout..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4565,6 +4566,7 @@
       }
     },
     "Waiting for Apple Watch" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {

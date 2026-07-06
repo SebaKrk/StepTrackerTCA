@@ -6,6 +6,7 @@
 //
 
 import HealthKit
+import OSLog
 import SharedModels
 
 public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked Sendable {
@@ -55,8 +56,8 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         activeEnergy: 0
     )
     
-    // Multicast: każdy subskrybent `workoutMetricsStream` dostaje własną continuation.
-    // Wiele feature'ów obserwuje metrics jednocześnie (LiveSession + IPAD-0087 Gym Room).
+    // Multicast: each `workoutMetricsStream` subscriber gets its own continuation.
+    // Multiple features observe metrics at the same time (LiveSession + IPAD-0087 Gym Room).
     var workoutMetricsContinuations: [UUID: AsyncStream<WorkoutMetrics>.Continuation] = [:]
     var workoutSessionContinuation: AsyncStream<Bool>.Continuation?
     var workoutSessionStateContinuation: AsyncStream<HKWorkoutSessionState>.Continuation?
@@ -116,7 +117,7 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
         return stream
     }
 
-    /// Multicast yield — wszystkim aktywnym subskrybentom.
+    /// Multicast yield — delivers metrics to all active subscribers.
     func yieldWorkoutMetrics(_ metrics: WorkoutMetrics) {
         for continuation in workoutMetricsContinuations.values {
             continuation.yield(metrics)
@@ -205,25 +206,38 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     }
 
 
-    internal func sendData(_ data: Data) async {
-        print("🔄 sendData called with \(data.count) bytes")
+    /// Returns `true` when HealthKit confirmed the send, `false` on failure/timeout —
+    /// critical callers (iPhone-initiated End) branch on the result instead of
+    /// fire-and-forget (IOS-00098 review, cluster D).
+    @discardableResult
+    internal func sendData(_ data: Data) async -> Bool {
         do {
             // Guarded variant (SharedModels) — hard timeout against Apple bug #769355
             // where the native async send never resumes.
-            try await session?.sendToRemoteWorkoutSession(data: data, timeout: 3)
-            print("✅ Data sent successfully")
+            guard let session else {
+                // This result decides the dismiss after End (delivery-aware, cluster D) —
+                // it must be in the file report, not in a print() visible only under Xcode.
+                Logger.trainingManager.error("sendData — no session attached (\(data.count) bytes dropped)")
+                await WorkoutFileLogger.shared.log("[Send] SKIPPED — no mirrored session attached")
+                return false
+            }
+            try await session.sendToRemoteWorkoutSession(data: data, timeout: 3)
+            Logger.trainingManager.debug("sendData — delivered \(data.count) bytes")
+            return true
         } catch {
             let nsError = error as NSError
-
-            if nsError.domain == "com.apple.healthkit" && nsError.code == 300 {
 #if targetEnvironment(simulator)
-                print("🔧 Simulator: Remote device communication not available (expected)")
-#else
-                print("❌ Failed to send data: \(error)")
-#endif
-            } else {
-                print("❌ Failed to send data: \(error)")
+            if nsError.domain == "com.apple.healthkit" && nsError.code == 300 {
+                // Mirroring does not work in simulators (DTS) — expected noise.
+                Logger.trainingManager.debug("sendData — simulator, mirroring unavailable (expected)")
+                return false
             }
+#endif
+            // The wrapper logs every failed attempt to the file ("[Send] attempt 1 failed…");
+            // the FINAL verdict after exhausting retries lands here.
+            Logger.trainingManager.error("sendData — FAILED after retry: \(error.localizedDescription)")
+            await WorkoutFileLogger.shared.log("[Send] FAILED after retry — \(error.localizedDescription)")
+            return false
         }
     }
 
@@ -231,7 +245,8 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     /// Public surface for the HK mirroring channel send. Forwards to internal `sendData`.
     /// Used by SessionFeature for lifecycle events (e.g. `.workoutEnded`) — delivery
     /// is reliable regardless of WatchConnectivity reachability.
-    public func sendDataToWatch(_ data: Data) async {
+    @discardableResult
+    public func sendDataToWatch(_ data: Data) async -> Bool {
         await sendData(data)
     }
     #endif

@@ -28,7 +28,13 @@ struct WorkoutMetricsLockScreenView: View {
                 HStack(alignment: .center) {
                     heartRateView
                     Spacer()
-                    heartRateZoneView
+                    // Link down (IOS-00098-G): the on-screen metrics are stale —
+                    // instead of the zone we show an indicator, not pretending the data is live.
+                    if context.state.isWatchConnectionLost {
+                        connectionLostView
+                    } else {
+                        heartRateZoneView
+                    }
                 }
                 heartRatePercentageView(48)
                 activeEnergyView
@@ -37,13 +43,28 @@ struct WorkoutMetricsLockScreenView: View {
             .padding(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(context.state.heartRateZone.color.opacity(0.5), lineWidth: 2)
+                    .strokeBorder(borderColor, lineWidth: 2)
             )
         }
         .styledGroupBox()
     }
 
     // MARK: SubView
+
+    private var borderColor: Color {
+        context.state.isWatchConnectionLost
+            ? .orange.opacity(0.5)
+            : context.state.heartRateZone.color.opacity(0.5)
+    }
+
+    private var connectionLostView: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "applewatch.slash")
+            Text(String(localized: "No link"))
+        }
+        .font(.body.weight(.semibold))
+        .foregroundColor(.orange)
+    }
 
     private var heartRateView: some View {
         HStack(spacing: 4) {

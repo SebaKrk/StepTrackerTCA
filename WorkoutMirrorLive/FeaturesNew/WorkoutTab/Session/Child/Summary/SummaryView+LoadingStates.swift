@@ -12,23 +12,6 @@ import SwiftUI
 
 extension SummaryView {
 
-    // MARK: - Saving
-
-    var savingView: some View {
-        VStack(spacing: 12) {
-            Spacer()
-            ProgressView()
-                .controlSize(.large)
-            Text(String(localized: "Saving workout..."))
-                .font(.headline)
-            Text(String(localized: "Waiting for Apple Watch"))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
-        }
-        .transition(.opacity)
-    }
-
     // MARK: - Loading
 
     var loadingView: some View {

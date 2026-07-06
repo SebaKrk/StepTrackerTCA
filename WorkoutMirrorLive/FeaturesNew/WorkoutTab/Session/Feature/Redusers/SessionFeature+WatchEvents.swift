@@ -37,7 +37,9 @@ extension SessionFeature {
                 // dead — mirrored `.ended` never arrived, but `.workoutSaved` came
                 // through the WC queue. Close the session honestly.
                 guard state.workoutMode == .watchPrimary,
-                      state.sessionState == .session else { return .none }
+                      state.sessionState == .session
+                        || state.sessionState == .countdown
+                        || state.sessionState == .waitingForWatch else { return .none }
                 return .merge(
                     .run { _ in
                         await WorkoutFileLogger.shared.log("[Connection] .workoutSaved while session active — Watch ended remotely, closing session (S4)")
