@@ -25,6 +25,49 @@ extension ClassHistoryDetailView {
         .cornerRadius(3)
     }
 
+    /// Gap-aware HR lines for one athlete on the combined chart. One `LineMark`
+    /// series PER SEGMENT — Charts connects every point within a series, so a
+    /// measurement gap would otherwise get bridged with a straight line. Color and
+    /// legend stay per athlete via `foregroundStyle(by:)` (single legend entry).
+    ///
+    /// Extracted from the `Chart { }` closure — the triple-nested ForEach exceeded
+    /// the type-checker's budget ("unable to type-check in reasonable time").
+    @ChartContentBuilder
+    func athleteHRLines(
+        _ athlete: AthleteSummary,
+        segments: [AthleteSummary.HRSegment]
+    ) -> some ChartContent {
+        ForEach(segments) { segment in
+            ForEach(segment.samples, id: \.timestamp) { sample in
+                LineMark(
+                    x: .value("Time", sample.timestamp),
+                    y: .value("BPM", sample.bpm),
+                    series: .value("Series", "\(athlete.nick)#\(segment.id)")
+                )
+                .foregroundStyle(by: .value("Athlete", athlete.nick))
+                .interpolationMethod(.monotone)
+            }
+        }
+    }
+
+    /// Shaded vertical bands over measurement outages (athlete out of BLE range) —
+    /// the empty stretch on a card must read as "no measurement", not "no effort".
+    /// Paired with a legend note under the chart (`gapLegendNote`).
+    @ChartContentBuilder
+    func measurementGapBands(_ gaps: [AthleteSummary.HRGap]) -> some ChartContent {
+        ForEach(gaps) { gap in
+            // Minute-aligned edges — raw sample timestamps would cut through the
+            // neighboring minute buckets and overlap the boundary bars.
+            if let band = gap.minuteAlignedBand {
+                RectangleMark(
+                    xStart: .value("Gap start", band.lowerBound),
+                    xEnd: .value("Gap end", band.upperBound)
+                )
+                .foregroundStyle(.red.opacity(0.14))
+            }
+        }
+    }
+
     /// Pionowa linia + annotation na wybranej minucie. Analog
     /// `HeartRateDetailsView+Chart.createRuleMark`. Annotation pozycjonowany
     /// bottomTrailing z `overflowResolution(.fit(to: .chart))` — nigdy nie wyleci

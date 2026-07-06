@@ -61,9 +61,36 @@ extension AthleteSummary {
         [
             .preview(nick: "Seba",  profileIndex: 0, deviceID: previewDeviceID(1), classStart: classStart, phaseScale: phaseScale),
             .preview(nick: "Anna",  profileIndex: 1, deviceID: previewDeviceID(2), classStart: classStart, phaseScale: phaseScale),
-            .preview(nick: "Marek", profileIndex: 2, deviceID: previewDeviceID(3), classStart: classStart, phaseScale: phaseScale),
+            // Marek "leaves the room" for minutes 12-18 — demonstrates the gap-aware
+            // combined chart (line breaks instead of bridging the outage).
+            withDropout(
+                .preview(nick: "Marek", profileIndex: 2, deviceID: previewDeviceID(3), classStart: classStart, phaseScale: phaseScale),
+                minutes: 12..<18,
+                classStart: classStart
+            ),
             .preview(nick: "Kasia", profileIndex: 3, deviceID: previewDeviceID(4), classStart: classStart, phaseScale: phaseScale),
         ]
+    }
+
+    /// Preview-only: cuts a measurement gap (athlete out of BLE range) from the
+    /// generated samples so charts can demonstrate gap-aware segmentation.
+    private static func withDropout(
+        _ summary: AthleteSummary,
+        minutes: Range<Double>,
+        classStart: Date
+    ) -> AthleteSummary {
+        let gapStart = classStart.addingTimeInterval(minutes.lowerBound * 60)
+        let gapEnd = classStart.addingTimeInterval(minutes.upperBound * 60)
+        return AthleteSummary(
+            id: summary.id,
+            deviceID: summary.deviceID,
+            nick: summary.nick,
+            maxHR: summary.maxHR,
+            joinedAt: summary.joinedAt,
+            leftAt: summary.leftAt,
+            samples: summary.samples.filter { $0.timestamp < gapStart || $0.timestamp >= gapEnd },
+            analytics: summary.analytics
+        )
     }
 
     /// Hardcoded UUID per athlete — `AthleteColor.color(for:)` zwraca kolor

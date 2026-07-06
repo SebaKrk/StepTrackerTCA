@@ -152,6 +152,15 @@ private extension AthleteSessionRecord {
     }
 }
 
+/// Marek's samples have a cut-out for minutes 12-18 (see `previewClass` dropout) —
+/// his card shows the shaded "no measurement" band + the legend note under the
+/// chart; the combined line breaks into two segments over the same window.
+#Preview("Per athlete · measurement gap (Marek)") {
+    NavigationStack {
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .perAthlete))
+    }
+}
+
 #Preview("Empty class") {
     NavigationStack {
         ClassHistoryDetailView(store: previewStore(chartViewMode: .perAthlete, includeAthletes: false))

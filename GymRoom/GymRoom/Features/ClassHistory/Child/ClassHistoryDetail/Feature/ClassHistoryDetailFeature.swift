@@ -46,7 +46,10 @@ struct ClassHistoryDetailFeature {
                             maxHR: record.maxHR,
                             joinedAt: record.joinedAt,
                             leftAt: record.leftAt,
-                            samples: samples,
+                            // Zero-bpm samples are disconnect artifacts, not measurements —
+                            // they dragged chart lines down to 0 (both the combined
+                            // LineMark and the per-athlete range bars).
+                            samples: samples.filter { $0.bpm > 0 },
                             analytics: analytics
                         )
                     }
@@ -55,15 +58,26 @@ struct ClassHistoryDetailFeature {
                             (athlete.id, HRSample.minuteRanges(from: athlete.samples))
                         }
                     )
-                    await send(.athletesLoaded(summaries, ranges))
+                    // Gap-aware segments for the combined chart — precomputed here
+                    // (same pattern as `ranges`) so scrubbing never re-runs the O(n) split.
+                    let segments = Dictionary(
+                        uniqueKeysWithValues: summaries.map { athlete in
+                            (athlete.id, AthleteSummary.hrSegments(from: athlete.samples))
+                        }
+                    )
+                    await send(.athletesLoaded(summaries, ranges, segments))
                 } catch: { error, send in
                     Logger.gymRoom.error("❌ fetchAthletesForSession failed: \(error.localizedDescription)")
                     await send(.fetchFailed)
                 }
 
-            case let .athletesLoaded(summaries, ranges):
+            case let .athletesLoaded(summaries, ranges, segments):
                 state.athletes = summaries
                 state.hrRangesByAthlete = ranges
+                state.hrSegmentsByAthlete = segments
+                // Outage bands are a cheap derivation of the segment boundaries —
+                // O(segments), no need to widen the action signature.
+                state.hrGapsByAthlete = segments.mapValues(AthleteSummary.measurementGaps(from:))
                 state.viewState = .success
                 return .none
 

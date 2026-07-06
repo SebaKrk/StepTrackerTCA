@@ -17,9 +17,10 @@ extension ClassHistoryDetailFeature {
         /// Bindings dla Picker'a chartViewMode (SegmentedControl).
         case binding(BindingAction<State>)
 
-        /// Internal — result async fetch + decode + pre-aggregation. Drugie pole
-        /// to dict ranges pre-computed off main thread (uniknięcie compute w View body).
-        case athletesLoaded([AthleteSummary], [UUID: [HRMinuteRange]])
+        /// Internal — result of async fetch + decode + pre-aggregation. Second field:
+        /// per-minute range bars; third: gap-aware line segments for the combined
+        /// chart — both pre-computed off the main thread (no compute in View body).
+        case athletesLoaded([AthleteSummary], [UUID: [HRMinuteRange]], [UUID: [AthleteSummary.HRSegment]])
 
         /// `gymClassClient.fetchAthletesForSession` rzucił błąd — `viewState = .failed`,
         /// View pokazuje retry placeholder zamiast pustego widoku.

@@ -86,6 +86,9 @@
         }
       }
     },
+    "Brak pomiaru — zawodnik poza zasięgiem" : {
+
+    },
     "Calories" : {
       "localizations" : {
         "pl" : {
@@ -269,6 +272,12 @@
 
     },
     "End time will be set to now. Athletes still active will be finalized." : {
+
+    },
+    "Gap end" : {
+
+    },
+    "Gap start" : {
 
     },
     "Gym Room" : {
@@ -483,6 +492,9 @@
 
     },
     "Selected Time" : {
+
+    },
+    "Series" : {
 
     },
     "Set scheduled time" : {

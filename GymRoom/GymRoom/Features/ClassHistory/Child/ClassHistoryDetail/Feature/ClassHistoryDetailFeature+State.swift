@@ -34,6 +34,18 @@ extension ClassHistoryDetailFeature {
         /// Klucz = `athlete.id`. Empty = nie liczone albo athlete bez samples.
         var hrRangesByAthlete: [UUID: [HRMinuteRange]] = [:]
 
+        /// Gap-aware line segments for the combined chart, keyed by `athlete.id`.
+        /// Precomputed once in `athletesLoaded` (scrubbing re-evaluates the chart
+        /// body per frame — the O(n) split must not run there). A measurement gap
+        /// (> `AthleteSummary.maxContinuousSampleGap`) starts a new segment, so the
+        /// chart shows a hole instead of bridging the outage with a straight line.
+        var hrSegmentsByAthlete: [UUID: [AthleteSummary.HRSegment]] = [:]
+
+        /// Measurement outages per athlete, derived from `hrSegmentsByAthlete` in
+        /// the `athletesLoaded` handler. Per-athlete cards shade these intervals
+        /// (RectangleMark band) and show a "no measurement" legend note.
+        var hrGapsByAthlete: [UUID: [AthleteSummary.HRGap]] = [:]
+
         /// Wybrana minuta per athlete (klucz = `athlete.id`). Brak entry w dict =
         /// brak selection dla danego athlete'a. Każda karta ma własną selection
         /// (combined mode nie używa).
