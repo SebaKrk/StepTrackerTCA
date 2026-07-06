@@ -30,7 +30,8 @@ private struct PreviewFetchError: Error {}
 private func previewStore(
     chartViewMode: ClassHistoryDetailFeature.ChartViewMode,
     phaseScale: Double = 1.0,
-    includeAthletes: Bool = true
+    includeAthletes: Bool = true,
+    showsZoneBands: Bool = false
 ) -> StoreOf<ClassHistoryDetailFeature> {
     let classStart = Calendar.current.date(
         bySettingHour: 9, minute: 0, second: 0, of: Date()
@@ -47,7 +48,8 @@ private func previewStore(
             startedAt: classStart,
             endedAt: classStart.addingTimeInterval(baseClassDuration * phaseScale),
             viewState: .loading,
-            chartViewMode: chartViewMode
+            chartViewMode: chartViewMode,
+            showsZoneBands: showsZoneBands
         )
     ) {
         ClassHistoryDetailFeature()
@@ -149,6 +151,14 @@ private extension AthleteSessionRecord {
 #Preview("Combined · multi-series line") {
     NavigationStack {
         ClassHistoryDetailView(store: previewStore(chartViewMode: .combined))
+    }
+}
+
+/// Zone-band background ON — Y axis switches to %HRmax (universal bands across
+/// athletes with different maxHR), Myzone-style zone colors behind the lines.
+#Preview("Combined · zone bands") {
+    NavigationStack {
+        ClassHistoryDetailView(store: previewStore(chartViewMode: .combined, showsZoneBands: true))
     }
 }
 

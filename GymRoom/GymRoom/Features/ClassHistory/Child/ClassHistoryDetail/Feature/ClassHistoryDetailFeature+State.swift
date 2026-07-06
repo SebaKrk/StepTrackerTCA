@@ -73,6 +73,12 @@ extension ClassHistoryDetailFeature {
         /// vs `perAthlete` (lista kart per peer z BarMark range + selection).
         var chartViewMode: ChartViewMode = .combined
 
+        /// Zone-color background on the combined chart (Myzone-style). When ON the
+        /// Y axis switches from BPM to %HRmax — zone boundaries are per-athlete in
+        /// absolute BPM (different maxHR each), so universal horizontal bands are
+        /// only honest on a relative scale. OFF = plain BPM chart, unchanged.
+        var showsZoneBands: Bool = false
+
         /// Confirm alert przed cascade delete sesji z ellipsis menu → "Usuń".
         @Presents var alert: AlertState<Action.Alert>?
     }

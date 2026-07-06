@@ -215,6 +215,45 @@ struct ClassHistoryDetailView: View {
         .pickerStyle(.segmented)
     }
 
+    /// GroupBox header of the combined chart — title + ellipsis filter menu over
+    /// a Divider (SmartCourt `ShotsByTypeView.sectionHeader` pattern).
+    private var combinedChartHeader: some View {
+        VStack(spacing: 8) {
+            HStack {
+                combinedChartTitleText
+                Spacer()
+                combinedChartMenu
+            }
+            Divider()
+        }
+    }
+
+    private var combinedChartTitleText: some View {
+        Text(combinedChartTitle)
+            .font(.headline)
+            .foregroundStyle(.primary)
+    }
+
+    /// Filter menu — the row always names the view you'd switch TO (no checkmark):
+    /// "HR Zones" while on the BPM chart, "BPM" while zones are on. The fixed `…`
+    /// icon leaves room for more actions later.
+    private var combinedChartMenu: some View {
+        Menu {
+            chartStyleSwitchButton
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.subheadline)
+        }
+    }
+
+    private var chartStyleSwitchButton: some View {
+        Button {
+            store.send(.binding(.set(\.showsZoneBands, !store.showsZoneBands)))
+        } label: {
+            Text(store.showsZoneBands ? bpmModeTitle : zoneBandsToggleTitle)
+        }
+    }
+
     @ViewBuilder
     private var chartContent: some View {
         if store.athletes.isEmpty {
@@ -240,14 +279,22 @@ struct ClassHistoryDetailView: View {
     /// Bez selection (do porównania overlay, scrub przez 5 linii byłby chaotyczny).
     /// W `GroupBox` dla spójności z resztą chartów w widoku.
     private var combinedChart: some View {
-        GroupBox {
+        GroupBox(label: combinedChartHeader) {
             if isClassTooShort {
                 insufficientDataView(systemImage: "chart.xyaxis.line")
                     .frame(height: 280)
             } else {
                 Chart {
+                    if store.showsZoneBands {
+                        zoneBands()
+                    }
+
                     ForEach(store.athletes) { athlete in
-                        athleteHRLines(athlete, segments: store.hrSegmentsByAthlete[athlete.id] ?? [])
+                        athleteHRLines(
+                            athlete,
+                            segments: store.hrSegmentsByAthlete[athlete.id] ?? [],
+                            relativeTo: store.showsZoneBands ? athlete.maxHR : nil
+                        )
                     }
 
                     if let selectedTime = store.selectedCombinedTime {
@@ -265,7 +312,10 @@ struct ClassHistoryDetailView: View {
                             if let sample = nearestSample(in: athlete, to: selectedTime) {
                                 PointMark(
                                     x: .value("Time", sample.timestamp),
-                                    y: .value("BPM", sample.bpm)
+                                    y: .value("BPM", hrChartValue(
+                                        bpm: sample.bpm,
+                                        relativeTo: store.showsZoneBands ? athlete.maxHR : nil
+                                    ))
                                 )
                                 .symbolSize(60)
                                 .foregroundStyle(AthleteColor.color(for: athlete.deviceID))
@@ -274,6 +324,28 @@ struct ClassHistoryDetailView: View {
                     }
                 }
                 .chartYScale(domain: .automatic(includesZero: false))
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisGridLine()
+                        AxisTick()
+                        AxisValueLabel {
+                            if let yValue = value.as(Double.self) {
+                                Text(verbatim: store.showsZoneBands ? "\(Int(yValue))%" : "\(Int(yValue))")
+                            }
+                        }
+                    }
+                }
+                .chartPlotStyle { plotArea in
+                    // Resting (0-50%) can't be a band — a RectangleMark down to 0
+                    // would force the Y domain to zero and crush the lines. A grey
+                    // plot background shows through only where zone bands don't
+                    // cover, i.e. exactly the below-Zone-1 area.
+                    plotArea.background(
+                        store.showsZoneBands
+                            ? HeartRateZone.resting.color.opacity(0.05)
+                            : Color.clear
+                    )
+                }
                 .chartLegend(position: .bottom, alignment: .leading)
                 .chartXSelection(value: combinedSelectionBinding.animation(.easeInOut))
                 .frame(height: 280)
@@ -968,6 +1040,18 @@ struct ClassHistoryDetailView: View {
 
     private var hrSectionTitle: String {
         String(localized: "HR over time", bundle: .main)
+    }
+
+    private var zoneBandsToggleTitle: String {
+        String(localized: "HR Zones", bundle: .main)
+    }
+
+    private var bpmModeTitle: String {
+        String(localized: "BPM", bundle: .main)
+    }
+
+    private var combinedChartTitle: String {
+        String(localized: "All Athletes", bundle: .main)
     }
 
     private var caloriesSectionTitle: String {

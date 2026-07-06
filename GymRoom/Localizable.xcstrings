@@ -40,6 +40,16 @@
     "active time" : {
 
     },
+    "All Athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszyscy"
+          }
+        }
+      }
+    },
     "All athletes will be disconnected." : {
       "localizations" : {
         "pl" : {
@@ -316,6 +326,16 @@
         }
       }
     },
+    "HR Zones" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR Zones"
+          }
+        }
+      }
+    },
     "Individually" : {
 
     },
@@ -538,6 +558,9 @@
         }
       }
     },
+    "Strefy HR w tle" : {
+
+    },
     "Tap + to create your first class." : {
       "localizations" : {
         "pl" : {
@@ -630,6 +653,9 @@
         }
       }
     },
+    "Wszyscy zawodnicy" : {
+
+    },
     "Yesterday" : {
       "localizations" : {
         "pl" : {
@@ -644,6 +670,12 @@
 
     },
     "Zone" : {
+
+    },
+    "Zone end" : {
+
+    },
+    "Zone start" : {
 
     }
   },
