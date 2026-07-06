@@ -215,6 +215,45 @@ struct ClassHistoryDetailView: View {
         .pickerStyle(.segmented)
     }
 
+    /// GroupBox header of the combined chart — title + ellipsis filter menu over
+    /// a Divider (SmartCourt `ShotsByTypeView.sectionHeader` pattern).
+    private var combinedChartHeader: some View {
+        VStack(spacing: 8) {
+            HStack {
+                combinedChartTitleText
+                Spacer()
+                combinedChartMenu
+            }
+            Divider()
+        }
+    }
+
+    private var combinedChartTitleText: some View {
+        Text(combinedChartTitle)
+            .font(.headline)
+            .foregroundStyle(.primary)
+    }
+
+    /// Filter menu — the row always names the view you'd switch TO (no checkmark):
+    /// "HR Zones" while on the BPM chart, "BPM" while zones are on. The fixed `…`
+    /// icon leaves room for more actions later.
+    private var combinedChartMenu: some View {
+        Menu {
+            chartStyleSwitchButton
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.subheadline)
+        }
+    }
+
+    private var chartStyleSwitchButton: some View {
+        Button {
+            store.send(.binding(.set(\.showsZoneBands, !store.showsZoneBands)))
+        } label: {
+            Text(store.showsZoneBands ? bpmModeTitle : zoneBandsToggleTitle)
+        }
+    }
+
     @ViewBuilder
     private var chartContent: some View {
         if store.athletes.isEmpty {
@@ -240,22 +279,22 @@ struct ClassHistoryDetailView: View {
     /// Bez selection (do porównania overlay, scrub przez 5 linii byłby chaotyczny).
     /// W `GroupBox` dla spójności z resztą chartów w widoku.
     private var combinedChart: some View {
-        GroupBox {
+        GroupBox(label: combinedChartHeader) {
             if isClassTooShort {
                 insufficientDataView(systemImage: "chart.xyaxis.line")
                     .frame(height: 280)
             } else {
                 Chart {
+                    if store.showsZoneBands {
+                        zoneBands()
+                    }
+
                     ForEach(store.athletes) { athlete in
-                        ForEach(athlete.samples, id: \.timestamp) { sample in
-                            LineMark(
-                                x: .value("Time", sample.timestamp),
-                                y: .value("BPM", sample.bpm),
-                                series: .value("Athlete", athlete.nick)
-                            )
-                            .foregroundStyle(by: .value("Athlete", athlete.nick))
-                            .interpolationMethod(.monotone)
-                        }
+                        athleteHRLines(
+                            athlete,
+                            segments: store.hrSegmentsByAthlete[athlete.id] ?? [],
+                            relativeTo: store.showsZoneBands ? athlete.maxHR : nil
+                        )
                     }
 
                     if let selectedTime = store.selectedCombinedTime {
@@ -273,7 +312,10 @@ struct ClassHistoryDetailView: View {
                             if let sample = nearestSample(in: athlete, to: selectedTime) {
                                 PointMark(
                                     x: .value("Time", sample.timestamp),
-                                    y: .value("BPM", sample.bpm)
+                                    y: .value("BPM", hrChartValue(
+                                        bpm: sample.bpm,
+                                        relativeTo: store.showsZoneBands ? athlete.maxHR : nil
+                                    ))
                                 )
                                 .symbolSize(60)
                                 .foregroundStyle(AthleteColor.color(for: athlete.deviceID))
@@ -282,6 +324,28 @@ struct ClassHistoryDetailView: View {
                     }
                 }
                 .chartYScale(domain: .automatic(includesZero: false))
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisGridLine()
+                        AxisTick()
+                        AxisValueLabel {
+                            if let yValue = value.as(Double.self) {
+                                Text(verbatim: store.showsZoneBands ? "\(Int(yValue))%" : "\(Int(yValue))")
+                            }
+                        }
+                    }
+                }
+                .chartPlotStyle { plotArea in
+                    // Resting (0-50%) can't be a band — a RectangleMark down to 0
+                    // would force the Y domain to zero and crush the lines. A grey
+                    // plot background shows through only where zone bands don't
+                    // cover, i.e. exactly the below-Zone-1 area.
+                    plotArea.background(
+                        store.showsZoneBands
+                            ? HeartRateZone.resting.color.opacity(0.05)
+                            : Color.clear
+                    )
+                }
                 .chartLegend(position: .bottom, alignment: .leading)
                 .chartXSelection(value: combinedSelectionBinding.animation(.easeInOut))
                 .frame(height: 280)
@@ -303,9 +367,15 @@ struct ClassHistoryDetailView: View {
     /// Najbliższy sample athlete'a do scrubowanej daty. O(n) per athlete — dla
     /// 360 sample'ów × 4 athletes = 1440 ops per redraw. Acceptable.
     private func nearestSample(in athlete: AthleteSummary, to date: Date) -> HRSample? {
-        athlete.samples.min(by: {
+        guard let nearest = athlete.samples.min(by: {
             abs($0.timestamp.timeIntervalSince(date)) < abs($1.timestamp.timeIntervalSince(date))
-        })
+        }) else { return nil }
+        // Tolerance guard: without it the scrub pulled values from a DIFFERENT
+        // minute for athletes who hadn't started yet / were mid-outage — showing
+        // a made-up reading instead of "no measurement" (user report 2026-07-06).
+        let tolerance = AthleteSummary.maxContinuousSampleGap / 2
+        guard abs(nearest.timestamp.timeIntervalSince(date)) <= tolerance else { return nil }
+        return nearest
     }
 
 
@@ -313,12 +383,14 @@ struct ClassHistoryDetailView: View {
     /// malejąco po BPM (najwyższy first = czytelny ranking w moment scrub'a).
     /// `overflowResolution(.fit(to: .chart))` zapewnia że nie wyjdzie poza chart.
     private func combinedSelectionAnnotation(at time: Date) -> some View {
+        // Every athlete gets a row — those with no measurement at the selected time
+        // (not started yet / mid-outage) show "—" instead of being dropped or,
+        // worse, showing a reading pulled from a different minute.
         let entries = store.athletes
-            .compactMap { athlete -> (athlete: AthleteSummary, sample: HRSample)? in
-                guard let sample = nearestSample(in: athlete, to: time) else { return nil }
-                return (athlete, sample)
+            .map { athlete -> (athlete: AthleteSummary, sample: HRSample?) in
+                (athlete, nearestSample(in: athlete, to: time))
             }
-            .sorted { $0.sample.bpm > $1.sample.bpm }
+            .sorted { ($0.sample?.bpm ?? -1) > ($1.sample?.bpm ?? -1) }
 
         return VStack(alignment: .leading, spacing: 4) {
             Text(time, format: .dateTime.hour().minute())
@@ -329,20 +401,37 @@ struct ClassHistoryDetailView: View {
                     Circle()
                         .fill(AthleteColor.color(for: entry.athlete.deviceID))
                         .frame(width: 6, height: 6)
+                        .opacity(entry.sample == nil ? 0.4 : 1.0)
                     Text(entry.athlete.nick)
                         .font(.caption.weight(.semibold))
+                        .foregroundStyle(entry.sample == nil ? .secondary : .primary)
                     Spacer(minLength: 12)
-                    Text(verbatim: "\(entry.sample.bpm)")
+                    Text(verbatim: entry.sample.map { "\($0.bpm)" } ?? "—")
                         .font(.caption.monospacedDigit().weight(.semibold))
+                        .foregroundStyle(entry.sample == nil ? .secondary : .primary)
                     Text(verbatim: "BPM")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
+                        .opacity(entry.sample == nil ? 0 : 1)
+                    if let percentage = hrPercentage(of: entry.sample, maxHR: entry.athlete.maxHR) {
+                        Text(verbatim: "· \(percentage)%")
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }
         .padding(8)
         .background(.background, in: RoundedRectangle(cornerRadius: 8))
         .shadow(radius: 2, y: 1)
+    }
+
+    /// %HR max at the scrubbed moment — same metric the live GymRoom tiles show,
+    /// so the trainer reads history in the same language as the live class.
+    /// `nil` when there is no measurement or the athlete's maxHR snapshot is missing.
+    private func hrPercentage(of sample: HRSample?, maxHR: Int) -> Int? {
+        guard let sample, maxHR > 0 else { return nil }
+        return min(Int((Double(sample.bpm) / Double(maxHR) * 100).rounded()), 100)
     }
 
     /// Lista kart per athlete — każda karta = header stats + BarMark range chart + selection.
@@ -420,30 +509,51 @@ struct ClassHistoryDetailView: View {
             insufficientDataView(systemImage: "chart.line.text.clipboard.fill")
                 .frame(height: 200)
         } else {
-            Chart {
-                if let selectedMinute,
-                   let selectedRange = selectedRange(in: ranges, for: selectedMinute) {
-                    createRuleMark(with: selectedMinute) {
-                        AthleteHRAnnotationView(range: selectedRange, athleteColor: color)
+            let gaps = store.hrGapsByAthlete[athlete.id] ?? []
+            VStack(alignment: .leading, spacing: 4) {
+                Chart {
+                    measurementGapBands(gaps)
+                    if let selectedMinute,
+                       let selectedRange = selectedRange(in: ranges, for: selectedMinute) {
+                        createRuleMark(with: selectedMinute) {
+                            AthleteHRAnnotationView(range: selectedRange, athleteColor: color)
+                        }
+                    }
+                    ForEach(ranges) { range in
+                        createBarMark(
+                            range,
+                            isSelected: isMinuteSelected(range: range, selectedMinute: selectedMinute),
+                            style: barGradient(for: range, maxHR: athlete.maxHR)
+                        )
                     }
                 }
-                ForEach(ranges) { range in
-                    createBarMark(
-                        range,
-                        isSelected: isMinuteSelected(range: range, selectedMinute: selectedMinute),
-                        style: barGradient(for: range, maxHR: athlete.maxHR)
-                    )
+                .chartYScale(domain: .automatic(includesZero: false))
+                .chartXSelection(value: athleteSelectionBinding(athleteID: athlete.id).animation(.easeInOut))
+                .chartXAxis {
+                    AxisMarks(preset: .aligned, values: .automatic) { _ in
+                        AxisValueLabel()
+                    }
+                }
+                .frame(height: 140)
+
+                if !gaps.isEmpty {
+                    gapLegendNote
                 }
             }
-            .chartYScale(domain: .automatic(includesZero: false))
-            .chartXSelection(value: athleteSelectionBinding(athleteID: athlete.id).animation(.easeInOut))
-            .chartXAxis {
-                AxisMarks(preset: .aligned, values: .automatic) { _ in
-                    AxisValueLabel()
-                }
-            }
-            .frame(height: 140)
             .padding(.horizontal, 8)
+        }
+    }
+
+    /// Legend note shown only when the card has measurement outages — explains
+    /// the shaded bands so the gap is not mistaken for missing effort.
+    private var gapLegendNote: some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(.red.opacity(0.3))
+                .frame(width: 14, height: 10)
+            Text(String(localized: "Brak pomiaru — zawodnik poza zasięgiem"))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -930,6 +1040,18 @@ struct ClassHistoryDetailView: View {
 
     private var hrSectionTitle: String {
         String(localized: "HR over time", bundle: .main)
+    }
+
+    private var zoneBandsToggleTitle: String {
+        String(localized: "HR Zones", bundle: .main)
+    }
+
+    private var bpmModeTitle: String {
+        String(localized: "BPM", bundle: .main)
+    }
+
+    private var combinedChartTitle: String {
+        String(localized: "All Athletes", bundle: .main)
     }
 
     private var caloriesSectionTitle: String {

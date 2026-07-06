@@ -990,4 +990,16 @@
     G: Connection-lost — banner "trening trwa dalej", wstrzymanie WYSYŁEK ticków (licznik tyka — inaczej zegar Watcha cofałby się po reconnect), End → alert "zakończ na Watchu" (per Apple docs), S4 (koniec+zapis przy martwym linku → uczciwe domknięcie), wskaźnik w Dynamic Island
 
     * Refresh przez OBSERWACJĘ zamiast ręcznych triggerów: lista = `HKAnchoredObjectQueryDescriptor` observer (HealthKit pcha zmianę po syncu); badge = `@FetchAll` (pierwsze użycie SQLiteData observation w projekcie); tabela score = refetch na dismiss formularza
-    * Code review 3 agentami (concurrency / architektura TCA / data flows): naprawiony CRITICAL (brak NSLock na multicast dict w TrainingManagerze); klastry findings A–E (plan-link false claiming, launch race listenera, wyścigi konsumpcji na Watchu, fire-and-forget End, refresh storm) — spisane w planie, do naprawy przed/po commicie
+    * Code review 3 agentami (concurrency / architektura TCA / data flows): naprawiony CRITICAL (brak NSLock na multicast dict w TrainingManagerze) + wszystkie klastry MAJOR A–E (plan-link false claiming, launch race listenera, wyścigi konsumpcji na Watchu, delivery-aware End, refresh storm) + paczka drobnych; szczegóły w planie
+    * Sweep komentarzy PL→EN w zmienionych plikach (konwencja: komentarze po angielsku, polski tylko w stringach UI)
+
+### IPAD-00094 Class history HR chart — measurement-gap UX + scrub accuracy
+    - branch: `dev/IPAD-00094/IPAD-00094`
+    - target: GymRoom (iPad); zgłoszenie: przerwa w pomiarach (zawodnik wybiegł z sali) rysowała nurkowanie do 0 i "most" przez lukę
+
+    A: Zero-sample filter przy dekodowaniu — artefakty rozłączenia (bpm=0) nie ciągną już linii/słupków do zera (naprawia oba wykresy + minuteRanges jednym filtrem u źródła)
+    B: Gap-aware segmentation (próg 60 s, `AthleteSummary.maxContinuousSampleGap`) — combined LineMark dzielony na osobne serie per segment: przerwa = dziura, nie mostek. Prekomputowane w `athletesLoaded` (wzorem `minuteRanges`); helper `athleteHRLines` w +Chart.swift (limit type-checkera)
+    C: Karty per-athlete — cieniowane pasmo przerwy (`RectangleMark`, krawędzie przyciągnięte do siatki minutowej — surowe timestampy nachodziły na sąsiednie słupki) + notka legendy "Brak pomiaru — zawodnik poza zasięgiem" (tylko gdy przerwa istnieje)
+    D: Scrub na combined — tolerancja 30 s w `nearestSample` (koniec pokazywania wartości z cudzej minuty dla zawodników nieobecnych/w przerwie); annotation pokazuje WSZYSTKICH: obecni z BPM + %HR max (snapshot maxHR, cap 100%), nieobecni z "—" wyszarzeni na końcu listy
+    E: Preview — dropout Marka (min 12–18) w generatorze danych + dedykowany wariant "Per athlete · measurement gap"
+    F: Filtr "HR Zones" na wykresie zbiorczym (Myzone-style) — GroupBox "Wszyscy" z nagłówkiem tytuł + menu `…` + divider (wzorzec SmartCourt); przełączenie rysuje kolorowe pasma stref w tle, a oś Y przechodzi z BPM na %HRmax (granice stref w BPM są różne per zawodnik — wspólne pasma są uczciwe tylko na skali względnej); resting jako szare tło plotu (pasmo 0–50% zgniotłoby domenę); wiersz menu nazywa widok docelowy ("HR Zones" ↔ "BPM"), bez checkmarka; preview "Combined · zone bands"

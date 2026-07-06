@@ -40,6 +40,16 @@
     "active time" : {
 
     },
+    "All Athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszyscy"
+          }
+        }
+      }
+    },
     "All athletes will be disconnected." : {
       "localizations" : {
         "pl" : {
@@ -85,6 +95,9 @@
           }
         }
       }
+    },
+    "Brak pomiaru — zawodnik poza zasięgiem" : {
+
     },
     "Calories" : {
       "localizations" : {
@@ -271,6 +284,12 @@
     "End time will be set to now. Athletes still active will be finalized." : {
 
     },
+    "Gap end" : {
+
+    },
+    "Gap start" : {
+
+    },
     "Gym Room" : {
       "localizations" : {
         "pl" : {
@@ -303,6 +322,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "HR w czasie"
+          }
+        }
+      }
+    },
+    "HR Zones" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR Zones"
           }
         }
       }
@@ -485,6 +514,9 @@
     "Selected Time" : {
 
     },
+    "Series" : {
+
+    },
     "Set scheduled time" : {
       "localizations" : {
         "pl" : {
@@ -525,6 +557,9 @@
           }
         }
       }
+    },
+    "Strefy HR w tle" : {
+
     },
     "Tap + to create your first class." : {
       "localizations" : {
@@ -618,6 +653,9 @@
         }
       }
     },
+    "Wszyscy zawodnicy" : {
+
+    },
     "Yesterday" : {
       "localizations" : {
         "pl" : {
@@ -632,6 +670,12 @@
 
     },
     "Zone" : {
+
+    },
+    "Zone end" : {
+
+    },
+    "Zone start" : {
 
     }
   },
