@@ -263,56 +263,92 @@ struct PersonalActivityView: View {
         .frame(maxWidth: .infinity)
     }
     
-    private func primaryZoneSection(_ workout: HKWorkout) -> some View {
-        HStack {
-            Text("Primary Zone:")
-                .font(.caption)
-            
-            if let zoneInfo = store.zoneInfo[workout.uuid] {
-                Text(zoneInfo.zone.title)
-                    .font(.caption)
-                    .bold()
-                    .foregroundStyle(zoneInfo.zone.color)
-            } else {
-                Text("–")
-                    .font(.caption)
-                    .bold()
-            }
-            
-            Spacer()
-            
-            Text("Time in zone:")
-                .font(.caption)
-            
-            if let zoneInfo = store.zoneInfo[workout.uuid] {
-                Text(formatDuration(zoneInfo.duration))
-                    .font(.caption)
-                    .bold()
-                Button {
-                    send(.showZoneInfo(zoneInfo.zone))
-                } label: {
-                    Image(systemName: "info.circle")
-                        .font(.caption)
-                }
-            } else {
-                Text("–")
-                    .font(.caption)
-                    .bold()
-            }
+    // MARK: - Primary zone row (structure)
 
-            if let points = store.effortPointsByWorkout[workout.uuid] {
-                effortPointsInline(points)
-            }
+    private func primaryZoneSection(_ workout: HKWorkout) -> some View {
+        HStack(spacing: 6) {
+            primaryZoneLabel
+            primaryZoneValue(workout)
+            Spacer(minLength: 8)
+            timeInZoneLabel
+            timeInZoneValue(workout)
+            effortPointsBadge(workout)
         }
         .padding(4)
+    }
+
+    // MARK: - Primary zone row (implementation)
+
+    private var primaryZoneLabel: some View {
+        Text("Primary Zone:")
+            .font(.caption)
+    }
+
+    @ViewBuilder
+    private func primaryZoneValue(_ workout: HKWorkout) -> some View {
+        if let zoneInfo = store.zoneInfo[workout.uuid] {
+            Text(zoneInfo.zone.title)
+                .font(.caption)
+                .bold()
+                .foregroundStyle(zoneInfo.zone.color)
+        } else {
+            Text("–")
+                .font(.caption)
+                .bold()
+        }
+    }
+
+    private var timeInZoneLabel: some View {
+        Text("Time in zone:")
+            .font(.caption)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+    }
+
+    @ViewBuilder
+    private func timeInZoneValue(_ workout: HKWorkout) -> some View {
+        if let zoneInfo = store.zoneInfo[workout.uuid] {
+            Text(formatDuration(zoneInfo.duration))
+                .font(.caption)
+                .bold()
+                // Keep the duration on one line — the flexible Spacer yields space
+                // instead of the value wrapping to two rows.
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+            Button {
+                send(.showZoneInfo(zoneInfo.zone))
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(.caption)
+            }
+        } else {
+            Text("–")
+                .font(.caption)
+                .bold()
+        }
+    }
+
+    /// Frozen effort points for the workout — hidden when no score is stored.
+    @ViewBuilder
+    private func effortPointsBadge(_ workout: HKWorkout) -> some View {
+        if let points = store.effortPointsByWorkout[workout.uuid] {
+            effortPointsInline(points)
+        }
     }
     
     // MARK: - Helpers
     
+    /// Compact "25m 21s" (adds "Xh" past an hour) — the primary-zone row is tight
+    /// once the points badge is present, so the value stays terse and on one line.
     private func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        return "\(minutes) min \(seconds) sec"
+        let total = Int(duration)
+        let hours = total / 3600
+        let minutes = (total % 3600) / 60
+        let seconds = total % 60
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        }
+        return "\(minutes)m \(seconds)s"
     }
 
     // MARK: - Empty/Failed Views
