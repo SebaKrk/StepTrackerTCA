@@ -1003,3 +1003,29 @@
     D: Scrub na combined — tolerancja 30 s w `nearestSample` (koniec pokazywania wartości z cudzej minuty dla zawodników nieobecnych/w przerwie); annotation pokazuje WSZYSTKICH: obecni z BPM + %HR max (snapshot maxHR, cap 100%), nieobecni z "—" wyszarzeni na końcu listy
     E: Preview — dropout Marka (min 12–18) w generatorze danych + dedykowany wariant "Per athlete · measurement gap"
     F: Filtr "HR Zones" na wykresie zbiorczym (Myzone-style) — GroupBox "Wszyscy" z nagłówkiem tytuł + menu `…` + divider (wzorzec SmartCourt); przełączenie rysuje kolorowe pasma stref w tle, a oś Y przechodzi z BPM na %HRmax (granice stref w BPM są różne per zawodnik — wspólne pasma są uczciwe tylko na skali względnej); resting jako szare tło plotu (pasmo 0–50% zgniotłoby domenę); wiersz menu nazywa widok docelowy ("HR Zones" ↔ "BPM"), bez checkmarka; preview "Combined · zone bands"
+
+### IOS-00099 Effort Points — points for time in HR zones
+    - branch: `dev/IOS-00099/IOS-00099`
+    - plan: `PLANS/IOS-00099-effort-points.md`
+    - weights (v1): Z1=1 / Z2=2 / Z3=4 / Z4=6 / Z5=6 pts/min (Z5 capped at Z4), resting=0
+    - computed on the athlete's device, frozen at workout end; historical data "from now on" (older workouts get no points)
+    - CONTRACT: changing weights = bump `currentWeightsVersion` (memory `project_effort_points_weights_version`)
+
+    A: Core in SharedModels — EffortPointsScoring + EffortPointsAccumulator + test target (13 tests)
+    B: Personal live — counter in LiveSession (iPhone) + HRMirror (Watch) + Watch summary
+    C: GymRoom transport — effortPoints in HRSamplePayload/HRSample (optional, no migration) + tile + ClassAnalytics
+    D: Persistence v9 `workoutEffortScoreRecords` + EffortScoreClient + freeze via PendingEffortScore (@Shared) → `.workoutSaved` hook + cleanup on delete
+    E: Display stored — workout detail (badge in zones header + tap toggles time↔points), list (next to "Primary zone"), iPhone summary (card + zone-tinted gradient background)
+    F: Education — pts/min badge per zone in HeartRateZoneInfoView + entry from Settings (push, like HR formula); view has no own NavigationView (presenter provides it: NavigationStack around the workout sheet, Settings stack on push)
+    G: Bugfixes — Max HR in summary (0→real), SummaryView previews (idempotent viewDidAppear), TemplatePicker warning (real binding), zone names Zone 1..5
+    H: Review fixes (3-agent pre-commit review) —
+       ① atomic EffortScoreClient.save (reuse existing id for hkWorkoutId → duplicate .workoutSaved no longer throws on the UNIQUE index / cross-workout leak); clear pending in the catch too
+       ② clear pendingEffortScore on workout Discard (no .workoutSaved fires → would attach to next workout)
+       ③ wrap the zone-info sheet in PersonalActivityView in NavigationStack (title regressed after removing the view's own NavigationView)
+       ④ unify points unit to localized "pkt" across iPhone/Watch/GymRoom (was mixed "pkt"/"pts", some bare concatenations)
+       ⑤ EffortPointsScoring.pointsByZone (largest-remainder) so per-zone rows always sum to the total badge; +2 tests
+       ⑥ fix stale "recomputed from HealthKit" doc comments (contradicted the frozen contract) in 4 files
+       + removed dead commented print block in DefaultWorkoutZoneAnalyzer; log when an un-consumed pending snapshot is overwritten
+    - LiveSession card layout (final): zone name top-right (next to HR), effort points bottom-left, zone description bottom-right
+    - iPad class-results screen split out into a separate ticket → IPAD-00095
+

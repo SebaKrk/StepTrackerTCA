@@ -119,6 +119,10 @@ struct PersonSettingsFeature {
                 state.destination = .hrFormulaSettings(HRFormulaSettingsFeature.State())
                 return .none
 
+            case .view(.heartRateZonesTapped):
+                state.destination = .heartRateZoneInfo(HeartRateZoneInfoFeature.State())
+                return .none
+
             case .destination(.presented(.apiKey(.delegate(.keySaved)))):
                 state.destination = nil
                 return .none

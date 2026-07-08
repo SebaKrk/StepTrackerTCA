@@ -21,6 +21,7 @@ struct ActivityDetailsFeature {
     @Dependency(\.activityClient) var activityClient
     @Dependency(\.healthStore) var healthStore
     @Dependency(\.trainingSessionClient) var trainingSessionClient
+    @Dependency(\.effortScoreClient) var effortScoreClient
     
     // MARK: - Reducer
     
@@ -131,6 +132,16 @@ struct ActivityDetailsFeature {
                 state.hrMinuteRanges = ranges
                 return .none
 
+            case .internal(.loadEffortPoints):
+                return .run { [effortScoreClient, id = state.workout.uuid] send in
+                    let score = try? await effortScoreClient.fetchByHKWorkoutId(id)
+                    await send(.internal(.effortScoreLoaded(score)))
+                }
+
+            case let .internal(.effortScoreLoaded(score)):
+                state.effortScore = score
+                return .none
+
                 // MARK: - Manual entry
 
             case let .internal(.manualSummaryLoaded(summary, trainingSession, hrBuffer)):
@@ -168,11 +179,16 @@ struct ActivityDetailsFeature {
                     .send(.internal(.loadMetrics)),
                     .send(.internal(.loadLocationData)),
                     .send(.internal(.loadHRMinuteRanges)),
+                    .send(.internal(.loadEffortPoints)),
                     .send(.planScore(.fetchScore))
                 )
                 
             case let .view(.zoneDiscusserButtonTapped(value)):
                 return .send(.internal(.zoneExpand(value)))
+
+            case .view(.zonePointsToggled):
+                state.showZonePoints.toggle()
+                return .none
                 
             case let .view(.openMetricDetails(metric)):
                 state.destination = .metricDetail(MetricDetailFeature.State(metricType: metric))

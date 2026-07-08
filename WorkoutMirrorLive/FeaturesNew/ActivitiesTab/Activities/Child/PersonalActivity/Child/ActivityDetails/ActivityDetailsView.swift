@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import SwiftUI
 import SharedModels
+import HealthHub
 import HealthKit
 import MapKit
 
@@ -208,8 +209,40 @@ struct ActivityDetailsView: View {
         }
     }
     
+    // MARK: - Zones Section Header
+
+    /// HR-zones section title + effort points badge. Static — the time↔points
+    /// toggle lives on the expanded rows themselves (more discoverable there).
+    private var zoneSectionHeader: some View {
+        HStack {
+            Label(String(localized: "Heart Rate Zones", bundle: .main), systemImage: "heart.text.square")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Spacer()
+            if let points = store.effortScore?.points {
+                zonePointsBadge(points)
+            }
+        }
+    }
+
+    /// Frozen effort points (Myzone-style), shown in the HR-zones section header —
+    /// the points are earned FROM time in zones, so they live next to that title.
+    private func zonePointsBadge(_ points: Int) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: "bolt.fill")
+                .font(.caption2)
+                .foregroundStyle(.yellow)
+            Text("\(points)")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(String(localized: "pkt", bundle: .main))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
     // MARK: - Heart Rate Section
-    
+
     private var heartRateSection: some View {
         LazyVGrid(columns: twoColumnGrid, spacing: 4) {
             simpleMetricCard(
@@ -411,9 +444,7 @@ struct ActivityDetailsView: View {
         GroupBox {
             heartRateZone(distribution)
         } label: {
-            Label(String(localized: "Heart Rate Zones", bundle: .main), systemImage: "heart.text.square")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            zoneSectionHeader
         }
         .backgroundStyle(.clear)
         .background(
@@ -439,6 +470,12 @@ struct ActivityDetailsView: View {
                             total: store.totalZoneDuration
                         )
                     }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    // Tap the expanded rows to flip time ↔ points. No-op without a
+                    // stored score (pre-feature workouts show time only).
+                    if store.effortScore != nil { send(.zonePointsToggled) }
                 }
             }
         } label: {
@@ -512,10 +549,19 @@ struct ActivityDetailsView: View {
             Text(zone.title)
                 .font(.subheadline)
             Spacer()
-            Text(formatDuration(duration))
+            Text(store.showZonePoints ? zonePointsText(for: zone) : formatDuration(duration))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    /// Points a zone contributed, from the FROZEN `secondsByZone` in the saved
+    /// score. Uses `pointsByZone` (largest-remainder) so the rows GUARANTEED sum to
+    /// the total badge — computing per-zone independently would let them drift.
+    private func zonePointsText(for zone: HeartRateZone) -> String {
+        let breakdown = store.effortScore.map { EffortPointsScoring.pointsByZone(from: $0.secondsByZone) } ?? [:]
+        let points = breakdown[zone] ?? 0
+        return String(localized: "\(points) pkt", bundle: .main)
     }
 
     private func zoneProgressBar(zone: HeartRateZone, duration: TimeInterval, total: TimeInterval) -> some View {
@@ -719,6 +765,40 @@ struct ActivityDetailsView: View {
             ActivityDetailsFeature()
         } withDependencies: {
             $0.workoutPlanScoreClient.fetchByHKWorkoutId = { _ in nil }
+        })
+    }
+}
+
+#Preview("with effort points") {
+    let workout = HKWorkout(
+        activityType: .crossTraining,
+        start: Date().addingTimeInterval(-3600),
+        end: Date()
+    )
+    return NavigationStack {
+        ActivityDetailsView(store: Store(
+            initialState: ActivityDetailsFeature.State(workout: workout, maxHeartRate: 185)
+        ) {
+            ActivityDetailsFeature()
+        } withDependencies: {
+            $0.workoutPlanScoreClient.fetchByHKWorkoutId = { _ in nil }
+            // Zone distribution present → the HR-zones section renders, so its
+            // header (with the points badge) is visible in the canvas. Same
+            // secondsByZone as the stored score, so time↔points rows agree:
+            // 5·1 + 20·4 + 10·6 = 5 + 80 + 60 = 145 pkt.
+            $0.activityClient.fetchZoneDistribution = { _, _ in
+                [.recovery: 300, .aerobic: 1200, .threshold: 600]
+            }
+            $0.effortScoreClient.fetchByHKWorkoutId = { id in
+                WorkoutEffortScore(
+                    id: UUID(),
+                    hkWorkoutId: id,
+                    points: 145,
+                    workoutStartDate: Date(),
+                    secondsByZone: [.recovery: 300, .aerobic: 1200, .threshold: 600],
+                    weightsVersion: 1
+                )
+            }
         })
     }
 }

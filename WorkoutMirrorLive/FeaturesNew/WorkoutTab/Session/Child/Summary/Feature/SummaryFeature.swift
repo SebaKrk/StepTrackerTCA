@@ -113,6 +113,11 @@ struct SummaryFeature {
                 state.phaseTimestamps = phaseTimestamps
                 return .none
 
+            case let .setEffortPoints(points, dominantZone):
+                state.effortPoints = points
+                state.dominantZone = dominantZone
+                return .none
+
             case let .summaryLoaded(summary):
                 state.summary = summary
                 let resultLog = summary.workout.map { "found: \($0.uuid)" } ?? "nil"
@@ -161,12 +166,17 @@ struct SummaryFeature {
                     return .none
                 }
 
+                // Idempotent onAppear: only the fresh `.loading` entry kicks off loading.
+                // A re-appear — or a preview seeded with a decided state (.failed /
+                // .successfullyLoaded) — keeps that state instead of resetting to the
+                // spinner. Fixes previews showing ProgressView regardless of their name.
+                guard state.viewState == .loading else { return .none }
+
                 // Happy path (iPhone-standalone only after IOS-00098-E) — the workout is saved
                 // locally by iPhoneWorkoutSession and waits in the router cache. We check right
                 // away; a short retry (5×1s) protects against the race between finishWorkout()
                 // and the broadcast to the cache — without waiting for any data from the Watch.
                 state.summaryRetryCount = 0
-                state.viewState = .loading
                 return .send(.checkSummary)
 
             case .view(.closeButtonTapped):
@@ -346,6 +356,11 @@ struct SummaryFeature {
 
             case .discardCompleted(errorMessage: nil):
                 state.isDiscarding = false
+                // Workout discarded → drop the frozen effort snapshot. No
+                // `.workoutSaved` fires for a discarded workout, so otherwise it
+                // would linger and attach to the next workout within 12h.
+                @Shared(.pendingEffortScore) var pendingEffortScore
+                $pendingEffortScore.withLock { $0 = nil }
                 return .run { _ in await self.dismiss() }
 
             case let .discardCompleted(errorMessage: .some(message)):

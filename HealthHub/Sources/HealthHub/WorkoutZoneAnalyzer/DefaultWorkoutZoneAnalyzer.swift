@@ -17,25 +17,36 @@ public final class DefaultWorkoutZoneAnalyzer: WorkoutZoneAnalyzer {
     // MARK: - WorkoutZoneAnalyzer Protocol
     
     /// Analyzes heart rate samples and returns the primary zone (longest time spent).
+    ///
+    /// Resting is not a training zone — a strength workout with long rests can
+    /// accumulate most of its time below 50% maxHR, yet "Resting" as the headline
+    /// zone reads as "no training happened". The dominant TRAINING zone wins;
+    /// resting is returned only when no training zone has any time at all.
     public func analyzePrimaryZone(
         samples: [HKQuantitySample],
         maxHeartRate: Double
     ) -> PrimaryZoneInfo? {
         guard samples.count >= 2 else { return nil }
-        
+
         let distribution = calculateZoneDistribution(
             samples: samples,
             maxHeartRate: maxHeartRate
         )
-        
-        guard let primaryEntry = distribution.max(by: { $0.value < $1.value }) else {
+
+        let trainingDistribution = distribution.filter { $0.key != .resting && $0.value > 0 }
+
+        if let primaryEntry = trainingDistribution.max(by: { $0.value < $1.value }) {
+            return PrimaryZoneInfo(
+                zone: primaryEntry.key,
+                duration: primaryEntry.value
+            )
+        }
+
+        guard let restingDuration = distribution[.resting], restingDuration > 0 else {
             return nil
         }
-        
-        return PrimaryZoneInfo(
-            zone: primaryEntry.key,
-            duration: primaryEntry.value
-        )
+
+        return PrimaryZoneInfo(zone: .resting, duration: restingDuration)
     }
     
     /// Calculates time spent in each heart rate zone.
@@ -65,25 +76,7 @@ public final class DefaultWorkoutZoneAnalyzer: WorkoutZoneAnalyzer {
             let zone = determineZone(heartRate: heartRate, maxHeartRate: maxHeartRate)
             distribution[zone, default: 0] += duration
         }
-        
-        // 🔍 DEBUG - Zone distribution
-//        print("═══════════════════════════════════════════════════")
-//        if let firstSample = samples.first {
-//            let formatter = DateFormatter()
-//            formatter.dateFormat = "yyyy-MM-dd HH:mm"
-//            print("💓 Workout time: \(formatter.string(from: firstSample.startDate))")
-//        }
-//        print("💓 HR Zone Analysis (maxHR: \(Int(maxHeartRate)) bpm)")
-//        print("💓 Samples count: \(samples.count)")
-//        for zone in HeartRateZone.allCases {
-//            let seconds = distribution[zone] ?? 0
-//            let minutes = Int(seconds / 60)
-//            let secs = Int(seconds.truncatingRemainder(dividingBy: 60))
-//            let percentage = zone.percentageRange
-//            print("   \(zone.rawValue): \(minutes)m \(secs)s (\(Int(percentage.lowerBound * 100))-\(Int(percentage.upperBound * 100))% maxHR)")
-//        }
-//        print("═══════════════════════════════════════════════════")
-        
+
         return distribution
     }
     

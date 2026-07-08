@@ -122,6 +122,7 @@
       }
     },
     "Anaerobic" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -315,6 +316,7 @@
       }
     },
     "Fat Burning" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -575,6 +577,7 @@
       }
     },
     "Light Effort" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1317,6 +1320,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rok"
+          }
+        }
+      }
+    },
+    "Zone 1" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 1"
+          }
+        }
+      }
+    },
+    "Zone 2" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 2"
+          }
+        }
+      }
+    },
+    "Zone 3" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 3"
+          }
+        }
+      }
+    },
+    "Zone 4" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 4"
+          }
+        }
+      }
+    },
+    "Zone 5" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 5"
           }
         }
       }

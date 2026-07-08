@@ -45,7 +45,13 @@ struct TemplatePickerFeature {
     // MARK: - Action
 
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
+
+        /// Two-way state bindings (e.g. the preview sheet's `item`). A genuine
+        /// binding means SwiftUI-driven dismissal round-trips through here instead
+        /// of a hand-rolled `Binding(get:set:)` fabricating a child action that can
+        /// land after the parent swaps the destination case (IOS-00099 fix).
+        case binding(BindingAction<State>)
 
         /// View-originated actions — dispatch przez `send(...)` w `@ViewAction` view.
         case view(View)
@@ -71,9 +77,6 @@ struct TemplatePickerFeature {
             /// User potwierdził wybór z toolbar'a preview sheet'a → emit delegate + dismiss self.
             case selectFromPreviewTapped(TrainingSession)
 
-            /// User zamknął preview sheet (close / swipe-down) — reset previewTemplate.
-            case previewDismissed
-
             /// User zamknął picker bez wyboru — dismiss self.
             case closeButtonTapped
         }
@@ -88,6 +91,7 @@ struct TemplatePickerFeature {
     // MARK: - Reducer
 
     var body: some Reducer<State, Action> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
 
@@ -107,14 +111,18 @@ struct TemplatePickerFeature {
                 return .none
 
             case let .view(.selectFromPreviewTapped(template)):
-                state.previewTemplate = nil
+                // Do NOT clear previewTemplate here: `dismiss()` tears down the
+                // whole picker and the preview sheet closes with it. Clearing it
+                // was the only thing that made the sheet binding fabricate a stale
+                // action arriving after the parent swapped to `.summary`.
                 return .run { send in
                     await send(.delegate(.didSelectTemplate(template)))
                     await dismiss()
                 }
 
-            case .view(.previewDismissed):
-                state.previewTemplate = nil
+            case .binding:
+                // SwiftUI-driven preview dismissal (swipe / close) round-trips
+                // through the `$store.previewTemplate` binding — no manual action.
                 return .none
 
             case .view(.closeButtonTapped):

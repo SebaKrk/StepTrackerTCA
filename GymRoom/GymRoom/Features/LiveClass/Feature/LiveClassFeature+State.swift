@@ -101,6 +101,12 @@ extension LiveClassFeature {
         var activeEnergy: Double = 0
         var state: TileState = .live
 
+        /// Effort points computed on the ATHLETE'S device and delivered in each
+        /// payload — the host only displays them (single source of truth: same
+        /// number the athlete sees on their phone). `nil` = peer build without
+        /// effort points → tile shows a dash.
+        var effortPoints: Int? = nil
+
         /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.
         var percentHR: Int {
             guard maxHR > 0 else { return 0 }

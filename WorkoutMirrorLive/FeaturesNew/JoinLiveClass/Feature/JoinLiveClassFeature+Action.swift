@@ -41,6 +41,11 @@ extension JoinLiveClassFeature {
         /// Identical outcome do `.classEndedReceived` ale różny trigger.
         case workoutEnded
 
+        /// One metrics sample from `workoutMetricsStream` — the reducer builds the
+        /// BLE payload here (not in the effect) so it can attach CURRENT state:
+        /// `currentEffortPoints` synced by the parent from the LiveSession counter.
+        case workoutMetricsReceived(WorkoutMetrics)
+
         // MARK: - View Actions
 
         case view(View)

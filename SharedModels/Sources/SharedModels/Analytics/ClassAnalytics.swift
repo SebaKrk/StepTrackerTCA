@@ -39,17 +39,25 @@ public struct ClassAnalytics: Codable, Sendable, Equatable {
     /// nie są policzane).
     public let timeInZones: [HeartRateZone: TimeInterval]
 
+    /// Final effort points total (Myzone-style), DEVICE-COMPUTED by the athlete's
+    /// phone and delivered with each sample — this is simply the last reported
+    /// value, never recalculated host-side. `nil` = athlete's build predates the
+    /// feature (old blobs decode fine — optional field, no migration).
+    public let effortPoints: Int?
+
     public init(
         avgHR: Int,
         peakHR: Int,
         totalCalories: Double,
         durationSeconds: TimeInterval,
-        timeInZones: [HeartRateZone: TimeInterval]
+        timeInZones: [HeartRateZone: TimeInterval],
+        effortPoints: Int? = nil
     ) {
         self.avgHR = avgHR
         self.peakHR = peakHR
         self.totalCalories = totalCalories
         self.durationSeconds = durationSeconds
         self.timeInZones = timeInZones
+        self.effortPoints = effortPoints
     }
 }

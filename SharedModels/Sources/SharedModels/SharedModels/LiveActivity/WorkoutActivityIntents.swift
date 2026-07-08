@@ -5,7 +5,7 @@
 //  Created by Sebastian Ściuba on 2026-05-28.
 //
 
-#if canImport(ActivityKit)
+#if canImport(ActivityKit) && !os(macOS)
 import ActivityKit
 import AppIntents
 import Foundation

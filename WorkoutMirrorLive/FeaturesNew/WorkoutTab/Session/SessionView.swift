@@ -40,8 +40,10 @@ struct SessionView: View {
                 }
                 .sheet(item: $store.scope(state: \.destination?.openHeartRateZoneInfo,
                                           action: \.destination.openHeartRateZoneInfo)) { store in
-                    HeartRateZoneInfoView(store: store)
-                        .presentationDetents([.medium, .large])
+                    NavigationStack {
+                        HeartRateZoneInfoView(store: store)
+                    }
+                    .presentationDetents([.medium, .large])
                 }
                 .sheet(isPresented: joinLiveClassSheetBinding) {
                     if let joinStore = store.scope(state: \.joinLiveClass, action: \.joinLiveClass) {

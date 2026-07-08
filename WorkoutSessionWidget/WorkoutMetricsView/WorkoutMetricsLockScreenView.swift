@@ -126,19 +126,19 @@ struct WorkoutMetricsLockScreenView: View {
     WorkoutSessionActivityAttributes.ContentState.resting
 }
 
-#Preview("Notification - Aerobic", as: .content, using: WorkoutSessionActivityAttributes.preview) {
+#Preview("Notification - Zone 3", as: .content, using: WorkoutSessionActivityAttributes.preview) {
     WorkoutSessionLiveActivity()
 } contentStates: {
     WorkoutSessionActivityAttributes.ContentState.aerobic
 }
 
-#Preview("Notification - Threshold", as: .content, using: WorkoutSessionActivityAttributes.preview) {
+#Preview("Notification - Zone 4", as: .content, using: WorkoutSessionActivityAttributes.preview) {
     WorkoutSessionLiveActivity()
 } contentStates: {
     WorkoutSessionActivityAttributes.ContentState.threshold
 }
 
-#Preview("Notification - Anaerobic", as: .content, using: WorkoutSessionActivityAttributes.preview) {
+#Preview("Notification - Zone 5", as: .content, using: WorkoutSessionActivityAttributes.preview) {
     WorkoutSessionLiveActivity()
 } contentStates: {
     WorkoutSessionActivityAttributes.ContentState.anaerobic

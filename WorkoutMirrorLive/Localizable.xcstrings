@@ -484,6 +484,12 @@
         }
       }
     },
+    "%lld pkt" : {
+
+    },
+    "%lld pkt/min" : {
+
+    },
     "%lld reps" : {
       "localizations" : {
         "pl" : {
@@ -1852,6 +1858,9 @@
           }
         }
       }
+    },
+    "Effort Points" : {
+
     },
     "Email" : {
 
@@ -3227,6 +3236,9 @@
         }
       }
     },
+    "pkt" : {
+
+    },
     "placeholder" : {
       "localizations" : {
         "pl" : {
@@ -3415,6 +3427,9 @@
           }
         }
       }
+    },
+    "pts" : {
+
     },
     "Readiness Analysis" : {
       "localizations" : {
@@ -4079,6 +4094,9 @@
           }
         }
       }
+    },
+    "Strefy tętna i punkty" : {
+
     },
     "Strength" : {
       "localizations" : {

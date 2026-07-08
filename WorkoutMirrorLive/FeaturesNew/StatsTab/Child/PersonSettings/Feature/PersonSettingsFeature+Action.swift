@@ -63,6 +63,10 @@ extension PersonSettingsFeature {
 
             /// Action triggered when HR formula settings row is tapped — opens picker.
             case hrFormulaTapped
+
+            /// Action triggered when the HR zones row is tapped — opens the zone
+            /// reference (descriptions + effort points scoring) as a sheet.
+            case heartRateZonesTapped
         }
         
         // MARK: - Destination

@@ -45,6 +45,18 @@ struct HRMirrorFeature {
             case .hrReceived(let bpm):
                 state.heartRate = Int(bpm)
                 state.heartRateZone = heartRateZone(bpm: Int(bpm), max: state.maxHeartRate)
+                // Credit effort points for the stretch since the previous sample.
+                // The date always advances (even for bpm=0 artifacts) so a sensor
+                // dropout is never retroactively credited to the next valid zone.
+                let sampleDate = Date()
+                if let previousSampleDate = state.lastEffortSampleDate {
+                    state.effortPoints.add(
+                        bpm: Int(bpm),
+                        duration: sampleDate.timeIntervalSince(previousSampleDate),
+                        maxHR: state.maxHeartRate
+                    )
+                }
+                state.lastEffortSampleDate = sampleDate
                 let zone = state.heartRateZone
                 // Watch-primary: send HR via HealthKit's native mirroring channel
                 // (sendToRemoteWorkoutSession) instead of WatchConnectivity.

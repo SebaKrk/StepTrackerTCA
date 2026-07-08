@@ -22,11 +22,11 @@ public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable, Codable
     public var title: String {
         switch self {
         case .resting: return String(localized: "Resting", bundle: .module)
-        case .recovery: return String(localized: "Light Effort", bundle: .module)
-        case .fatBurning: return String(localized: "Fat Burning", bundle: .module)
-        case .aerobic: return String(localized: "Aerobic", bundle: .module)
-        case .threshold: return String(localized: "Threshold", bundle: .module)
-        case .anaerobic: return String(localized: "Anaerobic", bundle: .module)
+        case .recovery: return String(localized: "Zone 1", bundle: .module)
+        case .fatBurning: return String(localized: "Zone 2", bundle: .module)
+        case .aerobic: return String(localized: "Zone 3", bundle: .module)
+        case .threshold: return String(localized: "Zone 4", bundle: .module)
+        case .anaerobic: return String(localized: "Zone 5", bundle: .module)
         }
     }
    

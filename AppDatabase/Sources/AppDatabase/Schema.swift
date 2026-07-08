@@ -255,6 +255,40 @@ extension DependencyValues {
             .execute(db)
         }
 
+        // Effort points per personal workout (IOS-00099). Frozen points + per-zone
+        // seconds breakdown + weights version. workoutStartDate is denormalized
+        // and indexed for period aggregates (monthly sum) without HealthKit.
+        migrator.registerMigration("v9_workoutEffortScore") { db in
+            try #sql("""
+                CREATE TABLE "workoutEffortScoreRecords" (
+                  "id"                TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "hkWorkoutId"       TEXT NOT NULL,
+                  "points"            INTEGER NOT NULL,
+                  "workoutStartDate"  TEXT NOT NULL,
+                  "secondsZone1"      REAL NOT NULL,
+                  "secondsZone2"      REAL NOT NULL,
+                  "secondsZone3"      REAL NOT NULL,
+                  "secondsZone4"      REAL NOT NULL,
+                  "secondsZone5"      REAL NOT NULL,
+                  "weightsVersion"    INTEGER NOT NULL,
+                  "createdAt"         TEXT NOT NULL,
+                  "updatedAt"         TEXT NOT NULL,
+                  "ckRecordData"      BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE UNIQUE INDEX "index_workoutEffortScoreRecords_on_hkWorkoutId"
+                ON "workoutEffortScoreRecords"("hkWorkoutId")
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_workoutEffortScoreRecords_on_workoutStartDate"
+                ON "workoutEffortScoreRecords"("workoutStartDate")
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

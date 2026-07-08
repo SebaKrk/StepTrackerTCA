@@ -22,6 +22,7 @@ struct SessionFeature {
     @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date.now) var now
 
     @Dependency(\.dismiss) var dismiss
 

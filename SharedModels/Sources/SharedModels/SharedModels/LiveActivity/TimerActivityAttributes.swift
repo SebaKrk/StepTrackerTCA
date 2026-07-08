@@ -5,7 +5,7 @@
 //  Created by Sebastian Sciuba on 17/01/2026.
 //
 
-#if canImport(ActivityKit)
+#if canImport(ActivityKit) && !os(macOS)
 import ActivityKit
 import Foundation
 

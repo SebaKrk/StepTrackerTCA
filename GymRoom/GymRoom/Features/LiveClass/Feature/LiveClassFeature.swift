@@ -234,12 +234,18 @@ struct LiveClassFeature {
                 tile.bpm = payload.bpm
                 tile.maxHR = payload.maxHR
                 tile.activeEnergy = payload.activeEnergy
+                // Device-computed cumulative counter — keep the last known value
+                // when a payload arrives without it (goodbye from an old build).
+                if let effortPoints = payload.effortPoints {
+                    tile.effortPoints = effortPoints
+                }
 
                 /// Buffer HRSample dla batch persistence (flush co 30s przez persistenceTimer).
                 let sample = HRSample(
                     timestamp: payload.timestamp,
                     bpm: payload.bpm,
-                    activeEnergy: payload.activeEnergy
+                    activeEnergy: payload.activeEnergy,
+                    effortPoints: payload.effortPoints
                 )
                 state.hrSamplesBuffer[payload.deviceID, default: []].append(sample)
                 Logger.gymRoom.debug("💓 Updated \(payload.nick): \(payload.bpm) bpm")

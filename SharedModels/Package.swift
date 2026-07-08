@@ -25,6 +25,10 @@ let package = Package(
             name: "SharedModels",
             dependencies: ["Commons"],
             resources: [.process("Resources")]
+        ),
+        .testTarget(
+            name: "SharedModelsTests",
+            dependencies: ["SharedModels"]
         )
     ]
 )

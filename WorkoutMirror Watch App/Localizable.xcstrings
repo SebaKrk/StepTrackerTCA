@@ -26,6 +26,9 @@
     "Done" : {
 
     },
+    "Effort Points" : {
+
+    },
     "End now" : {
       "localizations" : {
         "pl" : {
@@ -45,6 +48,9 @@
           }
         }
       }
+    },
+    "pts" : {
+
     },
     "Resume" : {
       "localizations" : {

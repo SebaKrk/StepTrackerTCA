@@ -48,6 +48,17 @@ extension SessionFeature {
             case .countDown(_):
                 return .none
 
+            case .live(.workoutMetrics):
+                // Bridge: mirror the LiveSession effort points counter into
+                // JoinLiveClass so every BLE payload carries the SAME number the
+                // athlete sees on screen (one accumulator, zero drift). A one-tick
+                // lag vs the child reducer is harmless at 1 Hz.
+                // Read into a local first — reading `state.live` while mutating
+                // `state.joinLiveClass` is an overlapping exclusive access.
+                let livePoints = state.live.effortPoints.points
+                state.joinLiveClass?.currentEffortPoints = livePoints
+                return .none
+
             case .live(_):
                 return .none
 

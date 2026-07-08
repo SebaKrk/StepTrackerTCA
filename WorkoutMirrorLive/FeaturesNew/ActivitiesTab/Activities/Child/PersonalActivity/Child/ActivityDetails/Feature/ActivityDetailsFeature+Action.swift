@@ -68,6 +68,13 @@ extension ActivityDetailsFeature {
 
             /// HR samples załadowane i pogrupowane po minutach — zasilenie range BarMark chart'u.
             case hrMinuteRangesLoaded([HRMinuteRange])
+
+            /// Triggers fetch of the stored effort score for this workout.
+            case loadEffortPoints
+
+            /// Stored effort score loaded — `nil` for workouts recorded before the
+            /// feature shipped (no backfill; the section is hidden for `nil`).
+            case effortScoreLoaded(WorkoutEffortScore?)
         }
         
         case view(View)
@@ -80,6 +87,9 @@ extension ActivityDetailsFeature {
 
             /// Called when user taps zone disclosure button.
             case zoneDiscusserButtonTapped(Bool)
+
+            /// Toggles the zones section between time-per-zone and points-per-zone.
+            case zonePointsToggled
 
             /// Opens metric details screen
             case openMetricDetails(MetricTypeDetails)
