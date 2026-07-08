@@ -191,6 +191,23 @@ extension HealthMetricsTrendView {
         return niceStep * magnitude
     }
 
+    /// Krok osi Y dla słupkowego wykresu aktywności — liczony od 0 (nie od `min`
+    /// danych), bo oś aktywności zawsze startuje od zera (`activityYDomain`).
+    /// Bez tego, gdy wszystkie dni mają zbliżone, wysokie wartości, `strideStep`
+    /// dawałby drobny krok i kilkanaście kresek na osi rozciągniętej od 0.
+    func activityStrideStep(for data: [HistoricalDataPoint]) -> Double {
+        guard let maxV = data.map(\.value).max(), maxV > 0 else { return 100 }
+        let rawStep = maxV / 4.0
+        let magnitude = pow(10, floor(log10(rawStep)))
+        let normalized = rawStep / magnitude
+        let niceStep: Double
+        if normalized < 1.5 { niceStep = 1 }
+        else if normalized < 3.5 { niceStep = 2 }
+        else if normalized < 7.5 { niceStep = 5 }
+        else { niceStep = 10 }
+        return niceStep * magnitude
+    }
+
     // MARK: - Formatting Helpers
 
     func formattedValue(_ value: Double) -> String {

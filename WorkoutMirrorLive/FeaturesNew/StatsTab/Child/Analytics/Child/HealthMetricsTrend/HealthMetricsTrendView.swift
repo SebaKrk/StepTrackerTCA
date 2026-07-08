@@ -378,7 +378,7 @@ struct HealthMetricsTrendView: View {
         .chartLegend(position: .bottom, spacing: 8)
         .chartYScale(domain: activityYDomain(for: data))
         .chartYAxis {
-            AxisMarks(values: .stride(by: strideStep(for: data))) { value in
+            AxisMarks(values: .stride(by: activityStrideStep(for: data))) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     if let v = value.as(Double.self) {

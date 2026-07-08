@@ -47,10 +47,14 @@ struct HealthMetricsTrendFeature {
                     await send(.internal(.dataResponse(
                         Result {
                             if metric == .activity {
-                                async let historyTask = healthMetricHistoryClient.fetchHistory(metric, days)
-                                async let workoutsTask = activityManager.fetchWorkouts(for: days, sortBy: .newestFirst)
-                                let (dataPoints, workouts) = try await (historyTask, workoutsTask)
+                                // Single source of truth: this chart is "workout calories
+                                // per day, broken down by type". Deriving dataPoints from the
+                                // same segments keeps the average line, Y-axis and selection
+                                // tooltip consistent with the visible bar heights — and drops
+                                // the redundant whole-day activeEnergyBurned query.
+                                let workouts = try await activityManager.fetchWorkouts(for: days, sortBy: .newestFirst)
                                 let segments = HealthMetricsTrendFeature.aggregateDaily(workouts: workouts, days: days)
+                                let dataPoints = HealthMetricsTrendFeature.dailyTotals(from: segments)
                                 return MetricFetchResult(dataPoints: dataPoints, activitySegments: segments)
                             } else {
                                 let dataPoints = try await healthMetricHistoryClient.fetchHistory(metric, days)
@@ -151,5 +155,16 @@ extension HealthMetricsTrendFeature {
                         )
                     }
             }
+    }
+
+    /// Per-day totals derived from the stacked segments — the single source for the
+    /// activity chart's average, Y-axis scale and selection tooltip, so they all
+    /// agree with the visible bar heights (the sum of that day's segments).
+    static func dailyTotals(from segments: [DailyActivitySegment]) -> [HistoricalDataPoint] {
+        Dictionary(grouping: segments, by: \.date)
+            .map { date, day in
+                HistoricalDataPoint(date: date, value: day.reduce(0) { $0 + $1.kcal })
+            }
+            .sorted { $0.date < $1.date }
     }
 }
