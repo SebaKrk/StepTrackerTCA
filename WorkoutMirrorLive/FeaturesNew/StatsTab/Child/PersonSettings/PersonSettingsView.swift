@@ -46,6 +46,11 @@ struct PersonSettingsView: View {
                 ) { hrStore in
                     HRFormulaSettingsView(store: hrStore)
                 }
+                .navigationDestination(
+                    item: $store.scope(state: \.destination?.heartRateZoneInfo, action: \.destination.heartRateZoneInfo)
+                ) { zoneStore in
+                    HeartRateZoneInfoView(store: zoneStore)
+                }
         }
     }
     
@@ -84,6 +89,7 @@ struct PersonSettingsView: View {
                 coreMetricsCell(String(localized: "Tętno spoczynkowe"), store.restingHeartRate.map { "\(Int($0.value))" } ?? "-")
                 coreMetricsCell(String(localized: "Maks. tętno"), store.maxHR.map { "\($0)" } ?? "-")
                 hrFormulaRow
+                heartRateZonesRow
             } header: {
                 Text(String(localized: "Tętno i aktywność"))
             } footer: {
@@ -136,6 +142,20 @@ struct PersonSettingsView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             send(.hrFormulaTapped)
+        }
+    }
+
+    private var heartRateZonesRow: some View {
+        HStack {
+            Text(String(localized: "Strefy tętna i punkty"))
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            send(.heartRateZonesTapped)
         }
     }
 

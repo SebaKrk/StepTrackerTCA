@@ -133,6 +133,14 @@ struct HRMirrorView: View {
                                 .formatted(.number.precision(.fractionLength(0))) + " bpm",
                             .red
                         )
+                        // Effort points come from the live accumulator (kept in
+                        // state through the summary phase), not from the saved
+                        // workout — HealthKit's summary has no notion of them.
+                        summaryMetric(
+                            title: String(localized: "Effort Points"),
+                            value: store.effortPoints.points.formatted(.number) + " " + String(localized: "pkt"),
+                            .yellow
+                        )
                     } else {
                         summaryUnavailableLabel
                     }
@@ -277,6 +285,9 @@ struct HRMirrorView: View {
             .overlay(alignment: .topLeading) {
                 zonePercentageLabel
             }
+            .overlay(alignment: .top) {
+                effortPointsLabel
+            }
             .overlay {
                 zoneBorderOverlay(cornerRadius: geometry.size.width * 0.24)
             }
@@ -352,6 +363,28 @@ struct HRMirrorView: View {
             .background(store.heartRateZone.color.opacity(0.2), in: Capsule())
     }
 
+    /// Live effort points (Myzone-style) — top-center, between the `%HR` label
+    /// (top-leading) and the system clock (top-trailing, off-limits on watchOS).
+    private var effortPointsLabel: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "bolt.fill")
+                .font(.caption2)
+                .foregroundStyle(.yellow)
+            Text("\(store.effortPoints.points)")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+                .monospacedDigit()
+                .contentTransition(.numericText(value: Double(store.effortPoints.points)))
+                .animation(.snappy(duration: 0.3), value: store.effortPoints.points)
+            Text(String(localized: "pkt"))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        // Same top inset as `zonePercentageLabel` so both sit on one horizontal line.
+        .padding(.top, 16)
+        .ignoresSafeArea()
+    }
+
     private var elapsedTimeView: some View {
         TimelineView(PeriodicTimelineSchedule(from: .now, by: 1.0 / 30.0)) { context in
             ElapsedTimeView(
@@ -377,7 +410,7 @@ struct HRMirrorView: View {
     }()) { HRMirrorFeature() })
 }
 
-#Preview("Recovery") {
+#Preview("Zone 1") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 623, maxHeartRate: 185)
         state.isCountingDown = false
@@ -387,7 +420,7 @@ struct HRMirrorView: View {
     }()) { HRMirrorFeature() })
 }
 
-#Preview("Fat Burning") {
+#Preview("Zone 2") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 1240, maxHeartRate: 185)
         state.isCountingDown = false
@@ -397,7 +430,7 @@ struct HRMirrorView: View {
     }()) { HRMirrorFeature() })
 }
 
-#Preview("Aerobic") {
+#Preview("Zone 3") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 2105, maxHeartRate: 185)
         state.isCountingDown = false
@@ -407,17 +440,21 @@ struct HRMirrorView: View {
     }()) { HRMirrorFeature() })
 }
 
-#Preview("Threshold") {
+#Preview("Zone 4") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 3421, maxHeartRate: 185)
         state.isCountingDown = false
         state.heartRate = 158
         state.heartRateZone = .threshold
+        // ~57 min across zones — effort points counter shows a realistic total.
+        for _ in 0..<12 { state.effortPoints.add(bpm: 120, duration: 60, maxHR: 185) }
+        for _ in 0..<25 { state.effortPoints.add(bpm: 140, duration: 60, maxHR: 185) }
+        for _ in 0..<20 { state.effortPoints.add(bpm: 158, duration: 60, maxHR: 185) }
         return state
     }()) { HRMirrorFeature() })
 }
 
-#Preview("Anaerobic") {
+#Preview("Zone 5") {
     HRMirrorView(store: Store(initialState: {
         var state = HRMirrorFeature.State(elapsedSeconds: 4812, maxHeartRate: 185)
         state.isCountingDown = false
@@ -434,6 +471,10 @@ struct HRMirrorView: View {
         state.summaryPhase = .presented(
             WatchWorkoutSummary(duration: 2105, activeEnergyKcal: 412, averageHeartRate: 132)
         )
+        // ~35 min across zones — Effort Points row shows a realistic total.
+        for _ in 0..<10 { state.effortPoints.add(bpm: 120, duration: 60, maxHR: 185) }
+        for _ in 0..<15 { state.effortPoints.add(bpm: 145, duration: 60, maxHR: 185) }
+        for _ in 0..<10 { state.effortPoints.add(bpm: 165, duration: 60, maxHR: 185) }
         return state
     }()) { HRMirrorFeature() })
 }
@@ -445,6 +486,9 @@ struct HRMirrorView: View {
         state.summaryPhase = .presented(
             WatchWorkoutSummary(duration: 4356, activeEnergyKcal: 856, averageHeartRate: 145)
         )
+        for _ in 0..<20 { state.effortPoints.add(bpm: 135, duration: 60, maxHR: 185) }
+        for _ in 0..<30 { state.effortPoints.add(bpm: 160, duration: 60, maxHR: 185) }
+        for _ in 0..<20 { state.effortPoints.add(bpm: 175, duration: 60, maxHR: 185) }
         return state
     }()) { HRMirrorFeature() })
 }

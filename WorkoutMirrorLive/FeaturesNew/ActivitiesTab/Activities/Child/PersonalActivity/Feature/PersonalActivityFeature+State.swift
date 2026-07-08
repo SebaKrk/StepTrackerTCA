@@ -61,6 +61,22 @@ extension PersonalActivityFeature {
             Set(pendingScores.map(\.hkWorkoutId))
         }
 
+        /// Observed effort scores (SQLiteData) — pushes updates on every write, so a
+        /// new workout's badge appears without a manual refetch (IOS-00099). Same
+        /// pattern as `pendingScores`.
+        @ObservationStateIgnored
+        @FetchAll(WorkoutEffortScoreRecord.all)
+        var effortScores
+
+        /// Effort points per workout, keyed by HKWorkout UUID — drives the list-row
+        /// points badge. `hkWorkoutId` is UNIQUE, so one entry per workout.
+        var effortPointsByWorkout: [UUID: Int] {
+            Dictionary(
+                effortScores.map { ($0.hkWorkoutId, $0.points) },
+                uniquingKeysWith: { first, _ in first }
+            )
+        }
+
         /// Workout selected for deletion — set when swipe action fires, cleared after confirm/cancel.
         var workoutToDelete: HKWorkout? = nil
 

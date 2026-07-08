@@ -51,12 +51,18 @@ extension ClassAnalytics {
 
         let timeInZones = computeTimeInZones(samples: sortedSamples, maxHR: maxHR)
 
+        // Device-computed cumulative counter — the final total is the last
+        // reported value (goodbye payloads carry it too). Last non-nil, not
+        // last sample: an old-build goodbye must not wipe a known total.
+        let effortPoints = sortedSamples.reversed().compactMap(\.effortPoints).first
+
         return ClassAnalytics(
             avgHR: avgHR,
             peakHR: peakHR,
             totalCalories: max(0, totalCalories),
             durationSeconds: duration,
-            timeInZones: timeInZones
+            timeInZones: timeInZones,
+            effortPoints: effortPoints
         )
     }
 

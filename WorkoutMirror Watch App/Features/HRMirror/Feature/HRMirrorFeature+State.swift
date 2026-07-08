@@ -43,6 +43,17 @@ extension HRMirrorFeature {
         /// Updated on every `hrReceived` action.
         var heartRateZone: HeartRateZone = .resting
 
+        /// Live effort points counter (Myzone-style) — credits time in HR zones
+        /// as sensor samples arrive. DISPLAY-ONLY on the wrist: the persisted value
+        /// is frozen from the iPhone's LiveSession accumulator at session end, not
+        /// from here and not from HealthKit (small wrist-vs-phone drift is fine).
+        /// Fresh per workout — `AppFeatureAW` creates a new `State` for every session.
+        var effortPoints = EffortPointsAccumulator()
+
+        /// Timestamp of the previous `hrReceived` sample — the credited duration
+        /// for the current sample is the delta between the two.
+        var lastEffortSampleDate: Date?
+
         // MARK: - Workout Clock
 
         /// Elapsed workout time in seconds.

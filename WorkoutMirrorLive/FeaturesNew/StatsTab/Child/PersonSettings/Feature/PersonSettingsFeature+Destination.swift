@@ -22,6 +22,10 @@ extension PersonSettingsFeature {
         /// Heart rate formula picker — user wybiera formułę obliczania maxHR
         /// (Nes/Tanaka/Gulati/Fairbarn/Classic) z preview values per formuła.
         case hrFormulaSettings(HRFormulaSettingsFeature)
+
+        /// Zone reference — opisy stref HR + punktacja Effort Points per strefa.
+        /// Ten sam feature co sheet podczas treningu (kontekstowo neutralny).
+        case heartRateZoneInfo(HeartRateZoneInfoFeature)
     }
 }
 

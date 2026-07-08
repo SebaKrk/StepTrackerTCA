@@ -18,19 +18,20 @@ struct HeartRateZoneInfoView: View {
     
     // MARK: - View
     
+    // No own NavigationView — the presenter provides the navigation context: a
+    // NavigationStack around the sheet during a workout, and the Settings
+    // NavigationStack when pushed from "Strefy tętna i punkty".
     var body: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(store.zonesToDisplay) { zone in
-                        heartRateZoneCell(for: zone)
-                    }
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(store.zonesToDisplay) { zone in
+                    heartRateZoneCell(for: zone)
                 }
-                .padding()
             }
-            .navigationTitle(navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
+            .padding()
         }
+        .navigationTitle(navigationTitle)
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -65,7 +66,7 @@ struct HeartRateZoneInfoView: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-  
+                pointsBadge(for: zone)
             }
             heartRateZoneDescription(for: zone)
             
@@ -82,6 +83,23 @@ struct HeartRateZoneInfoView: View {
         )
     }
     
+    /// Effort points earned per minute in this zone (Myzone-style). Hidden for
+    /// `resting` — it has no entry in the scoring table (rest earns nothing).
+    @ViewBuilder
+    private func pointsBadge(for zone: HeartRateZone) -> some View {
+        if let perMinute = EffortPointsScoring.pointsPerMinute[zone] {
+            HStack(spacing: 3) {
+                Image(systemName: "bolt.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.yellow)
+                Text(pointsPerMinuteText(Int(perMinute)))
+                    .font(.caption)
+                    .fontWeight(.medium)
+            }
+            .foregroundStyle(zone.color)
+        }
+    }
+
     private func heartRateZoneDescription(for zone: HeartRateZone) -> some View {
         DisclosureGroup(zone.description,
             isExpanded: Binding(
@@ -109,5 +127,9 @@ struct HeartRateZoneInfoView: View {
         let lowerBound = Int(range.lowerBound * 100)
         let upperBound = Int(range.upperBound * 100)
         return "\(lowerBound)% - \(upperBound)% HR max"
+    }
+
+    private func pointsPerMinuteText(_ points: Int) -> String {
+        String(localized: "\(points) pkt/min", bundle: .main)
     }
 }

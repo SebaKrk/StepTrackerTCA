@@ -110,7 +110,7 @@ struct LiveSessionView: View {
                 currentHeartRatePercentageView
                 activeEnergyBurnedView
                 Spacer().frame(height: 20)
-                currentHeartRateZoneView
+                bottomRow
             }
         }
         .styledGroupBox()
@@ -161,12 +161,22 @@ struct LiveSessionView: View {
             }
             Spacer()
 
+            zoneNameLabel
+        }
+    }
+
+    /// Zone name badge — hidden in `.resting`: below Zone 1 there is no training
+    /// zone to advertise mid-workout (warm-up, rest between sets); the % value
+    /// and the zone description underneath still tell the story.
+    @ViewBuilder
+    private var zoneNameLabel: some View {
+        if store.currentHeartRateZone != .resting {
             Text(store.currentHeartRateZone.title)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(store.currentHeartRateZone.color)
         }
     }
-    
+
     private var currentHeartRatePercentageView: some View {
         VStack(spacing: 5) {
             Text("\(store.currentHeartRatePercentage)%")
@@ -197,10 +207,32 @@ struct LiveSessionView: View {
         }
     }
     
-    private var currentHeartRateZoneView: some View {
-        HStack {
+    /// Bottom row: effort points (leading) + zone description (trailing). Zone name
+    /// sits top-right next to the heart rate.
+    private var bottomRow: some View {
+        HStack(alignment: .bottom) {
+            effortPointsView
             Spacer()
             Text(store.currentHeartRateZone.description)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .textCase(.lowercase)
+                .multilineTextAlignment(.trailing)
+        }
+    }
+
+    /// Live effort points counter (Myzone-style) — rewards time spent in HR zones.
+    private var effortPointsView: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "bolt.fill")
+                .foregroundStyle(.yellow)
+                .font(.system(.body, design: .rounded))
+            Text(store.effortPoints.points.formatted(.number))
+                .font(.system(.title3, design: .rounded, weight: .semibold).monospacedDigit())
+                .foregroundStyle(.primary)
+                .contentTransition(.numericText(value: Double(store.effortPoints.points)))
+                .animation(.snappy(duration: 0.3), value: store.effortPoints.points)
+            Text(String(localized: "pkt", bundle: .main))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -215,7 +247,7 @@ struct LiveSessionView: View {
             landscapePercentageView
             landscapeEnergyView
             Spacer()
-            landscapeZoneDescriptionView
+            landscapeBottomRow
         }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -226,9 +258,7 @@ struct LiveSessionView: View {
         HStack(alignment: .top) {
             landscapeHeartRateView
             Spacer()
-            Text(store.currentHeartRateZone.title)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(store.currentHeartRateZone.color)
+            zoneNameLabel
         }
     }
 
@@ -279,12 +309,16 @@ struct LiveSessionView: View {
         }
     }
 
-    private var landscapeZoneDescriptionView: some View {
-        HStack {
+    /// Bottom row (landscape): effort points (leading) + zone description (trailing).
+    private var landscapeBottomRow: some View {
+        HStack(alignment: .bottom) {
+            effortPointsView
             Spacer()
             Text(store.currentHeartRateZone.description)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .textCase(.lowercase)
+                .multilineTextAlignment(.trailing)
         }
     }
 
@@ -355,7 +389,7 @@ struct LiveSessionView: View {
 
 // MARK: - Heart Rate Zone Previews
 
-#Preview("Zone: Resting") {
+#Preview("Resting") {
     var state = LiveSessionFeature.State()
     state.currentHeartRateZone = .resting
     state.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 72, activeEnergy: 0)
@@ -367,7 +401,7 @@ struct LiveSessionView: View {
     }
 }
 
-#Preview("Zone: Recovery") {
+#Preview("Zone 1") {
     var state = LiveSessionFeature.State()
     state.currentHeartRateZone = .recovery
     state.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 108, activeEnergy: 85)
@@ -379,7 +413,7 @@ struct LiveSessionView: View {
     }
 }
 
-#Preview("Zone: Fat Burning") {
+#Preview("Zone 2") {
     var state = LiveSessionFeature.State()
     state.currentHeartRateZone = .fatBurning
     state.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 126, activeEnergy: 210)
@@ -391,7 +425,7 @@ struct LiveSessionView: View {
     }
 }
 
-#Preview("Zone: Aerobic") {
+#Preview("Zone 3") {
     var state = LiveSessionFeature.State()
     state.currentHeartRateZone = .aerobic
     state.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 148, activeEnergy: 380)
@@ -403,19 +437,23 @@ struct LiveSessionView: View {
     }
 }
 
-#Preview("Zone: Threshold") {
+#Preview("Zone 4") {
     var state = LiveSessionFeature.State()
     state.currentHeartRateZone = .threshold
     state.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 168, activeEnergy: 520)
     state.currentHeartRatePercentage = 85
     state.sessionAverageHeartRate = 155
     state.sessionMaxHeartRate = 172
+    // ~45 min across zones — effort points counter shows a realistic total.
+    for _ in 0..<10 { state.effortPoints.add(bpm: 125, duration: 60, maxHR: 198) }
+    for _ in 0..<20 { state.effortPoints.add(bpm: 150, duration: 60, maxHR: 198) }
+    for _ in 0..<15 { state.effortPoints.add(bpm: 168, duration: 60, maxHR: 198) }
     return NavigationStack {
         LiveSessionView(store: Store(initialState: state) { LiveSessionFeature() })
     }
 }
 
-#Preview("Zone: Anaerobic") {
+#Preview("Zone 5") {
     var state = LiveSessionFeature.State()
     state.currentHeartRateZone = .anaerobic
     state.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 185, activeEnergy: 680)

@@ -49,6 +49,23 @@ extension SummaryFeature {
         /// Phase timestamps — passed by parent for per-phase HR calculation.
         var phaseTimestamps: [(name: String, start: Date, end: Date?)] = []
 
+        /// Effort points earned this workout (Myzone-style), passed by the parent
+        /// from the live accumulator at session end. `nil` in manual-entry mode
+        /// (no live workout) → the card is hidden.
+        var effortPoints: Int?
+
+        /// Zone the athlete spent the most time in — drives the screen background
+        /// gradient (like the live session). `nil` in manual-entry mode → neutral
+        /// background. Passed by the parent from the live accumulator.
+        var dominantZone: HeartRateZone?
+
+        /// Peak heart rate, derived from the collected samples. `WorkoutMetrics`
+        /// has no max field — only `heartRate` (current, 0 once the workout ends) —
+        /// so the max card must come from here, not from `metrics`.
+        var maxHeartRate: Int {
+            hrBuffer.map(\.bpm).max().map { Int($0.rounded()) } ?? 0
+        }
+
         // MARK: - Set Input Sheet
 
         /// Child feature for the per-set input sheet. `nil` = sheet not presented.

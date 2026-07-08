@@ -82,6 +82,7 @@ struct JoinLiveClassFeature {
                 let goodbyeToken = state.scannedQRPayload?.token
                 let goodbyeNick = state.nick
                 let goodbyeMaxHR = state.maxHeartRate
+                let goodbyeEffortPoints = state.currentEffortPoints
 
                 state.phase = .idle
                 state.scannedQRPayload = nil
@@ -95,7 +96,8 @@ struct JoinLiveClassFeature {
                                 nick: goodbyeNick,
                                 bpm: 0,
                                 maxHR: goodbyeMaxHR,
-                                endOfClass: true
+                                endOfClass: true,
+                                effortPoints: goodbyeEffortPoints
                             )
                             Logger.gymRoom.info("[Peer] Sending goodbye (leaveTapped) — endOfClass=true")
                             await peerMirrorClient.send(goodbye)
@@ -216,41 +218,45 @@ struct JoinLiveClassFeature {
                 Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
                 return .merge(
                     .cancel(id: JoinLiveClassCancelID.searchTimeout),
-                    .run { [sessionClient, peerMirrorClient, initialPayload, deviceID, sessionToken, nick, maxHR] send in
+                    .run { [sessionClient, peerMirrorClient, initialPayload] send in
                     await peerMirrorClient.send(initialPayload)
+                    // Payload construction happens in the reducer (.workoutMetricsReceived)
+                    // so each send reads CURRENT state — notably `currentEffortPoints`
+                    // synced by the parent from the LiveSession counter.
                     for await metrics in await sessionClient.workoutMetricsStream() {
                         Logger.gymRoom.debug("[Peer] metrics received HR=\(Int(metrics.heartRate))")
                         guard metrics.heartRate > 0 else { continue }
-                        let payload = HRSamplePayload(
-                            deviceID: deviceID,
-                            sessionToken: sessionToken,
-                            nick: nick,
-                            bpm: Int(metrics.heartRate),
-                            maxHR: maxHR,
-                            activeEnergy: metrics.activeEnergy
-                        )
-                        Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal")
-                        await peerMirrorClient.send(payload)
+                        await send(.workoutMetricsReceived(metrics))
                     }
                     // Stream zakończył się naturalnie (workout end z HK — np. user kończy
-                    // trening na Watchu lub iPhone-side workout session ends). Wyślij goodbye
-                    // żeby iPad usunął tile od razu (subtask F: bez 2min grace period).
-                    Logger.gymRoom.info("[Peer] workoutMetricsStream ended — sending goodbye + emit workoutEnded")
-                    let goodbye = HRSamplePayload(
-                        deviceID: deviceID,
-                        sessionToken: sessionToken,
-                        nick: nick,
-                        bpm: 0,
-                        maxHR: maxHR,
-                        endOfClass: true
-                    )
-                    await peerMirrorClient.send(goodbye)
+                    // trening na Watchu lub iPhone-side workout session ends). Goodbye
+                    // wysyła handler `.workoutEnded` (buduje payload ze state — z punktami).
+                    Logger.gymRoom.info("[Peer] workoutMetricsStream ended — emit workoutEnded")
                     // Subtask H2: emit `.workoutEnded` żeby reducer reset state — bez tego
                     // peer-side wciąż w phase .connected, toolbar icon nie znika aż do tap Leave.
                     await send(.workoutEnded)
                 }
                     .cancellable(id: JoinLiveClassCancelID.hrStream)
                 )
+
+            case let .workoutMetricsReceived(metrics):
+                // Defensive: stream cancellation races with phase changes — never
+                // broadcast after leave/disconnect, and never without a token.
+                guard state.phase == .connected,
+                      let sessionToken = state.scannedQRPayload?.token else { return .none }
+                let payload = HRSamplePayload(
+                    deviceID: state.deviceID,
+                    sessionToken: sessionToken,
+                    nick: state.nick,
+                    bpm: Int(metrics.heartRate),
+                    maxHR: state.maxHeartRate,
+                    activeEnergy: metrics.activeEnergy,
+                    effortPoints: state.currentEffortPoints
+                )
+                Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal, \(payload.effortPoints ?? 0) pts")
+                return .run { [peerMirrorClient] _ in
+                    await peerMirrorClient.send(payload)
+                }
 
             case .peerDisconnected:
                 Logger.gymRoom.info("[Peer] disconnected — searching + start 5min reconnect timeout")
@@ -283,6 +289,23 @@ struct JoinLiveClassFeature {
                     Logger.gymRoom.info("[Peer] Already .idle — skip duplicate reset")
                     return .none
                 }
+                // Goodbye only on natural workout end — built from state BEFORE the
+                // reset so it carries the final effort points total (the tile and the
+                // class-end table show the athlete's definitive score). On
+                // `.classEndedReceived` the host ended the class — nothing to notify.
+                let goodbye: HRSamplePayload? = {
+                    guard case .workoutEnded = action,
+                          let token = state.scannedQRPayload?.token else { return nil }
+                    return HRSamplePayload(
+                        deviceID: state.deviceID,
+                        sessionToken: token,
+                        nick: state.nick,
+                        bpm: 0,
+                        maxHR: state.maxHeartRate,
+                        endOfClass: true,
+                        effortPoints: state.currentEffortPoints
+                    )
+                }()
                 Logger.gymRoom.info("[Peer] Session ended — auto-reset state")
                 state.phase = .idle
                 state.scannedQRPayload = nil
@@ -291,7 +314,14 @@ struct JoinLiveClassFeature {
                     .cancel(id: JoinLiveClassCancelID.hrStream),
                     .cancel(id: JoinLiveClassCancelID.peerEvents),
                     .cancel(id: JoinLiveClassCancelID.searchTimeout),
-                    .run { _ in await peerMirrorClient.stopBrowsing() },
+                    .run { [peerMirrorClient] _ in
+                        if let goodbye {
+                            Logger.gymRoom.info("[Peer] Sending goodbye (workoutEnded) — endOfClass=true, \(goodbye.effortPoints ?? 0) pts")
+                            await peerMirrorClient.send(goodbye)
+                            try? await Task.sleep(for: .milliseconds(300))
+                        }
+                        await peerMirrorClient.stopBrowsing()
+                    },
                     .send(.delegate(.didLeave))
                 )
 

@@ -35,6 +35,12 @@ import SwiftUI
 #Preview("loading") {
     SummaryView(store: Store(initialState: SummaryFeature.State(viewState: .loading), reducer: {
         SummaryFeature()
+    }, withDependencies: {
+        // Never resolves → the view stays on the loading spinner, so this preview
+        // shows exactly the loading state (checkSummary keeps waiting).
+        $0.sessionClient.getWorkoutSummary = {
+            await withCheckedContinuation { (_: CheckedContinuation<WorkoutSummary, Never>) in }
+        }
     }))
 }
 
@@ -42,6 +48,8 @@ import SwiftUI
     let summary = WorkoutSummary.previewWorkoutSummary()
     var state = SummaryFeature.State(viewState: .successfullyLoaded)
     state.summary = summary
+    state.effortPoints = 190          // shows the effort points card in the metrics grid
+    state.dominantZone = .threshold   // tints the background gradient (Zone 4)
     return NavigationStack {
         SummaryView(store: Store(initialState: state) {
             SummaryFeature()

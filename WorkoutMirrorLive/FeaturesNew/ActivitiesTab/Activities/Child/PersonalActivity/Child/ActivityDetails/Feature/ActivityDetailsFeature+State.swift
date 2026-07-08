@@ -68,6 +68,17 @@ extension ActivityDetailsFeature {
         
         /// Recovery Demand - estimated recovery time based on training load and metrics.
         var recoveryDemand: RecoveryDemand?
+
+        /// Frozen effort score for this workout (Myzone-style), read from the DB.
+        /// Whole record — not just the total — so the zones section can break the
+        /// points down per zone from the FROZEN `secondsByZone` (same source as the
+        /// total, so the breakdown always sums to the badge). `nil` = not computed
+        /// (recorded before the feature / no HR) → section hidden.
+        var effortScore: WorkoutEffortScore?
+
+        /// Zones section toggle: `false` shows time per zone, `true` shows the
+        /// points each zone contributed. Flipped by tapping the section.
+        var showZonePoints: Bool = false
         
         // MARK: - Location Data
         

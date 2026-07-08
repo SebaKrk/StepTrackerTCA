@@ -36,6 +36,10 @@ extension SummaryFeature {
         /// so that per-phase HR can be calculated at save time.
         case setHRData(hrBuffer: [(date: Date, bpm: Double)], phaseTimestamps: [(name: String, start: Date, end: Date?)])
 
+        /// Parent passes the live effort points total + dominant zone at session
+        /// end (display-only). Dominant zone drives the background gradient.
+        case setEffortPoints(points: Int, dominantZone: HeartRateZone?)
+
         // MARK: - View Actions
 
         case view(View)

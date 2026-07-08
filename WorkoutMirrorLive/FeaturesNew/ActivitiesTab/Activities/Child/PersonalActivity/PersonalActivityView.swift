@@ -40,8 +40,12 @@ struct PersonalActivityView: View {
         .sheet(
             item: $store.scope(state: \.destination?.zoneInfo, action: \.destination.zoneInfo)
         ) { zoneInfoStore in
-            HeartRateZoneInfoView(store: zoneInfoStore)
-                .presentationDetents([.medium, .large])
+            // NavigationStack provides the title bar — HeartRateZoneInfoView no
+            // longer carries its own NavigationView (see that file's comment).
+            NavigationStack {
+                HeartRateZoneInfoView(store: zoneInfoStore)
+            }
+            .presentationDetents([.medium, .large])
         }
         .navigationDestination(
             item: $store.scope(
@@ -207,6 +211,20 @@ struct PersonalActivityView: View {
             .padding(.vertical, 1.5)
             .background(.orange.opacity(0.15), in: Capsule())
     }
+
+    /// Frozen effort points (Myzone-style) — inline at the end of the primary-zone
+    /// row (next to the info button), since the points are earned from time in
+    /// zones. Shown only when a score is stored (observed via `effortScores`).
+    private func effortPointsInline(_ points: Int) -> some View {
+        HStack(spacing: 2) {
+            Image(systemName: "bolt.fill")
+            Text("\(points)")
+                .fontWeight(.semibold)
+                .monospacedDigit()
+        }
+        .font(.caption)
+        .foregroundStyle(.yellow)
+    }
     
     private func workoutStats(_ workout: HKWorkout) -> some View {
         HStack(spacing: 0) {
@@ -280,6 +298,10 @@ struct PersonalActivityView: View {
                 Text("–")
                     .font(.caption)
                     .bold()
+            }
+
+            if let points = store.effortPointsByWorkout[workout.uuid] {
+                effortPointsInline(points)
             }
         }
         .padding(4)

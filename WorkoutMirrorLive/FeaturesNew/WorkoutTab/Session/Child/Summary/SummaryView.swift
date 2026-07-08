@@ -97,13 +97,21 @@ struct SummaryView: View {
         }
     }
 
+    /// Top-down gradient tinted by the dominant HR zone (same pattern as the live
+    /// session). Falls back to neutral grey in manual-entry mode (no zone).
     private var summaryBackground: some View {
-        LinearGradient(
-            colors: [Color.gray.opacity(0.2), .clear],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+        let zoneColor = store.dominantZone?.color ?? Color.gray
+        return LinearGradient(
+            stops: [
+                .init(color: zoneColor.opacity(0.85), location: 0),
+                .init(color: zoneColor.opacity(0.6), location: 0.15),
+                .init(color: .clear, location: 0.8)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
         )
         .ignoresSafeArea()
+        .animation(.easeInOut, value: store.dominantZone)
     }
     
     // MARK: - Header Card
@@ -145,8 +153,27 @@ struct SummaryView: View {
             caloriesCard(workout: workout)
             avgHRCard
             maxHRCard
-            timeCard(workout: workout)
+            // Time already lives in the header — replace that slot with effort
+            // points for live workouts; fall back to the time card in manual entry
+            // (no points available there).
+            if let points = store.effortPoints, points > 0 {
+                effortPointsCard(points)
+            } else {
+                timeCard(workout: workout)
+            }
         }
+    }
+
+    /// Effort points earned (Myzone-style) — live accumulator value passed by the
+    /// parent. Hidden in manual entry / zero-point sessions.
+    private func effortPointsCard(_ points: Int) -> some View {
+        metricCard(
+            icon: "bolt.fill",
+            iconColor: .yellow,
+            title: String(localized: "Effort Points"),
+            value: "\(points)",
+            unit: "pkt"
+        )
     }
 
     private var twoColumnGrid: [GridItem] {
@@ -184,7 +211,7 @@ struct SummaryView: View {
             icon: "heart.fill",
             iconColor: .primary,
             title: String(localized: "Max HR"),
-            value: Int(store.summary?.metrics.heartRate ?? 0).formatted(.number),
+            value: store.maxHeartRate.formatted(.number),
             unit: "bpm"
         )
     }

@@ -11,6 +11,7 @@ import HealthHub
 import HealthKit
 import OSLog
 import SharedModels
+import SharedModels
 
 extension SessionFeature {
 
@@ -202,6 +203,10 @@ extension SessionFeature {
                 } else if value == .summary {
                     state.summary.failureDebugInfo = "mode: \(state.workoutMode)"
 
+                    // Freeze the live effort points before the session tears down —
+                    // AppTabNewFeature links it to the HKWorkout on `.workoutSaved`.
+                    captureEffortScoreSnapshot(state)
+
                     // Convert hrBuffer and phaseTimestamps to simple tuples for SummaryFeature
                     let hrData = state.live.hrBuffer.map { (date: $0.date, bpm: $0.bpm) }
                     let phases = state.live.phasePanel?.phaseTimestamps.map {
@@ -229,6 +234,10 @@ extension SessionFeature {
                         .send(.live(.liveActivity(.workout(.stop)))),
                         .send(.live(.liveActivity(.timer(.stop)))),
                         .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases))),
+                        .send(.summary(.setEffortPoints(
+                            points: state.live.effortPoints.points,
+                            dominantZone: state.live.effortPoints.secondsByZone.max { $0.value < $1.value }?.key
+                        ))),
                         gymRoomCleanup
                     )
                 } else if value == .finishedOnWatch {
@@ -240,6 +249,10 @@ extension SessionFeature {
                     // No interstitial screen on iPhone (decyzja usera 2026-07-03): after teardown
                     // the session simply dismisses — the confirmation lives on the wrist, and
                     // "wyniki w Historii" is carried durably by the pending-results badge (F).
+
+                    // Freeze the live effort points before teardown (same as `.summary`).
+                    captureEffortScoreSnapshot(state)
+
                     let gymRoomCleanup: Effect<Action> = state.joinLiveClass != nil
                         ? .send(.joinLiveClass(.view(.leaveTapped)))
                         : .none
@@ -264,6 +277,35 @@ extension SessionFeature {
             default:
                 return .none
             }
+        }
+    }
+
+    // MARK: - Effort points snapshot
+
+    /// Freezes the live effort points accumulator into `@Shared(.pendingEffortScore)`
+    /// at workout end, so `AppTabNewFeature` can link it to the `HKWorkout` when
+    /// `.workoutSaved` arrives (IOS-00099-F5). The value is the same one shown on
+    /// screen and sent to GymRoom — a result is a result, never recomputed.
+    ///
+    /// Skips sessions that earned nothing (no HR / 0 points): no record is written,
+    /// so the History section stays hidden for them.
+    private func captureEffortScoreSnapshot(_ state: State) {
+        @Shared(.pendingEffortScore) var pendingEffortScore
+        let accumulator = state.live.effortPoints
+        guard accumulator.points > 0 else { return }
+        // An un-consumed prior snapshot here means the previous workout's
+        // `.workoutSaved` never arrived (save failure) — log before overwriting so
+        // a lost link is traceable rather than silent.
+        if let stale = pendingEffortScore {
+            Logger.session.notice("pendingEffortScore overwritten before consume (\(stale.points) pts dropped)")
+        }
+        $pendingEffortScore.withLock {
+            $0 = PendingEffortScore(
+                points: accumulator.points,
+                secondsByZone: accumulator.secondsByZone,
+                workoutStartDate: state.live.hrBuffer.first?.date ?? now,
+                weightsVersion: EffortPointsScoring.currentWeightsVersion
+            )
         }
     }
 }

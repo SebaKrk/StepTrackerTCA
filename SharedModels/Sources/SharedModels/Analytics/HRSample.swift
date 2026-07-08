@@ -29,9 +29,17 @@ public struct HRSample: Codable, Sendable, Equatable {
     /// Active energy spalony od poprzedniego sample'a (kcal cumulative ze strony peer'a).
     public let activeEnergy: Double
 
-    public init(timestamp: Date, bpm: Int, activeEnergy: Double) {
+    /// Cumulative effort points reported by the peer's device at this sample
+    /// (Myzone-style, device-computed — host never recalculates). Riding along
+    /// each sample means the leave-flow and class-end flow both persist the
+    /// final total for free: it is simply the last sample's value. `nil` for
+    /// samples recorded before the feature existed (old blobs decode fine).
+    public let effortPoints: Int?
+
+    public init(timestamp: Date, bpm: Int, activeEnergy: Double, effortPoints: Int? = nil) {
         self.timestamp = timestamp
         self.bpm = bpm
         self.activeEnergy = activeEnergy
+        self.effortPoints = effortPoints
     }
 }

@@ -41,6 +41,14 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
     /// Default `false` — normalne HR sample updates. Tylko goodbye payload ma `true`.
     public let endOfClass: Bool
 
+    /// Cumulative effort points (Myzone-style) computed ON THE PEER'S DEVICE —
+    /// the host only displays them (single source of truth: the same number the
+    /// athlete sees on their own phone). Cumulative by design: the first payload
+    /// after a BLE reconnect carries the up-to-date total, so the board catches
+    /// up without any repair logic. `nil` = peer build without effort points
+    /// (backward compatible — optional decodes as nil when the key is absent).
+    public let effortPoints: Int?
+
     public init(
         deviceID: UUID,
         sessionToken: UUID,
@@ -49,7 +57,8 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         maxHR: Int,
         activeEnergy: Double = 0,
         timestamp: Date = Date(),
-        endOfClass: Bool = false
+        endOfClass: Bool = false,
+        effortPoints: Int? = nil
     ) {
         self.deviceID = deviceID
         self.sessionToken = sessionToken
@@ -59,6 +68,7 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         self.activeEnergy = activeEnergy
         self.timestamp = timestamp
         self.endOfClass = endOfClass
+        self.effortPoints = effortPoints
     }
 
     /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.

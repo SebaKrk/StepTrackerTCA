@@ -42,6 +42,12 @@ extension JoinLiveClassFeature {
         /// (race przy szybkim joinLiveClass tap przed `makeCalculationForSession`).
         var maxHeartRate: Int = 190
 
+        /// Mirror of the LiveSession effort points counter, synced by the parent
+        /// `SessionFeature` on every metrics tick. ONE accumulator (LiveSession's)
+        /// feeds both the on-screen counter and every BLE payload — the number on
+        /// the GymRoom tile is literally the number the athlete sees on their phone.
+        var currentEffortPoints: Int = 0
+
         /// Zdekodowany QR payload po scan'ie. `nil` = jeszcze nie scanned.
         /// Ephemeral — NIE persistujemy. Reset na `.leaveTapped` wymusza ponowny scan
         /// przy następnym Join. `sessionToken` z payload'u wysyłany w `HRSamplePayload`.

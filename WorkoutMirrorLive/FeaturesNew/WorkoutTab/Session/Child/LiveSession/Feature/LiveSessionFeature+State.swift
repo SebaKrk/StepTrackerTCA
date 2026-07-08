@@ -41,6 +41,14 @@ extension LiveSessionFeature {
         /// from HealthKit and resolves max HR via `maxHeartRateClient.fromAge(age, sex)`.
         var maxHeartRate: Int = 0
 
+        /// Live effort points counter (Myzone-style) — credits time in HR zones
+        /// as metrics arrive. HR-based by design: rest between sets still earns
+        /// points for whatever zone the heart actually is in. Fresh per session
+        /// (State is recreated). This IS the source of truth: its value is frozen
+        /// into `PendingEffortScore` at session end and persisted as-is — not
+        /// recomputed from HealthKit.
+        var effortPoints = EffortPointsAccumulator()
+
         /// Mirroring-link status forwarded by `SessionFeature` (IOS-00098-G). Included
         /// in every Live Activity `ContentState` so Dynamic Island / Lock Screen can
         /// flag stale metrics while the Watch link is down.

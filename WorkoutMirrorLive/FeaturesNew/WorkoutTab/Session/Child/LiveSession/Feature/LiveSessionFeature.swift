@@ -45,7 +45,18 @@ struct LiveSessionFeature {
                 // known value so Watch readings are not overwritten.
                 let effectiveHR = data.heartRate > 0 ? data.heartRate : state.workoutMetrics.heartRate
                 if effectiveHR > 0 {
-                    state.hrBuffer.append(State.HRSample(date: Date(), bpm: effectiveHR))
+                    let sampleDate = Date()
+                    // Credit effort points for the stretch since the previous
+                    // sample (fed with the same effective HR the UI shows).
+                    // The accumulator itself skips implausible gaps (> 5 min).
+                    if let previousSampleDate = state.hrBuffer.last?.date {
+                        state.effortPoints.add(
+                            bpm: Int(effectiveHR),
+                            duration: sampleDate.timeIntervalSince(previousSampleDate),
+                            maxHR: state.maxHeartRate
+                        )
+                    }
+                    state.hrBuffer.append(State.HRSample(date: sampleDate, bpm: effectiveHR))
                 }
                 state.workoutMetrics = WorkoutMetrics(
                     averageHeartRate: data.averageHeartRate,

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthHub
 import OSLog
 import SharedModels
 
@@ -17,6 +18,7 @@ struct AppTabNewFeature {
 
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
+    @Dependency(\.effortScoreClient) var effortScoreClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
 
@@ -64,39 +66,52 @@ struct AppTabNewFeature {
             case let .workoutSavedEventReceived(workoutId):
                 // The list/badge refresh happens without our involvement: the list observes
                 // HealthKit (observeWorkoutChanges), the badge observes the database (@FetchAll).
-                // Only persisting the plan↔workout link remains here.
-                return .run { [scoreClient = workoutPlanScoreClient, uuid, now] _ in
-                    @Shared(.pendingPlanLink) var pendingPlanLink
-                    guard let pending = pendingPlanLink else { return }
+                // Two things remain: persist the plan↔workout link, and freeze the effort
+                // points captured live at workout end against this HKWorkout.
+                return .merge(
+                    .send(.persistEffortScore(workoutId)),
+                    persistPlanLinkEffect(workoutId: workoutId)
+                )
 
-                    // Staleness guard — a pending link from an abandoned start must not
-                    // claim an unrelated workout saved hours later.
+            case let .persistEffortScore(workoutId):
+                // Link the pending effort snapshot (frozen at session end) to the saved
+                // workout. No computation here — the value came from the live accumulator.
+                // Fire-and-forget: a failure must not affect the plan-link flow.
+                return .run { [effortScoreClient, uuid, now] _ in
+                    @Shared(.pendingEffortScore) var pendingEffortScore
+                    guard let pending = pendingEffortScore else { return }
+
+                    // Staleness guard — a snapshot from an abandoned start must not
+                    // attach to an unrelated workout saved much later.
                     guard now.timeIntervalSince(pending.workoutStartDate) < Self.pendingLinkMaxAge else {
-                        $pendingPlanLink.withLock { $0 = nil }
-                        Logger.session.notice("pendingPlanLink stale — dropped without linking")
+                        $pendingEffortScore.withLock { $0 = nil }
+                        Logger.session.notice("pendingEffortScore stale — dropped without saving")
                         return
                     }
 
-                    // Idempotency — duplicate event delivery (sendMessage + transferUserInfo
-                    // fallback) or an already-existing score must not be overwritten.
-                    guard try await scoreClient.fetchByHKWorkoutId(workoutId) == nil else {
-                        $pendingPlanLink.withLock { $0 = nil }
+                    // Idempotency — duplicate `.workoutSaved` delivery must not double-write.
+                    guard try await effortScoreClient.fetchByHKWorkoutId(workoutId) == nil else {
+                        $pendingEffortScore.withLock { $0 = nil }
                         return
                     }
 
-                    let score = WorkoutPlanScore(
+                    let score = WorkoutEffortScore(
                         id: uuid(),
-                        date: pending.workoutStartDate,
-                        trainingSessionId: pending.trainingSessionId,
                         hkWorkoutId: workoutId,
-                        results: []
+                        points: pending.points,
+                        workoutStartDate: pending.workoutStartDate,
+                        secondsByZone: pending.secondsByZone,
+                        weightsVersion: pending.weightsVersion
                     )
-                    try await scoreClient.save(score)
-                    $pendingPlanLink.withLock { $0 = nil }
-                    Logger.session.info("plan↔workout linked — plan \(pending.trainingSessionId), workout \(workoutId)")
-                    await WorkoutFileLogger.shared.log("[PlanLink] linked plan \(pending.trainingSessionId) ↔ workout \(workoutId)")
+                    try await effortScoreClient.save(score)
+                    $pendingEffortScore.withLock { $0 = nil }
+                    Logger.session.info("effort points saved — workout \(workoutId), \(pending.points) pts")
                 } catch: { error, _ in
-                    Logger.session.error("plan↔workout link failed: \(error.localizedDescription)")
+                    // Clear the snapshot even on failure so it can't linger and attach
+                    // to an unrelated workout saved later within the staleness window.
+                    @Shared(.pendingEffortScore) var pendingEffortScore
+                    $pendingEffortScore.withLock { $0 = nil }
+                    Logger.session.error("persistEffortScore failed: \(error.localizedDescription)")
                 }
 
                 // MARK: - Destination
@@ -128,6 +143,46 @@ extension AppTabNewFeature {
     /// Maximum age of a pending plan link at consume time. Older entries come from
     /// abandoned starts (workout never saved) and must not claim unrelated workouts.
     static let pendingLinkMaxAge: TimeInterval = 12 * 3600
+
+    /// Persists the plan↔workout link for a just-saved workout, consuming the
+    /// pending link set at session start. No-op when there is no pending link.
+    /// Extracted so `.workoutSavedEventReceived` can run it alongside effort-score
+    /// computation without one failing the other.
+    private func persistPlanLinkEffect(workoutId: UUID) -> Effect<Action> {
+        .run { [scoreClient = workoutPlanScoreClient, uuid, now] _ in
+            @Shared(.pendingPlanLink) var pendingPlanLink
+            guard let pending = pendingPlanLink else { return }
+
+            // Staleness guard — a pending link from an abandoned start must not
+            // claim an unrelated workout saved hours later.
+            guard now.timeIntervalSince(pending.workoutStartDate) < Self.pendingLinkMaxAge else {
+                $pendingPlanLink.withLock { $0 = nil }
+                Logger.session.notice("pendingPlanLink stale — dropped without linking")
+                return
+            }
+
+            // Idempotency — duplicate event delivery (sendMessage + transferUserInfo
+            // fallback) or an already-existing score must not be overwritten.
+            guard try await scoreClient.fetchByHKWorkoutId(workoutId) == nil else {
+                $pendingPlanLink.withLock { $0 = nil }
+                return
+            }
+
+            let score = WorkoutPlanScore(
+                id: uuid(),
+                date: pending.workoutStartDate,
+                trainingSessionId: pending.trainingSessionId,
+                hkWorkoutId: workoutId,
+                results: []
+            )
+            try await scoreClient.save(score)
+            $pendingPlanLink.withLock { $0 = nil }
+            Logger.session.info("plan↔workout linked — plan \(pending.trainingSessionId), workout \(workoutId)")
+            await WorkoutFileLogger.shared.log("[PlanLink] linked plan \(pending.trainingSessionId) ↔ workout \(workoutId)")
+        } catch: { error, _ in
+            Logger.session.error("plan↔workout link failed: \(error.localizedDescription)")
+        }
+    }
 }
 
 /// Cancel identifiers used by `AppTabNewFeature` long-running effects.
@@ -167,6 +222,11 @@ extension AppTabNewFeature {
         /// Watch reported a saved `HKWorkout` (`.workoutSaved` via WatchConnectivity).
         /// Consumes the pending plan link and writes an empty-results score record (IOS-00098-C).
         case workoutSavedEventReceived(UUID)
+
+        /// Freeze the pending effort points snapshot against a saved workout
+        /// (IOS-00099-F5). No computation — the value was captured live at session
+        /// end. Split from the plan-link flow so neither failure blocks the other.
+        case persistEffortScore(UUID)
         
         // MARK: - View Actions
         

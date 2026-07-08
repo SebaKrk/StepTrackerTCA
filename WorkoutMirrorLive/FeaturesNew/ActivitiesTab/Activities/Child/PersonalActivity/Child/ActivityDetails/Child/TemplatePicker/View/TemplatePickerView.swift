@@ -43,12 +43,7 @@ struct TemplatePickerView: View {
                 send(.viewDidAppear)
             }
         }
-        .sheet(
-            item: Binding(
-                get: { store.previewTemplate },
-                set: { _ in send(.previewDismissed) }
-            )
-        ) { template in
+        .sheet(item: $store.previewTemplate) { template in
             planPreviewSheet(template)
         }
     }
@@ -177,7 +172,7 @@ struct TemplatePickerView: View {
 
     private var previewCloseButton: some View {
         Button {
-            send(.previewDismissed)
+            store.previewTemplate = nil
         } label: {
             Image(systemName: "xmark")
         }

@@ -19,6 +19,7 @@ struct PersonalActivityFeature {
 
     @Dependency(\.activityClient) var activityClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
+    @Dependency(\.effortScoreClient) var effortScoreClient
 
     // MARK: - Reducer
     
@@ -178,10 +179,13 @@ struct PersonalActivityFeature {
             case .alert(.presented(.confirmDelete)):
                 let workout = state.workoutToDelete
                 state.workoutToDelete = nil
-                return .run { [activityClient] send in
+                return .run { [activityClient, effortScoreClient] send in
                     if let workout {
                         do {
                             try await activityClient.deleteWorkout(workout)
+                            // Clean up the effort-score record so its points don't
+                            // linger in monthly aggregates for a deleted workout.
+                            try? await effortScoreClient.deleteByHKWorkoutId(workout.uuid)
                             await send(.fetchWorkouts)
                         } catch {
                             await send(.deleteFailed)

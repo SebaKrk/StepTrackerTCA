@@ -115,11 +115,12 @@ struct AthleteTileView: View {
         }
     }
 
-    /// Środkowa sekcja: duży %HR + active energy pod nim.
+    /// Środkowa sekcja: duży %HR + active energy + effort points pod nim.
     private var middleSection: some View {
         VStack(spacing: middleVStackSpacing) {
             percentageView
             activeEnergyView
+            effortPointsRow
         }
     }
 
@@ -174,6 +175,16 @@ struct AthleteTileView: View {
             kcalIcon
             kcalValue
             kcalCaption
+        }
+        .lineLimit(1)
+    }
+
+    /// `⚡ 194 pts` — effort points liczone na urządzeniu zawodnika (host tylko
+    /// wyświetla). "—" gdy peer ma build bez feature'a punktów.
+    private var effortPointsRow: some View {
+        HStack(spacing: kcalInnerSpacing) {
+            boltIcon
+            pointsValue
         }
         .lineLimit(1)
     }
@@ -240,6 +251,21 @@ struct AthleteTileView: View {
             .foregroundStyle(.white.opacity(captionOpacity))
     }
 
+    /// Sub-elementy `effortPointsRow`.
+    private var boltIcon: some View {
+        Image(systemName: boltSymbol)
+            .foregroundStyle(.yellow)
+            .font(pointsIconFont)
+    }
+
+    private var pointsValue: some View {
+        Text(pointsValueText)
+            .font(pointsValueFont)
+            .foregroundStyle(.white)
+            .contentTransition(.numericText(value: Double(athlete.effortPoints ?? 0)))
+            .animation(.snappy(duration: 0.3), value: athlete.effortPoints)
+    }
+
     // MARK: - Private content (implementacja)
 
     /// Skala względem default — proporcjonalnie zmniejsza fonty i spacing przy małych tile.
@@ -295,6 +321,14 @@ struct AthleteTileView: View {
         .system(size: 10 * scale)
     }
 
+    private var pointsIconFont: Font {
+        .system(size: 13 * scale, design: .rounded)
+    }
+
+    private var pointsValueFont: Font {
+        .system(size: 15 * scale, weight: .semibold, design: .rounded).monospacedDigit()
+    }
+
     private var nameFont: Font {
         .system(size: 17 * scale, weight: .semibold)
     }
@@ -331,6 +365,7 @@ struct AthleteTileView: View {
 
     private var heartSymbol: String { "heart.fill" }
     private var flameSymbol: String { "flame.fill" }
+    private var boltSymbol: String { "bolt.fill" }
 
     // MARK: - Texts
 
@@ -355,6 +390,11 @@ struct AthleteTileView: View {
         String(localized: "Active Energy", bundle: .main)
     }
 
+    /// "—" gdy peer nie raportuje punktów (stary build) — spójne z `bpmValueText`.
+    private var pointsValueText: String {
+        athlete.effortPoints.map { "\($0.formatted(.number)) " + String(localized: "pkt", bundle: .main) } ?? "—"
+    }
+
     private var bpmCaptionText: String {
         String(localized: "BPM", bundle: .main)
     }
@@ -367,13 +407,14 @@ struct AthleteTileView: View {
 // MARK: - Previews
 
 /// Wszystkie 6 stref HR naraz — bpm dobrane tak żeby każdy tile miał inną strefę.
+/// Sebastian bez `effortPoints` (nil) — pokazuje "—" jak peer ze starym buildem.
 private let allZonesPreviewAthletes: [LiveClassFeature.AthleteTile] = [
     .init(id: UUID(), nick: "Sebastian", bpm: 60,  maxHR: 190, activeEnergy: 0),
-    .init(id: UUID(), nick: "Anna",      bpm: 102, maxHR: 190, activeEnergy: 45),
-    .init(id: UUID(), nick: "Janek",     bpm: 124, maxHR: 190, activeEnergy: 120),
-    .init(id: UUID(), nick: "Maria",     bpm: 142, maxHR: 190, activeEnergy: 210),
-    .init(id: UUID(), nick: "Tomek",     bpm: 162, maxHR: 190, activeEnergy: 340),
-    .init(id: UUID(), nick: "Kasia",     bpm: 180, maxHR: 190, activeEnergy: 480),
+    .init(id: UUID(), nick: "Anna",      bpm: 102, maxHR: 190, activeEnergy: 45,  effortPoints: 28),
+    .init(id: UUID(), nick: "Janek",     bpm: 124, maxHR: 190, activeEnergy: 120, effortPoints: 76),
+    .init(id: UUID(), nick: "Maria",     bpm: 142, maxHR: 190, activeEnergy: 210, effortPoints: 132),
+    .init(id: UUID(), nick: "Tomek",     bpm: 162, maxHR: 190, activeEnergy: 340, effortPoints: 214),
+    .init(id: UUID(), nick: "Kasia",     bpm: 180, maxHR: 190, activeEnergy: 480, effortPoints: 305),
 ]
 
 #Preview("All Zones — Grid") {
@@ -392,7 +433,7 @@ private let allZonesPreviewAthletes: [LiveClassFeature.AthleteTile] = [
     .preferredColorScheme(.dark)
 }
 
-#Preview("Single — Threshold") {
+#Preview("Single — Zone 4") {
     AthleteTileView(
         athlete: LiveClassFeature.AthleteTile(id: UUID(), nick: "Anna", bpm: 162, maxHR: 185)
     )
