@@ -20,11 +20,19 @@ extension SessionFeature {
         var sessionState: SessionState = .countdown
 
         /// Determines whether Watch or iPhone owns the active HKWorkoutSession.
-        /// Set during `viewDidAppear` based on Watch availability.
+        /// Resolved during `viewDidAppear` from `requestedDevice` + Watch availability.
         var workoutMode: WorkoutMode = .iPhoneStandalone
 
         ///
         var selectedWorkout: WorkoutType
+
+        /// Device the user picked in Configuration (final semantics 2026-07-09):
+        /// `.iphone` = literally the iPhone (never Watch-primary, HR from BLE strap),
+        /// `.watch` = Watch-primary when ready, `nil` (plan start, no picker) =
+        /// auto-detect in `viewDidAppear` where a CONNECTED BLE strap wins over
+        /// the Watch. Declared after `selectedWorkout` so the memberwise init keeps
+        /// the natural `State(selectedWorkout:requestedDevice:)` argument order.
+        var requestedDevice: DeviceOption? = nil
 
         /// The training plan to execute, if any. `nil` for free workouts.
         var trainingSession: TrainingSession? = nil
@@ -39,8 +47,9 @@ extension SessionFeature {
         var isWatchConnectionLost: Bool = false
 
         /// Instruction alert shown when the user taps End while the link is down —
-        /// per Apple docs the app should tell the user to end the workout on the Watch.
-        @Presents var connectionLostAlert: AlertState<Never>?
+        /// per Apple docs the app should tell the user to end the workout on the
+        /// Watch. Carries the `endAnyway` escape action for an unavailable Watch.
+        @Presents var connectionLostAlert: AlertState<ConnectionLostAlertAction>?
 
         // MARK: - Destination
 

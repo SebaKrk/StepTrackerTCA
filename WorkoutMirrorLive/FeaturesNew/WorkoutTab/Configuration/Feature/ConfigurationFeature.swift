@@ -100,9 +100,12 @@ struct ConfigurationFeature {
                         print("Błąd: Nie wybrano ćwiczenia")
                         return .none
                     }
+                    // `nil` = auto-detekcja w Session (pasek BLE > zegarek). Flow wymaga
+                    // wyboru urządzenia przed Startem, więc nil to tylko defensywa.
+                    let device = state.selectedDevice
                     return .run { send in
                         /// Ta akcja jest przekazywana do AppTabNewFeature gdzie następnie wywoływany jest .fullScreenCover
-                        await send(.delegate(.start(workout)))
+                        await send(.delegate(.start(workout, device)))
                         await self.dismiss()
                     }
                 }

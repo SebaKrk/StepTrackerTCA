@@ -5102,6 +5102,16 @@
         }
       }
     },
+    "Zakończ mimo to" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ mimo to"
+          }
+        }
+      }
+    },
     "Zmiana formuły nie wpłynie na zapisane treningi — każdy trening zachowuje formułę z momentu zapisania." : {
       "localizations" : {
         "pl" : {

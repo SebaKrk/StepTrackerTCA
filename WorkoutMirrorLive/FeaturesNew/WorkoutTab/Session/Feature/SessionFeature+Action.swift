@@ -45,9 +45,10 @@ extension SessionFeature {
         /// fresh mirrored session) clears the banner and resumes ticks.
         case watchConnectionStatusChanged(WatchMirroringConnectionStatus)
 
-        /// Presentation plumbing for the "end on Watch" instruction alert (`Never` —
-        /// alert has a single dismiss button, no domain actions).
-        case connectionLostAlert(PresentationAction<Never>)
+        /// Presentation plumbing for the "end on Watch" instruction alert.
+        /// `endAnyway` closes the iPhone side when the Watch is physically
+        /// unavailable — the only exit from an otherwise dead-locked session.
+        case connectionLostAlert(PresentationAction<ConnectionLostAlertAction>)
 
         /// The `.workoutEnded` HK send failed/timed out BEFORE the system reported a
         /// disconnect — instead of a false-success dismiss, show the "end on Watch"

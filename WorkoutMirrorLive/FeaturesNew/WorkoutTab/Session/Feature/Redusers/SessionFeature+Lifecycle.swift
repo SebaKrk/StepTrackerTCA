@@ -21,11 +21,49 @@ extension SessionFeature {
             case .view(.viewDidAppear):
                 return .run { [workout = state.selectedWorkout,
                                trainingSession = state.trainingSession,
+                               requestedDevice = state.requestedDevice,
                                watchClient = watchConnectivityClient,
+                               bluetoothClient,
+                               clock,
                                sessionClient] send in
                     await watchClient.initializeWatchConnectivity()
                     let watchStatus = await watchClient.checkWatchStatus()
-                    Logger.session.info("viewDidAppear — watchStatus: \(watchStatus.rawValue), workout: \(workout.title)")
+                    // Mode pick (final semantics, user decision 2026-07-09):
+                    // - `.iphone` → LITERALLY the iPhone: never Watch-primary, HR from
+                    //   a BLE strap when present. Picking "iPhone" and landing on a
+                    //   "waiting for Apple Watch" screen was a recurring trap — a
+                    //   paired-but-off-wrist Watch (e.g. on a charger) still reports
+                    //   `.ready`, since that status only checks `isPaired`.
+                    // - `.watch` → Watch-primary when the Watch is ready.
+                    // - `nil` (plan start, no picker) → auto-detect: a CONNECTED BLE
+                    //   strap wins over the Watch.
+                    let useWatch: Bool
+                    switch requestedDevice {
+                    case .iphone?:
+                        useWatch = false
+                    case .watch?, .mirror?:
+                        useWatch = watchStatus == .ready
+                    case nil:
+                        if watchStatus == .ready {
+                            await bluetoothClient.initializeBluetooth()
+                            // CoreBluetooth powers on asynchronously — on a cold start
+                            // `retrieveConnectedPeripherals` before `.poweredOn` returns
+                            // [] and would silently miss the strap. Wait briefly (≤500 ms)
+                            // but never forever: with Bluetooth off the status stays
+                            // not-ready and the workout must still start.
+                            var attempts = 0
+                            while await bluetoothClient.getCurrentStatus() != .ready, attempts < 5 {
+                                try? await clock.sleep(for: .milliseconds(100))
+                                attempts += 1
+                            }
+                            let connectedSensors = await bluetoothClient.checkConnectedDevicesFirst()
+                            useWatch = connectedSensors.isEmpty
+                            Logger.session.info("Auto device detect — hasBLESensor: \(!connectedSensors.isEmpty), btWaitAttempts: \(attempts)")
+                        } else {
+                            useWatch = false
+                        }
+                    }
+                    Logger.session.info("viewDidAppear — watchStatus: \(watchStatus.rawValue), requestedDevice: \(String(describing: requestedDevice)), useWatch: \(useWatch), workout: \(workout.title)")
 
                     // Every NEW session start invalidates the old plan-link note —
                     // an abandoned earlier start must not "claim" this workout
@@ -40,7 +78,7 @@ extension SessionFeature {
                         }
                     }
 
-                    if watchStatus == .ready {
+                    if useWatch {
                         // Watch-primary: iPhone does NOT start its own HKWorkoutSession.
                         // Watch starts the primary session and mirrors it to iPhone.
                         await send(.setWorkoutMode(.watchPrimary))
@@ -65,7 +103,8 @@ extension SessionFeature {
                         // iPhone-standalone: iPhone owns the HKWorkoutSession.
                         await send(.setWorkoutMode(.iPhoneStandalone))
                         await send(.sessionViewStateChange(.countdown))
-                        Logger.session.info("iPhone-standalone mode — Watch unavailable (\(watchStatus.rawValue))")
+                        // Either the user picked iPhone/BLE, or no Watch is ready.
+                        Logger.session.info("iPhone-standalone mode — requestedDevice: \(String(describing: requestedDevice)), watchStatus: \(watchStatus.rawValue)")
                         try await sessionClient.selectedWorkout(workout.hkType)
                         Logger.session.info("selectedWorkout set → iPhone session prepared")
                     }

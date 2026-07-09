@@ -21,6 +21,7 @@ struct SessionFeature {
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
+    @Dependency(\.bluetoothClient) var bluetoothClient
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date.now) var now
 

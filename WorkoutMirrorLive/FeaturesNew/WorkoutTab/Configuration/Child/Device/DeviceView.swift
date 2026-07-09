@@ -19,7 +19,7 @@ struct DeviceView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            ForEach(DeviceOption.allCases, id: \.self) { option in
+            ForEach(availableOptions, id: \.self) { option in
                 Button {
                     send(.buttonTapped(option))
                 } label: {
@@ -41,5 +41,14 @@ struct DeviceView: View {
                 .accessibilityAddTraits(store.selected == option ? .isSelected : [])
             }
         }
+    }
+
+    // MARK: - Implementation
+
+    /// `.mirror` hidden — the join-a-running-Watch-session flow is not implemented
+    /// yet (`startButtonTapped` no-ops for it), so showing the icon only confuses.
+    /// The enum case stays for the future ticket; we filter at the UI level only.
+    private var availableOptions: [DeviceOption] {
+        DeviceOption.allCases.filter { $0 != .mirror }
     }
 }

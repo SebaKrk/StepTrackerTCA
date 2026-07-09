@@ -78,8 +78,11 @@ extension ConfigurationFeature {
         case delegate(DelegateAction)
         
         enum DelegateAction: Equatable {
-            /// Rozpocznij trening z wybranym typem ćwiczenia
-            case start(WorkoutType)
+            /// Rozpocznij trening z wybranym typem ćwiczenia i urządzeniem.
+            /// `device` niesie jawny wybór usera: `.iphone` = dosłownie iPhone
+            /// (nigdy Watch-primary), `.watch` = Watch-primary; `nil` (defensywa) →
+            /// auto-detekcja w Session (podłączony pasek BLE > zegarek).
+            case start(WorkoutType, DeviceOption?)
         }
         
         // MARK: - Destination

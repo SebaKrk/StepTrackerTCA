@@ -46,8 +46,8 @@ struct AppTabNewFeature {
                 state.destination = .workoutConfiguration(ConfigurationFeature.State())
                 return .none
                 
-            case let .activateWorkoutSessionView(workout):
-                state.destination = .session(SessionFeature.State(selectedWorkout: workout))
+            case let .activateWorkoutSessionView(workout, device):
+                state.destination = .session(SessionFeature.State(selectedWorkout: workout, requestedDevice: device))
                 return .none
                 
                 // MARK: - View Action
@@ -115,9 +115,9 @@ struct AppTabNewFeature {
                 }
 
                 // MARK: - Destination
-            case let .destination(.presented(.workoutConfiguration(.delegate(.start(workout))))):
+            case let .destination(.presented(.workoutConfiguration(.delegate(.start(workout, device))))):
                 return .run { send in
-                    await send(.activateWorkoutSessionView(workout))
+                    await send(.activateWorkoutSessionView(workout, device))
                 }
 
             case .destination:
@@ -217,7 +217,7 @@ extension AppTabNewFeature {
         case activateWorkoutView
         
         ///
-        case activateWorkoutSessionView(WorkoutType)
+        case activateWorkoutSessionView(WorkoutType, DeviceOption?)
 
         /// Watch reported a saved `HKWorkout` (`.workoutSaved` via WatchConnectivity).
         /// Consumes the pending plan link and writes an empty-results score record (IOS-00098-C).
