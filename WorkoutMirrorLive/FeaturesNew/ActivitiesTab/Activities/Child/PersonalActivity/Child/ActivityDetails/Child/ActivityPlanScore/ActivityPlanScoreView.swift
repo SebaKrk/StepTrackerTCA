@@ -69,17 +69,43 @@ struct ActivityPlanScoreView: View {
         .styledGroupBox()
     }
 
-    /// Plan auto-linked (IOS-00098-C) but no results yet — points the user to the
-    /// "Uzupełnij wyniki" toolbar button instead of rendering an empty list.
+    /// Plan auto-linked (IOS-00098-C) but no results yet — the whole container is
+    /// the fill-in entry point (single, in-context affordance; the duplicate
+    /// toolbar button is hidden in this state). Delegates up to the parent, which
+    /// owns the manual-entry navigation.
     private var pendingResultsHint: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "square.and.pencil")
-                .foregroundStyle(.orange)
-            Text(String(localized: "Plan podpięty — wyniki czekają na uzupełnienie"))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
+        Button {
+            store.send(.fillResultsTapped)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "square.and.pencil")
+                    .foregroundStyle(.orange)
+                pendingResultsText
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 11)
+            .background(.orange.opacity(0.16), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+    }
+
+    /// Action first (accented CTA), context beneath — the whole tinted row already
+    /// reads as tappable, so the call to action leads.
+    private var pendingResultsText: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(String(localized: "Uzupełnij wyniki"))
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.orange)
+            Text(String(localized: "Plan podpięty — dotknij, aby dodać"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .lineLimit(1)
     }
 
     private func resultsList(_ results: [WorkoutSessionResult]) -> some View {

@@ -60,8 +60,22 @@ struct ActivityPlanScoreFeature {
         /// User tapped "Edytuj" on the WOD at the given index in `score.results`.
         case editTapped(wodIndex: Int)
 
+        /// User tapped the pending-results container — asks the parent to open the
+        /// fill-in flow (the parent owns the manual-entry navigation).
+        case fillResultsTapped
+
         /// Presentation action for the per-set edit sheet.
         case setInput(PresentationAction<SetInputFeature.Action>)
+
+        /// Actions the parent (`ActivityDetailsFeature`) observes.
+        case delegate(Delegate)
+
+        @CasePathable
+        enum Delegate {
+
+            /// User wants to fill in the (still empty) results of the linked plan.
+            case fillResultsTapped
+        }
     }
 
     // MARK: - Reducer
@@ -100,6 +114,12 @@ struct ActivityPlanScoreFeature {
 
             case let .exerciseLogsLoaded(logs):
                 state.exerciseLogs = logs
+                return .none
+
+            case .fillResultsTapped:
+                return .send(.delegate(.fillResultsTapped))
+
+            case .delegate:
                 return .none
 
             case let .editTapped(wodIndex):

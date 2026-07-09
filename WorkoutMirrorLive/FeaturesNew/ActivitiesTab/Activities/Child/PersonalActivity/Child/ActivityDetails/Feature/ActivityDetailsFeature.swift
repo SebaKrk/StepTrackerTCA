@@ -268,6 +268,12 @@ struct ActivityDetailsFeature {
 
                 // MARK: - Plan Score
 
+                // Pending-results container tapped in the child — reuse the existing
+                // edit flow (its `.loaded(score)` guard handles empty results too,
+                // opening manual entry with `existingResults: []`).
+            case .planScore(.delegate(.fillResultsTapped)):
+                return .send(.view(.editExistingScoreTapped))
+
             case .planScore:
                 return .none
             }

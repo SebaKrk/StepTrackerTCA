@@ -54,13 +54,12 @@ struct ActivityDetailsView: View {
 
     // MARK: - Link Template Toolbar Item
 
-    /// Toolbar button:
-    /// - "Podpnij plan" gdy workout nie ma podpiętego planu (`loadState == .notFound`)
-    ///   — escape hatch dla nieudanego `.saving → .summary` flow.
-    /// - "Uzupełnij wyniki" gdy plan został auto-podpięty przez app-level listener
-    ///   (IOS-00098-C) ale wyniki są puste — ten sam edit flow, pre-podpięty plan.
-    /// - "Edytuj wynik" gdy workout ma już podpięty plan z wynikami (`loadState == .loaded(_)`)
-    ///   — pre-fill SummaryView istniejącymi wynikami, user może modyfikować.
+    /// Toolbar button — tylko "Podpnij plan" gdy workout nie ma podpiętego planu
+    /// (`loadState == .notFound`), jako escape hatch dla nieudanego
+    /// `.saving → .summary` flow.
+    /// Gdy plan jest podpięty (`.loaded`) edycja odbywa się w treści ekranu:
+    /// puste wyniki → klikalny kontener "Wyniki" (`ActivityPlanScoreView.pendingResultsHint`),
+    /// wypełnione → przyciski "Edytuj" pod każdym WOD-em. Brak przycisku w toolbarze.
     /// Loading/failed → button schowany.
     @ToolbarContentBuilder
     private var linkTemplateToolbarItem: some ToolbarContent {
@@ -73,15 +72,7 @@ struct ActivityDetailsView: View {
                     Text(linkTemplateButtonTitle)
                 }
             }
-        case let .loaded(score):
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    send(.editExistingScoreTapped)
-                } label: {
-                    Text(score.results.isEmpty ? fillResultsButtonTitle : editScoreButtonTitle)
-                }
-            }
-        case .loading, .failed:
+        case .loaded, .loading, .failed:
             ToolbarItem(placement: .topBarTrailing) { EmptyView() }
         }
     }
@@ -90,14 +81,6 @@ struct ActivityDetailsView: View {
         String(localized: "Podpnij plan")
     }
 
-    private var fillResultsButtonTitle: String {
-        String(localized: "Uzupełnij wyniki")
-    }
-
-    private var editScoreButtonTitle: String {
-        String(localized: "Edytuj wynik")
-    }
-    
     private var navigationTitleText: String {
         store.workout.startDate.formatted(date: .abbreviated, time: .omitted)
     }

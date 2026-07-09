@@ -1850,6 +1850,7 @@
       }
     },
     "Edytuj wynik" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3249,7 +3250,7 @@
         }
       }
     },
-    "Plan podpięty — wyniki czekają na uzupełnienie" : {
+    "Plan podpięty — dotknij, aby dodać" : {
 
     },
     "Plan: %@" : {
