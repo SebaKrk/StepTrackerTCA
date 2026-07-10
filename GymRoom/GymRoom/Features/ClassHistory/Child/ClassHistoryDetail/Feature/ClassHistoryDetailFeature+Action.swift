@@ -34,6 +34,11 @@ extension ClassHistoryDetailFeature {
         /// ms; View helper mapuje na najbliższy sample każdego athlety. `nil` = scrub-out.
         case combinedTimeSelected(Date?)
 
+        /// Ranking table child ("Points" tab) — sort-order bindings itp.
+        /// Delegat childa (`.done`) tu nie występuje w UI (brak przycisku Done
+        /// w embedded wariancie) i jest ignorowany.
+        case results(ClassResultsFeature.Action)
+
         case delegate(Delegate)
         case alert(PresentationAction<Alert>)
         case view(View)

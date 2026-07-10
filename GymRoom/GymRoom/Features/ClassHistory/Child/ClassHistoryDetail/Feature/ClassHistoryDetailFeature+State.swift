@@ -70,8 +70,14 @@ extension ClassHistoryDetailFeature {
         var selectedCombinedTime: Date? = nil
 
         /// Toggle widoku HR chart — `combined` (multi-series LineMark + donut pie kalorii)
-        /// vs `perAthlete` (lista kart per peer z BarMark range + selection).
+        /// vs `perAthlete` (lista kart per peer z BarMark range + selection)
+        /// vs `points` (ranking table — IPAD-00095-B).
         var chartViewMode: ChartViewMode = .combined
+
+        /// Ranking table (IPAD-00095-B) — the same `ClassResultsFeature` shown
+        /// after class end, here embedded as the "Points" tab. Rows populated in
+        /// `athletesLoaded` from the already-decoded analytics.
+        var results: ClassResultsFeature.State = .init()
 
         /// Zone-color background on the combined chart (Myzone-style). When ON the
         /// Y axis switches from BPM to %HRmax — zone boundaries are per-athlete in
@@ -83,7 +89,8 @@ extension ClassHistoryDetailFeature {
         @Presents var alert: AlertState<Action.Alert>?
     }
 
-    /// Tryby wyświetlania HR over time. Switch'owane przez `SegmentedPicker` w View.
+    /// Tryby wyświetlania zawartości detail'u. Switch'owane przez `SegmentedPicker`
+    /// w View — trzy taby: Team / Individual / Points (user decyzja 2026-07-09).
     enum ChartViewMode: String, CaseIterable, Identifiable, Sendable, Equatable {
 
         /// Multi-series LineMark — wszyscy athletes na jednej skali czasu, kolor per nick.
@@ -94,12 +101,16 @@ extension ClassHistoryDetailFeature {
         /// Range bar pokazuje min/max BPM w danej minucie.
         case perAthlete
 
+        /// Ranking table po punktach (IPAD-00095-B) — reuse `ClassResultsTableView`.
+        case points
+
         var id: String { rawValue }
 
         var title: String {
             switch self {
-            case .combined: String(localized: "Combined", bundle: .main)
-            case .perAthlete: String(localized: "Individually", bundle: .main)
+            case .combined: String(localized: "Team", bundle: .main)
+            case .perAthlete: String(localized: "Individual", bundle: .main)
+            case .points: String(localized: "Points", bundle: .main)
             }
         }
     }

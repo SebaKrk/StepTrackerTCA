@@ -78,6 +78,12 @@ struct ClassHistoryDetailFeature {
                 // Outage bands are a cheap derivation of the segment boundaries —
                 // O(segments), no need to widen the action signature.
                 state.hrGapsByAthlete = segments.mapValues(AthleteSummary.measurementGaps(from:))
+                // Ranking table ("Points" tab, IPAD-00095-B) — built from the same
+                // decoded analytics; identical rows as the end-of-class cover.
+                state.results = ClassResultsFeature.State(
+                    className: state.className,
+                    rows: ClassResultsFeature.rows(from: summaries)
+                )
                 state.viewState = .success
                 return .none
 
@@ -108,10 +114,14 @@ struct ClassHistoryDetailFeature {
                     await send(.delegate(.sessionDeleted(sessionId)))
                 }
 
-            case .alert, .delegate, .binding:
+            case .alert, .delegate, .binding, .results:
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
+
+        Scope(state: \.results, action: \.results) {
+            ClassResultsFeature()
+        }
     }
 }

@@ -1029,3 +1029,12 @@
     - LiveSession card layout (final): zone name top-right (next to HR), effort points bottom-left, zone description bottom-right
     - iPad class-results screen split out into a separate ticket → IPAD-00095
 
+### IPAD-00095 GymRoom — end-of-class results table + Points tab in history
+    - native SwiftUI `Table` ranking all athletes by effort points (sortable column headers, stable medal ranking independent of the current sort)
+    - data source: FROZEN per-athlete `ClassAnalytics` persisted by endSession/endAthlete — includes athletes who left mid-class, nothing recomputed
+    - stats banner (Athletes / Duration / Calories / Avg HR) above the table — same four cards and definitions as the history detail
+    - legacy peers without effort points show "—" instead of 0
+
+    A: ClassResultsFeature + fullScreenCover after End class — presented after analytics are finalized, BEFORE delegate(.classEnded); "Done" resumes the legacy close flow; any fetch failure falls back to it (trainer can never get stuck)
+    B: History detail restructured into 3 tabs (Team / Individual / Points) — existing ChartViewMode extended with `.points`; the ranking table reused via shared `ClassResultsTableView` (cover keeps chrome: banner + Done); Points tab bypasses the outer ScrollView (Table scrolls itself); "HR over time" section header removed (picker switches whole tabs now, segments are self-describing)
+

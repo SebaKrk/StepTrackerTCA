@@ -31,6 +31,11 @@ struct LiveClassView: View {
         }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .fullScreenCover(
+            item: $store.scope(state: \.results, action: \.results)
+        ) { resultsStore in
+            ClassResultsView(store: resultsStore)
+        }
     }
     
     // MARK: - Private views (struktura)

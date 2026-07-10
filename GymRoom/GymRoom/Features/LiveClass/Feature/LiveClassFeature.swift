@@ -140,13 +140,43 @@ struct LiveClassFeature {
                         }
                         await peerMirrorClient.stopAdvertising()
                         await GymRoomFileLogger.shared.log("[Class] BLE advertising stopped")
-                        /// 3. Emit delegate DOPIERO PO completion async cleanup — parent ClassesListFeature
+                        /// 3. Tabela wyników (IPAD-00095-A): analytics są już FROZEN w bazie
+                        /// (`endSession`) — fetch back i pokaż ranking. `delegate(.classEnded)`
+                        /// poleci dopiero z "Done" w tabeli, bo parent ClassesListFeature
+                        /// ustawia `liveClass = nil` (zamyka cały cover stack). Fallback:
+                        /// błąd fetchu / brak zawodników → stary flow, trener nigdy nie utknie.
+                        if let sessionId {
+                            do {
+                                let records = try await gymClassClient.fetchAthletesForSession(sessionId)
+                                let rows = ClassResultsFeature.rows(from: records)
+                                if !rows.isEmpty {
+                                    await GymRoomFileLogger.shared.log("[Class] results ready: \(rows.count) athletes")
+                                    await send(.resultsReady(rows))
+                                    return
+                                }
+                            } catch {
+                                Logger.gymRoom.error("❌ results fetch failed: \(error.localizedDescription)")
+                                await GymRoomFileLogger.shared.log("[Class] ERROR results fetch failed: \(error.localizedDescription)")
+                            }
+                        }
+                        /// Emit delegate DOPIERO PO completion async cleanup — parent ClassesListFeature
                         /// ustawi `liveClass = nil` co triggeruje `.ifLet` cancel child effects, ale w tym
                         /// momencie .run już completed (poprzednie await'y zwróciły). Race condition unik-
                         /// nięty: persistence first, dismiss second.
                         await send(.delegate(.classEnded))
                     }
                 )
+
+            case let .resultsReady(rows):
+                state.results = ClassResultsFeature.State(className: state.className, rows: rows)
+                return .none
+
+            case .results(.presented(.delegate(.done))):
+                state.results = nil
+                return .send(.delegate(.classEnded))
+
+            case .results:
+                return .none
 
             case .alert:
                 /// Cancel lub dismiss — nic do roboty, presentation reducer sam clearuje state.alert.
@@ -335,5 +365,8 @@ struct LiveClassFeature {
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$results, action: \.results) {
+            ClassResultsFeature()
+        }
     }
 }
