@@ -1,7 +1,13 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "—" : {
+
+    },
     "%lld" : {
+
+    },
+    "%lld min" : {
 
     },
     "%lld–%lld" : {
@@ -160,6 +166,7 @@
       }
     },
     "Combined" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -336,7 +343,7 @@
         }
       }
     },
-    "Individually" : {
+    "Individual" : {
 
     },
     "kcal" : {
@@ -387,6 +394,9 @@
           }
         }
       }
+    },
+    "Max HR" : {
+
     },
     "Minute" : {
 
@@ -454,6 +464,18 @@
           }
         }
       }
+    },
+    "pkt" : {
+
+    },
+    "Points" : {
+
+    },
+    "Rank" : {
+
+    },
+    "Results — %@" : {
+
     },
     "Run a class to see it here." : {
       "localizations" : {
@@ -567,6 +589,9 @@
           }
         }
       }
+    },
+    "Team" : {
+
     },
     "This athlete didn't send any HR data." : {
 

@@ -68,6 +68,12 @@ extension LiveClassFeature {
         /// non-nil = alert visible.
         @Presents var alert: AlertState<Action.Alert>?
 
+        /// End-of-class results table (IPAD-00095-A) — set once `confirmEnd`
+        /// finished persisting and the ranking rows came back from the database.
+        /// Presented as a fullScreenCover; `delegate(.classEnded)` fires only
+        /// from its "Done" (the parent's handler tears the cover stack down).
+        @Presents var results: ClassResultsFeature.State?
+
         // MARK: - Persistence (SQLiteData via gymClassClient)
 
         /// FK do current `ClassSessionRecord`. `nil` przed `startTapped` succeeds.

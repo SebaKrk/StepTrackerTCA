@@ -30,7 +30,11 @@ struct ClassHistoryDetailView: View {
             case .loading:
                 loadingState
             case .success:
-                contentScrollView
+                if store.chartViewMode == .points {
+                    pointsLayout
+                } else {
+                    contentScrollView
+                }
             case .failed:
                 failedState
             }
@@ -60,6 +64,18 @@ struct ClassHistoryDetailView: View {
             }
             .padding()
         }
+    }
+
+    /// "Points" tab (IPAD-00095-B) — celowo OMIJA `contentScrollView`: `Table`
+    /// scrolluje się sam, a zagnieżdżony w zewnętrznym ScrollView zapadłby się
+    /// do zerowej wysokości. Banner + picker zostają na sztywno nad tabelą.
+    private var pointsLayout: some View {
+        VStack(spacing: 16) {
+            topStatsBanner
+            chartModePicker
+            ClassResultsTableView(store: store.scope(state: \.results, action: \.results))
+        }
+        .padding([.horizontal, .top])
     }
 
     /// Centered ProgressView na pełnym ekranie — pokazywany podczas decode'u BLOB-ów
@@ -194,13 +210,11 @@ struct ClassHistoryDetailView: View {
 
     // MARK: - HR chart section (toggle per athlete / combined)
 
+    /// Nagłówek "HR over time" usunięty (2026-07-09) — picker przełącza teraz całe
+    /// taby (Team / Individual / Points), nie warianty jednego wykresu, więc tytuł
+    /// sugerował złą hierarchię. Segmenty są samoopisujące.
     private var hrChartSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(hrSectionTitle)
-                    .font(.headline)
-                Spacer()
-            }
             chartModePicker
             chartContent
         }
@@ -262,6 +276,10 @@ struct ClassHistoryDetailView: View {
             switch store.chartViewMode {
             case .combined: combinedChart
             case .perAthlete: perAthleteCards
+            // Unreachable: the "Points" tab renders `pointsLayout` and never
+            // enters `contentScrollView` (a Table cannot live inside it) — the
+            // case exists only for exhaustiveness.
+            case .points: EmptyView()
             }
         }
     }

@@ -66,6 +66,16 @@ extension LiveClassFeature {
         /// per athlete (`appendHRSamples` async per peer), clear buffer.
         case flushBufferedSamples
 
+        // MARK: - Results (IPAD-00095-A)
+
+        /// Ranking rows zbudowane z FROZEN analytics po `endSession` — prezentuje
+        /// tabelę wyników jako fullScreenCover.
+        case resultsReady([ClassResultsFeature.ResultRow])
+
+        /// Presentation dla tabeli wyników. `delegate(.done)` z childa wznawia
+        /// stary flow zamknięcia klasy (`delegate(.classEnded)` do parenta).
+        case results(PresentationAction<ClassResultsFeature.Action>)
+
         // MARK: - Delegate (parent — ClassesListFeature)
 
         /// Komunikaty do parent reducer'a (ClassesListFeature). Parent reaguje:
