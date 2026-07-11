@@ -48,6 +48,12 @@ extension JoinLiveClassFeature {
         /// the GymRoom tile is literally the number the athlete sees on their phone.
         var currentEffortPoints: Int = 0
 
+        /// Mirror of `LiveSessionFeature.isSensorStale` (IOS-00100-C), synced by
+        /// the parent alongside `currentEffortPoints`. Rides in every BLE payload
+        /// so the host tile can show "sensor out of range" instead of presenting
+        /// the frozen last-known HR as live.
+        var isSensorStale: Bool = false
+
         /// Zdekodowany QR payload po scan'ie. `nil` = jeszcze nie scanned.
         /// Ephemeral — NIE persistujemy. Reset na `.leaveTapped` wymusza ponowny scan
         /// przy następnym Join. `sessionToken` z payload'u wysyłany w `HRSamplePayload`.

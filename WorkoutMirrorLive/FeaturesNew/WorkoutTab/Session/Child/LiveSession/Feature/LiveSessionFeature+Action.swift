@@ -51,6 +51,12 @@ extension LiveSessionFeature {
         /// HealthKit-zero guard in `.workoutMetrics` which would otherwise preserve
         /// the last known value.
         case resetHeartRate
+
+        /// 1 s heartbeat forwarded from `SessionFeature.watchTickEffect` (IOS-00100-B).
+        /// Evaluates BLE-sensor freshness: no real sample for >60 s flips
+        /// `isSensorStale` (banner + greyed HR). No-op on the Watch path
+        /// (`lastFreshSampleDate` stays `nil` there).
+        case sensorFreshnessTick
         
         // MARK: - Live Activity (Child Reducer)
 

@@ -56,9 +56,15 @@ struct SessionView: View {
                     if store.isWatchConnectionLost && store.sessionState == .session {
                         connectionLostBanner
                             .transition(.move(edge: .top).combined(with: .opacity))
+                    } else if store.live.isSensorStale && store.sessionState == .session {
+                        // BLE strap out of range (IOS-00100-B) — standalone only,
+                        // never coincides with the Watch banner (other mode).
+                        sensorStaleBanner
+                            .transition(.move(edge: .top).combined(with: .opacity))
                     }
                 }
                 .animation(.easeInOut(duration: 0.3), value: store.isWatchConnectionLost)
+                .animation(.easeInOut(duration: 0.3), value: store.live.isSensorStale)
         }
     }
 
@@ -72,6 +78,27 @@ struct SessionView: View {
             Image(systemName: "applewatch.slash")
                 .foregroundStyle(.orange)
             Text(String(localized: "Utracono połączenie z Watchem — trening trwa dalej"))
+                .font(.footnote.weight(.semibold))
+                .multilineTextAlignment(.leading)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(.orange.opacity(0.18), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.horizontal, 12)
+        .padding(.top, 4)
+    }
+
+    // MARK: - Sensor Stale Banner (IOS-00100-B)
+
+    /// Shown while the BLE heart-rate strap has not delivered a real sample for
+    /// >60 s (out of range). The workout keeps running — only HR-derived data
+    /// (zones, effort points, session stats) pauses until samples resume.
+    private var sensorStaleBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "heart.slash")
+                .foregroundStyle(.orange)
+            Text(String(localized: "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany"))
                 .font(.footnote.weight(.semibold))
                 .multilineTextAlignment(.leading)
             Spacer(minLength: 0)
@@ -262,6 +289,22 @@ import SharedModels
                     selectedWorkout: .cross)
                 state.workoutMode = .watchPrimary
                 state.isWatchConnectionLost = true
+                return state
+            }(), reducer: { SessionFeature() })
+        )
+    }
+}
+
+#Preview("sensor stale — banner (IOS-00100)") {
+    NavigationStack {
+        SessionView(
+            store: Store(initialState: {
+                var state = SessionFeature.State(
+                    sessionState: .session,
+                    selectedWorkout: .cross)
+                state.workoutMode = .iPhoneStandalone
+                state.live.isSensorStale = true
+                state.live.workoutMetrics = WorkoutMetrics(averageHeartRate: 128, heartRate: 116, activeEnergy: 240)
                 return state
             }(), reducer: { SessionFeature() })
         )

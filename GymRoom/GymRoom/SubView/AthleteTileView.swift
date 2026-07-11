@@ -54,16 +54,19 @@ struct AthleteTileView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: athlete.zone)
         .animation(.easeInOut(duration: 0.25), value: athlete.state)
+        .animation(.easeInOut(duration: 0.25), value: athlete.isSensorStale)
     }
 
     /// Saturation per state — `.loading` lekko zdesaturowany (peer connected ale brak
     /// real BPM/maxHR), `.reconnecting` mocno zdesaturowany (stale data warning),
-    /// `.live` pełna saturation.
+    /// `.live` pełna saturation — chyba że pasek zawodnika jest poza zasięgiem
+    /// (IOS-00100-C): BPM to zamrożona ostatnia wartość, kafelek nie może wyglądać
+    /// jak żywy pomiar (peer-link działa, więc bez spinnera reconnectu).
     private var saturationLevel: Double {
         switch athlete.state {
         case .loading: 0.5
         case .reconnecting: 0.3
-        case .live: 1.0
+        case .live: athlete.isSensorStale ? 0.35 : 1.0
         }
     }
 
@@ -208,9 +211,11 @@ struct AthleteTileView: View {
     }
 
     /// Sub-elementy `heartRateRow` — wyciągnięte dla View Facade clarity.
+    /// Stale sensor (IOS-00100-C): przekreślone serce w bieli zamiast pulsującej
+    /// czerwieni — wartość obok to ostatni znany odczyt, nie żywy pomiar.
     private var heartIcon: some View {
         Image(systemName: heartSymbol)
-            .foregroundStyle(.red)
+            .foregroundStyle(athlete.isSensorStale ? Color.white.opacity(0.6) : .red)
             .font(heartIconFont)
             .symbolEffect(.pulse, options: .repeating, value: athlete.bpm)
     }
@@ -363,7 +368,7 @@ struct AthleteTileView: View {
 
     // MARK: - Symbol Names
 
-    private var heartSymbol: String { "heart.fill" }
+    private var heartSymbol: String { athlete.isSensorStale ? "heart.slash" : "heart.fill" }
     private var flameSymbol: String { "flame.fill" }
     private var boltSymbol: String { "bolt.fill" }
 
@@ -436,6 +441,24 @@ private let allZonesPreviewAthletes: [LiveClassFeature.AthleteTile] = [
 #Preview("Single — Zone 4") {
     AthleteTileView(
         athlete: LiveClassFeature.AthleteTile(id: UUID(), nick: "Anna", bpm: 162, maxHR: 185)
+    )
+    .padding(20)
+    .frame(width: 420, height: 280)
+    .background(.black)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Sensor out of range (IOS-00100-C)") {
+    AthleteTileView(
+        athlete: LiveClassFeature.AthleteTile(
+            id: UUID(),
+            nick: "Anna",
+            bpm: 162,
+            maxHR: 185,
+            activeEnergy: 240,
+            effortPoints: 118,
+            isSensorStale: true
+        )
     )
     .padding(20)
     .frame(width: 420, height: 280)

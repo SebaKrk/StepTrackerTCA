@@ -50,5 +50,13 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        } else {
            Logger.bluetooth.info("[Delegate] disconnected: \(peripheral.name ?? "Unknown")")
        }
+       /// EXPERIMENT (IOS-00100-D): czujnik przytrzymany na czas treningu dostaje
+       /// natychmiastowy pending connect — bez timeoutu, ŻADNYCH watchdogów
+       /// (wzorzec known-host reconnect z GymRoom). System połączy od razu, gdy
+       /// pasek wróci w zasięg — bez czekania na wewnętrzny retry HealthKit.
+       if isHeldPeripheral(peripheral.identifier) {
+           central.connect(peripheral)
+           Logger.bluetooth.info("[Connection] held sensor dropped — pending reconnect issued: \(peripheral.name ?? "Unknown")")
+       }
    }
 }

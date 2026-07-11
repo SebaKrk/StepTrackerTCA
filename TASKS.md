@@ -1038,3 +1038,15 @@
     A: ClassResultsFeature + fullScreenCover after End class — presented after analytics are finalized, BEFORE delegate(.classEnded); "Done" resumes the legacy close flow; any fetch failure falls back to it (trainer can never get stuck)
     B: History detail restructured into 3 tabs (Team / Individual / Points) — existing ChartViewMode extended with `.points`; the ranking table reused via shared `ClassResultsTableView` (cover keeps chrome: banner + Done); Points tab bypasses the outer ScrollView (Table scrolls itself); "HR over time" section header removed (picker switches whole tabs now, segments are self-describing)
 
+
+### IOS-00100 Honest strap data — stale-HR fix + sensor recovery
+    - plan: `PLANS/IOS-00100-honest-strap-data.md` (log analysis 2026-07-09: frozen 116 bpm poisoned 39 min of Zone 2 + effort points; strap reconnect was a lottery)
+    - root cause: builder's `mostRecentQuantity()` repeats the last value forever after a BLE strap drops out — the app fabricated fresh timestamps for stale values, defeating the accumulator's 5-min gap guard
+    - Watch-primary path untouched (two-paths invariant) — sensor travels with the session owner, logs prove it survives 400m run-outs with zero gaps
+    - hardware note: no backfill possible from memoryless straps (H7/H9); Polar H10 internal recording = separate future ticket (official SDK integration)
+
+    A: Freshness core — `HKStatistics.mostRecentQuantityDateInterval()` → `WorkoutMetrics.heartRateSampleDate`; LiveSession credits hrBuffer/effort points/session stats ONLY when the sample timestamp moves; real sample dates make the 5-min gap guard actually reachable (+1 scenario test, 16 passing)
+    B: Honest UI — `isSensorStale` (>60 s without a real sample, 1 s tick piggybacked on watchTickEffect), greyed HR + heart.slash + "sensor out of range" banner (connection-lost banner pattern); `[Connection] sensor STALE/FRESH` file logs
+    C: GymRoom truth — `HRSamplePayload.isSensorStale` (optional, backward-compatible), parent bridge syncs the flag alongside effort points; host skips stale samples in the persistence buffer (honest gap in history) + tile desaturates with heart.slash (peer link alive, no reconnect spinner)
+    D: Reconnect experiment (DEBUG flag `holdsStrapConnection`) — app-side parallel connection to HR sensors for the session (hold on standalone start, release on end); on drop the delegate issues a pending `connect()` (no timeout, known-host pattern) — measure whether HK re-association shrinks from minutes to seconds
+    E: Log hygiene — `MirroringSendHealth` actor: transition-based send logging (link DOWN / RESTORED + failure count) instead of one NSError dump per beat (~70% of the Watch log was this noise); caller file-spam removed

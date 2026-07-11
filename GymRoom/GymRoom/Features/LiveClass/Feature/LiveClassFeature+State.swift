@@ -113,6 +113,12 @@ extension LiveClassFeature {
         /// effort points → tile shows a dash.
         var effortPoints: Int? = nil
 
+        /// `true` while the athlete's BLE strap is out of range (IOS-00100-C) —
+        /// `bpm` is the frozen last-known value, not a live reading. The tile
+        /// greys out instead of presenting it as live; the peer link itself is
+        /// healthy (unlike `.reconnecting`), payloads keep arriving as keepalive.
+        var isSensorStale: Bool = false
+
         /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.
         var percentHR: Int {
             guard maxHR > 0 else { return 0 }

@@ -251,7 +251,8 @@ struct JoinLiveClassFeature {
                     bpm: Int(metrics.heartRate),
                     maxHR: state.maxHeartRate,
                     activeEnergy: metrics.activeEnergy,
-                    effortPoints: state.currentEffortPoints
+                    effortPoints: state.currentEffortPoints,
+                    isSensorStale: state.isSensorStale
                 )
                 Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal, \(payload.effortPoints ?? 0) pts")
                 return .run { [peerMirrorClient] _ in

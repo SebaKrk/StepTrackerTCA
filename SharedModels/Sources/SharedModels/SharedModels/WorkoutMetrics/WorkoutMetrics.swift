@@ -20,13 +20,29 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
     
     /// The amount of active energy burned during the workout session, measured in kilocalories.
     public var activeEnergy: Double
-    
+
+    /// Timestamp of the most recent REAL heart-rate sample (IOS-00100-A).
+    ///
+    /// iPhone-standalone only — read from `HKStatistics.mostRecentQuantityDateInterval()`.
+    /// The builder's `mostRecentQuantity()` keeps returning the last value forever
+    /// after a BLE strap drops out of range, so `heartRate` alone cannot distinguish
+    /// a live reading from a stale repeat; only a moved timestamp proves freshness.
+    /// `nil` on the Watch/mirroring path (and in decoded legacy payloads — optional
+    /// keeps Codable backward-compatible), where consumers keep legacy behavior.
+    public var heartRateSampleDate: Date?
+
     // MARK: - Lifecycle
-    
-    public init(averageHeartRate: Double, heartRate: Double, activeEnergy: Double) {
+
+    public init(
+        averageHeartRate: Double,
+        heartRate: Double,
+        activeEnergy: Double,
+        heartRateSampleDate: Date? = nil
+    ) {
         self.averageHeartRate = averageHeartRate
         self.heartRate = heartRate
         self.activeEnergy = activeEnergy
+        self.heartRateSampleDate = heartRateSampleDate
     }
-    
+
 }

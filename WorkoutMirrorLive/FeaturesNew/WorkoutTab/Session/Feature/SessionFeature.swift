@@ -15,6 +15,18 @@ import HealthKit
 @Reducer
 struct SessionFeature {
 
+    /// EXPERIMENT (IOS-00100-D, DEBUG only): hold an app-side parallel BLE
+    /// connection to the HR strap for the whole standalone session. On a drop the
+    /// delegate issues a pending `connect()` (no timeout) — hypothesis: the system
+    /// re-links the strap the moment it is back in range, instead of waiting for
+    /// HealthKit's opaque internal retry (observed 3–39 min in the 2026-07-09 logs).
+    /// Measure via `[Connection]` logs before promoting to release builds.
+    #if DEBUG
+    static let holdsStrapConnection = true
+    #else
+    static let holdsStrapConnection = false
+    #endif
+
     // MARK: - Dependency
 
     @Dependency(\.sessionClient) var sessionClient

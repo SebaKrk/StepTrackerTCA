@@ -319,6 +319,12 @@ extension iPhoneWorkoutSession: HKLiveWorkoutBuilderDelegate {
                 if let average = statistics?.averageQuantity()?.doubleValue(for: unit) {
                     working.averageHeartRate = average
                 }
+                // Freshness (IOS-00100-A): `mostRecentQuantity()` repeats the last
+                // value forever after the BLE strap drops out of range — only the
+                // sample's own timestamp lets consumers tell live from stale.
+                if let sampleDate = statistics?.mostRecentQuantityDateInterval()?.end {
+                    working.heartRateSampleDate = sampleDate
+                }
 
             case HKQuantityType(.activeEnergyBurned):
                 if let sum = statistics?.sumQuantity()?.doubleValue(for: .kilocalorie()) {

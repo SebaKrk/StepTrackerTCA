@@ -1581,6 +1581,9 @@
         }
       }
     },
+    "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany" : {
+
+    },
     "Dashboard" : {
       "comment" : "The Dashboard Tab presents an overview of key metrics and activities.",
       "localizations" : {
@@ -5092,22 +5095,22 @@
     "Your warmup notes will be lost." : {
 
     },
-    "Zamknij" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zamknij"
-          }
-        }
-      }
-    },
     "Zakończ mimo to" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zakończ mimo to"
+          }
+        }
+      }
+    },
+    "Zamknij" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknij"
           }
         }
       }

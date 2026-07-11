@@ -233,10 +233,11 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
                 return false
             }
 #endif
-            // The wrapper logs every failed attempt to the file ("[Send] attempt 1 failed…");
-            // the FINAL verdict after exhausting retries lands here.
+            // File logging is transition-based in the wrapper (`MirroringSendHealth`,
+            // IOS-00100-E): link DOWN / RESTORED edges instead of one NSError dump
+            // per failed beat (~70% of the 2026-07-09 Watch log was this noise).
+            // Here only the os log for live debugging — no file spam.
             Logger.trainingManager.error("sendData — FAILED after retry: \(error.localizedDescription)")
-            await WorkoutFileLogger.shared.log("[Send] FAILED after retry — \(error.localizedDescription)")
             return false
         }
     }

@@ -48,15 +48,20 @@ extension SessionFeature {
             case .countDown(_):
                 return .none
 
-            case .live(.workoutMetrics):
+            case .live(.workoutMetrics), .live(.sensorFreshnessTick):
                 // Bridge: mirror the LiveSession effort points counter into
                 // JoinLiveClass so every BLE payload carries the SAME number the
                 // athlete sees on screen (one accumulator, zero drift). A one-tick
                 // lag vs the child reducer is harmless at 1 Hz.
+                // `sensorFreshnessTick` included (IOS-00100-C): the stale flag can
+                // flip without any metrics arriving (that's the point), and the
+                // payloads must carry the truth from the next send on.
                 // Read into a local first — reading `state.live` while mutating
                 // `state.joinLiveClass` is an overlapping exclusive access.
                 let livePoints = state.live.effortPoints.points
+                let liveSensorStale = state.live.isSensorStale
                 state.joinLiveClass?.currentEffortPoints = livePoints
+                state.joinLiveClass?.isSensorStale = liveSensorStale
                 return .none
 
             case .live(_):

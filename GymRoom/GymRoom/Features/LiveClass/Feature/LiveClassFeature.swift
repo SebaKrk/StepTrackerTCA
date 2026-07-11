@@ -269,16 +269,24 @@ struct LiveClassFeature {
                 if let effortPoints = payload.effortPoints {
                     tile.effortPoints = effortPoints
                 }
+                // Sensor freshness (IOS-00100-C) — `nil` from a legacy peer build
+                // means "no staleness info", treated as fresh.
+                tile.isSensorStale = payload.isSensorStale ?? false
 
                 /// Buffer HRSample dla batch persistence (flush co 30s przez persistenceTimer).
-                let sample = HRSample(
-                    timestamp: payload.timestamp,
-                    bpm: payload.bpm,
-                    activeEnergy: payload.activeEnergy,
-                    effortPoints: payload.effortPoints
-                )
-                state.hrSamplesBuffer[payload.deviceID, default: []].append(sample)
-                Logger.gymRoom.debug("💓 Updated \(payload.nick): \(payload.bpm) bpm")
+                /// Stale payloads (IOS-00100-C) are presence keepalives carrying the
+                /// frozen last-known value — persisting them would fake continuity in
+                /// the class history; the honest gap is handled by the gap-aware charts.
+                if payload.isSensorStale != true {
+                    let sample = HRSample(
+                        timestamp: payload.timestamp,
+                        bpm: payload.bpm,
+                        activeEnergy: payload.activeEnergy,
+                        effortPoints: payload.effortPoints
+                    )
+                    state.hrSamplesBuffer[payload.deviceID, default: []].append(sample)
+                }
+                Logger.gymRoom.debug("💓 Updated \(payload.nick): \(payload.bpm) bpm\(payload.isSensorStale == true ? " (STALE)" : "")")
 
                 /// **First-sample CREATE pattern**: tile w `.loading` + brak athleteId =
                 /// to PIERWSZY payload od tego peer'a. Teraz mamy real `payload.maxHR`
