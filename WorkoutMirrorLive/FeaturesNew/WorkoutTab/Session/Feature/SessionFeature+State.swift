@@ -51,6 +51,13 @@ extension SessionFeature {
         /// Watch. Carries the `endAnyway` escape action for an unavailable Watch.
         @Presents var connectionLostAlert: AlertState<ConnectionLostAlertAction>?
 
+        /// `true` from the first "End workout" tap until the end flow resolves —
+        /// a double tap must not spawn a second concurrent `endWorkout()` (it
+        /// corrupts the save). Reset only on `endDeliveryFailed`, where the
+        /// session stays alive and End must work again; success paths tear the
+        /// whole state down anyway.
+        var isEndingWorkout: Bool = false
+
         // MARK: - Destination
 
         /// destination from WorkoutFeature

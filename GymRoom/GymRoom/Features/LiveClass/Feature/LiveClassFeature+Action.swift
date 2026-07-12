@@ -62,6 +62,10 @@ extension LiveClassFeature {
         /// `state.athleteRecordIds[deviceID]`, initialize empty buffer.
         case athleteAdded(deviceID: UUID, athleteId: UUID)
 
+        /// The create effect failed — releases the `athleteCreationInFlight`
+        /// claim so the next incoming sample can retry.
+        case athleteCreationFailed(deviceID: UUID)
+
         /// Timer tick z `persistenceTimer` effect (co 30s) — flush buffered samples
         /// per athlete (`appendHRSamples` async per peer), clear buffer.
         case flushBufferedSamples

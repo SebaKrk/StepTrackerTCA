@@ -114,6 +114,7 @@ struct LiveClassFeature {
                 state.activeSessionId = nil
                 state.hrSamplesBuffer = [:]
                 state.athleteRecordIds = [:]
+                state.athleteCreationInFlight = []
                 return .merge(
                     .cancel(id: LiveClassCancelID.persistenceTimer),
                     .run { send in
@@ -214,6 +215,12 @@ struct LiveClassFeature {
             case let .athleteAdded(deviceID, athleteId):
                 state.athleteRecordIds[deviceID] = athleteId
                 state.hrSamplesBuffer[deviceID] = []
+                state.athleteCreationInFlight.remove(deviceID)
+                return .none
+
+            case let .athleteCreationFailed(deviceID):
+                // Create failed — release the claim so a later sample retries.
+                state.athleteCreationInFlight.remove(deviceID)
                 return .none
 
             case let .peerSuspended(deviceID):
@@ -293,10 +300,15 @@ struct LiveClassFeature {
                 /// — CREATE record w bazie z prawdziwą wartością (NIE fake 190).
                 /// Resume check też tu — jeśli ten deviceID był już w sesji (wybiegł
                 /// poza grace period i wraca), reuse jego ID zamiast tworzyć nowy.
-                if state.athleteRecordIds[payload.deviceID] == nil {
+                if state.athleteRecordIds[payload.deviceID] == nil,
+                   !state.athleteCreationInFlight.contains(payload.deviceID) {
                     tile.state = .live
                     state.athletes[id: payload.deviceID] = tile
                     guard let sessionId = state.activeSessionId else { return .none }
+                    // Claim BEFORE dispatching the async create — a second sample
+                    // arriving before `.athleteAdded` lands must not spawn a second
+                    // create (duplicate athlete record in the class results).
+                    state.athleteCreationInFlight.insert(payload.deviceID)
                     let deviceID = payload.deviceID
                     let deviceShort = deviceID.uuidString.prefix(8)
                     let nick = tile.nick
@@ -314,6 +326,8 @@ struct LiveClassFeature {
                             } catch {
                                 Logger.gymRoom.error("❌ addAthlete failed for \(nick): \(error.localizedDescription)")
                                 await GymRoomFileLogger.shared.log("[Peer] ERROR addAthlete failed for \(nick): \(error.localizedDescription)")
+                                // Re-arm the claim so the next sample can retry the create.
+                                await send(.athleteCreationFailed(deviceID: deviceID))
                             }
                         }
                     }

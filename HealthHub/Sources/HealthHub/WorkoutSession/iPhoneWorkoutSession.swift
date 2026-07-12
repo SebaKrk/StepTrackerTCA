@@ -70,6 +70,18 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
     /// Guarded by `metricsLock` because `didCollectDataOf` may fire concurrently with reads.
     private var currentMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 0, activeEnergy: 0)
 
+    // MARK: - End idempotency
+
+    /// Guards `end()` against concurrent double invocation (e.g. a double "End"
+    /// tap) — a second `endCollection`/`finishWorkout` on the same builder
+    /// corrupts the save and the workout is lost. First caller claims the flag,
+    /// every later call is a logged no-op. Reset in `prepare()` (rule R7:
+    /// session-specific state resets per workout).
+    private let endClaimLock = NSLock()
+
+    /// `true` once an `end()` call claimed the teardown — see `endClaimLock`.
+    private var hasEnded = false
+
     // MARK: - Init
 
     public init(
@@ -99,6 +111,7 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
         self.session = session
         self.builder = builder
+        endClaimLock.withLock { hasEnded = false }
 
         Logger.iPhoneWorkoutSession.info("prepare() — session created, builder attached, dataSource bound")
     }
@@ -126,6 +139,18 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
     }
 
     public func end() async throws {
+        // Claim-or-bail (see `endClaimLock`) — must happen BEFORE touching the
+        // builder; a concurrent second call corrupts the save.
+        let alreadyEnding = endClaimLock.withLock { () -> Bool in
+            if hasEnded { return true }
+            hasEnded = true
+            return false
+        }
+        guard !alreadyEnding else {
+            Logger.iPhoneWorkoutSession.notice("end() ignored — already ending (double End)")
+            await WorkoutFileLogger.shared.log("[End] duplicate end() ignored — already ending")
+            return
+        }
         guard let session, let builder else {
             throw iPhoneWorkoutSessionError.notPrepared
         }
@@ -181,6 +206,10 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
         self.session = recoveredSession
         self.builder = builder
+        // Crash recovery is the second session entry point — the end claim must
+        // reset here just like in `prepare()` (rule R7), or `end()` on the
+        // recovered session could silently no-op.
+        endClaimLock.withLock { hasEnded = false }
 
         Logger.iPhoneWorkoutSession.info("reattach — session+builder restored (state=\(recoveredSession.state.rawValue))")
     }

@@ -106,6 +106,7 @@ struct AppTabNewFeature {
                     try await effortScoreClient.save(score)
                     $pendingEffortScore.withLock { $0 = nil }
                     Logger.session.info("effort points saved — workout \(workoutId), \(pending.points) pts")
+                    await WorkoutFileLogger.shared.log("[EffortScore] SAVED — \(pending.points) pts → workout \(workoutId.uuidString.prefix(8))")
                 } catch: { error, _ in
                     // Clear the snapshot even on failure so it can't linger and attach
                     // to an unrelated workout saved later within the staleness window.
@@ -119,6 +120,14 @@ struct AppTabNewFeature {
                 return .run { send in
                     await send(.activateWorkoutSessionView(workout, device))
                 }
+
+                // iPhone-standalone persist path: the Watch never sends
+                // `.workoutSaved` in this mode, so the summary's locally confirmed
+                // HKWorkout uuid drives the SAME consume-pending flow.
+                // `persistEffortScore` is idempotent — a duplicate signal (e.g. a
+                // future WC echo) cannot double-write.
+            case let .destination(.presented(.session(.summary(.delegate(.savedWorkoutFound(workoutId)))))):
+                return .send(.persistEffortScore(workoutId))
 
             case .destination:
                 return .none

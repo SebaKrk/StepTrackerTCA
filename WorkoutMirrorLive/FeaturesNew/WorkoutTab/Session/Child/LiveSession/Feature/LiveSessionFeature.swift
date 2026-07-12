@@ -23,6 +23,7 @@ struct LiveSessionFeature {
     @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date.now) var now
     @Dependency(\.idleTimer) var idleTimer
     
     // MARK: - Reducer
@@ -60,8 +61,14 @@ struct LiveSessionFeature {
                     if isFreshSample {
                         state.lastFreshSampleDate = sensorSampleDate
                         // Sensor is back — clear the banner right away instead of
-                        // waiting for the next freshness tick.
-                        if state.isSensorStale {
+                        // waiting for the next freshness tick. Hysteresis: only a
+                        // sample measured within the staleness window counts —
+                        // after a reconnect HealthKit can deliver a sample with a
+                        // MOVED but still old measurement date, which used to
+                        // clear the banner for one second before the tick
+                        // re-raised it (banner flapping).
+                        if state.isSensorStale,
+                           now.timeIntervalSince(sensorSampleDate) <= Self.sensorStaleThreshold {
                             state.isSensorStale = false
                             Task { await WorkoutFileLogger.shared.log("[Connection] sensor FRESH — samples resumed") }
                         }
@@ -74,7 +81,7 @@ struct LiveSessionFeature {
                     // outage the delta to the previous REAL sample exceeds the
                     // accumulator's 5-minute guard, so the missing stretch earns
                     // nothing. Watch path falls back to receive time, as before.
-                    let sampleDate = data.heartRateSampleDate ?? Date()
+                    let sampleDate = data.heartRateSampleDate ?? now
                     // Credit effort points for the stretch since the previous
                     // sample (fed with the same effective HR the UI shows).
                     // The accumulator itself skips implausible gaps (> 5 min).
@@ -142,7 +149,7 @@ struct LiveSessionFeature {
                 // Watch path never sets `lastFreshSampleDate` — the tick is a no-op
                 // there (two-paths invariant: hold-last-value stays untouched).
                 guard let lastFresh = state.lastFreshSampleDate else { return .none }
-                let isStale = Date().timeIntervalSince(lastFresh) > Self.sensorStaleThreshold
+                let isStale = now.timeIntervalSince(lastFresh) > Self.sensorStaleThreshold
                 guard state.isSensorStale != isStale else { return .none }
                 state.isSensorStale = isStale
                 return .run { _ in

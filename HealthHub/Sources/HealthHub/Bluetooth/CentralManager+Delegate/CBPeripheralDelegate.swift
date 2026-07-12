@@ -7,6 +7,8 @@
 
 @preconcurrency
 import CoreBluetooth
+import OSLog
+import SharedModels
 
 extension DefaultCentralManager: CBPeripheralDelegate {
     
@@ -21,24 +23,25 @@ extension DefaultCentralManager: CBPeripheralDelegate {
     ///   - peripheral: Połączone urządzenie BLE
     ///   - error: Błąd jeśli wystąpił podczas odkrywania serwisów
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        print("🔍 Services discovered for \(peripheral.name ?? "Unknown")")
-        
+        let name = peripheral.name ?? "Unknown"
+        Logger.bluetooth.debug("[Delegate] services discovered: \(name)")
+
         if let error = error {
-            print("❌ Service discovery error: \(error.localizedDescription)")
-            return
-        }
-        
-        guard let services = peripheral.services else {
-            print("❌ No services found")
-            return
-        }
-        
-        for service in services {
-            print("🔍 Found service: \(service.uuid)")
-            if service.uuid == Gatt.Service.heartRate {
-                print("💓 Heart Rate service found - discovering characteristics...")
-                peripheral.discoverCharacteristics([Gatt.Characteristic.heartRateMeasurement], for: service)
+            Logger.bluetooth.error("[Delegate] service discovery error: \(name) — \(error.localizedDescription)")
+            Task {
+                await WorkoutFileLogger.shared.log("[BLE-HR] service discovery FAILED: \(name) — \(error.localizedDescription)")
             }
+            return
+        }
+
+        guard let services = peripheral.services else {
+            Logger.bluetooth.error("[Delegate] no services found: \(name)")
+            return
+        }
+
+        for service in services where service.uuid == Gatt.Service.heartRate {
+            Logger.bluetooth.debug("[Delegate] HR service found — discovering characteristics")
+            peripheral.discoverCharacteristics([Gatt.Characteristic.heartRateMeasurement], for: service)
         }
     }
     
@@ -52,24 +55,25 @@ extension DefaultCentralManager: CBPeripheralDelegate {
     ///   - service: Serwis dla którego odkryto charakterystyki
     ///   - error: Błąd jeśli wystąpił podczas odkrywania charakterystyk
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        print("🔍 Characteristics discovered for service: \(service.uuid)")
-        
+        let name = peripheral.name ?? "Unknown"
+        Logger.bluetooth.debug("[Delegate] characteristics discovered: \(service.uuid)")
+
         if let error = error {
-            print("❌ Characteristic discovery error: \(error.localizedDescription)")
-            return
-        }
-        
-        guard let characteristics = service.characteristics else {
-            print("❌ No characteristics found")
-            return
-        }
-        
-        for characteristic in characteristics {
-            print("🔍 Found characteristic: \(characteristic.uuid)")
-            if characteristic.uuid == Gatt.Characteristic.heartRateMeasurement {
-                print("💓 Heart Rate Measurement found - subscribing...")
-                peripheral.setNotifyValue(true, for: characteristic)
+            Logger.bluetooth.error("[Delegate] characteristic discovery error: \(name) — \(error.localizedDescription)")
+            Task {
+                await WorkoutFileLogger.shared.log("[BLE-HR] characteristic discovery FAILED: \(name) — \(error.localizedDescription)")
             }
+            return
+        }
+
+        guard let characteristics = service.characteristics else {
+            Logger.bluetooth.error("[Delegate] no characteristics found: \(name)")
+            return
+        }
+
+        for characteristic in characteristics where characteristic.uuid == Gatt.Characteristic.heartRateMeasurement {
+            Logger.bluetooth.debug("[Delegate] HR measurement characteristic found — subscribing")
+            peripheral.setNotifyValue(true, for: characteristic)
         }
     }
     
@@ -84,40 +88,53 @@ extension DefaultCentralManager: CBPeripheralDelegate {
     ///   - characteristic: Charakterystyka dla której zmienił się stan notyfikacji
     ///   - error: Błąd jeśli wystąpił podczas zmiany stanu notyfikacji
     public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        print("📡 Notification state updated for: \(characteristic.uuid)")
-        
+        let name = peripheral.name ?? "Unknown"
+        /// Session-file diagnostics: HR subscription success/failure — "connected
+        /// but not subscribed" is a different failure class than no connection.
         if let error = error {
-            print("❌ Notification error: \(error.localizedDescription)")
+            Logger.bluetooth.error("[Delegate] HR subscribe FAILED: \(name) — \(error.localizedDescription)")
+            Task {
+                await WorkoutFileLogger.shared.log("[BLE-HR] subscribe FAILED: \(name) — \(error.localizedDescription)")
+            }
         } else {
-            print("✅ Successfully subscribed to heart rate notifications!")
-            print("💓 Connection is now stable - device won't timeout")
+            Logger.bluetooth.info("[Delegate] HR notifications subscribed: \(name)")
+            Task {
+                await WorkoutFileLogger.shared.log("[BLE-HR] subscribed to HR notifications: \(name)")
+            }
+        }
+    }
+
+    /// BLE-layer diagnostics: OUR subscription to heart-rate measurements.
+    ///
+    /// HealthKit has its own independent delivery — these values feed the log
+    /// only: the first notification after a connect and a resume after >60 s of
+    /// silence go to the session file. This resolves the key ambiguity of a
+    /// strap outage: "the strap is SILENT" (no lines) vs "the strap is SENDING
+    /// while HealthKit stalls" (lines present, yet `sensor STALE` persists).
+    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        guard characteristic.uuid == Gatt.Characteristic.heartRateMeasurement,
+              error == nil,
+              let data = characteristic.value, data.count >= 2 else { return }
+
+        // BLE Heart Rate Measurement: flags bit 0 = value format (uint8 / uint16 LE).
+        // Length is validated per format — a malformed packet from an external
+        // device must not crash diagnostics-only code.
+        let bytes = [UInt8](data)
+        let isUInt16 = (bytes[0] & 0x01) != 0
+        guard data.count >= (isUInt16 ? 3 : 2) else { return }
+        let bpm: Int = isUInt16
+            ? Int(bytes[1]) | (Int(bytes[2]) << 8)
+            : Int(bytes[1])
+
+        guard let event = noteHRNotify(peripheral.identifier) else { return }
+        let name = peripheral.name ?? "Unknown"
+        Task {
+            if event.isFirst {
+                await WorkoutFileLogger.shared.log("[BLE-HR] notify STARTED: \(name) — \(bpm) bpm")
+            } else if let gap = event.silenceGap {
+                await WorkoutFileLogger.shared.log("[BLE-HR] notify RESUMED: \(name) — \(bpm) bpm (silent for \(Int(gap))s)")
+            }
         }
     }
     
-    /// Wywoływana gdy urządzenie wysyła nowe dane przez charakterystykę
-    ///
-    /// **Uwaga**: Ta metoda służy tylko do potwierdzenia połączenia z urządzeniem.
-    /// Rzeczywiste dane heart rate są automatycznie zbierane przez HealthKit
-    /// podczas aktywnej sesji treningowej (HKLiveWorkoutDataSource auto-pairing).
-    ///
-    /// **Flow danych:**
-    /// 1. Bluetooth łączy się z urządzeniem i subskrybuje notyfikacje
-    /// 2. Ta metoda otrzymuje surowe dane (tylko dla potwierdzenia połączenia)
-    /// 3. HealthKit automatycznie odbiera te same dane i przetwarza je
-    /// 4. Przetworzone dane trafiają do HKLiveWorkoutBuilder przez HKLiveWorkoutDataSource
-    ///
-    /// - Parameters:
-    ///   - peripheral: Urządzenie które wysłało dane
-    ///   - characteristic: Charakterystyka która otrzymała nowe dane
-    ///   - error: Opcjonalny błąd jeśli wystąpił podczas odbierania danych
-//    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-//        if characteristic.uuid == Gatt.Characteristic.heartRateMeasurement {
-//            guard let data = characteristic.value, data.count >= 2 else { return }
-//            
-//            let bytes = [UInt8](data)
-//            let heartRate = Int(bytes[1])
-//            
-//            print("💓 peripheral didUpdateValueFor -> Heart Rate: \(heartRate) BPM")
-//        }
-//    }
 }

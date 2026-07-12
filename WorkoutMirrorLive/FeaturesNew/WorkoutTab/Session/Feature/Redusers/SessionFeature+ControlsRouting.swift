@@ -128,6 +128,15 @@ extension SessionFeature {
                     }
                 }
 
+                // Double-tap guard: a second End must not spawn a second concurrent
+                // end flow — the first one is already running.
+                guard !state.isEndingWorkout else {
+                    return .run { _ in
+                        await WorkoutFileLogger.shared.log("[End] duplicate End tap ignored — end flow already running")
+                    }
+                }
+                state.isEndingWorkout = true
+
                 let mode = state.workoutMode
                 // Streams/timers are NOT cancelled here anymore — a failed delivery keeps
                 // the session alive, so it must stay fully functional. Both success paths
@@ -181,7 +190,9 @@ extension SessionFeature {
             case .endDeliveryFailed:
                 // The send failed before the system reported a disconnect — the session stays alive
                 // (streams untouched), the user gets the same instruction as on an
-                // explicit connection-lost. If the link comes back, End works normally.
+                // explicit connection-lost. If the link comes back, End works normally —
+                // so the double-tap guard must be re-armed.
+                state.isEndingWorkout = false
                 state.connectionLostAlert = .connectionLost
                 return .none
 

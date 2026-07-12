@@ -86,6 +86,13 @@ extension LiveClassFeature {
         /// `peerDisconnected`, all-clear w `confirmEnd`.
         var athleteRecordIds: [UUID: UUID] = [:]
 
+        /// Device IDs whose athlete-record creation is still in flight — the
+        /// `athleteRecordIds` check alone races (it is only populated when the
+        /// async `.athleteAdded` lands, so two quick samples both pass it and
+        /// spawn two creates). Inserted before the create effect, removed on
+        /// `.athleteAdded` / `.athleteCreationFailed`.
+        var athleteCreationInFlight: Set<UUID> = []
+
         /// In-memory buffer surowych próbek per peer, keyed po `deviceID`. Append na każdą
         /// próbkę z BLE stream'a (`sampleReceived`). Flushed co 30s przez `persistenceTimer`
         /// effect lub na peer disconnect / class end. Po flush'u — clear (już persisted w BLOB).
