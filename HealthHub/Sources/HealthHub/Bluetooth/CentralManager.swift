@@ -51,7 +51,18 @@ public protocol CentralManager: Sendable {
     
     /// Sprawdza czy system iOS ma już połączone urządzenia HR
     func checkConnectedDevicesFirst() async -> [CBPeripheral]
-   
+
+    /// EXPERIMENT (IOS-00100-D): przytrzymaj równoległe, app-side połączenie do
+    /// podłączonych czujników HR na czas treningu. Po zerwaniu delegat wystawia
+    /// pending `connect()` (bez timeoutu) — czujnik wraca do zasięgu → system
+    /// łączy natychmiast, co MOŻE skracać re-asocjację HealthKit.
+    /// Zwraca liczbę przytrzymanych czujników.
+    func holdHRSensorConnections() async -> Int
+
+    /// Zwalnia połączenia przytrzymane przez `holdHRSensorConnections()`
+    /// (koniec treningu) — bez tego pending connect wisiałby wiecznie.
+    func releaseHRSensorConnections() async
+
    // MARK: - Event Streams (komunikacja z TCA)
    
    /// Strumień znalezionych urządzeń podczas skanowania

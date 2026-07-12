@@ -54,6 +54,13 @@ public struct BluetoothClient: Sendable {
     
     /// Sprawdza czy system iOS ma już połączone urządzenia HR/Weight Scale
     public var checkConnectedDevicesFirst: @Sendable () async -> [CBPeripheral]
+
+    /// EXPERIMENT (IOS-00100-D): przytrzymuje równoległe połączenie do czujników HR
+    /// na czas treningu (pending reconnect po zerwaniu). Zwraca liczbę czujników.
+    public var holdHRSensorConnections: @Sendable () async -> Int
+
+    /// Zwalnia połączenia przytrzymane przez `holdHRSensorConnections` (koniec treningu).
+    public var releaseHRSensorConnections: @Sendable () async -> Void
 }
 
 // MARK: - Dependency Registration
@@ -139,8 +146,16 @@ public enum BluetoothClientKey: DependencyKey {
             /// Sprawdza połączone urządzenia
             checkConnectedDevicesFirst: {
                 return await centralManager.checkConnectedDevicesFirst()
+            },
+
+            /// EXPERIMENT (IOS-00100-D): hold/release równoległego połączenia z paskiem
+            holdHRSensorConnections: {
+                return await centralManager.holdHRSensorConnections()
+            },
+            releaseHRSensorConnections: {
+                await centralManager.releaseHRSensorConnections()
             }
-            
+
         )
     }()
 }

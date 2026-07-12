@@ -124,6 +124,26 @@ struct EffortPointsAccumulatorTests {
         #expect(accumulator.points == 0)
     }
 
+    @Test("Strap outage story: stale repeats and the outage stretch earn nothing (IOS-00100-A)")
+    func strapOutageStory() {
+        var accumulator = EffortPointsAccumulator()
+        // 2 honest minutes of Zone 3 before running out of BLE range.
+        for _ in 0..<4 {
+            accumulator.add(bpm: 150, duration: 30, maxHR: 200)
+        }
+        let honestPoints = accumulator.points
+        // Outage: the builder keeps repeating the frozen value, but the sample
+        // date does not move — the freshness gate reduces every repeat to a
+        // zero-duration add, which must not credit anything.
+        for _ in 0..<10 {
+            accumulator.add(bpm: 150, duration: 0, maxHR: 200)
+        }
+        // Return after a 6-minute stretch with no real samples — the delta to
+        // the previous REAL sample exceeds the 5-minute guard and is dropped.
+        accumulator.add(bpm: 165, duration: 360, maxHR: 200)
+        #expect(accumulator.points == honestPoints)
+    }
+
     @Test("Reset clears the counter")
     func resetClears() {
         var accumulator = EffortPointsAccumulator()

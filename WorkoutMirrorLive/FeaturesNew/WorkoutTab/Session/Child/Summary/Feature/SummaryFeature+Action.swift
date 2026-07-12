@@ -40,6 +40,22 @@ extension SummaryFeature {
         /// end (display-only). Dominant zone drives the background gradient.
         case setEffortPoints(points: Int, dominantZone: HeartRateZone?)
 
+        // MARK: - Delegate
+
+        /// Messages to ancestors (AppTabNewFeature listens through the
+        /// destination chain).
+        case delegate(Delegate)
+
+        enum Delegate: Equatable {
+
+            /// iPhone-standalone: the summary confirmed the locally saved
+            /// HKWorkout. The Watch never sends `.workoutSaved` in this mode,
+            /// so this is the ONLY signal that can consume `PendingEffortScore`
+            /// — without it a strap workout freezes its points into the pending
+            /// file and the next session silently overwrites them.
+            case savedWorkoutFound(UUID)
+        }
+
         // MARK: - View Actions
 
         case view(View)

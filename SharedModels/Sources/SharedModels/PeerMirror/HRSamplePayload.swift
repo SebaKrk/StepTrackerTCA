@@ -49,6 +49,13 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
     /// (backward compatible — optional decodes as nil when the key is absent).
     public let effortPoints: Int?
 
+    /// `true` while the peer's BLE heart-rate strap is out of range (IOS-00100-C):
+    /// `bpm` is the LAST KNOWN value, not a live reading. Payloads keep flowing as
+    /// a presence keepalive, but the host must not persist these samples nor
+    /// present the value as live. `nil` = legacy peer build (treat as fresh —
+    /// backward compatible, optional decodes as nil when the key is absent).
+    public let isSensorStale: Bool?
+
     public init(
         deviceID: UUID,
         sessionToken: UUID,
@@ -58,7 +65,8 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         activeEnergy: Double = 0,
         timestamp: Date = Date(),
         endOfClass: Bool = false,
-        effortPoints: Int? = nil
+        effortPoints: Int? = nil,
+        isSensorStale: Bool? = nil
     ) {
         self.deviceID = deviceID
         self.sessionToken = sessionToken
@@ -69,6 +77,7 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         self.timestamp = timestamp
         self.endOfClass = endOfClass
         self.effortPoints = effortPoints
+        self.isSensorStale = isSensorStale
     }
 
     /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.

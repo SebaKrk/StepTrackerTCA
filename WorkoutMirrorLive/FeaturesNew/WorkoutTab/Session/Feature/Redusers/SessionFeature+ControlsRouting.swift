@@ -27,7 +27,10 @@ extension SessionFeature {
                 // reads the correct elapsed time on the next TimelineView frame.
                 let mode = state.workoutMode
                 let isLinkLost = state.isWatchConnectionLost
-                return .run { [mode, isLinkLost, sessionClient, watchClient = watchConnectivityClient] _ in
+                // Piggyback the 1 s beat for BLE-sensor freshness (IOS-00100-B) —
+                // the handler self-guards to the standalone/strap path.
+                let freshnessTick: Effect<Action> = .send(.live(.sensorFreshnessTick))
+                let tickSend: Effect<Action> = .run { [mode, isLinkLost, sessionClient, watchClient = watchConnectivityClient] _ in
                     let elapsed = sessionClient.incrementElapsed()
                     // Watch-primary: HK mirroring channel (per CLAUDE.md R2) — reliable
                     // when WC `reachable=false`. iPhone-standalone: WC path (no mirrored
@@ -44,6 +47,7 @@ extension SessionFeature {
                         await watchClient.sendWorkoutEvent(.workoutTick(elapsedSeconds: elapsed))
                     }
                 }
+                return .merge(freshnessTick, tickSend)
 
             case .controls(.sessionStateUpdated(.paused)):
                 let mode = state.workoutMode
@@ -124,12 +128,23 @@ extension SessionFeature {
                     }
                 }
 
+                // Double-tap guard: a second End must not spawn a second concurrent
+                // end flow — the first one is already running.
+                guard !state.isEndingWorkout else {
+                    return .run { _ in
+                        await WorkoutFileLogger.shared.log("[End] duplicate End tap ignored — end flow already running")
+                    }
+                }
+                state.isEndingWorkout = true
+
                 let mode = state.workoutMode
                 // Streams/timers are NOT cancelled here anymore — a failed delivery keeps
                 // the session alive, so it must stay fully functional. Both success paths
                 // (`.finishedOnWatch` / `.summary`) cancel everything in their teardown.
                 return .run { [mode,
                                watchClient = watchConnectivityClient,
+                               bluetoothClient,
+                               holdsStrap = Self.holdsStrapConnection,
                                sessionClient] send in
                         await WorkoutFileLogger.shared.log("STOPPED — ending workout")
                         // Watch-primary mode uses the HK mirroring channel — reliable even
@@ -149,6 +164,12 @@ extension SessionFeature {
                             }
                         } else {
                             await watchClient.sendWorkoutEvent(.workoutEnded)
+                            // EXPERIMENT (IOS-00100-D): drop the app-side strap hold —
+                            // a pending connect must not outlive the session.
+                            if holdsStrap {
+                                await bluetoothClient.releaseHRSensorConnections()
+                                await WorkoutFileLogger.shared.log("[Connection] EXPERIMENT release: strap hold dropped at session end")
+                            }
                         }
                         await WorkoutFileLogger.shared.log("END WORKOUT — calling sessionClient.endWorkout()")
                         await sessionClient.endWorkout()
@@ -169,7 +190,9 @@ extension SessionFeature {
             case .endDeliveryFailed:
                 // The send failed before the system reported a disconnect — the session stays alive
                 // (streams untouched), the user gets the same instruction as on an
-                // explicit connection-lost. If the link comes back, End works normally.
+                // explicit connection-lost. If the link comes back, End works normally —
+                // so the double-tap guard must be re-armed.
+                state.isEndingWorkout = false
                 state.connectionLostAlert = .connectionLost
                 return .none
 

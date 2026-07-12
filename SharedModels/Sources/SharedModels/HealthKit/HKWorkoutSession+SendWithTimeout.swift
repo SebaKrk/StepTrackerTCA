@@ -23,6 +23,33 @@ public enum MirroringSendError: Error, Sendable {
     case failed(underlying: (any Error)?)
 }
 
+/// Transition-based send-health logging (IOS-00100-E).
+///
+/// The 1 Hz tick sender used to log EVERY failed send with a full NSError dump —
+/// a single 3-minute outage produced ~40 identical lines, and the 2026-07-09
+/// session log was ~70% this noise. Only the EDGES carry information: the first
+/// failure (link went down) and the first success after failures (link restored,
+/// with how many sends the outage ate). Everything in between is a counter.
+public actor MirroringSendHealth {
+
+    public static let shared = MirroringSendHealth()
+
+    private var consecutiveFailures = 0
+
+    func recordFailure(_ error: any Error) async {
+        consecutiveFailures += 1
+        if consecutiveFailures == 1 {
+            await WorkoutFileLogger.shared.log("[Send] link DOWN — first failure: \(error)")
+        }
+    }
+
+    func recordSuccess() async {
+        guard consecutiveFailures > 0 else { return }
+        await WorkoutFileLogger.shared.log("[Send] link RESTORED — after \(consecutiveFailures) failed send(s)")
+        consecutiveFailures = 0
+    }
+}
+
 extension HKWorkoutSession {
 
     /// Sends data over the HealthKit mirroring channel guarded by a hard timeout.
@@ -34,24 +61,26 @@ extension HKWorkoutSession {
     /// it resumes on completion OR on timeout, whichever fires first; a late completion
     /// callback is ignored.
     ///
-    /// Retries once after a timeout/failure by default. Callers keep their existing
-    /// `catch` logging — this method only logs retry attempts to `WorkoutFileLogger`.
+    /// Retries once after a timeout/failure by default. File logging is
+    /// transition-based via `MirroringSendHealth` (IOS-00100-E) — link DOWN /
+    /// RESTORED edges instead of one NSError dump per beat.
     public func sendToRemoteWorkoutSession(
         data: Data,
         timeout seconds: TimeInterval,
         retries: Int = 1
     ) async throws {
-        var attempt = 0
+        var attempt = 1
         while true {
             do {
                 try await sendOnce(data: data, timeout: seconds)
+                await MirroringSendHealth.shared.recordSuccess()
                 return
             } catch {
-                guard attempt < retries else { throw error }
+                guard attempt <= retries else {
+                    await MirroringSendHealth.shared.recordFailure(error)
+                    throw error
+                }
                 attempt += 1
-                await WorkoutFileLogger.shared.log(
-                    "[Send] attempt \(attempt) failed (\(error)) — retrying"
-                )
             }
         }
     }

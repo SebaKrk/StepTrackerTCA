@@ -12,12 +12,18 @@ import SharedModels
 
 @Reducer
 struct LiveSessionFeature {
-    
+
+    /// No real BLE-sensor sample for longer than this = sensor out of range
+    /// (IOS-00100-B). Straps deliver a few samples per minute even at rest, so
+    /// a full minute of silence is a dropout, not a slow sensor.
+    static let sensorStaleThreshold: TimeInterval = 60
+
     // MARK: - Dependency
     
     @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date.now) var now
     @Dependency(\.idleTimer) var idleTimer
     
     // MARK: - Reducer
@@ -44,8 +50,38 @@ struct LiveSessionFeature {
                 // (iPhone has no wrist sensor in this mode), preserve the last
                 // known value so Watch readings are not overwritten.
                 let effectiveHR = data.heartRate > 0 ? data.heartRate : state.workoutMetrics.heartRate
-                if effectiveHR > 0 {
-                    let sampleDate = Date()
+                // Freshness gate (IOS-00100-A): in iPhone-standalone the builder
+                // repeats the LAST value forever once the BLE strap drops out of
+                // range — only a moved sample timestamp proves a real measurement.
+                // `nil` sample date = Watch/mirroring path → every tick is fresh
+                // (legacy behavior, per the two-paths invariant).
+                let isFreshSample: Bool
+                if let sensorSampleDate = data.heartRateSampleDate {
+                    isFreshSample = sensorSampleDate != state.lastFreshSampleDate
+                    if isFreshSample {
+                        state.lastFreshSampleDate = sensorSampleDate
+                        // Sensor is back — clear the banner right away instead of
+                        // waiting for the next freshness tick. Hysteresis: only a
+                        // sample measured within the staleness window counts —
+                        // after a reconnect HealthKit can deliver a sample with a
+                        // MOVED but still old measurement date, which used to
+                        // clear the banner for one second before the tick
+                        // re-raised it (banner flapping).
+                        if state.isSensorStale,
+                           now.timeIntervalSince(sensorSampleDate) <= Self.sensorStaleThreshold {
+                            state.isSensorStale = false
+                            Task { await WorkoutFileLogger.shared.log("[Connection] sensor FRESH — samples resumed") }
+                        }
+                    }
+                } else {
+                    isFreshSample = true
+                }
+                if effectiveHR > 0, isFreshSample {
+                    // Real sensor dates (strap) keep the gap math honest: after an
+                    // outage the delta to the previous REAL sample exceeds the
+                    // accumulator's 5-minute guard, so the missing stretch earns
+                    // nothing. Watch path falls back to receive time, as before.
+                    let sampleDate = data.heartRateSampleDate ?? now
                     // Credit effort points for the stretch since the previous
                     // sample (fed with the same effective HR the UI shows).
                     // The accumulator itself skips implausible gaps (> 5 min).
@@ -77,8 +113,10 @@ struct LiveSessionFeature {
                 ]
 
                 // Update session stats only when we have a real reading.
-                // Skipping HealthKit zeros prevents them from skewing AVG HR.
-                if data.heartRate > 0 {
+                // Skipping HealthKit zeros prevents them from skewing AVG HR;
+                // skipping stale repeats (IOS-00100-A) prevents a strap outage
+                // from flooding the average with one frozen value.
+                if data.heartRate > 0, isFreshSample {
                     effects.append(.send(.calculateSessionHeartRateStats(Int(effectiveHR))))
                 }
 
@@ -107,6 +145,21 @@ struct LiveSessionFeature {
                 state.sessionMaxHeartRate = max
                 return .none
                 
+            case .sensorFreshnessTick:
+                // Watch path never sets `lastFreshSampleDate` — the tick is a no-op
+                // there (two-paths invariant: hold-last-value stays untouched).
+                guard let lastFresh = state.lastFreshSampleDate else { return .none }
+                let isStale = now.timeIntervalSince(lastFresh) > Self.sensorStaleThreshold
+                guard state.isSensorStale != isStale else { return .none }
+                state.isSensorStale = isStale
+                return .run { _ in
+                    await WorkoutFileLogger.shared.log(
+                        isStale
+                            ? "[Connection] sensor STALE — no real sample for >\(Int(Self.sensorStaleThreshold))s"
+                            : "[Connection] sensor FRESH — samples resumed"
+                    )
+                }
+
             case .resetHeartRate:
                 let current = state.workoutMetrics
                 state.workoutMetrics = WorkoutMetrics(

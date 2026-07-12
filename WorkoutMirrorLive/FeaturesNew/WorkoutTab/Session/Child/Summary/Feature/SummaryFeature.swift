@@ -26,6 +26,7 @@ struct SummaryFeature {
     @Dependency(\.sessionClient) var client
     @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
     @Dependency(\.exerciseLogClient) var exerciseLogClient
+    @Dependency(\.effortScoreClient) var effortScoreClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.uuid) var uuid
@@ -118,15 +119,23 @@ struct SummaryFeature {
                 state.dominantZone = dominantZone
                 return .none
 
+            case .delegate:
+                return .none
+
             case let .summaryLoaded(summary):
                 state.summary = summary
                 let resultLog = summary.workout.map { "found: \($0.uuid)" } ?? "nil"
 
-                if summary.workout != nil {
+                if let workout = summary.workout {
                     state.viewState = .successfullyLoaded
                     return .merge(
                         .cancel(id: SummaryFeatureCancelID.retry),
-                        .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog)") }
+                        .run { _ in await WorkoutFileLogger.shared.log("SUMMARY RESULT — workout: \(resultLog)") },
+                        // iPhone-standalone: this is the moment the saved HKWorkout
+                        // becomes known — hand the uuid up so AppTabNewFeature can
+                        // consume PendingEffortScore (no `.workoutSaved` from the
+                        // Watch in this mode; persist guards are idempotent).
+                        .send(.delegate(.savedWorkoutFound(workout.uuid)))
                     )
                 } else if state.summaryRetryCount >= Self.maxSummaryAttempts {
                     // iPhone-standalone only: the workout is saved locally by
@@ -339,9 +348,15 @@ struct SummaryFeature {
                     return .run { _ in await self.dismiss() }
                 }
                 state.isDiscarding = true
-                return .run { [client] send in
+                return .run { [client, effortScoreClient] send in
                     do {
                         try await client.deleteWorkout(workout)
+                        // The effort score may ALREADY be persisted: in standalone the
+                        // `savedWorkoutFound` delegate consumes the pending snapshot as
+                        // soon as the summary loads — before the save/discard decision.
+                        // A discarded workout must not leave an orphaned score row
+                        // (mirrors the delete path in PersonalActivityFeature).
+                        try? await effortScoreClient.deleteByHKWorkoutId(workout.uuid)
                         await send(.discardCompleted(errorMessage: nil))
                     } catch {
                         // SessionClient.deleteWorkout already treats HKError.errorNoData
@@ -356,9 +371,11 @@ struct SummaryFeature {
 
             case .discardCompleted(errorMessage: nil):
                 state.isDiscarding = false
-                // Workout discarded → drop the frozen effort snapshot. No
-                // `.workoutSaved` fires for a discarded workout, so otherwise it
-                // would linger and attach to the next workout within 12h.
+                // Workout discarded → drop the frozen effort snapshot in case it
+                // was NOT consumed yet (watchPrimary discard). The standalone path
+                // may have persisted it already — that row is removed in the
+                // `confirmDiscard` effect; clearing here covers the pending case
+                // so it cannot attach to the next workout within 12h.
                 @Shared(.pendingEffortScore) var pendingEffortScore
                 $pendingEffortScore.withLock { $0 = nil }
                 return .run { _ in await self.dismiss() }

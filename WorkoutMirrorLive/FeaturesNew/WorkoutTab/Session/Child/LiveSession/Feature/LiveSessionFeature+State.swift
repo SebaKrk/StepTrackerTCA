@@ -82,6 +82,19 @@ extension LiveSessionFeature {
         /// ~720 samples per 60 min (one every ~5s) ≈ 12 KB. Cleared on session end.
         var hrBuffer: [HRSample] = []
 
+        /// Timestamp of the last REAL sensor sample consumed (IOS-00100-A).
+        /// iPhone-standalone only (`WorkoutMetrics.heartRateSampleDate`): a metrics
+        /// tick whose sample date has NOT moved is a stale repeat of the last value
+        /// (BLE strap out of range) and must not feed `hrBuffer`/`effortPoints`.
+        /// `nil` until the first strap sample, and forever on the Watch path.
+        var lastFreshSampleDate: Date? = nil
+
+        /// `true` while the BLE strap has not delivered a real sample for
+        /// >`LiveSessionFeature.sensorStaleThreshold` (IOS-00100-B) — drives the
+        /// "sensor out of range" banner and the greyed HR display. Never `true`
+        /// on the Watch path.
+        var isSensorStale: Bool = false
+
         // MARK: - Helpers
         
         /// Creates Timer Activity Content State from current state

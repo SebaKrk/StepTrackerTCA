@@ -25,7 +25,8 @@ extension SessionFeature {
                                watchClient = watchConnectivityClient,
                                bluetoothClient,
                                clock,
-                               sessionClient] send in
+                               sessionClient,
+                               holdsStrap = Self.holdsStrapConnection] send in
                     await watchClient.initializeWatchConnectivity()
                     let watchStatus = await watchClient.checkWatchStatus()
                     // Mode pick (final semantics, user decision 2026-07-09):
@@ -98,6 +99,11 @@ extension SessionFeature {
                             await send(.setWorkoutMode(.iPhoneStandalone))
                             await send(.sessionViewStateChange(.countdown))
                             try await sessionClient.selectedWorkout(workout.hkType)
+                            // EXPERIMENT (IOS-00100-D) — same hold as the direct standalone path.
+                            if holdsStrap {
+                                let heldSensors = await bluetoothClient.holdHRSensorConnections()
+                                await WorkoutFileLogger.shared.log("[Connection] EXPERIMENT hold (fallback): \(heldSensors) HR sensor(s) held")
+                            }
                         }
                     } else {
                         // iPhone-standalone: iPhone owns the HKWorkoutSession.
@@ -107,6 +113,12 @@ extension SessionFeature {
                         Logger.session.info("iPhone-standalone mode — requestedDevice: \(String(describing: requestedDevice)), watchStatus: \(watchStatus.rawValue)")
                         try await sessionClient.selectedWorkout(workout.hkType)
                         Logger.session.info("selectedWorkout set → iPhone session prepared")
+                        // EXPERIMENT (IOS-00100-D): keep an app-side link to the strap
+                        // so a mid-workout drop gets an instant pending reconnect.
+                        if holdsStrap {
+                            let heldSensors = await bluetoothClient.holdHRSensorConnections()
+                            await WorkoutFileLogger.shared.log("[Connection] EXPERIMENT hold: \(heldSensors) HR sensor(s) held for the session")
+                        }
                     }
 
                     await send(.controls(.setWorkoutType(workout)))

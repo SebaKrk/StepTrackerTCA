@@ -279,7 +279,20 @@ private enum GymClassClientKey: DependencyKey {
                 let emptySamplesData = try encoder.encode([HRSample]())
                 let emptyAnalyticsData = try encoder.encode(ClassAnalytics.empty)
                 let id = UUID()
-                try await database.write { db in
+                return try await database.write { db in
+                    /// Find-or-create INSIDE the write transaction: two quick payloads
+                    /// from the same peer can pass the reducer's `athleteRecordIds`
+                    /// check before the first `.athleteAdded` lands. SQLite serializes
+                    /// writes, so the second call sees the first record here and
+                    /// reuses it instead of inserting a duplicate (which showed up as
+                    /// a doubled athlete in the class results). Predicate mirrors
+                    /// `findAthlete`.
+                    let existing = try AthleteSessionRecord
+                        .where { $0.classSessionId.eq(classSessionId) && $0.deviceID.eq(deviceID) }
+                        .fetchOne(db)
+                    if let existingId = existing?.id {
+                        return existingId
+                    }
                     let draft = AthleteSessionRecord.Draft(
                         id: id,
                         classSessionId: classSessionId,
@@ -294,8 +307,8 @@ private enum GymClassClientKey: DependencyKey {
                         updatedAt: now
                     )
                     try AthleteSessionRecord.upsert { draft }.execute(db)
+                    return id
                 }
-                return id
             },
 
             findAthlete: { classSessionId, deviceID in

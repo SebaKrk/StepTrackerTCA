@@ -143,16 +143,19 @@ struct LiveSessionView: View {
         .styledGroupBox()
     }
     
+    /// Stale sensor (IOS-00100-B): the value on screen is the LAST KNOWN reading,
+    /// not a live one — grey it out (not "—", which would read as a crash) and
+    /// swap the pulsing heart for a slashed one.
     private var heartRateView: some View {
         HStack {
-            Image(systemName: "heart.fill")
-                .foregroundStyle(.red)
+            Image(systemName: store.isSensorStale ? "heart.slash" : "heart.fill")
+                .foregroundStyle(store.isSensorStale ? Color.gray : Color.red)
                 .font(.system(.title2, design: .rounded))
                 .symbolEffect(.pulse, options: .repeating, value: store.workoutMetrics.heartRate)
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(store.workoutMetrics.heartRate.formatted(.number.precision(.fractionLength(0))))
                     .font(.system(.title2, design: .rounded, weight: .semibold).monospacedDigit())
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(store.isSensorStale ? .secondary : .primary)
                     .contentTransition(.numericText(value: store.workoutMetrics.heartRate))
                     .animation(.snappy(duration: 0.3), value: store.workoutMetrics.heartRate)
                 Text("BPM")
@@ -384,6 +387,23 @@ struct LiveSessionView: View {
                 LiveSessionFeature()
             }
         )
+    }
+}
+
+// MARK: - Sensor Stale Preview (IOS-00100-B)
+
+/// BLE strap out of range: heart.slash + greyed last-known HR. The banner lives
+/// in SessionView — this canvas verifies the heart-rate row treatment alone.
+#Preview("Sensor stale (IOS-00100)") {
+    var state = LiveSessionFeature.State()
+    state.currentHeartRateZone = .fatBurning
+    state.workoutMetrics = WorkoutMetrics(averageHeartRate: 128, heartRate: 116, activeEnergy: 240)
+    state.currentHeartRatePercentage = 62
+    state.sessionAverageHeartRate = 124
+    state.sessionMaxHeartRate = 158
+    state.isSensorStale = true
+    return NavigationStack {
+        LiveSessionView(store: Store(initialState: state) { LiveSessionFeature() })
     }
 }
 
