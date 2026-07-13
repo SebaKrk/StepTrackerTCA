@@ -31,6 +31,11 @@ struct ExerciseDetailView: View {
                 if !store.hrPerSession.isEmpty {
                     hrPerSessionCard
                 }
+                #if DEBUG
+                if store.exerciseType == .unknown, !store.unmatchedNameCounts.isEmpty {
+                    unrecognizedNamesCard
+                }
+                #endif
                 historyCard
             }
             .padding()
@@ -276,8 +281,13 @@ struct ExerciseDetailView: View {
 
     @ViewBuilder
     private func historyRowWodName(_ log: ExerciseLog) -> some View {
-        if let wodName = log.wodName {
-            Text(wodName)
+        // Raw OCR/AI name first — in the unknown bucket it's the only thing
+        // that tells the sessions apart (wodName alone is usually "WOD 1").
+        let caption = [log.unmatchedName, log.wodName]
+            .compactMap { $0 }
+            .joined(separator: " · ")
+        if !caption.isEmpty {
+            Text(caption)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -324,6 +334,68 @@ struct ExerciseDetailView: View {
                 .foregroundStyle(.tertiary)
         }
     }
+
+    // MARK: - Unrecognized Names Card (DEBUG diagnostics)
+
+    #if DEBUG
+    // Intentionally not localized — temporary diagnostic card, removed in a
+    // single revert commit once the ExerciseType catalog covers these names.
+
+    private var unrecognizedNamesCard: some View {
+        GroupBox {
+            unrecognizedNamesContent
+        } label: {
+            unrecognizedNamesHeader
+        }
+        .styledGroupBox()
+    }
+
+    private var unrecognizedNamesHeader: some View {
+        VStack {
+            HStack {
+                Text("Unrecognized names")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                Spacer()
+                copyUnmatchedNamesButton
+            }
+            Divider()
+        }
+    }
+
+    private var copyUnmatchedNamesButton: some View {
+        Button {
+            send(.copyUnmatchedNamesTapped)
+        } label: {
+            Label("Copy", systemImage: "doc.on.doc")
+                .font(.caption)
+        }
+    }
+
+    private var unrecognizedNamesContent: some View {
+        VStack(spacing: 0) {
+            ForEach(store.unmatchedNameCounts, id: \.name) { entry in
+                unrecognizedNameRow(entry)
+                if entry.name != store.unmatchedNameCounts.last?.name {
+                    Divider()
+                }
+            }
+        }
+    }
+
+    private func unrecognizedNameRow(_ entry: (name: String, count: Int)) -> some View {
+        HStack {
+            Text(entry.name)
+                .font(.subheadline)
+            Spacer()
+            Text("\(entry.count)×")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+        }
+        .padding(.vertical, 8)
+    }
+    #endif
 
     // MARK: - Card Header Helper
 
@@ -436,6 +508,27 @@ struct ExerciseDetailView: View {
         ),
     ]
     var state = ExerciseDetailFeature.State(exerciseType: .backSquat)
+    state.logs = logs
+    return NavigationStack {
+        ExerciseDetailView(store: Store(initialState: state) {
+            ExerciseDetailFeature()
+        } withDependencies: {
+            $0.exerciseLogClient.fetchByExerciseType = { _ in logs }
+        })
+    }
+}
+
+#Preview("Unknown (unmatched names)") {
+    let now = Date()
+    let calendar = Calendar.current
+    let logs: [ExerciseLog] = [
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -21, to: now)!, exerciseType: .unknown, unmatchedName: "Devil Press", category: .mixed, wodName: "WOD 1", actualWeight: 2 * 22.5, actualReps: "21-15-9", scaling: .rx, isPR: false, avgHeartRate: 172, maxHeartRate: 186),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -14, to: now)!, exerciseType: .unknown, unmatchedName: "Devil Press", category: .mixed, wodName: "WOD 2", actualWeight: 2 * 22.5, actualReps: "15-12-9", scaling: .rx, isPR: false, avgHeartRate: 168, maxHeartRate: 182),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -10, to: now)!, exerciseType: .unknown, unmatchedName: "DU", category: .mixed, wodName: "WOD 1", actualReps: "50", scaling: .rx, isPR: false, avgHeartRate: 165, maxHeartRate: 178),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -7, to: now)!, exerciseType: .unknown, unmatchedName: "Wall Ball Shots", category: .mixed, wodName: "WOD 1", actualWeight: 9, actualReps: "20", scaling: .rx, isPR: false, avgHeartRate: 170, maxHeartRate: 184),
+        ExerciseLog(date: calendar.date(byAdding: .day, value: -3, to: now)!, exerciseType: .unknown, unmatchedName: "DU", category: .mixed, wodName: "WOD 3", actualReps: "100", scaling: .rx, isPR: false, avgHeartRate: 174, maxHeartRate: 189),
+    ]
+    var state = ExerciseDetailFeature.State(exerciseType: .unknown)
     state.logs = logs
     return NavigationStack {
         ExerciseDetailView(store: Store(initialState: state) {

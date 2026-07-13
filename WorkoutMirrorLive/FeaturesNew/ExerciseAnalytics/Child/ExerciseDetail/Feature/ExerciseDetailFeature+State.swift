@@ -76,6 +76,18 @@ extension ExerciseDetailFeature {
             logs.compactMap(\.maxHeartRate).max()
         }
 
+        // MARK: - Computed — Unrecognized Names (DEBUG diagnostics)
+
+        /// Distinct raw OCR/AI names hiding in the unknown bucket with occurrence
+        /// counts, most frequent first. Diagnostic input for extending the
+        /// `ExerciseType` catalog — aggregates the same `logs` the screen already
+        /// shows, so the numbers stay consistent with the session count.
+        var unmatchedNameCounts: [(name: String, count: Int)] {
+            Dictionary(grouping: logs.compactMap(\.unmatchedName)) { $0 }
+                .map { (name: $0.key, count: $0.value.count) }
+                .sorted { $0.count > $1.count }
+        }
+
         // MARK: - Computed — Weight Progression Chart
 
         var weightProgression: [WeightProgressionPoint] {

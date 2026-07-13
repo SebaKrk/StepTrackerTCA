@@ -10,6 +10,7 @@ import Commons
 import Foundation
 import HealthHub
 import SharedModels
+import UIKit
 
 @Reducer
 struct ExerciseDetailFeature {
@@ -75,6 +76,17 @@ struct ExerciseDetailFeature {
 
             case .activityDetail:
                 return .none
+
+            case .view(.copyUnmatchedNamesTapped):
+                // DEBUG-only diagnostics (the card sending this is #if DEBUG):
+                // plain-text "name<TAB>count" lines, ready to paste into a chat
+                // or spreadsheet when extending the ExerciseType catalog.
+                let list = state.unmatchedNameCounts
+                    .map { "\($0.name)\t\($0.count)" }
+                    .joined(separator: "\n")
+                return .run { _ in
+                    await MainActor.run { UIPasteboard.general.string = list }
+                }
 
             case .view(.dismissTapped):
                 return .run { _ in await self.dismiss() }

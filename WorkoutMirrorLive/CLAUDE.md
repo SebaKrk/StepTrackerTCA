@@ -219,6 +219,28 @@ Te API są wymagane w każdej nowej funkcji dotykającej workout:
 - Apple Developer Forums #804276 — iOS 26 mirroring bug
 - Apple sample: `BuildingAWorkoutAppForIPhoneAndIPad.zip`
 
+## ExerciseType catalog — nierozpoznane ćwiczenia (workflow)
+
+Dopasowanie nazwa→enum dzieje się RAZ przy skanie planu i wynik jest zamrożony w bazie
+(`ExerciseLogRecord.exerciseType`, plany w JSON blob `workoutsData`). Rozszerzenie katalogu
+naprawia tylko przyszłe skany — przeszłość odzyskuje wyłącznie wersjonowany re-match.
+
+**Workflow gdy pojawią się nowe nierozpoznane ćwiczenia:**
+1. Radar: karta **"Unrecognized names"** (DEBUG-only, zostaje na stałe) w detalu
+   „Unknown Exercise" (Statystyki → Ćwiczenia) — przycisk Copy kopiuje listę `nazwa<TAB>liczba`.
+2. User wkleja listę do rozmowy z Claude → Claude rozszerza `ExerciseType` (aliasy do istniejących
+   case'ów dla wariantów; nowe case'y dla odrębnych ruchów).
+3. **Twarda reguła:** każde rozszerzenie cases/aliases MUSI w tym samym commicie bumpnąć
+   `ExerciseType.catalogVersion` i dopisać nazwy do golden testów (`ExerciseTypeMatchingTests`).
+4. Re-match (`ExerciseCatalogClient.rematchIfNeeded`, hook w `AppTabNewFeature.viewDidAppear`,
+   guard `@Shared(.appStorage("exerciseCatalogRematchVersion"))`) odpala się przy następnym
+   starcie apki i naprawia wstecz logi + plany. Idempotentny.
+
+Uwagi: matcher = `ExerciseType.matched(fromRawName:)` (jedyne źródło dopasowania, Mapper deleguje);
+w logach `unmatchedName` zostaje po re-matchu (proweniencja), w planach `customName` jest czyszczone
+(invariant: tylko dla `.unknown`); kopie ExerciseSession/WorkoutSessionNew wyłącznie przez
+identity-preserving inity z `TrainingSession+CatalogRematch.swift` (publiczne inity generują nowe UUID).
+
 ## Top-level pliki
 
 - **`WorkoutMirrorLiveApp.swift`** — entry point. Bootstrap dependencies w `prepareDependencies { try $0.bootstrapDatabase() }`.
