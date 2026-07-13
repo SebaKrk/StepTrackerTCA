@@ -101,9 +101,9 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
         let builder = session.associatedWorkoutBuilder()
         builder.delegate = self
-        builder.dataSource = HKLiveWorkoutDataSource(
+        builder.dataSource = Self.makeDataSource(
             healthStore: healthStore,
-            workoutConfiguration: configuration
+            configuration: configuration
         )
 
         // Warmup HK + BLE sensor pairing. The 3 s countdown in UI uses this gap.
@@ -199,9 +199,9 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
         let builder = recoveredSession.associatedWorkoutBuilder()
         builder.delegate = self
-        builder.dataSource = HKLiveWorkoutDataSource(
+        builder.dataSource = Self.makeDataSource(
             healthStore: healthStore,
-            workoutConfiguration: recoveredSession.workoutConfiguration
+            configuration: recoveredSession.workoutConfiguration
         )
 
         self.session = recoveredSession
@@ -212,6 +212,27 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         endClaimLock.withLock { hasEnded = false }
 
         Logger.iPhoneWorkoutSession.info("reattach — session+builder restored (state=\(recoveredSession.state.rawValue))")
+    }
+
+    /// Builds the live data source for a session, gating distance collection.
+    ///
+    /// Indoor/stationary activities (boxing, strength, functional, cross) must not
+    /// record distance — arm swings and steps between stations otherwise become the
+    /// workout's headline metric in Apple Fitness. Shared by `prepare()` and
+    /// `reattach(to:)` so crash recovery applies the same gate.
+    private static func makeDataSource(
+        healthStore: HKHealthStore,
+        configuration: HKWorkoutConfiguration
+    ) -> HKLiveWorkoutDataSource {
+        let dataSource = HKLiveWorkoutDataSource(
+            healthStore: healthStore,
+            workoutConfiguration: configuration
+        )
+        if !configuration.activityType.collectsDistance {
+            dataSource.disableCollection(for: HKQuantityType(.distanceWalkingRunning))
+            dataSource.disableCollection(for: HKQuantityType(.distanceCycling))
+        }
+        return dataSource
     }
 
     // MARK: - Streams (computed, fresh per access)

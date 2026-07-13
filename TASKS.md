@@ -1069,3 +1069,11 @@
     B: Shared matcher — public `ExerciseType.matched(fromRawName:)` (Mapper delegates, one source of truth) + `catalogVersion`; golden tests from the 32 harvested field names (SharedModels 20 tests passing)
     C: Re-match — `ExerciseCatalogClient.rematchIfNeeded()` hooked at app start, guarded by stored version (idempotent): unknown logs re-resolved (type + category updated, `unmatchedName` kept as provenance), plan JSON blobs re-encoded through identity-preserving copies (public inits would regenerate exercise UUIDs); logs `[Catalog] rematch v2: X logs, Y plans`
     D: UX + cleanup — exercise-detail history rows show the raw OCR name ("Devil Press · WOD 1"); removed dead April `ExerciseCatalogClient` (duplicate filename → "Multiple commands produce .stringsdata"); StructuredQueries `.update {}` requires `#bind(value)` for plain Swift values (first use in the project)
+
+### IOS-00102 Stationary distance gate + app icon
+    - problem: indoor/stationary workouts (boxing, strength, functional, cross training) recorded bogus distance from arm swings and steps between stations — Apple Fitness then promoted it to the workout's headline metric
+    - `HKWorkoutActivityType.collectsDistance` (SharedModels) — single source of truth driving both the data-source gate and `locationType` on BOTH workout paths (two-paths invariant honored)
+
+    A: iPhone path — `iPhoneWorkoutSession.makeDataSource` (shared by `prepare()` and crash-recovery `reattach`) disables walking/running + cycling distance collection for stationary types; `WorkoutModeRouter` picks `.indoor` vs `.outdoor` location from the same flag
+    B: Watch path — same gate in `WatchWorkoutSessionClient`; stationary configs get `.indoor` so Fitness labels them correctly, distance-based types keep `.unknown` (no reliable GPS fix on session start)
+    C: App icon — layered SVG master in `Design/AppIcon/` (background / ring track / ring segments / wordmark) + generated 1024 px AppIcon for both iOS and Watch targets
