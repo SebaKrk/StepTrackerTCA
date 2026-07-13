@@ -19,14 +19,16 @@ struct ActivitiesView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                trainingTabPicker
+            Group {
                 switch store.context {
                 case .activity:
                     personalActivityView
                 case .plans:
                     plansView
                 }
+            }
+            .safeAreaBar(edge: .top) {
+                trainingTabPicker
             }
             .background(
                 LinearGradient(
@@ -50,7 +52,8 @@ struct ActivitiesView: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding([.leading, .trailing, .bottom], 6)
+        .padding([.leading, .trailing], 6)
+        .padding(.bottom, 12)
     }
     
     private var personalActivityView: some View {

@@ -129,8 +129,7 @@ struct StatsView: View {
     }
     
     var rootView: some View {
-        VStack {
-            statsContextPicker
+        Group {
             switch store.context {
             case .today:
                 todayView
@@ -140,9 +139,11 @@ struct StatsView: View {
                 exerciseAnalyticsView
             }
         }
+        .safeAreaBar(edge: .top) {
+            statsContextPicker
+        }
         .navigationTitle("Stats")
         .navigationBarTitleDisplayMode(.inline)
-        
     }
     
     @ViewBuilder
@@ -154,7 +155,8 @@ struct StatsView: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding([.leading, .trailing, .bottom], 6)
+        .padding([.leading, .trailing], 6)
+        .padding(.bottom, 12)
     }
     
     private var todayView: some View {
