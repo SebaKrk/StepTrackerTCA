@@ -91,5 +91,22 @@ extension HKWorkoutActivityType {
         default:                return "figure.mixed.cardio"
         }
     }
-    
+
+    /// Whether HealthKit should auto-collect distance samples for this activity.
+    ///
+    /// Indoor/stationary workouts produce meaningless "distance" from arm swings
+    /// and steps between stations, which then surfaces as the headline metric in
+    /// Apple Fitness. Used to gate `HKLiveWorkoutDataSource` collection and to
+    /// pick the session's `locationType` on both workout paths (Watch-primary
+    /// and iPhone-standalone).
+    public var collectsDistance: Bool {
+        switch self {
+        case .boxing, .traditionalStrengthTraining,
+             .functionalStrengthTraining, .crossTraining:
+            return false
+        default:
+            return true
+        }
+    }
+
 }

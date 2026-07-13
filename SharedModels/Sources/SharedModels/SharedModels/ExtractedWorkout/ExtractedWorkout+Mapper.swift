@@ -189,42 +189,15 @@ extension ExtractedExercise {
 extension ExerciseType {
 
     /// Maps exercise name string to ExerciseType enum using aliases.
+    /// Delegates to the shared catalog matcher so scan-time mapping and the
+    /// one-time re-match job resolve names identically.
     fileprivate static func from(name: String) -> ExerciseType {
-        let normalized = name
-            .lowercased()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // Check all ExerciseType cases and their aliases
-        for exerciseType in ExerciseType.allCases {
-            // Check rawValue
-            if exerciseType.rawValue.lowercased() == normalized {
-                return exerciseType
-            }
-
-            // Check aliases
-            if exerciseType.aliases.contains(where: { $0.lowercased() == normalized }) {
-                return exerciseType
-            }
+        let matched = ExerciseType.matched(fromRawName: name)
+        if matched == .unknown {
+            // Fallback to .unknown - preserve original name in customName
+            print("⚠️ [Mapper] Unknown exercise '\(name)' → using '.unknown'")
         }
-
-        // SPECIAL CASE: Distance-based exercises (e.g., "1,600-meter run", "5km row")
-        // Extract exercise type from suffix
-        if normalized.hasSuffix("run") || normalized.contains("meter run") || normalized.contains("km run") || normalized.contains("mile run") {
-            print("⚠️ [Mapper] Distance-based exercise '\(name)' → extracting 'running'")
-            return .running
-        }
-        if normalized.hasSuffix("row") || normalized.contains("meter row") || normalized.contains("km row") {
-            print("⚠️ [Mapper] Distance-based exercise '\(name)' → extracting 'rowing'")
-            return .rowing
-        }
-        if normalized.hasSuffix("bike") || normalized.contains("meter bike") || normalized.contains("km bike") {
-            print("⚠️ [Mapper] Distance-based exercise '\(name)' → extracting 'cycling'")
-            return .cycling
-        }
-
-        // Fallback to .unknown - preserve original name in customName
-        print("⚠️ [Mapper] Unknown exercise '\(name)' → using '.unknown'")
-        return .unknown
+        return matched
     }
 
 }

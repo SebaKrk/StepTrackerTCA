@@ -19,6 +19,7 @@ struct AppTabNewFeature {
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
     @Dependency(\.effortScoreClient) var effortScoreClient
+    @Dependency(\.exerciseCatalogClient) var exerciseCatalogClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
 
@@ -55,13 +56,25 @@ struct AppTabNewFeature {
                 // App-level listener — `.workoutSaved` must be consumed regardless of
                 // which screen is open (SessionFeature may be long dismissed when
                 // `transferUserInfo` delivers the event, even on a later app launch).
-                return .run { [watchClient = watchConnectivityClient] send in
-                    for await event in watchClient.incomingEventStream() {
-                        guard case let .workoutSaved(workoutUUID) = event else { continue }
-                        await send(.workoutSavedEventReceived(workoutUUID))
+                return .merge(
+                    .run { [watchClient = watchConnectivityClient] send in
+                        for await event in watchClient.incomingEventStream() {
+                            guard case let .workoutSaved(workoutUUID) = event else { continue }
+                            await send(.workoutSavedEventReceived(workoutUUID))
+                        }
                     }
-                }
-                .cancellable(id: AppTabNewCancelID.watchSavedEventListener, cancelInFlight: true)
+                    .cancellable(id: AppTabNewCancelID.watchSavedEventListener, cancelInFlight: true),
+                    // One-time catalog re-match (guarded by a stored version):
+                    // repairs historical `.unknown` exercise logs and plans after
+                    // the ExerciseType catalog was extended.
+                    .run { [exerciseCatalogClient] _ in
+                        do {
+                            try await exerciseCatalogClient.rematchIfNeeded()
+                        } catch {
+                            Logger.session.error("[Catalog] rematch failed: \(error)")
+                        }
+                    }
+                )
 
             case let .workoutSavedEventReceived(workoutId):
                 // The list/badge refresh happens without our involvement: the list observes

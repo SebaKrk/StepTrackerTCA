@@ -247,17 +247,27 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
 
         let config = HKWorkoutConfiguration()
         config.activityType = activityType
-        config.locationType = .unknown
+        // Indoor for stationary activities so Fitness labels them correctly;
+        // distance-based types keep `.unknown` (Watch has no reliable GPS fix here).
+        config.locationType = activityType.collectsDistance ? .unknown : .indoor
 
         do {
             session = try HKWorkoutSession(healthStore: healthStore, configuration: config)
             builder = session?.associatedWorkoutBuilder()
             session?.delegate = self
             builder?.delegate = self
-            builder?.dataSource = HKLiveWorkoutDataSource(
+            let dataSource = HKLiveWorkoutDataSource(
                 healthStore: healthStore,
                 workoutConfiguration: config
             )
+            if !activityType.collectsDistance {
+                // Stationary workouts must not record distance — arm swings and
+                // steps between stations otherwise become the headline metric in
+                // Apple Fitness. Same gate as `iPhoneWorkoutSession.makeDataSource`.
+                dataSource.disableCollection(for: HKQuantityType(.distanceWalkingRunning))
+                dataSource.disableCollection(for: HKQuantityType(.distanceCycling))
+            }
+            builder?.dataSource = dataSource
 
             // `prepare()` MUST be called before `startMirroringToCompanionDevice()`.
             // Without it mirroring disconnects on iOS 26.0.1+ (Apple Developer Forums

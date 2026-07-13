@@ -1057,3 +1057,23 @@
     H: Double-End guard — reducer flag + `end()` claim-or-bail idempotency (a double tap corrupted the save, `workout: nil`); reset in prepare()/reattach()
     I: GymRoom duplicate athletes — find-or-create inside the write transaction + `athleteCreationInFlight` claim (two quick payloads raced past the record-id check → doubled athlete in results)
     J: Banner hysteresis (stale clears only on a sample measured within the 60 s window) + `@Dependency(\.date.now)` replacing raw `Date()` in LiveSession reducer
+
+
+### IOS-00101 Exercise catalog — unknown-exercise extraction + versioned re-match
+    - problem: 45 sessions collapsed into "Unknown Exercise" (51% "Mixed" in movement balance) — OCR/AI names failed exact-match against ExerciseType aliases; matching runs ONCE at scan time and the result is frozen in the DB, so catalog extensions alone never repair history
+    - harvest tool: DEBUG-only "Unrecognized names" card in the Unknown Exercise detail (stays permanently as a radar) — distinct raw names + counts, Copy puts a paste-ready list on the pasteboard
+    - contract: EVERY catalog extension (cases or aliases) bumps `ExerciseType.catalogVersion` in the same commit — the versioned re-match replays old `.unknown` data on next launch (logs + plan blobs); same freeze-then-recompute contract as effort-points weights
+    - workflow documented in `WorkoutMirrorLive/CLAUDE.md` ("ExerciseType catalog" section): paste the copied list → extend catalog + bump version + golden tests → re-match repairs retroactively
+
+    A: Catalog v2 — 12 existing cases gained missing aliases (bar-facing burpees, hang squat clean, sumo deadlift, seated overhead press…); 16 new cases (wallWalks, vUps, chestToBarPullUps, ghdSitUps, boxStepUps, boxStepOvers, russianTwist, lSit, gluteBridge, handstandShoulderTaps, overheadCarry, bearHugCarry, tricepsExtension, plateRaise, landmineAntiRotation, shoulderToOverhead) with categories + requiresWeight for carries
+    B: Shared matcher — public `ExerciseType.matched(fromRawName:)` (Mapper delegates, one source of truth) + `catalogVersion`; golden tests from the 32 harvested field names (SharedModels 20 tests passing)
+    C: Re-match — `ExerciseCatalogClient.rematchIfNeeded()` hooked at app start, guarded by stored version (idempotent): unknown logs re-resolved (type + category updated, `unmatchedName` kept as provenance), plan JSON blobs re-encoded through identity-preserving copies (public inits would regenerate exercise UUIDs); logs `[Catalog] rematch v2: X logs, Y plans`
+    D: UX + cleanup — exercise-detail history rows show the raw OCR name ("Devil Press · WOD 1"); removed dead April `ExerciseCatalogClient` (duplicate filename → "Multiple commands produce .stringsdata"); StructuredQueries `.update {}` requires `#bind(value)` for plain Swift values (first use in the project)
+
+### IOS-00102 Stationary distance gate + app icon
+    - problem: indoor/stationary workouts (boxing, strength, functional, cross training) recorded bogus distance from arm swings and steps between stations — Apple Fitness then promoted it to the workout's headline metric
+    - `HKWorkoutActivityType.collectsDistance` (SharedModels) — single source of truth driving both the data-source gate and `locationType` on BOTH workout paths (two-paths invariant honored)
+
+    A: iPhone path — `iPhoneWorkoutSession.makeDataSource` (shared by `prepare()` and crash-recovery `reattach`) disables walking/running + cycling distance collection for stationary types; `WorkoutModeRouter` picks `.indoor` vs `.outdoor` location from the same flag
+    B: Watch path — same gate in `WatchWorkoutSessionClient`; stationary configs get `.indoor` so Fitness labels them correctly, distance-based types keep `.unknown` (no reliable GPS fix on session start)
+    C: App icon — layered SVG master in `Design/AppIcon/` (background / ring track / ring segments / wordmark) + generated 1024 px AppIcon for both iOS and Watch targets

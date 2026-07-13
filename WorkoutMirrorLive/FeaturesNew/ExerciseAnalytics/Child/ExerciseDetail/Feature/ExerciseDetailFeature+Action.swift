@@ -41,9 +41,13 @@ extension ExerciseDetailFeature {
             
             /// User tapped a history row to navigate to the workout detail.
             case historyRowTapped(UUID)
-            
+
             /// User tapped dismiss button.
             case dismissTapped
+
+            /// User tapped Copy in the DEBUG-only "Unrecognized names" card —
+            /// puts the raw-name list on the pasteboard for catalog extension work.
+            case copyUnmatchedNamesTapped
         }
     }
 }

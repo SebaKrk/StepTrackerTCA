@@ -404,7 +404,10 @@ private actor WorkoutModeRouter {
             _ = await authorizationManager.requestAuthorization()
             let configuration = HKWorkoutConfiguration()
             configuration.activityType = activityType
-            configuration.locationType = .outdoor
+            // Indoor for stationary activities — pairs with the distance gate in
+            // `iPhoneWorkoutSession.makeDataSource` and makes Fitness label them
+            // as indoor workouts instead of attempting GPS.
+            configuration.locationType = activityType.collectsDistance ? .outdoor : .indoor
             let new = iPhoneWorkoutSession(healthStore: healthStore, configuration: configuration)
             try await new.prepare()
             iPhoneSession = new
