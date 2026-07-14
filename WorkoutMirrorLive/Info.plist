@@ -7,19 +7,8 @@
 		<string>fetch</string>
 		<string>bluetooth-central</string>
 		<string>bluetooth-peripheral</string>
-		<string>workout-processing</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Wykrywamy iPada trenera w sali i przesyłamy Twoje tętno na wspólny ekran przez Bluetooth.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Skanujemy kod QR z iPada w sali, żeby dołączyć do live class.</string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>Zapisujemy ukończone treningi (tętno, kalorie, czas trwania, dystans) do aplikacji Zdrowie, żebyś miał wszystko w jednym miejscu i historię na wszystkich Twoich urządzeniach Apple.</string>
 </dict>
 </plist>

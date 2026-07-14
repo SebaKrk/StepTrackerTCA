@@ -12,7 +12,7 @@ import Charts
 
 struct TrainingReadinessProvider: TimelineProvider {
     
-    private let userDefaults = UserDefaults(suiteName: "group.com.ss.WorkoutMirrorLive")
+    private let userDefaults = UserDefaults(suiteName: "group.com.ss.lf.WorkoutMirrorLive")
     private let key = "widget_readiness_data"
     
     func placeholder(in context: Context) -> TrainingReadinessEntry {

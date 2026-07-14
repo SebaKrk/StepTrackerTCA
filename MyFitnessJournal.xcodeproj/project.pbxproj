@@ -677,7 +677,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -712,7 +712,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -731,20 +731,21 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = WorkoutSessionWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DV9HJH72YD;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.WorkoutSessionWidget;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.lf.WorkoutMirrorLive.WorkoutSessionWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -763,20 +764,21 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = WorkoutSessionWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DV9HJH72YD;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.WorkoutSessionWidget;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.lf.WorkoutMirrorLive.WorkoutSessionWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -795,17 +797,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DV9HJH72YD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Wykrywamy iPada trenera w sali i przesyłamy Twoje tętno na wspólny ekran przez Bluetooth.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Skanujemy kod QR z iPada w sali, żeby dołączyć do live class.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Zapisujemy ukończone treningi (tętno, kalorie, czas trwania, dystans) do aplikacji Zdrowie, żebyś miał wszystko w jednym miejscu i historię na wszystkich Twoich urządzeniach Apple.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -817,8 +821,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.lf.WorkoutMirrorLive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -837,17 +841,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DV9HJH72YD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Wykrywamy iPada trenera w sali i przesyłamy Twoje tętno na wspólny ekran przez Bluetooth.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Skanujemy kod QR z iPada w sali, żeby dołączyć do live class.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Zapisujemy ukończone treningi (tętno, kalorie, czas trwania, dystans) do aplikacji Zdrowie, żebyś miał wszystko w jednym miejscu i historię na wszystkich Twoich urządzeniach Apple.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -859,8 +865,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.lf.WorkoutMirrorLive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -901,7 +907,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.GymRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -947,7 +953,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.GymRoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1117,7 +1123,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1152,7 +1158,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1168,21 +1174,22 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "WorkoutMirror Watch App/WorkoutMirror Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DV9HJH72YD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Workout Mirror reads your heart rate from Apple Watch to display it during your workout.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workout Mirror saves your completed workouts (heart rate, calories, duration) to HealthKit so your history stays in one place.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.WorkoutMirrorLive;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.lf.WorkoutMirrorLive;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.watchkitapp;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.lf.WorkoutMirrorLive.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1204,21 +1211,22 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "WorkoutMirror Watch App/WorkoutMirror Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8RH4482R36;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = DV9HJH72YD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Workout Mirror reads your heart rate from Apple Watch to display it during your workout.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workout Mirror saves your completed workouts (heart rate, calories, duration) to HealthKit so your history stays in one place.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.WorkoutMirrorLive;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.lf.WorkoutMirrorLive;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.watchkitapp;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.lf.WorkoutMirrorLive.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
