@@ -48,6 +48,11 @@ struct PlanDetailView: View {
         ) { historyStore in
             WorkoutPlanScoreListView(store: historyStore)
         }
+        .sheet(
+            item: $store.scope(state: \.destination?.share, action: \.destination.share)
+        ) { shareStore in
+            SharePlanView(store: shareStore)
+        }
     }
 
     // MARK: - Workout Content
@@ -88,6 +93,9 @@ struct PlanDetailView: View {
         ToolbarItem(placement: .topBarTrailing) {
             editButton
         }
+        ToolbarItem(placement: .topBarTrailing) {
+            shareButton
+        }
         ToolbarItemGroup(placement: .bottomBar) {
             Spacer()
             startWorkoutButton
@@ -107,6 +115,14 @@ struct PlanDetailView: View {
             send(.editTapped)
         } label: {
             Text("Edit")
+        }
+    }
+
+    private var shareButton: some View {
+        Button {
+            send(.shareTapped)
+        } label: {
+            Image(systemName: "square.and.arrow.up")
         }
     }
 

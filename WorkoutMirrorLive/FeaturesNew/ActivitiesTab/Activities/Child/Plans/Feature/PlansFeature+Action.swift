@@ -35,6 +35,9 @@ extension PlansFeature {
 
             /// Called when user taps on a workout card.
             case workoutTapped(TrainingSession)
+
+            /// Called when user taps "Import Plan".
+            case importPlanTapped
         }
     }
 

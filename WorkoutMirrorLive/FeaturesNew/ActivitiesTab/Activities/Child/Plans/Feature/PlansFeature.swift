@@ -49,29 +49,17 @@ struct PlansFeature {
                 state.destination = .planDetail(PlanDetailFeature.State(trainingSession: session))
                 return .none
 
+            case .view(.importPlanTapped):
+                state.destination = .importPlan(ImportPlanFeature.State())
+                return .none
+
                 // MARK: - Destination
 
             case .destination(.presented(.addPlan(.delegate(.saved(let session))))):
-                return .run { send in
-                    do {
-                        try await client.save(session)
-                        let sessions = try await client.fetchAll()
-                        await send(.sessionsLoaded(sessions))
-                    } catch {
-                        reportIssue(error)
-                    }
-                }
+                return saveAndReload(session)
 
             case .destination(.presented(.planDetail(.delegate(.saved(let session))))):
-                return .run { send in
-                    do {
-                        try await client.save(session)
-                        let sessions = try await client.fetchAll()
-                        await send(.sessionsLoaded(sessions))
-                    } catch {
-                        reportIssue(error)
-                    }
-                }
+                return saveAndReload(session)
 
             case .destination(.presented(.planDetail(.delegate(.deleted(let id))))):
                 return .run { send in
@@ -83,6 +71,9 @@ struct PlansFeature {
                         reportIssue(error)
                     }
                 }
+
+            case let .destination(.presented(.importPlan(.delegate(.imported(session))))):
+                return saveAndReload(session)
 
             case .destination(.presented(.planDetail(.delegate(.startWorkout(let session))))):
                 state.destination = nil
@@ -101,6 +92,22 @@ struct PlansFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+    }
+
+    // MARK: - Effects
+
+    /// Persists a plan then reloads the list. Shared by the add, edit, and import
+    /// flows — all three deliver a `TrainingSession` to save and expect a refresh.
+    private func saveAndReload(_ session: TrainingSession) -> Effect<Action> {
+        .run { send in
+            do {
+                try await client.save(session)
+                let sessions = try await client.fetchAll()
+                await send(.sessionsLoaded(sessions))
+            } catch {
+                reportIssue(error)
+            }
+        }
     }
 
 }
