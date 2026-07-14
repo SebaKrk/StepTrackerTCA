@@ -1077,3 +1077,14 @@
     A: iPhone path — `iPhoneWorkoutSession.makeDataSource` (shared by `prepare()` and crash-recovery `reattach`) disables walking/running + cycling distance collection for stationary types; `WorkoutModeRouter` picks `.indoor` vs `.outdoor` location from the same flag
     B: Watch path — same gate in `WatchWorkoutSessionClient`; stationary configs get `.indoor` so Fitness labels them correctly, distance-based types keep `.unknown` (no reliable GPS fix on session start)
     C: App icon — layered SVG master in `Design/AppIcon/` (background / ring track / ring segments / wordmark) + generated 1024 px AppIcon for both iOS and Watch targets
+
+### IOS-00103 Plan sharing via QR (snapshot copy)
+    - goal: user A shares a scanned plan with user B face-to-face — A shows a QR code, B scans it, previews the plan, and adds an independent copy to their own list
+    - no accounts / no CKShare: distribution is a self-contained payload (transport-agnostic core), not a backend. Copy semantics, not live sync — B's plan is decoupled from A's
+    - scope this ticket: serialization core + QR channel only; file/share-sheet channel and an iCloud "plan library" (box publishes → others pull) are the follow-up steps (see PLANS/ roadmap)
+    - versioned payload (`schemaVersion`) freezes the format so an older build refuses a newer plan with a clear "update the app" message instead of a corrupt read
+
+    A: Serialization core (SharedModels) — `SharedPlanPayload` (versioned envelope) + `SharedPlanCodec` (JSON → zlib → base64url); `fitsInQR` byte-budget gate; round-trip / version-guard / malformed tests
+    B: Export — `PlanShareClient` encodes + renders the QR image off the main thread; `SharePlanFeature` half-sheet shows the code (GymRoom visual language), too-large and failed states, swipe-to-dismiss
+    C: Import — reused `QRScannerView` → decode → read-only preview (shared `WorkoutDetailContent`) → "add to my plans"; scanner remounts to retry after a bad scan; malformed → alert
+    D: Snapshot identity — `TrainingSession.withNewIdentity` mints fresh UUIDs at every level (plan + workouts + exercises); imported plan stamped with import date so it sorts to the top; `PlansFeature` is the single writer (shared `saveAndReload`)

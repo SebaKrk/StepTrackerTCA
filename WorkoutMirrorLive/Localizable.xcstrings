@@ -1765,6 +1765,9 @@
         }
       }
     },
+    "Dodaj do moich planów" : {
+
+    },
     "Done" : {
       "localizations" : {
         "pl" : {
@@ -2362,6 +2365,9 @@
         }
       }
     },
+    "Importuj plan" : {
+
+    },
     "Info" : {
       "localizations" : {
         "pl" : {
@@ -2791,6 +2797,12 @@
           }
         }
       }
+    },
+    "Nie udało się odczytać planu" : {
+
+    },
+    "Nie udało się przygotować kodu" : {
+
     },
     "Nie udało się załadować treningów." : {
       "localizations" : {
@@ -3256,6 +3268,9 @@
     "Plan podpięty — dotknij, aby dodać" : {
 
     },
+    "Plan za duży na kod QR" : {
+
+    },
     "Plan: %@" : {
       "localizations" : {
         "pl" : {
@@ -3340,6 +3355,9 @@
           }
         }
       }
+    },
+    "Pokaż ten kod, żeby udostępnić plan" : {
+
     },
     "Porównanie animacji" : {
       "localizations" : {
@@ -3961,6 +3979,9 @@
         }
       }
     },
+    "Spróbuj ponownie za chwilę." : {
+
+    },
     "Start" : {
       "localizations" : {
         "pl" : {
@@ -4188,6 +4209,9 @@
           }
         }
       }
+    },
+    "Ten kod nie zawiera prawidłowego planu treningowego." : {
+
     },
     "Tętno i aktywność" : {
       "localizations" : {
@@ -4484,6 +4508,9 @@
           }
         }
       }
+    },
+    "Udostępnianie plikiem pojawi się w kolejnej wersji." : {
+
     },
     "Unable to load workout plans. Please try again." : {
 

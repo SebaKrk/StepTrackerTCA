@@ -21,6 +21,9 @@ extension PlansFeature {
 
         /// Run an active workout session for a plan.
         case session(SessionFeature)
+
+        /// Import a shared plan by scanning a QR code.
+        case importPlan(ImportPlanFeature)
     }
     
 }

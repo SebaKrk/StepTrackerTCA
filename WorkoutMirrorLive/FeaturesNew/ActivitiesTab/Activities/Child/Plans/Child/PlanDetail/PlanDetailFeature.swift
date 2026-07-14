@@ -85,6 +85,9 @@ struct PlanDetailFeature {
 
             /// Opens the workout history list for this plan.
             case historyTapped
+
+            /// Opens the QR share sheet for this plan.
+            case shareTapped
         }
 
         enum Delegate {
@@ -136,6 +139,10 @@ struct PlanDetailFeature {
                 state.destination = .history(
                     WorkoutPlanScoreListFeature.State(trainingSession: state.trainingSession)
                 )
+                return .none
+
+            case .view(.shareTapped):
+                state.destination = .share(SharePlanFeature.State(plan: state.trainingSession))
                 return .none
 
                 // MARK: - Destination

@@ -11,13 +11,13 @@ import SwiftUI
 
 @ViewAction(for: PlansFeature.self)
 struct PlansView: View {
-    
+
     // MARK: - Properties
-    
+
     @Bindable var store: StoreOf<PlansFeature>
-    
-    // MARK: - Body
-    
+
+    // MARK: - Body (structure)
+
     var body: some View {
         Group {
             switch store.viewState {
@@ -31,11 +31,10 @@ struct PlansView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    send(.addPlanTapped)
-                } label: {
-                    Image(systemName: "plus")
-                }
+                importPlanButton
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                addPlanButton
             }
         }
         .fullScreenCover(
@@ -55,12 +54,17 @@ struct PlansView: View {
         ) { sessionStore in
             SessionView(store: sessionStore)
         }
+        .fullScreenCover(
+            item: $store.scope(state: \.destination?.importPlan, action: \.destination.importPlan)
+        ) { importStore in
+            ImportPlanView(store: importStore)
+        }
         .onAppear {
             send(.viewDidAppear)
         }
     }
-    
-    // MARK: - List View
+
+    // MARK: - List (structure)
 
     @ViewBuilder
     private var plansListView: some View {
@@ -80,21 +84,23 @@ struct PlansView: View {
         }
     }
 
-    // MARK: - Workout Card
+    // MARK: - Workout Card (structure)
 
     private func workoutCard(_ workout: TrainingSession) -> some View {
         GroupBox {
-            VStack(spacing: 12) {
-                workoutSummary(workout)
-            }
+            workoutSummary(workout)
         } label: {
-            VStack {
-                workoutHeaderButton(workout)
-                Divider()
-            }
+            workoutCardLabel(workout)
         }
         .styledGroupBox()
         .padding(4)
+    }
+
+    private func workoutCardLabel(_ workout: TrainingSession) -> some View {
+        VStack {
+            workoutHeaderButton(workout)
+            Divider()
+        }
     }
 
     private func workoutHeaderButton(_ workout: TrainingSession) -> some View {
@@ -107,56 +113,95 @@ struct PlansView: View {
 
     private func workoutHeader(_ workout: TrainingSession) -> some View {
         HStack {
-            Image(systemName: workout.activity.iconName.replacingOccurrences(of: ".circle.fill", with: ""))
-                .resizable()
-                .scaledToFit()
-                .foregroundColor(.primary)
-                .frame(width: 40, height: 40)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(workout.title)
-                    .foregroundColor(.primary)
-                    .font(.title2)
-                    .bold()
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Text(workout.date, style: .date)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-
+            activityIcon(workout)
+            headerTitles(workout)
             Spacer()
+            chevron
+        }
+    }
 
-            Image(systemName: "chevron.right")
+    private func headerTitles(_ workout: TrainingSession) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            titleText(workout)
+            dateText(workout)
         }
     }
 
     private func workoutSummary(_ workout: TrainingSession) -> some View {
         VStack(spacing: 12) {
-            // Kolumny stat (jak PersonalActivityView)
-            HStack(spacing: 0) {
-                statColumn(title: "Duration", value: formatDuration(workout), alignment: .leading)
-                    .frame(maxWidth: 110)
-                statColumn(title: "Location", value: workout.location.title)
-                    .frame(maxWidth: 90)
-                statColumn(title: "Type", value: formatTypes(workout), isLast: true)
-                    .frame(maxWidth: .infinity)
-            }
-
+            statsRow(workout)
             Divider()
-
-            // Ćwiczenia — max 2 linie, szara czcionka, wyśrodkowane
-            Text(exercisesLine(workout))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
+            exercisesText(workout)
         }
         .padding(4)
     }
 
+    private func statsRow(_ workout: TrainingSession) -> some View {
+        HStack(spacing: 0) {
+            statColumn(title: durationTitle, value: formatDuration(workout), alignment: .leading)
+                .frame(maxWidth: 110)
+            statColumn(title: locationTitle, value: workout.location.title)
+                .frame(maxWidth: 90)
+            statColumn(title: typeTitle, value: formatTypes(workout), isLast: true)
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    // MARK: - Implementation
+
+    private var importPlanButton: some View {
+        Button {
+            send(.importPlanTapped)
+        } label: {
+            Image(systemName: "qrcode.viewfinder")
+        }
+    }
+
+    private var addPlanButton: some View {
+        Button {
+            send(.addPlanTapped)
+        } label: {
+            Image(systemName: "plus")
+        }
+    }
+
+    private func activityIcon(_ workout: TrainingSession) -> some View {
+        Image(systemName: workout.activity.iconName.replacingOccurrences(of: ".circle.fill", with: ""))
+            .resizable()
+            .scaledToFit()
+            .foregroundColor(.primary)
+            .frame(width: 40, height: 40)
+    }
+
+    private func titleText(_ workout: TrainingSession) -> some View {
+        Text(workout.title)
+            .foregroundColor(.primary)
+            .font(.title2)
+            .bold()
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func dateText(_ workout: TrainingSession) -> some View {
+        Text(workout.date, style: .date)
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+    }
+
+    private var chevron: some View {
+        Image(systemName: "chevron.right")
+    }
+
+    private func exercisesText(_ workout: TrainingSession) -> some View {
+        Text(exercisesLine(workout))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(2)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, alignment: .center)
+    }
+
+    /// Reusable stat cell primitive — title over value with a trailing divider.
     private func statColumn(
         title: String,
         value: String,
@@ -184,6 +229,10 @@ struct PlansView: View {
         }
     }
 
+    private let durationTitle = String(localized: "Duration")
+    private let locationTitle = String(localized: "Location")
+    private let typeTitle = String(localized: "Type")
+
     // MARK: - Helpers
 
     private func formatDuration(_ workout: TrainingSession) -> String {
@@ -207,28 +256,37 @@ struct PlansView: View {
         return names.isEmpty ? "–" : names.joined(separator: " · ")
     }
 
-    // MARK: - Empty/Failed Views
+    // MARK: - Empty / Failed
 
     private var failedView: some View {
         ContentUnavailableView {
-            Label("Something went wrong", systemImage: "exclamationmark.triangle")
+            Label(failedTitle, systemImage: "exclamationmark.triangle")
         } description: {
-            Text("Unable to load workout plans. Please try again.")
+            Text(failedMessage)
         }
     }
-    
+
     private var emptyPlansView: some View {
         ContentUnavailableView {
-            Label("No Workout Plans", systemImage: "doc.text")
+            Label(emptyTitle, systemImage: "doc.text")
         } description: {
-            Text("Create workout plans by scanning your training notes or add them manually. Compare your plans with actual HealthKit results.")
+            Text(emptyMessage)
         } actions: {
-            Button {
-                send(.addPlanTapped)
-            } label: {
-                Label("Add Plan", systemImage: "plus")
-            }
+            emptyAddButton
         }
     }
-    
+
+    private var emptyAddButton: some View {
+        Button {
+            send(.addPlanTapped)
+        } label: {
+            Label(addPlanTitle, systemImage: "plus")
+        }
+    }
+
+    private let failedTitle = String(localized: "Something went wrong")
+    private let failedMessage = String(localized: "Unable to load workout plans. Please try again.")
+    private let emptyTitle = String(localized: "No Workout Plans")
+    private let emptyMessage = String(localized: "Create workout plans by scanning your training notes or add them manually. Compare your plans with actual HealthKit results.")
+    private let addPlanTitle = String(localized: "Add Plan")
 }

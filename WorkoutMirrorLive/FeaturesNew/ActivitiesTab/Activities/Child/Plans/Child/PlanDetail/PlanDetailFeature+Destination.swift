@@ -17,5 +17,8 @@ extension PlanDetailFeature {
 
         /// Browse workout history for this plan.
         case history(WorkoutPlanScoreListFeature)
+
+        /// Share this plan as a QR code.
+        case share(SharePlanFeature)
     }
 }
