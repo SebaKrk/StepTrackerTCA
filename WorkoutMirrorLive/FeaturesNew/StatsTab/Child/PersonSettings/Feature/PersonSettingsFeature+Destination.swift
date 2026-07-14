@@ -1,0 +1,32 @@
+//
+//  PersonSettingsFeature+Destination.swift
+//  MyFitnessJournal
+//
+//  Created by Sebastian Sciuba on 23/09/2025.
+//
+
+import ComposableArchitecture
+
+/// Implementation of `PersonSettingsFeature` destination
+extension PersonSettingsFeature {
+
+    @Reducer
+    enum Destination {
+
+        /// Navigation to API key management screen
+        case apiKey(APIKeyEntryFeature)
+
+        /// Modal for editing user profile (name, surname, nickname)
+        case editProfile(PersonProfileEditFeature)
+
+        /// Heart rate formula picker — user wybiera formułę obliczania maxHR
+        /// (Nes/Tanaka/Gulati/Fairbarn/Classic) z preview values per formuła.
+        case hrFormulaSettings(HRFormulaSettingsFeature)
+
+        /// Zone reference — opisy stref HR + punktacja Effort Points per strefa.
+        /// Ten sam feature co sheet podczas treningu (kontekstowo neutralny).
+        case heartRateZoneInfo(HeartRateZoneInfoFeature)
+    }
+}
+
+

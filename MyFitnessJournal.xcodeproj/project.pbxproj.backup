@@ -1,0 +1,1462 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 930DCF402D16A3D900F1A5E4 /* Factory */; };
+		9317953E2FDAADB700B5FCF7 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 9317953D2FDAADB700B5FCF7 /* ComposableArchitecture */; };
+		931795402FDAAE1500B5FCF7 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 9317953F2FDAAE1500B5FCF7 /* SharedModels */; };
+		931795422FDAAEA100B5FCF7 /* PeerMirror in Frameworks */ = {isa = PBXBuildFile; productRef = 931795412FDAAEA100B5FCF7 /* PeerMirror */; };
+		9332A8C62D1809FD00DA426E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9332A8C52D1809FD00DA426E /* README.md */; };
+		934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 934045BC2DF561F0005A00C8 /* HealthHub */; };
+		934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C72DD9CD8C0089D27C /* ComposableArchitecture */; };
+		934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 934A03C92DD9CD9A0089D27C /* Factory */; };
+		935095362FA139A10041C7B9 /* Textual in Frameworks */ = {isa = PBXBuildFile; productRef = 935095352FA139A10041C7B9 /* Textual */; };
+		93622F162D2C81B000E9863B /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 93622F152D2C81B000E9863B /* Algorithms */; };
+		936D5E372DF6228200E10214 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 936D5E362DF6228200E10214 /* SharedModels */; };
+		9371982E2F18D58A009C583D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9371982D2F18D58A009C583D /* WidgetKit.framework */; };
+		937198302F18D58A009C583D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9371982F2F18D58A009C583D /* SwiftUI.framework */; };
+		9371983D2F18D58B009C583D /* WorkoutSessionWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		93779D862F6E8FF4008EFEF1 /* AppDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 93779D852F6E8FF4008EFEF1 /* AppDatabase */; };
+		938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 938209BB2E39FA6C00F49046 /* ComposableArchitecture */; };
+		9386352D2DFB608000DB5EAC /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 9386352C2DFB608000DB5EAC /* HealthHub */; };
+		938635312DFB608B00DB5EAC /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 938635302DFB608B00DB5EAC /* SharedModels */; };
+		9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */ = {isa = PBXBuildFile; fileRef = 9388D7F92D8E8B090016D160 /* TASKS.md */; };
+		938BF2C62FD9C1B1008F75CC /* PeerMirror in Frameworks */ = {isa = PBXBuildFile; productRef = 938BF2C52FD9C1B1008F75CC /* PeerMirror */; };
+		93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA3E2E48727C00495CD1 /* SharedModels */; };
+		93A6AA412E48735100495CD1 /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 93A6AA402E48735100495CD1 /* HealthHub */; };
+		93C6150A2F18EC0A007D5E82 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93C615092F18EC0A007D5E82 /* SharedModels */; };
+		93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93CE767C2D16A13F006D5A4A /* ComposableArchitecture */; };
+		93D02EF02DF4D14F00F08849 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D02EEF2DF4D14F00F08849 /* Commons */; };
+		93D199972E50C57800697D06 /* Commons in Frameworks */ = {isa = PBXBuildFile; productRef = 93D199962E50C57800697D06 /* Commons */; };
+		93FA1B1F2EAA991A001809ED /* LNPopupUI in Frameworks */ = {isa = PBXBuildFile; productRef = 93FA1B1E2EAA991A001809ED /* LNPopupUI */; };
+		93FA1B242EAA9D5A001809ED /* LNPopupUI in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 93FA1B1E2EAA991A001809ED /* LNPopupUI */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		93FE94822F74532F00A77CCA /* WorkoutMirror Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 93FE94782F74532E00A77CCA /* WorkoutMirror Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		93FE949F2F748EE700A77CCA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 93FE949E2F748EE700A77CCA /* ComposableArchitecture */; };
+		93FE94A52F75D80000A77CCA /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 93FE94A42F75D80000A77CCA /* SharedModels */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9371983B2F18D58B009C583D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 93CE752D2D1699CA006D5A4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9371982B2F18D58A009C583D;
+			remoteInfo = WorkoutSessionWidgetExtension;
+		};
+		93FE94802F74532F00A77CCA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 93CE752D2D1699CA006D5A4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 93FE94772F74532E00A77CCA;
+			remoteInfo = "WorkoutMirror Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9371983E2F18D58B009C583D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9371983D2F18D58B009C583D /* WorkoutSessionWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93FA1B232EAA99B1001809ED /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				93FA1B242EAA9D5A001809ED /* LNPopupUI in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93FE94832F74532F00A77CCA /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				93FE94822F74532F00A77CCA /* WorkoutMirror Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8013C866C7F35E7CEA7FFC36 /* GymRoom.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = GymRoom.entitlements; path = GymRoom/GymRoom.entitlements; sourceTree = "<group>"; };
+		9332A8C52D1809FD00DA426E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		934045BE2DF5685B005A00C8 /* SharedModels */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SharedModels; sourceTree = "<group>"; };
+		934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MyFitnessJournal Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WorkoutSessionWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9371982D2F18D58A009C583D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		9371982F2F18D58A009C583D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		93779D842F6E8E03008EFEF1 /* AppDatabase */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AppDatabase; sourceTree = "<group>"; };
+		93779D922F6FCF35008EFEF1 /* IOS-00071-SQLiteData-UserProfile.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "IOS-00071-SQLiteData-UserProfile.md"; sourceTree = "<group>"; };
+		93779D932F6FCF35008EFEF1 /* IOS-00072-Persystencja-Planow-Treningowych.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "IOS-00072-Persystencja-Planow-Treningowych.md"; sourceTree = "<group>"; };
+		9382096C2E39388600F49046 /* WorkoutMirrorLive.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WorkoutMirrorLive.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9388D7F92D8E8B090016D160 /* TASKS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TASKS.md; sourceTree = "<group>"; };
+		938B24BE2FDA16F1008F75CC /* GymRoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GymRoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		938BF2C42FD9BE64008F75CC /* PeerMirror */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PeerMirror; sourceTree = "<group>"; };
+		93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFitnessJournal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		93D02EED2DF41F4C00F08849 /* HealthHub */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HealthHub; sourceTree = "<group>"; };
+		93D02EEE2DF4CCBF00F08849 /* Commons */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Commons; sourceTree = "<group>"; };
+		93D961C62F255CCB00C8F7BB /* WorkoutSessionWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WorkoutSessionWidgetExtension.entitlements; sourceTree = "<group>"; };
+		93FE94782F74532E00A77CCA /* WorkoutMirror Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WorkoutMirror Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8EE832CBF4CA227AF15A1A5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = GymRoom/Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Localizable.xcstrings,
+				"UI/View+Extension/View+StyledGroupBox.swift",
+				UI/ViewModifier/StyledGroupBoxModifier.swift,
+			);
+			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
+		};
+		937198412F18D58B009C583D /* Exceptions for "WorkoutSessionWidget" folder in "WorkoutSessionWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
+		};
+		9377FB672F2AC67D0005394D /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutMirrorLive" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9382096B2E39388600F49046 /* WorkoutMirrorLive */;
+		};
+		938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Localizable.xcstrings,
+			);
+			target = 93CE75342D1699CA006D5A4A /* MyFitnessJournal */;
+		};
+		938E65512F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Localizable.xcstrings,
+			);
+			target = 934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = "MyFitnessJournal Watch App";
+			sourceTree = "<group>";
+		};
+		937198312F18D58A009C583D /* WorkoutSessionWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				937198412F18D58B009C583D /* Exceptions for "WorkoutSessionWidget" folder in "WorkoutSessionWidgetExtension" target */,
+			);
+			path = WorkoutSessionWidget;
+			sourceTree = "<group>";
+		};
+		9382096D2E39388600F49046 /* WorkoutMirrorLive */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				938E65502F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal" target */,
+				938E65512F0C239800576FE1 /* Exceptions for "WorkoutMirrorLive" folder in "MyFitnessJournal Watch App" target */,
+				9377FB672F2AC67D0005394D /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutMirrorLive" target */,
+				936BF68B2F1A447400E27B7E /* Exceptions for "WorkoutMirrorLive" folder in "WorkoutSessionWidgetExtension" target */,
+			);
+			path = WorkoutMirrorLive;
+			sourceTree = "<group>";
+		};
+		938B24BF2FDA16F1008F75CC /* GymRoom */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = GymRoom;
+			sourceTree = "<group>";
+		};
+		93CE75372D1699CA006D5A4A /* StepTrackerTCA */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = StepTrackerTCA;
+			sourceTree = "<group>";
+		};
+		93FE94792F74532E00A77CCA /* WorkoutMirror Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = "WorkoutMirror Watch App";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		934A03AD2DD8A54A0089D27C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93D02EF02DF4D14F00F08849 /* Commons in Frameworks */,
+				936D5E372DF6228200E10214 /* SharedModels in Frameworks */,
+				934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */,
+				934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */,
+				934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		937198292F18D58A009C583D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				937198302F18D58A009C583D /* SwiftUI.framework in Frameworks */,
+				93C6150A2F18EC0A007D5E82 /* SharedModels in Frameworks */,
+				9371982E2F18D58A009C583D /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		938209692E39388600F49046 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93FA1B1F2EAA991A001809ED /* LNPopupUI in Frameworks */,
+				938BF2C62FD9C1B1008F75CC /* PeerMirror in Frameworks */,
+				93A6AA412E48735100495CD1 /* HealthHub in Frameworks */,
+				938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */,
+				93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */,
+				93D199972E50C57800697D06 /* Commons in Frameworks */,
+				935095362FA139A10041C7B9 /* Textual in Frameworks */,
+				93779D862F6E8FF4008EFEF1 /* AppDatabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		938B24BB2FDA16F1008F75CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9317953E2FDAADB700B5FCF7 /* ComposableArchitecture in Frameworks */,
+				931795402FDAAE1500B5FCF7 /* SharedModels in Frameworks */,
+				931795422FDAAEA100B5FCF7 /* PeerMirror in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93CE75322D1699CA006D5A4A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				938635312DFB608B00DB5EAC /* SharedModels in Frameworks */,
+				93622F162D2C81B000E9863B /* Algorithms in Frameworks */,
+				93CE767D2D16A13F006D5A4A /* ComposableArchitecture in Frameworks */,
+				9386352D2DFB608000DB5EAC /* HealthHub in Frameworks */,
+				930DCF412D16A3D900F1A5E4 /* Factory in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93FE94752F74532E00A77CCA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93FE949F2F748EE700A77CCA /* ComposableArchitecture in Frameworks */,
+				93FE94A52F75D80000A77CCA /* SharedModels in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		934A03C62DD9CD8C0089D27C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9371982D2F18D58A009C583D /* WidgetKit.framework */,
+				9371982F2F18D58A009C583D /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		93779D952F6FCF35008EFEF1 /* PLANS */ = {
+			isa = PBXGroup;
+			children = (
+				93779D922F6FCF35008EFEF1 /* IOS-00071-SQLiteData-UserProfile.md */,
+				93779D932F6FCF35008EFEF1 /* IOS-00072-Persystencja-Planow-Treningowych.md */,
+			);
+			path = PLANS;
+			sourceTree = "<group>";
+		};
+		93CE752C2D1699CA006D5A4A = {
+			isa = PBXGroup;
+			children = (
+				93D961C62F255CCB00C8F7BB /* WorkoutSessionWidgetExtension.entitlements */,
+				938BF2C42FD9BE64008F75CC /* PeerMirror */,
+				93779D842F6E8E03008EFEF1 /* AppDatabase */,
+				934045BE2DF5685B005A00C8 /* SharedModels */,
+				93D02EEE2DF4CCBF00F08849 /* Commons */,
+				93D02EED2DF41F4C00F08849 /* HealthHub */,
+				9332A8C52D1809FD00DA426E /* README.md */,
+				9388D7F92D8E8B090016D160 /* TASKS.md */,
+				93779D952F6FCF35008EFEF1 /* PLANS */,
+				93CE75372D1699CA006D5A4A /* StepTrackerTCA */,
+				934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */,
+				9382096D2E39388600F49046 /* WorkoutMirrorLive */,
+				937198312F18D58A009C583D /* WorkoutSessionWidget */,
+				93FE94792F74532E00A77CCA /* WorkoutMirror Watch App */,
+				938B24BF2FDA16F1008F75CC /* GymRoom */,
+				934A03C62DD9CD8C0089D27C /* Frameworks */,
+				93CE75362D1699CA006D5A4A /* Products */,
+				8013C866C7F35E7CEA7FFC36 /* GymRoom.entitlements */,
+				C8EE832CBF4CA227AF15A1A5 /* Info.plist */,
+			);
+			sourceTree = "<group>";
+		};
+		93CE75362D1699CA006D5A4A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */,
+				934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */,
+				9382096C2E39388600F49046 /* WorkoutMirrorLive.app */,
+				9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */,
+				93FE94782F74532E00A77CCA /* WorkoutMirror Watch App.app */,
+				938B24BE2FDA16F1008F75CC /* GymRoom.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 934A03BB2DD8A54B0089D27C /* Build configuration list for PBXNativeTarget "MyFitnessJournal Watch App" */;
+			buildPhases = (
+				934A03AC2DD8A54A0089D27C /* Sources */,
+				934A03AD2DD8A54A0089D27C /* Frameworks */,
+				934A03AE2DD8A54A0089D27C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				934A03B42DD8A54A0089D27C /* MyFitnessJournal Watch App */,
+			);
+			name = "MyFitnessJournal Watch App";
+			packageProductDependencies = (
+				934A03C72DD9CD8C0089D27C /* ComposableArchitecture */,
+				934A03C92DD9CD9A0089D27C /* Factory */,
+				93D02EEF2DF4D14F00F08849 /* Commons */,
+				934045BC2DF561F0005A00C8 /* HealthHub */,
+				936D5E362DF6228200E10214 /* SharedModels */,
+			);
+			productName = "MyFitnessJournal Watch App";
+			productReference = 934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 937198422F18D58B009C583D /* Build configuration list for PBXNativeTarget "WorkoutSessionWidgetExtension" */;
+			buildPhases = (
+				937198282F18D58A009C583D /* Sources */,
+				937198292F18D58A009C583D /* Frameworks */,
+				9371982A2F18D58A009C583D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				937198312F18D58A009C583D /* WorkoutSessionWidget */,
+			);
+			name = WorkoutSessionWidgetExtension;
+			packageProductDependencies = (
+				93C615092F18EC0A007D5E82 /* SharedModels */,
+			);
+			productName = WorkoutSessionWidgetExtension;
+			productReference = 9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		9382096B2E39388600F49046 /* WorkoutMirrorLive */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 938209762E39388700F49046 /* Build configuration list for PBXNativeTarget "WorkoutMirrorLive" */;
+			buildPhases = (
+				938209682E39388600F49046 /* Sources */,
+				938209692E39388600F49046 /* Frameworks */,
+				9382096A2E39388600F49046 /* Resources */,
+				93FA1B232EAA99B1001809ED /* Embed Frameworks */,
+				9371983E2F18D58B009C583D /* Embed Foundation Extensions */,
+				93FE94832F74532F00A77CCA /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9371983C2F18D58B009C583D /* PBXTargetDependency */,
+				93FE94812F74532F00A77CCA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				9382096D2E39388600F49046 /* WorkoutMirrorLive */,
+			);
+			name = WorkoutMirrorLive;
+			packageProductDependencies = (
+				938209BB2E39FA6C00F49046 /* ComposableArchitecture */,
+				93A6AA3E2E48727C00495CD1 /* SharedModels */,
+				93A6AA402E48735100495CD1 /* HealthHub */,
+				93D199962E50C57800697D06 /* Commons */,
+				93FA1B1E2EAA991A001809ED /* LNPopupUI */,
+				93779D852F6E8FF4008EFEF1 /* AppDatabase */,
+				935095352FA139A10041C7B9 /* Textual */,
+				938BF2C52FD9C1B1008F75CC /* PeerMirror */,
+			);
+			productName = WorkoutMirrorLive;
+			productReference = 9382096C2E39388600F49046 /* WorkoutMirrorLive.app */;
+			productType = "com.apple.product-type.application";
+		};
+		938B24BD2FDA16F1008F75CC /* GymRoom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 938B24C82FDA16F2008F75CC /* Build configuration list for PBXNativeTarget "GymRoom" */;
+			buildPhases = (
+				938B24BA2FDA16F1008F75CC /* Sources */,
+				938B24BB2FDA16F1008F75CC /* Frameworks */,
+				938B24BC2FDA16F1008F75CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				938B24BF2FDA16F1008F75CC /* GymRoom */,
+			);
+			name = GymRoom;
+			productName = GymRoom;
+			productReference = 938B24BE2FDA16F1008F75CC /* GymRoom.app */;
+			productType = "com.apple.product-type.application";
+		};
+		93CE75342D1699CA006D5A4A /* MyFitnessJournal */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 93CE75432D1699CB006D5A4A /* Build configuration list for PBXNativeTarget "MyFitnessJournal" */;
+			buildPhases = (
+				93CE75312D1699CA006D5A4A /* Sources */,
+				93CE75322D1699CA006D5A4A /* Frameworks */,
+				93CE75332D1699CA006D5A4A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				93CE75372D1699CA006D5A4A /* StepTrackerTCA */,
+			);
+			name = MyFitnessJournal;
+			packageProductDependencies = (
+				93CE767C2D16A13F006D5A4A /* ComposableArchitecture */,
+				930DCF402D16A3D900F1A5E4 /* Factory */,
+				93622F152D2C81B000E9863B /* Algorithms */,
+				9386352C2DFB608000DB5EAC /* HealthHub */,
+				938635302DFB608B00DB5EAC /* SharedModels */,
+			);
+			productName = StepTrackerTCA;
+			productReference = 93CE75352D1699CA006D5A4A /* MyFitnessJournal.app */;
+			productType = "com.apple.product-type.application";
+		};
+		93FE94772F74532E00A77CCA /* WorkoutMirror Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 93FE94862F74532F00A77CCA /* Build configuration list for PBXNativeTarget "WorkoutMirror Watch App" */;
+			buildPhases = (
+				93FE94742F74532E00A77CCA /* Sources */,
+				93FE94752F74532E00A77CCA /* Frameworks */,
+				93FE94762F74532E00A77CCA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				93FE94792F74532E00A77CCA /* WorkoutMirror Watch App */,
+			);
+			name = "WorkoutMirror Watch App";
+			packageProductDependencies = (
+				93FE949E2F748EE700A77CCA /* ComposableArchitecture */,
+				93FE94A42F75D80000A77CCA /* SharedModels */,
+			);
+			productName = "WorkoutMirror Watch App";
+			productReference = 93FE94782F74532E00A77CCA /* WorkoutMirror Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		93CE752D2D1699CA006D5A4A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					934A03AF2DD8A54A0089D27C = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					9371982B2F18D58A009C583D = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					9382096B2E39388600F49046 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					938B24BD2FDA16F1008F75CC = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					93CE75342D1699CA006D5A4A = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					93FE94772F74532E00A77CCA = {
+						CreatedOnToolsVersion = 26.3;
+					};
+				};
+			};
+			buildConfigurationList = 93CE75302D1699CA006D5A4A /* Build configuration list for PBXProject "MyFitnessJournal" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				pl,
+			);
+			mainGroup = 93CE752C2D1699CA006D5A4A;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */,
+				93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */,
+				935095342FA139A10041C7B9 /* XCRemoteSwiftPackageReference "textual" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 93CE75362D1699CA006D5A4A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				93CE75342D1699CA006D5A4A /* MyFitnessJournal */,
+				934A03AF2DD8A54A0089D27C /* MyFitnessJournal Watch App */,
+				9382096B2E39388600F49046 /* WorkoutMirrorLive */,
+				9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */,
+				93FE94772F74532E00A77CCA /* WorkoutMirror Watch App */,
+				938B24BD2FDA16F1008F75CC /* GymRoom */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		934A03AE2DD8A54A0089D27C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9371982A2F18D58A009C583D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9382096A2E39388600F49046 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		938B24BC2FDA16F1008F75CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93CE75332D1699CA006D5A4A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9388D7FA2D8E8B090016D160 /* TASKS.md in Resources */,
+				9332A8C62D1809FD00DA426E /* README.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93FE94762F74532E00A77CCA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		934A03AC2DD8A54A0089D27C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		937198282F18D58A009C583D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		938209682E39388600F49046 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		938B24BA2FDA16F1008F75CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93CE75312D1699CA006D5A4A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93FE94742F74532E00A77CCA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9371983C2F18D58B009C583D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
+			targetProxy = 9371983B2F18D58B009C583D /* PBXContainerItemProxy */;
+		};
+		93FE94812F74532F00A77CCA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 93FE94772F74532E00A77CCA /* WorkoutMirror Watch App */;
+			targetProxy = 93FE94802F74532F00A77CCA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		934A03BC2DD8A54B0089D27C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "MyFitnessJournal Watch App/MyFitnessJournal Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Your workout related data will be used to display your saved workouts in MyWorkouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyFitnessJournal on Apple Watch will be saved to HealthKit.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.MyFitnessJournal;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Debug;
+		};
+		934A03BD2DD8A54B0089D27C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "MyFitnessJournal Watch App/MyFitnessJournal Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "MyFitnessJournal-Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Your workout related data will be used to display your saved workouts in MyWorkouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyFitnessJournal on Apple Watch will be saved to HealthKit.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.MyFitnessJournal;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Release;
+		};
+		9371983F2F18D58B009C583D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WorkoutSessionWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.WorkoutSessionWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		937198402F18D58B009C583D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WorkoutSessionWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutSessionWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WorkoutSessionWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.WorkoutSessionWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		938209742E39388700F49046 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		938209752E39388700F49046 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WorkoutMirrorLive/WorkoutMirrorLive.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Ta aplikacja zapisuje dane o tętnie, masie ciała, treningach, spalonych kaloriach i liczbie kroków w aplikacji Zdrowie, aby umożliwić monitorowanie Twojej aktywności.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		938B24C62FDA16F2008F75CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = GymRoom/GymRoom.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GymRoom/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.GymRoom;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		938B24C72FDA16F2008F75CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = GymRoom/GymRoom.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GymRoom/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.GymRoom;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+		93CE75412D1699CB006D5A4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		93CE75422D1699CB006D5A4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		93CE75442D1699CB006D5A4A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = StepTrackerTCA/StepTrackerTCA.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"StepTrackerTCA/Preview Content\"";
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need acces to camera to take board foto";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app allows you to add step and weight data to Apple Health.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		93CE75452D1699CB006D5A4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = StepTrackerTCA/StepTrackerTCA.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"StepTrackerTCA/Preview Content\"";
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MyFitnessJournal;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need acces to camera to take board foto";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app shows your step and weight data in an interactive chart.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app allows you to add step and weight data to Apple Health.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		93FE94842F74532F00A77CCA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "WorkoutMirror Watch App/WorkoutMirror Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = WorkoutMirror;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Workout Mirror reads your heart rate from Apple Watch to display it during your workout.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.WorkoutMirrorLive;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		93FE94852F74532F00A77CCA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "WorkoutMirror Watch App/WorkoutMirror Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8RH4482R36;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = WorkoutMirror;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Workout Mirror reads your heart rate from Apple Watch to display it during your workout.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = ss.WorkoutMirrorLive;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.WorkoutMirrorLive.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		934A03BB2DD8A54B0089D27C /* Build configuration list for PBXNativeTarget "MyFitnessJournal Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				934A03BC2DD8A54B0089D27C /* Debug */,
+				934A03BD2DD8A54B0089D27C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		937198422F18D58B009C583D /* Build configuration list for PBXNativeTarget "WorkoutSessionWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9371983F2F18D58B009C583D /* Debug */,
+				937198402F18D58B009C583D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		938209762E39388700F49046 /* Build configuration list for PBXNativeTarget "WorkoutMirrorLive" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				938209742E39388700F49046 /* Debug */,
+				938209752E39388700F49046 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		938B24C82FDA16F2008F75CC /* Build configuration list for PBXNativeTarget "GymRoom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				938B24C62FDA16F2008F75CC /* Debug */,
+				938B24C72FDA16F2008F75CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		93CE75302D1699CA006D5A4A /* Build configuration list for PBXProject "MyFitnessJournal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93CE75412D1699CB006D5A4A /* Debug */,
+				93CE75422D1699CB006D5A4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		93CE75432D1699CB006D5A4A /* Build configuration list for PBXNativeTarget "MyFitnessJournal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93CE75442D1699CB006D5A4A /* Debug */,
+				93CE75452D1699CB006D5A4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		93FE94862F74532F00A77CCA /* Build configuration list for PBXNativeTarget "WorkoutMirror Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93FE94842F74532F00A77CCA /* Debug */,
+				93FE94852F74532F00A77CCA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hmlongco/Factory.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.3;
+			};
+		};
+		935095342FA139A10041C7B9 /* XCRemoteSwiftPackageReference "textual" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/textual";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.1;
+			};
+		};
+		93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+		93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.20.2;
+			};
+		};
+		93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LeoNatan/LNPopupUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.7;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		930DCF402D16A3D900F1A5E4 /* Factory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = Factory;
+		};
+		9317953D2FDAADB700B5FCF7 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		9317953F2FDAAE1500B5FCF7 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
+		};
+		931795412FDAAEA100B5FCF7 /* PeerMirror */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PeerMirror;
+		};
+		934045BC2DF561F0005A00C8 /* HealthHub */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthHub;
+		};
+		934A03C72DD9CD8C0089D27C /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		934A03C92DD9CD9A0089D27C /* Factory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 930DCF3F2D16A3D900F1A5E4 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = Factory;
+		};
+		935095352FA139A10041C7B9 /* Textual */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 935095342FA139A10041C7B9 /* XCRemoteSwiftPackageReference "textual" */;
+			productName = Textual;
+		};
+		93622F152D2C81B000E9863B /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+		936D5E362DF6228200E10214 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
+		};
+		93779D852F6E8FF4008EFEF1 /* AppDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppDatabase;
+		};
+		938209BB2E39FA6C00F49046 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		9386352C2DFB608000DB5EAC /* HealthHub */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthHub;
+		};
+		938635302DFB608B00DB5EAC /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
+		};
+		938BF2C52FD9C1B1008F75CC /* PeerMirror */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PeerMirror;
+		};
+		93A6AA3E2E48727C00495CD1 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
+		};
+		93A6AA402E48735100495CD1 /* HealthHub */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthHub;
+		};
+		93C615092F18EC0A007D5E82 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
+		};
+		93CE767C2D16A13F006D5A4A /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		93D02EEF2DF4D14F00F08849 /* Commons */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Commons;
+		};
+		93D199962E50C57800697D06 /* Commons */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Commons;
+		};
+		93FA1B1E2EAA991A001809ED /* LNPopupUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */;
+			productName = LNPopupUI;
+		};
+		93FE949E2F748EE700A77CCA /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		93FE94A42F75D80000A77CCA /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 93CE752D2D1699CA006D5A4A /* Project object */;
+}

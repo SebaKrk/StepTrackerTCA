@@ -1,0 +1,702 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "—" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld min" : {
+
+    },
+    "%lld–%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld–%2$lld"
+          }
+        }
+      }
+    },
+    "%lld/%lld athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld athletes"
+          }
+        }
+      }
+    },
+    "%lld%% of class" : {
+
+    },
+    "Active Energy" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywna energia"
+          }
+        }
+      }
+    },
+    "active time" : {
+
+    },
+    "All Athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszyscy"
+          }
+        }
+      }
+    },
+    "All athletes will be disconnected." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszyscy sportowcy zostaną rozłączeni."
+          }
+        }
+      }
+    },
+    "All zones" : {
+
+    },
+    "Athlete" : {
+
+    },
+    "Athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Athletes"
+          }
+        }
+      }
+    },
+    "Avg HR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. HR"
+          }
+        }
+      }
+    },
+    "BPM" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BPM"
+          }
+        }
+      }
+    },
+    "Brak pomiaru — zawodnik poza zasięgiem" : {
+
+    },
+    "Calories" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalorie"
+          }
+        }
+      }
+    },
+    "Calories burned" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spalone kalorie"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anuluj"
+          }
+        }
+      }
+    },
+    "Capacity" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pojemność"
+          }
+        }
+      }
+    },
+    "Class name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa klasy"
+          }
+        }
+      }
+    },
+    "Classes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klasy"
+          }
+        }
+      }
+    },
+    "Combined" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razem"
+          }
+        }
+      }
+    },
+    "Couldn't load athlete data for this class. Please try again." : {
+
+    },
+    "Couldn't load class history. Please try again." : {
+
+    },
+    "Couldn't load classes. Please try again." : {
+
+    },
+    "Delete" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń"
+          }
+        }
+      }
+    },
+    "Delete class?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć klasę?"
+          }
+        }
+      }
+    },
+    "Delete session?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć sesję?"
+          }
+        }
+      }
+    },
+    "Details" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj"
+          }
+        }
+      }
+    },
+    "Edit class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj klasę"
+          }
+        }
+      }
+    },
+    "End" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ"
+          }
+        }
+      }
+    },
+    "End class?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończyć zajęcia?"
+          }
+        }
+      }
+    },
+    "End session?" : {
+
+    },
+    "End time will be set to now. Athletes still active will be finalized." : {
+
+    },
+    "Gap end" : {
+
+    },
+    "Gap start" : {
+
+    },
+    "Gym Room" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gym Room"
+          }
+        }
+      }
+    },
+    "History" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia"
+          }
+        }
+      }
+    },
+    "HR max" : {
+
+    },
+    "HR min" : {
+
+    },
+    "HR over time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR w czasie"
+          }
+        }
+      }
+    },
+    "HR Zones" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR Zones"
+          }
+        }
+      }
+    },
+    "Individual" : {
+
+    },
+    "kcal" : {
+
+    },
+    "Łączenie…" : {
+
+    },
+    "LIVE" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NA ŻYWO"
+          }
+        }
+      }
+    },
+    "Loading failed" : {
+
+    },
+    "Location" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja"
+          }
+        }
+      }
+    },
+    "Location (e.g. Sala 1)" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lokalizacja (np. Sala 1)"
+          }
+        }
+      }
+    },
+    "Max athletes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Max athletes"
+          }
+        }
+      }
+    },
+    "Max HR" : {
+
+    },
+    "Minute" : {
+
+    },
+    "New class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowa klasa"
+          }
+        }
+      }
+    },
+    "No athletes data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych athletes"
+          }
+        }
+      }
+    },
+    "No classes yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak klas"
+          }
+        }
+      }
+    },
+    "No past classes yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zajęć w historii"
+          }
+        }
+      }
+    },
+    "No samples" : {
+
+    },
+    "Ongoing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trwa"
+          }
+        }
+      }
+    },
+    "Per athlete" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per athlete"
+          }
+        }
+      }
+    },
+    "pkt" : {
+
+    },
+    "Points" : {
+
+    },
+    "Rank" : {
+
+    },
+    "Results — %@" : {
+
+    },
+    "Run a class to see it here." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uruchom zajęcia, aby pojawiły się tutaj."
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz"
+          }
+        }
+      }
+    },
+    "Schedule" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harmonogram"
+          }
+        }
+      }
+    },
+    "Scheduled" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaplanowane"
+          }
+        }
+      }
+    },
+    "Scheduled at" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data zajęć"
+          }
+        }
+      }
+    },
+    "Seconds" : {
+
+    },
+    "Selected Minute" : {
+
+    },
+    "Selected Time" : {
+
+    },
+    "Series" : {
+
+    },
+    "Set scheduled time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustaw datę zajęć"
+          }
+        }
+      }
+    },
+    "Skanuj kodem QR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanuj kodem QR"
+          }
+        }
+      }
+    },
+    "Start class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpocznij zajęcia"
+          }
+        }
+      }
+    },
+    "Started %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpoczęta %@"
+          }
+        }
+      }
+    },
+    "Tap + to create your first class." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stuknij +, aby utworzyć pierwszą klasę."
+          }
+        }
+      }
+    },
+    "Team" : {
+
+    },
+    "This athlete didn't send any HR data." : {
+
+    },
+    "This class had no peers connected." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W tej klasie nie było podłączonych athletes."
+          }
+        }
+      }
+    },
+    "This device supports up to %lld athletes. Reduce the value to save." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To urządzenie obsługuje maksymalnie %lld sportowców. Zmniejsz wartość, aby zapisać."
+          }
+        }
+      }
+    },
+    "This will also delete all athlete data from this class." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunie też wszystkie dane sportowców z tej klasy."
+          }
+        }
+      }
+    },
+    "This will also delete all related sessions and athlete data." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunie też wszystkie powiązane sesje i dane sportowców."
+          }
+        }
+      }
+    },
+    "Time" : {
+
+    },
+    "Time in zones" : {
+
+    },
+    "Today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dziś"
+          }
+        }
+      }
+    },
+    "Total class" : {
+
+    },
+    "Trening był zbyt krótki, by zanalizować HR — minimum 5 minut." : {
+
+    },
+    "Try again" : {
+
+    },
+    "Without date" : {
+
+    },
+    "Wróć do zajęć" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wróć do zajęć"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczoraj"
+          }
+        }
+      }
+    },
+    "Za mało danych" : {
+
+    },
+    "Zone" : {
+
+    },
+    "Zone end" : {
+
+    },
+    "Zone start" : {
+
+    }
+  },
+  "version" : "1.0"
+}

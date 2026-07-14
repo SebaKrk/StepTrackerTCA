@@ -1,0 +1,141 @@
+//
+//  TrainingSessionStateControl.swift
+//  MyFitnessJournal Watch App
+//
+//  Created by Sebastian Sciuba on 31/05/2025.
+//
+
+import Foundation
+import HealthKit
+import OSLog
+import SharedModels
+
+// MARK: - Session State Control
+extension DefaultTrainingManager {
+    
+    public func togglePause() {
+        guard let session = session else {
+            Logger.trainingManager.notice("togglePause — no active session")
+            return
+        }
+        if workoutSessionIsRunning {
+            pause()
+        } else {
+            resume()
+        }
+    }
+
+    public func endWorkout() {
+        guard let session = session else {
+            Logger.trainingManager.notice("endWorkout — no active session")
+            return
+        }
+        Logger.trainingManager.info("endWorkout — calling session.end() (state=\(session.state.rawValue))")
+        session.end()
+    }
+
+    // MARK: - Private Helpers
+
+    private func pause() {
+        Logger.trainingManager.info("pause — calling session.pause()")
+        session?.pause()
+    }
+
+    private func resume() {
+        Logger.trainingManager.info("resume — calling session.resume()")
+        session?.resume()
+    }
+    
+    // MARK: - Platform-specific Workout End Handling
+    
+    internal func handleWorkoutEnd(date: Date) {
+        #if os(watchOS)
+        handleWorkoutEndWatchOS(date: date)
+        #else
+        handleWorkoutEndIOS(date: date)
+        #endif
+    }
+    
+    #if os(watchOS)
+    private func handleWorkoutEndWatchOS(date: Date) {
+        Task { @MainActor in
+            guard let builder = self.builder else {
+                Logger.trainingManager.notice("handleWorkoutEndWatchOS — no builder")
+                return
+            }
+            do {
+                try await builder.endCollection(at: date)
+                let finishedWorkout = try await builder.finishWorkout()
+                self.workout = finishedWorkout
+                self.session?.end()
+                Logger.trainingManager.info("watchOS: workout finished and saved")
+            } catch {
+                Logger.trainingManager.error("watchOS: handleWorkoutEnd failed: \(error)")
+            }
+        }
+    }
+    #else
+    private func handleWorkoutEndIOS(date: Date) {
+        // Two-step: (1) historical fetch for workouts already saved before observer
+        // registers (Watch saves typically arrive in HK within ~1s — race condition),
+        // (2) anchored observer fallback for late arrival.
+        //
+        // Pre-fix: only the anchored observer was used. `HKAnchoredObjectQueryDescriptor`
+        // only emits on CHANGE events; if Watch's save completed before iPhone reached
+        // this method, observer never emitted and `self.workout` stayed nil forever.
+        Task { @MainActor in
+            self.workout = nil
+            let startDate = self.session?.startDate ?? date.addingTimeInterval(-3600)
+            let activityName = self.selectedWorkout.map { String(describing: $0) } ?? "nil"
+            Logger.trainingManager.info("handleWorkoutEndIOS — searching HealthKit for Watch workout (type: \(activityName), window: \(startDate)–\(date))")
+
+            let datePredicate = HKQuery.predicateForSamples(
+                withStart: startDate,
+                end: date.addingTimeInterval(60)
+            )
+            let predicate: NSPredicate
+            if let activityType = selectedWorkout {
+                let typePredicate = HKQuery.predicateForWorkouts(with: activityType)
+                predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, typePredicate])
+            } else {
+                predicate = datePredicate
+            }
+
+            // Step 1: historical fetch — newest workout matching predicate
+            let historical = HKSampleQueryDescriptor(
+                predicates: [.workout(predicate)],
+                sortDescriptors: [SortDescriptor(\.endDate, order: .reverse)],
+                limit: 1
+            )
+            do {
+                let samples = try await historical.result(for: self.healthStore)
+                if let workout = samples.first {
+                    self.workout = workout
+                    Logger.trainingManager.info("handleWorkoutEndIOS — historical fetch found: \(workout.uuid.uuidString)")
+                    return
+                }
+            } catch {
+                Logger.trainingManager.error("handleWorkoutEndIOS — historical query failed: \(error.localizedDescription)")
+            }
+
+            // Step 2: fallback observer for late arrival (Watch save delayed beyond historical fetch)
+            Logger.trainingManager.info("handleWorkoutEndIOS — historical empty, falling back to anchored observer")
+            let descriptor = HKAnchoredObjectQueryDescriptor(
+                predicates: [.workout(predicate)],
+                anchor: nil
+            )
+            do {
+                for try await result in descriptor.results(for: self.healthStore) {
+                    if let workout = result.addedSamples.first {
+                        self.workout = workout
+                        Logger.trainingManager.info("handleWorkoutEndIOS — observed: \(workout.uuid.uuidString)")
+                        return
+                    }
+                }
+            } catch {
+                Logger.trainingManager.error("handleWorkoutEndIOS — anchored query failed: \(error.localizedDescription)")
+            }
+        }
+    }
+    #endif
+}

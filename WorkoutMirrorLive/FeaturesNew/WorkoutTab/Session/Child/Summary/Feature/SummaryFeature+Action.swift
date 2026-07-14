@@ -1,0 +1,136 @@
+//
+//  SummaryFeature+Action.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Sciuba on 30/08/2025.
+//
+
+import ComposableArchitecture
+import Foundation
+import SharedModels
+
+extension SummaryFeature {
+
+    @CasePathable
+    enum Action: ViewAction {
+
+        // MARK: - Actions
+
+        /// Responsible for changing the state of the view.
+        case changeViewState(SummaryState)
+
+        /// Initiates the workout summary check process. If the workout is ready, transitions to a loaded state; otherwise, begins a retry sequence.
+        case checkSummary
+
+        /// Called when the workout summary has been successfully loaded.
+        case summaryLoaded(WorkoutSummary)
+
+        /// Sets the training plan associated with this session. Called by `SessionFeature` on appear.
+        case setTrainingSession(TrainingSession?)
+
+        /// Result of the discard operation. `errorMessage == nil` → success (dismiss).
+        /// Non-nil → real HK error (NOT idempotent noData) → show errorAlert + clear isDiscarding.
+        case discardCompleted(errorMessage: String?)
+
+        /// Receives HR samples and phase timestamps from the parent (SessionFeature)
+        /// so that per-phase HR can be calculated at save time.
+        case setHRData(hrBuffer: [(date: Date, bpm: Double)], phaseTimestamps: [(name: String, start: Date, end: Date?)])
+
+        /// Parent passes the live effort points total + dominant zone at session
+        /// end (display-only). Dominant zone drives the background gradient.
+        case setEffortPoints(points: Int, dominantZone: HeartRateZone?)
+
+        // MARK: - Delegate
+
+        /// Messages to ancestors (AppTabNewFeature listens through the
+        /// destination chain).
+        case delegate(Delegate)
+
+        enum Delegate: Equatable {
+
+            /// iPhone-standalone: the summary confirmed the locally saved
+            /// HKWorkout. The Watch never sends `.workoutSaved` in this mode,
+            /// so this is the ONLY signal that can consume `PendingEffortScore`
+            /// — without it a strap workout freezes its points into the pending
+            /// file and the next session silently overwrites them.
+            case savedWorkoutFound(UUID)
+        }
+
+        // MARK: - View Actions
+
+        case view(View)
+
+        @CasePathable
+        enum View {
+
+            /// Action triggered when the view appears on the screen.
+            case viewDidAppear
+
+            ///
+            case viewDidDisappear
+
+            ///
+            case endWorkoutButtonTapped
+
+            /// Dismisses the summary screen from the failed state.
+            case closeButtonTapped
+
+            /// Shows the discard confirmation alert.
+            case discardWorkoutButtonTapped
+
+            /// Toggles the visibility of the entire result section for the given WOD index.
+            case toggleResult(Int)
+
+            /// Toggles the note input visibility for the given WOD index.
+            case toggleNote(Int)
+
+            /// Updates the score text for the given WOD index.
+            case updateScore(Int, String)
+
+            /// Updates the note text for the given WOD index.
+            case updateNote(Int, String)
+
+            /// Opens the set input sheet for a specific exercise (legacy entry — child feature
+            /// `WODScoringFeature` emit'uje `requestEditExercises` delegate który parent łapie).
+            case openSetInput(wodIndex: Int, exerciseIndex: Int)
+
+            /// Updates the actual weight text for a specific exercise within a WOD.
+            case updateExerciseWeight(wodIndex: Int, exerciseIndex: Int, String)
+
+            /// Updates the actual reps text for a specific exercise within a WOD.
+            case updateExerciseReps(wodIndex: Int, exerciseIndex: Int, String)
+
+            /// Updates the scaling type for a specific exercise within a WOD.
+            case updateExerciseScaling(wodIndex: Int, exerciseIndex: Int, ScalingType)
+
+            /// Toggles the PR flag for a specific exercise within a WOD.
+            case toggleExercisePR(wodIndex: Int, exerciseIndex: Int)
+        }
+
+        // MARK: - WOD Scorings (child feature actions)
+
+        /// Forwarded actions from per-WOD `WODScoringFeature` child stores. Includes binding
+        /// updates (scoreText, note), toggle expand actions, and delegate.requestEditExercises.
+        case wodScorings(IdentifiedActionOf<WODScoringFeature>)
+
+        // MARK: - Set Input
+
+        case setInput(PresentationAction<SetInputFeature.Action>)
+
+        // MARK: - Alerts
+
+        case alert(PresentationAction<DiscardAlert>)
+
+        @CasePathable
+        enum DiscardAlert {
+
+            ///
+            case confirmDiscard
+        }
+
+        /// Presentation action for the informational error alert (no actions — only dismiss).
+        case errorAlert(PresentationAction<Never>)
+    }
+
+}
+

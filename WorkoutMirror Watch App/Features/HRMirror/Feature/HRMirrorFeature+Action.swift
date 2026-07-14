@@ -1,0 +1,149 @@
+//
+//  HRMirrorFeature+Action.swift
+//  WorkoutMirror Watch App
+//
+//  Created by Sebastian Sciuba on 25/03/2026.
+//
+
+import ComposableArchitecture
+import Foundation
+import HealthKit
+
+extension HRMirrorFeature {
+
+    @CasePathable
+    enum Action: ViewAction {
+
+        // MARK: - Internal Actions
+
+        /// Starts HR query, timers and extended runtime session.
+        ///
+        /// Sent by the parent (`AppFeatureAW`) immediately when `workoutStarted`
+        /// is received — before `HRMirrorView` has had a chance to appear.
+        /// This removes the SwiftUI render-cycle delay from the HR acquisition pipeline.
+        case start
+
+        /// Ends the `HKWorkoutSession` on Watch and cancels all running effects.
+        ///
+        /// Sent by the parent (`AppFeatureAW`) before setting `hrMirror = nil`,
+        /// ensuring `WatchWorkoutSessionClient.endSession()` is called before
+        /// TCA tears down the feature scope.
+        case stop
+
+        /// Delivered when `HRQueryClient` yields a new BPM sample from the Watch sensor.
+        ///
+        /// Updates `heartRate`, recalculates `heartRateZone`, and forwards
+        /// the reading to the paired iPhone via WatchConnectivity.
+        case hrReceived(Double)
+
+        /// Fired every 0.1 s for smooth centisecond display between iPhone ticks.
+        ///
+        /// Increments `elapsedSeconds` by 0.1 only when not paused.
+        /// Overridden on every `workoutTick` from iPhone.
+        case subSecondTick
+
+        /// Fired 3 s after appear or last tap — hides the TabView indicator dots.
+        case hideTabIndicator
+
+        /// Received from iPhone via WatchConnectivity when its 3-2-1 countdown starts.
+        ///
+        /// Watch flips `isCountingDown = true` and runs a local 1-Hz ticker
+        /// (`countdownTick`) for visual sync with iPhone. Drift ~100-200 ms acceptable.
+        case countdownStart
+
+        /// 1-Hz tick that decrements `countdownRemaining`. Fires while `isCountingDown == true`.
+        /// On reaching 0 the overlay disappears and the ticker self-cancels.
+        case countdownTick
+
+        /// Received from iPhone via WatchConnectivity when its countdown finishes.
+        ///
+        /// Watch has no independent countdown — it waits for this event to start
+        /// the elapsed-time timer, keeping both devices perfectly in sync.
+        case countdownFinished
+
+        // MARK: - iPhone Events
+
+        /// Received from the parent when the paired iPhone pauses the workout.
+        case workoutPaused
+
+        /// Received from the parent when the paired iPhone resumes the workout.
+        ///
+        /// Resets `elapsedSeconds` to the authoritative value from iPhone.
+        case workoutResumed(elapsedSeconds: TimeInterval)
+
+        /// Received once per second from iPhone — the authoritative elapsed time.
+        ///
+        /// Watch has no local timer; it displays exactly what iPhone sends.
+        case workoutTick(elapsedSeconds: TimeInterval)
+
+        /// Delivered when the Watch `HKWorkoutSession` transitions to `.paused` or `.running`.
+        ///
+        /// Used to sync `isPaused` when iPhone initiates a pause via the mirrored session —
+        /// in that case HealthKit propagates the state to Watch's primary session, but
+        /// `HRMirrorFeature` has no other way to observe it.
+        case sessionStateChanged(HKWorkoutSessionState)
+
+        /// Sent at the end of the `.stop` flow once the workout is saved and the log
+        /// transferred. Carries the mini-summary built from `finishWorkout()`; `nil`
+        /// when the save produced no workout. Transitions the UI from "Saving…" to
+        /// the summary screen (IOS-00098-D).
+        case savedSummaryLoaded(WatchWorkoutSummary?)
+
+        // MARK: - Delegate
+
+        /// Delegate actions sent to the parent (`AppFeatureAW`).
+        case delegate(Delegate)
+
+        enum Delegate {
+            /// Workout has been saved to HealthKit and log transferred. Safe to dismiss.
+            case didFinishSaving
+        }
+
+        // MARK: - View Actions
+
+        /// Actions triggered directly by view lifecycle events.
+        case view(ViewAction)
+
+        // MARK: - Nested Types
+
+        enum ViewAction {
+
+            /// Called when `HRMirrorView` appears on screen.
+            ///
+            /// Starts the `HKAnchoredObjectQuery` heart rate stream
+            /// and the one-second elapsed-time ticker.
+            case onAppear
+
+            /// Called when the user taps the pause/resume button on Watch.
+            ///
+            /// Toggles the paused state locally and forwards the corresponding
+            /// `workoutPaused` or `workoutResumed` event to the paired iPhone.
+            case pauseResumeTapped
+
+            /// Called when the user taps anywhere on screen.
+            ///
+            /// Shows the TabView indicator dots and resets the 3 s auto-hide timer.
+            case screenTapped
+
+            /// Called when the user swipes to a different tab.
+            case tabSelected(HRMirrorFeature.Tab)
+
+            /// Called when the user completes a 1.5 s long-press on the Stop button.
+            ///
+            /// A short tap intentionally does nothing — long-press is required to
+            /// prevent accidental workout termination from sweaty hands or motion
+            /// during exercise. Triggers the same `.stop` flow as iPhone-initiated ending.
+            case stopLongPressConfirmed
+
+            /// Called when the user taps Done on the post-save mini-summary.
+            ///
+            /// Forwards `.delegate(.didFinishSaving)` so `AppFeatureAW` dismisses
+            /// the feature — the same teardown as before IOS-00098-D, just deferred
+            /// until the user has seen the summary.
+            case summaryDoneTapped
+
+        }
+
+    }
+
+}

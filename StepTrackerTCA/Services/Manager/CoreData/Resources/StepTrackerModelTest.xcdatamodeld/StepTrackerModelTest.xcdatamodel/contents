@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D81" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="GoalsEntity" representedClassName="GoalsEntity" syncable="YES">
+        <attribute name="id" attributeType="String"/>
+        <relationship name="goalsWorkout" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="GoalWorkoutEntity" inverseName="goals" inverseEntity="GoalWorkoutEntity"/>
+        <relationship name="goalWeight" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GoalWeightEntity" inverseName="goals" inverseEntity="GoalWeightEntity"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="UserEntity" inverseName="goals" inverseEntity="UserEntity"/>
+    </entity>
+    <entity name="GoalWeightEntity" representedClassName="GoalWeightEntity" syncable="YES">
+        <attribute name="dateAdded" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="weight" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="weightUnit" attributeType="String"/>
+        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GoalsEntity" inverseName="goalWeight" inverseEntity="GoalsEntity"/>
+    </entity>
+    <entity name="GoalWorkoutEntity" representedClassName="GoalWorkoutEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="movement" attributeType="String"/>
+        <attribute name="value" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="workoutType" attributeType="String"/>
+        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GoalsEntity" inverseName="goalsWorkout" inverseEntity="GoalsEntity"/>
+    </entity>
+    <entity name="UserEntity" representedClassName="UserEntity" syncable="YES">
+        <attribute name="email" attributeType="String"/>
+        <attribute name="healthKitEnabled" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="String"/>
+        <relationship name="goals" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="GoalsEntity" inverseName="user" inverseEntity="GoalsEntity"/>
+        <relationship name="workouts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WorkoutsLogEntity" inverseName="user" inverseEntity="WorkoutsLogEntity"/>
+    </entity>
+    <entity name="WorkoutCrossEntity" representedClassName="WorkoutCrossEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="movement" attributeType="String"/>
+        <attribute name="value" attributeType="String"/>
+        <attribute name="workoutType" attributeType="String"/>
+        <relationship name="workouts" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutsLogEntity" inverseName="workoutCross" inverseEntity="WorkoutsLogEntity"/>
+    </entity>
+    <entity name="WorkoutFitnessEntity" representedClassName="WorkoutFitnessEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="movement" attributeType="String"/>
+        <attribute name="value" attributeType="String"/>
+        <attribute name="workoutType" attributeType="String"/>
+        <relationship name="workouts" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutsLogEntity" inverseName="workoutFitness" inverseEntity="WorkoutsLogEntity"/>
+    </entity>
+    <entity name="WorkoutHeroEntity" representedClassName="WorkoutHeroEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="movement" attributeType="String"/>
+        <attribute name="value" attributeType="String"/>
+        <attribute name="workoutType" attributeType="String"/>
+        <relationship name="workouts" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutsLogEntity" inverseName="workoutHero" inverseEntity="WorkoutsLogEntity"/>
+    </entity>
+    <entity name="WorkoutsLogEntity" representedClassName="WorkoutsLogEntity" syncable="YES">
+        <attribute name="id" attributeType="String"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="UserEntity" inverseName="workouts" inverseEntity="UserEntity"/>
+        <relationship name="workoutCross" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutCrossEntity" inverseName="workouts" inverseEntity="WorkoutCrossEntity"/>
+        <relationship name="workoutFitness" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutFitnessEntity" inverseName="workouts" inverseEntity="WorkoutFitnessEntity"/>
+        <relationship name="workoutHero" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutHeroEntity" inverseName="workouts" inverseEntity="WorkoutHeroEntity"/>
+        <relationship name="workoutStrength" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutStrengthEntity" inverseName="workouts" inverseEntity="WorkoutStrengthEntity"/>
+        <relationship name="workoutWeightlifting" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutWeightliftingEntity" inverseName="workouts" inverseEntity="WorkoutWeightliftingEntity"/>
+    </entity>
+    <entity name="WorkoutStrengthEntity" representedClassName="WorkoutStrengthEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="movement" attributeType="String"/>
+        <attribute name="value" attributeType="String"/>
+        <attribute name="workoutType" attributeType="String"/>
+        <relationship name="workouts" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutsLogEntity" inverseName="workoutStrength" inverseEntity="WorkoutsLogEntity"/>
+    </entity>
+    <entity name="WorkoutWeightliftingEntity" representedClassName="WorkoutWeightliftingEntity" syncable="YES">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="movement" attributeType="String"/>
+        <attribute name="value" attributeType="String"/>
+        <attribute name="workoutType" attributeType="String"/>
+        <relationship name="workouts" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="WorkoutsLogEntity" inverseName="workoutWeightlifting" inverseEntity="WorkoutsLogEntity"/>
+    </entity>
+</model>
