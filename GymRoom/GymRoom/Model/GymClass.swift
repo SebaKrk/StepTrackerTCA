@@ -17,9 +17,12 @@ import Foundation
 struct GymClass: Identifiable, Sendable, Equatable {
     let id: UUID
     var name: String              // mandatory ("Morning CrossFit")
-    var location: String          // mandatory ("Sala 1")
-    var scheduledAt: Date?        // optional ("Wt 18:00")
+    var location: String          // mandatory ("Sala 1" / address)
+    var scheduledAt: Date?        // base date; for recurring = first occurrence
     var maxParticipants: Int      // BLE concurrent peer limit (Apple iPad ~8-16)
+    var latitude: Double?         // geocoded from the MapKit address picker
+    var longitude: Double?
+    var isRecurring: Bool         // repeats weekly on scheduledAt's weekday+time
     var createdAt: Date
 
     init(
@@ -28,6 +31,9 @@ struct GymClass: Identifiable, Sendable, Equatable {
         location: String,
         scheduledAt: Date? = nil,
         maxParticipants: Int = 8,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        isRecurring: Bool = false,
         createdAt: Date = .now
     ) {
         self.id = id
@@ -35,6 +41,9 @@ struct GymClass: Identifiable, Sendable, Equatable {
         self.location = location
         self.scheduledAt = scheduledAt
         self.maxParticipants = maxParticipants
+        self.latitude = latitude
+        self.longitude = longitude
+        self.isRecurring = isRecurring
         self.createdAt = createdAt
     }
 }

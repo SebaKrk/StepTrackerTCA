@@ -1100,4 +1100,17 @@
     A (done): SharedModels — `EffortPointsScoring.points(from:since:)` window-scoped delta relative to a join snapshot; monotonic-delta / parity / empty-origin tests
     B (done): iPhone — `JoinLiveClass` emits `.delegate(.joinedClass)` on connect/reconnect; `SessionFeature` snapshots `effortPoints.secondsByZone` once on first join, bridge sends the window-scoped delta instead of the cumulative total, snapshot cleared on leave; iPad unchanged
     C (backlog): personal history recap — persist class points + class marker on `WorkoutEffortScoreRecord` (migration); iPad → athlete results payload at `endSession` (place, participant count); recap section in `ActivityDetails`
-    D (backlog): GymRoom class setup — location field + weekly-recurring option (replace single `scheduledAt` with recurrence + weekday)
+    (GymRoom class setup — location + weekly recurrence — moved to its own iPad ticket IPAD-00096)
+
+### IPAD-00096 GymRoom results table polish + class scheduling (location + weekly recurrence)
+    - results table (Points tab + end-of-class cover) was a bare `Table` with no container: visually inconsistent with the sibling charts and jumped on async load / tab switch
+    - class scheduling gains a real address (MapKit autocomplete, coordinates stored for the future recap map) and weekly recurrence, so a trainer can lay out a fixed weekly timetable plus one-off events
+    - recurrence is a template + computed date, NOT generated instances: one record per class, the displayed date rolls forward weekly (`nextOccurrence`) — no duplicates, no CloudKit fan-out, never shows a stale past date
+    - list reshaped into a weekly grid: fixed Mon–Sun sections (recurring classes by weekday, empty day → "No classes"), one-off classes under an unnamed divider (dated chronologically, undated last)
+
+    A: Results table — wrap `ClassResultsTableView` in a GroupBox (matches charts) + `maxHeight: .infinity` + `.scrollContentBackground(.hidden)` for a uniform surface; fixes the jump and the inconsistent framing
+    B: Model + migration `v10` — `latitude`/`longitude`/`isRecurring` on `GymClassRecord` + `GymClass` + mapping + Draft; additive, CloudKit-safe (old rows decode with NULL coords / `isRecurring` 0)
+    C: Address search (MapKit) — `AddressSearchClient` over `MKLocalSearchCompleter` (autocomplete stream) + `MKLocalSearch` resolve; suggestion rows in `ClassCreation`, tap sets address + stores coordinates
+    D: Weekly recurrence — `WeeklyRecurrence.nextOccurrence` pure helper in SharedModels (DST-safe, `now` injected, unit-tested) + "Repeat weekly" toggle bound to a base `scheduledAt`
+    E: Weekly grid list — fixed Mon–Sun sections with "No classes" placeholder for empty days; one-off classes under an unnamed divider; removed the old dated-group / undated split
+    F: Class detail — recurring class shows its NEXT occurrence + "weekly" tag (never the past base date); `now` injected via `@Dependency(\.date)` on appear

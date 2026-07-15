@@ -36,8 +36,20 @@ extension ClassCreationFeature {
 
             /// Tap "Cancel" w toolbar — dismiss sheet bez delegate'u.
             case cancelTapped
+
+            /// Tap na wiersz podpowiedzi adresu — ustawia `location` na wybrany
+            /// adres i rozwiązuje współrzędne (`AddressSearchClient.resolve`).
+            case addressSuggestionTapped(AddressSuggestion)
         }
-        
+
+        // MARK: - Internal (address search)
+
+        /// Nowe podpowiedzi z `MKLocalSearchCompleter` (stream w `AddressSearchClient`).
+        case addressSuggestionsUpdated([AddressSuggestion])
+
+        /// Wybrana podpowiedź rozwiązana na współrzędne — zapis lat/lng do State.
+        case addressResolved(ResolvedAddress)
+
         // MARK: - Delegate (parent — ClassesListFeature)
 
         /// Komunikaty do parent reducer'a. Parent reaguje: `.classCreated(gymClass)` →

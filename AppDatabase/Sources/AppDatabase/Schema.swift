@@ -289,6 +289,24 @@ extension DependencyValues {
             .execute(db)
         }
 
+        // GymClass gains a geocoded address (latitude/longitude, nullable — filled
+        // from the MapKit address picker) and a weekly-recurrence flag. Existing
+        // rows decode fine: coordinates stay NULL, isRecurring defaults to 0.
+        migrator.registerMigration("v10_gymClassLocationAndRecurrence") { db in
+            try #sql("""
+                ALTER TABLE "gymClassRecords" ADD COLUMN "latitude" REAL
+                """)
+            .execute(db)
+            try #sql("""
+                ALTER TABLE "gymClassRecords" ADD COLUMN "longitude" REAL
+                """)
+            .execute(db)
+            try #sql("""
+                ALTER TABLE "gymClassRecords" ADD COLUMN "isRecurring" INTEGER NOT NULL DEFAULT 0
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

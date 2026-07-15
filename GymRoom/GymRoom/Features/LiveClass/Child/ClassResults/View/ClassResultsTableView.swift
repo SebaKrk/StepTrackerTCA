@@ -22,6 +22,24 @@ struct ClassResultsTableView: View {
     // MARK: - Body
 
     var body: some View {
+        // Wrapped in a GroupBox to match the sibling charts (`combinedChart`,
+        // `athleteCard`) and pinned to full height: the table then owns a stable
+        // frame regardless of row count, so it no longer jumps when data loads
+        // async or when the segmented tab switches.
+        GroupBox {
+            resultsTable
+        } label: {
+            tableHeader
+        }
+        .frame(maxHeight: .infinity)
+    }
+
+    private var tableHeader: some View {
+        Text(tableSectionTitle)
+            .font(.headline)
+    }
+
+    private var resultsTable: some View {
         Table(store.sortedRows, sortOrder: $store.sortOrder) {
             TableColumn(rankColumnTitle) { row in
                 rankCell(row)
@@ -52,6 +70,10 @@ struct ClassResultsTableView: View {
                 metricCell(durationText(row))
             }
         }
+        // Hide the table's own system background so the GroupBox fill shows
+        // through — the rows sit on one uniform surface instead of a lighter
+        // "island" floating inside the box.
+        .scrollContentBackground(.hidden)
     }
 
     // MARK: - Cells (implementation)
@@ -87,6 +109,10 @@ struct ClassResultsTableView: View {
     }
 
     // MARK: - Texts (implementation)
+
+    private var tableSectionTitle: String {
+        String(localized: "Ranking", bundle: .main)
+    }
 
     private var rankColumnTitle: String {
         String(localized: "Rank", bundle: .main)

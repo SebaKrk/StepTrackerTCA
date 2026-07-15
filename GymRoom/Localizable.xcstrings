@@ -46,6 +46,9 @@
     "active time" : {
 
     },
+    "Address or room (e.g. Iron Den)" : {
+
+    },
     "All Athletes" : {
       "localizations" : {
         "pl" : {
@@ -376,6 +379,7 @@
       }
     },
     "Location (e.g. Sala 1)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -411,6 +415,9 @@
         }
       }
     },
+    "Next class" : {
+
+    },
     "No athletes data" : {
       "localizations" : {
         "pl" : {
@@ -420,6 +427,9 @@
           }
         }
       }
+    },
+    "No classes" : {
+
     },
     "No classes yet" : {
       "localizations" : {
@@ -472,6 +482,12 @@
 
     },
     "Rank" : {
+
+    },
+    "Ranking" : {
+
+    },
+    "Repeat weekly" : {
 
     },
     "Results — %@" : {
@@ -661,7 +677,7 @@
     "Try again" : {
 
     },
-    "Without date" : {
+    "weekly" : {
 
     },
     "Wróć do zajęć" : {

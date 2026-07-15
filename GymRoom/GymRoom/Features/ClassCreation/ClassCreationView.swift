@@ -67,9 +67,31 @@ struct ClassCreationView: View {
                 .focused($focusedField, equals: .location)
                 .submitLabel(.done)
                 .onSubmit { focusedField = nil }
+            ForEach(store.locationSuggestions) { suggestion in
+                addressSuggestionRow(suggestion)
+            }
         } header: {
             Text(detailsHeader)
         }
+    }
+
+    private func addressSuggestionRow(_ suggestion: AddressSuggestion) -> some View {
+        Button {
+            focusedField = nil
+            send(.addressSuggestionTapped(suggestion))
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(suggestion.title)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                if !suggestion.subtitle.isEmpty {
+                    Text(suggestion.subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -82,6 +104,7 @@ struct ClassCreationView: View {
                     selection: $store.scheduledAt,
                     displayedComponents: [.date, .hourAndMinute]
                 )
+                Toggle(recurringToggleLabel, isOn: $store.isRecurring)
             }
         } header: {
             Text(scheduleHeader)
@@ -170,7 +193,11 @@ struct ClassCreationView: View {
     }
 
     private var locationFieldPlaceholder: String {
-        String(localized: "Location (e.g. Sala 1)", bundle: .main)
+        String(localized: "Address or room (e.g. Iron Den)", bundle: .main)
+    }
+
+    private var recurringToggleLabel: String {
+        String(localized: "Repeat weekly", bundle: .main)
     }
 
     private var scheduleToggleLabel: String {

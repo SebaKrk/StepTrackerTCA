@@ -25,6 +25,11 @@ struct ClassDetailFeature {
         /// Aktualnie wyświetlany template — `var` żeby Edit mógł go nadpisać po Save.
         var gymClass: GymClass
 
+        /// Snapshot "teraz" (`@Dependency(\.date)`, set w `viewDidAppear`) — baseline
+        /// do liczenia następnego terminu zajęć cyklicznych (`WeeklyRecurrence`).
+        /// Fallback `.now` tylko dla preview/init; reducer nadpisuje kontrolowaną wartością.
+        var now: Date = .now
+
         /// Sheet edit'ujący istniejący template. Otwiera się z ellipsis menu → "Edytuj".
         @Presents var editSheet: ClassCreationFeature.State?
 
@@ -54,6 +59,10 @@ struct ClassDetailFeature {
         }
 
         enum View {
+            /// Pierwsze pojawienie się — snapshot `now` dla obliczenia następnego
+            /// terminu zajęć cyklicznych.
+            case viewDidAppear
+
             case startTapped
 
             /// Ellipsis menu → "Edytuj" — otwórz sheet z prefilled values.
@@ -65,10 +74,15 @@ struct ClassDetailFeature {
     }
 
     @Dependency(\.gymClassClient) var gymClassClient
+    @Dependency(\.date) var date
 
     var body: some Reducer<State, Action> {
         Reduce<State, Action> { state, action in
             switch action {
+
+            case .view(.viewDidAppear):
+                state.now = date.now
+                return .none
 
             case .view(.startTapped):
                 return .send(.delegate(.startLiveClass(state.gymClass)))

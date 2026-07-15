@@ -27,6 +27,9 @@ extension GymClassRecord {
             location: domain.location,
             scheduledAt: domain.scheduledAt,
             maxParticipants: domain.maxParticipants,
+            latitude: domain.latitude,
+            longitude: domain.longitude,
+            isRecurring: domain.isRecurring,
             createdAt: domain.createdAt,
             updatedAt: updatedAt,
             ckRecordData: nil
@@ -42,6 +45,9 @@ extension GymClassRecord {
             location: location,
             scheduledAt: scheduledAt,
             maxParticipants: maxParticipants,
+            latitude: latitude,
+            longitude: longitude,
+            isRecurring: isRecurring,
             createdAt: createdAt
         )
     }

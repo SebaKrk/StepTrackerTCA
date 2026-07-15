@@ -34,12 +34,25 @@ public struct GymClassRecord: Identifiable, CloudKitSyncable {
     /// Sala / lokalizacja (np. "Sala 1"). Mandatory.
     public var location: String
 
-    /// Planowany start. `nil` = klasa bez ustalonej daty (sekcja "Without date" w UI).
+    /// Planowany start. Dla zajęć cyklicznych (`isRecurring`) to data BAZOWA
+    /// pierwszego wystąpienia — kolejne terminy liczone są co tydzień od niej.
+    /// `nil` = klasa bez ustalonej daty (sekcja "Without date" w UI).
     public var scheduledAt: Date?
 
     /// Max BLE concurrent peers. Set'owany w ClassCreation z `BLECapacityClient`
     /// recommended dla device'a (8/12/16).
     public var maxParticipants: Int
+
+    /// Geocoded address coordinates from the MapKit address picker. `nil` when the
+    /// location was typed freehand or predates the address feature — reserved for
+    /// the map shown in the athlete recap (future).
+    public var latitude: Double?
+    public var longitude: Double?
+
+    /// Weekly recurrence flag. `true` = repeats every week on `scheduledAt`'s
+    /// weekday+time; the displayed date rolls forward (next occurrence ≥ now)
+    /// without generating separate records.
+    public var isRecurring: Bool
 
     // MARK: - CloudKitSyncable
 
@@ -55,6 +68,9 @@ public struct GymClassRecord: Identifiable, CloudKitSyncable {
         location: String,
         scheduledAt: Date?,
         maxParticipants: Int,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        isRecurring: Bool = false,
         createdAt: Date,
         updatedAt: Date,
         ckRecordData: Data? = nil
@@ -64,6 +80,9 @@ public struct GymClassRecord: Identifiable, CloudKitSyncable {
         self.location = location
         self.scheduledAt = scheduledAt
         self.maxParticipants = maxParticipants
+        self.latitude = latitude
+        self.longitude = longitude
+        self.isRecurring = isRecurring
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.ckRecordData = ckRecordData
