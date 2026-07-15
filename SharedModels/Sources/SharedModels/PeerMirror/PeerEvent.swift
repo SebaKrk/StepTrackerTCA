@@ -36,4 +36,9 @@ public enum PeerEvent: Sendable, Equatable {
     /// Peer-side: reducer reset state (phase=.idle, delegate.didLeave) — toolbar icon znika.
     /// NIE peer-specific (host nie wie kto wciąż subskrybuje), więc bez deviceID.
     case classEnded
+
+    /// Host wysłał uczestnikowi jego wynik zajęć (per-device, `0xFE`-prefiksowany payload
+    /// na `hrCharacteristic`, tuż przed `classEnded`/`stopAdvertising`). `deviceID` w
+    /// payloadzie adresuje odbiorcę — peer stąd zapisuje pending class recap (IOS-00104-C).
+    case recapReceived(ClassRecapPayload)
 }

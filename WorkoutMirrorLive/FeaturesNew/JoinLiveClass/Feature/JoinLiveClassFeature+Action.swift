@@ -46,6 +46,11 @@ extension JoinLiveClassFeature {
         /// `currentEffortPoints` synced by the parent from the LiveSession counter.
         case workoutMetricsReceived(WorkoutMetrics)
 
+        /// Host (iPad) przysłał wynik zajęć (per-device recap) przez BLE. Reducer
+        /// przekazuje go do parenta (`delegate.recapReceived`), który parkuje pending
+        /// class recap do konsumpcji przy zapisie treningu (IOS-00104-C).
+        case recapReceived(ClassRecapPayload)
+
         // MARK: - View Actions
 
         case view(View)
@@ -92,6 +97,11 @@ extension JoinLiveClassFeature {
             /// reconnect. Parent snapshots the effort-points origin on the FIRST
             /// one to scope class points to the class window (fair leaderboard).
             case joinedClass
+
+            /// Host przysłał wynik zajęć — parent parkuje pending class recap
+            /// (składa payload z lokalnym gymName/classPoints) do zapisu przy
+            /// zakończeniu treningu (IOS-00104-C).
+            case recapReceived(ClassRecapPayload)
         }
     }
 }

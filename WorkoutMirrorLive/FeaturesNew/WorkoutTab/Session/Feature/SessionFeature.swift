@@ -55,6 +55,7 @@ struct SessionFeature {
         }
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$connectionLostAlert, action: \.connectionLostAlert)
+        .ifLet(\.$classActiveAlert, action: \.classActiveAlert)
         .ifLet(\.joinLiveClass, action: \.joinLiveClass) {
             JoinLiveClassFeature()
         }

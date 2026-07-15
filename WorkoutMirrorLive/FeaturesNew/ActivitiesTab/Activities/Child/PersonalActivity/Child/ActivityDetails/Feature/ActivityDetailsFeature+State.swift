@@ -76,6 +76,11 @@ extension ActivityDetailsFeature {
         /// (recorded before the feature / no HR) → section hidden.
         var effortScore: WorkoutEffortScore?
 
+        /// GymRoom class attendance for this workout (recap: place, participant count,
+        /// class points, location) — `nil` when the workout wasn't part of a class, then
+        /// the recap section is hidden (IOS-00104-C).
+        var classParticipation: ClassParticipation?
+
         /// Zones section toggle: `false` shows time per zone, `true` shows the
         /// points each zone contributed. Flipped by tapping the section.
         var showZonePoints: Bool = false

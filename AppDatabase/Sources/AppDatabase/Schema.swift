@@ -307,6 +307,34 @@ extension DependencyValues {
             .execute(db)
         }
 
+        // Participant's attendance of a GymRoom class (IOS-00104-C), linked 1:1 to the
+        // workout via hkWorkoutId. Separate from effort score (attendance shows even for
+        // a zero-point class). Coordinates nullable (class had no geocoded address).
+        migrator.registerMigration("v11_classParticipation") { db in
+            try #sql("""
+                CREATE TABLE "classParticipationRecords" (
+                  "id"                TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "hkWorkoutId"       TEXT NOT NULL,
+                  "classSessionId"    TEXT NOT NULL,
+                  "gymName"           TEXT NOT NULL DEFAULT '',
+                  "place"             INTEGER NOT NULL,
+                  "participantCount"  INTEGER NOT NULL,
+                  "classPoints"       INTEGER NOT NULL,
+                  "latitude"          REAL,
+                  "longitude"         REAL,
+                  "createdAt"         TEXT NOT NULL,
+                  "updatedAt"         TEXT NOT NULL,
+                  "ckRecordData"      BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE UNIQUE INDEX "index_classParticipationRecords_on_hkWorkoutId"
+                ON "classParticipationRecords"("hkWorkoutId")
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

@@ -76,15 +76,27 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
         didUpdateValueFor characteristic: CBCharacteristic,
         error: Error?
     ) {
-        // HR characteristic notify: host emit'uje "class ended" sentinel (1 byte 0xFF)
-        // przed stopAdvertising. Distinct od JSON HR payloads (~150 bytes), brak collision.
+        // HR characteristic notify — host→peer. Trzy typy rozróżniane prefiksem:
+        //  - 1 bajt 0xFF          → class ended sentinel
+        //  - prefiks 0xFE + JSON  → per-device recap (wynik zajęć)
+        //  - inaczej (JSON `{`…)  → n/d (peer nie odbiera HR-JSON, host go nie notify'uje)
         if characteristic.uuid == BLEServiceConstants.hrStreamCharacteristicUUID {
-            guard let value = characteristic.value,
-                  value.count == 1,
-                  value.first == 0xFF
-            else { return }
-            Self.logger.info("Class ended signal received from host")
-            onPeerEvent(.classEnded)
+            guard let value = characteristic.value, let first = value.first else { return }
+            if value.count == 1, first == 0xFF {
+                Self.logger.info("Class ended signal received from host")
+                onPeerEvent(.classEnded)
+                return
+            }
+            if first == 0xFE {
+                guard let payload = try? JSONDecoder().decode(ClassRecapPayload.self, from: value.dropFirst())
+                else {
+                    Self.logger.error("Recap payload decode failed")
+                    return
+                }
+                Self.logger.info("Recap received from host — place=\(payload.place, privacy: .public)")
+                onPeerEvent(.recapReceived(payload))
+                return
+            }
             return
         }
 

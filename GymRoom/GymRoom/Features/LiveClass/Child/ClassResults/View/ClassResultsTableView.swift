@@ -19,27 +19,14 @@ struct ClassResultsTableView: View {
 
     @Bindable var store: StoreOf<ClassResultsFeature>
 
+    /// Hide the table's own system background so a wrapping GroupBox shows through.
+    /// The history "Points" tab sets this (table sits in a GroupBox alongside charts);
+    /// the end-of-class cover leaves it `false` for the table's normal background.
+    var hidesScrollBackground: Bool = false
+
     // MARK: - Body
 
     var body: some View {
-        // Wrapped in a GroupBox to match the sibling charts (`combinedChart`,
-        // `athleteCard`) and pinned to full height: the table then owns a stable
-        // frame regardless of row count, so it no longer jumps when data loads
-        // async or when the segmented tab switches.
-        GroupBox {
-            resultsTable
-        } label: {
-            tableHeader
-        }
-        .frame(maxHeight: .infinity)
-    }
-
-    private var tableHeader: some View {
-        Text(tableSectionTitle)
-            .font(.headline)
-    }
-
-    private var resultsTable: some View {
         Table(store.sortedRows, sortOrder: $store.sortOrder) {
             TableColumn(rankColumnTitle) { row in
                 rankCell(row)
@@ -70,10 +57,10 @@ struct ClassResultsTableView: View {
                 metricCell(durationText(row))
             }
         }
-        // Hide the table's own system background so the GroupBox fill shows
-        // through — the rows sit on one uniform surface instead of a lighter
-        // "island" floating inside the box.
-        .scrollContentBackground(.hidden)
+        // In the history tab the table sits in a GroupBox, so hide its own background
+        // to show the box fill through. On the end-of-class cover it keeps its normal
+        // (system) background — the trainer sees a plain ranking, not a boxed one.
+        .scrollContentBackground(hidesScrollBackground ? .hidden : .automatic)
     }
 
     // MARK: - Cells (implementation)
@@ -109,10 +96,6 @@ struct ClassResultsTableView: View {
     }
 
     // MARK: - Texts (implementation)
-
-    private var tableSectionTitle: String {
-        String(localized: "Ranking", bundle: .main)
-    }
 
     private var rankColumnTitle: String {
         String(localized: "Rank", bundle: .main)

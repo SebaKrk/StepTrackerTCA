@@ -52,6 +52,12 @@ extension LiveClassFeature {
         /// wyświetlany w header subtitle obok "LIVE". NIE wysyłany w QR.
         var location: String = ""
 
+        /// Współrzędne lokalizacji zajęć — z `GymClass.latitude/longitude` (MapKit,
+        /// IPAD-00096). Wysyłane w recap payload na koniec zajęć, dla mapki w historii
+        /// uczestnika. `nil` gdy adres wpisany ręcznie (bez geokodowania).
+        var latitude: Double?
+        var longitude: Double?
+
         /// Hard limit BLE z `GymClass.maxParticipants` (8/12/16, set w Class Creation
         /// z `bleCapacityClient.recommendedMaxConnections()`). Wyświetlany w header
         /// jako `current/max` ratio (np. "3/8 athletes") — trener widzi capacity od

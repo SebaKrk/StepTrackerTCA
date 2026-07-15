@@ -75,6 +75,13 @@ extension ActivityDetailsFeature {
             /// Stored effort score loaded — `nil` for workouts recorded before the
             /// feature shipped (no backfill; the section is hidden for `nil`).
             case effortScoreLoaded(WorkoutEffortScore?)
+
+            /// Triggers fetch of the stored class participation (recap) for this workout.
+            case loadClassParticipation
+
+            /// Stored class participation loaded — `nil` when the workout wasn't part of
+            /// a GymRoom class (the recap section is hidden for `nil`).
+            case classParticipationLoaded(ClassParticipation?)
         }
         
         case view(View)

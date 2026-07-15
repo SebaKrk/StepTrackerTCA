@@ -97,6 +97,7 @@ struct ActivityDetailsView: View {
                 }
                 performanceMetricsSection
                 locationSection
+                classRecapSection
                 planScoreSection
             }
         }
@@ -664,7 +665,81 @@ struct ActivityDetailsView: View {
         }
         .styledGroupBox()
     }
-    
+
+    // MARK: - Class recap (group class attendance)
+
+    @ViewBuilder
+    private var classRecapSection: some View {
+        if let recap = store.classParticipation {
+            GroupBox {
+                VStack(alignment: .leading, spacing: 12) {
+                    classRecapInfo(recap)
+                    classRecapMap(recap)
+                }
+            } label: {
+                cardLabel(title: classRecapTitle, icon: "person.2.fill")
+            }
+            .styledGroupBox()
+        }
+    }
+
+    private func classRecapInfo(_ recap: ClassParticipation) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(recap.gymName)
+                .font(.headline)
+                .foregroundStyle(.primary)
+            HStack(spacing: 24) {
+                classRecapStat(value: "\(recap.place)/\(recap.participantCount)", label: placeLabel)
+                classRecapStat(value: "\(recap.classPoints)", label: classPointsLabel)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func classRecapStat(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(value)
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+                .monospacedDigit()
+            cardSubLabel(label, color: .secondary)
+        }
+    }
+
+    @ViewBuilder
+    private func classRecapMap(_ recap: ClassParticipation) -> some View {
+        if let latitude = recap.latitude, let longitude = recap.longitude {
+            let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            Map(
+                initialPosition: .region(
+                    MKCoordinateRegion(center: coordinate, latitudinalMeters: 600, longitudinalMeters: 600)
+                )
+            ) {
+                Annotation(recap.gymName, coordinate: coordinate) {
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.title)
+                        .foregroundStyle(store.color)
+                }
+            }
+            .disabled(true)
+            .frame(height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
+    private var classRecapTitle: String {
+        String(localized: "Group class", bundle: .main)
+    }
+
+    private var placeLabel: String {
+        String(localized: "Place", bundle: .main)
+    }
+
+    private var classPointsLabel: String {
+        String(localized: "Class points", bundle: .main)
+    }
+
     // MARK: - Plan Score
 
     private var planScoreSection: some View {

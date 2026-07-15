@@ -90,6 +90,8 @@ struct ClassesListFeature {
                     gymClassId: gymClass.id,
                     className: gymClass.name,
                     location: gymClass.location,
+                    latitude: gymClass.latitude,
+                    longitude: gymClass.longitude,
                     maxParticipants: gymClass.maxParticipants
                 )
                 return .none

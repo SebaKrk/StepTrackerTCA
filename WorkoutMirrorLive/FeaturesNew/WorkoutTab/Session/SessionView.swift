@@ -52,6 +52,7 @@ struct SessionView: View {
                     }
                 }
                 .alert($store.scope(state: \.connectionLostAlert, action: \.connectionLostAlert))
+                .alert($store.scope(state: \.classActiveAlert, action: \.classActiveAlert))
                 .safeAreaInset(edge: .top) {
                     if store.isWatchConnectionLost && store.sessionState == .session {
                         connectionLostBanner

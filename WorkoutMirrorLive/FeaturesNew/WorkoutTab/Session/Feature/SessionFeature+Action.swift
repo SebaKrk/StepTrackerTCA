@@ -50,6 +50,15 @@ extension SessionFeature {
         /// unavailable — the only exit from an otherwise dead-locked session.
         case connectionLostAlert(PresentationAction<ConnectionLostAlertAction>)
 
+        /// Presentation plumbing for the "class still running" confirmation shown when
+        /// the user taps End while connected to a GymRoom class. `leaveAnyway` proceeds.
+        case classActiveAlert(PresentationAction<ClassActiveAlertAction>)
+
+        /// Runs the actual end-of-workout flow. Split out of `endWorkoutButtonTapped`
+        /// so both the normal path and the class-active alert's "Wyjdź" reach the same
+        /// mode-aware teardown without duplication.
+        case proceedEndWorkout
+
         /// The `.workoutEnded` HK send failed/timed out BEFORE the system reported a
         /// disconnect — instead of a false-success dismiss, show the "end on Watch"
         /// instruction and keep the session alive (IOS-00098 review, cluster D).
