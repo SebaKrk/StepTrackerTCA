@@ -13,7 +13,10 @@ import Foundation
 /// Lives in SharedModels so every target computes points identically:
 /// the athlete's iPhone (live counter), the Watch (mirror counter) and
 /// GymRoom history (from persisted `timeInZones`). The athlete's device is
-/// the single source of truth — GymRoom only displays what peers send.
+/// the single source of truth — GymRoom only displays what peers send. For a
+/// GymRoom class the peer sends a WINDOW-SCOPED value (`points(from:since:)`
+/// relative to the join moment), so the leaderboard is fair regardless of how
+/// long the athlete trained before joining.
 ///
 /// Persisted points are FROZEN: rebalancing the table below bumps
 /// `currentWeightsVersion` for new workouts and never rewrites history.
@@ -56,6 +59,25 @@ public enum EffortPointsScoring {
             return partial + minutes * (pointsPerMinute[entry.key] ?? 0)
         }
         return Int(total.rounded())
+    }
+
+    /// Points earned since a baseline zone-time snapshot — for scoping a running
+    /// counter to a sub-window (e.g. a GymRoom class the athlete joined mid-workout,
+    /// so the leaderboard credits only effort spent in the class, not a head start
+    /// from training before it began).
+    ///
+    /// `current` comes from `EffortPointsAccumulator`, which only ever adds, so
+    /// every zone delta is >= 0. Rounds once at the end, exactly like `points(from:)`.
+    public static func points(
+        from current: [HeartRateZone: TimeInterval],
+        since origin: [HeartRateZone: TimeInterval]
+    ) -> Int {
+        var delta: [HeartRateZone: TimeInterval] = [:]
+        for (zone, seconds) in current {
+            let diff = seconds - (origin[zone] ?? 0)
+            if diff > 0 { delta[zone] = diff }
+        }
+        return points(from: delta)
     }
 
     /// Per-zone points breakdown whose values are GUARANTEED to sum to
