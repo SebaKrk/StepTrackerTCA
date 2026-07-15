@@ -87,6 +87,11 @@ extension JoinLiveClassFeature {
             /// User kliknął "Zakończ klasę" — broadcast stop.
             /// Parent: kasuj `joinLiveClass` state + ukryj sheet.
             case didLeave
+
+            /// Peer connected to the class — fired on the first join AND on every
+            /// reconnect. Parent snapshots the effort-points origin on the FIRST
+            /// one to scope class points to the class window (fair leaderboard).
+            case joinedClass
         }
     }
 }

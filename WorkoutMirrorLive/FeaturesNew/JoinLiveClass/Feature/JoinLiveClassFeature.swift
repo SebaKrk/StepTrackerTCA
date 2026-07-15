@@ -218,6 +218,9 @@ struct JoinLiveClassFeature {
                 Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
                 return .merge(
                     .cancel(id: JoinLiveClassCancelID.searchTimeout),
+                    // Tell the parent we're in the class so it can snapshot the effort
+                    // origin. Fires on reconnect too — the parent guards against reset.
+                    .send(.delegate(.joinedClass)),
                     .run { [sessionClient, peerMirrorClient, initialPayload] send in
                     await peerMirrorClient.send(initialPayload)
                     // Payload construction happens in the reducer (.workoutMetricsReceived)

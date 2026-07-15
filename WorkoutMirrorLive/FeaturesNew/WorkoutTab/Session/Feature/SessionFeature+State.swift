@@ -73,6 +73,13 @@ extension SessionFeature {
         /// Sheet visibility — kontrolowany niezależnie od `joinLiveClass` lifetime.
         var isJoinLiveClassSheetPresented: Bool = false
 
+        /// Snapshot of `live.effortPoints.secondsByZone` taken when joining a Gym Room
+        /// class — the baseline for WINDOW-SCOPED class points sent to the iPad. Set
+        /// once on the first `joinedClass` (reconnect must not reset it), cleared on
+        /// leave. `nil` when not in a class. Keeps the leaderboard fair: effort earned
+        /// before the class began does not count toward the class ranking.
+        var classEntryZoneSnapshot: [HeartRateZone: TimeInterval]?
+
         // MARK: - Child
 
         ///
