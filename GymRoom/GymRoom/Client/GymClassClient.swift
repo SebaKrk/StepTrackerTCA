@@ -121,6 +121,9 @@ private enum GymClassClientKey: DependencyKey {
                         location: record.location,
                         scheduledAt: record.scheduledAt,
                         maxParticipants: record.maxParticipants,
+                        latitude: record.latitude,
+                        longitude: record.longitude,
+                        isRecurring: record.isRecurring,
                         createdAt: record.createdAt,
                         updatedAt: record.updatedAt
                     )

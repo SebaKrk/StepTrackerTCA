@@ -22,6 +22,7 @@ struct ActivityDetailsFeature {
     @Dependency(\.healthStore) var healthStore
     @Dependency(\.trainingSessionClient) var trainingSessionClient
     @Dependency(\.effortScoreClient) var effortScoreClient
+    @Dependency(\.classParticipationClient) var classParticipationClient
     
     // MARK: - Reducer
     
@@ -142,6 +143,16 @@ struct ActivityDetailsFeature {
                 state.effortScore = score
                 return .none
 
+            case .internal(.loadClassParticipation):
+                return .run { [classParticipationClient, id = state.workout.uuid] send in
+                    let participation = try? await classParticipationClient.fetchByHKWorkoutId(id)
+                    await send(.internal(.classParticipationLoaded(participation)))
+                }
+
+            case let .internal(.classParticipationLoaded(participation)):
+                state.classParticipation = participation
+                return .none
+
                 // MARK: - Manual entry
 
             case let .internal(.manualSummaryLoaded(summary, trainingSession, hrBuffer)):
@@ -180,6 +191,7 @@ struct ActivityDetailsFeature {
                     .send(.internal(.loadLocationData)),
                     .send(.internal(.loadHRMinuteRanges)),
                     .send(.internal(.loadEffortPoints)),
+                    .send(.internal(.loadClassParticipation)),
                     .send(.planScore(.fetchScore))
                 )
                 

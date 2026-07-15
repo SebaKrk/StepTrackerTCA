@@ -135,6 +135,21 @@ extension SessionFeature {
                         await WorkoutFileLogger.shared.log("[End] duplicate End tap ignored — end flow already running")
                     }
                 }
+                // Aktywne zajęcia w sali: potwierdź zanim zakończysz — wyjście przed
+                // końcem zajęć rozłącza z iPada, więc recap (miejsce/ranking) nie
+                // dotrze. Guard ortogonalny do `workoutMode` (obie ścieżki treningu);
+                // brak sali (`joinLiveClass == nil`) → alert się nie pokazuje.
+                if state.joinLiveClass?.phase == .connected {
+                    state.classActiveAlert = .classActive
+                    return .none
+                }
+                return .send(.proceedEndWorkout)
+
+            case .classActiveAlert(.presented(.leaveAnyway)):
+                // User potwierdził wyjście mimo trwających zajęć — normalny koniec.
+                return .send(.proceedEndWorkout)
+
+            case .proceedEndWorkout:
                 state.isEndingWorkout = true
 
                 let mode = state.workoutMode

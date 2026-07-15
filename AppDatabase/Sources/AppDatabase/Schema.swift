@@ -289,6 +289,52 @@ extension DependencyValues {
             .execute(db)
         }
 
+        // GymClass gains a geocoded address (latitude/longitude, nullable — filled
+        // from the MapKit address picker) and a weekly-recurrence flag. Existing
+        // rows decode fine: coordinates stay NULL, isRecurring defaults to 0.
+        migrator.registerMigration("v10_gymClassLocationAndRecurrence") { db in
+            try #sql("""
+                ALTER TABLE "gymClassRecords" ADD COLUMN "latitude" REAL
+                """)
+            .execute(db)
+            try #sql("""
+                ALTER TABLE "gymClassRecords" ADD COLUMN "longitude" REAL
+                """)
+            .execute(db)
+            try #sql("""
+                ALTER TABLE "gymClassRecords" ADD COLUMN "isRecurring" INTEGER NOT NULL DEFAULT 0
+                """)
+            .execute(db)
+        }
+
+        // Participant's attendance of a GymRoom class (IOS-00104-C), linked 1:1 to the
+        // workout via hkWorkoutId. Separate from effort score (attendance shows even for
+        // a zero-point class). Coordinates nullable (class had no geocoded address).
+        migrator.registerMigration("v11_classParticipation") { db in
+            try #sql("""
+                CREATE TABLE "classParticipationRecords" (
+                  "id"                TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "hkWorkoutId"       TEXT NOT NULL,
+                  "classSessionId"    TEXT NOT NULL,
+                  "gymName"           TEXT NOT NULL DEFAULT '',
+                  "place"             INTEGER NOT NULL,
+                  "participantCount"  INTEGER NOT NULL,
+                  "classPoints"       INTEGER NOT NULL,
+                  "latitude"          REAL,
+                  "longitude"         REAL,
+                  "createdAt"         TEXT NOT NULL,
+                  "updatedAt"         TEXT NOT NULL,
+                  "ckRecordData"      BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE UNIQUE INDEX "index_classParticipationRecords_on_hkWorkoutId"
+                ON "classParticipationRecords"("hkWorkoutId")
+                """)
+            .execute(db)
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
 

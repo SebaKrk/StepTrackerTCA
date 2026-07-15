@@ -19,6 +19,11 @@ struct ClassResultsTableView: View {
 
     @Bindable var store: StoreOf<ClassResultsFeature>
 
+    /// Hide the table's own system background so a wrapping GroupBox shows through.
+    /// The history "Points" tab sets this (table sits in a GroupBox alongside charts);
+    /// the end-of-class cover leaves it `false` for the table's normal background.
+    var hidesScrollBackground: Bool = false
+
     // MARK: - Body
 
     var body: some View {
@@ -52,6 +57,10 @@ struct ClassResultsTableView: View {
                 metricCell(durationText(row))
             }
         }
+        // In the history tab the table sits in a GroupBox, so hide its own background
+        // to show the box fill through. On the end-of-class cover it keeps its normal
+        // (system) background — the trainer sees a plain ranking, not a boxed one.
+        .scrollContentBackground(hidesScrollBackground ? .hidden : .automatic)
     }
 
     // MARK: - Cells (implementation)

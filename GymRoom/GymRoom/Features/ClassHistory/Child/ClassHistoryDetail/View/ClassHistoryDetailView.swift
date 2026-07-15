@@ -73,9 +73,25 @@ struct ClassHistoryDetailView: View {
         VStack(spacing: 16) {
             topStatsBanner
             chartModePicker
-            ClassResultsTableView(store: store.scope(state: \.results, action: \.results))
+            // W historii tabela żyje obok wykresów (taby) — w GroupBox dla spójności,
+            // z ukrytym tłem tabeli by prześwitywał fill boksu. Na ekranie podsumowania
+            // po zajęciach tabela jest goła (bez GroupBox) — patrz `ClassResultsView`.
+            GroupBox {
+                ClassResultsTableView(
+                    store: store.scope(state: \.results, action: \.results),
+                    hidesScrollBackground: true
+                )
+                .frame(maxHeight: .infinity)
+            } label: {
+                Text(rankingSectionTitle)
+                    .font(.headline)
+            }
         }
         .padding([.horizontal, .top])
+    }
+
+    private var rankingSectionTitle: String {
+        String(localized: "Ranking", bundle: .main)
     }
 
     /// Centered ProgressView na pełnym ekranie — pokazywany podczas decode'u BLOB-ów

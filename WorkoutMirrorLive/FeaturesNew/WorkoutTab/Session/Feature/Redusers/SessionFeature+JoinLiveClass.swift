@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import OSLog
 import SharedModels
 
 extension SessionFeature {
@@ -41,6 +42,12 @@ extension SessionFeature {
                 if state.classEntryZoneSnapshot == nil {
                     state.classEntryZoneSnapshot = state.live.effortPoints.secondsByZone
                 }
+                return .none
+
+            case let .joinLiveClass(.delegate(.recapReceived(payload))):
+                // Host przysłał wynik zajęć — parkuj pending class recap. Konsumpcja przy
+                // zapisie treningu (`.workoutSaved`/`savedWorkoutFound`) w AppTabNewFeature.
+                captureClassRecapSnapshot(payload, state)
                 return .none
 
             case .joinLiveClass:
@@ -91,6 +98,37 @@ extension SessionFeature {
             default:
                 return .none
             }
+        }
+    }
+
+    // MARK: - Class recap snapshot
+
+    /// Freezes the iPad recap into `@Shared(.pendingClassRecap)`, combining the BLE
+    /// payload (place, count, coordinates, classSessionId) with locally-known values:
+    /// `gymName` from the scanned QR and the class points from the on-device
+    /// window-scoped counter. `AppTabNewFeature` links it to the `HKWorkout` when the
+    /// workout is saved (same hook as `pendingEffortScore`).
+    private func captureClassRecapSnapshot(_ payload: ClassRecapPayload, _ state: State) {
+        @Dependency(\.date.now) var now
+        @Shared(.pendingClassRecap) var pendingClassRecap
+        let gymName = state.joinLiveClass?.scannedQRPayload?.gymName ?? ""
+        let classPoints = state.joinLiveClass?.currentEffortPoints ?? 0
+        // An un-consumed prior snapshot means the previous class's `.workoutSaved`
+        // never arrived — log before overwriting so a lost link is traceable.
+        if let stale = pendingClassRecap {
+            Logger.session.notice("pendingClassRecap overwritten before consume (class \(stale.classSessionId.uuidString.prefix(8)))")
+        }
+        $pendingClassRecap.withLock {
+            $0 = PendingClassRecap(
+                classSessionId: payload.classSessionId,
+                gymName: gymName,
+                place: payload.place,
+                participantCount: payload.participantCount,
+                classPoints: classPoints,
+                latitude: payload.latitude,
+                longitude: payload.longitude,
+                captureDatetime: now
+            )
         }
     }
 }

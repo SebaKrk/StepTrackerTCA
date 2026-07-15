@@ -186,6 +186,8 @@ struct JoinLiveClassFeature {
                             // Host (iPad) explicit END Class — natychmiast reset state
                             // (NIE przechodzić do .searching, bo iPad nie wróci).
                             await send(.classEndedReceived)
+                        case let .recapReceived(payload):
+                            await send(.recapReceived(payload))
                         }
                     }
                 }
@@ -261,6 +263,11 @@ struct JoinLiveClassFeature {
                 return .run { [peerMirrorClient] _ in
                     await peerMirrorClient.send(payload)
                 }
+
+            case let .recapReceived(payload):
+                // Host przysłał wynik zajęć — oddaj parentowi (SessionFeature parkuje
+                // pending class recap, dokładając lokalny gymName + classPoints).
+                return .send(.delegate(.recapReceived(payload)))
 
             case .peerDisconnected:
                 Logger.gymRoom.info("[Peer] disconnected — searching + start 5min reconnect timeout")

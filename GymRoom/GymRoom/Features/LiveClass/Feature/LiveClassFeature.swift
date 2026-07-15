@@ -5,6 +5,7 @@
 //  Created by Sebastian Ściuba on 11/06/2026.
 //
 
+import AppDatabase
 import ComposableArchitecture
 import Foundation
 import OSLog
@@ -107,6 +108,8 @@ struct LiveClassFeature {
                 let buffer = state.hrSamplesBuffer
                 let mappings = state.athleteRecordIds
                 let endedAt = Date()
+                let classLatitude = state.latitude
+                let classLongitude = state.longitude
 
                 state.isLive = false
                 state.athletes.removeAll()
@@ -139,31 +142,54 @@ struct LiveClassFeature {
                                 await GymRoomFileLogger.shared.log("[Class] ERROR endSession failed: \(error.localizedDescription)")
                             }
                         }
-                        await peerMirrorClient.stopAdvertising()
-                        await GymRoomFileLogger.shared.log("[Class] BLE advertising stopped")
-                        /// 3. Tabela wyników (IPAD-00095-A): analytics są już FROZEN w bazie
-                        /// (`endSession`) — fetch back i pokaż ranking. `delegate(.classEnded)`
-                        /// poleci dopiero z "Done" w tabeli, bo parent ClassesListFeature
-                        /// ustawia `liveClass = nil` (zamyka cały cover stack). Fallback:
-                        /// błąd fetchu / brak zawodników → stary flow, trener nigdy nie utknie.
+                        /// 3. Recap + ranking. Fetch athletes PRZED `stopAdvertising` — recap
+                        /// leci per-device przez WCIĄŻ ŻYWE połączenia BLE (IOS-00104-C). Analytics
+                        /// są FROZEN w bazie (`endSession`), więc te same `rows` zasilają i recap,
+                        /// i tabelę wyników.
+                        var resultRows: [ClassResultsFeature.ResultRow] = []
                         if let sessionId {
                             do {
                                 let records = try await gymClassClient.fetchAthletesForSession(sessionId)
                                 let rows = ClassResultsFeature.rows(from: records)
-                                if !rows.isEmpty {
-                                    await GymRoomFileLogger.shared.log("[Class] results ready: \(rows.count) athletes")
-                                    await send(.resultsReady(rows))
-                                    return
+                                resultRows = rows
+                                // Miejsce z rankingu (points desc); deviceID z rekordu athlety.
+                                let ranked = rows.sorted { $0.points > $1.points }
+                                let placeByAthlete = Dictionary(
+                                    uniqueKeysWithValues: ranked.enumerated().map { ($0.element.id, $0.offset + 1) }
+                                )
+                                let deviceByAthlete = Dictionary(
+                                    records.map { ($0.id, $0.deviceID) },
+                                    uniquingKeysWith: { first, _ in first }
+                                )
+                                for row in rows {
+                                    guard let deviceID = deviceByAthlete[row.id],
+                                          let place = placeByAthlete[row.id] else { continue }
+                                    let recap = ClassRecapPayload(
+                                        deviceID: deviceID,
+                                        classSessionId: sessionId,
+                                        place: place,
+                                        participantCount: rows.count,
+                                        latitude: classLatitude,
+                                        longitude: classLongitude
+                                    )
+                                    await peerMirrorClient.sendRecap(recap, deviceID)
                                 }
+                                await GymRoomFileLogger.shared.log("[Class] recap sent to \(rows.count) athletes")
                             } catch {
-                                Logger.gymRoom.error("❌ results fetch failed: \(error.localizedDescription)")
-                                await GymRoomFileLogger.shared.log("[Class] ERROR results fetch failed: \(error.localizedDescription)")
+                                Logger.gymRoom.error("❌ results/recap fetch failed: \(error.localizedDescription)")
+                                await GymRoomFileLogger.shared.log("[Class] ERROR results/recap fetch failed: \(error.localizedDescription)")
                             }
                         }
-                        /// Emit delegate DOPIERO PO completion async cleanup — parent ClassesListFeature
-                        /// ustawi `liveClass = nil` co triggeruje `.ifLet` cancel child effects, ale w tym
-                        /// momencie .run już completed (poprzednie await'y zwróciły). Race condition unik-
-                        /// nięty: persistence first, dismiss second.
+                        /// Recap wysłany — dopiero teraz zamknij BLE (rozłączenie ucina notify).
+                        await peerMirrorClient.stopAdvertising()
+                        await GymRoomFileLogger.shared.log("[Class] BLE advertising stopped")
+                        /// Tabela wyników (IPAD-00095-A). `delegate(.classEnded)` poleci dopiero z
+                        /// "Done" w tabeli. Fallback (błąd fetchu / brak zawodników): zamknij od razu,
+                        /// trener nigdy nie utknie.
+                        if !resultRows.isEmpty {
+                            await send(.resultsReady(resultRows))
+                            return
+                        }
                         await send(.delegate(.classEnded))
                     }
                 )
@@ -370,6 +396,10 @@ struct LiveClassFeature {
                             /// Host-side no-op: iPad sam emit'uje classEnded broadcast
                             /// (via PeerMirrorBLEHostSession.broadcastClassEnded), własny event
                             /// nie wymaga reakcji w reducerze (host już wie że robi END).
+                            break
+                        case .recapReceived:
+                            /// Host-side no-op: recap płynie iPad→uczestnik (host wysyła,
+                            /// nie odbiera). Ten event pojawia się tylko peer-side.
                             break
                         }
                     }

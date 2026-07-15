@@ -92,37 +92,36 @@ struct ClassesListView: View {
 
     private var classesList: some View {
         List {
-            ForEach(scheduledGroups, id: \.day) { group in
+            ForEach(weekdayOrder, id: \.self) { weekday in
                 Section {
-                    ForEach(group.classes) { gymClass in
-                        classRowButton(for: gymClass)
-                    }
+                    weekdaySection(for: weekday)
                 } header: {
-                    dayHeader(for: group.day)
+                    Text(weekdayName(weekday))
                 }
             }
-            if !undatedClasses.isEmpty {
+            if !oneTimeClasses.isEmpty {
+                // Divider bez nazwy sekcji — jednorazowe zajęcia poniżej grafiku tygodnia.
                 Section {
-                    ForEach(undatedClasses) { gymClass in
+                    ForEach(oneTimeClasses) { gymClass in
                         classRowButton(for: gymClass)
                     }
-                } header: {
-                    Text(undatedHeader)
                 }
             }
         }
         .listStyle(.insetGrouped)
     }
 
-    /// Section header: dzień tygodnia leading + data jako footnote trailing.
-    /// Style 1:1 z Apple Reminders/Calendar (np. "Środa" + "17 czerwca").
-    private func dayHeader(for day: Date) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(weekday(for: day))
-            Spacer()
-            Text(dayAndMonth(for: day))
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+    /// Wiersze zajęć cyklicznych w danym dniu tygodnia — lub placeholder "Brak zajęć"
+    /// gdy dzień jest pusty (grafik tygodnia zawsze pokazuje wszystkie 7 dni).
+    @ViewBuilder
+    private func weekdaySection(for weekday: Int) -> some View {
+        let classes = recurringClasses(on: weekday)
+        if classes.isEmpty {
+            noClassesRow
+        } else {
+            ForEach(classes) { gymClass in
+                classRowButton(for: gymClass)
+            }
         }
     }
 
@@ -160,31 +159,65 @@ struct ClassesListView: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
             Spacer()
-            if let scheduledAt = gymClass.scheduledAt {
-                Text(timeFormatted(scheduledAt))
-                    .font(.subheadline.monospacedDigit())
-                    .foregroundStyle(.secondary)
-            }
+            scheduleTrailing(for: gymClass)
+        }
+    }
+
+    /// Recurring rows show only the time — their weekday is the section header.
+    /// One-off rows carry the full date + time because they sit under the unnamed
+    /// divider with no day header to give context.
+    @ViewBuilder
+    private func scheduleTrailing(for gymClass: GymClass) -> some View {
+        if let scheduledAt = gymClass.scheduledAt {
+            Text(gymClass.isRecurring ? timeFormatted(scheduledAt) : oneTimeSchedule(scheduledAt))
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(.secondary)
         }
     }
 
     // MARK: - Grouping logic
 
-    /// Klasy z `scheduledAt`, pogrupowane per startOfDay, sortowane chronologicznie.
-    private var scheduledGroups: [(day: Date, classes: [GymClass])] {
-        let calendar = Calendar.current
-        let scheduled = store.classes.filter { $0.scheduledAt != nil }
-        let grouped = Dictionary(grouping: scheduled) { gymClass in
-            calendar.startOfDay(for: gymClass.scheduledAt!)
-        }
-        return grouped
-            .sorted { $0.key < $1.key }
-            .map { (day: $0.key, classes: $0.value.sorted { $0.scheduledAt! < $1.scheduledAt! }) }
+    /// Kolejność dni tygodnia Pon→Ndz (Calendar `.weekday`: Ndz=1 … Sob=7).
+    private var weekdayOrder: [Int] { [2, 3, 4, 5, 6, 7, 1] }
+
+    /// Zajęcia cykliczne przypadające na dany dzień tygodnia (wg `scheduledAt`),
+    /// sortowane po porze dnia.
+    private func recurringClasses(on weekday: Int) -> [GymClass] {
+        store.classes
+            .filter {
+                guard $0.isRecurring, let date = $0.scheduledAt else { return false }
+                return Calendar.current.component(.weekday, from: date) == weekday
+            }
+            .sorted { timeOfDayMinutes(for: $0) < timeOfDayMinutes(for: $1) }
     }
 
-    /// Klasy bez daty — osobna sekcja "Bez daty" na końcu.
-    private var undatedClasses: [GymClass] {
-        store.classes.filter { $0.scheduledAt == nil }
+    /// Zajęcia jednorazowe (nie-cykliczne) — z datą chronologicznie, bez daty na
+    /// końcu. Lądują pod dividerem, poniżej grafiku tygodnia.
+    private var oneTimeClasses: [GymClass] {
+        store.classes
+            .filter { !$0.isRecurring }
+            .sorted { lhs, rhs in
+                switch (lhs.scheduledAt, rhs.scheduledAt) {
+                case let (left?, right?): return left < right
+                case (_?, nil): return true
+                case (nil, _?): return false
+                case (nil, nil): return lhs.createdAt < rhs.createdAt
+                }
+            }
+    }
+
+    /// Minuty od północy — sortowanie zajęć w obrębie jednego dnia po godzinie
+    /// (data bazowa bywa z różnych tygodni, liczy się tylko pora dnia).
+    private func timeOfDayMinutes(for gymClass: GymClass) -> Int {
+        guard let date = gymClass.scheduledAt else { return 0 }
+        let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+        return (components.hour ?? 0) * 60 + (components.minute ?? 0)
+    }
+
+    private var noClassesRow: some View {
+        Text(noClassesText)
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
     }
 
     private var addButton: some ToolbarContent {
@@ -216,8 +249,8 @@ struct ClassesListView: View {
         String(localized: "Delete", bundle: .main)
     }
 
-    private var undatedHeader: String {
-        String(localized: "Without date", bundle: .main)
+    private var noClassesText: String {
+        String(localized: "No classes", bundle: .main)
     }
 
     private var failedTitle: String {
@@ -232,11 +265,12 @@ struct ClassesListView: View {
         String(localized: "Try again", bundle: .main)
     }
 
-    /// "Środa" / "Wednesday" — sam dzień tygodnia, capitalized (lokalizacja przez current locale).
-    private func weekday(for day: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE"
-        return formatter.string(from: day).capitalized
+    /// "Poniedziałek" / "Monday" — nazwa dnia tygodnia (Calendar `.weekday`: Ndz=1 … Sob=7),
+    /// capitalized, lokalizowana przez current locale.
+    private func weekdayName(_ weekday: Int) -> String {
+        let symbols = Calendar.current.standaloneWeekdaySymbols // index 0 = Sunday
+        let index = (weekday - 1) % symbols.count
+        return symbols[index].capitalized
     }
 
     /// "17 czerwca" / "17 June" — dzień + miesiąc bez roku (header sekcji już daje kontekst tygodnia).
@@ -251,6 +285,12 @@ struct ClassesListView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
+    }
+
+    /// "22 czerwca 19:30" — pełny termin dla zajęć jednorazowych pod dividerem
+    /// (brak nagłówka dnia, więc wiersz niesie datę i godzinę).
+    private func oneTimeSchedule(_ date: Date) -> String {
+        "\(dayAndMonth(for: date)) \(timeFormatted(date))"
     }
 }
 

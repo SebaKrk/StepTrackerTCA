@@ -1380,6 +1380,9 @@
         }
       }
     },
+    "Class points" : {
+
+    },
     "Close" : {
       "localizations" : {
         "pl" : {
@@ -1582,6 +1585,9 @@
       }
     },
     "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany" : {
+
+    },
+    "Czy na pewno chcesz zakończyć trening? Dane z zajęć zostaną utracone." : {
 
     },
     "Dashboard" : {
@@ -2120,6 +2126,9 @@
           }
         }
       }
+    },
+    "Group class" : {
+
     },
     "Gym Room" : {
       "extractionState" : "stale",
@@ -3253,6 +3262,9 @@
       }
     },
     "pkt" : {
+
+    },
+    "Place" : {
 
     },
     "placeholder" : {
@@ -5031,6 +5043,9 @@
         }
       }
     },
+    "Wyjdź" : {
+
+    },
     "X" : {
       "localizations" : {
         "pl" : {
@@ -5122,6 +5137,9 @@
     "Your warmup notes will be lost." : {
 
     },
+    "Zajęcia wciąż trwają" : {
+
+    },
     "Zakończ mimo to" : {
       "localizations" : {
         "pl" : {
@@ -5161,6 +5179,9 @@
           }
         }
       }
+    },
+    "Zostań" : {
+
     },
     "Zwiń" : {
       "extractionState" : "stale",

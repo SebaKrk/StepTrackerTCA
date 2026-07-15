@@ -89,6 +89,12 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
     /// `deviceID` żeby usunąć właściwy wpis z `connectedCentrals` i emit `.disconnected`.
     var centralToDevice: [UUID: UUID] = [:]
 
+    /// Aktualny obiekt `CBCentral` per `deviceID` — potrzebny do PER-DEVICE notify
+    /// (`updateValue(…, onSubscribedCentrals: [central])`) przy wysyłce recap na koniec
+    /// zajęć. Trzymamy sam obiekt (nie identifier), bo `onSubscribedCentrals` wymaga
+    /// `CBCentral`. Aktualizowany na każdym write (central rotuje przy reconnncie).
+    var centralObjects: [UUID: CBCentral] = [:]
+
     /// Callback dla `.connected(deviceID:nick:)` i `.disconnected(deviceID:)` eventów.
     /// Wywoływane z main thread (CBPeripheralManager delegate queue = nil).
     let onPeerEvent: @Sendable (PeerEvent) -> Void
@@ -157,6 +163,7 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
         }
         connectedCentrals.removeAll()
         centralToDevice.removeAll()
+        centralObjects.removeAll()
         Self.logger.info("Host stopped")
     }
 
@@ -284,6 +291,7 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
             if payload.endOfClass {
                 if let info = connectedCentrals.removeValue(forKey: deviceID) {
                     centralToDevice.removeValue(forKey: info.centralIdentifier)
+                    centralObjects.removeValue(forKey: deviceID)
                     onPeerEvent(.disconnected(deviceID: deviceID))
                     Self.logger.info(
                         "Peer ended class gracefully — deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(info.nick, privacy: .public)"
@@ -324,9 +332,29 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
                 )
             }
 
+            // Zawsze zapamiętaj aktualny central dla tego peera — po reconnncie BLE radio
+            // identifier rotuje, więc świeży write niesie aktualny obiekt do per-device notify.
+            centralObjects[deviceID] = request.central
+
             onSample(payload)
         }
         // writeWithoutResponse nie wymaga `respond(to:withResult:)`.
+    }
+
+    /// Wysyła per-device recap (wynik zajęć) do jednego uczestnika przez `hrCharacteristic`,
+    /// prefiksem `0xFE` odróżniony od HR-JSON i od `0xFF` (classEnded). Adresowany do
+    /// konkretnego `CBCentral` (`onSubscribedCentrals: [central]`), więc pozostali peerzy
+    /// go nie odbierają. No-op gdy peer nie ma znanego central (rozłączony/wyszedł).
+    func sendRecap(_ payload: ClassRecapPayload, toDeviceID deviceID: UUID) {
+        guard let central = centralObjects[deviceID] else {
+            Self.logger.info("Recap skipped — no central for deviceID=\(deviceID.uuidString.prefix(8), privacy: .public)")
+            return
+        }
+        guard let json = try? JSONEncoder().encode(payload) else { return }
+        var data = Data([0xFE])
+        data.append(json)
+        let success = peripheralManager.updateValue(data, for: hrCharacteristic, onSubscribedCentrals: [central])
+        Self.logger.info("Recap sent to deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) place=\(payload.place) success=\(success)")
     }
 
     public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {

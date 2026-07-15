@@ -22,16 +22,34 @@ extension ClassCreationFeature {
         /// blokuje Save button (`isValid == false`).
         var name: String = ""
 
-        /// Sala / lokalizacja (np. "Sala 1"). Mandatory — pusta po trim blokuje Save.
-        /// Wyświetlana jako subtitle w row liście klas + w header LiveClassView.
+        /// Sala / lokalizacja / adres (np. "Iron Den, ul. Przykładowa 1"). Mandatory —
+        /// pusta po trim blokuje Save. Wyświetlana jako subtitle w row liście klas.
         var location: String = ""
+
+        /// Live autocomplete rows for the location field (MapKit). Empty = no
+        /// dropdown; cleared once the trainer taps a suggestion.
+        var locationSuggestions: [AddressSuggestion] = []
+
+        /// Latitude geocoded from the tapped suggestion — persisted for the future
+        /// recap map. `nil` when the address was typed freehand (no resolve).
+        var selectedLatitude: Double?
+
+        /// Longitude geocoded from the tapped suggestion — pairs with
+        /// `selectedLatitude`; both set together on resolve, both cleared on manual edit.
+        var selectedLongitude: Double?
 
         /// Toggle "Set scheduled time" — gdy `true`, klasa dostaje `scheduledAt`,
         /// gdy `false` — `scheduledAt = nil` (sekcja "Bez daty" w liście).
         var hasSchedule: Bool = false
 
         /// Data + godzina planowanego startu. Ignorowane gdy `hasSchedule == false`.
+        /// Dla zajęć cyklicznych (`isRecurring`) to data BAZOWA pierwszego wystąpienia.
         var scheduledAt: Date = .now
+
+        /// Toggle "Powtarzaj co tydzień" — dostępny tylko gdy `hasSchedule == true`.
+        /// Gdy `true`, zajęcie powtarza się co tydzień w dniu+godzinie `scheduledAt`;
+        /// lista pokazuje kolejny termin (`WeeklyRecurrence.nextOccurrence`).
+        var isRecurring: Bool = false
 
         /// Aktualny wybór trenera w Stepper'ze (1...`maxParticipantsUpperBound`).
         /// Sentinel `0` = uninit. `viewDidAppear` ustawia na `deviceCapacity` (hard
@@ -72,8 +90,11 @@ extension ClassCreationFeature {
             self.location = gymClass.location
             self.hasSchedule = gymClass.scheduledAt != nil
             self.scheduledAt = gymClass.scheduledAt ?? .now
+            self.isRecurring = gymClass.isRecurring
             self.maxParticipants = gymClass.maxParticipants
             self.deviceCapacity = gymClass.maxParticipants
+            self.selectedLatitude = gymClass.latitude
+            self.selectedLongitude = gymClass.longitude
             // maxParticipantsUpperBound zostaje default; viewDidAppear i tak nie nadpisze
             // bo `maxParticipants != 0` (sentinel check).
         }
