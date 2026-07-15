@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
+import Foundation
 
 /// Implementation of `SessionFeature` state
 extension SessionFeature {

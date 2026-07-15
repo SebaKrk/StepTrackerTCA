@@ -1089,6 +1089,8 @@
     C: Import — reused `QRScannerView` → decode → read-only preview (shared `WorkoutDetailContent`) → "add to my plans"; scanner remounts to retry after a bad scan; malformed → alert
     D: Snapshot identity — `TrainingSession.withNewIdentity` mints fresh UUIDs at every level (plan + workouts + exercises); imported plan stamped with import date so it sorts to the top; `PlansFeature` is the single writer (shared `saveAndReload`)
 
+### *** App Version 0.2 *** 
+
 ### IOS-00104 GymRoom fair points — window-scoped class scoring + athlete recap
     - problem: the leaderboard used each athlete's CUMULATIVE effort points (from the start of their own workout), so someone who trained before the class began entered with a head start and unfairly topped the board
     - decision: the athlete's iPhone computes class points LOCALLY, scoped to the class window (join → leave), independent of transient BLE drops; the iPad only displays. Leaving the room early with a running workout still accrues class points (accepted trade-off)
