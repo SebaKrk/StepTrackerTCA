@@ -1,5 +1,5 @@
 //
-//  ActivityDetailsView+ZoneChart.swift
+//  HeartRateZonesView+Chart.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 27/06/2026.
@@ -7,18 +7,18 @@
 //  Per-minute HR range bar chart z gradient color per HeartRateZone — wzorowane 1:1 na
 //  `ClassHistoryDetailView.athleteCardChart` z GymRoom (IPAD-00091).
 //
-//  `send(.X)` jest dostępne w extension'ie bo `@ViewAction(for: ActivityDetailsFeature.self)`
-//  jest na głównym `struct ActivityDetailsView` (ActivityDetailsView.swift:14). Macro generuje
-//  send method na typie, więc wszystkie extension'y dziedziczą API "za darmo".
+//  `send(.X)` jest dostępne w extension'ie bo `@ViewAction(for: HeartRateZonesFeature.self)`
+//  jest na głównym `struct HeartRateZonesView`. Macro generuje send method na typie, więc
+//  wszystkie extension'y dziedziczą API "za darmo".
 
 import Charts
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
-extension ActivityDetailsView {
+extension HeartRateZonesView {
 
-    // MARK: - Section (wstrzyknięty w body NAD rozwijalnym zoneDistributionSection)
+    // MARK: - Section (renderowana NAD rozwijalnym zoneDistributionSection)
 
     /// Range bar chart per minuta — yStart=minHR, yEnd=maxHR. Bar pokolorowany gradientem od
     /// strefy minHR (dół) do strefy maxHR (góra). Renderowany tylko gdy są dane HR
@@ -35,9 +35,7 @@ extension ActivityDetailsView {
         }
     }
 
-    /// Header label tej sekcji — caption + secondary, wzorem `cardLabel(title:icon:)` z głównego
-    /// view'a (private file-scoped, nie da się reuse'ować w extension'ie z innego pliku).
-    /// Inline'owany żeby uniknąć otwierania access level helper'a na cały module.
+    /// Header label tej sekcji — caption + secondary, wzorem `MetricCardLabel`.
     private var hrRangeChartLabel: some View {
         Label(hrRangeChartTitle, systemImage: "chart.xyaxis.line")
             .font(.caption)
