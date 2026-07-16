@@ -1117,3 +1117,10 @@
     D: Weekly recurrence — `WeeklyRecurrence.nextOccurrence` pure helper in SharedModels (DST-safe, `now` injected, unit-tested) + "Repeat weekly" toggle bound to a base `scheduledAt`
     E: Weekly grid list — fixed Mon–Sun sections with "No classes" placeholder for empty days; one-off classes under an unnamed divider; removed the old dated-group / undated split
     F: Class detail — recurring class shows its NEXT occurrence + "weekly" tag (never the past base date); `now` injected via `@Dependency(\.date)` on appear
+
+### IOS-00105 ActivityDetails refactor — decompose the god-view into child features
+    - problem: `ActivityDetailsView` (~950 lines) and its reducer own six unrelated data domains (zones+effort points, performance metrics, route, class recap, HR chart, manual entry) — every change touches one giant file, and cross-domain logic (recap-map gate) is tangled with loading code
+    - split by data domain: stateful sections become child features composed via `Scope` (HeartRateZones, PerformanceMetrics, WorkoutRoute, ClassRecap); purely presentational sections (header, energy, avg/max HR, card components) become dumb subviews with no reducer
+    - the parent stays a coordinator: destinations, manual-entry flow, and load orchestration — children report `delegate(.didFinishLoading)` upward, the parent holds the recap-map gate (all loads settled + 300 ms → mount map) and the recap↔route mutual exclusion
+    - children never see each other; commands go down as plain actions (`load`, `mountMap` — same precedent as `planScore(.fetchScore)`), events come up as delegates
+    - small cleanups riding along: temporary debug prints removed, unused card variant deleted, single-location pin switched to the UIKit-backed `StaticPinMapView`

@@ -1045,6 +1045,17 @@
         }
       }
     },
+    "Athlete" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawodnik"
+          }
+        }
+      }
+    },
     "Authorization status: %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1379,9 +1390,6 @@
           }
         }
       }
-    },
-    "Class points" : {
-
     },
     "Close" : {
       "localizations" : {
@@ -2128,7 +2136,14 @@
       }
     },
     "Group class" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zajęcia grupowe"
+          }
+        }
+      }
     },
     "Gym Room" : {
       "extractionState" : "stale",
@@ -2782,7 +2797,14 @@
       }
     },
     "Name" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa"
+          }
+        }
+      }
     },
     "Nick: %@" : {
       "localizations" : {
@@ -2958,6 +2980,16 @@
     },
     "No link" : {
 
+    },
+    "No location" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak lokalizacji"
+          }
+        }
+      }
     },
     "No sleep data. Track your sleep to see insights." : {
       "extractionState" : "stale",
@@ -3264,9 +3296,6 @@
     "pkt" : {
 
     },
-    "Place" : {
-
-    },
     "placeholder" : {
       "localizations" : {
         "pl" : {
@@ -3364,6 +3393,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "punkty"
+          }
+        }
+      }
+    },
+    "Points in class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkty"
           }
         }
       }

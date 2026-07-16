@@ -11,147 +11,26 @@ import HealthHub
 import SharedModels
 import SwiftUI
 import HealthKit
-import CoreLocation
 
+/// Coordinator of the Activity Details screen. The data domains live in child
+/// features (`HeartRateZones`, `PerformanceMetrics`, `WorkoutRoute`,
+/// `ClassRecap`, `ActivityPlanScore`); the parent owns the destinations, the
+/// manual-entry flow and the cross-domain orchestration: the recap↔route
+/// mutual exclusion and the recap-map gate (IOS-00105).
 @Reducer
 struct ActivityDetailsFeature {
 
     // MARK: - Dependency
 
-    @Dependency(\.activityClient) var activityClient
     @Dependency(\.healthStore) var healthStore
     @Dependency(\.trainingSessionClient) var trainingSessionClient
-    @Dependency(\.effortScoreClient) var effortScoreClient
-    @Dependency(\.classParticipationClient) var classParticipationClient
-    
+    @Dependency(\.continuousClock) var clock
+
     // MARK: - Reducer
-    
+
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-                
-                // MARK: - Internal State Updates
-                
-            case let .internal(.zoneDistributionLoaded(distribution)):
-                state.zoneDistribution = distribution
-                return .none
-                
-            case let .internal(.metricsLoaded(mets, trimp, hrTSS, hrRecovery, intensityFactor, recoveryDemand)):
-                state.mets = mets
-                state.trimp = trimp
-                state.hrTSS = hrTSS
-                state.hrRecovery = hrRecovery
-                state.intensityFactor = intensityFactor
-                state.recoveryDemand = recoveryDemand
-                return .none
-                
-            case let .internal(.zoneExpand(value)):
-                state.isExpandZone = value
-                return .none
-                
-            case let .internal(.locationDataLoaded(coordinates)):
-                state.routeCoordinates = coordinates
-                state.isLoadingLocation = false
-                return .none
-                
-                // MARK: - Internal Data Loading
-                
-            case .internal(.loadZoneDistribution):
-                let workout = state.workout
-                let maxHeartRate = state.maxHeartRate
-                
-                return .run { send in
-                    let distribution = try await activityClient.fetchZoneDistribution(workout, maxHeartRate)
-                    await send(.internal(.zoneDistributionLoaded(distribution)))
-                }
-                
-            case .internal(.loadMetrics):
-                let workout = state.workout
-                let maxHeartRate = state.maxHeartRate
-                
-                return .run { send in
-                    async let metsTask = activityClient.fetchMETs(workout)
-                    async let trimpTask = activityClient.fetchTRIMP(workout, maxHeartRate)
-                    async let hrTSSTask = activityClient.fetchHRTSS(workout, maxHeartRate)
-                    async let hrRecoveryTask = activityClient.fetchHRRecovery(workout)
-                    async let intensityFactorTask = activityClient.fetchIntensityFactor(workout, maxHeartRate)
-                    async let recoveryDemandTask = activityClient.fetchRecoveryDemand(workout, maxHeartRate)
-                    
-                    let mets = try? await metsTask
-                    let trimp = try? await trimpTask
-                    let hrTSS = try? await hrTSSTask
-                    let hrRecovery = try? await hrRecoveryTask
-                    let intensityFactor = try? await intensityFactorTask
-                    let recoveryDemand = try? await recoveryDemandTask
-                    
-                    await send(.internal(.metricsLoaded(
-                        mets: mets,
-                        trimp: trimp,
-                        hrTSS: hrTSS,
-                        hrRecovery: hrRecovery,
-                        intensityFactor: intensityFactor,
-                        recoveryDemand: recoveryDemand
-                    )))
-                }
-                
-            case .internal(.loadLocationData):
-                let workout = state.workout
-                state.isLoadingLocation = true
-
-                return .run { send in
-                    do {
-                        let locations = try await activityClient.fetchWorkoutRoute(workout)
-                        let coordinates = locations.map { $0.coordinate }
-                        await send(.internal(.locationDataLoaded(coordinates)))
-                    } catch {
-                        // W przypadku błędu zwracamy pustą tablicę (indoor workout)
-                        await send(.internal(.locationDataLoaded([])))
-                    }
-                }
-
-            case .internal(.loadHRMinuteRanges):
-                let workout = state.workout
-                return .run { [healthStore] send in
-                    do {
-                        let samples = try await WorkoutSummaryLoader.heartRateSamples(
-                            for: workout,
-                            healthStore: healthStore
-                        )
-                        // Tuple → HRSample (activeEnergy nie potrzebne dla aggregation, daje 0).
-                        let hrSamples = samples.map {
-                            HRSample(timestamp: $0.date, bpm: Int($0.bpm.rounded()), activeEnergy: 0)
-                        }
-                        let ranges = HRSample.minuteRanges(from: hrSamples)
-                        await send(.internal(.hrMinuteRangesLoaded(ranges)))
-                    } catch {
-                        // Silent fail — brak HR samples (np. indoor bez Watcha) = chart hidden.
-                        await send(.internal(.hrMinuteRangesLoaded([])))
-                    }
-                }
-
-            case let .internal(.hrMinuteRangesLoaded(ranges)):
-                state.hrMinuteRanges = ranges
-                return .none
-
-            case .internal(.loadEffortPoints):
-                return .run { [effortScoreClient, id = state.workout.uuid] send in
-                    let score = try? await effortScoreClient.fetchByHKWorkoutId(id)
-                    await send(.internal(.effortScoreLoaded(score)))
-                }
-
-            case let .internal(.effortScoreLoaded(score)):
-                state.effortScore = score
-                return .none
-
-            case .internal(.loadClassParticipation):
-                return .run { [classParticipationClient, id = state.workout.uuid] send in
-                    let participation = try? await classParticipationClient.fetchByHKWorkoutId(id)
-                    await send(.internal(.classParticipationLoaded(participation)))
-                }
-
-            case let .internal(.classParticipationLoaded(participation)):
-                state.classParticipation = participation
-                return .none
 
                 // MARK: - Manual entry
 
@@ -183,35 +62,22 @@ struct ActivityDetailsFeature {
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                guard state.zoneDistribution == nil else { return .none }
+                guard !state.hasAppeared else { return .none }
+                state.hasAppeared = true
 
+                // The route child is NOT started here — `classRecap(.delegate(.didLoad))`
+                // decides: class workouts never have a GPS route (mutual exclusion), so
+                // the query and the "Trasa" spinner are skipped for them entirely.
+                state.pendingRecapMapLoads = [.location, .metrics, .recap, .zones]
                 return .merge(
-                    .send(.internal(.loadZoneDistribution)),
-                    .send(.internal(.loadMetrics)),
-                    .send(.internal(.loadLocationData)),
-                    .send(.internal(.loadHRMinuteRanges)),
-                    .send(.internal(.loadEffortPoints)),
-                    .send(.internal(.loadClassParticipation)),
+                    .send(.heartRateZones(.load)),
+                    .send(.performanceMetrics(.load)),
+                    .send(.classRecap(.load)),
                     .send(.planScore(.fetchScore))
                 )
-                
-            case let .view(.zoneDiscusserButtonTapped(value)):
-                return .send(.internal(.zoneExpand(value)))
-
-            case .view(.zonePointsToggled):
-                state.showZonePoints.toggle()
-                return .none
-                
-            case let .view(.openMetricDetails(metric)):
-                state.destination = .metricDetail(MetricDetailFeature.State(metricType: metric))
-                return .none
 
             case .view(.linkTemplateTapped):
                 state.destination = .linkTemplate(TemplatePickerFeature.State())
-                return .none
-
-            case let .view(.minuteSelected(date)):
-                state.selectedMinute = date
                 return .none
 
             case .view(.editExistingScoreTapped):
@@ -278,6 +144,51 @@ struct ActivityDetailsFeature {
             case .destination:
                 return .none
 
+                // MARK: - Children
+
+                // HR-zones child finished all three of its loads — check it off the
+                // recap-map gate.
+            case .heartRateZones(.delegate(.didFinishLoading)):
+                state.pendingRecapMapLoads.remove(.zones)
+                return recapMapEffectIfSettled(&state)
+
+            case .heartRateZones:
+                return .none
+
+                // Metric card tapped in the child — navigation stays with the
+                // parent because it owns the destinations.
+            case let .performanceMetrics(.delegate(.openMetricDetails(metric))):
+                state.destination = .metricDetail(MetricDetailFeature.State(metricType: metric))
+                return .none
+
+            case .performanceMetrics(.delegate(.didFinishLoading)):
+                state.pendingRecapMapLoads.remove(.metrics)
+                return recapMapEffectIfSettled(&state)
+
+            case .performanceMetrics:
+                return .none
+
+            case .workoutRoute(.delegate(.didFinishLoading)):
+                state.pendingRecapMapLoads.remove(.location)
+                return recapMapEffectIfSettled(&state)
+
+            case .workoutRoute:
+                return .none
+
+                // Recap fetch settled — this is where the recap↔route mutual
+                // exclusion lives: a class workout never has a GPS route, so the
+                // route load fires only when there is NO recap.
+            case let .classRecap(.delegate(.didLoad(hasRecap))):
+                state.pendingRecapMapLoads.remove(.recap)
+                guard hasRecap else {
+                    return .send(.workoutRoute(.load))
+                }
+                state.pendingRecapMapLoads.remove(.location)
+                return recapMapEffectIfSettled(&state)
+
+            case .classRecap:
+                return .none
+
                 // MARK: - Plan Score
 
                 // Pending-results container tapped in the child — reuse the existing
@@ -292,8 +203,42 @@ struct ActivityDetailsFeature {
         }
         .ifLet(\.$destination, action: \.destination)
 
+        Scope(state: \.heartRateZones, action: \.heartRateZones) {
+            HeartRateZonesFeature()
+        }
+
+        Scope(state: \.performanceMetrics, action: \.performanceMetrics) {
+            PerformanceMetricsFeature()
+        }
+
+        Scope(state: \.workoutRoute, action: \.workoutRoute) {
+            WorkoutRouteFeature()
+        }
+
+        Scope(state: \.classRecap, action: \.classRecap) {
+            ClassRecapFeature()
+        }
+
         Scope(state: \.planScore, action: \.planScore) {
             ActivityPlanScoreFeature()
+        }
+    }
+
+    // MARK: - Recap map mounting
+
+    /// Mounts the recap map only once every layout-affecting load has finished and the
+    /// workout has class coordinates. The short sleep puts one settled frame between the
+    /// last data pop-in and the map mount, so MapKit never initializes its Metal drawable
+    /// mid-layout-churn (`CAMetalLayer width=0` render hang).
+    private func recapMapEffectIfSettled(_ state: inout State) -> Effect<Action> {
+        guard state.pendingRecapMapLoads.isEmpty,
+              state.classRecap.classMapState == .loading,
+              state.classRecap.hasCoordinates
+        else { return .none }
+
+        return .run { [clock] send in
+            try? await clock.sleep(for: .milliseconds(300))
+            await send(.classRecap(.mountMap))
         }
     }
 }
