@@ -85,11 +85,7 @@ public final class DefaultWorkoutZoneAnalyzer: WorkoutZoneAnalyzer {
         heartRate: Double,
         maxHeartRate: Double
     ) -> HeartRateZone {
-        let percentage = heartRate / maxHeartRate
-        
-        return HeartRateZone.allCases.first { zone in
-            zone.percentageRange.contains(percentage)
-        } ?? .anaerobic
+        HeartRateZone.zone(heartRate: heartRate, maxHeartRate: maxHeartRate)
     }
     
 }

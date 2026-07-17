@@ -44,7 +44,7 @@ struct HRMirrorFeature {
 
             case .hrReceived(let bpm):
                 state.heartRate = Int(bpm)
-                state.heartRateZone = heartRateZone(bpm: Int(bpm), max: state.maxHeartRate)
+                state.heartRateZone = HeartRateZone.zone(bpm: Int(bpm), maxHR: state.maxHeartRate)
                 // Credit effort points for the stretch since the previous sample.
                 // The date always advances (even for bpm=0 artifacts) so a sensor
                 // dropout is never retroactively credited to the next valid zone.
@@ -364,15 +364,6 @@ struct HRMirrorFeature {
                 return .none
             }
         }
-    }
-
-    // MARK: - Private
-
-    /// Derives the `HeartRateZone` for a given BPM relative to the user's max heart rate.
-    private func heartRateZone(bpm: Int, max: Int) -> HeartRateZone {
-        guard max > 0 else { return .resting }
-        let percentage = Double(bpm) / Double(max)
-        return HeartRateZone.allCases.first { $0.percentageRange.contains(percentage) } ?? .resting
     }
 
 }

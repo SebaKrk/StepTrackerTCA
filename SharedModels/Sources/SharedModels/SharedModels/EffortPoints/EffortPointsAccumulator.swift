@@ -36,7 +36,7 @@ public struct EffortPointsAccumulator: Equatable, Sendable {
     /// and implausible gaps (see `maxCreditedSampleGap`).
     public mutating func add(bpm: Int, duration: TimeInterval, maxHR: Int) {
         guard bpm > 0, maxHR > 0, duration > 0, duration <= Self.maxCreditedSampleGap else { return }
-        let zone = EffortPointsScoring.zone(bpm: bpm, maxHR: maxHR)
+        let zone = HeartRateZone.zone(bpm: bpm, maxHR: maxHR)
         secondsByZone[zone, default: 0] += duration
     }
 

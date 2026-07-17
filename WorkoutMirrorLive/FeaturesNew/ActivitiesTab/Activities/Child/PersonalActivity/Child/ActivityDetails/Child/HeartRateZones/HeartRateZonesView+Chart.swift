@@ -153,13 +153,11 @@ extension HeartRateZonesView {
         )
     }
 
-    /// Mapuje pojedynczy BPM na kolor strefy. **Clamp do `[0, 1]`** — peakHR może chwilowo
-    /// przekroczyć theoretical maxHR (np. 198 przy maxHR 190 = 1.04). Bez clamp'a anaerobic
-    /// (0.9...1.0) nie złapie i wpadnie do `.gray` fallback.
+    /// Maps a single BPM to its zone color. The shared classifier handles
+    /// supra-max (peakHR 198 vs maxHR 190 → Zone 5) and missing maxHR
+    /// (→ resting/gray), so the old manual clamp is gone.
     private func zoneColor(for bpm: Int, maxHR: Int) -> Color {
-        guard maxHR > 0 else { return .gray }
-        let percent = min(1.0, max(0.0, Double(bpm) / Double(maxHR)))
-        return HeartRateZone.allCases.first { $0.percentageRange.contains(percent) }?.color ?? .gray
+        HeartRateZone.zone(bpm: bpm, maxHR: maxHR).color
     }
 
     // MARK: - Localized strings

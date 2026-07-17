@@ -93,6 +93,10 @@ public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable, Codable
         }
     }
     
+    /// DISPLAY-ONLY range of the zone ("70-80%" labels, chart bands). The bounds
+    /// deliberately overlap at the edges (0.7 belongs to both fatBurning and
+    /// aerobic here), so this MUST NOT be used for classification — use
+    /// `zone(forFraction:)`, which owns the boundary semantics.
     public var percentageRange: ClosedRange<Double> {
         switch self {
         case .resting: return 0.0...0.5
@@ -103,5 +107,42 @@ public enum HeartRateZone: String, CaseIterable, Identifiable, Sendable, Codable
         case .anaerobic: return 0.9...1.0
         }
     }
-    
+
+    /// Single source of truth for zone classification (fraction = bpm / maxHR).
+    ///
+    /// Half-open, lower-inclusive bounds: exactly 70% of maxHR is Zone 3 —
+    /// a boundary belongs to the zone it opens. No upper bound on Zone 5:
+    /// maxHR is a formula estimate and real peaks routinely exceed it
+    /// (e.g. 198 bpm vs estimated 190 = 1.04) — supra-max effort is still
+    /// maximal effort, never "resting".
+    ///
+    /// Classify the RAW fraction; truncate only for display (`Int(fraction * 100)`).
+    /// Truncating first collapses the whole 70.0-70.9% band onto the 0.70
+    /// boundary and lands it one zone lower than the raw value.
+    public static func zone(forFraction fraction: Double) -> HeartRateZone {
+        switch fraction {
+        case ..<0.5: .resting
+        case ..<0.6: .recovery
+        case ..<0.7: .fatBurning
+        case ..<0.8: .aerobic
+        case ..<0.9: .threshold
+        default:     .anaerobic
+        }
+    }
+
+    /// Convenience over `zone(forFraction:)` for raw measured values.
+    /// Owns the maxHR guard so call sites cannot forget it and feed a
+    /// division by zero into the classifier (inf falls into the `default:`
+    /// case and would silently read as maximal effort). Missing maxHR
+    /// degrades to `.resting` — unknown capacity must not fake Zone 5.
+    public static func zone(heartRate: Double, maxHeartRate: Double) -> HeartRateZone {
+        guard maxHeartRate > 0 else { return .resting }
+        return zone(forFraction: heartRate / maxHeartRate)
+    }
+
+    /// Integer variant of `zone(heartRate:maxHeartRate:)` — same guard, one place.
+    public static func zone(bpm: Int, maxHR: Int) -> HeartRateZone {
+        zone(heartRate: Double(bpm), maxHeartRate: Double(maxHR))
+    }
+
 }
