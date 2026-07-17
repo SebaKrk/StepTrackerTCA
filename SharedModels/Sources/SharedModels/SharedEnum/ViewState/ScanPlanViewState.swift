@@ -13,8 +13,8 @@ public enum ScanPlanViewState: Equatable {
     /// No image selected yet.
     case idle
 
-    /// Image selected, ready to extract text.
-    case imageSelected
+    /// Photo picked, loading its data from the library (may download from iCloud).
+    case loadingPhoto
 
     /// OCR text recognition in progress.
     case processingOCR
@@ -22,9 +22,6 @@ public enum ScanPlanViewState: Equatable {
     /// Text successfully extracted and ready for editing.
     case textReady
 
-    /// Feature unavailable (e.g., Foundation Models not supported on device).
-    case unavailable(String)
-
-    /// An error occurred during image loading or OCR.
+    /// An error occurred during image loading, OCR, or parsing.
     case failed(String)
 }

@@ -9,6 +9,7 @@ import ComposableArchitecture
 import PhotosUI
 import SwiftUI
 import SharedModels
+import VisionKit
 
 @ViewAction(for: ScanPlanFeature.self)
 struct ScanPlanView: View {
@@ -16,6 +17,9 @@ struct ScanPlanView: View {
     // MARK: - Properties
 
     @Bindable var store: StoreOf<ScanPlanFeature>
+
+    /// Keyboard focus for the extracted-text editor (same pattern as SummaryView).
+    @FocusState private var isTextEditorFocused: Bool
 
     // MARK: - Body
 
@@ -25,8 +29,8 @@ struct ScanPlanView: View {
             case .idle:
                 idleSection
 
-            case .imageSelected:
-                imagePreviewSection
+            case .loadingPhoto:
+                loadingPhotoSection
 
             case .processingOCR:
                 // Show image only during OCR, not during parsing
@@ -37,9 +41,6 @@ struct ScanPlanView: View {
 
             case .textReady:
                 textReadyView
-
-            case let .unavailable(message):
-                unavailableSection(message: message)
 
             case let .failed(error):
                 failedSection(error: error)
@@ -64,6 +65,19 @@ struct ScanPlanView: View {
         }
         .photosPicker(isPresented: $store.isPickerPresented,
                       selection: $store.selectedItem)
+        .fullScreenCover(isPresented: $store.isCameraPresented) {
+            DocumentCameraView { result in
+                switch result {
+                case let .scanned(data):
+                    send(.documentScanned(data))
+                case .cancelled:
+                    send(.documentScanned(nil))
+                case .failed:
+                    send(.documentScanFailed)
+                }
+            }
+            .ignoresSafeArea()
+        }
         .onChange(of: store.selectedItem) { _, newItem in
             send(.selectedPhotoChanged(newItem))
         }
@@ -129,16 +143,66 @@ struct ScanPlanView: View {
     // MARK: - Action Buttons
 
     private var actionButtonsSection: some View {
+        VStack(spacing: 12) {
+            if VNDocumentCameraViewController.isSupported {
+                takePhotoButton
+            }
+            selectPhotoButton
+        }
+    }
+
+    private var takePhotoButton: some View {
         Button {
-            send(.selectPhotoTapped)
+            send(.takePhotoTapped)
         } label: {
-            Label("Select Photo", systemImage: "photo.on.rectangle")
+            Label("Take Photo", systemImage: "doc.viewfinder")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
         .tint(store.color)
         .controlSize(.large)
         .keyboardShortcut(.defaultAction)
+    }
+
+    private var selectPhotoButton: some View {
+        Button {
+            send(.selectPhotoTapped)
+        } label: {
+            Label("Select Photo", systemImage: "photo.on.rectangle")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .tint(store.color)
+        .controlSize(.large)
+    }
+
+    // MARK: - Loading Photo
+
+    private var loadingPhotoSection: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            ProgressView()
+                .controlSize(.large)
+
+            Text("Loading photo...")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            cancelLoadingButton
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var cancelLoadingButton: some View {
+        Button {
+            send(.clearImageTapped)
+        } label: {
+            Text("Cancel")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 8)
     }
 
     // MARK: - Processing
@@ -170,6 +234,10 @@ struct ScanPlanView: View {
             }
             .padding()
         }
+        .scrollDismissesKeyboard(.interactively)
+        .onTapGesture {
+            isTextEditorFocused = false
+        }
     }
 
     // MARK: - Text Editor
@@ -180,6 +248,7 @@ struct ScanPlanView: View {
                 .font(.headline)
 
             TextEditor(text: $store.extractedText)
+                .focused($isTextEditorFocused)
                 .frame(minHeight: 200)
                 .padding(8)
                 .background(.ultraThinMaterial)
@@ -215,25 +284,6 @@ struct ScanPlanView: View {
         .padding(.top, 8)
     }
 
-    // MARK: - Unavailable
-
-    private func unavailableSection(message: String) -> some View {
-        ContentUnavailableView {
-            Label("Feature Unavailable", systemImage: "exclamationmark.applewatch")
-        } description: {
-            Text(message)
-        } actions: {
-            Button {
-                send(.retryTapped)
-            } label: {
-                Label("Try Again", systemImage: "arrow.clockwise")
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(store.color)
-            .controlSize(.large)
-        }
-    }
-
     // MARK: - Failed
 
     private func failedSection(error: String) -> some View {
@@ -257,8 +307,26 @@ struct ScanPlanView: View {
             .buttonStyle(.borderedProminent)
             .tint(store.color)
             .controlSize(.large)
+
+            if store.failedStage == .parsing && !store.extractedText.isEmpty {
+                editTextButton
+            }
+
+            startOverButton
         }
         .padding(.top, 40)
+    }
+
+    private var editTextButton: some View {
+        Button {
+            send(.editTextTapped)
+        } label: {
+            Label("Edit Text", systemImage: "pencil")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .tint(store.color)
+        .controlSize(.large)
     }
 
     // MARK: - API Key Toolbar

@@ -1391,6 +1391,26 @@
         }
       }
     },
+    "Claude returned an unexpected response. Try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claude zwrócił nieoczekiwaną odpowiedź. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Claude service is temporarily unavailable. Try again later." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usługa Claude jest chwilowo niedostępna. Spróbuj ponownie później."
+          }
+        }
+      }
+    },
     "Close" : {
       "localizations" : {
         "pl" : {
@@ -1497,7 +1517,25 @@
       }
     },
     "Could not load the selected image." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać wybranego zdjęcia."
+          }
+        }
+      }
+    },
+    "Could not process the selected image." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się przetworzyć wybranego zdjęcia."
+          }
+        }
+      }
     },
     "Couldn't reach the class for 5 minutes. Your workout is still recording." : {
 
@@ -1840,6 +1878,16 @@
     "Edit Profile" : {
 
     },
+    "Edit Text" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj tekst"
+          }
+        }
+      }
+    },
     "Edycja możliwa do %@" : {
 
     },
@@ -2004,9 +2052,6 @@
           }
         }
       }
-    },
-    "Feature Unavailable" : {
-
     },
     "figure.run" : {
       "localizations" : {
@@ -2432,6 +2477,16 @@
         }
       }
     },
+    "Invalid or missing API key. Check the key in settings." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieprawidłowy lub brakujący klucz API. Sprawdź klucz w ustawieniach."
+          }
+        }
+      }
+    },
     "It was not possible to retrieve the health metrics data. Please try again later." : {
       "localizations" : {
         "pl" : {
@@ -2578,6 +2633,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "na żywo %lld"
+          }
+        }
+      }
+    },
+    "Loading photo..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczytywanie zdjęcia..."
           }
         }
       }
@@ -2978,6 +3043,16 @@
         }
       }
     },
+    "No internet connection. Check your network and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak połączenia z internetem. Sprawdź sieć i spróbuj ponownie."
+          }
+        }
+      }
+    },
     "No link" : {
 
     },
@@ -3009,6 +3084,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jeszcze Bez Zespołu"
+          }
+        }
+      }
+    },
+    "No text was found in the image." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie znaleziono tekstu na zdjęciu."
           }
         }
       }
@@ -3056,6 +3142,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych treningowych w tym okresie."
+          }
+        }
+      }
+    },
+    "No workout plan found in this text." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie znaleziono planu treningowego w tym tekście."
           }
         }
       }
@@ -3764,6 +3860,16 @@
     "Scan your handwritten notes or enter manually" : {
 
     },
+    "Scanning failed. Try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanowanie nie powiodło się. Spróbuj ponownie."
+          }
+        }
+      }
+    },
     "Scanning..." : {
       "localizations" : {
         "pl" : {
@@ -4214,6 +4320,16 @@
     "Surname" : {
 
     },
+    "Take Photo" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrób zdjęcie"
+          }
+        }
+      }
+    },
     "Tap Join to broadcast your heart rate to the Gym Room display." : {
       "localizations" : {
         "pl" : {
@@ -4407,6 +4523,16 @@
         }
       }
     },
+    "Too many requests. Try again in a moment." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zbyt wiele zapytań. Spróbuj ponownie za chwilę."
+          }
+        }
+      }
+    },
     "total" : {
       "localizations" : {
         "pl" : {
@@ -4525,9 +4651,6 @@
           }
         }
       }
-    },
-    "Try Again" : {
-
     },
     "tu cos bedzie" : {
       "extractionState" : "stale",

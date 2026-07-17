@@ -13,10 +13,7 @@ import SharedModels
 
 /// Client responsible for extracting text and parsing workouts from images.
 ///
-/// Pipeline: Image → Vision OCR → Text → Parsing Strategy → ExtractedWorkout
-///
-/// Parsing strategy (Foundation Models vs Claude API) is selected in
-/// ``WorkoutParsingClient.liveValue`` — feature layer is unaware of implementation.
+/// Pipeline: Image → Vision OCR → Text → ClaudeStrategy (cloud) → ExtractedWorkout
 struct WorkoutExtractionClient: Sendable {
 
     /// Extracts raw text from image using Vision OCR.

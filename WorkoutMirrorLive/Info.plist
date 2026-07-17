@@ -16,7 +16,7 @@
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Wykrywamy iPada trenera w sali i przesyłamy Twoje tętno na wspólny ekran przez Bluetooth.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Skanujemy kod QR z iPada w sali, żeby dołączyć do live class.</string>
+	<string>Aparat służy do skanowania kodu QR z iPada (dołączenie do zajęć) oraz do fotografowania planu treningowego.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię.</string>
 	<key>NSHealthUpdateUsageDescription</key>
