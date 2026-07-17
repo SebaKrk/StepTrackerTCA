@@ -20,11 +20,21 @@ import SharedModels
 @Reducer
 struct LiveClassFeature {
 
+    /// No payload for this long → the tile is marked stale by the host watchdog.
+    /// Measures a DIFFERENT signal than the iPhone's `sensorStaleThreshold`
+    /// (15 s, raw strap samples): payloads flow every 1-5 s even when the strap
+    /// itself is stale (HealthKit repeats values, peer keeps sending keepalives
+    /// carrying `isSensorStale`), so a strap dropout greys the tile via the
+    /// flag long before this fires. 30 s of TOTAL payload silence is the
+    /// backstop meaning the peer itself is genuinely gone.
+    static let sampleStaleThreshold: TimeInterval = 30
+
     // MARK: - Dependencies
 
     @Dependency(\.peerMirrorClient) var peerMirrorClient
     @Dependency(\.gymClassClient) var gymClassClient
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date) var date
 
     // MARK: - Reducer
 
@@ -75,7 +85,17 @@ struct LiveClassFeature {
                         await peerMirrorClient.startAdvertising(gymName, token)
                         await GymRoomFileLogger.shared.log("[Class] BLE advertising started: token=\(token.uuidString.prefix(8))")
                     },
-                    .send(.delegate(.classStarted))
+                    .send(.delegate(.classStarted)),
+                    /// iPad-side freshness watchdog — a tile must not look live when
+                    /// payloads stop entirely (peer app killed, HealthKit stall) while
+                    /// the BLE link stays subscribed; `isSensorStale` from the peer
+                    /// only arrives inside payloads, so silence needs a local check.
+                    .run { send in
+                        for await _ in clock.timer(interval: .seconds(5)) {
+                            await send(.sensorWatchdogTick)
+                        }
+                    }
+                    .cancellable(id: LiveClassCancelID.sensorWatchdog)
                 )
 
             case let .sessionStarted(sessionId):
@@ -118,8 +138,10 @@ struct LiveClassFeature {
                 state.hrSamplesBuffer = [:]
                 state.athleteRecordIds = [:]
                 state.athleteCreationInFlight = []
+                state.lastSampleAt = [:]
                 return .merge(
                     .cancel(id: LiveClassCancelID.persistenceTimer),
+                    .cancel(id: LiveClassCancelID.sensorWatchdog),
                     .run { send in
                         await GymRoomFileLogger.shared.log("[Class] end: confirmed by trainer, finalizing")
                         /// 1. Flush remaining buffer per athlete (samples z ostatnich <30s).
@@ -265,6 +287,12 @@ struct LiveClassFeature {
                 Logger.gymRoom.info("🔄 Peer reconnected: \(deviceID.uuidString.prefix(8))")
                 let deviceShort = deviceID.uuidString.prefix(8)
                 state.athletes[id: deviceID]?.state = .live
+                // Restart the watchdog window — the peer gets a fresh 30 s to
+                // deliver its first post-reconnect payload before being flagged.
+                // Deliberately does NOT clear an already-set isSensorStale: the
+                // tile still shows the pre-drop value, so it stays grey until a
+                // payload proves the data is live again (sampleReceived heals it).
+                state.lastSampleAt[deviceID] = date.now
                 return .run { _ in
                     await GymRoomFileLogger.shared.log("[Peer] reconnected: deviceID=\(deviceShort)")
                 }
@@ -280,6 +308,7 @@ struct LiveClassFeature {
                 state.athletes.remove(id: deviceID)
                 state.hrSamplesBuffer[deviceID] = nil
                 state.athleteRecordIds[deviceID] = nil
+                state.lastSampleAt[deviceID] = nil
 
                 return .run { _ in
                     await GymRoomFileLogger.shared.log("[Peer] left: deviceID=\(deviceShort), bufferedSamples=\(samples.count)")
@@ -305,6 +334,9 @@ struct LiveClassFeature {
                 // Sensor freshness (IOS-00100-C) — `nil` from a legacy peer build
                 // means "no staleness info", treated as fresh.
                 tile.isSensorStale = payload.isSensorStale ?? false
+                // Watchdog input — any arriving payload proves the peer is alive,
+                // which also self-heals a watchdog-set stale flag (line above).
+                state.lastSampleAt[payload.deviceID] = date.now
 
                 /// Buffer HRSample dla batch persistence (flush co 30s przez persistenceTimer).
                 /// Stale payloads (IOS-00100-C) are presence keepalives carrying the
@@ -378,6 +410,22 @@ struct LiveClassFeature {
                         }
                     }
                 }
+
+            case .sensorWatchdogTick:
+                /// Mutate only tiles that actually cross the threshold — an idle tick
+                /// leaves `state.athletes` untouched, so SwiftUI has no grid diff to do.
+                /// `.loading` / `.reconnecting` tiles are skipped (own, stronger visuals).
+                let now = date.now
+                for tile in state.athletes
+                where tile.state == .live
+                    && !tile.isSensorStale
+                    && (state.lastSampleAt[tile.id].map { now.timeIntervalSince($0) > Self.sampleStaleThreshold } ?? false) {
+                    state.athletes[id: tile.id]?.isSensorStale = true
+                    #if DEBUG
+                    Logger.gymRoom.info("⌛️ Watchdog: \(tile.nick) marked stale — no payload for >\(Int(Self.sampleStaleThreshold))s")
+                    #endif
+                }
+                return .none
 
             case .startObservingPeerEvents:
                 Logger.gymRoom.info("📡 Starting peer events observation...")

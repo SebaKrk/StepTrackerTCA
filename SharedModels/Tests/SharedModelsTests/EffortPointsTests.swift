@@ -78,17 +78,17 @@ struct EffortPointsScoringTests {
 
     @Test("Reading above maxHR counts as Zone 5")
     func aboveMaxCountsAsZone5() {
-        #expect(EffortPointsScoring.zone(bpm: 210, maxHR: 190) == .anaerobic)
+        #expect(HeartRateZone.zone(bpm: 210, maxHR: 190) == .anaerobic)
     }
 
     @Test("Zone lookup matches percentage ranges")
     func zoneLookup() {
-        #expect(EffortPointsScoring.zone(bpm: 80, maxHR: 200) == .resting)     // 40%
-        #expect(EffortPointsScoring.zone(bpm: 110, maxHR: 200) == .recovery)   // 55%
-        #expect(EffortPointsScoring.zone(bpm: 130, maxHR: 200) == .fatBurning) // 65%
-        #expect(EffortPointsScoring.zone(bpm: 150, maxHR: 200) == .aerobic)    // 75%
-        #expect(EffortPointsScoring.zone(bpm: 170, maxHR: 200) == .threshold)  // 85%
-        #expect(EffortPointsScoring.zone(bpm: 190, maxHR: 200) == .anaerobic)  // 95%
+        #expect(HeartRateZone.zone(bpm: 80, maxHR: 200) == .resting)     // 40%
+        #expect(HeartRateZone.zone(bpm: 110, maxHR: 200) == .recovery)   // 55%
+        #expect(HeartRateZone.zone(bpm: 130, maxHR: 200) == .fatBurning) // 65%
+        #expect(HeartRateZone.zone(bpm: 150, maxHR: 200) == .aerobic)    // 75%
+        #expect(HeartRateZone.zone(bpm: 170, maxHR: 200) == .threshold)  // 85%
+        #expect(HeartRateZone.zone(bpm: 190, maxHR: 200) == .anaerobic)  // 95%
     }
 }
 

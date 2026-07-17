@@ -115,11 +115,4 @@ public enum EffortPointsScoring {
         return result
     }
 
-    /// Zone for a single sample — same lookup as `ClassAnalytics` and the
-    /// HealthHub zone analyzer (`percentageRange.contains`), with the same
-    /// above-max fallback: a reading over 100% of maxHR counts as Zone 5.
-    public static func zone(bpm: Int, maxHR: Int) -> HeartRateZone {
-        let fraction = Double(bpm) / Double(maxHR)
-        return HeartRateZone.allCases.first { $0.percentageRange.contains(fraction) } ?? .anaerobic
-    }
 }

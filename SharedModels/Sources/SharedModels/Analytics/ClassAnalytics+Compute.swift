@@ -85,11 +85,10 @@ extension ClassAnalytics {
             let nextSample = samples[index + 1]
             let delta = nextSample.timestamp.timeIntervalSince(sample.timestamp)
 
-            let percentHR = Double(sample.bpm) / Double(maxHR)
-            guard let zone = HeartRateZone.allCases.first(where: { $0.percentageRange.contains(percentHR) }) else {
-                continue
-            }
-
+            // Shared classifier — supra-max samples land in Zone 5 instead of
+            // silently dropping out of the distribution (the old range lookup
+            // matched nothing above 1.0 and lost the hardest seconds of a class).
+            let zone = HeartRateZone.zone(forFraction: Double(sample.bpm) / Double(maxHR))
             timeInZones[zone, default: 0] += delta
         }
 

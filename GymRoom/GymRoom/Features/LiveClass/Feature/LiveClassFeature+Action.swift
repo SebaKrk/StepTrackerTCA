@@ -70,6 +70,13 @@ extension LiveClassFeature {
         /// per athlete (`appendHRSamples` async per peer), clear buffer.
         case flushBufferedSamples
 
+        /// Timer tick z `sensorWatchdog` effect (co 5s) — mark tiles with no
+        /// payload for over `sampleStaleThreshold` as stale. Covers the case
+        /// where the peer stops sending entirely (app killed, HealthKit stall)
+        /// while its BLE subscription stays alive, so `isSensorStale` would
+        /// never arrive from the peer itself.
+        case sensorWatchdogTick
+
         // MARK: - Results (IPAD-00095-A)
 
         /// Ranking rows zbudowane z FROZEN analytics po `endSession` — prezentuje
