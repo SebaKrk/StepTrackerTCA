@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import SharedModels
 import Foundation
 
@@ -129,7 +130,7 @@ struct TrainingSessionEditorFeature {
 
             case .`internal`(.warmUpGenerationResult(.failure(let error))):
                 state.isGeneratingWarmUpNotes = false
-                state.alert = .generationFailed(error.localizedDescription)
+                state.alert = .generationFailed(ClaudeAPIError.userMessage(for: error))
                 return .none
 
             case .`internal`(.coolDownGenerationResult(.success(let text))):
@@ -139,7 +140,7 @@ struct TrainingSessionEditorFeature {
 
             case .`internal`(.coolDownGenerationResult(.failure(let error))):
                 state.isGeneratingCoolDownNotes = false
-                state.alert = .generationFailed(error.localizedDescription)
+                state.alert = .generationFailed(ClaudeAPIError.userMessage(for: error))
                 return .none
 
             // MARK: - Workouts

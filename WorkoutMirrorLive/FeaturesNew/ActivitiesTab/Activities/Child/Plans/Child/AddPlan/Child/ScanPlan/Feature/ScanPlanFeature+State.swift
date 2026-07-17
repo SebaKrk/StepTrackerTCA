@@ -27,6 +27,9 @@ extension ScanPlanFeature {
         /// Whether the photo picker is currently presented.
         var isPickerPresented = false
 
+        /// Whether the document camera scanner is currently presented.
+        var isCameraPresented = false
+
         /// The selected photo picker item.
         var selectedItem: PhotosPickerItem?
 
@@ -36,8 +39,12 @@ extension ScanPlanFeature {
         /// Text extracted from the image via OCR, editable by user.
         var extractedText: String = ""
 
-        /// Structured workout extracted from OCR text via Foundation Models.
+        /// Structured workout extracted from OCR text via Claude API.
         var extractedWorkout: ExtractedWorkout?
+
+        /// Which pipeline stage produced the current `.failed` state —
+        /// drives smart retry (re-run only the failed stage, keep earlier work).
+        var failedStage: FailedStage?
 
         // MARK: - Destination
 
@@ -46,6 +53,13 @@ extension ScanPlanFeature {
 
         /// API key entry sheet.
         @Presents var apiKeyEntry: APIKeyEntryFeature.State?
+    }
+
+    /// Pipeline stage that failed — determines what a Retry re-runs.
+    enum FailedStage: Equatable {
+        case photoLoad
+        case ocr
+        case parsing
     }
 
 }

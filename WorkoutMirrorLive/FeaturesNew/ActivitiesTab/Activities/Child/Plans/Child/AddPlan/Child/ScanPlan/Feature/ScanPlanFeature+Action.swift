@@ -33,6 +33,20 @@ extension ScanPlanFeature {
             /// Called when user taps "Select Photo" button.
             case selectPhotoTapped
 
+            /// Called when user taps "Take Photo" button.
+            case takePhotoTapped
+
+            /// Called when the document camera finishes — JPEG data of the
+            /// scanned page, or `nil` when the user cancelled.
+            case documentScanned(Data?)
+
+            /// Called when the document camera failed (scanner error or
+            /// JPEG encoding failure) — distinct from a user cancel.
+            case documentScanFailed
+
+            /// Called when user taps "Edit Text" on a parsing failure.
+            case editTextTapped
+
             /// Called when user selects or deselects a photo in the picker.
             case selectedPhotoChanged(PhotosPickerItem?)
 
@@ -60,8 +74,8 @@ extension ScanPlanFeature {
             /// Workout parsing completed successfully.
             case parsingCompleted(ExtractedWorkout)
 
-            /// OCR or parsing failed with an error message.
-            case extractionFailed(String)
+            /// A pipeline stage failed with an error message.
+            case extractionFailed(String, FailedStage)
         }
     }
 

@@ -10,12 +10,13 @@ import Foundation
 extension ExtractedWorkout {
 
     /// Converts ExtractedWorkout to TrainingSession for workout execution.
-    public func toTrainingSession() -> TrainingSession {
-        // Parse date from "yyyy-MM-dd" string (fallback to today if nil or invalid)
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withFullDate, .withDashSeparatorInDate]
-        let parsedDate = date.flatMap { dateFormatter.date(from: $0) } ?? Date()
-
+    ///
+    /// The LLM-extracted `date` string is deliberately IGNORED: the model
+    /// hallucinates a date (e.g. "2024-01-01") when the photo has none, and a
+    /// plausible-but-wrong date is worse than an honest default. The session
+    /// is dated to the scan moment — the user adjusts it consciously in the
+    /// editor when the plan is for another day.
+    public func toTrainingSession(scanDate: Date = Date()) -> TrainingSession {
         // Extract warmup section (take first if duplicates)
         let warmUp = sections
             .first(where: { $0.type == .warmup })?
@@ -33,7 +34,7 @@ extension ExtractedWorkout {
 
 
         return TrainingSession(
-            date: parsedDate,
+            date: scanDate,
             title: name,
             activity: workoutType,
             location: .indoor,
@@ -193,10 +194,12 @@ extension ExerciseType {
     /// one-time re-match job resolve names identically.
     fileprivate static func from(name: String) -> ExerciseType {
         let matched = ExerciseType.matched(fromRawName: name)
+        #if DEBUG
         if matched == .unknown {
             // Fallback to .unknown - preserve original name in customName
             print("⚠️ [Mapper] Unknown exercise '\(name)' → using '.unknown'")
         }
+        #endif
         return matched
     }
 
@@ -218,7 +221,9 @@ extension String {
         guard parts.count == 2,
               let men = Int(parts[0].trimmingCharacters(in: .whitespaces)),
               let women = Int(parts[1].trimmingCharacters(in: .whitespaces)) else {
+            #if DEBUG
             print("⚠️ [Mapper] Failed to parse weight '\(self)' → using nil")
+            #endif
             return nil
         }
 
