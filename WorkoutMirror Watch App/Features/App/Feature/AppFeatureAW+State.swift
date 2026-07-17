@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthKit
 
 /// Implementation of `AppFeatureAW` state.
 extension AppFeatureAW {
@@ -18,6 +19,13 @@ extension AppFeatureAW {
         /// Set to a new `HRMirrorFeature.State` when `.workoutStarted` arrives,
         /// cleared to `nil` when `.workoutEnded` arrives or the user taps End on Watch.
         @Presents var hrMirror: HRMirrorFeature.State?
+
+        /// Workout configuration that arrived while the PREVIOUS session was
+        /// still saving (`hrMirror.isSaving`). Creating a new `HKWorkoutSession`
+        /// before `endSession()` finalizes the old one risks a HealthKit
+        /// "already active" rejection, so the start is deferred until
+        /// `.savedSummaryLoaded` confirms the old session is fully closed.
+        var pendingActivityType: HKWorkoutActivityType?
 
         /// Presented on app launch when `WatchWorkoutSessionClient.checkForStuckSession()`
         /// detects an `HKWorkoutSession` left active by the previous app run (e.g. iPhone died

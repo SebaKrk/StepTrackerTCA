@@ -40,7 +40,27 @@ struct AppFeatureAW {
                 // Fired by WatchAppDelegate.handle(_:) — before any WC event arrives.
                 // Start HRMirrorFeature so it calls startMirroringToCompanionDevice(),
                 // which automatically brings the Watch app to the foreground.
-                guard state.hrMirror == nil else {
+                // Reaches the Watch ONLY for watch-primary starts (iPhone calls
+                // `startWatchApp` solely in that mode), so acting on it can never
+                // interfere with an iPhone-standalone session.
+                if let hrMirror = state.hrMirror {
+                    if hrMirror.isSaving {
+                        // Previous session is still finalizing — starting a new
+                        // HKWorkoutSession now risks a HealthKit rejection.
+                        // Defer until `.savedSummaryLoaded` confirms it closed.
+                        Logger.appAW.info("workoutConfigurationReceived — previous workout still saving, deferring start")
+                        state.pendingActivityType = activityType
+                        return .none
+                    }
+                    if hrMirror.summaryPhase != .hidden {
+                        // Stale post-workout summary — the old workout is saved,
+                        // so the screen is informational only. Auto-dismiss it and
+                        // start fresh, exactly as if Done was tapped a moment earlier.
+                        Logger.appAW.info("workoutConfigurationReceived — auto-dismissing stale summary, starting new workout")
+                        state.hrMirror = HRMirrorFeature.State(activityType: activityType)
+                        return .send(.hrMirror(.presented(.start)))
+                    }
+                    // Workout genuinely active — duplicate delivery, ignore.
                     Logger.appAW.debug("workoutConfigurationReceived — hrMirror already active, ignoring")
                     return .none
                 }
@@ -53,7 +73,17 @@ struct AppFeatureAW {
                 Logger.appAW.info("watchEventReceived: .workoutStarted — activityType=\(activityTypeRaw), hrMirrorActive=\(hrMirrorActive)")
                 let activityType = HKWorkoutActivityType(rawValue: activityTypeRaw) ?? .other
 
-                if state.hrMirror != nil {
+                if let hrMirror = state.hrMirror {
+                    guard !hrMirror.isPostWorkout else {
+                        // The visible screen describes a FINISHED workout — syncing
+                        // the new workout's params into it would corrupt the summary.
+                        // Restarting is not allowed from here either: this event also
+                        // fires for iPhone-standalone sessions, where the Watch must
+                        // not create its own HKWorkoutSession. The watch-primary
+                        // restart is owned by `workoutConfigurationReceived`.
+                        Logger.appAW.notice("workoutStarted ignored — post-workout screen active")
+                        return .none
+                    }
                     // Already started via handleWorkoutConfiguration — only sync params.
                     state.hrMirror?.maxHeartRate = maxHR
                     state.hrMirror?.elapsedSeconds = elapsed
@@ -68,20 +98,24 @@ struct AppFeatureAW {
                 )
                 return .send(.hrMirror(.presented(.start)))
 
+            // Live-workout events are forwarded only while the workout is actually
+            // live — a post-workout screen (saving overlay / mini-summary) must not
+            // react to events of a NEW session starting on iPhone (R8 variant).
+
             case .watchEventReceived(.countdownStart):
-                guard state.hrMirror != nil else { return .none }
+                guard state.hrMirror?.isPostWorkout == false else { return .none }
                 return .send(.hrMirror(.presented(.countdownStart)))
 
             case .watchEventReceived(.countdownFinished):
-                guard state.hrMirror != nil else { return .none }
+                guard state.hrMirror?.isPostWorkout == false else { return .none }
                 return .send(.hrMirror(.presented(.countdownFinished)))
 
             case .watchEventReceived(.workoutPaused):
-                guard state.hrMirror != nil else { return .none }
+                guard state.hrMirror?.isPostWorkout == false else { return .none }
                 return .send(.hrMirror(.presented(.workoutPaused)))
 
             case .watchEventReceived(.workoutResumed(let elapsed)):
-                guard state.hrMirror != nil else { return .none }
+                guard state.hrMirror?.isPostWorkout == false else { return .none }
                 return .send(.hrMirror(.presented(.workoutResumed(elapsedSeconds: elapsed))))
 
             case .watchEventReceived(.workoutEnded):
@@ -136,10 +170,11 @@ struct AppFeatureAW {
                 return .none
 
             case .watchEventReceived(.workoutTick(let elapsed)):
-                guard state.hrMirror != nil else { return .none }
+                guard state.hrMirror?.isPostWorkout == false else { return .none }
                 return .send(.hrMirror(.presented(.workoutTick(elapsedSeconds: elapsed))))
 
             case .watchEventReceived(.maxHRUpdated(let maxHR)):
+                guard state.hrMirror?.isPostWorkout == false else { return .none }
                 state.hrMirror?.maxHeartRate = maxHR
                 return .none
 
@@ -150,6 +185,16 @@ struct AppFeatureAW {
             case .hrMirror(.presented(.delegate(.didFinishSaving))):
                 Logger.appAW.info("didFinishSaving — dismissing HRMirrorFeature")
                 return .send(.dismissHRMirror)
+
+            case .hrMirror(.presented(.savedSummaryLoaded)):
+                // The previous session is now fully closed in HealthKit. If a new
+                // workout start arrived during the save, skip the summary and
+                // start it immediately — the user is already past that workout.
+                guard let pending = state.pendingActivityType else { return .none }
+                Logger.appAW.info("savedSummaryLoaded — starting deferred workout (activityType: \(pending.rawValue))")
+                state.pendingActivityType = nil
+                state.hrMirror = HRMirrorFeature.State(activityType: pending)
+                return .send(.hrMirror(.presented(.start)))
 
             // MARK: - View Actions
 
