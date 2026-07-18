@@ -1157,3 +1157,12 @@
 
     A: Auto-dismiss stale summary — a new workout configuration arriving over a presented summary tears the old state down and starts fresh (the old workout is already saved; identical to tapping Done a moment earlier); a start arriving while the previous session is still saving is parked (`pendingActivityType`) and executed on `savedSummaryLoaded`, once HealthKit has fully closed the old session (no "already active" rejection)
     B: Post-workout event gating — `isPostWorkout` (saving overlay or summary visible) stops live-workout events (`workoutStarted` param sync, countdown, pause/resume, ticks, maxHR) from mutating the finished-workout screen; in standalone the summary now stays intact and the Watch never starts its own session
+
+### IOS-00110 Device picker UX — three labeled HR-source tiles instead of the "Watch/iPhone" trap
+    - TF tester with a Garmin tapped the generic "Watch" icon expecting his own watch: the app silently waited for an Apple Watch and the workout ran with no HR data and no explanation
+    - only two session modes exist underneath (watch-primary vs iPhone-standalone with any BLE HR sensor) — the third tile is a guidance-level distinction, both sensor tiles route to the same standalone path
+    - deferred to a follow-up: greying out the Apple Watch tile when none is paired, and a "searching for sensor / detected" guidance panel on the other-device path
+
+    A: Three tiles — "Apple Watch" / "HR belt" / "Other HR device" (pl: Pas HR / Inny czujnik HR); `DeviceOption` gains `hrBelt` and drops presentation props (icons + localized titles move to `DeviceView`, the enum stays a pure domain value)
+    B: Custom HR-belt glyph — `HRBeltIcon` drawn in SwiftUI to SF-symbol style (outlined band filled at 20% tint, square sensor pod, white heart), iterated visually with the user through 4 mockup rounds; inherits `foregroundStyle` so the picker's selection tinting works unchanged
+    C: Broadcast reminder alert — picking "Other HR device" first shows an alert telling the user to enable HR broadcasting (Garmin "Broadcast Heart Rate" / Polar HR sharing) with OK proceeding and Cancel leaving nothing selected; selection truth now flows only through the child's `.select` (the parent no longer stores the choice on raw tap), which also fixed the flow switch missing the new `hrBelt` case

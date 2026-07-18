@@ -1045,6 +1045,16 @@
         }
       }
     },
+    "Apple Watch" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch"
+          }
+        }
+      }
+    },
     "Athlete" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1934,6 +1944,16 @@
     "Email" : {
 
     },
+    "Enable heart rate broadcasting" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz nadawanie tętna"
+          }
+        }
+      }
+    },
     "End" : {
       "localizations" : {
         "pl" : {
@@ -2367,6 +2387,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jak często dane ćwiczenie pojawiało się w treningu"
+          }
+        }
+      }
+    },
+    "HR belt" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas HR"
           }
         }
       }
@@ -3311,6 +3341,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "lub"
+          }
+        }
+      }
+    },
+    "Other HR device" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inny czujnik HR"
           }
         }
       }
@@ -4659,6 +4699,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "tu coś będzie"
+          }
+        }
+      }
+    },
+    "Turn on heart rate broadcasting on your device — on sport watches look for a setting like \"Broadcast Heart Rate\" (Garmin) or \"Share heart rate\" (Polar). Without it the iPhone will not receive any readings." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz na swoim urządzeniu rozgłaszanie tętna — na zegarkach sportowych to ustawienie typu „Broadcast Heart Rate” (Garmin) lub „Udostępnij tętno” (Polar). Bez tego iPhone nie odbierze żadnych odczytów."
           }
         }
       }
