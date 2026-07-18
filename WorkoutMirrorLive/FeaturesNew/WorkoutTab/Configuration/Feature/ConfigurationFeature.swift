@@ -149,9 +149,14 @@ struct ConfigurationFeature {
                 return .none
                 
                 // MARK: - Child Action
-            case .device(.select):
-                switch state.selectedDevice {
-                case .iphone, .watch:
+            case let .device(.select(option)):
+                // Selection truth flows ONLY through the child's `.select` —
+                // a tap on "Other HR device" first passes the broadcast-reminder
+                // alert inside `DeviceFeature`, so a cancelled alert leaves
+                // nothing selected here either.
+                state.selectedDevice = option
+                switch option {
+                case .watch, .hrBelt, .iphone:
                     return .run { send in
                         try await clock.sleep(for: .milliseconds(1250))
                         await send(.core(.changeViewState(.activity)), animation: .bouncy)
@@ -162,13 +167,7 @@ struct ConfigurationFeature {
                         await send(.core(.changeViewState(.ready)),
                                    animation: .bouncy)
                     }
-                case .none:
-                    return .none
                 }
-                
-            case let .device(.view(.buttonTapped(option))):
-                state.selectedDevice = option
-                return .none
                 
             case let .activity(.select(value)):
                 state.selectedWorkout = value

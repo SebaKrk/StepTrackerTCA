@@ -30,17 +30,19 @@ extension SessionFeature {
                     await watchClient.initializeWatchConnectivity()
                     let watchStatus = await watchClient.checkWatchStatus()
                     // Mode pick (final semantics, user decision 2026-07-09):
-                    // - `.iphone` → LITERALLY the iPhone: never Watch-primary, HR from
-                    //   a BLE strap when present. Picking "iPhone" and landing on a
-                    //   "waiting for Apple Watch" screen was a recurring trap — a
-                    //   paired-but-off-wrist Watch (e.g. on a charger) still reports
-                    //   `.ready`, since that status only checks `isPaired`.
+                    // - `.hrBelt` / `.iphone` → LITERALLY the iPhone: never
+                    //   Watch-primary, HR from a BLE sensor when present. The two
+                    //   picker tiles ("HR belt" vs "Other HR device") differ only
+                    //   in user guidance — the session path is identical. Landing
+                    //   on a "waiting for Apple Watch" screen was a recurring trap —
+                    //   a paired-but-off-wrist Watch (e.g. on a charger) still
+                    //   reports `.ready`, since that status only checks `isPaired`.
                     // - `.watch` → Watch-primary when the Watch is ready.
                     // - `nil` (plan start, no picker) → auto-detect: a CONNECTED BLE
                     //   strap wins over the Watch.
                     let useWatch: Bool
                     switch requestedDevice {
-                    case .iphone?:
+                    case .iphone?, .hrBelt?:
                         useWatch = false
                     case .watch?, .mirror?:
                         useWatch = watchStatus == .ready
