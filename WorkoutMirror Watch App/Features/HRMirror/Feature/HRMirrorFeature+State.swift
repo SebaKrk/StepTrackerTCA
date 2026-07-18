@@ -123,6 +123,13 @@ extension HRMirrorFeature {
         /// triggers `.delegate(.didFinishSaving)`.
         var summaryPhase: SummaryPhase = .hidden
 
+        /// `true` once the workout is over — saving overlay or mini-summary showing.
+        ///
+        /// `AppFeatureAW` uses this to stop forwarding live-workout events
+        /// (ticks, countdown, pause/resume) to a screen that describes a
+        /// FINISHED workout: a new session starting on iPhone must not mutate it.
+        var isPostWorkout: Bool { isSaving || summaryPhase != .hidden }
+
         // MARK: - Lifecycle
 
         init(
