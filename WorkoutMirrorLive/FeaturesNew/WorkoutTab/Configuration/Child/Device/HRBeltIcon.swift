@@ -35,22 +35,23 @@ struct HRBeltIcon: View {
     private var band: some View {
         Capsule()
             .opacity(bandFillOpacity)
-            .overlay(Capsule().stroke(lineWidth: 3 * unit))
-            .frame(width: 90 * unit, height: 20 * unit)
+            .overlay(Capsule().stroke(lineWidth: 1.5 * unit).opacity(bandStrokeOpacity))
+            .frame(width: 90 * unit, height: 15 * unit)
     }
 
     private var sensor: some View {
-        RoundedRectangle(cornerRadius: 9 * unit)
-            .frame(width: 32 * unit, height: 38 * unit)
+        RoundedRectangle(cornerRadius: 10 * unit)
+            .frame(width: 38 * unit, height: 38 * unit)
     }
 
     private var heart: some View {
         Image(systemName: "heart.fill")
-            .font(.system(size: 14 * unit))
+            .font(.system(size: 17 * unit))
             .foregroundStyle(.white)
     }
 
-    private var bandFillOpacity: Double { 0.2 }
+    private var bandFillOpacity: Double { 0.15 }
+    private var bandStrokeOpacity: Double { 0.5 }
 }
 
 #Preview("HR belt icon", traits: .sizeThatFitsLayout) {
