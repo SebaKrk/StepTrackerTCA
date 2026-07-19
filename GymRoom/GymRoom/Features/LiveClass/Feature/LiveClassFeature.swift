@@ -5,6 +5,7 @@
 //  Created by Sebastian Ściuba on 11/06/2026.
 //
 
+import AppDatabase
 import ComposableArchitecture
 import Foundation
 import OSLog
@@ -19,11 +20,21 @@ import SharedModels
 @Reducer
 struct LiveClassFeature {
 
+    /// No payload for this long → the tile is marked stale by the host watchdog.
+    /// Measures a DIFFERENT signal than the iPhone's `sensorStaleThreshold`
+    /// (15 s, raw strap samples): payloads flow every 1-5 s even when the strap
+    /// itself is stale (HealthKit repeats values, peer keeps sending keepalives
+    /// carrying `isSensorStale`), so a strap dropout greys the tile via the
+    /// flag long before this fires. 30 s of TOTAL payload silence is the
+    /// backstop meaning the peer itself is genuinely gone.
+    static let sampleStaleThreshold: TimeInterval = 30
+
     // MARK: - Dependencies
 
     @Dependency(\.peerMirrorClient) var peerMirrorClient
     @Dependency(\.gymClassClient) var gymClassClient
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date) var date
 
     // MARK: - Reducer
 
@@ -74,7 +85,17 @@ struct LiveClassFeature {
                         await peerMirrorClient.startAdvertising(gymName, token)
                         await GymRoomFileLogger.shared.log("[Class] BLE advertising started: token=\(token.uuidString.prefix(8))")
                     },
-                    .send(.delegate(.classStarted))
+                    .send(.delegate(.classStarted)),
+                    /// iPad-side freshness watchdog — a tile must not look live when
+                    /// payloads stop entirely (peer app killed, HealthKit stall) while
+                    /// the BLE link stays subscribed; `isSensorStale` from the peer
+                    /// only arrives inside payloads, so silence needs a local check.
+                    .run { send in
+                        for await _ in clock.timer(interval: .seconds(5)) {
+                            await send(.sensorWatchdogTick)
+                        }
+                    }
+                    .cancellable(id: LiveClassCancelID.sensorWatchdog)
                 )
 
             case let .sessionStarted(sessionId):
@@ -107,6 +128,8 @@ struct LiveClassFeature {
                 let buffer = state.hrSamplesBuffer
                 let mappings = state.athleteRecordIds
                 let endedAt = Date()
+                let classLatitude = state.latitude
+                let classLongitude = state.longitude
 
                 state.isLive = false
                 state.athletes.removeAll()
@@ -115,8 +138,10 @@ struct LiveClassFeature {
                 state.hrSamplesBuffer = [:]
                 state.athleteRecordIds = [:]
                 state.athleteCreationInFlight = []
+                state.lastSampleAt = [:]
                 return .merge(
                     .cancel(id: LiveClassCancelID.persistenceTimer),
+                    .cancel(id: LiveClassCancelID.sensorWatchdog),
                     .run { send in
                         await GymRoomFileLogger.shared.log("[Class] end: confirmed by trainer, finalizing")
                         /// 1. Flush remaining buffer per athlete (samples z ostatnich <30s).
@@ -139,31 +164,54 @@ struct LiveClassFeature {
                                 await GymRoomFileLogger.shared.log("[Class] ERROR endSession failed: \(error.localizedDescription)")
                             }
                         }
-                        await peerMirrorClient.stopAdvertising()
-                        await GymRoomFileLogger.shared.log("[Class] BLE advertising stopped")
-                        /// 3. Tabela wyników (IPAD-00095-A): analytics są już FROZEN w bazie
-                        /// (`endSession`) — fetch back i pokaż ranking. `delegate(.classEnded)`
-                        /// poleci dopiero z "Done" w tabeli, bo parent ClassesListFeature
-                        /// ustawia `liveClass = nil` (zamyka cały cover stack). Fallback:
-                        /// błąd fetchu / brak zawodników → stary flow, trener nigdy nie utknie.
+                        /// 3. Recap + ranking. Fetch athletes PRZED `stopAdvertising` — recap
+                        /// leci per-device przez WCIĄŻ ŻYWE połączenia BLE (IOS-00104-C). Analytics
+                        /// są FROZEN w bazie (`endSession`), więc te same `rows` zasilają i recap,
+                        /// i tabelę wyników.
+                        var resultRows: [ClassResultsFeature.ResultRow] = []
                         if let sessionId {
                             do {
                                 let records = try await gymClassClient.fetchAthletesForSession(sessionId)
                                 let rows = ClassResultsFeature.rows(from: records)
-                                if !rows.isEmpty {
-                                    await GymRoomFileLogger.shared.log("[Class] results ready: \(rows.count) athletes")
-                                    await send(.resultsReady(rows))
-                                    return
+                                resultRows = rows
+                                // Miejsce z rankingu (points desc); deviceID z rekordu athlety.
+                                let ranked = rows.sorted { $0.points > $1.points }
+                                let placeByAthlete = Dictionary(
+                                    uniqueKeysWithValues: ranked.enumerated().map { ($0.element.id, $0.offset + 1) }
+                                )
+                                let deviceByAthlete = Dictionary(
+                                    records.map { ($0.id, $0.deviceID) },
+                                    uniquingKeysWith: { first, _ in first }
+                                )
+                                for row in rows {
+                                    guard let deviceID = deviceByAthlete[row.id],
+                                          let place = placeByAthlete[row.id] else { continue }
+                                    let recap = ClassRecapPayload(
+                                        deviceID: deviceID,
+                                        classSessionId: sessionId,
+                                        place: place,
+                                        participantCount: rows.count,
+                                        latitude: classLatitude,
+                                        longitude: classLongitude
+                                    )
+                                    await peerMirrorClient.sendRecap(recap, deviceID)
                                 }
+                                await GymRoomFileLogger.shared.log("[Class] recap sent to \(rows.count) athletes")
                             } catch {
-                                Logger.gymRoom.error("❌ results fetch failed: \(error.localizedDescription)")
-                                await GymRoomFileLogger.shared.log("[Class] ERROR results fetch failed: \(error.localizedDescription)")
+                                Logger.gymRoom.error("❌ results/recap fetch failed: \(error.localizedDescription)")
+                                await GymRoomFileLogger.shared.log("[Class] ERROR results/recap fetch failed: \(error.localizedDescription)")
                             }
                         }
-                        /// Emit delegate DOPIERO PO completion async cleanup — parent ClassesListFeature
-                        /// ustawi `liveClass = nil` co triggeruje `.ifLet` cancel child effects, ale w tym
-                        /// momencie .run już completed (poprzednie await'y zwróciły). Race condition unik-
-                        /// nięty: persistence first, dismiss second.
+                        /// Recap wysłany — dopiero teraz zamknij BLE (rozłączenie ucina notify).
+                        await peerMirrorClient.stopAdvertising()
+                        await GymRoomFileLogger.shared.log("[Class] BLE advertising stopped")
+                        /// Tabela wyników (IPAD-00095-A). `delegate(.classEnded)` poleci dopiero z
+                        /// "Done" w tabeli. Fallback (błąd fetchu / brak zawodników): zamknij od razu,
+                        /// trener nigdy nie utknie.
+                        if !resultRows.isEmpty {
+                            await send(.resultsReady(resultRows))
+                            return
+                        }
                         await send(.delegate(.classEnded))
                     }
                 )
@@ -239,6 +287,12 @@ struct LiveClassFeature {
                 Logger.gymRoom.info("🔄 Peer reconnected: \(deviceID.uuidString.prefix(8))")
                 let deviceShort = deviceID.uuidString.prefix(8)
                 state.athletes[id: deviceID]?.state = .live
+                // Restart the watchdog window — the peer gets a fresh 30 s to
+                // deliver its first post-reconnect payload before being flagged.
+                // Deliberately does NOT clear an already-set isSensorStale: the
+                // tile still shows the pre-drop value, so it stays grey until a
+                // payload proves the data is live again (sampleReceived heals it).
+                state.lastSampleAt[deviceID] = date.now
                 return .run { _ in
                     await GymRoomFileLogger.shared.log("[Peer] reconnected: deviceID=\(deviceShort)")
                 }
@@ -254,6 +308,7 @@ struct LiveClassFeature {
                 state.athletes.remove(id: deviceID)
                 state.hrSamplesBuffer[deviceID] = nil
                 state.athleteRecordIds[deviceID] = nil
+                state.lastSampleAt[deviceID] = nil
 
                 return .run { _ in
                     await GymRoomFileLogger.shared.log("[Peer] left: deviceID=\(deviceShort), bufferedSamples=\(samples.count)")
@@ -279,6 +334,9 @@ struct LiveClassFeature {
                 // Sensor freshness (IOS-00100-C) — `nil` from a legacy peer build
                 // means "no staleness info", treated as fresh.
                 tile.isSensorStale = payload.isSensorStale ?? false
+                // Watchdog input — any arriving payload proves the peer is alive,
+                // which also self-heals a watchdog-set stale flag (line above).
+                state.lastSampleAt[payload.deviceID] = date.now
 
                 /// Buffer HRSample dla batch persistence (flush co 30s przez persistenceTimer).
                 /// Stale payloads (IOS-00100-C) are presence keepalives carrying the
@@ -353,6 +411,22 @@ struct LiveClassFeature {
                     }
                 }
 
+            case .sensorWatchdogTick:
+                /// Mutate only tiles that actually cross the threshold — an idle tick
+                /// leaves `state.athletes` untouched, so SwiftUI has no grid diff to do.
+                /// `.loading` / `.reconnecting` tiles are skipped (own, stronger visuals).
+                let now = date.now
+                for tile in state.athletes
+                where tile.state == .live
+                    && !tile.isSensorStale
+                    && (state.lastSampleAt[tile.id].map { now.timeIntervalSince($0) > Self.sampleStaleThreshold } ?? false) {
+                    state.athletes[id: tile.id]?.isSensorStale = true
+                    #if DEBUG
+                    Logger.gymRoom.info("⌛️ Watchdog: \(tile.nick) marked stale — no payload for >\(Int(Self.sampleStaleThreshold))s")
+                    #endif
+                }
+                return .none
+
             case .startObservingPeerEvents:
                 Logger.gymRoom.info("📡 Starting peer events observation...")
                 return .run { send in
@@ -370,6 +444,10 @@ struct LiveClassFeature {
                             /// Host-side no-op: iPad sam emit'uje classEnded broadcast
                             /// (via PeerMirrorBLEHostSession.broadcastClassEnded), własny event
                             /// nie wymaga reakcji w reducerze (host już wie że robi END).
+                            break
+                        case .recapReceived:
+                            /// Host-side no-op: recap płynie iPad→uczestnik (host wysyła,
+                            /// nie odbiera). Ten event pojawia się tylko peer-side.
                             break
                         }
                     }

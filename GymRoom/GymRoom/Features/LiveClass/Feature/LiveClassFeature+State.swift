@@ -52,6 +52,12 @@ extension LiveClassFeature {
         /// wyświetlany w header subtitle obok "LIVE". NIE wysyłany w QR.
         var location: String = ""
 
+        /// Współrzędne lokalizacji zajęć — z `GymClass.latitude/longitude` (MapKit,
+        /// IPAD-00096). Wysyłane w recap payload na koniec zajęć, dla mapki w historii
+        /// uczestnika. `nil` gdy adres wpisany ręcznie (bez geokodowania).
+        var latitude: Double?
+        var longitude: Double?
+
         /// Hard limit BLE z `GymClass.maxParticipants` (8/12/16, set w Class Creation
         /// z `bleCapacityClient.recommendedMaxConnections()`). Wyświetlany w header
         /// jako `current/max` ratio (np. "3/8 athletes") — trener widzi capacity od
@@ -98,6 +104,14 @@ extension LiveClassFeature {
         /// effect lub na peer disconnect / class end. Po flush'u — clear (już persisted w BLOB).
         /// Trade-off: max 30s utraconych próbek na app crash. Acceptable dla MVP.
         var hrSamplesBuffer: [UUID: [HRSample]] = [:]
+
+        /// Host-clock timestamp of the last received payload per peer, keyed by
+        /// `deviceID` — feeds the iPad-side sample-age watchdog (`sensorWatchdogTick`).
+        /// Host clock (not `payload.timestamp`) so peer clock skew cannot fake
+        /// staleness. Deliberately OUTSIDE `AthleteTile`: the tile is the
+        /// `.animation(value:)` diff unit and a per-sample timestamp inside it
+        /// would make every payload re-animate the whole grid.
+        var lastSampleAt: [UUID: Date] = [:]
     }
 
     /// Pojedynczy kafelek athlety w grid.
@@ -133,9 +147,10 @@ extension LiveClassFeature {
         }
 
         /// Aktualna strefa HR — używana do gradient background + color tilea.
+        /// Classified from the RAW bpm/maxHR (not the truncated `percentHR`) —
+        /// must match what the athlete's own iPhone shows for the same sample.
         var zone: HeartRateZone {
-            let value = Double(percentHR) / 100
-            return HeartRateZone.allCases.first { $0.percentageRange.contains(value) } ?? .resting
+            HeartRateZone.zone(bpm: bpm, maxHR: maxHR)
         }
     }
 

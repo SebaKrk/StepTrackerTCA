@@ -1088,3 +1088,81 @@
     B: Export — `PlanShareClient` encodes + renders the QR image off the main thread; `SharePlanFeature` half-sheet shows the code (GymRoom visual language), too-large and failed states, swipe-to-dismiss
     C: Import — reused `QRScannerView` → decode → read-only preview (shared `WorkoutDetailContent`) → "add to my plans"; scanner remounts to retry after a bad scan; malformed → alert
     D: Snapshot identity — `TrainingSession.withNewIdentity` mints fresh UUIDs at every level (plan + workouts + exercises); imported plan stamped with import date so it sorts to the top; `PlansFeature` is the single writer (shared `saveAndReload`)
+
+### *** App Version 0.2 *** 
+
+### IOS-00104 GymRoom fair points — window-scoped class scoring + athlete recap
+    - problem: the leaderboard used each athlete's CUMULATIVE effort points (from the start of their own workout), so someone who trained before the class began entered with a head start and unfairly topped the board
+    - decision: the athlete's iPhone computes class points LOCALLY, scoped to the class window (join → leave), independent of transient BLE drops; the iPad only displays. Leaving the room early with a running workout still accrues class points (accepted trade-off)
+    - individual vs class points are two projections of ONE source (`EffortPointsAccumulator`): the athlete's own screen/history shows the cumulative total; the class board shows the window-scoped delta since joining
+    - part 2 (follow-up): the athlete sees their class participation in personal history — a dedicated recap section fed by a full results payload the iPad broadcasts at class end (place, participant count, no other athletes shown); plus class name/location and a location map
+
+    A: SharedModels — `EffortPointsScoring.points(from:since:)` window-scoped delta relative to a join snapshot; monotonic-delta / parity / empty-origin tests
+    B: iPhone — `JoinLiveClass` emits `.delegate(.joinedClass)` on connect/reconnect; `SessionFeature` snapshots `effortPoints.secondsByZone` once on first join, bridge sends the window-scoped delta instead of the cumulative total, snapshot cleared on leave; iPad unchanged
+    C: personal history recap — iPad broadcasts each athlete's result at class end (place, participant count, location) per-device over BLE; iPhone links it to the workout and shows a recap section (place N/M, class points, location map) in Activity Details
+        - channel: BLE per-device notify (not QR); parked → consumed at workout-save like `pendingEffortScore`
+        - stored in its own `ClassParticipation` table (v11), separate from effort score so it shows even for a 0-point class
+        - end-workout confirmation alert while still connected to a class (data-loss warning, Stay/Leave)
+    (GymRoom class setup — location + weekly recurrence — moved to its own iPad ticket IPAD-00096)
+
+### IPAD-00096 GymRoom results table polish + class scheduling (location + weekly recurrence)
+    - results table (Points tab + end-of-class cover) was a bare `Table` with no container: visually inconsistent with the sibling charts and jumped on async load / tab switch
+    - class scheduling gains a real address (MapKit autocomplete, coordinates stored for the future recap map) and weekly recurrence, so a trainer can lay out a fixed weekly timetable plus one-off events
+    - recurrence is a template + computed date, NOT generated instances: one record per class, the displayed date rolls forward weekly (`nextOccurrence`) — no duplicates, no CloudKit fan-out, never shows a stale past date
+    - list reshaped into a weekly grid: fixed Mon–Sun sections (recurring classes by weekday, empty day → "No classes"), one-off classes under an unnamed divider (dated chronologically, undated last)
+
+    A: Results table — history "Points" tab wraps the shared `ClassResultsTableView` in a GroupBox (matches charts, `hidesScrollBackground: true`, `maxHeight: .infinity`); the end-of-class cover keeps the table BARE with its normal background (GroupBox belongs to the history tab-switcher, not the plain summary — user correction)
+    B: Model + migration `v10` — `latitude`/`longitude`/`isRecurring` on `GymClassRecord` + `GymClass` + mapping + Draft; additive, CloudKit-safe (old rows decode with NULL coords / `isRecurring` 0)
+    C: Address search (MapKit) — `AddressSearchClient` over `MKLocalSearchCompleter` (autocomplete stream) + `MKLocalSearch` resolve; suggestion rows in `ClassCreation`, tap sets address + stores coordinates
+    D: Weekly recurrence — `WeeklyRecurrence.nextOccurrence` pure helper in SharedModels (DST-safe, `now` injected, unit-tested) + "Repeat weekly" toggle bound to a base `scheduledAt`
+    E: Weekly grid list — fixed Mon–Sun sections with "No classes" placeholder for empty days; one-off classes under an unnamed divider; removed the old dated-group / undated split
+    F: Class detail — recurring class shows its NEXT occurrence + "weekly" tag (never the past base date); `now` injected via `@Dependency(\.date)` on appear
+
+### IOS-00105 ActivityDetails refactor — decompose the god-view into child features
+    - problem: `ActivityDetailsView` (~950 lines) and its reducer own six unrelated data domains (zones+effort points, performance metrics, route, class recap, HR chart, manual entry) — every change touches one giant file, and cross-domain logic (recap-map gate) is tangled with loading code
+    - split by data domain: stateful sections become child features composed via `Scope` (HeartRateZones, PerformanceMetrics, WorkoutRoute, ClassRecap); purely presentational sections (header, energy, avg/max HR, card components) become dumb subviews with no reducer
+    - the parent stays a coordinator: destinations, manual-entry flow, and load orchestration — children report `delegate(.didFinishLoading)` upward, the parent holds the recap-map gate (all loads settled + 300 ms → mount map) and the recap↔route mutual exclusion
+    - children never see each other; commands go down as plain actions (`load`, `mountMap` — same precedent as `planScore(.fetchScore)`), events come up as delegates
+    - small cleanups riding along: temporary debug prints removed, unused card variant deleted, single-location pin switched to the UIKit-backed `StaticPinMapView`
+
+### IOS-00106 Scan flow polish for TF 0.2 — camera capture, structured OCR, honest errors
+    - audit before TF 0.2 found the scan flow photo-library-only, with a dead-air idle screen during photo load, an unreachable Foundation Models fallback shipping stale copy, no effect cancellation, work-destroying retry, and undifferentiated English-only API errors
+    - OCR migrated to `RecognizeDocumentsRequest` (iOS 26): paragraphs stay together, table rows keep an exercise on one line with its sets/weights — the flat line-join used to detach them before the text reached Claude
+    - "Take Photo" uses the system document scanner (`VNDocumentCameraViewController`): edge detection + perspective correction feed OCR its ideal input; single-page by design
+
+    A: Loading state — `selectedPhotoChanged` sets `.loadingPhoto` synchronously (repurposed dead `imageSelected` case); spinner replaces the lingering idle screen while `loadTransferable` hits iCloud
+    B: Document camera — `DocumentCameraView` representable + "Take Photo" primary button (hidden when unsupported); scan routes into the same `imageLoaded` pipeline; camera usage description generalized
+    C: Dead layer removal — `WorkoutParsingClient(+Strategies)`, `FoundationModelsStrategy` (+FM models), `FoundationModelAvailability` deleted (never injected; `WorkoutExtractionClient.liveValue` instantiates `ClaudeStrategy` directly); unreachable `.unavailable` state + stale "Cloud API coming soon" copy removed; release prints/dumps stripped or DEBUG-gated
+    D: Structured OCR — `ScanPlanService` on `RecognizeDocumentsRequest` with pl+en recognition languages + workout custom words; serializes title/paragraphs/tables (cells `|`-joined per row)/lists; DEBUG print of serialized text for device verification
+    E: Cancellation — `CancelID` (photoLoad/ocr/parse) on all three effects; in-screen resets cancel in-flight work so a late OCR/parse result can't resurrect abandoned state
+    F: Smart retry — `failedStage` tracks which stage failed: parse failure retries only the parse (OCR text kept), OCR failure re-runs OCR from the kept image; back from preview returns to editable text instead of wiping; Start Over available on the failed screen
+    G: Typed API errors — 401/403 → `unauthorized`, 429 → `rateLimited`, 5xx → `serverError`, `URLError` → `network` mapped in `ClaudeAPIClient`; feature layer translates to localized actionable messages (HealthHub has no string catalog); env-var era `missingAPIKey` copy fixed
+    H: Device-test tuning — `automaticallyDetectLanguage = false` (auto-detection hallucinated Cyrillic/CJK on whiteboard handwriting), document-title dedup in serialization, vocabulary additions (BURPEE, TOES TO BAR, TC, TIME CAP, 1RM); geometric line-merging prototyped and reverted (user preference)
+    I: Review hardening (10 verified findings) — `resetToIdle` clears `selectedItem` (same-photo re-pick worked only once), "Edit Text" escape from a parsing failure back to the editor, scanner cancel vs failure distinguished (`ScanResult`), JPEG encoding moved off the main actor, Cancel on the photo-loading spinner, shared `ClaudeAPIError.userMessage` used by ScanPlan AND TrainingSessionEditor alerts, recognition languages intersected with `supportedRecognitionLanguages`; consciously skipped: block-order serialization (needs geometry), confidence filter (API exposes none — Claude filters noise)
+    J: Editor UX — tap outside the extracted-text editor dismisses the keyboard (`@FocusState` + `.scrollDismissesKeyboard(.interactively)`, same pattern as SummaryView)
+    K: Scan date — the LLM-extracted date is ignored (model hallucinated "2024-01-01" when the photo had none, defeating the today-fallback); scanned plans are dated to the scan moment via `@Dependency(\.date)`, user adjusts consciously in the editor
+
+### IOS-00107 Honest HR surfaces — staleness watchdog, stale visuals, one zone classifier
+    - TF 0.2 tester reported a Polar H9 "losing connection" mid-workout; the BLE/data-flow investigation found the iPad trusts the peer to report its own death (`isSensorStale` only arrives inside payloads — a killed app or HealthKit stall leaves the tile looking live forever), the iPhone's stale cues too subtle to notice mid-workout, and the same 70% showing different colors on iPhone vs GymRoom
+    - zone classification existed in 8 places across 5 targets with 4 different semantics (boundary inclusive vs exclusive, Int truncation before classifying, and three different answers for HR above estimated maxHR: resting, anaerobic, or sample dropped)
+    - the missing release-build strap reconnect (hold experiment is DEBUG-only; HealthKit's internal retry took 3-39 min in the field) is confirmed and deferred to a follow-up ticket
+
+    A: iPad sample-age watchdog — per-tile `lastSampleAt` (host clock, outside `AthleteTile` so per-sample timestamps don't re-animate the grid); a 5 s sweep marks `.live` tiles stale after 30 s of total payload silence (payloads flow every 1-5 s even when the strap is stale, so silence means the peer is gone); next payload self-heals the flag; review hardening: handshake seeds the timestamp (a peer that dies before its first payload still gets flagged) and reconnect refreshes it (no false stale flash right after a visible reconnect); accepted limitation: a peer dead in `.loading` keeps its spinner (already reads as "not live")
+    B: iPhone stale visual parity — `LiveSessionView` desaturates the whole screen (0.35, zone gradient included) when `isSensorStale`, mirroring the GymRoom tile treatment; previously only the small heart icon and bpm number greyed out, invisible at arm's length; twin previews (same state, flag flipped) document the before/after; `sensorStaleThreshold` lowered 60 s → 15 s after the strap field test (a minute of a frozen value read as lying; known flicker risk at rest documented in code — fallback 30-45 s)
+    C: Shared zone classifier — `HeartRateZone.zone(forFraction:)` + `zone(bpm:maxHR:)` overload owning the maxHR guard (half-open lower-inclusive bounds, supra-max stays Zone 5) replace all 8 ad-hoc lookups; iPad classifies the raw fraction instead of the truncated percent (fixes the 70.x band showing green on the wall vs yellow on the phone), iPhone/Watch no longer show a grey "resting" screen when real HR exceeds the formula-estimated max, class analytics stop dropping supra-max seconds, chart clamp workarounds removed; intentional degenerate-case change: maxHR ≤ 0 now degrades to resting/gray everywhere (previously fake all-Zone-5 via inf fallback in the HealthHub analyzer and clamped-red history bars); `percentageRange` demoted to display-only; golden boundary tests in SharedModels; effort-points weights untouched (no `currentWeightsVersion` bump — contract covers `pointsPerMinute` only)
+
+### IOS-00109 Watch summary vs next workout — stale post-workout state no longer swallows a new start
+    - field report: ending a Watch workout leaves the mini-summary on the wrist; starting the next workout from iPhone before tapping Done broke the session — the Watch guard treated "summary still visible" as "workout active", silently ignored the start (no new HKWorkoutSession, no mirroring, iPhone stuck waiting) while the WC fallback overwrote the dead summary's elapsed/maxHR with the new workout's values
+    - fix lives entirely on the Watch (`AppFeatureAW`); iPhone-standalone stays untouched by design — the restart trigger is the `startWatchApp` configuration path, which fires only for watch-primary starts
+
+    A: Auto-dismiss stale summary — a new workout configuration arriving over a presented summary tears the old state down and starts fresh (the old workout is already saved; identical to tapping Done a moment earlier); a start arriving while the previous session is still saving is parked (`pendingActivityType`) and executed on `savedSummaryLoaded`, once HealthKit has fully closed the old session (no "already active" rejection)
+    B: Post-workout event gating — `isPostWorkout` (saving overlay or summary visible) stops live-workout events (`workoutStarted` param sync, countdown, pause/resume, ticks, maxHR) from mutating the finished-workout screen; in standalone the summary now stays intact and the Watch never starts its own session
+
+### IOS-00110 Device picker UX — three labeled HR-source tiles instead of the "Watch/iPhone" trap
+    - TF tester with a Garmin tapped the generic "Watch" icon expecting his own watch: the app silently waited for an Apple Watch and the workout ran with no HR data and no explanation
+    - only two session modes exist underneath (watch-primary vs iPhone-standalone with any BLE HR sensor) — the third tile is a guidance-level distinction, both sensor tiles route to the same standalone path
+    - deferred to a follow-up: greying out the Apple Watch tile when none is paired, and a "searching for sensor / detected" guidance panel on the other-device path
+
+    A: Three tiles — "Apple Watch" / "HR belt" / "Other HR device" (pl: Pas HR / Inny czujnik HR); `DeviceOption` gains `hrBelt` and drops presentation props (icons + localized titles move to `DeviceView`, the enum stays a pure domain value)
+    B: Custom HR-belt glyph — `HRBeltIcon` drawn in SwiftUI to SF-symbol style (outlined band filled at 20% tint, square sensor pod, white heart), iterated visually with the user through 4 mockup rounds; inherits `foregroundStyle` so the picker's selection tinting works unchanged
+    C: Broadcast reminder alert — picking "Other HR device" first shows an alert telling the user to enable HR broadcasting (Garmin "Broadcast Heart Rate" / Polar HR sharing) with OK proceeding and Cancel leaving nothing selected; selection truth now flows only through the child's `.select` (the parent no longer stores the choice on raw tap), which also fixed the flow switch missing the new `hrBelt` case

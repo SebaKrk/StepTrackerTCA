@@ -13,10 +13,14 @@ import SharedModels
 @Reducer
 struct LiveSessionFeature {
 
-    /// No real BLE-sensor sample for longer than this = sensor out of range
-    /// (IOS-00100-B). Straps deliver a few samples per minute even at rest, so
-    /// a full minute of silence is a dropout, not a slow sensor.
-    static let sensorStaleThreshold: TimeInterval = 60
+    /// No real BLE-sensor sample for longer than this = sensor out of range.
+    /// Lowered 60 → 15 s after a strap field test: a full minute of a frozen
+    /// value on screen read as "the app is lying".
+    /// KNOWN RISK: straps have been observed delivering only a few samples
+    /// per minute at rest — if the stale banner flickers between sets, raise
+    /// this to 30-45 s (recovery is instant either way: the first fresh
+    /// sample clears the flag).
+    static let sensorStaleThreshold: TimeInterval = 15
 
     // MARK: - Dependency
     

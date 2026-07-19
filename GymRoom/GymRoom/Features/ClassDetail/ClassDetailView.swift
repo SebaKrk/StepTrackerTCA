@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 /// Detail view klasy z metadata (name, location, scheduledAt) + Start class button
@@ -29,6 +30,7 @@ struct ClassDetailView: View {
         }
         .alert($store.scope(state: \.alert, action: \.alert))
         .preferredColorScheme(.dark)
+        .onAppear { send(.viewDidAppear) }
     }
 
     /// Ellipsis menu w prawym górnym rogu — struktura widoku (CO).
@@ -86,8 +88,19 @@ struct ClassDetailView: View {
         metadataRow(label: locationLabel, value: store.gymClass.location)
     }
 
+    /// Recurring classes show the NEXT occurrence (base date rolled forward weekly)
+    /// plus a "weekly" tag, so the detail never gets stuck on a past base date.
+    /// One-off classes show their single scheduled date as before.
     private func scheduledRow(_ date: Date) -> some View {
-        metadataRow(label: scheduledLabel, value: formattedDate(date))
+        metadataRow(
+            label: store.gymClass.isRecurring ? nextClassLabel : scheduledLabel,
+            value: store.gymClass.isRecurring ? recurringScheduleValue(base: date) : formattedDate(date)
+        )
+    }
+
+    private func recurringScheduleValue(base: Date) -> String {
+        let next = WeeklyRecurrence.nextOccurrence(of: base, notBefore: store.now)
+        return "\(formattedDate(next)) · \(weeklyText)"
     }
 
     /// Capacity row — pokazuje `0/max` ratio. Pre-live zawsze `0` (klasa to template,
@@ -141,6 +154,14 @@ struct ClassDetailView: View {
 
     private var scheduledLabel: String {
         String(localized: "Scheduled", bundle: .main)
+    }
+
+    private var nextClassLabel: String {
+        String(localized: "Next class", bundle: .main)
+    }
+
+    private var weeklyText: String {
+        String(localized: "weekly", bundle: .main)
     }
 
     private var athletesLabel: String {

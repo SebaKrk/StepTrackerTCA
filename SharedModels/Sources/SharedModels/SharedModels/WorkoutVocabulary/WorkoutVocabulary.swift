@@ -15,11 +15,11 @@ import Foundation
 ///
 /// This vocabulary serves multiple consumers:
 ///
-/// 1. **Vision OCR** (`RecognizeTextRequest.customWords`) — improves text recognition accuracy
-///    for handwritten workout notes by providing domain-specific terms that take priority
-///    over the built-in dictionary during word recognition.
+/// 1. **Vision OCR** (`RecognizeDocumentsRequest.textRecognitionOptions.customWords`) —
+///    improves text recognition accuracy for handwritten workout notes by providing
+///    domain-specific terms that take priority over the built-in dictionary.
 ///
-/// 2. **Foundation Models (on-device AI)** — provides structured context and schema
+/// 2. **LLM parsing (Claude API)** — provides structured context and schema
 ///    for mapping raw OCR text into structured workout data models. Categories help
 ///    the model understand the semantic meaning of recognized terms.
 ///
@@ -125,6 +125,8 @@ public enum WorkoutVocabulary {
             "FOR TIME",
             "REST",
             "TABATA",
+            "TC",           // Time Cap
+            "TIME CAP",
         ],
 
         .equipment: [
@@ -143,6 +145,7 @@ public enum WorkoutVocabulary {
             "BENCH PRESS",
             "BOTB",         // Burpee Over The Bar
             "BOX JUMP",
+            "BURPEE",
             "BURPEE BOX JUMP",
             "BURPEE OVER BAR",
             "BURPEES",
@@ -169,6 +172,7 @@ public enum WorkoutVocabulary {
             "SWING",
             "T2B",          // Toes-to-Bar
             "THRUSTER",
+            "TOES TO BAR",
             "WALL BALL",
         ],
 
@@ -180,6 +184,7 @@ public enum WorkoutVocabulary {
         ],
 
         .unit: [
+            "1RM",          // One-Rep Max
             "CAL",          // Calories
             "KG",
             "LBS",
@@ -195,11 +200,11 @@ public enum WorkoutVocabulary {
 
     /// All workout terms as a flat array.
     ///
-    /// Use this for `RecognizeTextRequest.customWords` in Vision OCR.
+    /// Use this for `RecognizeDocumentsRequest` custom words in Vision OCR.
     ///
     /// ```swift
-    /// var request = RecognizeTextRequest()
-    /// request.customWords = WorkoutVocabulary.allWords
+    /// var request = RecognizeDocumentsRequest()
+    /// request.textRecognitionOptions.customWords = WorkoutVocabulary.allWords
     /// ```
     public static var allWords: [String] {
         categoryMap.values.flatMap { $0 }

@@ -10,13 +10,9 @@ import SharedModels
 
 /// Protocol defining a strategy for parsing OCR text into structured workouts.
 ///
-/// Conforming types implement different parsing backends:
-/// - ``FoundationModelsStrategy``: On-device parsing using Apple Intelligence (iOS 26+)
-/// - ``ClaudeAPIStrategy``: Cloud-based parsing using Claude API
-///
-/// The strategy pattern allows runtime selection based on device capabilities
-/// and user preferences, while keeping the feature layer decoupled from
-/// implementation details.
+/// Sole production backend: ``ClaudeStrategy`` (cloud, Claude API). The protocol
+/// stays as the seam for tests and any future alternative backend, keeping the
+/// feature layer decoupled from implementation details.
 public protocol WorkoutParsingStrategy: Sendable {
 
     /// Parses raw OCR text into a structured workout.

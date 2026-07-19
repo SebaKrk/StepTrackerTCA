@@ -56,11 +56,39 @@ public actor ClaudeAPIClient {
             "anthropic-version": Self.apiVersion
         ]
 
-        return try await httpClient.send(
-            request: request,
-            to: Self.endpoint,
-            method: "POST",
-            headers: headers
-        )
+        do {
+            return try await httpClient.send(
+                request: request,
+                to: Self.endpoint,
+                method: "POST",
+                headers: headers
+            )
+        } catch let error as HTTPError {
+            throw Self.mapped(error)
+        } catch is URLError {
+            throw ClaudeAPIError.network
+        }
+    }
+
+    // MARK: - Private
+
+    /// Maps transport-level failures to typed API errors so callers can
+    /// distinguish a bad key from a rate limit or an outage.
+    private static func mapped(_ error: HTTPError) -> ClaudeAPIError {
+        switch error {
+        case .invalidResponse:
+            return .invalidResponse
+        case .httpError(let statusCode):
+            switch statusCode {
+            case 401, 403:
+                return .unauthorized
+            case 429:
+                return .rateLimited
+            case 500...599:
+                return .serverError(statusCode: statusCode)
+            default:
+                return .httpError(statusCode: statusCode)
+            }
+        }
     }
 }

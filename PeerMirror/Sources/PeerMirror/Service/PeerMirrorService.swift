@@ -130,6 +130,12 @@ public final class PeerMirrorService {
         peerSession?.send(payload)
     }
 
+    /// Host→peer: per-device recap na koniec zajęć. Deleguje do host session (no-op gdy
+    /// nie jesteśmy hostem lub peer nie ma znanego central).
+    public func sendRecap(_ payload: ClassRecapPayload, toDeviceID deviceID: UUID) {
+        hostSession?.sendRecap(payload, toDeviceID: deviceID)
+    }
+
     // MARK: - Streams (accessory)
 
     public func samplesStream() -> AsyncStream<HRSamplePayload> {
@@ -194,6 +200,12 @@ public final class PeerMirrorService {
             // ↔ wszyscy peerzy są lost, brak sensownego reconnect).
             for (_, task) in disconnectingPeers { task.cancel() }
             disconnectingPeers.removeAll()
+            broadcast(event)
+
+        case .recapReceived:
+            // Peer-side: host przysłał wynik zajęć — forward do consumer'a (JoinLiveClass
+            // parkuje pending recap). To nie zdarzenie lifecycle połączenia, więc bez
+            // grace-timer logiki.
             broadcast(event)
         }
     }

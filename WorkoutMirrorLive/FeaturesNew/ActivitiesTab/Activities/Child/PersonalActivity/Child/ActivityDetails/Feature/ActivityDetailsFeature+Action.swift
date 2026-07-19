@@ -8,7 +8,6 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
-import MapKit
 
 /// Implementation of `ActivityDetailsFeature` actions.
 extension ActivityDetailsFeature {
@@ -20,34 +19,6 @@ extension ActivityDetailsFeature {
         
         /// Internal actions for state management and data loading.
         enum Internal {
-            
-            /// Heart rate zone distribution loaded successfully.
-            case zoneDistributionLoaded([HeartRateZone: TimeInterval])
-            
-            /// All performance metrics loaded.
-            /// - Parameters:
-            ///   - mets: Metabolic Equivalent of Task
-            ///   - trimp: Training Impulse score
-            ///   - hrTSS: Heart Rate Training Stress Score
-            ///   - hrRecovery: Heart rate recovery after 1 minute (bpm drop)
-            ///   - intensityFactor: Workout effort relative to lactate threshold
-            ///   - recoveryDemand: Estimated recovery time
-            case metricsLoaded(mets: Double?, trimp: Double?, hrTSS: Double?, hrRecovery: Int?, intensityFactor: Double?, recoveryDemand: RecoveryDemand?)
-            
-            /// Toggles expansion state of heart rate zones section.
-            case zoneExpand(Bool)
-            
-            /// Triggers loading of heart rate zone distribution.
-            case loadZoneDistribution
-            
-            /// Triggers loading of all performance metrics.
-            case loadMetrics
-            
-            /// Route/location data loaded successfully (empty array = indoor workout)
-            case locationDataLoaded([CLLocationCoordinate2D])
-
-            /// Triggers loading of route/location data
-            case loadLocationData
 
             /// Manual-entry: WorkoutSummary + hrBuffer załadowane z HealthKit dla wybranego template'a.
             /// Następny krok: open SummaryFeature destination z manual init.
@@ -62,19 +33,6 @@ extension ActivityDetailsFeature {
 
             /// Edit-mode: ładowanie failed (TrainingSession nie istnieje, brak HR samples, etc.).
             case editScoreLoadFailed
-
-            /// Triggers fetch HR samples z HealthKit + bucketing do `[HRMinuteRange]`.
-            case loadHRMinuteRanges
-
-            /// HR samples załadowane i pogrupowane po minutach — zasilenie range BarMark chart'u.
-            case hrMinuteRangesLoaded([HRMinuteRange])
-
-            /// Triggers fetch of the stored effort score for this workout.
-            case loadEffortPoints
-
-            /// Stored effort score loaded — `nil` for workouts recorded before the
-            /// feature shipped (no backfill; the section is hidden for `nil`).
-            case effortScoreLoaded(WorkoutEffortScore?)
         }
         
         case view(View)
@@ -85,15 +43,6 @@ extension ActivityDetailsFeature {
             /// Called when the view appears on screen.
             case viewDidAppear
 
-            /// Called when user taps zone disclosure button.
-            case zoneDiscusserButtonTapped(Bool)
-
-            /// Toggles the zones section between time-per-zone and points-per-zone.
-            case zonePointsToggled
-
-            /// Opens metric details screen
-            case openMetricDetails(MetricTypeDetails)
-
             /// Manual entry: user tap'nął "Podpnij plan" — opens TemplatePicker sheet.
             /// Dostępne tylko gdy `planScore.loadState == .notFound` (workout bez podpiętego planu).
             case linkTemplateTapped
@@ -102,12 +51,26 @@ extension ActivityDetailsFeature {
             /// i pushuje SummaryFeature w edit mode z pre-filled resultInputs.
             /// Dostępne tylko gdy `planScore.loadState == .loaded(score)` (workout ma już zapisany plan).
             case editExistingScoreTapped
-
-            /// User scrub'nął HR range chart — `chartXSelection` zwraca wybraną minutę (lub `nil` przy
-            /// deselect tap-poza). Zasila RuleMark + annotation z BPM range tej minuty.
-            case minuteSelected(Date?)
         }
-        
+
+        // MARK: - Children
+
+        /// HR zones + effort points + HR chart child; loads report via
+        /// `delegate(.didFinishLoading)` into the parent's recap-map gate.
+        case heartRateZones(HeartRateZonesFeature.Action)
+
+        /// Performance-metrics child; card taps arrive as
+        /// `delegate(.openMetricDetails)` and open the parent's destination.
+        case performanceMetrics(PerformanceMetricsFeature.Action)
+
+        /// GPS-route child; `.load` is sent ONLY when the recap fetch came back
+        /// empty (class workouts never have a route).
+        case workoutRoute(WorkoutRouteFeature.Action)
+
+        /// Class-recap child; the parent reacts to `delegate(.didLoad(hasRecap:))`
+        /// (route exclusion) and sends `.mountMap` once the recap-map gate empties.
+        case classRecap(ClassRecapFeature.Action)
+
         // MARK: - Plan Score
 
         /// Child feature actions for loading WOD results linked to this workout.

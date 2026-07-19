@@ -33,6 +33,10 @@ public struct PeerMirrorClient: Sendable {
     /// Sends HR sample payload do iPada — `peerSession?.send(_:)`, brak-op jeśli nie connected.
     public var send: @Sendable (_ payload: HRSamplePayload) async -> Void
 
+    /// Host→peer: wysyła per-device recap (wynik zajęć) do jednego uczestnika (`deviceID`)
+    /// na koniec zajęć. No-op gdy peer nie ma znanego central (rozłączony/wyszedł).
+    public var sendRecap: @Sendable (_ payload: ClassRecapPayload, _ deviceID: UUID) async -> Void
+
     /// Returns fresh multicast `AsyncStream<HRSamplePayload>` — każdy subscriber dostaje swój stream.
     /// Cleanup przez `onTermination` gdy effect anuluje TCA (view re-mount, stop, itp).
     public var samplesStream: @Sendable () async -> AsyncStream<HRSamplePayload>
@@ -48,6 +52,7 @@ public struct PeerMirrorClient: Sendable {
         startBrowsing: @escaping @Sendable (_ displayName: String) async -> Void,
         stopBrowsing: @escaping @Sendable () async -> Void,
         send: @escaping @Sendable (_ payload: HRSamplePayload) async -> Void,
+        sendRecap: @escaping @Sendable (_ payload: ClassRecapPayload, _ deviceID: UUID) async -> Void,
         samplesStream: @escaping @Sendable () async -> AsyncStream<HRSamplePayload>,
         peerEventsStream: @escaping @Sendable () async -> AsyncStream<PeerEvent>
     ) {
@@ -56,6 +61,7 @@ public struct PeerMirrorClient: Sendable {
         self.startBrowsing = startBrowsing
         self.stopBrowsing = stopBrowsing
         self.send = send
+        self.sendRecap = sendRecap
         self.samplesStream = samplesStream
         self.peerEventsStream = peerEventsStream
     }
@@ -86,6 +92,9 @@ extension PeerMirrorClient: DependencyKey {
             send: { payload in
                 await service.send(payload)
             },
+            sendRecap: { payload, deviceID in
+                await service.sendRecap(payload, toDeviceID: deviceID)
+            },
             samplesStream: {
                 await service.samplesStream()
             },
@@ -101,6 +110,7 @@ extension PeerMirrorClient: DependencyKey {
         startBrowsing: unimplemented("PeerMirrorClient.startBrowsing"),
         stopBrowsing: unimplemented("PeerMirrorClient.stopBrowsing"),
         send: unimplemented("PeerMirrorClient.send"),
+        sendRecap: unimplemented("PeerMirrorClient.sendRecap"),
         samplesStream: unimplemented("PeerMirrorClient.samplesStream", placeholder: AsyncStream { _ in }),
         peerEventsStream: unimplemented("PeerMirrorClient.peerEventsStream", placeholder: AsyncStream { _ in })
     )

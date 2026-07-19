@@ -20,5 +20,9 @@ extension LiveClassFeature {
         /// Timer effect dla batch persistence HR samples (co 30s flush buffer → BLOB).
         /// Cancellowany na `confirmEnd` żeby zatrzymać write'y do bazy po End class.
         case persistenceTimer
+
+        /// Sample-freshness watchdog timer (a `sensorWatchdogTick` every 5 s).
+        /// Cancelled on `confirmEnd` together with the other class effects.
+        case sensorWatchdog
     }
 }

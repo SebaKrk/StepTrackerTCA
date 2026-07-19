@@ -73,9 +73,25 @@ struct ClassHistoryDetailView: View {
         VStack(spacing: 16) {
             topStatsBanner
             chartModePicker
-            ClassResultsTableView(store: store.scope(state: \.results, action: \.results))
+            // W historii tabela żyje obok wykresów (taby) — w GroupBox dla spójności,
+            // z ukrytym tłem tabeli by prześwitywał fill boksu. Na ekranie podsumowania
+            // po zajęciach tabela jest goła (bez GroupBox) — patrz `ClassResultsView`.
+            GroupBox {
+                ClassResultsTableView(
+                    store: store.scope(state: \.results, action: \.results),
+                    hidesScrollBackground: true
+                )
+                .frame(maxHeight: .infinity)
+            } label: {
+                Text(rankingSectionTitle)
+                    .font(.headline)
+            }
         }
         .padding([.horizontal, .top])
+    }
+
+    private var rankingSectionTitle: String {
+        String(localized: "Ranking", bundle: .main)
     }
 
     /// Centered ProgressView na pełnym ekranie — pokazywany podczas decode'u BLOB-ów
@@ -625,15 +641,11 @@ struct ClassHistoryDetailView: View {
         )
     }
 
-    /// Mapuje pojedynczy BPM na kolor strefy. Helper dla `barGradient`.
-    /// **Clamp do `[0, 1]`** — w prawdziwym treningu BPM może chwilowo przekroczyć
-    /// theoretical `maxHR` (np. peakHR 198 przy maxHR 190 = 1.04). Bez clamp'a
-    /// anaerobic strefa (0.9...1.0) by nie złapała i wpadalibyśmy w `.gray` fallback.
+    /// Maps a single BPM to its zone color. Helper for `barGradient`.
+    /// The shared classifier handles supra-max (peakHR 198 vs maxHR 190 → Zone 5)
+    /// and missing maxHR (→ resting/gray), so the old manual clamp is gone.
     private func zoneColor(for bpm: Int, maxHR: Int) -> Color {
-        let percent = min(1.0, max(0.0, Double(bpm) / Double(maxHR)))
-        return HeartRateZone.allCases.first {
-            $0.percentageRange.contains(percent)
-        }?.color ?? .gray
+        HeartRateZone.zone(bpm: bpm, maxHR: maxHR).color
     }
 
     // MARK: - Combined charts row (.combined only, responsywny)

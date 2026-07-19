@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SharedModels
+import Foundation
 
 /// Implementation of `SessionFeature` state
 extension SessionFeature {
@@ -51,6 +52,11 @@ extension SessionFeature {
         /// Watch. Carries the `endAnyway` escape action for an unavailable Watch.
         @Presents var connectionLostAlert: AlertState<ConnectionLostAlertAction>?
 
+        /// Confirmation shown when the user taps End while still connected to a GymRoom
+        /// class — leaving early forfeits the class recap (place/ranking never arrives).
+        /// `nil` = brak alertu. Ortogonalny do `workoutMode` (obie ścieżki treningu).
+        @Presents var classActiveAlert: AlertState<ClassActiveAlertAction>?
+
         /// `true` from the first "End workout" tap until the end flow resolves —
         /// a double tap must not spawn a second concurrent `endWorkout()` (it
         /// corrupts the save). Reset only on `endDeliveryFailed`, where the
@@ -72,6 +78,13 @@ extension SessionFeature {
 
         /// Sheet visibility — kontrolowany niezależnie od `joinLiveClass` lifetime.
         var isJoinLiveClassSheetPresented: Bool = false
+
+        /// Snapshot of `live.effortPoints.secondsByZone` taken when joining a Gym Room
+        /// class — the baseline for WINDOW-SCOPED class points sent to the iPad. Set
+        /// once on the first `joinedClass` (reconnect must not reset it), cleared on
+        /// leave. `nil` when not in a class. Keeps the leaderboard fair: effort earned
+        /// before the class began does not count toward the class ranking.
+        var classEntryZoneSnapshot: [HeartRateZone: TimeInterval]?
 
         // MARK: - Child
 

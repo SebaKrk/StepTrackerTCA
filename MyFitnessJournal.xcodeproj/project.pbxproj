@@ -807,7 +807,7 @@
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Wykrywamy iPada trenera w sali i przesyłamy Twoje tętno na wspólny ekran przez Bluetooth.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Skanujemy kod QR z iPada w sali, żeby dołączyć do live class.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aparat służy do skanowania kodu QR z iPada (dołączenie do zajęć) oraz do fotografowania planu treningowego.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Zapisujemy ukończone treningi (tętno, kalorie, czas trwania, dystans) do aplikacji Zdrowie, żebyś miał wszystko w jednym miejscu i historię na wszystkich Twoich urządzeniach Apple.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
@@ -851,7 +851,7 @@
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Wykrywamy iPada trenera w sali i przesyłamy Twoje tętno na wspólny ekran przez Bluetooth.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to connect to heart rate monitors";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Skanujemy kod QR z iPada w sali, żeby dołączyć do live class.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Aparat służy do skanowania kodu QR z iPada (dołączenie do zajęć) oraz do fotografowania planu treningowego.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Zapisujemy ukończone treningi (tętno, kalorie, czas trwania, dystans) do aplikacji Zdrowie, żebyś miał wszystko w jednym miejscu i historię na wszystkich Twoich urządzeniach Apple.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;

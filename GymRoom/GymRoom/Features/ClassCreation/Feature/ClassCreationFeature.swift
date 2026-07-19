@@ -27,6 +27,14 @@ struct ClassCreationFeature {
 
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.bleCapacityClient) var bleCapacityClient
+    @Dependency(\.addressSearchClient) var addressSearchClient
+    @Dependency(\.continuousClock) var clock
+
+    /// `nonisolated` — required under the project's `defaultIsolation(MainActor.self)`
+    /// so the CancelID satisfies `Sendable` for effect cancellation.
+    nonisolated enum CancelID: Hashable, Sendable {
+        case addressSuggestions
+    }
 
     var body: some Reducer<State, Action> {
         BindingReducer()
@@ -53,12 +61,58 @@ struct ClassCreationFeature {
                     name: state.name.trimmingCharacters(in: .whitespaces),
                     location: state.location.trimmingCharacters(in: .whitespaces),
                     scheduledAt: state.hasSchedule ? state.scheduledAt : nil,
-                    maxParticipants: state.maxParticipants
+                    maxParticipants: state.maxParticipants,
+                    latitude: state.selectedLatitude,
+                    longitude: state.selectedLongitude,
+                    // Recurrence needs a base date — a class "without date" can't repeat.
+                    isRecurring: state.hasSchedule && state.isRecurring
                 )
                 return .send(.delegate(.classCreated(savedClass)))
 
             case .view(.cancelTapped):
                 return .run { _ in await self.dismiss() }
+
+            case let .view(.addressSuggestionTapped(suggestion)):
+                // Commit the picked address immediately; resolve coordinates in the
+                // background. Setting `location` here (not via binding) does NOT
+                // re-trigger the suggestions stream, so the dropdown stays closed.
+                state.location = suggestion.displayAddress
+                state.locationSuggestions = []
+                return .merge(
+                    .cancel(id: CancelID.addressSuggestions),
+                    .run { send in
+                        guard let resolved = try? await addressSearchClient.resolve(suggestion) else { return }
+                        await send(.addressResolved(resolved))
+                    }
+                )
+
+            case let .addressSuggestionsUpdated(suggestions):
+                state.locationSuggestions = suggestions
+                return .none
+
+            case let .addressResolved(resolved):
+                state.selectedLatitude = resolved.latitude
+                state.selectedLongitude = resolved.longitude
+                return .none
+
+            case .binding(\.location):
+                // Manual edit invalidates any previously resolved coordinates.
+                state.selectedLatitude = nil
+                state.selectedLongitude = nil
+                let query = state.location
+                guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
+                    state.locationSuggestions = []
+                    return .cancel(id: CancelID.addressSuggestions)
+                }
+                // Debounce via cancelInFlight: each keystroke cancels the pending
+                // sleep before the completer subscription starts.
+                return .run { send in
+                    try? await clock.sleep(for: .milliseconds(250))
+                    for await suggestions in addressSearchClient.suggestions(query) {
+                        await send(.addressSuggestionsUpdated(suggestions))
+                    }
+                }
+                .cancellable(id: CancelID.addressSuggestions, cancelInFlight: true)
 
             case .binding, .delegate:
                 return .none

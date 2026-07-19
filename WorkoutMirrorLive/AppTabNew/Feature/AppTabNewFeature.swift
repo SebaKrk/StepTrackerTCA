@@ -19,6 +19,7 @@ struct AppTabNewFeature {
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
     @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
     @Dependency(\.effortScoreClient) var effortScoreClient
+    @Dependency(\.classParticipationClient) var classParticipationClient
     @Dependency(\.exerciseCatalogClient) var exerciseCatalogClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
@@ -83,6 +84,7 @@ struct AppTabNewFeature {
                 // points captured live at workout end against this HKWorkout.
                 return .merge(
                     .send(.persistEffortScore(workoutId)),
+                    .send(.persistClassRecap(workoutId)),
                     persistPlanLinkEffect(workoutId: workoutId)
                 )
 
@@ -128,6 +130,48 @@ struct AppTabNewFeature {
                     Logger.session.error("persistEffortScore failed: \(error.localizedDescription)")
                 }
 
+            case let .persistClassRecap(workoutId):
+                // Link the pending class recap (parked when the iPad broadcast it) to the
+                // saved workout as a `ClassParticipation`. Same guards as persistEffortScore;
+                // independent snapshot so a workout can have a recap, a score, both, or neither.
+                return .run { [classParticipationClient, uuid, now] _ in
+                    @Shared(.pendingClassRecap) var pendingClassRecap
+                    guard let pending = pendingClassRecap else { return }
+
+                    // Staleness guard — a recap from an abandoned session must not
+                    // attach to an unrelated workout saved much later.
+                    guard now.timeIntervalSince(pending.captureDatetime) < Self.pendingLinkMaxAge else {
+                        $pendingClassRecap.withLock { $0 = nil }
+                        Logger.session.notice("pendingClassRecap stale — dropped without saving")
+                        return
+                    }
+
+                    // Idempotency — duplicate `.workoutSaved` delivery must not double-write.
+                    guard try await classParticipationClient.fetchByHKWorkoutId(workoutId) == nil else {
+                        $pendingClassRecap.withLock { $0 = nil }
+                        return
+                    }
+
+                    let participation = ClassParticipation(
+                        id: uuid(),
+                        hkWorkoutId: workoutId,
+                        classSessionId: pending.classSessionId,
+                        gymName: pending.gymName,
+                        place: pending.place,
+                        participantCount: pending.participantCount,
+                        classPoints: pending.classPoints,
+                        latitude: pending.latitude,
+                        longitude: pending.longitude
+                    )
+                    try await classParticipationClient.save(participation)
+                    $pendingClassRecap.withLock { $0 = nil }
+                    Logger.session.info("class recap saved — workout \(workoutId), place \(pending.place)/\(pending.participantCount)")
+                } catch: { error, _ in
+                    @Shared(.pendingClassRecap) var pendingClassRecap
+                    $pendingClassRecap.withLock { $0 = nil }
+                    Logger.session.error("persistClassRecap failed: \(error.localizedDescription)")
+                }
+
                 // MARK: - Destination
             case let .destination(.presented(.workoutConfiguration(.delegate(.start(workout, device))))):
                 return .run { send in
@@ -140,7 +184,10 @@ struct AppTabNewFeature {
                 // `persistEffortScore` is idempotent — a duplicate signal (e.g. a
                 // future WC echo) cannot double-write.
             case let .destination(.presented(.session(.summary(.delegate(.savedWorkoutFound(workoutId)))))):
-                return .send(.persistEffortScore(workoutId))
+                return .merge(
+                    .send(.persistEffortScore(workoutId)),
+                    .send(.persistClassRecap(workoutId))
+                )
 
             case .destination:
                 return .none
@@ -249,7 +296,12 @@ extension AppTabNewFeature {
         /// (IOS-00099-F5). No computation — the value was captured live at session
         /// end. Split from the plan-link flow so neither failure blocks the other.
         case persistEffortScore(UUID)
-        
+
+        /// Link the pending class recap (received from the iPad at class end) against a
+        /// saved workout as a `ClassParticipation` (IOS-00104-C). Independent of the
+        /// effort-score flow — a workout can have a recap, a score, both, or neither.
+        case persistClassRecap(UUID)
+
         // MARK: - View Actions
         
         case view(View)

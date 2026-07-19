@@ -78,17 +78,17 @@ struct EffortPointsScoringTests {
 
     @Test("Reading above maxHR counts as Zone 5")
     func aboveMaxCountsAsZone5() {
-        #expect(EffortPointsScoring.zone(bpm: 210, maxHR: 190) == .anaerobic)
+        #expect(HeartRateZone.zone(bpm: 210, maxHR: 190) == .anaerobic)
     }
 
     @Test("Zone lookup matches percentage ranges")
     func zoneLookup() {
-        #expect(EffortPointsScoring.zone(bpm: 80, maxHR: 200) == .resting)     // 40%
-        #expect(EffortPointsScoring.zone(bpm: 110, maxHR: 200) == .recovery)   // 55%
-        #expect(EffortPointsScoring.zone(bpm: 130, maxHR: 200) == .fatBurning) // 65%
-        #expect(EffortPointsScoring.zone(bpm: 150, maxHR: 200) == .aerobic)    // 75%
-        #expect(EffortPointsScoring.zone(bpm: 170, maxHR: 200) == .threshold)  // 85%
-        #expect(EffortPointsScoring.zone(bpm: 190, maxHR: 200) == .anaerobic)  // 95%
+        #expect(HeartRateZone.zone(bpm: 80, maxHR: 200) == .resting)     // 40%
+        #expect(HeartRateZone.zone(bpm: 110, maxHR: 200) == .recovery)   // 55%
+        #expect(HeartRateZone.zone(bpm: 130, maxHR: 200) == .fatBurning) // 65%
+        #expect(HeartRateZone.zone(bpm: 150, maxHR: 200) == .aerobic)    // 75%
+        #expect(HeartRateZone.zone(bpm: 170, maxHR: 200) == .threshold)  // 85%
+        #expect(HeartRateZone.zone(bpm: 190, maxHR: 200) == .anaerobic)  // 95%
     }
 }
 
@@ -179,5 +179,43 @@ struct ClassAnalyticsEffortPointsTests {
         ]
         let analytics = ClassAnalytics.compute(samples: samples, maxHR: 190, duration: 60)
         #expect(analytics.effortPoints == nil)
+    }
+}
+
+@Suite("Window-scoped class points")
+struct WindowScopedEffortPointsTests {
+
+    @Test("Credits only the effort accrued since the join snapshot")
+    func creditsOnlyDeltaSinceOrigin() {
+        // Athlete already had 10' in Zone 3 when the class started (the origin),
+        // then during the class added another 10' Zone 3 + 5' Zone 4.
+        let origin: [HeartRateZone: TimeInterval] = [.aerobic: 600]
+        let current: [HeartRateZone: TimeInterval] = [.aerobic: 1200, .threshold: 300]
+        // Window: 10'·4 + 5'·6 = 40 + 30 = 70 — NOT the cumulative 190-ish total.
+        #expect(EffortPointsScoring.points(from: current, since: origin) == 70)
+    }
+
+    @Test("No effort added since joining scores zero")
+    func noProgressSinceOriginScoresZero() {
+        let snapshot: [HeartRateZone: TimeInterval] = [.aerobic: 600, .threshold: 120]
+        #expect(EffortPointsScoring.points(from: snapshot, since: snapshot) == 0)
+    }
+
+    @Test("Zones present only in the origin never subtract below zero")
+    func originOnlyZonesDoNotGoNegative() {
+        // The athlete rested (Zone 1) before joining, then only trained Zone 3
+        // during the class. The pre-class recovery time must not reduce the score.
+        let origin: [HeartRateZone: TimeInterval] = [.recovery: 100]
+        let current: [HeartRateZone: TimeInterval] = [.aerobic: 600]
+        #expect(EffortPointsScoring.points(from: current, since: origin) == 40)
+    }
+
+    @Test("Empty origin equals the full cumulative total")
+    func emptyOriginMatchesFullTotal() {
+        let current: [HeartRateZone: TimeInterval] = [.aerobic: 600, .threshold: 300]
+        #expect(
+            EffortPointsScoring.points(from: current, since: [:])
+                == EffortPointsScoring.points(from: current)
+        )
     }
 }

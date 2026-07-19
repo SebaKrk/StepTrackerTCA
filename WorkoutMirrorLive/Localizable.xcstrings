@@ -1045,6 +1045,27 @@
         }
       }
     },
+    "Apple Watch" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch"
+          }
+        }
+      }
+    },
+    "Athlete" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawodnik"
+          }
+        }
+      }
+    },
     "Authorization status: %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1380,6 +1401,26 @@
         }
       }
     },
+    "Claude returned an unexpected response. Try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claude zwrócił nieoczekiwaną odpowiedź. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Claude service is temporarily unavailable. Try again later." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usługa Claude jest chwilowo niedostępna. Spróbuj ponownie później."
+          }
+        }
+      }
+    },
     "Close" : {
       "localizations" : {
         "pl" : {
@@ -1486,7 +1527,25 @@
       }
     },
     "Could not load the selected image." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać wybranego zdjęcia."
+          }
+        }
+      }
+    },
+    "Could not process the selected image." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się przetworzyć wybranego zdjęcia."
+          }
+        }
+      }
     },
     "Couldn't reach the class for 5 minutes. Your workout is still recording." : {
 
@@ -1582,6 +1641,9 @@
       }
     },
     "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany" : {
+
+    },
+    "Czy na pewno chcesz zakończyć trening? Dane z zajęć zostaną utracone." : {
 
     },
     "Dashboard" : {
@@ -1826,6 +1888,16 @@
     "Edit Profile" : {
 
     },
+    "Edit Text" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj tekst"
+          }
+        }
+      }
+    },
     "Edycja możliwa do %@" : {
 
     },
@@ -1871,6 +1943,16 @@
     },
     "Email" : {
 
+    },
+    "Enable heart rate broadcasting" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz nadawanie tętna"
+          }
+        }
+      }
     },
     "End" : {
       "localizations" : {
@@ -1990,9 +2072,6 @@
           }
         }
       }
-    },
-    "Feature Unavailable" : {
-
     },
     "figure.run" : {
       "localizations" : {
@@ -2117,6 +2196,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Group class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zajęcia grupowe"
           }
         }
       }
@@ -2302,6 +2391,16 @@
         }
       }
     },
+    "HR belt" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas HR"
+          }
+        }
+      }
+    },
     "HR max" : {
       "localizations" : {
         "pl" : {
@@ -2404,6 +2503,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Intensywność"
+          }
+        }
+      }
+    },
+    "Invalid or missing API key. Check the key in settings." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieprawidłowy lub brakujący klucz API. Sprawdź klucz w ustawieniach."
           }
         }
       }
@@ -2554,6 +2663,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "na żywo %lld"
+          }
+        }
+      }
+    },
+    "Loading photo..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczytywanie zdjęcia..."
           }
         }
       }
@@ -2773,7 +2892,14 @@
       }
     },
     "Name" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa"
+          }
+        }
+      }
     },
     "Nick: %@" : {
       "localizations" : {
@@ -2947,8 +3073,28 @@
         }
       }
     },
+    "No internet connection. Check your network and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak połączenia z internetem. Sprawdź sieć i spróbuj ponownie."
+          }
+        }
+      }
+    },
     "No link" : {
 
+    },
+    "No location" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak lokalizacji"
+          }
+        }
+      }
     },
     "No sleep data. Track your sleep to see insights." : {
       "extractionState" : "stale",
@@ -2968,6 +3114,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jeszcze Bez Zespołu"
+          }
+        }
+      }
+    },
+    "No text was found in the image." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie znaleziono tekstu na zdjęciu."
           }
         }
       }
@@ -3015,6 +3172,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych treningowych w tym okresie."
+          }
+        }
+      }
+    },
+    "No workout plan found in this text." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie znaleziono planu treningowego w tym tekście."
           }
         }
       }
@@ -3174,6 +3341,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "lub"
+          }
+        }
+      }
+    },
+    "Other HR device" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inny czujnik HR"
           }
         }
       }
@@ -3352,6 +3529,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "punkty"
+          }
+        }
+      }
+    },
+    "Points in class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkty"
           }
         }
       }
@@ -3712,6 +3899,16 @@
     },
     "Scan your handwritten notes or enter manually" : {
 
+    },
+    "Scanning failed. Try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanowanie nie powiodło się. Spróbuj ponownie."
+          }
+        }
+      }
     },
     "Scanning..." : {
       "localizations" : {
@@ -4163,6 +4360,16 @@
     "Surname" : {
 
     },
+    "Take Photo" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrób zdjęcie"
+          }
+        }
+      }
+    },
     "Tap Join to broadcast your heart rate to the Gym Room display." : {
       "localizations" : {
         "pl" : {
@@ -4356,6 +4563,16 @@
         }
       }
     },
+    "Too many requests. Try again in a moment." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zbyt wiele zapytań. Spróbuj ponownie za chwilę."
+          }
+        }
+      }
+    },
     "total" : {
       "localizations" : {
         "pl" : {
@@ -4475,9 +4692,6 @@
         }
       }
     },
-    "Try Again" : {
-
-    },
     "tu cos bedzie" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4485,6 +4699,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "tu coś będzie"
+          }
+        }
+      }
+    },
+    "Turn on heart rate broadcasting on your device — on sport watches look for a setting like \"Broadcast Heart Rate\" (Garmin) or \"Share heart rate\" (Polar). Without it the iPhone will not receive any readings." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz na swoim urządzeniu rozgłaszanie tętna — na zegarkach sportowych to ustawienie typu „Broadcast Heart Rate” (Garmin) lub „Udostępnij tętno” (Polar). Bez tego iPhone nie odbierze żadnych odczytów."
           }
         }
       }
@@ -5031,6 +5255,9 @@
         }
       }
     },
+    "Wyjdź" : {
+
+    },
     "X" : {
       "localizations" : {
         "pl" : {
@@ -5122,6 +5349,9 @@
     "Your warmup notes will be lost." : {
 
     },
+    "Zajęcia wciąż trwają" : {
+
+    },
     "Zakończ mimo to" : {
       "localizations" : {
         "pl" : {
@@ -5161,6 +5391,9 @@
           }
         }
       }
+    },
+    "Zostań" : {
+
     },
     "Zwiń" : {
       "extractionState" : "stale",

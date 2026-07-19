@@ -44,7 +44,9 @@ struct LiveSessionView: View {
         )
         .background(Color.black.ignoresSafeArea())
         .preferredColorScheme(.dark)
+        .modifier(StaleDesaturation(isStale: store.isSensorStale))
         .animation(.easeInOut, value: store.currentHeartRateZone)
+        .animation(.easeInOut(duration: 0.25), value: store.isSensorStale)
         .onAppear { send(.viewDidAppear) }
         .onDisappear { send(.viewDidDisappear) }
     }
@@ -352,7 +354,31 @@ struct LiveSessionView: View {
                 .frame(minHeight: 180)
         }
     }
-    
+
+}
+
+// MARK: - Styling
+
+/// Stale sensor: desaturate the WHOLE screen — zone gradient included —
+/// mirroring the GymRoom tile treatment (`AthleteTileView`, 0.35), so both
+/// surfaces speak the same visual language for "data not live". The small
+/// cues alone (grey bpm + heart.slash) were too subtle to notice mid-workout
+/// at arm's length.
+///
+/// The filter is attached ONLY while stale — an always-on `.saturation(1.0)`
+/// would keep a color-matrix pass in the render tree of the app's hottest
+/// screen for the 99% of session time when it is a visual no-op.
+private struct StaleDesaturation: ViewModifier {
+
+    let isStale: Bool
+
+    func body(content: Content) -> some View {
+        if isStale {
+            content.saturation(0.35)
+        } else {
+            content
+        }
+    }
 }
 
 #Preview("without plan") {
@@ -392,8 +418,10 @@ struct LiveSessionView: View {
 
 // MARK: - Sensor Stale Preview (IOS-00100-B)
 
-/// BLE strap out of range: heart.slash + greyed last-known HR. The banner lives
-/// in SessionView — this canvas verifies the heart-rate row treatment alone.
+/// BLE strap out of range: whole-screen desaturation (0.35, mirrors the GymRoom
+/// tile) + heart.slash + greyed last-known HR. Compare against "Sensor live
+/// (same state)" below — identical values, only the flag differs, so flipping
+/// between the two canvases shows exactly what the stale treatment dims.
 #Preview("Sensor stale (IOS-00100)") {
     var state = LiveSessionFeature.State()
     state.currentHeartRateZone = .fatBurning
@@ -402,6 +430,20 @@ struct LiveSessionView: View {
     state.sessionAverageHeartRate = 124
     state.sessionMaxHeartRate = 158
     state.isSensorStale = true
+    return NavigationStack {
+        LiveSessionView(store: Store(initialState: state) { LiveSessionFeature() })
+    }
+}
+
+/// Baseline twin of "Sensor stale (IOS-00100)" — the same session values with
+/// a live sensor. Kept adjacent so the canvas pair reads as before/after.
+#Preview("Sensor live (same state)") {
+    var state = LiveSessionFeature.State()
+    state.currentHeartRateZone = .fatBurning
+    state.workoutMetrics = WorkoutMetrics(averageHeartRate: 128, heartRate: 116, activeEnergy: 240)
+    state.currentHeartRatePercentage = 62
+    state.sessionAverageHeartRate = 124
+    state.sessionMaxHeartRate = 158
     return NavigationStack {
         LiveSessionView(store: Store(initialState: state) { LiveSessionFeature() })
     }
