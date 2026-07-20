@@ -612,6 +612,7 @@
 			inputPaths = (
 				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/WorkoutMirrorLive/GoogleService-Info.plist",
 			);
 			outputFileListPaths = (
 			);
@@ -619,7 +620,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\n";
+			shellScript = "PLIST=\"${SRCROOT}/WorkoutMirrorLive/GoogleService-Info.plist\"\nif [ -f \"$PLIST\" ]; then\n  \"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\" -gsp \"$PLIST\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
