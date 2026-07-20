@@ -7,6 +7,7 @@
 
 import UIKit
 import ComposableArchitecture
+import FirebaseCore
 import HealthHub
 import HealthKit
 import OSLog
@@ -28,6 +29,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
+        // Firebase boots only when its config file is bundled — the plist ships in
+        // release builds only, so dev builds (no plist) leave crash reporting dormant.
+        if Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist") != nil {
+            FirebaseApp.configure()
+        }
         Task {
             await startBackgroundDelivery()
         }
