@@ -22,6 +22,7 @@
 		937198302F18D58A009C583D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9371982F2F18D58A009C583D /* SwiftUI.framework */; };
 		9371983D2F18D58B009C583D /* WorkoutSessionWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		93779D862F6E8FF4008EFEF1 /* AppDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 93779D852F6E8FF4008EFEF1 /* AppDatabase */; };
+		937BBD14300E15CF00E38F02 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 937BBD13300E15CF00E38F02 /* FirebaseCrashlytics */; };
 		938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 938209BB2E39FA6C00F49046 /* ComposableArchitecture */; };
 		9386352D2DFB608000DB5EAC /* HealthHub in Frameworks */ = {isa = PBXBuildFile; productRef = 9386352C2DFB608000DB5EAC /* HealthHub */; };
 		938635312DFB608B00DB5EAC /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = 938635302DFB608B00DB5EAC /* SharedModels */; };
@@ -239,6 +240,7 @@
 				938209BC2E39FA6C00F49046 /* ComposableArchitecture in Frameworks */,
 				93A6AA3F2E48727C00495CD1 /* SharedModels in Frameworks */,
 				93D199972E50C57800697D06 /* Commons in Frameworks */,
+				937BBD14300E15CF00E38F02 /* FirebaseCrashlytics in Frameworks */,
 				935095362FA139A10041C7B9 /* Textual in Frameworks */,
 				93779D862F6E8FF4008EFEF1 /* AppDatabase in Frameworks */,
 			);
@@ -387,6 +389,7 @@
 				93FA1B232EAA99B1001809ED /* Embed Frameworks */,
 				9371983E2F18D58B009C583D /* Embed Foundation Extensions */,
 				93FE94832F74532F00A77CCA /* Embed Watch Content */,
+				937BBD15300E1F8C00E38F02 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -407,6 +410,7 @@
 				93779D852F6E8FF4008EFEF1 /* AppDatabase */,
 				935095352FA139A10041C7B9 /* Textual */,
 				938BF2C52FD9C1B1008F75CC /* PeerMirror */,
+				937BBD13300E15CF00E38F02 /* FirebaseCrashlytics */,
 			);
 			productName = WorkoutMirrorLive;
 			productReference = 9382096C2E39388600F49046 /* WorkoutMirrorLive.app */;
@@ -532,6 +536,7 @@
 				93622F142D2C81B000E9863B /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				93FA1B1D2EAA991A001809ED /* XCRemoteSwiftPackageReference "LNPopupUI" */,
 				935095342FA139A10041C7B9 /* XCRemoteSwiftPackageReference "textual" */,
+				937BBD12300E15CF00E38F02 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 93CE75362D1699CA006D5A4A /* Products */;
@@ -594,6 +599,29 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		937BBD15300E1F8C00E38F02 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		934A03AC2DD8A54A0089D27C /* Sources */ = {
@@ -1334,6 +1362,14 @@
 				minimumVersion = 1.2.0;
 			};
 		};
+		937BBD12300E15CF00E38F02 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
 		93CE767B2D16A13F006D5A4A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
@@ -1404,6 +1440,11 @@
 		93779D852F6E8FF4008EFEF1 /* AppDatabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppDatabase;
+		};
+		937BBD13300E15CF00E38F02 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 937BBD12300E15CF00E38F02 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 		938209BB2E39FA6C00F49046 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;

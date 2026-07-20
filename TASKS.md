@@ -1166,3 +1166,14 @@
     A: Three tiles — "Apple Watch" / "HR belt" / "Other HR device" (pl: Pas HR / Inny czujnik HR); `DeviceOption` gains `hrBelt` and drops presentation props (icons + localized titles move to `DeviceView`, the enum stays a pure domain value)
     B: Custom HR-belt glyph — `HRBeltIcon` drawn in SwiftUI to SF-symbol style (outlined band filled at 20% tint, square sensor pod, white heart), iterated visually with the user through 4 mockup rounds; inherits `foregroundStyle` so the picker's selection tinting works unchanged
     C: Broadcast reminder alert — picking "Other HR device" first shows an alert telling the user to enable HR broadcasting (Garmin "Broadcast Heart Rate" / Polar HR sharing) with OK proceeding and Cancel leaving nothing selected; selection truth now flows only through the child's `.select` (the parent no longer stores the choice on raw tap), which also fixed the flow switch missing the new `hrBelt` case
+
+### IOS-00111 Firebase Crashlytics — release-only crash visibility before 1.0
+    - shipping to TestFlight without crash reporting means a tester crash is only ever a vague "the app closed itself"; the goal is symbolicated crash reports from real devices before the 1.0 push
+    - Crashlytics only, Analytics disabled at the Firebase project level — no behavioural events and no App Store tracking-consent surface; health data (HealthKit) must never reach breadcrumb logs
+    - activation is gated by the presence of `GoogleService-Info.plist`, which ships in the release build only (bundle `ss.lf.WorkoutMirrorLive`, project `myfitnessjournal-e8d43`); dev builds have no plist so Firebase stays dormant and the on-device file-logging path is untouched
+    - SDK dependency and init code are identical on both branches (dormant on develop) so merges never conflict — only the plist is release-only, documented alongside the account/signing split
+
+    A: Crashlytics SDK + dSYM upload — `FirebaseCrashlytics` SPM product added to the iPhone app target only (no Analytics, no Watch/widget); an "Upload Crashlytics dSYMs" run-script build phase (dSYM + Info.plist input files) so release traces symbolicate instead of showing raw addresses
+    B: Guarded init — `FirebaseApp.configure()` as the first line of `didFinishLaunchingWithOptions`, wrapped in a `Bundle.main.url(forResource: "GoogleService-Info")` check so it no-ops without the plist; registers the crash handler before the launch `Task`s so startup crashes are caught
+    C: Release plist — `GoogleService-Info.plist` (Analytics off) added on the release branch only, target membership limited to WorkoutMirrorLive; must not migrate to develop on back-merge
+    - verification: release archive on device with debugger detached, forced test crash, relaunch, report appears symbolicated in the Firebase console; App Store Connect privacy label declares Crash Data / Diagnostics
