@@ -25,7 +25,7 @@ public final class UserDefaultsServiceManager: @unchecked Sendable {
     }
     
     /// Initializes with App Group shared container.
-    /// - Parameter suiteName: App Group identifier (e.g., "group.com.ss.WorkoutMirrorLive")
+    /// - Parameter suiteName: App Group identifier (e.g., "group.com.ss.lf.WorkoutMirrorLive")
     public init(suiteName: String) {
         self.suiteName = suiteName
         self.userDefaults = UserDefaults(suiteName: suiteName)
@@ -83,7 +83,7 @@ public final class UserDefaultsServiceManager: @unchecked Sendable {
 
 public extension UserDefaultsServiceManager {
     /// Shared instance for App Group (Widget + Main App communication)
-    static let appGroup = UserDefaultsServiceManager(suiteName: "group.com.ss.WorkoutMirrorLive")
+    static let appGroup = UserDefaultsServiceManager(suiteName: "group.com.ss.lf.WorkoutMirrorLive")
     
     /// Standard UserDefaults instance
     static let standard = UserDefaultsServiceManager()
