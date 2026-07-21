@@ -106,7 +106,7 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
             "Disconnected: \(peripheral.identifier.uuidString, privacy: .public) error=\(error?.localizedDescription ?? "clean", privacy: .public)"
         )
         fileLog("disconnected: \(error?.localizedDescription ?? "clean")")
-        onPeerEvent(.disconnected(deviceID: peripheral.identifier))
+        onPeerEvent(.disconnected(deviceID: peripheral.identifier, reason: .connectionLost))
         hostPeripheral = nil
         hrCharacteristic = nil
         scheduleReconnect()

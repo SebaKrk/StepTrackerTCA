@@ -203,6 +203,13 @@ struct LiveClassFeature {
                             }
                         }
                         /// Recap wysłany — dopiero teraz zamknij BLE (rozłączenie ucina notify).
+                        /// Grace period before teardown: `updateValue` only ENQUEUES the notify
+                        /// in the local BLE stack — the radio transmits a beat later. Tearing
+                        /// down in the same instant races that window and the recap never
+                        /// reaches the athletes.
+                        if !resultRows.isEmpty {
+                            try? await clock.sleep(for: .seconds(1))
+                        }
                         await peerMirrorClient.stopAdvertising()
                         await GymRoomFileLogger.shared.log("[Class] BLE advertising stopped")
                         /// Tabela wyników (IPAD-00095-A). `delegate(.classEnded)` poleci dopiero z
@@ -276,9 +283,10 @@ struct LiveClassFeature {
                 /// widoczny ale w stanie `.reconnecting` (spinner overlay + grayscale).
                 Logger.gymRoom.info("⏸ Peer suspended: \(deviceID.uuidString.prefix(8)) — entering grace period")
                 let deviceShort = deviceID.uuidString.prefix(8)
+                let suspendedNick = state.athletes[id: deviceID]?.nick ?? "?"
                 state.athletes[id: deviceID]?.state = .reconnecting
                 return .run { _ in
-                    await GymRoomFileLogger.shared.log("[Peer] suspended (grace period): deviceID=\(deviceShort)")
+                    await GymRoomFileLogger.shared.log("[Peer] suspended (grace period): nick=\(suspendedNick) deviceID=\(deviceShort)")
                 }
 
             case let .peerReconnected(deviceID):
@@ -286,6 +294,7 @@ struct LiveClassFeature {
                 /// tylko subtelny return spinner → normal.
                 Logger.gymRoom.info("🔄 Peer reconnected: \(deviceID.uuidString.prefix(8))")
                 let deviceShort = deviceID.uuidString.prefix(8)
+                let reconnectedNick = state.athletes[id: deviceID]?.nick ?? "?"
                 state.athletes[id: deviceID]?.state = .live
                 // Restart the watchdog window — the peer gets a fresh 30 s to
                 // deliver its first post-reconnect payload before being flagged.
@@ -294,16 +303,17 @@ struct LiveClassFeature {
                 // payload proves the data is live again (sampleReceived heals it).
                 state.lastSampleAt[deviceID] = date.now
                 return .run { _ in
-                    await GymRoomFileLogger.shared.log("[Peer] reconnected: deviceID=\(deviceShort)")
+                    await GymRoomFileLogger.shared.log("[Peer] reconnected: nick=\(reconnectedNick) deviceID=\(deviceShort)")
                 }
 
-            case let .peerDisconnected(deviceID):
-                Logger.gymRoom.info("❌ Peer disconnected: \(deviceID.uuidString.prefix(8))")
+            case let .peerDisconnected(deviceID, reason):
+                Logger.gymRoom.info("❌ Peer disconnected (\(reason.rawValue)): \(deviceID.uuidString.prefix(8))")
                 let deviceShort = deviceID.uuidString.prefix(8)
                 /// Snapshot remaining buffer + athleteId PRZED clearowaniem.
                 let samples = state.hrSamplesBuffer[deviceID] ?? []
                 let athleteId = state.athleteRecordIds[deviceID]
-                let leftAt = Date()
+                let leftNick = state.athletes[id: deviceID]?.nick ?? "?"
+                let leftAt = date.now
 
                 state.athletes.remove(id: deviceID)
                 state.hrSamplesBuffer[deviceID] = nil
@@ -311,7 +321,7 @@ struct LiveClassFeature {
                 state.lastSampleAt[deviceID] = nil
 
                 return .run { _ in
-                    await GymRoomFileLogger.shared.log("[Peer] left: deviceID=\(deviceShort), bufferedSamples=\(samples.count)")
+                    await GymRoomFileLogger.shared.log("[Peer] left (\(reason.rawValue)): nick=\(leftNick) deviceID=\(deviceShort), bufferedSamples=\(samples.count)")
                     guard let athleteId else { return }
                     /// Flush remaining buffered samples PRZED endAthlete (żeby compute analytics
                     /// używał kompletnego BLOB stream'a). Idempotent — empty samples no-op.
@@ -438,8 +448,8 @@ struct LiveClassFeature {
                             await send(.peerSuspended(deviceID: deviceID))
                         case let .reconnected(deviceID, _):
                             await send(.peerReconnected(deviceID: deviceID))
-                        case let .disconnected(deviceID):
-                            await send(.peerDisconnected(deviceID: deviceID))
+                        case let .disconnected(deviceID, reason):
+                            await send(.peerDisconnected(deviceID: deviceID, reason: reason))
                         case .classEnded:
                             /// Host-side no-op: iPad sam emit'uje classEnded broadcast
                             /// (via PeerMirrorBLEHostSession.broadcastClassEnded), własny event
