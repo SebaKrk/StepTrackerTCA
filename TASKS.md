@@ -1177,3 +1177,9 @@
     B: Guarded init — `FirebaseApp.configure()` as the first line of `didFinishLaunchingWithOptions`, wrapped in a `Bundle.main.url(forResource: "GoogleService-Info")` check so it no-ops without the plist; registers the crash handler before the launch `Task`s so startup crashes are caught
     C: Release plist — `GoogleService-Info.plist` (Analytics off) added on the release branch only, target membership limited to WorkoutMirrorLive; must not migrate to develop on back-merge
     - verification: release archive on device with debugger detached, forced test crash, relaunch, report appears symbolicated in the Firebase console; App Store Connect privacy label declares Crash Data / Diagnostics
+
+### IOS-00112 IOS-00112 Sensor diagnostics — forward BLE strap disconnect reason + watch-link state to GymRoom log
+    A: SharedModels — add SensorDisconnectReason + disconnect/watchLink fields to HRSamplePayload
+    B:HealthHub — multicast HR-strap connection-events stream with CoreBluetooth disconnect reason
+    C: WorkoutMirrorLive — forward strap disconnect reason + watch-link state into GymRoom payload
+    D: GymRoom — log sensor stale cause and watch link lost/restored per athlete

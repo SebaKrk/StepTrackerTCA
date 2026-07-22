@@ -25,6 +25,7 @@ struct JoinLiveClassFeature {
     @Dependency(\.peerMirrorClient) var peerMirrorClient
     @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.userProfileClient) var userProfileClient
+    @Dependency(\.bluetoothClient) var bluetoothClient
     @Dependency(\.continuousClock) var clock
 
     /// Okno reconnectu po stronie peera — odpowiada host-side grace
@@ -58,6 +59,7 @@ struct JoinLiveClassFeature {
                 // Plus: fetch user profile żeby ustawić display name (nickname → name → fallback).
                 return .merge(
                     .send(.startObservingPeerEvents),
+                    .send(.startObservingSensorConnection),
                     .run { [userProfileClient] send in
                         let profile = try? await userProfileClient.fetch()
                         await send(.userProfileLoaded(profile))
@@ -108,6 +110,7 @@ struct JoinLiveClassFeature {
                     .cancel(id: JoinLiveClassCancelID.hrStream),
                     .cancel(id: JoinLiveClassCancelID.peerEvents),
                     .cancel(id: JoinLiveClassCancelID.searchTimeout),
+                    .cancel(id: JoinLiveClassCancelID.sensorConnection),
                     .send(.delegate(.didLeave))
                 )
 
@@ -193,6 +196,21 @@ struct JoinLiveClassFeature {
                 }
                 .cancellable(id: JoinLiveClassCancelID.peerEvents)
 
+            case .startObservingSensorConnection:
+                // Local BLE-layer disconnect reason for the held HR strap. Independent
+                // of `isSensorStale` (a 15 s timeout the parent bridges): this carries
+                // WHY the strap dropped. Silent on watchPrimary (no BLE strap held).
+                return .run { send in
+                    for await reason in await bluetoothClient.hrSensorConnectionEvents() {
+                        await send(.sensorDisconnectReasonChanged(reason))
+                    }
+                }
+                .cancellable(id: JoinLiveClassCancelID.sensorConnection)
+
+            case let .sensorDisconnectReasonChanged(reason):
+                state.lastDisconnectReason = reason
+                return .none
+
             case .peerConnected:
                 Logger.gymRoom.info("[Peer] connected — starting workoutMetricsStream subscription")
                 state.phase = .connected
@@ -257,7 +275,9 @@ struct JoinLiveClassFeature {
                     maxHR: state.maxHeartRate,
                     activeEnergy: metrics.activeEnergy,
                     effortPoints: state.currentEffortPoints,
-                    isSensorStale: state.isSensorStale
+                    isSensorStale: state.isSensorStale,
+                    disconnectReason: state.lastDisconnectReason,
+                    watchLinkLost: state.watchLinkLost
                 )
                 Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal, \(payload.effortPoints ?? 0) pts")
                 return .run { [peerMirrorClient] _ in
@@ -325,6 +345,7 @@ struct JoinLiveClassFeature {
                     .cancel(id: JoinLiveClassCancelID.hrStream),
                     .cancel(id: JoinLiveClassCancelID.peerEvents),
                     .cancel(id: JoinLiveClassCancelID.searchTimeout),
+                    .cancel(id: JoinLiveClassCancelID.sensorConnection),
                     .run { [peerMirrorClient] _ in
                         if let goodbye {
                             Logger.gymRoom.info("[Peer] Sending goodbye (workoutEnded) — endOfClass=true, \(goodbye.effortPoints ?? 0) pts")

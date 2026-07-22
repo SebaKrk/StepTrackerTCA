@@ -18,6 +18,9 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    /// Aktory które zarządzają stanem - thread-safe
    let statusActor = BluetoothStatusActor()
    let scanActor = BluetoothScanActor()
+
+   /// Multicast held-HR-strap connection events (nil = połączony, wartość = powód dropu).
+   let connectionActor = BluetoothConnectionActor()
    
    override init() {
        /// Tworzymy CBCentralManager bez delegate (na razie nil)
@@ -45,6 +48,17 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    /// Zwraca NOWY strumień zmian statusu Bluetooth
    public func statusUpdates() async -> AsyncStream<BluetoothStatus> {
        return await statusActor.newStatusStream()
+   }
+
+   /// Zwraca NOWY strumień powodów rozłączenia przytrzymanego czujnika HR
+   public func hrSensorConnectionEvents() async -> AsyncStream<SensorDisconnectReason?> {
+       return await connectionActor.newStream()
+   }
+
+   /// Emituje powód rozłączenia (lub `nil` = połączony) do subskrybentów. Wołane z
+   /// delegata CoreBluetooth (sync, CB queue) — stąd hop `Task` do aktora.
+   func emitHRSensorConnectionReason(_ reason: SensorDisconnectReason?) {
+       Task { await connectionActor.broadcast(reason) }
    }
    
    /// Czy Bluetooth jest włączony - async bo Actor wymaga await

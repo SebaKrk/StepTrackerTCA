@@ -82,8 +82,10 @@ extension SessionFeature {
                     EffortPointsScoring.points(from: state.live.effortPoints.secondsByZone, since: $0)
                 } ?? 0
                 let liveSensorStale = state.live.isSensorStale
+                let liveWatchLinkLost = state.live.isWatchConnectionLost
                 state.joinLiveClass?.currentEffortPoints = windowPoints
                 state.joinLiveClass?.isSensorStale = liveSensorStale
+                state.joinLiveClass?.watchLinkLost = liveWatchLinkLost
                 return .none
 
             case .live(_):

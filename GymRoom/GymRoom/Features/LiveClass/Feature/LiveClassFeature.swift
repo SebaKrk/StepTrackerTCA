@@ -320,6 +320,7 @@ struct LiveClassFeature {
                 state.hrSamplesBuffer[deviceID] = nil
                 state.athleteRecordIds[deviceID] = nil
                 state.lastSampleAt[deviceID] = nil
+                state.watchLinkLostByDevice[deviceID] = nil
 
                 return .run { _ in
                     await GymRoomFileLogger.shared.log("[Peer] left (\(reason.rawValue)): nick=\(leftNick) deviceID=\(deviceShort), bufferedSamples=\(samples.count)")
@@ -340,7 +341,13 @@ struct LiveClassFeature {
                 // dropped and recovered, per athlete.
                 let wasStale = tile.isSensorStale
                 let isStale = payload.isSensorStale ?? false
-                let staleLogEffect = staleTransitionLog(was: wasStale, now: isStale, nick: tile.nick, deviceID: payload.deviceID)
+                let staleLogEffect = staleTransitionLog(was: wasStale, now: isStale, reason: payload.disconnectReason, nick: tile.nick, deviceID: payload.deviceID)
+                // Watch↔iPhone mirroring link (watchPrimary path) — same edge-only
+                // logging as the strap: report when the WC link drops and restores.
+                let watchLost = payload.watchLinkLost ?? false
+                let wasWatchLost = state.watchLinkLostByDevice[payload.deviceID] ?? false
+                let watchLinkLogEffect = watchLinkTransitionLog(was: wasWatchLost, now: watchLost, nick: tile.nick, deviceID: payload.deviceID)
+                state.watchLinkLostByDevice[payload.deviceID] = watchLost
                 tile.bpm = payload.bpm
                 tile.maxHR = payload.maxHR
                 tile.activeEnergy = payload.activeEnergy
@@ -389,7 +396,7 @@ struct LiveClassFeature {
                     let deviceShort = deviceID.uuidString.prefix(8)
                     let nick = tile.nick
                     let realMaxHR = payload.maxHR
-                    return .merge(staleLogEffect, .run { send in
+                    return .merge(staleLogEffect, watchLinkLogEffect, .run { send in
                         if let existingId = try? await gymClassClient.findAthlete(sessionId, deviceID) {
                             try? await gymClassClient.resumeAthlete(existingId)
                             await send(.athleteAdded(deviceID: deviceID, athleteId: existingId))
@@ -410,7 +417,7 @@ struct LiveClassFeature {
                 }
 
                 state.athletes[id: payload.deviceID] = tile
-                return staleLogEffect
+                return .merge(staleLogEffect, watchLinkLogEffect)
 
             case .flushBufferedSamples:
                 /// Snapshot buffer + clear (next batch zaczyna od pustego). Async write
@@ -490,14 +497,38 @@ struct LiveClassFeature {
 
     /// Fire-and-forget file-log for an HR strap freshness transition. `.none` when
     /// nothing changed, so the 1 Hz sample path allocates an effect only on the edge.
-    private func staleTransitionLog(was: Bool, now: Bool, nick: String, deviceID: UUID) -> Effect<Action> {
+    /// `reason` (from the peer's BLE layer) names WHY the strap dropped; `nil` while
+    /// stale means it went silent without a BLE disconnect (likely skin contact).
+    private func staleTransitionLog(was: Bool, now: Bool, reason: SensorDisconnectReason?, nick: String, deviceID: UUID) -> Effect<Action> {
         guard was != now else { return .none }
         let deviceShort = deviceID.uuidString.prefix(8)
         return .run { _ in
             if now {
-                await GymRoomFileLogger.shared.log("[Peer] sensor stale (HR strap dropout): nick=\(nick) deviceID=\(deviceShort)")
+                let cause: String
+                switch reason {
+                case .outOfRange: cause = "out of range"
+                case .deviceOff: cause = "device off / battery"
+                case .other: cause = "other BLE error"
+                case nil: cause = "no BLE disconnect — likely contact"
+                }
+                await GymRoomFileLogger.shared.log("[Peer] sensor stale (\(cause)): nick=\(nick) deviceID=\(deviceShort)")
             } else {
                 await GymRoomFileLogger.shared.log("[Peer] sensor recovered: nick=\(nick) deviceID=\(deviceShort)")
+            }
+        }
+    }
+
+    /// Fire-and-forget file-log for a Watch↔iPhone mirroring-link transition. `.none`
+    /// when nothing changed. Binary by nature — WatchConnectivity exposes only
+    /// reachability (a `Bool`), never WHY the link dropped, so there is no cause to log.
+    private func watchLinkTransitionLog(was: Bool, now: Bool, nick: String, deviceID: UUID) -> Effect<Action> {
+        guard was != now else { return .none }
+        let deviceShort = deviceID.uuidString.prefix(8)
+        return .run { _ in
+            if now {
+                await GymRoomFileLogger.shared.log("[Peer] watch link lost: nick=\(nick) deviceID=\(deviceShort)")
+            } else {
+                await GymRoomFileLogger.shared.log("[Peer] watch link restored: nick=\(nick) deviceID=\(deviceShort)")
             }
         }
     }

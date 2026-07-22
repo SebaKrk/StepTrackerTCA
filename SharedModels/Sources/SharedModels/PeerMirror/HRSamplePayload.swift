@@ -56,6 +56,21 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
     /// backward compatible, optional decodes as nil when the key is absent).
     public let isSensorStale: Bool?
 
+    /// Why the peer's BLE strap last dropped (`outOfRange` / `deviceOff` / `other`)
+    /// — lets the host log WHY a sensor went stale, not just that it did. `nil` =
+    /// connected, a clean app-requested disconnect, or a legacy peer build (optional
+    /// decodes as nil when the key is absent — backward compatible).
+    public let disconnectReason: SensorDisconnectReason?
+
+    /// `true` while the peer's Watch↔iPhone mirroring link (WatchConnectivity
+    /// reachability) is down — watchPrimary path only. Lets the host log WHEN the
+    /// Watch link dropped, distinct from a BLE strap dropout. `nil` = iPhoneStandalone,
+    /// link up, or a legacy peer build (optional, backward compatible).
+    ///
+    /// NOTE: this is the WC control-channel reachability, not the HR/HealthKit
+    /// channel — HR can keep flowing over HK mirroring while this is `true`.
+    public let watchLinkLost: Bool?
+
     public init(
         deviceID: UUID,
         sessionToken: UUID,
@@ -66,7 +81,9 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         timestamp: Date = Date(),
         endOfClass: Bool = false,
         effortPoints: Int? = nil,
-        isSensorStale: Bool? = nil
+        isSensorStale: Bool? = nil,
+        disconnectReason: SensorDisconnectReason? = nil,
+        watchLinkLost: Bool? = nil
     ) {
         self.deviceID = deviceID
         self.sessionToken = sessionToken
@@ -78,6 +95,8 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         self.endOfClass = endOfClass
         self.effortPoints = effortPoints
         self.isSensorStale = isSensorStale
+        self.disconnectReason = disconnectReason
+        self.watchLinkLost = watchLinkLost
     }
 
     /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.
