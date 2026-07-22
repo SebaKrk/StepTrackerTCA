@@ -18,6 +18,14 @@ extension JoinLiveClassFeature {
         /// Subskrypcja peer events stream z `peerMirrorClient`.
         case startObservingPeerEvents
 
+        /// Subskrypcja `bluetoothClient.hrSensorConnectionEvents()` — powód rozłączenia
+        /// przytrzymanego czujnika HR (tor iPhoneStandalone; watchPrimary nie ma paska BLE).
+        case startObservingSensorConnection
+
+        /// Zmiana powodu rozłączenia czujnika (`nil` = połączony) — zapisywana w state
+        /// i dokładana do każdego `HRSamplePayload`, żeby host mógł zalogować DLACZEGO.
+        case sensorDisconnectReasonChanged(SensorDisconnectReason?)
+
         /// Peer (iPad host) connected — switch phase do `.connected`, start HR timer.
         case peerConnected
 

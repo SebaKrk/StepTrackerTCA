@@ -22,5 +22,9 @@ extension JoinLiveClassFeature {
         /// `.connectionLost` (host-side grace już usunął kafelek). `cancelInFlight`
         /// restartuje go przy każdym ponownym wejściu w `.searching`.
         case searchTimeout
+
+        /// Subskrypcja `bluetoothClient.hrSensorConnectionEvents()` — powód rozłączenia
+        /// przytrzymanego paska HR, dokładany do każdego payloadu (tor iPhoneStandalone).
+        case sensorConnection
     }
 }
