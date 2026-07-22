@@ -20,6 +20,12 @@ extension LiveClassFeature {
         /// Lista podłączonych athletów. Klucz = `deviceID` (per-install UUID peer'a).
         var athletes: IdentifiedArrayOf<AthleteTile> = []
 
+        /// Nick per deviceID, populated at handshake and never cleared mid-class —
+        /// unlike `athletes` (tiles), which the end-flow removes before the
+        /// `hostTeardown` disconnect events arrive, this survives for the final
+        /// `[Peer] left` log lines.
+        var peerNicks: [UUID: String] = [:]
+
         /// Stabilny identyfikator iPada (per-install). Generowany raz, persystowany.
         /// Wysyłany w QR payload jako `iPadID` — sanity check po stronie peer'a + debug.
         /// Future multi-room: peer może sprawdzić "scanned different iPad than last time".

@@ -254,6 +254,7 @@ struct LiveClassFeature {
                 /// state, DB CREATE dopiero przy pierwszym `sampleReceived` z real `payload.maxHR`.
                 Logger.gymRoom.info("✅ Peer handshake: \(nick) (deviceID: \(deviceID.uuidString.prefix(8)))")
                 let deviceShort = deviceID.uuidString.prefix(8)
+                state.peerNicks[deviceID] = nick
                 guard state.athletes[id: deviceID] == nil else {
                     /// Tile już istnieje — log + skip (rzadki edge case, ignore).
                     return .run { _ in
@@ -312,7 +313,7 @@ struct LiveClassFeature {
                 /// Snapshot remaining buffer + athleteId PRZED clearowaniem.
                 let samples = state.hrSamplesBuffer[deviceID] ?? []
                 let athleteId = state.athleteRecordIds[deviceID]
-                let leftNick = state.athletes[id: deviceID]?.nick ?? "?"
+                let leftNick = state.athletes[id: deviceID]?.nick ?? state.peerNicks[deviceID] ?? "?"
                 let leftAt = date.now
 
                 state.athletes.remove(id: deviceID)
@@ -333,6 +334,13 @@ struct LiveClassFeature {
 
             case let .sampleReceived(payload):
                 guard var tile = state.athletes[id: payload.deviceID] else { return .none }
+                // HR strap dropout detection — the peer keeps sending keepalive payloads
+                // with the frozen value while `isSensorStale` flips. Log only the
+                // transition (not every 1 Hz sample) so the class log shows WHEN a strap
+                // dropped and recovered, per athlete.
+                let wasStale = tile.isSensorStale
+                let isStale = payload.isSensorStale ?? false
+                let staleLogEffect = staleTransitionLog(was: wasStale, now: isStale, nick: tile.nick, deviceID: payload.deviceID)
                 tile.bpm = payload.bpm
                 tile.maxHR = payload.maxHR
                 tile.activeEnergy = payload.activeEnergy
@@ -381,7 +389,7 @@ struct LiveClassFeature {
                     let deviceShort = deviceID.uuidString.prefix(8)
                     let nick = tile.nick
                     let realMaxHR = payload.maxHR
-                    return .run { send in
+                    return .merge(staleLogEffect, .run { send in
                         if let existingId = try? await gymClassClient.findAthlete(sessionId, deviceID) {
                             try? await gymClassClient.resumeAthlete(existingId)
                             await send(.athleteAdded(deviceID: deviceID, athleteId: existingId))
@@ -398,11 +406,11 @@ struct LiveClassFeature {
                                 await send(.athleteCreationFailed(deviceID: deviceID))
                             }
                         }
-                    }
+                    })
                 }
 
                 state.athletes[id: payload.deviceID] = tile
-                return .none
+                return staleLogEffect
 
             case .flushBufferedSamples:
                 /// Snapshot buffer + clear (next batch zaczyna od pustego). Async write
@@ -477,6 +485,20 @@ struct LiveClassFeature {
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$results, action: \.results) {
             ClassResultsFeature()
+        }
+    }
+
+    /// Fire-and-forget file-log for an HR strap freshness transition. `.none` when
+    /// nothing changed, so the 1 Hz sample path allocates an effect only on the edge.
+    private func staleTransitionLog(was: Bool, now: Bool, nick: String, deviceID: UUID) -> Effect<Action> {
+        guard was != now else { return .none }
+        let deviceShort = deviceID.uuidString.prefix(8)
+        return .run { _ in
+            if now {
+                await GymRoomFileLogger.shared.log("[Peer] sensor stale (HR strap dropout): nick=\(nick) deviceID=\(deviceShort)")
+            } else {
+                await GymRoomFileLogger.shared.log("[Peer] sensor recovered: nick=\(nick) deviceID=\(deviceShort)")
+            }
         }
     }
 }
