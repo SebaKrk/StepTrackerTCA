@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 @ViewAction(for: SessionFeature.self)
@@ -93,13 +94,15 @@ struct SessionView: View {
     // MARK: - Sensor Stale Banner (IOS-00100-B)
 
     /// Shown while the BLE heart-rate strap has not delivered a real sample for
-    /// >60 s (out of range). The workout keeps running — only HR-derived data
-    /// (zones, effort points, session stats) pauses until samples resume.
+    /// longer than `sensorStaleThreshold`. The message is coloured by the last CB
+    /// disconnect reason (see `sensorStaleMessage`). The workout keeps running —
+    /// only HR-derived data (zones, effort points, session stats) pauses until
+    /// samples resume.
     private var sensorStaleBanner: some View {
         HStack(spacing: 8) {
             Image(systemName: "heart.slash")
                 .foregroundStyle(.orange)
-            Text(String(localized: "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany"))
+            Text(sensorStaleMessage)
                 .font(.footnote.weight(.semibold))
                 .multilineTextAlignment(.leading)
             Spacer(minLength: 0)
@@ -109,6 +112,22 @@ struct SessionView: View {
         .background(.orange.opacity(0.18), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .padding(.horizontal, 12)
         .padding(.top, 4)
+    }
+
+    /// Stale-banner copy, coloured by the strap's last BLE disconnect reason
+    /// (forwarded from `SessionFeature`). `nil` = strap CB-connected but no fresh
+    /// reading → most likely poor skin contact.
+    private var sensorStaleMessage: String {
+        switch store.live.lastSensorDisconnectReason {
+        case .outOfRange:
+            String(localized: "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany")
+        case .deviceOff:
+            String(localized: "Czujnik tętna rozłączony — sprawdź baterię paska")
+        case .other:
+            String(localized: "Połączenie z czujnikiem tętna przerwane — pomiar wstrzymany")
+        case nil:
+            String(localized: "Brak odczytu tętna — sprawdź przyleganie paska")
+        }
     }
 
 

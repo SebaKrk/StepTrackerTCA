@@ -61,6 +61,15 @@ public struct BluetoothClient: Sendable {
 
     /// Zwalnia połączenia przytrzymane przez `holdHRSensorConnections` (koniec treningu).
     public var releaseHRSensorConnections: @Sendable () async -> Void
+
+    /// Strumień powodów rozłączenia przytrzymanego czujnika HR (`nil` = połączony).
+    /// Nowy stream za każdym wywołaniem (multicast po stronie managera).
+    public var hrSensorConnectionEvents: @Sendable () async -> AsyncStream<SensorDisconnectReason?>
+
+    /// Live HR-sensor presence stream (`true` = a HR sensor is connected). Emitted
+    /// on every connect/disconnect; a new stream per call (multicast in the manager).
+    /// Drives the pre-workout device picker so its "connected" status stays fresh.
+    public var connectedHRSensorPresence: @Sendable () async -> AsyncStream<Bool>
 }
 
 // MARK: - Dependency Registration
@@ -154,6 +163,12 @@ public enum BluetoothClientKey: DependencyKey {
             },
             releaseHRSensorConnections: {
                 await centralManager.releaseHRSensorConnections()
+            },
+            hrSensorConnectionEvents: {
+                return await centralManager.hrSensorConnectionEvents()
+            },
+            connectedHRSensorPresence: {
+                return await centralManager.connectedHRSensorPresence()
             }
 
         )

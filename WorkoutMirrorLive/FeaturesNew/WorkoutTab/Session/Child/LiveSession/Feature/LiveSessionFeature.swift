@@ -13,14 +13,13 @@ import SharedModels
 @Reducer
 struct LiveSessionFeature {
 
-    /// No real BLE-sensor sample for longer than this = sensor out of range.
-    /// Lowered 60 → 15 s after a strap field test: a full minute of a frozen
-    /// value on screen read as "the app is lying".
-    /// KNOWN RISK: straps have been observed delivering only a few samples
-    /// per minute at rest — if the stale banner flickers between sets, raise
-    /// this to 30-45 s (recovery is instant either way: the first fresh
-    /// sample clears the flag).
-    static let sensorStaleThreshold: TimeInterval = 15
+    /// No real BLE-sensor sample for longer than this = the HR reading on screen
+    /// is stale (frozen last value). Set to 35 s, not 15: at rest a healthy strap
+    /// delivers only a few samples per minute, and 15 s misfired the banner
+    /// between sets while the strap was fully connected. A genuine drop still
+    /// surfaces the CB-reason banner; recovery is instant either way (the first
+    /// fresh sample clears the flag).
+    static let sensorStaleThreshold: TimeInterval = 35
 
     // MARK: - Dependency
     
@@ -48,7 +47,13 @@ struct LiveSessionFeature {
                 // Immediate LA push — with the link down no metrics update will arrive
                 // to carry the flag, so push ContentState from the last known values.
                 return .send(.liveActivity(.workout(.update(state.workoutContentState))))
-                
+
+            case let .setSensorDisconnectReason(reason):
+                // Show/hide stays on `isSensorStale` (HealthKit freshness); this only
+                // colours the banner's message. The stream emits nil on CB reconnect.
+                state.lastSensorDisconnectReason = reason
+                return .none
+
             case let .workoutMetrics(data):
                 // Watch is the primary HR source. When HealthKit sends HR = 0
                 // (iPhone has no wrist sensor in this mode), preserve the last

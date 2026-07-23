@@ -956,6 +956,19 @@
         }
       }
     },
+    "AirPods" : {
+
+    },
+    "AirPods Pro 3 required" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymagane AirPods Pro 3"
+          }
+        }
+      }
+    },
     "Aktualna wartość: %lld" : {
       "localizations" : {
         "pl" : {
@@ -1248,6 +1261,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych"
+          }
+        }
+      }
+    },
+    "Brak odczytu tętna — sprawdź przyleganie paska" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No heart rate reading — check the strap fit"
           }
         }
       }
@@ -1641,7 +1664,24 @@
       }
     },
     "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heart rate sensor out of range — workout continues, measurement paused"
+          }
+        }
+      }
+    },
+    "Czujnik tętna rozłączony — sprawdź baterię paska" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heart rate sensor disconnected — check the strap battery"
+          }
+        }
+      }
     },
     "Czy na pewno chcesz zakończyć trening? Dane z zajęć zostaną utracone." : {
 
@@ -1829,6 +1869,22 @@
     },
     "Dodaj do moich planów" : {
 
+    },
+    "Dodaj plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add plan"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj plan"
+          }
+        }
+      }
     },
     "Done" : {
       "localizations" : {
@@ -2300,6 +2356,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szczegóły tętna"
+          }
+        }
+      }
+    },
+    "Heart rate is measured only by AirPods Pro 3. Put both AirPods in your ears and keep them connected to this iPhone — readings appear once the workout starts." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno mierzą tylko AirPods Pro 3. Włóż obie słuchawki do uszu i utrzymuj połączenie z tym iPhonem — odczyt pojawi się po rozpoczęciu treningu."
           }
         }
       }
@@ -3514,6 +3580,7 @@
       }
     },
     "Podpnij plan" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3545,6 +3612,16 @@
     },
     "Pokaż ten kod, żeby udostępnić plan" : {
 
+    },
+    "Połączenie z czujnikiem tętna przerwane — pomiar wstrzymany" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heart rate sensor connection lost — measurement paused"
+          }
+        }
+      }
     },
     "Porównanie animacji" : {
       "localizations" : {

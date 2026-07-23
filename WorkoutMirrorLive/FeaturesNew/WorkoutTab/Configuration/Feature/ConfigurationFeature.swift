@@ -53,6 +53,15 @@ struct ConfigurationFeature {
                     }
                 }
                 .cancellable(id: "bluetoothStatusMonitoring")
+
+            case .core(.startHRConnectionMonitoring):
+                return .run { send in
+                    let presenceStream = await bluetoothClient.connectedHRSensorPresence()
+                    for await isConnected in presenceStream {
+                        await send(.core(.heartRateConnectionChanged(isConnected)))
+                    }
+                }
+                .cancellable(id: "hrConnectionMonitoring")
                 
             case let .core(.watchConnectivityStatusChange(status)):
                 state.watchConnectivityStatus = status
@@ -74,6 +83,10 @@ struct ConfigurationFeature {
                         let devices = await bluetoothClient.checkConnectedDevicesFirst()
                         await send(.core(.heartRateConnectionChanged(devices.count > 0)))
                     },
+                    // Live HR-connection updates — the one-shot check above only sets
+                    // the initial value; this keeps the picker's "connected" status
+                    // fresh when a sensor links while the screen is open.
+                    .send(.core(.startHRConnectionMonitoring)),
                     .run { send in
                         let status = await watchConnectivityClient.checkWatchStatus()
                         await send(.core(.watchConnectivityStatusChange(status)))
@@ -156,7 +169,7 @@ struct ConfigurationFeature {
                 // nothing selected here either.
                 state.selectedDevice = option
                 switch option {
-                case .watch, .hrBelt, .iphone:
+                case .watch, .hrBelt, .iphone, .airPods:
                     return .run { send in
                         try await clock.sleep(for: .milliseconds(1250))
                         await send(.core(.changeViewState(.activity)), animation: .bouncy)

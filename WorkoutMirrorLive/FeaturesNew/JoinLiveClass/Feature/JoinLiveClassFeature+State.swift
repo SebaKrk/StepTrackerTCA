@@ -54,6 +54,19 @@ extension JoinLiveClassFeature {
         /// the frozen last-known HR as live.
         var isSensorStale: Bool = false
 
+        /// Last HR-strap disconnect reason from the local BLE layer (`nil` = connected).
+        /// Subscribed directly from `bluetoothClient` (unlike `isSensorStale`, which the
+        /// parent bridges) and attached to every payload so the host logs WHY the strap
+        /// dropped, not just that it went stale. iPhoneStandalone only — watchPrimary has
+        /// no BLE strap, so it stays `nil`.
+        var lastDisconnectReason: SensorDisconnectReason?
+
+        /// Mirror of `SessionFeature.isWatchConnectionLost`, synced by the parent
+        /// alongside `isSensorStale`. Rides in every payload so the host can log when
+        /// the Watch↔iPhone link dropped. watchPrimary only — always `false` on
+        /// iPhoneStandalone (no Watch link).
+        var watchLinkLost: Bool = false
+
         /// Zdekodowany QR payload po scan'ie. `nil` = jeszcze nie scanned.
         /// Ephemeral — NIE persistujemy. Reset na `.leaveTapped` wymusza ponowny scan
         /// przy następnym Join. `sessionToken` z payload'u wysyłany w `HRSamplePayload`.

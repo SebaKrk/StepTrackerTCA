@@ -1179,3 +1179,47 @@
     C [done on `release` only]: Release plist — `GoogleService-Info.plist` (Analytics off) added on the release branch only via the file-system-synchronized `WorkoutMirrorLive` group (auto-bundled, no pbxproj entry), target membership limited to WorkoutMirrorLive; must not migrate to develop on back-merge
     - note: the develop → release merge fast-forwarded and dragged Sebastian's signing config onto release; restored to Łukasz (`lf`) in a follow-up commit (team, bundle IDs, App Group) — expected footgun of the branch-based signing split
     - verification (PENDING): release build on device with debugger detached, forced `fatalError` test crash, relaunch, report appears symbolicated in the Firebase console; App Store Connect privacy label declares Crash Data / Diagnostics
+
+### IOS-00112 IOS-00112 Sensor diagnostics — forward BLE strap disconnect reason + watch-link state to GymRoom log
+    A: SharedModels — add SensorDisconnectReason + disconnect/watchLink fields to HRSamplePayload
+    B:HealthHub — multicast HR-strap connection-events stream with CoreBluetooth disconnect reason
+    C: WorkoutMirrorLive — forward strap disconnect reason + watch-link state into GymRoom payload
+    D: GymRoom — log sensor stale cause and watch link lost/restored per athlete
+
+### IOS-00113 Standalone HR banner — reason-aware messaging + promote strap hold to release
+    - follow-up to the strap-reconnect deferral logged earlier: the app-side strap hold was DEBUG-only, so release/TestFlight got neither the fast pending-reconnect nor the disconnect-reason signal; field logs confirmed the hold does not disturb HealthKit HR delivery (the two BLE connections multiplex one physical link), clearing it for release
+    - the standalone "out of range" banner was driven solely by a 15 s HealthKit sample-freshness watchdog, which misfired at rest (a healthy strap delivers only a few samples per minute) and could only ever read "out of range" — never the real cause
+    - design: HealthKit sample-freshness stays the show/hide trigger (truth about live data), the CoreBluetooth disconnect reason only colours the message — avoids a false banner when CB drops while HealthKit HR keeps flowing (observed in the field logs)
+    - all on-device file logging stays DEBUG-only (WorkoutFileLogger no-ops in release); the banner reason travels the event stream, not the log, so TestFlight builds write nothing
+    - deferred/unverified: the poor-contact path (strap BLE-connected but no fresh reading) was not reproduced — the test strap always fully disconnected instead
+
+    A: Promote strap hold to release — drop the DEBUG gate on holdsStrapConnection
+    B: Raise sensor-stale threshold (15 → 35 s) to stop the banner misfiring at rest
+    C: Forward the CoreBluetooth disconnect reason into the standalone live session (SessionFeature → LiveSession subscription + state)
+    D: Reason-aware stale banner — out of range / device off / poor contact, with English localization
+
+### IOS-00114 AirPods as an HR source in the device picker
+    - AirPods already work as an HR source via the "Other HR device" tile, but the tile's guidance (Garmin/Polar broadcast reminder) and iconography do not match — testers can't tell AirPods are supported
+    - AirPods never surface in the BLE scan (they don't advertise the `0x180D` Heart Rate service); HR arrives through HealthKit's `HKLiveWorkoutDataSource` on the iPhone-standalone path, so the tile must commit the choice like `.iphone`/`.hrBelt` and never open the Bluetooth scan
+    - the new tile is presentation-only: `DeviceOption.airPods` behaves identically to `.iphone` underneath (iPhone-standalone session, HealthKit HR), differing solely in icon and title — no new session mode, no BLE plumbing
+    - the picker grows from three visible tiles to four (`.mirror` still filtered) — verify the row fits on the narrowest supported screen (iPhone SE)
+    - HR is an AirPods Pro 3 (2025) feature only — instead of unreliable pre-workout detection (no public API to confirm the model or HR capability before a session), a tap shows a reminder alert (Pro 3, both buds worn, paired) mirroring the existing "Other HR device" broadcast reminder
+
+    A: SharedModels — add `DeviceOption.airPods` case (guidance-only distinction, standalone underneath)
+    B: Configuration — AirPods tile in `DeviceView` (icon `airpods.pro` + "AirPods" title)
+    C: Configuration — route `.airPods` selection to the activity picker (no BLE scan)
+    D: Session — treat `.airPods` as an iPhone-standalone HR source in the lifecycle mode pick
+    E: Configuration — AirPods Pro 3 reminder alert on tap (worn & paired, HR only during workout); generalize the reminder alert's confirm action to carry the picked option so `.iphone` and `.airPods` share one path
+
+### IOS-00115 Live BLE connection state — picker status refreshes without leaving the screen
+    - the pre-workout picker's HR-connection status (`isHeartRateConnected`) was set once at `viewDidAppear` via a one-shot `checkConnectedDevicesFirst()`; a strap connected from the Bluetooth sheet updated the child's state but never the parent's, so "connected" only appeared after leaving and re-entering the screen
+    - fix is a live signal, not a poll: a multicast presence stream in HealthHub fed by the CoreBluetooth connect/disconnect delegate callbacks, mirroring the existing `hrSensorConnectionEvents` multicast (stored single-stream would go silent for a second subscriber after a TCA effect restart / view remount)
+    - the stream is NOT limited to held peripherals (unlike `hrSensorConnectionEvents`), so it also reflects connections made from the picker's own scan sheet; both the parent picker and the scan sheet subscribe (multicast handles multiple subscribers)
+    - removes the fixed `Task.sleep(for: .seconds(3))` in the scan sheet's connect/disconnect handlers — the list now refreshes on the real CoreBluetooth event instead of after an arbitrary delay
+    - deferred: "detected" badge on the device tiles (strap live, Watch = paired only — off-wrist trap, AirPods no detection) — the IOS-00110 follow-up, needs UI + localization
+
+    A: HealthHub — multicast HR-sensor presence stream from CoreBluetooth connect/disconnect callbacks
+    B: BluetoothClient — expose `connectedHRSensorPresence` stream
+    C: ConfigurationFeature — subscribe live, keep the one-shot check only as the initial value
+    D: BluetoothFeature — react to the stream, drop the 3 s sleep poll on connect/disconnect
+    E (deferred): device picker "detected" badge

@@ -40,8 +40,8 @@ extension LiveClassFeature {
         case peerReconnected(deviceID: UUID)
 
         /// Athlete faktycznie zaginął (grace timeout, host stop, lub explicit drop).
-        /// Reducer usuwa kafelek z `state.athletes`.
-        case peerDisconnected(deviceID: UUID)
+        /// Reducer usuwa kafelek z `state.athletes`; `reason` trafia do file logu.
+        case peerDisconnected(deviceID: UUID, reason: PeerEvent.DisconnectReason)
 
         /// Nowa próbka HR z iPhone'a athlety — update kafelka.
         case sampleReceived(HRSamplePayload)

@@ -95,6 +95,10 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
     /// `CBCentral`. Aktualizowany na każdym write (central rotuje przy reconnncie).
     var centralObjects: [UUID: CBCentral] = [:]
 
+    /// Recap notifies the BLE stack refused to queue (`updateValue` returned `false`),
+    /// re-sent oldest-first from `peripheralManagerIsReady(toUpdateSubscribers:)`.
+    var pendingRecapNotifies: [(data: Data, central: CBCentral)] = []
+
     /// Callback dla `.connected(deviceID:nick:)` i `.disconnected(deviceID:)` eventów.
     /// Wywoływane z main thread (CBPeripheralManager delegate queue = nil).
     let onPeerEvent: @Sendable (PeerEvent) -> Void
@@ -159,11 +163,12 @@ public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
         peripheralManager.stopAdvertising()
         peripheralManager.removeAllServices()
         for (deviceID, _) in connectedCentrals {
-            onPeerEvent(.disconnected(deviceID: deviceID))
+            onPeerEvent(.disconnected(deviceID: deviceID, reason: .hostTeardown))
         }
         connectedCentrals.removeAll()
         centralToDevice.removeAll()
         centralObjects.removeAll()
+        pendingRecapNotifies.removeAll()
         Self.logger.info("Host stopped")
     }
 
@@ -292,7 +297,7 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
                 if let info = connectedCentrals.removeValue(forKey: deviceID) {
                     centralToDevice.removeValue(forKey: info.centralIdentifier)
                     centralObjects.removeValue(forKey: deviceID)
-                    onPeerEvent(.disconnected(deviceID: deviceID))
+                    onPeerEvent(.disconnected(deviceID: deviceID, reason: .goodbye))
                     Self.logger.info(
                         "Peer ended class gracefully — deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) nick=\(info.nick, privacy: .public)"
                     )
@@ -354,10 +359,19 @@ extension PeerMirrorBLEHostSession: CBPeripheralManagerDelegate {
         var data = Data([0xFE])
         data.append(json)
         let success = peripheralManager.updateValue(data, for: hrCharacteristic, onSubscribedCentrals: [central])
+        if !success {
+            // BLE queue full — park for re-send when the stack signals readiness.
+            pendingRecapNotifies.append((data, central))
+        }
         Self.logger.info("Recap sent to deviceID=\(deviceID.uuidString.prefix(8), privacy: .public) place=\(payload.place) success=\(success)")
     }
 
     public func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-        // No-op: peripheral nie wysyła notify update'ów (notify służy tylko do presence detection).
+        // Drain recap notifies the BLE stack refused earlier. Oldest-first; stop at
+        // the first refusal — the stack calls back again when it frees up.
+        while let pending = pendingRecapNotifies.first {
+            guard peripheralManager.updateValue(pending.data, for: hrCharacteristic, onSubscribedCentrals: [pending.central]) else { return }
+            pendingRecapNotifies.removeFirst()
+        }
     }
 }

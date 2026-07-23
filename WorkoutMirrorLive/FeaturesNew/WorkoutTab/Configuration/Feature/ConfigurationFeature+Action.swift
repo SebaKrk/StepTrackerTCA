@@ -36,6 +36,10 @@ extension ConfigurationFeature {
             ///
             case startBluetoothStatusMonitoring
 
+            /// Subscribes to the live HR-sensor presence stream so the picker's
+            /// "connected" status updates without leaving and re-entering the screen.
+            case startHRConnectionMonitoring
+
             ///
             case heartRateConnectionChanged(Bool)
              

@@ -95,7 +95,7 @@ public final class PeerMirrorService {
         for (deviceID, task) in disconnectingPeers {
             task.cancel()
             for continuation in peerEventContinuations.values {
-                continuation.yield(.disconnected(deviceID: deviceID))
+                continuation.yield(.disconnected(deviceID: deviceID, reason: .hostTeardown))
             }
         }
         disconnectingPeers.removeAll()
@@ -183,7 +183,7 @@ public final class PeerMirrorService {
             broadcast(event)
             startGraceTimer(deviceID: deviceID)
 
-        case let .disconnected(deviceID):
+        case let .disconnected(deviceID, _):
             // Defensive cleanup — jeśli grace timer wciąż leci (rzadkie, np. host stop()
             // emit .disconnected zanim timer odpalił), anuluj go żeby nie emit duplikatu.
             disconnectingPeers.removeValue(forKey: deviceID)?.cancel()
@@ -235,7 +235,7 @@ public final class PeerMirrorService {
     /// Wywoływane gdy grace timer wygasł — peer faktycznie zniknął, emit `.disconnected`.
     private func finalizeDisconnection(deviceID: UUID) {
         disconnectingPeers.removeValue(forKey: deviceID)
-        broadcast(.disconnected(deviceID: deviceID))
+        broadcast(.disconnected(deviceID: deviceID, reason: .graceExpired))
     }
 
     private func broadcastSample(_ payload: HRSamplePayload) {

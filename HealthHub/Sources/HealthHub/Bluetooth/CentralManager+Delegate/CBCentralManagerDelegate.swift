@@ -17,6 +17,12 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        Task {
            await updateStatusFromCBState(central.state)
        }
+       /// When Bluetooth becomes ready, an already-connected strap fires no
+       /// `didConnect` — recompute presence so a picker that subscribed before
+       /// power-on still reflects the truth.
+       if central.state == .poweredOn {
+           emitHRSensorPresence()
+       }
    }
 
    /// Wywoływane gdy znajdziemy nowe urządzenie podczas skanowania
@@ -37,6 +43,15 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        /// "RECONNECTED after Xs" line measures how fast the pending connect
        /// catches the strap once it is back in range.
        let dropInterval = takeDropInterval(peripheral.identifier)
+       /// Held strap (re)connected — clear any pending disconnect reason so the
+       /// host log shows "sensor recovered", not a stale drop cause.
+       if isHeldPeripheral(peripheral.identifier) {
+           emitHRSensorConnectionReason(nil)
+       }
+       // Presence is NOT emitted here: at `didConnect` the services are not yet
+       // discovered, so `retrieveConnectedPeripherals(withServices:)` returns
+       // empty. It is emitted once the HR characteristic is subscribed (see
+       // `didUpdateNotificationStateFor`).
        Task {
            if let dropInterval {
                await WorkoutFileLogger.shared.log("[BLE-HR] RECONNECTED: \(name) after \(Int(dropInterval))s")
@@ -51,6 +66,8 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        let name = peripheral.name ?? "Unknown"
        let reason = (error as NSError?).map { "\($0.domain)#\($0.code): \($0.localizedDescription)" } ?? "no error info"
        Logger.bluetooth.error("[Delegate] failToConnect: \(name) — \(reason)")
+       /// A failed connect can change presence (e.g. the only sensor never linked).
+       emitHRSensorPresence()
        Task {
            await WorkoutFileLogger.shared.log("[BLE-HR] connect FAILED: \(name) — \(reason)")
        }
@@ -69,7 +86,30 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        } else {
            Logger.bluetooth.info("[Delegate] disconnected: \(name)")
        }
+       /// Map the CoreBluetooth error to a domain reason and publish it — but only
+       /// for a HELD strap (the workout sensor). `releaseHRSensorConnections` clears
+       /// the hold BEFORE cancelling, so the clean end-of-workout disconnect arrives
+       /// un-held and is not reported as a fault.
+       if isHeldPeripheral(peripheral.identifier) {
+           let nsError = error as NSError?
+           let sensorReason: SensorDisconnectReason?
+           if nsError == nil {
+               sensorReason = nil                       // clean, app-requested
+           } else if nsError?.domain == CBError.errorDomain {
+               switch nsError?.code {
+               case CBError.Code.connectionTimeout.rawValue: sensorReason = .outOfRange
+               case CBError.Code.peripheralDisconnected.rawValue: sensorReason = .deviceOff
+               default: sensorReason = .other
+               }
+           } else {
+               sensorReason = .other                    // non-CoreBluetooth error domain
+           }
+           emitHRSensorConnectionReason(sensorReason)
+       }
        noteDrop(peripheral.identifier)
+       /// Live presence for the pre-workout device picker (the disconnected
+       /// peripheral is already excluded from `retrieveConnectedPeripherals`).
+       emitHRSensorPresence()
        /// EXPERIMENT (IOS-00100-D): czujnik przytrzymany na czas treningu dostaje
        /// natychmiastowy pending connect — bez timeoutu, ŻADNYCH watchdogów
        /// (wzorzec known-host reconnect z GymRoom). System połączy od razu, gdy
