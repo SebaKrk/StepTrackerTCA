@@ -441,16 +441,28 @@ struct LiveClassFeature {
                 /// leaves `state.athletes` untouched, so SwiftUI has no grid diff to do.
                 /// `.loading` / `.reconnecting` tiles are skipped (own, stronger visuals).
                 let now = date.now
+                var newlyStale: [(nick: String, deviceShort: String)] = []
                 for tile in state.athletes
                 where tile.state == .live
                     && !tile.isSensorStale
                     && (state.lastSampleAt[tile.id].map { now.timeIntervalSince($0) > Self.sampleStaleThreshold } ?? false) {
                     state.athletes[id: tile.id]?.isSensorStale = true
+                    newlyStale.append((tile.nick, String(tile.id.uuidString.prefix(8))))
                     #if DEBUG
                     Logger.gymRoom.info("⌛️ Watchdog: \(tile.nick) marked stale — no payload for >\(Int(Self.sampleStaleThreshold))s")
                     #endif
                 }
-                return .none
+                // File-log the watchdog-set stale too — otherwise the file shows a
+                // later "sensor recovered" with no matching "stale" (the payload path
+                // logs stale, this one previously only hit OSLog). Distinct cause:
+                // NO payload reaching the host (peer↔host link / peer silent), not the
+                // payload-carried strap staleness.
+                guard !newlyStale.isEmpty else { return .none }
+                return .run { [newlyStale] _ in
+                    for peer in newlyStale {
+                        await GymRoomFileLogger.shared.log("[Peer] sensor stale (no payload for >\(Int(Self.sampleStaleThreshold))s — peer silent): nick=\(peer.nick) deviceID=\(peer.deviceShort)")
+                    }
+                }
 
             case .startObservingPeerEvents:
                 Logger.gymRoom.info("📡 Starting peer events observation...")
