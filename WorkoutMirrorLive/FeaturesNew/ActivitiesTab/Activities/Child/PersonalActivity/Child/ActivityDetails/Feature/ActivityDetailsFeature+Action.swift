@@ -43,7 +43,7 @@ extension ActivityDetailsFeature {
             /// Called when the view appears on screen.
             case viewDidAppear
 
-            /// Manual entry: user tap'nął "Podpnij plan" — opens TemplatePicker sheet.
+            /// Manual entry: user tap'nął "Dodaj plan" — opens TemplatePicker sheet.
             /// Dostępne tylko gdy `planScore.loadState == .notFound` (workout bez podpiętego planu).
             case linkTemplateTapped
 

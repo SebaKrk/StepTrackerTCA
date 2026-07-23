@@ -43,6 +43,15 @@ struct BluetoothFeature {
            case .selectedDeviceChanged(let device):
                state.selectedDevice = device
                return .none
+
+           case .startConnectionMonitoring:
+               return .run { send in
+                   for await _ in await client.connectedHRSensorPresence() {
+                       let systemDevices = await client.getConnectedPeripherals()
+                       await send(.systemConnectedDevicesChanged(systemDevices))
+                   }
+               }
+               .cancellable(id: "connectionMonitoring")
                
            case .startScanningForDevices:
                guard !state.isScanning else {
@@ -93,16 +102,19 @@ struct BluetoothFeature {
                return .none
                
            case .view(.readyViewDidAppear):
-               return .run { send in
-                   let systemDevices = await client.getConnectedPeripherals()
-                   await send(.systemConnectedDevicesChanged(systemDevices))
-                   
-                   for device in systemDevices {
-                       await send(.deviceDiscovered(device))
-                   }
-                   
-                   await send(.startScanningForDevices)
-               }
+               return .merge(
+                   .run { send in
+                       let systemDevices = await client.getConnectedPeripherals()
+                       await send(.systemConnectedDevicesChanged(systemDevices))
+
+                       for device in systemDevices {
+                           await send(.deviceDiscovered(device))
+                       }
+
+                       await send(.startScanningForDevices)
+                   },
+                   .send(.startConnectionMonitoring)
+               )
 
            case .view(.unauthorizedButtonTapped):
                if let settingsUrl = URL(string: "App-Prefs:root=Bluetooth") {
@@ -118,33 +130,27 @@ struct BluetoothFeature {
 
            case .view(.closeButtonTapped):
                return .merge(
+                   .cancel(id: "connectionMonitoring"),
                    .run { send in
                        await send(.scanningStopped)
                        await self.dismiss()
                    }
                )
-               
+
            case let .view(.deviceTapped(peripheral)):
                return .run { send in
                    try await client.connect(peripheral)
                    await send(.selectedDeviceChanged(peripheral))
-                   
-                   // Odśwież systemowe urządzenia po 3 sekundzie
-                   try await Task.sleep(for: .seconds(3))
-                   let systemDevices = await client.getConnectedPeripherals()
-                   await send(.systemConnectedDevicesChanged(systemDevices))
                    await send(.scanningStopped)
+                   // The system-connected list refreshes via `startConnectionMonitoring`
+                   // when CoreBluetooth reports the connect — no fixed delay needed.
                }
-               
+
            case let .view(.disconnectButtonTapped(peripheral)):
                return .run { send in
-                   print("❌ device -> \(peripheral)")
                    await client.disconnect(peripheral)
-                   
-                   // Odśwież systemowe urządzenia po 3 sekundzie
-                   try await Task.sleep(for: .seconds(3))
-                   let systemDevices = await client.getConnectedPeripherals()
-                   await send(.systemConnectedDevicesChanged(systemDevices))
+                   // The list refreshes via `startConnectionMonitoring` on the
+                   // CoreBluetooth disconnect event — no fixed delay needed.
                }
                
            case .view(.scanningButtonTapped):

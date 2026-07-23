@@ -17,6 +17,12 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        Task {
            await updateStatusFromCBState(central.state)
        }
+       /// When Bluetooth becomes ready, an already-connected strap fires no
+       /// `didConnect` — recompute presence so a picker that subscribed before
+       /// power-on still reflects the truth.
+       if central.state == .poweredOn {
+           emitHRSensorPresence()
+       }
    }
 
    /// Wywoływane gdy znajdziemy nowe urządzenie podczas skanowania
@@ -42,6 +48,10 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        if isHeldPeripheral(peripheral.identifier) {
            emitHRSensorConnectionReason(nil)
        }
+       // Presence is NOT emitted here: at `didConnect` the services are not yet
+       // discovered, so `retrieveConnectedPeripherals(withServices:)` returns
+       // empty. It is emitted once the HR characteristic is subscribed (see
+       // `didUpdateNotificationStateFor`).
        Task {
            if let dropInterval {
                await WorkoutFileLogger.shared.log("[BLE-HR] RECONNECTED: \(name) after \(Int(dropInterval))s")
@@ -56,6 +66,8 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        let name = peripheral.name ?? "Unknown"
        let reason = (error as NSError?).map { "\($0.domain)#\($0.code): \($0.localizedDescription)" } ?? "no error info"
        Logger.bluetooth.error("[Delegate] failToConnect: \(name) — \(reason)")
+       /// A failed connect can change presence (e.g. the only sensor never linked).
+       emitHRSensorPresence()
        Task {
            await WorkoutFileLogger.shared.log("[BLE-HR] connect FAILED: \(name) — \(reason)")
        }
@@ -95,6 +107,9 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
            emitHRSensorConnectionReason(sensorReason)
        }
        noteDrop(peripheral.identifier)
+       /// Live presence for the pre-workout device picker (the disconnected
+       /// peripheral is already excluded from `retrieveConnectedPeripherals`).
+       emitHRSensorPresence()
        /// EXPERIMENT (IOS-00100-D): czujnik przytrzymany na czas treningu dostaje
        /// natychmiastowy pending connect — bez timeoutu, ŻADNYCH watchdogów
        /// (wzorzec known-host reconnect z GymRoom). System połączy od razu, gdy

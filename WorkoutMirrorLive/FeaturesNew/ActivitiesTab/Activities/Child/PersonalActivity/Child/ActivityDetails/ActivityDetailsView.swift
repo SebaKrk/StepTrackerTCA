@@ -53,7 +53,7 @@ struct ActivityDetailsView: View {
 
     // MARK: - Link Template Toolbar Item
 
-    /// Toolbar button — tylko "Podpnij plan" gdy workout nie ma podpiętego planu
+    /// Toolbar button — tylko "Dodaj plan" gdy workout nie ma podpiętego planu
     /// (`loadState == .notFound`), jako escape hatch dla nieudanego
     /// `.saving → .summary` flow.
     /// Gdy plan jest podpięty (`.loaded`) edycja odbywa się w treści ekranu:
@@ -68,7 +68,7 @@ struct ActivityDetailsView: View {
                 Button {
                     send(.linkTemplateTapped)
                 } label: {
-                    Text(linkTemplateButtonTitle)
+                    Label(linkTemplateButtonTitle, systemImage: linkTemplateButtonIcon)
                 }
             }
         case .loaded, .loading, .failed:
@@ -77,7 +77,11 @@ struct ActivityDetailsView: View {
     }
 
     private var linkTemplateButtonTitle: String {
-        String(localized: "Podpnij plan")
+        String(localized: "Dodaj plan")
+    }
+
+    private var linkTemplateButtonIcon: String {
+        "link.badge.plus"
     }
 
     private var navigationTitleText: String {
