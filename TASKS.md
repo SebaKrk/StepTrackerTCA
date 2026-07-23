@@ -1195,3 +1195,16 @@
     B: Raise sensor-stale threshold (15 → 35 s) to stop the banner misfiring at rest
     C: Forward the CoreBluetooth disconnect reason into the standalone live session (SessionFeature → LiveSession subscription + state)
     D: Reason-aware stale banner — out of range / device off / poor contact, with English localization
+
+### IOS-00114 AirPods as an HR source in the device picker
+    - AirPods already work as an HR source via the "Other HR device" tile, but the tile's guidance (Garmin/Polar broadcast reminder) and iconography do not match — testers can't tell AirPods are supported
+    - AirPods never surface in the BLE scan (they don't advertise the `0x180D` Heart Rate service); HR arrives through HealthKit's `HKLiveWorkoutDataSource` on the iPhone-standalone path, so the tile must commit the choice like `.iphone`/`.hrBelt` and never open the Bluetooth scan
+    - the new tile is presentation-only: `DeviceOption.airPods` behaves identically to `.iphone` underneath (iPhone-standalone session, HealthKit HR), differing solely in icon and title — no new session mode, no BLE plumbing
+    - the picker grows from three visible tiles to four (`.mirror` still filtered) — verify the row fits on the narrowest supported screen (iPhone SE)
+    - HR is an AirPods Pro 3 (2025) feature only — instead of unreliable pre-workout detection (no public API to confirm the model or HR capability before a session), a tap shows a reminder alert (Pro 3, both buds worn, paired) mirroring the existing "Other HR device" broadcast reminder
+
+    A: SharedModels — add `DeviceOption.airPods` case (guidance-only distinction, standalone underneath)
+    B: Configuration — AirPods tile in `DeviceView` (icon `airpods.pro` + "AirPods" title)
+    C: Configuration — route `.airPods` selection to the activity picker (no BLE scan)
+    D: Session — treat `.airPods` as an iPhone-standalone HR source in the lifecycle mode pick
+    E: Configuration — AirPods Pro 3 reminder alert on tap (worn & paired, HR only during workout); generalize the reminder alert's confirm action to carry the picked option so `.iphone` and `.airPods` share one path

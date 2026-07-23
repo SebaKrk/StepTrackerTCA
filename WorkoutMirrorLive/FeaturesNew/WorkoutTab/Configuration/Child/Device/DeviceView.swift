@@ -66,6 +66,8 @@ struct DeviceView: View {
             Image(systemName: "applewatch")
         case .hrBelt:
             HRBeltIcon()
+        case .airPods:
+            Image(systemName: "airpods.pro")
         case .iphone, .mirror:
             Image(systemName: "iphone")
         }
@@ -77,6 +79,8 @@ struct DeviceView: View {
             Text("Apple Watch")
         case .hrBelt:
             Text("HR belt")
+        case .airPods:
+            Text("AirPods")
         case .iphone, .mirror:
             Text("Other HR device")
         }
