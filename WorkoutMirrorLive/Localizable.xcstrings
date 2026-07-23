@@ -956,6 +956,12 @@
         }
       }
     },
+    "AirPods" : {
+
+    },
+    "AirPods Pro 3 required" : {
+
+    },
     "Aktualna wartość: %lld" : {
       "localizations" : {
         "pl" : {
@@ -1251,6 +1257,9 @@
           }
         }
       }
+    },
+    "Brak odczytu tętna — sprawdź przyleganie paska" : {
+
     },
     "Brak połączenia z Apple Watch" : {
 
@@ -1641,6 +1650,9 @@
       }
     },
     "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany" : {
+
+    },
+    "Czujnik tętna rozłączony — sprawdź baterię paska" : {
 
     },
     "Czy na pewno chcesz zakończyć trening? Dane z zajęć zostaną utracone." : {
@@ -2303,6 +2315,9 @@
           }
         }
       }
+    },
+    "Heart rate is measured only by AirPods Pro 3. Put both AirPods in your ears and keep them connected to this iPhone — readings appear once the workout starts." : {
+
     },
     "Heart Rate Range" : {
       "localizations" : {
@@ -3544,6 +3559,9 @@
       }
     },
     "Pokaż ten kod, żeby udostępnić plan" : {
+
+    },
+    "Połączenie z czujnikiem tętna przerwane — pomiar wstrzymany" : {
 
     },
     "Porównanie animacji" : {

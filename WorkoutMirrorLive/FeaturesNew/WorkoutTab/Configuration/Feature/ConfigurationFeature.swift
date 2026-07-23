@@ -156,7 +156,7 @@ struct ConfigurationFeature {
                 // nothing selected here either.
                 state.selectedDevice = option
                 switch option {
-                case .watch, .hrBelt, .iphone:
+                case .watch, .hrBelt, .iphone, .airPods:
                     return .run { send in
                         try await clock.sleep(for: .milliseconds(1250))
                         await send(.core(.changeViewState(.activity)), animation: .bouncy)
