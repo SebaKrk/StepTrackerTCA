@@ -26,6 +26,10 @@ extension LiveSessionFeature {
         /// Stores the flag and pushes an immediate Live Activity update so
         /// Dynamic Island / Lock Screen flag stale metrics right away.
         case setWatchConnectionLost(Bool)
+
+        /// BLE strap disconnect reason forwarded by `SessionFeature` (out of range
+        /// / device off). Colours the stale banner's message. `nil` on CB reconnect.
+        case setSensorDisconnectReason(SensorDisconnectReason?)
         
         /// Sets the maximum heart rate (HR max) for the current session.
         /// Usually calculated at the beginning of the session using age and sex.
@@ -53,9 +57,9 @@ extension LiveSessionFeature {
         case resetHeartRate
 
         /// 1 s heartbeat forwarded from `SessionFeature.watchTickEffect` (IOS-00100-B).
-        /// Evaluates BLE-sensor freshness: no real sample for >60 s flips
-        /// `isSensorStale` (banner + greyed HR). No-op on the Watch path
-        /// (`lastFreshSampleDate` stays `nil` there).
+        /// Evaluates BLE-sensor freshness: no real sample for longer than
+        /// `sensorStaleThreshold` flips `isSensorStale` (banner + greyed HR). No-op
+        /// on the Watch path (`lastFreshSampleDate` stays `nil` there).
         case sensorFreshnessTick
         
         // MARK: - Live Activity (Child Reducer)

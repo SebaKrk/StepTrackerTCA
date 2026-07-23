@@ -95,6 +95,13 @@ extension LiveSessionFeature {
         /// on the Watch path.
         var isSensorStale: Bool = false
 
+        /// Last BLE-layer disconnect reason for the held strap, forwarded by
+        /// `SessionFeature`. Colours the stale banner (out of range / battery /
+        /// contact). `nil` = strap currently CB-connected (the stream emits nil on
+        /// reconnect), so a stale banner with a nil reason means "connected but no
+        /// reading" = contact. Standalone only; stays nil on the Watch path.
+        var lastSensorDisconnectReason: SensorDisconnectReason? = nil
+
         // MARK: - Helpers
         
         /// Creates Timer Activity Content State from current state
