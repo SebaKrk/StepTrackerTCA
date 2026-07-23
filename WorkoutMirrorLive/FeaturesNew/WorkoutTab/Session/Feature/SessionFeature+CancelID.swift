@@ -58,4 +58,9 @@ nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     /// Started by `sessionPhaseReducer` on `.session`, cancelled on end transitions.
     case watchConnectionStream
 
+    /// BLE HR-sensor connection-reason stream (out of range / device off).
+    /// Started by `sessionPhaseReducer` on `.session` (iPhone-standalone only),
+    /// cancelled on end transitions alongside `metricsStream`.
+    case sensorConnectionStream
+
 }

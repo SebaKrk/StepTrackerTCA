@@ -174,6 +174,15 @@ extension SessionFeature {
                                 }
                             }
                             .cancellable(id: SessionWatchCancelID.metricsStream),
+                            // BLE strap disconnect reason (out of range / device off) →
+                            // colours the stale banner. Standalone-only: the held strap
+                            // connection lives only on this path.
+                            .run { [bluetoothClient] send in
+                                for await reason in await bluetoothClient.hrSensorConnectionEvents() {
+                                    await send(.live(.setSensorDisconnectReason(reason)))
+                                }
+                            }
+                            .cancellable(id: SessionWatchCancelID.sensorConnectionStream),
                             .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
                             .send(.live(.setupPhasePanel(phases))),
                             .run { [watchClient = watchConnectivityClient,
@@ -224,6 +233,7 @@ extension SessionFeature {
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
+                        .cancel(id: SessionWatchCancelID.sensorConnectionStream),
                         .cancel(id: SessionWatchCancelID.intentPauseObserver),
                         .cancel(id: SessionWatchCancelID.intentResumeObserver),
                         .cancel(id: SessionWatchCancelID.intentEndObserver),
@@ -261,6 +271,7 @@ extension SessionFeature {
                         .cancel(id: SessionWatchCancelID.sessionStateStream),
                         .cancel(id: SessionWatchCancelID.watchTickTimer),
                         .cancel(id: SessionWatchCancelID.metricsStream),
+                        .cancel(id: SessionWatchCancelID.sensorConnectionStream),
                         .cancel(id: SessionWatchCancelID.intentPauseObserver),
                         .cancel(id: SessionWatchCancelID.intentResumeObserver),
                         .cancel(id: SessionWatchCancelID.intentEndObserver),

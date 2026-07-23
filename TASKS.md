@@ -1183,3 +1183,15 @@
     B:HealthHub — multicast HR-strap connection-events stream with CoreBluetooth disconnect reason
     C: WorkoutMirrorLive — forward strap disconnect reason + watch-link state into GymRoom payload
     D: GymRoom — log sensor stale cause and watch link lost/restored per athlete
+
+### IOS-00113 Standalone HR banner — reason-aware messaging + promote strap hold to release
+    - follow-up to the strap-reconnect deferral logged earlier: the app-side strap hold was DEBUG-only, so release/TestFlight got neither the fast pending-reconnect nor the disconnect-reason signal; field logs confirmed the hold does not disturb HealthKit HR delivery (the two BLE connections multiplex one physical link), clearing it for release
+    - the standalone "out of range" banner was driven solely by a 15 s HealthKit sample-freshness watchdog, which misfired at rest (a healthy strap delivers only a few samples per minute) and could only ever read "out of range" — never the real cause
+    - design: HealthKit sample-freshness stays the show/hide trigger (truth about live data), the CoreBluetooth disconnect reason only colours the message — avoids a false banner when CB drops while HealthKit HR keeps flowing (observed in the field logs)
+    - all on-device file logging stays DEBUG-only (WorkoutFileLogger no-ops in release); the banner reason travels the event stream, not the log, so TestFlight builds write nothing
+    - deferred/unverified: the poor-contact path (strap BLE-connected but no fresh reading) was not reproduced — the test strap always fully disconnected instead
+
+    A: Promote strap hold to release — drop the DEBUG gate on holdsStrapConnection
+    B: Raise sensor-stale threshold (15 → 35 s) to stop the banner misfiring at rest
+    C: Forward the CoreBluetooth disconnect reason into the standalone live session (SessionFeature → LiveSession subscription + state)
+    D: Reason-aware stale banner — out of range / device off / poor contact, with English localization
