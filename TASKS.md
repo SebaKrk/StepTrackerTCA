@@ -1208,3 +1208,16 @@
     C: Configuration — route `.airPods` selection to the activity picker (no BLE scan)
     D: Session — treat `.airPods` as an iPhone-standalone HR source in the lifecycle mode pick
     E: Configuration — AirPods Pro 3 reminder alert on tap (worn & paired, HR only during workout); generalize the reminder alert's confirm action to carry the picked option so `.iphone` and `.airPods` share one path
+
+### IOS-00115 Live BLE connection state — picker status refreshes without leaving the screen
+    - the pre-workout picker's HR-connection status (`isHeartRateConnected`) was set once at `viewDidAppear` via a one-shot `checkConnectedDevicesFirst()`; a strap connected from the Bluetooth sheet updated the child's state but never the parent's, so "connected" only appeared after leaving and re-entering the screen
+    - fix is a live signal, not a poll: a multicast presence stream in HealthHub fed by the CoreBluetooth connect/disconnect delegate callbacks, mirroring the existing `hrSensorConnectionEvents` multicast (stored single-stream would go silent for a second subscriber after a TCA effect restart / view remount)
+    - the stream is NOT limited to held peripherals (unlike `hrSensorConnectionEvents`), so it also reflects connections made from the picker's own scan sheet; both the parent picker and the scan sheet subscribe (multicast handles multiple subscribers)
+    - removes the fixed `Task.sleep(for: .seconds(3))` in the scan sheet's connect/disconnect handlers — the list now refreshes on the real CoreBluetooth event instead of after an arbitrary delay
+    - deferred: "detected" badge on the device tiles (strap live, Watch = paired only — off-wrist trap, AirPods no detection) — the IOS-00110 follow-up, needs UI + localization
+
+    A: HealthHub — multicast HR-sensor presence stream from CoreBluetooth connect/disconnect callbacks
+    B: BluetoothClient — expose `connectedHRSensorPresence` stream
+    C: ConfigurationFeature — subscribe live, keep the one-shot check only as the initial value
+    D: BluetoothFeature — react to the stream, drop the 3 s sleep poll on connect/disconnect
+    E (deferred): device picker "detected" badge

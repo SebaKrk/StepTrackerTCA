@@ -98,6 +98,11 @@ extension DefaultCentralManager: CBPeripheralDelegate {
             }
         } else {
             Logger.bluetooth.info("[Delegate] HR notifications subscribed: \(name)")
+            /// HR service is confirmed now (discovered + subscribed), so
+            /// `retrieveConnectedPeripherals(withServices:)` includes this sensor
+            /// — emit presence HERE, not at `didConnect` (too early: the service
+            /// is not yet discovered there, so the query returns empty → false).
+            emitHRSensorPresence()
             Task {
                 await WorkoutFileLogger.shared.log("[BLE-HR] subscribed to HR notifications: \(name)")
             }

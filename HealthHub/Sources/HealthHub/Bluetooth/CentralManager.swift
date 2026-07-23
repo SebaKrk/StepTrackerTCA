@@ -80,4 +80,10 @@ public protocol CentralManager: Sendable {
    /// `nil` = połączony / wyczyszczony, wartość = powód dropu. Multicast — nowy
    /// stream za każdym wywołaniem. Emituje tylko dla held peripherals (pasek treningowy).
    func hrSensorConnectionEvents() async -> AsyncStream<SensorDisconnectReason?>
+
+   /// Stream of HR-sensor presence (`true` = a HR sensor is connected). Emitted
+   /// on every connect / disconnect. Multicast — a new stream per call. Unlike
+   /// `hrSensorConnectionEvents` it is NOT limited to held peripherals, so the
+   /// pre-workout device picker can reflect connections made from its own sheet.
+   func connectedHRSensorPresence() async -> AsyncStream<Bool>
 }

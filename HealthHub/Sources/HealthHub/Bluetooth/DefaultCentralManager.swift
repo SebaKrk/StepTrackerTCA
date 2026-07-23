@@ -21,6 +21,10 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
 
    /// Multicast held-HR-strap connection events (nil = połączony, wartość = powód dropu).
    let connectionActor = BluetoothConnectionActor()
+
+   /// Multicast presence of a connected HR sensor (`true` = at least one connected).
+   /// Feeds the pre-workout device picker so its status refreshes live.
+   let presenceActor = HRSensorPresenceActor()
    
    override init() {
        /// Tworzymy CBCentralManager bez delegate (na razie nil)
@@ -59,6 +63,32 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    /// delegata CoreBluetooth (sync, CB queue) — stąd hop `Task` do aktora.
    func emitHRSensorConnectionReason(_ reason: SensorDisconnectReason?) {
        Task { await connectionActor.broadcast(reason) }
+   }
+
+   /// Returns a NEW stream of HR-sensor presence (`true` = a HR sensor is
+   /// connected). Yields the CURRENT presence immediately on subscribe (so an
+   /// already-connected strap is reflected without waiting for an event), then
+   /// on every connect / disconnect. Multicast.
+   public func connectedHRSensorPresence() async -> AsyncStream<Bool> {
+       return await presenceActor.newStream(initial: currentHRSensorPresence())
+   }
+
+   /// Whether at least one HR sensor is currently connected to the system.
+   private func currentHRSensorPresence() -> Bool {
+       !cbCentralManager.retrieveConnectedPeripherals(
+           withServices: [Gatt.Service.heartRate]
+       ).isEmpty
+   }
+
+   /// Recomputes HR-sensor presence and broadcasts it. Called from the
+   /// CoreBluetooth delegate (connect / disconnect / fail / power-on) — sync CB
+   /// queue, hence the `Task` hop to the actor.
+   func emitHRSensorPresence() {
+       let isConnected = currentHRSensorPresence()
+       #if DEBUG
+       Logger.bluetooth.debug("[Presence] emit: \(isConnected)")
+       #endif
+       Task { await presenceActor.broadcast(isConnected) }
    }
    
    /// Czy Bluetooth jest włączony - async bo Actor wymaga await

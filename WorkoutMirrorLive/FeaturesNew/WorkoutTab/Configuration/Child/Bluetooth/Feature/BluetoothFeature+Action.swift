@@ -59,6 +59,11 @@ extension BluetoothFeature {
        /// nil = brak wybranego urządzenia, CBPeripheral = wybrane urządzenie
        case selectedDeviceChanged(CBPeripheral?)
 
+       /// Subscribes to the live HR-sensor presence stream and refreshes the
+       /// system-connected list on every connect/disconnect — replaces the old
+       /// fixed `Task.sleep` poll after a (dis)connect.
+       case startConnectionMonitoring
+
        
        // MARK: - View Actions
        case view(View)
