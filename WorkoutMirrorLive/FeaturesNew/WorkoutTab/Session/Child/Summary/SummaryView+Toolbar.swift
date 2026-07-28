@@ -22,13 +22,10 @@ extension SummaryView {
             ToolbarItem(placement: .topBarLeading) {
                 cancelButton
             }
-        }
-        ToolbarItemGroup(placement: .bottomBar) {
-            if !store.isManualEntry {
+        } else {
+            ToolbarItem(placement: .topBarTrailing) {
                 discardButton
             }
-            Spacer()
-            saveButton
         }
     }
 
@@ -58,12 +55,4 @@ extension SummaryView {
         .disabled(store.isDiscarding)
     }
 
-    private var saveButton: some View {
-        Button {
-            send(.endWorkoutButtonTapped)
-        } label: {
-            Text(String(localized: "Save"))
-                .fontWeight(.semibold)
-        }
-    }
 }

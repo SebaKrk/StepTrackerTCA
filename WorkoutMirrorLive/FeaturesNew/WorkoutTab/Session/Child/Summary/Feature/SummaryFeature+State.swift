@@ -26,14 +26,9 @@ extension SummaryFeature {
         /// `nil` for free workouts (no plan selected).
         var trainingSession: TrainingSession? = nil
 
-        /// WOD scoring child features — one per workout in the plan. Each element manages
-        /// its own `WorkoutSessionResult` (score, note, exercises) + UI toggle flags
-        /// (showResults, showNotes, exercisesEdited).
-        ///
-        /// **Refactor IOS-00096-B**: replaces 4 parallel arrays (`resultInputs` +
-        /// `showResults` + `showNotes` + `exercisesEdited`) with a single `IdentifiedArrayOf` —
-        /// eliminates index drift + cascading re-renders when a single field changes.
-        var wodScorings: IdentifiedArrayOf<WODScoringFeature.State> = []
+        /// Portable "Wyniki" section — per-WOD scoring cards. Embedded here
+        /// editable; ActivityDetails embeds the same feature read-only.
+        var results: WorkoutResultsFeature.State = .init()
 
         /// Counts how many times checkSummary has been attempted (for debug logging).
         var summaryRetryCount: Int = 0
@@ -46,6 +41,17 @@ extension SummaryFeature {
         /// HR samples from the workout — passed by parent for per-phase HR calculation.
         var hrBuffer: [(date: Date, bpm: Double)] = []
 
+        /// Per-minute HR ranges for the minute chart — computed ONCE when the
+        /// buffer arrives (not per render; the buffer can hold hours of samples).
+        var hrMinuteRanges: [HRMinuteRange] = []
+
+        /// Minute selected by scrubbing the HR chart (selection state must live
+        /// here — views hold no @State).
+        var selectedChartMinute: Date?
+
+        /// True once the user scrolls to the bottom — reveals the floating save bar.
+        var isSaveButtonVisible: Bool = false
+
         /// Phase timestamps — passed by parent for per-phase HR calculation.
         var phaseTimestamps: [(name: String, start: Date, end: Date?)] = []
 
@@ -54,10 +60,25 @@ extension SummaryFeature {
         /// (no live workout) → the card is hidden.
         var effortPoints: Int?
 
-        /// Zone the athlete spent the most time in — drives the screen background
-        /// gradient (like the live session). `nil` in manual-entry mode → neutral
-        /// background. Passed by the parent from the live accumulator.
-        var dominantZone: HeartRateZone?
+        /// Time spent in each HR zone, forwarded from the live accumulator at
+        /// session end (or reconstructed in manual-entry mode). Drives the zones
+        /// section and the screen accent. Empty ⇒ no zones card, mint fallback accent.
+        var secondsByZone: [HeartRateZone: TimeInterval] = [:]
+
+        /// User's maximum heart rate (age/HealthKit based) — zone classification
+        /// and minute-chart colors need the USER max, not the session peak
+        /// (`maxHeartRate` below). Fetched once via `maxHeartRateClient`.
+        var userMaxHeartRate: Double?
+
+        /// Dominant TRAINING zone by dwell time — resting is excluded so a
+        /// mostly-idle session still accents by the hardest meaningful zone.
+        /// `nil` when there is no zone data.
+        var dominantZone: HeartRateZone? {
+            secondsByZone
+                .filter { $0.key != .resting }
+                .max { $0.value < $1.value }?
+                .key
+        }
 
         /// Peak heart rate, derived from the collected samples. `WorkoutMetrics`
         /// has no max field — only `heartRate` (current, 0 once the workout ends) —
@@ -65,11 +86,6 @@ extension SummaryFeature {
         var maxHeartRate: Int {
             hrBuffer.map(\.bpm).max().map { Int($0.rounded()) } ?? 0
         }
-
-        // MARK: - Set Input Sheet
-
-        /// Child feature for the per-set input sheet. `nil` = sheet not presented.
-        @Presents var setInput: SetInputFeature.State?
 
         // MARK: - Discard
 
@@ -124,14 +140,14 @@ extension SummaryFeature.State {
         state.summary = summary
         state.trainingSession = trainingSession
         state.hrBuffer = hrBuffer
+        state.hrMinuteRanges = HRMinuteRange.from(buffer: hrBuffer)
         state.phaseTimestamps = phaseTimestamps
         state.viewState = .successfullyLoaded
         state.isManualEntry = true
         if let existingResults {
-            state.wodScorings = IdentifiedArrayOf(
-                uniqueElements: existingResults.enumerated().map { index, result in
-                    WODScoringFeature.State(wodIndex: index, result: result)
-                }
+            state.results = .editable(
+                trainingSession: trainingSession,
+                existingResults: existingResults
             )
         }
         return state

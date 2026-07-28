@@ -50,7 +50,15 @@ import SwiftUI
         var state = SummaryFeature.State(viewState: .successfullyLoaded)
         state.summary = summary
         state.effortPoints = 190          // shows the effort points card in the metrics grid
-        state.dominantZone = .threshold   // tints the background gradient (Zone 4)
+        state.secondsByZone = [           // threshold-dominant → Zone 4 accent/background
+            .recovery: 300,
+            .aerobic: 600,
+            .threshold: 1_500,
+            .anaerobic: 240,
+        ]
+        state.hrBuffer = previewHRBuffer()   // session peak 171 → feeds the Max HR tile
+        state.hrMinuteRanges = HRMinuteRange.from(buffer: state.hrBuffer)
+        state.userMaxHeartRate = 190         // chart colors classify against the USER max
         return state
     }()
     NavigationStack {
@@ -144,9 +152,9 @@ import SwiftUI
                 ]
             ),
         ]
-        state.wodScorings = IdentifiedArrayOf(
+        state.results.cards = IdentifiedArrayOf(
             uniqueElements: inputs.enumerated().map { index, result in
-                WODScoringFeature.State(wodIndex: index, result: result, showResults: true)
+                WODScoringFeature.State(wodIndex: index, result: result)
             }
         )
         return state
@@ -186,9 +194,9 @@ import SwiftUI
                 ]
             ),
         ]
-        state.wodScorings = IdentifiedArrayOf(
+        state.results.cards = IdentifiedArrayOf(
             uniqueElements: inputs.enumerated().map { index, result in
-                WODScoringFeature.State(wodIndex: index, result: result, showResults: true)
+                WODScoringFeature.State(wodIndex: index, result: result)
             }
         )
         return state
@@ -227,9 +235,9 @@ import SwiftUI
                 ]
             ),
         ]
-        state.wodScorings = IdentifiedArrayOf(
+        state.results.cards = IdentifiedArrayOf(
             uniqueElements: inputs.enumerated().map { index, result in
-                WODScoringFeature.State(wodIndex: index, result: result, showResults: true)
+                WODScoringFeature.State(wodIndex: index, result: result)
             }
         )
         return state
@@ -239,4 +247,22 @@ import SwiftUI
             EmptyReducer()
         })
     }
+}
+
+// MARK: - Preview helpers
+
+/// 45 minutes of HR samples (two per minute, so bars have real min–max
+/// height), session peak 171 bpm at minute 26. Split out so the preview
+/// body type-checks fast.
+private func previewHRBuffer() -> [(date: Date, bpm: Double)] {
+    let start = Date().addingTimeInterval(-2_700)
+    var buffer: [(date: Date, bpm: Double)] = []
+    for minute in 0..<45 {
+        let date = start.addingTimeInterval(Double(minute) * 60)
+        let low: Double = minute == 26 ? 155 : Double(108 + (minute % 5) * 5)
+        let high: Double = minute == 26 ? 171 : low + Double(8 + (minute % 3) * 6)
+        buffer.append((date: date, bpm: low))
+        buffer.append((date: date.addingTimeInterval(30), bpm: high))
+    }
+    return buffer
 }

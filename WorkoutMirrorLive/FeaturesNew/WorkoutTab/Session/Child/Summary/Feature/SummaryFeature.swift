@@ -35,6 +35,9 @@ struct SummaryFeature {
     // MARK: - Reducer
 
     var body: some Reducer<State, Action> {
+        Scope(state: \.results, action: \.results) {
+            WorkoutResultsFeature()
+        }
         Reduce<State, Action> { state, action in
             switch action {
 
@@ -55,68 +58,22 @@ struct SummaryFeature {
 
             case let .setTrainingSession(trainingSession):
                 state.trainingSession = trainingSession
-                let workouts = trainingSession?.workouts ?? []
-                let isStrength = { (type: ExerciseWorkoutType) -> Bool in
-                    type == .strength || type == .olympicWeightlifting
-                }
-                let results = workouts.map { workout -> WorkoutSessionResult in
-                    let exercises = workout.exercises.map { exercise in
-                        // For Strength/Olympic WODs → use AI-provided structured plannedSets,
-                        // fallback to rounds-based default sets if AI didn't deliver them.
-                        let sets: [SetEntry]? = {
-                            guard isStrength(workout.type) else { return nil }
-
-                            // Path 1: AI-provided structured sets (PRIMARY)
-                            if let planned = exercise.plannedSets, !planned.isEmpty {
-                                return planned.map {
-                                    SetEntry(reps: $0.reps, weight: $0.suggestedWeight)
-                                }
-                            }
-
-                            // Path 2: Fallback — simple rounds count
-                            guard let rounds = workout.rounds else { return nil }
-                            let reps: Int
-                            if case let .reps(r) = exercise.target { reps = r } else { reps = 0 }
-                            return (0..<rounds).map { _ in SetEntry(reps: reps) }
-                        }()
-
-                        let weight = exercise.weight.flatMap { config in
-                            config.men.map(Double.init) ?? config.women.map(Double.init)
-                        }
-
-                        return ExerciseLogInput(
-                            exerciseType: exercise.type,
-                            unmatchedName: exercise.customName,
-                            category: exercise.type.category,
-                            target: exercise.target,
-                            plannedReps: exercise.target?.compactString,
-                            plannedWeight: weight,
-                            actualWeight: sets == nil ? weight : nil,
-                            actualReps: sets == nil ? exercise.target?.compactString : nil,
-                            sets: sets
-                        )
-                    }
-                    return WorkoutSessionResult(
-                        name: workout.name,
-                        description: workout.snapshotDescription,
-                        exercises: exercises
-                    )
-                }
-                state.wodScorings = IdentifiedArrayOf(
-                    uniqueElements: results.enumerated().map { index, result in
-                        WODScoringFeature.State(wodIndex: index, result: result)
-                    }
-                )
+                state.results = trainingSession.map { .editable(trainingSession: $0) } ?? .init()
                 return .none
 
             case let .setHRData(hrBuffer, phaseTimestamps):
                 state.hrBuffer = hrBuffer
+                state.hrMinuteRanges = HRMinuteRange.from(buffer: hrBuffer)
                 state.phaseTimestamps = phaseTimestamps
                 return .none
 
-            case let .setEffortPoints(points, dominantZone):
+            case let .setEffortPoints(points, secondsByZone):
                 state.effortPoints = points
-                state.dominantZone = dominantZone
+                state.secondsByZone = secondsByZone
+                return .none
+
+            case let .setUserMaxHeartRate(maxHR):
+                state.userMaxHeartRate = maxHR
                 return .none
 
             case .delegate:
@@ -135,7 +92,8 @@ struct SummaryFeature {
                         // becomes known — hand the uuid up so AppTabNewFeature can
                         // consume PendingEffortScore (no `.workoutSaved` from the
                         // Watch in this mode; persist guards are idempotent).
-                        .send(.delegate(.savedWorkoutFound(workout.uuid)))
+                        .send(.delegate(.savedWorkoutFound(workout.uuid))),
+                        userMaxHeartRateEffect(state)
                     )
                 } else if state.summaryRetryCount >= Self.maxSummaryAttempts {
                     // iPhone-standalone only: the workout is saved locally by
@@ -169,10 +127,13 @@ struct SummaryFeature {
                 // `.setTrainingSession` action to avoid duplicating logic.
                 if state.isManualEntry, let trainingSession = state.trainingSession {
                     state.viewState = .successfullyLoaded
-                    if state.wodScorings.isEmpty {
-                        return .send(.setTrainingSession(trainingSession))
+                    if state.results.cards.isEmpty {
+                        return .merge(
+                            .send(.setTrainingSession(trainingSession)),
+                            manualEntryZonesEffect(state)
+                        )
                     }
-                    return .none
+                    return manualEntryZonesEffect(state)
                 }
 
                 // Idempotent onAppear: only the fresh `.loading` entry kicks off loading.
@@ -198,7 +159,7 @@ struct SummaryFeature {
             case .view(.endWorkoutButtonTapped):
 
                 let trainingSession = state.trainingSession
-                let resultInputs = state.wodScorings.map(\.result)
+                let resultInputs = state.results.cards.map(\.result)
                 let hkWorkoutId = state.summary?.workout?.uuid
                 let workoutForSnapshot = state.summary?.workout
                 let hrBuffer = state.hrBuffer
@@ -339,6 +300,15 @@ struct SummaryFeature {
                     await self.dismiss()
                 }
 
+            case let .view(.chartMinuteSelected(minute)):
+                state.selectedChartMinute = minute
+                return .none
+
+            case let .view(.saveButtonVisibilityChanged(isVisible)):
+                guard state.isSaveButtonVisible != isVisible else { return .none }
+                state.isSaveButtonVisible = isVisible
+                return .none
+
             case .view(.discardWorkoutButtonTapped):
                 state.discardAlert = .discardWorkout
                 return .none
@@ -397,199 +367,52 @@ struct SummaryFeature {
                 // Presentation reducer handles dismiss; nothing to do here.
                 return .none
 
-            case let .view(.toggleResult(index)):
-                guard var scoring = state.wodScorings[id: index] else { return .none }
-                scoring.showResults.toggle()
-                if !scoring.showResults {
-                    scoring.showNotes = false
-                    scoring.result.scoreResult = .completed
-                    scoring.result.note = ""
-                }
-                state.wodScorings[id: index] = scoring
-                return .none
-
-            case let .view(.toggleNote(index)):
-                guard var scoring = state.wodScorings[id: index] else { return .none }
-                scoring.showNotes.toggle()
-                if !scoring.showNotes {
-                    scoring.result.note = ""
-                }
-                state.wodScorings[id: index] = scoring
-                return .none
-
-            case let .view(.updateScore(index, text)):
-                guard var scoring = state.wodScorings[id: index] else { return .none }
-                scoring.result.scoreResult = .custom(text)
-                state.wodScorings[id: index] = scoring
-                return .none
-
-            case let .view(.updateNote(index, text)):
-                guard var scoring = state.wodScorings[id: index] else { return .none }
-                scoring.result.note = text
-                state.wodScorings[id: index] = scoring
-                return .none
-
-            case let .view(.openSetInput(wodIndex, _)):
-                guard let scoring = state.wodScorings[id: wodIndex] else { return .none }
-                let result = scoring.result
-
-                let scoreText: String = {
-                    if case .completed = result.scoreResult { return "" }
-                    return result.scoreResult.displayString
-                }()
-
-                // Get WOD type from training session
-                let workouts = state.trainingSession?.workouts ?? []
-                let wodType = wodIndex < workouts.count ? workouts[wodIndex].type : .forTime
-
-                state.setInput = SetInputFeature.State(
-                    wodName: result.name,
-                    scoreText: scoreText,
-                    scorePlaceholder: "",
-                    exercises: result.exercises,
-                    wodType: wodType,
-                    wodIndex: wodIndex
-                )
-                return .none
-
-            case let .view(.updateExerciseWeight(wodIndex, exerciseIndex, text)):
-                guard var scoring = state.wodScorings[id: wodIndex],
-                      exerciseIndex < scoring.result.exercises.count
-                else { return .none }
-                scoring.result.exercises[exerciseIndex].actualWeight = Double(text)
-                state.wodScorings[id: wodIndex] = scoring
-                return .none
-
-            case let .view(.updateExerciseReps(wodIndex, exerciseIndex, text)):
-                guard var scoring = state.wodScorings[id: wodIndex],
-                      exerciseIndex < scoring.result.exercises.count
-                else { return .none }
-                scoring.result.exercises[exerciseIndex].actualReps = text.isEmpty ? nil : text
-                state.wodScorings[id: wodIndex] = scoring
-                return .none
-
-            case let .view(.updateExerciseScaling(wodIndex, exerciseIndex, scaling)):
-                guard var scoring = state.wodScorings[id: wodIndex],
-                      exerciseIndex < scoring.result.exercises.count
-                else { return .none }
-                scoring.result.exercises[exerciseIndex].scaling = scaling
-                state.wodScorings[id: wodIndex] = scoring
-                return .none
-
-            case let .view(.toggleExercisePR(wodIndex, exerciseIndex)):
-                guard var scoring = state.wodScorings[id: wodIndex],
-                      exerciseIndex < scoring.result.exercises.count
-                else { return .none }
-                scoring.result.exercises[exerciseIndex].isPR.toggle()
-                state.wodScorings[id: wodIndex] = scoring
-                return .none
-
             case .view(.viewDidDisappear):
                 return .merge(
                     .cancel(id: SummaryFeatureCancelID.sessionStateListener),
                     .cancel(id: SummaryFeatureCancelID.retry)
                 )
 
-                // MARK: - Set Input
+                // MARK: - Results (child feature)
 
-            case .setInput(.dismiss):
-                // Write back exercises + score only if user confirmed (tapped Add, not Cancel)
-                if let setInput = state.setInput, setInput.confirmed {
-                    let w = setInput.wodIndex
-                    if var scoring = state.wodScorings[id: w] {
-                        scoring.result.exercises = setInput.exercises
-                        // Parse score into typed WodScoreResult based on WOD type
-                        scoring.result.scoreResult = parseScore(
-                            text: setInput.scoreText,
-                            wodType: setInput.wodType,
-                            exercises: setInput.exercises
-                        )
-                        scoring.exercisesEdited = true
-                        state.wodScorings[id: w] = scoring
-                    }
-                }
-                return .none
-
-            case .setInput:
-                return .none
-
-                // MARK: - WOD Scorings (child feature)
-
-                // Delegate: child WODScoring wants to open SetInputSheet → parent presents it.
-            case let .wodScorings(.element(id: _, action: .delegate(.requestEditExercises(wodIndex)))):
-                guard let scoring = state.wodScorings[id: wodIndex] else { return .none }
-                let result = scoring.result
-                let scoreText: String = {
-                    if case .completed = result.scoreResult { return "" }
-                    return result.scoreResult.displayString
-                }()
-                let workouts = state.trainingSession?.workouts ?? []
-                let wodType = wodIndex < workouts.count ? workouts[wodIndex].type : .forTime
-                state.setInput = SetInputFeature.State(
-                    wodName: result.name,
-                    scoreText: scoreText,
-                    scorePlaceholder: "",
-                    exercises: result.exercises,
-                    wodType: wodType,
-                    wodIndex: wodIndex
-                )
-                return .none
-
-            case .wodScorings:
-                // Remaining child actions (binding, toggle) — the child reducer handles them itself.
+            case .results:
+                // Remaining card actions — handled inside WorkoutResultsFeature.
                 return .none
             }
         }
-        .forEach(\.wodScorings, action: \.wodScorings) {
-            WODScoringFeature()
-        }
         .ifLet(\.$discardAlert, action: \.alert)
         .ifLet(\.$errorAlert, action: \.errorAlert)
-        .ifLet(\.$setInput, action: \.setInput) {
-            SetInputFeature()
-        }
     }
 
     // MARK: - Helpers
 
-    /// Parses user input into a typed `WodScoreResult` based on WOD type.
-    ///
-    /// - Strength/Olympic: auto-computes `.forLoad` from max set weight (ignores text)
-    /// - AMRAP: parses "6+14" → `.amrap(rounds: 6, extraReps: 14)`
-    /// - FOR TIME: parses "14:32" → `.forTime(time: 872)`
-    /// - EMOM/Tabata: `.completed`
-    /// - Fallback: `.custom(text)`
-    private func parseScore(
-        text: String,
-        wodType: ExerciseWorkoutType,
-        exercises: [ExerciseLogInput]
-    ) -> WodScoreResult {
-        switch wodType {
-        case .strength, .olympicWeightlifting:
-            let setWeights = exercises.flatMap { $0.sets ?? [] }.compactMap(\.weight)
-            let singleWeights = exercises.compactMap(\.actualWeight)
-            let maxWeight = (setWeights + singleWeights).max() ?? 0
-            return .forLoad(weight: maxWeight)
-
-        case .amrap:
-            let parts = text.split(separator: "+").map { $0.trimmingCharacters(in: .whitespaces) }
-            if let rounds = parts.first.flatMap({ Int($0) }) {
-                let extraReps = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
-                return .amrap(rounds: rounds, extraReps: extraReps)
-            }
-            return text.isEmpty ? .completed : .custom(text)
-
-        case .forTime:
-            let parts = text.split(separator: ":").map { $0.trimmingCharacters(in: .whitespaces) }
-            if let minutes = parts.first.flatMap({ Int($0) }) {
-                let seconds = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
-                return .forTime(time: TimeInterval(minutes * 60 + seconds))
-            }
-            return text.isEmpty ? .completed : .custom(text)
-
-        case .emom, .tabata:
-            return .completed
+    /// One-shot fetch of the user's max heart rate (USER max, not session peak).
+    private func userMaxHeartRateEffect(_ state: State) -> Effect<Action> {
+        guard state.userMaxHeartRate == nil, let workout = state.summary?.workout else {
+            return .none
+        }
+        return .run { send in
+            await send(.setUserMaxHeartRate(maxHeartRateClient.forWorkout(workout)))
         }
     }
-}
 
+    /// Manual entry has no live accumulator — hydrate zones from the persisted
+    /// effort score, falling back to classifying the raw HR buffer.
+    private func manualEntryZonesEffect(_ state: State) -> Effect<Action> {
+        guard state.secondsByZone.isEmpty, let workout = state.summary?.workout else {
+            return .none
+        }
+        return .run { [buffer = state.hrBuffer] send in
+            let userMax = await maxHeartRateClient.forWorkout(workout)
+            await send(.setUserMaxHeartRate(userMax))
+            if let score = try? await effortScoreClient.fetchByHKWorkoutId(workout.uuid) {
+                await send(.setEffortPoints(points: score.points, secondsByZone: score.secondsByZone))
+            } else {
+                let zones = HeartRateZone.secondsByZone(from: buffer, maxHR: userMax)
+                guard !zones.isEmpty else { return }
+                await send(.setEffortPoints(points: 0, secondsByZone: zones))
+            }
+        }
+    }
+
+}

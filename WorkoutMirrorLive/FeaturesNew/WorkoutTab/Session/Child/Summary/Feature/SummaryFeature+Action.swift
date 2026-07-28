@@ -36,9 +36,14 @@ extension SummaryFeature {
         /// so that per-phase HR can be calculated at save time.
         case setHRData(hrBuffer: [(date: Date, bpm: Double)], phaseTimestamps: [(name: String, start: Date, end: Date?)])
 
-        /// Parent passes the live effort points total + dominant zone at session
-        /// end (display-only). Dominant zone drives the background gradient.
-        case setEffortPoints(points: Int, dominantZone: HeartRateZone?)
+        /// Parent passes the live effort points total + full per-zone dwell times
+        /// at session end. The zone dictionary drives the zones section and the
+        /// screen accent (dominant zone is derived in State).
+        case setEffortPoints(points: Int, secondsByZone: [HeartRateZone: TimeInterval])
+
+        /// Result of the one-shot user max-HR fetch — needed to classify zones
+        /// and color the minute chart (user max, not session peak).
+        case setUserMaxHeartRate(Double)
 
         // MARK: - Delegate
 
@@ -78,44 +83,17 @@ extension SummaryFeature {
             /// Shows the discard confirmation alert.
             case discardWorkoutButtonTapped
 
-            /// Toggles the visibility of the entire result section for the given WOD index.
-            case toggleResult(Int)
+            /// HR minute chart scrub — the selected minute (nil clears the selection).
+            case chartMinuteSelected(Date?)
 
-            /// Toggles the note input visibility for the given WOD index.
-            case toggleNote(Int)
-
-            /// Updates the score text for the given WOD index.
-            case updateScore(Int, String)
-
-            /// Updates the note text for the given WOD index.
-            case updateNote(Int, String)
-
-            /// Opens the set input sheet for a specific exercise (legacy entry — child feature
-            /// `WODScoringFeature` emit'uje `requestEditExercises` delegate który parent łapie).
-            case openSetInput(wodIndex: Int, exerciseIndex: Int)
-
-            /// Updates the actual weight text for a specific exercise within a WOD.
-            case updateExerciseWeight(wodIndex: Int, exerciseIndex: Int, String)
-
-            /// Updates the actual reps text for a specific exercise within a WOD.
-            case updateExerciseReps(wodIndex: Int, exerciseIndex: Int, String)
-
-            /// Updates the scaling type for a specific exercise within a WOD.
-            case updateExerciseScaling(wodIndex: Int, exerciseIndex: Int, ScalingType)
-
-            /// Toggles the PR flag for a specific exercise within a WOD.
-            case toggleExercisePR(wodIndex: Int, exerciseIndex: Int)
+            /// Scroll reached (or left) the bottom — toggles the floating save bar.
+            case saveButtonVisibilityChanged(Bool)
         }
 
-        // MARK: - WOD Scorings (child feature actions)
+        // MARK: - Results (portable child feature)
 
-        /// Forwarded actions from per-WOD `WODScoringFeature` child stores. Includes binding
-        /// updates (scoreText, note), toggle expand actions, and delegate.requestEditExercises.
-        case wodScorings(IdentifiedActionOf<WODScoringFeature>)
-
-        // MARK: - Set Input
-
-        case setInput(PresentationAction<SetInputFeature.Action>)
+        /// Forwarded actions of the embedded "Wyniki" section (per-WOD cards live inside).
+        case results(WorkoutResultsFeature.Action)
 
         // MARK: - Alerts
 
