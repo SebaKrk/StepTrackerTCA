@@ -1223,3 +1223,29 @@
     C: ConfigurationFeature — subscribe live, keep the one-shot check only as the initial value
     D: BluetoothFeature — react to the stream, drop the 3 s sleep poll on connect/disconnect
     E (deferred): device picker "detected" badge
+
+### IOS-00116 deleted
+
+### IOS-00117 Summary redesign — dark skin, inline results, portable feature (full rebuild)
+    - ground-up rebuild of the post-workout Summary screen 1:1 with the approved mockup (artifact ec9e4079); the earlier IOS-00116 attempt was abandoned after losing orientation in the code — this restart carries its lessons as inputs (dark skin is part of the spec, inline editing only, mm:ss picker, no @State, ForEach-identity observation trap)
+    - the mockup skin is part of the design, not just layout: tokens in `SummaryTheme` (near-black background, dark cards, mint accent); the whole-screen accent follows the dominant HR zone (mint fallback, never `.accentColor` — white in dark mode)
+    - the "Wyniki" section is a portable feature (`WorkoutResultsFeature`): embedded editable in Summary and read-only in Activity Details, so both render results from one source; result cards are feature views (`ResultCardView` bound to a per-WOD element store), reading fields via dynamic member so fine-grained observation fires on in-place mutations (a value-based card + whole-`store.state` read renders once then goes dead)
+    - results are entered fully inline (no sheets): card state machine (empty → editing → entered) with drafts living beside the typed result so switching completed/DNF never loses data; entry matrix per WOD type (For Time mm:ss picker capped by time cap, AMRAP/DNF rounds+reps tiles, Strength set table, EMOM/Tabata confirm-only); the typed `WodScoreResult` is built only on "Gotowe"
+    - the same result cards render on Activity Details themed native (matching the app's `styledGroupBox` cards) vs dark on Summary, resolved through a `SummaryPalette` environment value
+    - zero SQL change (`WodScoreResult` stays a Codable blob); DNF persists as `.amrap(rounds, extraReps)` = completed work, re-derived as time-cap by heuristic on read
+
+    A: Data — forward full `secondsByZone` + user max HR into `SummaryFeature`; reconstruct zones in manual entry from the persisted score, falling back to classifying the raw HR buffer
+    B: Skin — `SummaryTheme` tokens + `summaryCard()`; `SummaryPalette` theming (dark Summary / native Activity Details) via environment
+    C: Frame — HeroCard, MetricTile grid, shared HeartRateZonesSection (zones + minute chart, user-maxHR bar colors), reveal-on-scroll SaveWorkoutButton, Discard to top bar
+    D: Results feature — portable `WorkoutResultsFeature` + `WODScoringFeature` card state machine (drafts beside result; rules R-a soft cap hint / R-b status keeps drafts / R-c empty edit clears)
+    E: Results components — `ResultCardView` (feature view) + leaf components (ScoreLine, StatusControl, ResultCardHeader, DNFFields, SetTable, ExerciseList, NoteRow, TimePickerField, CardActionButton, InlineResultEditor)
+    F: Summary integration — wire `WorkoutResultsView`, delete the legacy results section and the in-Summary SetInput sheet
+    G: Activity Details — render plan results as read-only ResultCards (native skin), keep the "fill results" pending hint and the edit-window flow through Summary manual entry
+
+    Remaining follow-ups:
+    - fractional weight (e.g. 8.5) not enterable in the set table / exercise fields — the numeric binding reformats per keystroke; needs a draft string committed on end-edit
+    - EMOM/Tabata lose their ✓ when reopened from History (card init maps `.completed` → empty phase)
+    - native-skin leaf tail: a few `Color.white.opacity(...)` inner fills still assume a dark background — move to `theme.*`
+    - read-only For Time+cap in History shows "—" instead of the cap time (the `.readOnly` factory drops `capMinutes`)
+    - presentation hygiene from field logs: two full-screen covers swapped in one transaction in `PlansFeature` ("not in window hierarchy"), an empty `ToolbarItem`, `preferredColorScheme` mounted mid-cover
+    - delete the now-orphaned `SetInput*` files; review new Polish localization keys in the String Catalog
