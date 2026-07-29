@@ -58,6 +58,9 @@ struct WODScoringFeature {
         /// Time cap in minutes from the plan's `timeCap` field (never parsed from text).
         var capMinutes: Int?
 
+        /// Planned round count (Tabata rows, "· N rund" chip). `nil` when absent.
+        var rounds: Int?
+
         /// ActivityDetails renders cards without editing affordances.
         var isReadOnly: Bool = false
 
@@ -81,11 +84,12 @@ struct WODScoringFeature {
             return draftTotalSeconds > capMinutes * 60
         }
 
-        /// Read-only DNF heuristic: an `.amrap` score on a For Time WOD means the
-        /// cap cut the workout off (a real AMRAP has `wodType == .amrap`).
+        /// A For Time WOD stored as `.amrap` means the cap cut it off (DNF). A
+        /// genuine AMRAP is `wodType == .amrap` and is never a DNF — even though
+        /// it also has a time limit, so the cap alone must NOT flag it.
         var isDNF: Bool {
             guard case .amrap = result.scoreResult else { return false }
-            return wodType == .forTime || result.parsedDescription.timeCap != nil
+            return wodType == .forTime
         }
 
         init(
@@ -93,14 +97,21 @@ struct WODScoringFeature {
             result: WorkoutSessionResult,
             wodType: ExerciseWorkoutType? = nil,
             capMinutes: Int? = nil,
-            isReadOnly: Bool = false
+            rounds: Int? = nil,
+            isReadOnly: Bool = false,
+            wasScored: Bool = false
         ) {
             self.wodIndex = wodIndex
             self.result = result
             self.wodType = wodType ?? result.derivedWodType
             self.capMinutes = capMinutes
+            self.rounds = rounds
             self.isReadOnly = isReadOnly
-            self.phase = result.scoreResult == .completed ? .empty : .entered
+            // `.completed` is ambiguous — both "nothing entered yet" and a
+            // confirmed EMOM/Tabata result. `wasScored` (card built from a saved
+            // result, not a fresh plan) disambiguates so a saved EMOM/Tabata
+            // keeps its ✓ instead of reverting to the empty slot.
+            self.phase = (wasScored || result.scoreResult != .completed) ? .entered : .empty
             self.noteState = result.note.isEmpty ? .empty : .saved
             if case let .amrap(rounds, extraReps) = result.scoreResult,
                self.wodType == .forTime {
@@ -223,7 +234,16 @@ struct WODScoringFeature {
                         : .completed
                     state.phase = hasScore ? .entered : .empty
 
-                default: // emom, tabata — confirmation only
+                case (.tabata, _):
+                    // One total-reps field per exercise; the headline is their sum.
+                    // No reps entered → just confirmed.
+                    let total = state.result.exercises.reduce(0) { sum, exercise in
+                        sum + (Int((exercise.actualReps ?? "").prefix(while: \.isNumber)) ?? 0)
+                    }
+                    state.result.scoreResult = total > 0 ? .forReps(reps: total) : .completed
+                    state.phase = .entered
+
+                default: // emom — confirmation only
                     state.result.scoreResult = .completed
                     state.phase = .entered
                 }

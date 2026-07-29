@@ -20,6 +20,7 @@ extension HKWorkoutActivityType {
         case .walking:                      return .mint
         case .traditionalStrengthTraining:  return .purple
         case .functionalStrengthTraining:   return .indigo
+        case .highIntensityIntervalTraining: return .pink
         case .boxing:                       return .red
         case .cooldown:                     return .gray
         case .hiking:                       return .brown
@@ -47,6 +48,8 @@ extension HKWorkoutActivityType {
             return String(localized: "Strength", bundle: .module)
         case .functionalStrengthTraining:
             return String(localized: "Functional", bundle: .module)
+        case .highIntensityIntervalTraining:
+            return String(localized: "Endurance", bundle: .module)
         case .cooldown:
             return String(localized: "Cooldown", bundle: .module)
         case .hiking:
@@ -68,6 +71,7 @@ extension HKWorkoutActivityType {
         case .boxing:           return "figure.boxing.circle.fill"
         case .traditionalStrengthTraining: return "figure.strengthtraining.traditional.circle.fill"
         case .functionalStrengthTraining: return "figure.strengthtraining.functional.circle.fill"
+        case .highIntensityIntervalTraining: return "figure.highintensity.intervaltraining.circle.fill"
         case .cooldown:        return "figure.cooldown.circle.fill"
         case .hiking:          return "figure.hiking.circle.fill"
         case .climbing:        return "figure.climbing.circle.fill"
@@ -85,6 +89,7 @@ extension HKWorkoutActivityType {
         case .boxing:           return "figure.boxing"
         case .traditionalStrengthTraining: return "figure.strengthtraining.traditional"
         case .functionalStrengthTraining: return "figure.strengthtraining.functional"
+        case .highIntensityIntervalTraining: return "figure.highintensity.intervaltraining"
         case .cooldown:         return "figure.cooldown"
         case .hiking:           return "figure.hiking"
         case .climbing:         return "figure.climbing"

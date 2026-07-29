@@ -83,5 +83,22 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .olympicWeightlifting: return .purple
         }
     }
+
+    /// Resolves a free-text format hint (e.g. "AMRAP 20", "Tabata 8 rounds",
+    /// "20/10") to a type via case `aliases` — the single source of truth, so
+    /// adding a new type never requires touching the scan mapper again.
+    /// Short aliases (< 4 chars, e.g. "FT") match only on an exact string to
+    /// avoid false positives inside longer words.
+    public static func matching(_ raw: String) -> ExerciseWorkoutType? {
+        let haystack = raw.lowercased()
+        for type in allCases {
+            for alias in type.aliases {
+                let needle = alias.lowercased()
+                let matches = needle.count >= 4 ? haystack.contains(needle) : haystack == needle
+                if matches { return type }
+            }
+        }
+        return nil
+    }
 }
 

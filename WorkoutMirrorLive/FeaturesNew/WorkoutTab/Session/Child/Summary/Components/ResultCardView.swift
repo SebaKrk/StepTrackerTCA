@@ -110,11 +110,7 @@ struct ResultCardView: View {
 
     private var emptyActionButton: some View {
         CardActionButton(title: emptyActionTitle) {
-            if isConfirmationOnly {
-                send(.doneTapped)
-            } else {
-                send(.startEditingTapped)
-            }
+            send(.startEditingTapped)
         }
     }
 
@@ -165,8 +161,18 @@ struct ResultCardView: View {
         case let .custom(text):
             ScoreLine(kind: scoreKind, variant: .filled(value: text, detail: nil, isPR: false))
 
-        case .completed, .timeCap, .forReps:
-            // EMOM/Tabata: the ✓ pill in the header is the whole story.
+        case let .forReps(reps):
+            ScoreLine(
+                kind: String(localized: "Wynik · Tabata"),
+                variant: .filled(
+                    value: String(localized: "\(reps) reps"),
+                    detail: String(localized: "łącznie"),
+                    isPR: false
+                )
+            )
+
+        case .completed, .timeCap:
+            // EMOM: the ✓ pill in the header is the whole story.
             EmptyView()
         }
     }
@@ -255,11 +261,18 @@ struct ResultCardView: View {
         return String(localized: "Plan: \(plannedReps)")
     }
 
+    /// Format + timing chip. Tabata surfaces its round count instead of a cap.
     private var capText: String? {
-        guard let capMinutes = store.capMinutes else { return nil }
-        return store.wodType == .amrap
-            ? String(localized: "AMRAP \(capMinutes) min")
-            : String(localized: "\(capMinutes) min cap")
+        switch store.wodType {
+        case .tabata:
+            return store.rounds.map { String(localized: "Tabata · \($0) rund") } ?? "Tabata"
+        case .amrap:
+            return store.capMinutes.map { String(localized: "AMRAP \($0) min") }
+        case .emom:
+            return store.capMinutes.map { String(localized: "EMOM \($0) min") }
+        case .forTime, .strength, .olympicWeightlifting:
+            return store.capMinutes.map { String(localized: "\($0) min cap") }
+        }
     }
 
     /// Status per the entry matrix: For Time + cap → always-visible segment;
@@ -280,10 +293,6 @@ struct ResultCardView: View {
 
     private var isStrength: Bool {
         store.wodType == .strength || store.wodType == .olympicWeightlifting
-    }
-
-    private var isConfirmationOnly: Bool {
-        store.wodType == .emom || store.wodType == .tabata
     }
 
     private var scoreKind: String {
@@ -312,7 +321,6 @@ struct ResultCardView: View {
     private var emptyActionTitle: String {
         switch store.wodType {
         case .strength, .olympicWeightlifting: String(localized: "Wpisz serie")
-        case .emom, .tabata: String(localized: "Gotowe")
         default: String(localized: "Wpisz wyniki")
         }
     }
