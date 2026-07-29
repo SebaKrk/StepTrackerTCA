@@ -17,8 +17,9 @@ extension LiveClassFeature {
         /// Czy klasa jest aktywna (advertising w sieci lokalnej, kafelki widoczne).
         var isLive: Bool = false
 
-        /// End-confirmed until results present — stops the view dropping to the idle
-        /// "Start Class" screen (which flashes) during the BLE recap grace + teardown.
+        /// True from End-confirmed until the feature is dismissed — keeps the spinner
+        /// behind the results cover so the view never drops to the idle "Start Class"
+        /// screen (which otherwise flashes) during finalize + results present.
         var isFinalizing: Bool = false
 
         /// Lista podłączonych athletów. Klucz = `deviceID` (per-install UUID peer'a).
