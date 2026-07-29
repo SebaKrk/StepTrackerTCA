@@ -1301,6 +1301,6 @@
     - added a dedicated finalizing state so the view shows a "Kończenie zajęć…" spinner during finalization instead of dropping to idle; cleared once the results cover is presented
     - visual-only: results, recap and analytics were always computed correctly
 
-    A: `isFinalizing` flag on `LiveClassFeature.State` — set on End-confirmed (alongside `isLive=false`), cleared in `.resultsReady`; `LiveClassView` gains an `else if isFinalizing { finalizingView }` branch (ProgressView + localized label)
+    A: `isFinalizing` flag on `LiveClassFeature.State` — set on End-confirmed (alongside `isLive=false`), stays true BEHIND the results cover (clearing it in `.resultsReady` flashed the idle screen during the cover's present animation) and is torn down with the feature on `.classEnded`; `LiveClassView` gains an `else if isFinalizing { finalizingView }` branch (ProgressView + localized label)
 
     Noticed (separate follow-up): the end handler uses a raw `Date()` instead of `@Dependency(\.date.now)` — controlled-deps hygiene, not addressed here
