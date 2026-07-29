@@ -132,6 +132,7 @@ struct LiveClassFeature {
                 let classLongitude = state.longitude
 
                 state.isLive = false
+                state.isFinalizing = true
                 state.athletes.removeAll()
                 state.sessionToken = nil
                 state.activeSessionId = nil
@@ -224,6 +225,7 @@ struct LiveClassFeature {
                 )
 
             case let .resultsReady(rows):
+                state.isFinalizing = false
                 state.results = ClassResultsFeature.State(className: state.className, rows: rows)
                 return .none
 

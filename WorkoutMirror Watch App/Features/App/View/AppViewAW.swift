@@ -27,6 +27,7 @@ struct AppViewAW: View {
         ZStack {
             Color.black.ignoresSafeArea()
             waitingView
+            versionLabel
         }
         .fullScreenCover(
             item: $store.scope(state: \.hrMirror, action: \.hrMirror)
@@ -60,6 +61,20 @@ struct AppViewAW: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
+    }
+
+    private var versionLabel: some View {
+        Text(versionText)
+            .font(.system(size: 9))
+            .foregroundStyle(.tertiary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+    }
+
+    private var versionText: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? "?"
+        return "v\(version) (\(build))"
     }
 }
 
