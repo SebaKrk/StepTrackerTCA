@@ -2040,6 +2040,9 @@
     "Email" : {
 
     },
+    "EMOM %lld min" : {
+
+    },
     "Enable heart rate broadcasting" : {
       "localizations" : {
         "pl" : {
@@ -2704,6 +2707,9 @@
           }
         }
       }
+    },
+    "łącznie" : {
+
     },
     "Laps" : {
 
@@ -3403,6 +3409,9 @@
         }
       }
     },
+    "okr." : {
+
+    },
     "Open" : {
       "localizations" : {
         "pl" : {
@@ -3944,6 +3953,9 @@
           }
         }
       }
+    },
+    "rund" : {
+
     },
     "Rundy" : {
       "localizations" : {
@@ -4512,6 +4524,9 @@
       }
     },
     "Surname" : {
+
+    },
+    "Tabata · %lld rund" : {
 
     },
     "Take Photo" : {
@@ -5393,6 +5408,9 @@
         }
       }
     },
+    "Wpisz łączną liczbę powtórzeń / kalorii" : {
+
+    },
     "Wpisz serie" : {
 
     },
@@ -5429,6 +5447,9 @@
 
     },
     "Wynik · For Time" : {
+
+    },
+    "Wynik · Tabata" : {
 
     },
     "Wynik · Time cap" : {

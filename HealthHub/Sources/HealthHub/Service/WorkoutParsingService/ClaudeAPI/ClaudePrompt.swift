@@ -23,17 +23,22 @@ public enum ClaudePrompt {
 
     Workout type classification (ALWAYS classify, never omit):
     - Analyze the ENTIRE workout to determine dominant training character.
-    - Pick exactly ONE value from: "running" | "walking" | "cycling" | "swimming" | "crossTraining" | "boxing" | "strengthTraining"
+    - Pick exactly ONE value from: "running" | "walking" | "cycling" | "swimming" | "crossTraining" | "functional" | "endurance" | "boxing" | "strengthTraining"
     - Decision rules:
       * "strengthTraining" — barbell/dumbbell focus, powerlifting (squat, deadlift, bench, OHP), no conditioning element
-      * "crossTraining" — mixed modalities, WODs, AMRAP/EMOM/ForTime, gymnastics + cardio + weights combinations (DEFAULT for CrossFit/functional workouts)
+      * "crossTraining" — mixed modalities, WODs, AMRAP/EMOM/ForTime/Tabata, gymnastics + cardio + weights combinations (DEFAULT for CrossFit workouts)
+      * "functional" — functional-fitness race/format: Hyrox, stations of functional movements chained with running/rowing (sled push/pull, wall balls, farmers carry, burpee broad jumps, ski erg)
+      * "endurance" — endurance-focused conditioning: long or interval work built to sustain effort (long intervals, tempo pieces, EMOM/Tabata whose intent is aerobic capacity rather than a mixed WOD)
       * "boxing" — boxing-specific (bag work, sparring, rope, shadow boxing dominates)
-      * "running" / "cycling" / "swimming" / "walking" — single-modality cardio session
+      * "running" / "cycling" / "swimming" / "walking" — single-modality steady cardio session
     - If uncertain or mixed: ALWAYS return "crossTraining". NEVER omit this field.
     - Examples:
       * "5x5 Back Squat, 3x8 Bench Press" → "strengthTraining"
       * "WOD: 21-15-9 Thrusters + Pull-ups" → "crossTraining"
       * "Snatch 5x3, then AMRAP 15: 10 burpees, 10 box jumps" → "crossTraining" (mixed)
+      * "Hyrox: 8×(1km run + functional station)" → "functional"
+      * "Sled push, wall balls, farmers carry, 1km row between stations" → "functional"
+      * "4×4 min hard / 3 min easy row" → "endurance"
       * "10x3 min rounds boxing + 3 min rest" → "boxing"
       * "5km run, easy pace" → "running"
 
@@ -60,6 +65,9 @@ public enum ClaudePrompt {
     - Field "type": Specifies workout format ONLY
       * Use: "amrap", "forTime", "emom", "strength", "conditioning"
     - DO NOT put workout format in "name" field - it belongs in "type"
+    - Field "rounds": carries the format keyword AND, for round-based formats, the count.
+      * AMRAP → "AMRAP"; EMOM → "EMOM"; For Time → "For time" (or "5 rounds for time")
+      * Tabata → "Tabata N" where N is the number of rounds (e.g. "Tabata 8"); it is 20s work / 10s rest, so also set timeCapMinutes = rounds × 0.5 (8 → 4)
     - For CONDITIONING sections: name describes WOD slot ("WOD 1", "WOD 2", "Conditioning")
     - For STRENGTH sections: name reflects training FOCUS based on all exercises in the section:
       * Powerlifting (squat, deadlift, bench press, shoulder press) → "Strength"
@@ -70,6 +78,7 @@ public enum ClaudePrompt {
     - Examples:
       * OCR: "WOD: For time, TC: 18 min" → name: "WOD 1", type: "conditioning", rounds: "For time"
       * OCR: "AMRAP 10'" → name: "WOD 1", type: "conditioning", rounds: "AMRAP", timeCapMinutes: 10
+      * OCR: "Tabata 8 rounds 20s/10s: Air Squats, Push-ups" → name: "WOD 1", type: "conditioning", rounds: "Tabata 8", timeCapMinutes: 4
       * OCR: "Back squat 5-5-5-5-5" → name: "Strength", type: "strength"
       * OCR: "Snatch 4x5" → name: "Weightlifting", type: "strength"
       * OCR: "Clean & Jerk 5x3" → name: "Weightlifting", type: "strength"
@@ -188,7 +197,7 @@ public enum ClaudePrompt {
     {
       "name": "string (workout name)",
       "date": "string (yyyy-MM-dd format)",
-      "workoutType": "running|walking|cycling|swimming|crossTraining|boxing|strengthTraining (REQUIRED, default: crossTraining if uncertain)",
+      "workoutType": "running|walking|cycling|swimming|crossTraining|functional|endurance|boxing|strengthTraining (REQUIRED, default: crossTraining if uncertain)",
       "totalEstimatedMinutes": number,
       "sections": [
         {

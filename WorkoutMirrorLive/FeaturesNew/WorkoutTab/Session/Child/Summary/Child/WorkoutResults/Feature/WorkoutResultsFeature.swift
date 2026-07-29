@@ -54,6 +54,7 @@ extension WorkoutResultsFeature.State {
         existingResults: [WorkoutSessionResult]? = nil
     ) -> Self {
         let workouts = trainingSession.workouts
+        let wasScored = existingResults != nil
         let results = existingResults ?? freshResults(from: workouts)
         var state = Self()
         state.cards = IdentifiedArrayOf(
@@ -63,7 +64,9 @@ extension WorkoutResultsFeature.State {
                     wodIndex: index,
                     result: result,
                     wodType: workout?.type,
-                    capMinutes: workout?.timeCap
+                    capMinutes: workout?.timeCap,
+                    rounds: workout?.rounds,
+                    wasScored: wasScored
                 )
             }
         )
@@ -75,7 +78,7 @@ extension WorkoutResultsFeature.State {
         var state = Self()
         state.cards = IdentifiedArrayOf(
             uniqueElements: results.enumerated().map { index, result in
-                WODScoringFeature.State(wodIndex: index, result: result, isReadOnly: true)
+                WODScoringFeature.State(wodIndex: index, result: result, isReadOnly: true, wasScored: true)
             }
         )
         return state
@@ -88,21 +91,22 @@ extension WorkoutResultsFeature.State {
         }
         return workouts.map { workout -> WorkoutSessionResult in
             let exercises = workout.exercises.map { exercise in
-                // For Strength/Olympic WODs → use AI-provided structured plannedSets,
-                // fallback to rounds-based default sets if AI didn't deliver them.
+                // Strength → structured plannedSets (reps×weight). Everything else
+                // (For Time / AMRAP / EMOM / Tabata) → one value field per exercise.
                 let sets: [SetEntry]? = {
-                    guard isStrength(workout.type) else { return nil }
-
-                    if let planned = exercise.plannedSets, !planned.isEmpty {
-                        return planned.map {
-                            SetEntry(reps: $0.reps, weight: $0.suggestedWeight)
+                    if isStrength(workout.type) {
+                        if let planned = exercise.plannedSets, !planned.isEmpty {
+                            return planned.map {
+                                SetEntry(reps: $0.reps, weight: $0.suggestedWeight)
+                            }
                         }
+                        guard let rounds = workout.rounds else { return nil }
+                        let reps: Int
+                        if case let .reps(r) = exercise.target { reps = r } else { reps = 0 }
+                        return (0..<rounds).map { _ in SetEntry(reps: reps) }
                     }
 
-                    guard let rounds = workout.rounds else { return nil }
-                    let reps: Int
-                    if case let .reps(r) = exercise.target { reps = r } else { reps = 0 }
-                    return (0..<rounds).map { _ in SetEntry(reps: reps) }
+                    return nil
                 }()
 
                 let weight = exercise.weight.flatMap { config in
@@ -117,7 +121,9 @@ extension WorkoutResultsFeature.State {
                     plannedReps: exercise.target?.compactString,
                     plannedWeight: weight,
                     actualWeight: sets == nil ? weight : nil,
-                    actualReps: sets == nil ? exercise.target?.compactString : nil,
+                    // Tabata's total-reps field starts empty (the plan holds an
+                    // interval, not a rep total); other single-field types prefill.
+                    actualReps: (sets == nil && workout.type != .tabata) ? exercise.target?.compactString : nil,
                     sets: sets
                 )
             }

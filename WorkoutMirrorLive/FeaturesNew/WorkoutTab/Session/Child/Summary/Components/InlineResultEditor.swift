@@ -28,6 +28,7 @@ struct InlineResultEditor: View {
         VStack(alignment: .leading, spacing: 12) {
             scoreEntry
             capHint
+            totalRepsHint
             exerciseFields
             doneButton
         }
@@ -60,6 +61,21 @@ struct InlineResultEditor: View {
             } else {
                 simpleExerciseRow(index: index, exercise: exercise)
             }
+        }
+    }
+
+    // Tabata fields aren't prefilled (the plan holds an interval, not a total) —
+    // tell the user to enter the reps/cal they actually completed across all rounds.
+    @ViewBuilder
+    private var totalRepsHint: some View {
+        if store.wodType == .tabata {
+            scoreEntryLabel(String(localized: "Wpisz łączną liczbę powtórzeń / kalorii"))
+        }
+    }
+
+    private var doneButton: some View {
+        CardActionButton(title: String(localized: "Gotowe")) {
+            send(.doneTapped)
         }
     }
 
@@ -132,12 +148,6 @@ struct InlineResultEditor: View {
         .buttonStyle(.plain)
     }
 
-    private var doneButton: some View {
-        CardActionButton(title: String(localized: "Gotowe")) {
-            send(.doneTapped)
-        }
-    }
-
     private func setBasedExercise(index: Int, exercise: ExerciseLogInput, sets: [SetEntry]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             exerciseName(exercise)
@@ -159,23 +169,114 @@ struct InlineResultEditor: View {
                 planLabel(exercise)
             }
             Spacer(minLength: 8)
-            repsField(index: index, exercise: exercise)
-            weightField(index: index, exercise: exercise)
+            actualValueField(index: index, exercise: exercise)
+            // Reserve the weight lane only when some exercise in this WOD loads a
+            // bar — a weightless WOD (EMOM/Tabata) right-aligns its values instead
+            // of leaving a blank kg gap on the right.
+            if sectionTakesWeight {
+                weightColumn(index: index, exercise: exercise)
+            }
         }
     }
 
-    private func repsField(index: Int, exercise: ExerciseLogInput) -> some View {
-        numericField(
-            placeholder: String(localized: "Powt."),
-            text: exercise.actualReps ?? ""
-        ) { send(.updateExerciseReps(exerciseIndex: index, text: $0)) }
+    /// Any exercise in this card loads a bar — decides whether the whole section
+    /// reserves the weight lane (so reps stay aligned across mixed rows).
+    private var sectionTakesWeight: Bool {
+        store.result.exercises.contains { takesWeight($0) }
+    }
+
+    /// Within a weighted section, bodyweight rows show a blank slot instead of
+    /// collapsing it, so the reps field lines up under the weighted rows'.
+    @ViewBuilder
+    private func weightColumn(index: Int, exercise: ExerciseLogInput) -> some View {
+        if takesWeight(exercise) {
+            weightField(index: index, exercise: exercise)
+        } else {
+            Color.clear.frame(width: valueColumnWidth, height: 0)
+        }
+    }
+
+    /// Bodyweight moves (pull-ups, burpees…) get no weight field — only lifts
+    /// that load a bar. Falls back to the plan's weight when the type is unknown.
+    private func takesWeight(_ exercise: ExerciseLogInput) -> Bool {
+        exercise.exerciseType?.requiresWeight ?? (exercise.plannedWeight != nil)
+    }
+
+    /// Clean numeric input + the target's unit as a trailing label (cal / m / s;
+    /// reps show no unit). Storage keeps the `compactString` format so history and
+    /// analytics stay unaffected.
+    private func actualValueField(index: Int, exercise: ExerciseLogInput) -> some View {
+        fieldWithUnit(
+            unit: unitLabel(for: exercise.target),
+            text: numericPart(of: exercise.actualReps)
+        ) { typed in
+            send(.updateExerciseReps(
+                exerciseIndex: index,
+                text: recompose(typed, target: exercise.target)
+            ))
+        }
     }
 
     private func weightField(index: Int, exercise: ExerciseLogInput) -> some View {
-        numericField(
-            placeholder: "kg",
+        fieldWithUnit(
+            unit: "kg",
             text: exercise.actualWeight.map { formatWeight($0) } ?? ""
         ) { send(.updateExerciseWeight(exerciseIndex: index, text: $0)) }
+    }
+
+    /// Numeric input with the unit as a trailing label (10 · reps, 20 · cal,
+    /// 30 · kg) — the value stays a clean editable number.
+    private func fieldWithUnit(
+        unit: String?,
+        text: String,
+        onChange: @escaping (String) -> Void
+    ) -> some View {
+        HStack(spacing: 4) {
+            numericField(placeholder: "0", text: text, onChange: onChange)
+            Text(unit ?? "")
+                .font(.system(size: 12))
+                .foregroundStyle(theme.inkTertiary)
+                .frame(width: unitColumnWidth, alignment: .leading)
+        }
+    }
+
+    /// Fixed numeric field (58) + gap (4) + unit label — reps/kg/cal columns
+    /// share one width so every value field lines up in the same vertical lane.
+    private var unitColumnWidth: CGFloat { 32 }
+    private var valueColumnWidth: CGFloat { 58 + 4 + unitColumnWidth }
+
+    /// Human unit shown beside the value: reps → "reps" (mirrors "cal"),
+    /// cardio by target. `nil` only when there is no meaningful unit.
+    private func unitLabel(for target: ExerciseTarget?) -> String? {
+        switch target {
+        case .reps, .none: String(localized: "reps")
+        case .calories: "cal"
+        case .meters: "m"
+        case .seconds: "s"
+        case .minutes: "min"
+        case .rounds: String(localized: "rund")
+        case .laps: String(localized: "okr.")
+        }
+    }
+
+    /// Leading numeric part of the stored value ("20 cal" → "20", "10x" → "10").
+    private func numericPart(of actualReps: String?) -> String {
+        guard let actualReps else { return "" }
+        return String(actualReps.prefix { $0.isNumber || $0 == "-" || $0 == "." })
+    }
+
+    /// Re-attach the target's storage suffix so the persisted string keeps the
+    /// `ExerciseTarget.compactString` format ("8" + calories → "8 cal").
+    private func recompose(_ value: String, target: ExerciseTarget?) -> String {
+        guard !value.isEmpty else { return "" }
+        switch target {
+        case .calories: return "\(value) cal"
+        case .meters: return "\(value)m"
+        case .seconds: return "\(value)s"
+        case .minutes: return "\(value) min"
+        case .reps: return "\(value)x"
+        case .rounds, .laps, .none: return value
+        }
     }
 
     private func exerciseName(_ exercise: ExerciseLogInput) -> some View {
