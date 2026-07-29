@@ -1294,3 +1294,13 @@
     - benign TCA warning: a TextField binding fires `updateExerciseReps` as the Summary cover dismisses (action reaches the `ifLet` after destination is nil) — no data loss
     - presentation hygiene from field logs: two full-screen covers swapped in one transaction in `PlansFeature` ("not in window hierarchy"), an empty `ToolbarItem`, `preferredColorScheme` mounted mid-cover
     - delete the now-orphaned `SetInput*` files; review new Polish localization keys (reps / rund / okr. / Endurance)
+
+### IPAD-00097 GymRoom end-flow — finalizing state removes "Start Class" flash
+    - branch: `dev/IPAD-00097/IPAD-00097`
+    - ending a class flips `isLive=false` synchronously, but the results cover only presents after the async finalize chain (buffer flush, endSession, recap send, 1 s BLE grace, stopAdvertising) — for ≥1 s the view fell back to the idle "Start Class" screen, flashing between the class and the summary
+    - added a dedicated finalizing state so the view shows a "Kończenie zajęć…" spinner during finalization instead of dropping to idle; cleared once the results cover is presented
+    - visual-only: results, recap and analytics were always computed correctly
+
+    A: `isFinalizing` flag on `LiveClassFeature.State` — set on End-confirmed (alongside `isLive=false`), cleared in `.resultsReady`; `LiveClassView` gains an `else if isFinalizing { finalizingView }` branch (ProgressView + localized label)
+
+    Noticed (separate follow-up): the end handler uses a raw `Date()` instead of `@Dependency(\.date.now)` — controlled-deps hygiene, not addressed here
