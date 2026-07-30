@@ -46,7 +46,7 @@ public extension WorkoutSessionResult {
         case .forTime, .timeCap: return .forTime
         case .amrap:             return .amrap
         case .forLoad:           return .strength
-        case .forReps:           return .forTime
+        case .forReps:           return .tabata
         case .completed, .custom: return .forTime
         }
     }

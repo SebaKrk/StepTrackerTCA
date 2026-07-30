@@ -20,6 +20,8 @@ struct LiveClassView: View {
             background
             if store.isLive {
                 liveView
+            } else if store.isFinalizing {
+                finalizingView
             } else {
                 idleView
             }
@@ -54,6 +56,16 @@ struct LiveClassView: View {
     
     private var idleView: some View {
         startButton
+    }
+
+    private var finalizingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .tint(.white)
+            Text(String(localized: "Kończenie zajęć…"))
+                .font(.headline)
+                .foregroundStyle(.secondary)
+        }
     }
     
     private var liveView: some View {

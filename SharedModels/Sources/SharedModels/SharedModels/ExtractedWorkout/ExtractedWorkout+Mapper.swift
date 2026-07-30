@@ -71,16 +71,15 @@ extension WorkoutSection {
         let exerciseSessions = exercises?
             .map { $0.toExerciseSession() } ?? []
 
-        // Determine workout type from section
+        // Determine workout type from the section's format hint (`rounds`),
+        // resolved through `ExerciseWorkoutType.aliases` so every format —
+        // AMRAP, EMOM, Tabata, … — is recognised from one source of truth.
         let workoutType: ExerciseWorkoutType
-        if let roundsString = rounds?.uppercased() {
-            if roundsString.contains("AMRAP") {
-                workoutType = .amrap
-            } else if roundsString.contains("EMOM") {
-                workoutType = .emom
-            } else {
-                workoutType = .forTime
-            }
+        if let roundsString = rounds, let matched = ExerciseWorkoutType.matching(roundsString) {
+            workoutType = matched
+        } else if rounds != nil {
+            // A round hint with no known format keyword ("8 rounds", "5") = For Time.
+            workoutType = .forTime
         } else if type == .strength {
             // Differentiate based on first exercise category
             let firstCategory = exerciseSessions.first?.type.category
@@ -89,18 +88,26 @@ extension WorkoutSection {
             workoutType = .amrap
         }
 
-        // Parse rounds (e.g. "5" → 5, "AMRAP" → nil)
+        // Round count only makes sense for round-based formats; for AMRAP/EMOM the
+        // trailing number is the time cap (already in `timeCapMinutes`), not rounds.
+        // Rep schemes like "21-15-9" are not a round count, so skip dashed strings.
         let roundsInt: Int?
-        if let roundsString = rounds, let int = Int(roundsString) {
-            roundsInt = int
-        } else {
+        switch workoutType {
+        case .forTime, .tabata:
+            roundsInt = rounds.flatMap { $0.contains("-") ? nil : $0.firstInteger }
+        case .amrap, .emom, .strength, .olympicWeightlifting:
             roundsInt = nil
         }
+
+        // Timer-required formats (AMRAP/EMOM/Tabata) fall back to the type's
+        // default cap when the plan didn't state one; For Time stays uncapped.
+        let cap = timeCapMinutes
+            ?? (workoutType.isTimerRequired ? workoutType.defaultTimeCapMinutes : nil)
 
         return WorkoutSessionNew(
             name: name ?? type.rawValue.capitalized,
             type: workoutType,
-            timeCap: timeCapMinutes,
+            timeCap: cap,
             rounds: roundsInt,
             exercises: exerciseSessions
         )
@@ -208,6 +215,14 @@ extension ExerciseType {
 // MARK: - Weight Parsing
 
 extension String {
+
+    /// First integer embedded in the string ("8 rounds" → 8, "Tabata 8" → 8,
+    /// "AMRAP" → nil). Robust to descriptive text around the number.
+    fileprivate var firstInteger: Int? {
+        components(separatedBy: CharacterSet.decimalDigits.inverted)
+            .compactMap(Int.init)
+            .first
+    }
 
     /// Parses weight scaling options like "24/16" or "24/16, 28/20" to WeightConfiguration.
     fileprivate func parseWeight() -> WeightConfiguration? {

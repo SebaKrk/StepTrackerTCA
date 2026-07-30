@@ -36,8 +36,8 @@ struct ActivityPlanScoreFeature {
         /// edit sheet with current values.
         var exerciseLogs: [ExerciseLog] = []
 
-        /// Per-set edit sheet — presented when user taps "Edytuj" on a WOD card.
-        @Presents var setInput: SetInputFeature.State?
+        /// Read-only result cards (shared WorkoutResultsFeature — same cards as Summary).
+        var resultCards: WorkoutResultsFeature.State = .init()
     }
 
     // MARK: - Action
@@ -64,8 +64,8 @@ struct ActivityPlanScoreFeature {
         /// fill-in flow (the parent owns the manual-entry navigation).
         case fillResultsTapped
 
-        /// Presentation action for the per-set edit sheet.
-        case setInput(PresentationAction<SetInputFeature.Action>)
+        /// Forwarded actions of the read-only result cards.
+        case resultCards(WorkoutResultsFeature.Action)
 
         /// Actions the parent (`ActivityDetailsFeature`) observes.
         case delegate(Delegate)
@@ -81,6 +81,9 @@ struct ActivityPlanScoreFeature {
     // MARK: - Reducer
 
     var body: some Reducer<State, Action> {
+        Scope(state: \.resultCards, action: \.resultCards) {
+            WorkoutResultsFeature()
+        }
         Reduce { state, action in
             switch action {
 
@@ -98,6 +101,7 @@ struct ActivityPlanScoreFeature {
 
             case let .scoreFetched(score):
                 state.loadState = score.map { .loaded($0) } ?? .notFound
+                state.resultCards = score.map { .readOnly(results: $0.results) } ?? .init()
                 guard let score else { return .none }
                 return .run { [exerciseLogClient] send in
                     do {
@@ -122,150 +126,14 @@ struct ActivityPlanScoreFeature {
             case .delegate:
                 return .none
 
-            case let .editTapped(wodIndex):
-                guard case let .loaded(score) = state.loadState,
-                      score.results.indices.contains(wodIndex) else { return .none }
-                let result = score.results[wodIndex]
-                // Filter by strict UUID match; fall back to wodName for legacy logs only.
-                let logsForWod = state.exerciseLogs.filter { log in
-                    if let resultId = log.workoutSessionResultId {
-                        return resultId == result.id
-                    }
-                    return log.wodName == result.name
-                }
-                let inputs = logsForWod.map { ExerciseLogInput(from: $0) }
-                state.setInput = SetInputFeature.State(
-                    wodName: result.name,
-                    scoreText: result.scoreResult.displayString,
-                    scorePlaceholder: "",
-                    exercises: inputs,
-                    wodType: Self.wodType(from: result.scoreResult),
-                    wodIndex: wodIndex
-                )
-                return .none
+            case .editTapped:
+                // Per-WOD sheets are gone — editing goes through the Summary
+                // manual-entry flow, same as the fill-in path.
+                return .send(.delegate(.fillResultsTapped))
 
-            case .setInput(.dismiss):
-                // Write back only if user confirmed (tapped Add, not Cancel).
-                guard let setInput = state.setInput, setInput.confirmed,
-                      case let .loaded(score) = state.loadState,
-                      score.results.indices.contains(setInput.wodIndex) else {
-                    return .none
-                }
-
-                // 1. Update ExerciseLogs (per-exercise actuals).
-                let merged = mergeUpdatedInputs(setInput.exercises, into: state.exerciseLogs)
-                state.exerciseLogs = merged
-                let editable = merged.filter { $0.isEditable(now: now) }
-
-                // 2. Update WorkoutPlanScore (WOD-level score, e.g. "16:00").
-                var updatedScore = score
-                updatedScore.results[setInput.wodIndex].scoreResult = Self.parseScore(
-                    text: setInput.scoreText,
-                    wodType: setInput.wodType,
-                    exercises: setInput.exercises
-                )
-                state.loadState = .loaded(updatedScore)
-
-                return .run { [exerciseLogClient, client] _ in
-                    if !editable.isEmpty {
-                        do {
-                            try await exerciseLogClient.save(editable)
-                        } catch {
-                            reportIssue(error)
-                        }
-                    }
-                    do {
-                        try await client.save(updatedScore)
-                    } catch {
-                        reportIssue(error)
-                    }
-                }
-
-            case .setInput:
+            case .resultCards:
                 return .none
             }
-        }
-        .ifLet(\.$setInput, action: \.setInput) {
-            SetInputFeature()
-        }
-    }
-
-    // MARK: - Helpers
-
-    /// Replaces matching ExerciseLogs by id with values from updated inputs.
-    /// Mutates user-editable fields (`actualWeight`, `actualReps`, `scaling`, `isPR`,
-    /// `note`, `sets`) — HR/timestamps/derived fields stay intact.
-    ///
-    /// For per-set strength workouts the legacy single-value mirrors
-    /// (`actualWeight` / `actualReps`) are **always** recomputed from the current
-    /// `sets`. Falling back to the input's prefilled `actualWeight` would leak
-    /// stale values from the first save — the SetInputView only mutates `sets[i]`,
-    /// so the input still carries the old prefill.
-    private func mergeUpdatedInputs(_ inputs: [ExerciseLogInput], into logs: [ExerciseLog]) -> [ExerciseLog] {
-        let inputById = Dictionary(uniqueKeysWithValues: inputs.map { ($0.id, $0) })
-        return logs.map { log in
-            guard let input = inputById[log.id] else { return log }
-            var copy = log
-            if let sets = input.sets, !sets.isEmpty {
-                copy.sets = sets
-                copy.actualWeight = sets.compactMap(\.weight).max()
-                copy.actualReps = sets.map { "\($0.reps)" }.joined(separator: "-")
-            } else {
-                copy.sets = input.sets
-                copy.actualWeight = input.actualWeight
-                copy.actualReps = input.actualReps
-            }
-            copy.scaling = input.scaling
-            copy.isPR = input.isPR
-            copy.note = input.note.isEmpty ? nil : input.note
-            return copy
-        }
-    }
-
-    /// Approximates the WOD type from the saved `WodScoreResult` for the edit sheet.
-    /// Used when we don't have access to the original `TrainingSession` (post-workout edit).
-    private static func wodType(from score: WodScoreResult) -> ExerciseWorkoutType {
-        switch score {
-        case .forTime, .timeCap: return .forTime
-        case .amrap:             return .amrap
-        case .forLoad:           return .strength
-        case .forReps:           return .forTime
-        case .completed, .custom: return .forTime
-        }
-    }
-
-    /// Parses user-entered text into a typed `WodScoreResult` based on the WOD type.
-    /// Mirrors `SummaryFeature.parseScore` — kept in sync to ensure identical semantics.
-    private static func parseScore(
-        text: String,
-        wodType: ExerciseWorkoutType,
-        exercises: [ExerciseLogInput]
-    ) -> WodScoreResult {
-        switch wodType {
-        case .strength, .olympicWeightlifting:
-            let setWeights = exercises.flatMap { $0.sets ?? [] }.compactMap(\.weight)
-            let singleWeights = exercises.compactMap(\.actualWeight)
-            let maxWeight = (setWeights + singleWeights).max() ?? 0
-            return .forLoad(weight: maxWeight)
-
-        case .amrap:
-            let parts = text.split(separator: "+").map { $0.trimmingCharacters(in: .whitespaces) }
-            if let rounds = parts.first.flatMap({ Int($0) }) {
-                let extraReps = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
-                return .amrap(rounds: rounds, extraReps: extraReps)
-            }
-            return text.isEmpty ? .completed : .custom(text)
-
-        case .forTime:
-            let parts = text.split(separator: ":").map { $0.trimmingCharacters(in: .whitespaces) }
-            if let minutes = parts.first.flatMap({ Int($0) }) {
-                let seconds = parts.count > 1 ? Int(parts[1]) ?? 0 : 0
-                return .forTime(time: TimeInterval(minutes * 60 + seconds))
-            }
-            return text.isEmpty ? .completed : .custom(text)
-
-        case .emom, .tabata:
-            return .completed
         }
     }
 

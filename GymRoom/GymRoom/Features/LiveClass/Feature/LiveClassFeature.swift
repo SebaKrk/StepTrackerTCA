@@ -132,6 +132,7 @@ struct LiveClassFeature {
                 let classLongitude = state.longitude
 
                 state.isLive = false
+                state.isFinalizing = true
                 state.athletes.removeAll()
                 state.sessionToken = nil
                 state.activeSessionId = nil
@@ -224,6 +225,10 @@ struct LiveClassFeature {
                 )
 
             case let .resultsReady(rows):
+                // Keep `isFinalizing` true so the spinner stays BEHIND the results
+                // cover — clearing it here would reveal the idle "Start Class" screen
+                // during the cover's present animation. The whole feature is torn down
+                // on `.classEnded` (parent sets `liveClass = nil`), so no reset needed.
                 state.results = ClassResultsFeature.State(className: state.className, rows: rows)
                 return .none
 

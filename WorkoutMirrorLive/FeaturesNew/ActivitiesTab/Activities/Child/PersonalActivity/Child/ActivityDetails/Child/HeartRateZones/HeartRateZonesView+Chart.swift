@@ -42,78 +42,17 @@ extension HeartRateZonesView {
             .foregroundColor(.secondary)
     }
 
-    // MARK: - Chart
+    // MARK: - Chart (rendering delegated to the shared HRMinuteRangeChart)
 
+    /// Rendering moved verbatim to `HRMinuteRangeChart` (UI/HeartRate) so the
+    /// Summary screen charts identically. This extension only maps store → values.
     private var hrRangeChart: some View {
-        Chart {
-            if let selectedMinute = store.selectedMinute,
-               let selectedRange = selectedRange(for: selectedMinute) {
-                ruleMark(at: selectedMinute, range: selectedRange)
-            }
-            ForEach(store.hrMinuteRanges) { range in
-                BarMark(
-                    x: .value("Minute", range.minute, unit: .minute),
-                    yStart: .value("HR min", range.minHR),
-                    yEnd: .value("HR max", range.maxHR),
-                    width: .ratio(0.8)
-                )
-                .foregroundStyle(barGradient(for: range))
-                .opacity(isMinuteSelected(range: range) ? 1.0 : 0.5)
-                .cornerRadius(3)
-            }
-        }
-        .chartYScale(domain: .automatic(includesZero: false))
-        .chartXSelection(value: minuteSelectionBinding.animation(.easeInOut))
-        .chartXAxis {
-            AxisMarks(preset: .aligned, values: .automatic) { _ in
-                AxisValueLabel()
-            }
-        }
-        .frame(height: 180)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-    }
-
-    // MARK: - Selection (RuleMark + annotation)
-
-    /// Pionowa linia na wybranej minucie z popoverem BPM range. `overflowResolution(.fit(to: .chart))`
-    /// chroni przed wylotem annotation poza obszar wykresu (np. selection na ostatnich minutach).
-    @ChartContentBuilder
-    private func ruleMark(at minute: Date, range: HRMinuteRange) -> some ChartContent {
-        RuleMark(x: .value("Selected Minute", minute, unit: .minute))
-            .foregroundStyle(Color.secondary.opacity(0.3))
-            .offset(y: -30)
-            .annotation(
-                position: .bottomTrailing,
-                spacing: 4,
-                overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
-            ) {
-                hrAnnotation(range: range)
-            }
-    }
-
-    private func hrAnnotation(range: HRMinuteRange) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(range.minute, format: .dateTime.hour().minute())
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-            HStack(spacing: 4) {
-                Text("\(range.minHR)–\(range.maxHR)")
-                    .font(.subheadline.bold().monospacedDigit())
-                    .foregroundStyle(.primary)
-                Text("bpm")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(8)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(.regularMaterial)
+        HRMinuteRangeChart(
+            ranges: store.hrMinuteRanges,
+            userMaxHeartRate: Int(store.maxHeartRate),
+            selectedMinute: minuteSelectionBinding
         )
     }
-
-    // MARK: - Selection helpers
 
     /// Custom binding routujący scrub przez TCA action. Wzorem `athleteSelectionBinding` z GymRoom.
     private var minuteSelectionBinding: Binding<Date?> {
@@ -121,43 +60,6 @@ extension HeartRateZonesView {
             get: { store.selectedMinute },
             set: { send(.minuteSelected($0)) }
         )
-    }
-
-    /// `Date == Date` zawiedzie — Charts wysyła selectedDate z ms precision, range.minute = start
-    /// kalendarzowej minuty. Compare po `.minute` granularity.
-    private func isMinuteSelected(range: HRMinuteRange) -> Bool {
-        guard let selectedMinute = store.selectedMinute else { return true }
-        return Calendar.current.isDate(range.minute, equalTo: selectedMinute, toGranularity: .minute)
-    }
-
-    private func selectedRange(for selectedMinute: Date) -> HRMinuteRange? {
-        store.hrMinuteRanges.first {
-            Calendar.current.isDate($0.minute, equalTo: selectedMinute, toGranularity: .minute)
-        }
-    }
-
-    // MARK: - Gradient color per BPM range (wzorem GymRoom barGradient)
-
-    /// Vertical gradient od strefy `minHR` (dół) do strefy `maxHR` (góra). Apple Fitness-style
-    /// — bar ma "rainbow" effect odzwierciedlający range BPM tej minuty. Range 130-170 →
-    /// gradient od green (fatBurning) na dole do orange (threshold) na górze.
-    private func barGradient(for range: HRMinuteRange) -> LinearGradient {
-        let maxHR = Int(store.maxHeartRate)
-        return LinearGradient(
-            colors: [
-                zoneColor(for: range.minHR, maxHR: maxHR),
-                zoneColor(for: range.maxHR, maxHR: maxHR)
-            ],
-            startPoint: .bottom,
-            endPoint: .top
-        )
-    }
-
-    /// Maps a single BPM to its zone color. The shared classifier handles
-    /// supra-max (peakHR 198 vs maxHR 190 → Zone 5) and missing maxHR
-    /// (→ resting/gray), so the old manual clamp is gone.
-    private func zoneColor(for bpm: Int, maxHR: Int) -> Color {
-        HeartRateZone.zone(bpm: bpm, maxHR: maxHR).color
     }
 
     // MARK: - Localized strings

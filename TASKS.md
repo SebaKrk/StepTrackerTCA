@@ -1223,3 +1223,84 @@
     C: ConfigurationFeature — subscribe live, keep the one-shot check only as the initial value
     D: BluetoothFeature — react to the stream, drop the 3 s sleep poll on connect/disconnect
     E (deferred): device picker "detected" badge
+
+### IOS-00116 deleted
+
+### IOS-00117 Summary redesign — dark skin, inline results, portable feature (full rebuild)
+    - ground-up rebuild of the post-workout Summary screen 1:1 with the approved mockup (artifact ec9e4079); the earlier IOS-00116 attempt was abandoned after losing orientation in the code — this restart carries its lessons as inputs (dark skin is part of the spec, inline editing only, mm:ss picker, no @State, ForEach-identity observation trap)
+    - the mockup skin is part of the design, not just layout: tokens in `SummaryTheme` (near-black background, dark cards, mint accent); the whole-screen accent follows the dominant HR zone (mint fallback, never `.accentColor` — white in dark mode)
+    - the "Wyniki" section is a portable feature (`WorkoutResultsFeature`): embedded editable in Summary and read-only in Activity Details, so both render results from one source; result cards are feature views (`ResultCardView` bound to a per-WOD element store), reading fields via dynamic member so fine-grained observation fires on in-place mutations (a value-based card + whole-`store.state` read renders once then goes dead)
+    - results are entered fully inline (no sheets): card state machine (empty → editing → entered) with drafts living beside the typed result so switching completed/DNF never loses data; entry matrix per WOD type (For Time mm:ss picker capped by time cap, AMRAP/DNF rounds+reps tiles, Strength set table, EMOM/Tabata confirm-only); the typed `WodScoreResult` is built only on "Gotowe"
+    - the same result cards render on Activity Details themed native (matching the app's `styledGroupBox` cards) vs dark on Summary, resolved through a `SummaryPalette` environment value
+    - zero SQL change (`WodScoreResult` stays a Codable blob); DNF persists as `.amrap(rounds, extraReps)` = completed work, re-derived as time-cap by heuristic on read
+
+    A: Data — forward full `secondsByZone` + user max HR into `SummaryFeature`; reconstruct zones in manual entry from the persisted score, falling back to classifying the raw HR buffer
+    B: Skin — `SummaryTheme` tokens + `summaryCard()`; `SummaryPalette` theming (dark Summary / native Activity Details) via environment
+    C: Frame — HeroCard, MetricTile grid, shared HeartRateZonesSection (zones + minute chart, user-maxHR bar colors), reveal-on-scroll SaveWorkoutButton, Discard to top bar
+    D: Results feature — portable `WorkoutResultsFeature` + `WODScoringFeature` card state machine (drafts beside result; rules R-a soft cap hint / R-b status keeps drafts / R-c empty edit clears)
+    E: Results components — `ResultCardView` (feature view) + leaf components (ScoreLine, StatusControl, ResultCardHeader, DNFFields, SetTable, ExerciseList, NoteRow, TimePickerField, CardActionButton, InlineResultEditor)
+    F: Summary integration — wire `WorkoutResultsView`, delete the legacy results section and the in-Summary SetInput sheet
+    G: Activity Details — render plan results as read-only ResultCards (native skin), keep the "fill results" pending hint and the edit-window flow through Summary manual entry
+
+    Remaining follow-ups:
+    - fractional weight (e.g. 8.5) not enterable in the set table / exercise fields — the numeric binding reformats per keystroke; needs a draft string committed on end-edit
+    - EMOM/Tabata lose their ✓ when reopened from History (card init maps `.completed` → empty phase)
+    - native-skin leaf tail: a few `Color.white.opacity(...)` inner fills still assume a dark background — move to `theme.*`
+    - read-only For Time+cap in History shows "—" instead of the cap time (the `.readOnly` factory drops `capMinutes`)
+    - presentation hygiene from field logs: two full-screen covers swapped in one transaction in `PlansFeature` ("not in window hierarchy"), an empty `ToolbarItem`, `preferredColorScheme` mounted mid-cover
+    - delete the now-orphaned `SetInput*` files; review new Polish localization keys in the String Catalog
+
+### IOS-00118 Summary polish + plan-scan classification + Tabata per-round scoring
+    - builds on the IOS-00117 Summary rebuild; on-device testing (scanning a real 5-block plan: Strength / For Time+cap / AMRAP / EMOM / Tabata) surfaced UI refinements + two AI/mapping gaps
+    - the results section is a canonical TCA collection: each row is a feature view (`ResultCardView` / `InlineResultEditor` as `@ViewAction` bound to the per-WOD element store), reading fields via dynamic member — the earlier value-based card + `Handlers` closures + row-wrapper observation hack are gone (a whole-`store.state` read only observes identity, so in-place mutations never re-rendered)
+    - `.tabata` existed in the model + UI but was an orphan in the scan pipeline; classification now flows through `ExerciseWorkoutType.aliases` (one source of truth) so a new format never silently falls through to For Time again
+    - Tabata scoring = per-round reps (variable per round), headline = total; reuses the `sets` model as round rows, zero SQL change
+
+    A: On-device UI refinements
+        - canonical feature-view rows (ResultCardView/InlineResultEditor bound to the element store); dropped Handlers + row-wrapper observation hack
+        - `wasScored` disambiguates `.completed` (fresh vs confirmed EMOM/Tabata) so a saved EMOM/Tabata keeps its ✓ when reopened from History
+        - DNF heuristic fixed: `.amrap` is a time-cap DNF only when `wodType == .forTime`; a genuine AMRAP is no longer painted amber "TIME CAP"
+        - EMOM/Tabata route through the inline editor (per-exercise fields) instead of a confirm-only shortcut
+        - per-exercise fields: hide the kg column for bodyweight moves (`ExerciseType.requiresWeight`); clean numeric value + unit label ("10 reps", "20 cal", "30 kg"), no "x" in the input; storage keeps the `compactString` format
+        - uniform zone-colored background wash (was a top radial glow lighting cards unevenly); HeroCard flattened to `summaryCard()`
+        - metrics grid: Effort Points always shown (0 / —, yellow bolt per mockup); Time tile dropped (duration lives in the hero)
+        - SaveWorkoutButton reveals as a floating glass bar via a bottom sentinel (`onScrollVisibilityChange`), Discard moved to the top bar
+
+    B: Plan scan — Tabata classification + rounds ("Tabata 8 rounds" was coming in as For Time, 4-min cap, no rounds)
+        - `ExerciseWorkoutType.matching(_:)` resolves the format via case `aliases`; the mapper no longer hardcodes `contains("AMRAP")`
+        - robust round-count parse (first integer in "8 rounds" / "Tabata 8"), only for round-based formats (AMRAP/EMOM keep rounds nil — their number is the cap); dashed rep schemes skipped
+        - timer-required formats fall back to `defaultTimeCapMinutes`; For Time stays uncapped
+        - Claude prompt/schema: `tabata` format example + "Tabata N" rule
+
+    C: Plan scan — activity classification (Hyrox → functional, endurance)
+        - `WorkoutActivityType` + `functional` and `endurance` (title / icon / hkType / reverse `init?`); fixed `init?(hkType:)` which never mapped `.functionalStrengthTraining` back
+        - `endurance` → HealthKit `.highIntensityIntervalTraining` (HK has no native endurance type — deliberate lossy mapping); styled in the `HKWorkoutActivityType` extension (pink, "Endurance", HIIT icon) so History isn't "Other"
+        - Claude prompt: Hyrox / functional-station races → `functional`; long or interval aerobic work → `endurance`
+
+    D: Tabata scoring — total reps per exercise
+        - decision: one total-reps field per movement (not per round — rounds × exercises exploded the field count, e.g. 8×2 = 16); headline = sum
+        - Tabata routes through the shared single-field path (`sets == nil` → `simpleExerciseRow`); reps field starts empty (the plan holds an interval, not a total), weight prefilled only for weighted moves
+        - `doneTapped` sums each exercise's `actualReps` → `.forReps(total)`; entered card shows the ladder + "WYNIK · Tabata | N reps · łącznie"; `derivedWodType` maps `.forReps` → `.tabata` for History read-back
+        - card header cap chip surfaces format + rounds: "Tabata · N rund" (and "EMOM N min" / "AMRAP N min"); the per-round `SetTable` params were reverted (no consumer)
+
+    E: Result-entry input UX
+        - numeric keyboards (`.numberPad` / `.decimalPad`) gained a keyboard-toolbar "Gotowe" button (global `resignFirstResponder`, no view state) — previously no way to dismiss
+        - single-field rows align in fixed columns: the weight slot always reserves its width (blank for bodyweight) and the unit label is fixed-width, so the reps field sits in one vertical lane regardless of whether the move loads a bar
+
+    Remaining follow-ups:
+    - fractional weight (8.5) not enterable in the set table / exercise fields — the numeric binding reformats per keystroke; needs a draft string committed on end-edit
+    - native card skin only approximates `styledGroupBox` (flat fill, radius 22) vs the surrounding banners (translucent gradient, radius 24); a few `Color.white.opacity(...)` inner fills still assume a dark background
+    - saveWorkoutButton placement polish (sits at the very bottom edge)
+    - benign TCA warning: a TextField binding fires `updateExerciseReps` as the Summary cover dismisses (action reaches the `ifLet` after destination is nil) — no data loss
+    - presentation hygiene from field logs: two full-screen covers swapped in one transaction in `PlansFeature` ("not in window hierarchy"), an empty `ToolbarItem`, `preferredColorScheme` mounted mid-cover
+    - delete the now-orphaned `SetInput*` files; review new Polish localization keys (reps / rund / okr. / Endurance)
+
+### IPAD-00097 GymRoom end-flow — finalizing state removes "Start Class" flash
+    - branch: `dev/IPAD-00097/IPAD-00097`
+    - ending a class flips `isLive=false` synchronously, but the results cover only presents after the async finalize chain (buffer flush, endSession, recap send, 1 s BLE grace, stopAdvertising) — for ≥1 s the view fell back to the idle "Start Class" screen, flashing between the class and the summary
+    - added a dedicated finalizing state so the view shows a "Kończenie zajęć…" spinner during finalization instead of dropping to idle; cleared once the results cover is presented
+    - visual-only: results, recap and analytics were always computed correctly
+
+    A: `isFinalizing` flag on `LiveClassFeature.State` — set on End-confirmed (alongside `isLive=false`), stays true BEHIND the results cover (clearing it in `.resultsReady` flashed the idle screen during the cover's present animation) and is torn down with the feature on `.classEnded`; `LiveClassView` gains an `else if isFinalizing { finalizingView }` branch (ProgressView + localized label)
+
+    Noticed (separate follow-up): the end handler uses a raw `Date()` instead of `@Dependency(\.date.now)` — controlled-deps hygiene, not addressed here

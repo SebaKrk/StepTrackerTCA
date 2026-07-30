@@ -246,7 +246,7 @@ extension SessionFeature {
                         .send(.summary(.setHRData(hrBuffer: hrData, phaseTimestamps: phases))),
                         .send(.summary(.setEffortPoints(
                             points: state.live.effortPoints.points,
-                            dominantZone: state.live.effortPoints.secondsByZone.max { $0.value < $1.value }?.key
+                            secondsByZone: state.live.effortPoints.secondsByZone
                         ))),
                         gymRoomCleanup
                     )
