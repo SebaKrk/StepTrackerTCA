@@ -89,6 +89,7 @@ struct ScoresView: View {
                 Divider()
             }
         }
+        .padding([.leading, .trailing], 8)
     }
     
     private func containerHeaderView(_ movement: String)  -> some View {
@@ -169,7 +170,6 @@ struct ScoresView: View {
                                 .foregroundStyle(.green)
                         } else {
                             Text("brak")
-                                .foregroundStyle(.white)
                         }
                     }
                     .font(.system(size: 14, weight: .semibold, design: .monospaced))

@@ -64,6 +64,11 @@ struct PersonDataFeature {
                 
             case .weightGoal:
                 return .none
+            
+            case .workoutSummary(.view(.addMetricButtonPressed)):
+                return .run { send in
+                    await send(.showAddMetric)
+                }
                 
             case .workoutSummary:
                 return .none
@@ -76,8 +81,6 @@ struct PersonDataFeature {
                 
             case .destination(_):
                 return .none
-       
-
             }
         }
         .ifLet(\.$destination, action: \.destination)

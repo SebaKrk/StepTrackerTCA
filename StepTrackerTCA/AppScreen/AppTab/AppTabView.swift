@@ -29,6 +29,7 @@ struct AppTabView: View {
         .onAppear {
             send(.viewDidAppear)
         }
+        
     }
     
     @ViewBuilder
@@ -43,9 +44,9 @@ struct AppTabView: View {
         case .fuel:
             Text("fuel")
         case .community:
-            Text("community")
+            WorkoutPlanerViewTest()
         case .settings:
-            Text("settings")
+            SettingsView()
         case .records:
             PersonDataView(store: store.scope(state: \.personDataTab, action: \.personDataTab))
         }

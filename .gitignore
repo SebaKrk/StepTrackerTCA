@@ -121,3 +121,11 @@ fastlane/test_output
 iOSInjectionProject/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift
+
+# Lokalne notatki i ściągawki — nie idą do repozytorium
+SQLiteData-Cheatsheet.md
+AppDatabase/SQLiteData-Cheatsheet.md
+
+# Local development tooling — nie idą do repo
+.claude/
+/PLANS/

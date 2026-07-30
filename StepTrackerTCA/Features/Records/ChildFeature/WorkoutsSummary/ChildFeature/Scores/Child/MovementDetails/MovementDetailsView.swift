@@ -105,7 +105,17 @@ struct MovementDetailsView: View {
                 createPointMark(with: item)
             }
         }
+        .chartYScale(domain: .automatic(includesZero: false))
         .chartXSelection(value: $store.rawSelectedDate.animation(.easeInOut))
+        .chartXAxis {
+            AxisMarks { value in
+                AxisGridLine()
+                    .foregroundStyle(Color.secondary.opacity(0.3))
+                AxisValueLabel(
+                    format: .dateTime.month(.defaultDigits).day()
+                )
+            }
+        }
     }
     
     private var annotationView: some View {

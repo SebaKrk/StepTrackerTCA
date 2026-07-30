@@ -1,0 +1,552 @@
+//
+//  LiveClassFeature.swift
+//  GymRoom
+//
+//  Created by Sebastian Ściuba on 11/06/2026.
+//
+
+import AppDatabase
+import ComposableArchitecture
+import Foundation
+import OSLog
+import PeerMirror
+import SharedModels
+
+/// Reducer iPada dla Proof of Concept Gym Room.
+///
+/// Stan: `isLive` + lista `athletes`.
+/// Side effects: subskrypcja dwóch streamów z `PeerMirrorClient` (peer events + samples)
+/// oraz wywołanie `startAdvertising` / `stopAdvertising` przy `startTapped` / `endTapped`.
+@Reducer
+struct LiveClassFeature {
+
+    /// No payload for this long → the tile is marked stale by the host watchdog.
+    /// Measures a DIFFERENT signal than the iPhone's `sensorStaleThreshold`
+    /// (15 s, raw strap samples): payloads flow every 1-5 s even when the strap
+    /// itself is stale (HealthKit repeats values, peer keeps sending keepalives
+    /// carrying `isSensorStale`), so a strap dropout greys the tile via the
+    /// flag long before this fires. 30 s of TOTAL payload silence is the
+    /// backstop meaning the peer itself is genuinely gone.
+    static let sampleStaleThreshold: TimeInterval = 30
+
+    // MARK: - Dependencies
+
+    @Dependency(\.peerMirrorClient) var peerMirrorClient
+    @Dependency(\.gymClassClient) var gymClassClient
+    @Dependency(\.continuousClock) var clock
+    @Dependency(\.date) var date
+
+    // MARK: - Reducer
+
+    var body: some Reducer<State, Action> {
+        Reduce<State, Action> { state, action in
+            switch action {
+
+                // MARK: - View Actions
+
+            case .view(.viewDidAppear):
+                /// Auto-start klasę gdy fullScreenCover pojawia się — user explicit tap'nął
+                /// "Start class" w ClassDetailView, ten View jest **live mode**, nie state
+                /// machine z idle phase. Idle UI w body jest defensive fallback gdyby
+                /// auto-startTapped fail'owało.
+                Logger.gymRoom.info("🎬 LiveClassView appeared — starting observations + auto-start")
+                return .merge(
+                    .send(.startObservingPeerEvents),
+                    .send(.startObservingSamples),
+                    .send(.view(.startTapped))
+                )
+
+            case .view(.startTapped):
+                /// Idempotency guard — viewDidAppear auto-triggers, ale user może też explicit tap
+                /// (defensive). Drugi call gdy isLive=true = no-op (zachowujemy sessionToken).
+                guard !state.isLive else { return .none }
+                let gymName = state.className
+                let location = state.location
+                let gymClassId = state.gymClassId
+                Logger.gymRoom.info("▶️ Start tapped — advertising as '\(gymName)'")
+                state.isLive = true
+                let token = UUID()
+                state.sessionToken = token    // fresh token per class — encoded w QR
+                state.isQRVisible = true
+                return .merge(
+                    .run { send in
+                        /// Nowy plik log per class — reset PRZED czymkolwiek innym żeby header
+                        /// miał poprawny startDate. Wszystkie poniższe log'i trafiają do nowego pliku.
+                        await GymRoomFileLogger.shared.reset()
+                        await GymRoomFileLogger.shared.log("[Class] start: name=\(gymName), location=\(location)")
+                        /// Persist session record + propagate id back do State dla athlete inserts.
+                        do {
+                            let sessionId = try await gymClassClient.startSession(gymClassId, gymName, location)
+                            await send(.sessionStarted(sessionId: sessionId))
+                        } catch {
+                            Logger.gymRoom.error("❌ startSession failed: \(error.localizedDescription)")
+                            await GymRoomFileLogger.shared.log("[Class] ERROR startSession failed: \(error.localizedDescription)")
+                        }
+                        await peerMirrorClient.startAdvertising(gymName, token)
+                        await GymRoomFileLogger.shared.log("[Class] BLE advertising started: token=\(token.uuidString.prefix(8))")
+                    },
+                    .send(.delegate(.classStarted)),
+                    /// iPad-side freshness watchdog — a tile must not look live when
+                    /// payloads stop entirely (peer app killed, HealthKit stall) while
+                    /// the BLE link stays subscribed; `isSensorStale` from the peer
+                    /// only arrives inside payloads, so silence needs a local check.
+                    .run { send in
+                        for await _ in clock.timer(interval: .seconds(5)) {
+                            await send(.sensorWatchdogTick)
+                        }
+                    }
+                    .cancellable(id: LiveClassCancelID.sensorWatchdog)
+                )
+
+            case let .sessionStarted(sessionId):
+                Logger.gymRoom.info("💾 Session started — id: \(sessionId.uuidString.prefix(8))")
+                let sessionIdShort = sessionId.uuidString.prefix(8)
+                state.activeSessionId = sessionId
+                /// Start batch persistence timer — flush HR buffers do BLOB co 30s.
+                return .merge(
+                    .run { _ in
+                        await GymRoomFileLogger.shared.log("[Session] persisted: id=\(sessionIdShort)")
+                    },
+                    .run { send in
+                        for await _ in clock.timer(interval: .seconds(30)) {
+                            await send(.flushBufferedSamples)
+                        }
+                    }
+                    .cancellable(id: LiveClassCancelID.persistenceTimer)
+                )
+
+            case .view(.endTapped):
+                /// Tap End → present confirm dialog. Faktyczna end logic w `.alert(.presented(.confirmEnd))`.
+                /// Alert content w `LiveClassFeature+AlertState.swift` jako static `.endClass`.
+                state.alert = .endClass
+                return .none
+
+            case .alert(.presented(.confirmEnd)):
+                Logger.gymRoom.info("⏹️ End confirmed — flushing buffers + finalizing session")
+                /// Snapshot persistence state PRZED clearowaniem — async effects używają snapshot.
+                let sessionId = state.activeSessionId
+                let buffer = state.hrSamplesBuffer
+                let mappings = state.athleteRecordIds
+                let endedAt = Date()
+                let classLatitude = state.latitude
+                let classLongitude = state.longitude
+
+                state.isLive = false
+                state.isFinalizing = true
+                state.athletes.removeAll()
+                state.sessionToken = nil
+                state.activeSessionId = nil
+                state.hrSamplesBuffer = [:]
+                state.athleteRecordIds = [:]
+                state.athleteCreationInFlight = []
+                state.lastSampleAt = [:]
+                return .merge(
+                    .cancel(id: LiveClassCancelID.persistenceTimer),
+                    .cancel(id: LiveClassCancelID.sensorWatchdog),
+                    .run { send in
+                        await GymRoomFileLogger.shared.log("[Class] end: confirmed by trainer, finalizing")
+                        /// 1. Flush remaining buffer per athlete (samples z ostatnich <30s).
+                        for (deviceID, samples) in buffer where !samples.isEmpty {
+                            guard let athleteId = mappings[deviceID] else { continue }
+                            do {
+                                try await gymClassClient.appendHRSamples(athleteId, samples)
+                            } catch {
+                                Logger.gymRoom.error("❌ final flush failed for \(deviceID.uuidString.prefix(8)): \(error.localizedDescription)")
+                                await GymRoomFileLogger.shared.log("[Class] ERROR final flush failed for \(deviceID.uuidString.prefix(8)): \(error.localizedDescription)")
+                            }
+                        }
+                        /// 2. End session (sam finalize'uje wszystkich ongoing athletes z analytics).
+                        if let sessionId {
+                            do {
+                                try await gymClassClient.endSession(sessionId, endedAt)
+                                await GymRoomFileLogger.shared.log("[Session] ended: id=\(sessionId.uuidString.prefix(8))")
+                            } catch {
+                                Logger.gymRoom.error("❌ endSession failed: \(error.localizedDescription)")
+                                await GymRoomFileLogger.shared.log("[Class] ERROR endSession failed: \(error.localizedDescription)")
+                            }
+                        }
+                        /// 3. Recap + ranking. Fetch athletes PRZED `stopAdvertising` — recap
+                        /// leci per-device przez WCIĄŻ ŻYWE połączenia BLE (IOS-00104-C). Analytics
+                        /// są FROZEN w bazie (`endSession`), więc te same `rows` zasilają i recap,
+                        /// i tabelę wyników.
+                        var resultRows: [ClassResultsFeature.ResultRow] = []
+                        if let sessionId {
+                            do {
+                                let records = try await gymClassClient.fetchAthletesForSession(sessionId)
+                                let rows = ClassResultsFeature.rows(from: records)
+                                resultRows = rows
+                                // Miejsce z rankingu (points desc); deviceID z rekordu athlety.
+                                let ranked = rows.sorted { $0.points > $1.points }
+                                let placeByAthlete = Dictionary(
+                                    uniqueKeysWithValues: ranked.enumerated().map { ($0.element.id, $0.offset + 1) }
+                                )
+                                let deviceByAthlete = Dictionary(
+                                    records.map { ($0.id, $0.deviceID) },
+                                    uniquingKeysWith: { first, _ in first }
+                                )
+                                for row in rows {
+                                    guard let deviceID = deviceByAthlete[row.id],
+                                          let place = placeByAthlete[row.id] else { continue }
+                                    let recap = ClassRecapPayload(
+                                        deviceID: deviceID,
+                                        classSessionId: sessionId,
+                                        place: place,
+                                        participantCount: rows.count,
+                                        latitude: classLatitude,
+                                        longitude: classLongitude
+                                    )
+                                    await peerMirrorClient.sendRecap(recap, deviceID)
+                                }
+                                await GymRoomFileLogger.shared.log("[Class] recap sent to \(rows.count) athletes")
+                            } catch {
+                                Logger.gymRoom.error("❌ results/recap fetch failed: \(error.localizedDescription)")
+                                await GymRoomFileLogger.shared.log("[Class] ERROR results/recap fetch failed: \(error.localizedDescription)")
+                            }
+                        }
+                        /// Recap wysłany — dopiero teraz zamknij BLE (rozłączenie ucina notify).
+                        /// Grace period before teardown: `updateValue` only ENQUEUES the notify
+                        /// in the local BLE stack — the radio transmits a beat later. Tearing
+                        /// down in the same instant races that window and the recap never
+                        /// reaches the athletes.
+                        if !resultRows.isEmpty {
+                            try? await clock.sleep(for: .seconds(1))
+                        }
+                        await peerMirrorClient.stopAdvertising()
+                        await GymRoomFileLogger.shared.log("[Class] BLE advertising stopped")
+                        /// Tabela wyników (IPAD-00095-A). `delegate(.classEnded)` poleci dopiero z
+                        /// "Done" w tabeli. Fallback (błąd fetchu / brak zawodników): zamknij od razu,
+                        /// trener nigdy nie utknie.
+                        if !resultRows.isEmpty {
+                            await send(.resultsReady(resultRows))
+                            return
+                        }
+                        await send(.delegate(.classEnded))
+                    }
+                )
+
+            case let .resultsReady(rows):
+                // Keep `isFinalizing` true so the spinner stays BEHIND the results
+                // cover — clearing it here would reveal the idle "Start Class" screen
+                // during the cover's present animation. The whole feature is torn down
+                // on `.classEnded` (parent sets `liveClass = nil`), so no reset needed.
+                state.results = ClassResultsFeature.State(className: state.className, rows: rows)
+                return .none
+
+            case .results(.presented(.delegate(.done))):
+                state.results = nil
+                return .send(.delegate(.classEnded))
+
+            case .results:
+                return .none
+
+            case .alert:
+                /// Cancel lub dismiss — nic do roboty, presentation reducer sam clearuje state.alert.
+                return .none
+
+            case .delegate:
+                return .none
+
+            case .view(.toggleQR):
+                state.isQRVisible.toggle()
+                return .none
+
+                // MARK: - Internal
+
+            case let .peerConnected(deviceID, nick):
+                /// **Lazy persistence pattern**: BLE handshake event NIE tworzy jeszcze DB record.
+                /// Przy handshake brak `maxHR` (przychodzi dopiero w pierwszym HRSamplePayload).
+                /// Tworzenie tu = fake maxHR=190 placeholder. Lazy: tile od razu z `.loading`
+                /// state, DB CREATE dopiero przy pierwszym `sampleReceived` z real `payload.maxHR`.
+                Logger.gymRoom.info("✅ Peer handshake: \(nick) (deviceID: \(deviceID.uuidString.prefix(8)))")
+                let deviceShort = deviceID.uuidString.prefix(8)
+                state.peerNicks[deviceID] = nick
+                guard state.athletes[id: deviceID] == nil else {
+                    /// Tile już istnieje — log + skip (rzadki edge case, ignore).
+                    return .run { _ in
+                        await GymRoomFileLogger.shared.log("[Peer] handshake (tile already exists, skipping): nick=\(nick) deviceID=\(deviceShort)")
+                    }
+                }
+                /// Loading tile — bpm=0 + spinner overlay aż przyjdzie pierwszy sample.
+                state.athletes.append(AthleteTile(id: deviceID, nick: nick, state: .loading))
+                state.hrSamplesBuffer[deviceID] = []
+                return .run { _ in
+                    await GymRoomFileLogger.shared.log("[Peer] handshake (awaiting first sample): nick=\(nick) deviceID=\(deviceShort)")
+                }
+
+            case let .athleteAdded(deviceID, athleteId):
+                state.athleteRecordIds[deviceID] = athleteId
+                state.hrSamplesBuffer[deviceID] = []
+                state.athleteCreationInFlight.remove(deviceID)
+                return .none
+
+            case let .athleteCreationFailed(deviceID):
+                // Create failed — release the claim so a later sample retries.
+                state.athleteCreationInFlight.remove(deviceID)
+                return .none
+
+            case let .peerSuspended(deviceID):
+                /// Grace period — peer może jeszcze wrócić w ciągu 10s. Tile zostaje
+                /// widoczny ale w stanie `.reconnecting` (spinner overlay + grayscale).
+                Logger.gymRoom.info("⏸ Peer suspended: \(deviceID.uuidString.prefix(8)) — entering grace period")
+                let deviceShort = deviceID.uuidString.prefix(8)
+                let suspendedNick = state.athletes[id: deviceID]?.nick ?? "?"
+                state.athletes[id: deviceID]?.state = .reconnecting
+                return .run { _ in
+                    await GymRoomFileLogger.shared.log("[Peer] suspended (grace period): nick=\(suspendedNick) deviceID=\(deviceShort)")
+                }
+
+            case let .peerReconnected(deviceID):
+                /// Peer wrócił w oknie — restore stan `.live`. Brak animacji "appear",
+                /// tylko subtelny return spinner → normal.
+                Logger.gymRoom.info("🔄 Peer reconnected: \(deviceID.uuidString.prefix(8))")
+                let deviceShort = deviceID.uuidString.prefix(8)
+                let reconnectedNick = state.athletes[id: deviceID]?.nick ?? "?"
+                state.athletes[id: deviceID]?.state = .live
+                // Restart the watchdog window — the peer gets a fresh 30 s to
+                // deliver its first post-reconnect payload before being flagged.
+                // Deliberately does NOT clear an already-set isSensorStale: the
+                // tile still shows the pre-drop value, so it stays grey until a
+                // payload proves the data is live again (sampleReceived heals it).
+                state.lastSampleAt[deviceID] = date.now
+                return .run { _ in
+                    await GymRoomFileLogger.shared.log("[Peer] reconnected: nick=\(reconnectedNick) deviceID=\(deviceShort)")
+                }
+
+            case let .peerDisconnected(deviceID, reason):
+                Logger.gymRoom.info("❌ Peer disconnected (\(reason.rawValue)): \(deviceID.uuidString.prefix(8))")
+                let deviceShort = deviceID.uuidString.prefix(8)
+                /// Snapshot remaining buffer + athleteId PRZED clearowaniem.
+                let samples = state.hrSamplesBuffer[deviceID] ?? []
+                let athleteId = state.athleteRecordIds[deviceID]
+                let leftNick = state.athletes[id: deviceID]?.nick ?? state.peerNicks[deviceID] ?? "?"
+                let leftAt = date.now
+
+                state.athletes.remove(id: deviceID)
+                state.hrSamplesBuffer[deviceID] = nil
+                state.athleteRecordIds[deviceID] = nil
+                state.lastSampleAt[deviceID] = nil
+                state.watchLinkLostByDevice[deviceID] = nil
+
+                return .run { _ in
+                    await GymRoomFileLogger.shared.log("[Peer] left (\(reason.rawValue)): nick=\(leftNick) deviceID=\(deviceShort), bufferedSamples=\(samples.count)")
+                    guard let athleteId else { return }
+                    /// Flush remaining buffered samples PRZED endAthlete (żeby compute analytics
+                    /// używał kompletnego BLOB stream'a). Idempotent — empty samples no-op.
+                    if !samples.isEmpty {
+                        try? await gymClassClient.appendHRSamples(athleteId, samples)
+                    }
+                    try? await gymClassClient.endAthlete(athleteId, leftAt)
+                }
+
+            case let .sampleReceived(payload):
+                guard var tile = state.athletes[id: payload.deviceID] else { return .none }
+                // HR strap dropout detection — the peer keeps sending keepalive payloads
+                // with the frozen value while `isSensorStale` flips. Log only the
+                // transition (not every 1 Hz sample) so the class log shows WHEN a strap
+                // dropped and recovered, per athlete.
+                let wasStale = tile.isSensorStale
+                let isStale = payload.isSensorStale ?? false
+                let staleLogEffect = staleTransitionLog(was: wasStale, now: isStale, reason: payload.disconnectReason, nick: tile.nick, deviceID: payload.deviceID)
+                // Watch↔iPhone mirroring link (watchPrimary path) — same edge-only
+                // logging as the strap: report when the WC link drops and restores.
+                let watchLost = payload.watchLinkLost ?? false
+                let wasWatchLost = state.watchLinkLostByDevice[payload.deviceID] ?? false
+                let watchLinkLogEffect = watchLinkTransitionLog(was: wasWatchLost, now: watchLost, nick: tile.nick, deviceID: payload.deviceID)
+                state.watchLinkLostByDevice[payload.deviceID] = watchLost
+                tile.bpm = payload.bpm
+                tile.maxHR = payload.maxHR
+                tile.activeEnergy = payload.activeEnergy
+                // Device-computed cumulative counter — keep the last known value
+                // when a payload arrives without it (goodbye from an old build).
+                if let effortPoints = payload.effortPoints {
+                    tile.effortPoints = effortPoints
+                }
+                // Sensor freshness (IOS-00100-C) — `nil` from a legacy peer build
+                // means "no staleness info", treated as fresh.
+                tile.isSensorStale = payload.isSensorStale ?? false
+                // Watchdog input — any arriving payload proves the peer is alive,
+                // which also self-heals a watchdog-set stale flag (line above).
+                state.lastSampleAt[payload.deviceID] = date.now
+
+                /// Buffer HRSample dla batch persistence (flush co 30s przez persistenceTimer).
+                /// Stale payloads (IOS-00100-C) are presence keepalives carrying the
+                /// frozen last-known value — persisting them would fake continuity in
+                /// the class history; the honest gap is handled by the gap-aware charts.
+                if payload.isSensorStale != true {
+                    let sample = HRSample(
+                        timestamp: payload.timestamp,
+                        bpm: payload.bpm,
+                        activeEnergy: payload.activeEnergy,
+                        effortPoints: payload.effortPoints
+                    )
+                    state.hrSamplesBuffer[payload.deviceID, default: []].append(sample)
+                }
+                Logger.gymRoom.debug("💓 Updated \(payload.nick): \(payload.bpm) bpm\(payload.isSensorStale == true ? " (STALE)" : "")")
+
+                /// **First-sample CREATE pattern**: tile w `.loading` + brak athleteId =
+                /// to PIERWSZY payload od tego peer'a. Teraz mamy real `payload.maxHR`
+                /// — CREATE record w bazie z prawdziwą wartością (NIE fake 190).
+                /// Resume check też tu — jeśli ten deviceID był już w sesji (wybiegł
+                /// poza grace period i wraca), reuse jego ID zamiast tworzyć nowy.
+                if state.athleteRecordIds[payload.deviceID] == nil,
+                   !state.athleteCreationInFlight.contains(payload.deviceID) {
+                    tile.state = .live
+                    state.athletes[id: payload.deviceID] = tile
+                    guard let sessionId = state.activeSessionId else { return .none }
+                    // Claim BEFORE dispatching the async create — a second sample
+                    // arriving before `.athleteAdded` lands must not spawn a second
+                    // create (duplicate athlete record in the class results).
+                    state.athleteCreationInFlight.insert(payload.deviceID)
+                    let deviceID = payload.deviceID
+                    let deviceShort = deviceID.uuidString.prefix(8)
+                    let nick = tile.nick
+                    let realMaxHR = payload.maxHR
+                    return .merge(staleLogEffect, watchLinkLogEffect, .run { send in
+                        if let existingId = try? await gymClassClient.findAthlete(sessionId, deviceID) {
+                            try? await gymClassClient.resumeAthlete(existingId)
+                            await send(.athleteAdded(deviceID: deviceID, athleteId: existingId))
+                            await GymRoomFileLogger.shared.log("[Peer] resumed: nick=\(nick) deviceID=\(deviceShort) realMaxHR=\(realMaxHR)")
+                        } else {
+                            do {
+                                let athleteId = try await gymClassClient.addAthlete(sessionId, deviceID, nick, realMaxHR)
+                                await send(.athleteAdded(deviceID: deviceID, athleteId: athleteId))
+                                await GymRoomFileLogger.shared.log("[Peer] joined: nick=\(nick) deviceID=\(deviceShort) realMaxHR=\(realMaxHR)")
+                            } catch {
+                                Logger.gymRoom.error("❌ addAthlete failed for \(nick): \(error.localizedDescription)")
+                                await GymRoomFileLogger.shared.log("[Peer] ERROR addAthlete failed for \(nick): \(error.localizedDescription)")
+                                // Re-arm the claim so the next sample can retry the create.
+                                await send(.athleteCreationFailed(deviceID: deviceID))
+                            }
+                        }
+                    })
+                }
+
+                state.athletes[id: payload.deviceID] = tile
+                return .merge(staleLogEffect, watchLinkLogEffect)
+
+            case .flushBufferedSamples:
+                /// Snapshot buffer + clear (next batch zaczyna od pustego). Async write
+                /// do BLOB per athlete. Race-safe: SQLite write block serialized.
+                let snapshot = state.hrSamplesBuffer
+                state.hrSamplesBuffer = snapshot.mapValues { _ in [] }
+                let mappings = state.athleteRecordIds
+                return .run { _ in
+                    for (deviceID, samples) in snapshot where !samples.isEmpty {
+                        guard let athleteId = mappings[deviceID] else { continue }
+                        do {
+                            try await gymClassClient.appendHRSamples(athleteId, samples)
+                        } catch {
+                            Logger.gymRoom.error("❌ flush failed for \(deviceID.uuidString.prefix(8)): \(error.localizedDescription)")
+                        }
+                    }
+                }
+
+            case .sensorWatchdogTick:
+                /// Mutate only tiles that actually cross the threshold — an idle tick
+                /// leaves `state.athletes` untouched, so SwiftUI has no grid diff to do.
+                /// `.loading` / `.reconnecting` tiles are skipped (own, stronger visuals).
+                let now = date.now
+                var newlyStale: [(nick: String, deviceShort: String)] = []
+                for tile in state.athletes
+                where tile.state == .live
+                    && !tile.isSensorStale
+                    && (state.lastSampleAt[tile.id].map { now.timeIntervalSince($0) > Self.sampleStaleThreshold } ?? false) {
+                    state.athletes[id: tile.id]?.isSensorStale = true
+                    newlyStale.append((tile.nick, String(tile.id.uuidString.prefix(8))))
+                    #if DEBUG
+                    Logger.gymRoom.info("⌛️ Watchdog: \(tile.nick) marked stale — no payload for >\(Int(Self.sampleStaleThreshold))s")
+                    #endif
+                }
+                // File-log the watchdog-set stale too — otherwise the file shows a
+                // later "sensor recovered" with no matching "stale" (the payload path
+                // logs stale, this one previously only hit OSLog). Distinct cause:
+                // NO payload reaching the host (peer↔host link / peer silent), not the
+                // payload-carried strap staleness.
+                guard !newlyStale.isEmpty else { return .none }
+                return .run { [newlyStale] _ in
+                    for peer in newlyStale {
+                        await GymRoomFileLogger.shared.log("[Peer] sensor stale (no payload for >\(Int(Self.sampleStaleThreshold))s — peer silent): nick=\(peer.nick) deviceID=\(peer.deviceShort)")
+                    }
+                }
+
+            case .startObservingPeerEvents:
+                Logger.gymRoom.info("📡 Starting peer events observation...")
+                return .run { send in
+                    for await event in await peerMirrorClient.peerEventsStream() {
+                        switch event {
+                        case let .connected(deviceID, nick):
+                            await send(.peerConnected(deviceID: deviceID, nick: nick))
+                        case let .suspended(deviceID, _):
+                            await send(.peerSuspended(deviceID: deviceID))
+                        case let .reconnected(deviceID, _):
+                            await send(.peerReconnected(deviceID: deviceID))
+                        case let .disconnected(deviceID, reason):
+                            await send(.peerDisconnected(deviceID: deviceID, reason: reason))
+                        case .classEnded:
+                            /// Host-side no-op: iPad sam emit'uje classEnded broadcast
+                            /// (via PeerMirrorBLEHostSession.broadcastClassEnded), własny event
+                            /// nie wymaga reakcji w reducerze (host już wie że robi END).
+                            break
+                        case .recapReceived:
+                            /// Host-side no-op: recap płynie iPad→uczestnik (host wysyła,
+                            /// nie odbiera). Ten event pojawia się tylko peer-side.
+                            break
+                        }
+                    }
+                }
+                .cancellable(id: LiveClassCancelID.peerEvents)
+
+            case .startObservingSamples:
+                Logger.gymRoom.info("🔥 Starting samples observation...")
+                return .run { send in
+                    for await sample in await peerMirrorClient.samplesStream() {
+                        await send(.sampleReceived(sample))
+                    }
+                }
+                .cancellable(id: LiveClassCancelID.samples)
+            }
+        }
+        .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$results, action: \.results) {
+            ClassResultsFeature()
+        }
+    }
+
+    /// Fire-and-forget file-log for an HR strap freshness transition. `.none` when
+    /// nothing changed, so the 1 Hz sample path allocates an effect only on the edge.
+    /// `reason` (from the peer's BLE layer) names WHY the strap dropped; `nil` while
+    /// stale means it went silent without a BLE disconnect (likely skin contact).
+    private func staleTransitionLog(was: Bool, now: Bool, reason: SensorDisconnectReason?, nick: String, deviceID: UUID) -> Effect<Action> {
+        guard was != now else { return .none }
+        let deviceShort = deviceID.uuidString.prefix(8)
+        return .run { _ in
+            if now {
+                let cause: String
+                switch reason {
+                case .outOfRange: cause = "out of range"
+                case .deviceOff: cause = "device off / battery"
+                case .other: cause = "other BLE error"
+                case nil: cause = "no BLE disconnect — likely contact"
+                }
+                await GymRoomFileLogger.shared.log("[Peer] sensor stale (\(cause)): nick=\(nick) deviceID=\(deviceShort)")
+            } else {
+                await GymRoomFileLogger.shared.log("[Peer] sensor recovered: nick=\(nick) deviceID=\(deviceShort)")
+            }
+        }
+    }
+
+    /// Fire-and-forget file-log for a Watch↔iPhone mirroring-link transition. `.none`
+    /// when nothing changed. Binary by nature — WatchConnectivity exposes only
+    /// reachability (a `Bool`), never WHY the link dropped, so there is no cause to log.
+    private func watchLinkTransitionLog(was: Bool, now: Bool, nick: String, deviceID: UUID) -> Effect<Action> {
+        guard was != now else { return .none }
+        let deviceShort = deviceID.uuidString.prefix(8)
+        return .run { _ in
+            if now {
+                await GymRoomFileLogger.shared.log("[Peer] watch link lost: nick=\(nick) deviceID=\(deviceShort)")
+            } else {
+                await GymRoomFileLogger.shared.log("[Peer] watch link restored: nick=\(nick) deviceID=\(deviceShort)")
+            }
+        }
+    }
+}

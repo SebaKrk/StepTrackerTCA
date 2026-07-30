@@ -111,12 +111,12 @@ final class DefaultRecordsRepository: RecordsRepository {
         }
     }
     
-    func fetchWeightGoal() async throws -> Double {
+    func fetchWeightGoal() async throws -> Double? {
         let context = coreDataManger.backgroundContext
         return try await context.perform {
             let fetchRequest: NSFetchRequest<GoalWeightEntity> = GoalWeightEntity.fetchRequest()
             fetchRequest.fetchLimit = 1
-            return try context.fetch(fetchRequest).first?.weight ?? 0
+            return try context.fetch(fetchRequest).first?.weight
         }
     }
     

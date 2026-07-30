@@ -1,0 +1,90 @@
+//
+//  JoinLiveClassFeature+State.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Ściuba on 23/05/2026.
+//
+
+import ComposableArchitecture
+import Foundation
+import SharedModels
+
+extension JoinLiveClassFeature {
+
+    @ObservableState
+    struct State {
+
+        /// Nick athlety. Persystowany w AppStorage, default = "Athlete-XXX".
+        /// Klucz w camelCase (KVO nie pozwala na kropki) — TODO: przenieść do `AppStorageKeys`.
+        @Shared(.appStorage("joinLiveClassNick"))
+        var nick: String = "Athlete-\(Int.random(in: 100...999))"
+
+        /// Stabilny identyfikator urządzenia peer'a (per-install na iPhone).
+        /// Generowany raz przy pierwszym uruchomieniu, persystowany w AppStorage.
+        /// Wysyłany w każdym `HRSamplePayload` jako primary key — host indexuje
+        /// po nim `connectedCentrals`, dzięki czemu reconnect detection działa
+        /// niezależnie od `CBPeripheral.identifier` (Apple rotuje per BLE cycle).
+        @Shared(.appStorage("joinLiveClassDeviceID"))
+        var deviceIDString: String = UUID().uuidString
+
+        /// Decoded `deviceID` jako UUID. Force-unwrap bezpieczny: default value
+        /// (`UUID().uuidString`) zawsze daje format który `UUID(uuidString:)` parsuje.
+        var deviceID: UUID {
+            UUID(uuidString: deviceIDString)!
+        }
+
+        /// Aktualna faza UI.
+        var phase: Phase = .idle
+
+        /// Maksymalny HR athlety, propagowany z parent `SessionFeature` przy creation
+        /// w `.joinLiveClassToolbarButtonTapped` i aktualizowany przy `.setMaxHR`.
+        /// Default 190 jako fallback gdy parent nie zdążył jeszcze obliczyć
+        /// (race przy szybkim joinLiveClass tap przed `makeCalculationForSession`).
+        var maxHeartRate: Int = 190
+
+        /// Mirror of the LiveSession effort points counter, synced by the parent
+        /// `SessionFeature` on every metrics tick. ONE accumulator (LiveSession's)
+        /// feeds both the on-screen counter and every BLE payload — the number on
+        /// the GymRoom tile is literally the number the athlete sees on their phone.
+        var currentEffortPoints: Int = 0
+
+        /// Mirror of `LiveSessionFeature.isSensorStale` (IOS-00100-C), synced by
+        /// the parent alongside `currentEffortPoints`. Rides in every BLE payload
+        /// so the host tile can show "sensor out of range" instead of presenting
+        /// the frozen last-known HR as live.
+        var isSensorStale: Bool = false
+
+        /// Last HR-strap disconnect reason from the local BLE layer (`nil` = connected).
+        /// Subscribed directly from `bluetoothClient` (unlike `isSensorStale`, which the
+        /// parent bridges) and attached to every payload so the host logs WHY the strap
+        /// dropped, not just that it went stale. iPhoneStandalone only — watchPrimary has
+        /// no BLE strap, so it stays `nil`.
+        var lastDisconnectReason: SensorDisconnectReason?
+
+        /// Mirror of `SessionFeature.isWatchConnectionLost`, synced by the parent
+        /// alongside `isSensorStale`. Rides in every payload so the host can log when
+        /// the Watch↔iPhone link dropped. watchPrimary only — always `false` on
+        /// iPhoneStandalone (no Watch link).
+        var watchLinkLost: Bool = false
+
+        /// Zdekodowany QR payload po scan'ie. `nil` = jeszcze nie scanned.
+        /// Ephemeral — NIE persistujemy. Reset na `.leaveTapped` wymusza ponowny scan
+        /// przy następnym Join. `sessionToken` z payload'u wysyłany w `HRSamplePayload`.
+        var scannedQRPayload: QRSessionPayload?
+
+        /// Czy QR scanner (fullScreenCover) jest aktualnie widoczny.
+        /// Set przez `.joinTapped`, unset przez `.qrScanned` (po successful scan)
+        /// lub `.scannerDismissed` (gdy user swipe-down bez scanowania).
+        var isShowingScanner: Bool = false
+    }
+
+    enum Phase: Equatable, Sendable {
+        case idle
+        case searching
+        case connected
+
+        /// Po 5 min w `.searching` bez reconnectu — host już nas usunął. Terminalny
+        /// stan z opcją ponownego skanu QR. Trening HK leci dalej niezależnie.
+        case connectionLost
+    }
+}

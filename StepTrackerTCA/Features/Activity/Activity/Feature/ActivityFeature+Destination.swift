@@ -15,5 +15,8 @@ extension ActivityFeature {
         
         /// Represents the destination for displaying in `ActivityDetailsFeature`.
         case detailItem(ActivityDetailsFeature)
+        
+        ///
+        case heartRateDetails(HeartRateDetailsFeature)
     }
 }

@@ -1,0 +1,1382 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "1 day recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 dzień regeneracji"
+          }
+        }
+      }
+    },
+    "1–2 days recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1–2 dni regeneracji"
+          }
+        }
+      }
+    },
+    "2–4 days recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–4 dni regeneracji"
+          }
+        }
+      }
+    },
+    "3 Months" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 miesiące"
+          }
+        }
+      }
+    },
+    "5+ days recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5+ dni regeneracji"
+          }
+        }
+      }
+    },
+    "7 Days" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 dni"
+          }
+        }
+      }
+    },
+    "14 Days" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 dni"
+          }
+        }
+      }
+    },
+    "28 Days" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "28 dni"
+          }
+        }
+      }
+    },
+    "Activity" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywność"
+          }
+        }
+      }
+    },
+    "Activity Level" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poziom aktywności"
+          }
+        }
+      }
+    },
+    "Aerobic" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aerobowa"
+          }
+        }
+      }
+    },
+    "All-out" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksymalny wysiłek"
+          }
+        }
+      }
+    },
+    "Anaerobic" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beztlenowa"
+          }
+        }
+      }
+    },
+    "Average" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnie"
+          }
+        }
+      }
+    },
+    "Below Average" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poniżej przeciętnej"
+          }
+        }
+      }
+    },
+    "Boxing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boks"
+          }
+        }
+      }
+    },
+    "Cardio" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kardio"
+          }
+        }
+      }
+    },
+    "Choose activity" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz aktywność"
+          }
+        }
+      }
+    },
+    "Choose device" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz urządzenie"
+          }
+        }
+      }
+    },
+    "Climbing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wspinaczka"
+          }
+        }
+      }
+    },
+    "Comfortable effort. Building aerobic base and endurance." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Komfortowy wysiłek. Budowanie bazy tlenowej i wytrzymałości."
+          }
+        }
+      }
+    },
+    "Comfortable pace, fat burning" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Komfortowe tempo, spalanie tłuszczu"
+          }
+        }
+      }
+    },
+    "Complete rest, minimal activity" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Całkowity odpoczynek, minimalna aktywność"
+          }
+        }
+      }
+    },
+    "Cooldown" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyciszenie"
+          }
+        }
+      }
+    },
+    "Cross" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cross"
+          }
+        }
+      }
+    },
+    "Cross Training" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening crossowy"
+          }
+        }
+      }
+    },
+    "Cycling" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kolarstwo"
+          }
+        }
+      }
+    },
+    "day" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dzień"
+          }
+        }
+      }
+    },
+    "End Workout" : {
+
+    },
+    "Endurance" : {
+
+    },
+    "Excellent" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pełna gotowość"
+          }
+        }
+      }
+    },
+    "Fair" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowana"
+          }
+        }
+      }
+    },
+    "Faster-than-average heart rate recovery." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szybszy niż przeciętny spadek tętna."
+          }
+        }
+      }
+    },
+    "Fat Burning" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spalanie tłuszczu"
+          }
+        }
+      }
+    },
+    "Female" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kobieta"
+          }
+        }
+      }
+    },
+    "Free" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Darmowy"
+          }
+        }
+      }
+    },
+    "Functional" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funkcjonalny"
+          }
+        }
+      }
+    },
+    "Good" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dobra"
+          }
+        }
+      }
+    },
+    "Good Readiness" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dobra gotowość"
+          }
+        }
+      }
+    },
+    "Gymnastics" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gimnastyka"
+          }
+        }
+      }
+    },
+    "Hard effort at lactate threshold. Maximum sustainable pace." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciężki wysiłek na progu mleczanowym. Maksymalne tempo możliwe do utrzymania."
+          }
+        }
+      }
+    },
+    "Hard effort, lactate threshold" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciężki wysiłek, próg mleczanowy"
+          }
+        }
+      }
+    },
+    "Heart Rate Training Stress Score (hrTSS) measures training load based on workout intensity and duration. It estimates how much recovery your body needs after a session.\n\nA score of 100 equals approximately one hour at lactate threshold intensity.\n\nFormula:\nhrTSS = Duration (hours) × Intensity Factor² × 100\n\nWhere Intensity Factor = Average HR / Threshold HR\nThreshold HR = Max HR × 0.93" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wskaźnik Obciążenia Treningowego Tętna (hrTSS) mierzy obciążenie treningowe w oparciu o intensywność i czas trwania treningu. Szacuje, ile regeneracji potrzebuje Twoje ciało po sesji.\n\nWynik 100 odpowiada około jednej godzinie na intensywności progu mleczanowego.\n\nWzór:\nhrTSS = Czas trwania (godziny) × Współczynnik Intensywności² × 100\n\nGdzie Współczynnik Intensywności = Średnie tętno / Tętno progowe\nTętno progowe = Maks. tętno × 0,93"
+          }
+        }
+      }
+    },
+    "Heart Rate Variability" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmienność tętna"
+          }
+        }
+      }
+    },
+    "High" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysoki"
+          }
+        }
+      }
+    },
+    "High Fatigue" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysokie zmęczenie"
+          }
+        }
+      }
+    },
+    "High load - reduced availability" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysokie obciążenie - zmniejszona dostępność"
+          }
+        }
+      }
+    },
+    "High recovery demand. Limit hard sessions." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysokie zapotrzebowanie na regenerację. Ogranicz ciężkie sesje."
+          }
+        }
+      }
+    },
+    "High training load. Plan 2-3 days of recovery or light work." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysokie obciążenie treningowe. Zaplanuj 2-3 dni regeneracji lub lekkiej pracy."
+          }
+        }
+      }
+    },
+    "Hiking" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wędrówka"
+          }
+        }
+      }
+    },
+    "hours" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "godziny"
+          }
+        }
+      }
+    },
+    "HR Recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja tętna"
+          }
+        }
+      }
+    },
+    "HR Recovery measures how many beats per minute (bpm) your heart rate drops in the first minute after stopping exercise.\n\nFaster recovery indicates better cardiovascular fitness and a more responsive autonomic nervous system.\n\nFormula:\nHR Recovery = Max HR during workout − HR after 1 minute\n\nTypical values:\n• < 12 bpm: Poor\n• 12–20 bpm: Average\n• 20–30 bpm: Good\n• 30–40 bpm: Very Good\n• > 40 bpm: Excellent" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja Tętna mierzy o ile uderzeń na minutę (bpm) spada Twoje tętno w pierwszej minucie po zakończeniu ćwiczeń.\n\nSzybsza regeneracja wskazuje na lepszą sprawność układu krążenia i bardziej responsywny układ autonomiczny.\n\nWzór:\nRegeneracja Tętna = Maks. tętno podczas treningu − Tętno po 1 minucie\n\nTypowe wartości:\n• < 12 bpm: Słaba\n• 12–20 bpm: Przeciętna\n• 20–30 bpm: Dobra\n• 30–40 bpm: Bardzo dobra\n• > 40 bpm: Doskonała"
+          }
+        }
+      }
+    },
+    "hrTSS" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hrTSS"
+          }
+        }
+      }
+    },
+    "HRV" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HRV"
+          }
+        }
+      }
+    },
+    "Intensity Factor" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Współczynnik intensywności"
+          }
+        }
+      }
+    },
+    "Intensity Factor (IF) shows how hard you worked relative to your lactate threshold heart rate (LTHR).\n\nAn IF of 1.0 means you exercised exactly at threshold intensity. Values above 1.0 indicate efforts harder than threshold pace.\n\nFormula:\nIF = Average HR / LTHR\n\nWhere LTHR = Max HR × 0.85\n\nTypical values:\n• < 0.75: Recovery / Easy\n• 0.75–0.85: Aerobic / Endurance\n• 0.85–0.95: Tempo\n• 0.95–1.00: Threshold\n• > 1.00: VO2max / All-out" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Współczynnik Intensywności (IF) pokazuje jak ciężko pracowałeś względem swojego tętna progowego mleczanowego (LTHR).\n\nIF równy 1,0 oznacza, że ćwiczyłeś dokładnie na intensywności progowej. Wartości powyżej 1,0 wskazują na wysiłki cięższe niż tempo progowe.\n\nWzór:\nIF = Średnie tętno / LTHR\n\nGdzie LTHR = Maks. tętno × 0,85\n\nTypowe wartości:\n• < 0,75: Regeneracja / Łatwa\n• 0,75–0,85: Tlenowa / Wytrzymałość\n• 0,85–0,95: Tempo\n• 0,95–1,00: Próg\n• > 1,00: VO2max / Maksymalna"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekki"
+          }
+        }
+      }
+    },
+    "Light activity, active recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekka aktywność, aktywna regeneracja"
+          }
+        }
+      }
+    },
+    "Light Effort" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekki wysiłek"
+          }
+        }
+      }
+    },
+    "Light session. You'll be ready for another hard workout soon." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekka sesja. Wkrótce będziesz gotowy na kolejny ciężki trening."
+          }
+        }
+      }
+    },
+    "Longest first" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najdłuższe najpierw"
+          }
+        }
+      }
+    },
+    "Low" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niski"
+          }
+        }
+      }
+    },
+    "Low load - high availability" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niskie obciążenie - wysoka dostępność"
+          }
+        }
+      }
+    },
+    "Low recovery demand. Next-day training unaffected." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niskie zapotrzebowanie na regenerację. Trening następnego dnia bez wpływu."
+          }
+        }
+      }
+    },
+    "Male" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mężczyzna"
+          }
+        }
+      }
+    },
+    "Maximum effort. Race pace or sprint intervals." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksymalny wysiłek. Tempo wyścigowe lub interwały sprintowe."
+          }
+        }
+      }
+    },
+    "Maximum Recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksymalna regeneracja"
+          }
+        }
+      }
+    },
+    "Minimal load - peak condition" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimalne obciążenie - szczytowa forma"
+          }
+        }
+      }
+    },
+    "Mirroring" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lustrzane odbicie"
+          }
+        }
+      }
+    },
+    "Mixed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mieszane"
+          }
+        }
+      }
+    },
+    "Moderate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowana"
+          }
+        }
+      }
+    },
+    "Moderate effort, aerobic base" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowany wysiłek, baza tlenowa"
+          }
+        }
+      }
+    },
+    "Moderate effort. Allow ~24 hours before next hard session." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowany wysiłek. Pozwól na ~24 godziny przed następną ciężką sesją."
+          }
+        }
+      }
+    },
+    "Moderate Fatigue" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowane zmęczenie"
+          }
+        }
+      }
+    },
+    "Moderate recovery demand. Plan next session carefully." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowane zapotrzebowanie na regenerację. Zaplanuj następną sesję ostrożnie."
+          }
+        }
+      }
+    },
+    "Moderate-hard effort. Improving lactate threshold." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnio-ciężki wysiłek. Poprawa progu mleczanowego."
+          }
+        }
+      }
+    },
+    "Neutral Readiness" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neutralna gotowość"
+          }
+        }
+      }
+    },
+    "Newest first" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najnowsze najpierw"
+          }
+        }
+      }
+    },
+    "No calories burned data available." : {
+
+    },
+    "No heart rate data available. Check Health app." : {
+
+    },
+    "No HRV data found. Regular measurements required." : {
+
+    },
+    "No load day - complete restoration" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dzień bez obciążenia - pełna odnowa"
+          }
+        }
+      }
+    },
+    "No sleep data. Track your sleep to see insights." : {
+
+    },
+    "Not Set" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie ustawiono"
+          }
+        }
+      }
+    },
+    "Oldest first" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najstarsze najpierw"
+          }
+        }
+      }
+    },
+    "Optimal Readiness" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optymalna gotowość"
+          }
+        }
+      }
+    },
+    "Other" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inne"
+          }
+        }
+      }
+    },
+    "Pause Workout" : {
+
+    },
+    "Planned" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planowany"
+          }
+        }
+      }
+    },
+    "Play/Pause Timer" : {
+
+    },
+    "Poor" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Słaba gotowość"
+          }
+        }
+      }
+    },
+    "Rapid heart rate recovery after exercise." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szybki spadek tętna po wysiłku."
+          }
+        }
+      }
+    },
+    "Ready Soon" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wkrótce gotowy"
+          }
+        }
+      }
+    },
+    "Recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja"
+          }
+        }
+      }
+    },
+    "Recovery Demand" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapotrzebowanie na regenerację"
+          }
+        }
+      }
+    },
+    "Recovery Demand estimates how much rest you need before your next hard workout.\n\nIt combines training load (hrTSS), heart rate recovery, and other factors to calculate optimal recovery time.\n\nFormula:\nRecovery (hours) = Base Recovery × HRR Modifier × HRV Modifier × Sleep Modifier\n\nBase Recovery is determined by hrTSS:\n• < 30: 12 hours\n• 30–50: 18 hours\n• 50–80: 28 hours\n• 80–120: 42 hours\n• 120–160: 56 hours\n• > 160: 72 hours\n\nModifiers adjust based on your recovery metrics (better HR Recovery = faster recovery time)." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapotrzebowanie na Regenerację szacuje, ile odpoczynku potrzebujesz przed następnym ciężkim treningiem.\n\nŁączy obciążenie treningowe (hrTSS), regenerację tętna i inne czynniki, aby obliczyć optymalny czas regeneracji.\n\nWzór:\nRegeneracja (godziny) = Regeneracja Bazowa × Modyfikator HRR × Modyfikator HRV × Modyfikator Snu\n\nRegeneracja Bazowa jest określana przez hrTSS:\n• < 30: 12 godzin\n• 30–50: 18 godzin\n• 50–80: 28 godzin\n• 80–120: 42 godziny\n• 120–160: 56 godzin\n• > 160: 72 godziny\n\nModyfikatory dostosowują się w oparciu o Twoje metryki regeneracji (lepsza Regeneracja Tętna = krótszy czas regeneracji)."
+          }
+        }
+      }
+    },
+    "Resting" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spoczynek"
+          }
+        }
+      }
+    },
+    "Resting Heart Rate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spoczynkowe tętno"
+          }
+        }
+      }
+    },
+    "Resume Workout" : {
+
+    },
+    "RHR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RHR"
+          }
+        }
+      }
+    },
+    "Running" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bieganie"
+          }
+        }
+      }
+    },
+    "Scheduled" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaplanowany"
+          }
+        }
+      }
+    },
+    "Shortest first" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najkrótsze najpierw"
+          }
+        }
+      }
+    },
+    "Significant" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Znaczne"
+          }
+        }
+      }
+    },
+    "Significant stress. Consider 1-2 days of easy training." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Znaczny stres. Rozważ 1-2 dni lekkiego treningu."
+          }
+        }
+      }
+    },
+    "Sleep" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sen"
+          }
+        }
+      }
+    },
+    "Sleep Quality" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jakość snu"
+          }
+        }
+      }
+    },
+    "Slow heart rate recovery. May indicate fatigue or stress." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powolny spadek tętna. Może wskazywać na zmęczenie lub stres."
+          }
+        }
+      }
+    },
+    "Stop Timer" : {
+
+    },
+    "Strength" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening siłowy"
+          }
+        }
+      }
+    },
+    "Strength Training" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening siłowy"
+          }
+        }
+      }
+    },
+    "Swimming" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pływanie"
+          }
+        }
+      }
+    },
+    "Tempo" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo"
+          }
+        }
+      }
+    },
+    "The aerobic zone forms the foundation of endurance and is crucial for developing the cardiorespiratory system. Training in this range maximizes oxygen uptake, increases the number and size of mitochondria in muscles, and improves heart efficiency. By staying in this zone, you develop base endurance, increase stroke volume, and improve overall physical capacity, which forms the basis for all other forms of activity." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa tlenowa stanowi fundament wytrzymałości i jest kluczowa dla rozwoju układu krążeniowo-oddechowego. Trening w tym zakresie maksymalizuje pobór tlenu, zwiększa liczbę i rozmiar mitochondriów w mięśniach oraz poprawia wydajność serca. Pozostając w tej strefie, rozwijasz bazową wytrzymałość, zwiększasz objętość wyrzutową i poprawiasz ogólną wydolność fizyczną, która stanowi podstawę dla wszystkich innych form aktywności."
+          }
+        }
+      }
+    },
+    "The anaerobic zone is the highest training intensity where your body works primarily in the anaerobic system. Significant lactate accumulation and rapid depletion of muscle glycogen occur here. Training in this zone develops anaerobic power, increases lactate buffering capacity, and improves the ability to perform very intense, short-duration efforts. This zone should be used sparingly due to high metabolic stress and long recovery times." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa beztlenowa to najwyższa intensywność treningowa, w której Twoje ciało pracuje głównie w systemie beztlenowym. Występuje tutaj znaczna akumulacja mleczanu i szybkie wyczerpanie glikogenu mięśniowego. Trening w tej strefie rozwija moc beztlenową, zwiększa zdolność buforowania mleczanu i poprawia umiejętność wykonywania bardzo intensywnych, krótkotrwałych wysiłków. Ta strefa powinna być używana oszczędnie ze względu na wysoki stres metaboliczny i długi czas regeneracji."
+          }
+        }
+      }
+    },
+    "The fat burning zone is the optimal range for those wanting to lose weight and improve metabolic efficiency. At this pace, your body primarily uses fatty acids as an energy source, leading to effective fat tissue burning. Long-duration training in this zone improves your body's ability to oxidize fats, increases insulin sensitivity, and builds a solid aerobic base without excessive fatigue." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa spalania tłuszczu to optymalny zakres dla osób chcących schudnąć i poprawić wydajność metaboliczną. W tym tempie Twoje ciało wykorzystuje głównie kwasy tłuszczowe jako źródło energii, co prowadzi do efektywnego spalania tkanki tłuszczowej. Długotrwały trening w tej strefie poprawia zdolność organizmu do utleniania tłuszczów, zwiększa wrażliwość na insulinę i buduje solidną bazę tlenową bez nadmiernego zmęczenia."
+          }
+        }
+      }
+    },
+    "The recovery zone is the lightest level of physical activity, perfect for rest days or active recovery after intense training sessions. In this zone, your body effectively removes metabolic waste products, improves blood circulation, and supports muscle repair processes. By staying in this zone, you enhance flexibility, accelerate recovery, and prepare your body for future training challenges without additional physiological stress.\"" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa lekkiego wysiłku to najniższy poziom aktywności fizycznej, idealny na dni odpoczynku lub aktywną regenerację po intensywnych treningach. W tej strefie Twój organizm skutecznie usuwa produkty przemiany materii, poprawia krążenie krwi i wspiera procesy naprawcze mięśni. Utrzymywanie tętna w tym zakresie zwiększa elastyczność, przyspiesza regenerację i przygotowuje ciało do kolejnych wyzwań treningowych bez wywoływania dodatkowego stresu fizjologicznego."
+          }
+        }
+      }
+    },
+    "The resting zone represents your baseline heart rate during complete rest, sleep, or minimal daily activities. This is your body's natural recovery state where cellular repair, hormone regulation, and nervous system restoration occur. Maintaining a healthy resting heart rate indicates good cardiovascular fitness and overall health. This zone is essential for stress recovery, sleep quality, and preparing your body for active periods." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa spoczynkowa reprezentuje Twoje bazowe tętno podczas całkowitego odpoczynku, snu lub minimalnej aktywności dziennej. To naturalny stan regeneracji Twojego ciała, w którym zachodzi naprawa komórkowa, regulacja hormonalna i odnowa układu nerwowego. Utrzymywanie zdrowego spoczynkowego tętna wskazuje na dobrą sprawność układu krążenia i ogólny stan zdrowia. Ta strefa jest niezbędna dla regeneracji po stresie, jakości snu i przygotowania ciała na okresy aktywności."
+          }
+        }
+      }
+    },
+    "The threshold zone is the intensity at which your body balances between aerobic and anaerobic metabolism. In this range, there's an equilibrium between lactate production and removal. Threshold training significantly improves your lactate threshold, increases critical power, and develops the ability to maintain high intensity for extended periods. This is a key zone for improving athletic performance and capacity in submaximal efforts." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa progowa to intensywność, przy której Twoje ciało balansuje między metabolizmem tlenowym a beztlenowym. W tym zakresie istnieje równowaga między produkcją a usuwaniem mleczanu. Trening progowy znacząco poprawia Twój próg mleczanowy, zwiększa moc krytyczną i rozwija zdolność utrzymywania wysokiej intensywności przez dłuższe okresy. To kluczowa strefa dla poprawy wydolności sportowej i zdolności w wysiłkach submaksymalnych."
+          }
+        }
+      }
+    },
+    "Threshold" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " Próg tlenowy"
+          }
+        }
+      }
+    },
+    "Timer Name" : {
+
+    },
+    "Typical heart rate recovery within expected range." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typowy spadek tętna w oczekiwanym zakresie."
+          }
+        }
+      }
+    },
+    "Typical load - standard condition" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typowe obciążenie - standardowy stan"
+          }
+        }
+      }
+    },
+    "Unknown" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieznany"
+          }
+        }
+      }
+    },
+    "Very demanding session. Full recovery may take 3+ days." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo wymagająca sesja. Pełna regeneracja może zająć 3+ dni."
+          }
+        }
+      }
+    },
+    "Very Good" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo dobry"
+          }
+        }
+      }
+    },
+    "Very hard effort. Training maximum oxygen uptake." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo ciężki wysiłek. Trening maksymalnego poboru tlenu."
+          }
+        }
+      }
+    },
+    "Very hard, anaerobic power" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo ciężka, moc beztlenowa"
+          }
+        }
+      }
+    },
+    "Very High" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo wysoki"
+          }
+        }
+      }
+    },
+    "Very high load - priority: recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo wysokie obciążenie - priorytet: regeneracja"
+          }
+        }
+      }
+    },
+    "Very high recovery demand. Extended recovery required." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo wysokie zapotrzebowanie na regenerację. Wymagana przedłużona regeneracja."
+          }
+        }
+      }
+    },
+    "Very light effort. Active recovery or warm-up intensity." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo lekki wysiłek. Aktywna regeneracja lub intensywność rozgrzewki."
+          }
+        }
+      }
+    },
+    "Very Poor" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo niski"
+          }
+        }
+      }
+    },
+    "Very rapid heart rate recovery. Strong autonomic response." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo szybki spadek tętna. Silna odpowiedź układu autonomicznego."
+          }
+        }
+      }
+    },
+    "Vigorous" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intensywna"
+          }
+        }
+      }
+    },
+    "VO2max" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VO2max"
+          }
+        }
+      }
+    },
+    "Walking" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spacer"
+          }
+        }
+      }
+    },
+    "Weightlifting" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podnoszenie ciężarów"
+          }
+        }
+      }
+    },
+    "Year" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rok"
+          }
+        }
+      }
+    },
+    "Zone 1" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 1"
+          }
+        }
+      }
+    },
+    "Zone 2" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 2"
+          }
+        }
+      }
+    },
+    "Zone 3" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 3"
+          }
+        }
+      }
+    },
+    "Zone 4" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 4"
+          }
+        }
+      }
+    },
+    "Zone 5" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa 5"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

@@ -1,0 +1,257 @@
+//
+//  JoinLiveClassView.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Ściuba on 23/05/2026.
+//
+
+import ComposableArchitecture
+import SwiftUI
+
+@ViewAction(for: JoinLiveClassFeature.self)
+struct JoinLiveClassView: View {
+
+    @Bindable var store: StoreOf<JoinLiveClassFeature>
+
+    var body: some View {
+        VStack(spacing: 32) {
+            content
+            Spacer()
+            actionButton
+        }
+        .padding(40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // BEZ `.background(systemBackground)` — sheet w iOS 26 ma natywny Liquid Glass background.
+        // Nakładanie własnego color przesłoniłoby go.
+        .onAppear { send(.viewDidAppear) }
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { store.isShowingScanner },
+                set: { newValue in
+                    // Swipe-down (newValue=false) → send scannerDismissed żeby reducer
+                    // synchronizował state. iOS automatycznie zamyka cover'a.
+                    if !newValue { send(.scannerDismissed) }
+                }
+            )
+        ) {
+            scannerCover
+        }
+    }
+
+    /// FullScreenCover content z QR scannerem. Po successful scan reducer
+    /// zamknie cover (`isShowingScanner = false`) + auto-trigger BLE handshake.
+    private var scannerCover: some View {
+        ZStack(alignment: .topLeading) {
+            scannerCameraView
+            scannerCloseButton
+        }
+    }
+
+    /// Live camera preview — `AVCaptureSession`-backed scanner. Po pierwszym scan'ie
+    /// wywołuje `qrScanned` action z JSON payload (decoded w reducerze).
+    private var scannerCameraView: some View {
+        QRScannerView { jsonString in
+            send(.qrScanned(jsonString: jsonString))
+        }
+        .ignoresSafeArea()
+    }
+
+    /// Glass-circle close button w lewym górnym rogu (Apple iOS 26 convention dla
+    /// single-symbol dismiss buttons — circle shape pasuje proporcjonalnie do `xmark`).
+    private var scannerCloseButton: some View {
+        Button {
+            send(.scannerDismissed)
+        } label: {
+            Image(systemName: "xmark")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(2)
+        }
+        .buttonStyle(.glass)
+        .padding()
+    }
+
+    // MARK: - Private views (struktura)
+
+    @ViewBuilder
+    private var content: some View {
+        switch store.phase {
+        case .idle:
+            idleContent
+        case .searching:
+            searchingContent
+        case .connected:
+            connectedContent
+        case .connectionLost:
+            connectionLostContent
+        }
+    }
+
+    private var idleContent: some View {
+        VStack(spacing: 16) {
+            iconImage(symbol: "wave.3.right.circle", color: .blue)
+            Text(idleTitle).font(.title2).foregroundStyle(.primary)
+            idleSubtitleText
+            nickRow
+        }
+    }
+
+    private var idleSubtitleText: some View {
+        Text(idleSubtitle)
+            .font(.body)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var searchingContent: some View {
+        VStack(spacing: 16) {
+            ProgressView().scaleEffect(2)
+            Text(searchingTitle).font(.title2).foregroundStyle(.primary)
+            Text(nickRowText).font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private var connectedContent: some View {
+        VStack(spacing: 16) {
+            iconImage(symbol: "checkmark.circle.fill", color: .green)
+            Text(connectedTitle).font(.title2).foregroundStyle(.primary)
+            connectedSubtitleText
+            Text(nickRowText).font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private var connectionLostContent: some View {
+        VStack(spacing: 16) {
+            iconImage(symbol: "wifi.exclamationmark", color: .orange)
+            Text(connectionLostTitle).font(.title2).foregroundStyle(.primary)
+            connectionLostSubtitleText
+            Text(nickRowText).font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private var connectionLostSubtitleText: some View {
+        Text(connectionLostSubtitle)
+            .font(.body)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(3)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var connectedSubtitleText: some View {
+        Text(connectedSubtitle)
+            .font(.body)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var nickRow: some View {
+        HStack {
+            Text(nickRowText)
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder
+    private var actionButton: some View {
+        switch store.phase {
+        case .idle:
+            joinButton
+        case .searching, .connected:
+            leaveButton
+        case .connectionLost:
+            connectionLostButtons
+        }
+    }
+
+    /// Po utracie połączenia: ponowny skan QR (primary) nad pełnym wyjściem.
+    private var connectionLostButtons: some View {
+        VStack(spacing: 12) {
+            rejoinButton
+            leaveButton
+        }
+    }
+
+    private var rejoinButton: some View {
+        Button {
+            send(.joinTapped)
+        } label: {
+            Text(rejoinTitle)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glassProminent)
+        .tint(.blue)
+        .controlSize(.extraLarge)
+        .buttonBorderShape(.capsule)
+    }
+
+    private var joinButton: some View {
+        Button {
+            send(.joinTapped)
+        } label: {
+            Text(joinTitle)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glassProminent)
+        .tint(.blue)
+        .controlSize(.extraLarge)
+        .buttonBorderShape(.capsule)
+    }
+
+    private var leaveButton: some View {
+        Button(role: .destructive) {
+            send(.leaveTapped)
+        } label: {
+            Text(leaveTitle)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glassProminent)
+        .tint(.red)
+        .controlSize(.extraLarge)
+        .buttonBorderShape(.capsule)
+    }
+
+    /// Ikona w `Circle` z Liquid Glass background — natywny iOS 26 effect (spójność z całą app).
+    /// `.symbolRenderingMode(.hierarchical)` daje subtelną głębię w SF Symbol.
+    private func iconImage(symbol: String, color: Color) -> some View {
+        Image(systemName: symbol)
+            .font(.system(size: 56, weight: .regular))
+            .foregroundStyle(color)
+            .symbolRenderingMode(.hierarchical)
+            .frame(width: 120, height: 120)
+            .glassEffect(in: .circle)
+    }
+
+    // MARK: - Private content (implementacja)
+
+    private var nickRowText: String {
+        String(localized: "Nick: \(store.nick)", bundle: .main)
+    }
+
+    private var idleTitle: String { String(localized: "Join a Live Class", bundle: .main) }
+    private var idleSubtitle: String { String(localized: "Tap Join to broadcast your heart rate to the Gym Room display.", bundle: .main) }
+    private var searchingTitle: String { String(localized: "Looking for class...", bundle: .main) }
+    private var connectedTitle: String { String(localized: "Broadcasting", bundle: .main) }
+    private var connectedSubtitle: String { String(localized: "Your heart rate is visible on the Gym Room display.", bundle: .main) }
+    private var connectionLostTitle: String { String(localized: "Connection lost", bundle: .main) }
+    private var connectionLostSubtitle: String { String(localized: "Couldn't reach the class for 5 minutes. Your workout is still recording.", bundle: .main) }
+    private var joinTitle: String { String(localized: "Join Live Class", bundle: .main) }
+    private var rejoinTitle: String { String(localized: "Scan to rejoin", bundle: .main) }
+    private var leaveTitle: String { String(localized: "Leave", bundle: .main) }
+}
+
+#Preview("Idle") {
+    JoinLiveClassView(
+        store: Store(initialState: JoinLiveClassFeature.State()) {
+            JoinLiveClassFeature()
+        }
+    )
+}

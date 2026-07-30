@@ -1,0 +1,31 @@
+//
+//  AddPlanFeature+State.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Sciuba on 01/02/2026.
+//
+
+import ComposableArchitecture
+import SharedModels
+import SwiftUI
+
+extension AddPlanFeature {
+
+    @ObservableState
+    struct State {
+
+        // MARK: - Properties
+
+        /// The color representing the training readiness level.
+        @Shared(.inMemory(.readinessLevelColor))
+        var color: Color = .gray
+
+        /// Current view state.
+        var viewState: ViewState = .success
+
+        // MARK: - Destination
+
+        @Presents var destination: Destination.State?
+    }
+
+}

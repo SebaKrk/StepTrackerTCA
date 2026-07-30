@@ -12,6 +12,10 @@ import Foundation
 @Reducer
 struct DashboardFeature {
     
+    // MARK: - Dependency
+    
+    @Dependency(\.dashboardClient) var manager
+    
     // MARK: - Properties
     
     var dashboardFeatureService: DashboardFeatureService
@@ -54,15 +58,12 @@ struct DashboardFeature {
                             Result { try await dashboardFeatureService.getStepsData()}))
                         await send(.updateWeightChartData(
                             Result { try await dashboardFeatureService.getWeightData() }))
+                        await manager.setupRemoteSessionHandler()
                     }
                     
                 case let .updateStepChartData(.success(data)):
                     state.stepData = data
                     return .run { send in
-//                        if data.isEmpty {
-//                            await send(.changeViewState(.noContentAvailable))
-//                            return
-//                        }
                         await send(.changeViewState(.successfullyLoaded))
                         await send(.changeIsFirstAppearance)
                         await send(.stepPieWidget(.updatePieChartData(data)))
@@ -77,10 +78,6 @@ struct DashboardFeature {
                     state.weightData = data
                     
                     return .run { send in
-//                        if data.isEmpty {
-//                            await send(.changeViewState(.noContentAvailable))
-//                            return
-//                        }
                         await send(.changeViewState(.successfullyLoaded))
                         await send(.changeIsFirstAppearance)
                         await send(.weightDiffWidget(.updateWeightChartData(data)))

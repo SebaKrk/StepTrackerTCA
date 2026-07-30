@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import HealthKit
 
 @ViewAction(for: ActivityFeature.self)
 struct ActivityView: View {
@@ -30,6 +31,13 @@ struct ActivityView: View {
                         action: \.destination.detailItem)) { store in
                             ActivityDetailsView(store: store)
                         }
+            
+                        .navigationDestination(
+                            item: $store.scope(
+                                state: \.destination?.heartRateDetails,
+                                action: \.destination.heartRateDetails)) { store in
+                                    HeartRateDetailsView(store: store)
+                                }
         }
     }
     
@@ -38,11 +46,21 @@ struct ActivityView: View {
     private var activityBody: some View {
         VStack(spacing: 0) {
             activityPeriodPicker
-            activityList
+            activityListView
         }
         .navigationTitle("Activity")
         .onAppear {
             send(.viewDidAppear)
+        }
+    }
+    
+    @ViewBuilder
+    private var activityListView: some View {
+        switch store.activityPeriod {
+        case .day:
+            activityList
+        case .fourWeeks:
+            hkWorkoutList
         }
     }
     
@@ -93,6 +111,57 @@ struct ActivityView: View {
         .tint(.primary)
     }
     
+    private var hkWorkoutList: some View {
+        List(selection: $store.selectedHKWorkout.sending(\.HKWorkoutSelected)) {
+            ForEach(store.workouts, id: \.uuid) { item in
+                Button {
+                    send(.tapHKWorkout(item))
+                } label: {
+                    createHkWorkoutCell(item)
+                }
+            }
+        }
+        //        .listStyle(.grouped)ch
+        .scrollContentBackground(.hidden)
+        .padding(.top, 0)
+        .padding([.leading, .trailing], 12)
+    }
+    
+    private func createHkWorkoutCell(_ item: HKWorkout) -> some View {
+        HStack(alignment: .center) {
+            Image(systemName: item.workoutActivityType.iconName)
+                .resizable()
+                .frame(width: 50, height: 50)
+                .padding(.top, 4)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(item.workoutActivityType.name)
+                        .font(.headline)
+                    Spacer()
+                    Text(item.startDate, format: .dateTime.day().month().hour().minute())
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                HStack {
+                    if let energyStats = item.statistics(for: .init(.activeEnergyBurned)),
+                       let energy = energyStats.sumQuantity()?.doubleValue(for: .kilocalorie()) {
+                        Text("Calories: \(energy, specifier: "%.0f") kcal")
+                    } else {
+                        Text("Calories: 0 kcal")
+                    }
+                    
+                    Spacer()
+                    
+                    Text("Duration: \(Int(item.duration / 60)) min")
+                }
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
 }
 
 #Preview {
@@ -102,4 +171,5 @@ struct ActivityView: View {
         }))
     }
 }
+
 

@@ -59,7 +59,7 @@ struct SummaryView: View {
         } label: {
             summaryTitleHeader(data.workoutType.title, data.workoutType.icon, movement: data)
         }
-        .frame(minHeight: 200)
+        .frame(minHeight: 175)
     }
     
     private func summaryByGroupedMovement(_ movement: WorkoutMeasurement) -> some View {
@@ -136,7 +136,12 @@ struct SummaryView: View {
     }
     
     private var unavailableView: some View {
-        ChartContentUnavailable()
+        GroupBox {
+            ContentUnavailable(showActions: true) {
+                send(.addMetricButtonPressed)
+            }
+        }
+        .frame(minHeight: 200)
     }
     
 }

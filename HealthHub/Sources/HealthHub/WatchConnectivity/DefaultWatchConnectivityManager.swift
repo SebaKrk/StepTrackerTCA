@@ -1,0 +1,306 @@
+//
+//  DefaultWatchConnectivityManager.swift
+//  HealthHub
+//
+//  Created by Sebastian Sciuba on 17/09/2025.
+//
+
+import Foundation
+import OSLog
+import SharedModels
+import WatchConnectivity
+
+/// Default implementation of `WatchConnectivityManager` backed by `WCSession`.
+///
+/// Manages the full lifecycle of a WatchConnectivity session:
+/// activating the session, tracking connection status via `WatchConnectivityStatusActor`,
+/// and exchanging `WatchWorkoutEvent` messages with the paired device.
+///
+/// Incoming messages (from both `sendMessage` and `transferUserInfo`) are decoded
+/// and forwarded through `incomingWorkoutEventStream`.
+@preconcurrency
+public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityManager, @unchecked Sendable {
+
+    // MARK: - Internal
+
+    /// Key used to encode/decode `WatchWorkoutEvent` in WCSession message dictionaries.
+    static let messageKey = "watchWorkoutEvent"
+
+    /// The underlying WCSession instance.
+    private var session: WCSession?
+
+    /// Actor responsible for thread-safe connection status updates.
+    let statusActor = WatchConnectivityStatusActor()
+
+    /// Resumed by `activationDidCompleteWith` so that `initializeWatchConnectivity()`
+    /// suspends until WCSession is fully activated and `isPaired` is safe to read.
+    var activationContinuation: CheckedContinuation<Void, Never>?
+
+    // MARK: - Incoming Event Stream
+
+    /// Lock protecting `eventContinuations` across delegate callbacks and stream subscriptions.
+    let continuationLock = NSLock()
+
+    /// Multicast: each `incomingWorkoutEventStream` subscriber gets its own continuation.
+    ///
+    /// The previous implementation (single stored continuation, "latest subscriber wins")
+    /// was a bug of the `reference_async_stream_multicast` class: the SessionFeature
+    /// subscription at workout start FINISHED the app-level listener's stream (`AppTabNewFeature`,
+    /// IOS-00098-C) — `.workoutSaved` had no receiver, the plan-link and badge were never created.
+    var eventContinuations: [UUID: AsyncStream<WatchWorkoutEvent>.Continuation] = [:]
+
+    /// Events received while NO subscriber was registered (launch race: WCSession is
+    /// activated in AppDelegate and can deliver a queued `transferUserInfo` — e.g.
+    /// `.workoutSaved` from a previous run — BEFORE the root view's `onAppear` starts
+    /// the app-level listener). Replayed in order to the FIRST subscriber, then cleared.
+    /// Bounded FIFO — post-end `workoutTick` floods must not evict a lifecycle event.
+    var bufferedEvents: [WatchWorkoutEvent] = []
+
+    /// Upper bound for `bufferedEvents` (drop-oldest beyond it).
+    static let eventBufferLimit = 16
+
+    /// A stream of `WatchWorkoutEvent` values received from the paired device.
+    ///
+    /// Each access creates an independent `AsyncStream`; all active subscribers receive
+    /// every event (multicast). Terminated/cancelled subscribers are cleaned up via
+    /// `onTermination`. The first subscriber additionally receives events buffered
+    /// during the no-subscriber window (see `bufferedEvents`).
+    public var incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent> {
+        let (stream, continuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
+        let id = UUID()
+        continuation.onTermination = { [weak self] _ in
+            guard let self else { return }
+            self.continuationLock.withLock {
+                _ = self.eventContinuations.removeValue(forKey: id)
+            }
+        }
+        let replay = continuationLock.withLock { () -> [WatchWorkoutEvent] in
+            eventContinuations[id] = continuation
+            let buffered = bufferedEvents
+            bufferedEvents.removeAll()
+            return buffered
+        }
+        for event in replay {
+            continuation.yield(event)
+        }
+        return stream
+    }
+
+    /// Multicast yield — delivers the event to all active subscribers; with zero
+    /// subscribers the event is buffered for replay (launch race, review cluster B).
+    func yieldIncomingEvent(_ event: WatchWorkoutEvent) {
+        let continuations = continuationLock.withLock { () -> [AsyncStream<WatchWorkoutEvent>.Continuation] in
+            let values = Array(eventContinuations.values)
+            if values.isEmpty {
+                bufferedEvents.append(event)
+                if bufferedEvents.count > Self.eventBufferLimit {
+                    bufferedEvents.removeFirst(bufferedEvents.count - Self.eventBufferLimit)
+                }
+            }
+            return values
+        }
+        for continuation in continuations {
+            continuation.yield(event)
+        }
+    }
+
+    // MARK: - Lifecycle
+
+    override init() {
+        super.init()
+    }
+
+    // MARK: - WatchConnectivityManager
+
+    /// Whether WatchConnectivity is supported on this device.
+    public var isSupported: Bool {
+        get async { WCSession.isSupported() }
+    }
+
+    /// Whether an Apple Watch is currently paired. Always returns `false` on watchOS.
+    public var isPaired: Bool {
+        get async {
+            #if os(iOS)
+            return session?.isPaired ?? false
+            #else
+            return false
+            #endif
+        }
+    }
+
+    /// Whether the companion Watch app is installed. Always returns `false` on watchOS.
+    public var isWatchAppInstalled: Bool {
+        get async {
+            #if os(iOS)
+            return session?.isWatchAppInstalled ?? false
+            #else
+            return false
+            #endif
+        }
+    }
+
+    /// Whether the paired device is currently reachable.
+    public var isReachable: Bool {
+        get async { session?.isReachable ?? false }
+    }
+
+    /// The current connection status.
+    public var currentStatus: WatchConnectivityStatus {
+        get async { await statusActor.status }
+    }
+
+    /// Activates the `WCSession` and suspends until activation completes.
+    ///
+    /// `WCSession.activate()` is a callback-based API — `isPaired` and other
+    /// connection properties are only valid inside `activationDidCompleteWith`.
+    /// Suspending here ensures callers can safely call `checkConnectionStatus()`
+    /// immediately after `await initializeWatchConnectivity()` returns.
+    public func initializeWatchConnectivity() async {
+        guard WCSession.isSupported() else {
+            Logger.wc.error("WatchConnectivity not supported on this device")
+            await statusActor.updateStatus(.notSupported)
+            return
+        }
+
+        // Already activated — no need to wait again.
+        if session?.activationState == .activated {
+            return
+        }
+
+        session = WCSession.default
+        session?.delegate = self
+
+        // Suspend until activationDidCompleteWith fires.
+        await withCheckedContinuation { continuation in
+            activationContinuation = continuation
+            session?.activate()
+            Logger.wc.info("WCSession activation started — awaiting delegate callback")
+        }
+    }
+
+    /// Evaluates and returns the current connection status.
+    public func checkConnectionStatus() async -> WatchConnectivityStatus {
+        guard WCSession.isSupported() else {
+            await statusActor.updateStatus(.notSupported)
+            return .notSupported
+        }
+
+        guard let session else {
+            await statusActor.updateStatus(.unknown)
+            return .unknown
+        }
+
+        #if os(iOS)
+        if session.isPaired {
+            await statusActor.updateStatus(.ready)
+            return .ready
+        } else {
+            await statusActor.updateStatus(.notPaired)
+            return .notPaired
+        }
+        #else
+        await statusActor.updateStatus(.ready)
+        return .ready
+        #endif
+    }
+
+    /// Deactivates the session, resets status, and finishes the event stream.
+    public func stopWatchConnectivity() async {
+        Logger.wc.info("stopWatchConnectivity — tearing down WCSession")
+        session?.delegate = nil
+        session = nil
+        await statusActor.updateStatus(.unknown)
+        let continuations = continuationLock.withLock { () -> [AsyncStream<WatchWorkoutEvent>.Continuation] in
+            let values = Array(eventContinuations.values)
+            eventContinuations.removeAll()
+            return values
+        }
+        for continuation in continuations {
+            continuation.finish()
+        }
+    }
+
+    // MARK: - Outstanding Transfers Cleanup (R9, DEBUG-only)
+
+    /// Cancels outstanding file transfers older than 24h after WCSession activation.
+    ///
+    /// Implements R9 from `WorkoutMirrorLive/CLAUDE.md`. Currently `#if DEBUG` because
+    /// the only source of `transferFile` calls in this app is `WorkoutFileLogger`
+    /// (also `#if DEBUG`). If file transfers are ever added to release builds,
+    /// remove the `#if DEBUG` wrapper.
+    ///
+    /// `WCFileStorage` accumulates ghost entries after mid-transfer crashes. Without
+    /// periodic cleanup, the system log fills with `enumerateFileTransferResultsWithBlock
+    /// could not load file data` warnings. Transfers without `startedAt` metadata are
+    /// cancelled defensively (assumed to be legacy entries from before the metadata
+    /// convention was introduced).
+    func cleanupOutstandingTransfers(_ session: WCSession) {
+        #if DEBUG
+        let cutoff: TimeInterval = 24 * 60 * 60
+        let now = Date.now
+
+        var cancelledFiles = 0
+        for transfer in session.outstandingFileTransfers {
+            let startedAt = transfer.file.metadata?["startedAt"] as? Date
+            let shouldCancel: Bool
+            if let startedAt {
+                shouldCancel = now.timeIntervalSince(startedAt) > cutoff
+            } else {
+                shouldCancel = true
+            }
+            if shouldCancel {
+                transfer.cancel()
+                cancelledFiles += 1
+            }
+        }
+
+        if cancelledFiles > 0 {
+            Logger.wc.info("[WC] cleanup — cancelled \(cancelledFiles) outstanding file transfers")
+            Task {
+                await WorkoutFileLogger.shared.log("[WC] cleanup — cancelled \(cancelledFiles) outstanding file transfers (>24h or no startedAt)")
+            }
+        }
+        #endif
+    }
+
+    // MARK: - Sending Events
+
+    /// Sends a `WatchWorkoutEvent` to the paired device.
+    ///
+    /// Uses `sendMessage` for immediate delivery when reachable,
+    /// otherwise falls back to `transferUserInfo` for guaranteed delivery.
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not active.
+    public func sendWorkoutEvent(_ event: WatchWorkoutEvent) async throws {
+        guard let session, session.activationState == .activated else {
+            let eventDescription = String(describing: event)
+            Logger.wc.error("sendWorkoutEvent: session not activated — event: \(eventDescription)")
+            await WorkoutFileLogger.shared.log("[WC TX] FAILED — session not activated, event=\(eventDescription)")
+            throw WatchConnectivityError.sessionNotActivated
+        }
+        // Log only non-tick events to keep logs readable.
+        if case .workoutTick = event { } else {
+            let eventDescription = String(describing: event)
+            let isReachable = session.isReachable
+            Logger.wc.info("sendWorkoutEvent → \(eventDescription)")
+            await WorkoutFileLogger.shared.log("[WC TX] \(eventDescription), reachable=\(isReachable)")
+        }
+        let data = try JSONEncoder().encode(event)
+        let message = [Self.messageKey: data]
+        if session.isReachable {
+            session.sendMessage(message, replyHandler: nil) { error in
+                let errorDescription = error.localizedDescription
+                let eventDescription = String(describing: event)
+                Logger.wc.notice("sendMessage failed (\(errorDescription)), falling back to transferUserInfo — event: \(eventDescription)")
+                Task {
+                    await WorkoutFileLogger.shared.log("[WC TX] sendMessage FAILED — \(errorDescription), retrying via transferUserInfo, event=\(eventDescription)")
+                }
+                session.transferUserInfo(message)
+            }
+        } else {
+            if case .workoutTick = event { } else {
+                Logger.wc.notice("not reachable — sending via transferUserInfo: \(String(describing: event))")
+            }
+            session.transferUserInfo(message)
+        }
+    }
+}

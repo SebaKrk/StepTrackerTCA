@@ -18,7 +18,7 @@ final class DefaultMovementDetailsFeatureServices: MovementDetailsFeatureService
     }
     
     /// Generates an array of goal intervals from the provided workout goals.
-    func generateGoalIntervals(workoutGoals: [WorkoutGoal], movementName: String) -> [MovementDetailsFeature.GoalInterval] {
+    func generateGoalIntervals(workoutGoals: [WorkoutGoalSum], movementName: String) -> [MovementDetailsFeature.GoalInterval] {
         let filteredGoals = workoutGoals.filter { $0.movement == movementName }
         let sortedGoals = filteredGoals.sorted { $0.date < $1.date }
         

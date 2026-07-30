@@ -1,0 +1,143 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "Avg. Heart Rate" : {
+
+    },
+    "BPM" : {
+
+    },
+    "Discard" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzuć"
+          }
+        }
+      }
+    },
+    "Done" : {
+
+    },
+    "Effort Points" : {
+
+    },
+    "End now" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ teraz"
+          }
+        }
+      }
+    },
+    "Pause" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauza"
+          }
+        }
+      }
+    },
+    "pkt" : {
+
+    },
+    "Resume" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wznów"
+          }
+        }
+      }
+    },
+    "Saving…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisywanie…"
+          }
+        }
+      }
+    },
+    "Scanning…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanowanie…"
+          }
+        }
+      }
+    },
+    "Stop" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
+    },
+    "Total Energy" : {
+
+    },
+    "Total Time" : {
+
+    },
+    "Unfinished workout detected" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wykryto niezakończoną sesję"
+          }
+        }
+      }
+    },
+    "Waiting for workout…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oczekiwanie na trening…"
+          }
+        }
+      }
+    },
+    "Workout data unavailable" : {
+
+    },
+    "Workout ended" : {
+
+    },
+    "Workout saved" : {
+
+    },
+    "Workout started: %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening rozpoczęty: %@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

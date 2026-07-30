@@ -59,6 +59,9 @@ struct SummaryFeature {
                 state.destination = .open(ScoresFeature.State(selectedWorkoutType: workoutType))
                 return .none
                 
+            case .view(.addMetricButtonPressed):
+                return .none
+                
                 // MARK: - Destination
 
             case .destination:

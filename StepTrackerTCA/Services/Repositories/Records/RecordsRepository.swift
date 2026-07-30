@@ -15,7 +15,7 @@ protocol RecordsRepository {
     ///
     /// - Returns: The currently set weight goal as a `Double`.
     /// - Throws: An error if the operation fails due to issues such as missing data or database errors.
-    func fetchWeightGoal() async throws -> Double
+    func fetchWeightGoal() async throws -> Double?
     
     /// Fetches the user's weight goal along with the date it was set.
     ///

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-peripheral</string>
+		<string>bluetooth-central</string>
+	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Wyświetlamy metryki treningowe z Apple Watch i iPhone'a na ekranie grupy. Tętno oraz dane aktywności są przesyłane przez Bluetooth.</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+</dict>
+</plist>
