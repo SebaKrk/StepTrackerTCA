@@ -25,6 +25,9 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
    /// Multicast presence of a connected HR sensor (`true` = at least one connected).
    /// Feeds the pre-workout device picker so its status refreshes live.
    let presenceActor = HRSensorPresenceActor()
+
+   /// Multicast strap GATT readings — the HR-fallback source for `iPhoneWorkoutSession`.
+   let strapReadingActor = StrapHRReadingActor()
    
    override init() {
        /// Tworzymy CBCentralManager bez delegate (na razie nil)
@@ -78,6 +81,18 @@ public final class DefaultCentralManager: NSObject, CentralManager, @unchecked S
        !cbCentralManager.retrieveConnectedPeripherals(
            withServices: [Gatt.Service.heartRate]
        ).isEmpty
+   }
+
+   /// Returns a NEW stream of strap GATT readings. Multicast.
+   public func strapHRReadings() async -> AsyncStream<StrapHRReading> {
+       return await strapReadingActor.newStream()
+   }
+
+   /// Broadcasts a strap GATT reading. Called from `didUpdateValueFor` — sync
+   /// CB queue, hence the `Task` hop to the actor.
+   func emitStrapHRReading(bpm: Int) {
+       let reading = StrapHRReading(bpm: bpm, date: Date())
+       Task { await strapReadingActor.broadcast(reading) }
    }
 
    /// Recomputes HR-sensor presence and broadcasts it. Called from the

@@ -70,6 +70,43 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
     /// Guarded by `metricsLock` because `didCollectDataOf` may fire concurrently with reads.
     private var currentMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 0, activeEnergy: 0)
 
+    // MARK: - Strap HR fallback
+
+    /// HealthKit can stall mid-workout while the strap keeps sending (zombie
+    /// connection — builder repeats a frozen value for minutes, no disconnect
+    /// callback, no recovery API). When the builder's HR sample date stops
+    /// moving but the app's own GATT subscription still delivers readings, the
+    /// broadcast substitutes the live strap value — every `metrics` subscriber
+    /// (live UI, effort points, GymRoom payload) recovers transparently.
+
+    /// No fresh builder HR sample for longer than this = HealthKit is stalled.
+    /// Mirrors `LiveSessionFeature.sensorStaleThreshold` so the fallback engages
+    /// in step with the staleness banner.
+    private static let hkHeartRateStaleThreshold: TimeInterval = 35
+
+    /// A strap reading older than this is itself stale — the strap dropped too,
+    /// so there is nothing truthful to substitute.
+    private static let strapReadingFreshWindow: TimeInterval = 10
+
+    /// Latest reading from the strap's GATT notifications. `metricsLock`-guarded.
+    private var latestStrapReading: StrapHRReading?
+
+    /// Whether the last broadcast substituted strap data — drives transition
+    /// logs only (ACTIVE/OFF once, not per sample). `metricsLock`-guarded.
+    private var isStrapFallbackActive = false
+
+    /// Set at `start(at:)` — lets the staleness check treat "no HK sample yet"
+    /// as stale only after the threshold, not in the warmup seconds.
+    private var collectionStartDate: Date?
+
+    /// Consumes the strap GATT stream into `latestStrapReading`.
+    private var strapReadingsTask: Task<Void, Never>?
+
+    /// Emits substituted metrics while HealthKit is FULLY silent (not even
+    /// frozen repeats) — without it the fallback only rides on HK callbacks.
+    private var fallbackTickerTask: Task<Void, Never>?
+
+
     // MARK: - End idempotency
 
     /// Guards `end()` against concurrent double invocation (e.g. a double "End"
@@ -123,7 +160,38 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         }
         session.startActivity(with: date)
         try await builder.beginCollection(at: date)
+        metricsLock.withLock { collectionStartDate = date }
+        startFallbackTicker()
         Logger.iPhoneWorkoutSession.info("start(at:) — activity started at \(date)")
+    }
+
+    /// Subscribes the strap GATT stream that feeds the HR fallback. Called by
+    /// the session owner right after `prepare()` — before any metrics flow.
+    public func attachStrapFallback(_ readings: AsyncStream<StrapHRReading>) {
+        strapReadingsTask?.cancel()
+        strapReadingsTask = Task { [weak self] in
+            for await reading in readings {
+                guard let self else { return }
+                self.metricsLock.withLock { self.latestStrapReading = reading }
+            }
+        }
+    }
+
+    /// Covers the worst stall flavour: HealthKit stops calling `didCollectDataOf`
+    /// entirely, so there is no callback to piggyback the substitution on.
+    private func startFallbackTicker() {
+        fallbackTickerTask?.cancel()
+        fallbackTickerTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(5))
+                guard let self, self.session?.state == .running else { continue }
+                let snapshot = self.metricsLock.withLock { self.currentMetrics }
+                let (substituted, isActive) = self.strapFallback(applyTo: snapshot)
+                if isActive {
+                    self.broadcastMetrics(substituted)
+                }
+            }
+        }
     }
 
     public func pause() async throws {
@@ -160,6 +228,8 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         // workout-stream MUST also be finished — otherwise downstream cache tasks
         // (e.g. WorkoutModeRouter awaiting `workout` AsyncStream) hang forever.
         defer {
+            strapReadingsTask?.cancel()
+            fallbackTickerTask?.cancel()
             session.end()
             finishWorkoutStream()
             Logger.iPhoneWorkoutSession.info("end() — session.end() invoked, workout stream finished")
@@ -167,8 +237,13 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
 
         let endDate = Date()
         do {
+            // Timing markers: on 29.07 endWorkout() hung for 91 s somewhere in
+            // these two HealthKit calls — the marker pair localizes which one.
+            await WorkoutFileLogger.shared.log("[End] endCollection…")
             try await builder.endCollection(at: endDate)
+            await WorkoutFileLogger.shared.log("[End] endCollection done → finishWorkout…")
             let finalWorkout = try await builder.finishWorkout()
+            await WorkoutFileLogger.shared.log("[End] finishWorkout done")
             if let workout = finalWorkout {
                 broadcastWorkout(workout)
                 Logger.iPhoneWorkoutSession.info("finishWorkout — HKWorkout uuid=\(workout.uuid.uuidString, privacy: .public)")
@@ -293,6 +368,55 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         }
     }
 
+    /// Substitutes the strap's own GATT reading for the heart-rate fields when
+    /// HealthKit stalled but the strap is alive. Reads RAW builder metrics (the
+    /// accumulator keeps the frozen HK sample date), so the staleness check has
+    /// no feedback loop with its own substituted output.
+    private func strapFallback(applyTo metrics: WorkoutMetrics) -> (metrics: WorkoutMetrics, isActive: Bool) {
+        let now = Date()
+
+        metricsLock.lock()
+        let reading = latestStrapReading
+        let startDate = collectionStartDate
+        let wasActive = isStrapFallbackActive
+        metricsLock.unlock()
+
+        let hkIsStale: Bool
+        if let hkDate = metrics.heartRateSampleDate {
+            hkIsStale = now.timeIntervalSince(hkDate) > Self.hkHeartRateStaleThreshold
+        } else if let startDate {
+            // No HK sample at all — stale only past the threshold, so the
+            // warmup seconds right after start don't trigger the fallback.
+            hkIsStale = now.timeIntervalSince(startDate) > Self.hkHeartRateStaleThreshold
+        } else {
+            hkIsStale = false
+        }
+
+        let strapIsFresh = reading.map { now.timeIntervalSince($0.date) < Self.strapReadingFreshWindow } ?? false
+        let isActive = hkIsStale && strapIsFresh
+
+        metricsLock.lock()
+        isStrapFallbackActive = isActive
+        metricsLock.unlock()
+
+        if isActive != wasActive {
+            Logger.iPhoneWorkoutSession.notice("HR fallback \(isActive ? "ACTIVE" : "OFF")")
+            Task {
+                await WorkoutFileLogger.shared.log(
+                    isActive
+                        ? "[Connection] HR fallback ACTIVE — substituting strap GATT readings (HK stalled)"
+                        : "[Connection] HR fallback OFF — HealthKit samples resumed"
+                )
+            }
+        }
+
+        guard isActive, let reading else { return (metrics, false) }
+        var substituted = metrics
+        substituted.heartRate = Double(reading.bpm)
+        substituted.heartRateSampleDate = reading.date
+        return (substituted, true)
+    }
+
     private func broadcastState(_ state: HKWorkoutSessionState) {
         stateLock.lock()
         let continuations = Array(stateContinuations.values)
@@ -390,7 +514,10 @@ extension iPhoneWorkoutSession: HKLiveWorkoutBuilderDelegate {
         currentMetrics = working
         metricsLock.unlock()
 
-        broadcastMetrics(working)
+        // The accumulator above stays RAW; only the broadcast gets the
+        // fallback-substituted view. This also rewrites the frozen repeats HK
+        // keeps emitting during a stall, so consumers never see them.
+        broadcastMetrics(strapFallback(applyTo: working).metrics)
     }
 }
 

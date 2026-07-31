@@ -1304,3 +1304,19 @@
     A: `isFinalizing` flag on `LiveClassFeature.State` — set on End-confirmed (alongside `isLive=false`), stays true BEHIND the results cover (clearing it in `.resultsReady` flashed the idle screen during the cover's present animation) and is torn down with the feature on `.classEnded`; `LiveClassView` gains an `else if isFinalizing { finalizingView }` branch (ProgressView + localized label)
 
     Noticed (separate follow-up): the end handler uses a raw `Date()` instead of `@Dependency(\.date.now)` — controlled-deps hygiene, not addressed here
+
+### IOS-00120 Strap HR fallback — HealthKit zombie-stall recovery (iPhone standalone)
+    - branch: `rls/IOS-00120/IOS-00120` (off `release`; cherry-pick to `develop`, never merge — the branch carries lf signing)
+    - field incident (30.07 logs): mid-workout HealthKit silently stopped delivering strap HR for ~13 min while the strap kept sending — frozen HR on screen, grey iPad tile, effort points stalled; the athlete had to restart the workout, which fixed it instantly
+    - root cause: iOS 26 HealthKit-managed sensor collection stalls with no disconnect callback and no recovery API (Apple's only guidance: hide the metric); a spike disproved the "app-saved samples" route — the live builder ignores `HKQuantitySample(.heartRate)` written by the app
+    - fix: the app's own parallel GATT subscription (the IOS-00100-D hold) is promoted from diagnostics to a fallback HR source — when the builder's sample date stalls >35 s AND a strap reading is fresh (<10 s), the metrics broadcast substitutes the live strap value at the stream source, so ALL consumers (live UI, effort points, GymRoom payload → iPad tile) recover transparently; hands back to HealthKit on the first fresh builder sample
+    - verified in a 3-phase field test (31.07): strap out of range → honest grey + full recovery on both iPhone and iPad; phone out of iPad range → tile suspended/reconnected every time; simulated HK stall → live climbing HR on screen and an iPad tile that never greyed; bonus: the fallback also bridges the HK re-association gap for ~2 s after every strap reconnect
+    - limitation (deliberate): during a real stall the Health archive still has an HR gap and avg HR is builder-computed — live path only; archive backfill would be a separate ticket
+
+### IOS-00121 GymRoom graceful leave — reliable goodbye so the tile drops instantly
+    - branch: `rls/IOS-00121/IOS-00121` (off `release`, rides with 0.5 (2); cherry-pick to `develop`)
+    - field observation (31.07): ending a workout mid-class left the athlete's iPad tile spinning in the reconnect state until class end — the host logged `suspended (grace period)` instead of a graceful leave
+    - the graceful-leave design exists end-to-end (peer sends an `endOfClass` goodbye, host skips the grace period and removes the tile immediately) — but the goodbye went out as a single write-without-response ~300 ms before the link teardown and was silently lost, so the host fell back to the DELIBERATE 5-minute grace (accidental-drop insurance: bathroom break, weak BLE between room zones)
+    - fix (peer/iPhone side only, host unchanged): the goodbye — and only the goodbye — is written `.withResponse` and the send suspends until the host's ACK arrives (1 s timeout, so a dead iPad never blocks the exit); the link teardown starts only after confirmed delivery; both exit paths covered (manual Leave + workout end); the workout end itself never waits on the iPad
+    - file logs added around the goodbye lifecycle (`sent → ACK` / `write FAILED` / `SKIPPED — not connected`) — field logs now show whether a spinning tile was a lost goodbye or a genuine drop
+    - note: mixed-build classes still degrade to the 5-min grace for athletes on older app versions — host-side behavior is unchanged by design
