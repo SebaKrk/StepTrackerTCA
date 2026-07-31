@@ -86,4 +86,9 @@ public protocol CentralManager: Sendable {
    /// `hrSensorConnectionEvents` it is NOT limited to held peripherals, so the
    /// pre-workout device picker can reflect connections made from its own sheet.
    func connectedHRSensorPresence() async -> AsyncStream<Bool>
+
+   /// Live strap GATT heart-rate readings — the app's own view of the sensor,
+   /// independent of HealthKit. Multicast — a new stream per call. Feeds the
+   /// HR fallback in `iPhoneWorkoutSession` when HealthKit's pipeline stalls.
+   func strapHRReadings() async -> AsyncStream<StrapHRReading>
 }
