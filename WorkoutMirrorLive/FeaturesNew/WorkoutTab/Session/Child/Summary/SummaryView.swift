@@ -279,8 +279,8 @@ struct SummaryView: View {
             ) {
                 send(.endWorkoutButtonTapped)
             }
-            .padding(.horizontal, contentHorizontalPadding)
-            .padding(.bottom, 8)
+            .padding(.horizontal, saveButtonHorizontalPadding)
+            .padding(.bottom, saveButtonBottomPadding)
             .background(saveBarScrim)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
@@ -297,6 +297,11 @@ struct SummaryView: View {
     }
 
     private var contentHorizontalPadding: CGFloat { 8 }
+
+    /// Save button sits narrower than the content and clear of the bottom
+    /// edge — it should read as a floating action, not a screen-wide footer.
+    private var saveButtonHorizontalPadding: CGFloat { 24 }
+    private var saveButtonBottomPadding: CGFloat { 24 }
     private var contentTopPadding: CGFloat { 8 }
 
     // MARK: - Toolbar

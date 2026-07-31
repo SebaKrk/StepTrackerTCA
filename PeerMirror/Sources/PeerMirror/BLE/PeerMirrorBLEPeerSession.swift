@@ -88,6 +88,9 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
     // MARK: - Public
 
     public func stop() {
+        // Defensive: a goodbye still awaiting its ACK must not hang forever
+        // once the link is being torn down.
+        resumeGoodbye(acked: false, note: "stop() during wait")
         shouldAutoReconnect = false
         connectTimeoutTask?.cancel()
         connectTimeoutTask = nil
@@ -117,6 +120,57 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
         } catch {
             Self.logger.error("Encode failed: \(error.localizedDescription, privacy: .public)")
         }
+    }
+
+    // MARK: - Goodbye (ACK-confirmed)
+
+    /// Continuation parked by `sendGoodbye` until the host ACKs the write
+    /// (`didWriteValueFor`) or the timeout fires. Lock-guarded — the ACK
+    /// callback, the timeout task and `stop()` can race to resume it.
+    private let goodbyeLock = NSLock()
+    private var goodbyeContinuation: CheckedContinuation<Bool, Never>?
+    private var goodbyeTimeoutTask: Task<Void, Never>?
+
+    /// Sends the goodbye `.withResponse` and suspends until the host ACKs
+    /// (ATT Write Response) or `timeout` elapses — so the caller can tear the
+    /// link down without racing the delivery. Returns `true` on ACK. Worst
+    /// case (no ACK) equals the old behavior: host falls back to grace.
+    public func sendGoodbye(_ payload: HRSamplePayload, timeout: Duration = .seconds(1)) async -> Bool {
+        guard let peripheral = hostPeripheral,
+              let characteristic = hrCharacteristic,
+              peripheral.state == .connected
+        else {
+            fileLog("goodbye SKIPPED — not connected (host falls back to 5 min grace)")
+            return false
+        }
+        guard let data = try? JSONEncoder().encode(payload) else {
+            Self.logger.error("Goodbye encode failed")
+            return false
+        }
+
+        fileLog("goodbye sent (withResponse) — awaiting ACK")
+        return await withCheckedContinuation { continuation in
+            goodbyeLock.withLock { goodbyeContinuation = continuation }
+            goodbyeTimeoutTask = Task { [weak self, timeout] in
+                try? await Task.sleep(for: timeout)
+                self?.resumeGoodbye(acked: false, note: "timeout — link presumed dead")
+            }
+            peripheral.writeValue(data, for: characteristic, type: .withResponse)
+        }
+    }
+
+    /// Single-resume gate for the goodbye continuation (ACK / timeout / stop race).
+    func resumeGoodbye(acked: Bool, note: String) {
+        let continuation = goodbyeLock.withLock {
+            let parked = goodbyeContinuation
+            goodbyeContinuation = nil
+            return parked
+        }
+        guard let continuation else { return }
+        goodbyeTimeoutTask?.cancel()
+        goodbyeTimeoutTask = nil
+        fileLog(acked ? "goodbye ACK — host confirmed, tile removed" : "goodbye NOT confirmed (\(note))")
+        continuation.resume(returning: acked)
     }
 
     // MARK: - Private (scan/reconnect)

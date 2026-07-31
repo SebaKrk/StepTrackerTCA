@@ -127,6 +127,7 @@ private enum SessionClientClientKey: DependencyKey {
         @Dependency(\.trainingManager) var trainingManager
         @Dependency(\.healthStore) var healthStore
         @Dependency(\.authorizationManager) var authorizationManager
+        @Dependency(\.centralManager) var centralManager
 
         // Actor that holds current mode and routes calls accordingly.
         // healthStore + authorizationManager are passed so the router can lazily create
@@ -134,7 +135,8 @@ private enum SessionClientClientKey: DependencyKey {
         let router = WorkoutModeRouter(
             trainingManager: trainingManager,
             healthStore: healthStore,
-            authorizationManager: authorizationManager
+            authorizationManager: authorizationManager,
+            centralManager: centralManager
         )
 
         // Synchronous mode holder — allows `elapsedTimeAt` and `getWorkoutSummary`
@@ -357,6 +359,10 @@ private actor WorkoutModeRouter {
     private let healthStore: HKHealthStore
     private let authorizationManager: AuthorizationManager
 
+    /// Source of strap GATT readings for the HR fallback — attached to every
+    /// `iPhoneWorkoutSession` so a HealthKit stall can substitute live strap data.
+    private let centralManager: CentralManager
+
     /// Active iPhone-standalone session (iOS 26+ only). Reference type `(any WorkoutSession)?`
     /// is universal across iOS versions — only the instantiation is gated by `#available`.
     private var iPhoneSession: (any WorkoutSession)?
@@ -385,11 +391,13 @@ private actor WorkoutModeRouter {
     init(
         trainingManager: TrainingManager,
         healthStore: HKHealthStore,
-        authorizationManager: AuthorizationManager
+        authorizationManager: AuthorizationManager,
+        centralManager: CentralManager
     ) {
         self.trainingManager = trainingManager
         self.healthStore = healthStore
         self.authorizationManager = authorizationManager
+        self.centralManager = centralManager
     }
 
     func setMode(_ newMode: WorkoutMode) {
@@ -410,6 +418,7 @@ private actor WorkoutModeRouter {
             configuration.locationType = activityType.collectsDistance ? .outdoor : .indoor
             let new = iPhoneWorkoutSession(healthStore: healthStore, configuration: configuration)
             try await new.prepare()
+            new.attachStrapFallback(await centralManager.strapHRReadings())
             iPhoneSession = new
             startCachingStreams(from: new)
             Logger.session.info("prepareIPhoneSession — iPhoneWorkoutSession prepared (activityType: \(activityType.rawValue))")
@@ -429,6 +438,7 @@ private actor WorkoutModeRouter {
             configuration: recoveredSession.workoutConfiguration
         )
         try await recovered.reattach(to: recoveredSession)
+        recovered.attachStrapFallback(await centralManager.strapHRReadings())
         self.iPhoneSession = recovered
         self.mode = .iPhoneStandalone
         startCachingStreams(from: recovered)

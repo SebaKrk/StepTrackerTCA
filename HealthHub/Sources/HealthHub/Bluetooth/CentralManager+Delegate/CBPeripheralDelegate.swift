@@ -131,6 +131,10 @@ extension DefaultCentralManager: CBPeripheralDelegate {
             ? Int(bytes[1]) | (Int(bytes[2]) << 8)
             : Int(bytes[1])
 
+        // Every parsed reading feeds the HR-fallback stream, independent of the
+        // log-event bookkeeping below.
+        emitStrapHRReading(bpm: bpm)
+
         guard let event = noteHRNotify(peripheral.identifier) else { return }
         let name = peripheral.name ?? "Unknown"
         Task {

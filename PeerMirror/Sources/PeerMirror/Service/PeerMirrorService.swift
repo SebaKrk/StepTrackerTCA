@@ -126,8 +126,15 @@ public final class PeerMirrorService {
         peerSession = nil
     }
 
-    public func send(_ payload: HRSamplePayload) {
-        peerSession?.send(payload)
+    /// HR samples go fire-and-forget; the goodbye (`endOfClass`) is delivered
+    /// with an ACK — the call suspends until the host confirms (or 1 s timeout),
+    /// so the caller can tear the link down without racing the delivery.
+    public func send(_ payload: HRSamplePayload) async {
+        if payload.endOfClass {
+            _ = await peerSession?.sendGoodbye(payload)
+        } else {
+            peerSession?.send(payload)
+        }
     }
 
     /// Host→peer: per-device recap na koniec zajęć. Deleguje do host session (no-op gdy

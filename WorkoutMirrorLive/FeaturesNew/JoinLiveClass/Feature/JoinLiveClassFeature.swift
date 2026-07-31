@@ -78,8 +78,8 @@ struct JoinLiveClassFeature {
                 // Reset scannedQRPayload + isShowingScanner — wymusza pełen scan flow ponownie.
                 //
                 // Graceful disconnect: PRZED stopBrowsing wyślij goodbye payload z `endOfClass=true`,
-                // żeby host od razu usunął tile (skip 2min grace period). Krótki delay (300ms) daje
-                // BLE write'owi czas żeby trafił do iPada zanim peripheral się rozłączy.
+                // żeby host od razu usunął tile (skip 5 min grace period). `send` dla goodbye
+                // czeka na ACK hosta (max 1 s), więc teardown nie ściga się z dostarczeniem.
                 let goodbyeDeviceID = state.deviceID
                 let goodbyeToken = state.scannedQRPayload?.token
                 let goodbyeNick = state.nick
@@ -102,8 +102,9 @@ struct JoinLiveClassFeature {
                                 effortPoints: goodbyeEffortPoints
                             )
                             Logger.gymRoom.info("[Peer] Sending goodbye (leaveTapped) — endOfClass=true")
+                            // Suspends until the host ACKs the goodbye (max 1 s) —
+                            // safe to tear the link down right after.
                             await peerMirrorClient.send(goodbye)
-                            try? await Task.sleep(for: .milliseconds(300))
                         }
                         await peerMirrorClient.stopBrowsing()
                     },
@@ -349,8 +350,9 @@ struct JoinLiveClassFeature {
                     .run { [peerMirrorClient] _ in
                         if let goodbye {
                             Logger.gymRoom.info("[Peer] Sending goodbye (workoutEnded) — endOfClass=true, \(goodbye.effortPoints ?? 0) pts")
+                            // Suspends until the host ACKs the goodbye (max 1 s) —
+                            // safe to tear the link down right after.
                             await peerMirrorClient.send(goodbye)
-                            try? await Task.sleep(for: .milliseconds(300))
                         }
                         await peerMirrorClient.stopBrowsing()
                     },

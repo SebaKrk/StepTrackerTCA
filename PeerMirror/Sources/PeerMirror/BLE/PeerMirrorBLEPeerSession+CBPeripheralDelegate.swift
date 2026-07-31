@@ -131,4 +131,16 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
             )
         }
     }
+
+    /// Fires only for `.withResponse` writes — today that is the goodbye alone.
+    public func peripheral(
+        _ peripheral: CBPeripheral,
+        didWriteValueFor characteristic: CBCharacteristic,
+        error: Error?
+    ) {
+        if let error {
+            Self.logger.error("Goodbye write failed: \(error.localizedDescription, privacy: .public)")
+        }
+        resumeGoodbye(acked: error == nil, note: error?.localizedDescription ?? "write error")
+    }
 }
