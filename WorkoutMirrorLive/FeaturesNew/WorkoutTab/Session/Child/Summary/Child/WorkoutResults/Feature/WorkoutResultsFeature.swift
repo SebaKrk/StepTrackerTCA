@@ -91,7 +91,8 @@ extension WorkoutResultsFeature.State {
         }
         return workouts.map { workout -> WorkoutSessionResult in
             let exercises = workout.exercises.map { exercise in
-                // Strength → structured plannedSets (reps×weight). Everything else
+                // Strength → structured plannedSets (reps×weight). Mobility → per-set
+                // rows too, but reps-only and never round-derived. Everything else
                 // (For Time / AMRAP / EMOM / Tabata) → one value field per exercise.
                 let sets: [SetEntry]? = {
                     if isStrength(workout.type) {
@@ -104,6 +105,11 @@ extension WorkoutResultsFeature.State {
                         let reps: Int
                         if case let .reps(r) = exercise.target { reps = r } else { reps = 0 }
                         return (0..<rounds).map { _ in SetEntry(reps: reps) }
+                    }
+
+                    if workout.type == .mobility,
+                       let planned = exercise.plannedSets, !planned.isEmpty {
+                        return planned.map { SetEntry(reps: $0.reps, weight: $0.suggestedWeight) }
                     }
 
                     return nil

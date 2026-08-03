@@ -198,13 +198,63 @@ struct WorkoutDetailContent: View {
                         .foregroundStyle(.blue)
                 }
 
-                if let info = exercise.info {
-                    Text(info)
+                if let sets = exercise.plannedSets, !sets.isEmpty {
+                    plannedSetsList(sets)
+                }
+
+                if let note = exerciseNote(exercise) {
+                    Text(note)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
         }
+    }
+
+    // MARK: - Planned Sets
+
+    private func plannedSetsList(_ sets: [PlannedSet]) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            ForEach(Array(sets.enumerated()), id: \.offset) { index, set in
+                plannedSetRow(number: index + 1, set: set)
+            }
+        }
+        .padding(.top, 1)
+    }
+
+    private func plannedSetRow(number: Int, set: PlannedSet) -> some View {
+        HStack(spacing: 6) {
+            Text(setLabel(number))
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            Text(setValue(set))
+                .foregroundColor(.primary)
+        }
+        .font(.caption)
+        .monospacedDigit()
+    }
+
+    private func setLabel(_ number: Int) -> String {
+        String(localized: "Seria \(number)")
+    }
+
+    private func setValue(_ set: PlannedSet) -> String {
+        guard let kg = set.suggestedWeight else { return "\(set.reps)" }
+        return "\(set.reps) × \(kg.formatted(.number.precision(.fractionLength(0...1)))) kg"
+    }
+
+    // The set scheme ("3×15") is the first line of `info` (guaranteed by the
+    // mapper whenever plannedSets exists) and is shown as explicit rows above,
+    // so only the remaining note (cue/scaling) renders here.
+    private func exerciseNote(_ exercise: ExerciseSession) -> String? {
+        guard let info = exercise.info else { return nil }
+        guard let sets = exercise.plannedSets, !sets.isEmpty else { return info }
+        let remainder = info
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .dropFirst()
+            .joined(separator: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return remainder.isEmpty ? nil : remainder
     }
 
     // MARK: - Cooldown Card

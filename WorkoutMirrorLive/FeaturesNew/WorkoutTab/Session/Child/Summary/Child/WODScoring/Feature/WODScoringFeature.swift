@@ -243,6 +243,11 @@ struct WODScoringFeature {
                     state.result.scoreResult = total > 0 ? .forReps(reps: total) : .completed
                     state.phase = .entered
 
+                case (.mobility, _):
+                    // No load and no time score — done means done.
+                    state.result.scoreResult = .completed
+                    state.phase = .entered
+
                 default: // emom — confirmation only
                     state.result.scoreResult = .completed
                     state.phase = .entered

@@ -15,7 +15,7 @@ Główny target iOS aplikacji **MyFitnessJournal** (repo: `StepTrackerTCA`). Ten
 - **Exercise Analytics** — wykresy postępu per ćwiczenie: 1RM, volume load, tempo, PR streaks, scaling progression.
 - **Training Readiness** — dzienny score `-10…+5` z 4 komponentów (RHR, HRV, sleep, activity load) z wyjaśnieniem każdego.
 - **Health metrics summary** — Apple Watch rings, daily stats, heart rate trends, sleep summary.
-- **CloudKit sync** — pełna persystencja via SQLiteData + `CloudKitSyncable` protocol.
+- **CloudKit sync** — ⚠️ ZAPLANOWANE, NIE DZIAŁA (TODO IOS-00071): `CloudKitSyncable` to furtka-intent (kolumna `ckRecordData` pusta), `bootstrapDatabase()` używa zwykłej lokalnej bazy — `SyncEngine` nigdy nie podpięty. **Utrata lokalnej SQLite = bezpowrotna utrata danych** (incydent 03.08.2026: przepadły plany, logi serii, wyniki WOD, effort points; przetrwały tylko treningi w HealthKit).
 
 ## Targety w workspace
 
@@ -28,9 +28,9 @@ Główny target iOS aplikacji **MyFitnessJournal** (repo: `StepTrackerTCA`). Ten
 
 - **Swift 6** (strict concurrency), **SwiftUI** (iOS 18+).
 - **[TCA](https://github.com/pointfreeco/swift-composable-architecture)** — Point-Free, główny architectural framework.
-- **[SQLiteData](https://github.com/pointfreeco/swift-sqlite-data)** — Point-Free, `@Table` makro, `DatabaseMigrator`, CloudKit sync via `CloudKitSyncable`.
+- **[SQLiteData](https://github.com/pointfreeco/swift-sqlite-data)** — Point-Free, `@Table` makro, `DatabaseMigrator`; baza wyłącznie lokalna (sync = TODO IOS-00071).
 - **HealthKit** — workouts, active energy, RHR, HRV, sleep analysis, background delivery (observer queries w `AppDelegate`).
-- **CloudKit** — sync container `iCloud.com.ss.WorkoutMirrorLive`, App Group `group.com.ss.WorkoutMirrorLive`.
+- **CloudKit** — kontener `iCloud.com.ss.WorkoutMirrorLive` skonfigurowany w entitlements, ale NIEUŻYWANY (SyncEngine niepodpięty — IOS-00071); App Group `group.com.ss.WorkoutMirrorLive`.
 - **Claude API** — `claude-sonnet-4-5` dla parsowania zdjęć planu (via `ScanPlanClient`).
 - **WidgetKit + ActivityKit** — Live Activities (workout session), Home Screen widgets (readiness, metrics).
 

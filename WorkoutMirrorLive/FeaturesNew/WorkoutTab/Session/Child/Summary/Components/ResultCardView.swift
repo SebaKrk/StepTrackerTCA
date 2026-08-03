@@ -233,6 +233,11 @@ struct ResultCardView: View {
         if let weight = exercise.actualWeight {
             return .weight("\(formatWeight(weight)) kg", rx: weight == exercise.plannedWeight)
         }
+        // Set-based rows outside the strength table (mobility) — entered sets
+        // mean the exercise is done; per-set detail lives in the editor.
+        if let sets = exercise.sets, !sets.isEmpty {
+            return .done
+        }
         if let actualReps = exercise.actualReps {
             // "12" done of a planned "30" → partial row (DNF cutoff point).
             if let done = Int(actualReps),
@@ -272,6 +277,8 @@ struct ResultCardView: View {
             return store.capMinutes.map { String(localized: "EMOM \($0) min") }
         case .forTime, .strength, .olympicWeightlifting:
             return store.capMinutes.map { String(localized: "\($0) min cap") }
+        case .mobility:
+            return nil
         }
     }
 
@@ -284,7 +291,7 @@ struct ResultCardView: View {
                 return store.phase == .entered ? .pill(completed: !store.isDNF) : nil
             }
             return .segment(status: store.wodStatus, onChange: { send(.setStatus($0)) })
-        case .forTime, .emom, .tabata:
+        case .forTime, .emom, .tabata, .mobility:
             return store.phase == .entered ? .pill(completed: true) : nil
         case .strength, .olympicWeightlifting, .amrap:
             return nil
@@ -300,7 +307,7 @@ struct ResultCardView: View {
         case .strength, .olympicWeightlifting: String(localized: "Serie")
         case .amrap: String(localized: "Wynik · AMRAP")
         case .forTime: String(localized: "Wynik · For Time")
-        case .emom, .tabata: String(localized: "Wynik")
+        case .emom, .tabata, .mobility: String(localized: "Wynik")
         }
     }
 
@@ -313,7 +320,7 @@ struct ResultCardView: View {
             return "mm:ss"
         case .amrap:
             return String(localized: "rundy + powtórzenia")
-        case .emom, .tabata:
+        case .emom, .tabata, .mobility:
             return nil
         }
     }

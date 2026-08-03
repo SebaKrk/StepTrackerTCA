@@ -14,8 +14,9 @@ struct ExerciseTypeMatchingTests {
 
     /// Golden list: every raw OCR/AI name harvested from real field data that
     /// used to fall into the `.unknown` bucket, with the case it must resolve
-    /// to after the catalog v2 extension. Guards both the new aliases and the
-    /// new cases — a regression here silently re-poisons analytics.
+    /// to after each catalog extension (v2 field harvest, v3 mobility/rehab).
+    /// Guards both the new aliases and the new cases — a regression here
+    /// silently re-poisons analytics.
     static let fieldDataGolden: [(rawName: String, expected: ExerciseType)] = [
         // Existing cases — alias gaps
         ("bar-facing burpees", .burpeeOverBar),
@@ -51,6 +52,44 @@ struct ExerciseTypeMatchingTests {
         ("plate raise", .plateRaise),
         ("landmine anti-rotation", .landmineAntiRotation),
         ("shoulder to overhead", .shoulderToOverhead),
+        // New cases — catalog v3 (mobility / rehab)
+        ("cat-cow", .catCow),
+        ("koci grzbiet", .catCow),
+        ("bird dog", .birdDog),
+        ("dead bug", .deadBug),
+        ("martwy robak", .deadBug),
+        ("child's pose", .childsPose),
+        ("ukłon japoński", .childsPose),
+        ("pelvic tilt knee to chest", .pelvicTilt),
+        ("hamstring stretch", .hamstringStretch),
+        ("figure four stretch", .gluteStretch),
+        ("piriformis stretch", .gluteStretch),
+        ("lying spinal twist", .spinalTwist),
+        ("knee across body stretch", .spinalTwist),
+        ("skręty tułowia", .spinalTwist),
+        ("foam rolling", .foamRolling),
+        ("rolowanie", .foamRolling),
+        ("prone arm raises", .proneArmRaises),
+        ("prone y raise", .proneArmRaises),
+        ("open book stretch", .openBook),
+        ("thread the needle", .threadTheNeedle),
+        ("thoracic extension on foam roller", .thoracicExtension),
+        ("mckenzie press-up", .cobraStretch),
+        ("cobra", .cobraStretch),
+        ("wall slides", .wallSlides),
+        ("pigeon pose", .pigeonPose),
+        ("hip flexor stretch", .couchStretch),
+        ("couch stretch", .couchStretch),
+        ("90/90 hip stretch", .ninetyNinety),
+        ("world's greatest stretch", .worldsGreatestStretch),
+        ("shoulder dislocates", .pvcPassThroughs),
+        ("pvc pass-throughs", .pvcPassThroughs),
+        ("downward facing dog", .downwardDog),
+        // Catalog v4 — model paraphrases harvested from the first rehab scan
+        ("pelvic tilt with knee to chest", .pelvicTilt),
+        ("torso rotation stretch", .spinalTwist),
+        ("figure 4 glute stretch", .gluteStretch),
+        ("supine knee crossover stretch", .spinalTwist),
     ]
 
     @Test("Every field-data raw name resolves to its catalog case", arguments: fieldDataGolden)
