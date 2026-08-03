@@ -86,6 +86,10 @@ public enum SectionType: String, Sendable, Equatable, Codable {
     /// Conditioning section - AMRAP, For Time, EMOM workouts with bodyweight or lighter loads.
     case conditioning
 
+    /// Mobility section - stretching, isometric holds, activation and rehab work
+    /// prescribed as the MAIN workout (not a warmup/cooldown add-on).
+    case mobility
+
     /// Transition section - brief rest/instructions between main workout blocks.
     case transition
 
@@ -98,7 +102,7 @@ public enum SectionType: String, Sendable, Equatable, Codable {
 /// A single section within an extracted workout.
 public struct WorkoutSection: Sendable, Equatable, Codable {
 
-    /// The section type (warmup, strength, conditioning, transition, or cooldown).
+    /// The section type (warmup, strength, conditioning, mobility, transition, or cooldown).
     public let type: SectionType
 
     /// Section name/identifier (e.g., "WOD 1", "Strength", "AMRAP 10").

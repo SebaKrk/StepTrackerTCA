@@ -48,7 +48,7 @@ struct InlineResultEditor: View {
             amrapEntry
         default:
             // Strength/Olympic score is derived from the heaviest set;
-            // EMOM/Tabata are confirmation-only.
+            // EMOM/Tabata/Mobility are confirmation-only.
             EmptyView()
         }
     }
@@ -156,6 +156,8 @@ struct InlineResultEditor: View {
                 isEditing: true,
                 accent: accent,
                 isPR: exercise.isPR,
+                // Mobility sets are reps-only — stretching never loads a bar.
+                showsWeight: store.wodType != .mobility,
                 onReps: { setIndex, text in send(.updateSetReps(exerciseIndex: index, setIndex: setIndex, text: text)) },
                 onWeight: { setIndex, text in send(.updateSetWeight(exerciseIndex: index, setIndex: setIndex, text: text)) }
             )

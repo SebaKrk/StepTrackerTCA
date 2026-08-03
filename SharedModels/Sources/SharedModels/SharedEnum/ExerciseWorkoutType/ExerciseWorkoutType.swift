@@ -17,6 +17,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
     case tabata
     case strength
     case olympicWeightlifting
+    case mobility
 
     public var displayName: String {
         switch self {
@@ -26,6 +27,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .tabata:               return "Tabata"
         case .strength:             return "Strength"
         case .olympicWeightlifting: return "Olympic WL"
+        case .mobility:             return "Mobility"
         }
     }
 
@@ -37,6 +39,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .tabata:               return "20 seconds work / 10 seconds rest"
         case .strength:             return "Weight training with sets and reps"
         case .olympicWeightlifting: return "Olympic weightlifting — snatch, clean & jerk"
+        case .mobility:             return "Stretching, activation and mobility work"
         }
     }
 
@@ -48,6 +51,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .tabata:               return ["Tabata", "tabata", "20/10", "20 on 10 off"]
         case .strength:             return ["Strength", "strength", "S&C"]
         case .olympicWeightlifting: return ["Weightlifting", "weightlifting", "Olympic", "OLY"]
+        case .mobility:             return ["Mobility", "mobility", "stretching", "rehab", "recovery"]
         }
     }
 
@@ -59,6 +63,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .tabata:               return 4
         case .strength:             return nil
         case .olympicWeightlifting: return nil
+        case .mobility:             return nil
         }
     }
 
@@ -70,6 +75,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .tabata:               return true
         case .strength:             return false
         case .olympicWeightlifting: return false
+        case .mobility:             return false
         }
     }
 
@@ -81,6 +87,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .tabata:               return .yellow
         case .strength:             return .orange
         case .olympicWeightlifting: return .purple
+        case .mobility:             return .mint
         }
     }
 

@@ -11,6 +11,7 @@ import SwiftUI
 /// Strength set table (Seria | Powt. | kg). Read-only: the heaviest set is
 /// highlighted in the accent (+ yellow PR chip). Editing: reps/kg cells become
 /// numeric fields writing out through closures — no local state.
+/// `showsWeight: false` drops the kg column entirely (mobility: reps-only sets).
 struct SetTable: View {
 
     // MARK: - Properties
@@ -19,6 +20,7 @@ struct SetTable: View {
     let isEditing: Bool
     let accent: Color
     let isPR: Bool
+    var showsWeight: Bool = true
     let onReps: (_ setIndex: Int, _ text: String) -> Void
     let onWeight: (_ setIndex: Int, _ text: String) -> Void
     @Environment(\.summaryPalette) private var theme
@@ -49,7 +51,9 @@ struct SetTable: View {
         HStack(spacing: 0) {
             headerCell(String(localized: "Seria"), width: 52, alignment: .leading)
             headerCell(String(localized: "Powt."), alignment: .leading)
-            headerCell("kg", alignment: .trailing)
+            if showsWeight {
+                headerCell("kg", alignment: .trailing)
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 7)
@@ -65,7 +69,9 @@ struct SetTable: View {
                 .foregroundStyle(isTop ? accent : theme.inkTertiary)
                 .frame(width: 52, alignment: .leading)
             repsCell(index: index, set: set, isTop: isTop)
-            weightCell(index: index, set: set, isTop: isTop)
+            if showsWeight {
+                weightCell(index: index, set: set, isTop: isTop)
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
