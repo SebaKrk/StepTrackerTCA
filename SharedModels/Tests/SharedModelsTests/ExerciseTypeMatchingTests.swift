@@ -90,6 +90,11 @@ struct ExerciseTypeMatchingTests {
         ("torso rotation stretch", .spinalTwist),
         ("figure 4 glute stretch", .gluteStretch),
         ("supine knee crossover stretch", .spinalTwist),
+        // Catalog v5 — the plain (full) clean was missing entirely
+        ("squat clean", .squatClean),
+        ("clean", .squatClean),
+        ("full clean", .squatClean),
+        ("hang squat clean", .hangClean),
     ]
 
     @Test("Every field-data raw name resolves to its catalog case", arguments: fieldDataGolden)

@@ -26,6 +26,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     // Olympic Weightlifting
     case snatch
     case cleanAndJerk
+    case squatClean
     case powerClean
     case powerSnatch
 
@@ -156,6 +157,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .bulgarianSplitSquat: return "Bulgarian Split Squat"
         case .snatch: return "Snatch"
         case .cleanAndJerk: return "Clean and Jerk"
+        case .squatClean: return "Squat Clean"
         case .powerClean: return "Power Clean"
         case .powerSnatch: return "Power Snatch"
         case .hangPowerClean: return "Hang Power Clean"
@@ -276,6 +278,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["snatch", "snatches", "full snatch", "full snatches", "squat snatch", "squat snatches"]
         case .cleanAndJerk:
             return ["clean and jerk", "cleans and jerks", "clean & jerk", "cleans & jerks", "C&J", "C&Js", "CJ", "CJs", "hang clean and jerk", "hang cleans and jerks", "hang clean & jerk", "hang cleans & jerks", "hang clean jerk", "hang clean jerks", "hang C&J", "hang C&Js", "hang CJ", "hang CJs"]
+        case .squatClean:
+            return ["squat clean", "squat cleans", "clean", "cleans", "full clean", "full cleans", "barbell clean", "BB clean"]
         case .powerClean:
             return ["power clean", "power cleans", "PC", "PCs"]
         case .powerSnatch:
@@ -463,7 +467,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
              .romanianDeadlift, .bentOverRow, .gobletSquat, .bulgarianSplitSquat,
              .gluteBridge, .tricepsExtension, .plateRaise, .landmineAntiRotation:
             return .strength
-        case .snatch, .cleanAndJerk, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch,
+        case .snatch, .cleanAndJerk, .squatClean, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch,
              .hangClean, .pushPress, .pushJerk, .thrusters, .sumoDeadliftHighPull, .shoulderToOverhead:
             return .olympicLifting
         case .pullUps, .pushUps, .toesToBar, .sitUps, .handstandPushUps, .barMuscleUps, .ringMuscleUps,
@@ -512,7 +516,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// re-runs when its stored version is lower — same contract as the
     /// effort-points weights version: results frozen in the database are only
     /// recomputed through an explicit, versioned pass.
-    public static let catalogVersion = 4
+    public static let catalogVersion = 5
 
     /// Matches a raw OCR/AI exercise name against the catalog: exact match on
     /// `rawValue` and `aliases` (lowercased + trimmed), then distance-based

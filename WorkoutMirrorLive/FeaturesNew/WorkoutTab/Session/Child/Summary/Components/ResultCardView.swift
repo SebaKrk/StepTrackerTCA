@@ -230,8 +230,15 @@ struct ResultCardView: View {
     }
 
     private func actual(for exercise: ExerciseLogInput) -> ExerciseList.Actual {
+        let repsText = exercise.actualReps.flatMap(enteredRepsDisplay)
+
         if let weight = exercise.actualWeight {
-            return .weight("\(formatWeight(weight)) kg", rx: weight == exercise.plannedWeight)
+            // Entered reps ride along with the weight instead of being swallowed.
+            let kg = "\(formatWeight(weight)) kg"
+            return .weight(
+                repsText.map { "\($0) · \(kg)" } ?? kg,
+                rx: weight == exercise.plannedWeight
+            )
         }
         // Set-based rows outside the strength table (mobility) — entered sets
         // mean the exercise is done; per-set detail lives in the editor.
@@ -240,14 +247,36 @@ struct ResultCardView: View {
         }
         if let actualReps = exercise.actualReps {
             // "12" done of a planned "30" → partial row (DNF cutoff point).
-            if let done = Int(actualReps),
-               let planned = exercise.plannedReps.flatMap(Int.init),
+            if let done = leadingInt(actualReps),
+               let planned = exercise.plannedReps.flatMap(leadingInt),
                done < planned {
                 return .partial(done: done, total: planned)
+            }
+            // Show the entered number instead of a bare ✓.
+            if let repsText {
+                return .weight(repsText, rx: false)
             }
             return .done
         }
         return .none
+    }
+
+    /// Entered-value display: "54x" → "54 reps"; "20 cal" / "400m" / "21-15-9"
+    /// stay as typed. Nil for empty strings (falls back to ✓/—).
+    private func enteredRepsDisplay(_ raw: String) -> String? {
+        let trimmed = raw.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil }
+        let digits = trimmed.prefix(while: \.isNumber)
+        guard let value = Int(digits) else { return trimmed }
+        let suffix = trimmed.dropFirst(digits.count).trimmingCharacters(in: .whitespaces)
+        return suffix.isEmpty || suffix == "x"
+            ? String(localized: "\(value) reps")
+            : trimmed
+    }
+
+    /// Leading integer of a compact value ("54x" → 54, "20 cal" → 20).
+    private func leadingInt(_ raw: String) -> Int? {
+        Int(raw.prefix(while: \.isNumber))
     }
 
     private func repPrefix(_ plannedReps: String?) -> String? {

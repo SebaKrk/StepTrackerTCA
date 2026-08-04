@@ -256,6 +256,11 @@ struct WODScoringFeature {
 
             case let .view(.setStatus(status)):
                 state.wodStatus = status
+                // DNF needs the rounds picker right away — don't make the user
+                // hunt for the edit button after flipping the status.
+                if status == .notFinished, !state.isReadOnly, state.phase != .editing {
+                    state.phase = .editing
+                }
                 return .none
 
             case .view(.markNotFinishedFromHint):
