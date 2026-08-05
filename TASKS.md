@@ -1333,3 +1333,12 @@
     - INCIDENT (03.08): device DB wiped (likely app reinstall; DEBUG also runs `eraseDatabaseOnSchemaChange`) — all July plans/set logs/WOD scores/effort points lost, only HealthKit workout envelopes survived; CloudKit could not restore because `CloudKitSyncable` is an intent-only "furtka" and `SyncEngine` was never wired (`bootstrapDatabase()` = plain local DB); CLAUDE.md corrected to stop overstating sync
     - BACKLOG (raised by the incident): (1) IOS-00071-iCloud — wire the actual SyncEngine, priority up; (2) cheap stopgap: DEBUG export-DB-to-Files button and/or limit `eraseDatabaseOnSchemaChange` to the simulator so a physical dev device keeps real training data
     - follow-up fixes (04.08, field-tested WOD): catalog v5 adds the missing plain `squatClean` (bare "clean" had NO case — only power/hang variants — so it fell to `.unknown` and lost its kg field); flipping status to "Nieukończony" now opens the rounds picker immediately (was: status set, editor still hidden behind "Wpisz wyniki"); entered reps show on the entered card ("54 reps · 60 kg" / "54 reps") instead of being swallowed by the kg value or a bare ✓ — leading-digit parsing also revives the dormant DNF partial row ("54x" never parsed as Int)
+
+### IOS-00123 Send unrecognized names to developer — dev + TestFlight catalog harvest
+    - branch: `dev/IOS-00123/IOS-00123`
+    - problem: the "Unrecognized names" radar was `#if DEBUG`-only, so TestFlight testers — the richest source of catalog gaps — had no way to report unmatched exercise names short of screenshots
+    - the radar card leaves `#if DEBUG` and gets localized ("Nierozpoznane nazwy"); the Copy button stays DEBUG-only
+    - red paperplane button in the Unknown-Exercise toolbar (shown only when unmatched names exist) → consent AlertState (Anuluj/Wyślij — states that a .txt with names + occurrence counts and NO workout data leaves the device)
+    - on confirm the reducer writes `unrecognized-exercises.txt` to tmp and presents a `UIActivityViewController` share sheet (Mail/Messages/AirDrop — no backend required)
+    - report header carries app version + build + `catalogVersion`, so every harvest is attributable to a concrete catalog state
+    - note: the card is visible in ALL Release builds (TF is indistinguishable at compile time); runtime `sandboxReceipt` check is the future gate if App Store should not see it

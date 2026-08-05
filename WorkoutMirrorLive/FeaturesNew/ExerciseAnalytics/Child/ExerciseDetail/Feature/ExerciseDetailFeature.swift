@@ -90,8 +90,33 @@ struct ExerciseDetailFeature {
 
             case .view(.dismissTapped):
                 return .run { _ in await self.dismiss() }
+
+            case .view(.sendToDeveloperTapped):
+                state.alert = .confirmSendReport
+                return .none
+
+            case .alert(.presented(.sendReportConfirmed)):
+                let text = state.unrecognizedNamesReport
+                return .run { send in
+                    let url = FileManager.default.temporaryDirectory
+                        .appendingPathComponent("unrecognized-exercises.txt")
+                    guard (try? Data(text.utf8).write(to: url, options: .atomic)) != nil else { return }
+                    await send(.reportFileReady(url))
+                }
+
+            case .alert:
+                return .none
+
+            case let .reportFileReady(url):
+                state.reportShareFile = .init(url: url)
+                return .none
+
+            case .view(.shareSheetDismissed):
+                state.reportShareFile = nil
+                return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$activityDetail, action: \.activityDetail) {
             ActivityDetailsFeature()
         }
@@ -117,6 +142,26 @@ struct ExerciseDetailFeature {
             return State.WeeklyVolumePoint(week: weekStart, volume: volume)
         }
         .sorted { $0.week < $1.week }
+    }
+}
+
+// MARK: - Alert State
+
+extension AlertState where Action == ExerciseDetailFeature.Action.Alert {
+
+    /// Consent gate for the unrecognized-names report — says exactly what leaves
+    /// the device before the share sheet appears.
+    static let confirmSendReport = AlertState {
+        TextState("Wysłać do developera?")
+    } actions: {
+        ButtonState(role: .cancel) {
+            TextState("Anuluj")
+        }
+        ButtonState(action: .sendReportConfirmed) {
+            TextState("Wyślij")
+        }
+    } message: {
+        TextState("Udostępnisz plik .txt z nazwami nierozpoznanych ćwiczeń i liczbą wystąpień — bez żadnych danych treningowych.")
     }
 }
 

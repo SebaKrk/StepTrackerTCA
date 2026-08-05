@@ -29,6 +29,18 @@ extension ExerciseDetailFeature {
         /// Presentation action for activity detail.
         case activityDetail(PresentationAction<ActivityDetailsFeature.Action>)
 
+        /// Unrecognized-names report written to a temp file — present the share sheet.
+        case reportFileReady(URL)
+
+        // MARK: - Alert
+
+        /// Confirmation alert before sharing the unrecognized-names report.
+        case alert(PresentationAction<Alert>)
+
+        enum Alert {
+            case sendReportConfirmed
+        }
+
         // MARK: - View Actions
 
         case view(View)
@@ -45,9 +57,15 @@ extension ExerciseDetailFeature {
             /// User tapped dismiss button.
             case dismissTapped
 
-            /// User tapped Copy in the DEBUG-only "Unrecognized names" card —
+            /// User tapped Copy in the "Unrecognized names" card (DEBUG-only button) —
             /// puts the raw-name list on the pasteboard for catalog extension work.
             case copyUnmatchedNamesTapped
+
+            /// User tapped "Wyślij do developera" — shows the confirmation alert.
+            case sendToDeveloperTapped
+
+            /// Share sheet was dismissed — clears the temp-file state.
+            case shareSheetDismissed
         }
     }
 }

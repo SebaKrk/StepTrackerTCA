@@ -31,11 +31,9 @@ struct ExerciseDetailView: View {
                 if !store.hrPerSession.isEmpty {
                     hrPerSessionCard
                 }
-                #if DEBUG
                 if store.exerciseType == .unknown, !store.unmatchedNameCounts.isEmpty {
                     unrecognizedNamesCard
                 }
-                #endif
                 historyCard
             }
             .padding()
@@ -49,12 +47,31 @@ struct ExerciseDetailView: View {
         .navigationDestination(item: $store.scope(state: \.activityDetail, action: \.activityDetail)) { detailStore in
             ActivityDetailsView(store: detailStore)
         }
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: reportShareBinding) { file in
+            ActivityShareSheet(url: file.url)
+                .presentationDetents([.medium, .large])
+        }
+    }
+
+    /// Share-sheet presentation driven by reducer state — dismiss reports back
+    /// so the temp-file handle is cleared (no @State, per house rules).
+    private var reportShareBinding: Binding<ExerciseDetailFeature.State.ReportShareFile?> {
+        Binding(
+            get: { store.reportShareFile },
+            set: { if $0 == nil { send(.shareSheetDismissed) } }
+        )
     }
 
     // MARK: - Toolbar
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
+        if store.exerciseType == .unknown, !store.unmatchedNameCounts.isEmpty {
+            ToolbarItem(placement: .topBarLeading) {
+                sendToDeveloperButton
+            }
+        }
         ToolbarItem(placement: .topBarTrailing) {
             dismissButton
         }
@@ -67,6 +84,18 @@ struct ExerciseDetailView: View {
             Text(String(localized: "Done"))
                 .fontWeight(.semibold)
         }
+    }
+
+    /// Red = "these names need attention" — the list below is the payload,
+    /// this button ships it to the developer (alert-gated).
+    private var sendToDeveloperButton: some View {
+        Button {
+            send(.sendToDeveloperTapped)
+        } label: {
+            Label("Wyślij do developera", systemImage: "paperplane.fill")
+                .labelStyle(.iconOnly)
+        }
+        .tint(.red)
     }
 
     // MARK: - Header Card
@@ -335,11 +364,7 @@ struct ExerciseDetailView: View {
         }
     }
 
-    // MARK: - Unrecognized Names Card (DEBUG diagnostics)
-
-    #if DEBUG
-    // Intentionally not localized — temporary diagnostic card, removed in a
-    // single revert commit once the ExerciseType catalog covers these names.
+    // MARK: - Unrecognized Names Card
 
     private var unrecognizedNamesCard: some View {
         GroupBox {
@@ -353,16 +378,19 @@ struct ExerciseDetailView: View {
     private var unrecognizedNamesHeader: some View {
         VStack {
             HStack {
-                Text("Unrecognized names")
+                Text("Nierozpoznane nazwy")
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()
+                #if DEBUG
                 copyUnmatchedNamesButton
+                #endif
             }
             Divider()
         }
     }
 
+    #if DEBUG
     private var copyUnmatchedNamesButton: some View {
         Button {
             send(.copyUnmatchedNamesTapped)
@@ -371,6 +399,7 @@ struct ExerciseDetailView: View {
                 .font(.caption)
         }
     }
+    #endif
 
     private var unrecognizedNamesContent: some View {
         VStack(spacing: 0) {
@@ -395,7 +424,7 @@ struct ExerciseDetailView: View {
         }
         .padding(.vertical, 8)
     }
-    #endif
+
 
     // MARK: - Card Header Helper
 
@@ -559,6 +588,22 @@ struct ExerciseDetailView: View {
             $0.exerciseLogClient.fetchByExerciseType = { _ in logs }
         })
     }
+}
+
+// MARK: - Share Sheet
+
+/// System share sheet for the unrecognized-names report file — SwiftUI has no
+/// programmatically-presentable ShareLink, so the confirmed alert flows into
+/// this thin UIKit wrapper instead.
+private struct ActivityShareSheet: UIViewControllerRepresentable {
+
+    let url: URL
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview("Pull-ups (BW)") {
