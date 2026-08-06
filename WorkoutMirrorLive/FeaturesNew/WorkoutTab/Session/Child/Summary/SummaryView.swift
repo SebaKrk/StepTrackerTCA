@@ -213,7 +213,7 @@ struct SummaryView: View {
             iconColor: .yellow,
             title: String(localized: "Effort Points"),
             value: store.effortPoints.map { "\($0)" } ?? "—",
-            unit: "pkt"
+            unit: String(localized: "pts")
         )
     }
 
@@ -251,7 +251,7 @@ struct SummaryView: View {
     }
 
     private var hrChartTitle: some View {
-        Text(String(localized: "Tętno minuta po minucie"))
+        Text(String(localized: "Heart rate minute by minute"))
             .font(.system(size: 14, weight: .bold))
             .foregroundStyle(SummaryTheme.ink)
     }
@@ -274,7 +274,7 @@ struct SummaryView: View {
     private var saveWorkoutBar: some View {
         if store.isSaveButtonVisible {
             SaveWorkoutButton(
-                title: String(localized: "Zapisz trening"),
+                title: String(localized: "Save workout"),
                 isEnabled: !store.isDiscarding
             ) {
                 send(.endWorkoutButtonTapped)

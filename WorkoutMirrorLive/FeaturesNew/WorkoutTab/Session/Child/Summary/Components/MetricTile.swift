@@ -86,7 +86,7 @@ struct MetricTile: View {
             iconColor: SummaryTheme.mint,
             title: "Effort Points",
             value: "159",
-            unit: "pkt"
+            unit: "pts"
         )
         MetricTile(
             iconSystemName: "heart.fill",
@@ -98,7 +98,7 @@ struct MetricTile: View {
         MetricTile(
             iconSystemName: "waveform.path.ecg",
             iconColor: .red,
-            title: "Maks. tętno",
+            title: "Max heart rate",
             value: "171",
             unit: "bpm"
         )

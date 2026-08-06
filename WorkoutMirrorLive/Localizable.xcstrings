@@ -2,14 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : ""
-          }
-        }
-      }
+
     },
     " cal" : {
       "extractionState" : "stale",
@@ -88,6 +81,35 @@
         }
       }
     },
+    "-" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        }
+      }
+    },
+    "–" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "–"
+          }
+        }
+      }
+    },
+    "–:–" : {
+      "shouldTranslate" : false
+    },
+    "—" : {
+      "shouldTranslate" : false
+    },
+    ":" : {
+      "shouldTranslate" : false
+    },
     "!" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -95,6 +117,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "!"
+          }
+        }
+      }
+    },
+    "· %lld rounds + %lld reps" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "· %lld rund + %lld reps"
           }
         }
       }
@@ -128,6 +160,12 @@
           }
         }
       }
+    },
+    "/ %lld" : {
+      "shouldTranslate" : false
+    },
+    "/ 100" : {
+      "shouldTranslate" : false
     },
     "%.0f %@" : {
       "extractionState" : "stale",
@@ -165,38 +203,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@"
-          }
-        }
-      }
-    },
-    "%@ %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        }
-      }
-    },
-    "%@ %@ %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@ %3$@"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@ %3$@"
           }
         }
       }
@@ -243,22 +249,34 @@
         }
       }
     },
-    "%@ Info" : {
+    "%@ %@" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Informacje %@"
+            "value" : "%1$@ %2$@"
           }
         }
       }
     },
-    "%@ KCAL" : {
+    "%@ %@ %@" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ %3$@"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ KCAL"
+            "value" : "%1$@ %2$@ %3$@"
           }
         }
       }
@@ -273,12 +291,32 @@
         }
       }
     },
+    "%@ Info" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informacje %@"
+          }
+        }
+      }
+    },
     "%@ kcal" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ kcal"
+          }
+        }
+      }
+    },
+    "%@ KCAL" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ KCAL"
           }
         }
       }
@@ -361,30 +399,6 @@
       },
       "shouldTranslate" : false
     },
-    "%lld BMP" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld uderzeń/min"
-          }
-        }
-      }
-    },
-    "%lld BPM" : {
-      "shouldTranslate" : false
-    },
-    "%lld WOD'y" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld WOD'y"
-          }
-        }
-      }
-    },
     "%lld athletes" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -413,6 +427,19 @@
           }
         }
       }
+    },
+    "%lld BMP" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld uderzeń/min"
+          }
+        }
+      }
+    },
+    "%lld BPM" : {
+      "shouldTranslate" : false
     },
     "%lld exercises" : {
       "localizations" : {
@@ -470,8 +497,30 @@
     "%lld min cap" : {
       "shouldTranslate" : false
     },
-    "%lld pkt" : {},
-    "%lld pkt/min" : {},
+    "%lld pkt/min" : {
+
+    },
+    "%lld pts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pkt"
+          }
+        }
+      }
+    },
+    "%lld pts/min" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pkt/min"
+          }
+        }
+      }
+    },
     "%lld reps" : {
       "localizations" : {
         "pl" : {
@@ -492,12 +541,12 @@
         }
       }
     },
-    "%lld rund + %lld reps" : {
+    "%lld rounds + %lld reps" : {
       "localizations" : {
-        "en" : {
+        "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld rund + %2$lld reps"
+            "state" : "translated",
+            "value" : "%lld rund + %lld reps"
           }
         }
       }
@@ -512,16 +561,37 @@
         }
       }
     },
-    "%lld serii · powtórzenia + kg" : {},
-    "%lld%%" : {
+    "%lld sets · reps + kg" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld%%"
+            "value" : "%lld serii · powtórzenia + kg"
           }
         }
       }
+    },
+    "%lld WOD'y" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld WOD'y"
+          }
+        }
+      }
+    },
+    "%lld–%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld–%2$lld"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "%lld/%lld %@" : {
       "localizations" : {
@@ -539,19 +609,28 @@
         }
       }
     },
+    "%lld%%" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%%"
+          }
+        }
+      }
+    },
     "%lld×" : {
       "shouldTranslate" : false
     },
-    "%lld–%lld" : {
+    "• %@" : {
       "localizations" : {
-        "en" : {
+        "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld–%2$lld"
+            "state" : "translated",
+            "value" : "• %@"
           }
         }
-      },
-      "shouldTranslate" : false
+      }
     },
     "+" : {
       "shouldTranslate" : false
@@ -576,22 +655,91 @@
         }
       }
     },
-    "+ Dodaj notatkę" : {},
-    "-" : {
+    "+ Add note" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "-"
+            "value" : "+ Dodaj notatkę"
           }
         }
       }
     },
-    "/ %lld" : {
+    "<6h" : {
       "shouldTranslate" : false
     },
-    "/ 100" : {
+    "≥7h" : {
       "shouldTranslate" : false
+    },
+    "⏳ AI model loading..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⏳ Ładowanie modelu AI..."
+          }
+        }
+      }
+    },
+    "♀" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "♀"
+          }
+        }
+      }
+    },
+    "♂" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "♂"
+          }
+        }
+      }
+    },
+    "⚠️ Apple Intelligence not enabled" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️ Apple Intelligence nie jest włączone"
+          }
+        }
+      }
+    },
+    "⚠️ WorkoutPlanGeneratorView" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⚠️ Generator Planu Treningowego"
+          }
+        }
+      }
+    },
+    "❌ Device not compatible" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "❌ Urządzenie niekompatybilne"
+          }
+        }
+      }
+    },
+    "🚫 AI features unavailable" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🚫 Funkcje AI niedostępne"
+          }
+        }
+      }
     },
     "0 %@" : {
       "localizations" : {
@@ -599,17 +747,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "0 %@"
-          }
-        }
-      }
-    },
-    "19:32" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "19:32"
           }
         }
       }
@@ -661,51 +798,68 @@
     "7h" : {
       "shouldTranslate" : false
     },
-    ":" : {
-      "shouldTranslate" : false
-    },
-    "<6h" : {
-      "shouldTranslate" : false
-    },
-    "ADD" : {
+    "19:32" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "DODAJ"
+            "value" : "19:32"
           }
         }
       }
     },
-    "AI Coach" : {
+    "206 − 0.88 × age" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trener AI"
+            "value" : "206 − 0,88 × wiek"
           }
         }
       }
     },
-    "AI Coach (Translated)" : {
+    "207 − 0.78 × age (men) / women's variant" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trener AI (Przetłumaczone)"
+            "value" : "207 − 0,78 × wiek (mężczyźni) / wariant dla kobiet"
           }
         }
       }
     },
-    "AMRAP %lld min" : {
-      "shouldTranslate" : false
-    },
-    "API Key" : {
+    "208 − 0.7 × age" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Klucz API"
+            "value" : "208 − 0,7 × wiek"
+          }
+        }
+      }
+    },
+    "211 − 0.64 × age" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "211 − 0,64 × wiek"
+          }
+        }
+      }
+    },
+    "220 − age" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "220 − wiek"
           }
         }
       }
@@ -737,6 +891,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aktywna energia"
+          }
+        }
+      }
+    },
+    "Active people" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktywni"
           }
         }
       }
@@ -813,6 +978,16 @@
         }
       }
     },
+    "add" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dodaj"
+          }
+        }
+      }
+    },
     "Add" : {
       "localizations" : {
         "pl" : {
@@ -823,32 +998,12 @@
         }
       }
     },
-    "Add Data" : {
+    "ADD" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dodaj Dane"
-          }
-        }
-      }
-    },
-    "Add Measurement" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj Pomiar"
-          }
-        }
-      }
-    },
-    "Add Plan" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj plan"
+            "value" : "DODAJ"
           }
         }
       }
@@ -863,6 +1018,36 @@
         }
       }
     },
+    "Add Data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj Dane"
+          }
+        }
+      }
+    },
+    "add exercise" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dodaj ćwiczenie"
+          }
+        }
+      }
+    },
+    "Add Measurement" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj Pomiar"
+          }
+        }
+      }
+    },
     "Add note..." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -870,6 +1055,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodaj notatkę..."
+          }
+        }
+      }
+    },
+    "Add Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj plan"
+          }
+        }
+      }
+    },
+    "Add to my plans" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj do moich planów"
           }
         }
       }
@@ -901,6 +1106,37 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodaj swój pierwszy trening i zacznij planować swoją aktywność."
+          }
+        }
+      }
+    },
+    "Adjusted for women — the classic formula overestimated their max heart rate. From the St. James Women Take Heart Project (2010, 5,437 women). Gives lower, more realistic values for most women." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dostosowana dla kobiet — klasyczna formuła zawyżała ich maksymalne tętno. Z badania St. James Women Take Heart Project (2010, 5437 kobiet). Daje niższe wartości — bardziej realistyczne dla większości kobiet."
+          }
+        }
+      }
+    },
+    "AI Coach" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trener AI"
+          }
+        }
+      }
+    },
+    "AI Coach (Translated)" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trener AI (Przetłumaczone)"
           }
         }
       }
@@ -937,6 +1173,20 @@
           }
         }
       }
+    },
+    "Allow Bluetooth access in Settings to connect to a heart rate monitor" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zezwól na dostęp do Bluetooth w Ustawieniach, aby połączyć się z monitorem tętna"
+          }
+        }
+      }
+    },
+    "AMRAP %lld min" : {
+      "shouldTranslate" : false
     },
     "Analysis Failed" : {
       "localizations" : {
@@ -998,7 +1248,16 @@
         }
       }
     },
-    "Anuluj" : {},
+    "API Key" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klucz API"
+          }
+        }
+      }
+    },
     "Apple Health Integration" : {
       "localizations" : {
         "pl" : {
@@ -1015,6 +1274,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Watch"
+          }
+        }
+      }
+    },
+    "Are you sure you want to end the workout? Class data will be lost." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy na pewno chcesz zakończyć trening? Dane z zajęć zostaną utracone."
           }
         }
       }
@@ -1101,36 +1370,6 @@
         }
       }
     },
-    "BMP" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "uderzeń/min"
-          }
-        }
-      }
-    },
-    "BPM" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "uderzeń/min"
-          }
-        }
-      }
-    },
-    "BW" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "BW"
-          }
-        }
-      }
-    },
     "Back to plan" : {
       "localizations" : {
         "pl" : {
@@ -1161,12 +1400,96 @@
         }
       }
     },
+    "Bład brak danych" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd brak danych"
+          }
+        }
+      }
+    },
     "Bluetooth Devices" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Urządzenia Bluetooth"
+          }
+        }
+      }
+    },
+    "Bluetooth off" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth wyłączony"
+          }
+        }
+      }
+    },
+    "Bluetooth ready" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth gotowy"
+          }
+        }
+      }
+    },
+    "Bluetooth unsupported" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth nieobsługiwany"
+          }
+        }
+      }
+    },
+    "BMP" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uderzeń/min"
+          }
+        }
+      }
+    },
+    "bpm" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bpm"
+          }
+        }
+      }
+    },
+    "BPM" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uderzeń/min"
+          }
+        }
+      }
+    },
+    "brak" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "brak"
           }
         }
       }
@@ -1192,27 +1515,6 @@
         }
       }
     },
-    "Brak odczytu tętna — sprawdź przyleganie paska" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No heart rate reading — check the strap fit"
-          }
-        }
-      }
-    },
-    "Brak połączenia z Apple Watch" : {},
-    "Brak treningów" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak treningów"
-          }
-        }
-      }
-    },
     "Broadcasting" : {
       "localizations" : {
         "pl" : {
@@ -1223,23 +1525,12 @@
         }
       }
     },
-    "Bład brak danych" : {
-      "extractionState" : "stale",
+    "BW" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Błąd brak danych"
-          }
-        }
-      }
-    },
-    "Błąd ładowania" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Błąd ładowania"
+            "value" : "BW"
           }
         }
       }
@@ -1250,6 +1541,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Spalone kcal"
+          }
+        }
+      }
+    },
+    "Calibrated for people who train regularly. From the HUNT Fitness Study (Norway, 2013). Higher values than general-population formulas — reflects better conditioning." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skalibrowana dla osób regularnie trenujących. Z badania HUNT Fitness Study (Norwegia, 2013). Wyższa wartość niż formuły dla ogólnej populacji — odzwierciedla lepsze przygotowanie."
           }
         }
       }
@@ -1305,6 +1607,16 @@
         }
       }
     },
+    "Can't delete workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można usunąć treningu"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "pl" : {
@@ -1335,6 +1647,16 @@
         }
       }
     },
+    "Changing the formula won't affect saved workouts — each workout keeps the formula from the moment it was saved." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmiana formuły nie wpłynie na zapisane treningi — każdy trening zachowuje formułę z momentu zapisania."
+          }
+        }
+      }
+    },
     "Charts comparing your selected workouts will appear here." : {
       "localizations" : {
         "pl" : {
@@ -1355,6 +1677,28 @@
         }
       }
     },
+    "Checking Bluetooth..." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprawdzanie Bluetooth..."
+          }
+        }
+      }
+    },
+    "Checking..." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprawdzanie..."
+          }
+        }
+      }
+    },
     "Choose Exercise" : {
       "localizations" : {
         "pl" : {
@@ -1365,18 +1709,23 @@
         }
       }
     },
-    "Ciężary: M: %lldkg / K: %lldkg" : {
+    "Class is still in progress" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weights: M: %1$lldkg / F: %2$lldkg"
-          }
-        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ciężadry: M: %1$lldkg / K: %2$lldkg"
+            "value" : "Zajęcia wciąż trwają"
+          }
+        }
+      }
+    },
+    "Classic" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klasyczna"
           }
         }
       }
@@ -1452,12 +1801,52 @@
         }
       }
     },
+    "Completed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukończony"
+          }
+        }
+      }
+    },
+    "Completed rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukończone rundy"
+          }
+        }
+      }
+    },
+    "connect" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "połącz"
+          }
+        }
+      }
+    },
     "Connect Apple Health" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Połącz z Apple Health"
+          }
+        }
+      }
+    },
+    "connected" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "połączono"
           }
         }
       }
@@ -1563,12 +1952,42 @@
         }
       }
     },
+    "Couldn't load workouts." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się załadować treningów."
+          }
+        }
+      }
+    },
+    "Couldn't prepare the code" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się przygotować kodu"
+          }
+        }
+      }
+    },
     "Couldn't reach the class for 5 minutes. Your workout is still recording." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak łączności z zajęciami od 5 minut. Twój trening wciąż się zapisuje."
+          }
+        }
+      }
+    },
+    "Couldn't read the plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się odczytać planu"
           }
         }
       }
@@ -1583,12 +2002,52 @@
         }
       }
     },
+    "Create a training plan in the Plans tab first." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stwórz najpierw plan treningu w zakładce Plany."
+          }
+        }
+      }
+    },
+    "Create a Workout Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utwórz plan treningowy"
+          }
+        }
+      }
+    },
+    "create single workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "utwórz pojedynczy trening"
+          }
+        }
+      }
+    },
     "Create WOD" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utwórz WOD"
+          }
+        }
+      }
+    },
+    "create workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "utwórz trening"
           }
         }
       }
@@ -1600,16 +2059,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utwórz Trening"
-          }
-        }
-      }
-    },
-    "Create a Workout Plan" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utwórz plan treningowy"
           }
         }
       }
@@ -1650,38 +2099,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Obecny stan autoryzacji: %@"
-          }
-        }
-      }
-    },
-    "Czas przekracza limit %lld:00" : {},
-    "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heart rate sensor out of range — workout continues, measurement paused"
-          }
-        }
-      }
-    },
-    "Czujnik tętna rozłączony — sprawdź baterię paska" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heart rate sensor disconnected — check the strap battery"
-          }
-        }
-      }
-    },
-    "Czy na pewno chcesz zakończyć trening? Dane z zajęć zostaną utracone." : {},
-    "DEBUG: Create Workout" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "DEBUG: Utwórz trening"
           }
         }
       }
@@ -1747,6 +2164,27 @@
         }
       }
     },
+    "debug authorizationStatuses" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "debug statusów autoryzacji"
+          }
+        }
+      }
+    },
+    "DEBUG: Create Workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DEBUG: Utwórz trening"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "pl" : {
@@ -1793,6 +2231,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usuń trening"
+          }
+        }
+      }
+    },
+    "Delete workout?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń trening?"
           }
         }
       }
@@ -1858,6 +2306,47 @@
         }
       }
     },
+    "Discard workout?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzuć trening?"
+          }
+        }
+      }
+    },
+    "disconnect" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rozłącz"
+          }
+        }
+      }
+    },
+    "disconnected" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rozłączono"
+          }
+        }
+      }
+    },
+    "Disconnected" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niepołączony"
+          }
+        }
+      }
+    },
     "Dismiss" : {
       "localizations" : {
         "pl" : {
@@ -1868,7 +2357,6 @@
         }
       }
     },
-    "Dodaj do moich planów" : {},
     "Dodaj plan" : {
       "localizations" : {
         "en" : {
@@ -1885,7 +2373,16 @@
         }
       }
     },
-    "Dokąd doszedłeś przed upływem limitu?" : {},
+    "dominant: %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dominująca: %@"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "pl" : {
@@ -1926,8 +2423,45 @@
         }
       }
     },
-    "EMOM %lld min" : {
-      "shouldTranslate" : false
+    "e.g. 5 min light jog, dynamic stretching, mobility..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "np. 5 min truchtu, rozciąganie dynamiczne, mobilność..."
+          }
+        }
+      }
+    },
+    "e.g. 10 min walk, static stretching, foam rolling..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "np. 10 min marszu, rozciąganie statyczne, rolowanie..."
+          }
+        }
+      }
+    },
+    "e.g. Wall Sit" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "np. Wall Sit"
+          }
+        }
+      }
+    },
+    "e.g. WOD 1" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "np. WOD 1"
+          }
+        }
+      }
     },
     "Edit" : {
       "localizations" : {
@@ -1949,6 +2483,16 @@
         }
       }
     },
+    "Edit results" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj wyniki"
+          }
+        }
+      }
+    },
     "Edit Text" : {
       "localizations" : {
         "pl" : {
@@ -1959,8 +2503,26 @@
         }
       }
     },
-    "Edycja możliwa do %@" : {},
-    "Edycja zablokowana" : {},
+    "Editable until %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edycja możliwa do %@"
+          }
+        }
+      }
+    },
+    "Editing locked" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edycja zablokowana"
+          }
+        }
+      }
+    },
     "Edytuj" : {
       "localizations" : {
         "pl" : {
@@ -1992,7 +2554,6 @@
         }
       }
     },
-    "Edytuj wyniki" : {},
     "Effort Points" : {
       "localizations" : {
         "pl" : {
@@ -2013,6 +2574,9 @@
         }
       }
     },
+    "EMOM %lld min" : {
+      "shouldTranslate" : false
+    },
     "Enable heart rate broadcasting" : {
       "localizations" : {
         "pl" : {
@@ -2029,6 +2593,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Koniec"
+          }
+        }
+      }
+    },
+    "End anyway" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ mimo to"
           }
         }
       }
@@ -2063,6 +2637,16 @@
         }
       }
     },
+    "Enter results" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz wyniki"
+          }
+        }
+      }
+    },
     "Enter score..." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2070,6 +2654,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wpisz wynik..."
+          }
+        }
+      }
+    },
+    "Enter sets" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz serie"
+          }
+        }
+      }
+    },
+    "Enter total reps / calories" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz łączną liczbę powtórzeń / kalorii"
           }
         }
       }
@@ -2100,6 +2704,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ćwiczenie"
+          }
+        }
+      }
+    },
+    "exercise time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "czas ćwiczenia"
           }
         }
       }
@@ -2144,12 +2758,62 @@
         }
       }
     },
+    "failed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nieudane"
+          }
+        }
+      }
+    },
     "Failed to discard workout" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się odrzucić treningu"
+          }
+        }
+      }
+    },
+    "figure.run" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "figure.run"
+          }
+        }
+      }
+    },
+    "File sharing is coming in a future version." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udostępnianie plikiem pojawi się w kolejnej wersji."
+          }
+        }
+      }
+    },
+    "Fill in results" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uzupełnij wyniki"
+          }
+        }
+      }
+    },
+    "Fill in results so they land in history and exercise analytics." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uzupełnij wyniki, żeby trafiły do historii i analityki ćwiczeń."
           }
         }
       }
@@ -2185,22 +2849,22 @@
         }
       }
     },
-    "Formuła maxHR" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Formuła maxHR"
-          }
-        }
-      }
-    },
     "Frequency" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Częstotliwość"
+          }
+        }
+      }
+    },
+    "fuel" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "paliwo"
           }
         }
       }
@@ -2212,6 +2876,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Żywienie"
+          }
+        }
+      }
+    },
+    "General population" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogólna populacja"
           }
         }
       }
@@ -2317,46 +2992,6 @@
         }
       }
     },
-    "HR Recovery" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regeneracja tętna"
-          }
-        }
-      }
-    },
-    "HR belt" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pas HR"
-          }
-        }
-      }
-    },
-    "HR max" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tętno maks."
-          }
-        }
-      }
-    },
-    "HR min" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tętno min."
-          }
-        }
-      }
-    },
     "Health Metrics Trends" : {
       "localizations" : {
         "pl" : {
@@ -2377,7 +3012,7 @@
         }
       }
     },
-    "HealthKit pozwala usuwać tylko treningi zarejestrowane przez tę aplikację." : {
+    "HealthKit only allows deleting workouts recorded by this app." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2408,6 +3043,16 @@
         }
       }
     },
+    "Heart rate & activity" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno i aktywność"
+          }
+        }
+      }
+    },
     "Heart Rate & Activity" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2419,12 +3064,43 @@
         }
       }
     },
+    "Heart rate data will appear shortly" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane tętna pojawią się wkrótce"
+          }
+        }
+      }
+    },
     "Heart Rate Details" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szczegóły tętna"
+          }
+        }
+      }
+    },
+    "Heart rate is measured only by AirPods Pro 3. Put both AirPods in your ears and keep them connected to this iPhone — readings appear once the workout starts." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno mierzą tylko AirPods Pro 3. Włóż obie słuchawki do uszu i utrzymuj połączenie z tym iPhonem — odczyt pojawi się po rozpoczęciu treningu."
+          }
+        }
+      }
+    },
+    "Heart rate minute by minute" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno minuta po minucie"
           }
         }
       }
@@ -2449,6 +3125,16 @@
         }
       }
     },
+    "Heart rate zones" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefy tętna"
+          }
+        }
+      }
+    },
     "Heart Rate Zones" : {
       "localizations" : {
         "pl" : {
@@ -2459,23 +3145,22 @@
         }
       }
     },
-    "Heart rate data will appear shortly" : {
-      "extractionState" : "stale",
+    "Heart rate zones & points" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dane tętna pojawią się wkrótce"
+            "value" : "Strefy tętna i punkty"
           }
         }
       }
     },
-    "Heart rate is measured only by AirPods Pro 3. Put both AirPods in your ears and keep them connected to this iPhone — readings appear once the workout starts." : {
+    "Heaviest set" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tętno mierzą tylko AirPods Pro 3. Włóż obie słuchawki do uszu i utrzymuj połączenie z tym iPhonem — odczyt pojawi się po rozpoczęciu treningu."
+            "value" : "Najcięższa seria"
           }
         }
       }
@@ -2521,6 +3206,16 @@
         }
       }
     },
+    "hours" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "godz."
+          }
+        }
+      }
+    },
     "Hours" : {
       "localizations" : {
         "pl" : {
@@ -2531,12 +3226,102 @@
         }
       }
     },
+    "How far did you get before the cap?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dokąd doszedłeś przed upływem limitu?"
+          }
+        }
+      }
+    },
     "How often each exercise appeared in your training" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jak często dane ćwiczenie pojawiało się w treningu"
+          }
+        }
+      }
+    },
+    "HR belt" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas HR"
+          }
+        }
+      }
+    },
+    "HR max" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno maks."
+          }
+        }
+      }
+    },
+    "HR min" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno min."
+          }
+        }
+      }
+    },
+    "HR Recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja tętna"
+          }
+        }
+      }
+    },
+    "HR sensor connection lost — measuring paused" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Połączenie z czujnikiem tętna przerwane — pomiar wstrzymany"
+          }
+        }
+      }
+    },
+    "HR sensor disconnected — check the strap battery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czujnik tętna rozłączony — sprawdź baterię paska"
+          }
+        }
+      }
+    },
+    "HR sensor out of range — workout continues, measuring paused" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany"
+          }
+        }
+      }
+    },
+    "hrTSS" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hrTSS"
           }
         }
       }
@@ -2561,6 +3346,16 @@
         }
       }
     },
+    "Import plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importuj plan"
+          }
+        }
+      }
+    },
     "Important message" : {
       "localizations" : {
         "pl" : {
@@ -2571,7 +3366,6 @@
         }
       }
     },
-    "Importuj plan" : {},
     "Info" : {
       "localizations" : {
         "pl" : {
@@ -2632,12 +3426,13 @@
         }
       }
     },
-    "Join Live Class" : {
+    "Join a fitness group to track progress with your teammates and stay motivated together." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dołącz do zajęć"
+            "value" : "Dołącz do grupy fitness, aby śledzić postępy z zespołem i utrzymywać motywację razem."
           }
         }
       }
@@ -2652,13 +3447,35 @@
         }
       }
     },
-    "Join a fitness group to track progress with your teammates and stay motivated together." : {
-      "extractionState" : "stale",
+    "Join Live Class" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dołącz do grupy fitness, aby śledzić postępy z zespołem i utrzymywać motywację razem."
+            "value" : "Dołącz do zajęć"
+          }
+        }
+      }
+    },
+    "kcal" : {
+      "shouldTranslate" : false
+    },
+    "kcla" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "kcal"
+          }
+        }
+      }
+    },
+    "kg" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "kg"
           }
         }
       }
@@ -2683,13 +3500,12 @@
         }
       }
     },
-    "LIVE" : {
-      "extractionState" : "stale",
+    "laps" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NA ŻYWO"
+            "value" : "okr."
           }
         }
       }
@@ -2724,6 +3540,9 @@
         }
       }
     },
+    "limit %lld:00" : {
+      "shouldTranslate" : false
+    },
     "Limit czasu" : {
       "localizations" : {
         "pl" : {
@@ -2741,6 +3560,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Na żywo"
+          }
+        }
+      }
+    },
+    "LIVE" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NA ŻYWO"
+          }
+        }
+      }
+    },
+    "live %lld" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "na żywo %lld"
+          }
+        }
+      }
+    },
+    "Loading failed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd ładowania"
           }
         }
       }
@@ -2805,32 +3656,12 @@
         }
       }
     },
-    "METs" : {
+    "Lost connection to the Watch — workout continues" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "METs"
-          }
-        }
-      }
-    },
-    "MOCK" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MOCK"
-          }
-        }
-      }
-    },
-    "Maks. tętno" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maks. tętno"
+            "value" : "Utracono połączenie z Watchem — trening trwa dalej"
           }
         }
       }
@@ -2845,6 +3676,27 @@
         }
       }
     },
+    "manage workout type" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zarządzaj typem treningu"
+          }
+        }
+      }
+    },
+    "Mark as Not finished?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oznaczyć jako Nieukończony?"
+          }
+        }
+      }
+    },
     "Max" : {
       "localizations" : {
         "pl" : {
@@ -2855,12 +3707,32 @@
         }
       }
     },
+    "Max heart rate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maks. tętno"
+          }
+        }
+      }
+    },
     "Max HR" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Maks. tętno"
+          }
+        }
+      }
+    },
+    "Max HR formula" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formuła maxHR"
           }
         }
       }
@@ -2885,6 +3757,19 @@
           }
         }
       }
+    },
+    "METs" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "METs"
+          }
+        }
+      }
+    },
+    "min" : {
+      "shouldTranslate" : false
     },
     "Min" : {
       "localizations" : {
@@ -2922,6 +3807,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minuty"
+          }
+        }
+      }
+    },
+    "MOCK" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MOCK"
           }
         }
       }
@@ -2967,17 +3862,6 @@
         }
       }
     },
-    "Mężczyzna" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mężczyzna"
-          }
-        }
-      }
-    },
-    "Najcięższa seria" : {},
     "Name" : {
       "localizations" : {
         "pl" : {
@@ -3008,93 +3892,6 @@
         }
       }
     },
-    "Nie można usunąć treningu" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie można usunąć treningu"
-          }
-        }
-      }
-    },
-    "Nie udało się odczytać planu" : {},
-    "Nie udało się przygotować kodu" : {},
-    "Nie udało się załadować treningów." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie udało się załadować treningów."
-          }
-        }
-      }
-    },
-    "Nierozpoznane nazwy" : {},
-    "Nieukończony" : {},
-    "No Data" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak Danych"
-          }
-        }
-      }
-    },
-    "No HRV data found. Regular measurements required." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak danych HRV. Wymagane regularne pomiary."
-          }
-        }
-      }
-    },
-    "No Team Yet" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jeszcze Bez Zespołu"
-          }
-        }
-      }
-    },
-    "No Weight Data" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak danych o wadze"
-          }
-        }
-      }
-    },
-    "No Workout Plans" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak planów treningowych"
-          }
-        }
-      }
-    },
-    "No Workouts" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak Treningów"
-          }
-        }
-      }
-    },
     "No calories burned data available." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3106,12 +3903,32 @@
         }
       }
     },
+    "No connection to Apple Watch" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak połączenia z Apple Watch"
+          }
+        }
+      }
+    },
     "No data" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych"
+          }
+        }
+      }
+    },
+    "No Data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak Danych"
           }
         }
       }
@@ -3197,12 +4014,33 @@
         }
       }
     },
+    "No heart rate reading — check the strap fit" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak odczytu tętna — sprawdź przyleganie paska"
+          }
+        }
+      }
+    },
     "No history yet." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak historii."
+          }
+        }
+      }
+    },
+    "No HRV data found. Regular measurements required." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych HRV. Wymagane regularne pomiary."
           }
         }
       }
@@ -3237,6 +4075,17 @@
         }
       }
     },
+    "No permission" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zgody"
+          }
+        }
+      }
+    },
     "No sleep data. Track your sleep to see insights." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3244,6 +4093,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych snu. Śledź sen, aby zobaczyć analizy."
+          }
+        }
+      }
+    },
+    "No Team Yet" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeszcze Bez Zespołu"
           }
         }
       }
@@ -3265,6 +4125,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych objętościowych dla tego ćwiczenia."
+          }
+        }
+      }
+    },
+    "No Weight Data" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych o wadze"
           }
         }
       }
@@ -3309,6 +4180,26 @@
         }
       }
     },
+    "No Workout Plans" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak planów treningowych"
+          }
+        }
+      }
+    },
+    "No Workouts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak Treningów"
+          }
+        }
+      }
+    },
     "No workouts found for the selected period. Make sure you have granted HealthKit access and recorded some workouts." : {
       "localizations" : {
         "pl" : {
@@ -3349,15 +4240,32 @@
         }
       }
     },
-    "Notatka" : {},
-    "Notatka:" : {},
+    "Not finished" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieukończony"
+          }
+        }
+      }
+    },
     "Note" : {
-      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notatka"
+          }
+        }
+      }
+    },
+    "Note:" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notatka:"
           }
         }
       }
@@ -3382,42 +4290,33 @@
         }
       }
     },
-    "OK" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        }
-      }
-    },
-    "Odrzuć" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odrzuć"
-          }
-        }
-      }
-    },
-    "Odrzuć trening?" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odrzuć trening?"
-          }
-        }
-      }
-    },
     "Odznacz" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Odznacz"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączony"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
           }
         }
       }
@@ -3438,6 +4337,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Otwórz aplikacje"
+          }
+        }
+      }
+    },
+    "open bluetooth settings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "otwórz ustawienia bluetooth"
+          }
+        }
+      }
+    },
+    "open settings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "otwórz ustawienia"
           }
         }
       }
@@ -3472,23 +4393,22 @@
         }
       }
     },
+    "or" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lub"
+          }
+        }
+      }
+    },
     "Other HR device" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inny czujnik HR"
-          }
-        }
-      }
-    },
-    "Oznaczyć jako Nieukończony?" : {},
-    "PR" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PR"
           }
         }
       }
@@ -3509,6 +4429,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Najwyższy ciężar zarejestrowany per ćwiczenie"
+          }
+        }
+      }
+    },
+    "per workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "na trening"
+          }
+        }
+      }
+    },
+    "Permission required" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymagane uprawnienia"
           }
         }
       }
@@ -3554,18 +4495,36 @@
         }
       }
     },
-    "Pewność: %lld%%" : {
+    "placeholder" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pewność: %lld%%"
+            "value" : "placeholder"
           }
         }
       }
     },
-    "Plan podpięty — dotknij, aby dodać" : {},
-    "Plan za duży na kod QR" : {},
+    "Plan attached — tap to add" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan podpięty — dotknij, aby dodać"
+          }
+        }
+      }
+    },
+    "Plan too large for a QR code" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan za duży na kod QR"
+          }
+        }
+      }
+    },
     "Plan: %@" : {
       "localizations" : {
         "pl" : {
@@ -3607,6 +4566,17 @@
         }
       }
     },
+    "Please wait while we initialize the Bluetooth connection" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poczekaj, aż zainicjujemy połączenie Bluetooth"
+          }
+        }
+      }
+    },
     "Podgląd" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3614,26 +4584,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Podgląd"
-          }
-        }
-      }
-    },
-    "Podgląd OCR" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podgląd OCR"
-          }
-        }
-      }
-    },
-    "Podgląd treningu" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podgląd treningu"
           }
         }
       }
@@ -3649,6 +4599,16 @@
         }
       }
     },
+    "points" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "punkty"
+          }
+        }
+      }
+    },
     "Points in class" : {
       "localizations" : {
         "pl" : {
@@ -3659,7 +4619,6 @@
         }
       }
     },
-    "Pokaż ten kod, żeby udostępnić plan" : {},
     "Porównanie animacji" : {
       "localizations" : {
         "pl" : {
@@ -3670,14 +4629,12 @@
         }
       }
     },
-    "Powt." : {},
-    "Powt. w rundzie" : {},
-    "Połączenie z czujnikiem tętna przerwane — pomiar wstrzymany" : {
+    "PR" : {
       "localizations" : {
-        "en" : {
+        "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Heart rate sensor connection lost — measurement paused"
+            "value" : "PR"
           }
         }
       }
@@ -3753,8 +4710,15 @@
         }
       }
     },
-    "RX" : {
-      "shouldTranslate" : false
+    "pts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pkt"
+          }
+        }
+      }
     },
     "Readiness Analysis" : {
       "localizations" : {
@@ -3808,6 +4772,26 @@
         }
       }
     },
+    "Remove all scheduled workouts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń wszystkie zaplanowane treningi"
+          }
+        }
+      }
+    },
+    "remove all workouts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "usuń wszystkie treningi"
+          }
+        }
+      }
+    },
     "Remove Cooldown?" : {
       "localizations" : {
         "pl" : {
@@ -3828,15 +4812,8 @@
         }
       }
     },
-    "Remove all scheduled workouts" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń wszystkie zaplanowane treningi"
-          }
-        }
-      }
+    "reps" : {
+      "shouldTranslate" : false
     },
     "Reps" : {
       "localizations" : {
@@ -3844,6 +4821,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Powtórzenia"
+          }
+        }
+      }
+    },
+    "Reps in round" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powt. w rundzie"
           }
         }
       }
@@ -3878,12 +4865,33 @@
         }
       }
     },
+    "Resting heart rate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno spoczynkowe"
+          }
+        }
+      }
+    },
     "Results" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyniki"
+          }
+        }
+      }
+    },
+    "retry" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ponów próbę"
           }
         }
       }
@@ -3908,6 +4916,16 @@
         }
       }
     },
+    "rounds + reps" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rundy + powtórzenia"
+          }
+        }
+      }
+    },
     "Route" : {
       "localizations" : {
         "pl" : {
@@ -3928,16 +4946,8 @@
         }
       }
     },
-    "Rozpoczynam na Apple Watch" : {},
-    "Rozpoznany tekst (%lld fragmentów):" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rozpoznany tekst (%lld fragmentów):"
-          }
-        }
-      }
+    "rund" : {
+
     },
     "Rundy" : {
       "localizations" : {
@@ -3949,12 +4959,15 @@
         }
       }
     },
-    "START" : {
+    "RX" : {
+      "shouldTranslate" : false
+    },
+    "save" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "START"
+            "value" : "zapisz"
           }
         }
       }
@@ -3969,6 +4982,16 @@
         }
       }
     },
+    "Save for later" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisz na później"
+          }
+        }
+      }
+    },
     "Save Key" : {
       "localizations" : {
         "pl" : {
@@ -3979,12 +5002,12 @@
         }
       }
     },
-    "Save for later" : {
+    "Save workout" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zapisz na później"
+            "value" : "Zapisz trening"
           }
         }
       }
@@ -4102,6 +5125,46 @@
         }
       }
     },
+    "Score · AMRAP" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik · AMRAP"
+          }
+        }
+      }
+    },
+    "Score · For Time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik · For Time"
+          }
+        }
+      }
+    },
+    "Score · Tabata" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik · Tabata"
+          }
+        }
+      }
+    },
+    "Score · Time cap" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik · Time cap"
+          }
+        }
+      }
+    },
     "Score:" : {
       "localizations" : {
         "pl" : {
@@ -4122,12 +5185,32 @@
         }
       }
     },
+    "sec" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sek"
+          }
+        }
+      }
+    },
     "Seconds" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sekundy"
+          }
+        }
+      }
+    },
+    "select" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wybierz"
           }
         }
       }
@@ -4142,12 +5225,12 @@
         }
       }
     },
-    "Select Photo" : {
+    "Select a photo of your workout plan" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wybierz zdjęcie"
+            "value" : "Wybierz zdjęcie swojego planu treningowego"
           }
         }
       }
@@ -4162,12 +5245,22 @@
         }
       }
     },
-    "Select a photo of your workout plan" : {
+    "Select Photo" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wybierz zdjęcie swojego planu treningowego"
+            "value" : "Wybierz zdjęcie"
+          }
+        }
+      }
+    },
+    "select workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wybierz trening"
           }
         }
       }
@@ -4232,9 +5325,36 @@
         }
       }
     },
-    "Seria" : {},
-    "Seria %lld" : {},
-    "Serie" : {},
+    "Send" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij"
+          }
+        }
+      }
+    },
+    "Send to developer" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij do developera"
+          }
+        }
+      }
+    },
+    "Send to the developer?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysłać do developera?"
+          }
+        }
+      }
+    },
     "Series" : {
       "localizations" : {
         "pl" : {
@@ -4285,6 +5405,48 @@
         }
       }
     },
+    "Sets" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serie"
+          }
+        }
+      }
+    },
+    "settings" : {
+      "comment" : "The More Tab provides access to additional options and settings.",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ustawienia"
+          }
+        }
+      }
+    },
+    "Sex-aware" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uwzględnia płeć"
+          }
+        }
+      }
+    },
+    "sharing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "udostępnianie"
+          }
+        }
+      }
+    },
     "Sharing" : {
       "comment" : "The Sharing Tab shows the team you joined and shared workout activity.",
       "localizations" : {
@@ -4292,6 +5454,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Udostępnianie"
+          }
+        }
+      }
+    },
+    "show" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pokaż"
           }
         }
       }
@@ -4312,6 +5484,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pokaż alert"
+          }
+        }
+      }
+    },
+    "Show this code to share the plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaż ten kod, żeby udostępnić plan"
+          }
+        }
+      }
+    },
+    "sk-ant-..." : {
+      "shouldTranslate" : false
+    },
+    "Slide to unlock" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przesuń, aby odblokować"
           }
         }
       }
@@ -4356,13 +5551,33 @@
         }
       }
     },
-    "Spróbuj ponownie za chwilę." : {},
     "Start" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Start"
+          }
+        }
+      }
+    },
+    "START" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "START"
+          }
+        }
+      }
+    },
+    "Start class" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpocznij zajęcia"
           }
         }
       }
@@ -4377,33 +5592,12 @@
         }
       }
     },
-    "Start Over" : {
+    "start in 5 min" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zacznij od nowa"
-          }
-        }
-      }
-    },
-    "Start Workout" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rozpocznij trening"
-          }
-        }
-      }
-    },
-    "Start class" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rozpocznij zajęcia"
+            "value" : "rozpocznij za 5 min"
           }
         }
       }
@@ -4428,6 +5622,47 @@
         }
       }
     },
+    "Start Over" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zacznij od nowa"
+          }
+        }
+      }
+    },
+    "start scanning" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rozpocznij skanowanie"
+          }
+        }
+      }
+    },
+    "Start Workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpocznij trening"
+          }
+        }
+      }
+    },
+    "Starting on Apple Watch" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozpoczynam na Apple Watch"
+          }
+        }
+      }
+    },
     "Stats" : {
       "comment" : "The Stats Tab presents charts and analytics for workouts and health metrics.",
       "localizations" : {
@@ -4439,12 +5674,32 @@
         }
       }
     },
+    "statsPicker" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wybór statystyk"
+          }
+        }
+      }
+    },
     "Status" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Status"
+          }
+        }
+      }
+    },
+    "Stay" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostań"
           }
         }
       }
@@ -4469,24 +5724,12 @@
         }
       }
     },
-    "Strefy tętna" : {},
-    "Strefy tętna i punkty" : {},
     "Strength" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Siła"
-          }
-        }
-      }
-    },
-    "Stwórz najpierw plan treningu w zakładce Plany." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stwórz najpierw plan treningu w zakładce Plany."
           }
         }
       }
@@ -4521,23 +5764,33 @@
         }
       }
     },
-    "TRAINING READINESS" : {
+    "Tabata · %lld rounds" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "GOTOWOŚĆ TRENINGOWA"
+            "value" : "Tabata · %lld rund"
           }
         }
       }
     },
-    "Tabata · %lld rund" : {},
     "Take Photo" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zrób zdjęcie"
+          }
+        }
+      }
+    },
+    "Takes HealthKit biological sex into account. Men: 207 − 0.78 × age; women: a separate variant. A good compromise when you want sex-specific accuracy." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uwzględnia biologiczną płeć z HealthKit. Mężczyźni: 207 − 0,78 × wiek; kobiety: osobny wariant. Dobry kompromis gdy chcesz dokładności dopasowanej do płci."
           }
         }
       }
@@ -4603,13 +5856,85 @@
         }
       }
     },
-    "Ten kod nie zawiera prawidłowego planu treningowego." : {},
     "The key is stored securely in the device's Keychain." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Klucz jest przechowywany bezpiecznie w Keychain urządzenia."
+          }
+        }
+      }
+    },
+    "The modern statistical replacement for the classic formula. Validated on 18,712 people. Recommended for the general population — Apple Health uses it as the baseline." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowoczesny statystyczny zastępca formuły klasycznej. Walidowana na 18 712 osobach. Rekomendowana dla ogólnej populacji — Apple Health używa jej jako baseline."
+          }
+        }
+      }
+    },
+    "The oldest and simplest — the 1971 Fox and Haskell formula. Easy to remember but statistically the least accurate. Pick it for values comparable with legacy fitness apps." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najstarsza i najprostsza — wzór Fox i Haskell z 1971 roku. Łatwa do zapamiętania, ale najmniej dokładna statystycznie. Wybierz jeśli chcesz wartość porównywalną z historycznymi aplikacjami fitness."
+          }
+        }
+      }
+    },
+    "The workout is still running on the watch. End it on Apple Watch by holding the Stop button." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening nadal trwa na zegarku. Zakończ go na Apple Watch, przytrzymując przycisk Stop."
+          }
+        }
+      }
+    },
+    "The workout will be permanently deleted from HealthKit." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening zostanie trwale usunięty z HealthKit."
+          }
+        }
+      }
+    },
+    "The workout will be removed from HealthKit and won't be saved." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening zostanie usunięty z HealthKit i nie zostanie zapisany."
+          }
+        }
+      }
+    },
+    "This code doesn't contain a valid training plan." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ten kod nie zawiera prawidłowego planu treningowego."
+          }
+        }
+      }
+    },
+    "This device doesn't support Bluetooth Low Energy required by heart rate monitors" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To urządzenie nie obsługuje Bluetooth Low Energy wymaganego przez monitory tętna"
           }
         }
       }
@@ -4630,6 +5955,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Limit czasu"
+          }
+        }
+      }
+    },
+    "Time exceeds the %lld:00 cap" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas przekracza limit %lld:00"
           }
         }
       }
@@ -4724,6 +6059,16 @@
         }
       }
     },
+    "total" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "łącznie"
+          }
+        }
+      }
+    },
     "Total" : {
       "localizations" : {
         "pl" : {
@@ -4764,12 +6109,32 @@
         }
       }
     },
+    "TRAINING READINESS" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GOTOWOŚĆ TRENINGOWA"
+          }
+        }
+      }
+    },
     "Training Readiness Trend" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trend gotowości treningowej"
+          }
+        }
+      }
+    },
+    "trainingTabPicker" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wybór zakładki treningowej"
           }
         }
       }
@@ -4784,33 +6149,45 @@
         }
       }
     },
-    "Trening główny" : {
+    "try again" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trening główny"
+            "value" : "spróbuj ponownie"
           }
         }
       }
     },
-    "Trening nadal trwa na zegarku. Zakończ go na Apple Watch, przytrzymując przycisk Stop." : {},
-    "Trening zostanie trwale usunięty z HealthKit." : {
+    "Try again in a moment." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trening zostanie trwale usunięty z HealthKit."
+            "value" : "Spróbuj ponownie za chwilę."
           }
         }
       }
     },
-    "Trening zostanie usunięty z HealthKit i nie zostanie zapisany." : {
+    "tu cos bedzie" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trening zostanie usunięty z HealthKit i nie zostanie zapisany."
+            "value" : "tu coś będzie"
+          }
+        }
+      }
+    },
+    "Turn on Bluetooth to connect to a heart rate monitor and other devices" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włącz Bluetooth, aby połączyć się z monitorem tętna i innymi urządzeniami"
           }
         }
       }
@@ -4825,16 +6202,6 @@
         }
       }
     },
-    "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."
-          }
-        }
-      }
-    },
     "Type" : {
       "localizations" : {
         "pl" : {
@@ -4845,46 +6212,23 @@
         }
       }
     },
-    "Tętno i aktywność" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tętno i aktywność"
-          }
-        }
-      }
-    },
-    "Tętno minuta po minucie" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tętno minuta po minucie"
-          }
-        }
-      }
-    },
-    "Tętno spoczynkowe" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tętno spoczynkowe"
-          }
-        }
-      }
-    },
-    "Udostępnianie plikiem pojawi się w kolejnej wersji." : {},
-    "Udostępnisz plik .txt z nazwami nierozpoznanych ćwiczeń i liczbą wystąpień — bez żadnych danych treningowych." : {},
-    "Ukończone rundy" : {},
-    "Ukończony" : {},
     "Unable to load workout plans. Please try again." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się wczytać planów treningowych. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Universal" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uniwersalna"
           }
         }
       }
@@ -4910,6 +6254,27 @@
         }
       }
     },
+    "Unrecognized names" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nierozpoznane nazwy"
+          }
+        }
+      }
+    },
+    "Unsupported" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieobsługiwany"
+          }
+        }
+      }
+    },
     "Usuwa z watcha" : {
       "localizations" : {
         "pl" : {
@@ -4920,29 +6285,6 @@
         }
       }
     },
-    "Usuń" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń"
-          }
-        }
-      }
-    },
-    "Usuń trening?" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń trening?"
-          }
-        }
-      }
-    },
-    "Utracono połączenie z Watchem — trening trwa dalej" : {},
-    "Uzupełnij wyniki" : {},
-    "Uzupełnij wyniki, żeby trafiły do historii i analityki ćwiczeń." : {},
     "Value" : {
       "localizations" : {
         "pl" : {
@@ -4983,57 +6325,6 @@
         }
       }
     },
-    "WOD" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "WOD"
-          }
-        }
-      }
-    },
-    "WOD Workout type picker" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wybór typu treningu WOD"
-          }
-        }
-      }
-    },
-    "WOD timer picker" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wybór timera WOD"
-          }
-        }
-      }
-    },
-    "WOD workout description..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opis treningu WOD..."
-          }
-        }
-      }
-    },
-    "WOD workout title" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tytuł treningu WOD"
-          }
-        }
-      }
-    },
     "Waiting for Apple Watch" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5045,16 +6336,6 @@
         }
       }
     },
-    "Waiting for Watch workout..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oczekiwanie na trening z Watch..."
-          }
-        }
-      }
-    },
     "Waiting for sensor..." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5062,6 +6343,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oczekiwanie na sensor..."
+          }
+        }
+      }
+    },
+    "Waiting for Watch workout..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oczekiwanie na trening z Watch..."
           }
         }
       }
@@ -5136,6 +6427,16 @@
         }
       }
     },
+    "Weight goal" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cel wagowy"
+          }
+        }
+      }
+    },
     "Weight Goal" : {
       "localizations" : {
         "pl" : {
@@ -5176,12 +6477,12 @@
         }
       }
     },
-    "Weight goal" : {
+    "Weightlifting" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cel wagowy"
+            "value" : "Podnoszenie ciężarów"
           }
         }
       }
@@ -5196,12 +6497,13 @@
         }
       }
     },
-    "Weightlifting" : {
+    "welcome" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Podnoszenie ciężarów"
+            "value" : "witaj"
           }
         }
       }
@@ -5212,6 +6514,68 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Co to jest %@?"
+          }
+        }
+      }
+    },
+    "WOD" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WOD"
+          }
+        }
+      }
+    },
+    "WOD timer picker" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybór timera WOD"
+          }
+        }
+      }
+    },
+    "WOD workout description..." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opis treningu WOD..."
+          }
+        }
+      }
+    },
+    "WOD workout title" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tytuł treningu WOD"
+          }
+        }
+      }
+    },
+    "WOD Workout type picker" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybór typu treningu WOD"
+          }
+        }
+      }
+    },
+    "Women" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kobiety"
           }
         }
       }
@@ -5237,6 +6601,16 @@
         }
       }
     },
+    "Workout description" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opis treningu"
+          }
+        }
+      }
+    },
     "Workout Mirroring" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5244,6 +6618,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Odbicie treningu"
+          }
+        }
+      }
+    },
+    "Workout name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa treningu"
           }
         }
       }
@@ -5279,56 +6663,6 @@
         }
       }
     },
-    "Workout Title" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tytuł Treningu"
-          }
-        }
-      }
-    },
-    "Workout Type" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Typ Treningu"
-          }
-        }
-      }
-    },
-    "Workout Volume" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Objętość treningów"
-          }
-        }
-      }
-    },
-    "Workout description" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opis treningu"
-          }
-        }
-      }
-    },
-    "Workout name" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nazwa treningu"
-          }
-        }
-      }
-    },
     "Workout title" : {
       "localizations" : {
         "pl" : {
@@ -5339,12 +6673,32 @@
         }
       }
     },
+    "Workout Title" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tytuł Treningu"
+          }
+        }
+      }
+    },
     "Workout type" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Typ treningu"
+          }
+        }
+      }
+    },
+    "Workout Type" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typ Treningu"
           }
         }
       }
@@ -5360,6 +6714,16 @@
         }
       }
     },
+    "Workout Volume" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objętość treningów"
+          }
+        }
+      }
+    },
     "WorkoutPlanerFeature" : {
       "localizations" : {
         "pl" : {
@@ -5370,12 +6734,12 @@
         }
       }
     },
-    "WorkoutUnit" : {
+    "workouts" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jednostka treningu"
+            "value" : "treningów"
           }
         }
       }
@@ -5390,9 +6754,16 @@
         }
       }
     },
-    "Wpisz serie" : {},
-    "Wpisz wyniki" : {},
-    "Wpisz łączną liczbę powtórzeń / kalorii" : {},
+    "WorkoutUnit" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jednostka treningu"
+          }
+        }
+      }
+    },
     "Wybierz" : {
       "localizations" : {
         "pl" : {
@@ -5413,16 +6784,6 @@
         }
       }
     },
-    "Wyjdź" : {},
-    "Wynik" : {},
-    "Wynik · AMRAP" : {},
-    "Wynik · For Time" : {},
-    "Wynik · Tabata" : {},
-    "Wynik · Time cap" : {},
-    "Wyniki" : {},
-    "Wysłać do developera?" : {},
-    "Wyślij" : {},
-    "Wyślij do developera" : {},
     "X" : {
       "localizations" : {
         "pl" : {
@@ -5439,6 +6800,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Y"
+          }
+        }
+      }
+    },
+    "You can now start scanning for Bluetooth devices" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Możesz teraz rozpocząć skanowanie urządzeń Bluetooth"
           }
         }
       }
@@ -5464,12 +6836,23 @@
         }
       }
     },
-    "Your Score" : {
+    "You'll share a .txt file with the unrecognized exercise names and their occurrence counts — no workout data included." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Twój wynik"
+            "value" : "Udostępnisz plik .txt z nazwami nierozpoznanych ćwiczeń i liczbą wystąpień — bez żadnych danych treningowych."
+          }
+        }
+      }
+    },
+    "Your Bluetooth device has been disconnected" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje urządzenie Bluetooth zostało rozłączone"
           }
         }
       }
@@ -5525,23 +6908,32 @@
         }
       }
     },
+    "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. All information stays private on your device." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."
+          }
+        }
+      }
+    },
+    "Your Score" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój wynik"
+          }
+        }
+      }
+    },
     "Your warmup notes will be lost." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notatki rozgrzewki zostaną utracone."
-          }
-        }
-      }
-    },
-    "Zajęcia wciąż trwają" : {},
-    "Zakończ mimo to" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zakończ mimo to"
           }
         }
       }
@@ -5556,467 +6948,6 @@
         }
       }
     },
-    "Zapisz trening" : {},
-    "Zmiana formuły nie wpłynie na zapisane treningi — każdy trening zachowuje formułę z momentu zapisania." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zmiana formuły nie wpłynie na zapisane treningi — każdy trening zachowuje formułę z momentu zapisania."
-          }
-        }
-      }
-    },
-    "Zostań" : {},
-    "Zwiń" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zwiń"
-          }
-        }
-      }
-    },
-    "add" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "dodaj"
-          }
-        }
-      }
-    },
-    "add exercise" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "dodaj ćwiczenie"
-          }
-        }
-      }
-    },
-    "bpm" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bpm"
-          }
-        }
-      }
-    },
-    "brak" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "brak"
-          }
-        }
-      }
-    },
-    "connect" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "połącz"
-          }
-        }
-      }
-    },
-    "connected" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "połączono"
-          }
-        }
-      }
-    },
-    "create single workout" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "utwórz pojedynczy trening"
-          }
-        }
-      }
-    },
-    "create workout" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "utwórz trening"
-          }
-        }
-      }
-    },
-    "czas ćwiczenia" : {},
-    "debug authorizationStatuses" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "debug statusów autoryzacji"
-          }
-        }
-      }
-    },
-    "disconnect" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rozłącz"
-          }
-        }
-      }
-    },
-    "disconnected" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rozłączono"
-          }
-        }
-      }
-    },
-    "dominująca: %@" : {},
-    "e.g. 10 min walk, static stretching, foam rolling..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "np. 10 min marszu, rozciąganie statyczne, rolowanie..."
-          }
-        }
-      }
-    },
-    "e.g. 5 min light jog, dynamic stretching, mobility..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "np. 5 min truchtu, rozciąganie dynamiczne, mobilność..."
-          }
-        }
-      }
-    },
-    "e.g. WOD 1" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "np. WOD 1"
-          }
-        }
-      }
-    },
-    "e.g. Wall Sit" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "np. Wall Sit"
-          }
-        }
-      }
-    },
-    "failed" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nieudane"
-          }
-        }
-      }
-    },
-    "figure.run" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "figure.run"
-          }
-        }
-      }
-    },
-    "fuel" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "paliwo"
-          }
-        }
-      }
-    },
-    "hrTSS" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hrTSS"
-          }
-        }
-      }
-    },
-    "kcal" : {
-      "shouldTranslate" : false
-    },
-    "kcla" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "kcal"
-          }
-        }
-      }
-    },
-    "kg" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "kg"
-          }
-        }
-      }
-    },
-    "limit %lld:00" : {
-      "shouldTranslate" : false
-    },
-    "live %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "na żywo %lld"
-          }
-        }
-      }
-    },
-    "manage workout type" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "zarządzaj typem treningu"
-          }
-        }
-      }
-    },
-    "min" : {
-      "shouldTranslate" : false
-    },
-    "okr." : {},
-    "or" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "lub"
-          }
-        }
-      }
-    },
-    "per workout" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "na trening"
-          }
-        }
-      }
-    },
-    "pkt" : {},
-    "placeholder" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "placeholder"
-          }
-        }
-      }
-    },
-    "points" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "punkty"
-          }
-        }
-      }
-    },
-    "remove all workouts" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "usuń wszystkie treningi"
-          }
-        }
-      }
-    },
-    "reps" : {
-      "shouldTranslate" : false
-    },
-    "rund" : {},
-    "rundy + powtórzenia" : {},
-    "save" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "zapisz"
-          }
-        }
-      }
-    },
-    "sek" : {},
-    "select" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "wybierz"
-          }
-        }
-      }
-    },
-    "select workout" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "wybierz trening"
-          }
-        }
-      }
-    },
-    "settings" : {
-      "comment" : "The More Tab provides access to additional options and settings.",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ustawienia"
-          }
-        }
-      }
-    },
-    "sharing" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "udostępnianie"
-          }
-        }
-      }
-    },
-    "show" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "pokaż"
-          }
-        }
-      }
-    },
-    "sk-ant-..." : {
-      "shouldTranslate" : false
-    },
-    "start in 5 min" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "rozpocznij za 5 min"
-          }
-        }
-      }
-    },
-    "statsPicker" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "wybór statystyk"
-          }
-        }
-      }
-    },
-    "total" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "łącznie"
-          }
-        }
-      }
-    },
-    "trainingTabPicker" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "wybór zakładki treningowej"
-          }
-        }
-      }
-    },
-    "tu cos bedzie" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "tu coś będzie"
-          }
-        }
-      }
-    },
-    "welcome" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "witaj"
-          }
-        }
-      }
-    },
-    "workouts" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "treningów"
-          }
-        }
-      }
-    },
     "zmien" : {
       "localizations" : {
         "pl" : {
@@ -6027,122 +6958,13 @@
         }
       }
     },
-    "· %lld rund + %lld reps" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "· %1$lld rund + %2$lld reps"
-          }
-        }
-      }
-    },
-    "Ćwiczenia" : {
+    "Zwiń" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ćwiczenia"
-          }
-        }
-      }
-    },
-    "łącznie" : {},
-    "–" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "–"
-          }
-        }
-      }
-    },
-    "–:–" : {
-      "shouldTranslate" : false
-    },
-    "—" : {
-      "shouldTranslate" : false
-    },
-    "• %@" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "• %@"
-          }
-        }
-      }
-    },
-    "≥7h" : {
-      "shouldTranslate" : false
-    },
-    "⏳ AI model loading..." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏳ Ładowanie modelu AI..."
-          }
-        }
-      }
-    },
-    "♀" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♀"
-          }
-        }
-      }
-    },
-    "♂" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♂"
-          }
-        }
-      }
-    },
-    "⚠️ Apple Intelligence not enabled" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚠️ Apple Intelligence nie jest włączone"
-          }
-        }
-      }
-    },
-    "⚠️ WorkoutPlanGeneratorView" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚠️ Generator Planu Treningowego"
-          }
-        }
-      }
-    },
-    "❌ Device not compatible" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "❌ Urządzenie niekompatybilne"
-          }
-        }
-      }
-    },
-    "🚫 AI features unavailable" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚫 Funkcje AI niedostępne"
+            "value" : "Zwiń"
           }
         }
       }

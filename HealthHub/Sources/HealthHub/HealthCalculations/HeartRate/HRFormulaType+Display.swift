@@ -48,7 +48,7 @@ public extension HRFormulaType {
         case .tanaka:   return "Tanaka 2001"
         case .gulati:   return "Gulati 2010"
         case .fairbarn: return "Fairbarn"
-        case .classic:  return "Klasyczna"
+        case .classic:  return String(localized: "Classic")
         }
     }
 
@@ -58,11 +58,11 @@ public extension HRFormulaType {
     /// Używa polskiego "wiek" zamiast angielskiego "age" + UTF-8 minus zamiast ASCII hyphen.
     var formulaText: String {
         switch self {
-        case .nes:      return "211 − 0,64 × wiek"
-        case .tanaka:   return "208 − 0,7 × wiek"
-        case .gulati:   return "206 − 0,88 × wiek"
-        case .fairbarn: return "207 − 0,78 × wiek (mężczyźni) / wariant dla kobiet"
-        case .classic:  return "220 − wiek"
+        case .nes:      return String(localized: "211 − 0.64 × age")
+        case .tanaka:   return String(localized: "208 − 0.7 × age")
+        case .gulati:   return String(localized: "206 − 0.88 × age")
+        case .fairbarn: return String(localized: "207 − 0.78 × age (men) / women's variant")
+        case .classic:  return String(localized: "220 − age")
         }
     }
 
@@ -72,11 +72,11 @@ public extension HRFormulaType {
     /// w pill-style badge obok title.
     var targetAudience: String {
         switch self {
-        case .nes:      return "Aktywni"
-        case .tanaka:   return "Ogólna populacja"
-        case .gulati:   return "Kobiety"
-        case .fairbarn: return "Uwzględnia płeć"
-        case .classic:  return "Uniwersalna"
+        case .nes:      return String(localized: "Active people")
+        case .tanaka:   return String(localized: "General population")
+        case .gulati:   return String(localized: "Women")
+        case .fairbarn: return String(localized: "Sex-aware")
+        case .classic:  return String(localized: "Universal")
         }
     }
 
@@ -87,15 +87,15 @@ public extension HRFormulaType {
     var description: String {
         switch self {
         case .nes:
-            return "Skalibrowana dla osób regularnie trenujących. Z badania HUNT Fitness Study (Norwegia, 2013). Wyższa wartość niż formuły dla ogólnej populacji — odzwierciedla lepsze przygotowanie."
+            return String(localized: "Calibrated for people who train regularly. From the HUNT Fitness Study (Norway, 2013). Higher values than general-population formulas — reflects better conditioning.")
         case .tanaka:
-            return "Nowoczesny statystyczny zastępca formuły klasycznej. Walidowana na 18 712 osobach. Rekomendowana dla ogólnej populacji — Apple Health używa jej jako baseline."
+            return String(localized: "The modern statistical replacement for the classic formula. Validated on 18,712 people. Recommended for the general population — Apple Health uses it as the baseline.")
         case .gulati:
-            return "Dostosowana dla kobiet — klasyczna formuła zawyżała ich maksymalne tętno. Z badania St. James Women Take Heart Project (2010, 5437 kobiet). Daje niższe wartości — bardziej realistyczne dla większości kobiet."
+            return String(localized: "Adjusted for women — the classic formula overestimated their max heart rate. From the St. James Women Take Heart Project (2010, 5,437 women). Gives lower, more realistic values for most women.")
         case .fairbarn:
-            return "Uwzględnia biologiczną płeć z HealthKit. Mężczyźni: 207 − 0,78 × wiek; kobiety: osobny wariant. Dobry kompromis gdy chcesz dokładności dopasowanej do płci."
+            return String(localized: "Takes HealthKit biological sex into account. Men: 207 − 0.78 × age; women: a separate variant. A good compromise when you want sex-specific accuracy.")
         case .classic:
-            return "Najstarsza i najprostsza — wzór Fox i Haskell z 1971 roku. Łatwa do zapamiętania, ale najmniej dokładna statystycznie. Wybierz jeśli chcesz wartość porównywalną z historycznymi aplikacjami fitness."
+            return String(localized: "The oldest and simplest — the 1971 Fox and Haskell formula. Easy to remember but statistically the least accurate. Pick it for values comparable with legacy fitness apps.")
         }
     }
 }

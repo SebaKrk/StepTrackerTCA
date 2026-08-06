@@ -86,14 +86,14 @@ struct PersonSettingsView: View {
                 Text("Subscription Plan")
             }
             Section {
-                coreMetricsCell(String(localized: "Tętno spoczynkowe"), store.restingHeartRate.map { "\(Int($0.value))" } ?? "-")
-                coreMetricsCell(String(localized: "Maks. tętno"), store.maxHR.map { "\($0)" } ?? "-")
+                coreMetricsCell(String(localized: "Resting heart rate"), store.restingHeartRate.map { "\(Int($0.value))" } ?? "-")
+                coreMetricsCell(String(localized: "Max heart rate"), store.maxHR.map { "\($0)" } ?? "-")
                 hrFormulaRow
                 heartRateZonesRow
             } header: {
-                Text(String(localized: "Tętno i aktywność"))
+                Text(String(localized: "Heart rate & activity"))
             } footer: {
-                Text(String(localized: "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."))
+                Text(String(localized: "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. All information stays private on your device."))
             }
 
             Section {
@@ -131,7 +131,7 @@ struct PersonSettingsView: View {
     
     private var hrFormulaRow: some View {
         HStack {
-            Text(String(localized: "Formuła maxHR"))
+            Text(String(localized: "Max HR formula"))
             Spacer()
             Text(store.hrFormula.title)
                 .foregroundStyle(.secondary)
@@ -147,7 +147,7 @@ struct PersonSettingsView: View {
 
     private var heartRateZonesRow: some View {
         HStack {
-            Text(String(localized: "Strefy tętna i punkty"))
+            Text(String(localized: "Heart rate zones & points"))
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.caption)

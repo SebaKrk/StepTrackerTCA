@@ -138,7 +138,7 @@ struct HRMirrorView: View {
                         // workout — HealthKit's summary has no notion of them.
                         summaryMetric(
                             title: String(localized: "Effort Points"),
-                            value: store.effortPoints.points.formatted(.number) + " " + String(localized: "pkt"),
+                            value: store.effortPoints.points.formatted(.number) + " " + String(localized: "pts"),
                             .yellow
                         )
                     } else {
@@ -376,7 +376,7 @@ struct HRMirrorView: View {
                 .monospacedDigit()
                 .contentTransition(.numericText(value: Double(store.effortPoints.points)))
                 .animation(.snappy(duration: 0.3), value: store.effortPoints.points)
-            Text(String(localized: "pkt"))
+            Text(String(localized: "pts"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }

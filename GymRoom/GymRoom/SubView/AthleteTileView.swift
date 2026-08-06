@@ -104,7 +104,7 @@ struct AthleteTileView: View {
     }
 
     private var connectingLabel: String {
-        String(localized: "Łączenie…", bundle: .main)
+        String(localized: "Connecting…", bundle: .main)
     }
 
     // MARK: - Private views (struktura)
@@ -397,7 +397,7 @@ struct AthleteTileView: View {
 
     /// "—" gdy peer nie raportuje punktów (stary build) — spójne z `bpmValueText`.
     private var pointsValueText: String {
-        athlete.effortPoints.map { "\($0.formatted(.number)) " + String(localized: "pkt", bundle: .main) } ?? "—"
+        athlete.effortPoints.map { "\($0.formatted(.number)) " + String(localized: "pts", bundle: .main) } ?? "—"
     }
 
     private var bpmCaptionText: String {

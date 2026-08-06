@@ -1342,3 +1342,13 @@
     - on confirm the reducer writes `unrecognized-exercises.txt` to tmp and presents a `UIActivityViewController` share sheet (Mail/Messages/AirDrop — no backend required)
     - report header carries app version + build + `catalogVersion`, so every harvest is attributable to a concrete catalog state
     - note: the card is visible in ALL Release builds (TF is indistinguishable at compile time); runtime `sandboxReceipt` check is the future gate if App Store should not see it
+
+### IOS-00124 Localization keys — migrate Polish literals to English source keys
+    - branch: `dev/IOS-00124/IOS-00124`
+    - problem: the catalog's `sourceLanguage` is en, but newer features (Summary, HR-sensor messages, plan QR sharing, GymRoom, IOS-00123) used POLISH literals as keys — the key doubles as the universal fallback, so Polish leaked into every non-PL locale and the codebase grepped in two languages
+    - code sweep: ~110 Polish literals replaced with English keys across 39 files (app + Watch + GymRoom), exact-quoted needles (collision-free by construction), comment lines guarded; a second sweep caught keys the audit missed because they already had `pl` entries (delete/discard alerts, PersonSettings, TemplatePicker, HR formula screen)
+    - non-localized `String` params got wrapped on the way: `unit:` (MetricTile pts), `title:` (SlideAction "Slide to unlock", ring tiles "Exercise") — plain swap would have shown English in the Polish UI
+    - catalog transform: 88 keys moved (EN key created, Polish text becomes the `pl` value) or merged into existing EN twins (`Seria %lld` → `Set %lld`, `Nierozpoznane nazwy` → `Unrecognized names`, `Usuń` → `Delete`…); 11 dead keys deleted outright (old scan-preview era + junk `""`/`rund`)
+    - end state: 0 Polish keys and 0 missing-pl entries in all three catalogs (only the dev-only AnimationTest playground keeps 2 Polish literals, deliberately)
+    - verification: grep sweeps confirm no Polish literal remains in non-preview code; every JSON validated after each write; Xcode build will re-extract and confirm key alignment
+    - package sweep (follow-up, same branch): the first pass skipped SPM sources — found and migrated Polish plain-`String` returns in `HealthMetricType` (4 metric descriptions + the "hours" unit that surfaced the gap; `missingDataMessage` also gained the missing `bundle: .module`, without which its SharedModels translations never loaded), `HRFormulaType+Display` (formula text/audience/descriptions ×5) and `BluetoothStatus` (labelText/title/description/buttonTitle ×6) — HealthHub has no string catalog, so its strings localize via `String(localized:)` against the app bundle with keys added to the WML catalog (+37) and SharedModels (+4)

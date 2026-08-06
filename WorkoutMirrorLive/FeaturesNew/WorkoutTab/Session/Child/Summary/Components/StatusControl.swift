@@ -114,11 +114,11 @@ struct StatusControl: View {
     // MARK: - Strings
 
     private var completedTitle: String {
-        String(localized: "Ukończony")
+        String(localized: "Completed")
     }
 
     private var notFinishedTitle: String {
-        String(localized: "Nieukończony")
+        String(localized: "Not finished")
     }
 }
 

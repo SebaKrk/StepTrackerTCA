@@ -129,10 +129,10 @@ struct ScoreLine: View {
 
 #Preview("ScoreLine — 4 warianty (makieta, galeria 4)") {
     VStack(spacing: 10) {
-        ScoreLine(kind: "Wynik · For Time", variant: .empty(hint: "mm:ss"))
-        ScoreLine(kind: "Wynik · For Time", variant: .filled(value: "9:00", detail: "limit 11:00", isPR: false))
-        ScoreLine(kind: "Najcięższa seria", variant: .filled(value: "150 kg", detail: "× 2", isPR: true))
-        ScoreLine(kind: "Wynik · Time cap", variant: .dnf(value: "11:00", detail: "· 4 rundy + 12 reps"))
+        ScoreLine(kind: "Score · For Time", variant: .empty(hint: "mm:ss"))
+        ScoreLine(kind: "Score · For Time", variant: .filled(value: "9:00", detail: "limit 11:00", isPR: false))
+        ScoreLine(kind: "Heaviest set", variant: .filled(value: "150 kg", detail: "× 2", isPR: true))
+        ScoreLine(kind: "Score · Time cap", variant: .dnf(value: "11:00", detail: "· 4 rundy + 12 reps"))
     }
     .summaryCard()
     .padding(16)

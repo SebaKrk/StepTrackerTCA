@@ -13,16 +13,16 @@ import Foundation
 extension AlertState where Action == PersonalActivityFeature.Action.DeleteAlert {
     static var deleteWorkout: Self {
         Self {
-            TextState("Usuń trening?")
+            TextState("Delete workout?")
         } actions: {
             ButtonState(role: .destructive, action: .send(.confirmDelete)) {
-                TextState("Usuń")
+                TextState("Delete")
             }
             ButtonState(role: .cancel) {
-                TextState("Anuluj")
+                TextState("Cancel")
             }
         } message: {
-            TextState("Trening zostanie trwale usunięty z HealthKit.")
+            TextState("The workout will be permanently deleted from HealthKit.")
         }
     }
 }
@@ -32,13 +32,13 @@ extension AlertState where Action == PersonalActivityFeature.Action.DeleteAlert 
 extension AlertState where Action == Never {
     static var cannotDelete: Self {
         Self {
-            TextState("Nie można usunąć treningu")
+            TextState("Can't delete workout")
         } actions: {
             ButtonState(role: .cancel) {
                 TextState("OK")
             }
         } message: {
-            TextState("HealthKit pozwala usuwać tylko treningi zarejestrowane przez tę aplikację.")
+            TextState("HealthKit only allows deleting workouts recorded by this app.")
         }
     }
 }

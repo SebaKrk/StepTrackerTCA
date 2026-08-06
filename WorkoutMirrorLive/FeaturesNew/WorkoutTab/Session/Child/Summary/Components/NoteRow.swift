@@ -40,7 +40,7 @@ struct NoteRow: View {
         Button {
             onAdd()
         } label: {
-            Text(String(localized: "+ Dodaj notatkę"))
+            Text(String(localized: "+ Add note"))
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(theme.inkTertiary)
                 .frame(maxWidth: .infinity)
@@ -51,7 +51,7 @@ struct NoteRow: View {
 
     private var noteField: some View {
         TextField(
-            String(localized: "Notatka"),
+            String(localized: "Note"),
             text: Binding(get: { text }, set: onTextChange)
         )
         .font(.system(size: 13))
@@ -71,7 +71,7 @@ struct NoteRow: View {
         Button {
             onEditSaved()
         } label: {
-            Text("\(Text(String(localized: "Notatka:")).fontWeight(.semibold).foregroundColor(theme.ink)) \(text)")
+            Text("\(Text(String(localized: "Note:")).fontWeight(.semibold).foregroundColor(theme.ink)) \(text)")
                 .font(.system(size: 13))
                 .foregroundStyle(theme.inkSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)

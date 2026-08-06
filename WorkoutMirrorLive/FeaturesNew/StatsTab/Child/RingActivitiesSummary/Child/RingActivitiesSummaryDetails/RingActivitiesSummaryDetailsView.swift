@@ -28,7 +28,7 @@ struct RingActivitiesSummaryDetailsView: View {
                     
                     activityGroupBox(
                         type: .exercise,
-                        title: "Ćwiczenie",
+                        title: String(localized: "Exercise"),
                         value: store.activityRingData.exerciseValue,
                         goal: store.activityRingData.exerciseGoal
                     )
@@ -126,7 +126,7 @@ struct RingActivitiesSummaryDetailsView: View {
                     Divider().frame(height: 40)
                     
                     activityMetric(
-                        title: "Ćwiczenie",
+                        title: String(localized: "Exercise"),
                         value: Int(data.exerciseMinutes),
                         unit: "min",
                         color: .green

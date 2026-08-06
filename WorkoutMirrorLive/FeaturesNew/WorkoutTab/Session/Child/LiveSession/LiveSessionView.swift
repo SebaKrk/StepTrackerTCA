@@ -237,7 +237,7 @@ struct LiveSessionView: View {
                 .foregroundStyle(.primary)
                 .contentTransition(.numericText(value: Double(store.effortPoints.points)))
                 .animation(.snappy(duration: 0.3), value: store.effortPoints.points)
-            Text(String(localized: "pkt", bundle: .main))
+            Text(String(localized: "pts", bundle: .main))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

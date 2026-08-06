@@ -191,7 +191,16 @@
         }
       }
     },
-    "pkt" : {}
+    "pts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pkt"
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }

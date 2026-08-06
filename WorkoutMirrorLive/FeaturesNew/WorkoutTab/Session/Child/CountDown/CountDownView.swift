@@ -91,7 +91,7 @@ struct CountDownView: View {
     }
 
     private var waitingText: some View {
-        Text("Rozpoczynam na Apple Watch")
+        Text("Starting on Apple Watch")
             .font(.title.weight(.semibold))
             .foregroundStyle(.primary)
             .multilineTextAlignment(.center)

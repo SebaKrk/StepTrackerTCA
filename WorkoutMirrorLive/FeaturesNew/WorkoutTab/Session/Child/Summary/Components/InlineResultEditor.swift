@@ -69,7 +69,7 @@ struct InlineResultEditor: View {
     @ViewBuilder
     private var totalRepsHint: some View {
         if store.wodType == .tabata {
-            scoreEntryLabel(String(localized: "Wpisz łączną liczbę powtórzeń / kalorii"))
+            scoreEntryLabel(String(localized: "Enter total reps / calories"))
         }
     }
 
@@ -83,7 +83,7 @@ struct InlineResultEditor: View {
 
     private var forTimeEntry: some View {
         VStack(alignment: .leading, spacing: 8) {
-            scoreEntryLabel(String(localized: "Wynik · For Time"))
+            scoreEntryLabel(String(localized: "Score · For Time"))
             TimePickerField(
                 minutes: store.draftMinutes,
                 seconds: store.draftSeconds,
@@ -96,7 +96,7 @@ struct InlineResultEditor: View {
 
     private var dnfEntry: some View {
         DNFFields(
-            title: String(localized: "Dokąd doszedłeś przed upływem limitu?"),
+            title: String(localized: "How far did you get before the cap?"),
             rounds: store.dnfRounds,
             extraReps: store.dnfExtraReps,
             onRounds: { send(.updateRounds($0)) },
@@ -106,7 +106,7 @@ struct InlineResultEditor: View {
 
     private var amrapEntry: some View {
         DNFFields(
-            title: String(localized: "Wynik"),
+            title: String(localized: "Score"),
             rounds: store.dnfRounds,
             extraReps: store.dnfExtraReps,
             onRounds: { send(.updateRounds($0)) },
@@ -129,7 +129,7 @@ struct InlineResultEditor: View {
             HStack(spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 11))
-                Text(String(localized: "Czas przekracza limit \(capMinutes):00"))
+                Text(String(localized: "Time exceeds the \(capMinutes):00 cap"))
                     .font(.system(size: 12))
                 markAsNotFinishedButton
             }
@@ -141,7 +141,7 @@ struct InlineResultEditor: View {
         Button {
             send(.markNotFinishedFromHint)
         } label: {
-            Text(String(localized: "Oznaczyć jako Nieukończony?"))
+            Text(String(localized: "Mark as Not finished?"))
                 .font(.system(size: 12, weight: .bold))
                 .underline()
         }
@@ -257,7 +257,7 @@ struct InlineResultEditor: View {
         case .seconds: "s"
         case .minutes: "min"
         case .rounds: String(localized: "rund")
-        case .laps: String(localized: "okr.")
+        case .laps: String(localized: "laps")
         }
     }
 

@@ -166,11 +166,11 @@ struct ClassHistoryDetailView: View {
     }
 
     private var insufficientDataTitle: String {
-        String(localized: "Za mało danych", bundle: .main)
+        String(localized: "Not enough data", bundle: .main)
     }
 
     private var insufficientDataDescription: String {
-        String(localized: "Trening był zbyt krótki, by zanalizować HR — minimum 5 minut.", bundle: .main)
+        String(localized: "Workout too short to analyze HR — 5 minutes minimum.", bundle: .main)
     }
 
     /// Ellipsis menu w prawym górnym rogu — struktura (CO).
@@ -585,7 +585,7 @@ struct ClassHistoryDetailView: View {
             RoundedRectangle(cornerRadius: 2)
                 .fill(.red.opacity(0.3))
                 .frame(width: 14, height: 10)
-            Text(String(localized: "Brak pomiaru — zawodnik poza zasięgiem"))
+            Text(String(localized: "No reading — athlete out of range"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }

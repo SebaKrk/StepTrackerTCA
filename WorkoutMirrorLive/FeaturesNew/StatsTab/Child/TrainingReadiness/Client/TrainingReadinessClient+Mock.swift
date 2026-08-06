@@ -35,7 +35,7 @@ public extension TrainingReadinessClient {
                         score: 10,
                         currentValue: 7.5,
                         baselineValue: 7.0,
-                        unit: "hours",
+                        unit: String(localized: "hours"),
                         minScore: -10,
                         maxScore: 15
                     ),
@@ -69,7 +69,7 @@ public extension TrainingReadinessClient {
                         score: 10,
                         currentValue: 7.5,
                         baselineValue: 7.0,
-                        unit: "hours",
+                        unit: String(localized: "hours"),
                         minScore: -10,
                         maxScore: 15
                     ),

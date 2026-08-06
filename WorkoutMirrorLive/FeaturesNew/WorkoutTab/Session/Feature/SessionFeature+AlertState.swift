@@ -44,16 +44,16 @@ extension AlertState where Action == SessionFeature.ClassActiveAlertAction {
     /// (miejsce, ranking) nigdy nie dotrze — stąd ostrzeżenie o utracie danych.
     static var classActive: Self {
         AlertState {
-            TextState(String(localized: "Zajęcia wciąż trwają"))
+            TextState(String(localized: "Class is still in progress"))
         } actions: {
             ButtonState(role: .cancel) {
-                TextState(String(localized: "Zostań"))
+                TextState(String(localized: "Stay"))
             }
             ButtonState(role: .destructive, action: .leaveAnyway) {
-                TextState(String(localized: "Wyjdź"))
+                TextState(String(localized: "Leave"))
             }
         } message: {
-            TextState(String(localized: "Czy na pewno chcesz zakończyć trening? Dane z zajęć zostaną utracone."))
+            TextState(String(localized: "Are you sure you want to end the workout? Class data will be lost."))
         }
     }
 }
@@ -66,16 +66,16 @@ extension AlertState where Action == SessionFeature.ConnectionLostAlertAction {
     /// „Zakończ mimo to" — wyjście awaryjne gdy zegarek jest fizycznie niedostępny.
     static var connectionLost: Self {
         AlertState {
-            TextState(String(localized: "Brak połączenia z Apple Watch"))
+            TextState(String(localized: "No connection to Apple Watch"))
         } actions: {
             ButtonState(role: .cancel) {
                 TextState(String(localized: "OK"))
             }
             ButtonState(role: .destructive, action: .endAnyway) {
-                TextState(String(localized: "Zakończ mimo to"))
+                TextState(String(localized: "End anyway"))
             }
         } message: {
-            TextState(String(localized: "Trening nadal trwa na zegarku. Zakończ go na Apple Watch, przytrzymując przycisk Stop."))
+            TextState(String(localized: "The workout is still running on the watch. End it on Apple Watch by holding the Stop button."))
         }
     }
 }

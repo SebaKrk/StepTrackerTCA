@@ -49,8 +49,8 @@ struct SetTable: View {
 
     private var headerRow: some View {
         HStack(spacing: 0) {
-            headerCell(String(localized: "Seria"), width: 52, alignment: .leading)
-            headerCell(String(localized: "Powt."), alignment: .leading)
+            headerCell(String(localized: "Set"), width: 52, alignment: .leading)
+            headerCell(String(localized: "Reps"), alignment: .leading)
             if showsWeight {
                 headerCell("kg", alignment: .trailing)
             }
@@ -89,7 +89,7 @@ struct SetTable: View {
     private func repsCell(index: Int, set: SetEntry, isTop: Bool) -> some View {
         if isEditing {
             numericField(
-                placeholder: String(localized: "Powt."),
+                placeholder: String(localized: "Reps"),
                 text: "\(set.reps)",
                 keyboard: .numberPad,
                 alignment: .leading

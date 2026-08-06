@@ -152,16 +152,16 @@ extension AlertState where Action == ExerciseDetailFeature.Action.Alert {
     /// Consent gate for the unrecognized-names report — says exactly what leaves
     /// the device before the share sheet appears.
     static let confirmSendReport = AlertState {
-        TextState("Wysłać do developera?")
+        TextState("Send to the developer?")
     } actions: {
         ButtonState(role: .cancel) {
-            TextState("Anuluj")
+            TextState("Cancel")
         }
         ButtonState(action: .sendReportConfirmed) {
-            TextState("Wyślij")
+            TextState("Send")
         }
     } message: {
-        TextState("Udostępnisz plik .txt z nazwami nierozpoznanych ćwiczeń i liczbą wystąpień — bez żadnych danych treningowych.")
+        TextState("You'll share a .txt file with the unrecognized exercise names and their occurrence counts — no workout data included.")
     }
 }
 

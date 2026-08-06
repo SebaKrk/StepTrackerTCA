@@ -92,7 +92,7 @@ struct ExerciseDetailView: View {
         Button {
             send(.sendToDeveloperTapped)
         } label: {
-            Label("Wyślij do developera", systemImage: "paperplane.fill")
+            Label("Send to developer", systemImage: "paperplane.fill")
                 .labelStyle(.iconOnly)
         }
         .tint(.red)
@@ -378,7 +378,7 @@ struct ExerciseDetailView: View {
     private var unrecognizedNamesHeader: some View {
         VStack {
             HStack {
-                Text("Nierozpoznane nazwy")
+                Text("Unrecognized names")
                     .foregroundStyle(.secondary)
                     .font(.caption)
                 Spacer()

@@ -35,7 +35,7 @@ extension SummaryView {
         Button {
             send(.closeButtonTapped)
         } label: {
-            Text(String(localized: "Anuluj"))
+            Text(String(localized: "Cancel"))
         }
     }
 
