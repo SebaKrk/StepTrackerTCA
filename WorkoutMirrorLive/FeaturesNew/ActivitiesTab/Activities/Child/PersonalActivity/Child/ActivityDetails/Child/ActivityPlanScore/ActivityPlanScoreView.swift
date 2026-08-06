@@ -116,10 +116,10 @@ struct ActivityPlanScoreView: View {
 
     private var pendingResultsText: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(String(localized: "Uzupełnij wyniki"))
+            Text(String(localized: "Fill in results"))
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.orange)
-            Text(String(localized: "Plan podpięty — dotknij, aby dodać"))
+            Text(String(localized: "Plan attached — tap to add"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -130,7 +130,7 @@ struct ActivityPlanScoreView: View {
         Button {
             store.send(.fillResultsTapped)
         } label: {
-            Label(String(localized: "Edytuj wyniki"), systemImage: "pencil")
+            Label(String(localized: "Edit results"), systemImage: "pencil")
                 .font(.caption)
                 .fontWeight(.medium)
         }
@@ -159,9 +159,9 @@ struct ActivityPlanScoreView: View {
 
     private var editDeadlineMessage: String {
         guard let deadline = store.exerciseLogs.compactMap(\.editableUntil).min() else {
-            return String(localized: "Edycja zablokowana")
+            return String(localized: "Editing locked")
         }
-        return String(localized: "Edycja możliwa do \(DateTimeFormatter.numericDateTime.string(from: deadline))")
+        return String(localized: "Editable until \(DateTimeFormatter.numericDateTime.string(from: deadline))")
     }
 
     /// Whether any ExerciseLog of this workout is still inside its edit window.

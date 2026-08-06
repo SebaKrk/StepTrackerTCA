@@ -180,7 +180,7 @@ struct HeartRateZonesView: View {
     private func zonePointsText(for zone: HeartRateZone) -> String {
         let breakdown = store.effortScore.map { EffortPointsScoring.pointsByZone(from: $0.secondsByZone) } ?? [:]
         let points = breakdown[zone] ?? 0
-        return String(localized: "\(points) pkt", bundle: .main)
+        return String(localized: "\(points) pts", bundle: .main)
     }
 
     private func zoneProgressBar(zone: HeartRateZone, duration: TimeInterval, total: TimeInterval) -> some View {
@@ -224,6 +224,6 @@ struct HeartRateZonesView: View {
     }
 
     private var pointsUnit: String {
-        String(localized: "pkt", bundle: .main)
+        String(localized: "pts", bundle: .main)
     }
 }

@@ -118,7 +118,7 @@ struct ControlsView: View {
     
     private var unlockSlider: some View {
         SlideAction(
-            title: "Przesuń aby odblokować",
+            title: String(localized: "Slide to unlock"),
             systemImage: "lock.open",
             threshold: 0.75
         ) {

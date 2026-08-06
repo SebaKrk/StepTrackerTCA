@@ -128,7 +128,6 @@
         }
       }
     },
-    "Brak pomiaru — zawodnik poza zasięgiem" : {},
     "Calories" : {
       "localizations" : {
         "pl" : {
@@ -196,6 +195,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Razem"
+          }
+        }
+      }
+    },
+    "Connecting…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łączenie…"
           }
         }
       }
@@ -350,6 +359,16 @@
         }
       }
     },
+    "Ending class…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kończenie zajęć…"
+          }
+        }
+      }
+    },
     "Gap end" : {
       "localizations" : {
         "pl" : {
@@ -440,7 +459,6 @@
         }
       }
     },
-    "Kończenie zajęć…" : {},
     "LIVE" : {
       "localizations" : {
         "pl" : {
@@ -572,12 +590,32 @@
         }
       }
     },
+    "No reading — athlete out of range" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak pomiaru — zawodnik poza zasięgiem"
+          }
+        }
+      }
+    },
     "No samples" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak próbek"
+          }
+        }
+      }
+    },
+    "Not enough data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Za mało danych"
           }
         }
       }
@@ -894,13 +932,22 @@
         }
       }
     },
-    "Trening był zbyt krótki, by zanalizować HR — minimum 5 minut." : {},
     "Try again" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Spróbuj ponownie"
+          }
+        }
+      }
+    },
+    "Workout too short to analyze HR — 5 minutes minimum." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening był zbyt krótki, by zanalizować HR — minimum 5 minut."
           }
         }
       }
@@ -926,7 +973,6 @@
         }
       }
     },
-    "Za mało danych" : {},
     "Zone" : {
       "localizations" : {
         "pl" : {
@@ -970,7 +1016,16 @@
     "kcal" : {
       "shouldTranslate" : false
     },
-    "pkt" : {},
+    "pts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pkt"
+          }
+        }
+      }
+    },
     "weekly" : {
       "localizations" : {
         "pl" : {
@@ -981,7 +1036,6 @@
         }
       }
     },
-    "Łączenie…" : {},
     "—" : {
       "shouldTranslate" : false
     }

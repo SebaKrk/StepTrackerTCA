@@ -235,7 +235,7 @@ struct WorkoutDetailContent: View {
     }
 
     private func setLabel(_ number: Int) -> String {
-        String(localized: "Seria \(number)")
+        String(localized: "Set \(number)")
     }
 
     private func setValue(_ set: PlannedSet) -> String {

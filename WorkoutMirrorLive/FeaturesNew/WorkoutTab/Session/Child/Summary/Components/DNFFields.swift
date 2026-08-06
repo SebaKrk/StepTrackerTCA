@@ -43,7 +43,7 @@ struct DNFFields: View {
 
     private var completedRoundsStepper: some View {
         stepperTile(
-            label: String(localized: "Ukończone rundy"),
+            label: String(localized: "Completed rounds"),
             value: rounds,
             onChange: onRounds
         )
@@ -51,7 +51,7 @@ struct DNFFields: View {
 
     private var extraRepsStepper: some View {
         stepperTile(
-            label: String(localized: "Powt. w rundzie"),
+            label: String(localized: "Reps in round"),
             value: extraReps,
             onChange: onExtraReps
         )
@@ -113,7 +113,7 @@ struct DNFFields: View {
     VStack(spacing: 16) {
         VStack {
             DNFFields(
-                title: "Dokąd doszedłeś przed upływem limitu?",
+                title: "How far did you get before the cap?",
                 rounds: 4,
                 extraReps: 12,
                 onRounds: { _ in },
@@ -124,7 +124,7 @@ struct DNFFields: View {
 
         VStack {
             DNFFields(
-                title: "Wynik",
+                title: "Score",
                 rounds: 6,
                 extraReps: 14,
                 onRounds: { _ in },

@@ -48,13 +48,13 @@ struct WorkoutResultsView: View {
     // MARK: - Implementation
 
     private var resultsTitle: some View {
-        Text(String(localized: "Wyniki"))
+        Text(String(localized: "Results"))
             .font(.system(size: 20, weight: .heavy))
             .foregroundStyle(theme.ink)
     }
 
     private var resultsSubtitle: some View {
-        Text(String(localized: "Uzupełnij wyniki, żeby trafiły do historii i analityki ćwiczeń."))
+        Text(String(localized: "Fill in results so they land in history and exercise analytics."))
             .font(.system(size: 12.5))
             .foregroundStyle(theme.inkTertiary)
     }

@@ -79,7 +79,7 @@ struct SessionView: View {
         HStack(spacing: 8) {
             Image(systemName: "applewatch.slash")
                 .foregroundStyle(.orange)
-            Text(String(localized: "Utracono połączenie z Watchem — trening trwa dalej"))
+            Text(String(localized: "Lost connection to the Watch — workout continues"))
                 .font(.footnote.weight(.semibold))
                 .multilineTextAlignment(.leading)
             Spacer(minLength: 0)
@@ -120,13 +120,13 @@ struct SessionView: View {
     private var sensorStaleMessage: String {
         switch store.live.lastSensorDisconnectReason {
         case .outOfRange:
-            String(localized: "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany")
+            String(localized: "HR sensor out of range — workout continues, measuring paused")
         case .deviceOff:
-            String(localized: "Czujnik tętna rozłączony — sprawdź baterię paska")
+            String(localized: "HR sensor disconnected — check the strap battery")
         case .other:
-            String(localized: "Połączenie z czujnikiem tętna przerwane — pomiar wstrzymany")
+            String(localized: "HR sensor connection lost — measuring paused")
         case nil:
-            String(localized: "Brak odczytu tętna — sprawdź przyleganie paska")
+            String(localized: "No heart rate reading — check the strap fit")
         }
     }
 

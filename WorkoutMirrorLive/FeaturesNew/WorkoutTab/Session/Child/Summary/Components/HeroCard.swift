@@ -109,7 +109,7 @@ struct HeroCard: View {
     }
 
     private var durationUnit: some View {
-        Text(String(localized: "czas ćwiczenia", bundle: .main))
+        Text(String(localized: "exercise time", bundle: .main))
             .font(.system(size: 14, weight: .semibold))
             .foregroundStyle(SummaryTheme.inkSecondary)
     }
