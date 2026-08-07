@@ -20,7 +20,12 @@ import WatchKit
 final class WatchAppDelegate: NSObject, WKApplicationDelegate {
 
     func handle(_ workoutConfiguration: HKWorkoutConfiguration) {
-        Logger.appAW.info("[WatchAppDelegate] handle(_:) — activityType: \(workoutConfiguration.activityType.rawValue)")
-        WorkoutConfigurationStream.shared.yield(workoutConfiguration.activityType)
+        Logger.appAW.info("[WatchAppDelegate] handle(_:) — activityType: \(workoutConfiguration.activityType.rawValue), locationType: \(workoutConfiguration.locationType.rawValue)")
+        WorkoutConfigurationStream.shared.yield(
+            .init(
+                activityType: workoutConfiguration.activityType,
+                locationType: workoutConfiguration.locationType
+            )
+        )
     }
 }

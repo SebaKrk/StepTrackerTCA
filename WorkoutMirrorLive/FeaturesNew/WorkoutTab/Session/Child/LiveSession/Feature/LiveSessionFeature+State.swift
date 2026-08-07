@@ -62,6 +62,14 @@ extension LiveSessionFeature {
         /// Independent user stopwatch (toolbar button).
         var userStopwatch = StopwatchFeature.State()
 
+        /// Workout type of the session — `.cycling` shows the cycling tile
+        /// (speed/distance carousel); other types keep the HR-only layout.
+        /// The visible user stopwatch takes over the tile's slot.
+        var selectedWorkout: WorkoutType? = nil
+
+        /// Currently visible page of the cycling tile carousel.
+        var distanceTilePage: DistanceTilePage = .overview
+
         /// Stopwatch managing the active plan phase timer.
         var phaseStopwatch = StopwatchFeature.State()
 

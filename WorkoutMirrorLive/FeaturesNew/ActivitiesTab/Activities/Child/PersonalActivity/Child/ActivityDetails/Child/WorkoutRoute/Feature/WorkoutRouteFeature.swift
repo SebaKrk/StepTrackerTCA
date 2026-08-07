@@ -36,15 +36,23 @@ struct WorkoutRouteFeature {
         /// The workout being displayed.
         var workout: HKWorkout
 
-        /// Full workout location data
+        /// User's maximum heart rate — forwarded to the drill-in for the
+        /// zone-colored route polyline.
+        var maxHeartRate: Double
+
+        /// Full workout location data (kept as `CLLocation` — the drill-in
+        /// derives max speed from the samples)
         /// - `nil`: not loaded yet
         /// - `[]`: indoor workout (no location)
-        /// - `[coordinate]`: single location (show pin)
-        /// - `[coord1, coord2, ...]`: route (draw polyline)
-        var routeCoordinates: [CLLocationCoordinate2D]?
+        /// - `[location]`: single location (show pin)
+        /// - `[loc1, loc2, ...]`: route (draw polyline)
+        var routeLocations: [CLLocation]?
 
         /// Whether location data is currently loading — drives the spinner card.
         var isLoadingLocation = false
+
+        /// Route drill-in (full map + distance stats), pushed from the tile header.
+        @Presents var routeDetails: RouteDetailsFeature.State?
     }
 
     // MARK: - Action
@@ -56,7 +64,13 @@ struct WorkoutRouteFeature {
         case load
 
         /// Route loaded (empty array = indoor workout / query error).
-        case locationDataLoaded([CLLocationCoordinate2D])
+        case locationDataLoaded([CLLocation])
+
+        /// Tile header (chevron) tapped — pushes the route drill-in.
+        case routeDetailsTapped
+
+        /// Delegates to the route drill-in presentation lifecycle.
+        case routeDetails(PresentationAction<RouteDetailsFeature.Action>)
 
         case delegate(Delegate)
 
@@ -79,22 +93,36 @@ struct WorkoutRouteFeature {
                 return .run { [activityClient, workout = state.workout] send in
                     do {
                         let locations = try await activityClient.fetchWorkoutRoute(workout)
-                        let coordinates = locations.map { $0.coordinate }
-                        await send(.locationDataLoaded(coordinates))
+                        await send(.locationDataLoaded(locations))
                     } catch {
                         // Empty array on failure — same UI as an indoor workout.
                         await send(.locationDataLoaded([]))
                     }
                 }
 
-            case let .locationDataLoaded(coordinates):
-                state.routeCoordinates = coordinates
+            case let .locationDataLoaded(locations):
+                state.routeLocations = locations
                 state.isLoadingLocation = false
                 return .send(.delegate(.didFinishLoading))
+
+            case .routeDetailsTapped:
+                guard let locations = state.routeLocations, locations.count >= 2 else { return .none }
+                state.routeDetails = RouteDetailsFeature.State(
+                    workout: state.workout,
+                    locations: locations,
+                    maxHeartRate: Int(state.maxHeartRate)
+                )
+                return .none
+
+            case .routeDetails:
+                return .none
 
             case .delegate:
                 return .none
             }
+        }
+        .ifLet(\.$routeDetails, action: \.routeDetails) {
+            RouteDetailsFeature()
         }
     }
 }

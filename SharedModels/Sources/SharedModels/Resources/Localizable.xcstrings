@@ -1235,6 +1235,16 @@
       }
     },
     "Timer Name" : {},
+    "Treadmill" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bieżnia"
+          }
+        }
+      }
+    },
     "Typical heart rate recovery within expected range." : {
       "localizations" : {
         "pl" : {

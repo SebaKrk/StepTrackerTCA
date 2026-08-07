@@ -106,6 +106,11 @@ extension HRMirrorFeature {
         /// `WatchWorkoutSessionClient` to create the correct `HKWorkoutConfiguration`.
         var activityType: HKWorkoutActivityType
 
+        /// Session location from the iPhone's workout configuration — `.running`
+        /// alone cannot tell an outdoor run from a treadmill. `.unknown` (the WC
+        /// fallback path) makes the session manager fall back to its heuristic.
+        var locationType: HKWorkoutSessionLocationType
+
         // MARK: - Saving
 
         /// `true` from `.stop` until `endSession()` + log transfer completes.
@@ -135,11 +140,13 @@ extension HRMirrorFeature {
         init(
             elapsedSeconds: TimeInterval = 0,
             maxHeartRate: Int = 0,
-            activityType: HKWorkoutActivityType = HKWorkoutActivityType(rawValue: 37)! // .other
+            activityType: HKWorkoutActivityType = HKWorkoutActivityType(rawValue: 37)!, // .other
+            locationType: HKWorkoutSessionLocationType = .unknown
         ) {
             self.elapsedSeconds = elapsedSeconds
             self.maxHeartRate = maxHeartRate
             self.activityType = activityType
+            self.locationType = locationType
         }
 
     }

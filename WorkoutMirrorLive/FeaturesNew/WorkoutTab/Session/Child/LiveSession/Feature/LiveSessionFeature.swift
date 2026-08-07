@@ -41,6 +41,10 @@ struct LiveSessionFeature {
                 state.maxHeartRate = value
                 return .none
 
+            case let .setWorkoutType(workout):
+                state.selectedWorkout = workout
+                return .none
+
             case let .setWatchConnectionLost(isLost):
                 guard state.isWatchConnectionLost != isLost else { return .none }
                 state.isWatchConnectionLost = isLost
@@ -103,11 +107,11 @@ struct LiveSessionFeature {
                     }
                     state.hrBuffer.append(State.HRSample(date: sampleDate, bpm: effectiveHR))
                 }
-                state.workoutMetrics = WorkoutMetrics(
-                    averageHeartRate: data.averageHeartRate,
-                    heartRate: effectiveHR,
-                    activeEnergy: data.activeEnergy
-                )
+                // Keep the whole payload (incl. ride distance/speed fields for the
+                // cycling tile) — only the displayed HR gets the zero-guard above.
+                var updatedMetrics = data
+                updatedMetrics.heartRate = effectiveHR
+                state.workoutMetrics = updatedMetrics
                 if effectiveHR > 0 {
                     Task { await WorkoutFileLogger.shared.logHRIfNeeded(bpm: effectiveHR) }
                 }
@@ -170,12 +174,7 @@ struct LiveSessionFeature {
                 }
 
             case .resetHeartRate:
-                let current = state.workoutMetrics
-                state.workoutMetrics = WorkoutMetrics(
-                    averageHeartRate: current.averageHeartRate,
-                    heartRate: 0,
-                    activeEnergy: current.activeEnergy
-                )
+                state.workoutMetrics.heartRate = 0
                 return .merge(
                     .send(.calculateHeartRateZone(0, state.maxHeartRate)),
                     .send(.calculateHeartRatePercentage(0, state.maxHeartRate))
@@ -200,6 +199,10 @@ struct LiveSessionFeature {
                 return .run { [idleTimer] _ in
                     await idleTimer.setDisabled(false)
                 }
+
+            case let .view(.distanceTilePageChanged(page)):
+                state.distanceTilePage = page
+                return .none
                 
                 // MARK: - User Stopwatch Delegate
 

@@ -61,6 +61,11 @@ extension LiveSessionFeature {
         /// `sensorStaleThreshold` flips `isSensorStale` (banner + greyed HR). No-op
         /// on the Watch path (`lastFreshSampleDate` stays `nil` there).
         case sensorFreshnessTick
+
+        /// Stores the session's workout type — drives the dedicated activity
+        /// tile (cycling). Sent by `SessionFeature` alongside
+        /// `controls(.setWorkoutType)`.
+        case setWorkoutType(WorkoutType)
         
         // MARK: - Live Activity (Child Reducer)
 
@@ -85,7 +90,8 @@ extension LiveSessionFeature {
         // MARK: - View Actions
         
         case view(View)
-        
+
+        @CasePathable
         enum View {
 
             /// Action triggered when the view appears on the screen.
@@ -93,6 +99,9 @@ extension LiveSessionFeature {
 
             /// Action triggered when the view disappears from the screen.
             case viewDidDisappear
+
+            /// User swiped the cycling tile carousel to another page.
+            case distanceTilePageChanged(DistanceTilePage)
         }
     }
     

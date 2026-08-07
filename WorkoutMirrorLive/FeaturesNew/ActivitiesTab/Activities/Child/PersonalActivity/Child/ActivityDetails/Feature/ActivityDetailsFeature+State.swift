@@ -86,7 +86,7 @@ extension ActivityDetailsFeature {
                 workout: workout,
                 maxHeartRate: maxHeartRate
             )
-            self.workoutRoute = WorkoutRouteFeature.State(workout: workout)
+            self.workoutRoute = WorkoutRouteFeature.State(workout: workout, maxHeartRate: maxHeartRate)
             self.classRecap = ClassRecapFeature.State(workout: workout)
             self.planScore = ActivityPlanScoreFeature.State(hkWorkoutId: workout.uuid)
         }

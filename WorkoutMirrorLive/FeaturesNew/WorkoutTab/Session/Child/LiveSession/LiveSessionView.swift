@@ -65,6 +65,23 @@ struct LiveSessionView: View {
 
             if store.userStopwatch.isVisible {
                 StopwatchView(store: store.scope(state: \.userStopwatch, action: \.userStopwatch))
+            } else {
+                switch store.selectedWorkout {
+                case .cycling:
+                    CyclingTileView(
+                        metrics: store.workoutMetrics,
+                        currentPage: $store.distanceTilePage.sending(\.view.distanceTilePageChanged)
+                    )
+                case .running:
+                    RunningTileView(
+                        metrics: store.workoutMetrics,
+                        currentPage: $store.distanceTilePage.sending(\.view.distanceTilePageChanged)
+                    )
+                case .indoorRunning:
+                    TreadmillTileView(metrics: store.workoutMetrics)
+                default:
+                    EmptyView()
+                }
             }
 
             if store.phaseStopwatch.isManagingPhase {
@@ -403,6 +420,12 @@ private struct StaleDesaturation: ViewModifier {
     }
 }
 
+#Preview("cycling") {
+    NavigationStack {
+        LiveSessionView(store: Store(initialState: .cyclingPreview) { LiveSessionFeature() })
+    }
+}
+
 #Preview("with plan") {
     let phases = TrainingSession.previewTrainingSession.phases
     var state = LiveSessionFeature.State()
@@ -413,6 +436,31 @@ private struct StaleDesaturation: ViewModifier {
                 LiveSessionFeature()
             }
         )
+    }
+}
+
+extension LiveSessionFeature.State {
+
+    /// Mid-ride cycling session — feeds the "cycling" preview above.
+    fileprivate static var cyclingPreview: Self {
+        var state = LiveSessionFeature.State()
+        state.currentHeartRateZone = .fatBurning
+        state.currentHeartRatePercentage = 64
+        state.sessionAverageHeartRate = 124
+        state.sessionMaxHeartRate = 152
+        state.selectedWorkout = .cycling
+        state.workoutMetrics = WorkoutMetrics(
+            averageHeartRate: 128,
+            heartRate: 132,
+            activeEnergy: 240,
+            distance: 5_820,
+            currentSpeed: 6.75,
+            averageSpeed: 5.94,
+            maxSpeed: 9.06,
+            recentAverageSpeed: 6.33,
+            lastKilometerSpeed: 6.53
+        )
+        return state
     }
 }
 

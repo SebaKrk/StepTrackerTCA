@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CoreLocation
 import HealthKit
 import Foundation
 import OSLog
@@ -23,8 +24,10 @@ import SharedModels
 struct WatchWorkoutSessionClient: Sendable {
 
     /// Starts a `HKWorkoutSession` on Watch for accurate HR collection and
-    /// returns an `AsyncStream<Double>` of live BPM readings.
-    var startSession: @Sendable (_ activityType: HKWorkoutActivityType) async -> AsyncStream<Double>
+    /// returns an `AsyncStream<Double>` of live BPM readings. `locationType`
+    /// comes from the iPhone's configuration (`.unknown` on paths that don't
+    /// carry one — the manager falls back to its activity-type heuristic).
+    var startSession: @Sendable (_ activityType: HKWorkoutActivityType, _ locationType: HKWorkoutSessionLocationType) async -> AsyncStream<Double>
 
     /// Ends the active session: stops collection, discards the builder (no HKWorkout saved), ends the session.
     var endSession: @Sendable () async -> Void
@@ -95,8 +98,8 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
     static let liveValue: WatchWorkoutSessionClient = {
         let manager = WatchWorkoutSessionManager()
         return WatchWorkoutSessionClient(
-            startSession: { activityType in
-                await manager.start(activityType: activityType)
+            startSession: { activityType, locationType in
+                await manager.start(activityType: activityType, locationType: locationType)
             },
             endSession: {
                 await manager.end()
@@ -158,6 +161,25 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// and once from the `.ended` safety-net handler in the session delegate.
     private var workoutFinished = false
 
+    // MARK: - Ride tracking (distance activities)
+
+    /// GPS + route pipeline — Watch owns the session in Watch-primary mode, so
+    /// the Watch records the route. `nil` for stationary workouts.
+    private var routeRecorder: WorkoutRouteRecorder?
+
+    /// Same accumulator as iPhone-standalone (`RideMetricsAccumulator` in
+    /// SharedModels) — identical rolling-window math on both workout paths.
+    /// `rideLock`-guarded: the GPS task and HK callbacks race.
+    private var rideMetrics = RideMetricsAccumulator()
+    private let rideLock = NSLock()
+
+    /// Gates ride fields in the outgoing payload — non-distance workouts keep
+    /// sending the legacy HR-only shape (old iPhones decode it unchanged).
+    private var isDistanceActivity = false
+
+    /// Consumes `routeRecorder.locations` into `rideMetrics`.
+    private var locationsTask: Task<Void, Never>?
+
     /// UUID of the most recently saved HKWorkout. Set in both `end()` primary path and
     /// `.ended` safety-net path right after `builder.finishWorkout()` returns. Consumed
     /// (read + cleared) by `HRMirrorFeature` so it can ship UUID in `.workoutSaved` event.
@@ -218,7 +240,10 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         return stream
     }
 
-    func start(activityType: HKWorkoutActivityType) async -> AsyncStream<Double> {
+    func start(
+        activityType: HKWorkoutActivityType,
+        locationType: HKWorkoutSessionLocationType
+    ) async -> AsyncStream<Double> {
         let (stream, continuation) = AsyncStream.makeStream(
             of: Double.self,
             bufferingPolicy: .bufferingNewest(1)
@@ -244,12 +269,21 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         workoutFinished = false
         lastSavedWorkoutUUID = nil
         lastSavedWorkoutSummary = nil
+        isDistanceActivity = activityType.collectsDistance
+        rideLock.withLock { rideMetrics = RideMetricsAccumulator() }
 
         let config = HKWorkoutConfiguration()
         config.activityType = activityType
-        // Indoor for stationary activities so Fitness labels them correctly;
-        // distance-based types keep `.unknown` (Watch has no reliable GPS fix here).
-        config.locationType = activityType.collectsDistance ? .unknown : .indoor
+        // Trust the location the iPhone specified (treadmill = .running + .indoor);
+        // fall back to the legacy heuristic on paths that don't carry one
+        // (WC `.workoutStarted` fallback yields `.unknown`).
+        let resolvedLocation: HKWorkoutSessionLocationType
+        if locationType == .indoor || locationType == .outdoor {
+            resolvedLocation = locationType
+        } else {
+            resolvedLocation = activityType.collectsDistance ? .outdoor : .indoor
+        }
+        config.locationType = resolvedLocation
 
         do {
             session = try HKWorkoutSession(healthStore: healthStore, configuration: config)
@@ -292,6 +326,12 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 Logger.watchSession.error("startMirroringToCompanionDevice failed: \(error.localizedDescription)")
 #endif
             }
+
+            // GPS only outdoors — a treadmill run keeps the accumulator (pace from
+            // HealthKit distance deltas) but must not record a route.
+            if isDistanceActivity && resolvedLocation == .outdoor {
+                startRideTracking()
+            }
         } catch {
             Logger.watchSession.error("start() failed to create HKWorkoutSession: \(error)")
             continuation.finish()
@@ -300,10 +340,33 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         return stream
     }
 
+    /// GPS pipeline (Watch-primary): silent route capture + live speed samples.
+    /// The accumulated values ride along the next `sendHRToRemote` payload —
+    /// no separate send; the HR cadence is enough for the iPhone tile.
+    private func startRideTracking() {
+        let recorder = WorkoutRouteRecorder(healthStore: healthStore)
+        routeRecorder = recorder
+        recorder.start()
+        locationsTask?.cancel()
+        locationsTask = Task { [weak self] in
+            for await location in recorder.locations {
+                guard let self else { return }
+                self.rideLock.withLock {
+                    self.rideMetrics.recordLocationSpeed(location.speed, at: location.timestamp)
+                }
+            }
+        }
+        Logger.watchSession.info("ride tracking started — GPS + route capture active")
+    }
+
     func end() async {
         defer {
             hrContinuation?.finish()
             hrContinuation = nil
+            locationsTask?.cancel()
+            locationsTask = nil
+            routeRecorder?.stop()
+            routeRecorder = nil
             session = nil
             builder = nil
         }
@@ -340,6 +403,9 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 let workout = try await builder.finishWorkout()
                 lastSavedWorkoutUUID = workout?.uuid
                 lastSavedWorkoutSummary = makeSummary(from: workout)
+                if let workout {
+                    await routeRecorder?.finishRoute(for: workout)
+                }
                 Logger.watchSession.info("end() ✓ workout saved to HealthKit (uuid=\(workout?.uuid.uuidString ?? "nil"))")
                 await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (uuid=\(workout?.uuid.uuidString ?? "nil"))")
             } catch {
@@ -385,7 +451,14 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 .doubleValue(for: unit) ?? 0
         }()
 
-        let metrics = WorkoutMetrics(averageHeartRate: avgHR, heartRate: bpm, activeEnergy: energy)
+        var metrics = WorkoutMetrics(averageHeartRate: avgHR, heartRate: bpm, activeEnergy: energy)
+        if isDistanceActivity {
+            // Ride fields are optional in the payload — an older iPhone app
+            // simply ignores the extra keys (same back-compat rule as
+            // `heartRateSampleDate`).
+            let elapsed = builder?.elapsedTime ?? 0
+            metrics = rideLock.withLock { rideMetrics.apply(to: metrics, elapsedTime: elapsed, at: Date()) }
+        }
         guard let data = try? JSONEncoder().encode(metrics) else {
             Logger.watchSession.error("sendHRToRemote — failed to encode WorkoutMetrics")
             return
@@ -470,6 +543,10 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// Used when the user chooses "Odrzuć" in the recovery alert.
     func discardRecoveredSession() async {
         defer {
+            locationsTask?.cancel()
+            locationsTask = nil
+            routeRecorder?.stop()
+            routeRecorder = nil
             session = nil
             builder = nil
             workoutFinished = false
@@ -514,6 +591,10 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         // when iPhone initiates pause via the mirrored session.
         if toState == .paused || toState == .running {
             stateContinuation?.yield(toState)
+            // Pause must be a real pause for the ride pipeline: no route points,
+            // no rolling-window time. Covers pauses from either device.
+            routeRecorder?.setPaused(toState == .paused)
+            rideLock.withLock { rideMetrics.setPaused(toState == .paused, at: date) }
         }
 
         if toState == .ended, !workoutFinished, let builder {
@@ -527,6 +608,13 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
                     let workout = try await builder.finishWorkout()
                     self.lastSavedWorkoutUUID = workout?.uuid
                     self.lastSavedWorkoutSummary = self.makeSummary(from: workout)
+                    if let workout {
+                        await self.routeRecorder?.finishRoute(for: workout)
+                    }
+                    // end() may never run on this path (session ended externally) —
+                    // stop GPS here too; recorder guards make a later double stop safe.
+                    self.locationsTask?.cancel()
+                    self.routeRecorder?.stop()
                     Logger.watchSession.info("safety-net: workout saved (uuid=\(workout?.uuid.uuidString ?? "nil"))")
                     await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (safety-net, uuid=\(workout?.uuid.uuidString ?? "nil"))")
                 } catch {
@@ -583,13 +671,24 @@ extension WatchWorkoutSessionManager: HKLiveWorkoutBuilderDelegate {
         for type in collectedTypes {
             guard
                 let quantityType = type as? HKQuantityType,
-                quantityType == HKQuantityType(.heartRate),
                 let stats = workoutBuilder.statistics(for: quantityType)
             else { continue }
 
-            let bpmUnit = HKUnit.count().unitDivided(by: .minute())
-            if let bpm = stats.mostRecentQuantity()?.doubleValue(for: bpmUnit) {
-                hrContinuation?.yield(bpm)
+            switch quantityType {
+            case HKQuantityType(.heartRate):
+                let bpmUnit = HKUnit.count().unitDivided(by: .minute())
+                if let bpm = stats.mostRecentQuantity()?.doubleValue(for: bpmUnit) {
+                    hrContinuation?.yield(bpm)
+                }
+
+            case HKQuantityType(.distanceCycling), HKQuantityType(.distanceWalkingRunning):
+                if let total = stats.sumQuantity()?.doubleValue(for: .meter()) {
+                    let sampleDate = stats.mostRecentQuantityDateInterval()?.end ?? Date()
+                    rideLock.withLock { rideMetrics.recordDistance(total: total, at: sampleDate) }
+                }
+
+            default:
+                break
             }
         }
     }
