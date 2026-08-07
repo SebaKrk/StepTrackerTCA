@@ -97,10 +97,10 @@ struct HRFormulaSettingsView: View {
     // MARK: - Localized strings
 
     private var navigationTitle: String {
-        String(localized: "Formuła maxHR")
+        String(localized: "Max HR formula")
     }
 
     private var footerHint: String {
-        String(localized: "Zmiana formuły nie wpłynie na zapisane treningi — każdy trening zachowuje formułę z momentu zapisania.")
+        String(localized: "Changing the formula won't affect saved workouts — each workout keeps the formula from the moment it was saved.")
     }
 }

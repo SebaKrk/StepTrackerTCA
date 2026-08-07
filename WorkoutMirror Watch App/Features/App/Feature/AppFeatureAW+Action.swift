@@ -31,11 +31,11 @@ extension AppFeatureAW {
 
         /// Delivered when iPhone calls `HKHealthStore.startWatchApp(toHandle:)`.
         ///
-        /// `WatchAppDelegate.handle(_:)` yields the activity type to
+        /// `WatchAppDelegate.handle(_:)` yields the activity type + location to
         /// `WorkoutConfigurationStream`, which is consumed here. This fires before
         /// WatchConnectivity `.workoutStarted` — starts `HRMirrorFeature` early so
         /// `startMirroringToCompanionDevice()` runs and watchOS brings the app to the front.
-        case workoutConfigurationReceived(HKWorkoutActivityType)
+        case workoutConfigurationReceived(WorkoutConfigurationStream.Payload)
 
         /// Dismisses `HRMirrorFeature` after `.stop` has been sent and the
         /// `HKWorkoutSession` on Watch has finished cleaning up.

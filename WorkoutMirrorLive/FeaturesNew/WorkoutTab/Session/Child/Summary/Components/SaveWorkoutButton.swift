@@ -47,12 +47,12 @@ struct SaveWorkoutButton: View {
 #Preview("SaveWorkoutButton — enabled / disabled") {
     VStack(spacing: 24) {
         SaveWorkoutButton(
-            title: "Zapisz trening",
+            title: "Save workout",
             isEnabled: true,
             action: {}
         )
         SaveWorkoutButton(
-            title: "Zapisz trening",
+            title: "Save workout",
             isEnabled: false,
             action: {}
         )

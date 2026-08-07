@@ -101,7 +101,7 @@ struct ImportPlanView: View {
         .ignoresSafeArea()
     }
 
-    private let navigationTitle = String(localized: "Importuj plan")
-    private let addTitle = String(localized: "Dodaj do moich planów")
-    private let cancelTitle = String(localized: "Anuluj")
+    private let navigationTitle = String(localized: "Import plan")
+    private let addTitle = String(localized: "Add to my plans")
+    private let cancelTitle = String(localized: "Cancel")
 }

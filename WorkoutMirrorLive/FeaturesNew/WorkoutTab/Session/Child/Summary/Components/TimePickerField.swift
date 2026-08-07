@@ -47,7 +47,7 @@ struct TimePickerField: View {
         wheel(
             values: Array(0...59),
             selection: seconds,
-            label: String(localized: "sek"),
+            label: String(localized: "sec"),
             onChange: onSeconds
         )
         .padding(.vertical, 4)

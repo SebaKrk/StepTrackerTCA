@@ -22,9 +22,11 @@ extension ExtractedWorkout {
             .first(where: { $0.type == .warmup })?
             .toWarmUpSession()
 
-        // Extract workout sections (strength + conditioning)
+        // Extract workout sections (strength + conditioning + mobility).
+        // Mobility must be a full workout section — warmup/cooldown mapping
+        // keeps only the free-text description and would drop its exercises.
         let workouts = sections
-            .filter { $0.type == .strength || $0.type == .conditioning }
+            .filter { $0.type == .strength || $0.type == .conditioning || $0.type == .mobility }
             .map { $0.toWorkoutSessionNew() }
 
         // Extract cooldown section (take first if duplicates)
@@ -71,21 +73,24 @@ extension WorkoutSection {
         let exerciseSessions = exercises?
             .map { $0.toExerciseSession() } ?? []
 
-        // Determine workout type from the section's format hint (`rounds`),
-        // resolved through `ExerciseWorkoutType.aliases` so every format —
-        // AMRAP, EMOM, Tabata, … — is recognised from one source of truth.
+        // Determine workout type: the section's format hint (`rounds`) wins for
+        // WOD sections, resolved through `ExerciseWorkoutType.aliases` so every
+        // format — AMRAP, EMOM, Tabata, … — is recognised from one source of
+        // truth. A round hint with no known keyword ("8 rounds", "5") = For Time.
+        let hinted: ExerciseWorkoutType? = rounds.map { ExerciseWorkoutType.matching($0) ?? .forTime }
+
         let workoutType: ExerciseWorkoutType
-        if let roundsString = rounds, let matched = ExerciseWorkoutType.matching(roundsString) {
-            workoutType = matched
-        } else if rounds != nil {
-            // A round hint with no known format keyword ("8 rounds", "5") = For Time.
-            workoutType = .forTime
-        } else if type == .strength {
+        switch type {
+        case .mobility:
+            // Format-less by definition — "stretch ×5 per side" must not turn
+            // a rehab section into a timed For Time WOD.
+            workoutType = .mobility
+        case .strength:
             // Differentiate based on first exercise category
             let firstCategory = exerciseSessions.first?.type.category
-            workoutType = firstCategory == .olympicLifting ? .olympicWeightlifting : .strength
-        } else {
-            workoutType = .amrap
+            workoutType = hinted ?? (firstCategory == .olympicLifting ? .olympicWeightlifting : .strength)
+        case .conditioning, .warmup, .cooldown, .transition:
+            workoutType = hinted ?? .amrap
         }
 
         // Round count only makes sense for round-based formats; for AMRAP/EMOM the
@@ -95,7 +100,7 @@ extension WorkoutSection {
         switch workoutType {
         case .forTime, .tabata:
             roundsInt = rounds.flatMap { $0.contains("-") ? nil : $0.firstInteger }
-        case .amrap, .emom, .strength, .olympicWeightlifting:
+        case .amrap, .emom, .strength, .olympicWeightlifting, .mobility:
             roundsInt = nil
         }
 

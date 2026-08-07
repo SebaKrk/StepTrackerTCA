@@ -70,6 +70,20 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
     /// Guarded by `metricsLock` because `didCollectDataOf` may fire concurrently with reads.
     private var currentMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 0, activeEnergy: 0)
 
+    // MARK: - Ride tracking (distance activities)
+
+    /// GPS pipeline for outdoor, distance-based activities — live speed samples
+    /// plus silent route capture (map shows up in the post-workout summary only).
+    private var routeRecorder: WorkoutRouteRecorder?
+
+    /// Turns GPS speed + builder distance into the ride fields of
+    /// `WorkoutMetrics`. Guarded by `metricsLock` (GPS task and HK callbacks
+    /// mutate it concurrently).
+    private var rideMetrics = RideMetricsAccumulator()
+
+    /// Consumes `routeRecorder.locations` into `rideMetrics` and broadcasts.
+    private var locationsTask: Task<Void, Never>?
+
     // MARK: - Strap HR fallback
 
     /// HealthKit can stall mid-workout while the strap keeps sending (zombie
@@ -149,8 +163,46 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         self.session = session
         self.builder = builder
         endClaimLock.withLock { hasEnded = false }
+        startRideTrackingIfNeeded(for: configuration)
 
         Logger.iPhoneWorkoutSession.info("prepare() — session created, builder attached, dataSource bound")
+    }
+
+    /// Spins up the ride pipeline for distance-based activities. The accumulator
+    /// resets for every distance workout (indoor treadmill included — pace comes
+    /// from HealthKit distance deltas there); the GPS recorder starts only for
+    /// `.outdoor` sessions — indoor workouts must not capture a route.
+    /// Shared by `prepare()` and `reattach(to:)` (rule R7: fresh state per entry
+    /// point; a route interrupted by a crash restarts from the recovery point).
+    private func startRideTrackingIfNeeded(for configuration: HKWorkoutConfiguration) {
+        guard configuration.activityType.collectsDistance else { return }
+        metricsLock.withLock { rideMetrics = RideMetricsAccumulator() }
+        guard configuration.locationType == .outdoor else {
+            Logger.iPhoneWorkoutSession.info("ride tracking without GPS — indoor session, metrics from HealthKit distance only")
+            return
+        }
+
+        let recorder = WorkoutRouteRecorder(healthStore: healthStore)
+        routeRecorder = recorder
+        recorder.start()
+
+        locationsTask?.cancel()
+        locationsTask = Task { [weak self] in
+            for await location in recorder.locations {
+                guard let self else { return }
+                let merged = self.metricsLock.withLock {
+                    self.rideMetrics.recordLocationSpeed(location.speed, at: location.timestamp)
+                    self.currentMetrics = self.rideMetrics.apply(
+                        to: self.currentMetrics,
+                        elapsedTime: self.builder?.elapsedTime ?? 0,
+                        at: Date()
+                    )
+                    return self.currentMetrics
+                }
+                self.broadcastMetrics(self.strapFallback(applyTo: merged).metrics)
+            }
+        }
+        Logger.iPhoneWorkoutSession.info("ride tracking started — GPS + route capture active")
     }
 
     public func start(at date: Date) async throws {
@@ -230,6 +282,8 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         defer {
             strapReadingsTask?.cancel()
             fallbackTickerTask?.cancel()
+            locationsTask?.cancel()
+            routeRecorder?.stop()
             session.end()
             finishWorkoutStream()
             Logger.iPhoneWorkoutSession.info("end() — session.end() invoked, workout stream finished")
@@ -245,6 +299,9 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
             let finalWorkout = try await builder.finishWorkout()
             await WorkoutFileLogger.shared.log("[End] finishWorkout done")
             if let workout = finalWorkout {
+                // Route attaches to the saved workout as a separate HK object —
+                // history's map view picks it up with no further wiring.
+                await routeRecorder?.finishRoute(for: workout)
                 broadcastWorkout(workout)
                 Logger.iPhoneWorkoutSession.info("finishWorkout — HKWorkout uuid=\(workout.uuid.uuidString, privacy: .public)")
             } else {
@@ -285,6 +342,7 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         // reset here just like in `prepare()` (rule R7), or `end()` on the
         // recovered session could silently no-op.
         endClaimLock.withLock { hasEnded = false }
+        startRideTrackingIfNeeded(for: recoveredSession.workoutConfiguration)
 
         Logger.iPhoneWorkoutSession.info("reattach — session+builder restored (state=\(recoveredSession.state.rawValue))")
     }
@@ -452,6 +510,13 @@ extension iPhoneWorkoutSession: HKWorkoutSessionDelegate {
         date: Date
     ) {
         Logger.iPhoneWorkoutSession.info("state \(fromState.rawValue) → \(toState.rawValue)")
+        // Pause must be a real pause for the ride pipeline: no route points, no
+        // rolling-window time. Hooked on session state (not the pause() call) so
+        // pauses from Live Activity / App Intents are covered too.
+        if toState == .paused || toState == .running {
+            routeRecorder?.setPaused(toState == .paused)
+            metricsLock.withLock { rideMetrics.setPaused(toState == .paused, at: date) }
+        }
         broadcastState(toState)
     }
 
@@ -505,8 +570,20 @@ extension iPhoneWorkoutSession: HKLiveWorkoutBuilderDelegate {
                     working.activeEnergy = sum
                 }
 
+            case HKQuantityType(.distanceCycling), HKQuantityType(.distanceWalkingRunning):
+                if let total = statistics?.sumQuantity()?.doubleValue(for: .meter()) {
+                    let sampleDate = statistics?.mostRecentQuantityDateInterval()?.end ?? Date()
+                    metricsLock.withLock { rideMetrics.recordDistance(total: total, at: sampleDate) }
+                }
+
             default:
                 continue
+            }
+        }
+
+        if configuration.activityType.collectsDistance {
+            working = metricsLock.withLock {
+                rideMetrics.apply(to: working, elapsedTime: workoutBuilder.elapsedTime, at: Date())
             }
         }
 

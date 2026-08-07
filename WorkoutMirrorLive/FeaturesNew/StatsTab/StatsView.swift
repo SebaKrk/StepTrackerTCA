@@ -46,7 +46,7 @@ struct StatsView: View {
                 Logger.stats.info("[PullToRefresh] closure START")
                 // Wait for the blocking effect (cancelled by all children signalling
                 // .delegate(.refreshDidComplete) — see StatsFeature.pullToRefresh handler).
-                await store.send(.view(.pullToRefresh)).finish()
+                await send(.pullToRefresh).finish()
                 Logger.stats.info("[PullToRefresh] closure END (all children completed)")
             }
             .toolbar {
@@ -89,7 +89,7 @@ struct StatsView: View {
         }
         .matchedTransitionSource(id: "personSettings", in: zoomTransition)
     }
-
+    
     private var subscriptionTierMenu: some View {
         Menu {
             ForEach(SubscriptionTier.allCases.filter { $0 != store.subscriptionTier }) { tier in
@@ -103,7 +103,7 @@ struct StatsView: View {
             Image(systemName: "crown")
         }
     }
-
+    
     private var dataAnalyzerButton: some View {
         Button {
             send(.dataAnalyzerButtonTapped)
@@ -111,7 +111,7 @@ struct StatsView: View {
             Image(systemName: "apple.intelligence")
         }
     }
-
+    
     private var personButton: some View {
         Button {
             send(.personButtonTapped)
@@ -177,18 +177,18 @@ struct StatsView: View {
             emptyAnalyticsActivityView
         }
     }
-
+    
     // MARK: - Exercise Analytics
-
+    
     @ViewBuilder
     private var exerciseAnalyticsView: some View {
         if let exerciseStore = store.scope(state: \.exerciseAnalytics, action: \.exerciseAnalytics) {
             ExerciseAnalyticsView(store: exerciseStore)
         }
     }
-
+    
     // MARK: - Analytics Empty View
-
+    
     private var emptyAnalyticsActivityView: some View {
         ContentUnavailableView {
             Label("Analytics Dashboard", systemImage: "chart.xyaxis.line")
@@ -202,6 +202,6 @@ struct StatsView: View {
             }
         }
     }
-
+    
 }
 

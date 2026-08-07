@@ -146,7 +146,7 @@ struct ClassRecapView: View {
     }
 
     private var pointsUnit: String {
-        String(localized: "pkt", bundle: .main)
+        String(localized: "pts", bundle: .main)
     }
 
     private var mapUnavailableText: String {

@@ -52,7 +52,7 @@ struct CardActionButton: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(SummaryTheme.inkSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            CardActionButton(title: "Wpisz wyniki", action: {})
+            CardActionButton(title: "Enter results", action: {})
         }
         .summaryCard()
 
@@ -61,7 +61,7 @@ struct CardActionButton: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(SummaryTheme.inkSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            CardActionButton(title: "Wpisz serie", action: {})
+            CardActionButton(title: "Enter sets", action: {})
         }
         .summaryCard()
 

@@ -119,7 +119,7 @@ struct ResultCardView: View {
         switch store.result.scoreResult {
         case let .forTime(time):
             ScoreLine(
-                kind: String(localized: "Wynik · For Time"),
+                kind: String(localized: "Score · For Time"),
                 variant: .filled(
                     value: timeText(Int(time)),
                     detail: store.capMinutes.map { String(localized: "limit \($0):00") },
@@ -129,18 +129,18 @@ struct ResultCardView: View {
 
         case let .amrap(rounds, extraReps) where store.isDNF:
             ScoreLine(
-                kind: String(localized: "Wynik · Time cap"),
+                kind: String(localized: "Score · Time cap"),
                 variant: .dnf(
                     value: store.capMinutes.map { "\($0):00" } ?? "—",
-                    detail: String(localized: "· \(rounds) rund + \(extraReps) reps")
+                    detail: String(localized: "· \(rounds) rounds + \(extraReps) reps")
                 )
             )
 
         case let .amrap(rounds, extraReps):
             ScoreLine(
-                kind: String(localized: "Wynik · AMRAP"),
+                kind: String(localized: "Score · AMRAP"),
                 variant: .filled(
-                    value: String(localized: "\(rounds) rund + \(extraReps) reps"),
+                    value: String(localized: "\(rounds) rounds + \(extraReps) reps"),
                     detail: nil,
                     isPR: false
                 )
@@ -149,7 +149,7 @@ struct ResultCardView: View {
         case .forLoad:
             if let top = heaviestSet {
                 ScoreLine(
-                    kind: String(localized: "Najcięższa seria"),
+                    kind: String(localized: "Heaviest set"),
                     variant: .filled(
                         value: "\(formatWeight(top.weight)) kg",
                         detail: "× \(top.reps)",
@@ -163,10 +163,10 @@ struct ResultCardView: View {
 
         case let .forReps(reps):
             ScoreLine(
-                kind: String(localized: "Wynik · Tabata"),
+                kind: String(localized: "Score · Tabata"),
                 variant: .filled(
                     value: String(localized: "\(reps) reps"),
-                    detail: String(localized: "łącznie"),
+                    detail: String(localized: "total"),
                     isPR: false
                 )
             )
@@ -230,19 +230,53 @@ struct ResultCardView: View {
     }
 
     private func actual(for exercise: ExerciseLogInput) -> ExerciseList.Actual {
+        let repsText = exercise.actualReps.flatMap(enteredRepsDisplay)
+
         if let weight = exercise.actualWeight {
-            return .weight("\(formatWeight(weight)) kg", rx: weight == exercise.plannedWeight)
+            // Entered reps ride along with the weight instead of being swallowed.
+            let kg = "\(formatWeight(weight)) kg"
+            return .weight(
+                repsText.map { "\($0) · \(kg)" } ?? kg,
+                rx: weight == exercise.plannedWeight
+            )
+        }
+        // Set-based rows outside the strength table (mobility) — entered sets
+        // mean the exercise is done; per-set detail lives in the editor.
+        if let sets = exercise.sets, !sets.isEmpty {
+            return .done
         }
         if let actualReps = exercise.actualReps {
             // "12" done of a planned "30" → partial row (DNF cutoff point).
-            if let done = Int(actualReps),
-               let planned = exercise.plannedReps.flatMap(Int.init),
+            if let done = leadingInt(actualReps),
+               let planned = exercise.plannedReps.flatMap(leadingInt),
                done < planned {
                 return .partial(done: done, total: planned)
+            }
+            // Show the entered number instead of a bare ✓.
+            if let repsText {
+                return .weight(repsText, rx: false)
             }
             return .done
         }
         return .none
+    }
+
+    /// Entered-value display: "54x" → "54 reps"; "20 cal" / "400m" / "21-15-9"
+    /// stay as typed. Nil for empty strings (falls back to ✓/—).
+    private func enteredRepsDisplay(_ raw: String) -> String? {
+        let trimmed = raw.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil }
+        let digits = trimmed.prefix(while: \.isNumber)
+        guard let value = Int(digits) else { return trimmed }
+        let suffix = trimmed.dropFirst(digits.count).trimmingCharacters(in: .whitespaces)
+        return suffix.isEmpty || suffix == "x"
+            ? String(localized: "\(value) reps")
+            : trimmed
+    }
+
+    /// Leading integer of a compact value ("54x" → 54, "20 cal" → 20).
+    private func leadingInt(_ raw: String) -> Int? {
+        Int(raw.prefix(while: \.isNumber))
     }
 
     private func repPrefix(_ plannedReps: String?) -> String? {
@@ -265,13 +299,15 @@ struct ResultCardView: View {
     private var capText: String? {
         switch store.wodType {
         case .tabata:
-            return store.rounds.map { String(localized: "Tabata · \($0) rund") } ?? "Tabata"
+            return store.rounds.map { String(localized: "Tabata · \($0) rounds") } ?? "Tabata"
         case .amrap:
             return store.capMinutes.map { String(localized: "AMRAP \($0) min") }
         case .emom:
             return store.capMinutes.map { String(localized: "EMOM \($0) min") }
         case .forTime, .strength, .olympicWeightlifting:
             return store.capMinutes.map { String(localized: "\($0) min cap") }
+        case .mobility:
+            return nil
         }
     }
 
@@ -284,7 +320,7 @@ struct ResultCardView: View {
                 return store.phase == .entered ? .pill(completed: !store.isDNF) : nil
             }
             return .segment(status: store.wodStatus, onChange: { send(.setStatus($0)) })
-        case .forTime, .emom, .tabata:
+        case .forTime, .emom, .tabata, .mobility:
             return store.phase == .entered ? .pill(completed: true) : nil
         case .strength, .olympicWeightlifting, .amrap:
             return nil
@@ -297,10 +333,10 @@ struct ResultCardView: View {
 
     private var scoreKind: String {
         switch store.wodType {
-        case .strength, .olympicWeightlifting: String(localized: "Serie")
-        case .amrap: String(localized: "Wynik · AMRAP")
-        case .forTime: String(localized: "Wynik · For Time")
-        case .emom, .tabata: String(localized: "Wynik")
+        case .strength, .olympicWeightlifting: String(localized: "Sets")
+        case .amrap: String(localized: "Score · AMRAP")
+        case .forTime: String(localized: "Score · For Time")
+        case .emom, .tabata, .mobility: String(localized: "Score")
         }
     }
 
@@ -308,20 +344,20 @@ struct ResultCardView: View {
         switch store.wodType {
         case .strength, .olympicWeightlifting:
             let count = store.result.exercises.first?.sets?.count ?? 0
-            return String(localized: "\(count) serii · powtórzenia + kg")
+            return String(localized: "\(count) sets · reps + kg")
         case .forTime:
             return "mm:ss"
         case .amrap:
-            return String(localized: "rundy + powtórzenia")
-        case .emom, .tabata:
+            return String(localized: "rounds + reps")
+        case .emom, .tabata, .mobility:
             return nil
         }
     }
 
     private var emptyActionTitle: String {
         switch store.wodType {
-        case .strength, .olympicWeightlifting: String(localized: "Wpisz serie")
-        default: String(localized: "Wpisz wyniki")
+        case .strength, .olympicWeightlifting: String(localized: "Enter sets")
+        default: String(localized: "Enter results")
         }
     }
 

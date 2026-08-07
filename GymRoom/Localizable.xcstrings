@@ -1,21 +1,18 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "—" : {
-
-    },
     "%lld" : {
-
+      "shouldTranslate" : false
     },
     "%lld min" : {
-
+      "shouldTranslate" : false
     },
-    "%lld–%lld" : {
+    "%lld%% of class" : {
       "localizations" : {
-        "en" : {
+        "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld–%2$lld"
+            "state" : "translated",
+            "value" : "%lld%% zajęć"
           }
         }
       }
@@ -30,8 +27,16 @@
         }
       }
     },
-    "%lld%% of class" : {
-
+    "%lld–%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld–%2$lld"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "Active Energy" : {
       "localizations" : {
@@ -43,11 +48,15 @@
         }
       }
     },
-    "active time" : {
-
-    },
     "Address or room (e.g. Iron Den)" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adres lub sala (np. Iron Den)"
+          }
+        }
+      }
     },
     "All Athletes" : {
       "localizations" : {
@@ -70,10 +79,24 @@
       }
     },
     "All zones" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszystkie strefy"
+          }
+        }
+      }
     },
     "Athlete" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawodnik"
+          }
+        }
+      }
     },
     "Athletes" : {
       "localizations" : {
@@ -104,9 +127,6 @@
           }
         }
       }
-    },
-    "Brak pomiaru — zawodnik poza zasięgiem" : {
-
     },
     "Calories" : {
       "localizations" : {
@@ -179,14 +199,45 @@
         }
       }
     },
+    "Connecting…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łączenie…"
+          }
+        }
+      }
+    },
     "Couldn't load athlete data for this class. Please try again." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać danych zawodnika dla tych zajęć. Spróbuj ponownie."
+          }
+        }
+      }
     },
     "Couldn't load class history. Please try again." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać historii zajęć. Spróbuj ponownie."
+          }
+        }
+      }
     },
     "Couldn't load classes. Please try again." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać zajęć. Spróbuj ponownie."
+          }
+        }
+      }
     },
     "Delete" : {
       "localizations" : {
@@ -289,16 +340,54 @@
       }
     },
     "End session?" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończyć sesję?"
+          }
+        }
+      }
     },
     "End time will be set to now. Athletes still active will be finalized." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas zakończenia zostanie ustawiony na teraz. Aktywni zawodnicy zostaną sfinalizowani."
+          }
+        }
+      }
+    },
+    "Ending class…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kończenie zajęć…"
+          }
+        }
+      }
     },
     "Gap end" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koniec przerwy"
+          }
+        }
+      }
     },
     "Gap start" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Początek przerwy"
+          }
+        }
+      }
     },
     "Gym Room" : {
       "localizations" : {
@@ -306,32 +395,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gym Room"
-          }
-        }
-      }
-    },
-    "History" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Historia"
-          }
-        }
-      }
-    },
-    "HR max" : {
-
-    },
-    "HR min" : {
-
-    },
-    "HR over time" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HR w czasie"
           }
         }
       }
@@ -346,17 +409,55 @@
         }
       }
     },
+    "HR max" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR maks"
+          }
+        }
+      }
+    },
+    "HR min" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR min"
+          }
+        }
+      }
+    },
+    "HR over time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HR w czasie"
+          }
+        }
+      }
+    },
+    "History" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historia"
+          }
+        }
+      }
+    },
     "Individual" : {
-
-    },
-    "kcal" : {
-
-    },
-    "Kończenie zajęć…" : {
-
-    },
-    "Łączenie…" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indywidualnie"
+          }
+        }
+      }
     },
     "LIVE" : {
       "localizations" : {
@@ -369,7 +470,14 @@
       }
     },
     "Loading failed" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Błąd wczytywania"
+          }
+        }
+      }
     },
     "Location" : {
       "localizations" : {
@@ -392,6 +500,16 @@
         }
       }
     },
+    "Max HR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maks. HR"
+          }
+        }
+      }
+    },
     "Max athletes" : {
       "localizations" : {
         "pl" : {
@@ -402,11 +520,15 @@
         }
       }
     },
-    "Max HR" : {
-
-    },
     "Minute" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuta"
+          }
+        }
+      }
     },
     "New class" : {
       "localizations" : {
@@ -419,7 +541,14 @@
       }
     },
     "Next class" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Następne zajęcia"
+          }
+        }
+      }
     },
     "No athletes data" : {
       "localizations" : {
@@ -432,7 +561,14 @@
       }
     },
     "No classes" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zajęć"
+          }
+        }
+      }
     },
     "No classes yet" : {
       "localizations" : {
@@ -454,8 +590,35 @@
         }
       }
     },
+    "No reading — athlete out of range" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak pomiaru — zawodnik poza zasięgiem"
+          }
+        }
+      }
+    },
     "No samples" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak próbek"
+          }
+        }
+      }
+    },
+    "Not enough data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Za mało danych"
+          }
+        }
+      }
     },
     "Ongoing" : {
       "localizations" : {
@@ -478,23 +641,55 @@
         }
       }
     },
-    "pkt" : {
-
-    },
     "Points" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkty"
+          }
+        }
+      }
     },
     "Rank" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miejsce"
+          }
+        }
+      }
     },
     "Ranking" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranking"
+          }
+        }
+      }
     },
     "Repeat weekly" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powtarzaj co tydzień"
+          }
+        }
+      }
     },
     "Results — %@" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyniki — %@"
+          }
+        }
+      }
     },
     "Run a class to see it here." : {
       "localizations" : {
@@ -547,16 +742,44 @@
       }
     },
     "Seconds" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekundy"
+          }
+        }
+      }
     },
     "Selected Minute" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybrana minuta"
+          }
+        }
+      }
     },
     "Selected Time" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybrany czas"
+          }
+        }
+      }
     },
     "Series" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serie"
+          }
+        }
+      }
     },
     "Set scheduled time" : {
       "localizations" : {
@@ -610,10 +833,24 @@
       }
     },
     "Team" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drużyna"
+          }
+        }
+      }
     },
     "This athlete didn't send any HR data." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ten zawodnik nie przesłał żadnych danych HR."
+          }
+        }
+      }
     },
     "This class had no peers connected." : {
       "localizations" : {
@@ -656,10 +893,24 @@
       }
     },
     "Time" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas"
+          }
+        }
+      }
     },
     "Time in zones" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas w strefach"
+          }
+        }
+      }
     },
     "Today" : {
       "localizations" : {
@@ -672,16 +923,34 @@
       }
     },
     "Total class" : {
-
-    },
-    "Trening był zbyt krótki, by zanalizować HR — minimum 5 minut." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Całe zajęcia"
+          }
+        }
+      }
     },
     "Try again" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spróbuj ponownie"
+          }
+        }
+      }
     },
-    "weekly" : {
-
+    "Workout too short to analyze HR — 5 minutes minimum." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening był zbyt krótki, by zanalizować HR — minimum 5 minut."
+          }
+        }
+      }
     },
     "Wróć do zajęć" : {
       "extractionState" : "stale",
@@ -704,17 +973,71 @@
         }
       }
     },
-    "Za mało danych" : {
-
-    },
     "Zone" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strefa"
+          }
+        }
+      }
     },
     "Zone end" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koniec strefy"
+          }
+        }
+      }
     },
     "Zone start" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Początek strefy"
+          }
+        }
+      }
+    },
+    "active time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "czas aktywny"
+          }
+        }
+      }
+    },
+    "kcal" : {
+      "shouldTranslate" : false
+    },
+    "pts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pkt"
+          }
+        }
+      }
+    },
+    "weekly" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "co tydzień"
+          }
+        }
+      }
+    },
+    "—" : {
+      "shouldTranslate" : false
     }
   },
   "version" : "1.0"

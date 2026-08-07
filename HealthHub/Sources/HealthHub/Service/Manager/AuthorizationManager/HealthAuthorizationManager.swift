@@ -30,7 +30,11 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
 
         /// Distance — required for iPhone-primary tor (Tor B) outdoor activities
         HKQuantityType(.distanceWalkingRunning),
-        HKQuantityType(.distanceCycling)
+        HKQuantityType(.distanceCycling),
+
+        /// Route — write access for HKWorkoutRouteBuilder (outdoor rides);
+        /// read side is already in `readTypes` for the history map.
+        HKSeriesType.workoutRoute()
     ]
 
     let readTypes: Set<HKObjectType> = [
@@ -60,7 +64,13 @@ public final class DefaultAuthorizationManager: AuthorizationManager {
         /// Distance — required for iPhone-primary tor (Tor B) outdoor activities
         HKQuantityType(.distanceWalkingRunning),
         HKQuantityType(.distanceCycling),
-        
+
+        /// Running dynamics (Watch, watchOS 9+) — route drill-in cards
+        HKQuantityType(.runningPower),
+        HKQuantityType(.runningStrideLength),
+        HKQuantityType(.runningVerticalOscillation),
+        HKQuantityType(.runningGroundContactTime),
+
         /// Activity Rings - Hourly Data
         HKQuantityType(.appleExerciseTime),
         HKCategoryType(.appleStandHour),
