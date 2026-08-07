@@ -1352,3 +1352,29 @@
     - end state: 0 Polish keys and 0 missing-pl entries in all three catalogs (only the dev-only AnimationTest playground keeps 2 Polish literals, deliberately)
     - verification: grep sweeps confirm no Polish literal remains in non-preview code; every JSON validated after each write; Xcode build will re-extract and confirm key alignment
     - package sweep (follow-up, same branch): the first pass skipped SPM sources — found and migrated Polish plain-`String` returns in `HealthMetricType` (4 metric descriptions + the "hours" unit that surfaced the gap; `missingDataMessage` also gained the missing `bundle: .module`, without which its SharedModels translations never loaded), `HRFormulaType+Display` (formula text/audience/descriptions ×5) and `BluetoothStatus` (labelText/title/description/buttonTitle ×6) — HealthHub has no string catalog, so its strings localize via `String(localized:)` against the app bundle with keys added to the WML catalog (+37) and SharedModels (+4)
+
+### IOS-00125 Per-activity live tiles — cycling, running, treadmill
+    - branch: `dev/IOS-00124/IOS-00124` (continuation; user assigns final branch/commits)
+    * A: Cycling live tile + ride data pipeline
+        - live session tile for `.cycling` (hero km/h, distance in header, swipeable pages: avg/max speed + rolling last-5km/last-km), stopwatch takes over the slot when visible; plain view + page state in `LiveSessionFeature` (no child reducer)
+        - `WorkoutMetrics` gained optional SI ride fields (distance, current/avg/max/rolling speeds) — Codable back-compat across Watch↔iPhone version skew
+        - shared ride engine in SharedModels (HealthHub is iOS-only, Watch links SharedModels): `RideMetricsAccumulator` (pure rolling-window math on an active-time axis — pause time excised) + `WorkoutRouteRecorder` (CLLocationManager → multicast stream + silent `HKWorkoutRouteBuilder` capture; accuracy filter ≤ 50 m)
+        - both engines integrated: iPhone (`iPhoneWorkoutSession` — GPS task, distance case in `didCollectDataOf`, `finishRoute` after save, crash-recovery re-arm) and Watch (`WatchWorkoutSessionManager` — ride fields ride along the HR payload, `locationType .unknown → .outdoor`, route finished in both end paths); zero Watch UI changes
+        - pause is a real pause everywhere: recorder drops fixes, accumulator freezes its time axis — hooked on session-state delegate so Live-Activity/remote pauses count too
+        - fixes en route: `workoutRoute` was read-only in HK authorization (route writes silently failed — added to shareTypes); CoreLocation background-mode assert on Watch (UIBackgroundModes empty → added `location` + capability-gated `allowsBackgroundLocationUpdates`); location permission strings + background modes in both Info.plists
+        - pending: field test on an actual ride (distance drift indoors = GPS noise, expected)
+    * B: Running + treadmill live tiles and the indoor-running activity
+        - new `WorkoutType.indoorRunning` (Treadmill/Bieżnia, `.running` + `.indoor` — HK has no treadmill type) with `isOutdoor`/`sessionLocationType` splitting "collects distance" from "uses GPS"
+        - `locationType` flows end-to-end instead of being recomputed: picker → SessionClient/TrainingManager (was hardcoded `.outdoor` for every Watch start) → Watch via the startWatchApp configuration (`WorkoutConfigurationStream.Payload`); WC fallback path keeps the legacy heuristic
+        - GPS/route gated on `.outdoor` in both engines — treadmill keeps the accumulator (pace from HealthKit distance deltas) but records no route and never asks for location
+        - `RunningTileView` (outdoor: hero pace min/km, avg/last-km + rolling-5km/best-pace pages) and single-page `TreadmillTileView`; shared `PaceFormatter` ("—" below walking speed and for fields the source cannot measure — data-driven device adaptation, no mode plumbing)
+        - no start gate for treadmill without Watch/strap (user decision — Apple Fitness blocks it, we allow with "—" placeholders)
+    * C: Route drill-in (Activity Details)
+        - the dead "Route" tile chevron (`// TODO: - destination RoutDetails`) now pushes `RouteDetailsView`: full interactive map (polyline + start/finish markers, no ScrollView — sidesteps the iOS 26 Map hang) + 2×2 stat tiles: distance, duration, average and best speed/pace (pace for running, km/h otherwise)
+        - stats derived on the fly ("derive, don't persist"): distance/duration from `HKWorkout`, max speed from the route's `CLLocation` samples — works retroactively for any workout with a route, including ones recorded by other apps
+        - `WorkoutRouteFeature` keeps full `[CLLocation]` instead of bare coordinates (drill-in needs per-fix speeds); navigation via `@Presents` + `navigationDestination(item:)`
+        - follow-ups (same screen): stats above the map; scrubbable per-minute speed chart + elevation profile (shared scrub selection highlights the point on the map, Apple Fitness-style); zone-colored route polylines + speed bars from HK HR samples (two-pointer time alignment, legend of zones present); axis units in card headers; activity icon per workout type
+    * D: Running dynamics cards (route drill-in)
+        - `RunningDynamicsLoader` (HealthHub): power / stride length / vertical oscillation / ground contact time from Watch-recorded HK statistics + cadence from workout steps — all optional, "derive don't persist", retroactive for any Watch run (watchOS collects these itself during any running session; we only read)
+        - route drill-in shows a `SimpleMetricCard` grid for runs: only metrics with samples, whole section hidden without Watch data (iPhone-only runs usually still get cadence from phone steps); 4 running-dynamics types added to HK readTypes
+        - final screen order (user decision — dynamics are least actionable): stats grid → map → speed/pace chart → elevation chart → running dynamics

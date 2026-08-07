@@ -193,6 +193,7 @@ struct HRMirrorFeature {
 
             case .start:
                 let activityType = state.activityType
+                let locationType = state.locationType
                 // Show countdown overlay immediately so user never sees the workout view
                 // with stopwatch=00:00 before iPhone's countdownStart event arrives.
                 state.isCountingDown = true
@@ -213,8 +214,8 @@ struct HRMirrorFeature {
                     },
                     // Start HealthKit session immediately — HR readings accumulate
                     // while iPhone finishes its countdown.
-                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, activityType] send in
-                        for await bpm in await watchWorkoutSessionClient.startSession(activityType) {
+                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, activityType, locationType] send in
+                        for await bpm in await watchWorkoutSessionClient.startSession(activityType, locationType) {
                             await send(.hrReceived(bpm))
                         }
                     }

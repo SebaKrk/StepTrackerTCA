@@ -28,7 +28,7 @@ enum WorkoutMode: Equatable, Sendable {
 // MARK: - SessionClient
 
 struct SessionClient {
-    var selectedWorkout: @Sendable (HKWorkoutActivityType?) async throws -> Void
+    var selectedWorkout: @Sendable (HKWorkoutActivityType?, HKWorkoutSessionLocationType) async throws -> Void
     var workoutMetricsStream: @Sendable () async -> AsyncStream<WorkoutMetrics>
     var workoutSessionStateStream: @Sendable () async -> AsyncStream<HKWorkoutSessionState>
     var elapsedTimeAt: (_ date: Date) -> TimeInterval
@@ -39,7 +39,7 @@ struct SessionClient {
     /// Launches the Watch app. In Watch-primary mode Watch then starts its own
     /// HKWorkoutSession, calls startMirroringToCompanionDevice(), and iPhone
     /// receives the mirrored session via workoutSessionMirroringStartHandler.
-    var startWatchWorkout: @Sendable (HKWorkoutActivityType) async throws -> Void
+    var startWatchWorkout: @Sendable (HKWorkoutActivityType, HKWorkoutSessionLocationType) async throws -> Void
 
     /// Deletes the given workout from HealthKit. Only works for workouts created
     /// by this app. Used when the user discards a just-finished workout.
@@ -148,14 +148,14 @@ private enum SessionClientClientKey: DependencyKey {
         let elapsedTracker = ElapsedTracker()
 
         return SessionClient(
-            selectedWorkout: { type in
+            selectedWorkout: { type, locationType in
                 // Per WWDC25 #322: exactly ONE HKWorkoutSession owns the iPhone side
                 // per workout cycle. Parallel HKWorkoutSession creation was source of
                 // code=8 "Another session is starting" — kept here as a single entry point.
                 //
                 // 3s countdown overlaps BLE strap warmup (CLAUDE.md R1: prepare() before start).
                 if let type {
-                    await router.prepareIPhoneSession(activityType: type)
+                    await router.prepareIPhoneSession(activityType: type, locationType: locationType)
                 }
             },
             workoutMetricsStream: {
@@ -223,8 +223,8 @@ private enum SessionClientClientKey: DependencyKey {
             endWorkout: {
                 await router.endWorkout()
             },
-            startWatchWorkout: { activityType in
-                try await trainingManager.startWatchWorkout(workoutType: activityType)
+            startWatchWorkout: { activityType, locationType in
+                try await trainingManager.startWatchWorkout(workoutType: activityType, locationType: locationType)
             },
             deleteWorkout: { workout in
                 // Re-fetch by UUID to avoid stale reference race (workout may have
@@ -407,15 +407,16 @@ private actor WorkoutModeRouter {
 
     /// Creates `iPhoneWorkoutSession`, requests HealthKit authorization, and calls `prepare()`.
     /// Called from `selectedWorkout` closure so the 3s countdown overlaps BLE strap warmup.
-    func prepareIPhoneSession(activityType: HKWorkoutActivityType) async {
+    func prepareIPhoneSession(activityType: HKWorkoutActivityType, locationType: HKWorkoutSessionLocationType) async {
         do {
             _ = await authorizationManager.requestAuthorization()
             let configuration = HKWorkoutConfiguration()
             configuration.activityType = activityType
-            // Indoor for stationary activities — pairs with the distance gate in
-            // `iPhoneWorkoutSession.makeDataSource` and makes Fitness label them
-            // as indoor workouts instead of attempting GPS.
-            configuration.locationType = activityType.collectsDistance ? .outdoor : .indoor
+            // Location comes from the picked WorkoutType (treadmill = .running +
+            // .indoor — the HK activity type alone cannot tell them apart). It
+            // drives the Fitness label and gates GPS/route capture in
+            // `iPhoneWorkoutSession.startRideTrackingIfNeeded`.
+            configuration.locationType = locationType
             let new = iPhoneWorkoutSession(healthStore: healthStore, configuration: configuration)
             try await new.prepare()
             new.attachStrapFallback(await centralManager.strapHRReadings())

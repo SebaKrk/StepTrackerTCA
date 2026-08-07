@@ -90,7 +90,7 @@ extension SessionFeature {
                         await send(.sessionViewStateChange(.waitingForWatch))
                         Logger.session.info("Watch-primary mode — launching Watch workout")
                         do {
-                            try await sessionClient.startWatchWorkout(workout.hkType)
+                            try await sessionClient.startWatchWorkout(workout.hkType, workout.sessionLocationType)
                             Logger.session.info("startWatchWorkout succeeded — subscribing to mirroredSessionStartedStream")
                             // Dispatch subscription as a separate effect so it lives outside
                             // this one-shot `viewDidAppear` Task and can be cancelled cleanly.
@@ -100,7 +100,7 @@ extension SessionFeature {
                             Logger.session.error("startWatchWorkout FAILED: \(error) — falling back to iPhone-standalone")
                             await send(.setWorkoutMode(.iPhoneStandalone))
                             await send(.sessionViewStateChange(.countdown))
-                            try await sessionClient.selectedWorkout(workout.hkType)
+                            try await sessionClient.selectedWorkout(workout.hkType, workout.sessionLocationType)
                             // EXPERIMENT (IOS-00100-D) — same hold as the direct standalone path.
                             if holdsStrap {
                                 let heldSensors = await bluetoothClient.holdHRSensorConnections()
@@ -113,7 +113,7 @@ extension SessionFeature {
                         await send(.sessionViewStateChange(.countdown))
                         // Either the user picked iPhone/BLE, or no Watch is ready.
                         Logger.session.info("iPhone-standalone mode — requestedDevice: \(String(describing: requestedDevice)), watchStatus: \(watchStatus.rawValue)")
-                        try await sessionClient.selectedWorkout(workout.hkType)
+                        try await sessionClient.selectedWorkout(workout.hkType, workout.sessionLocationType)
                         Logger.session.info("selectedWorkout set → iPhone session prepared")
                         // EXPERIMENT (IOS-00100-D): keep an app-side link to the strap
                         // so a mid-workout drop gets an instant pending reconnect.
@@ -124,6 +124,7 @@ extension SessionFeature {
                     }
 
                     await send(.controls(.setWorkoutType(workout)))
+                    await send(.live(.setWorkoutType(workout)))
                     await send(.makeCalculationForSession)
                     await send(.summary(.setTrainingSession(trainingSession)))
                 }
