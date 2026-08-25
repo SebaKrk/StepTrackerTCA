@@ -1386,3 +1386,4 @@
     - decision: NO equipment-based `MovementCategory` — catalog categorizes by movement pattern (kettlebell precedent); med-ball cases go to `.mixed` like `wallBalls`, and join the `requiresWeight` override list (a ball is always load)
     - catalogVersion 5 → 6 in the same change; versioned re-match repairs history; golden tests extended with all 9 harvested names verbatim (85 cases green)
     - backlog idea (from discussion): show preserved raw name (`unmatchedName`/`customName`) as a subtitle next to the canonical name for aliased matches — requires unifying two conflicting invariants (analytics keeps it as provenance, plans clear it on re-match)
+    
