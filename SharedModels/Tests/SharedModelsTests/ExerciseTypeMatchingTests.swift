@@ -95,6 +95,20 @@ struct ExerciseTypeMatchingTests {
         ("clean", .squatClean),
         ("full clean", .squatClean),
         ("hang squat clean", .hangClean),
+        // Catalog v6 — first TestFlight harvest (unrecognized-names radar)
+        ("barbell bicep curls", .bicepCurl),
+        ("dumbbell curls", .bicepCurl),
+        ("single arm swing", .kettlebellSwing),
+        ("medicine ball slam", .ballSlam),
+        ("slam ball", .ballSlam),
+        ("kettlebell deadlift", .kettlebellDeadlift),
+        ("KB deadlift", .kettlebellDeadlift),
+        ("split jerk", .splitJerk),
+        ("medicine ball squats", .medicineBallSquat),
+        ("box dips", .dips),
+        ("bench dips", .dips),
+        ("medicine ball box step-ups", .medicineBallBoxStepUps),
+        ("dumbbell overhead extension", .tricepsExtension),
     ]
 
     @Test("Every field-data raw name resolves to its catalog case", arguments: fieldDataGolden)

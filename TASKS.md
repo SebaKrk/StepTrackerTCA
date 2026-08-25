@@ -1378,3 +1378,12 @@
         - `RunningDynamicsLoader` (HealthHub): power / stride length / vertical oscillation / ground contact time from Watch-recorded HK statistics + cadence from workout steps — all optional, "derive don't persist", retroactive for any Watch run (watchOS collects these itself during any running session; we only read)
         - route drill-in shows a `SimpleMetricCard` grid for runs: only metrics with samples, whole section hidden without Watch data (iPhone-only runs usually still get cadence from phone steps); 4 running-dynamics types added to HK readTypes
         - final screen order (user decision — dynamics are least actionable): stats grid → map → speed/pace chart → elevation chart → running dynamics
+
+### IOS-00126 Catalog v6 — first TestFlight harvest lands
+    - source: first `unrecognized-exercises.txt` report from the TestFlight radar (app 0.5 (2), catalog v5) — 9 names, all resolved
+    - 7 new cases: `bicepCurl` (no curl existed at all), `ballSlam`, `dips` (fixed-support variants; `ringDips` stays separate), `splitJerk` (consistent with the pushJerk/cleanAndJerk granularity), `medicineBallSquat`, `medicineBallBoxStepUps`, `kettlebellDeadlift` (user decision: equipment changes the load profile → own case, like `kettlebellClean`)
+    - 2 alias extensions: "single arm swing" → `kettlebellSwing`, "dumbbell overhead extension" → `tricepsExtension` (naming variants, same movement)
+    - decision: NO equipment-based `MovementCategory` — catalog categorizes by movement pattern (kettlebell precedent); med-ball cases go to `.mixed` like `wallBalls`, and join the `requiresWeight` override list (a ball is always load)
+    - catalogVersion 5 → 6 in the same change; versioned re-match repairs history; golden tests extended with all 9 harvested names verbatim (85 cases green)
+    - backlog idea (from discussion): show preserved raw name (`unmatchedName`/`customName`) as a subtitle next to the canonical name for aliased matches — requires unifying two conflicting invariants (analytics keeps it as provenance, plans clear it on re-match)
+    
