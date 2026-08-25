@@ -11,7 +11,6 @@
 	<key>WKBackgroundModes</key>
 	<array>
 		<string>workout-processing</string>
-		<string>location</string>
 	</array>
 </dict>
 </plist>

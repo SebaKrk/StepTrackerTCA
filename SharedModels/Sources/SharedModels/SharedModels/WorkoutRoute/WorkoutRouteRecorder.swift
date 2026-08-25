@@ -60,9 +60,10 @@ public final class WorkoutRouteRecorder: NSObject, @unchecked Sendable {
 
     private static let logger = Logger(subsystem: "SharedModels", category: "WorkoutRouteRecorder")
 
-    /// `true` when the host target declares the `location` background mode
-    /// (iOS: `UIBackgroundModes`; watchOS: `WKBackgroundModes` — checked both,
-    /// watchOS 26 unified targets have been seen consulting either).
+    /// `true` when the host target declares the `location` background mode.
+    /// Both platforms declare it in `UIBackgroundModes` — App Store validation
+    /// rejects `location` inside `WKBackgroundModes` (workout-processing only);
+    /// the WK key is still read defensively.
     private static var supportsBackgroundLocation: Bool {
         let uiModes = Bundle.main.object(forInfoDictionaryKey: "UIBackgroundModes") as? [String] ?? []
         let wkModes = Bundle.main.object(forInfoDictionaryKey: "WKBackgroundModes") as? [String] ?? []
