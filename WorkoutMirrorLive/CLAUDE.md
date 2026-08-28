@@ -41,6 +41,9 @@ Główny target iOS aplikacji **MyFitnessJournal** (repo: `StepTrackerTCA`). Ten
 - **Build:** otwórz `MyFitnessJournal.xcodeproj`, wybierz scheme `WorkoutMirrorLive` (iOS) lub `WorkoutMirror Watch App`, Cmd+R.
 - **DEBUG erases on schema change** — w `Schema.swift` ustawione `migrator.eraseDatabaseOnSchemaChange = true` dla DEBUG. Po zmianie migracji w DEBUG baza castuje się automatycznie. W RELEASE wymagana jest pełna `DatabaseMigrator` migracja (ALTER TABLE itp.).
 - **Diagramy projektu:** `FeatureDiagram.md` (struktura features), `CoreDataDiagram.md` (schema; nazwa historyczna — projekt nie używa CoreData, używa SQLiteData).
+- **Testy: wyłącznie Swift Testing** (`import Testing`, `@Test`, `#expect`) — NIE XCTest.
+  Wzorzec: golden testy w `SharedModels/Tests/SharedModelsTests/ExerciseTypeMatchingTests.swift`.
+  Uruchamianie: `cd <pakiet> && swift test` (pakiety SPM nie wymagają symulatora).
 
 ## Architektura modułów
 
@@ -85,6 +88,10 @@ Hierarchia ekranów = hierarchia folderów. Subfeature siedzi w `Child/<NazwaSub
 - **Brak `@State` w View** — cały stan w TCA Store. View ma tylko `@Bindable var store: StoreOf<...>`.
 - **State i `Equatable`** — pomiń `: Equatable` gdy stan zawiera typy nie-Equatable (np. `PhotosPickerItem`).
 - **PhotosPicker** — używaj modifiera `.photosPicker(isPresented:selection:)` + `onChange`. NIE używaj view'a `PhotosPicker` z `@State`.
+- **TCA 1.26 — wyłącznie nowoczesne API:** `@Reducer`, `@ObservableState`, `store.send`,
+  `@Bindable var store`. ZAKAZANE legacy: `ViewStore`, `WithViewStore`, `pullback`,
+  `IfLetStore`, `SwitchStore`, `TaskResult` — jeśli generujesz któreś z nich,
+  zatrzymaj się i wczytaj skill `pfw-composable-architecture`.
 
 Przy nowych feature'ach **uruchom skill `/pfw-composable-architecture`** żeby wczytać aktualne wzorce Point-Free.
 
