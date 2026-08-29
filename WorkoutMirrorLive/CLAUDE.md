@@ -2,6 +2,35 @@
 
 Główny target iOS aplikacji **MyFitnessJournal** (repo: `StepTrackerTCA`). Ten plik jest komplementarny do globalnego `~/CLAUDE.md` — nie powtarza ogólnych zasad (język polski, czytanie przed edycją, minimalne zmiany, konwencje istniejące).
 
+## Czego nie robić bez pytania
+
+- Edytować plików w `Features/` (legacy).
+- Modyfikować `Localizable.xcstrings` w innych językach niż polski/angielski.
+- Dotykać `WorkoutMirrorLive.entitlements` ani `Info.plist` bez explicit potrzeby.
+- Wprowadzać nowe `@State` w View'ach.
+- Tworzyć dokumentację (`*.md`) bez prośby — chyba że to plan w `PLANS/`.
+
+## Workflow
+
+- **Commity:** użytkownik commituje **zawsze sam**. Claude nigdy nie wywołuje `git commit` autonomicznie, nawet po większej refaktoryzacji.
+- **Plany robocze:** zapisuj do `StepTrackerTCA/PLANS/IOS-NNNNN-<nazwa>.md`. Folder jest w `.gitignore`.
+- **Branche:** konwencja `dev/IOS-NNNNN/IOS-NNNNN`.
+- **Subtaski:** każdy = jeden atomowy commit (kompilujący się, logicznie zamknięty).
+
+## TCA — twarde konwencje
+
+- **Nawigacja:** `@Presents` + `enum Destination` w State. NIE używaj `StackState` / `Path`.
+- **Akcje z View:** `@ViewAction(for: FeatureName.self)` + `send(.viewAction)`. Brak bezpośredniego `store.send`.
+- **Brak `@State` w View** — cały stan w TCA Store. View ma tylko `@Bindable var store: StoreOf<...>`.
+- **State i `Equatable`** — pomiń `: Equatable` gdy stan zawiera typy nie-Equatable (np. `PhotosPickerItem`).
+- **PhotosPicker** — używaj modifiera `.photosPicker(isPresented:selection:)` + `onChange`. NIE używaj view'a `PhotosPicker` z `@State`.
+- **TCA 1.26 — wyłącznie nowoczesne API:** `@Reducer`, `@ObservableState`, `store.send`,
+  `@Bindable var store`. ZAKAZANE legacy: `ViewStore`, `WithViewStore`, `pullback`,
+  `IfLetStore`, `SwitchStore`, `TaskResult` — jeśli generujesz któreś z nich,
+  zatrzymaj się i wczytaj skill `pfw-composable-architecture`.
+
+Przy nowych feature'ach **uruchom skill `/pfw-composable-architecture`** żeby wczytać aktualne wzorce Point-Free.
+
 ## O projekcie
 
 **MyFitnessJournal** to aplikacja fitness na **iOS + Apple Watch + widgety** do strukturalnego trackingu treningów (siłówka, CrossFit, WOD-y). Inspirowana kursem Sean Allen StepTracker, przepisana na nowoczesny stack: **TCA + SwiftUI + SQLiteData + HealthKit + CloudKit + Claude API**.
@@ -80,20 +109,6 @@ FeatureName/
 ```
 
 Hierarchia ekranów = hierarchia folderów. Subfeature siedzi w `Child/<NazwaSubfeatury>/` rodzica.
-
-## TCA — twarde konwencje
-
-- **Nawigacja:** `@Presents` + `enum Destination` w State. NIE używaj `StackState` / `Path`.
-- **Akcje z View:** `@ViewAction(for: FeatureName.self)` + `send(.viewAction)`. Brak bezpośredniego `store.send`.
-- **Brak `@State` w View** — cały stan w TCA Store. View ma tylko `@Bindable var store: StoreOf<...>`.
-- **State i `Equatable`** — pomiń `: Equatable` gdy stan zawiera typy nie-Equatable (np. `PhotosPickerItem`).
-- **PhotosPicker** — używaj modifiera `.photosPicker(isPresented:selection:)` + `onChange`. NIE używaj view'a `PhotosPicker` z `@State`.
-- **TCA 1.26 — wyłącznie nowoczesne API:** `@Reducer`, `@ObservableState`, `store.send`,
-  `@Bindable var store`. ZAKAZANE legacy: `ViewStore`, `WithViewStore`, `pullback`,
-  `IfLetStore`, `SwitchStore`, `TaskResult` — jeśli generujesz któreś z nich,
-  zatrzymaj się i wczytaj skill `pfw-composable-architecture`.
-
-Przy nowych feature'ach **uruchom skill `/pfw-composable-architecture`** żeby wczytać aktualne wzorce Point-Free.
 
 ## TCA Dependencies — Client / Service pattern
 
@@ -254,18 +269,3 @@ identity-preserving inity z `TrainingSession+CatalogRematch.swift` (publiczne in
 - **`AppDelegate.swift`** — background delivery dla Training Readiness (HealthKit observer queries).
 - **`Info.plist`** — usage descriptions (HealthKit, Camera, PhotoLibrary).
 - **`WorkoutMirrorLive.entitlements`** — capabilities: HealthKit, CloudKit, Background Modes, App Groups (`group.com.ss.WorkoutMirrorLive`).
-
-## Workflow
-
-- **Commity:** użytkownik commituje **zawsze sam**. Claude nigdy nie wywołuje `git commit` autonomicznie, nawet po większej refaktoryzacji.
-- **Plany robocze:** zapisuj do `StepTrackerTCA/PLANS/IOS-NNNNN-<nazwa>.md`. Folder jest w `.gitignore`.
-- **Branche:** konwencja `dev/IOS-NNNNN/IOS-NNNNN`.
-- **Subtaski:** każdy = jeden atomowy commit (kompilujący się, logicznie zamknięty).
-
-## Czego nie robić bez pytania
-
-- Edytować plików w `Features/` (legacy).
-- Modyfikować `Localizable.xcstrings` w innych językach niż polski/angielski.
-- Dotykać `WorkoutMirrorLive.entitlements` ani `Info.plist` bez explicit potrzeby.
-- Wprowadzać nowe `@State` w View'ach.
-- Tworzyć dokumentację (`*.md`) bez prośby — chyba że to plan w `PLANS/`.
