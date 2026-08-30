@@ -14,9 +14,26 @@ struct SharedPlanCodecTests {
 
     private let exportedAt = Date(timeIntervalSince1970: 1_700_000_000)
 
+    /// Preview fixture uses `.now` (fractional seconds), but the codec's ISO 8601
+    /// date strategy stores whole seconds only — a round-trip fixture must use
+    /// a whole-second date or equality fails on sub-second precision.
+    private var fixedDatePlan: TrainingSession {
+        let preview = TrainingSession.previewTrainingSession
+        return TrainingSession(
+            id: preview.id,
+            date: Date(timeIntervalSince1970: 1_700_000_000),
+            title: preview.title,
+            activity: preview.activity,
+            location: preview.location,
+            warmUp: preview.warmUp,
+            workouts: preview.workouts,
+            coolDown: preview.coolDown
+        )
+    }
+
     @Test("round-trip preserves the plan")
     func roundTrip() throws {
-        let plan = TrainingSession.previewTrainingSession
+        let plan = fixedDatePlan
         let encoded = try SharedPlanCodec.encode(plan: plan, exportedAt: exportedAt)
         let decoded = try SharedPlanCodec.decode(encoded)
         #expect(decoded.plan == plan)
