@@ -129,3 +129,6 @@ AppDatabase/SQLiteData-Cheatsheet.md
 # Local development tooling — nie idą do repo
 .claude/
 /PLANS/
+# Ręczne kopie zapasowe pbxproj — mają prawo istnieć na dysku, nigdy w repo
+*.pbxproj.backup
+*.pbxproj.bak

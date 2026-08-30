@@ -1,0 +1,40 @@
+# CI — SPM package tests (scope: build + test, no signing, no secrets).
+# Design decisions and risk register: context/foundation/infrastructure.md
+# Pinned runner image (NOT macos-latest) — see "Unknown Unknowns" in the decision doc.
+name: CI
+
+on:
+  push:
+    branches: [develop, release]
+  pull_request:
+    branches: [develop, release]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spm-tests:
+    name: spm-tests (${{ matrix.package }})
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        # Packages with test targets. Future: PersonalRecords, AppDatabase (v12 migration test).
+        package: [SharedModels]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache SPM build
+        uses: actions/cache@v4
+        with:
+          path: ${{ matrix.package }}/.build
+          key: spm-${{ matrix.package }}-${{ hashFiles(format('{0}/Package.resolved', matrix.package), format('{0}/Package.swift', matrix.package)) }}
+          restore-keys: |
+            spm-${{ matrix.package }}-
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Run tests
+        run: swift test --package-path "${{ matrix.package }}"
