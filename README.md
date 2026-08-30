@@ -5,6 +5,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/SebaKrk/StepTrackerTCA/actions/workflows/ci.yml"><img src="https://github.com/SebaKrk/StepTrackerTCA/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Swift-6.2-F05138?logo=swift&logoColor=white" alt="Swift 6.2">
   <img src="https://img.shields.io/badge/iOS-26.0+-000000?logo=apple&logoColor=white" alt="iOS 26+">
   <img src="https://img.shields.io/badge/iPadOS-26.0+-000000?logo=apple&logoColor=white" alt="iPadOS 26+">

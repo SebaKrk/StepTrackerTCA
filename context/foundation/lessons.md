@@ -84,6 +84,13 @@ Problem: `try?` przy bootstrapie bazy w preview cicho połyka błąd migracji �
 Reguła: Preview helpers bazy = `try!` (crash preview natychmiast pokazuje prawdziwą przyczynę). `try?` przy migracjach zakazane wszędzie.
 Dotyczy: implement, impl-review
 
+## Fixture'y testowe nie używają `.now` — kodeki gubią ułamki sekund
+
+Kontekst: testy round-trip przez kodeki z datami (SharedPlanCodec, przyszłe kodeki/persystencja)
+Problem: `previewTrainingSession` ma `date: .now` (ułamki sekund), a strategia ISO 8601 kodeka zapisuje pełne sekundy — `decoded == original` failowało, choć zrzuty wyglądały identycznie; czerwona suita odkryta dopiero przy podpinaniu CI (2026-08-30).
+Reguła: Fixture w teście równości po round-tripie buduje daty z `Date(timeIntervalSince1970:)` (pełne sekundy). Preview fixtures z `.now` nie są fixture'ami testowymi.
+Dotyczy: implement, impl-review
+
 ## Wzorce .gitignore kotwicz ukośnikiem — `core.ignorecase` łapie niewinne foldery
 
 Kontekst: .gitignore repo (macOS, system plików case-insensitive)
