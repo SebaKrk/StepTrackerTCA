@@ -43,7 +43,7 @@ System rejestruje treningi i logi serii, ale nie ma miejsca, gdzie rekordy życi
 
 | ID   | Change ID                      | Outcome (użytkownik może…)                                  | Prerequisites | PRD refs                                | Status   |
 | ---- | ------------------------------ | ----------------------------------------------------------- | ------------- | --------------------------------------- | -------- |
-| F-01 | shared-result-input-components | (fundament) kontrolki wyników dostępne poza podsumowaniem   | —             | FR-005                                  | in-progress |
+| F-01 | shared-result-input-components | (fundament) kontrolki wyników dostępne poza podsumowaniem   | —             | FR-005                                  | done |
 | S-01 | pr-board-entry-and-catalog     | otworzyć Tablicę PR i przeglądać katalog ruchów             | —             | FR-001, FR-002, FR-010, FR-011, FR-009  | in-progress |
 | S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | proposed |
 | S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | proposed |
@@ -77,7 +77,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** dotyka świeżo przebudowanego ekranu podsumowania — czyste przenosiny bez zmiany zachowania, sekwencjonowane wcześnie, bo blokują gwiazdę przewodnią; guardrail PRD: istniejące przepływy bez regresji.
-- **Status:** in-progress
+- **Status:** done
 
 ## Slices
 
@@ -193,4 +193,4 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 
 ## Done
 
-(Puste przy pierwszym wygenerowaniu. `/10x-archive` dopisuje wpisy i przełącza statusy na `done`.)
+- **F-01: (fundament) kontrolki wpisywania wyników (czas mm:ss, powtórzenia, rundy+powtórzenia, edycja wartości) dostępne z warstwy współdzielonej; ekran podsumowania konsumuje je z nowego miejsca bez zmiany zachowania.** — Archived 2026-08-31 → `context/archive/2026-08-30-shared-result-input-components/`. Lesson: —.
