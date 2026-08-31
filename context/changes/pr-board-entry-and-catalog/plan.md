@@ -235,20 +235,20 @@ Brak — katalog statyczny, zero zmian schematu.
 
 #### Automatyczne
 
-- [x] 2.1 Struktura folderów zgodna z konwencją: `ls WorkoutMirrorLive/FeaturesNew/PRBoard/{Feature,Child}` przechodzi
-- [x] 2.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
+- [x] 2.1 Struktura folderów zgodna z konwencją: `ls WorkoutMirrorLive/FeaturesNew/PRBoard/{Feature,Child}` przechodzi — bef00df
+- [x] 2.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień — bef00df
 
 #### Ręczne
 
-- [x] 2.3 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [x] 2.4 Preview PRBoardView renderuje kategorie z licznikami 0/N (użytkownik)
+- [x] 2.3 Build `WorkoutMirrorLive` przechodzi (użytkownik) — bef00df
+- [x] 2.4 Preview PRBoardView renderuje kategorie z licznikami 0/N (użytkownik) — bef00df
 
 ### Faza 3: Wpięcie w zakładkę Statystyki
 
 #### Automatyczne
 
-- [ ] 3.1 `grep -rn "prBoard" WorkoutMirrorLive/FeaturesNew/StatsTab/` znajduje case, akcję i cover
-- [ ] 3.2 `swift test --package-path SharedModels` nadal zielone
+- [x] 3.1 `grep -rn "prBoard" WorkoutMirrorLive/FeaturesNew/StatsTab/` znajduje case, akcję i cover
+- [x] 3.2 `swift test --package-path SharedModels` nadal zielone
 
 #### Ręczne
 
