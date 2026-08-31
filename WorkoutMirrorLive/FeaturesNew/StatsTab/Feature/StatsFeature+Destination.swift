@@ -18,5 +18,8 @@ extension StatsFeature {
         
         ///
         case readinessAnalysis(ReadinessAnalysisFeature)
+
+        ///
+        case prBoard(PRBoardFeature)
     }
 }

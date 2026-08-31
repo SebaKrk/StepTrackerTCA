@@ -85,6 +85,9 @@ extension StatsFeature {
             
             /// Triggered when user taps the Apple Intelligence button
             case dataAnalyzerButtonTapped
+
+            /// Triggered when the user taps the PR Board button (Exercises segment only).
+            case prBoardButtonTapped
         }
         
         // MARK: - Destination
