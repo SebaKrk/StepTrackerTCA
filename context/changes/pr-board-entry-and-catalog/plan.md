@@ -247,11 +247,11 @@ Brak — katalog statyczny, zero zmian schematu.
 
 #### Automatyczne
 
-- [x] 3.1 `grep -rn "prBoard" WorkoutMirrorLive/FeaturesNew/StatsTab/` znajduje case, akcję i cover
-- [x] 3.2 `swift test --package-path SharedModels` nadal zielone
+- [x] 3.1 `grep -rn "prBoard" WorkoutMirrorLive/FeaturesNew/StatsTab/` znajduje case, akcję i cover — 7a37e89
+- [x] 3.2 `swift test --package-path SharedModels` nadal zielone — 7a37e89
 
 #### Ręczne
 
-- [ ] 3.3 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [ ] 3.4 Pełny przepływ: Ćwiczenia → przycisk → kategorie → ruchy → pusty szczegół → powrót (użytkownik)
-- [ ] 3.5 Przełączanie segmentów bez migotania toolbara; Dziś/Analityka z pełnym toolbarem bez zmian (użytkownik)
+- [x] 3.3 Build `WorkoutMirrorLive` przechodzi (użytkownik) — 7a37e89
+- [x] 3.4 Pełny przepływ: Ćwiczenia → przycisk → kategorie → ruchy → pusty szczegół → powrót (użytkownik) — 7a37e89
+- [x] 3.5 Przełączanie segmentów bez migotania toolbara; Dziś/Analityka z pełnym toolbarem bez zmian (użytkownik) — 7a37e89
