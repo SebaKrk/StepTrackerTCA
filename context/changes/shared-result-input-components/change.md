@@ -1,7 +1,7 @@
 ---
 change_id: shared-result-input-components
 title: Wydzielenie kontrolek wyników z Summary do warstwy współdzielonej
-status: implementing
+status: implemented
 created: 2026-08-30
 updated: 2026-08-31
 archived_at: null

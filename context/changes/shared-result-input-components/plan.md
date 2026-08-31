@@ -159,11 +159,11 @@ Brak — zero zmian w danych, schemacie i zachowaniu.
 
 #### Automatyczne
 
-- [x] 2.1 `git diff -M --summary` pokazuje wyłącznie rename 100% dla plików fazy
-- [x] 2.2 `Summary/Components/` usunięty; komplet w `UI/Summary/`
-- [x] 2.3 `grep` nazw 11 plików w `project.pbxproj` zwraca 0 trafień
+- [x] 2.1 `git diff -M --summary` pokazuje wyłącznie rename 100% dla plików fazy — 9f10f0d
+- [x] 2.2 `Summary/Components/` usunięty; komplet w `UI/Summary/` — 9f10f0d
+- [x] 2.3 `grep` nazw 11 plików w `project.pbxproj` zwraca 0 trafień — 9f10f0d
 
 #### Ręczne
 
-- [x] 2.4 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [x] 2.5 Pełny ekran Podsumowania wygląda identycznie (użytkownik)
+- [x] 2.4 Build `WorkoutMirrorLive` przechodzi (użytkownik) — 9f10f0d
+- [x] 2.5 Pełny ekran Podsumowania wygląda identycznie (użytkownik) — 9f10f0d
