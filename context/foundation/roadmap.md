@@ -44,7 +44,7 @@ System rejestruje treningi i logi serii, ale nie ma miejsca, gdzie rekordy życi
 | ID   | Change ID                      | Outcome (użytkownik może…)                                  | Prerequisites | PRD refs                                | Status   |
 | ---- | ------------------------------ | ----------------------------------------------------------- | ------------- | --------------------------------------- | -------- |
 | F-01 | shared-result-input-components | (fundament) kontrolki wyników dostępne poza podsumowaniem   | —             | FR-005                                  | in-progress |
-| S-01 | pr-board-entry-and-catalog     | otworzyć Tablicę PR i przeglądać katalog ruchów             | —             | FR-001, FR-002, FR-010, FR-011, FR-009  | ready    |
+| S-01 | pr-board-entry-and-catalog     | otworzyć Tablicę PR i przeglądać katalog ruchów             | —             | FR-001, FR-002, FR-010, FR-011, FR-009  | in-progress |
 | S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | proposed |
 | S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | proposed |
 | S-04 | rx-scaled-split                | porównać osobne PR-y Rx i Scaled na benchmarku              | S-03          | US-02, FR-007                           | proposed |
@@ -91,7 +91,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** jedyna modyfikacja istniejącego UI w całym module (warunek widoczności toolbara) — sekwencjonowana pierwsza, żeby ewentualną regresję toolbara wykryć od razu, a nie pod koniec terminu.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-02: Zapis wpisu i aktualny PR (gwiazda przewodnia)
 

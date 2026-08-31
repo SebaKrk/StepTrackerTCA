@@ -1,7 +1,7 @@
 ---
 change_id: pr-board-entry-and-catalog
 title: Tablica PR — wejście z segmentu Ćwiczenia i przeglądanie katalogu ruchów
-status: preparing
+status: implementing
 created: 2026-08-31
 updated: 2026-08-31
 archived_at: null
