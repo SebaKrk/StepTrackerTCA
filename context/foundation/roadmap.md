@@ -3,7 +3,7 @@ project: "MyFitnessJournal — Tablica PR (PR Board)"
 version: 1
 status: draft
 created: 2026-08-30
-updated: 2026-08-30
+updated: 2026-08-31
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -43,7 +43,7 @@ System rejestruje treningi i logi serii, ale nie ma miejsca, gdzie rekordy życi
 
 | ID   | Change ID                      | Outcome (użytkownik może…)                                  | Prerequisites | PRD refs                                | Status   |
 | ---- | ------------------------------ | ----------------------------------------------------------- | ------------- | --------------------------------------- | -------- |
-| F-01 | shared-result-input-components | (fundament) kontrolki wyników dostępne poza podsumowaniem   | —             | FR-005                                  | ready    |
+| F-01 | shared-result-input-components | (fundament) kontrolki wyników dostępne poza podsumowaniem   | —             | FR-005                                  | in-progress |
 | S-01 | pr-board-entry-and-catalog     | otworzyć Tablicę PR i przeglądać katalog ruchów             | —             | FR-001, FR-002, FR-010, FR-011, FR-009  | ready    |
 | S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | proposed |
 | S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | proposed |
@@ -77,7 +77,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** dotyka świeżo przebudowanego ekranu podsumowania — czyste przenosiny bez zmiany zachowania, sekwencjonowane wcześnie, bo blokują gwiazdę przewodnią; guardrail PRD: istniejące przepływy bez regresji.
-- **Status:** ready
+- **Status:** in-progress
 
 ## Slices
 
