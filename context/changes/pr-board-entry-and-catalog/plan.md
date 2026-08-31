@@ -224,8 +224,8 @@ Brak — katalog statyczny, zero zmian schematu.
 
 #### Automatyczne
 
-- [x] 1.1 `swift build --package-path SharedModels` przechodzi
-- [x] 1.2 `swift test --package-path SharedModels` — istniejące testy zielone (bez nowych)
+- [x] 1.1 `swift build --package-path SharedModels` przechodzi — d4eaf86
+- [x] 1.2 `swift test --package-path SharedModels` — istniejące testy zielone (bez nowych) — d4eaf86
 
 #### Ręczne
 
@@ -235,13 +235,13 @@ Brak — katalog statyczny, zero zmian schematu.
 
 #### Automatyczne
 
-- [ ] 2.1 Struktura folderów zgodna z konwencją: `ls WorkoutMirrorLive/FeaturesNew/PRBoard/{Feature,Child}` przechodzi
-- [ ] 2.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
+- [x] 2.1 Struktura folderów zgodna z konwencją: `ls WorkoutMirrorLive/FeaturesNew/PRBoard/{Feature,Child}` przechodzi
+- [x] 2.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
 
 #### Ręczne
 
-- [ ] 2.3 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [ ] 2.4 Preview PRBoardView renderuje kategorie z licznikami 0/N (użytkownik)
+- [x] 2.3 Build `WorkoutMirrorLive` przechodzi (użytkownik)
+- [x] 2.4 Preview PRBoardView renderuje kategorie z licznikami 0/N (użytkownik)
 
 ### Faza 3: Wpięcie w zakładkę Statystyki
 
