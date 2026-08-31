@@ -146,24 +146,24 @@ Brak — zero zmian w danych, schemacie i zachowaniu.
 
 #### Automatyczne
 
-- [x] 1.1 `git diff -M --summary` pokazuje wyłącznie rename 100% dla 4 plików
-- [x] 1.2 Pliki nieobecne w `Summary/Components/`, obecne w `UI/ResultEntry/`
-- [x] 1.3 `grep` nazw 4 plików w `project.pbxproj` zwraca 0 trafień
+- [x] 1.1 `git diff -M --summary` pokazuje wyłącznie rename 100% dla 4 plików — 3540054
+- [x] 1.2 Pliki nieobecne w `Summary/Components/`, obecne w `UI/ResultEntry/` — 3540054
+- [x] 1.3 `grep` nazw 4 plików w `project.pbxproj` zwraca 0 trafień — 3540054
 
 #### Ręczne
 
-- [x] 1.4 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [x] 1.5 Summary i ActivityPlanScore wyglądają identycznie (użytkownik)
+- [x] 1.4 Build `WorkoutMirrorLive` przechodzi (użytkownik) — 3540054
+- [x] 1.5 Summary i ActivityPlanScore wyglądają identycznie (użytkownik) — 3540054
 
 ### Faza 2: Przeniesienie pozostałych komponentów Summary → UI/Summary/
 
 #### Automatyczne
 
-- [ ] 2.1 `git diff -M --summary` pokazuje wyłącznie rename 100% dla plików fazy
-- [ ] 2.2 `Summary/Components/` usunięty; komplet w `UI/Summary/`
-- [ ] 2.3 `grep` nazw 11 plików w `project.pbxproj` zwraca 0 trafień
+- [x] 2.1 `git diff -M --summary` pokazuje wyłącznie rename 100% dla plików fazy
+- [x] 2.2 `Summary/Components/` usunięty; komplet w `UI/Summary/`
+- [x] 2.3 `grep` nazw 11 plików w `project.pbxproj` zwraca 0 trafień
 
 #### Ręczne
 
-- [ ] 2.4 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [ ] 2.5 Pełny ekran Podsumowania wygląda identycznie (użytkownik)
+- [x] 2.4 Build `WorkoutMirrorLive` przechodzi (użytkownik)
+- [x] 2.5 Pełny ekran Podsumowania wygląda identycznie (użytkownik)
