@@ -78,7 +78,7 @@ struct PRBoardView: View {
         HStack {
             recordsCounter(for: category)
             Spacer()
-            lastRecordPlaceholder
+            lastRecordLabel(for: category)
             chevron
         }
         .padding(.top, 4)
@@ -86,7 +86,7 @@ struct PRBoardView: View {
 
     private func recordsCounter(for category: PRCategory) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text("0/\(PRCatalog.movements(in: category).count)")
+            Text("\(store.completedCountByCategory[category, default: 0])/\(PRCatalog.movements(in: category).count)")
                 .font(.title3.bold())
                 .foregroundStyle(.primary)
             Text(String(localized: "records"))
@@ -95,10 +95,17 @@ struct PRBoardView: View {
         }
     }
 
-    private var lastRecordPlaceholder: some View {
-        Text("—")
-            .font(.subheadline)
-            .foregroundStyle(.tertiary)
+    @ViewBuilder
+    private func lastRecordLabel(for category: PRCategory) -> some View {
+        if let date = store.latestDateByCategory[category] {
+            Text(date, format: .relative(presentation: .named))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        } else {
+            Text("—")
+                .font(.subheadline)
+                .foregroundStyle(.tertiary)
+        }
     }
 
     private var chevron: some View {

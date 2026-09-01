@@ -593,6 +593,16 @@
       },
       "shouldTranslate" : false
     },
+    "%lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
     "%lld/%lld %@" : {
       "localizations" : {
         "en" : {
@@ -664,6 +674,9 @@
           }
         }
       }
+    },
+    "×%@ BW" : {
+
     },
     "<6h" : {
       "shouldTranslate" : false
@@ -741,6 +754,9 @@
         }
       }
     },
+    "0" : {
+
+    },
     "0 %@" : {
       "localizations" : {
         "pl" : {
@@ -750,9 +766,6 @@
           }
         }
       }
-    },
-    "0/%lld" : {
-
     },
     "2" : {
       "localizations" : {
@@ -1040,6 +1053,9 @@
           }
         }
       }
+    },
+    "Add first result" : {
+
     },
     "Add Measurement" : {
       "localizations" : {
@@ -1970,6 +1986,9 @@
         }
       }
     },
+    "Context" : {
+
+    },
     "Continue" : {
       "localizations" : {
         "pl" : {
@@ -2192,6 +2211,9 @@
         }
       }
     },
+    "Current PR" : {
+
+    },
     "Dashboard" : {
       "comment" : "The Dashboard Tab presents an overview of key metrics and activities.",
       "localizations" : {
@@ -2284,6 +2306,19 @@
         }
       }
     },
+    "Delete %@ from %@?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete %1$@ from %2$@?"
+          }
+        }
+      }
+    },
+    "Delete entry" : {
+
+    },
     "Delete Exercise" : {
       "localizations" : {
         "pl" : {
@@ -2343,6 +2378,9 @@
           }
         }
       }
+    },
+    "Details" : {
+
     },
     "Details HR" : {
       "localizations" : {
@@ -2806,6 +2844,12 @@
           }
         }
       }
+    },
+    "Entries for this score type are coming soon." : {
+
+    },
+    "Equipment" : {
+
     },
     "Error: %@" : {
       "localizations" : {
@@ -4545,6 +4589,9 @@
         }
       }
     },
+    "Optional note" : {
+
+    },
     "or" : {
       "localizations" : {
         "pl" : {
@@ -4875,6 +4922,9 @@
         }
       }
     },
+    "Progress" : {
+
+    },
     "Properties" : {
       "localizations" : {
         "pl" : {
@@ -5053,6 +5103,9 @@
         }
       }
     },
+    "Result" : {
+
+    },
     "Results" : {
       "localizations" : {
         "pl" : {
@@ -5124,6 +5177,12 @@
         }
       }
     },
+    "RPE" : {
+
+    },
+    "RPE %@" : {
+
+    },
     "rund" : {
 
     },
@@ -5146,6 +5205,9 @@
           }
         }
       }
+    },
+    "Rx" : {
+
     },
     "RX" : {
       "shouldTranslate" : false
@@ -5234,6 +5296,9 @@
           }
         }
       }
+    },
+    "Scaled" : {
+
     },
     "Scan Plan" : {
       "localizations" : {
@@ -5751,6 +5816,9 @@
           }
         }
       }
+    },
+    "Standard" : {
+
     },
     "Start" : {
       "localizations" : {
