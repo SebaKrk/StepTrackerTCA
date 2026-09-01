@@ -45,7 +45,7 @@ System rejestruje treningi i logi serii, ale nie ma miejsca, gdzie rekordy życi
 | ---- | ------------------------------ | ----------------------------------------------------------- | ------------- | --------------------------------------- | -------- |
 | F-01 | shared-result-input-components | (fundament) kontrolki wyników dostępne poza podsumowaniem   | —             | FR-005                                  | done |
 | S-01 | pr-board-entry-and-catalog     | otworzyć Tablicę PR i przeglądać katalog ruchów             | —             | FR-001, FR-002, FR-010, FR-011, FR-009  | done |
-| S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | proposed |
+| S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | in-progress |
 | S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | proposed |
 | S-04 | rx-scaled-split                | porównać osobne PR-y Rx i Scaled na benchmarku              | S-03          | US-02, FR-007                           | proposed |
 | S-05 | delete-entry-recompute         | usunąć wpis, a PR przelicza się automatycznie               | S-02          | FR-006, FR-007                          | proposed |
@@ -104,7 +104,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Unknowns:**
   - Copy rozróżniające "PR sesji" (istniejące oznaczenie w analityce) od "rekordu życiowego" (Tablica) — Owner: użytkownik. Block: no (rozstrzygnięcie przy planie UI tego plastra).
 - **Risk:** najszerszy pionowy przekrój (nowe tabele + czysta funkcja + formularz + szczegół) — celowo wcześnie jako walidacja całości; uwaga operacyjna z PRD: konfiguracja deweloperska czyści bazę przy zmianie schematu — zaplanować moment migracji/backup na urządzeniu dev.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-03: Wszystkie typy wyników z dedykowanymi kontrolkami
 
