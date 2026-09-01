@@ -289,20 +289,20 @@ v12 append-only, nowa tabela startuje pusta — brak migracji danych i planu wyc
 
 #### Automatyczne
 
-- [x] 1.1 `swift build --package-path SharedModels` przechodzi
-- [x] 1.2 `swift test --package-path SharedModels` — nowa suita PRResolver zielona, stare 38 bez regresji
+- [x] 1.1 `swift build --package-path SharedModels` przechodzi — 08d09ba
+- [x] 1.2 `swift test --package-path SharedModels` — nowa suita PRResolver zielona, stare 38 bez regresji — 08d09ba
 
 ### Faza 2: Migracja v12, rekord i test migratora (AppDatabase)
 
 #### Automatyczne
 
-- [ ] 2.1 `swift test --package-path AppDatabase` — test migratora v1→v12 zielony
-- [ ] 2.2 `swift test --package-path SharedModels` nadal zielone
-- [ ] 2.3 `grep -n "AppDatabase" .github/workflows/ci.yml` znajduje wpis w matrixie
+- [x] 2.1 `swift test --package-path AppDatabase` — test migratora v1→v12 zielony
+- [x] 2.2 `swift test --package-path SharedModels` nadal zielone
+- [x] 2.3 `grep -n "AppDatabase" .github/workflows/ci.yml` znajduje wpis w matrixie
 
 #### Ręczne
 
-- [ ] 2.4 Świadoma decyzja o momencie builda fazy 2 na fizycznym urządzeniu dev — DEBUG erase skasuje lokalną bazę (użytkownik)
+- [x] 2.4 Świadoma decyzja o momencie builda fazy 2 na fizycznym urządzeniu dev — DEBUG erase skasuje lokalną bazę (użytkownik)
 
 ### Faza 3: Klient zapisu i formularz wpisu
 

@@ -5,7 +5,8 @@ let package = Package(
     name: "AppDatabase",
     defaultLocalization: "en",
     platforms: [
-        .iOS("26.0")
+        .iOS("26.0"),
+        .macOS("26.0")
     ],
     products: [
         .library(
@@ -26,6 +27,10 @@ let package = Package(
                 .product(name: "Dependencies", package: "swift-dependencies"),
                 "SharedModels"
             ]
+        ),
+        .testTarget(
+            name: "AppDatabaseTests",
+            dependencies: ["AppDatabase"]
         )
     ]
 )
