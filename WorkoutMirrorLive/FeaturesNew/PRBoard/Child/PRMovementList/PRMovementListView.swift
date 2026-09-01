@@ -82,23 +82,31 @@ struct PRMovementListView: View {
     }
 
     private func movementRowLabel(_ movement: PRMovement) -> some View {
-        HStack {
-            // Muted styling — no entries exist until S-02; rows stay tappable.
+        let prLabel = store.prLabelByMovementId[movement.id]
+        return HStack {
+            // Muted styling only while the movement has no entries; rows stay tappable.
             Text(movement.name)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(prLabel == nil ? .secondary : .primary)
             Spacer()
-            emptyResultPlaceholder
+            resultLabel(prLabel)
             chevron
         }
         .padding(.vertical, 10)
         .contentShape(Rectangle())
     }
 
-    private var emptyResultPlaceholder: some View {
-        Text("—")
-            .font(.subheadline)
-            .foregroundStyle(.tertiary)
+    @ViewBuilder
+    private func resultLabel(_ prLabel: String?) -> some View {
+        if let prLabel {
+            Text(prLabel)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+        } else {
+            Text("—")
+                .font(.subheadline)
+                .foregroundStyle(.tertiary)
+        }
     }
 
     private var chevron: some View {

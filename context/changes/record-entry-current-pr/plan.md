@@ -308,24 +308,24 @@ v12 append-only, nowa tabela startuje pusta — brak migracji danych i planu wyc
 
 #### Automatyczne
 
-- [x] 3.1 `ls WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PREntryEditor/Feature` przechodzi
-- [x] 3.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
-- [x] 3.3 `grep -rn "ReducerOf<Self>" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
+- [x] 3.1 `ls WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PREntryEditor/Feature` przechodzi — c7e7eca
+- [x] 3.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień — c7e7eca
+- [x] 3.3 `grep -rn "ReducerOf<Self>" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień — c7e7eca
 
 #### Ręczne
 
-- [x] 3.4 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [x] 3.5 Formularz: zapis poprawnego kg działa, Save nieaktywny przy pustym/zerowym kg, data nie pozwala na przyszłość (użytkownik)
+- [x] 3.4 Build `WorkoutMirrorLive` przechodzi (użytkownik) — c7e7eca
+- [x] 3.5 Formularz: zapis poprawnego kg działa, Save nieaktywny przy pustym/zerowym kg, data nie pozwala na przyszłość (użytkownik) — c7e7eca
 
 ### Faza 4: Ożywienie ekranów przez @FetchAll
 
 #### Automatyczne
 
-- [ ] 4.1 `grep -rn "@FetchAll" WorkoutMirrorLive/FeaturesNew/PRBoard/` znajduje wpisy w 3 feature'ach
-- [ ] 4.2 `swift test --package-path SharedModels` i `swift test --package-path AppDatabase` zielone
+- [x] 4.1 `grep -rn "@FetchAll" WorkoutMirrorLive/FeaturesNew/PRBoard/` znajduje wpisy w 3 feature'ach
+- [x] 4.2 `swift test --package-path SharedModels` i `swift test --package-path AppDatabase` zielone
 
 #### Ręczne
 
-- [ ] 4.3 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [ ] 4.4 Pełny przepływ US-01: kategoria → ruch → wpis 150 kg → PR na szczególe z datą, wiersz listy pokazuje PR, licznik kategorii wzrósł; wpis przeżywa restart aplikacji (użytkownik)
-- [ ] 4.5 Drugi wpis lżejszy nie zmienia PR; cięższy zmienia (użytkownik)
+- [x] 4.3 Build `WorkoutMirrorLive` przechodzi (użytkownik)
+- [x] 4.4 Pełny przepływ US-01: kategoria → ruch → wpis 150 kg → PR na szczególe z datą, wiersz listy pokazuje PR, licznik kategorii wzrósł; wpis przeżywa restart aplikacji (użytkownik)
+- [x] 4.5 Drugi wpis lżejszy nie zmienia PR; cięższy zmienia (użytkownik)

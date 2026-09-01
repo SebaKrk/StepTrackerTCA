@@ -34,6 +34,8 @@ struct PREntryEditorView: View {
             equipmentSection
             noteSection
         }
+        .scrollDismissesKeyboard(.interactively)
+        .dismissesKeyboardOnBackgroundTap()
     }
 
     private var resultSection: some View {
