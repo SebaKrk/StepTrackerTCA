@@ -675,6 +675,9 @@
         }
       }
     },
+    "×%@ BW" : {
+
+    },
     "<6h" : {
       "shouldTranslate" : false
     },
@@ -4902,6 +4905,9 @@
           }
         }
       }
+    },
+    "Progress" : {
+
     },
     "Properties" : {
       "localizations" : {

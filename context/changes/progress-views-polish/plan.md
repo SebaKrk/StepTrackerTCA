@@ -101,20 +101,20 @@ Logika skalara/krotności trywialna i pokryta wizualnie; bez nowych testów (reg
 
 #### Automatyczne
 
-- [ ] 1.1 `grep -n "import Charts" WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PRMovementDetail/PRMovementDetailView.swift` znajduje import
-- [ ] 1.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
+- [x] 1.1 `grep -n "import Charts" WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PRMovementDetail/PRMovementDetailView.swift` znajduje import
+- [x] 1.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
 
 #### Ręczne
 
-- [ ] 1.3 Ruch z 1 wpisem: brak karty Progress; po dodaniu 2. wpisu karta się pojawia (użytkownik)
-- [ ] 1.4 Wykres rośnie w górę dla cięższych wpisów (weight); preview/manualnie sprawdzona oś dla czasu — lepszy (krótszy) czas wyżej (użytkownik)
+- [x] 1.3 Ruch z 1 wpisem: brak karty Progress; po dodaniu 2. wpisu karta się pojawia (użytkownik)
+- [x] 1.4 Wykres rośnie w górę dla cięższych wpisów (weight); preview/manualnie sprawdzona oś dla czasu — lepszy (krótszy) czas wyżej (użytkownik)
 
 ### Faza 2: Krotność masy ciała na hero
 
 #### Automatyczne
 
-- [ ] 2.1 `grep -n "bodyWeightMultiple" WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PRMovementDetail/Feature/PRMovementDetailFeature+State.swift` znajduje property
+- [x] 2.1 `grep -n "bodyWeightMultiple" WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PRMovementDetail/Feature/PRMovementDetailFeature+State.swift` znajduje property
 
 #### Ręczne
 
-- [ ] 2.2 Build przechodzi; wpis z zapisaną masą ciała pokazuje „×N.NN BW" na hero; wpis bez snapshotu — bez dopisku (użytkownik)
+- [x] 2.2 Build przechodzi; wpis z zapisaną masą ciała pokazuje „×N.NN BW" na hero; wpis bez snapshotu — bez dopisku (użytkownik)

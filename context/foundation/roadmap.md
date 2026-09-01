@@ -48,8 +48,8 @@ System rejestruje treningi i logi serii, ale nie ma miejsca, gdzie rekordy życi
 | S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | in-progress |
 | S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | proposed |
 | S-04 | rx-scaled-split                | porównać osobne PR-y Rx i Scaled na benchmarku              | S-03          | US-02, FR-007                           | proposed |
-| S-05 | delete-entry-recompute         | usunąć wpis, a PR przelicza się automatycznie               | S-02          | FR-006, FR-007                          | planning |
-| S-06 | progress-views-polish          | śledzić postęp: wykres, historia, krotność masy ciała       | S-02          | FR-009, US-01                           | planning |
+| S-05 | delete-entry-recompute         | usunąć wpis, a PR przelicza się automatycznie               | S-02          | FR-006, FR-007                          | in-progress |
+| S-06 | progress-views-polish          | śledzić postęp: wykres, historia, krotność masy ciała       | S-02          | FR-009, US-01                           | in-progress |
 
 ## Baseline
 
@@ -140,7 +140,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** mały plaster domykający pętlę CRUD; twarde usunięcie z potwierdzeniem to świadoma decyzja PRD (soft-delete odrzucony bez dowodu potrzeby) — potwierdzenie jest częścią kryterium.
-- **Status:** planning
+- **Status:** in-progress
 
 ### S-06: Postęp i dopełnienie widoków
 
@@ -153,7 +153,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Unknowns:**
   - ROZSTRZYGNIĘTE (2026-09-01, plan S-06): dostępność — świadoma rezygnacja z dedykowanych zobowiązań w MVP; temat wraca po MVP.
 - **Risk:** guardrail PRD: liczniki i PR liczone z pełnej historii nie mogą blokować UI — plaster z największą powierzchnią prezentacyjną, ale zerową nową logiką domenową, więc bezpieczny na koniec ścieżki.
-- **Status:** planning
+- **Status:** in-progress
 
 ## Backlog Handoff
 

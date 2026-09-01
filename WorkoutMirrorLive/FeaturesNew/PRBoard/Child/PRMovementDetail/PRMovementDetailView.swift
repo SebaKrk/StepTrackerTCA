@@ -5,6 +5,7 @@
 //  Created by Sebastian Ściuba on 31/08/2026.
 //
 
+import Charts
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -33,6 +34,9 @@ struct PRMovementDetailView: View {
                 categoryBadge
                 if let best = store.summary.best {
                     currentPRCard(best)
+                }
+                if store.showsChart {
+                    progressCard
                 }
                 if store.movement.rxStandard != nil {
                     rxStandardCard
@@ -92,14 +96,21 @@ struct PRMovementDetailView: View {
 
     private func currentPRCard(_ best: PREntry) -> some View {
         GroupBox {
-            HStack(alignment: .firstTextBaseline) {
-                Text(PRScoreFormatter.string(for: best.score))
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(store.movement.category.color)
-                Spacer()
-                Text(best.date, format: .dateTime.day().month().year())
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(PRScoreFormatter.string(for: best.score))
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(store.movement.category.color)
+                    Spacer()
+                    Text(best.date, format: .dateTime.day().month().year())
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                if let multiple = store.bodyWeightMultiple {
+                    Text("×\(multiple.formatted(.number.precision(.fractionLength(2)))) BW")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(.top, 4)
         } label: {
@@ -111,6 +122,68 @@ struct PRMovementDetailView: View {
             }
         }
         .styledGroupBox()
+    }
+
+    private var progressCard: some View {
+        GroupBox {
+            progressChart
+        } label: {
+            progressHeader
+        }
+        .styledGroupBox()
+    }
+
+    private var progressHeader: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "Progress"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Divider()
+        }
+    }
+
+    private var progressChart: some View {
+        Chart(store.chartPoints) { point in
+            LineMark(
+                x: .value("Date", point.date),
+                y: .value("Result", point.value)
+            )
+            .foregroundStyle(store.movement.category.color)
+            PointMark(
+                x: .value("Date", point.date),
+                y: .value("Result", point.value)
+            )
+            .foregroundStyle(store.movement.category.color)
+        }
+        .chartYScale(domain: chartYDomain)
+        .chartYAxis {
+            AxisMarks { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let raw = value.as(Double.self) {
+                        Text(yAxisLabel(raw))
+                    }
+                }
+            }
+        }
+        .frame(height: 180)
+        .padding(.top, 4)
+    }
+
+    /// Time scores plot inverted — a shorter (better) time sits higher.
+    private var chartYDomain: [Double] {
+        let values = store.chartPoints.map(\.value)
+        let low = (values.min() ?? 0) * 0.95
+        let high = (values.max() ?? 1) * 1.05
+        return store.isTimeScored ? [high, low] : [low, high]
+    }
+
+    private func yAxisLabel(_ raw: Double) -> String {
+        if store.isTimeScored {
+            let seconds = Int(raw)
+            return String(format: "%d:%02d", seconds / 60, seconds % 60)
+        }
+        return raw.formatted(.number.precision(.fractionLength(0...1)))
     }
 
     private var historyCard: some View {
@@ -167,17 +240,25 @@ struct PRMovementDetailView: View {
         ContentUnavailableView {
             Label(String(localized: "No entries yet"), systemImage: "trophy")
         } description: {
-            Text(String(localized: "Your personal records for this movement will appear here."))
+            Text(
+                store.supportsEntryForm
+                    ? String(localized: "Your personal records for this movement will appear here.")
+                    : String(localized: "Entries for this score type are coming soon.")
+            )
         } actions: {
-            addFirstEntryButton
+            if store.supportsEntryForm {
+                addFirstEntryButton
+            }
         }
         .padding(.top, 24)
     }
 
     @ToolbarContentBuilder
     private var addEntryToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            addEntryButton
+        if store.supportsEntryForm {
+            ToolbarItem(placement: .topBarTrailing) {
+                addEntryButton
+            }
         }
     }
 
