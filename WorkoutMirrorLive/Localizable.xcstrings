@@ -2306,6 +2306,19 @@
         }
       }
     },
+    "Delete %@ from %@?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete %1$@ from %2$@?"
+          }
+        }
+      }
+    },
+    "Delete entry" : {
+
+    },
     "Delete Exercise" : {
       "localizations" : {
         "pl" : {
@@ -2831,6 +2844,9 @@
           }
         }
       }
+    },
+    "Entries for this score type are coming soon." : {
+
     },
     "Equipment" : {
 

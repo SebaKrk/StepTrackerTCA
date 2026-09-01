@@ -43,6 +43,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		9367D11630476EBE004951EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 93CE752D2D1699CA006D5A4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9382096B2E39388600F49046;
+			remoteInfo = WorkoutMirrorLive;
+		};
 		9371983B2F18D58B009C583D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 93CE752D2D1699CA006D5A4A /* Project object */;
@@ -100,6 +107,7 @@
 		9332A8C52D1809FD00DA426E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		934045BE2DF5685B005A00C8 /* SharedModels */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SharedModels; sourceTree = "<group>"; };
 		934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MyFitnessJournal Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9367D11230476EBE004951EA /* WorkoutMirrorLiveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WorkoutMirrorLiveTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WorkoutSessionWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9371982D2F18D58A009C583D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		9371982F2F18D58A009C583D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -168,6 +176,11 @@
 			path = "MyFitnessJournal Watch App";
 			sourceTree = "<group>";
 		};
+		9367D11330476EBE004951EA /* WorkoutMirrorLiveTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WorkoutMirrorLiveTests;
+			sourceTree = "<group>";
+		};
 		937198312F18D58A009C583D /* WorkoutSessionWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -217,6 +230,13 @@
 				934A03C82DD9CD8C0089D27C /* ComposableArchitecture in Frameworks */,
 				934045BD2DF561F0005A00C8 /* HealthHub in Frameworks */,
 				934A03CA2DD9CD9A0089D27C /* Factory in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9367D10F30476EBE004951EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,6 +327,7 @@
 				937198312F18D58A009C583D /* WorkoutSessionWidget */,
 				93FE94792F74532E00A77CCA /* WorkoutMirror Watch App */,
 				938B24BF2FDA16F1008F75CC /* GymRoom */,
+				9367D11330476EBE004951EA /* WorkoutMirrorLiveTests */,
 				934A03C62DD9CD8C0089D27C /* Frameworks */,
 				93CE75362D1699CA006D5A4A /* Products */,
 				8013C866C7F35E7CEA7FFC36 /* GymRoom.entitlements */,
@@ -322,6 +343,7 @@
 				9371982C2F18D58A009C583D /* WorkoutSessionWidgetExtension.appex */,
 				93FE94782F74532E00A77CCA /* WorkoutMirror Watch App.app */,
 				938B24BE2FDA16F1008F75CC /* GymRoom.app */,
+				9367D11230476EBE004951EA /* WorkoutMirrorLiveTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -355,6 +377,29 @@
 			productName = "MyFitnessJournal Watch App";
 			productReference = 934A03B02DD8A54A0089D27C /* MyFitnessJournal Watch App.app */;
 			productType = "com.apple.product-type.application";
+		};
+		9367D11130476EBE004951EA /* WorkoutMirrorLiveTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9367D11830476EBE004951EA /* Build configuration list for PBXNativeTarget "WorkoutMirrorLiveTests" */;
+			buildPhases = (
+				9367D10E30476EBE004951EA /* Sources */,
+				9367D10F30476EBE004951EA /* Frameworks */,
+				9367D11030476EBE004951EA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9367D11730476EBE004951EA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				9367D11330476EBE004951EA /* WorkoutMirrorLiveTests */,
+			);
+			name = WorkoutMirrorLiveTests;
+			packageProductDependencies = (
+			);
+			productName = WorkoutMirrorLiveTests;
+			productReference = 9367D11230476EBE004951EA /* WorkoutMirrorLiveTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */ = {
 			isa = PBXNativeTarget;
@@ -497,11 +542,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2630;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					934A03AF2DD8A54A0089D27C = {
 						CreatedOnToolsVersion = 16.3;
+					};
+					9367D11130476EBE004951EA = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 9382096B2E39388600F49046;
 					};
 					9371982B2F18D58A009C583D = {
 						CreatedOnToolsVersion = 26.2;
@@ -549,12 +598,20 @@
 				9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */,
 				93FE94772F74532E00A77CCA /* WorkoutMirror Watch App */,
 				938B24BD2FDA16F1008F75CC /* GymRoom */,
+				9367D11130476EBE004951EA /* WorkoutMirrorLiveTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		934A03AE2DD8A54A0089D27C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9367D11030476EBE004951EA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -632,6 +689,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9367D10E30476EBE004951EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		937198282F18D58A009C583D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -670,6 +734,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		9367D11730476EBE004951EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9382096B2E39388600F49046 /* WorkoutMirrorLive */;
+			targetProxy = 9367D11630476EBE004951EA /* PBXContainerItemProxy */;
+		};
 		9371983C2F18D58B009C583D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9371982B2F18D58A009C583D /* WorkoutSessionWidgetExtension */;
@@ -750,6 +819,48 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 11.4;
+			};
+			name = Release;
+		};
+		9367D11930476EBE004951EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.GymRoom.WorkoutMirrorLiveTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WorkoutMirrorLive.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WorkoutMirrorLive";
+			};
+			name = Debug;
+		};
+		9367D11A30476EBE004951EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ss.MyFitnessJournal.GymRoom.WorkoutMirrorLiveTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WorkoutMirrorLive.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WorkoutMirrorLive";
 			};
 			name = Release;
 		};
@@ -1278,6 +1389,15 @@
 			buildConfigurations = (
 				934A03BC2DD8A54B0089D27C /* Debug */,
 				934A03BD2DD8A54B0089D27C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9367D11830476EBE004951EA /* Build configuration list for PBXNativeTarget "WorkoutMirrorLiveTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9367D11930476EBE004951EA /* Debug */,
+				9367D11A30476EBE004951EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

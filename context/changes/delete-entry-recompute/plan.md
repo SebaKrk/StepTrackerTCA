@@ -116,20 +116,20 @@ Faza 2 = pierwszy test przepływu reducera w projekcie (TestStore, exhaustive). 
 
 #### Automatyczne
 
-- [x] 1.1 `grep -n "delete" WorkoutMirrorLive/FeaturesNew/PRBoard/Client/PREntryClient.swift` znajduje operację
-- [x] 1.2 `swift test --package-path SharedModels` i `swift test --package-path AppDatabase` zielone (bez regresji)
+- [x] 1.1 `grep -n "delete" WorkoutMirrorLive/FeaturesNew/PRBoard/Client/PREntryClient.swift` znajduje operację — 6b8310e
+- [x] 1.2 `swift test --package-path SharedModels` i `swift test --package-path AppDatabase` zielone (bez regresji) — 6b8310e
 
 #### Ręczne
 
-- [ ] 1.3 Build przechodzi; long-press → potwierdzenie → wpis znika; PR wraca do poprzedniej wartości po usunięciu najlepszego wpisu; licznik kategorii maleje po usunięciu ostatniego wpisu ruchu (użytkownik)
+- [x] 1.3 Build przechodzi; long-press → potwierdzenie → wpis znika; PR wraca do poprzedniej wartości po usunięciu najlepszego wpisu; licznik kategorii maleje po usunięciu ostatniego wpisu ruchu (użytkownik)
 
 ### Faza 2: Test TestStore przepływu edytora
 
 #### Automatyczne
 
-- [x] 2.1 `ls WorkoutMirrorLiveTests/PREntryEditorFeatureTests.swift` przechodzi
+- [x] 2.1 `ls WorkoutMirrorLiveTests/PREntryEditorFeatureTests.swift` przechodzi — 6b8310e
 
 #### Ręczne
 
-- [ ] 2.2 Target testowy dodany w Xcode (użytkownik)
-- [ ] 2.3 Testy zielone w Xcode / Cmd+U (użytkownik)
+- [x] 2.2 Target testowy dodany w Xcode (użytkownik)
+- [x] 2.3 Testy zielone w Xcode / Cmd+U (użytkownik)
