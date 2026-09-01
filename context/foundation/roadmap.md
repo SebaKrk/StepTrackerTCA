@@ -48,8 +48,8 @@ System rejestruje treningi i logi serii, ale nie ma miejsca, gdzie rekordy życi
 | S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | in-progress |
 | S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | proposed |
 | S-04 | rx-scaled-split                | porównać osobne PR-y Rx i Scaled na benchmarku              | S-03          | US-02, FR-007                           | proposed |
-| S-05 | delete-entry-recompute         | usunąć wpis, a PR przelicza się automatycznie               | S-02          | FR-006, FR-007                          | proposed |
-| S-06 | progress-views-polish          | śledzić postęp: wykres, historia, krotność masy ciała       | S-02          | FR-009, US-01                           | proposed |
+| S-05 | delete-entry-recompute         | usunąć wpis, a PR przelicza się automatycznie               | S-02          | FR-006, FR-007                          | planning |
+| S-06 | progress-views-polish          | śledzić postęp: wykres, historia, krotność masy ciała       | S-02          | FR-009, US-01                           | planning |
 
 ## Baseline
 
@@ -140,7 +140,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** mały plaster domykający pętlę CRUD; twarde usunięcie z potwierdzeniem to świadoma decyzja PRD (soft-delete odrzucony bez dowodu potrzeby) — potwierdzenie jest częścią kryterium.
-- **Status:** proposed
+- **Status:** planning
 
 ### S-06: Postęp i dopełnienie widoków
 
@@ -151,9 +151,9 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Parallel with:** S-03, S-04, S-05
 - **Blockers:** —
 - **Unknowns:**
-  - Zobowiązania dostępności (Dynamic Type XXL, VoiceOver z jednostkami) — potwierdzić rezygnację lub przywrócić przy planie UI. Owner: użytkownik. Block: no.
+  - ROZSTRZYGNIĘTE (2026-09-01, plan S-06): dostępność — świadoma rezygnacja z dedykowanych zobowiązań w MVP; temat wraca po MVP.
 - **Risk:** guardrail PRD: liczniki i PR liczone z pełnej historii nie mogą blokować UI — plaster z największą powierzchnią prezentacyjną, ale zerową nową logiką domenową, więc bezpieczny na koniec ścieżki.
-- **Status:** proposed
+- **Status:** planning
 
 ## Backlog Handoff
 
@@ -170,7 +170,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 ## Open Roadmap Questions
 
 1. **Estymata 1RM (formuła Epleya) z historii serii przez most do katalogu ćwiczeń** — czy wchodzi kiedykolwiek, a jeśli tak: iteracja 2 czy później? Owner: użytkownik. Block: żaden plaster (decyzja iteracji 2).
-2. **Dostępność (Dynamic Type XXL, VoiceOver z jednostkami)** — potwierdzić świadomą rezygnację lub przywrócić jako zobowiązanie. Owner: użytkownik. Block: nie blokuje planowania; dotyczy planów UI S-02/S-03/S-06.
+2. **Dostępność (Dynamic Type XXL, VoiceOver z jednostkami)** — ROZSTRZYGNIĘTE (2026-09-01, plan S-06): świadoma rezygnacja w MVP; temat wraca po MVP.
 3. **Dwa pojęcia "PR" w segmencie Ćwiczenia** (oznaczenie PR z logów serii w analityce vs rekord życiowy z Tablicy — wartości mogą się rozjeżdżać) — rozróżnienie w copy lub jednostronny mostek w iteracji 2. Owner: użytkownik. Block: copy ekranów S-02/S-06 (do rozstrzygnięcia najpóźniej przy ich planach UI).
 
 ## Parked
