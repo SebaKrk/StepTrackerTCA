@@ -741,6 +741,9 @@
         }
       }
     },
+    "0" : {
+
+    },
     "0 %@" : {
       "localizations" : {
         "pl" : {
@@ -1040,6 +1043,9 @@
           }
         }
       }
+    },
+    "Add first result" : {
+
     },
     "Add Measurement" : {
       "localizations" : {
@@ -1970,6 +1976,9 @@
         }
       }
     },
+    "Context" : {
+
+    },
     "Continue" : {
       "localizations" : {
         "pl" : {
@@ -2343,6 +2352,9 @@
           }
         }
       }
+    },
+    "Details" : {
+
     },
     "Details HR" : {
       "localizations" : {
@@ -2806,6 +2818,9 @@
           }
         }
       }
+    },
+    "Equipment" : {
+
     },
     "Error: %@" : {
       "localizations" : {
@@ -4545,6 +4560,9 @@
         }
       }
     },
+    "Optional note" : {
+
+    },
     "or" : {
       "localizations" : {
         "pl" : {
@@ -5053,6 +5071,9 @@
         }
       }
     },
+    "Result" : {
+
+    },
     "Results" : {
       "localizations" : {
         "pl" : {
@@ -5124,6 +5145,9 @@
         }
       }
     },
+    "RPE" : {
+
+    },
     "rund" : {
 
     },
@@ -5146,6 +5170,9 @@
           }
         }
       }
+    },
+    "Rx" : {
+
     },
     "RX" : {
       "shouldTranslate" : false
@@ -5234,6 +5261,9 @@
           }
         }
       }
+    },
+    "Scaled" : {
+
     },
     "Scan Plan" : {
       "localizations" : {
@@ -5751,6 +5781,9 @@
           }
         }
       }
+    },
+    "Standard" : {
+
     },
     "Start" : {
       "localizations" : {

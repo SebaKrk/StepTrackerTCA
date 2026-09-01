@@ -296,26 +296,26 @@ v12 append-only, nowa tabela startuje pusta — brak migracji danych i planu wyc
 
 #### Automatyczne
 
-- [x] 2.1 `swift test --package-path AppDatabase` — test migratora v1→v12 zielony
-- [x] 2.2 `swift test --package-path SharedModels` nadal zielone
-- [x] 2.3 `grep -n "AppDatabase" .github/workflows/ci.yml` znajduje wpis w matrixie
+- [x] 2.1 `swift test --package-path AppDatabase` — test migratora v1→v12 zielony — 7fd2bb6
+- [x] 2.2 `swift test --package-path SharedModels` nadal zielone — 7fd2bb6
+- [x] 2.3 `grep -n "AppDatabase" .github/workflows/ci.yml` znajduje wpis w matrixie — 7fd2bb6
 
 #### Ręczne
 
-- [x] 2.4 Świadoma decyzja o momencie builda fazy 2 na fizycznym urządzeniu dev — DEBUG erase skasuje lokalną bazę (użytkownik)
+- [x] 2.4 Świadoma decyzja o momencie builda fazy 2 na fizycznym urządzeniu dev — DEBUG erase skasuje lokalną bazę (użytkownik) — 7fd2bb6
 
 ### Faza 3: Klient zapisu i formularz wpisu
 
 #### Automatyczne
 
-- [ ] 3.1 `ls WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PREntryEditor/Feature` przechodzi
-- [ ] 3.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
-- [ ] 3.3 `grep -rn "ReducerOf<Self>" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
+- [x] 3.1 `ls WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PREntryEditor/Feature` przechodzi
+- [x] 3.2 `grep -r "@State" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
+- [x] 3.3 `grep -rn "ReducerOf<Self>" WorkoutMirrorLive/FeaturesNew/PRBoard/` zwraca 0 trafień
 
 #### Ręczne
 
-- [ ] 3.4 Build `WorkoutMirrorLive` przechodzi (użytkownik)
-- [ ] 3.5 Formularz: zapis poprawnego kg działa, Save nieaktywny przy pustym/zerowym kg, data nie pozwala na przyszłość (użytkownik)
+- [x] 3.4 Build `WorkoutMirrorLive` przechodzi (użytkownik)
+- [x] 3.5 Formularz: zapis poprawnego kg działa, Save nieaktywny przy pustym/zerowym kg, data nie pozwala na przyszłość (użytkownik)
 
 ### Faza 4: Ożywienie ekranów przez @FetchAll
 

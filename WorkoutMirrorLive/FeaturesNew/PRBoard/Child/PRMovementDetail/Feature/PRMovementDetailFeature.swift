@@ -11,15 +11,25 @@ import SharedModels
 @Reducer
 struct PRMovementDetailFeature {
 
-    @ObservableState
-    struct State: Equatable {
-        let movement: PRMovement
-    }
+    // MARK: - Dependency
 
-    // No actions in S-01 — the screen is read-only until entries arrive (S-02).
-    enum Action {}
+    @Dependency(\.date.now) var now
+
+    // MARK: - Reducer
 
     var body: some Reducer<State, Action> {
-        EmptyReducer()
+        Reduce { state, action in
+            switch action {
+            case .view(.addEntryTapped):
+                state.editor = PREntryEditorFeature.State(movement: state.movement, now: now)
+                return .none
+
+            case .editor:
+                return .none
+            }
+        }
+        .ifLet(\.$editor, action: \.editor) {
+            PREntryEditorFeature()
+        }
     }
 }

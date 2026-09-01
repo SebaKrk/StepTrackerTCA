@@ -75,17 +75,38 @@ public enum PRContext: String, CaseIterable, Codable, Sendable {
 /// `date` is the user-chosen day of the result; `createdAt` is the save
 /// timestamp and breaks ties between same-day duplicates.
 public struct PREntry: Identifiable, Codable, Sendable, Equatable {
+
+    /// Unique identifier — stable across updates.
     public let id: UUID
+
+    /// Reference to `PRMovement.id` from the static catalog (kebab-case).
     public let movementId: String
+
+    /// User-chosen day of the result.
     public let date: Date
+
+    /// Save timestamp — breaks ties between same-day duplicates.
     public let createdAt: Date
+
+    /// Score payload matching the movement's `PRScoreType`.
     public let score: PRScoreValue
-    /// nil when the movement does not support Rx/scaled.
+
+    /// Rx (true) / scaled (false); nil when the movement does not support Rx/scaled.
     public let isRx: Bool?
+
+    /// Equipment used for the attempt (multi-select).
     public let equipment: Set<PREquipment>
+
+    /// Rate of perceived exertion (6.0–10.0 in 0.5 steps); nil = not reported.
     public let rpe: Double?
+
+    /// Free-form user note.
     public let note: String?
+
+    /// Body-weight snapshot in kilograms taken at save time; nil when unavailable.
     public let bodyWeightKg: Double?
+
+    /// Circumstances of the attempt (fresh / in WOD / competition).
     public let context: PRContext
 
     public init(

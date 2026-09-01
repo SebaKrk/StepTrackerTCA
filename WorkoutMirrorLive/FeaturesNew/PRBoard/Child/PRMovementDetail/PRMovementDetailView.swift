@@ -9,13 +9,20 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
+@ViewAction(for: PRMovementDetailFeature.self)
 struct PRMovementDetailView: View {
-    let store: StoreOf<PRMovementDetailFeature>
+    @Bindable var store: StoreOf<PRMovementDetailFeature>
 
     var body: some View {
         content
             .navigationTitle(store.movement.name)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar { addEntryToolbarItem }
+            .sheet(
+                item: $store.scope(state: \.editor, action: \.editor)
+            ) { editorStore in
+                PREntryEditorView(store: editorStore)
+            }
     }
 
     // MARK: - Structure
@@ -81,8 +88,36 @@ struct PRMovementDetailView: View {
             Label(String(localized: "No entries yet"), systemImage: "trophy")
         } description: {
             Text(String(localized: "Your personal records for this movement will appear here."))
+        } actions: {
+            addFirstEntryButton
         }
         .padding(.top, 24)
+    }
+
+    @ToolbarContentBuilder
+    private var addEntryToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            addEntryButton
+        }
+    }
+
+    private var addEntryButton: some View {
+        Button {
+            send(.addEntryTapped)
+        } label: {
+            Image(systemName: "plus")
+        }
+    }
+
+    private var addFirstEntryButton: some View {
+        Button {
+            send(.addEntryTapped)
+        } label: {
+            Text(String(localized: "Add first result"))
+        }
+        .buttonStyle(.borderedProminent)
+        // App-wide AccentColor asset is empty — prominent style melts into dark mode without an explicit tint.
+        .tint(store.movement.category.color)
     }
 }
 
