@@ -1,10 +1,10 @@
 ---
 change_id: delete-entry-recompute
 title: Tablica PR — usuwanie wpisu z automatycznym przeliczeniem PR
-status: implemented
+status: archived
 created: 2026-09-01
 updated: 2026-09-01
-archived_at: null
+archived_at: 2026-09-01T20:48:59Z
 ---
 
 ## Notes

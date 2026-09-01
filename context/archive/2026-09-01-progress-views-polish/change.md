@@ -1,10 +1,10 @@
 ---
 change_id: progress-views-polish
 title: Tablica PR — wykres postępu i dopełnienie widoków
-status: implemented
+status: archived
 created: 2026-09-01
 updated: 2026-09-01
-archived_at: null
+archived_at: 2026-09-01T20:48:59Z
 ---
 
 ## Notes

@@ -1,10 +1,10 @@
 ---
 change_id: record-entry-current-pr
 title: Tablica PR — zapis wpisu z metadanymi i wyznaczanie aktualnego PR
-status: implemented
+status: archived
 created: 2026-08-31
 updated: 2026-09-01
-archived_at: null
+archived_at: 2026-09-01T20:48:59Z
 ---
 
 ## Notes
