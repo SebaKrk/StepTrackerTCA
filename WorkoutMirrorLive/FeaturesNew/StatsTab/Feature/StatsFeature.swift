@@ -148,6 +148,10 @@ struct StatsFeature {
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())
                 return .none
+
+            case .view(.prBoardButtonTapped):
+                state.destination = .prBoard(PRBoardFeature.State())
+                return .none
                 
             case let .view(.subscriptionTierButtonTapped(value)):
                 return .send(.changeSubscriptionTier(value))

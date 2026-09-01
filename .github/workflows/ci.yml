@@ -20,8 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Packages with test targets. Future: PersonalRecords, AppDatabase (v12 migration test).
-        package: [SharedModels]
+        # Packages with test targets.
+        package: [SharedModels, AppDatabase]
     steps:
       - uses: actions/checkout@v4
 
