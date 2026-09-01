@@ -6,6 +6,8 @@
 //
 
 import ComposableArchitecture
+import Foundation
+import SharedModels
 
 extension PRMovementDetailFeature {
 
@@ -18,11 +20,24 @@ extension PRMovementDetailFeature {
         /// Forwards actions of the presented entry editor sheet.
         case editor(PresentationAction<PREntryEditorFeature.Action>)
 
+        /// Forwards actions of the delete-confirmation dialog.
+        case confirmationDialog(PresentationAction<Dialog>)
+
         @CasePathable
         enum View {
 
             /// Opens the "add result" editor for this movement.
             case addEntryTapped
+
+            /// Asks to delete one history entry — shows the confirmation dialog.
+            case deleteEntryTapped(PREntry)
+        }
+
+        @CasePathable
+        enum Dialog {
+
+            /// User confirmed deleting the entry with this id.
+            case confirmDelete(UUID)
         }
     }
 }

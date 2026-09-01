@@ -24,6 +24,9 @@ extension PRMovementDetailFeature {
         /// "Add result" editor sheet, presented from the toolbar or the empty state.
         @Presents var editor: PREntryEditorFeature.State?
 
+        /// Destructive confirmation shown before deleting a history entry (FR-006).
+        @Presents var confirmationDialog: ConfirmationDialogState<Action.Dialog>?
+
         // MARK: - Observed entries
 
         /// Observed PR entries (SQLiteData) — the hero value and history refresh

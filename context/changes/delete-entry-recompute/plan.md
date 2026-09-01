@@ -116,8 +116,8 @@ Faza 2 = pierwszy test przepływu reducera w projekcie (TestStore, exhaustive). 
 
 #### Automatyczne
 
-- [ ] 1.1 `grep -n "delete" WorkoutMirrorLive/FeaturesNew/PRBoard/Client/PREntryClient.swift` znajduje operację
-- [ ] 1.2 `swift test --package-path SharedModels` i `swift test --package-path AppDatabase` zielone (bez regresji)
+- [x] 1.1 `grep -n "delete" WorkoutMirrorLive/FeaturesNew/PRBoard/Client/PREntryClient.swift` znajduje operację
+- [x] 1.2 `swift test --package-path SharedModels` i `swift test --package-path AppDatabase` zielone (bez regresji)
 
 #### Ręczne
 
@@ -127,7 +127,7 @@ Faza 2 = pierwszy test przepływu reducera w projekcie (TestStore, exhaustive). 
 
 #### Automatyczne
 
-- [ ] 2.1 `ls WorkoutMirrorLiveTests/PREntryEditorFeatureTests.swift` przechodzi
+- [x] 2.1 `ls WorkoutMirrorLiveTests/PREntryEditorFeatureTests.swift` przechodzi
 
 #### Ręczne
 

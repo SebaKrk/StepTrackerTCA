@@ -19,6 +19,9 @@ struct PREntryClient: Sendable {
 
     /// Upserts one entry (same id overwrites — used by future edit flows).
     var save: @Sendable (PREntry) async throws -> Void
+
+    /// Deletes one entry by id — PRs recompute from the remaining history (FR-007).
+    var delete: @Sendable (UUID) async throws -> Void
 }
 
 // MARK: - DependencyValues
@@ -62,13 +65,22 @@ private enum PREntryClientKey: DependencyKey {
                     )
                     try PREntryRecord.upsert { draft }.execute(db)
                 }
+            },
+            delete: { id in
+                try await database.write { db in
+                    try PREntryRecord
+                        .where { $0.id.eq(id) }
+                        .delete()
+                        .execute(db)
+                }
             }
         )
     }()
 
     static var testValue: PREntryClient {
         PREntryClient(
-            save: unimplemented("PREntryClient.save")
+            save: unimplemented("PREntryClient.save"),
+            delete: unimplemented("PREntryClient.delete")
         )
     }
 }

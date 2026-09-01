@@ -24,6 +24,9 @@ struct PRMovementDetailView: View {
             ) { editorStore in
                 PREntryEditorView(store: editorStore)
             }
+            .confirmationDialog(
+                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+            )
     }
 
     // MARK: - Structure
@@ -224,6 +227,10 @@ struct PRMovementDetailView: View {
                 .foregroundStyle(.primary)
         }
         .padding(.vertical, 10)
+        .contentShape(Rectangle())
+        .contextMenu {
+            deleteEntryButton(entry)
+        }
     }
 
     private func equipmentIcons(_ equipment: Set<PREquipment>) -> some View {
@@ -267,6 +274,14 @@ struct PRMovementDetailView: View {
             send(.addEntryTapped)
         } label: {
             Image(systemName: "plus")
+        }
+    }
+
+    private func deleteEntryButton(_ entry: PREntry) -> some View {
+        Button(role: .destructive) {
+            send(.deleteEntryTapped(entry))
+        } label: {
+            Label(String(localized: "Delete entry"), systemImage: "trash")
         }
     }
 
