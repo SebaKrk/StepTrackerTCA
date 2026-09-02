@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-09-02
+> Last updated: 2026-09-02 (Phase 1: researched)
 
 ## 1. Strategy
 
@@ -61,7 +61,7 @@ Risk #6.
 |------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
 | #1 | Dla każdego typu wyniku gorszy nowy wynik NIE zostaje PR-em, lepszy zostaje; scaled nigdy nie bije Rx; remis → nowsza data | „Istniejące testy resolvera pokrywają też przyszłe typy z S-03/S-04" | Gdzie rozstrzygają się kierunki porównań; jak formularz mapuje wprowadzone wartości na typ wyniku | unit (czysta funkcja, już w CI) | Problem wyroczni: oczekiwane wartości ściągnięte z implementacji; tylko happy-path „lepszy wygrywa" |
 | #2 | Migrator przechodzi v1→vN na bazie Z DANYMI poprzedniej wersji i dane przeżywają migrację | „Test na pustej bazie wystarczy" (incydent dotyczył danych, nie schematu) | Jak zbudować fixture bazy vN-1 z wierszami; semantyka DEBUG erase | integration in-memory (pakiet bazy) | Asercja „nie rzuca" bez sprawdzenia, że wiersze wciąż istnieją |
-| #3 | Round-trip: wpis zapisany klientem wraca z odczytu z identycznymi wartościami; niepełne/nieznane dane nie znikają cicho | „Kompiluje się = mapuje się" | Mapowanie kolumn płaskich na typy domenowe; zachowanie przy nieznanym typie wyniku | integration in-memory (pakiet bazy) | Mockowanie bazy (test omija prawdziwe SQL); porównywanie samych identyfikatorów |
+| #3 | Round-trip: wpis zapisany do bazy wraca z odczytu z identycznymi wartościami; niepełne/nieznane dane nie znikają cicho | „Kompiluje się = mapuje się" | Mapowanie kolumn płaskich na typy domenowe; zachowanie przy nieznanym typie wyniku; granica pakietu: warstwa rekord+SQL testowalna w `swift test`, kontrakt klienta i reducera żyje w app targecie (research 2026-09-02) | integration in-memory (pakiet bazy — rekord+SQL) | Mockowanie bazy (test omija prawdziwe SQL); porównywanie samych identyfikatorów |
 | #4 | Po zakończeniu treningu podsumowanie ma niezerowe metryki, a workout ląduje w HealthKit — na OBU ścieżkach | „Działa na jednej ścieżce = działa na obu" | Sekwencja end-flow, właściciel sesji HealthKit, punkty synchronizacji między ścieżkami | manual smoke wg skryptu (e2e HealthKit wykluczone — §7) | Zamrażanie przepływów TCA testami w trakcie fazy twórczej (interview Q4) |
 | #5 | Po zapisie/usunięciu wpisu lista i liczniki pokazują nowy stan bez restartu aplikacji | „Warstwa odczytu zawsze sama odświeża" | Jak zmiany propagują się z bazy do widoków; co czyta pola, a co tylko tożsamość kolekcji | manual smoke + istniejący test przepływu delete | Snapshot testy UI (§7) |
 | #6 | Znane nazwy z realnych skanów dają oczekiwane przypisanie; rozszerzenie katalogu = bump wersji + golden case w tym samym commicie | „Nowy alias niczego nie psuje" (wyniki dopasowań zamrożone w bazie) | Czy istniejące golden testy pokrywają realne błędne przypadki z wywiadu Q2 | unit golden (suita istnieje, rozszerzać) | Poprawka matchera bez dopisania golden case'a |
@@ -75,7 +75,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|---|---|---|---|---|---|
-| 1 | Siatka bezpieczeństwa bazy | Dane użytkownika przeżywają migracje i zapisy (migrator z danymi + round-trip rekordów) | #2, #3 | integration in-memory | change opened | context/changes/testing-database-safety-net/ |
+| 1 | Siatka bezpieczeństwa bazy | Dane użytkownika przeżywają migracje i zapisy (migrator z danymi + round-trip rekordów) | #2, #3 | integration in-memory | planned | context/changes/testing-database-safety-net/ |
 | 2 | Poprawność PR wszystkich typów | Kierunki/remisy/Rx-scaled odporne na zmiany z S-03/S-04 — testy jako specyfikacja PRZED implementacją (TDD) | #1 | unit (czysta funkcja) | not started | — |
 | 3 | Golden testy katalogu AI | Realne błędne przypisania zamienione w golden case'y; rytuał bump+golden egzekwowany | #6 | unit golden | not started | — |
 | 4 | Bramki jakości i smoke | Dolna granica zablokowana: co musi być zielone przed merge; manualne smoke skodyfikowane w §6 | #4, #5, #7 | gates + manual smoke scripts | not started | — |
