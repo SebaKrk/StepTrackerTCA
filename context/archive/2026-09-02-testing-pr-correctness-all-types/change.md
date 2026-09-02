@@ -1,10 +1,10 @@
 ---
 change_id: testing-pr-correctness-all-types
 title: Poprawność PR wszystkich typów — testy jako specyfikacja przed S-03/S-04
-status: impl_reviewed
+status: archived
 created: 2026-09-02
 updated: 2026-09-02
-archived_at: null
+archived_at: 2026-09-02T20:34:39Z
 ---
 
 ## Notes
