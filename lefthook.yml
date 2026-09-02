@@ -1,0 +1,17 @@
+# Pre-commit quality gate (M3L3): package test suites run on staged files.
+# Catches what the per-edit agent hook missed — manual edits, files changed
+# outside Claude Code. Heavier checks (app build, Cmd+U) stay above this
+# layer: the user runs them, CI verifies packages on push/PR.
+#
+# A command is skipped when no staged file matches its glob, so commits that
+# don't touch a package stay instant.
+
+pre-commit:
+  parallel: false
+  commands:
+    sharedmodels-tests:
+      glob: "SharedModels/**/*.swift"
+      run: DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --package-path SharedModels
+    appdatabase-tests:
+      glob: "AppDatabase/**/*.swift"
+      run: DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --package-path AppDatabase

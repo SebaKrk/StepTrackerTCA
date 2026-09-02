@@ -150,6 +150,12 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 - TBD — see §3 Phase 4 (istniejący punkt wyjścia: manualne skrypty testowe w `StepTrackerTCA/PLANS/`, lokalne).
 
+### 6.5a Local quality layers (hooks — M3L3)
+
+- **Na edycję (agent)**: `.claude/settings.json` → PostToolUse (Write|Edit) → `.claude/hooks/spm-package-tests.sh` — testy pakietu SharedModels/AppDatabase po edycji jego pliku; fail = exit 2 + stderr wraca do kontekstu agenta (self-correct). Pliki app targetu poza hakiem (xcodebuild za wolny na edycję — warstwa wyżej).
+- **Pre-commit (git)**: `lefthook.yml` — testy pakietu na plikach staged (skip, gdy commit nie dotyka pakietu). Po klonie: `brew install lefthook && lefthook install`.
+- **Wyżej**: build aplikacji + Cmd+U (user), CI na push/PR (§5). Pre-push świadomie pominięty — redundantny wobec pre-commit + CI.
+
 ### 6.6 Per-rollout-phase notes
 
 - **Phase 1 (2026-09-02)**: dodanie `reportIssue` do mapowań rekordów wymaga aktualizacji testów defensywnych o `withKnownIssue` w tym samym commicie (zgłoszony issue = fail w Swift Testing). Zależność IssueReporting w Package.swift deklarować przez historyczny URL `xctest-dynamic-overlay` (nowy URL `swift-issue-reporting` = konflikt tożsamości pakietu z pinem tranzytywnym). SQLiteData przechowuje daty jako TEXT `YYYY-MM-DD HH:MM:SS` — fixture'y surowego SQL z ISO-8601 `Z` nie parsują się przy odczycie.
