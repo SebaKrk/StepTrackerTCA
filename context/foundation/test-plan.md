@@ -156,6 +156,33 @@ the relevant rollout phase ships; before that, the sub-section reads
 - **Pre-commit (git)**: `lefthook.yml` — testy pakietu na plikach staged (skip, gdy commit nie dotyka pakietu). Po klonie: `brew install lefthook && lefthook install`.
 - **Wyżej**: build aplikacji + Cmd+U (user), CI na push/PR (§5). Pre-push świadomie pominięty — redundantny wobec pre-commit + CI.
 
+### 6.5b E2E layer (M3L4) — deferred by design; XCUITest groundwork
+
+Warstwa E2E pozostaje ODROCZONA (§7: bez e2e HealthKit na symulatorze; koszt
+setupu > sygnał przy pokryciu unit/integration + manual smoke). Aplikacja jest
+natywna — Playwright/DOM nie dotyczy; odpowiednikiem drzewa dostępności jest
+hierarchia XCUITest. Jeśli warstwa kiedyś powstanie, obowiązują reguły lekcji
+przetłumaczone na idiom XCUITest:
+
+- **Lokalizatory**: rola/etykieta dostępności (`buttons["Save Result"]`,
+  `staticTexts[...]`) > `accessibilityIdentifier` (tylko gdy etykieta
+  niejednoznaczna) > NIGDY indeksy elementów ani struktura hierarchii.
+- **Czekanie na stan**: `waitForExistence(timeout:)` / `XCTNSPredicateExpectation`
+  — nigdy `sleep()`.
+- **Niezależność testów**: każdy test = własny setup + akcja + asercja +
+  cleanup; unikalne dane (sufiks czasowy); zero zależności od kolejności.
+- **Asercje biznesowe**, nie strukturalne ("PR pokazuje 150 kg", nie "istnieje
+  trzecia komórka listy").
+- **Seed + reguły przed generacją**: pierwszy ręczny test wzorcowy + ten
+  wpis jako plik reguł; generowane testy przeglądać pod 5 antywzorców
+  (`~/.claude/skills/10x-e2e/references/e2e-anti-patterns.md`).
+- **Weryfikacja asercji**: test musi failować, gdy ryzyko się materializuje
+  (deliberate-break — jak §6.6 Phase 2).
+- **Miejsce**: CI/nightly, nigdy per-edit; wizja tylko dla ryzyk wizualnych.
+
+Re-evaluate: gdy przepływy TCA się ustabilizują (§7) albo pojawi się ryzyko,
+którego nie pokrywa żadna tańsza warstwa.
+
 ### 6.6 Per-rollout-phase notes
 
 - **Phase 1 (2026-09-02)**: dodanie `reportIssue` do mapowań rekordów wymaga aktualizacji testów defensywnych o `withKnownIssue` w tym samym commicie (zgłoszony issue = fail w Swift Testing). Zależność IssueReporting w Package.swift deklarować przez historyczny URL `xctest-dynamic-overlay` (nowy URL `swift-issue-reporting` = konflikt tożsamości pakietu z pinem tranzytywnym). SQLiteData przechowuje daty jako TEXT `YYYY-MM-DD HH:MM:SS` — fixture'y surowego SQL z ISO-8601 `Z` nie parsują się przy odczycie.
