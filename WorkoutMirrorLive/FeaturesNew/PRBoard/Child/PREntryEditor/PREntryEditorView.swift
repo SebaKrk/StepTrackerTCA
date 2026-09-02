@@ -22,6 +22,7 @@ struct PREntryEditorView: View {
                     cancelToolbarItem
                     saveToolbarItem
                 }
+                .alert($store.scope(state: \.alert, action: \.alert))
         }
     }
 

@@ -46,6 +46,11 @@ extension PREntryEditorFeature {
         /// Free-form note; empty string persists as nil.
         var note: String = ""
 
+        // MARK: - Presentation
+
+        /// Save-failure alert; while non-nil the sheet stays open (no dismiss on error).
+        @Presents var alert: AlertState<Action.Alert>?
+
         // MARK: - Validation
 
         /// Accepts both dot and comma decimal separators; nil or ≤ 0 disables Save.
