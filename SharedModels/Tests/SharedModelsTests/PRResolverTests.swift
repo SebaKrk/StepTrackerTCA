@@ -232,6 +232,22 @@ struct PRResolverTests {
         #expect(summary.best == genuine)
     }
 
+    // D4 boundary (impl-review F1): the partition is history-wide, not
+    // per-bucket — one matching entry (even scaled) evicts a mismatched entry
+    // from EVERY bucket, so a bogus Rx never occupies the Rx slot.
+    @Test("Mismatched Rx entry vacates the Rx slot when a matching scaled entry exists")
+    func mismatchedRxVacatesRxSlot() {
+        let bogusRx = Self.entry(movement: Self.fran, date: Self.day2, score: .weight(kilograms: 100), isRx: true)
+        let genuineScaled = Self.entry(movement: Self.fran, date: Self.day1, score: .time(seconds: 400), isRx: false)
+        var summary = PRSummary(best: nil, bestRx: nil, bestScaled: nil)
+        withKnownIssue("resolver reports the mismatched entry (dev telemetry)") {
+            summary = PRResolver.summary(for: Self.fran, entries: [bogusRx, genuineScaled])
+        }
+        #expect(summary.bestRx == nil)
+        #expect(summary.bestScaled == genuineScaled)
+        #expect(summary.best == genuineScaled)
+    }
+
     // D4 boundary: the preference only kicks in when a matching entry exists —
     // a mismatched-only history still surfaces a result (nothing hidden).
     @Test("Movement with only mismatched entries still surfaces one as best")

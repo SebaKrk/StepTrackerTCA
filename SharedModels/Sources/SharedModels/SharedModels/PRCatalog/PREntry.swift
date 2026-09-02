@@ -91,7 +91,9 @@ public struct PREntry: Identifiable, Codable, Sendable, Equatable {
     /// Score payload matching the movement's `PRScoreType`.
     public let score: PRScoreValue
 
-    /// Rx (true) / scaled (false); nil when the movement does not support Rx/scaled.
+    /// Rx (true) / scaled (false); nil = undeclared — ranked as scaled on
+    /// benchmarks (decision D3, plan testing-pr-correctness-all-types);
+    /// always nil where the movement does not support Rx/scaled.
     public let isRx: Bool?
 
     /// Equipment used for the attempt (multi-select).

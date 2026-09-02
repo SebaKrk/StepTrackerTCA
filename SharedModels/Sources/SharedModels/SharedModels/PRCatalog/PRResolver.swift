@@ -33,8 +33,10 @@ public enum PRResolver {
         let movementEntries = entries.filter { $0.movementId == movement.id }
         // D4 (plan testing-pr-correctness-all-types): an entry whose score type
         // disagrees with the movement's catalog type must never beat a matching
-        // one — the ranking falls back to mismatched entries only when no
-        // matching entry exists (nothing is silently hidden).
+        // one. The partition is history-wide, not per-Rx/scaled-bucket: a single
+        // matching entry evicts mismatched ones from every bucket (a bogus Rx
+        // never holds the Rx slot); the fallback to mismatched entries applies
+        // only when NO matching entry exists, and every exclusion reports below.
         let matching = movementEntries.filter { $0.score.scoreType == movement.scoreType }
         let mismatched = movementEntries.filter { $0.score.scoreType != movement.scoreType }
         for entry in mismatched {
