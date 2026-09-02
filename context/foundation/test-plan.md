@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-09-02 (Phase 1: complete)
+> Last updated: 2026-09-02 (Phase 2: complete)
 
 ## 1. Strategy
 
@@ -76,7 +76,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|---|---|---|---|---|---|
 | 1 | Siatka bezpieczeństwa bazy | Dane użytkownika przeżywają migracje i zapisy (migrator z danymi + round-trip rekordów) | #2, #3 | integration in-memory | complete | context/changes/testing-database-safety-net/ |
-| 2 | Poprawność PR wszystkich typów | Kierunki/remisy/Rx-scaled odporne na zmiany z S-03/S-04 — testy jako specyfikacja PRZED implementacją (TDD) | #1 | unit (czysta funkcja) | not started | — |
+| 2 | Poprawność PR wszystkich typów | Kierunki/remisy/Rx-scaled odporne na zmiany z S-03/S-04 — testy jako specyfikacja PRZED implementacją (TDD) | #1 | unit (czysta funkcja) | complete | context/changes/testing-pr-correctness-all-types/ |
 | 3 | Golden testy katalogu AI | Realne błędne przypisania zamienione w golden case'y; rytuał bump+golden egzekwowany | #6 | unit golden | not started | — |
 | 4 | Bramki jakości i smoke | Dolna granica zablokowana: co musi być zielone przed merge; manualne smoke skodyfikowane w §6 | #4, #5, #7 | gates + manual smoke scripts | not started | — |
 
@@ -153,6 +153,7 @@ the relevant rollout phase ships; before that, the sub-section reads
 ### 6.6 Per-rollout-phase notes
 
 - **Phase 1 (2026-09-02)**: dodanie `reportIssue` do mapowań rekordów wymaga aktualizacji testów defensywnych o `withKnownIssue` w tym samym commicie (zgłoszony issue = fail w Swift Testing). Zależność IssueReporting w Package.swift deklarować przez historyczny URL `xctest-dynamic-overlay` (nowy URL `swift-issue-reporting` = konflikt tożsamości pakietu z pinem tranzytywnym). SQLiteData przechowuje daty jako TEXT `YYYY-MM-DD HH:MM:SS` — fixture'y surowego SQL z ISO-8601 `Z` nie parsują się przy odczycie.
+- **Phase 2 (2026-09-02)**: dwa tryby dodawania testów logiki — **charakteryzacja** (zachowanie już poprawne: test dokumentujący, zielony od razu, źródło asercji = PRD lub decyzja wyroczni D1–D4 z planu `testing-pr-correctness-all-types`) vs **TDD** (zmiana zachowania: czerwony test nazwany jednym zdaniem PRZED kodem — wzorzec `mismatchedTypeNeverWins` w PRResolverTests). Gdy PRD nie rozstrzyga brzegu — decyzja usera zapisana w planie staje się formalnym źródłem wyroczni; nie podpisywać wyborów implementacyjnych jako PRD. Mutation-lite dla Swift: deliberate-break (celowe odwrócenie warunku → suita musi być czerwona → revert) zamiast Strykera.
 
 ## 7. What We Deliberately Don't Test
 
