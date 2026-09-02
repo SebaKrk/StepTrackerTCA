@@ -233,13 +233,13 @@ Brak wpływu — testy in-memory; `reportIssue` w RELEASE jest no-opem; alert le
 
 #### Automatyczne
 
-- [x] 2.1 swift test AppDatabase zielony (round-trip 4 typów wyniku + 3 testy defensywne)
+- [x] 2.1 swift test AppDatabase zielony (round-trip 4 typów wyniku + 3 testy defensywne) — 430fe81
 
 ### Faza 3: Round-trip pozostałych rekordów
 
 #### Automatyczne
 
-- [ ] 3.1 swift test AppDatabase zielony (komplet: migrator + 11 rekordów, kontrakt throws TrainingSession)
+- [x] 3.1 swift test AppDatabase zielony (komplet: migrator + 11 rekordów, kontrakt throws TrainingSession)
 
 ### Faza 4: Fixy produkcyjne + test przepływu błędu + cookbook
 
