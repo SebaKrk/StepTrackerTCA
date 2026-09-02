@@ -1,10 +1,10 @@
 ---
 change_id: testing-database-safety-net
 title: Siatka bezpieczeństwa bazy — migrator z danymi i round-trip zapisów
-status: implemented
+status: archived
 created: 2026-09-02
 updated: 2026-09-02
-archived_at: null
+archived_at: 2026-09-02T16:17:31Z
 ---
 
 ## Notes
