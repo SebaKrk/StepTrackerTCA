@@ -2100,6 +2100,9 @@
         }
       }
     },
+    "Couldn't Save Result" : {
+
+    },
     "Count" : {
       "localizations" : {
         "pl" : {
@@ -7208,6 +7211,9 @@
       }
     },
     "Your personal records for this movement will appear here." : {
+
+    },
+    "Your result was not saved. Please try again." : {
 
     },
     "Your Score" : {
