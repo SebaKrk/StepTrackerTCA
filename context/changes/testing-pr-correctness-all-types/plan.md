@@ -194,17 +194,17 @@ Brak zmian schematu i danych. Zmiana D4 wpływa wyłącznie na ranking odczytu �
 
 #### Automatyczne
 
-- [x] 2.1 Czerwony test napisany PRZED implementacją i potwierdzony failem
-- [x] 2.2 swift test SharedModels zielony po green+refactor (zgodny typ wygrywa + reportIssue z withKnownIssue)
-- [x] 2.3 Deliberate-break: odwrócenie preferencji typu barwi suitę na czerwono, revert przywraca zieleń
+- [x] 2.1 Czerwony test napisany PRZED implementacją i potwierdzony failem — 8fc0e82
+- [x] 2.2 swift test SharedModels zielony po green+refactor (zgodny typ wygrywa + reportIssue z withKnownIssue) — 8fc0e82
+- [x] 2.3 Deliberate-break: odwrócenie preferencji typu barwi suitę na czerwono, revert przywraca zieleń — 8fc0e82
 
 ### Faza 3: Cookbook i domknięcie
 
 #### Automatyczne
 
-- [ ] 3.1 swift test SharedModels zielony (regresja końcowa)
-- [ ] 3.2 §6.6 test-planu zawiera notkę fazy 2
+- [x] 3.1 swift test SharedModels zielony (regresja końcowa)
+- [x] 3.2 §6.6 test-planu zawiera notkę fazy 2
 
 #### Ręczne
 
-- [ ] 3.3 Build aplikacji w Xcode przechodzi
+- [x] 3.3 Build aplikacji w Xcode przechodzi

@@ -153,6 +153,7 @@ the relevant rollout phase ships; before that, the sub-section reads
 ### 6.6 Per-rollout-phase notes
 
 - **Phase 1 (2026-09-02)**: dodanie `reportIssue` do mapowań rekordów wymaga aktualizacji testów defensywnych o `withKnownIssue` w tym samym commicie (zgłoszony issue = fail w Swift Testing). Zależność IssueReporting w Package.swift deklarować przez historyczny URL `xctest-dynamic-overlay` (nowy URL `swift-issue-reporting` = konflikt tożsamości pakietu z pinem tranzytywnym). SQLiteData przechowuje daty jako TEXT `YYYY-MM-DD HH:MM:SS` — fixture'y surowego SQL z ISO-8601 `Z` nie parsują się przy odczycie.
+- **Phase 2 (2026-09-02)**: dwa tryby dodawania testów logiki — **charakteryzacja** (zachowanie już poprawne: test dokumentujący, zielony od razu, źródło asercji = PRD lub decyzja wyroczni D1–D4 z planu `testing-pr-correctness-all-types`) vs **TDD** (zmiana zachowania: czerwony test nazwany jednym zdaniem PRZED kodem — wzorzec `mismatchedTypeNeverWins` w PRResolverTests). Gdy PRD nie rozstrzyga brzegu — decyzja usera zapisana w planie staje się formalnym źródłem wyroczni; nie podpisywać wyborów implementacyjnych jako PRD. Mutation-lite dla Swift: deliberate-break (celowe odwrócenie warunku → suita musi być czerwona → revert) zamiast Strykera.
 
 ## 7. What We Deliberately Don't Test
 
