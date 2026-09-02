@@ -227,13 +227,13 @@ Brak wpływu — testy in-memory; `reportIssue` w RELEASE jest no-opem; alert le
 
 #### Automatyczne
 
-- [x] 1.1 swift test AppDatabase zielony (4 testy migratora: dane przeżywają, hasSchemaChanges, komplet tabel)
+- [x] 1.1 swift test AppDatabase zielony (4 testy migratora: dane przeżywają, hasSchemaChanges, komplet tabel) — 50228ab
 
 ### Faza 2: Round-trip PREntryRecord
 
 #### Automatyczne
 
-- [ ] 2.1 swift test AppDatabase zielony (round-trip 4 typów wyniku + 3 testy defensywne)
+- [x] 2.1 swift test AppDatabase zielony (round-trip 4 typów wyniku + 3 testy defensywne)
 
 ### Faza 3: Round-trip pozostałych rekordów
 
