@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-09-02 (Phase 1: researched)
+> Last updated: 2026-09-02 (Phase 1: complete)
 
 ## 1. Strategy
 
@@ -75,7 +75,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|---|---|---|---|---|---|
-| 1 | Siatka bezpieczeństwa bazy | Dane użytkownika przeżywają migracje i zapisy (migrator z danymi + round-trip rekordów) | #2, #3 | integration in-memory | planned | context/changes/testing-database-safety-net/ |
+| 1 | Siatka bezpieczeństwa bazy | Dane użytkownika przeżywają migracje i zapisy (migrator z danymi + round-trip rekordów) | #2, #3 | integration in-memory | complete | context/changes/testing-database-safety-net/ |
 | 2 | Poprawność PR wszystkich typów | Kierunki/remisy/Rx-scaled odporne na zmiany z S-03/S-04 — testy jako specyfikacja PRZED implementacją (TDD) | #1 | unit (czysta funkcja) | not started | — |
 | 3 | Golden testy katalogu AI | Realne błędne przypisania zamienione w golden case'y; rytuał bump+golden egzekwowany | #6 | unit golden | not started | — |
 | 4 | Bramki jakości i smoke | Dolna granica zablokowana: co musi być zielone przed merge; manualne smoke skodyfikowane w §6 | #4, #5, #7 | gates + manual smoke scripts | not started | — |

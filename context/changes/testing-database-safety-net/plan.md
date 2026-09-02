@@ -245,10 +245,10 @@ Brak wpływu — testy in-memory; `reportIssue` w RELEASE jest no-opem; alert le
 
 #### Automatyczne
 
-- [x] 4.1 swift test AppDatabase zielony (testy defensywne z withKnownIssue)
-- [x] 4.2 §6.2 test-planu wypełnione (brak „TBD — see §3 Phase 1")
+- [x] 4.1 swift test AppDatabase zielony (testy defensywne z withKnownIssue) — 3179bbd
+- [x] 4.2 §6.2 test-planu wypełnione (brak „TBD — see §3 Phase 1") — 3179bbd
 
 #### Ręczne
 
-- [ ] 4.3 Build aplikacji w Xcode przechodzi
-- [ ] 4.4 Cmd+U: WorkoutMirrorLiveTests zielone (w tym test błędu zapisu)
+- [x] 4.3 Build aplikacji w Xcode przechodzi — 3179bbd
+- [x] 4.4 Cmd+U: WorkoutMirrorLiveTests zielone (w tym test błędu zapisu) — 3179bbd
