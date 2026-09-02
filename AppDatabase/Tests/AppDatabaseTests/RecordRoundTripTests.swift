@@ -109,9 +109,13 @@ struct RecordRoundTripTests {
                   ('BBBBBBBB-0000-0000-0000-00000000002C', '2026-09-01 10:00:00', 'Back squat', X'DEAD', 'rx', 0, '2026-09-01 10:00:00', '2026-09-01 10:00:00')
                 """)
         }
-        let restored = try database.read { db in
+        let fetched = try database.read { db in
             try ExerciseLogRecord.all.fetchAll(db)
-        }.first?.toDomain()
+        }.first
+        var restored: ExerciseLog?
+        withKnownIssue("toDomain reports the lost breakdown (dev telemetry)") {
+            restored = fetched?.toDomain()
+        }
         #expect(restored != nil)
         #expect(restored?.sets == nil)
     }

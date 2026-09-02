@@ -130,7 +130,11 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.2 Adding a database integration test
 
-- TBD — see §3 Phase 1 (wzorzec: migrator na bazie z danymi + round-trip rekordu; zalążek: `AppDatabase/Tests/AppDatabaseTests/MigratorTests.swift`).
+- **Location**: `AppDatabase/Tests/AppDatabaseTests/`.
+- **Pattern**: in-memory `DatabaseQueue()` + `AppDatabaseSchema.makeMigrator().migrate(db)`; round-trip = insert przez `Record.insert { record }.execute(db)` → `Record.all.fetchAll(db)` → `toDomain()` → równość WSZYSTKICH pól z literałami (nie samych id). Fixture starej wersji schematu: `migrate(db, upTo: "vN_...")` + INSERT surowym SQL (struktury `@Table` mapują najnowszy schemat — nie używać ich do starych wersji).
+- **Pułapki**: daty w surowym SQL w formacie `YYYY-MM-DD HH:MM:SS` (nie ISO-8601 z `Z`); fixture'y dat z `Date(timeIntervalSince1970:)` (pełne sekundy); testy stratnych przejść owijać `withKnownIssue` (mapowania zgłaszają `reportIssue`).
+- **Reference tests**: `MigratorTests.swift` (migrator z danymi, predykat erase), `PREntryRecordRoundTripTests.swift` (round-trip + defensive-nil), `RecordRoundTripTests.swift` (komplet rekordów, kontrakt throws).
+- **Run locally**: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --package-path AppDatabase`.
 
 ### 6.3 Adding a TCA flow test (TestStore)
 
@@ -148,7 +152,7 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.6 Per-rollout-phase notes
 
-(Wypełniane po wdrożeniu każdej fazy.)
+- **Phase 1 (2026-09-02)**: dodanie `reportIssue` do mapowań rekordów wymaga aktualizacji testów defensywnych o `withKnownIssue` w tym samym commicie (zgłoszony issue = fail w Swift Testing). Zależność IssueReporting w Package.swift deklarować przez historyczny URL `xctest-dynamic-overlay` (nowy URL `swift-issue-reporting` = konflikt tożsamości pakietu z pinem tranzytywnym). SQLiteData przechowuje daty jako TEXT `YYYY-MM-DD HH:MM:SS` — fixture'y surowego SQL z ISO-8601 `Z` nie parsują się przy odczycie.
 
 ## 7. What We Deliberately Don't Test
 

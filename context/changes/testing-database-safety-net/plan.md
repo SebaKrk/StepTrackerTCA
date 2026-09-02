@@ -239,14 +239,14 @@ Brak wpływu — testy in-memory; `reportIssue` w RELEASE jest no-opem; alert le
 
 #### Automatyczne
 
-- [x] 3.1 swift test AppDatabase zielony (komplet: migrator + 11 rekordów, kontrakt throws TrainingSession)
+- [x] 3.1 swift test AppDatabase zielony (komplet: migrator + 11 rekordów, kontrakt throws TrainingSession) — a9957f5
 
 ### Faza 4: Fixy produkcyjne + test przepływu błędu + cookbook
 
 #### Automatyczne
 
-- [ ] 4.1 swift test AppDatabase zielony (testy defensywne z withKnownIssue)
-- [ ] 4.2 §6.2 test-planu wypełnione (brak „TBD — see §3 Phase 1")
+- [x] 4.1 swift test AppDatabase zielony (testy defensywne z withKnownIssue)
+- [x] 4.2 §6.2 test-planu wypełnione (brak „TBD — see §3 Phase 1")
 
 #### Ręczne
 
