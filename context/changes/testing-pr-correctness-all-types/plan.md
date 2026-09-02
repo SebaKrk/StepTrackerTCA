@@ -202,9 +202,9 @@ Brak zmian schematu i danych. Zmiana D4 wpływa wyłącznie na ranking odczytu �
 
 #### Automatyczne
 
-- [x] 3.1 swift test SharedModels zielony (regresja końcowa)
-- [x] 3.2 §6.6 test-planu zawiera notkę fazy 2
+- [x] 3.1 swift test SharedModels zielony (regresja końcowa) — 0cb24f1
+- [x] 3.2 §6.6 test-planu zawiera notkę fazy 2 — 0cb24f1
 
 #### Ręczne
 
-- [x] 3.3 Build aplikacji w Xcode przechodzi
+- [x] 3.3 Build aplikacji w Xcode przechodzi — 0cb24f1
