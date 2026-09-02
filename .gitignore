@@ -127,7 +127,11 @@ SQLiteData-Cheatsheet.md
 AppDatabase/SQLiteData-Cheatsheet.md
 
 # Local development tooling — nie idą do repo
-.claude/
+# .claude/: hooki jakości (settings.json + hooks/) SĄ commitowane (M3L3);
+# reszta (worktrees, settings.local.json) zostaje lokalna.
+/.claude/*
+!/.claude/settings.json
+!/.claude/hooks/
 /PLANS/
 # Ręczne kopie zapasowe pbxproj — mają prawo istnieć na dysku, nigdy w repo
 *.pbxproj.backup
