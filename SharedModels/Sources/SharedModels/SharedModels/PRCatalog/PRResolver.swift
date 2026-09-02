@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import IssueReporting
 
 /// Current PRs of one movement. For movements without Rx/scaled support only
 /// `best` is populated; for benchmarks `best` mirrors `bestRx ?? bestScaled`.
@@ -30,11 +31,21 @@ public enum PRResolver {
     /// beats an Rx one. Entries with `isRx == nil` count as scaled.
     public static func summary(for movement: PRMovement, entries: [PREntry]) -> PRSummary {
         let movementEntries = entries.filter { $0.movementId == movement.id }
-        guard movement.supportsRxScaled else {
-            return PRSummary(best: best(of: movementEntries), bestRx: nil, bestScaled: nil)
+        // D4 (plan testing-pr-correctness-all-types): an entry whose score type
+        // disagrees with the movement's catalog type must never beat a matching
+        // one — the ranking falls back to mismatched entries only when no
+        // matching entry exists (nothing is silently hidden).
+        let matching = movementEntries.filter { $0.score.scoreType == movement.scoreType }
+        let mismatched = movementEntries.filter { $0.score.scoreType != movement.scoreType }
+        for entry in mismatched {
+            reportIssue("PRResolver: entry \(entry.id) scores \(entry.score.scoreType) on movement \(movement.id) (\(movement.scoreType)) — mismatched type")
         }
-        let bestRx = best(of: movementEntries.filter { $0.isRx == true })
-        let bestScaled = best(of: movementEntries.filter { $0.isRx != true })
+        let ranked = matching.isEmpty ? mismatched : matching
+        guard movement.supportsRxScaled else {
+            return PRSummary(best: best(of: ranked), bestRx: nil, bestScaled: nil)
+        }
+        let bestRx = best(of: ranked.filter { $0.isRx == true })
+        let bestScaled = best(of: ranked.filter { $0.isRx != true })
         return PRSummary(best: bestRx ?? bestScaled, bestRx: bestRx, bestScaled: bestScaled)
     }
 
@@ -70,8 +81,9 @@ public enum PRResolver {
 
     /// Direction per score type: weight/reps higher wins, time lower wins,
     /// AMRAP compares lexicographically (rounds, then extra reps).
-    /// Mismatched score types never happen for one movement; treated as equal
-    /// so the date/createdAt tie-break decides instead of trapping.
+    /// Mismatched pairs are excluded from ranking upstream (D4 partition in
+    /// `summary`); the orderedSame fallback only orders a mismatched-only
+    /// history, where the date/createdAt tie-break is good enough.
     private static func compareScores(_ lhs: PRScoreValue, _ rhs: PRScoreValue) -> ComparisonResult {
         switch (lhs, rhs) {
         case let (.weight(left), .weight(right)):

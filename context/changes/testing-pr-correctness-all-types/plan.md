@@ -188,15 +188,15 @@ Brak zmian schematu i danych. Zmiana D4 wpływa wyłącznie na ranking odczytu �
 
 #### Automatyczne
 
-- [x] 1.1 swift test SharedModels zielony (~7 nowych testów brzegowych, luki #1–#5, atrybucja doc-commentu naprawiona)
+- [x] 1.1 swift test SharedModels zielony (~7 nowych testów brzegowych, luki #1–#5, atrybucja doc-commentu naprawiona) — 26ed764
 
 ### Faza 2: Mieszane typy wyniku — pełne TDD
 
 #### Automatyczne
 
-- [ ] 2.1 Czerwony test napisany PRZED implementacją i potwierdzony failem
-- [ ] 2.2 swift test SharedModels zielony po green+refactor (zgodny typ wygrywa + reportIssue z withKnownIssue)
-- [ ] 2.3 Deliberate-break: odwrócenie preferencji typu barwi suitę na czerwono, revert przywraca zieleń
+- [x] 2.1 Czerwony test napisany PRZED implementacją i potwierdzony failem
+- [x] 2.2 swift test SharedModels zielony po green+refactor (zgodny typ wygrywa + reportIssue z withKnownIssue)
+- [x] 2.3 Deliberate-break: odwrócenie preferencji typu barwi suitę na czerwono, revert przywraca zieleń
 
 ### Faza 3: Cookbook i domknięcie
 

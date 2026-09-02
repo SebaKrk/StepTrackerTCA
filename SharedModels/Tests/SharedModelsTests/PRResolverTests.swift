@@ -216,6 +216,34 @@ struct PRResolverTests {
         #expect(summary.bestScaled == nil)
     }
 
+    // MARK: - Mismatched score types (D4)
+
+    // D4: an entry whose score type disagrees with the movement's catalog type
+    // must never become the PR — before this rule a mismatched entry with a
+    // newer date won the silent tie (risk #1: loading weight off a bogus PR).
+    @Test("Mismatched score type never beats a matching entry, even with a newer date")
+    func mismatchedTypeNeverWins() {
+        let bogus = Self.entry(date: Self.day3, score: .time(seconds: 300))
+        let genuine = Self.entry(date: Self.day1, score: .weight(kilograms: 100))
+        var summary = PRSummary(best: nil, bestRx: nil, bestScaled: nil)
+        withKnownIssue("resolver reports the mismatched entry (dev telemetry)") {
+            summary = PRResolver.summary(for: Self.backSquat, entries: [bogus, genuine])
+        }
+        #expect(summary.best == genuine)
+    }
+
+    // D4 boundary: the preference only kicks in when a matching entry exists —
+    // a mismatched-only history still surfaces a result (nothing hidden).
+    @Test("Movement with only mismatched entries still surfaces one as best")
+    func mismatchedOnlyStillSurfaces() {
+        let bogus = Self.entry(date: Self.day1, score: .time(seconds: 300))
+        var summary = PRSummary(best: nil, bestRx: nil, bestScaled: nil)
+        withKnownIssue("resolver reports the mismatched entry (dev telemetry)") {
+            summary = PRResolver.summary(for: Self.backSquat, entries: [bogus])
+        }
+        #expect(summary.best == bogus)
+    }
+
     // MARK: - Category helpers
 
     @Test("completedMovementIds collects distinct movements")
