@@ -278,6 +278,59 @@ context of modern iOS app development.
 
 ---
 
+## 🎓 10xDevs Certification Project — PR Board
+
+> This brownfield repo doubles as my certification project for the
+> [10xDevs](https://przeprogramowani.pl) course (3rd edition). The graded scope is the
+> **PR Board module** ("Tablica PR") — a personal-records board added to the existing
+> MyFitnessJournal app — built end-to-end with an AI agent workflow (Claude Code)
+> and the course's artifact-driven process.
+
+**What the module does:** browse a static catalog of 29 CrossFit/strength movements in
+5 categories, log results with rich metadata (date, Rx/scaled, equipment, RPE, body-weight
+snapshot), and see the current PR **derived purely from history** — separate Rx/scaled
+rankings, score-type-aware directions (time: lower wins, AMRAP: lexicographic), tie-breaks
+by date. Deleting an entry rolls the PR back by construction. Entry point in the app:
+**Stats tab → Exercises segment → 🏆**.
+
+### Requirements → evidence
+
+| Requirement | Where to look |
+|---|---|
+| Access control | Local user profile + OS-level permissions — [`context/foundation/prd.md`](context/foundation/prd.md) §Access Control (model documented, appropriate for a local-first iOS app) |
+| Domain CRUD | Entries: create ([`PREntryEditor`](WorkoutMirrorLive/FeaturesNew/PRBoard/Child/PREntryEditor)), read (`@FetchAll` in PRBoard states), delete with automatic PR recompute — migration `v12_prEntries` in [`AppDatabase/Sources/AppDatabase/Schema.swift`](AppDatabase/Sources/AppDatabase/Schema.swift) |
+| Business logic | [`PRResolver`](SharedModels/Sources/SharedModels/SharedModels/PRCatalog/PRResolver.swift) — pure derivation of current PRs from entry history (direction per score type, Rx/scaled split, lexicographic AMRAP, tie-breaks) |
+| Module 1–3 artifacts | [`context/foundation/`](context/foundation) (PRD, roadmap, stack assessment, health check, infrastructure decision, **risk-based test plan**, lessons) + [`context/archive/`](context/archive) — 7 completed changes, each with research → plan → progress-tracked implementation → review |
+| User-flow test | [`WorkoutMirrorLiveTests`](WorkoutMirrorLiveTests) — 4 TCA `TestStore`/`Store` flow tests (save persists & dismisses, save/delete failures surface alerts) + **85 package tests**. The risk-driven rollout of Module 3 grew the suite from 55 to 89 tests — every addition traceable to a named risk in the test plan |
+| CI/CD | [`ci.yml`](.github/workflows/ci.yml) — `swift test` matrix over SharedModels + AppDatabase on every push/PR ([runs](https://github.com/SebaKrk/StepTrackerTCA/actions)) |
+
+### Run the tests
+
+```bash
+swift test --package-path SharedModels   # 61 tests — PR logic, catalogs, codecs
+swift test --package-path AppDatabase    # 24 tests — migrator with data, round-trips
+```
+
+App-target flow tests: open `MyFitnessJournal.xcodeproj`, scheme `WorkoutMirrorLive`, **Cmd+U**.
+
+### AI workflow highlights
+
+- **Quality contract before tests** — [`test-plan.md`](context/foundation/test-plan.md):
+  a risk map (user-language failure scenarios, evidence-cited) drives a phased test rollout;
+  coverage of *risks*, not lines — +34 tests in Module 3 alone, each citing its oracle
+  (a PRD line or a recorded product decision).
+- **Oracle discipline** — expected values in tests come from the PRD or recorded product
+  decisions (D1–D4 in the archived plan), never from the implementation under test;
+  every suite survived a deliberate-break (mutation-lite) check.
+- **Local quality layers** — a `PostToolUse` agent hook runs the edited package's tests
+  and feeds failures back into the agent's context ([`.claude/hooks/`](.claude/hooks)),
+  plus a [`lefthook`](lefthook.yml) pre-commit gate on staged files, in front of CI.
+- **Debugging-as-test** — a real bug found by the agent's own implementation review
+  (silently swallowed delete error) became a failing test first, then a fix; the
+  regression test stays in the suite.
+
+---
+
 ## 📚 More
 
 - 📌 **Feature Diagram:** [FeatureDiagram.md](https://github.com/SebaKrk/StepTrackerTCA/blob/develop/FeatureDiagram.md)
