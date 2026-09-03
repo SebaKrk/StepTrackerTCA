@@ -27,6 +27,7 @@ struct PRMovementDetailView: View {
             .confirmationDialog(
                 $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
             )
+            .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     // MARK: - Structure

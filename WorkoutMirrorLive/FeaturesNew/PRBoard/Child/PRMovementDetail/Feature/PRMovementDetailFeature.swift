@@ -32,13 +32,31 @@ struct PRMovementDetailFeature {
 
             case let .confirmationDialog(.presented(.confirmDelete(id))):
                 // No manual recompute — @FetchAll re-derives the PR from the remaining history.
-                return .run { [prEntryClient] _ in
+                return .run { [prEntryClient] send in
                     do {
                         try await prEntryClient.delete(id)
                     } catch {
+                        // A failed delete must be distinguishable from success:
+                        // surface the alert instead of failing silently.
                         reportIssue(error)
+                        await send(.deleteFailed)
                     }
                 }
+
+            case .deleteFailed:
+                state.alert = AlertState {
+                    TextState("Couldn't Delete Entry")
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState("OK")
+                    }
+                } message: {
+                    TextState("The entry was not deleted. Please try again.")
+                }
+                return .none
+
+            case .alert:
+                return .none
 
             case .confirmationDialog:
                 return .none
@@ -51,6 +69,7 @@ struct PRMovementDetailFeature {
             PREntryEditorFeature()
         }
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        .ifLet(\.$alert, action: \.alert)
     }
 }
 

@@ -27,6 +27,9 @@ extension PRMovementDetailFeature {
         /// Destructive confirmation shown before deleting a history entry (FR-006).
         @Presents var confirmationDialog: ConfirmationDialogState<Action.Dialog>?
 
+        /// Delete-failure alert; a failed delete must be visible, never silent.
+        @Presents var alert: AlertState<Action.Alert>?
+
         // MARK: - Observed entries
 
         /// Observed PR entries (SQLiteData) — the hero value and history refresh
