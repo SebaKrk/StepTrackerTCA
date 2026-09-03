@@ -41,8 +41,11 @@ struct PRMovementDetailFeatureTests {
             createdAt: Self.fixedNow,
             score: .weight(kilograms: 150)
         )
+        // Captured before the Sendable write closure — the @MainActor-isolated
+        // static cannot be referenced from inside it (Swift 6).
+        let record = PREntryRecord(from: entry, updatedAt: Self.fixedNow)
         try await database.write { db in
-            try PREntryRecord.insert { PREntryRecord(from: entry, updatedAt: Self.fixedNow) }.execute(db)
+            try PREntryRecord.insert { record }.execute(db)
         }
 
         let store = Store(
