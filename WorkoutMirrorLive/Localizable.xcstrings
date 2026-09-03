@@ -2060,6 +2060,9 @@
         }
       }
     },
+    "Couldn't Delete Entry" : {
+
+    },
     "Couldn't load workouts." : {
       "localizations" : {
         "pl" : {
@@ -6137,6 +6140,9 @@
           }
         }
       }
+    },
+    "The entry was not deleted. Please try again." : {
+
     },
     "The key is stored securely in the device's Keychain." : {
       "localizations" : {
