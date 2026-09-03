@@ -58,6 +58,52 @@ struct PREntryEditorFeatureTests {
     }
 
     @Test
+    func saveFailureShowsAlertAndKeepsSheetOpen() async throws {
+        struct SaveError: Error {}
+        let movement = try #require(PRCatalog.movement(id: "back-squat"))
+        let didDismiss = LockIsolated(false)
+
+        let store = TestStore(
+            initialState: PREntryEditorFeature.State(movement: movement, now: Self.fixedNow)
+        ) {
+            PREntryEditorFeature()
+        } withDependencies: {
+            $0.prEntryClient.save = { _ in throw SaveError() }
+            $0.personalDataClient = PersonalDataClient(
+                getAge: { nil },
+                getBiologicalSex: { nil },
+                getHeight: { nil },
+                getWeight: { _ in nil },
+                getWeightForDate: { _ in nil },
+                getRestingHeartRate: { _ in nil }
+            )
+            $0.uuid = .incrementing
+            $0.date = .constant(Self.fixedNow)
+            $0.dismiss = DismissEffect { didDismiss.setValue(true) }
+        }
+
+        await store.send(\.binding.weightText, "150") {
+            $0.weightText = "150"
+        }
+        // The reducer reports the caught error (dev telemetry) — expected here.
+        await withKnownIssue("save failure is reported via reportIssue") {
+            await store.send(\.view.saveTapped)
+            await store.receive(\.saveFailed) {
+                $0.alert = AlertState {
+                    TextState("Couldn't Save Result")
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState("OK")
+                    }
+                } message: {
+                    TextState("Your result was not saved. Please try again.")
+                }
+            }
+        }
+        #expect(!didDismiss.value)
+    }
+
+    @Test
     func zeroWeightDisablesSave() async throws {
         let movement = try #require(PRCatalog.movement(id: "back-squat"))
 

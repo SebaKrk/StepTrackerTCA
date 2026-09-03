@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 @Reducer
@@ -40,7 +41,7 @@ struct PREntryEditorFeature {
                     bodyWeightKg: nil,
                     context: state.context
                 )
-                return .run { [prEntryClient, personalDataClient] _ in
+                return .run { [prEntryClient, personalDataClient] send in
                     // Body-weight snapshot must never block the save (US-01 acceptance).
                     let snapshot = (try? await personalDataClient.getWeightForDate(entry.date)) ?? nil
                     let enriched = PREntry(
@@ -59,10 +60,29 @@ struct PREntryEditorFeature {
                     do {
                         try await prEntryClient.save(enriched)
                     } catch {
+                        // A failed save must be distinguishable from success:
+                        // keep the sheet open and surface the alert.
                         reportIssue(error)
+                        await send(.saveFailed)
+                        return
                     }
                     await dismiss()
                 }
+
+            case .saveFailed:
+                state.alert = AlertState {
+                    TextState("Couldn't Save Result")
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState("OK")
+                    }
+                } message: {
+                    TextState("Your result was not saved. Please try again.")
+                }
+                return .none
+
+            case .alert:
+                return .none
 
             case .view(.cancelTapped):
                 return .run { _ in await dismiss() }
@@ -79,5 +99,6 @@ struct PREntryEditorFeature {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }

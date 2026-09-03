@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import IssueReporting
 import SharedModels
 import SQLiteData
 
@@ -160,26 +161,51 @@ extension PREntryRecord {
     }
 
     /// nil when the stored scoreType/value group is unreadable (defensive, like `?? .rx` in ExerciseLogRecord).
+    /// Every lossy transition reports an issue (dev-only signal, no-op in RELEASE) —
+    /// a dropped row is otherwise invisible to every list, counter and PR calculation.
     public func toDomain() -> PREntry? {
-        guard let type = PRScoreType(rawValue: scoreType) else { return nil }
+        guard let type = PRScoreType(rawValue: scoreType) else {
+            reportIssue("PREntryRecord \(id): unknown scoreType \"\(scoreType)\" — entry dropped from reads")
+            return nil
+        }
         let score: PRScoreValue
         switch type {
         case .weight:
-            guard let weightKg else { return nil }
+            guard let weightKg else {
+                reportIssue("PREntryRecord \(id): scoreType weight without weightKg — entry dropped from reads")
+                return nil
+            }
             score = .weight(kilograms: weightKg)
         case .time:
-            guard let timeSeconds else { return nil }
+            guard let timeSeconds else {
+                reportIssue("PREntryRecord \(id): scoreType time without timeSeconds — entry dropped from reads")
+                return nil
+            }
             score = .time(seconds: timeSeconds)
         case .reps:
-            guard let rounds else { return nil }
+            guard let rounds else {
+                reportIssue("PREntryRecord \(id): scoreType reps without rounds — entry dropped from reads")
+                return nil
+            }
             score = .reps(count: rounds)
         case .amrap:
-            guard let rounds, let extraReps else { return nil }
+            guard let rounds, let extraReps else {
+                reportIssue("PREntryRecord \(id): scoreType amrap without rounds/extraReps — entry dropped from reads")
+                return nil
+            }
             score = .amrap(rounds: rounds, extraReps: extraReps)
         }
+        let equipmentTokens = equipment.split(separator: ",")
         let equipmentSet = Set(
-            equipment.split(separator: ",").compactMap { PREquipment(rawValue: String($0)) }
+            equipmentTokens.compactMap { PREquipment(rawValue: String($0)) }
         )
+        if equipmentSet.count != equipmentTokens.count {
+            reportIssue("PREntryRecord \(id): unknown equipment token(s) in \"\(equipment)\" — silently filtered")
+        }
+        let resolvedContext = PRContext(rawValue: context)
+        if resolvedContext == nil {
+            reportIssue("PREntryRecord \(id): unknown context \"\(context)\" — rewritten to .fresh")
+        }
         return PREntry(
             id: id,
             movementId: movementId,
@@ -191,7 +217,7 @@ extension PREntryRecord {
             rpe: rpe,
             note: note,
             bodyWeightKg: bodyWeightKg,
-            context: PRContext(rawValue: context) ?? .fresh
+            context: resolvedContext ?? .fresh
         )
     }
 }
