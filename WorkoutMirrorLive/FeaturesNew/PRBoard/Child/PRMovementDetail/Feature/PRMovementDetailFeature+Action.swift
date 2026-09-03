@@ -23,6 +23,16 @@ extension PRMovementDetailFeature {
         /// Forwards actions of the delete-confirmation dialog.
         case confirmationDialog(PresentationAction<Dialog>)
 
+        /// Delete effect failed — presents the delete-failure alert.
+        case deleteFailed
+
+        /// Presentation actions of the delete-failure alert.
+        case alert(PresentationAction<Alert>)
+
+        /// Alert has no custom buttons — OK only dismisses it.
+        @CasePathable
+        enum Alert: Equatable {}
+
         @CasePathable
         enum View {
 
