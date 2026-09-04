@@ -28,14 +28,32 @@ extension PREntryEditorFeature {
         /// User-chosen day of the result; defaults to today, capped at `maxDate`.
         var date: Date
 
-        /// Raw weight input as typed — parsed on save (`parsedWeight`), never mid-typing.
+        /// Raw weight input as typed — parsed on save (`parsedScore`), never mid-typing.
         var weightText: String = ""
+
+        /// Raw rep-count input (`scoreType == reps`).
+        var repsText: String = ""
+
+        /// AMRAP completed-rounds stepper (`scoreType == amrap`).
+        var amrapRounds: Int = 0
+
+        /// AMRAP extra-reps stepper (`scoreType == amrap`).
+        var amrapExtraReps: Int = 0
+
+        /// For Time minutes wheel (`scoreType == time`).
+        var timeMinutes: Int = 0
+
+        /// For Time seconds wheel (`scoreType == time`).
+        var timeSeconds: Int = 0
 
         /// Rx (true) / scaled (false) — rendered only when the movement supports the split.
         var isRx: Bool = true
 
-        /// Circumstances of the attempt (FR-004); defaults to a fresh attempt.
-        var context: PRContext = .fresh
+        /// What was scaled — asked only while Scaled is selected; empty persists as nil.
+        var scalingNoteText: String = ""
+
+        /// Circumstances of the attempt (FR-004); nil until the user declares one.
+        var context: PRContext?
 
         /// Multi-select equipment used for the attempt.
         var equipment: Set<PREquipment> = []
@@ -61,7 +79,26 @@ extension PREntryEditorFeature {
             return value
         }
 
-        var isSaveDisabled: Bool { parsedWeight == nil }
+        /// Score built from the type-specific inputs; nil (empty/invalid) disables Save.
+        var parsedScore: PRScoreValue? {
+            switch movement.scoreType {
+            case .weight:
+                guard let kilograms = parsedWeight else { return nil }
+                return .weight(kilograms: kilograms)
+            case .time:
+                let seconds = timeMinutes * 60 + timeSeconds
+                guard seconds > 0 else { return nil }
+                return .time(seconds: seconds)
+            case .reps:
+                guard let count = Int(repsText), count > 0 else { return nil }
+                return .reps(count: count)
+            case .amrap:
+                guard amrapRounds + amrapExtraReps > 0 else { return nil }
+                return .amrap(rounds: amrapRounds, extraReps: amrapExtraReps)
+            }
+        }
+
+        var isSaveDisabled: Bool { parsedScore == nil }
 
         // MARK: - Init
 

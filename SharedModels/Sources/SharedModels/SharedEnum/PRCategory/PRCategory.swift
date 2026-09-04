@@ -23,7 +23,8 @@ public enum PRCategory: String, CaseIterable, Codable, Sendable, Identifiable {
     public var displayName: String {
         switch self {
         case .olympic:      return String(localized: "Olympic Lifts", bundle: .module)
-        case .strength:     return String(localized: "Strength", bundle: .module)
+        // Dedicated key — plain "Strength" is the workout-type label ("Trening siłowy").
+        case .strength:     return String(localized: "Strength category", bundle: .module)
         case .gymnastics:   return String(localized: "Gymnastics", bundle: .module)
         case .conditioning: return String(localized: "Conditioning", bundle: .module)
         case .benchmarks:   return String(localized: "Benchmarks", bundle: .module)
@@ -37,6 +38,17 @@ public enum PRCategory: String, CaseIterable, Codable, Sendable, Identifiable {
         case .gymnastics:   return .blue
         case .conditioning: return .green
         case .benchmarks:   return .red
+        }
+    }
+
+    /// Icon shown on the category tile of the PR Board hub.
+    public var sfSymbolName: String {
+        switch self {
+        case .olympic:      return "figure.strengthtraining.traditional"
+        case .strength:     return "dumbbell.fill"
+        case .gymnastics:   return "figure.gymnastics"
+        case .conditioning: return "waveform.path.ecg"
+        case .benchmarks:   return "star.fill"
         }
     }
 }

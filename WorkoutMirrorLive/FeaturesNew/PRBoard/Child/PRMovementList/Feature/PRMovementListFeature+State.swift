@@ -65,6 +65,24 @@ extension PRMovementListFeature {
             return labels
         }
 
+        /// Completed movements per subgroup — the "N/M" header counters.
+        var completedCountBySubgroup: [PRSubgroup: Int] {
+            let completed = Set(prLabelByMovementId.keys)
+            var counts: [PRSubgroup: Int] = [:]
+            for section in sections {
+                counts[section.subgroup] =
+                    section.movements.filter { completed.contains($0.id) }.count
+            }
+            return counts
+        }
+
+        /// Day of the most recent entry per movement — the row sublabel.
+        var latestDateByMovementId: [String: Date] {
+            entriesByMovement.compactMapValues { entries in
+                entries.map(\.date).max()
+            }
+        }
+
         // MARK: - Init
 
         init(category: PRCategory) {

@@ -30,7 +30,7 @@ struct PREntryEditorView: View {
 
     private var content: some View {
         Form {
-            resultSection
+            resultSections
             detailsSection
             equipmentSection
             noteSection
@@ -39,13 +39,50 @@ struct PREntryEditorView: View {
         .dismissesKeyboardOnBackgroundTap()
     }
 
-    private var resultSection: some View {
-        Section(String(localized: "Result")) {
-            weightRow
-            dateRow
-            if store.movement.supportsRxScaled {
-                rxScaledRow
+    /// Time gets a section of its own — the wheel card and the plain metadata
+    /// rows don't share a surface well; the other score types stay inline.
+    @ViewBuilder
+    private var resultSections: some View {
+        switch store.movement.scoreType {
+        case .time:
+            Section(String(localized: "Result")) {
+                timeRow
             }
+            Section {
+                resultMetadataRows
+            }
+        case .weight, .reps, .amrap:
+            Section(String(localized: "Result")) {
+                scoreRow
+                resultMetadataRows
+            }
+        }
+    }
+
+    /// Rows shared by every score type: date, Rx/Scaled, scaling note.
+    @ViewBuilder
+    private var resultMetadataRows: some View {
+        dateRow
+        if store.movement.supportsRxScaled {
+            rxScaledRow
+        }
+        if store.movement.supportsRxScaled && !store.isRx {
+            scalingNoteRow
+        }
+    }
+
+    /// Inline input of the non-time score types (time renders its own section).
+    @ViewBuilder
+    private var scoreRow: some View {
+        switch store.movement.scoreType {
+        case .weight:
+            weightRow
+        case .reps:
+            repsRow
+        case .amrap:
+            amrapRow
+        case .time:
+            EmptyView()
         }
     }
 
@@ -73,15 +110,68 @@ struct PREntryEditorView: View {
     // MARK: - Implementation
 
     private var weightRow: some View {
+        numericRow(
+            String(localized: "Weight"),
+            text: $store.weightText,
+            suffix: "kg",
+            keyboard: .decimalPad
+        )
+    }
+
+    private var repsRow: some View {
+        numericRow(
+            String(localized: "Reps"),
+            text: $store.repsText,
+            keyboard: .numberPad
+        )
+    }
+
+    private var amrapRow: some View {
+        DNFFields(
+            title: String(localized: "Score"),
+            rounds: store.amrapRounds,
+            extraReps: store.amrapExtraReps,
+            onRounds: { $store.amrapRounds.wrappedValue = $0 },
+            onExtraReps: { $store.amrapExtraReps.wrappedValue = $0 }
+        )
+        // Stepper tiles need contrast against the section cell — the lighter
+        // .native inner surface is the point here, unlike the full-bleed time card.
+        .environment(\.summaryPalette, .native)
+    }
+
+    private var timeRow: some View {
+        TimePickerField(
+            minutes: store.timeMinutes,
+            seconds: store.timeSeconds,
+            maxMinutes: 99,
+            onMinutes: { $store.timeMinutes.wrappedValue = $0 },
+            onSeconds: { $store.timeSeconds.wrappedValue = $0 }
+        )
+        // The field carries its own Summary-style card — drop the Form row
+        // chrome and paint the card with the section surface itself, so the
+        // field blends into the grouped cell instead of sitting on it.
+        .environment(\.summaryPalette, Self.formBlendedPalette)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+    }
+
+    private func numericRow(
+        _ label: String,
+        text: Binding<String>,
+        suffix: String? = nil,
+        keyboard: UIKeyboardType
+    ) -> some View {
         HStack {
-            Text(String(localized: "Weight"))
+            Text(label)
             Spacer()
-            TextField("0", text: $store.weightText)
-                .keyboardType(.decimalPad)
+            TextField("0", text: text)
+                .keyboardType(keyboard)
                 .multilineTextAlignment(.trailing)
                 .frame(width: 90)
-            Text("kg")
-                .foregroundStyle(.secondary)
+            if let suffix {
+                Text(suffix)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -104,8 +194,9 @@ struct PREntryEditorView: View {
 
     private var contextRow: some View {
         Picker(String(localized: "Context"), selection: $store.context) {
+            Text("—").tag(PRContext?.none)
             ForEach(PRContext.allCases, id: \.self) { context in
-                Text(context.displayName).tag(context)
+                Text(context.displayName).tag(PRContext?.some(context))
             }
         }
         .pickerStyle(.segmented)
@@ -142,6 +233,10 @@ struct PREntryEditorView: View {
         .buttonStyle(.plain)
     }
 
+    private var scalingNoteRow: some View {
+        TextField(String(localized: "What did you scale?"), text: $store.scalingNoteText)
+    }
+
     private var noteRow: some View {
         TextField(String(localized: "Optional note"), text: $store.note, axis: .vertical)
             .lineLimit(2...)
@@ -150,6 +245,24 @@ struct PREntryEditorView: View {
     private var rpeValues: [Double] {
         stride(from: 6.0, through: 10.0, by: 0.5).map { $0 }
     }
+
+    /// TimePickerField skin matching the Form's grouped-cell surface exactly —
+    /// same background, no stroke, system ink (the .native skin uses the lighter
+    /// tertiary surface and visibly cuts out of the section).
+    private static let formBlendedPalette = SummaryPalette(
+        background: .clear,
+        card: Color(.secondarySystemGroupedBackground),
+        cardInner: Color(.secondarySystemGroupedBackground),
+        stroke: .clear,
+        strokeWidth: 0,
+        ink: .primary,
+        inkSecondary: .secondary,
+        inkTertiary: Color(.tertiaryLabel),
+        mint: SummaryTheme.mint,
+        strengthChip: SummaryTheme.strengthChip,
+        wodChip: SummaryTheme.wodChip,
+        onAccent: .white
+    )
 
     @ToolbarContentBuilder
     private var cancelToolbarItem: some ToolbarContent {

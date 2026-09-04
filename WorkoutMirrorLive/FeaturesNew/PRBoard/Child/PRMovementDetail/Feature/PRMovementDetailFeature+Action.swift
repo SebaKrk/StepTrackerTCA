@@ -41,6 +41,9 @@ extension PRMovementDetailFeature {
 
             /// Asks to delete one history entry — shows the confirmation dialog.
             case deleteEntryTapped(PREntry)
+
+            /// Switches the progress chart to one year's entries.
+            case chartYearTapped(Int)
         }
 
         @CasePathable

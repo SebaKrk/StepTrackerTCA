@@ -30,6 +30,10 @@ struct PRMovementDetailFeature {
                 state.confirmationDialog = .deleteEntry(entry)
                 return .none
 
+            case let .view(.chartYearTapped(year)):
+                state.selectedChartYear = year
+                return .none
+
             case let .confirmationDialog(.presented(.confirmDelete(id))):
                 // No manual recompute — @FetchAll re-derives the PR from the remaining history.
                 return .run { [prEntryClient] send in

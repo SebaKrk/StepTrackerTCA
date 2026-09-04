@@ -170,8 +170,8 @@ struct PREntryRecordRoundTripTests {
         #expect(restored?.equipment == [.belt])
     }
 
-    @Test("Unknown context rawValue is silently rewritten to .fresh")
-    func unknownContextFallsBackToFresh() throws {
+    @Test("Unknown context rawValue is read as undeclared (nil)")
+    func unknownContextReadAsUndeclared() throws {
         let database = try makeMigratedDatabase()
         try database.write { db in
             try db.execute(sql: """
@@ -188,6 +188,7 @@ struct PREntryRecordRoundTripTests {
         withKnownIssue("toDomain reports the unknown context (dev telemetry)") {
             restored = fetched?.toDomain()
         }
-        #expect(restored?.context == .fresh)
+        #expect(restored != nil)
+        #expect(restored?.context == nil)
     }
 }

@@ -33,132 +33,309 @@ struct PRMovementDetailView: View {
     // MARK: - Structure
 
     private var content: some View {
+        Group {
+            switch store.layout {
+            case .empty:
+                emptyScreen
+            case .single:
+                scrollableScreen(singleEntryLayout)
+            case .progressing:
+                scrollableScreen(progressingLayout)
+            }
+        }
+        .background(PRBoardPalette.screenBackground(glow: accent))
+    }
+
+    /// No scrolling while there is nothing to scroll — the empty state centers
+    /// in the free space instead of sticking to the top.
+    private var emptyScreen: some View {
+        VStack(spacing: 12) {
+            rxStandardIfAny
+            Spacer()
+            emptyState
+            Spacer()
+        }
+        .padding(.horizontal)
+    }
+
+    private func scrollableScreen(_ sections: some View) -> some View {
         ScrollView {
             VStack(spacing: 12) {
-                categoryBadge
-                if let best = store.summary.best {
-                    currentPRCard(best)
-                }
-                if store.showsChart {
-                    progressCard
-                }
-                if store.movement.rxStandard != nil {
-                    rxStandardCard
-                }
-                if store.entries.isEmpty {
-                    emptyState
-                } else {
-                    historyCard
-                }
+                sections
             }
             .padding(.horizontal)
         }
     }
 
-    // MARK: - Implementation
+    @ViewBuilder
+    private var singleEntryLayout: some View {
+        heroIfAny
+        rxStandardIfAny
+        historyCard
+    }
 
-    private var categoryBadge: some View {
+    @ViewBuilder
+    private var progressingLayout: some View {
+        heroIfAny
+        progressCard
+        rxStandardIfAny
+        historyCard
+    }
+
+    // MARK: - Implementation (hero)
+
+    @ViewBuilder
+    private var heroIfAny: some View {
+        if let best = store.summary.best {
+            prHeroCard(best)
+        }
+    }
+
+    private func prHeroCard(_ best: PREntry) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            heroTopRow(best)
+            heroScore(best)
+            if let scaled = secondaryScaledBest {
+                scaledBestRow(scaled)
+            }
+            heroFactChips(best)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(heroCardBackground)
+    }
+
+    /// Scaled PR shown under the Rx score — only while both slots are filled
+    /// (a scaled-only best already IS the hero, decision D2).
+    private var secondaryScaledBest: PREntry? {
+        guard store.movement.supportsRxScaled, store.summary.bestRx != nil else { return nil }
+        return store.summary.bestScaled
+    }
+
+    private func heroTopRow(_ best: PREntry) -> some View {
+        HStack(spacing: 8) {
+            typeChip
+            Spacer(minLength: 8)
+            if store.movement.supportsRxScaled {
+                if best.isRx == true {
+                    rxChip
+                } else {
+                    scaledHeroChip
+                }
+            }
+            prChip
+        }
+    }
+
+    private var typeChip: some View {
         HStack(spacing: 6) {
             Circle()
-                .fill(store.movement.category.color)
-                .frame(width: 8, height: 8)
-            Text(store.movement.category.displayName)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Spacer()
+                .fill(accent)
+                .frame(width: 7, height: 7)
+            Text(verbatim: "\(store.movement.category.displayName) · \(store.movement.subgroup.displayName)")
+                .font(.caption.weight(.bold))
         }
-        .padding(.top, 8)
+        .foregroundStyle(accent)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 3)
+        .background(accent.opacity(0.14), in: .capsule)
+        .overlay(Capsule().strokeBorder(accent.opacity(0.3), lineWidth: 1))
     }
 
-    private var rxStandardCard: some View {
-        GroupBox {
-            rxStandardText
-        } label: {
-            rxStandardHeader
-        }
-        .styledGroupBox()
+    private var rxChip: some View {
+        Text(verbatim: "RX")
+            .font(.caption2.weight(.heavy))
+            .foregroundStyle(PRBoardPalette.mintInk)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
+            .background(PRBoardPalette.mint, in: .capsule)
     }
 
-    private var rxStandardHeader: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "Rx standard"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Divider()
-        }
+    private var scaledHeroChip: some View {
+        Text("Scaled")
+            .font(.caption2.weight(.heavy))
+            .textCase(.uppercase)
+            .foregroundStyle(PRBoardPalette.inkSecondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
+            .background(Color.white.opacity(0.06), in: .capsule)
+            .overlay(Capsule().strokeBorder(PRBoardPalette.stroke, lineWidth: 1))
     }
 
-    private var rxStandardText: some View {
-        HStack {
-            Text(store.movement.rxStandard ?? "")
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-            Spacer()
-        }
-        .padding(.top, 4)
-    }
-
-    private func currentPRCard(_ best: PREntry) -> some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(PRScoreFormatter.string(for: best.score))
-                        .font(.largeTitle.bold())
-                        .foregroundStyle(store.movement.category.color)
-                    Spacer()
-                    Text(best.date, format: .dateTime.day().month().year())
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                if let multiple = store.bodyWeightMultiple {
-                    Text("×\(multiple.formatted(.number.precision(.fractionLength(2)))) BW")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding(.top, 4)
-        } label: {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(String(localized: "Current PR"))
+    private func scaledBestRow(_ entry: PREntry) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 8) {
+                rxScaledMiniChip(entry)
+                Text(PRScoreFormatter.string(for: entry.score))
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(PRBoardPalette.ink)
+                Spacer(minLength: 8)
+                Text(entry.date, format: .dateTime.day().month().year())
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-                Divider()
+                    .foregroundStyle(PRBoardPalette.inkTertiary)
+            }
+            if let note = entry.scalingNote {
+                Text(note)
+                    .font(.caption2)
+                    .foregroundStyle(PRBoardPalette.inkTertiary)
+                    .lineLimit(1)
             }
         }
-        .styledGroupBox()
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(scaledBestBackground)
     }
+
+    private var scaledBestBackground: some View {
+        RoundedRectangle(cornerRadius: 14)
+            .fill(PRBoardPalette.cardElevated)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .strokeBorder(PRBoardPalette.stroke, lineWidth: 1)
+            )
+    }
+
+    private var prChip: some View {
+        Text(verbatim: "PR")
+            .font(.system(size: 10, weight: .heavy))
+            .foregroundStyle(PRBoardPalette.goldInk)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 1)
+            .background(PRBoardPalette.gold, in: .rect(cornerRadius: 6))
+    }
+
+    private func heroScore(_ best: PREntry) -> some View {
+        let parts = PRScoreFormatter.parts(for: best.score)
+        return HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(parts.value)
+                .font(.system(size: 48, weight: .heavy))
+                .foregroundStyle(accent)
+            if let unit = parts.unit {
+                Text(unit)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(PRBoardPalette.inkSecondary)
+            }
+        }
+    }
+
+    private func heroFactChips(_ best: PREntry) -> some View {
+        HStack(spacing: 8) {
+            factChip(icon: "calendar", text: Text(best.date, format: .dateTime.day().month().year()))
+            if let multiple = store.bodyWeightMultiple {
+                factChip(
+                    icon: "scalemass.fill",
+                    text: Text(verbatim: "×\(multiple.formatted(.number.precision(.fractionLength(2)))) BW")
+                )
+            }
+            if let rpe = best.rpe {
+                factChip(
+                    icon: nil,
+                    text: Text(verbatim: "RPE \(rpe.formatted(.number.precision(.fractionLength(0...1))))")
+                )
+            }
+        }
+    }
+
+    private func factChip(icon: String?, text: Text) -> some View {
+        HStack(spacing: 5) {
+            if let icon {
+                Image(systemName: icon)
+                    .font(.caption2)
+                    .foregroundStyle(PRBoardPalette.inkTertiary)
+            }
+            text
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(PRBoardPalette.ink)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Color.white.opacity(0.06), in: .capsule)
+        .overlay(Capsule().strokeBorder(PRBoardPalette.stroke, lineWidth: 1))
+    }
+
+    // MARK: - Implementation (progress chart)
 
     private var progressCard: some View {
-        GroupBox {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader(String(localized: "Progress"))
+            if store.availableChartYears.count > 1 {
+                chartYearChips
+            }
             progressChart
-        } label: {
-            progressHeader
         }
-        .styledGroupBox()
+        .padding(16)
+        .prCard()
     }
 
-    private var progressHeader: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "Progress"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Divider()
+    private var chartYearChips: some View {
+        HStack(spacing: 6) {
+            ForEach(store.availableChartYears, id: \.self) { year in
+                chartYearChip(year)
+            }
+        }
+    }
+
+    private func chartYearChip(_ year: Int) -> some View {
+        Button {
+            send(.chartYearTapped(year))
+        } label: {
+            chartYearChipLabel(year, isSelected: year == store.effectiveChartYear)
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func chartYearChipLabel(_ year: Int, isSelected: Bool) -> some View {
+        if isSelected {
+            Text(verbatim: "\(year)")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(PRBoardPalette.base)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(accent, in: .capsule)
+        } else {
+            Text(verbatim: "\(year)")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(PRBoardPalette.inkSecondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(Color.white.opacity(0.06), in: .capsule)
+                .overlay(Capsule().strokeBorder(PRBoardPalette.stroke, lineWidth: 1))
         }
     }
 
     private var progressChart: some View {
         Chart(store.chartPoints) { point in
-            LineMark(
-                x: .value("Date", point.date),
-                y: .value("Result", point.value)
-            )
-            .foregroundStyle(store.movement.category.color)
-            PointMark(
-                x: .value("Date", point.date),
-                y: .value("Result", point.value)
-            )
-            .foregroundStyle(store.movement.category.color)
+            if let standard = point.standard {
+                // Rx and scaled plot as separate series — a mixed line would
+                // fake progress whenever the standard changes between attempts.
+                LineMark(
+                    x: .value("Date", point.date),
+                    y: .value("Result", point.value)
+                )
+                .foregroundStyle(by: .value("Standard", standard))
+                PointMark(
+                    x: .value("Date", point.date),
+                    y: .value("Result", point.value)
+                )
+                .foregroundStyle(by: .value("Standard", standard))
+            } else {
+                LineMark(
+                    x: .value("Date", point.date),
+                    y: .value("Result", point.value)
+                )
+                .foregroundStyle(accent)
+                PointMark(
+                    x: .value("Date", point.date),
+                    y: .value("Result", point.value)
+                )
+                .foregroundStyle(accent)
+            }
         }
+        .chartForegroundStyleScale([
+            "Rx": accent,
+            String(localized: "Scaled"): PRBoardPalette.inkSecondary,
+        ])
         .chartYScale(domain: chartYDomain)
         .chartYAxis {
             AxisMarks { value in
@@ -171,7 +348,6 @@ struct PRMovementDetailView: View {
             }
         }
         .frame(height: 180)
-        .padding(.top, 4)
     }
 
     /// Time scores plot inverted — a shorter (better) time sits higher.
@@ -190,42 +366,66 @@ struct PRMovementDetailView: View {
         return raw.formatted(.number.precision(.fractionLength(0...1)))
     }
 
+    // MARK: - Implementation (Rx standard)
+
+    @ViewBuilder
+    private var rxStandardIfAny: some View {
+        if let standard = store.movement.rxStandard {
+            rxStandardCard(standard)
+        }
+    }
+
+    private func rxStandardCard(_ standard: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            sectionHeader(String(localized: "Rx standard"))
+            Text(standard)
+                .font(.subheadline)
+                .foregroundStyle(PRBoardPalette.inkSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(16)
+        .prCard()
+    }
+
+    // MARK: - Implementation (history)
+
     private var historyCard: some View {
-        GroupBox {
-            VStack(spacing: 0) {
-                ForEach(store.entries) { entry in
-                    historyRow(entry)
-                    if entry.id != store.entries.last?.id {
-                        Divider()
-                    }
+        VStack(alignment: .leading, spacing: 4) {
+            historyHeader
+            historyRows
+        }
+        .padding(16)
+        .prCard()
+    }
+
+    private var historyHeader: some View {
+        HStack(alignment: .firstTextBaseline) {
+            sectionHeader(String(localized: "History"))
+            Spacer()
+            Text("\(store.entries.count) entries")
+                .font(.caption)
+                .foregroundStyle(PRBoardPalette.inkTertiary)
+        }
+    }
+
+    private var historyRows: some View {
+        VStack(spacing: 0) {
+            ForEach(store.entries) { entry in
+                historyRow(entry)
+                if entry.id != store.entries.last?.id {
+                    hairline
                 }
             }
-        } label: {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(String(localized: "History"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Divider()
-            }
         }
-        .styledGroupBox()
     }
 
     private func historyRow(_ entry: PREntry) -> some View {
-        HStack(spacing: 8) {
-            Text(entry.date, format: .dateTime.day().month().year())
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Spacer()
-            equipmentIcons(entry.equipment)
-            if let rpe = entry.rpe {
-                Text("RPE \(rpe.formatted(.number.precision(.fractionLength(0...1))))")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+        VStack(alignment: .leading, spacing: 4) {
+            historyRowTop(entry)
+            historyRowMeta(entry)
+            if let scalingNote = entry.scalingNote {
+                historyScalingNote(scalingNote)
             }
-            Text(PRScoreFormatter.string(for: entry.score))
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.primary)
         }
         .padding(.vertical, 10)
         .contentShape(Rectangle())
@@ -234,39 +434,98 @@ struct PRMovementDetailView: View {
         }
     }
 
+    private func historyRowTop(_ entry: PREntry) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(entry.date, format: .dateTime.day().month().year())
+                .font(.footnote)
+                .foregroundStyle(PRBoardPalette.inkSecondary)
+            Spacer()
+            historyRowValue(entry)
+        }
+    }
+
+    private func historyRowValue(_ entry: PREntry) -> some View {
+        Text(PRScoreFormatter.string(for: entry.score))
+            .font(.subheadline.weight(.bold))
+            .foregroundStyle(entry.id == store.summary.best?.id ? accent : PRBoardPalette.ink)
+    }
+
+    @ViewBuilder
+    private func historyRowMeta(_ entry: PREntry) -> some View {
+        HStack(spacing: 6) {
+            if store.movement.supportsRxScaled {
+                rxScaledMiniChip(entry)
+            }
+            equipmentIcons(entry.equipment)
+            if let rpe = entry.rpe {
+                miniChip(Text(verbatim: "RPE \(rpe.formatted(.number.precision(.fractionLength(0...1))))"))
+            }
+            if let context = entry.context {
+                miniChip(Text(context.displayName))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func rxScaledMiniChip(_ entry: PREntry) -> some View {
+        if entry.isRx == true {
+            Text(verbatim: "RX")
+                .font(.system(size: 10, weight: .heavy))
+                .foregroundStyle(PRBoardPalette.mintInk)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 1)
+                .background(PRBoardPalette.mint, in: .rect(cornerRadius: 6))
+        } else {
+            miniChip(Text("Scaled"))
+        }
+    }
+
+    private func historyScalingNote(_ note: String) -> some View {
+        Text(note)
+            .font(.caption2)
+            .foregroundStyle(PRBoardPalette.inkTertiary)
+            .lineLimit(2)
+    }
+
+    private func miniChip(_ text: Text) -> some View {
+        text
+            .font(.system(size: 10, weight: .bold))
+            .foregroundStyle(PRBoardPalette.inkSecondary)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 1)
+            .background(Color.white.opacity(0.06), in: .rect(cornerRadius: 6))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .strokeBorder(PRBoardPalette.stroke, lineWidth: 1)
+            )
+    }
+
     private func equipmentIcons(_ equipment: Set<PREquipment>) -> some View {
         HStack(spacing: 4) {
             ForEach(equipment.sorted { $0.rawValue < $1.rawValue }, id: \.self) { item in
                 Image(systemName: item.sfSymbolName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.caption2)
+                    .foregroundStyle(PRBoardPalette.inkTertiary)
             }
         }
     }
+
+    // MARK: - Implementation (empty state & actions)
 
     private var emptyState: some View {
         ContentUnavailableView {
             Label(String(localized: "No entries yet"), systemImage: "trophy")
         } description: {
-            Text(
-                store.supportsEntryForm
-                    ? String(localized: "Your personal records for this movement will appear here.")
-                    : String(localized: "Entries for this score type are coming soon.")
-            )
+            Text(String(localized: "Your personal records for this movement will appear here."))
         } actions: {
-            if store.supportsEntryForm {
-                addFirstEntryButton
-            }
+            addFirstEntryButton
         }
-        .padding(.top, 24)
     }
 
     @ToolbarContentBuilder
     private var addEntryToolbarItem: some ToolbarContent {
-        if store.supportsEntryForm {
-            ToolbarItem(placement: .topBarTrailing) {
-                addEntryButton
-            }
+        ToolbarItem(placement: .topBarTrailing) {
+            addEntryButton
         }
     }
 
@@ -294,7 +553,46 @@ struct PRMovementDetailView: View {
         }
         .buttonStyle(.borderedProminent)
         // App-wide AccentColor asset is empty — prominent style melts into dark mode without an explicit tint.
-        .tint(store.movement.category.color)
+        .tint(accent)
+    }
+
+    // MARK: - Implementation (chrome)
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.caption.weight(.bold))
+            .textCase(.uppercase)
+            .tracking(0.8)
+            .foregroundStyle(accent)
+    }
+
+    private var heroCardBackground: some View {
+        RoundedRectangle(cornerRadius: 22)
+            .fill(PRBoardPalette.card)
+            .overlay(
+                RoundedRectangle(cornerRadius: 22)
+                    .fill(
+                        LinearGradient(
+                            colors: [accent.opacity(0.10), .white.opacity(0.02)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 22)
+                    .strokeBorder(PRBoardPalette.stroke, lineWidth: 1)
+            )
+    }
+
+    private var hairline: some View {
+        Rectangle()
+            .fill(PRBoardPalette.hairline)
+            .frame(height: 1)
+    }
+
+    private var accent: Color {
+        store.movement.category.color
     }
 }
 

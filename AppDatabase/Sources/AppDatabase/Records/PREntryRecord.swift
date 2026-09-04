@@ -64,12 +64,15 @@ public struct PREntryRecord: Identifiable, CloudKitSyncable, Sendable {
     /// Free-form user note.
     public var note: String?
 
+    /// What was scaled ("band pull-ups, 40 kg"); NULL for Rx entries.
+    public var scalingNote: String?
+
     /// Body-weight snapshot in kilograms taken at save time — nil when
     /// HealthKit had no reading (never blocks the save).
     public var bodyWeightKg: Double?
 
-    /// `PRContext` rawValue — circumstances of the attempt (fresh/inWod/competition).
-    public var context: String
+    /// `PRContext` rawValue; NULL = the user never declared the context.
+    public var context: String?
 
     // MARK: - CloudKitSyncable
 
@@ -92,8 +95,9 @@ public struct PREntryRecord: Identifiable, CloudKitSyncable, Sendable {
         equipment: String = "",
         rpe: Double? = nil,
         note: String? = nil,
+        scalingNote: String? = nil,
         bodyWeightKg: Double? = nil,
-        context: String,
+        context: String? = nil,
         createdAt: Date,
         updatedAt: Date,
         ckRecordData: Data? = nil
@@ -110,6 +114,7 @@ public struct PREntryRecord: Identifiable, CloudKitSyncable, Sendable {
         self.equipment = equipment
         self.rpe = rpe
         self.note = note
+        self.scalingNote = scalingNote
         self.bodyWeightKg = bodyWeightKg
         self.context = context
         self.createdAt = createdAt
@@ -153,8 +158,9 @@ extension PREntryRecord {
             equipment: entry.equipment.map(\.rawValue).sorted().joined(separator: ","),
             rpe: entry.rpe,
             note: entry.note,
+            scalingNote: entry.scalingNote,
             bodyWeightKg: entry.bodyWeightKg,
-            context: entry.context.rawValue,
+            context: entry.context?.rawValue,
             createdAt: entry.createdAt,
             updatedAt: updatedAt
         )
@@ -202,9 +208,9 @@ extension PREntryRecord {
         if equipmentSet.count != equipmentTokens.count {
             reportIssue("PREntryRecord \(id): unknown equipment token(s) in \"\(equipment)\" — silently filtered")
         }
-        let resolvedContext = PRContext(rawValue: context)
-        if resolvedContext == nil {
-            reportIssue("PREntryRecord \(id): unknown context \"\(context)\" — rewritten to .fresh")
+        let resolvedContext = context.flatMap(PRContext.init(rawValue:))
+        if let context, resolvedContext == nil {
+            reportIssue("PREntryRecord \(id): unknown context \"\(context)\" — read as undeclared")
         }
         return PREntry(
             id: id,
@@ -216,8 +222,9 @@ extension PREntryRecord {
             equipment: equipmentSet,
             rpe: rpe,
             note: note,
+            scalingNote: scalingNote,
             bodyWeightKg: bodyWeightKg,
-            context: resolvedContext ?? .fresh
+            context: resolvedContext
         )
     }
 }

@@ -167,6 +167,9 @@
     "/ 100" : {
       "shouldTranslate" : false
     },
+    "/%lld" : {
+
+    },
     "%.0f %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -441,6 +444,40 @@
     "%lld BPM" : {
       "shouldTranslate" : false
     },
+    "%lld entries" : {
+      "localizations" : {
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpisy"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpisów"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpis"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpisu"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld exercises" : {
       "localizations" : {
         "pl" : {
@@ -496,6 +533,22 @@
     },
     "%lld min cap" : {
       "shouldTranslate" : false
+    },
+    "%lld movements in %lld categories" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld movements in %2$lld categories"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ruchów w %lld kategoriach"
+          }
+        }
+      }
     },
     "%lld pkt/min" : {
 
@@ -593,16 +646,6 @@
       },
       "shouldTranslate" : false
     },
-    "%lld/%lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld/%2$lld"
-          }
-        }
-      }
-    },
     "%lld/%lld %@" : {
       "localizations" : {
         "en" : {
@@ -674,9 +717,6 @@
           }
         }
       }
-    },
-    "×%@ BW" : {
-
     },
     "<6h" : {
       "shouldTranslate" : false
@@ -1055,7 +1095,14 @@
       }
     },
     "Add first result" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj pierwszy wynik"
+          }
+        }
+      }
     },
     "Add Measurement" : {
       "localizations" : {
@@ -1732,6 +1779,16 @@
         }
       }
     },
+    "Category share of records" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udział kategorii w rekordach"
+          }
+        }
+      }
+    },
     "Cel" : {
       "localizations" : {
         "pl" : {
@@ -1987,7 +2044,14 @@
       }
     },
     "Context" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontekst"
+          }
+        }
+      }
     },
     "Continue" : {
       "localizations" : {
@@ -2061,7 +2125,14 @@
       }
     },
     "Couldn't Delete Entry" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się usunąć wpisu"
+          }
+        }
+      }
     },
     "Couldn't load workouts." : {
       "localizations" : {
@@ -2104,7 +2175,14 @@
       }
     },
     "Couldn't Save Result" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zapisać wyniku"
+          }
+        }
+      }
     },
     "Count" : {
       "localizations" : {
@@ -2217,9 +2295,6 @@
         }
       }
     },
-    "Current PR" : {
-
-    },
     "Dashboard" : {
       "comment" : "The Dashboard Tab presents an overview of key metrics and activities.",
       "localizations" : {
@@ -2319,11 +2394,24 @@
             "state" : "new",
             "value" : "Delete %1$@ from %2$@?"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć %@ z %@?"
+          }
         }
       }
     },
     "Delete entry" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń wpis"
+          }
+        }
+      }
     },
     "Delete Exercise" : {
       "localizations" : {
@@ -2386,7 +2474,14 @@
       }
     },
     "Details" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły"
+          }
+        }
+      }
     },
     "Details HR" : {
       "localizations" : {
@@ -2800,6 +2895,16 @@
         }
       }
     },
+    "enter result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wpisz wynik"
+          }
+        }
+      }
+    },
     "Enter results" : {
       "localizations" : {
         "pl" : {
@@ -2851,11 +2956,15 @@
         }
       }
     },
-    "Entries for this score type are coming soon." : {
-
-    },
     "Equipment" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprzęt"
+          }
+        }
+      }
     },
     "Error: %@" : {
       "localizations" : {
@@ -2903,6 +3012,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodatkowe informacje"
+          }
+        }
+      }
+    },
+    "Extra reps" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodatkowe powtórzenia"
           }
         }
       }
@@ -3699,6 +3819,16 @@
         }
       }
     },
+    "last PR: %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ostatni PR: %@"
+          }
+        }
+      }
+    },
     "Latest" : {
       "localizations" : {
         "pl" : {
@@ -4050,6 +4180,16 @@
         }
       }
     },
+    "movements with a record" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ruchów z rekordem"
+          }
+        }
+      }
+    },
     "Music" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4172,8 +4312,25 @@
         }
       }
     },
+    "no entries yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "brak wpisów"
+          }
+        }
+      }
+    },
     "No entries yet" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wpisów"
+          }
+        }
+      }
     },
     "No exercise data for this month." : {
       "localizations" : {
@@ -4596,7 +4753,14 @@
       }
     },
     "Optional note" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcjonalna notatka"
+          }
+        }
+      }
     },
     "or" : {
       "localizations" : {
@@ -4865,7 +5029,14 @@
       }
     },
     "PR Board" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica PR"
+          }
+        }
+      }
     },
     "Present Workout Preview" : {
       "localizations" : {
@@ -4929,7 +5100,14 @@
       }
     },
     "Progress" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progres"
+          }
+        }
+      }
     },
     "Properties" : {
       "localizations" : {
@@ -4962,7 +5140,14 @@
       }
     },
     "records" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rekordy"
+          }
+        }
+      }
     },
     "Records" : {
       "comment" : "The Personal records Tab allows users to view and edit their personal information.",
@@ -5110,7 +5295,14 @@
       }
     },
     "Result" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik"
+          }
+        }
+      }
     },
     "Results" : {
       "localizations" : {
@@ -5139,6 +5331,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ponów"
+          }
+        }
+      }
+    },
+    "rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rund"
           }
         }
       }
@@ -5184,10 +5386,14 @@
       }
     },
     "RPE" : {
-
-    },
-    "RPE %@" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RPE"
+          }
+        }
+      }
     },
     "rund" : {
 
@@ -5213,13 +5419,27 @@
       }
     },
     "Rx" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rx"
+          }
+        }
+      }
     },
     "RX" : {
       "shouldTranslate" : false
     },
     "Rx standard" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard Rx"
+          }
+        }
+      }
     },
     "save" : {
       "localizations" : {
@@ -5304,7 +5524,14 @@
       }
     },
     "Scaled" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaled"
+          }
+        }
+      }
     },
     "Scan Plan" : {
       "localizations" : {
@@ -5824,7 +6051,14 @@
       }
     },
     "Standard" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard"
+          }
+        }
+      }
     },
     "Start" : {
       "localizations" : {
@@ -6142,7 +6376,14 @@
       }
     },
     "The entry was not deleted. Please try again." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpis nie został usunięty. Spróbuj ponownie."
+          }
+        }
+      }
     },
     "The key is stored securely in the device's Keychain." : {
       "localizations" : {
@@ -6806,6 +7047,16 @@
         }
       }
     },
+    "What did you scale?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co skalowałeś?"
+          }
+        }
+      }
+    },
     "What is %@?" : {
       "localizations" : {
         "pl" : {
@@ -7217,10 +7468,34 @@
       }
     },
     "Your personal records for this movement will appear here." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutaj pojawią się Twoje rekordy dla tego ruchu."
+          }
+        }
+      }
+    },
+    "Your records" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje rekordy"
+          }
+        }
+      }
     },
     "Your result was not saved. Please try again." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik nie został zapisany. Spróbuj ponownie."
+          }
+        }
+      }
     },
     "Your Score" : {
       "localizations" : {
