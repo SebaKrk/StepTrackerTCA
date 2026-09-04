@@ -1387,8 +1387,8 @@
     - catalogVersion 5 → 6 in the same change; versioned re-match repairs history; golden tests extended with all 9 harvested names verbatim (85 cases green)
     - backlog idea (from discussion): show preserved raw name (`unmatchedName`/`customName`) as a subtitle next to the canonical name for aliased matches — requires unifying two conflicting invariants (analytics keeps it as provenance, plans clear it on re-match)
 
-### IOS-00128 PR Board — dark redesign, all score types, Rx/Scaled split (closes milestone M-1)
-    - branch: (user assigns; uncommitted as of 04.09)
+### IOS-00127 PR Board — dark redesign, all score types, Rx/Scaled split (closes milestone M-1)
+    - branch: `dev/IOS-00127/IOS-00127` (continuation of the certification-project ticket)
     - full visual redesign of all 4 PR Board screens in the Summary-style dark identity (mockup "Tablica PR — redesign"): shared `PRBoardPalette` + `.prCard()`, hub hero (N/M counter, category share band, latest-PR row), category cards with SF-symbol tiles + progress bars, uppercase accent section headers, score pills / dashed "enter result" on the list, detail hero with type/RX/PR chips + fact chips (date, ×BW, RPE); detail layout driven by a `Layout` enum switch (empty / single / progressing), empty state centers without a ScrollView
     - `PREntry.context` became optional (nil = user never declared it, same convention as `isRx`): editor segment gains a "—" state, history chips render only when declared; migration v13 rebuilds `prEntryRecords` (SQLite can't drop NOT NULL in place) and rewrites historical default 'fresh' to NULL
     - `scalingNote` (what was scaled) folded into the same v13 before it ever shipped: editor asks "What did you scale?" only while Scaled is selected, note shows in history rows and in the hero's scaled row; switching back to Rx never smuggles a stale note
