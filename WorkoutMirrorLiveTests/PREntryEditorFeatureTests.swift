@@ -52,7 +52,7 @@ struct PREntryEditorFeatureTests {
         let entry = try #require(savedEntry.value)
         #expect(entry.movementId == "back-squat")
         #expect(entry.score == .weight(kilograms: 150))
-        #expect(entry.context == .fresh)
+        #expect(entry.context == nil)
         #expect(entry.bodyWeightKg == nil)
         #expect(didDismiss.value)
     }

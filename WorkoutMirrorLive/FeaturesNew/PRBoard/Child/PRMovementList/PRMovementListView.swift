@@ -33,6 +33,7 @@ struct PRMovementListView: View {
             }
             .padding(.horizontal)
         }
+        .background(PRBoardPalette.screenBackground(glow: accent))
     }
 
     private var subgroupCards: some View {
@@ -41,24 +42,34 @@ struct PRMovementListView: View {
         }
     }
 
-    // MARK: - Implementation
-
     private func subgroupCard(_ subgroup: PRSubgroup, movements: [PRMovement]) -> some View {
-        GroupBox {
+        VStack(spacing: 4) {
+            subgroupHeader(subgroup, movements: movements)
             movementRows(movements)
-        } label: {
-            subgroupHeader(subgroup)
         }
-        .styledGroupBox()
+        .padding(14)
+        .prCard()
     }
 
-    private func subgroupHeader(_ subgroup: PRSubgroup) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+    // MARK: - Implementation (sections)
+
+    private func subgroupHeader(_ subgroup: PRSubgroup, movements: [PRMovement]) -> some View {
+        HStack(alignment: .firstTextBaseline) {
             Text(subgroup.displayName)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Divider()
+                .font(.caption.weight(.bold))
+                .textCase(.uppercase)
+                .tracking(0.8)
+                .foregroundStyle(accent)
+            Spacer()
+            subgroupCounter(subgroup, total: movements.count)
         }
+        .padding(.bottom, 4)
+    }
+
+    private func subgroupCounter(_ subgroup: PRSubgroup, total: Int) -> some View {
+        Text(verbatim: "\(store.completedCountBySubgroup[subgroup, default: 0])/\(total)")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(PRBoardPalette.inkTertiary)
     }
 
     private func movementRows(_ movements: [PRMovement]) -> some View {
@@ -66,11 +77,13 @@ struct PRMovementListView: View {
             ForEach(movements) { movement in
                 movementRow(movement)
                 if movement.id != movements.last?.id {
-                    Divider()
+                    hairline
                 }
             }
         }
     }
+
+    // MARK: - Implementation (rows)
 
     private func movementRow(_ movement: PRMovement) -> some View {
         Button {
@@ -82,37 +95,77 @@ struct PRMovementListView: View {
     }
 
     private func movementRowLabel(_ movement: PRMovement) -> some View {
-        let prLabel = store.prLabelByMovementId[movement.id]
-        return HStack {
-            // Muted styling only while the movement has no entries; rows stay tappable.
-            Text(movement.name)
-                .font(.subheadline)
-                .foregroundStyle(prLabel == nil ? .secondary : .primary)
-            Spacer()
-            resultLabel(prLabel)
+        HStack(spacing: 10) {
+            movementTitles(movement)
+            Spacer(minLength: 8)
+            scorePill(for: movement)
             chevron
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 11)
         .contentShape(Rectangle())
     }
 
-    @ViewBuilder
-    private func resultLabel(_ prLabel: String?) -> some View {
-        if let prLabel {
-            Text(prLabel)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.primary)
-        } else {
-            Text("—")
-                .font(.subheadline)
-                .foregroundStyle(.tertiary)
+    private func movementTitles(_ movement: PRMovement) -> some View {
+        // Muted styling only while the movement has no entries; rows stay tappable.
+        let hasEntries = store.prLabelByMovementId[movement.id] != nil
+        return VStack(alignment: .leading, spacing: 1) {
+            Text(movement.name)
+                .font(.subheadline.weight(hasEntries ? .semibold : .regular))
+                .foregroundStyle(hasEntries ? PRBoardPalette.ink : PRBoardPalette.inkSecondary)
+            movementWhenLabel(movement)
         }
+    }
+
+    @ViewBuilder
+    private func movementWhenLabel(_ movement: PRMovement) -> some View {
+        if let date = store.latestDateByMovementId[movement.id] {
+            Text(date, format: .relative(presentation: .named))
+                .font(.caption2)
+                .foregroundStyle(PRBoardPalette.inkTertiary)
+        }
+    }
+
+    @ViewBuilder
+    private func scorePill(for movement: PRMovement) -> some View {
+        if let label = store.prLabelByMovementId[movement.id] {
+            Text(label)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(accent)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(accent.opacity(0.14), in: .rect(cornerRadius: 9))
+        } else {
+            Text("enter result")
+                .font(.footnote)
+                .foregroundStyle(PRBoardPalette.inkTertiary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(emptyPillBorder)
+        }
+    }
+
+    private var emptyPillBorder: some View {
+        RoundedRectangle(cornerRadius: 9)
+            .strokeBorder(
+                Color.white.opacity(0.14),
+                style: StrokeStyle(lineWidth: 1.5, dash: [4, 3])
+            )
+    }
+
+    private var hairline: some View {
+        Rectangle()
+            .fill(PRBoardPalette.hairline)
+            .frame(height: 1)
     }
 
     private var chevron: some View {
         Image(systemName: "chevron.right")
             .font(.caption)
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(PRBoardPalette.inkTertiary)
+    }
+
+    private var accent: Color {
+        store.category.color
     }
 }
 

@@ -13,7 +13,7 @@ import Testing
 @Suite("AppDatabase migrator")
 struct MigratorTests {
 
-    @Test("All migrations v1…v12 apply cleanly on an empty in-memory database")
+    @Test("All migrations v1…v13 apply cleanly on an empty in-memory database")
     func migratorAppliesCleanly() throws {
         let database = try DatabaseQueue()
         try AppDatabaseSchema.makeMigrator().migrate(database)
@@ -97,6 +97,43 @@ struct MigratorTests {
                 Int.fetchOne(db, sql: "SELECT COUNT(*) FROM \"workoutPlanScoreRecords\""),
             ]
             #expect(rowCounts == [1, 1, 1, 1])
+        }
+    }
+
+    // v13 rebuilds prEntryRecords to relax the context NOT NULL. Fixture rows
+    // are authored at v12 (raw SQL) and must survive the rebuild; historical
+    // 'fresh' was the form default, never a user choice — v13 maps it to NULL.
+    @Test("v13 rebuild keeps PR entries; default 'fresh' context becomes NULL")
+    func prEntryContextMigratesToOptional() throws {
+        let database = try DatabaseQueue()
+        let migrator = AppDatabaseSchema.makeMigrator()
+        try migrator.migrate(database, upTo: "v12_prEntries")
+
+        try database.write { db in
+            try db.execute(sql: """
+                INSERT INTO "prEntryRecords"
+                  ("id", "movementId", "date", "scoreType", "weightKg", "timeSeconds", "equipment", "context", "createdAt", "updatedAt")
+                VALUES
+                  ('entry-1', 'back-squat', '2026-09-01 10:00:00', 'weight', 150.0, NULL, 'belt', 'fresh', '2026-09-01 10:00:00', '2026-09-01 10:00:00'),
+                  ('entry-2', 'fran', '2026-09-02 10:00:00', 'time', NULL, 390, '', 'competition', '2026-09-02 10:00:00', '2026-09-02 10:00:00')
+                """)
+        }
+
+        try migrator.migrate(database)
+
+        try database.read { db in
+            // Bare `try` bindings on purpose — `try` inside a macro argument does
+            // not count toward the closure's throws inference.
+            let rowCount = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM \"prEntryRecords\"")
+            let freshContext = try String.fetchOne(db, sql: "SELECT \"context\" FROM \"prEntryRecords\" WHERE \"id\" = 'entry-1'")
+            let chosenContext = try String.fetchOne(db, sql: "SELECT \"context\" FROM \"prEntryRecords\" WHERE \"id\" = 'entry-2'")
+            let weightKg = try Double.fetchOne(db, sql: "SELECT \"weightKg\" FROM \"prEntryRecords\" WHERE \"id\" = 'entry-1'")
+            let timeSeconds = try Int.fetchOne(db, sql: "SELECT \"timeSeconds\" FROM \"prEntryRecords\" WHERE \"id\" = 'entry-2'")
+            #expect(rowCount == 2)
+            #expect(freshContext == nil)
+            #expect(chosenContext == "competition")
+            #expect(weightKg == 150.0)
+            #expect(timeSeconds == 390)
         }
     }
 

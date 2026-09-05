@@ -37,6 +37,18 @@ extension PRBoardFeature {
             entryRecords.compactMap { $0.toDomain() }
         }
 
+        /// Distinct movements with at least one entry — the hero "N/M" counter.
+        var completedCount: Int {
+            PRResolver.completedMovementIds(entries: entries).count
+        }
+
+        /// Most recent entry overall — the hero "latest PR" row.
+        var latestEntry: PREntry? {
+            entries.max { lhs, rhs in
+                (lhs.date, lhs.createdAt) < (rhs.date, rhs.createdAt)
+            }
+        }
+
         /// Distinct movements with at least one entry, per category — the "N/M" counters.
         var completedCountByCategory: [PRCategory: Int] {
             let completedIds = PRResolver.completedMovementIds(entries: entries)

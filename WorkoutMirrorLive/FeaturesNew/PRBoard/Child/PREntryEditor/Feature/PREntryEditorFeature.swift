@@ -27,17 +27,22 @@ struct PREntryEditorFeature {
         Reduce { state, action in
             switch action {
             case .view(.saveTapped):
-                guard let kilograms = state.parsedWeight else { return .none }
+                guard let score = state.parsedScore else { return .none }
                 let entry = PREntry(
                     id: uuid(),
                     movementId: state.movement.id,
                     date: state.date,
                     createdAt: now,
-                    score: .weight(kilograms: kilograms),
+                    score: score,
                     isRx: state.movement.supportsRxScaled ? state.isRx : nil,
                     equipment: state.equipment,
                     rpe: state.rpe,
                     note: state.note.isEmpty ? nil : state.note,
+                    // Scaling note travels only with a Scaled result — switching
+                    // back to Rx must not smuggle a stale note into the entry.
+                    scalingNote: state.movement.supportsRxScaled && !state.isRx && !state.scalingNoteText.isEmpty
+                        ? state.scalingNoteText
+                        : nil,
                     bodyWeightKg: nil,
                     context: state.context
                 )
@@ -54,6 +59,7 @@ struct PREntryEditorFeature {
                         equipment: entry.equipment,
                         rpe: entry.rpe,
                         note: entry.note,
+                        scalingNote: entry.scalingNote,
                         bodyWeightKg: snapshot?.value,
                         context: entry.context
                     )

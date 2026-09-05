@@ -105,11 +105,16 @@ public struct PREntry: Identifiable, Codable, Sendable, Equatable {
     /// Free-form user note.
     public let note: String?
 
+    /// What was scaled ("band pull-ups, 40 kg"); nil for Rx entries and when
+    /// the user left it blank. Display-only — ranking still keys off `isRx`.
+    public let scalingNote: String?
+
     /// Body-weight snapshot in kilograms taken at save time; nil when unavailable.
     public let bodyWeightKg: Double?
 
-    /// Circumstances of the attempt (fresh / in WOD / competition).
-    public let context: PRContext
+    /// Circumstances of the attempt; nil = not declared by the user
+    /// (same convention as `isRx`).
+    public let context: PRContext?
 
     public init(
         id: UUID,
@@ -121,8 +126,9 @@ public struct PREntry: Identifiable, Codable, Sendable, Equatable {
         equipment: Set<PREquipment> = [],
         rpe: Double? = nil,
         note: String? = nil,
+        scalingNote: String? = nil,
         bodyWeightKg: Double? = nil,
-        context: PRContext = .fresh
+        context: PRContext? = nil
     ) {
         self.id = id
         self.movementId = movementId
@@ -133,6 +139,7 @@ public struct PREntry: Identifiable, Codable, Sendable, Equatable {
         self.equipment = equipment
         self.rpe = rpe
         self.note = note
+        self.scalingNote = scalingNote
         self.bodyWeightKg = bodyWeightKg
         self.context = context
     }
