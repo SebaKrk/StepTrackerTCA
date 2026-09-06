@@ -194,11 +194,12 @@ struct ExerciseAnalyticsView: View {
     }
 
     private var exerciseListEmpty: some View {
-        Text(String(localized: "No exercises logged this month."))
-            .foregroundStyle(.secondary)
-            .font(.caption)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
+        ChartContentUnavailable(
+            systemImage: "list.bullet.clipboard",
+            description: String(localized: "No exercises logged this month.")
+        )
+        // Matches movementBalanceEmpty — see the note there.
+        .frame(height: 200)
     }
 
     // MARK: - Exercise Row

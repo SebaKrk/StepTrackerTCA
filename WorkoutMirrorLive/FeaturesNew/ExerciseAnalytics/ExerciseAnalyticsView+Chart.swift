@@ -30,6 +30,8 @@ extension ExerciseAnalyticsView {
             systemImage: "figure.mixed.cardio",
             description: String(localized: "No exercise data for this month.")
         )
+        // Same empty height as the exercise-list card below — empty GroupBoxes
+        // on this screen read as one system, not two different voids.
         .frame(height: 200)
     }
 
