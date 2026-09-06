@@ -1,9 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
-    },
+    "" : {},
     " cal" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -167,9 +165,7 @@
     "/ 100" : {
       "shouldTranslate" : false
     },
-    "/%lld" : {
-
-    },
+    "/%lld" : {},
     "%.0f %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -550,9 +546,7 @@
         }
       }
     },
-    "%lld pkt/min" : {
-
-    },
+    "%lld pkt/min" : {},
     "%lld pts" : {
       "localizations" : {
         "pl" : {
@@ -794,9 +788,7 @@
         }
       }
     },
-    "0" : {
-
-    },
+    "0" : {},
     "0 %@" : {
       "localizations" : {
         "pl" : {
@@ -1251,9 +1243,7 @@
         }
       }
     },
-    "Altitude" : {
-
-    },
+    "Altitude" : {},
     "AMRAP %lld min" : {
       "shouldTranslate" : false
     },
@@ -1499,9 +1489,7 @@
         }
       }
     },
-    "Base" : {
-
-    },
+    "Base" : {},
     "Baseline" : {
       "localizations" : {
         "pl" : {
@@ -3128,6 +3116,16 @@
         }
       }
     },
+    "first result on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pierwszy wynik na Tablicy"
+          }
+        }
+      }
+    },
     "Fitness" : {
       "localizations" : {
         "pl" : {
@@ -4211,6 +4209,16 @@
         }
       }
     },
+    "New record?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowy rekord?"
+          }
+        }
+      }
+    },
     "Nick: %@" : {
       "localizations" : {
         "pl" : {
@@ -5058,6 +5066,16 @@
         }
       }
     },
+    "previously %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dotychczas %@"
+          }
+        }
+      }
+    },
     "Primary Zone" : {
       "localizations" : {
         "pl" : {
@@ -5395,9 +5413,7 @@
         }
       }
     },
-    "rund" : {
-
-    },
+    "rund" : {},
     "Rundy" : {
       "localizations" : {
         "pl" : {

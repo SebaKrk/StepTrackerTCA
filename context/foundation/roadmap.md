@@ -3,13 +3,13 @@ project: "MyFitnessJournal — Tablica PR (PR Board)"
 version: 1
 status: draft
 created: 2026-08-30
-updated: 2026-09-01
+updated: 2026-09-05
 prd_version: 1
 main_goal: speed
 top_blocker: time
 milestone_id: pr-board-mvp
 milestone_seq: 1
-milestone_status: open
+milestone_status: closed
 ---
 
 # Roadmap: MyFitnessJournal — Tablica PR (PR Board)
@@ -20,7 +20,7 @@ milestone_status: open
 
 ## Milestone
 
-**M-1: Tablica PR — MVP** — Status: open
+**M-1: Tablica PR — MVP** — Status: closed (2026-09-05 — wszystkie F/S done)
 
 - **Intent:** Trenujący prowadzi swoje rekordy życiowe w aplikacji zamiast w notesie: przegląda katalog ruchów, zapisuje wyniki z metadanymi i widzi poprawnie wyznaczony aktualny PR — bez regresji istniejących przepływów.
 - **Source materials:** `context/foundation/prd.md` (v1)
@@ -46,8 +46,8 @@ System rejestruje treningi i logi serii, ale nie ma miejsca, gdzie rekordy życi
 | F-01 | shared-result-input-components | (fundament) kontrolki wyników dostępne poza podsumowaniem   | —             | FR-005                                  | done |
 | S-01 | pr-board-entry-and-catalog     | otworzyć Tablicę PR i przeglądać katalog ruchów             | —             | FR-001, FR-002, FR-010, FR-011, FR-009  | done |
 | S-02 | record-entry-current-pr        | zapisać wynik z metadanymi i zobaczyć zaktualizowany PR     | S-01, F-01    | US-01, FR-004, FR-005, FR-007, FR-009, FR-012 | done |
-| S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | proposed |
-| S-04 | rx-scaled-split                | porównać osobne PR-y Rx i Scaled na benchmarku              | S-03          | US-02, FR-007                           | proposed |
+| S-03 | all-score-types-controls       | zapisać czas / powtórzenia / AMRAP dedykowanymi kontrolkami | S-02, F-01    | FR-005, FR-007                          | done |
+| S-04 | rx-scaled-split                | porównać osobne PR-y Rx i Scaled na benchmarku              | S-03          | US-02, FR-007                           | done |
 | S-05 | delete-entry-recompute         | usunąć wpis, a PR przelicza się automatycznie               | S-02          | FR-006, FR-007                          | done |
 | S-06 | progress-views-polish          | śledzić postęp: wykres, historia, krotność masy ciała       | S-02          | FR-009, US-01                           | done |
 
@@ -116,7 +116,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** domyka kryterium sukcesu "poprawność dla wszystkich typów wyniku potwierdzona testami czystej funkcji" — trzymane tuż za gwiazdą, bo bez typów czasowych benchmarki (S-04) nie istnieją.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Rozdział Rx / Scaled na benchmarkach
 
@@ -128,7 +128,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** benchmarki są głównie czasowe, więc plaster stoi za S-03; logika rozdziału mieszka w tej samej czystej funkcji — ryzyko regresu wyników z S-02/S-03 łapią istniejące testy funkcji.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Usunięcie wpisu z automatycznym przeliczeniem
 
@@ -181,7 +181,7 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **Import z zewnętrznych aplikacji** — Why parked: PRD §Non-Goals 3 — nieweryfikowalne dane wejściowe.
 - **Powiadomienia "czas na retest"** — Why parked: PRD §Non-Goals 4 — wartość niepotwierdzona.
 - **Współdzielenie danych PR z widgetami/Watch** — Why parked: PRD §Non-Goals 5 — decyzja: niepotrzebne.
-- **Auto-detekcja benchmarków w skanie + auto-dopis wyników** — Why parked: PRD §Non-Goals 6 — iteracja 2; mosty w katalogu (S-01) już na to gotowe.
+- **Auto-detekcja benchmarków w skanie + auto-dopis wyników** — Why parked: PRD §Non-Goals 6 — iteracja 2; mosty w katalogu (S-01) już na to gotowe. Szkic przepływu (user, 2026-09-05): rozpoznanie benchmarku już na etapie skanu/planowania (model AI taguje WOD nazwą z `wodAliases`), a po treningu sugestia dopisania wyniku do Tablicy — analogicznie do sugestii siłowych z IOS-00128; benchmarki i cardio na czas user i tak zwykle testuje osobno i wpisuje ręcznie, więc niska pilność.
 - **Własne ruchy użytkownika** — Why parked: PRD §Non-Goals 7 — iteracja 2 (ryzyko duplikatów, termin).
 - **Pełny katalog ~60 ruchów** — Why parked: PRD §Non-Goals 8 — rozszerzenie z użycia.
 - **Konwersja jednostek na funty** — Why parked: PRD §Non-Goals 9 — kg/metry na sztywno w modelu.
@@ -198,3 +198,5 @@ Fundamenty poniżej zakładają obecność tych warstw i NIE budują ich ponowni
 - **S-02: użytkownik może zapisać wynik ciężarowy z pełnymi metadanymi (Rx/scaled, sprzęt, kontekst, RPE, notatka, snapshot masy ciała) i natychmiast zobaczyć zaktualizowany PR na szczególe, w wierszu listy i w liczniku kategorii; PR wyliczany czystą funkcją z testami.** — Archived 2026-09-01 → `context/archive/2026-08-31-record-entry-current-pr/`. Lesson: —.
 - **S-05: użytkownik może usunąć wpis (long-press + potwierdzenie), a PR i liczniki samoczynnie wracają do poprzedniego stanu; + pierwszy test przepływu TestStore (WorkoutMirrorLiveTests).** — Archived 2026-09-01 → `context/archive/2026-09-01-delete-entry-recompute/`. Lesson: —.
 - **S-06: użytkownik może śledzić postęp: wykres od 2+ wpisów (oś odwrócona dla czasu) i krotność masy ciała na hero; + guard formularza dla typów wyników spoza weight (do S-03).** — Archived 2026-09-01 → `context/archive/2026-09-01-progress-views-polish/`. Lesson: —.
+- **S-03: użytkownik może zapisać wynik czasowy (kółka mm:ss), powtórzeniowy i AMRAP (kafle stepperów) z walidacją per typ; guard formularza zdjęty dla całego katalogu.** — Completed 2026-09-04 na `dev/IOS-00127` (bez change foldera — slice ad-hoc po certyfikacji; proweniencja: `TASKS.md` → IOS-00127). Lesson: —.
+- **S-04: użytkownik może porównać osobne PR-y Rx i Scaled na benchmarku (hero z dwoma wynikami + notką scalingu, wykres z dwiema seriami i legendą).** — Completed 2026-09-04 na `dev/IOS-00127` (bez change foldera; proweniencja: `TASKS.md` → IOS-00127). Lesson: —.

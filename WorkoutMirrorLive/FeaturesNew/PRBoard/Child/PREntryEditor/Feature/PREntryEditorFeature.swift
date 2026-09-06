@@ -28,43 +28,42 @@ struct PREntryEditorFeature {
             switch action {
             case .view(.saveTapped):
                 guard let score = state.parsedScore else { return .none }
-                let entry = PREntry(
-                    id: uuid(),
-                    movementId: state.movement.id,
-                    date: state.date,
-                    createdAt: now,
-                    score: score,
-                    isRx: state.movement.supportsRxScaled ? state.isRx : nil,
-                    equipment: state.equipment,
-                    rpe: state.rpe,
-                    note: state.note.isEmpty ? nil : state.note,
-                    // Scaling note travels only with a Scaled result — switching
-                    // back to Rx must not smuggle a stale note into the entry.
-                    scalingNote: state.movement.supportsRxScaled && !state.isRx && !state.scalingNoteText.isEmpty
-                        ? state.scalingNoteText
-                        : nil,
-                    bodyWeightKg: nil,
-                    context: state.context
-                )
+                // Captured up front so the entry is built EXACTLY ONCE inside the
+                // effect — a second field-by-field copy is the bug class that
+                // silently dropped scalingNote in PREntryClient (IOS-00128 review).
+                let id = uuid()
+                let createdAt = now
+                let movement = state.movement
+                let date = state.date
+                let isRx = state.isRx
+                let equipment = state.equipment
+                let rpe = state.rpe
+                let note = state.note
+                let scalingNoteText = state.scalingNoteText
+                let context = state.context
                 return .run { [prEntryClient, personalDataClient] send in
                     // Body-weight snapshot must never block the save (US-01 acceptance).
-                    let snapshot = (try? await personalDataClient.getWeightForDate(entry.date)) ?? nil
-                    let enriched = PREntry(
-                        id: entry.id,
-                        movementId: entry.movementId,
-                        date: entry.date,
-                        createdAt: entry.createdAt,
-                        score: entry.score,
-                        isRx: entry.isRx,
-                        equipment: entry.equipment,
-                        rpe: entry.rpe,
-                        note: entry.note,
-                        scalingNote: entry.scalingNote,
+                    let snapshot = (try? await personalDataClient.getWeightForDate(date)) ?? nil
+                    let entry = PREntry(
+                        id: id,
+                        movementId: movement.id,
+                        date: date,
+                        createdAt: createdAt,
+                        score: score,
+                        isRx: movement.supportsRxScaled ? isRx : nil,
+                        equipment: equipment,
+                        rpe: rpe,
+                        note: note.isEmpty ? nil : note,
+                        // Scaling note travels only with a Scaled result — switching
+                        // back to Rx must not smuggle a stale note into the entry.
+                        scalingNote: movement.supportsRxScaled && !isRx && !scalingNoteText.isEmpty
+                            ? scalingNoteText
+                            : nil,
                         bodyWeightKg: snapshot?.value,
-                        context: entry.context
+                        context: context
                     )
                     do {
-                        try await prEntryClient.save(enriched)
+                        try await prEntryClient.save(entry)
                     } catch {
                         // A failed save must be distinguishable from success:
                         // keep the sheet open and surface the alert.

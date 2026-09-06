@@ -13,8 +13,8 @@ import SQLiteData
 
 // MARK: - Client
 
-/// Write boundary for PR Board entries. Reads go through `@FetchAll` in
-/// feature State (phase 4) — the client only persists; S-05 adds delete.
+/// Write boundary for PR Board entries. PR Board reads go through `@FetchAll`
+/// in feature State; `fetchAll` serves one-shot reads outside the board.
 struct PREntryClient: Sendable {
 
     /// Upserts one entry (same id overwrites — used by future edit flows).
@@ -22,6 +22,10 @@ struct PREntryClient: Sendable {
 
     /// Deletes one entry by id — PRs recompute from the remaining history (FR-007).
     var delete: @Sendable (UUID) async throws -> Void
+
+    /// One-shot snapshot of all entries — for consumers whose State must stay
+    /// Equatable (e.g. Summary PR suggestions), where `@FetchAll` doesn't fit.
+    var fetchAll: @Sendable () async throws -> [PREntry]
 }
 
 // MARK: - DependencyValues
@@ -44,26 +48,10 @@ private enum PREntryClientKey: DependencyKey {
             save: { entry in
                 @Dependency(\.date.now) var now
                 try await database.write { db in
+                    // Draft(record) is compiler-maintained — a hand-written field
+                    // list silently dropped scalingNote once (IOS-00128 review).
                     let record = PREntryRecord(from: entry, updatedAt: now)
-                    let draft = PREntryRecord.Draft(
-                        id: record.id,
-                        movementId: record.movementId,
-                        date: record.date,
-                        scoreType: record.scoreType,
-                        weightKg: record.weightKg,
-                        timeSeconds: record.timeSeconds,
-                        rounds: record.rounds,
-                        extraReps: record.extraReps,
-                        isRx: record.isRx,
-                        equipment: record.equipment,
-                        rpe: record.rpe,
-                        note: record.note,
-                        bodyWeightKg: record.bodyWeightKg,
-                        context: record.context,
-                        createdAt: record.createdAt,
-                        updatedAt: record.updatedAt
-                    )
-                    try PREntryRecord.upsert { draft }.execute(db)
+                    try PREntryRecord.upsert { PREntryRecord.Draft(record) }.execute(db)
                 }
             },
             delete: { id in
@@ -73,6 +61,12 @@ private enum PREntryClientKey: DependencyKey {
                         .delete()
                         .execute(db)
                 }
+            },
+            fetchAll: {
+                try await database.read { db in
+                    try PREntryRecord.all.fetchAll(db)
+                }
+                .compactMap { $0.toDomain() }
             }
         )
     }()
@@ -80,7 +74,8 @@ private enum PREntryClientKey: DependencyKey {
     static var testValue: PREntryClient {
         PREntryClient(
             save: unimplemented("PREntryClient.save"),
-            delete: unimplemented("PREntryClient.delete")
+            delete: unimplemented("PREntryClient.delete"),
+            fetchAll: unimplemented("PREntryClient.fetchAll", placeholder: [])
         )
     }
 }

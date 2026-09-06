@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import HealthKit
 import SharedModels
 
 extension SummaryFeature {
@@ -147,7 +148,8 @@ extension SummaryFeature.State {
         if let existingResults {
             state.results = .editable(
                 trainingSession: trainingSession,
-                existingResults: existingResults
+                existingResults: existingResults,
+                workoutDate: summary.workout?.startDate ?? trainingSession.date
             )
         }
         return state

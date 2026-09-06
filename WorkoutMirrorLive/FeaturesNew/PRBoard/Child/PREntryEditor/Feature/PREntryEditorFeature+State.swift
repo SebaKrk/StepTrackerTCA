@@ -102,10 +102,33 @@ extension PREntryEditorFeature {
 
         // MARK: - Init
 
-        init(movement: PRMovement, now: Date) {
+        /// Prefill parameters serve the Summary PR-suggestion flow: weight from
+        /// the heaviest set, workout day as the date, `.inWod` as the context.
+        init(
+            movement: PRMovement,
+            now: Date,
+            prefilledKilograms: Double? = nil,
+            prefilledDate: Date? = nil,
+            prefilledContext: PRContext? = nil
+        ) {
             self.movement = movement
             self.maxDate = now
-            self.date = now
+            self.date = min(prefilledDate ?? now, now)
+            if let prefilledKilograms {
+                self.weightText = Self.weightText(from: prefilledKilograms)
+            }
+            if let prefilledContext {
+                self.context = prefilledContext
+            }
+        }
+
+        /// "150" / "102.25" — whole kilograms without the decimal, fractions via
+        /// Swift's shortest round-trip description. Rounding here (%.1f) once
+        /// turned a 102.25 kg PR into a 102.2 kg tie that never beat the board.
+        private static func weightText(from kilograms: Double) -> String {
+            kilograms.truncatingRemainder(dividingBy: 1) == 0
+                ? String(format: "%.0f", kilograms)
+                : "\(kilograms)"
         }
     }
 }
