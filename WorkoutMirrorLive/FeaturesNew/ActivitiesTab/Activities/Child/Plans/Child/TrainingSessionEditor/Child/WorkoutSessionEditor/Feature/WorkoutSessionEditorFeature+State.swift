@@ -48,7 +48,13 @@ extension WorkoutSessionEditorFeature {
         // MARK: - Computed
 
         var isSaveDisabled: Bool {
-            draft.name.trimmingCharacters(in: .whitespaces).isEmpty || draft.exercises.isEmpty || draft == originalDraft
+            // A Rounds WOD is a bare timer — it carries an interval, no exercises.
+            let missingContent = draft.type == .intervals
+                ? draft.interval == nil
+                : draft.exercises.isEmpty
+            return draft.name.trimmingCharacters(in: .whitespaces).isEmpty
+                || missingContent
+                || draft == originalDraft
         }
 
         var navigationTitle: String {

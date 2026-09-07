@@ -77,6 +77,16 @@ extension LiveSessionFeature {
 
         /// Phase panel state. Non-nil only when the workout has an associated training plan.
         var phasePanel: PhasePanelFeature.State? = nil
+
+        // MARK: - Interval Timer
+
+        /// Boxing-rounds timer. Non-nil when the plan carries an `IntervalPlan`
+        /// or the session is a free `.boxing` workout (ad-hoc config).
+        var intervalTimer: IntervalTimerFeature.State? = nil
+
+        /// Tile visibility — hidden until picked from the toolbar timer menu.
+        /// A hidden timer keeps running (signals still fire).
+        var isIntervalTimerVisible: Bool = false
         
         // MARK: - HR Buffer
 

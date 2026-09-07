@@ -306,7 +306,8 @@ struct ResultCardView: View {
             return store.capMinutes.map { String(localized: "EMOM \($0) min") }
         case .forTime, .strength, .olympicWeightlifting:
             return store.capMinutes.map { String(localized: "\($0) min cap") }
-        case .mobility:
+        // .intervals is a session-level timer, not a scored WOD — no chip.
+        case .mobility, .intervals:
             return nil
         }
     }
@@ -322,7 +323,7 @@ struct ResultCardView: View {
             return .segment(status: store.wodStatus, onChange: { send(.setStatus($0)) })
         case .forTime, .emom, .tabata, .mobility:
             return store.phase == .entered ? .pill(completed: true) : nil
-        case .strength, .olympicWeightlifting, .amrap:
+        case .strength, .olympicWeightlifting, .amrap, .intervals:
             return nil
         }
     }
@@ -336,7 +337,7 @@ struct ResultCardView: View {
         case .strength, .olympicWeightlifting: String(localized: "Sets")
         case .amrap: String(localized: "Score · AMRAP")
         case .forTime: String(localized: "Score · For Time")
-        case .emom, .tabata, .mobility: String(localized: "Score")
+        case .emom, .tabata, .mobility, .intervals: String(localized: "Score")
         }
     }
 
@@ -349,7 +350,7 @@ struct ResultCardView: View {
             return "mm:ss"
         case .amrap:
             return String(localized: "rounds + reps")
-        case .emom, .tabata, .mobility:
+        case .emom, .tabata, .mobility, .intervals:
             return nil
         }
     }

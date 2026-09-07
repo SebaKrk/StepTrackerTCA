@@ -18,6 +18,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
     case strength
     case olympicWeightlifting
     case mobility
+    case intervals
 
     public var displayName: String {
         switch self {
@@ -28,6 +29,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .strength:             return "Strength"
         case .olympicWeightlifting: return "Olympic WL"
         case .mobility:             return "Mobility"
+        case .intervals:            return "Rounds"
         }
     }
 
@@ -40,6 +42,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .strength:             return "Weight training with sets and reps"
         case .olympicWeightlifting: return "Olympic weightlifting — snatch, clean & jerk"
         case .mobility:             return "Stretching, activation and mobility work"
+        case .intervals:            return "Timed work/rest rounds (e.g. boxing)"
         }
     }
 
@@ -52,6 +55,10 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .strength:             return ["Strength", "strength", "S&C"]
         case .olympicWeightlifting: return ["Weightlifting", "weightlifting", "Olympic", "OLY"]
         case .mobility:             return ["Mobility", "mobility", "stretching", "rehab", "recovery"]
+        // Deliberately unmatchable from scans: a "rounds" alias would collide
+        // with "Tabata 8 rounds" / "3 rounds of…" via the contains() matcher.
+        // The Rounds type is set only by hand in the plan editor.
+        case .intervals:            return []
         }
     }
 
@@ -64,6 +71,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .strength:             return nil
         case .olympicWeightlifting: return nil
         case .mobility:             return nil
+        case .intervals:            return nil
         }
     }
 
@@ -76,6 +84,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .strength:             return false
         case .olympicWeightlifting: return false
         case .mobility:             return false
+        case .intervals:            return true
         }
     }
 
@@ -88,6 +97,7 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         case .strength:             return .orange
         case .olympicWeightlifting: return .purple
         case .mobility:             return .mint
+        case .intervals:            return .cyan
         }
     }
 

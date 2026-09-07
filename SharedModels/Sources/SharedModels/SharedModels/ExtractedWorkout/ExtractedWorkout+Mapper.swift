@@ -100,7 +100,8 @@ extension WorkoutSection {
         switch workoutType {
         case .forTime, .tabata:
             roundsInt = rounds.flatMap { $0.contains("-") ? nil : $0.firstInteger }
-        case .amrap, .emom, .strength, .olympicWeightlifting, .mobility:
+        // .intervals is unreachable from scans (empty aliases) — listed for exhaustiveness.
+        case .amrap, .emom, .strength, .olympicWeightlifting, .mobility, .intervals:
             roundsInt = nil
         }
 

@@ -253,7 +253,18 @@ struct SessionView: View {
             .symbolEffect(.variableColor.iterative, isActive: phase == .searching)
     }
 
+    /// Plain stopwatch toggle everywhere; a menu when the session also carries
+    /// the boxing-rounds timer — one toolbar slot, two tools.
+    @ViewBuilder
     private var timerButton: some View {
+        if store.live.intervalTimer != nil {
+            timerMenu
+        } else {
+            stopwatchButton
+        }
+    }
+
+    private var stopwatchButton: some View {
         Button {
             send(.timerButtonTapped)
         } label: {
@@ -261,6 +272,31 @@ struct SessionView: View {
         }
         .tint(store.live.userStopwatch.isVisible ? .orange : nil)
         .disabledWithOpacity(store.controls.isLocked || store.live.phaseStopwatch.isManagingPhase)
+    }
+
+    private var timerMenu: some View {
+        Menu {
+            Button {
+                send(.timerButtonTapped)
+            } label: {
+                Label(String(localized: "Stopwatch"), systemImage: "stopwatch")
+            }
+            Button {
+                send(.intervalsButtonTapped)
+            } label: {
+                Label(String(localized: "Intervals"), systemImage: "repeat.circle")
+            }
+        } label: {
+            Image(systemName: "timer")
+        }
+        .tint(timerMenuTint)
+        .disabledWithOpacity(store.controls.isLocked || store.live.phaseStopwatch.isManagingPhase)
+    }
+
+    private var timerMenuTint: Color? {
+        if store.live.userStopwatch.isVisible { return .orange }
+        if store.live.isIntervalTimerVisible { return .green }
+        return nil
     }
 
     private var xMarkImage: some View {
