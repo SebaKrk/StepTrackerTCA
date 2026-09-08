@@ -91,7 +91,7 @@ struct IntervalTimerView: View {
                 .textCase(.uppercase)
                 .tracking(1.5)
                 .foregroundStyle(.secondary)
-            Text(verbatim: "\(secondsLabel(store.config.workSeconds)) / \(secondsLabel(store.config.restSeconds)) × \(store.config.rounds)")
+            Text(verbatim: store.configSummary)
                 .font(.system(.title2, design: .rounded, weight: .bold))
                 .monospacedDigit()
                 .foregroundStyle(.primary)
@@ -109,7 +109,7 @@ struct IntervalTimerView: View {
         }
         .buttonStyle(.borderedProminent)
         // App-wide AccentColor asset is empty — prominent needs an explicit tint.
-        .tint(Self.workAccent)
+        .tint(IntervalTimerFeature.State.workAccent)
     }
 
     private var configButton: some View {
@@ -135,22 +135,22 @@ struct IntervalTimerView: View {
             if store.phase != .countdown {
                 roundCounterPill
             }
-            if !isPaused {
+            if !store.isPaused {
                 navButtons
             }
         }
     }
 
     private var statePill: some View {
-        Text(segmentTitle)
+        Text(store.segmentTitle)
             .font(.caption.weight(.heavy))
             .textCase(.uppercase)
             .tracking(2)
             .foregroundStyle(.white)
             .padding(.horizontal, 13)
             .padding(.vertical, 4)
-            .background(accent.opacity(0.85), in: .capsule)
-            .opacity(isPaused && !reduceMotion ? 0.75 : 1)
+            .background(store.accent.opacity(0.85), in: .capsule)
+            .opacity(store.isPaused && !reduceMotion ? 0.75 : 1)
     }
 
     private var roundCounterPill: some View {
@@ -210,11 +210,11 @@ struct IntervalTimerView: View {
     private func countdownText(at renderDate: Date) -> some View {
         // White like every big number on this screen (AVG/MAX HR, HR %) — the
         // zone palette carries the state in the pill/bar/dots, never full-size.
-        Text(remainingLabel(at: renderDate))
+        Text(store.state.remainingLabel(at: renderDate))
             .font(.system(size: 84, weight: .heavy, design: .rounded))
             .monospacedDigit()
             .foregroundStyle(.primary)
-            .opacity(isPaused ? 0.7 : 1)
+            .opacity(store.isPaused ? 0.7 : 1)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
             .frame(maxWidth: .infinity)
@@ -228,8 +228,8 @@ struct IntervalTimerView: View {
             ZStack(alignment: .leading) {
                 Capsule().fill(Color.primary.opacity(0.12))
                 Capsule()
-                    .fill(accent.opacity(0.85))
-                    .frame(width: proxy.size.width * segmentFraction(at: renderDate))
+                    .fill(store.accent.opacity(0.85))
+                    .frame(width: proxy.size.width * store.state.segmentFraction(at: renderDate))
             }
         }
         .frame(height: 8)
@@ -252,11 +252,11 @@ struct IntervalTimerView: View {
         let isPast = round < store.roundIndex
         let isCurrent = round == store.roundIndex && store.phase != .countdown
         return Circle()
-            .fill(isPast ? AnyShapeStyle(accent) : isCurrent ? AnyShapeStyle(.primary) : AnyShapeStyle(Color.primary.opacity(0.18)))
+            .fill(isPast ? AnyShapeStyle(store.accent) : isCurrent ? AnyShapeStyle(.primary) : AnyShapeStyle(Color.primary.opacity(0.18)))
             .frame(width: 8, height: 8)
             .overlay(
                 Circle()
-                    .strokeBorder(accent.opacity(isCurrent ? 0.6 : 0), lineWidth: 2)
+                    .strokeBorder(store.accent.opacity(isCurrent ? 0.6 : 0), lineWidth: 2)
                     .padding(-3)
             )
     }
@@ -265,11 +265,11 @@ struct IntervalTimerView: View {
     /// strongest at-a-glance carrier of "box vs rest". Final 10 s of work
     /// thicken it and add a glow (the visual twin of the −10 s clap signal).
     private func stateBorder(at renderDate: Date) -> some View {
-        let isFinalTen = store.phase == .work && !isPaused && remainingSeconds(at: renderDate) <= 10
+        let isFinalTen = store.phase == .work && !store.isPaused && store.state.remainingSeconds(at: renderDate) <= 10
         // Concentric with the styledGroupBox card: 24 (continuous) − 7 inset = 17.
         return RoundedRectangle(cornerRadius: 17, style: .continuous)
-            .strokeBorder(accent.opacity(isFinalTen ? 0.85 : 0.55), lineWidth: isFinalTen ? 2.5 : 1.5)
-            .shadow(color: accent.opacity(isFinalTen ? 0.45 : 0), radius: 12)
+            .strokeBorder(store.accent.opacity(isFinalTen ? 0.85 : 0.55), lineWidth: isFinalTen ? 2.5 : 1.5)
+            .shadow(color: store.accent.opacity(isFinalTen ? 0.45 : 0), radius: 12)
             .padding(7)
             .allowsHitTesting(false)
     }
@@ -281,7 +281,7 @@ struct IntervalTimerView: View {
             .font(.title3.weight(.heavy))
             .foregroundStyle(.white)
             .frame(width: 44, height: 44)
-            .background(Self.workAccent, in: .circle)
+            .background(IntervalTimerFeature.State.workAccent, in: .circle)
     }
 
     private var finishedTitles: some View {
@@ -289,16 +289,10 @@ struct IntervalTimerView: View {
             Text("Rounds done: \(store.config.rounds)")
                 .font(.headline)
                 .foregroundStyle(.primary)
-            Text(verbatim: finishedSummary)
+            Text(verbatim: store.finishedSummary)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
-    }
-
-    private var finishedSummary: String {
-        let workTotal = store.config.rounds * store.config.workSeconds
-        let restTotal = max(0, store.config.rounds - 1) * store.config.restSeconds
-        return "\(minutesLabel(workTotal)) · \(minutesLabel(restTotal))"
     }
 
     private var resetButton: some View {
@@ -362,77 +356,17 @@ struct IntervalTimerView: View {
         )
     }
 
-    // MARK: - Implementation (accents & formatting)
+    // MARK: - Implementation (formatting)
 
-    private var isPaused: Bool { store.pausedRemaining != nil }
+    // Accents, pill titles, and countdown math live in
+    // IntervalTimerFeature+Display — shared with the landscape card.
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private var segmentTitle: String {
-        if isPaused { return String(localized: "Paused") }
-        switch store.phase {
-        case .countdown: return String(localized: "Get ready")
-        // Deliberately "Box", not "Work" — the tile talks gym language;
-        // the plan editor keeps the generic Work/Rest wording.
-        case .work:      return String(localized: "Box")
-        case .rest:      return String(localized: "Rest")
-        case .idle, .finished: return ""
-        }
-    }
-
-    /// Traffic-light semantics on the HeartRateZone system palette:
-    /// green = fight, red = stop and recover.
-    private var accent: Color {
-        if isPaused { return Self.pausedAccent }
-        switch store.phase {
-        case .work:      return Self.workAccent
-        case .rest:      return Self.restAccent
-        case .countdown: return Self.readyAccent
-        case .idle, .finished: return Self.workAccent
-        }
-    }
-
-    private static let workAccent = Color.green      // HeartRateZone.fatBurning
-    private static let restAccent = Color.red        // HeartRateZone.anaerobic
-    private static let readyAccent = Color.yellow    // HeartRateZone.aerobic
-    private static let pausedAccent = Color.gray     // HeartRateZone.resting
-
-    /// Frozen remaining seconds during a pause, live countdown otherwise.
-    private func remainingSeconds(at renderDate: Date) -> Int {
-        if let frozen = store.pausedRemaining {
-            return Int(frozen.rounded(.up))
-        }
-        guard let end = store.segmentEndDate else { return 0 }
-        return max(0, Int(end.timeIntervalSince(renderDate).rounded(.up)))
-    }
-
-    private func remainingLabel(at renderDate: Date) -> String {
-        let seconds = remainingSeconds(at: renderDate)
-        return seconds >= 60
-            ? String(format: "%d:%02d", seconds / 60, seconds % 60)
-            : "\(seconds)"
-    }
-
-    private func segmentFraction(at renderDate: Date) -> CGFloat {
-        let total: Int
-        switch store.phase {
-        case .work:      total = store.config.workSeconds
-        case .rest:      total = store.config.restSeconds
-        case .countdown: total = IntervalTimerFeature.countdownSeconds
-        case .idle, .finished: return 0
-        }
-        guard total > 0 else { return 0 }
-        return CGFloat(remainingSeconds(at: renderDate)) / CGFloat(total)
-    }
 
     private func secondsLabel(_ seconds: Int) -> String {
         seconds < 60
             ? "\(seconds) s"
             : String(format: "%d:%02d", seconds / 60, seconds % 60)
-    }
-
-    private func minutesLabel(_ seconds: Int) -> String {
-        String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
 }
 

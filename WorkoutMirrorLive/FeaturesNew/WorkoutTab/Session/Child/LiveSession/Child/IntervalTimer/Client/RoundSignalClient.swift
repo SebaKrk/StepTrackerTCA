@@ -7,9 +7,9 @@
 
 import AVFoundation
 import ComposableArchitecture
-import UIKit
 
-/// Audible/haptic boundary of a rounds-timer segment.
+/// Audible boundary of a rounds-timer segment. Sound only — no haptics, the
+/// phone lies across the gym during rounds, nobody holds it.
 enum RoundSignal: Sendable {
     /// Work segment begins.
     case workStarted
@@ -17,6 +17,8 @@ enum RoundSignal: Sendable {
     case restStarted
     /// 10 seconds of work left — single boxing bell.
     case tenSecondsLeft
+    /// Last second of rest — single bell announcing the next round.
+    case restEnding
     /// All rounds done — triple boxing bell.
     case finished
 }
@@ -80,20 +82,19 @@ private enum RoundSignalClientKey: DependencyKey {
             await MainActor.run {
                 switch signal {
                 case .workStarted:
-                    // Haptic only by user decision — the round opens without audio
-                    // (the −10 s bell and the rest ding carry the acoustic rhythm).
-                    UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                    // Deliberately silent — the rest-ending bell a second
+                    // earlier already announces the round.
+                    break
                 case .restStarted:
                     // End of a round = the real gym bell (original strike burst).
                     RoundSignalPlayer.shared.play(resource: "round_end_bell")
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 case .tenSecondsLeft:
                     RoundSignalPlayer.shared.play(resource: "round_bell_single")
-                    UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+                case .restEnding:
+                    RoundSignalPlayer.shared.play(resource: "round_bell_single")
                 case .finished:
                     // Same gym bell as a round end — the tile's ✓ card tells the rest.
                     RoundSignalPlayer.shared.play(resource: "round_end_bell")
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                 }
             }
         }

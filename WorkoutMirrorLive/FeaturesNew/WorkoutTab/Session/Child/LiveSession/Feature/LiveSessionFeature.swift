@@ -211,6 +211,9 @@ struct LiveSessionFeature {
             case let .view(.distanceTilePageChanged(page)):
                 state.distanceTilePage = page
                 return .none
+
+            case .view(.landscapeTimerToggleTapped):
+                return .send(.toggleIntervalTimerVisibility)
                 
                 // MARK: - User Stopwatch Delegate
 
