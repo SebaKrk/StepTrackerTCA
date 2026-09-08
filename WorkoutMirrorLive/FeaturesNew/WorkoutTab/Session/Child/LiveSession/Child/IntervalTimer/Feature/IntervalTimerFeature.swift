@@ -85,7 +85,8 @@ struct IntervalTimerFeature {
         /// The scheduled wake-up at the end of the running segment.
         case segmentFinished
 
-        /// The scheduled −10 s wake-up of a work segment (signal only).
+        /// The scheduled warning wake-up (signal only): −10 s of a work
+        /// segment, or the last second of a rest segment.
         case warningFired
 
         /// Session pause forwarded by the parent — freezes the remaining time.
@@ -233,7 +234,7 @@ struct IntervalTimerFeature {
                 }
 
             case .warningFired:
-                return play(.tenSecondsLeft, muted: state.isMuted)
+                return play(state.phase == .rest ? .restEnding : .tenSecondsLeft, muted: state.isMuted)
 
             case .sessionPaused:
                 guard state.isRunning, let end = state.segmentEndDate else { return .none }
@@ -268,7 +269,7 @@ struct IntervalTimerFeature {
     }
 
     /// Sets the segment deadline and schedules the boundary wake-up — plus the
-    /// −10 s warning wake-up for work segments long enough to carry one.
+    /// warning wake-up: −10 s of a work segment, last second of a rest segment.
     private func arm(_ state: inout State, seconds: TimeInterval) -> Effect<Action> {
         state.segmentEndDate = now.addingTimeInterval(seconds)
         let boundary = Effect<Action>.run { send in
@@ -277,12 +278,16 @@ struct IntervalTimerFeature {
         }
         .cancellable(id: CancelID.segment, cancelInFlight: true)
 
-        guard state.phase == .work, seconds > 10 else {
+        let warningLead: TimeInterval
+        switch state.phase {
+        case .work where seconds > 10: warningLead = 10
+        case .rest where seconds > 1:  warningLead = 1
+        default:
             // Also clears a stale warning left by a skipped/shortened segment.
             return .merge(boundary, .cancel(id: CancelID.warning))
         }
         let warning = Effect<Action>.run { send in
-            try await clock.sleep(for: .seconds(seconds - 10))
+            try await clock.sleep(for: .seconds(seconds - warningLead))
             await send(.warningFired)
         }
         .cancellable(id: CancelID.warning, cancelInFlight: true)
@@ -290,8 +295,6 @@ struct IntervalTimerFeature {
     }
 
     private func play(_ signal: RoundSignal, muted: Bool) -> Effect<Action> {
-        // Total silence when muted — the phone lies under the bag, so haptics
-        // would go unfelt anyway.
         guard !muted else { return .none }
         return .run { [roundSignal] _ in await roundSignal.play(signal) }
     }

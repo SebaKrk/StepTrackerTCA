@@ -1396,7 +1396,7 @@
     - S-04 rx-scaled-split DONE: benchmark hero shows both PRs (Rx big + elevated Scaled row with note and date; scaled-only best stays the hero per D2), progress chart plots Rx and Scaled as separate series with a legend (mixed line would fake progress on standard switches)
     - chart year picker: accent chips over the chart appear from 2 years of data; default = newest year with entries, stale selection falls back automatically (mixing years squeezed points into unreadable clusters)
     - localization sweep: 57 PL entries added across both catalogs (editor, alerts, hub/list/detail, categories/subgroups/equipment/context; "%lld entries" with full plural forms); "Strength" key collision resolved with a dedicated "Strength category" key (plain key stays "Trening siłowy" for workout types)
-    - caveat: v13 was edited in place (allowed — never committed/shipped; phone still on v12 gets the final shape), so the simulator DB was auto-erased once by the DEBUG `eraseDatabaseOnSchemaChange` predicate; MigratorTests cover the v12→v13 data path (fresh→NULL, values intact) — suites: SharedModels 61, AppDatabase 25 green
+    - caveat: v13 was edited in place (allowed — never committed/shipped; phone still on v12 gets the final shape), so txhe simulator DB was auto-erased once by the DEBUG `eraseDatabaseOnSchemaChange` predicate; MigratorTests cover the v12→v13 data path (fresh→NULL, values intact) — suites: SharedModels 61, AppDatabase 25 green
     - pending: flip S-03/S-04 to done in `context/foundation/roadmap.md` (milestone M-1 functionally 7/7); user field-checks all score-type forms and the dual-PR hero before committing
 
 ### IOS-00128 PR suggestions from Summary — the catalog bridge goes live
@@ -1416,4 +1416,12 @@
     - tile matches the session screen (`styledGroupBox` + HR-zone accents, GREEN "BOX" / RED rest), white 84 pt digits, inner state ring glowing in the final 10 s; hidden by default — the toolbar ⏱ becomes a Stopwatch/Intervals menu, exclusive both ways
     - signals via AVAudioSession `.playback` (plays through the silent switch and a locked screen): −10 s = single bell, round end + finish = bell burst from "Boxing Bell" by Benboncan (freesound, **CC-BY — TODO attribution in About**); round start = haptic only
     - follow-ups: remember the last ad-hoc config (`@Shared(.appStorage)`), scan convention for intervals (parked in roadmap); known gap: rest = 0 s ⇒ no round-end bell (accepted)
+
+### IOS-00130 Rounds timer polish — mute, landscape clock, signal tuning
+    - branch: (user assigns)
+    - persisted signal mute (`@Shared(.appStorage)`, gated in the reducer): speaker button next to the state pill on the tile — needed because `.playback` bypasses the system silent switch
+    - landscape "gym clock": new `IntervalTimerLandscapeView` (glass card, 130 pt digits) shown ONLY while rounds run; zones card gets a ⏱ switch, the clock a ♥ back-switch, side column swaps MAX/AVG for intensity % (zone color) + live HR
+    - shared display helpers extracted to `IntervalTimerFeature+Display` (accents, labels, countdown math) — portrait and landscape can't drift; toggle rides the existing `isIntervalTimerVisible`
+    - signal tuning: new bell on the LAST second of rest (announces the round), ALL haptics removed (the phone lies across the gym) — round start is now fully silent by design
+    - follow-up: Stats tab auto-refresh loop diagnosed (HK observer → un-debounced `pullToRefresh` cascade in `StatsFeature`) — fix pending as a separate task
     
