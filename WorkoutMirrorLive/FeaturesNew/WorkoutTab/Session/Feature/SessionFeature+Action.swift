@@ -105,6 +105,10 @@ extension SessionFeature {
             /// Timer button tapped in toolbar
             case timerButtonTapped
 
+            /// "Intervals" entry of the toolbar timer menu — shows/hides the
+            /// boxing-rounds tile (offered only when the session carries one).
+            case intervalsButtonTapped
+
             /// IPAD-0087 Gym Room: toolbar icon (next to HR zones) — toggles sheet visibility.
             /// First tap: create state + show sheet. Subsequent taps: only show the sheet
             /// (state exists, broadcast continues).

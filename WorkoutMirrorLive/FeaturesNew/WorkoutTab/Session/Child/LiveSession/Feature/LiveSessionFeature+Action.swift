@@ -86,6 +86,21 @@ extension LiveSessionFeature {
 
         /// Delegates to PhasePanelFeature child reducer
         case phasePanel(PhasePanelFeature.Action)
+
+        // MARK: - Interval Timer (Child Reducer)
+
+        /// Initialises the boxing-rounds timer: a plan config when non-nil,
+        /// otherwise an ad-hoc default for free `.boxing` workouts.
+        case setupIntervalTimer(IntervalPlan?)
+
+        /// Forwards the session pause state to the interval timer.
+        case setIntervalTimerPaused(Bool)
+
+        /// Toolbar menu: shows/hides the rounds tile (exclusive with the stopwatch).
+        case toggleIntervalTimerVisibility
+
+        /// Delegates to IntervalTimerFeature child reducer.
+        case intervalTimer(IntervalTimerFeature.Action)
         
         // MARK: - View Actions
         

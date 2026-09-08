@@ -1408,4 +1408,12 @@
     - BUGFIX en route: `PREntryClient.save` built the record Draft field-by-field and silently dropped the day-old `scalingNote` column — scaling notes never persisted; the Draft now names it (trap: adding a record column requires touching this hand-written Draft init)
     - device log analysis: `PRResolver ... mismatched type` console spam traced to a legacy weight-on-pull-up entry from the pre-D4 window (S-02-era editor saved everything as weight); D4 partition correctly kept it out of rankings — user deletes the row in-app; migration v13 confirmed safe on real device data
     - backlog: dedupe of the D4 `reportIssue` telemetry (one bad row logs on every @FetchAll recompute) — deliberately NOT done now: a dedupe registry needs mutable state in a pure function and would break the `withKnownIssue` defensive tests that expect the issue on every call
+
+### IOS-00129 Boxing rounds timer — plannable work/rest intervals in the live session
+    - branch: (user assigns)
+    - new `.intervals` WOD type + `IntervalPlan` (work/rest/rounds) as an optional field of the plan's JSON blob — zero SQL migration; plan editor gets three steppers for it; iPhone-only, Watch stays a bare HR source
+    - `IntervalTimerFeature`: deadline-driven engine (scheduled wake-ups, no per-tick store actions), 3 s countdown, session pause freezes time, reversible ▶︎/◀︎ navigation (skip has an undo instead of confirm dialogs)
+    - tile matches the session screen (`styledGroupBox` + HR-zone accents, GREEN "BOX" / RED rest), white 84 pt digits, inner state ring glowing in the final 10 s; hidden by default — the toolbar ⏱ becomes a Stopwatch/Intervals menu, exclusive both ways
+    - signals via AVAudioSession `.playback` (plays through the silent switch and a locked screen): −10 s = single bell, round end + finish = bell burst from "Boxing Bell" by Benboncan (freesound, **CC-BY — TODO attribution in About**); round start = haptic only
+    - follow-ups: remember the last ad-hoc config (`@Shared(.appStorage)`), scan convention for intervals (parked in roadmap); known gap: rest = 0 s ⇒ no round-end bell (accepted)
     

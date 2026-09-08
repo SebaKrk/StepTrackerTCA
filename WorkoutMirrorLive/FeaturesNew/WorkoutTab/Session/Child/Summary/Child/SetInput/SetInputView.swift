@@ -47,7 +47,7 @@ struct SetInputView: View {
             amrapScoreSection
         case .forTime:
             forTimeScoreSection
-        case .emom, .tabata, .mobility:
+        case .emom, .tabata, .mobility, .intervals:
             EmptyView()
         }
     }

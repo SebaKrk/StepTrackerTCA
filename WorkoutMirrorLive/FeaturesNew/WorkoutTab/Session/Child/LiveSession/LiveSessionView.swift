@@ -88,6 +88,8 @@ struct LiveSessionView: View {
                 StopwatchView(store: store.scope(state: \.phaseStopwatch, action: \.phaseStopwatch))
             }
 
+            intervalTimerSection
+
             phasePanelSection
 
             Spacer()
@@ -369,6 +371,16 @@ struct LiveSessionView: View {
            let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
             PhasePanelView(store: phasePanelStore)
                 .frame(minHeight: 180)
+        }
+    }
+
+    // MARK: - Interval Timer
+
+    @ViewBuilder
+    private var intervalTimerSection: some View {
+        if store.isIntervalTimerVisible,
+           let intervalTimerStore = store.scope(state: \.intervalTimer, action: \.intervalTimer) {
+            IntervalTimerView(store: intervalTimerStore)
         }
     }
 

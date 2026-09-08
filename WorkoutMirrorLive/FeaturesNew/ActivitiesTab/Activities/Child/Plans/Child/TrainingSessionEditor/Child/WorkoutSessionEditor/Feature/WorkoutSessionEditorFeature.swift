@@ -23,6 +23,20 @@ struct WorkoutSessionEditorFeature {
         Reduce { state, action in
             switch action {
 
+            case .binding(\.draft.type):
+                // Switching to Rounds seeds a sensible default; leaving it clears
+                // the interval so a stale config never rides along another type.
+                if state.draft.type == .intervals {
+                    if state.draft.interval == nil {
+                        state.draft.interval = IntervalPlan(workSeconds: 30, restSeconds: 30, rounds: 12)
+                    }
+                    state.draft.timeCap = nil
+                    state.draft.rounds = nil
+                } else {
+                    state.draft.interval = nil
+                }
+                return .none
+
             case .binding:
                 return .none
 
