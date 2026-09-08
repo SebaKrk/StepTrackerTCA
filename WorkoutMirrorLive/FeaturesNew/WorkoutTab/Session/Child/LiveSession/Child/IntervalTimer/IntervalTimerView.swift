@@ -45,6 +45,7 @@ struct IntervalTimerView: View {
             HStack(spacing: 12) {
                 idleSummary
                 Spacer(minLength: 8)
+                muteButton
                 if !store.isFromPlan {
                     configButton
                 }
@@ -129,6 +130,7 @@ struct IntervalTimerView: View {
     private var runningHeader: some View {
         HStack(spacing: 10) {
             statePill
+            muteButton
             Spacer(minLength: 6)
             if store.phase != .countdown {
                 roundCounterPill
@@ -173,6 +175,22 @@ struct IntervalTimerView: View {
                 send(.skipSegmentTapped)
             }
         }
+    }
+
+    /// Persisted signal mute — the `.playback` bells bypass the system silent
+    /// switch, so the app must offer its own switch.
+    private var muteButton: some View {
+        Button {
+            send(.muteTapped)
+        } label: {
+            Image(systemName: store.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(store.isMuted ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
+                .frame(width: 32, height: 32)
+                .background(Color.primary.opacity(0.08), in: .circle)
+                .contentShape(Circle().inset(by: -4))
+        }
+        .buttonStyle(.plain)
     }
 
     private func navButton(systemImage: String, action: @escaping () -> Void) -> some View {

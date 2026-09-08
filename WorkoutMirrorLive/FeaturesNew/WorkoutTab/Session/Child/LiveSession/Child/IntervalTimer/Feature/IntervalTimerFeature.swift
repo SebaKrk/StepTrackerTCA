@@ -51,6 +51,10 @@ struct IntervalTimerFeature {
         /// Ad-hoc configuration sheet (free workouts only).
         var isConfigSheetPresented: Bool = false
 
+        /// User mute for the round signals — needed because the `.playback`
+        /// session deliberately bypasses the system silent switch. Persisted.
+        @Shared(.appStorage("intervalRoundSignalsMuted")) var isMuted: Bool = false
+
         enum Phase: Equatable {
             /// Configured, waiting for Start.
             case idle
@@ -108,6 +112,9 @@ struct IntervalTimerFeature {
 
             /// Back to idle from any state (config preserved).
             case resetTapped
+
+            /// Toggles the persisted signal mute.
+            case muteTapped
         }
     }
 
@@ -164,6 +171,10 @@ struct IntervalTimerFeature {
                     return .none
                 }
 
+            case .view(.muteTapped):
+                state.$isMuted.withLock { $0.toggle() }
+                return .none
+
             case .view(.resetTapped):
                 state.phase = .idle
                 state.roundIndex = 0
@@ -181,7 +192,7 @@ struct IntervalTimerFeature {
                     state.phase = .work
                     return .merge(
                         arm(&state, seconds: TimeInterval(state.config.workSeconds)),
-                        play(.workStarted)
+                        play(.workStarted, muted: state.isMuted)
                     )
 
                 case .work:
@@ -192,7 +203,7 @@ struct IntervalTimerFeature {
                         return .merge(
                             .cancel(id: CancelID.segment),
                             .cancel(id: CancelID.warning),
-                            play(.finished)
+                            play(.finished, muted: state.isMuted)
                         )
                     }
                     guard state.config.restSeconds > 0 else {
@@ -200,13 +211,13 @@ struct IntervalTimerFeature {
                         state.phase = .work
                         return .merge(
                             arm(&state, seconds: TimeInterval(state.config.workSeconds)),
-                            play(.workStarted)
+                            play(.workStarted, muted: state.isMuted)
                         )
                     }
                     state.phase = .rest
                     return .merge(
                         arm(&state, seconds: TimeInterval(state.config.restSeconds)),
-                        play(.restStarted)
+                        play(.restStarted, muted: state.isMuted)
                     )
 
                 case .rest:
@@ -214,7 +225,7 @@ struct IntervalTimerFeature {
                     state.phase = .work
                     return .merge(
                         arm(&state, seconds: TimeInterval(state.config.workSeconds)),
-                        play(.workStarted)
+                        play(.workStarted, muted: state.isMuted)
                     )
 
                 case .idle, .finished:
@@ -222,7 +233,7 @@ struct IntervalTimerFeature {
                 }
 
             case .warningFired:
-                return play(.tenSecondsLeft)
+                return play(.tenSecondsLeft, muted: state.isMuted)
 
             case .sessionPaused:
                 guard state.isRunning, let end = state.segmentEndDate else { return .none }
@@ -278,7 +289,10 @@ struct IntervalTimerFeature {
         return .merge(boundary, warning)
     }
 
-    private func play(_ signal: RoundSignal) -> Effect<Action> {
-        .run { [roundSignal] _ in await roundSignal.play(signal) }
+    private func play(_ signal: RoundSignal, muted: Bool) -> Effect<Action> {
+        // Total silence when muted — the phone lies under the bag, so haptics
+        // would go unfelt anyway.
+        guard !muted else { return .none }
+        return .run { [roundSignal] _ in await roundSignal.play(signal) }
     }
 }
