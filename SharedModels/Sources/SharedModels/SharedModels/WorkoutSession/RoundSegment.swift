@@ -12,10 +12,10 @@ import HealthKit
 /// `HKWorkoutEvent(.segment)` on the workout itself — HealthKit is the single
 /// source of truth, no app-side table. Records FACTS (a session pause stretches
 /// the interval, a skipped segment ends early), never the planned config.
-public struct RoundSegment: Equatable, Sendable {
+public struct RoundSegment: Codable, Equatable, Sendable {
 
     /// Whether the athlete was boxing or recovering.
-    public enum Kind: String, Sendable {
+    public enum Kind: String, Codable, Sendable {
         /// Work segment (the round itself).
         case work
         /// Rest between rounds.

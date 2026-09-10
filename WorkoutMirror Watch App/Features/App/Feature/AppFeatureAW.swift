@@ -188,6 +188,11 @@ struct AppFeatureAW {
                 // Watch-originated — not relevant on the Watch side.
                 return .none
 
+            case .watchEventReceived(.roundSegmentCompleted(_)):
+                // Consumed by the session manager on the HK mirroring channel
+                // (builder write) — never expected through this WC path.
+                return .none
+
             case .hrMirror(.presented(.delegate(.didFinishSaving))):
                 Logger.appAW.info("didFinishSaving — dismissing HRMirrorFeature")
                 return .send(.dismissHRMirror)
