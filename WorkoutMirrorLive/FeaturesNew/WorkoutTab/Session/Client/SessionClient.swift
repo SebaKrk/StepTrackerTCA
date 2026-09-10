@@ -454,11 +454,24 @@ private actor WorkoutModeRouter {
         Logger.session.info("recoverPrimarySession — iPhoneWorkoutSession reattached (state=\(recoveredSession.state.rawValue))")
     }
 
-    /// Rounds-timer segment → live builder. Watch-primary has no local builder,
-    /// so the guard makes the call a silent no-op there (MVP scope).
+    /// Rounds-timer segment → live builder. iPhone-standalone writes locally;
+    /// Watch-primary relays the fact over the HK mirroring channel (reliable
+    /// regardless of WC reachability — R2) and the Watch, as the builder owner,
+    /// persists the `HKWorkoutEvent(.segment)` on its side.
     func addRoundSegment(_ segment: RoundSegment) async {
-        guard mode == .iPhoneStandalone, let iPhoneSession else { return }
-        await iPhoneSession.addRoundSegment(segment)
+        switch mode {
+        case .iPhoneStandalone:
+            await iPhoneSession?.addRoundSegment(segment)
+        case .watchPrimary:
+            guard let data = try? JSONEncoder().encode(WatchWorkoutEvent.roundSegmentCompleted(segment)) else {
+                Logger.session.error("addRoundSegment — failed to encode round segment for Watch relay")
+                return
+            }
+            let delivered = await trainingManager.sendDataToWatch(data)
+            if !delivered {
+                Logger.session.error("addRoundSegment — HK mirror relay failed (round \(segment.roundIndex))")
+            }
+        }
     }
 
     // MARK: - Workout Summary Cache (iPhone-standalone)

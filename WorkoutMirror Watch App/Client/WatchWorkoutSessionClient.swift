@@ -638,7 +638,32 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
                 continue
             }
             Logger.watchSession.info("didReceiveDataFromRemoteWorkoutSession — decoded \(String(describing: event))")
+            // Rounds-timer segment relayed from the iPhone timer: this manager
+            // owns the builder, so it persists the HKWorkoutEvent(.segment)
+            // itself — features never see this event.
+            if case let .roundSegmentCompleted(segment) = event {
+                recordRoundSegment(segment)
+                continue
+            }
             remoteEventContinuation?.yield(event)
+        }
+    }
+
+    /// Writes a relayed rounds-timer segment onto the live builder.
+    /// Fire-and-forget — a failure (e.g. collection already ended) only logs;
+    /// round marking must never disturb the workout itself.
+    private func recordRoundSegment(_ segment: RoundSegment) {
+        guard let builder, !workoutFinished else {
+            Logger.watchSession.notice("recordRoundSegment — no live builder (round \(segment.roundIndex)), dropped")
+            return
+        }
+        Task {
+            do {
+                try await builder.addWorkoutEvents([segment.workoutEvent])
+                Logger.watchSession.info("recordRoundSegment — round \(segment.roundIndex) \(segment.kind.rawValue) persisted")
+            } catch {
+                Logger.watchSession.error("recordRoundSegment failed: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
