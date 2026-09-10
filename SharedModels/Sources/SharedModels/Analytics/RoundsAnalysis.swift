@@ -28,6 +28,13 @@ public struct RoundsAnalysis: Equatable, Sendable {
         /// Highest HR sample inside the round.
         public let peakHR: Int
 
+        /// Actual wall-clock length of the round (pauses/skips included).
+        public let duration: TimeInterval
+
+        /// Active energy burned inside the round; nil when the workout carries
+        /// no energy samples at all (line hidden in UI).
+        public let kcal: Double?
+
         public var id: Int { index }
     }
 
@@ -44,6 +51,17 @@ public struct RoundsAnalysis: Equatable, Sendable {
         /// HR at the rest's end — classifies the ZONE the athlete recovered to,
         /// which colors the recovery bar (system zone palette, no custom hues).
         public let endHR: Int
+
+        /// Anchor peak the drop was measured from — the bar's gradient runs
+        /// from this HR's zone (top) down to `endHR`'s zone (bottom).
+        public let peakHR: Int
+
+        /// Actual wall-clock length of the rest.
+        public let duration: TimeInterval
+
+        /// Active energy burned during the rest; nil when the workout carries
+        /// no energy samples at all.
+        public let kcal: Double?
 
         public var id: Int { afterRound }
     }
@@ -89,10 +107,18 @@ extension RoundsAnalysis {
     /// carries a single sample (sensor never delivered) — callers hide the UI.
     public static func analyze(
         samples: [(date: Date, bpm: Double)],
+        energySamples: [(date: Date, kcal: Double)] = [],
         segments: [RoundSegment]
     ) -> RoundsAnalysis? {
         let workSegments = segments.filter { $0.kind == .work }
         let restSegments = segments.filter { $0.kind == .rest }
+        let hasEnergy = !energySamples.isEmpty
+        func kcal(in interval: DateInterval) -> Double? {
+            guard hasEnergy else { return nil }
+            return energySamples
+                .filter { interval.contains($0.date) }
+                .reduce(0) { $0 + $1.kcal }
+        }
 
         let rounds: [Round] = workSegments.compactMap { segment in
             let bpms = samples
@@ -103,7 +129,9 @@ extension RoundsAnalysis {
                 index: segment.roundIndex,
                 minHR: Int(bpms.min()!.rounded()),
                 avgHR: Int((bpms.reduce(0, +) / Double(bpms.count)).rounded()),
-                peakHR: Int(bpms.max()!.rounded())
+                peakHR: Int(bpms.max()!.rounded()),
+                duration: segment.dateInterval.duration,
+                kcal: kcal(in: segment.dateInterval)
             )
         }
         guard !rounds.isEmpty else { return nil }
@@ -123,7 +151,10 @@ extension RoundsAnalysis {
             return Recovery(
                 afterRound: rest.roundIndex,
                 dropBPM: max(0, Int((peak - restEnd.bpm).rounded())),
-                endHR: Int(restEnd.bpm.rounded())
+                endHR: Int(restEnd.bpm.rounded()),
+                peakHR: Int(peak.rounded()),
+                duration: rest.dateInterval.duration,
+                kcal: kcal(in: rest.dateInterval)
             )
         }
 

@@ -50,6 +50,27 @@ struct RoundsDetailFeature {
 
         /// True until the HR fetch settles — drives the loading placeholder.
         var isLoading = true
+
+        /// Chart whose (i) explanation popover is open; nil = none.
+        var visibleInfo: ChartInfo?
+
+        /// Round selected on the ranges chart (scrub); nil = no selection.
+        var selectedRound: Int?
+
+        /// Rest selected on the recovery chart (by the round it follows).
+        var selectedRecovery: Int?
+
+        /// Timestamp selected on the HR curve (scrub).
+        var selectedCurveDate: Date?
+
+        /// The three explainable charts of this screen.
+        enum ChartInfo: String, Identifiable {
+            case ranges
+            case recovery
+            case curve
+
+            var id: String { rawValue }
+        }
     }
 
     // MARK: - Action
@@ -72,6 +93,18 @@ struct RoundsDetailFeature {
 
             /// Starts the HR fetch on first appearance.
             case viewDidAppear
+
+            /// (i) tapped on a chart (non-nil) or its popover dismissed (nil).
+            case infoChanged(State.ChartInfo?)
+
+            /// Ranges chart scrubbed — selected round (nil on deselect).
+            case roundSelected(Int?)
+
+            /// Recovery chart scrubbed — selected rest (nil on deselect).
+            case recoverySelected(Int?)
+
+            /// HR curve scrubbed — selected timestamp (nil on deselect).
+            case curveDateSelected(Date?)
         }
     }
 
@@ -90,12 +123,16 @@ struct RoundsDetailFeature {
                         for: workout,
                         healthStore: healthStore
                     )) ?? []
+                    let energySamples = (try? await WorkoutSummaryLoader.activeEnergySamples(
+                        for: workout,
+                        healthStore: healthStore
+                    )) ?? []
                     let step = max(1, samples.count / 400)
                     let curve = samples.enumerated()
                         .filter { $0.offset.isMultiple(of: step) }
                         .map(\.element)
                     await send(.internal(.analysisLoaded(
-                        RoundsAnalysis.analyze(samples: samples, segments: segments),
+                        RoundsAnalysis.analyze(samples: samples, energySamples: energySamples, segments: segments),
                         curve: curve
                     )))
                 }
@@ -104,6 +141,22 @@ struct RoundsDetailFeature {
                 state.analysis = analysis
                 state.hrCurve = curve
                 state.isLoading = false
+                return .none
+
+            case let .view(.infoChanged(info)):
+                state.visibleInfo = info
+                return .none
+
+            case let .view(.roundSelected(round)):
+                state.selectedRound = round
+                return .none
+
+            case let .view(.recoverySelected(rest)):
+                state.selectedRecovery = rest
+                return .none
+
+            case let .view(.curveDateSelected(date)):
+                state.selectedCurveDate = date
                 return .none
             }
         }
