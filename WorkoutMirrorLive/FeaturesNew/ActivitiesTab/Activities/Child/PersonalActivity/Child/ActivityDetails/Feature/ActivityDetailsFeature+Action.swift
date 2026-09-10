@@ -51,6 +51,9 @@ extension ActivityDetailsFeature {
             /// i pushuje SummaryFeature w edit mode z pre-filled resultInputs.
             /// Dostępne tylko gdy `planScore.loadState == .loaded(score)` (workout ma już zapisany plan).
             case editExistingScoreTapped
+
+            /// Rounds card tapped — pushes the rounds analysis screen.
+            case roundsCardTapped
         }
 
         // MARK: - Children

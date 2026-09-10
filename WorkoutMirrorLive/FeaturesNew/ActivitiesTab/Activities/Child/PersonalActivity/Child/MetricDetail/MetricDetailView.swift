@@ -30,7 +30,10 @@ struct MetricDetailView: View {
         }
         .navigationTitle(store.metricType.title)
         .navigationBarTitleDisplayMode(.inline)
-        .background(LinearGradient(colors: [levelColor.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+        .background(
+            LinearGradient(colors: [levelColor.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+        )
     }
     
     // MARK: - Value Section

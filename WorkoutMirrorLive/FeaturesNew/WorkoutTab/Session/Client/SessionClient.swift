@@ -110,6 +110,11 @@ struct SessionClient {
     /// here because Watch owns the builder. Per WWDC25: HealthKit returns the running session
     /// but builder + dataSource references die with the crashed process.
     var recoverPrimarySession: @Sendable (HKWorkoutSession) async throws -> Void
+
+    /// Persists a completed rounds-timer segment as an `HKWorkoutEvent(.segment)`
+    /// on the live workout. iPhone-standalone only — in Watch-primary mode the
+    /// builder lives on the Watch, so this is a silent no-op (MVP scope).
+    var addRoundSegment: @Sendable (RoundSegment) async -> Void
 }
 
 // MARK: - Dependency Registration
@@ -291,6 +296,9 @@ private enum SessionClientClientKey: DependencyKey {
             },
             recoverPrimarySession: { session in
                 try await router.recoverPrimarySession(session)
+            },
+            addRoundSegment: { segment in
+                await router.addRoundSegment(segment)
             }
         )
     }()
@@ -444,6 +452,13 @@ private actor WorkoutModeRouter {
         self.mode = .iPhoneStandalone
         startCachingStreams(from: recovered)
         Logger.session.info("recoverPrimarySession — iPhoneWorkoutSession reattached (state=\(recoveredSession.state.rawValue))")
+    }
+
+    /// Rounds-timer segment → live builder. Watch-primary has no local builder,
+    /// so the guard makes the call a silent no-op there (MVP scope).
+    func addRoundSegment(_ segment: RoundSegment) async {
+        guard mode == .iPhoneStandalone, let iPhoneSession else { return }
+        await iPhoneSession.addRoundSegment(segment)
     }
 
     // MARK: - Workout Summary Cache (iPhone-standalone)
