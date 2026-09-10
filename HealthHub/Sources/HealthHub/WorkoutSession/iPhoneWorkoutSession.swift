@@ -258,6 +258,18 @@ public final class iPhoneWorkoutSession: NSObject, @unchecked Sendable {
         Logger.iPhoneWorkoutSession.info("resume()")
     }
 
+    /// Rounds-timer segment → `HKWorkoutEvent(.segment)` on the live builder.
+    /// Fire-and-forget semantics: a failure (e.g. collection already ended)
+    /// only logs — round marking must never disturb the workout itself.
+    public func addRoundSegment(_ segment: RoundSegment) async {
+        guard let builder else { return }
+        do {
+            try await builder.addWorkoutEvents([segment.workoutEvent])
+        } catch {
+            Logger.iPhoneWorkoutSession.error("addRoundSegment failed: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
     public func end() async throws {
         // Claim-or-bail (see `endClaimLock`) — must happen BEFORE touching the
         // builder; a concurrent second call corrupts the save.

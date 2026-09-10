@@ -73,10 +73,12 @@ struct IntervalTimerView: View {
     private var finishedCard: some View {
         GroupBox {
             HStack(spacing: 12) {
-                finishedCheck
                 finishedTitles
                 Spacer(minLength: 8)
-                resetButton
+                if !store.isFromPlan {
+                    configButton
+                }
+                startButton
             }
         }
         .styledGroupBox()
@@ -276,17 +278,9 @@ struct IntervalTimerView: View {
 
     // MARK: - Implementation (finished)
 
-    private var finishedCheck: some View {
-        Image(systemName: "checkmark")
-            .font(.title3.weight(.heavy))
-            .foregroundStyle(.white)
-            .frame(width: 44, height: 44)
-            .background(IntervalTimerFeature.State.workAccent, in: .circle)
-    }
-
     private var finishedTitles: some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text("Rounds done: \(store.config.rounds)")
+            finishedTitle
                 .font(.headline)
                 .foregroundStyle(.primary)
             Text(verbatim: store.finishedSummary)
@@ -295,14 +289,13 @@ struct IntervalTimerView: View {
         }
     }
 
-    private var resetButton: some View {
-        Button {
-            send(.resetTapped)
-        } label: {
-            Text("Reset")
-                .font(.subheadline.weight(.semibold))
+    @ViewBuilder
+    private var finishedTitle: some View {
+        if store.recordedWorkSegments > store.roundIndex {
+            Text("Rounds done: \(store.roundIndex) · total \(store.recordedWorkSegments)")
+        } else {
+            Text("Rounds done: \(store.roundIndex)")
         }
-        .buttonStyle(.bordered)
     }
 
     // MARK: - Implementation (config sheet)

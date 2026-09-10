@@ -1051,6 +1051,16 @@
         }
       }
     },
+    "Add plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj plan"
+          }
+        }
+      }
+    },
     "Add to my plans" : {
       "localizations" : {
         "pl" : {
@@ -1099,6 +1109,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dostosowana dla kobiet — klasyczna formuła zawyżała ich maksymalne tętno. Z badania St. James Women Take Heart Project (2010, 5437 kobiet). Daje niższe wartości — bardziej realistyczne dla większości kobiet."
+          }
+        }
+      }
+    },
+    "After round" : {},
+    "After round %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po rundzie %lld"
           }
         }
       }
@@ -1336,6 +1357,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Śr. HR na sesję"
+          }
+        }
+      }
+    },
+    "Avg recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. odzysk"
+          }
+        }
+      }
+    },
+    "Avg round HR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. tętno rund"
+          }
+        }
+      }
+    },
+    "Avg trend" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend średniej"
           }
         }
       }
@@ -2353,22 +2404,6 @@
         }
       }
     },
-    "Dodaj plan" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add plan"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj plan"
-          }
-        }
-      }
-    },
     "Done" : {
       "localizations" : {
         "pl" : {
@@ -2379,6 +2414,7 @@
         }
       }
     },
+    "Drop" : {},
     "Duration" : {
       "localizations" : {
         "pl" : {
@@ -2411,6 +2447,16 @@
     },
     "EMOM %lld min" : {
       "shouldTranslate" : false
+    },
+    "Each capsule spans the round's min–max heart rate, the dot marks its average. Colors follow your heart-rate zones — the redder the round, the harder it was." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapsułka obejmuje zakres tętna (min–maks) w rundzie, kropka to jej średnia. Kolory odpowiadają Twoim strefom tętna — im bardziej czerwona runda, tym była cięższa."
+          }
+        }
+      }
     },
     "Edit" : {
       "localizations" : {
@@ -2949,6 +2995,7 @@
         }
       }
     },
+    "HR" : {},
     "HR Recovery" : {
       "localizations" : {
         "pl" : {
@@ -2959,6 +3006,7 @@
         }
       }
     },
+    "HR avg" : {},
     "HR belt" : {
       "localizations" : {
         "pl" : {
@@ -2989,6 +3037,16 @@
         }
       }
     },
+    "HR range per round" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakres tętna per runda"
+          }
+        }
+      }
+    },
     "HR sensor connection lost — measuring paused" : {
       "localizations" : {
         "pl" : {
@@ -3015,6 +3073,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany"
+          }
+        }
+      }
+    },
+    "HR × rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno × rundy"
+          }
+        }
+      }
+    },
+    "Hardest round" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najcięższa runda"
           }
         }
       }
@@ -3249,6 +3327,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dokąd doszedłeś przed upływem limitu?"
+          }
+        }
+      }
+    },
+    "How many beats your heart rate dropped in each rest — from the peak around the round's end to the rest's end. Colors run from the peak's zone (top) to the zone you recovered to (bottom); shrinking bars mean accumulating fatigue." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O ile uderzeń spadło tętno w każdej przerwie — od szczytu z końcówki rundy do końca przerwy. Kolory biegną od strefy szczytu (góra) do strefy, do której zszedłeś (dół); malejące słupki to narastające zmęczenie."
           }
         }
       }
@@ -3962,6 +4050,16 @@
         }
       }
     },
+    "No heart rate data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych tętna"
+          }
+        }
+      }
+    },
     "No heart rate data available. Check Health app." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3989,6 +4087,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak odczytu tętna — sprawdź przyleganie paska"
+          }
+        }
+      }
+    },
+    "No heart rate samples were recorded during these rounds." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podczas tych rund nie zarejestrowano próbek tętna."
           }
         }
       }
@@ -4303,6 +4411,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inny czujnik HR"
+          }
+        }
+      }
+    },
+    "Outside rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poza rundami"
           }
         }
       }
@@ -4658,6 +4776,26 @@
         }
       }
     },
+    "Recovery between rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja w przerwach"
+          }
+        }
+      }
+    },
+    "Recovery fades after round" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja siada po rundzie"
+          }
+        }
+      }
+    },
     "Remaining reps" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4809,6 +4947,19 @@
         }
       }
     },
+    "Round" : {},
+    "Round %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Runda %lld"
+          }
+        }
+      }
+    },
+    "Round end" : {},
+    "Round start" : {},
     "Rounds" : {
       "localizations" : {
         "pl" : {
@@ -4825,6 +4976,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ukończone rundy: %lld"
+          }
+        }
+      }
+    },
+    "Rounds done: %lld · total %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukończone rundy: %1$lld · łącznie %2$lld"
+          }
+        }
+      }
+    },
+    "Rounds — Boxing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rundy — Boks"
           }
         }
       }
@@ -6736,6 +6907,16 @@
         }
       }
     },
+    "Your full heart-rate curve over the whole block. Green bands are the rounds, the gaps between them are the rests." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pełna krzywa tętna z całego bloku. Zielone pasy to rundy, odstępy między nimi to przerwy."
+          }
+        }
+      }
+    },
     "Your heart rate is visible on the Gym Room display." : {
       "localizations" : {
         "pl" : {
@@ -6884,6 +7065,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "średnia prędkość"
+          }
+        }
+      }
+    },
+    "avg %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "śr. %lld"
           }
         }
       }

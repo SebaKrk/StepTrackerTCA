@@ -45,6 +45,16 @@ struct IntervalTimerFeature {
         /// Absolute end of the running segment; the view counts down to it.
         var segmentEndDate: Date?
 
+        /// Actual start of the running segment — survives a session pause
+        /// (unlike `segmentEndDate`, which is re-armed on resume), so the
+        /// completed segment reports its REAL wall-clock interval.
+        var segmentStartDate: Date?
+
+        /// Work segments recorded across ALL blocks of this session — persisted
+        /// events carry this absolute numbering, while the on-screen
+        /// `roundIndex` restarts per block (Start after Finished).
+        var recordedWorkSegments = 0
+
         /// Remaining segment seconds frozen by a session pause.
         var pausedRemaining: TimeInterval?
 
@@ -95,13 +105,25 @@ struct IntervalTimerFeature {
         /// Session resume forwarded by the parent — re-arms the segment.
         case sessionResumed
 
+        /// Facts for the parent — completed segments become workout events.
+        case delegate(Delegate)
+
         /// Actions sent by the view.
         case view(View)
 
         @CasePathable
+        enum Delegate {
+
+            /// A work/rest segment finished with its REAL date interval
+            /// (session pauses stretch it; skips shorten it).
+            case segmentCompleted(RoundSegment)
+        }
+
+        @CasePathable
         enum View {
 
-            /// idle → 3-second countdown → round 1.
+            /// idle/finished → 3-second countdown → round 1. From `finished`
+            /// this starts the NEXT block with the same config.
             case startTapped
 
             /// Ends the running segment right now (advance without waiting).
@@ -110,9 +132,6 @@ struct IntervalTimerFeature {
             /// Restarts the running segment; tapped near its start (first 2 s)
             /// jumps to the previous segment — the undo of an accidental skip.
             case previousSegmentTapped
-
-            /// Back to idle from any state (config preserved).
-            case resetTapped
 
             /// Toggles the persisted signal mute.
             case muteTapped
@@ -131,7 +150,7 @@ struct IntervalTimerFeature {
         Reduce { state, action in
             switch action {
             case .view(.startTapped):
-                guard state.phase == .idle else { return .none }
+                guard state.phase == .idle || state.phase == .finished else { return .none }
                 state.phase = .countdown
                 state.roundIndex = 0
                 return arm(&state, seconds: TimeInterval(Self.countdownSeconds))
@@ -176,17 +195,10 @@ struct IntervalTimerFeature {
                 state.$isMuted.withLock { $0.toggle() }
                 return .none
 
-            case .view(.resetTapped):
-                state.phase = .idle
-                state.roundIndex = 0
-                state.segmentEndDate = nil
-                state.pausedRemaining = nil
-                return .merge(
-                    .cancel(id: CancelID.segment),
-                    .cancel(id: CancelID.warning)
-                )
-
             case .segmentFinished:
+                // Close the just-finished segment BEFORE transitioning — the
+                // current phase/roundIndex still describe it.
+                let completed = closeSegment(&state)
                 switch state.phase {
                 case .countdown:
                     state.roundIndex = 1
@@ -204,7 +216,8 @@ struct IntervalTimerFeature {
                         return .merge(
                             .cancel(id: CancelID.segment),
                             .cancel(id: CancelID.warning),
-                            play(.finished, muted: state.isMuted)
+                            play(.finished, muted: state.isMuted),
+                            completed
                         )
                     }
                     guard state.config.restSeconds > 0 else {
@@ -212,13 +225,15 @@ struct IntervalTimerFeature {
                         state.phase = .work
                         return .merge(
                             arm(&state, seconds: TimeInterval(state.config.workSeconds)),
-                            play(.workStarted, muted: state.isMuted)
+                            play(.workStarted, muted: state.isMuted),
+                            completed
                         )
                     }
                     state.phase = .rest
                     return .merge(
                         arm(&state, seconds: TimeInterval(state.config.restSeconds)),
-                        play(.restStarted, muted: state.isMuted)
+                        play(.restStarted, muted: state.isMuted),
+                        completed
                     )
 
                 case .rest:
@@ -226,7 +241,8 @@ struct IntervalTimerFeature {
                     state.phase = .work
                     return .merge(
                         arm(&state, seconds: TimeInterval(state.config.workSeconds)),
-                        play(.workStarted, muted: state.isMuted)
+                        play(.workStarted, muted: state.isMuted),
+                        completed
                     )
 
                 case .idle, .finished:
@@ -248,7 +264,20 @@ struct IntervalTimerFeature {
             case .sessionResumed:
                 guard state.isRunning, let remaining = state.pausedRemaining else { return .none }
                 state.pausedRemaining = nil
-                return arm(&state, seconds: remaining)
+                // preservingStart — the pause belongs to the segment's real span.
+                return arm(&state, seconds: remaining, preservingStart: true)
+
+            case .delegate:
+                return .none
+
+            case .binding(\.config):
+                // Editing the config on the finished card = preparing the next
+                // block — flip back to idle so the tile shows the NEW setup.
+                if state.phase == .finished {
+                    state.phase = .idle
+                    state.roundIndex = 0
+                }
+                return .none
 
             case .binding:
                 return .none
@@ -268,9 +297,34 @@ struct IntervalTimerFeature {
         }
     }
 
+    /// Emits the just-finished work/rest segment to the parent with its REAL
+    /// interval. Countdown is not a segment; a restart (◀︎) or reset drops the
+    /// partial fragment instead (redo semantics, not a completed round).
+    /// Persisted round numbers are ABSOLUTE across blocks (a rest carries its
+    /// preceding work's number) — duplicates would corrupt the analysis.
+    private func closeSegment(_ state: inout State) -> Effect<Action> {
+        guard state.phase == .work || state.phase == .rest,
+              let start = state.segmentStartDate, start <= now
+        else { return .none }
+        if state.phase == .work {
+            state.recordedWorkSegments += 1
+        }
+        let segment = RoundSegment(
+            roundIndex: state.recordedWorkSegments,
+            kind: state.phase == .work ? .work : .rest,
+            dateInterval: DateInterval(start: start, end: now)
+        )
+        state.segmentStartDate = nil
+        return .send(.delegate(.segmentCompleted(segment)))
+    }
+
     /// Sets the segment deadline and schedules the boundary wake-up — plus the
     /// warning wake-up: −10 s of a work segment, last second of a rest segment.
-    private func arm(_ state: inout State, seconds: TimeInterval) -> Effect<Action> {
+    /// `preservingStart` keeps `segmentStartDate` (resume after a session pause).
+    private func arm(_ state: inout State, seconds: TimeInterval, preservingStart: Bool = false) -> Effect<Action> {
+        if !preservingStart {
+            state.segmentStartDate = now
+        }
         state.segmentEndDate = now.addingTimeInterval(seconds)
         let boundary = Effect<Action>.run { send in
             try await clock.sleep(for: .seconds(seconds))

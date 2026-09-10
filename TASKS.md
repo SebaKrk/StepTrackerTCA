@@ -1424,4 +1424,13 @@
     - shared display helpers extracted to `IntervalTimerFeature+Display` (accents, labels, countdown math) — portrait and landscape can't drift; toggle rides the existing `isIntervalTimerVisible`
     - signal tuning: new bell on the LAST second of rest (announces the round), ALL haptics removed (the phone lies across the gym) — round start is now fully silent by design
     - follow-up: Stats tab auto-refresh loop diagnosed (HK observer → un-debounced `pullToRefresh` cascade in `StatsFeature`) — fix pending as a separate task
+
+### IOS-00131 Rounds analysis in activity details — per-round HR + recovery
+    - branch: (user assigns)
+    - HealthKit-NATIVE persistence: the timer marks each finished work/rest segment as `HKWorkoutEvent(.segment)` with metadata (round index, kind) on the live builder — rounds live INSIDE the workout, zero own tables/migrations (rejected: SQLite outbox draft, `HKWorkoutActivity` — multisport machinery unfit for 30 s rounds)
+    - capture path: `IntervalTimerFeature` delegate → `SessionFeature` → `SessionClient.addRoundSegment` → `WorkoutSession` protocol (default no-op) → `iPhoneWorkoutSession`; MVP = iPhone-standalone only (watchPrimary builder lives on the Watch — WC relay parked in backlog)
+    - `RoundsAnalysis` (SharedModels, pure): per-round min/avg/peak, recovery drop per rest (peak anchor spills 5 s into the rest for cardiac lag, clamped ≥ 0), avg work HR, hardest round, "recovery fades after round N"
+    - ActivityDetails: entry card at the bottom (only when the workout carries our segments) → `RoundsDetail` screen: 4-stat grid + 3 charts in the minute-chart language (zone-gradient range capsules + avg dots, recovery bars colored by the ZONE recovered to, HR curve with green round bands)
+    - side fixes while there: facade cleanup of `ActivityDetailsView` (named sections, extracted buttons), bottom safe-area gradient seam (`.ignoresSafeArea()` in 3 detail views), inverted localization key `"Dodaj plan"` → `"Add plan"`
+    - pending: on-device verification with real HR (sample density per 30 s round, 5 s recovery anchor); follow-ups: watchPrimary capture via WC, chart scrubbing, mini capsule strip on the entry card
     

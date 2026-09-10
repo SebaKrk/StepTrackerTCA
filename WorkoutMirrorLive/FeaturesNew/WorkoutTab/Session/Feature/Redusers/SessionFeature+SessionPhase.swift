@@ -289,6 +289,13 @@ extension SessionFeature {
                 }
                 return .none
 
+            case let .live(.intervalTimer(.delegate(.segmentCompleted(segment)))):
+                // Rounds land natively in HealthKit as HKWorkoutEvent(.segment) —
+                // no-op on watchPrimary (the Watch owns the builder, MVP scope).
+                return .run { [sessionClient] _ in
+                    await sessionClient.addRoundSegment(segment)
+                }
+
             default:
                 return .none
             }

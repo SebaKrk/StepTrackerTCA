@@ -482,7 +482,8 @@ private func previewSessionClient(elapsed: TimeInterval) -> SessionClient {
         mirroredSessionStartedStream: { AsyncStream { $0.finish() } },
         watchConnectionStatusStream: { AsyncStream { $0.finish() } },
         sendLifecycleEventToWatch: { _ in true },
-        recoverPrimarySession: { _ in }
+        recoverPrimarySession: { _ in },
+        addRoundSegment: { _ in }
     )
 }
 

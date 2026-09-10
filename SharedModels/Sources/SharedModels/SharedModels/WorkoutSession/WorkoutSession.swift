@@ -65,4 +65,16 @@ public protocol WorkoutSession: Sendable {
     /// Final `HKWorkout` emitted exactly once after the session ends and the sample lands in HealthKit.
     /// Push-based via `HKAnchoredObjectQueryDescriptor.results(for:)` — no polling.
     var workout: AsyncStream<HKWorkout> { get }
+
+    // MARK: - Round segments
+
+    /// Persists one completed rounds-timer segment as an `HKWorkoutEvent(.segment)`
+    /// on the live builder. Only the builder owner can write events — sessions
+    /// without a local builder (Watch-primary mirror) keep the default no-op.
+    func addRoundSegment(_ segment: RoundSegment) async
+}
+
+extension WorkoutSession {
+
+    public func addRoundSegment(_ segment: RoundSegment) async {}
 }
