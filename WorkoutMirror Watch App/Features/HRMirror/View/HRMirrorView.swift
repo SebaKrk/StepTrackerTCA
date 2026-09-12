@@ -41,6 +41,9 @@ struct HRMirrorView: View {
         .onAppear {
             send(.onAppear)
         }
+        .sheet(isPresented: lowBatterySheetBinding) {
+            lowBatterySheet
+        }
         .toolbar(.hidden)
         .overlay {
             if store.isSaving {
@@ -57,6 +60,24 @@ struct HRMirrorView: View {
         .animation(.easeInOut(duration: 0.4), value: store.isSaving)
         .animation(.easeInOut(duration: 0.4), value: store.summaryPhase)
         .animation(.easeInOut(duration: 0.3), value: store.isCountingDown)
+    }
+
+    // MARK: - Low Battery Sheet
+
+    /// Presentation is driven by the reducer: swipe-to-dismiss and the OK button
+    /// both land in `.lowBatteryDismissed`, mirroring the TabView selection binding.
+    private var lowBatterySheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.isLowBatteryWarningPresented },
+            set: { if !$0 { send(.lowBatteryDismissed) } }
+        )
+    }
+
+    private var lowBatterySheet: some View {
+        LowBatteryWarningView(
+            onEndWorkout: { send(.lowBatteryEndWorkoutTapped) },
+            onDismiss: { send(.lowBatteryDismissed) }
+        )
     }
 
     // MARK: - Countdown Overlay
@@ -398,6 +419,68 @@ struct HRMirrorView: View {
 
 }
 
+// MARK: - Low Battery Warning
+
+/// Sheet shown once when battery drops to ≤5% during a workout. Ending now is
+/// the only guaranteed save (post-power-death recovery is best-effort), so the
+/// primary action routes into the normal `.stop` flow; OK just dismisses.
+private struct LowBatteryWarningView: View {
+
+    let onEndWorkout: () -> Void
+    let onDismiss: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 8) {
+                batteryIcon
+                title
+                message
+                endWorkoutButton
+                dismissButton
+            }
+        }
+    }
+
+    private var batteryIcon: some View {
+        Image(systemName: "battery.25percent")
+            .font(.title3)
+            .foregroundStyle(.red)
+    }
+
+    private var title: some View {
+        Text(String(localized: "Battery below 5%"))
+            .font(.headline)
+            .multilineTextAlignment(.center)
+    }
+
+    private var message: some View {
+        Text(String(localized: "End the workout to keep its data."))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+    }
+
+    private var endWorkoutButton: some View {
+        Button(role: .destructive) {
+            onEndWorkout()
+        } label: {
+            Text(String(localized: "End workout"))
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.top, 8)
+    }
+
+    private var dismissButton: some View {
+        Button {
+            onDismiss()
+        } label: {
+            Text(String(localized: "OK"))
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+}
+
 // MARK: - Preview
 
 #Preview("Resting") {
@@ -462,6 +545,11 @@ struct HRMirrorView: View {
         state.heartRateZone = .anaerobic
         return state
     }()) { HRMirrorFeature() })
+}
+
+
+#Preview("Low battery — sheet content") {
+    LowBatteryWarningView(onEndWorkout: {}, onDismiss: {})
 }
 
 #Preview("Summary") {

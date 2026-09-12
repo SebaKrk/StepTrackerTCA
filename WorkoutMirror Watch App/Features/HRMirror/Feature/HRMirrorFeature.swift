@@ -32,6 +32,7 @@ struct HRMirrorFeature {
     @Dependency(\.watchWorkoutSessionClient) var watchWorkoutSessionClient
     @Dependency(\.watchConnectivityClientAW) var watchClient
     @Dependency(\.extendedRuntimeClient) var extendedRuntimeClient
+    @Dependency(\.watchDeviceClient) var watchDeviceClient
     @Dependency(\.continuousClock) var clock
 
     // MARK: - Body
@@ -169,6 +170,27 @@ struct HRMirrorFeature {
                 state.showTabIndicator = false
                 return .none
 
+            case .batteryLevelChecked(let level):
+                guard level <= 0.05, !state.didShowLowBatteryWarning else { return .none }
+                state.didShowLowBatteryWarning = true
+                state.isLowBatteryWarningPresented = true
+                return .run { [watchDeviceClient = watchDeviceClient] _ in
+                    await watchDeviceClient.playWarningHaptic()
+                    await WorkoutFileLogger.shared.log("[Battery] ≤5% — low-battery warning shown")
+                }
+
+            case .view(.lowBatteryDismissed):
+                state.isLowBatteryWarningPresented = false
+                return .none
+
+            case .view(.lowBatteryEndWorkoutTapped):
+                Logger.hrMirror.info("low-battery warning — user chose End workout")
+                state.isLowBatteryWarningPresented = false
+                return .merge(
+                    .run { _ in await WorkoutFileLogger.shared.log("[UserAction] low-battery warning — End workout tapped") },
+                    .send(.stop)
+                )
+
             case .view(.screenTapped):
                 state.showTabIndicator = true
                 return .run { send in
@@ -242,7 +264,20 @@ struct HRMirrorFeature {
                         try? await Task.sleep(for: .seconds(3))
                         await send(.hideTabIndicator)
                     }
-                    .cancellable(id: HRMirrorCancelID.tabIndicatorTimer)
+                    .cancellable(id: HRMirrorCancelID.tabIndicatorTimer),
+                    // Battery poll: one cheap read per minute. watchOS has no low-battery
+                    // callback, and at ≤5% ending now is the only GUARANTEED save —
+                    // post-power-death recovery is best-effort (undocumented by Apple).
+                    // Sleep FIRST so the warning can never present over the countdown.
+                    .run { [watchDeviceClient = watchDeviceClient, clock] send in
+                        while !Task.isCancelled {
+                            try await clock.sleep(for: .seconds(60))
+                            if let level = await watchDeviceClient.batteryLevel() {
+                                await send(.batteryLevelChecked(level))
+                            }
+                        }
+                    }
+                    .cancellable(id: HRMirrorCancelID.batteryMonitor)
                 )
 
             // Received from iPhone via WatchConnectivity — restarts elapsed-time timer
@@ -300,12 +335,14 @@ struct HRMirrorFeature {
                     }
                 }
                 state.isSaving = true
+                state.isLowBatteryWarningPresented = false
                 return .merge(
                     .cancel(id: HRMirrorCancelID.hrQuery),
                     .cancel(id: HRMirrorCancelID.subSecondTimer),
                     .cancel(id: HRMirrorCancelID.countdown),
                     .cancel(id: HRMirrorCancelID.tabIndicatorTimer),
                     .cancel(id: HRMirrorCancelID.sessionStateStream),
+                    .cancel(id: HRMirrorCancelID.batteryMonitor),
                     .run { [watchWorkoutSessionClient = watchWorkoutSessionClient,
                             watchClient = watchClient, clock] send in
                         let savingStart = ContinuousClock.now
@@ -391,5 +428,8 @@ private nonisolated enum HRMirrorCancelID: Hashable, Sendable {
 
     /// Identifies the stream that delivers pause/resume state from the Watch session delegate.
     case sessionStateStream
+
+    /// Identifies the once-a-minute battery level poll.
+    case batteryMonitor
 
 }

@@ -22,7 +22,7 @@ import HealthKit
 ///   `WatchWorkoutSessionClient` properly ends the `HKWorkoutSession`
 @Reducer
 struct AppFeatureAW {
-
+    
     // MARK: - Dependency
 
     @Dependency(\.watchConnectivityClientAW) var watchClient
@@ -133,46 +133,8 @@ struct AppFeatureAW {
                 state.hrMirror = nil
                 return .none
 
-            case .stuckSessionDetected(let stuck):
-                Logger.appAW.notice("stuck session detected — activityType=\(stuck.activityTypeRaw), startDate=\(stuck.startDate)")
-                let activityTypeRaw = stuck.activityTypeRaw
-                let startDate = stuck.startDate
-                Task {
-                    await WorkoutFileLogger.shared.log("[Recovery] alert shown — activityType=\(activityTypeRaw), startDate=\(startDate)")
-                }
-                state.recoveryAlert = AlertState {
-                    TextState(String(localized: "Unfinished workout detected"))
-                } actions: {
-                    ButtonState(action: .endTapped) {
-                        TextState(String(localized: "End now"))
-                    }
-                    ButtonState(role: .destructive, action: .discardTapped) {
-                        TextState(String(localized: "Discard"))
-                    }
-                } message: {
-                    TextState(String(localized: "Workout started: \(stuck.startDate.formatted(date: .omitted, time: .shortened))"))
-                }
-                return .none
-
-            case .recoveryAlert(.presented(.endTapped)):
-                Logger.appAW.info("recoveryAlert — user chose End")
-                return .run { [watchWorkoutSessionClient, watchClient = watchClient] send in
-                    await WorkoutFileLogger.shared.log("[Recovery] user chose END — saving HKWorkout")
-                    await watchWorkoutSessionClient.recoverAndEnd()
-                    await watchClient.transferLogFile()
-                    await send(.recoveryAlert(.dismiss))
-                }
-
-            case .recoveryAlert(.presented(.discardTapped)):
-                Logger.appAW.info("recoveryAlert — user chose Discard")
-                return .run { [watchWorkoutSessionClient, watchClient = watchClient] send in
-                    await WorkoutFileLogger.shared.log("[Recovery] user chose DISCARD — workout discarded")
-                    await watchWorkoutSessionClient.recoverAndDiscard()
-                    await watchClient.transferLogFile()
-                    await send(.recoveryAlert(.dismiss))
-                }
-
-            case .recoveryAlert:
+            case .stuckSessionRecovered(let stuck):
+                Logger.appAW.notice("stuck session recovered — workout saved (activityType=\(stuck.activityTypeRaw), startDate=\(stuck.startDate))")
                 return .none
 
             case .watchEventReceived(.workoutTick(let elapsed)):
@@ -229,20 +191,21 @@ struct AppFeatureAW {
                             await send(.watchEventReceived(event))
                         }
                     },
-                    // Listen for workout configurations forwarded by WatchAppDelegate.handle(_:).
-                    // This stream fires when iPhone calls startWatchApp(toHandle:) — before
-                    // any WatchConnectivity event is delivered.
-                    .run { send in
+                    // Recovery FIRST, then listen for workout configurations forwarded by
+                    // WatchAppDelegate.handle(_:). The hard race guarantee lives in the
+                    // manager — start() awaits the same single-flight recovery — this
+                    // ordering just avoids queueing a start behind an in-flight recovery.
+                    // The configuration stream buffers (.bufferingNewest(1)), so a start
+                    // yielded before this effect subscribes is not lost.
+                    .run { [watchWorkoutSessionClient, watchClient = watchClient] send in
+                        await WorkoutFileLogger.shared.log("[Recovery] app launch — running stuck session check")
+                        if let stuck = await watchWorkoutSessionClient.recoverStuckSession() {
+                            await send(.stuckSessionRecovered(stuck))
+                            await watchClient.transferLogFile()
+                        }
                         for await configuration in WorkoutConfigurationStream.shared.stream {
                             await send(.workoutConfigurationReceived(configuration))
                         }
-                    },
-                    // One-shot recovery check: if a previous app run left a stuck HKWorkoutSession
-                    // in HealthKit, present an alert so the user can finalize or discard it.
-                    .run { [watchWorkoutSessionClient] send in
-                        await WorkoutFileLogger.shared.log("[Recovery] app launch — running stuck session check")
-                        guard let stuck = await watchWorkoutSessionClient.checkForStuckSession() else { return }
-                        await send(.stuckSessionDetected(stuck))
                     },
                     // One-shot: transfer ALL historical watch_log_*.txt files to iPhone.
                     // Picks up logs from sessions that never reached normal .stop flow (crashes, low battery).
@@ -260,6 +223,5 @@ struct AppFeatureAW {
         .ifLet(\.$hrMirror, action: \.hrMirror) {
             HRMirrorFeature()
         }
-        .ifLet(\.$recoveryAlert, action: \.recoveryAlert)
     }
 }

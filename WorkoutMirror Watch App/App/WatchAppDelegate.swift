@@ -3,6 +3,7 @@
 //  WorkoutMirror Watch App
 //
 
+import ComposableArchitecture
 import HealthKit
 import OSLog
 import SharedModels
@@ -19,6 +20,8 @@ import WatchKit
 /// foreground.
 final class WatchAppDelegate: NSObject, WKApplicationDelegate {
 
+    @Dependency(\.watchWorkoutSessionClient) private var watchWorkoutSessionClient
+
     func handle(_ workoutConfiguration: HKWorkoutConfiguration) {
         Logger.appAW.info("[WatchAppDelegate] handle(_:) — activityType: \(workoutConfiguration.activityType.rawValue), locationType: \(workoutConfiguration.locationType.rawValue)")
         WorkoutConfigurationStream.shared.yield(
@@ -27,5 +30,16 @@ final class WatchAppDelegate: NSObject, WKApplicationDelegate {
                 locationType: workoutConfiguration.locationType
             )
         )
+    }
+
+    /// Called when the system relaunches the app after a crash during an active
+    /// `HKWorkoutSession`. May fire in the background, before any scene renders,
+    /// so recovery cannot wait for the reducer's launch check — it runs here directly.
+    /// `recoverStuckSession` is single-flight, so overlapping with that check is safe.
+    func handleActiveWorkoutRecovery() {
+        Logger.appAW.notice("[WatchAppDelegate] handleActiveWorkoutRecovery — relaunched after crash mid-workout")
+        Task { [watchWorkoutSessionClient] in
+            _ = await watchWorkoutSessionClient.recoverStuckSession()
+        }
     }
 }

@@ -49,22 +49,16 @@ struct WatchWorkoutSessionClient: Sendable {
     var sessionStateStream: @Sendable () -> AsyncStream<HKWorkoutSessionState>
 
     /// Checks HealthKit for an active `HKWorkoutSession` left over from the previous app run
-    /// (e.g. iPhone died mid-workout, Watch app force-quit). Wraps
+    /// (crash, battery death, force-quit) and finalizes it immediately through the normal
+    /// end flow — the workout is always saved, never silently lost. Wraps
     /// `HKHealthStore.recoverActiveWorkoutSession()` (watchOS 9+).
     ///
-    /// When a stuck session is found, the manager attaches to it — reconnects delegates and
-    /// recovers the associated builder — so subsequent `recoverAndEnd` / `recoverAndDiscard`
-    /// operates on the live session. Returns `nil` when no stuck session exists; the normal
-    /// start flow is then unaffected.
-    var checkForStuckSession: @Sendable () async -> StuckSession?
-
-    /// Finalizes a previously recovered stuck session: `endCollection` → `finishWorkout` → `session.end`.
-    /// Delegates to the same flow as `endSession()`. Used when the user taps "Zakończ teraz".
-    var recoverAndEnd: @Sendable () async -> Void
-
-    /// Discards a previously recovered stuck session: `builder.discardWorkout` → `session.end`.
-    /// No `HKWorkout` is saved. Used when the user taps "Odrzuć".
-    var recoverAndDiscard: @Sendable () async -> Void
+    /// Single-flight and cached once settled, so concurrent triggers (launch check,
+    /// `handleActiveWorkoutRecovery`, the gate inside `startSession`) share one recovery
+    /// pass; transient failures are retried on the next trigger. Returns a snapshot of
+    /// the recovered session for logging — delivered to exactly one caller — or `nil`
+    /// when there was nothing to recover; the normal start flow is then unaffected.
+    var recoverStuckSession: @Sendable () async -> StuckSession?
 
     /// Stream of `WatchWorkoutEvent`s received from iPhone via the HealthKit mirroring
     /// channel (`didReceiveDataFromRemoteWorkoutSession`). Complementary path to
@@ -113,16 +107,8 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
             sessionStateStream: {
                 manager.sessionStateStream()
             },
-            checkForStuckSession: {
-                await manager.recoverActiveSession()
-            },
-            recoverAndEnd: {
-                await WorkoutFileLogger.shared.log("[Recovery] recoverAndEnd — calling manager.end()")
-                await manager.end()
-                await WorkoutFileLogger.shared.log("[Recovery] recoverAndEnd — manager.end() returned")
-            },
-            recoverAndDiscard: {
-                await manager.discardRecoveredSession()
+            recoverStuckSession: {
+                await manager.recoverAndFinalizeStuckSession()
             },
             remoteEventStream: {
                 manager.remoteEventStream()
@@ -244,6 +230,14 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         activityType: HKWorkoutActivityType,
         locationType: HKWorkoutSessionLocationType
     ) async -> AsyncStream<Double> {
+        // Every start is gated behind the single-flight recovery — this covers ALL entry
+        // points (configuration stream, WC `.workoutStarted` fallback, remote events), not
+        // just the sequenced one in AppFeatureAW. Without it, recovery's end() and this
+        // start() race over `session`/`builder`/`workoutFinished` (last-writer-wins), and
+        // its defer would finish the hrContinuation assigned below. Settled results are
+        // cached, so the common no-recovery case returns immediately.
+        _ = await recoverAndFinalizeStuckSession()
+
         let (stream, continuation) = AsyncStream.makeStream(
             of: Double.self,
             bufferingPolicy: .bufferingNewest(1)
@@ -488,37 +482,124 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         }
     }
 
+    /// Resumes the pending `stopActivityAndWait` continuation exactly once.
+    /// Callers: delegate `.stopped`/`.ended` transitions, `didFailWithError`, and the timeout.
+    private func resumeSessionStopped() {
+        sessionStoppedContinuation?.resume()
+        sessionStoppedContinuation = nil
+    }
+
     /// Calls `session.stopActivity()` and suspends until the delegate confirms `.stopped`.
     ///
     /// If the session is already stopped or ended (e.g. crash recovery), skips immediately
     /// to avoid hanging on a continuation that will never be resumed.
+    ///
+    /// Bounded wait: a recovered zombie session may never report `.stopped` — it can jump
+    /// straight to `.ended` or die via `didFailWithError` (both resume the continuation),
+    /// or deliver no callback at all (the timeout backstops that). On timeout the end flow
+    /// proceeds; R4 still guarantees `session.end()` runs.
     private func stopActivityAndWait(_ session: HKWorkoutSession) async {
         guard session.state == .running || session.state == .paused else {
             Logger.watchSession.info("stopActivityAndWait — skipped (state=\(session.state.rawValue) not running/paused)")
             return
         }
         Logger.watchSession.info("stopActivityAndWait — calling stopActivity(), awaiting delegate .stopped")
+        let timeout = Task { [self] in
+            try? await Task.sleep(for: .seconds(10))
+            guard !Task.isCancelled else { return }
+            Logger.watchSession.error("stopActivityAndWait — no delegate callback within 10 s, proceeding with end flow")
+            await WorkoutFileLogger.shared.log("[End] stopActivityAndWait TIMED OUT — proceeding")
+            resumeSessionStopped()
+        }
         await withCheckedContinuation { continuation in
             sessionStoppedContinuation = continuation
             session.stopActivity(with: .now)
         }
-        Logger.watchSession.info("stopActivityAndWait — .stopped confirmed by delegate")
+        timeout.cancel()
+        Logger.watchSession.info("stopActivityAndWait — wait finished (stopped/ended/failed/timeout)")
+    }
+
+    /// Single-flight guard for `recoverAndFinalizeStuckSession()`: the launch check,
+    /// `handleActiveWorkoutRecovery` and the `start()` gate can race at process start,
+    /// and only one caller may drive `end()`. A settled result (recovered / nothing to
+    /// recover) is cached for the process lifetime — a new stuck session cannot appear
+    /// without this process dying first. A retryable result (transient HK error, live
+    /// session in the way) clears the cache so the next trigger tries again.
+    private var recoveryTask: Task<RecoveryResult, Never>?
+    private let recoveryLock = NSLock()
+
+    /// Snapshot already handed to a caller — later callers get `nil`, so log-only side
+    /// effects (`.stuckSessionRecovered`, log transfer) fire once per recovered session.
+    private var recoverySnapshotDelivered = false
+
+    /// Outcome of one recovery pass. `retryable` separates transient conditions from
+    /// settled ones — only settled results may stay cached in `recoveryTask`.
+    private struct RecoveryResult {
+        let snapshot: StuckSession?
+        let retryable: Bool
+    }
+
+    /// Result of a single `recoverActiveWorkoutSession` query.
+    private enum RecoveryOutcome {
+        case recovered(StuckSession)
+        case nothingToRecover
+        /// The HK query threw — e.g. HealthKit not ready on an early background relaunch.
+        /// Must not be treated as "nothing to recover".
+        case failed
+    }
+
+    /// Recovers an `HKWorkoutSession` left active by the previous app run and finalizes it
+    /// immediately through the normal `end()` flow (endCollection → finishWorkout →
+    /// session.end) — the workout is saved without any user interaction. Returns a
+    /// `StuckSession` snapshot for logging (delivered to exactly one caller), or `nil`
+    /// when there was nothing to recover.
+    func recoverAndFinalizeStuckSession() async -> StuckSession? {
+        let task = recoveryLock.withLock {
+            if let recoveryTask { return recoveryTask }
+            let task = Task { [self] () -> RecoveryResult in
+                guard session == nil else {
+                    // A live workout owns session/builder — recovering now would overwrite
+                    // them mid-workout. Leave the stuck session for the next trigger/launch.
+                    Logger.watchSession.notice("[Recovery] skipped — a live session is active")
+                    return RecoveryResult(snapshot: nil, retryable: true)
+                }
+                switch await recoverActiveSession() {
+                case .recovered(let stuck):
+                    await WorkoutFileLogger.shared.log("[Recovery] auto-finalizing stuck session")
+                    await end()
+                    return RecoveryResult(snapshot: stuck, retryable: false)
+                case .nothingToRecover:
+                    return RecoveryResult(snapshot: nil, retryable: false)
+                case .failed:
+                    return RecoveryResult(snapshot: nil, retryable: true)
+                }
+            }
+            recoveryTask = task
+            return task
+        }
+        let result = await task.value
+        return recoveryLock.withLock {
+            if result.retryable, recoveryTask == task {
+                recoveryTask = nil
+            }
+            guard let snapshot = result.snapshot, !recoverySnapshotDelivered else { return nil }
+            recoverySnapshotDelivered = true
+            return snapshot
+        }
     }
 
     /// Attempts to recover an `HKWorkoutSession` left active by the previous app run.
     ///
     /// Wraps `HKHealthStore.recoverActiveWorkoutSession()` (watchOS 9+). On success,
     /// reattaches the session and its associated builder to this manager — wiring delegates,
-    /// resetting the `workoutFinished` guard so a subsequent `end()` will save the workout —
-    /// and returns a `StuckSession` snapshot for the UI. Returns `nil` if no stuck session
-    /// exists or recovery fails (logged, non-fatal).
-    func recoverActiveSession() async -> StuckSession? {
+    /// resetting the `workoutFinished` guard so a subsequent `end()` will save the workout.
+    private func recoverActiveSession() async -> RecoveryOutcome {
         await WorkoutFileLogger.shared.log("[Recovery] checking HK Store for stuck session...")
         do {
             guard let recovered = try await healthStore.recoverActiveWorkoutSession() else {
                 Logger.watchSession.debug("recoverActiveWorkoutSession() — no stuck session")
                 await WorkoutFileLogger.shared.log("[Recovery] no stuck session in HK Store — nothing to recover")
-                return nil
+                return .nothingToRecover
             }
             let activityTypeRaw = recovered.workoutConfiguration.activityType.rawValue
             let startDate = recovered.startDate ?? .now
@@ -531,30 +612,12 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             builder?.delegate = self
             workoutFinished = false
 
-            return StuckSession(activityTypeRaw: activityTypeRaw, startDate: startDate)
+            return .recovered(StuckSession(activityTypeRaw: activityTypeRaw, startDate: startDate))
         } catch {
             Logger.watchSession.error("recoverActiveWorkoutSession() failed: \(error.localizedDescription)")
             await WorkoutFileLogger.shared.log("[Recovery] FAILED — \(error.localizedDescription)")
-            return nil
+            return .failed
         }
-    }
-
-    /// Discards a previously recovered stuck session without saving an `HKWorkout`.
-    /// Used when the user chooses "Odrzuć" in the recovery alert.
-    func discardRecoveredSession() async {
-        defer {
-            locationsTask?.cancel()
-            locationsTask = nil
-            routeRecorder?.stop()
-            routeRecorder = nil
-            session = nil
-            builder = nil
-            workoutFinished = false
-        }
-        Logger.watchSession.info("discardRecoveredSession() — discarding builder + ending session")
-        builder?.discardWorkout()
-        session?.end()
-        await WorkoutFileLogger.shared.log("[Recovery] discarded — no HKWorkout saved")
     }
 }
 
@@ -582,9 +645,10 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
             await WorkoutFileLogger.shared.log("[Delegate] sessionState \(fromState.description) → \(toState.description)")
         }
 
-        if toState == .stopped {
-            sessionStoppedContinuation?.resume()
-            sessionStoppedContinuation = nil
+        // .ended included: a recovered zombie session can skip .stopped entirely —
+        // without resuming here the recovery end flow would hang on the continuation.
+        if toState == .stopped || toState == .ended {
+            resumeSessionStopped()
         }
 
         // Forward pause/resume to HRMirrorFeature so its UI stays in sync
@@ -679,6 +743,10 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         Logger.watchSession.error("session failed — domain=\(domain), code=\(code), state=\(state), description=\(description)")
         Task {
             await WorkoutFileLogger.shared.log("[Delegate] FAILED — domain=\(domain), code=\(code), state=\(state), error=\(description)")
+        }
+        // A failed session will never reach .stopped — unblock a pending end flow.
+        if workoutSession === session {
+            resumeSessionStopped()
         }
     }
 }
