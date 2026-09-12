@@ -171,7 +171,14 @@ struct HRMirrorFeature {
                 return .none
 
             case .batteryLevelChecked(let level):
-                guard level <= 0.05, !state.didShowLowBatteryWarning else { return .none }
+                // Integer percent comparison: the device reports Float steps of 0.01,
+                // and `Double(Float(0.05)) <= 0.05` is FALSE — a raw comparison would
+                // silently move the threshold to 4%. Post-workout guard: a poll result
+                // already in flight when `.stop` lands must not warn over "Saving…".
+                guard Int((level * 100).rounded()) <= 5,
+                      !state.didShowLowBatteryWarning,
+                      !state.isSaving, state.summaryPhase == .hidden
+                else { return .none }
                 state.didShowLowBatteryWarning = true
                 state.isLowBatteryWarningPresented = true
                 return .run { [watchDeviceClient = watchDeviceClient] _ in

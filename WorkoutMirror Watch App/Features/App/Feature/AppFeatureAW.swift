@@ -22,7 +22,7 @@ import HealthKit
 ///   `WatchWorkoutSessionClient` properly ends the `HKWorkoutSession`
 @Reducer
 struct AppFeatureAW {
-    
+
     // MARK: - Dependency
 
     @Dependency(\.watchConnectivityClientAW) var watchClient

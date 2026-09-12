@@ -47,7 +47,7 @@ extension HRMirrorFeature {
 
         /// Delivered once a minute by the battery poll with the current level (`0...1`).
         ///
-        /// At ≤5% presents the one-shot low-battery sheet (end now = guaranteed save).
+        /// At ≤5% presents the one-shot low-battery warning (end now = guaranteed save).
         case batteryLevelChecked(Double)
 
         /// Received from iPhone via WatchConnectivity when its 3-2-1 countdown starts.
@@ -133,10 +133,10 @@ extension HRMirrorFeature {
             /// Called when the user swipes to a different tab.
             case tabSelected(HRMirrorFeature.Tab)
 
-            /// Called when the user taps OK on the low-battery sheet or dismisses it.
+            /// Called when the user taps OK on the low-battery warning.
             case lowBatteryDismissed
 
-            /// Called when the user taps End workout on the low-battery sheet.
+            /// Called when the user taps End workout on the low-battery warning.
             ///
             /// Ending now is the only guaranteed save once the battery is about to
             /// die — triggers the same `.stop` flow as the Stop long-press.

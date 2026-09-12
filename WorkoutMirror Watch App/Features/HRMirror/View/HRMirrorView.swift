@@ -41,10 +41,10 @@ struct HRMirrorView: View {
         .onAppear {
             send(.onAppear)
         }
-        .sheet(isPresented: lowBatterySheetBinding) {
-            lowBatterySheet
-        }
         .toolbar(.hidden)
+        // System presentations hung on the paged TabView are broken on watchOS 26:
+        // an alert traps a UIKit layout assertion, a sheet renders but receives no
+        // touches on device. The warning is a plain overlay like saving/summary.
         .overlay {
             if store.isSaving {
                 savingOverlay
@@ -52,6 +52,9 @@ struct HRMirrorView: View {
             } else if case .presented(let summary) = store.summaryPhase {
                 summaryOverlay(summary)
                     .transition(.opacity.animation(.easeInOut(duration: 0.4)))
+            } else if store.isLowBatteryWarningPresented {
+                lowBatteryOverlay
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
             } else if store.isCountingDown {
                 countdownOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
@@ -59,25 +62,20 @@ struct HRMirrorView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: store.isSaving)
         .animation(.easeInOut(duration: 0.4), value: store.summaryPhase)
+        .animation(.easeInOut(duration: 0.3), value: store.isLowBatteryWarningPresented)
         .animation(.easeInOut(duration: 0.3), value: store.isCountingDown)
     }
 
-    // MARK: - Low Battery Sheet
+    // MARK: - Low Battery Overlay
 
-    /// Presentation is driven by the reducer: swipe-to-dismiss and the OK button
-    /// both land in `.lowBatteryDismissed`, mirroring the TabView selection binding.
-    private var lowBatterySheetBinding: Binding<Bool> {
-        Binding(
-            get: { store.isLowBatteryWarningPresented },
-            set: { if !$0 { send(.lowBatteryDismissed) } }
-        )
-    }
-
-    private var lowBatterySheet: some View {
-        LowBatteryWarningView(
-            onEndWorkout: { send(.lowBatteryEndWorkoutTapped) },
-            onDismiss: { send(.lowBatteryDismissed) }
-        )
+    private var lowBatteryOverlay: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            LowBatteryWarningView(
+                onEndWorkout: { send(.lowBatteryEndWorkoutTapped) },
+                onDismiss: { send(.lowBatteryDismissed) }
+            )
+        }
     }
 
     // MARK: - Countdown Overlay
@@ -421,9 +419,10 @@ struct HRMirrorView: View {
 
 // MARK: - Low Battery Warning
 
-/// Sheet shown once when battery drops to ≤5% during a workout. Ending now is
-/// the only guaranteed save (post-power-death recovery is best-effort), so the
-/// primary action routes into the normal `.stop` flow; OK just dismisses.
+/// Full-screen warning shown once when battery drops to ≤5% during a workout.
+/// Ending now is the only guaranteed save (post-power-death recovery is
+/// best-effort), so the primary action routes into the normal `.stop` flow;
+/// OK just dismisses.
 private struct LowBatteryWarningView: View {
 
     let onEndWorkout: () -> Void
@@ -548,8 +547,21 @@ private struct LowBatteryWarningView: View {
 }
 
 
-#Preview("Low battery — sheet content") {
+#Preview("Low battery — content") {
     LowBatteryWarningView(onEndWorkout: {}, onDismiss: {})
+}
+
+// Interactive: OK dismisses the warning, End workout runs the full stop flow
+// (ends on the "unavailable" summary — no real HK session in a preview).
+#Preview("Low battery — interactive") {
+    HRMirrorView(store: Store(initialState: {
+        var state = HRMirrorFeature.State(elapsedSeconds: 2748, maxHeartRate: 185)
+        state.isCountingDown = false
+        state.heartRate = 142
+        state.heartRateZone = .aerobic
+        state.isLowBatteryWarningPresented = true
+        return state
+    }()) { HRMirrorFeature() })
 }
 
 #Preview("Summary") {

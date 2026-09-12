@@ -104,7 +104,7 @@ extension HRMirrorFeature {
         /// the minute-cadence poll must not re-present it after the user taps OK.
         var didShowLowBatteryWarning: Bool = false
 
-        /// Presents the low-battery sheet when battery drops to ≤5% — offers ending
+        /// Presents the low-battery overlay when battery drops to ≤5% — offers ending
         /// the workout now (guaranteed save) instead of riding it out to a power death.
         var isLowBatteryWarningPresented: Bool = false
 

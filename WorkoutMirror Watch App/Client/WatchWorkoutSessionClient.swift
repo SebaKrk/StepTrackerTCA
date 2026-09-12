@@ -143,6 +143,10 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// Used to bridge the async gap between `stopActivity()` and the delegate callback.
     private var sessionStoppedContinuation: CheckedContinuation<Void, Never>?
 
+    /// Serializes the racing resumers of `sessionStoppedContinuation` (HK delegate
+    /// callbacks vs the 10 s timeout task) — a double resume traps at runtime.
+    private let sessionStoppedLock = NSLock()
+
     /// Guards against calling `finishWorkout()` twice — once from the explicit `end()` call
     /// and once from the `.ended` safety-net handler in the session delegate.
     private var workoutFinished = false
@@ -484,9 +488,14 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
 
     /// Resumes the pending `stopActivityAndWait` continuation exactly once.
     /// Callers: delegate `.stopped`/`.ended` transitions, `didFailWithError`, and the timeout.
+    /// Take-and-nil happens under the lock; the resume itself outside it.
     private func resumeSessionStopped() {
-        sessionStoppedContinuation?.resume()
-        sessionStoppedContinuation = nil
+        let continuation = sessionStoppedLock.withLock {
+            let pending = sessionStoppedContinuation
+            sessionStoppedContinuation = nil
+            return pending
+        }
+        continuation?.resume()
     }
 
     /// Calls `session.stopActivity()` and suspends until the delegate confirms `.stopped`.
@@ -512,7 +521,7 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             resumeSessionStopped()
         }
         await withCheckedContinuation { continuation in
-            sessionStoppedContinuation = continuation
+            sessionStoppedLock.withLock { sessionStoppedContinuation = continuation }
             session.stopActivity(with: .now)
         }
         timeout.cancel()
