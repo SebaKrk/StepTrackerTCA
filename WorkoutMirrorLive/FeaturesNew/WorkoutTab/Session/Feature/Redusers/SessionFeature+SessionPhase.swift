@@ -69,6 +69,8 @@ extension SessionFeature {
                         averageHeartRate: 0
                     )
                     let phases = state.trainingSession?.phases ?? []
+                    // First interval WOD of the plan pre-configures the rounds timer.
+                    let intervalPlan = state.trainingSession?.workouts.compactMap(\.interval).first
 
                     // Reset elapsed-time counter at session start.
                     // Must happen before the tick timer starts to avoid stale values
@@ -131,6 +133,7 @@ extension SessionFeature {
                             .cancellable(id: SessionWatchCancelID.metricsStream),
                             .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
                             .send(.live(.setupPhasePanel(phases))),
+                            .send(.live(.setupIntervalTimer(intervalPlan))),
                             .run { [sessionClient,
                                     maxHR = state.live.maxHeartRate,
                                     activityTypeRaw = state.selectedWorkout.hkType.rawValue] _ in
@@ -185,6 +188,7 @@ extension SessionFeature {
                             .cancellable(id: SessionWatchCancelID.sensorConnectionStream),
                             .send(.live(.liveActivity(.workout(.start(workoutName: state.selectedWorkout.title, initialState: initialState))))),
                             .send(.live(.setupPhasePanel(phases))),
+                            .send(.live(.setupIntervalTimer(intervalPlan))),
                             .run { [watchClient = watchConnectivityClient,
                                     maxHR = state.live.maxHeartRate,
                                     activityTypeRaw = state.selectedWorkout.hkType.rawValue] _ in
@@ -284,6 +288,13 @@ extension SessionFeature {
                     )
                 }
                 return .none
+
+            case let .live(.intervalTimer(.delegate(.segmentCompleted(segment)))):
+                // Rounds land natively in HealthKit as HKWorkoutEvent(.segment) —
+                // no-op on watchPrimary (the Watch owns the builder, MVP scope).
+                return .run { [sessionClient] _ in
+                    await sessionClient.addRoundSegment(segment)
+                }
 
             default:
                 return .none

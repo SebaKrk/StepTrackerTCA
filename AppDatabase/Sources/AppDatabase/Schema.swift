@@ -28,10 +28,27 @@ extension DependencyValues {
     public mutating func bootstrapDatabase() throws {
         let database = try SQLiteData.defaultDatabase()
 
-        var migrator = DatabaseMigrator()
+        var migrator = AppDatabaseSchema.makeMigrator()
         #if DEBUG
         migrator.eraseDatabaseOnSchemaChange = true
         #endif
+
+        try migrator.migrate(database)
+        defaultDatabase = database
+
+        #if DEBUG
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        print("📦 [AppDatabase] path: \(appSupport?.path ?? "unknown")")
+        #endif
+    }
+}
+
+/// Full append-only migrator (v1…) — single source of truth shared by
+/// `bootstrapDatabase()` and the migrator test.
+public enum AppDatabaseSchema {
+
+    public static func makeMigrator() -> DatabaseMigrator {
+        var migrator = DatabaseMigrator()
 
         migrator.registerMigration("v1_userProfile") { db in
             try #sql("""
@@ -335,12 +352,90 @@ extension DependencyValues {
             .execute(db)
         }
 
-        try migrator.migrate(database)
-        defaultDatabase = database
+        // PR Board result entries (S-02). Loose relation to the static PR catalog
+        // via movementId; duplicates per movement+day are allowed by design —
+        // ties are resolved by PRResolver (date, then createdAt).
+        migrator.registerMigration("v12_prEntries") { db in
+            try #sql("""
+                CREATE TABLE "prEntryRecords" (
+                  "id"            TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "movementId"    TEXT NOT NULL,
+                  "date"          TEXT NOT NULL,
+                  "scoreType"     TEXT NOT NULL,
+                  "weightKg"      REAL,
+                  "timeSeconds"   INTEGER,
+                  "rounds"        INTEGER,
+                  "extraReps"     INTEGER,
+                  "isRx"          INTEGER,
+                  "equipment"     TEXT NOT NULL DEFAULT '',
+                  "rpe"           REAL,
+                  "note"          TEXT,
+                  "bodyWeightKg"  REAL,
+                  "context"       TEXT NOT NULL,
+                  "createdAt"     TEXT NOT NULL,
+                  "updatedAt"     TEXT NOT NULL,
+                  "ckRecordData"  BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_prEntryRecords_on_movementId"
+                ON "prEntryRecords"("movementId")
+                """)
+            .execute(db)
+        }
 
-        #if DEBUG
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-        print("📦 [AppDatabase] path: \(appSupport?.path ?? "unknown")")
-        #endif
+        migrator.registerMigration("v13_prEntryContextOptional") { db in
+            // `context` becomes nullable (NULL = user never declared it). SQLite
+            // cannot drop NOT NULL in place, so the table is rebuilt. Historical
+            // "fresh" values were the form's default, not a user choice — they
+            // are rewritten to NULL.
+            try #sql("""
+                CREATE TABLE "new_prEntryRecords" (
+                  "id"            TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "movementId"    TEXT NOT NULL,
+                  "date"          TEXT NOT NULL,
+                  "scoreType"     TEXT NOT NULL,
+                  "weightKg"      REAL,
+                  "timeSeconds"   INTEGER,
+                  "rounds"        INTEGER,
+                  "extraReps"     INTEGER,
+                  "isRx"          INTEGER,
+                  "equipment"     TEXT NOT NULL DEFAULT '',
+                  "rpe"           REAL,
+                  "note"          TEXT,
+                  "scalingNote"   TEXT,
+                  "bodyWeightKg"  REAL,
+                  "context"       TEXT,
+                  "createdAt"     TEXT NOT NULL,
+                  "updatedAt"     TEXT NOT NULL,
+                  "ckRecordData"  BLOB
+                ) STRICT
+                """)
+            .execute(db)
+            try #sql("""
+                INSERT INTO "new_prEntryRecords"
+                SELECT "id", "movementId", "date", "scoreType", "weightKg", "timeSeconds",
+                       "rounds", "extraReps", "isRx", "equipment", "rpe", "note",
+                       NULL, "bodyWeightKg", NULLIF("context", 'fresh'), "createdAt", "updatedAt", "ckRecordData"
+                FROM "prEntryRecords"
+                """)
+            .execute(db)
+            try #sql("""
+                DROP TABLE "prEntryRecords"
+                """)
+            .execute(db)
+            try #sql("""
+                ALTER TABLE "new_prEntryRecords" RENAME TO "prEntryRecords"
+                """)
+            .execute(db)
+            try #sql("""
+                CREATE INDEX "index_prEntryRecords_on_movementId"
+                ON "prEntryRecords"("movementId")
+                """)
+            .execute(db)
+        }
+
+        return migrator
     }
 }

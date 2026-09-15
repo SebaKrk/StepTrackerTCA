@@ -15,6 +15,11 @@ import SharedModels
 @Reducer
 struct WorkoutResultsFeature {
 
+    // MARK: - Dependency
+
+    @Dependency(\.prEntryClient) var prEntryClient
+    @Dependency(\.date.now) var now
+
     // MARK: - State
 
     @ObservableState
@@ -22,24 +27,126 @@ struct WorkoutResultsFeature {
 
         var cards: IdentifiedArrayOf<WODScoringFeature.State> = []
 
+        /// Day of the workout — prefills the date of a suggested PR entry.
+        var workoutDate: Date?
+
+        /// Board-history snapshot backing the suggestion checks. A one-shot read
+        /// on purpose — a live `@FetchAll` would break this State's Equatable
+        /// (shared with the read-only ActivityDetails embed).
+        var prEntries: [PREntry] = []
+
+        /// Prefilled PR editor opened from a suggestion card.
+        @Presents var prEditor: PREntryEditorFeature.State?
+
         /// Typed results for the save flow.
         var results: [WorkoutSessionResult] { cards.map(\.result) }
+
+        /// Read-only embeds (ActivityDetails) never suggest.
+        var isEditable: Bool { !cards.allSatisfy(\.isReadOnly) }
+
+        /// "Add to the PR Board" candidates. Stored, not computed — recomputed
+        /// in the reducer only when a card commits or the snapshot refreshes,
+        /// never on the per-keystroke render path (IOS-00128 review).
+        var prSuggestions: [PRSuggestion] = []
+
+        /// Results of cards the user confirmed with Done — plan-prefilled set
+        /// weights in untouched cards must never masquerade as lifted weights.
+        var committedResults: [WorkoutSessionResult] {
+            cards.filter { $0.phase == .entered }.map(\.result)
+        }
     }
 
     // MARK: - Action
 
     @CasePathable
-    enum Action {
+    enum Action: ViewAction {
+
+        /// Per-card scoring actions (existing behavior).
         case cards(IdentifiedActionOf<WODScoringFeature>)
+
+        /// Presentation actions of the prefilled PR editor sheet.
+        case prEditor(PresentationAction<PREntryEditorFeature.Action>)
+
+        /// Parent-sent trigger: cards just became editable (the view's one-shot
+        /// `.task` can fire before they exist and must not be the only path).
+        case loadPRSnapshot
+
+        /// Fresh board snapshot (on appear and after the editor closes).
+        case prEntriesLoaded([PREntry])
+
+        /// Actions sent by the view.
+        case view(View)
+
+        @CasePathable
+        enum View {
+
+            /// Loads the board snapshot when the section appears.
+            case task
+
+            /// Opens the prefilled PR editor for one suggestion.
+            case prSuggestionTapped(PRSuggestion)
+        }
     }
 
     // MARK: - Reducer
 
     var body: some Reducer<State, Action> {
-        EmptyReducer()
-            .forEach(\.cards, action: \.cards) {
-                WODScoringFeature()
+        Reduce { state, action in
+            switch action {
+            case .view(.task), .loadPRSnapshot:
+                guard state.isEditable else { return .none }
+                return loadEntries()
+
+            case let .view(.prSuggestionTapped(suggestion)):
+                state.prEditor = PREntryEditorFeature.State(
+                    movement: suggestion.movement,
+                    now: now,
+                    prefilledKilograms: suggestion.kilograms,
+                    prefilledDate: state.workoutDate,
+                    prefilledContext: .inWod
+                )
+                return .none
+
+            case .prEditor(.dismiss):
+                // Re-check after a possible save — a beaten suggestion vanishes.
+                return loadEntries()
+
+            case let .prEntriesLoaded(entries):
+                state.prEntries = entries
+                recomputeSuggestions(&state)
+                return .none
+
+            // The forEach child ran first, so the card's phase is already
+            // updated when these commit/reopen actions reach this reducer.
+            case .cards(.element(id: _, action: .view(.doneTapped))),
+                 .cards(.element(id: _, action: .view(.startEditingTapped))):
+                recomputeSuggestions(&state)
+                return .none
+
+            case .cards, .prEditor:
+                return .none
             }
+        }
+        .forEach(\.cards, action: \.cards) {
+            WODScoringFeature()
+        }
+        .ifLet(\.$prEditor, action: \.prEditor) {
+            PREntryEditorFeature()
+        }
+    }
+
+    private func loadEntries() -> Effect<Action> {
+        .run { [prEntryClient] send in
+            // Suggestions are optional sugar — a failed read stays silent.
+            let entries = (try? await prEntryClient.fetchAll()) ?? []
+            await send(.prEntriesLoaded(entries))
+        }
+    }
+
+    private func recomputeSuggestions(_ state: inout State) {
+        state.prSuggestions = state.isEditable
+            ? PRSuggestionBuilder.suggestions(results: state.committedResults, entries: state.prEntries)
+            : []
     }
 }
 
@@ -51,12 +158,14 @@ extension WorkoutResultsFeature.State {
     /// History) reuses saved results; otherwise fresh results are built from the plan.
     static func editable(
         trainingSession: TrainingSession,
-        existingResults: [WorkoutSessionResult]? = nil
+        existingResults: [WorkoutSessionResult]? = nil,
+        workoutDate: Date? = nil
     ) -> Self {
         let workouts = trainingSession.workouts
         let wasScored = existingResults != nil
         let results = existingResults ?? freshResults(from: workouts)
         var state = Self()
+        state.workoutDate = workoutDate
         state.cards = IdentifiedArrayOf(
             uniqueElements: results.enumerated().map { index, result in
                 let workout = workouts.indices.contains(index) ? workouts[index] : nil

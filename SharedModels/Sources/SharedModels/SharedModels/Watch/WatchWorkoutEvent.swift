@@ -59,6 +59,13 @@ public enum WatchWorkoutEvent: Codable, Sendable, Equatable {
     /// zone calculation immediately on receipt.
     case maxHRUpdated(Int)
 
+    /// iPhone relays a completed rounds-timer segment (Watch-primary mode).
+    ///
+    /// The Watch owns the live `HKLiveWorkoutBuilder`, so only it can persist the
+    /// segment as an `HKWorkoutEvent(.segment)` on the workout. Handled inside
+    /// the Watch session manager (builder write) — NOT forwarded to features.
+    case roundSegmentCompleted(RoundSegment)
+
     /// Watch notifies iPhone that `finishWorkout()` succeeded and the `HKWorkout`
     /// is now persisted in HealthKit. iPhone can begin fetching the summary by UUID.
     ///

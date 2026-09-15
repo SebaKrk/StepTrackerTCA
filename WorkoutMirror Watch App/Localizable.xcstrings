@@ -17,10 +17,14 @@
         }
       }
     },
+    "Battery below 5%" : {
+
+    },
     "BPM" : {
       "shouldTranslate" : false
     },
     "Discard" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -51,6 +55,7 @@
       }
     },
     "End now" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -60,12 +65,31 @@
         }
       }
     },
+    "End the workout to keep its data." : {
+
+    },
+    "End workout" : {
+
+    },
+    "OK" : {
+
+    },
     "Pause" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pauza"
+          }
+        }
+      }
+    },
+    "pts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pkt"
           }
         }
       }
@@ -132,6 +156,7 @@
       }
     },
     "Unfinished workout detected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -182,21 +207,12 @@
       }
     },
     "Workout started: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trening rozpoczęty: %@"
-          }
-        }
-      }
-    },
-    "pts" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "pkt"
           }
         }
       }

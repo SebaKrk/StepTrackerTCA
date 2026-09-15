@@ -88,6 +88,8 @@ struct LiveSessionView: View {
                 StopwatchView(store: store.scope(state: \.phaseStopwatch, action: \.phaseStopwatch))
             }
 
+            intervalTimerSection
+
             phasePanelSection
 
             Spacer()
@@ -103,14 +105,9 @@ struct LiveSessionView: View {
             let mainWidth = (geo.size.width - spacing) * 0.75
 
             HStack(spacing: spacing) {
-                landscapeMetricsCard
+                landscapeMainCard
                     .frame(width: mainWidth)
-                VStack(spacing: spacing) {
-                    landscapeSecondaryCard("MAX HR",
-                                           data: store.sessionMaxHeartRate)
-                    landscapeSecondaryCard("AVG HR",
-                                           data: store.sessionAverageHeartRate)
-                }
+                landscapeSideColumn(spacing: spacing)
             }
             .frame(maxHeight: .infinity)
         }
@@ -262,6 +259,37 @@ struct LiveSessionView: View {
     
     // MARK: - Landscape Cards
 
+    /// Main card: the rounds clock while they run and the user switched to it,
+    /// the zones metrics otherwise.
+    @ViewBuilder
+    private var landscapeMainCard: some View {
+        if let timerStore = landscapeIntervalStore {
+            IntervalTimerLandscapeView(
+                store: timerStore,
+                onSwitchToZones: { send(.landscapeTimerToggleTapped) }
+            )
+        } else {
+            landscapeMetricsCard
+        }
+    }
+
+    /// Side column follows the main card: intensity % + live HR next to the
+    /// clock, MAX/AVG HR next to the zones.
+    private func landscapeSideColumn(spacing: CGFloat) -> some View {
+        VStack(spacing: spacing) {
+            if landscapeIntervalStore != nil {
+                landscapeIntensityCard
+                landscapeSecondaryCard("HR",
+                                       data: Int(store.workoutMetrics.heartRate))
+            } else {
+                landscapeSecondaryCard("MAX HR",
+                                       data: store.sessionMaxHeartRate)
+                landscapeSecondaryCard("AVG HR",
+                                       data: store.sessionAverageHeartRate)
+            }
+        }
+    }
+
     private var landscapeMetricsCard: some View {
         VStack(spacing: 0) {
             landscapeHeaderView
@@ -281,6 +309,9 @@ struct LiveSessionView: View {
             landscapeHeartRateView
             Spacer()
             zoneNameLabel
+            if store.intervalTimer?.isRunning == true {
+                landscapeTimerToggleButton(systemImage: "timer")
+            }
         }
     }
 
@@ -361,6 +392,49 @@ struct LiveSessionView: View {
         .glassEffect(in: RoundedRectangle(cornerRadius: 16))
     }
 
+    /// %HRmax in the zone color — the distance-readable intensity signal next
+    /// to the landscape intervals clock.
+    private var landscapeIntensityCard: some View {
+        VStack(spacing: 4) {
+            Text("Intensity")
+                .font(.caption)
+                .textCase(.uppercase)
+                .foregroundStyle(.secondary)
+            Text("\(store.currentHeartRatePercentage)%")
+                .font(.system(size: 48, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(store.currentHeartRateZone.color)
+                .contentTransition(.numericText(value: Double(store.currentHeartRatePercentage)))
+                .animation(.snappy(duration: 0.3), value: store.currentHeartRatePercentage)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .glassEffect(in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    /// Zones ⇄ intervals switch of the landscape main card. Lives in the card
+    /// header LAYOUT — an overlay would collide with the card content.
+    private func landscapeTimerToggleButton(systemImage: String) -> some View {
+        Button {
+            send(.landscapeTimerToggleTapped)
+        } label: {
+            Image(systemName: systemImage)
+                .font(.footnote.weight(.bold))
+                .foregroundStyle(.primary)
+                .frame(width: 40, height: 40)
+                .background(Color.primary.opacity(0.08), in: .circle)
+                .contentShape(Circle().inset(by: -4))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Store of the landscape intervals card — non-nil only while rounds RUN
+    /// (start/config happen in portrait) and the user switched the card over.
+    /// After the last round the landscape falls back to the zones card itself.
+    private var landscapeIntervalStore: StoreOf<IntervalTimerFeature>? {
+        guard store.isIntervalTimerVisible, store.intervalTimer?.isRunning == true else { return nil }
+        return store.scope(state: \.intervalTimer, action: \.intervalTimer)
+    }
+
     // MARK: - Phase Panel
 
     @ViewBuilder
@@ -369,6 +443,16 @@ struct LiveSessionView: View {
            let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
             PhasePanelView(store: phasePanelStore)
                 .frame(minHeight: 180)
+        }
+    }
+
+    // MARK: - Interval Timer
+
+    @ViewBuilder
+    private var intervalTimerSection: some View {
+        if store.isIntervalTimerVisible,
+           let intervalTimerStore = store.scope(state: \.intervalTimer, action: \.intervalTimer) {
+            IntervalTimerView(store: intervalTimerStore)
         }
     }
 
@@ -492,6 +576,31 @@ extension LiveSessionFeature.State {
     state.currentHeartRatePercentage = 62
     state.sessionAverageHeartRate = 124
     state.sessionMaxHeartRate = 158
+    return NavigationStack {
+        LiveSessionView(store: Store(initialState: state) { LiveSessionFeature() })
+    }
+}
+
+// MARK: - Landscape Intervals Preview
+
+/// Landscape main card switched to the rounds clock (shown only while rounds
+/// RUN): intensity % + live HR in the side column.
+#Preview("Landscape — intervals", traits: .landscapeLeft) {
+    var state = LiveSessionFeature.State()
+    state.currentHeartRateZone = .aerobic
+    state.workoutMetrics = WorkoutMetrics(averageHeartRate: 0, heartRate: 148, activeEnergy: 380)
+    state.currentHeartRatePercentage = 75
+    state.sessionAverageHeartRate = 140
+    state.sessionMaxHeartRate = 155
+    var timer = IntervalTimerFeature.State(
+        config: IntervalPlan(workSeconds: 30, restSeconds: 30, rounds: 12),
+        isFromPlan: false
+    )
+    timer.phase = .work
+    timer.roundIndex = 2
+    timer.segmentEndDate = Date().addingTimeInterval(23)
+    state.intervalTimer = timer
+    state.isIntervalTimerVisible = true
     return NavigationStack {
         LiveSessionView(store: Store(initialState: state) { LiveSessionFeature() })
     }

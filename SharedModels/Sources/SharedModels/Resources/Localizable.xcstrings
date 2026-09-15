@@ -152,12 +152,42 @@
         }
       }
     },
+    "Bar & Rings" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drążek i kółka"
+          }
+        }
+      }
+    },
     "Below Average" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poniżej przeciętnej"
+          }
+        }
+      }
+    },
+    "Belt" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas"
+          }
+        }
+      }
+    },
+    "Benchmarks" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benchmarki"
           }
         }
       }
@@ -182,6 +212,16 @@
         }
       }
     },
+    "Chalk" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Magnezja"
+          }
+        }
+      }
+    },
     "Choose activity" : {
       "localizations" : {
         "pl" : {
@@ -198,6 +238,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wybierz urządzenie"
+          }
+        }
+      }
+    },
+    "Clean & Jerk" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean & Jerk"
           }
         }
       }
@@ -232,12 +282,32 @@
         }
       }
     },
+    "Competition" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawody"
+          }
+        }
+      }
+    },
     "Complete rest, minimal activity" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Całkowity odpoczynek, minimalna aktywność"
+          }
+        }
+      }
+    },
+    "Conditioning" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wydolność"
           }
         }
       }
@@ -278,6 +348,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kolarstwo"
+          }
+        }
+      }
+    },
+    "Deadlifts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Martwe ciągi"
           }
         }
       }
@@ -363,6 +443,16 @@
         }
       }
     },
+    "Fresh" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na świeżo"
+          }
+        }
+      }
+    },
     "Functional" : {
       "localizations" : {
         "pl" : {
@@ -433,6 +523,16 @@
         }
       }
     },
+    "Handstand" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stanie na rękach"
+          }
+        }
+      }
+    },
     "Hard effort at lactate threshold. Maximum sustainable pace." : {
       "localizations" : {
         "pl" : {
@@ -479,6 +579,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zmienność rytmu serca (HRV) mierzy wariacje czasowe między kolejnymi uderzeniami serca. Wyższa HRV sugeruje lepszą równowagę układu nerwowego i gotowość do treningów. Jest to jeden z najlepszych wskaźników regeneracji."
+          }
+        }
+      }
+    },
+    "Hero WODs" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hero WODs"
           }
         }
       }
@@ -543,6 +653,16 @@
         }
       }
     },
+    "In WOD" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W WOD-zie"
+          }
+        }
+      }
+    },
     "Intensity Factor" : {
       "localizations" : {
         "pl" : {
@@ -559,6 +679,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Współczynnik Intensywności (IF) pokazuje jak ciężko pracowałeś względem swojego tętna progowego mleczanowego (LTHR).\n\nIF równy 1,0 oznacza, że ćwiczyłeś dokładnie na intensywności progowej. Wartości powyżej 1,0 wskazują na wysiłki cięższe niż tempo progowe.\n\nWzór:\nIF = Średnie tętno / LTHR\n\nGdzie LTHR = Maks. tętno × 0,85\n\nTypowe wartości:\n• < 0,75: Regeneracja / Łatwa\n• 0,75–0,85: Tlenowa / Wytrzymałość\n• 0,85–0,95: Tempo\n• 0,95–1,00: Próg\n• > 1,00: VO2max / Maksymalna"
+          }
+        }
+      }
+    },
+    "Knee sleeves" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opaski na kolana"
           }
         }
       }
@@ -864,6 +994,16 @@
         }
       }
     },
+    "Olympic Lifts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boje olimpijskie"
+          }
+        }
+      }
+    },
     "Optimal Readiness" : {
       "localizations" : {
         "pl" : {
@@ -920,6 +1060,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Słaba gotowość"
+          }
+        }
+      }
+    },
+    "Presses" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyciskania"
           }
         }
       }
@@ -1024,6 +1174,16 @@
         }
       }
     },
+    "Rowing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wioślarz"
+          }
+        }
+      }
+    },
     "Running" : {
       "localizations" : {
         "pl" : {
@@ -1114,12 +1274,42 @@
         }
       }
     },
+    "Snatch" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snatch"
+          }
+        }
+      }
+    },
+    "Squats" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przysiady"
+          }
+        }
+      }
+    },
     "Stop Timer" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zatrzymaj minutnik"
+          }
+        }
+      }
+    },
+    "Straps" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paski"
           }
         }
       }
@@ -1144,6 +1334,22 @@
         }
       }
     },
+    "Strength category" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strength"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siła"
+          }
+        }
+      }
+    },
     "Swimming" : {
       "localizations" : {
         "pl" : {
@@ -1160,6 +1366,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tempo"
+          }
+        }
+      }
+    },
+    "The Girls" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Girls"
           }
         }
       }
@@ -1405,12 +1621,32 @@
         }
       }
     },
+    "Weight vest" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamizelka"
+          }
+        }
+      }
+    },
     "Weightlifting" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dwubój"
+          }
+        }
+      }
+    },
+    "Wrist wraps" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usztywniacze nadgarstków"
           }
         }
       }

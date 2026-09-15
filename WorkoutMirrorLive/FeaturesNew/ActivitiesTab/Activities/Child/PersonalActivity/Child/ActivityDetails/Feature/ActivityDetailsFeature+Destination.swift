@@ -23,6 +23,9 @@ extension ActivityDetailsFeature {
         /// Pełnoekranowy SummaryFeature w manual-entry mode — po wyborze template'a user
         /// wpisuje wyniki / notatki tak jakby właśnie skończył trening (happy-path UI, identyczne save flow).
         case summary(SummaryFeature)
+
+        /// Rounds-timer analysis: per-round HR ranges + recovery between rounds.
+        case roundsDetail(RoundsDetailFeature)
     }
 
 }

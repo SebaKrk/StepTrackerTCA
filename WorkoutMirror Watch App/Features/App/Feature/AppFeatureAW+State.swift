@@ -27,11 +27,6 @@ extension AppFeatureAW {
         /// `.savedSummaryLoaded` confirms the old session is fully closed.
         var pendingConfiguration: WorkoutConfigurationStream.Payload?
 
-        /// Presented on app launch when `WatchWorkoutSessionClient.checkForStuckSession()`
-        /// detects an `HKWorkoutSession` left active by the previous app run (e.g. iPhone died
-        /// mid-workout, Watch app was force-quit). User chooses to finalize or discard.
-        @Presents var recoveryAlert: AlertState<RecoveryAlertAction>?
-
     }
 
 }

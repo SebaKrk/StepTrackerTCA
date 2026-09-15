@@ -110,6 +110,11 @@ struct SessionClient {
     /// here because Watch owns the builder. Per WWDC25: HealthKit returns the running session
     /// but builder + dataSource references die with the crashed process.
     var recoverPrimarySession: @Sendable (HKWorkoutSession) async throws -> Void
+
+    /// Persists a completed rounds-timer segment as an `HKWorkoutEvent(.segment)`
+    /// on the live workout. iPhone-standalone only — in Watch-primary mode the
+    /// builder lives on the Watch, so this is a silent no-op (MVP scope).
+    var addRoundSegment: @Sendable (RoundSegment) async -> Void
 }
 
 // MARK: - Dependency Registration
@@ -291,6 +296,9 @@ private enum SessionClientClientKey: DependencyKey {
             },
             recoverPrimarySession: { session in
                 try await router.recoverPrimarySession(session)
+            },
+            addRoundSegment: { segment in
+                await router.addRoundSegment(segment)
             }
         )
     }()
@@ -444,6 +452,26 @@ private actor WorkoutModeRouter {
         self.mode = .iPhoneStandalone
         startCachingStreams(from: recovered)
         Logger.session.info("recoverPrimarySession — iPhoneWorkoutSession reattached (state=\(recoveredSession.state.rawValue))")
+    }
+
+    /// Rounds-timer segment → live builder. iPhone-standalone writes locally;
+    /// Watch-primary relays the fact over the HK mirroring channel (reliable
+    /// regardless of WC reachability — R2) and the Watch, as the builder owner,
+    /// persists the `HKWorkoutEvent(.segment)` on its side.
+    func addRoundSegment(_ segment: RoundSegment) async {
+        switch mode {
+        case .iPhoneStandalone:
+            await iPhoneSession?.addRoundSegment(segment)
+        case .watchPrimary:
+            guard let data = try? JSONEncoder().encode(WatchWorkoutEvent.roundSegmentCompleted(segment)) else {
+                Logger.session.error("addRoundSegment — failed to encode round segment for Watch relay")
+                return
+            }
+            let delivered = await trainingManager.sendDataToWatch(data)
+            if !delivered {
+                Logger.session.error("addRoundSegment — HK mirror relay failed (round \(segment.roundIndex))")
+            }
+        }
     }
 
     // MARK: - Workout Summary Cache (iPhone-standalone)

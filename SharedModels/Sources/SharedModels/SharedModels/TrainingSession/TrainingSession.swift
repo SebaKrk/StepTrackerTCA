@@ -141,14 +141,25 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     public let timeCap: Int?
     public let rounds: Int?
     public let exercises: [ExerciseSession]
+    /// Work/rest round timer of an `.intervals` session; nil for every other
+    /// type. Optional Codable field — plans saved before it existed decode fine.
+    public let interval: IntervalPlan?
 
-    public init(name: String, type: ExerciseWorkoutType, timeCap: Int?, rounds: Int?, exercises: [ExerciseSession]) {
+    public init(
+        name: String,
+        type: ExerciseWorkoutType,
+        timeCap: Int?,
+        rounds: Int?,
+        exercises: [ExerciseSession],
+        interval: IntervalPlan? = nil
+    ) {
         self.id = UUID()
         self.name = name
         self.type = type
         self.timeCap = timeCap
         self.rounds = rounds
         self.exercises = exercises
+        self.interval = interval
     }
 
     public init(id: UUID = UUID(), draft: WorkoutSessionDraft) {
@@ -158,6 +169,7 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.timeCap = draft.timeCap
         self.rounds = draft.rounds
         self.exercises = draft.exercises
+        self.interval = draft.interval
     }
 }
 

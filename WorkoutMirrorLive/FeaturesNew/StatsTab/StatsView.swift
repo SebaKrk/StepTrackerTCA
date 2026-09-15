@@ -67,27 +67,40 @@ struct StatsView: View {
                                                     ReadinessAnalysisView(store: store)
                                                         .presentationDetents([.medium, .large])
                                                 }
+            .fullScreenCover(item: $store.scope(state: \.destination?.prBoard,
+                                                action: \.destination.prBoard)) { store in
+                PRBoardView(store: store)
+                    .navigationTransition(.zoom(sourceID: "prBoard", in: zoomTransition))
+            }
     }
     
     @ToolbarContentBuilder
     private var toolbarButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            subscriptionTierMenu
-        }
-#if DEBUG
-        let showDataAnalyzerButton = true
-#else
-        let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier == .elite
-#endif
-        if showDataAnalyzerButton {
+        // Exercises segment swaps the global buttons for the PR Board entry (FR-010).
+        if store.context == .exercises {
             ToolbarItem(placement: .topBarTrailing) {
-                dataAnalyzerButton
+                prBoardButton
             }
+            .matchedTransitionSource(id: "prBoard", in: zoomTransition)
+        } else {
+            ToolbarItem(placement: .topBarLeading) {
+                subscriptionTierMenu
+            }
+#if DEBUG
+            let showDataAnalyzerButton = true
+#else
+            let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier == .elite
+#endif
+            if showDataAnalyzerButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    dataAnalyzerButton
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                personButton
+            }
+            .matchedTransitionSource(id: "personSettings", in: zoomTransition)
         }
-        ToolbarItem(placement: .topBarTrailing) {
-            personButton
-        }
-        .matchedTransitionSource(id: "personSettings", in: zoomTransition)
     }
     
     private var subscriptionTierMenu: some View {
@@ -117,6 +130,14 @@ struct StatsView: View {
             send(.personButtonTapped)
         } label: {
             Image(systemName: "person")
+        }
+    }
+
+    private var prBoardButton: some View {
+        Button {
+            send(.prBoardButtonTapped)
+        } label: {
+            Image(systemName: "trophy")
         }
     }
     

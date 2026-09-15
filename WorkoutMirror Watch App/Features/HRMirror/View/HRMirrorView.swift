@@ -42,6 +42,9 @@ struct HRMirrorView: View {
             send(.onAppear)
         }
         .toolbar(.hidden)
+        // System presentations hung on the paged TabView are broken on watchOS 26:
+        // an alert traps a UIKit layout assertion, a sheet renders but receives no
+        // touches on device. The warning is a plain overlay like saving/summary.
         .overlay {
             if store.isSaving {
                 savingOverlay
@@ -49,6 +52,9 @@ struct HRMirrorView: View {
             } else if case .presented(let summary) = store.summaryPhase {
                 summaryOverlay(summary)
                     .transition(.opacity.animation(.easeInOut(duration: 0.4)))
+            } else if store.isLowBatteryWarningPresented {
+                lowBatteryOverlay
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
             } else if store.isCountingDown {
                 countdownOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
@@ -56,7 +62,20 @@ struct HRMirrorView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: store.isSaving)
         .animation(.easeInOut(duration: 0.4), value: store.summaryPhase)
+        .animation(.easeInOut(duration: 0.3), value: store.isLowBatteryWarningPresented)
         .animation(.easeInOut(duration: 0.3), value: store.isCountingDown)
+    }
+
+    // MARK: - Low Battery Overlay
+
+    private var lowBatteryOverlay: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            LowBatteryWarningView(
+                onEndWorkout: { send(.lowBatteryEndWorkoutTapped) },
+                onDismiss: { send(.lowBatteryDismissed) }
+            )
+        }
     }
 
     // MARK: - Countdown Overlay
@@ -398,6 +417,69 @@ struct HRMirrorView: View {
 
 }
 
+// MARK: - Low Battery Warning
+
+/// Full-screen warning shown once when battery drops to ≤5% during a workout.
+/// Ending now is the only guaranteed save (post-power-death recovery is
+/// best-effort), so the primary action routes into the normal `.stop` flow;
+/// OK just dismisses.
+private struct LowBatteryWarningView: View {
+
+    let onEndWorkout: () -> Void
+    let onDismiss: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 8) {
+                batteryIcon
+                title
+                message
+                endWorkoutButton
+                dismissButton
+            }
+        }
+    }
+
+    private var batteryIcon: some View {
+        Image(systemName: "battery.25percent")
+            .font(.title3)
+            .foregroundStyle(.red)
+    }
+
+    private var title: some View {
+        Text(String(localized: "Battery below 5%"))
+            .font(.headline)
+            .multilineTextAlignment(.center)
+    }
+
+    private var message: some View {
+        Text(String(localized: "End the workout to keep its data."))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+    }
+
+    private var endWorkoutButton: some View {
+        Button(role: .destructive) {
+            onEndWorkout()
+        } label: {
+            Text(String(localized: "End workout"))
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.top, 8)
+    }
+
+    private var dismissButton: some View {
+        Button {
+            onDismiss()
+        } label: {
+            Text(String(localized: "OK"))
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+}
+
 // MARK: - Preview
 
 #Preview("Resting") {
@@ -460,6 +542,24 @@ struct HRMirrorView: View {
         state.isCountingDown = false
         state.heartRate = 177
         state.heartRateZone = .anaerobic
+        return state
+    }()) { HRMirrorFeature() })
+}
+
+
+#Preview("Low battery — content") {
+    LowBatteryWarningView(onEndWorkout: {}, onDismiss: {})
+}
+
+// Interactive: OK dismisses the warning, End workout runs the full stop flow
+// (ends on the "unavailable" summary — no real HK session in a preview).
+#Preview("Low battery — interactive") {
+    HRMirrorView(store: Store(initialState: {
+        var state = HRMirrorFeature.State(elapsedSeconds: 2748, maxHeartRate: 185)
+        state.isCountingDown = false
+        state.heartRate = 142
+        state.heartRateZone = .aerobic
+        state.isLowBatteryWarningPresented = true
         return state
     }()) { HRMirrorFeature() })
 }

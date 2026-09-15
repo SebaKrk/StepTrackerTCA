@@ -41,6 +41,9 @@ extension SessionFeature {
             case .view(.timerButtonTapped):
                 return .send(.live(.userStopwatch(.view(.toggleVisibility))))
 
+            case .view(.intervalsButtonTapped):
+                return .send(.live(.toggleIntervalTimerVisibility))
+
             case .view(.joinLiveClassToolbarButtonTapped):
                 // Tap ikony obok HR zones: utwórz state przy pierwszym tap'ie, pokaż sheet.
                 // Kolejne tapy: state istnieje (broadcast trwa) — tylko pokaż sheet.

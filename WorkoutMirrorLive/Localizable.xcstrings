@@ -294,6 +294,16 @@
         }
       }
     },
+    "%@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
     "%@: %@ - %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -307,6 +317,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@: %2$@ - %3$@"
+          }
+        }
+      }
+    },
+    "%@: %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$lld"
           }
         }
       }
@@ -405,6 +425,40 @@
         }
       }
     },
+    "%lld entries" : {
+      "localizations" : {
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpisy"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpisów"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpis"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld wpisu"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld exercises" : {
       "localizations" : {
         "pl" : {
@@ -460,6 +514,22 @@
     },
     "%lld min cap" : {
       "shouldTranslate" : false
+    },
+    "%lld movements in %lld categories" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld movements in %2$lld categories"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ruchów w %lld kategoriach"
+          }
+        }
+      }
     },
     "%lld pkt/min" : {},
     "%lld pts" : {
@@ -622,6 +692,8 @@
     "/ 100" : {
       "shouldTranslate" : false
     },
+    "/%lld" : {},
+    "0" : {},
     "0 %@" : {
       "localizations" : {
         "pl" : {
@@ -958,6 +1030,16 @@
         }
       }
     },
+    "Add first result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj pierwszy wynik"
+          }
+        }
+      }
+    },
     "Add note..." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -965,6 +1047,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodaj notatkę..."
+          }
+        }
+      }
+    },
+    "Add plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj plan"
           }
         }
       }
@@ -1017,6 +1109,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dostosowana dla kobiet — klasyczna formuła zawyżała ich maksymalne tętno. Z badania St. James Women Take Heart Project (2010, 5437 kobiet). Daje niższe wartości — bardziej realistyczne dla większości kobiet."
+          }
+        }
+      }
+    },
+    "After round" : {},
+    "After round %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po rundzie %lld"
           }
         }
       }
@@ -1258,6 +1361,36 @@
         }
       }
     },
+    "Avg recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. odzysk"
+          }
+        }
+      }
+    },
+    "Avg round HR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. tętno rund"
+          }
+        }
+      }
+    },
+    "Avg trend" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend średniej"
+          }
+        }
+      }
+    },
     "BMP" : {
       "localizations" : {
         "pl" : {
@@ -1368,6 +1501,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bluetooth nieobsługiwany"
+          }
+        }
+      }
+    },
+    "Box" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boks"
           }
         }
       }
@@ -1512,6 +1655,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Anuluj"
+          }
+        }
+      }
+    },
+    "Category share of records" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udział kategorii w rekordach"
           }
         }
       }
@@ -1750,6 +1903,16 @@
         }
       }
     },
+    "Context" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontekst"
+          }
+        }
+      }
+    },
     "Continue" : {
       "localizations" : {
         "pl" : {
@@ -1817,6 +1980,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się przetworzyć wybranego zdjęcia."
+          }
+        }
+      }
+    },
+    "Couldn't Delete Entry" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się usunąć wpisu"
+          }
+        }
+      }
+    },
+    "Couldn't Save Result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zapisać wyniku"
           }
         }
       }
@@ -2033,6 +2216,22 @@
         }
       }
     },
+    "Delete %@ from %@?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Delete %1$@ from %2$@?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć %@ z %@?"
+          }
+        }
+      }
+    },
     "Delete Exercise" : {
       "localizations" : {
         "pl" : {
@@ -2073,6 +2272,16 @@
         }
       }
     },
+    "Delete entry" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń wpis"
+          }
+        }
+      }
+    },
     "Delete workout?" : {
       "localizations" : {
         "pl" : {
@@ -2089,6 +2298,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opis"
+          }
+        }
+      }
+    },
+    "Details" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły"
           }
         }
       }
@@ -2185,22 +2404,6 @@
         }
       }
     },
-    "Dodaj plan" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add plan"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodaj plan"
-          }
-        }
-      }
-    },
     "Done" : {
       "localizations" : {
         "pl" : {
@@ -2211,6 +2414,7 @@
         }
       }
     },
+    "Drop" : {},
     "Duration" : {
       "localizations" : {
         "pl" : {
@@ -2243,6 +2447,16 @@
     },
     "EMOM %lld min" : {
       "shouldTranslate" : false
+    },
+    "Each capsule spans the round's min–max heart rate, the dot marks its average. Colors follow your heart-rate zones — the redder the round, the harder it was." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapsułka obejmuje zakres tętna (min–maks) w rundzie, kropka to jej średnia. Kolory odpowiadają Twoim strefom tętna — im bardziej czerwona runda, tym była cięższa."
+          }
+        }
+      }
     },
     "Edit" : {
       "localizations" : {
@@ -2476,6 +2690,16 @@
         }
       }
     },
+    "Equipment" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprzęt"
+          }
+        }
+      }
+    },
     "Error: %@" : {
       "localizations" : {
         "pl" : {
@@ -2512,6 +2736,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodatkowe informacje"
+          }
+        }
+      }
+    },
+    "Extra reps" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodatkowe powtórzenia"
           }
         }
       }
@@ -2679,6 +2914,16 @@
         }
       }
     },
+    "Get ready" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przygotuj się"
+          }
+        }
+      }
+    },
     "Goal" : {
       "localizations" : {
         "pl" : {
@@ -2750,6 +2995,7 @@
         }
       }
     },
+    "HR" : {},
     "HR Recovery" : {
       "localizations" : {
         "pl" : {
@@ -2760,6 +3006,7 @@
         }
       }
     },
+    "HR avg" : {},
     "HR belt" : {
       "localizations" : {
         "pl" : {
@@ -2790,6 +3037,16 @@
         }
       }
     },
+    "HR range per round" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakres tętna per runda"
+          }
+        }
+      }
+    },
     "HR sensor connection lost — measuring paused" : {
       "localizations" : {
         "pl" : {
@@ -2816,6 +3073,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany"
+          }
+        }
+      }
+    },
+    "HR × rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno × rundy"
+          }
+        }
+      }
+    },
+    "Hardest round" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najcięższa runda"
           }
         }
       }
@@ -3054,6 +3331,16 @@
         }
       }
     },
+    "How many beats your heart rate dropped in each rest — from the peak around the round's end to the rest's end. Colors run from the peak's zone (top) to the zone you recovered to (bottom); shrinking bars mean accumulating fatigue." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O ile uderzeń spadło tętno w każdej przerwie — od szczytu z końcówki rundy do końca przerwy. Kolory biegną od strefy szczytu (góra) do strefy, do której zszedłeś (dół); malejące słupki to narastające zmęczenie."
+          }
+        }
+      }
+    },
     "How often each exercise appeared in your training" : {
       "localizations" : {
         "pl" : {
@@ -3140,6 +3427,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Intensywność"
+          }
+        }
+      }
+    },
+    "Intervals" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interwały"
           }
         }
       }
@@ -3559,6 +3856,16 @@
         }
       }
     },
+    "New record?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowy rekord?"
+          }
+        }
+      }
+    },
     "Nick: %@" : {
       "localizations" : {
         "pl" : {
@@ -3713,6 +4020,16 @@
         }
       }
     },
+    "No entries yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wpisów"
+          }
+        }
+      }
+    },
     "No exercise data for this month." : {
       "localizations" : {
         "pl" : {
@@ -3729,6 +4046,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak zalogowanych ćwiczeń w tym miesiącu."
+          }
+        }
+      }
+    },
+    "No heart rate data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych tętna"
           }
         }
       }
@@ -3760,6 +4087,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak odczytu tętna — sprawdź przyleganie paska"
+          }
+        }
+      }
+    },
+    "No heart rate samples were recorded during these rounds." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podczas tych rund nie zarejestrowano próbek tętna."
           }
         }
       }
@@ -4058,6 +4395,16 @@
         }
       }
     },
+    "Optional note" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcjonalna notatka"
+          }
+        }
+      }
+    },
     "Other HR device" : {
       "localizations" : {
         "pl" : {
@@ -4068,12 +4415,32 @@
         }
       }
     },
+    "Outside rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poza rundami"
+          }
+        }
+      }
+    },
     "PR" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "PR"
+          }
+        }
+      }
+    },
+    "PR Board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica PR"
           }
         }
       }
@@ -4094,6 +4461,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Analizowanie treningu..."
+          }
+        }
+      }
+    },
+    "Paused" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauza"
           }
         }
       }
@@ -4335,12 +4712,32 @@
         }
       }
     },
+    "Progress" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progres"
+          }
+        }
+      }
+    },
     "Properties" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Właściwości"
+          }
+        }
+      }
+    },
+    "RPE" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RPE"
           }
         }
       }
@@ -4375,6 +4772,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Regeneracja"
+          }
+        }
+      }
+    },
+    "Recovery between rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja w przerwach"
+          }
+        }
+      }
+    },
+    "Recovery fades after round" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja siada po rundzie"
           }
         }
       }
@@ -4480,12 +4897,32 @@
         }
       }
     },
+    "Rest" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przerwa"
+          }
+        }
+      }
+    },
     "Resting heart rate" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tętno spoczynkowe"
+          }
+        }
+      }
+    },
+    "Result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik"
           }
         }
       }
@@ -4510,12 +4947,55 @@
         }
       }
     },
+    "Round" : {},
+    "Round %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Runda %lld"
+          }
+        }
+      }
+    },
+    "Round end" : {},
+    "Round start" : {},
     "Rounds" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rundy"
+          }
+        }
+      }
+    },
+    "Rounds done: %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukończone rundy: %lld"
+          }
+        }
+      }
+    },
+    "Rounds done: %lld · total %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukończone rundy: %1$lld · łącznie %2$lld"
+          }
+        }
+      }
+    },
+    "Rounds — Boxing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rundy — Boks"
           }
         }
       }
@@ -4556,6 +5036,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Moc biegowa"
+          }
+        }
+      }
+    },
+    "Rx" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rx"
+          }
+        }
+      }
+    },
+    "Rx standard" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard Rx"
           }
         }
       }
@@ -4638,6 +5138,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Skala"
+          }
+        }
+      }
+    },
+    "Scaled" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaled"
           }
         }
       }
@@ -5095,6 +5605,16 @@
         }
       }
     },
+    "Standard" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard"
+          }
+        }
+      }
+    },
     "Start" : {
       "localizations" : {
         "pl" : {
@@ -5223,6 +5743,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stop"
+          }
+        }
+      }
+    },
+    "Stopwatch" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoper"
           }
         }
       }
@@ -5375,6 +5905,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tekst (%lld):"
+          }
+        }
+      }
+    },
+    "The entry was not deleted. Please try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpis nie został usunięty. Spróbuj ponownie."
           }
         }
       }
@@ -6029,6 +6569,16 @@
         }
       }
     },
+    "What did you scale?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co skalowałeś?"
+          }
+        }
+      }
+    },
     "What is %@?" : {
       "localizations" : {
         "pl" : {
@@ -6046,6 +6596,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kobiety"
+          }
+        }
+      }
+    },
+    "Work" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Praca"
           }
         }
       }
@@ -6347,6 +6907,16 @@
         }
       }
     },
+    "Your full heart-rate curve over the whole block. Green bands are the rounds, the gaps between them are the rests." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pełna krzywa tętna z całego bloku. Zielone pasy to rundy, odstępy między nimi to przerwy."
+          }
+        }
+      }
+    },
     "Your heart rate is visible on the Gym Room display." : {
       "localizations" : {
         "pl" : {
@@ -6384,6 +6954,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."
+          }
+        }
+      }
+    },
+    "Your personal records for this movement will appear here." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutaj pojawią się Twoje rekordy dla tego ruchu."
+          }
+        }
+      }
+    },
+    "Your records" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje rekordy"
+          }
+        }
+      }
+    },
+    "Your result was not saved. Please try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik nie został zapisany. Spróbuj ponownie."
           }
         }
       }
@@ -6465,6 +7065,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "średnia prędkość"
+          }
+        }
+      }
+    },
+    "avg %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "śr. %lld"
           }
         }
       }
@@ -6630,6 +7240,16 @@
         }
       }
     },
+    "enter result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wpisz wynik"
+          }
+        }
+      }
+    },
     "exercise time" : {
       "localizations" : {
         "pl" : {
@@ -6656,6 +7276,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "figure.run"
+          }
+        }
+      }
+    },
+    "first result on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pierwszy wynik na Tablicy"
           }
         }
       }
@@ -6723,6 +7353,16 @@
         }
       }
     },
+    "last PR: %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ostatni PR: %@"
+          }
+        }
+      }
+    },
     "limit %lld:00" : {
       "shouldTranslate" : false
     },
@@ -6760,6 +7400,26 @@
     },
     "min" : {
       "shouldTranslate" : false
+    },
+    "movements with a record" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ruchów z rekordem"
+          }
+        }
+      }
+    },
+    "no entries yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "brak wpisów"
+          }
+        }
+      }
     },
     "open bluetooth settings" : {
       "extractionState" : "stale",
@@ -6833,12 +7493,32 @@
         }
       }
     },
+    "previously %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dotychczas %@"
+          }
+        }
+      }
+    },
     "pts" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "pkt"
+          }
+        }
+      }
+    },
+    "records" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rekordy"
           }
         }
       }
@@ -6863,6 +7543,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ponów próbę"
+          }
+        }
+      }
+    },
+    "rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rund"
           }
         }
       }
