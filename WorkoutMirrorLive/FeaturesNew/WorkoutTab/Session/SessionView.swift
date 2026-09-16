@@ -79,7 +79,7 @@ struct SessionView: View {
         HStack(spacing: 8) {
             Image(systemName: "applewatch.slash")
                 .foregroundStyle(.orange)
-            Text(String(localized: "Utracono połączenie z Watchem — trening trwa dalej"))
+            Text(String(localized: "Lost connection to the Watch — workout continues"))
                 .font(.footnote.weight(.semibold))
                 .multilineTextAlignment(.leading)
             Spacer(minLength: 0)
@@ -120,13 +120,13 @@ struct SessionView: View {
     private var sensorStaleMessage: String {
         switch store.live.lastSensorDisconnectReason {
         case .outOfRange:
-            String(localized: "Czujnik tętna poza zasięgiem — trening trwa, pomiar wstrzymany")
+            String(localized: "HR sensor out of range — workout continues, measuring paused")
         case .deviceOff:
-            String(localized: "Czujnik tętna rozłączony — sprawdź baterię paska")
+            String(localized: "HR sensor disconnected — check the strap battery")
         case .other:
-            String(localized: "Połączenie z czujnikiem tętna przerwane — pomiar wstrzymany")
+            String(localized: "HR sensor connection lost — measuring paused")
         case nil:
-            String(localized: "Brak odczytu tętna — sprawdź przyleganie paska")
+            String(localized: "No heart rate reading — check the strap fit")
         }
     }
 
@@ -253,7 +253,18 @@ struct SessionView: View {
             .symbolEffect(.variableColor.iterative, isActive: phase == .searching)
     }
 
+    /// Plain stopwatch toggle everywhere; a menu when the session also carries
+    /// the boxing-rounds timer — one toolbar slot, two tools.
+    @ViewBuilder
     private var timerButton: some View {
+        if store.live.intervalTimer != nil {
+            timerMenu
+        } else {
+            stopwatchButton
+        }
+    }
+
+    private var stopwatchButton: some View {
         Button {
             send(.timerButtonTapped)
         } label: {
@@ -261,6 +272,31 @@ struct SessionView: View {
         }
         .tint(store.live.userStopwatch.isVisible ? .orange : nil)
         .disabledWithOpacity(store.controls.isLocked || store.live.phaseStopwatch.isManagingPhase)
+    }
+
+    private var timerMenu: some View {
+        Menu {
+            Button {
+                send(.timerButtonTapped)
+            } label: {
+                Label(String(localized: "Stopwatch"), systemImage: "stopwatch")
+            }
+            Button {
+                send(.intervalsButtonTapped)
+            } label: {
+                Label(String(localized: "Intervals"), systemImage: "repeat.circle")
+            }
+        } label: {
+            Image(systemName: "timer")
+        }
+        .tint(timerMenuTint)
+        .disabledWithOpacity(store.controls.isLocked || store.live.phaseStopwatch.isManagingPhase)
+    }
+
+    private var timerMenuTint: Color? {
+        if store.live.userStopwatch.isVisible { return .orange }
+        if store.live.isIntervalTimerVisible { return .green }
+        return nil
     }
 
     private var xMarkImage: some View {
@@ -427,7 +463,7 @@ private func previewStore(state: SessionFeature.State) -> StoreOf<SessionFeature
 // returning a fixed value here — the timer in the preview shows 00:00,00.
 private func previewSessionClient(elapsed: TimeInterval) -> SessionClient {
     SessionClient(
-        selectedWorkout: { _ in },
+        selectedWorkout: { _, _ in },
         workoutMetricsStream: { AsyncStream { $0.finish() } },
         workoutSessionStateStream: { AsyncStream { $0.finish() } },
         elapsedTimeAt: { _ in elapsed },
@@ -436,7 +472,7 @@ private func previewSessionClient(elapsed: TimeInterval) -> SessionClient {
             WorkoutSummary(workout: nil, metrics: WorkoutMetrics(averageHeartRate: 0, heartRate: 0, activeEnergy: 0))
         },
         endWorkout: {},
-        startWatchWorkout: { _ in },
+        startWatchWorkout: { _, _ in },
         deleteWorkout: { _ in },
         setWorkoutMode: { _ in },
         incrementElapsed: { 0 },
@@ -446,7 +482,8 @@ private func previewSessionClient(elapsed: TimeInterval) -> SessionClient {
         mirroredSessionStartedStream: { AsyncStream { $0.finish() } },
         watchConnectionStatusStream: { AsyncStream { $0.finish() } },
         sendLifecycleEventToWatch: { _ in true },
-        recoverPrimarySession: { _ in }
+        recoverPrimarySession: { _ in },
+        addRoundSegment: { _ in }
     )
 }
 

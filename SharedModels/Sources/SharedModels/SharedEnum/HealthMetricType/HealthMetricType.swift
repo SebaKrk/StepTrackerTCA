@@ -54,16 +54,16 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
     public var description: String {
         switch self {
         case .rhr:
-            return "Tętno spoczynkowe (RHR) to liczba uderzeń serca na minutę podczas odpoczynku. Niższe wartości zazwyczaj wskazują na lepszą kondycję cardiovascular i regenerację. Apple Watch mierzy RHR automatycznie podczas snu i odpoczynku."
+            return String(localized: "Resting heart rate (RHR) is the number of heartbeats per minute at rest. Lower values usually indicate better cardiovascular fitness and recovery. Apple Watch measures RHR automatically during sleep and rest.", bundle: .module)
             
         case .hrv:
-            return "Zmienność rytmu serca (HRV) mierzy wariacje czasowe między kolejnymi uderzeniami serca. Wyższa HRV sugeruje lepszą równowagę układu nerwowego i gotowość do treningów. Jest to jeden z najlepszych wskaźników regeneracji."
+            return String(localized: "Heart rate variability (HRV) measures the time variation between consecutive heartbeats. Higher HRV suggests better nervous-system balance and training readiness. It is one of the best recovery indicators.", bundle: .module)
             
         case .sleep:
-            return "Jakość snu oceniana jest na podstawie czasu spędzonego w różnych fazach snu (głęboki, REM, lekki). Lepszy sen przyczynia się do lepszej regeneracji i gotowości treningowej. Zalecane 7-9 godzin dla dorosłych."
+            return String(localized: "Sleep quality is scored from time spent in the sleep stages (deep, REM, light). Better sleep improves recovery and training readiness. 7–9 hours are recommended for adults.", bundle: .module)
             
         case .activity:
-            return "Poziom aktywności mierzy energię wydatkowaną podczas poprzedniego dnia. Zbyt wysoka aktywność może wpływać negatywnie na dzisiejszą gotowość. Monitoring obciążenia treningowego pomaga uniknąć przetrenowania."
+            return String(localized: "Activity level measures the energy expended during the previous day. Too much activity can negatively affect today's readiness. Monitoring training load helps avoid overtraining.", bundle: .module)
         }
     }
     
@@ -71,7 +71,7 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .rhr: return "bpm"
         case .hrv: return "ms"
-        case .sleep: return "hours"
+        case .sleep: return String(localized: "hours", bundle: .module)
         case .activity: return "kcal"
         }
     }
@@ -79,13 +79,13 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
     public var missingDataMessage: String {
         switch self {
         case .rhr:
-            return String(localized: "No heart rate data available. Check Health app.", defaultValue: "No heart rate data available. Check Health app.")
+            return String(localized: "No heart rate data available. Check Health app.", defaultValue: "No heart rate data available. Check Health app.", bundle: .module)
         case .hrv:
-            return String(localized: "No HRV data found. Regular measurements required.", defaultValue: "No HRV data found. Regular measurements required.")
+            return String(localized: "No HRV data found. Regular measurements required.", defaultValue: "No HRV data found. Regular measurements required.", bundle: .module)
         case .sleep:
-            return String(localized: "No sleep data. Track your sleep to see insights.", defaultValue: "No sleep data. Track your sleep to see insights.")
+            return String(localized: "No sleep data. Track your sleep to see insights.", defaultValue: "No sleep data. Track your sleep to see insights.", bundle: .module)
         case .activity:
-            return String(localized: "No calories burned data available.", defaultValue: "No calories burned data available.")
+            return String(localized: "No calories burned data available.", defaultValue: "No calories burned data available.", bundle: .module)
         }
     }
     

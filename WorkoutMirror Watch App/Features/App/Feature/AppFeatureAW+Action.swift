@@ -12,15 +12,6 @@ import SharedModels
 /// Implementation of `AppFeatureAW` action.
 extension AppFeatureAW {
 
-    /// Recovery alert button actions — used by `AlertState<RecoveryAlertAction>`.
-    enum RecoveryAlertAction: Equatable {
-        /// User tapped "Zakończ teraz" — finalize the recovered session and save the `HKWorkout`.
-        case endTapped
-
-        /// User tapped "Odrzuć" — discard the recovered session without saving.
-        case discardTapped
-    }
-
     @CasePathable
     enum Action: ViewAction {
 
@@ -31,19 +22,20 @@ extension AppFeatureAW {
 
         /// Delivered when iPhone calls `HKHealthStore.startWatchApp(toHandle:)`.
         ///
-        /// `WatchAppDelegate.handle(_:)` yields the activity type to
+        /// `WatchAppDelegate.handle(_:)` yields the activity type + location to
         /// `WorkoutConfigurationStream`, which is consumed here. This fires before
         /// WatchConnectivity `.workoutStarted` — starts `HRMirrorFeature` early so
         /// `startMirroringToCompanionDevice()` runs and watchOS brings the app to the front.
-        case workoutConfigurationReceived(HKWorkoutActivityType)
+        case workoutConfigurationReceived(WorkoutConfigurationStream.Payload)
 
         /// Dismisses `HRMirrorFeature` after `.stop` has been sent and the
         /// `HKWorkoutSession` on Watch has finished cleaning up.
         case dismissHRMirror
 
-        /// Delivered when `WatchWorkoutSessionClient.checkForStuckSession()` finds an active
-        /// `HKWorkoutSession` left over from the previous app run. Triggers `recoveryAlert`.
-        case stuckSessionDetected(StuckSession)
+        /// Delivered after `WatchWorkoutSessionClient.recoverStuckSession()` found and
+        /// auto-finalized an `HKWorkoutSession` left over from the previous app run.
+        /// Informational — the workout is already saved when this arrives.
+        case stuckSessionRecovered(StuckSession)
 
         // MARK: - View Actions
 
@@ -62,9 +54,6 @@ extension AppFeatureAW {
 
         /// Delegates to `HRMirrorFeature` child reducer.
         case hrMirror(PresentationAction<HRMirrorFeature.Action>)
-
-        /// Delegates to the recovery alert presentation lifecycle.
-        case recoveryAlert(PresentationAction<RecoveryAlertAction>)
 
     }
 

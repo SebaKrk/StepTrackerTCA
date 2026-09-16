@@ -65,6 +65,6 @@ extension HeartRateZonesView {
     // MARK: - Localized strings
 
     private var hrRangeChartTitle: String {
-        String(localized: "Tętno minuta po minucie")
+        String(localized: "Heart rate minute by minute")
     }
 }

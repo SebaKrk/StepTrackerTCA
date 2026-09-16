@@ -51,6 +51,19 @@ extension ExerciseDetailFeature {
         /// Loading indicator when fetching HKWorkout for a tapped history row.
         var isLoadingActivity: Bool = false
 
+        // MARK: - Send to Developer
+
+        /// Confirmation alert shown before sharing the unrecognized-names report.
+        @Presents var alert: AlertState<Action.Alert>?
+
+        /// Temp-file handed to the share sheet once the user confirms the alert.
+        var reportShareFile: ReportShareFile?
+
+        struct ReportShareFile: Equatable, Identifiable {
+            let url: URL
+            var id: URL { url }
+        }
+
         // MARK: - Computed — Header
 
         var displayName: String { exerciseType.displayName }
@@ -76,7 +89,7 @@ extension ExerciseDetailFeature {
             logs.compactMap(\.maxHeartRate).max()
         }
 
-        // MARK: - Computed — Unrecognized Names (DEBUG diagnostics)
+        // MARK: - Computed — Unrecognized Names
 
         /// Distinct raw OCR/AI names hiding in the unknown bucket with occurrence
         /// counts, most frequent first. Diagnostic input for extending the
@@ -86,6 +99,22 @@ extension ExerciseDetailFeature {
             Dictionary(grouping: logs.compactMap(\.unmatchedName)) { $0 }
                 .map { (name: $0.key, count: $0.value.count) }
                 .sorted { $0.count > $1.count }
+        }
+
+        /// Plain-text report for the "send to developer" share — metadata header
+        /// (app version + catalog version, so the harvest is attributable to a
+        /// concrete catalog state) followed by "name<TAB>count" lines. Contains
+        /// no workout data beyond the raw exercise names.
+        var unrecognizedNamesReport: String {
+            let info = Bundle.main.infoDictionary
+            let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+            let build = info?["CFBundleVersion"] as? String ?? "?"
+            let lines = unmatchedNameCounts.map { "\($0.name)\t\($0.count)" }
+            return """
+            # MyFitnessJournal — unrecognized exercise names
+            # app \(version) (\(build)) · catalog v\(ExerciseType.catalogVersion)
+            \(lines.joined(separator: "\n"))
+            """
         }
 
         // MARK: - Computed — Weight Progression Chart

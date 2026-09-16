@@ -69,7 +69,7 @@ struct HeartRateZonesSection: View {
     // MARK: - Implementation
 
     private var zonesTitle: some View {
-        Text(String(localized: "Strefy tętna", bundle: .main))
+        Text(String(localized: "Heart rate zones", bundle: .main))
             .font(.system(size: 14, weight: .bold))
             .foregroundStyle(SummaryTheme.ink)
     }
@@ -83,7 +83,7 @@ struct HeartRateZonesSection: View {
     @ViewBuilder
     private var dominantLabel: some View {
         if let dominantZone {
-            Text(String(localized: "dominująca: \(formatDuration(duration(of: dominantZone)))", bundle: .main))
+            Text(String(localized: "dominant: \(formatDuration(duration(of: dominantZone)))", bundle: .main))
                 .font(.system(size: 12))
                 .foregroundStyle(SummaryTheme.inkSecondary)
         }

@@ -85,9 +85,9 @@ struct SharePlanView: View {
     }
 
     private let qrSize: CGFloat = 250
-    private let scanPrompt = String(localized: "Pokaż ten kod, żeby udostępnić plan")
-    private let tooLargeTitle = String(localized: "Plan za duży na kod QR")
-    private let tooLargeMessage = String(localized: "Udostępnianie plikiem pojawi się w kolejnej wersji.")
-    private let failedTitle = String(localized: "Nie udało się przygotować kodu")
-    private let failedMessage = String(localized: "Spróbuj ponownie za chwilę.")
+    private let scanPrompt = String(localized: "Show this code to share the plan")
+    private let tooLargeTitle = String(localized: "Plan too large for a QR code")
+    private let tooLargeMessage = String(localized: "File sharing is coming in a future version.")
+    private let failedTitle = String(localized: "Couldn't prepare the code")
+    private let failedMessage = String(localized: "Try again in a moment.")
 }

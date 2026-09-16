@@ -23,7 +23,7 @@ struct WorkoutSessionEditorView: View {
         ScrollView {
             VStack(spacing: 12) {
                 detailsGroupBox
-                if !store.draft.exercises.isEmpty {
+                if store.draft.type != .intervals && !store.draft.exercises.isEmpty {
                     exercisesGroupBox
                 }
             }
@@ -71,10 +71,19 @@ struct WorkoutSessionEditorView: View {
                 nameRow
                 Divider().padding(.leading)
                 typeRow
-                Divider().padding(.leading)
-                timeCapRow
-                Divider().padding(.leading)
-                roundsRow
+                if store.draft.type == .intervals {
+                    Divider().padding(.leading)
+                    intervalWorkRow
+                    Divider().padding(.leading)
+                    intervalRestRow
+                    Divider().padding(.leading)
+                    intervalRoundsRow
+                } else {
+                    Divider().padding(.leading)
+                    timeCapRow
+                    Divider().padding(.leading)
+                    roundsRow
+                }
             }
         } label: {
             groupBoxHeader("Details")
@@ -165,6 +174,83 @@ struct WorkoutSessionEditorView: View {
         }
     }
 
+    // MARK: - Interval Rows (Rounds type)
+
+    /// Reducer seeds `draft.interval` on switching to Rounds; the fallback here
+    /// only guards a transient render before that binding lands.
+    private var intervalDraft: IntervalPlan {
+        store.draft.interval ?? IntervalPlan(workSeconds: 30, restSeconds: 30, rounds: 12)
+    }
+
+    private var intervalWorkRow: some View {
+        editorRow {
+            Text("Work").foregroundStyle(.secondary)
+            Spacer()
+            Stepper(
+                intervalSecondsLabel(intervalDraft.workSeconds),
+                value: Binding(
+                    get: { intervalDraft.workSeconds },
+                    set: { store.send(.binding(.set(\.draft.interval, IntervalPlan(
+                        workSeconds: $0,
+                        restSeconds: intervalDraft.restSeconds,
+                        rounds: intervalDraft.rounds
+                    )))) }
+                ),
+                in: 10...600,
+                step: 5
+            )
+            .fixedSize()
+        }
+    }
+
+    private var intervalRestRow: some View {
+        editorRow {
+            Text("Rest").foregroundStyle(.secondary)
+            Spacer()
+            Stepper(
+                intervalSecondsLabel(intervalDraft.restSeconds),
+                value: Binding(
+                    get: { intervalDraft.restSeconds },
+                    set: { store.send(.binding(.set(\.draft.interval, IntervalPlan(
+                        workSeconds: intervalDraft.workSeconds,
+                        restSeconds: $0,
+                        rounds: intervalDraft.rounds
+                    )))) }
+                ),
+                in: 0...600,
+                step: 5
+            )
+            .fixedSize()
+        }
+    }
+
+    private var intervalRoundsRow: some View {
+        editorRow {
+            Text("Rounds").foregroundStyle(.secondary)
+            Spacer()
+            Stepper(
+                "\(intervalDraft.rounds)",
+                value: Binding(
+                    get: { intervalDraft.rounds },
+                    set: { store.send(.binding(.set(\.draft.interval, IntervalPlan(
+                        workSeconds: intervalDraft.workSeconds,
+                        restSeconds: intervalDraft.restSeconds,
+                        rounds: $0
+                    )))) }
+                ),
+                in: 1...99,
+                step: 1
+            )
+            .fixedSize()
+        }
+    }
+
+    private func intervalSecondsLabel(_ seconds: Int) -> String {
+        seconds < 60
+            ? "\(seconds) s"
+            : String(format: "%d:%02d", seconds / 60, seconds % 60)
+    }
+
     // MARK: - Bottom Bar
 
     private var bottomBar: some View {
@@ -182,17 +268,19 @@ struct WorkoutSessionEditorView: View {
                 .buttonStyle(.plain)
             }
             Spacer()
-            Button {
-                send(.exerciseAddTapped)
-            } label: {
-                Image(systemName: "plus")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(store.color)
-                    .frame(width: 52, height: 52)
-                    .glassEffect(.regular.interactive(), in: Circle())
+            if store.draft.type != .intervals {
+                Button {
+                    send(.exerciseAddTapped)
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(store.color)
+                        .frame(width: 52, height: 52)
+                        .glassEffect(.regular.interactive(), in: Circle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
@@ -304,5 +392,48 @@ struct WorkoutSessionEditorView: View {
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 8)
+    }
+}
+
+// MARK: - Previews
+
+#Preview("Rounds — boxing intervals") {
+    NavigationStack {
+        WorkoutSessionEditorView(
+            store: Store(
+                initialState: WorkoutSessionEditorFeature.State(
+                    workout: WorkoutSessionNew(
+                        name: "Boxing rounds",
+                        type: .intervals,
+                        timeCap: nil,
+                        rounds: nil,
+                        exercises: [],
+                        interval: IntervalPlan(workSeconds: 180, restSeconds: 60, rounds: 10)
+                    )
+                )
+            ) {
+                WorkoutSessionEditorFeature()
+            }
+        )
+    }
+}
+
+#Preview("AMRAP — classic WOD") {
+    NavigationStack {
+        WorkoutSessionEditorView(
+            store: Store(
+                initialState: WorkoutSessionEditorFeature.State(
+                    workout: WorkoutSessionNew(
+                        name: "Cindy",
+                        type: .amrap,
+                        timeCap: 20,
+                        rounds: nil,
+                        exercises: []
+                    )
+                )
+            ) {
+                WorkoutSessionEditorFeature()
+            }
+        )
     }
 }

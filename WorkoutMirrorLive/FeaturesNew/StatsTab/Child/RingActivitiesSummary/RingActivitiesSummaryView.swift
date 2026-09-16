@@ -91,7 +91,7 @@ struct RingActivitiesSummaryView: View {
             )
             Divider()
             activityMetric(
-                title: "Ćwiczenie",
+                title: String(localized: "Exercise"),
                 value: Int(data.exerciseValue),
                 unit: "min",
                 color: .green

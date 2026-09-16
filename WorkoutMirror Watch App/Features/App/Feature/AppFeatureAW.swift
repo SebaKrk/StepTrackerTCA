@@ -36,7 +36,7 @@ struct AppFeatureAW {
 
             // MARK: - Internal Actions
 
-            case .workoutConfigurationReceived(let activityType):
+            case .workoutConfigurationReceived(let configuration):
                 // Fired by WatchAppDelegate.handle(_:) — before any WC event arrives.
                 // Start HRMirrorFeature so it calls startMirroringToCompanionDevice(),
                 // which automatically brings the Watch app to the foreground.
@@ -49,7 +49,7 @@ struct AppFeatureAW {
                         // HKWorkoutSession now risks a HealthKit rejection.
                         // Defer until `.savedSummaryLoaded` confirms it closed.
                         Logger.appAW.info("workoutConfigurationReceived — previous workout still saving, deferring start")
-                        state.pendingActivityType = activityType
+                        state.pendingConfiguration = configuration
                         return .none
                     }
                     if hrMirror.summaryPhase != .hidden {
@@ -57,15 +57,21 @@ struct AppFeatureAW {
                         // so the screen is informational only. Auto-dismiss it and
                         // start fresh, exactly as if Done was tapped a moment earlier.
                         Logger.appAW.info("workoutConfigurationReceived — auto-dismissing stale summary, starting new workout")
-                        state.hrMirror = HRMirrorFeature.State(activityType: activityType)
+                        state.hrMirror = HRMirrorFeature.State(
+                            activityType: configuration.activityType,
+                            locationType: configuration.locationType
+                        )
                         return .send(.hrMirror(.presented(.start)))
                     }
                     // Workout genuinely active — duplicate delivery, ignore.
                     Logger.appAW.debug("workoutConfigurationReceived — hrMirror already active, ignoring")
                     return .none
                 }
-                Logger.appAW.info("workoutConfigurationReceived — activityType: \(activityType.rawValue)")
-                state.hrMirror = HRMirrorFeature.State(activityType: activityType)
+                Logger.appAW.info("workoutConfigurationReceived — activityType: \(configuration.activityType.rawValue), locationType: \(configuration.locationType.rawValue)")
+                state.hrMirror = HRMirrorFeature.State(
+                    activityType: configuration.activityType,
+                    locationType: configuration.locationType
+                )
                 return .send(.hrMirror(.presented(.start)))
 
             case .watchEventReceived(.workoutStarted(let activityTypeRaw, let elapsed, let maxHR)):
@@ -127,46 +133,8 @@ struct AppFeatureAW {
                 state.hrMirror = nil
                 return .none
 
-            case .stuckSessionDetected(let stuck):
-                Logger.appAW.notice("stuck session detected — activityType=\(stuck.activityTypeRaw), startDate=\(stuck.startDate)")
-                let activityTypeRaw = stuck.activityTypeRaw
-                let startDate = stuck.startDate
-                Task {
-                    await WorkoutFileLogger.shared.log("[Recovery] alert shown — activityType=\(activityTypeRaw), startDate=\(startDate)")
-                }
-                state.recoveryAlert = AlertState {
-                    TextState(String(localized: "Unfinished workout detected"))
-                } actions: {
-                    ButtonState(action: .endTapped) {
-                        TextState(String(localized: "End now"))
-                    }
-                    ButtonState(role: .destructive, action: .discardTapped) {
-                        TextState(String(localized: "Discard"))
-                    }
-                } message: {
-                    TextState(String(localized: "Workout started: \(stuck.startDate.formatted(date: .omitted, time: .shortened))"))
-                }
-                return .none
-
-            case .recoveryAlert(.presented(.endTapped)):
-                Logger.appAW.info("recoveryAlert — user chose End")
-                return .run { [watchWorkoutSessionClient, watchClient = watchClient] send in
-                    await WorkoutFileLogger.shared.log("[Recovery] user chose END — saving HKWorkout")
-                    await watchWorkoutSessionClient.recoverAndEnd()
-                    await watchClient.transferLogFile()
-                    await send(.recoveryAlert(.dismiss))
-                }
-
-            case .recoveryAlert(.presented(.discardTapped)):
-                Logger.appAW.info("recoveryAlert — user chose Discard")
-                return .run { [watchWorkoutSessionClient, watchClient = watchClient] send in
-                    await WorkoutFileLogger.shared.log("[Recovery] user chose DISCARD — workout discarded")
-                    await watchWorkoutSessionClient.recoverAndDiscard()
-                    await watchClient.transferLogFile()
-                    await send(.recoveryAlert(.dismiss))
-                }
-
-            case .recoveryAlert:
+            case .stuckSessionRecovered(let stuck):
+                Logger.appAW.notice("stuck session recovered — workout saved (activityType=\(stuck.activityTypeRaw), startDate=\(stuck.startDate))")
                 return .none
 
             case .watchEventReceived(.workoutTick(let elapsed)):
@@ -182,6 +150,11 @@ struct AppFeatureAW {
                 // Watch-originated — not relevant on the Watch side.
                 return .none
 
+            case .watchEventReceived(.roundSegmentCompleted(_)):
+                // Consumed by the session manager on the HK mirroring channel
+                // (builder write) — never expected through this WC path.
+                return .none
+
             case .hrMirror(.presented(.delegate(.didFinishSaving))):
                 Logger.appAW.info("didFinishSaving — dismissing HRMirrorFeature")
                 return .send(.dismissHRMirror)
@@ -190,10 +163,13 @@ struct AppFeatureAW {
                 // The previous session is now fully closed in HealthKit. If a new
                 // workout start arrived during the save, skip the summary and
                 // start it immediately — the user is already past that workout.
-                guard let pending = state.pendingActivityType else { return .none }
-                Logger.appAW.info("savedSummaryLoaded — starting deferred workout (activityType: \(pending.rawValue))")
-                state.pendingActivityType = nil
-                state.hrMirror = HRMirrorFeature.State(activityType: pending)
+                guard let pending = state.pendingConfiguration else { return .none }
+                Logger.appAW.info("savedSummaryLoaded — starting deferred workout (activityType: \(pending.activityType.rawValue))")
+                state.pendingConfiguration = nil
+                state.hrMirror = HRMirrorFeature.State(
+                    activityType: pending.activityType,
+                    locationType: pending.locationType
+                )
                 return .send(.hrMirror(.presented(.start)))
 
             // MARK: - View Actions
@@ -215,20 +191,21 @@ struct AppFeatureAW {
                             await send(.watchEventReceived(event))
                         }
                     },
-                    // Listen for workout configurations forwarded by WatchAppDelegate.handle(_:).
-                    // This stream fires when iPhone calls startWatchApp(toHandle:) — before
-                    // any WatchConnectivity event is delivered.
-                    .run { send in
-                        for await activityType in WorkoutConfigurationStream.shared.stream {
-                            await send(.workoutConfigurationReceived(activityType))
-                        }
-                    },
-                    // One-shot recovery check: if a previous app run left a stuck HKWorkoutSession
-                    // in HealthKit, present an alert so the user can finalize or discard it.
-                    .run { [watchWorkoutSessionClient] send in
+                    // Recovery FIRST, then listen for workout configurations forwarded by
+                    // WatchAppDelegate.handle(_:). The hard race guarantee lives in the
+                    // manager — start() awaits the same single-flight recovery — this
+                    // ordering just avoids queueing a start behind an in-flight recovery.
+                    // The configuration stream buffers (.bufferingNewest(1)), so a start
+                    // yielded before this effect subscribes is not lost.
+                    .run { [watchWorkoutSessionClient, watchClient = watchClient] send in
                         await WorkoutFileLogger.shared.log("[Recovery] app launch — running stuck session check")
-                        guard let stuck = await watchWorkoutSessionClient.checkForStuckSession() else { return }
-                        await send(.stuckSessionDetected(stuck))
+                        if let stuck = await watchWorkoutSessionClient.recoverStuckSession() {
+                            await send(.stuckSessionRecovered(stuck))
+                            await watchClient.transferLogFile()
+                        }
+                        for await configuration in WorkoutConfigurationStream.shared.stream {
+                            await send(.workoutConfigurationReceived(configuration))
+                        }
                     },
                     // One-shot: transfer ALL historical watch_log_*.txt files to iPhone.
                     // Picks up logs from sessions that never reached normal .stop flow (crashes, low battery).
@@ -246,6 +223,5 @@ struct AppFeatureAW {
         .ifLet(\.$hrMirror, action: \.hrMirror) {
             HRMirrorFeature()
         }
-        .ifLet(\.$recoveryAlert, action: \.recoveryAlert)
     }
 }

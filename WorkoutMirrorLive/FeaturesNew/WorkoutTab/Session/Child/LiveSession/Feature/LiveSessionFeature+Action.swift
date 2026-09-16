@@ -61,6 +61,11 @@ extension LiveSessionFeature {
         /// `sensorStaleThreshold` flips `isSensorStale` (banner + greyed HR). No-op
         /// on the Watch path (`lastFreshSampleDate` stays `nil` there).
         case sensorFreshnessTick
+
+        /// Stores the session's workout type — drives the dedicated activity
+        /// tile (cycling). Sent by `SessionFeature` alongside
+        /// `controls(.setWorkoutType)`.
+        case setWorkoutType(WorkoutType)
         
         // MARK: - Live Activity (Child Reducer)
 
@@ -81,11 +86,27 @@ extension LiveSessionFeature {
 
         /// Delegates to PhasePanelFeature child reducer
         case phasePanel(PhasePanelFeature.Action)
+
+        // MARK: - Interval Timer (Child Reducer)
+
+        /// Initialises the boxing-rounds timer: a plan config when non-nil,
+        /// otherwise an ad-hoc default for free `.boxing` workouts.
+        case setupIntervalTimer(IntervalPlan?)
+
+        /// Forwards the session pause state to the interval timer.
+        case setIntervalTimerPaused(Bool)
+
+        /// Toolbar menu: shows/hides the rounds tile (exclusive with the stopwatch).
+        case toggleIntervalTimerVisibility
+
+        /// Delegates to IntervalTimerFeature child reducer.
+        case intervalTimer(IntervalTimerFeature.Action)
         
         // MARK: - View Actions
         
         case view(View)
-        
+
+        @CasePathable
         enum View {
 
             /// Action triggered when the view appears on the screen.
@@ -93,6 +114,12 @@ extension LiveSessionFeature {
 
             /// Action triggered when the view disappears from the screen.
             case viewDidDisappear
+
+            /// User swiped the cycling tile carousel to another page.
+            case distanceTilePageChanged(DistanceTilePage)
+
+            /// Landscape card header: switches the main card zones ⇄ intervals.
+            case landscapeTimerToggleTapped
         }
     }
     

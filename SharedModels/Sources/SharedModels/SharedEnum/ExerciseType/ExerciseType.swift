@@ -26,6 +26,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     // Olympic Weightlifting
     case snatch
     case cleanAndJerk
+    case squatClean
     case powerClean
     case powerSnatch
 
@@ -34,6 +35,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case hangClean
     case pushPress
     case pushJerk
+    case splitJerk
     
     // CrossFit/Cardio (bodyweight + tempo)
     case pullUps
@@ -56,8 +58,14 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case kettlebellClean
     case kettlebellSnatch
     case kettlebellPushPress
+    case kettlebellDeadlift
     case turkishGetUp
-    
+
+    // Medicine ball
+    case ballSlam
+    case medicineBallSquat
+    case medicineBallBoxStepUps
+
     // Gymnastics
     case handstandPushUps
     case barMuscleUps
@@ -65,6 +73,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case pistolSquats
     case handstandWalk
     case ringDips
+    case dips
     case ropeClimb
     case plank
     case chinUps
@@ -99,9 +108,10 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case lSit
     case handstandShoulderTaps
 
-    // Strength accessories (catalog v2)
+    // Strength accessories
     case gluteBridge
     case tricepsExtension
+    case bicepCurl
     case plateRaise
     case landmineAntiRotation
 
@@ -113,6 +123,29 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
 
     // Olympic umbrella (catalog v2)
     case shoulderToOverhead
+
+    // Mobility / Rehab (catalog v3)
+    case catCow
+    case birdDog
+    case deadBug
+    case childsPose
+    case pelvicTilt
+    case hamstringStretch
+    case gluteStretch
+    case spinalTwist
+    case foamRolling
+    case proneArmRaises
+    case openBook
+    case threadTheNeedle
+    case thoracicExtension
+    case cobraStretch
+    case wallSlides
+    case pigeonPose
+    case couchStretch
+    case ninetyNinety
+    case worldsGreatestStretch
+    case pvcPassThroughs
+    case downwardDog
 
     // Other
     case lunges
@@ -133,6 +166,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .bulgarianSplitSquat: return "Bulgarian Split Squat"
         case .snatch: return "Snatch"
         case .cleanAndJerk: return "Clean and Jerk"
+        case .squatClean: return "Squat Clean"
         case .powerClean: return "Power Clean"
         case .powerSnatch: return "Power Snatch"
         case .hangPowerClean: return "Hang Power Clean"
@@ -140,6 +174,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .hangClean: return "Hang Clean"
         case .pushPress: return "Push Press"
         case .pushJerk: return "Push Jerk"
+        case .splitJerk: return "Split Jerk"
         case .pullUps: return "Pull-ups"
         case .pushUps: return "Push-ups"
         case .burpees: return "Burpees"
@@ -156,13 +191,18 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .kettlebellClean: return "Kettlebell Clean"
         case .kettlebellSnatch: return "Kettlebell Snatch"
         case .kettlebellPushPress: return "Kettlebell Push Press"
+        case .kettlebellDeadlift: return "Kettlebell Deadlift"
         case .turkishGetUp: return "Turkish Get-up"
+        case .ballSlam: return "Ball Slam"
+        case .medicineBallSquat: return "Medicine Ball Squat"
+        case .medicineBallBoxStepUps: return "Medicine Ball Box Step-ups"
         case .handstandPushUps: return "Handstand Push-ups"
         case .barMuscleUps: return "Bar Muscle-ups"
         case .ringMuscleUps: return "Ring Muscle-ups"
         case .pistolSquats: return "Pistol Squats"
         case .handstandWalk: return "Handstand Walk"
         case .ringDips: return "Ring Dips"
+        case .dips: return "Dips"
         case .ropeClimb: return "Rope Climb"
         case .plank: return "Plank"
         case .chinUps: return "Chin-Ups"
@@ -192,6 +232,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .handstandShoulderTaps: return "Handstand Shoulder Taps"
         case .gluteBridge: return "Glute Bridge"
         case .tricepsExtension: return "Triceps Extension"
+        case .bicepCurl: return "Bicep Curl"
         case .plateRaise: return "Plate Raise"
         case .landmineAntiRotation: return "Landmine Anti-Rotation"
         case .boxStepUps: return "Box Step-ups"
@@ -199,6 +240,27 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .overheadCarry: return "Overhead Carry"
         case .bearHugCarry: return "Bear Hug Carry"
         case .shoulderToOverhead: return "Shoulder to Overhead"
+        case .catCow: return "Cat-Cow"
+        case .birdDog: return "Bird Dog"
+        case .deadBug: return "Dead Bug"
+        case .childsPose: return "Child's Pose"
+        case .pelvicTilt: return "Pelvic Tilt"
+        case .hamstringStretch: return "Hamstring Stretch"
+        case .gluteStretch: return "Glute Stretch"
+        case .spinalTwist: return "Spinal Twist"
+        case .foamRolling: return "Foam Rolling"
+        case .proneArmRaises: return "Prone Arm Raises"
+        case .openBook: return "Open Book"
+        case .threadTheNeedle: return "Thread the Needle"
+        case .thoracicExtension: return "Thoracic Extension"
+        case .cobraStretch: return "Cobra Stretch"
+        case .wallSlides: return "Wall Slides"
+        case .pigeonPose: return "Pigeon Pose"
+        case .couchStretch: return "Couch Stretch"
+        case .ninetyNinety: return "90/90 Hip Stretch"
+        case .worldsGreatestStretch: return "World's Greatest Stretch"
+        case .pvcPassThroughs: return "PVC Pass-Throughs"
+        case .downwardDog: return "Downward Dog"
         case .lunges: return "Lunges"
         case .unknown: return "Unknown Exercise"
         }
@@ -232,6 +294,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["snatch", "snatches", "full snatch", "full snatches", "squat snatch", "squat snatches"]
         case .cleanAndJerk:
             return ["clean and jerk", "cleans and jerks", "clean & jerk", "cleans & jerks", "C&J", "C&Js", "CJ", "CJs", "hang clean and jerk", "hang cleans and jerks", "hang clean & jerk", "hang cleans & jerks", "hang clean jerk", "hang clean jerks", "hang C&J", "hang C&Js", "hang CJ", "hang CJs"]
+        case .squatClean:
+            return ["squat clean", "squat cleans", "clean", "cleans", "full clean", "full cleans", "barbell clean", "BB clean"]
         case .powerClean:
             return ["power clean", "power cleans", "PC", "PCs"]
         case .powerSnatch:
@@ -246,6 +310,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["push press", "push presses", "push-press", "push-presses", "PP", "barbell push press", "barbell push presses", "BB push press", "BB push presses"]
         case .pushJerk:
             return ["push jerk", "push jerks", "push-jerk", "push-jerks", "PJ", "PJs", "barbell push jerk", "barbell push jerks"]
+        case .splitJerk:
+            return ["split jerk", "split jerks", "split-jerk", "split-jerks", "barbell split jerk", "barbell split jerks", "SJ"]
         case .pullUps:
             return ["pull-ups", "pull ups", "PU"]
         case .pushUps:
@@ -271,15 +337,23 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .swimming:
             return ["swimming", "swim"]
         case .kettlebellSwing:
-            return ["kettlebell swing", "KB swing", "american swing", "russian swing"]
+            return ["kettlebell swing", "KB swing", "american swing", "russian swing", "single arm swing", "single-arm swing", "single arm kettlebell swing", "single arm KB swing", "one arm swing", "one arm kettlebell swing"]
         case .kettlebellClean:
             return ["kettlebell clean", "KB clean"]
         case .kettlebellSnatch:
             return ["kettlebell snatch", "KB snatch"]
         case .kettlebellPushPress:
             return ["kettlebell push press", "KB push press", "KTB push press", "KB/DB push press", "DB push press", "dumbbell push press"]
+        case .kettlebellDeadlift:
+            return ["kettlebell deadlift", "kettlebell deadlifts", "KB deadlift", "KB deadlifts", "kettlebell dead lift", "KTB deadlift"]
         case .turkishGetUp:
             return ["turkish get-up", "turkish getup", "TGU"]
+        case .ballSlam:
+            return ["ball slam", "ball slams", "medicine ball slam", "medicine ball slams", "med ball slam", "med ball slams", "medball slam", "medball slams", "slam ball", "slam balls", "slamball"]
+        case .medicineBallSquat:
+            return ["medicine ball squat", "medicine ball squats", "med ball squat", "med ball squats", "medball squat", "medball squats"]
+        case .medicineBallBoxStepUps:
+            return ["medicine ball box step-ups", "medicine ball box step ups", "medicine ball box step-up", "medicine ball box step up", "medicine ball step-ups", "medicine ball step ups", "med ball box step-ups", "med ball box step ups", "med ball step-ups", "med ball step ups"]
         case .handstandPushUps:
             return ["handstand push-ups", "handstand pushups", "HSPU"]
         case .barMuscleUps:
@@ -292,6 +366,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["handstand walk", "HS walk", "HSWALK"]
         case .ringDips:
             return ["ring dips", "gymnastic ring dips"]
+        case .dips:
+            return ["dips", "dip", "box dips", "box dip", "bench dips", "bench dip", "bar dips", "bar dip", "parallel bar dips", "tricep dips", "triceps dips"]
         case .ropeClimb:
             return ["rope climb", "rope climbing", "climb rope"]
         case .plank:
@@ -351,7 +427,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .gluteBridge:
             return ["glute bridge", "glute bridges", "one leg glute bridge", "single leg glute bridge", "hip thrust", "hip thrusts"]
         case .tricepsExtension:
-            return ["triceps extension", "tricep extension", "triceps extensions", "triceps plate extension", "plate triceps extension", "skull crusher", "skull crushers"]
+            return ["triceps extension", "tricep extension", "triceps extensions", "triceps plate extension", "plate triceps extension", "skull crusher", "skull crushers", "dumbbell overhead extension", "DB overhead extension", "overhead triceps extension", "overhead tricep extension", "dumbbell overhead triceps extension"]
+        case .bicepCurl:
+            return ["bicep curl", "bicep curls", "biceps curl", "biceps curls", "barbell bicep curl", "barbell bicep curls", "barbell curl", "barbell curls", "dumbbell bicep curl", "dumbbell bicep curls", "dumbbell curl", "dumbbell curls", "DB curl", "DB curls", "hammer curl", "hammer curls", "EZ bar curl", "EZ bar curls"]
         case .plateRaise:
             return ["plate raise", "plate raises", "plate front raise", "front raise", "front raises"]
         case .landmineAntiRotation:
@@ -366,6 +444,48 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["bear hug carry", "bear hug carries", "bear hug walk", "sandbag carry", "sandbag carries"]
         case .shoulderToOverhead:
             return ["shoulder to overhead", "shoulders to overhead", "shoulder-to-overhead", "S2O", "STOH", "STO"]
+        case .catCow:
+            return ["cat-cow", "cat cow", "cat camel", "cat-camel", "koci grzbiet"]
+        case .birdDog:
+            return ["bird dog", "bird-dog", "bird dogs", "quadruped arm leg raise"]
+        case .deadBug:
+            return ["dead bug", "deadbug", "dead bugs", "martwy robak"]
+        case .childsPose:
+            return ["child's pose", "childs pose", "child pose", "ukłon japoński"]
+        case .pelvicTilt:
+            return ["pelvic tilt", "pelvic tilts", "posterior pelvic tilt", "pelvic tilt knee to chest", "pelvic tilt with knee to chest", "podwinięcie miednicy"]
+        case .hamstringStretch:
+            return ["hamstring stretch", "hamstring stretches", "rozciąganie kulszowo-goleniowych"]
+        case .gluteStretch:
+            return ["glute stretch", "figure four stretch", "figure-four stretch", "figure-4 stretch", "figure 4 stretch", "figure 4 glute stretch", "figure four glute stretch", "piriformis stretch", "rozciąganie pośladka"]
+        case .spinalTwist:
+            return ["spinal twist", "spinal twists", "lying spinal twist", "supine twist", "trunk rotation", "trunk rotations", "torso rotation", "torso rotation stretch", "knee across body stretch", "knee over leg stretch", "knee crossover stretch", "supine knee crossover stretch", "skręty tułowia", "rotacja tułowia"]
+        case .foamRolling:
+            return ["foam rolling", "foam roll", "foam roller", "ball rolling", "lacrosse ball", "rolowanie"]
+        case .proneArmRaises:
+            return ["prone arm raises", "prone arm raise", "prone y raise", "prone y raises", "unoszenie ramion w leżeniu"]
+        case .openBook:
+            return ["open book", "open books", "open book stretch", "otwieranie książki"]
+        case .threadTheNeedle:
+            return ["thread the needle", "thread-the-needle", "nawlekanie igły"]
+        case .thoracicExtension:
+            return ["thoracic extension", "thoracic extensions", "foam roller extension", "thoracic extension on foam roller", "ekstensja piersiowa"]
+        case .cobraStretch:
+            return ["cobra stretch", "cobra", "prone press-up", "prone press-ups", "mckenzie press-up", "kobra"]
+        case .wallSlides:
+            return ["wall slides", "wall slide", "ślizgi po ścianie"]
+        case .pigeonPose:
+            return ["pigeon pose", "pigeon stretch", "gołąb"]
+        case .couchStretch:
+            return ["couch stretch", "hip flexor stretch", "lunge stretch", "rozciąganie zginaczy bioder"]
+        case .ninetyNinety:
+            return ["90/90", "90 90", "90/90 hip stretch", "90/90 hip switch", "90-90"]
+        case .worldsGreatestStretch:
+            return ["world's greatest stretch", "worlds greatest stretch", "WGS"]
+        case .pvcPassThroughs:
+            return ["pvc pass-throughs", "pvc pass throughs", "pass throughs", "pass-throughs", "pass through", "pass-through", "shoulder dislocates", "dislocates"]
+        case .downwardDog:
+            return ["downward dog", "downward facing dog", "downward-facing dog", "down dog", "pies z głową w dół"]
         case .unknown:
             return []
         }
@@ -375,13 +495,13 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         switch self {
         case .deadlift, .backSquat, .frontSquat, .benchPress, .floorPress, .shoulderPress, .overheadSquat,
              .romanianDeadlift, .bentOverRow, .gobletSquat, .bulgarianSplitSquat,
-             .gluteBridge, .tricepsExtension, .plateRaise, .landmineAntiRotation:
+             .gluteBridge, .tricepsExtension, .plateRaise, .landmineAntiRotation, .bicepCurl:
             return .strength
-        case .snatch, .cleanAndJerk, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch,
-             .hangClean, .pushPress, .pushJerk, .thrusters, .sumoDeadliftHighPull, .shoulderToOverhead:
+        case .snatch, .cleanAndJerk, .squatClean, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch,
+             .hangClean, .pushPress, .pushJerk, .splitJerk, .thrusters, .sumoDeadliftHighPull, .shoulderToOverhead:
             return .olympicLifting
         case .pullUps, .pushUps, .toesToBar, .sitUps, .handstandPushUps, .barMuscleUps, .ringMuscleUps,
-             .pistolSquats, .handstandWalk, .ringDips, .ropeClimb, .plank, .chinUps, .skinTheCat,
+             .pistolSquats, .handstandWalk, .ringDips, .dips, .ropeClimb, .plank, .chinUps, .skinTheCat,
              .kneesToElbows, .hollowHold,
              .wallWalks, .vUps, .chestToBarPullUps, .ghdSitUps, .russianTwist, .lSit, .handstandShoulderTaps:
             return .gymnastics
@@ -389,14 +509,21 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return .cardio
         case .burpees, .airSquat, .boxJumps, .doubleUnders, .wallBalls, .devilPress, .burpeeBoxJumps,
              .burpeeOverBar, .lunges, .mountainClimbers, .farmersCarry,
-             .boxStepUps, .boxStepOvers, .overheadCarry, .bearHugCarry:
+             .boxStepUps, .boxStepOvers, .overheadCarry, .bearHugCarry,
+             .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps:
             return .mixed
-        case .kettlebellSwing, .kettlebellClean, .kettlebellSnatch, .turkishGetUp:
+        case .kettlebellSwing, .kettlebellClean, .kettlebellSnatch, .turkishGetUp, .kettlebellDeadlift:
             return .strength
         case .kettlebellPushPress:
             return .olympicLifting
         case .dumbbellSnatch, .dumbbellClean, .dumbbellCleanAndJerk:
             return .olympicLifting
+        case .catCow, .birdDog, .deadBug, .childsPose, .pelvicTilt, .hamstringStretch,
+             .gluteStretch, .spinalTwist, .foamRolling, .proneArmRaises,
+             .openBook, .threadTheNeedle, .thoracicExtension, .cobraStretch, .wallSlides,
+             .pigeonPose, .couchStretch, .ninetyNinety, .worldsGreatestStretch,
+             .pvcPassThroughs, .downwardDog:
+            return .mobility
         case .unknown:
             return .mixed
         }
@@ -407,7 +534,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// (e.g. Wall Balls always use a 6/9/14kg medicine ball).
     public var requiresWeight: Bool {
         switch self {
-        case .wallBalls, .farmersCarry, .overheadCarry, .bearHugCarry:
+        case .wallBalls, .farmersCarry, .overheadCarry, .bearHugCarry,
+             .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps:
             return true
         default:
             return category == .strength || category == .olympicLifting
@@ -420,7 +548,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// re-runs when its stored version is lower — same contract as the
     /// effort-points weights version: results frozen in the database are only
     /// recomputed through an explicit, versioned pass.
-    public static let catalogVersion = 2
+    public static let catalogVersion = 6
 
     /// Matches a raw OCR/AI exercise name against the catalog: exact match on
     /// `rawValue` and `aliases` (lowercased + trimmed), then distance-based

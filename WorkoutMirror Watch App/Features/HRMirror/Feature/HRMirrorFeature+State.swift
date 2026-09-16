@@ -98,6 +98,16 @@ extension HRMirrorFeature {
         /// Set to `true` on appear and on screen tap, then auto-hidden after 3 s.
         var showTabIndicator: Bool = true
 
+        // MARK: - Battery
+
+        /// One-shot: `true` once the ≤5% low-battery warning fired this workout —
+        /// the minute-cadence poll must not re-present it after the user taps OK.
+        var didShowLowBatteryWarning: Bool = false
+
+        /// Presents the low-battery overlay when battery drops to ≤5% — offers ending
+        /// the workout now (guaranteed save) instead of riding it out to a power death.
+        var isLowBatteryWarningPresented: Bool = false
+
         // MARK: - Workout Configuration
 
         /// Activity type of the current workout session.
@@ -105,6 +115,11 @@ extension HRMirrorFeature {
         /// Passed from iPhone via `.workoutStarted` and used by
         /// `WatchWorkoutSessionClient` to create the correct `HKWorkoutConfiguration`.
         var activityType: HKWorkoutActivityType
+
+        /// Session location from the iPhone's workout configuration — `.running`
+        /// alone cannot tell an outdoor run from a treadmill. `.unknown` (the WC
+        /// fallback path) makes the session manager fall back to its heuristic.
+        var locationType: HKWorkoutSessionLocationType
 
         // MARK: - Saving
 
@@ -135,11 +150,13 @@ extension HRMirrorFeature {
         init(
             elapsedSeconds: TimeInterval = 0,
             maxHeartRate: Int = 0,
-            activityType: HKWorkoutActivityType = HKWorkoutActivityType(rawValue: 37)! // .other
+            activityType: HKWorkoutActivityType = HKWorkoutActivityType(rawValue: 37)!, // .other
+            locationType: HKWorkoutSessionLocationType = .unknown
         ) {
             self.elapsedSeconds = elapsedSeconds
             self.maxHeartRate = maxHeartRate
             self.activityType = activityType
+            self.locationType = locationType
         }
 
     }

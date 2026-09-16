@@ -118,17 +118,20 @@ struct ExerciseEditorView: View {
             VStack(spacing: 0) {
                 targetTypeRow
                 Divider().padding(.leading)
-                targetValueRow
+                if let sets = store.draft.plannedSets {
+                    setsCountRow(count: sets.count)
+                    ForEach(Array(sets.enumerated()), id: \.offset) { index, set in
+                        Divider().padding(.leading)
+                        setRow(number: index + 1, reps: set.reps, index: index)
+                    }
+                } else {
+                    targetValueRow
+                }
             }
         } label: {
             groupBoxHeader("Target", isOn: Binding(
-                get: { store.draft.target != nil },
-                set: { enabled in
-                    store.send(.binding(.set(
-                        \.draft.target,
-                        enabled ? .reps(10) : nil
-                    )))
-                }
+                get: { store.draft.target != nil || store.draft.plannedSets != nil },
+                set: { send(.targetToggled($0)) }
             ))
         }
         .styledGroupBox()
@@ -139,7 +142,11 @@ struct ExerciseEditorView: View {
             Text("Type").foregroundStyle(.secondary)
             Spacer()
             Picker("", selection: Binding(
-                get: { store.draft.target?.targetType ?? .reps },
+                get: {
+                    store.draft.plannedSets != nil
+                        ? .sets
+                        : store.draft.target?.targetType ?? .reps
+                },
                 set: { send(.targetTypeChanged($0)) }
             )) {
                 ForEach(ExerciseTargetType.allCases, id: \.self) { type in
@@ -148,7 +155,7 @@ struct ExerciseEditorView: View {
             }
             .labelsHidden()
             .pickerStyle(.menu)
-            .disabled(store.draft.target == nil)
+            .disabled(store.draft.target == nil && store.draft.plannedSets == nil)
         }
     }
 
@@ -171,6 +178,32 @@ struct ExerciseEditorView: View {
             } else {
                 Text("None").foregroundStyle(.secondary)
             }
+        }
+    }
+
+    // MARK: - Sets Rows (Target type = sets)
+
+    private func setRow(number: Int, reps: Int, index: Int) -> some View {
+        editorRow {
+            Text("Set \(number)").foregroundStyle(.secondary)
+            Spacer()
+            Stepper("\(reps)", value: Binding(
+                get: { reps },
+                set: { send(.setRepsChanged(index: index, reps: $0)) }
+            ), in: 1...999)
+            .fixedSize()
+        }
+    }
+
+    private func setsCountRow(count: Int) -> some View {
+        editorRow {
+            Text("Number of sets").foregroundStyle(.secondary)
+            Spacer()
+            Stepper("\(count)", value: Binding(
+                get: { count },
+                set: { send(.setsCountChanged($0)) }
+            ), in: 1...20)
+            .fixedSize()
         }
     }
 

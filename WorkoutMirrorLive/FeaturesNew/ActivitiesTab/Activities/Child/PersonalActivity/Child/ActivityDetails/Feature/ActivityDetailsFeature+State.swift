@@ -30,6 +30,12 @@ extension ActivityDetailsFeature {
         /// User's maximum heart rate for zone calculations.
         var maxHeartRate: Double
 
+        /// Rounds-timer timeline parsed from the workout's own `.segment`
+        /// events — empty for workouts recorded without the timer (card hidden).
+        var roundSegments: [RoundSegment] {
+            RoundSegment.segments(from: workout.workoutEvents)
+        }
+
         /// `viewDidAppear` idempotency — loads fire only on the first appearance.
         var hasAppeared = false
 
@@ -86,7 +92,7 @@ extension ActivityDetailsFeature {
                 workout: workout,
                 maxHeartRate: maxHeartRate
             )
-            self.workoutRoute = WorkoutRouteFeature.State(workout: workout)
+            self.workoutRoute = WorkoutRouteFeature.State(workout: workout, maxHeartRate: maxHeartRate)
             self.classRecap = ClassRecapFeature.State(workout: workout)
             self.planScore = ActivityPlanScoreFeature.State(hkWorkoutId: workout.uuid)
         }

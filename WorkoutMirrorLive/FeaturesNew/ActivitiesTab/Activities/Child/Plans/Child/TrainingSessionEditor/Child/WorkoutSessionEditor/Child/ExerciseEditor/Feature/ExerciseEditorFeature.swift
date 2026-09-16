@@ -27,16 +27,9 @@ struct ExerciseEditorFeature {
                 return .none
 
             case .view(.saveTapped):
-                var draft = state.draft
-                if draft.info != state.originalDraft.info {
-                    let trimmed = draft.info.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if trimmed.isEmpty {
-                        draft.plannedSets = nil
-                    } else if let parsed = PlannedSet.parse(from: trimmed) {
-                        draft.plannedSets = parsed
-                    }
-                }
-                let exercise = ExerciseSession(id: state.originalId, draft: draft)
+                // Sets are edited structurally in the Sets section — Notes is a
+                // plain note and never re-parsed into plannedSets.
+                let exercise = ExerciseSession(id: state.originalId, draft: state.draft)
                 return .run { send in
                     await send(.delegate(.saved(exercise)))
                     await dismiss()
@@ -60,14 +53,46 @@ struct ExerciseEditorFeature {
                 state.destination = .picker(ExercisePickerFeature.State())
                 return .none
 
+            case .view(.targetToggled(let enabled)):
+                state.draft.target = enabled ? .reps(10) : nil
+                state.draft.plannedSets = nil
+                return .none
+
             case .view(.targetTypeChanged(let type)):
-                let currentValue = state.draft.target?.value ?? 10
-                state.draft.target = type.makeTarget(value: currentValue)
+                // The value survives mode switches: reps ⇄ sets carry it over.
+                let currentValue = state.draft.target?.value
+                    ?? state.draft.plannedSets?.first?.reps
+                    ?? 10
+                if type == .sets {
+                    state.draft.target = nil
+                    if state.draft.plannedSets == nil {
+                        state.draft.plannedSets = Array(
+                            repeating: PlannedSet(reps: currentValue), count: 3
+                        )
+                    }
+                } else {
+                    state.draft.plannedSets = nil
+                    state.draft.target = type.makeTarget(value: currentValue)
+                }
                 return .none
 
             case .view(.targetValueChanged(let value)):
                 let type = state.draft.target?.targetType ?? .reps
                 state.draft.target = type.makeTarget(value: max(1, value))
+                return .none
+
+            case .view(.setsCountChanged(let count)):
+                guard var sets = state.draft.plannedSets, count >= 1 else { return .none }
+                while sets.count < count { sets.append(sets.last ?? PlannedSet(reps: 10)) }
+                while sets.count > count { sets.removeLast() }
+                state.draft.plannedSets = sets
+                return .none
+
+            case .view(.setRepsChanged(let index, let reps)):
+                guard var sets = state.draft.plannedSets, sets.indices.contains(index) else { return .none }
+                // Reps-only edit — the scanned per-set weight suggestion survives.
+                sets[index] = PlannedSet(reps: max(1, reps), suggestedWeight: sets[index].suggestedWeight)
+                state.draft.plannedSets = sets
                 return .none
 
             // MARK: - Destination

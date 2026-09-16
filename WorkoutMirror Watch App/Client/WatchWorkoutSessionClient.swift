@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CoreLocation
 import HealthKit
 import Foundation
 import OSLog
@@ -23,8 +24,10 @@ import SharedModels
 struct WatchWorkoutSessionClient: Sendable {
 
     /// Starts a `HKWorkoutSession` on Watch for accurate HR collection and
-    /// returns an `AsyncStream<Double>` of live BPM readings.
-    var startSession: @Sendable (_ activityType: HKWorkoutActivityType) async -> AsyncStream<Double>
+    /// returns an `AsyncStream<Double>` of live BPM readings. `locationType`
+    /// comes from the iPhone's configuration (`.unknown` on paths that don't
+    /// carry one — the manager falls back to its activity-type heuristic).
+    var startSession: @Sendable (_ activityType: HKWorkoutActivityType, _ locationType: HKWorkoutSessionLocationType) async -> AsyncStream<Double>
 
     /// Ends the active session: stops collection, discards the builder (no HKWorkout saved), ends the session.
     var endSession: @Sendable () async -> Void
@@ -46,22 +49,16 @@ struct WatchWorkoutSessionClient: Sendable {
     var sessionStateStream: @Sendable () -> AsyncStream<HKWorkoutSessionState>
 
     /// Checks HealthKit for an active `HKWorkoutSession` left over from the previous app run
-    /// (e.g. iPhone died mid-workout, Watch app force-quit). Wraps
+    /// (crash, battery death, force-quit) and finalizes it immediately through the normal
+    /// end flow — the workout is always saved, never silently lost. Wraps
     /// `HKHealthStore.recoverActiveWorkoutSession()` (watchOS 9+).
     ///
-    /// When a stuck session is found, the manager attaches to it — reconnects delegates and
-    /// recovers the associated builder — so subsequent `recoverAndEnd` / `recoverAndDiscard`
-    /// operates on the live session. Returns `nil` when no stuck session exists; the normal
-    /// start flow is then unaffected.
-    var checkForStuckSession: @Sendable () async -> StuckSession?
-
-    /// Finalizes a previously recovered stuck session: `endCollection` → `finishWorkout` → `session.end`.
-    /// Delegates to the same flow as `endSession()`. Used when the user taps "Zakończ teraz".
-    var recoverAndEnd: @Sendable () async -> Void
-
-    /// Discards a previously recovered stuck session: `builder.discardWorkout` → `session.end`.
-    /// No `HKWorkout` is saved. Used when the user taps "Odrzuć".
-    var recoverAndDiscard: @Sendable () async -> Void
+    /// Single-flight and cached once settled, so concurrent triggers (launch check,
+    /// `handleActiveWorkoutRecovery`, the gate inside `startSession`) share one recovery
+    /// pass; transient failures are retried on the next trigger. Returns a snapshot of
+    /// the recovered session for logging — delivered to exactly one caller — or `nil`
+    /// when there was nothing to recover; the normal start flow is then unaffected.
+    var recoverStuckSession: @Sendable () async -> StuckSession?
 
     /// Stream of `WatchWorkoutEvent`s received from iPhone via the HealthKit mirroring
     /// channel (`didReceiveDataFromRemoteWorkoutSession`). Complementary path to
@@ -95,8 +92,8 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
     static let liveValue: WatchWorkoutSessionClient = {
         let manager = WatchWorkoutSessionManager()
         return WatchWorkoutSessionClient(
-            startSession: { activityType in
-                await manager.start(activityType: activityType)
+            startSession: { activityType, locationType in
+                await manager.start(activityType: activityType, locationType: locationType)
             },
             endSession: {
                 await manager.end()
@@ -110,16 +107,8 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
             sessionStateStream: {
                 manager.sessionStateStream()
             },
-            checkForStuckSession: {
-                await manager.recoverActiveSession()
-            },
-            recoverAndEnd: {
-                await WorkoutFileLogger.shared.log("[Recovery] recoverAndEnd — calling manager.end()")
-                await manager.end()
-                await WorkoutFileLogger.shared.log("[Recovery] recoverAndEnd — manager.end() returned")
-            },
-            recoverAndDiscard: {
-                await manager.discardRecoveredSession()
+            recoverStuckSession: {
+                await manager.recoverAndFinalizeStuckSession()
             },
             remoteEventStream: {
                 manager.remoteEventStream()
@@ -154,9 +143,32 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     /// Used to bridge the async gap between `stopActivity()` and the delegate callback.
     private var sessionStoppedContinuation: CheckedContinuation<Void, Never>?
 
+    /// Serializes the racing resumers of `sessionStoppedContinuation` (HK delegate
+    /// callbacks vs the 10 s timeout task) — a double resume traps at runtime.
+    private let sessionStoppedLock = NSLock()
+
     /// Guards against calling `finishWorkout()` twice — once from the explicit `end()` call
     /// and once from the `.ended` safety-net handler in the session delegate.
     private var workoutFinished = false
+
+    // MARK: - Ride tracking (distance activities)
+
+    /// GPS + route pipeline — Watch owns the session in Watch-primary mode, so
+    /// the Watch records the route. `nil` for stationary workouts.
+    private var routeRecorder: WorkoutRouteRecorder?
+
+    /// Same accumulator as iPhone-standalone (`RideMetricsAccumulator` in
+    /// SharedModels) — identical rolling-window math on both workout paths.
+    /// `rideLock`-guarded: the GPS task and HK callbacks race.
+    private var rideMetrics = RideMetricsAccumulator()
+    private let rideLock = NSLock()
+
+    /// Gates ride fields in the outgoing payload — non-distance workouts keep
+    /// sending the legacy HR-only shape (old iPhones decode it unchanged).
+    private var isDistanceActivity = false
+
+    /// Consumes `routeRecorder.locations` into `rideMetrics`.
+    private var locationsTask: Task<Void, Never>?
 
     /// UUID of the most recently saved HKWorkout. Set in both `end()` primary path and
     /// `.ended` safety-net path right after `builder.finishWorkout()` returns. Consumed
@@ -218,7 +230,18 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         return stream
     }
 
-    func start(activityType: HKWorkoutActivityType) async -> AsyncStream<Double> {
+    func start(
+        activityType: HKWorkoutActivityType,
+        locationType: HKWorkoutSessionLocationType
+    ) async -> AsyncStream<Double> {
+        // Every start is gated behind the single-flight recovery — this covers ALL entry
+        // points (configuration stream, WC `.workoutStarted` fallback, remote events), not
+        // just the sequenced one in AppFeatureAW. Without it, recovery's end() and this
+        // start() race over `session`/`builder`/`workoutFinished` (last-writer-wins), and
+        // its defer would finish the hrContinuation assigned below. Settled results are
+        // cached, so the common no-recovery case returns immediately.
+        _ = await recoverAndFinalizeStuckSession()
+
         let (stream, continuation) = AsyncStream.makeStream(
             of: Double.self,
             bufferingPolicy: .bufferingNewest(1)
@@ -244,12 +267,21 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         workoutFinished = false
         lastSavedWorkoutUUID = nil
         lastSavedWorkoutSummary = nil
+        isDistanceActivity = activityType.collectsDistance
+        rideLock.withLock { rideMetrics = RideMetricsAccumulator() }
 
         let config = HKWorkoutConfiguration()
         config.activityType = activityType
-        // Indoor for stationary activities so Fitness labels them correctly;
-        // distance-based types keep `.unknown` (Watch has no reliable GPS fix here).
-        config.locationType = activityType.collectsDistance ? .unknown : .indoor
+        // Trust the location the iPhone specified (treadmill = .running + .indoor);
+        // fall back to the legacy heuristic on paths that don't carry one
+        // (WC `.workoutStarted` fallback yields `.unknown`).
+        let resolvedLocation: HKWorkoutSessionLocationType
+        if locationType == .indoor || locationType == .outdoor {
+            resolvedLocation = locationType
+        } else {
+            resolvedLocation = activityType.collectsDistance ? .outdoor : .indoor
+        }
+        config.locationType = resolvedLocation
 
         do {
             session = try HKWorkoutSession(healthStore: healthStore, configuration: config)
@@ -292,6 +324,12 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 Logger.watchSession.error("startMirroringToCompanionDevice failed: \(error.localizedDescription)")
 #endif
             }
+
+            // GPS only outdoors — a treadmill run keeps the accumulator (pace from
+            // HealthKit distance deltas) but must not record a route.
+            if isDistanceActivity && resolvedLocation == .outdoor {
+                startRideTracking()
+            }
         } catch {
             Logger.watchSession.error("start() failed to create HKWorkoutSession: \(error)")
             continuation.finish()
@@ -300,10 +338,33 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         return stream
     }
 
+    /// GPS pipeline (Watch-primary): silent route capture + live speed samples.
+    /// The accumulated values ride along the next `sendHRToRemote` payload —
+    /// no separate send; the HR cadence is enough for the iPhone tile.
+    private func startRideTracking() {
+        let recorder = WorkoutRouteRecorder(healthStore: healthStore)
+        routeRecorder = recorder
+        recorder.start()
+        locationsTask?.cancel()
+        locationsTask = Task { [weak self] in
+            for await location in recorder.locations {
+                guard let self else { return }
+                self.rideLock.withLock {
+                    self.rideMetrics.recordLocationSpeed(location.speed, at: location.timestamp)
+                }
+            }
+        }
+        Logger.watchSession.info("ride tracking started — GPS + route capture active")
+    }
+
     func end() async {
         defer {
             hrContinuation?.finish()
             hrContinuation = nil
+            locationsTask?.cancel()
+            locationsTask = nil
+            routeRecorder?.stop()
+            routeRecorder = nil
             session = nil
             builder = nil
         }
@@ -340,6 +401,9 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 let workout = try await builder.finishWorkout()
                 lastSavedWorkoutUUID = workout?.uuid
                 lastSavedWorkoutSummary = makeSummary(from: workout)
+                if let workout {
+                    await routeRecorder?.finishRoute(for: workout)
+                }
                 Logger.watchSession.info("end() ✓ workout saved to HealthKit (uuid=\(workout?.uuid.uuidString ?? "nil"))")
                 await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (uuid=\(workout?.uuid.uuidString ?? "nil"))")
             } catch {
@@ -385,7 +449,14 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 .doubleValue(for: unit) ?? 0
         }()
 
-        let metrics = WorkoutMetrics(averageHeartRate: avgHR, heartRate: bpm, activeEnergy: energy)
+        var metrics = WorkoutMetrics(averageHeartRate: avgHR, heartRate: bpm, activeEnergy: energy)
+        if isDistanceActivity {
+            // Ride fields are optional in the payload — an older iPhone app
+            // simply ignores the extra keys (same back-compat rule as
+            // `heartRateSampleDate`).
+            let elapsed = builder?.elapsedTime ?? 0
+            metrics = rideLock.withLock { rideMetrics.apply(to: metrics, elapsedTime: elapsed, at: Date()) }
+        }
         guard let data = try? JSONEncoder().encode(metrics) else {
             Logger.watchSession.error("sendHRToRemote — failed to encode WorkoutMetrics")
             return
@@ -415,37 +486,129 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
         }
     }
 
+    /// Resumes the pending `stopActivityAndWait` continuation exactly once.
+    /// Callers: delegate `.stopped`/`.ended` transitions, `didFailWithError`, and the timeout.
+    /// Take-and-nil happens under the lock; the resume itself outside it.
+    private func resumeSessionStopped() {
+        let continuation = sessionStoppedLock.withLock {
+            let pending = sessionStoppedContinuation
+            sessionStoppedContinuation = nil
+            return pending
+        }
+        continuation?.resume()
+    }
+
     /// Calls `session.stopActivity()` and suspends until the delegate confirms `.stopped`.
     ///
     /// If the session is already stopped or ended (e.g. crash recovery), skips immediately
     /// to avoid hanging on a continuation that will never be resumed.
+    ///
+    /// Bounded wait: a recovered zombie session may never report `.stopped` — it can jump
+    /// straight to `.ended` or die via `didFailWithError` (both resume the continuation),
+    /// or deliver no callback at all (the timeout backstops that). On timeout the end flow
+    /// proceeds; R4 still guarantees `session.end()` runs.
     private func stopActivityAndWait(_ session: HKWorkoutSession) async {
         guard session.state == .running || session.state == .paused else {
             Logger.watchSession.info("stopActivityAndWait — skipped (state=\(session.state.rawValue) not running/paused)")
             return
         }
         Logger.watchSession.info("stopActivityAndWait — calling stopActivity(), awaiting delegate .stopped")
+        let timeout = Task { [self] in
+            try? await Task.sleep(for: .seconds(10))
+            guard !Task.isCancelled else { return }
+            Logger.watchSession.error("stopActivityAndWait — no delegate callback within 10 s, proceeding with end flow")
+            await WorkoutFileLogger.shared.log("[End] stopActivityAndWait TIMED OUT — proceeding")
+            resumeSessionStopped()
+        }
         await withCheckedContinuation { continuation in
-            sessionStoppedContinuation = continuation
+            sessionStoppedLock.withLock { sessionStoppedContinuation = continuation }
             session.stopActivity(with: .now)
         }
-        Logger.watchSession.info("stopActivityAndWait — .stopped confirmed by delegate")
+        timeout.cancel()
+        Logger.watchSession.info("stopActivityAndWait — wait finished (stopped/ended/failed/timeout)")
+    }
+
+    /// Single-flight guard for `recoverAndFinalizeStuckSession()`: the launch check,
+    /// `handleActiveWorkoutRecovery` and the `start()` gate can race at process start,
+    /// and only one caller may drive `end()`. A settled result (recovered / nothing to
+    /// recover) is cached for the process lifetime — a new stuck session cannot appear
+    /// without this process dying first. A retryable result (transient HK error, live
+    /// session in the way) clears the cache so the next trigger tries again.
+    private var recoveryTask: Task<RecoveryResult, Never>?
+    private let recoveryLock = NSLock()
+
+    /// Snapshot already handed to a caller — later callers get `nil`, so log-only side
+    /// effects (`.stuckSessionRecovered`, log transfer) fire once per recovered session.
+    private var recoverySnapshotDelivered = false
+
+    /// Outcome of one recovery pass. `retryable` separates transient conditions from
+    /// settled ones — only settled results may stay cached in `recoveryTask`.
+    private struct RecoveryResult {
+        let snapshot: StuckSession?
+        let retryable: Bool
+    }
+
+    /// Result of a single `recoverActiveWorkoutSession` query.
+    private enum RecoveryOutcome {
+        case recovered(StuckSession)
+        case nothingToRecover
+        /// The HK query threw — e.g. HealthKit not ready on an early background relaunch.
+        /// Must not be treated as "nothing to recover".
+        case failed
+    }
+
+    /// Recovers an `HKWorkoutSession` left active by the previous app run and finalizes it
+    /// immediately through the normal `end()` flow (endCollection → finishWorkout →
+    /// session.end) — the workout is saved without any user interaction. Returns a
+    /// `StuckSession` snapshot for logging (delivered to exactly one caller), or `nil`
+    /// when there was nothing to recover.
+    func recoverAndFinalizeStuckSession() async -> StuckSession? {
+        let task = recoveryLock.withLock {
+            if let recoveryTask { return recoveryTask }
+            let task = Task { [self] () -> RecoveryResult in
+                guard session == nil else {
+                    // A live workout owns session/builder — recovering now would overwrite
+                    // them mid-workout. Leave the stuck session for the next trigger/launch.
+                    Logger.watchSession.notice("[Recovery] skipped — a live session is active")
+                    return RecoveryResult(snapshot: nil, retryable: true)
+                }
+                switch await recoverActiveSession() {
+                case .recovered(let stuck):
+                    await WorkoutFileLogger.shared.log("[Recovery] auto-finalizing stuck session")
+                    await end()
+                    return RecoveryResult(snapshot: stuck, retryable: false)
+                case .nothingToRecover:
+                    return RecoveryResult(snapshot: nil, retryable: false)
+                case .failed:
+                    return RecoveryResult(snapshot: nil, retryable: true)
+                }
+            }
+            recoveryTask = task
+            return task
+        }
+        let result = await task.value
+        return recoveryLock.withLock {
+            if result.retryable, recoveryTask == task {
+                recoveryTask = nil
+            }
+            guard let snapshot = result.snapshot, !recoverySnapshotDelivered else { return nil }
+            recoverySnapshotDelivered = true
+            return snapshot
+        }
     }
 
     /// Attempts to recover an `HKWorkoutSession` left active by the previous app run.
     ///
     /// Wraps `HKHealthStore.recoverActiveWorkoutSession()` (watchOS 9+). On success,
     /// reattaches the session and its associated builder to this manager — wiring delegates,
-    /// resetting the `workoutFinished` guard so a subsequent `end()` will save the workout —
-    /// and returns a `StuckSession` snapshot for the UI. Returns `nil` if no stuck session
-    /// exists or recovery fails (logged, non-fatal).
-    func recoverActiveSession() async -> StuckSession? {
+    /// resetting the `workoutFinished` guard so a subsequent `end()` will save the workout.
+    private func recoverActiveSession() async -> RecoveryOutcome {
         await WorkoutFileLogger.shared.log("[Recovery] checking HK Store for stuck session...")
         do {
             guard let recovered = try await healthStore.recoverActiveWorkoutSession() else {
                 Logger.watchSession.debug("recoverActiveWorkoutSession() — no stuck session")
                 await WorkoutFileLogger.shared.log("[Recovery] no stuck session in HK Store — nothing to recover")
-                return nil
+                return .nothingToRecover
             }
             let activityTypeRaw = recovered.workoutConfiguration.activityType.rawValue
             let startDate = recovered.startDate ?? .now
@@ -458,26 +621,12 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             builder?.delegate = self
             workoutFinished = false
 
-            return StuckSession(activityTypeRaw: activityTypeRaw, startDate: startDate)
+            return .recovered(StuckSession(activityTypeRaw: activityTypeRaw, startDate: startDate))
         } catch {
             Logger.watchSession.error("recoverActiveWorkoutSession() failed: \(error.localizedDescription)")
             await WorkoutFileLogger.shared.log("[Recovery] FAILED — \(error.localizedDescription)")
-            return nil
+            return .failed
         }
-    }
-
-    /// Discards a previously recovered stuck session without saving an `HKWorkout`.
-    /// Used when the user chooses "Odrzuć" in the recovery alert.
-    func discardRecoveredSession() async {
-        defer {
-            session = nil
-            builder = nil
-            workoutFinished = false
-        }
-        Logger.watchSession.info("discardRecoveredSession() — discarding builder + ending session")
-        builder?.discardWorkout()
-        session?.end()
-        await WorkoutFileLogger.shared.log("[Recovery] discarded — no HKWorkout saved")
     }
 }
 
@@ -505,15 +654,20 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
             await WorkoutFileLogger.shared.log("[Delegate] sessionState \(fromState.description) → \(toState.description)")
         }
 
-        if toState == .stopped {
-            sessionStoppedContinuation?.resume()
-            sessionStoppedContinuation = nil
+        // .ended included: a recovered zombie session can skip .stopped entirely —
+        // without resuming here the recovery end flow would hang on the continuation.
+        if toState == .stopped || toState == .ended {
+            resumeSessionStopped()
         }
 
         // Forward pause/resume to HRMirrorFeature so its UI stays in sync
         // when iPhone initiates pause via the mirrored session.
         if toState == .paused || toState == .running {
             stateContinuation?.yield(toState)
+            // Pause must be a real pause for the ride pipeline: no route points,
+            // no rolling-window time. Covers pauses from either device.
+            routeRecorder?.setPaused(toState == .paused)
+            rideLock.withLock { rideMetrics.setPaused(toState == .paused, at: date) }
         }
 
         if toState == .ended, !workoutFinished, let builder {
@@ -527,6 +681,13 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
                     let workout = try await builder.finishWorkout()
                     self.lastSavedWorkoutUUID = workout?.uuid
                     self.lastSavedWorkoutSummary = self.makeSummary(from: workout)
+                    if let workout {
+                        await self.routeRecorder?.finishRoute(for: workout)
+                    }
+                    // end() may never run on this path (session ended externally) —
+                    // stop GPS here too; recorder guards make a later double stop safe.
+                    self.locationsTask?.cancel()
+                    self.routeRecorder?.stop()
                     Logger.watchSession.info("safety-net: workout saved (uuid=\(workout?.uuid.uuidString ?? "nil"))")
                     await WorkoutFileLogger.shared.log("WATCH WORKOUT SAVED (safety-net, uuid=\(workout?.uuid.uuidString ?? "nil"))")
                 } catch {
@@ -550,7 +711,32 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
                 continue
             }
             Logger.watchSession.info("didReceiveDataFromRemoteWorkoutSession — decoded \(String(describing: event))")
+            // Rounds-timer segment relayed from the iPhone timer: this manager
+            // owns the builder, so it persists the HKWorkoutEvent(.segment)
+            // itself — features never see this event.
+            if case let .roundSegmentCompleted(segment) = event {
+                recordRoundSegment(segment)
+                continue
+            }
             remoteEventContinuation?.yield(event)
+        }
+    }
+
+    /// Writes a relayed rounds-timer segment onto the live builder.
+    /// Fire-and-forget — a failure (e.g. collection already ended) only logs;
+    /// round marking must never disturb the workout itself.
+    private func recordRoundSegment(_ segment: RoundSegment) {
+        guard let builder, !workoutFinished else {
+            Logger.watchSession.notice("recordRoundSegment — no live builder (round \(segment.roundIndex)), dropped")
+            return
+        }
+        Task {
+            do {
+                try await builder.addWorkoutEvents([segment.workoutEvent])
+                Logger.watchSession.info("recordRoundSegment — round \(segment.roundIndex) \(segment.kind.rawValue) persisted")
+            } catch {
+                Logger.watchSession.error("recordRoundSegment failed: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
@@ -566,6 +752,10 @@ extension WatchWorkoutSessionManager: HKWorkoutSessionDelegate {
         Logger.watchSession.error("session failed — domain=\(domain), code=\(code), state=\(state), description=\(description)")
         Task {
             await WorkoutFileLogger.shared.log("[Delegate] FAILED — domain=\(domain), code=\(code), state=\(state), error=\(description)")
+        }
+        // A failed session will never reach .stopped — unblock a pending end flow.
+        if workoutSession === session {
+            resumeSessionStopped()
         }
     }
 }
@@ -583,13 +773,24 @@ extension WatchWorkoutSessionManager: HKLiveWorkoutBuilderDelegate {
         for type in collectedTypes {
             guard
                 let quantityType = type as? HKQuantityType,
-                quantityType == HKQuantityType(.heartRate),
                 let stats = workoutBuilder.statistics(for: quantityType)
             else { continue }
 
-            let bpmUnit = HKUnit.count().unitDivided(by: .minute())
-            if let bpm = stats.mostRecentQuantity()?.doubleValue(for: bpmUnit) {
-                hrContinuation?.yield(bpm)
+            switch quantityType {
+            case HKQuantityType(.heartRate):
+                let bpmUnit = HKUnit.count().unitDivided(by: .minute())
+                if let bpm = stats.mostRecentQuantity()?.doubleValue(for: bpmUnit) {
+                    hrContinuation?.yield(bpm)
+                }
+
+            case HKQuantityType(.distanceCycling), HKQuantityType(.distanceWalkingRunning):
+                if let total = stats.sumQuantity()?.doubleValue(for: .meter()) {
+                    let sampleDate = stats.mostRecentQuantityDateInterval()?.end ?? Date()
+                    rideLock.withLock { rideMetrics.recordDistance(total: total, at: sampleDate) }
+                }
+
+            default:
+                break
             }
         }
     }

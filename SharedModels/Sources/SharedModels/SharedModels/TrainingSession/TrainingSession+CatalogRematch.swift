@@ -66,7 +66,8 @@ extension WorkoutSessionNew {
         type: ExerciseWorkoutType,
         timeCap: Int?,
         rounds: Int?,
-        exercises: [ExerciseSession]
+        exercises: [ExerciseSession],
+        interval: IntervalPlan?
     ) {
         self.id = id
         self.name = name
@@ -74,6 +75,7 @@ extension WorkoutSessionNew {
         self.timeCap = timeCap
         self.rounds = rounds
         self.exercises = exercises
+        self.interval = interval
     }
 
     /// Returns a copy with all `.unknown` exercises re-resolved.
@@ -91,7 +93,8 @@ extension WorkoutSessionNew {
             type: type,
             timeCap: timeCap,
             rounds: rounds,
-            exercises: rematchedExercises
+            exercises: rematchedExercises,
+            interval: interval
         )
     }
 }

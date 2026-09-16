@@ -125,7 +125,7 @@ struct PersonalActivityView: View {
                             Button {
                                 send(.deleteWorkoutSwiped(workout))
                             } label: {
-                                Label("Usuń", systemImage: "trash")
+                                Label("Delete", systemImage: "trash")
                             }
                             .tint(.red)
                         }
@@ -204,7 +204,7 @@ struct PersonalActivityView: View {
     /// Sits inline in the date row (user decision 2026-07-04) — compact paddings
     /// so the chip does not stretch the row height.
     private var pendingResultsBadge: some View {
-        Text(String(localized: "Uzupełnij wyniki"))
+        Text(String(localized: "Fill in results"))
             .font(.caption2.weight(.semibold))
             .foregroundStyle(.orange)
             .padding(.horizontal, 6)

@@ -68,4 +68,25 @@ public enum WorkoutSummaryLoader {
             (date: sample.startDate, bpm: sample.quantity.doubleValue(for: bpmUnit))
         }
     }
+
+    /// Pobiera wszystkie sample energii (`activeEnergyBurned`) z zakresu workout'u.
+    /// Per-sample (nie suma) — konsument tnie je na własne okna czasowe
+    /// (np. kcal per runda w analizie rund).
+    public static func activeEnergySamples(
+        for hkWorkout: HKWorkout,
+        healthStore: HKHealthStore
+    ) async throws -> [(date: Date, kcal: Double)] {
+        let predicate = HKQuery.predicateForSamples(
+            withStart: hkWorkout.startDate,
+            end: hkWorkout.endDate
+        )
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [.quantitySample(type: HKQuantityType(.activeEnergyBurned), predicate: predicate)],
+            sortDescriptors: [SortDescriptor(\.startDate, order: .forward)]
+        )
+        let samples = try await descriptor.result(for: healthStore)
+        return samples.map { sample in
+            (date: sample.startDate, kcal: sample.quantity.doubleValue(for: .kilocalorie()))
+        }
+    }
 }

@@ -6,6 +6,7 @@ public enum MovementCategory: String, CaseIterable, Codable, Sendable {
     case olympicLifting
     case gymnastics
     case cardio
+    case mobility
     case mixed
 
     public var displayName: String {
@@ -14,6 +15,7 @@ public enum MovementCategory: String, CaseIterable, Codable, Sendable {
         case .olympicLifting: return String(localized: "Weightlifting", bundle: .module)
         case .gymnastics:     return String(localized: "Gymnastics", bundle: .module)
         case .cardio:         return String(localized: "Cardio", bundle: .module)
+        case .mobility:       return String(localized: "Mobility", bundle: .module)
         case .mixed:          return String(localized: "Mixed", bundle: .module)
         }
     }
@@ -24,6 +26,7 @@ public enum MovementCategory: String, CaseIterable, Codable, Sendable {
         case .olympicLifting: return .purple
         case .gymnastics:     return .blue
         case .cardio:         return .green
+        case .mobility:       return .mint
         case .mixed:          return .red
         }
     }

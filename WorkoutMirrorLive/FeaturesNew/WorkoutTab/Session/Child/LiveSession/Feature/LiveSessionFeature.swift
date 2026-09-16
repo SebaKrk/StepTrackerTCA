@@ -41,6 +41,18 @@ struct LiveSessionFeature {
                 state.maxHeartRate = value
                 return .none
 
+            case let .setWorkoutType(workout):
+                state.selectedWorkout = workout
+                // Free boxing gets the ad-hoc rounds timer; a plan config (when
+                // it arrives via setupIntervalTimer) simply replaces this default.
+                if workout == .boxing, state.intervalTimer == nil {
+                    state.intervalTimer = IntervalTimerFeature.State(
+                        config: IntervalPlan(workSeconds: 30, restSeconds: 30, rounds: 12),
+                        isFromPlan: false
+                    )
+                }
+                return .none
+
             case let .setWatchConnectionLost(isLost):
                 guard state.isWatchConnectionLost != isLost else { return .none }
                 state.isWatchConnectionLost = isLost
@@ -103,11 +115,11 @@ struct LiveSessionFeature {
                     }
                     state.hrBuffer.append(State.HRSample(date: sampleDate, bpm: effectiveHR))
                 }
-                state.workoutMetrics = WorkoutMetrics(
-                    averageHeartRate: data.averageHeartRate,
-                    heartRate: effectiveHR,
-                    activeEnergy: data.activeEnergy
-                )
+                // Keep the whole payload (incl. ride distance/speed fields for the
+                // cycling tile) — only the displayed HR gets the zero-guard above.
+                var updatedMetrics = data
+                updatedMetrics.heartRate = effectiveHR
+                state.workoutMetrics = updatedMetrics
                 if effectiveHR > 0 {
                     Task { await WorkoutFileLogger.shared.logHRIfNeeded(bpm: effectiveHR) }
                 }
@@ -170,12 +182,7 @@ struct LiveSessionFeature {
                 }
 
             case .resetHeartRate:
-                let current = state.workoutMetrics
-                state.workoutMetrics = WorkoutMetrics(
-                    averageHeartRate: current.averageHeartRate,
-                    heartRate: 0,
-                    activeEnergy: current.activeEnergy
-                )
+                state.workoutMetrics.heartRate = 0
                 return .merge(
                     .send(.calculateHeartRateZone(0, state.maxHeartRate)),
                     .send(.calculateHeartRatePercentage(0, state.maxHeartRate))
@@ -200,6 +207,13 @@ struct LiveSessionFeature {
                 return .run { [idleTimer] _ in
                     await idleTimer.setDisabled(false)
                 }
+
+            case let .view(.distanceTilePageChanged(page)):
+                state.distanceTilePage = page
+                return .none
+
+            case .view(.landscapeTimerToggleTapped):
+                return .send(.toggleIntervalTimerVisibility)
                 
                 // MARK: - User Stopwatch Delegate
 
@@ -210,6 +224,8 @@ struct LiveSessionFeature {
                         state.userStopwatch.isVisible = false
                         return .none
                     }
+                    // The toolbar menu picks ONE tool — stopwatch hides the rounds tile.
+                    state.isIntervalTimerVisible = false
                     state.phasePanel?.isTimerButtonDisabled = true
                     guard !state.liveActivity.timer.isActive else { return .none }
                     return .send(.liveActivity(.timer(.start(timerName: "Stoper", initialState: state.timerContentState))))
@@ -270,6 +286,32 @@ struct LiveSessionFeature {
                 state.phasePanel = phases.isEmpty ? nil : PhasePanelFeature.State(phases: phases)
                 return .none
 
+                // MARK: - Interval Timer
+
+            case let .setupIntervalTimer(plan):
+                if let plan {
+                    state.intervalTimer = IntervalTimerFeature.State(config: plan, isFromPlan: true)
+                }
+                // nil = the plan has no interval WOD; a free-boxing default set
+                // by setWorkoutType stays untouched.
+                return .none
+
+            case let .setIntervalTimerPaused(isPaused):
+                guard state.intervalTimer != nil else { return .none }
+                return .send(.intervalTimer(isPaused ? .sessionPaused : .sessionResumed))
+
+            case .toggleIntervalTimerVisibility:
+                guard state.intervalTimer != nil else { return .none }
+                state.isIntervalTimerVisible.toggle()
+                // Exclusive with the stopwatch — the toolbar menu picks ONE tool.
+                if state.isIntervalTimerVisible, state.userStopwatch.isVisible {
+                    return .send(.userStopwatch(.view(.setVisibility(false))))
+                }
+                return .none
+
+            case .intervalTimer:
+                return .none
+
             case let .phasePanel(.delegate(.timerManagementRequested(elapsed))):
                 // Mutual exclusion: block if user stopwatch is already visible
                 guard !state.userStopwatch.isVisible else { return .none }
@@ -301,6 +343,9 @@ struct LiveSessionFeature {
         }
         .ifLet(\.phasePanel, action: \.phasePanel) {
             PhasePanelFeature()
+        }
+        .ifLet(\.intervalTimer, action: \.intervalTimer) {
+            IntervalTimerFeature()
         }
     }
 

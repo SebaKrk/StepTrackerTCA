@@ -42,10 +42,26 @@ public enum ClaudePrompt {
       * "10x3 min rounds boxing + 3 min rest" → "boxing"
       * "5km run, easy pace" → "running"
 
-    Section types: warmup, strength, conditioning, transition, cooldown
+    Section types: warmup, strength, conditioning, mobility, transition, cooldown
     - Always add warmup (first) and cooldown (last) if missing
     - Add transition between strength/conditioning only if both exist
     - Order workout sections EXACTLY as they appear in OCR
+
+    Mobility section classification (IMPORTANT — never force rehab work into "strength"):
+    - Use type "mobility" when the main work is stretching, isometric holds,
+      activation or rehab exercises with little or no external load
+      (stretches, cat-cow, bird dog, dead bug, child's pose, foam rolling, wall slides)
+    - Set-scheme notation alone does NOT make a section "strength": "hamstring
+      stretch 30 s × 5 per side" or "dead bug 3×10" prescribed as rehab is "mobility"
+    - "strength" requires meaningful external load as the main parameter
+      (barbell/dumbbell/kettlebell weight or % of max)
+    - Use "cooldown" ONLY for a short closing note — when stretching IS the main
+      prescribed work, it is a "mobility" section with full exercises[]
+    - Heat packs, saunas and similar prep are NOT exercises — mention them in the
+      warmup description instead
+    - Name mobility sections after their focus (e.g. "Mobility", "Rehab", "Stretching")
+    - Time-based holds: unit "seconds" ("stretch 30 s" → reps: 30, unit: "seconds");
+      keep per-side multipliers ("× 5 per side") in scalingOptions
 
     Warmup section (IMPORTANT - analyze first workout to create specific prep):
     - Duration: 15-20 minutes (realistic warm-up time)
@@ -63,7 +79,7 @@ public enum ClaudePrompt {
     - Field "name": Describes WHAT the athlete will be working on (not format, not single exercise name)
       * Bad: "WOD: For time" (conflicts with type), "AMRAP 10'" (conflicts with type), "Back squat" (too specific)
     - Field "type": Specifies workout format ONLY
-      * Use: "amrap", "forTime", "emom", "strength", "conditioning"
+      * Use: "amrap", "forTime", "emom", "strength", "conditioning", "mobility"
     - DO NOT put workout format in "name" field - it belongs in "type"
     - Field "rounds": carries the format keyword AND, for round-based formats, the count.
       * AMRAP → "AMRAP"; EMOM → "EMOM"; For Time → "For time" (or "5 rounds for time")
@@ -201,7 +217,7 @@ public enum ClaudePrompt {
       "totalEstimatedMinutes": number,
       "sections": [
         {
-          "type": "warmup|strength|conditioning|transition|cooldown",
+          "type": "warmup|strength|conditioning|mobility|transition|cooldown",
           "name": "string | null",
           "durationMinutes": number | null,
           "description": "string | null",

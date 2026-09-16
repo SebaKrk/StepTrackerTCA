@@ -31,18 +31,55 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
     /// keeps Codable backward-compatible), where consumers keep legacy behavior.
     public var heartRateSampleDate: Date?
 
+    // MARK: - Distance Activities
+
+    // Populated only for distance-based activities (cycling). Optional keeps the
+    // Codable payload backward-compatible across Watch↔iPhone version skew —
+    // same rule as `heartRateSampleDate`. SI units throughout (meters, m/s);
+    // conversion to km / km/h happens at the formatting layer.
+
+    /// Total distance covered so far, in meters.
+    public var distance: Double?
+
+    /// Most recent instantaneous speed, in meters per second.
+    public var currentSpeed: Double?
+
+    /// Average speed across the whole session, in meters per second.
+    public var averageSpeed: Double?
+
+    /// Maximum instantaneous speed recorded this session, in meters per second.
+    public var maxSpeed: Double?
+
+    /// Rolling average speed over the last 5 km, in meters per second.
+    public var recentAverageSpeed: Double?
+
+    /// Average speed over the last completed kilometer, in meters per second.
+    public var lastKilometerSpeed: Double?
+
     // MARK: - Lifecycle
 
     public init(
         averageHeartRate: Double,
         heartRate: Double,
         activeEnergy: Double,
-        heartRateSampleDate: Date? = nil
+        heartRateSampleDate: Date? = nil,
+        distance: Double? = nil,
+        currentSpeed: Double? = nil,
+        averageSpeed: Double? = nil,
+        maxSpeed: Double? = nil,
+        recentAverageSpeed: Double? = nil,
+        lastKilometerSpeed: Double? = nil
     ) {
         self.averageHeartRate = averageHeartRate
         self.heartRate = heartRate
         self.activeEnergy = activeEnergy
         self.heartRateSampleDate = heartRateSampleDate
+        self.distance = distance
+        self.currentSpeed = currentSpeed
+        self.averageSpeed = averageSpeed
+        self.maxSpeed = maxSpeed
+        self.recentAverageSpeed = recentAverageSpeed
+        self.lastKilometerSpeed = lastKilometerSpeed
     }
 
 }

@@ -11,16 +11,16 @@ import Foundation
 extension AlertState where Action == SummaryFeature.Action.DiscardAlert {
     static var discardWorkout: Self {
         Self {
-            TextState("Odrzuć trening?")
+            TextState("Discard workout?")
         } actions: {
             ButtonState(role: .destructive, action: .send(.confirmDiscard)) {
-                TextState("Odrzuć")
+                TextState("Discard")
             }
             ButtonState(role: .cancel) {
-                TextState("Anuluj")
+                TextState("Cancel")
             }
         } message: {
-            TextState("Trening zostanie usunięty z HealthKit i nie zostanie zapisany.")
+            TextState("The workout will be removed from HealthKit and won't be saved.")
         }
     }
 }

@@ -58,8 +58,15 @@ struct SummaryFeature {
 
             case let .setTrainingSession(trainingSession):
                 state.trainingSession = trainingSession
-                state.results = trainingSession.map { .editable(trainingSession: $0) } ?? .init()
-                return .none
+                state.results = trainingSession.map {
+                    .editable(
+                        trainingSession: $0,
+                        workoutDate: state.summary?.workout?.startDate ?? $0.date
+                    )
+                } ?? .init()
+                // The section's one-shot .task may have fired before these cards
+                // existed — the PR snapshot load must follow the cards.
+                return .send(.results(.loadPRSnapshot))
 
             case let .setHRData(hrBuffer, phaseTimestamps):
                 state.hrBuffer = hrBuffer
@@ -81,6 +88,11 @@ struct SummaryFeature {
 
             case let .summaryLoaded(summary):
                 state.summary = summary
+                // A suggested PR entry must carry the WORKOUT day; setTrainingSession
+                // usually runs before the summary exists, so sync the date here.
+                if let workoutStart = summary.workout?.startDate {
+                    state.results.workoutDate = workoutStart
+                }
                 let resultLog = summary.workout.map { "found: \($0.uuid)" } ?? "nil"
 
                 if let workout = summary.workout {

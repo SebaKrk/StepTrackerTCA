@@ -124,11 +124,14 @@ extension DefaultTrainingManager {
     }
 
     /// Starts a workout app on the paired Apple Watch
-    public func startWatchWorkout(workoutType: HKWorkoutActivityType) async throws {
-        Logger.trainingManager.info("startWatchApp — activityType: \(workoutType.rawValue)")
+    public func startWatchWorkout(
+        workoutType: HKWorkoutActivityType,
+        locationType: HKWorkoutSessionLocationType
+    ) async throws {
+        Logger.trainingManager.info("startWatchApp — activityType: \(workoutType.rawValue), locationType: \(locationType.rawValue)")
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = workoutType
-        configuration.locationType = .outdoor
+        configuration.locationType = locationType
         try await healthStore.startWatchApp(toHandle: configuration)
         Logger.trainingManager.info("startWatchApp sent — waiting for mirrored session")
     }

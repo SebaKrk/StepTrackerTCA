@@ -44,7 +44,9 @@ extension DefaultTrainingReadinessCalculator {
             score: score,
             currentValue: currentSleep.value,
             baselineValue: baselineSleep?.value,
-            unit: "hours",
+            // The only readiness unit that differs between languages (bpm/ms/kcal
+            // are universal) — resolved against the app bundle at display time.
+            unit: String(localized: "hours"),
             minScore: -10,
             maxScore: 15,
             timestamp: currentSleep.date

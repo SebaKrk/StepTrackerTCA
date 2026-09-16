@@ -62,6 +62,14 @@ extension LiveSessionFeature {
         /// Independent user stopwatch (toolbar button).
         var userStopwatch = StopwatchFeature.State()
 
+        /// Workout type of the session — `.cycling` shows the cycling tile
+        /// (speed/distance carousel); other types keep the HR-only layout.
+        /// The visible user stopwatch takes over the tile's slot.
+        var selectedWorkout: WorkoutType? = nil
+
+        /// Currently visible page of the cycling tile carousel.
+        var distanceTilePage: DistanceTilePage = .overview
+
         /// Stopwatch managing the active plan phase timer.
         var phaseStopwatch = StopwatchFeature.State()
 
@@ -69,6 +77,16 @@ extension LiveSessionFeature {
 
         /// Phase panel state. Non-nil only when the workout has an associated training plan.
         var phasePanel: PhasePanelFeature.State? = nil
+
+        // MARK: - Interval Timer
+
+        /// Boxing-rounds timer. Non-nil when the plan carries an `IntervalPlan`
+        /// or the session is a free `.boxing` workout (ad-hoc config).
+        var intervalTimer: IntervalTimerFeature.State? = nil
+
+        /// Tile visibility — hidden until picked from the toolbar timer menu.
+        /// A hidden timer keeps running (signals still fire).
+        var isIntervalTimerVisible: Bool = false
         
         // MARK: - HR Buffer
 

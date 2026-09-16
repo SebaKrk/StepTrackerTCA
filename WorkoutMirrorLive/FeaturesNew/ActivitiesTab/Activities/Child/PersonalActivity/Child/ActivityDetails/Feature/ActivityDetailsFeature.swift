@@ -80,6 +80,14 @@ struct ActivityDetailsFeature {
                 state.destination = .linkTemplate(TemplatePickerFeature.State())
                 return .none
 
+            case .view(.roundsCardTapped):
+                state.destination = .roundsDetail(RoundsDetailFeature.State(
+                    workout: state.workout,
+                    maxHeartRate: state.maxHeartRate,
+                    segments: state.roundSegments
+                ))
+                return .none
+
             case .view(.editExistingScoreTapped):
                 // Wyciągamy score ze state'a planScore (już załadowany z DB). Bez score'a guard
                 // returnuje — button i tak jest schowany w UI gdy loadState != .loaded.

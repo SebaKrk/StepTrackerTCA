@@ -62,7 +62,7 @@ struct LiveClassView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .tint(.white)
-            Text(String(localized: "Kończenie zajęć…"))
+            Text(String(localized: "Ending class…"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
         }

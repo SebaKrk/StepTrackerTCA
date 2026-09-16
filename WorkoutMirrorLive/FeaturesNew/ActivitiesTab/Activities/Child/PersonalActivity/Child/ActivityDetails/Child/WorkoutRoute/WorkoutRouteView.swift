@@ -25,11 +25,16 @@ struct WorkoutRouteView: View {
     var body: some View {
         if store.isLoadingLocation {
             loadingLocationView
-        } else if let coordinates = store.routeCoordinates, !coordinates.isEmpty {
-            if coordinates.count >= 2 {
-                routeMapView(coordinates: coordinates)
+        } else if let locations = store.routeLocations, !locations.isEmpty {
+            if locations.count >= 2 {
+                routeMapView(coordinates: locations.map(\.coordinate))
+                    .navigationDestination(
+                        item: $store.scope(state: \.routeDetails, action: \.routeDetails)
+                    ) { detailsStore in
+                        RouteDetailsView(store: detailsStore)
+                    }
             } else {
-                singleLocationMapView(coordinate: coordinates[0])
+                singleLocationMapView(coordinate: locations[0].coordinate)
             }
         }
     }
@@ -110,7 +115,7 @@ struct WorkoutRouteView: View {
 
     private var routeLabelButton: some View {
         Button {
-            // TODO: - destination RoutDetails
+            store.send(.routeDetailsTapped)
         } label: {
             HStack {
                 Label(routeTitle, systemImage: "figure.run")

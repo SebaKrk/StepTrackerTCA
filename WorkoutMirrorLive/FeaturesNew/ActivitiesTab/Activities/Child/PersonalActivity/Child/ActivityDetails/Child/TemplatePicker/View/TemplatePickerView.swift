@@ -236,19 +236,19 @@ struct TemplatePickerView: View {
     }
 
     private var emptyTitle: String {
-        String(localized: "Brak treningów")
+        String(localized: "No workouts yet")
     }
 
     private var emptyDescription: String {
-        String(localized: "Stwórz najpierw plan treningu w zakładce Plany.")
+        String(localized: "Create a training plan in the Plans tab first.")
     }
 
     private var failedTitle: String {
-        String(localized: "Błąd ładowania")
+        String(localized: "Loading failed")
     }
 
     private var failedDescription: String {
-        String(localized: "Nie udało się załadować treningów.")
+        String(localized: "Couldn't load workouts.")
     }
 
     private var selectButtonTitle: String {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import IssueReporting
 import SharedModels
 import SQLiteData
 
@@ -191,6 +192,16 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
 extension ExerciseLogRecord {
 
     public init(from log: ExerciseLog, createdAt: Date, updatedAt: Date) {
+        // Encoding failure must not fail the whole save, but it may not stay
+        // silent either — the per-set breakdown is lost forever at this point.
+        var setsData: Data?
+        if let sets = log.sets {
+            do {
+                setsData = try JSONEncoder().encode(sets)
+            } catch {
+                reportIssue("ExerciseLogRecord \(log.id): failed to encode setsData — per-set breakdown lost at save: \(error)")
+            }
+        }
         self.init(
             id: log.id,
             date: log.date,
@@ -204,7 +215,7 @@ extension ExerciseLogRecord {
             plannedWeight: log.plannedWeight,
             actualWeight: log.actualWeight,
             actualReps: log.actualReps,
-            setsData: try? log.sets.map { try JSONEncoder().encode($0) },
+            setsData: setsData,
             scaling: log.scaling.rawValue,
             isPR: log.isPR,
             avgHeartRate: log.avgHeartRate,
@@ -235,7 +246,14 @@ extension ExerciseLogRecord {
             plannedWeight: plannedWeight,
             actualWeight: actualWeight,
             actualReps: actualReps,
-            sets: setsData.flatMap { try? JSONDecoder().decode([SetEntry].self, from: $0) },
+            sets: setsData.flatMap { data in
+                do {
+                    return try JSONDecoder().decode([SetEntry].self, from: data)
+                } catch {
+                    reportIssue("ExerciseLogRecord \(id): failed to decode setsData — per-set breakdown lost at read: \(error)")
+                    return nil
+                }
+            },
             scaling: ScalingType(rawValue: scaling) ?? .rx,
             isPR: isPR,
             avgHeartRate: avgHeartRate,

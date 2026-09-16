@@ -89,8 +89,10 @@ extension ExerciseEditorFeature {
 // MARK: - ExerciseTargetType
 
 /// Represents the kind of target without an associated value — used as a Picker selection.
+/// `.sets` is UI-only: it selects the per-set scheme (`plannedSets`) instead of
+/// a single `ExerciseTarget` value.
 enum ExerciseTargetType: CaseIterable {
-    case reps, calories, meters, seconds, minutes
+    case reps, calories, meters, seconds, minutes, sets
 
     var displayName: String {
         switch self {
@@ -99,6 +101,7 @@ enum ExerciseTargetType: CaseIterable {
         case .meters:   return "Meters"
         case .seconds:  return "Seconds"
         case .minutes:  return "Minutes"
+        case .sets:     return "Sets"
         }
     }
 
@@ -110,6 +113,9 @@ enum ExerciseTargetType: CaseIterable {
         case .meters:   return .meters(value)
         case .seconds:  return .seconds(value)
         case .minutes:  return .minutes(value)
+        // Never reached — the reducer routes `.sets` to `plannedSets` before
+        // building a target; kept only for switch exhaustiveness.
+        case .sets:     return .reps(value)
         }
     }
 }

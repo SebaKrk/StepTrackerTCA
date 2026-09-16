@@ -52,8 +52,8 @@ struct ImportPlanFeature {
     }
 
     static let malformedAlert = AlertState<Action.Alert> {
-        TextState(String(localized: "Nie udało się odczytać planu"))
+        TextState(String(localized: "Couldn't read the plan"))
     } message: {
-        TextState(String(localized: "Ten kod nie zawiera prawidłowego planu treningowego."))
+        TextState(String(localized: "This code doesn't contain a valid training plan."))
     }
 }

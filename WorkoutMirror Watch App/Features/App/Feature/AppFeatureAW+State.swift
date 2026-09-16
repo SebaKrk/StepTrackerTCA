@@ -25,12 +25,7 @@ extension AppFeatureAW {
         /// before `endSession()` finalizes the old one risks a HealthKit
         /// "already active" rejection, so the start is deferred until
         /// `.savedSummaryLoaded` confirms the old session is fully closed.
-        var pendingActivityType: HKWorkoutActivityType?
-
-        /// Presented on app launch when `WatchWorkoutSessionClient.checkForStuckSession()`
-        /// detects an `HKWorkoutSession` left active by the previous app run (e.g. iPhone died
-        /// mid-workout, Watch app was force-quit). User chooses to finalize or discard.
-        @Presents var recoveryAlert: AlertState<RecoveryAlertAction>?
+        var pendingConfiguration: WorkoutConfigurationStream.Payload?
 
     }
 

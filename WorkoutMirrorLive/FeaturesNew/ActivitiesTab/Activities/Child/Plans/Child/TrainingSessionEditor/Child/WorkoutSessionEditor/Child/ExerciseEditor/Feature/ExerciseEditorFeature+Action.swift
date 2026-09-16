@@ -30,10 +30,17 @@ extension ExerciseEditorFeature {
             case deleteTapped
             /// User tapped the exercise type row to open the picker.
             case pickExerciseTapped
-            /// User changed the target type (reps → meters, etc.) preserving the current value.
+            /// User toggled the whole Target section — clears both the single
+            /// target and the per-set scheme when disabled.
+            case targetToggled(Bool)
+            /// User changed the target type (reps → meters → sets, etc.) preserving the current value.
             case targetTypeChanged(ExerciseTargetType)
             /// User changed the target value via stepper.
             case targetValueChanged(Int)
+            /// User changed the number of sets via stepper (target type = sets).
+            case setsCountChanged(Int)
+            /// User changed the reps of a single set (target type = sets).
+            case setRepsChanged(index: Int, reps: Int)
         }
 
         // MARK: - Alert

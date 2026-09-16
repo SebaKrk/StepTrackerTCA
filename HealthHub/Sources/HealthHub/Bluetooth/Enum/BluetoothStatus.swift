@@ -30,12 +30,12 @@ public enum BluetoothStatus: Sendable, Equatable {
     
     public var labelText: String {
         switch self {
-        case .ready: return "Aktywny"
-        case .disconnected: return "Niepołączony"
-        case .unauthorized: return "Brak zgody"
-        case .disabled: return "Wyłączony"
-        case .unsupported: return "Nieobsługiwany"
-        case .unknown: return "Sprawdzanie..."
+        case .ready: return String(localized: "Active")
+        case .disconnected: return String(localized: "Disconnected")
+        case .unauthorized: return String(localized: "No permission")
+        case .disabled: return String(localized: "Off")
+        case .unsupported: return String(localized: "Unsupported")
+        case .unknown: return String(localized: "Checking...")
         }
     }
     
@@ -46,17 +46,17 @@ public enum BluetoothStatus: Sendable, Equatable {
     public var title: String {
         switch self {
         case .ready:
-            return "Bluetooth gotowy"
+            return String(localized: "Bluetooth ready")
         case .disconnected:
-            return "Połączenie przerwane"
+            return String(localized: "Connection lost")
         case .unauthorized:
-            return "Wymagane uprawnienia"
+            return String(localized: "Permission required")
         case .disabled:
-            return "Bluetooth wyłączony"
+            return String(localized: "Bluetooth off")
         case .unsupported:
-            return "Bluetooth nieobsługiwany"
+            return String(localized: "Bluetooth unsupported")
         case .unknown:
-            return "Sprawdzanie Bluetooth..."
+            return String(localized: "Checking Bluetooth...")
         }
     }
     
@@ -82,17 +82,17 @@ public enum BluetoothStatus: Sendable, Equatable {
     public var description: String {
         switch self {
         case .ready:
-            return "Możesz teraz rozpocząć skanowanie urządzeń Bluetooth"
+            return String(localized: "You can now start scanning for Bluetooth devices")
         case .disconnected:
-            return "Twoje urządzenie Bluetooth zostało rozłączone"
+            return String(localized: "Your Bluetooth device has been disconnected")
         case .unauthorized:
-            return "Zezwól na dostęp do Bluetooth w Ustawieniach, aby połączyć się z monitorem tętna"
+            return String(localized: "Allow Bluetooth access in Settings to connect to a heart rate monitor")
         case .disabled:
-            return "Włącz Bluetooth, aby połączyć się z monitorem tętna i innymi urządzeniami"
+            return String(localized: "Turn on Bluetooth to connect to a heart rate monitor and other devices")
         case .unsupported:
-            return "To urządzenie nie obsługuje Bluetooth Low Energy wymaganego przez monitory tętna"
+            return String(localized: "This device doesn't support Bluetooth Low Energy required by heart rate monitors")
         case .unknown:
-            return "Poczekaj, aż zainicjujemy połączenie Bluetooth"
+            return String(localized: "Please wait while we initialize the Bluetooth connection")
         }
     }
     
@@ -100,17 +100,17 @@ public enum BluetoothStatus: Sendable, Equatable {
     public var buttonTitle: String? {
         switch self {
         case .ready:
-            return "rozpocznij skanowanie"
+            return String(localized: "start scanning")
         case .disconnected:
-            return "spróbuj ponownie"
+            return String(localized: "try again")
         case .unauthorized:
-            return "otwórz ustawienia"
+            return String(localized: "open settings")
         case .disabled:
-            return "otwórz ustawienia bluetooth"
+            return String(localized: "open bluetooth settings")
         case .unsupported:
             return nil
         case .unknown:
-            return "ponów próbę"
+            return String(localized: "retry")
         }
     }
 

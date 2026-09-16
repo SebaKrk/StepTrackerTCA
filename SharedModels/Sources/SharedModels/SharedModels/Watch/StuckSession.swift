@@ -9,10 +9,9 @@ import Foundation
 
 /// Snapshot of an active `HKWorkoutSession` recovered on Watch app launch.
 ///
-/// Returned by `WatchWorkoutSessionClient.checkForStuckSession()` when the previous
-/// app run left a workout session unfinished (e.g. iPhone died mid-workout, Watch app
-/// was force-quit). The recovery alert presents this context to the user before they
-/// decide whether to finalize the workout or discard it.
+/// Returned by `WatchWorkoutSessionClient.recoverStuckSession()` when the previous
+/// app run left a workout session unfinished (e.g. crash, battery death, force-quit).
+/// The session is auto-finalized at that point — this snapshot only feeds logging.
 ///
 /// `activityTypeRaw` is kept as `UInt` to avoid importing `HealthKit` in `SharedModels`
 /// — callers reconstruct `HKWorkoutActivityType(rawValue:)` on the Watch side.

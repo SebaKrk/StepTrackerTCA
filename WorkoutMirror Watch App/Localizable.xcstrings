@@ -2,18 +2,29 @@
   "sourceLanguage" : "en",
   "strings" : {
     "%lld" : {
-
+      "shouldTranslate" : false
     },
     "%lld%%" : {
-
+      "shouldTranslate" : false
     },
     "Avg. Heart Rate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. tętno"
+          }
+        }
+      }
+    },
+    "Battery below 5%" : {
 
     },
     "BPM" : {
-
+      "shouldTranslate" : false
     },
     "Discard" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -24,12 +35,27 @@
       }
     },
     "Done" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowe"
+          }
+        }
+      }
     },
     "Effort Points" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effort Points"
+          }
+        }
+      }
     },
     "End now" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -38,6 +64,15 @@
           }
         }
       }
+    },
+    "End the workout to keep its data." : {
+
+    },
+    "End workout" : {
+
+    },
+    "OK" : {
+
     },
     "Pause" : {
       "localizations" : {
@@ -49,8 +84,15 @@
         }
       }
     },
-    "pkt" : {
-
+    "pts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pkt"
+          }
+        }
+      }
     },
     "Resume" : {
       "localizations" : {
@@ -94,12 +136,27 @@
       }
     },
     "Total Energy" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energia łącznie"
+          }
+        }
+      }
     },
     "Total Time" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas łącznie"
+          }
+        }
+      }
     },
     "Unfinished workout detected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -120,15 +177,37 @@
       }
     },
     "Workout data unavailable" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane treningu niedostępne"
+          }
+        }
+      }
     },
     "Workout ended" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening zakończony"
+          }
+        }
+      }
     },
     "Workout saved" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening zapisany"
+          }
+        }
+      }
     },
     "Workout started: %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
