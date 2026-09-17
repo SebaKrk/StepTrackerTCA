@@ -18,7 +18,14 @@
       }
     },
     "Battery below 5%" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bateria poniżej 5%"
+          }
+        }
+      }
     },
     "BPM" : {
       "shouldTranslate" : false
@@ -66,13 +73,34 @@
       }
     },
     "End the workout to keep its data." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ trening, aby zachować dane."
+          }
+        }
+      }
     },
     "End workout" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ trening"
+          }
+        }
+      }
     },
     "OK" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
     "Pause" : {
       "localizations" : {
