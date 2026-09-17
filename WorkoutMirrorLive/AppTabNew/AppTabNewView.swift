@@ -46,7 +46,7 @@ struct AppTabNewView: View {
     private var tabView: some View {
         TabView(selection: $store.selectedTab.sending(\.tabChanged)) {
             ForEach(store.tabs) { tab in
-                Tab(value: tab, role: tab == .workout ? .search : nil) {
+                Tab(value: tab, role: tabRole(for: tab)) {
                     tabContent(for: tab)
                 } label: {
                     if tab == .workout {
@@ -61,6 +61,16 @@ struct AppTabNewView: View {
         }
     }
     
+    // Below iOS 27 `.search` is only a visual stand-in: it inherits the prominent treatment when no tab claims `.prominent`.
+    private func tabRole(for tab: AppScreen) -> TabRole? {
+        guard tab == .workout else { return nil }
+
+        if #available(iOS 27.0, *) {
+            return .prominent
+        }
+        return .search
+    }
+
     @ViewBuilder
     func tabContent(for appScreenTab: AppScreen) -> some View {
         switch appScreenTab {

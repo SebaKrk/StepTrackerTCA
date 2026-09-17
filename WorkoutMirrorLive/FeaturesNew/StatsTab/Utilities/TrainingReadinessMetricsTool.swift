@@ -9,7 +9,6 @@ import Foundation
 import FoundationModels
 import SharedModels
 
-@available(iOS 26, *)
 struct TrainingReadinessMetricsTool: Tool {
     
     private let result: TrainingReadinessResult

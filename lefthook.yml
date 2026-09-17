@@ -7,6 +7,11 @@
 # don't touch a package stay instant.
 
 pre-commit:
+  # Merge and rebase commits carry content already tested on the source
+  # branch; re-running the suites there only blocks release back-merges.
+  skip:
+    - merge
+    - rebase
   parallel: false
   commands:
     sharedmodels-tests:

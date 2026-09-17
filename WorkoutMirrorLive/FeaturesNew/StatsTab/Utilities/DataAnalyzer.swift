@@ -9,7 +9,6 @@ import FoundationModels
 import SharedModels
 import ComposableArchitecture
 
-@available(iOS 26, *)
 actor DataAnalyzer {
     
     private let model: SystemLanguageModel = .default

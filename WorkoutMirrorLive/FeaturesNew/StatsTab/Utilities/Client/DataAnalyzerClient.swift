@@ -33,7 +33,6 @@ extension DependencyValues {
     }
 }
 
-@available(iOS 26, *)
 extension DataAnalyzerClient: DependencyKey {
     
     // MARK: - Live Value
@@ -108,7 +107,6 @@ extension DataAnalyzerClient: DependencyKey {
 
 // MARK: - Mock Preview (AI Unavailable)
 
-@available(iOS 26, *)
 extension DataAnalyzerClient {
     static let mockUnavailable = DataAnalyzerClient(
         isAvailable: { false },

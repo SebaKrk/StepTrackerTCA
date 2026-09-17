@@ -10,7 +10,6 @@ import SwiftUI
 import Translation
 import FoundationModels
 
-@available(iOS 26, *)
 @ViewAction(for: ReadinessAnalysisFeature.self)
 struct ReadinessAnalysisView: View {
     
@@ -292,7 +291,6 @@ struct ReadinessAnalysisView: View {
 
 // MARK: - Preview
 
-@available(iOS 26, *)
 #Preview("AI Available - Streaming") {
     ReadinessAnalysisView(
         store: Store(
@@ -305,7 +303,6 @@ struct ReadinessAnalysisView: View {
     )
 }
 
-@available(iOS 26, *)
 #Preview("AI Unavailable - Mock Response") {
     ReadinessAnalysisView(
         store: Store(
@@ -318,7 +315,6 @@ struct ReadinessAnalysisView: View {
     )
 }
 
-@available(iOS 26, *)
 #Preview("Error State") {
     ReadinessAnalysisView(
         store: Store(
