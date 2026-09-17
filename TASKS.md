@@ -1457,3 +1457,6 @@
 ### IOS-00134 Prominent workout tab — iOS 27 TabRole migration
     - the workout tab was declared `role: .search` purely to borrow the tab bar's separated "prominent" pill; the search role carries semantics the tab never implemented (magnifier symbol, the `.searchable` contract, VoiceOver "Search", the field transform on selection)
     - iOS 27 adds `TabRole.prominent` — the official API for exactly that treatment; role selection moved out of the `Tab(…)` call into `tabRole(for:)`, so the tab content builder keeps one stable shape instead of branching into `_ConditionalContent`
+
+### IPAD-00099 GymRoom narrowed to iOS
+    - dropped the unused macOS and visionOS platforms left by the multiplatform template, which let the scene manifest and launch screen keys lose their per-SDK conditions
