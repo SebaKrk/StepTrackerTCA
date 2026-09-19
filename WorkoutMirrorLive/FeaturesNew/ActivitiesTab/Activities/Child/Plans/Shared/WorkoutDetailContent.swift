@@ -43,11 +43,11 @@ struct WorkoutDetailContent: View {
         GroupBox {
             VStack(spacing: 12) {
                 HStack(spacing: 0) {
-                    statColumn(title: "Duration", value: formatDuration(), alignment: .leading)
+                    statColumn(title: String(localized: "Duration", bundle: .main), value: formatDuration(), alignment: .leading)
                         .frame(maxWidth: 110)
-                    statColumn(title: "Location", value: session.location.title)
+                    statColumn(title: String(localized: "Location", bundle: .main), value: session.location.title)
                         .frame(maxWidth: 90)
-                    statColumn(title: "Type", value: formatTypes(), isLast: true)
+                    statColumn(title: String(localized: "Type", bundle: .main), value: formatTypes(), isLast: true)
                         .frame(maxWidth: .infinity)
                 }
             }

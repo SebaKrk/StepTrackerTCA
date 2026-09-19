@@ -2569,6 +2569,16 @@
         }
       }
     },
+    "Elite Feature" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funkcja Elite"
+          }
+        }
+      }
+    },
     "Email" : {
       "localizations" : {
         "pl" : {
@@ -2676,6 +2686,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wpisz łączną liczbę powtórzeń / kalorii"
+          }
+        }
+      }
+    },
+    "Enter workout details manually" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz szczegóły treningu ręcznie"
           }
         }
       }
@@ -2924,6 +2944,16 @@
         }
       }
     },
+    "Go Elite" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przejdź na Elite"
+          }
+        }
+      }
+    },
     "Goal" : {
       "localizations" : {
         "pl" : {
@@ -2960,6 +2990,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Grant Access" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przyznaj dostęp"
           }
         }
       }
@@ -3093,6 +3133,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Najcięższa runda"
+          }
+        }
+      }
+    },
+    "Health Access Required" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymagany dostęp do Zdrowia"
           }
         }
       }
@@ -3684,6 +3734,16 @@
         }
       }
     },
+    "Manual Entry" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpis ręczny"
+          }
+        }
+      }
+    },
     "Mark as Not finished?" : {
       "localizations" : {
         "pl" : {
@@ -3805,6 +3865,16 @@
         }
       }
     },
+    "Move" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W ruchu"
+          }
+        }
+      }
+    },
     "Movement Balance" : {
       "localizations" : {
         "pl" : {
@@ -3892,6 +3962,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak Danych"
+          }
+        }
+      }
+    },
+    "No Data Available" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych"
           }
         }
       }
@@ -4651,6 +4731,16 @@
         }
       }
     },
+    "Premium Feature" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funkcja Premium"
+          }
+        }
+      }
+    },
     "Present Workout Preview" : {
       "localizations" : {
         "pl" : {
@@ -4792,6 +4882,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Regeneracja siada po rundzie"
+          }
+        }
+      }
+    },
+    "Refresh" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odśwież"
           }
         }
       }
@@ -5605,6 +5705,16 @@
         }
       }
     },
+    "Stand" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na nogach"
+          }
+        }
+      }
+    },
     "Standard" : {
       "localizations" : {
         "pl" : {
@@ -5833,6 +5943,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zrób zdjęcie"
+          }
+        }
+      }
+    },
+    "Take a photo of your workout notes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrób zdjęcie swoich notatek treningowych"
           }
         }
       }
@@ -6182,6 +6302,16 @@
         }
       }
     },
+    "Try Again" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spróbuj ponownie"
+          }
+        }
+      }
+    },
     "Try again in a moment." : {
       "localizations" : {
         "pl" : {
@@ -6223,6 +6353,16 @@
         }
       }
     },
+    "Unable to load data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można wczytać danych"
+          }
+        }
+      }
+    },
     "Unable to load workout plans. Please try again." : {
       "localizations" : {
         "pl" : {
@@ -6251,6 +6391,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nieznane"
+          }
+        }
+      }
+    },
+    "Unlock Pro" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odblokuj Pro"
           }
         }
       }
@@ -7320,6 +7470,16 @@
         }
       }
     },
+    "hrs" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "godz."
+          }
+        }
+      }
+    },
     "kcal" : {
       "shouldTranslate" : false
     },
@@ -7407,6 +7567,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ruchów z rekordem"
+          }
+        }
+      }
+    },
+    "no" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nie"
           }
         }
       }
@@ -7732,6 +7902,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "treningów"
+          }
+        }
+      }
+    },
+    "yes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tak"
           }
         }
       }

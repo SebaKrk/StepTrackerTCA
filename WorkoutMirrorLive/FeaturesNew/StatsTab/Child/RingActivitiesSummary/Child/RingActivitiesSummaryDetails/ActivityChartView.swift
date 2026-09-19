@@ -182,7 +182,7 @@ extension ActivityChartView {
             switch self {
             case .move: return "kcal"
             case .exercise: return "min"
-            case .stand: return "godz."
+            case .stand: return String(localized: "hrs", bundle: .main)
             }
         }
         

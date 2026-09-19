@@ -84,7 +84,7 @@ struct RingActivitiesSummaryView: View {
     private func activityView(_ data: ActivityRingData) -> some View {
         HStack {
             activityMetric(
-                title: "W ruchu",
+                title: String(localized: "Move", bundle: .main),
                 value: Int(data.moveValue),
                 unit: "kcal",
                 color: .pink
@@ -98,9 +98,9 @@ struct RingActivitiesSummaryView: View {
             )
             Divider()
             activityMetric(
-                title: "Na nogach",
+                title: String(localized: "Stand", bundle: .main),
                 value: Int(data.standValue),
-                unit: "godz.",
+                unit: String(localized: "hrs", bundle: .main),
                 color: .cyan
             )
             Divider()
