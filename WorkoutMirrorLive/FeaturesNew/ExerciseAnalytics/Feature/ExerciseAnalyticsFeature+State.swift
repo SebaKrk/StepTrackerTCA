@@ -42,10 +42,16 @@ extension ExerciseAnalyticsFeature {
 
         /// Groups logs by exercise type and returns sorted summaries for the list.
         var exerciseSummaries: [ExerciseSummary] {
-            let grouped = Dictionary(grouping: exerciseLogs) { $0.exerciseType ?? .unknown }
-            return grouped.map { type, logs in
-                ExerciseSummary(
+            // Rows are identified by movement AND implement, so a dumbbell variant
+            // tracks its own progress instead of blending into the default one.
+            let grouped = Dictionary(grouping: exerciseLogs) {
+                ExerciseIdentity(type: $0.exerciseType ?? .unknown, equipment: $0.effectiveEquipment)
+            }
+            return grouped.map { identity, logs in
+                let type = identity.type
+                return ExerciseSummary(
                     exerciseType: type,
+                    equipment: identity.equipment,
                     count: logs.count,
                     maxWeight: logs.compactMap(\.actualWeight).max(),
                     totalVolume: logs.compactMap(\.volumeLoad).reduce(0, +),
@@ -83,10 +89,17 @@ extension ExerciseAnalyticsFeature {
 /// Used to populate the exercise list in `ExerciseAnalyticsView`.
 struct ExerciseSummary: Identifiable, Equatable {
 
-    var id: ExerciseType { exerciseType }
+    var id: ExerciseIdentity { ExerciseIdentity(type: exerciseType, equipment: equipment) }
 
     /// The exercise this summary represents.
     let exerciseType: ExerciseType
+
+    /// Implement in play; `nil` when the movement has no usual one.
+    let equipment: Equipment?
+
+    /// Name for the list row — without this the two implement variants of one
+    /// movement would split into separate rows carrying the same label.
+    var displayName: String { exerciseType.displayName(with: equipment) }
 
     /// How many times this exercise appeared in the selected month.
     let count: Int
@@ -105,4 +118,18 @@ struct ExerciseSummary: Identifiable, Equatable {
 
     /// Whether any occurrence was marked as a personal record.
     let hasPR: Bool
+}
+
+// MARK: - Exercise Identity
+
+/// Identity of a row in the exercise list: the movement plus the implement it was
+/// actually performed with. Uses the effective implement, so "snatch" and
+/// "barbell snatch" stay one row — they mean the same thing.
+struct ExerciseIdentity: Hashable {
+
+    /// Movement from the catalog.
+    let type: ExerciseType
+
+    /// Implement in play: stated in the plan text, else the movement's default.
+    let equipment: Equipment?
 }

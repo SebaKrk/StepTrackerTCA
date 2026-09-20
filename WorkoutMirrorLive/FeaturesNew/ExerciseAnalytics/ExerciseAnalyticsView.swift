@@ -206,7 +206,7 @@ struct ExerciseAnalyticsView: View {
 
     private func exerciseRow(_ summary: ExerciseSummary) -> some View {
         Button {
-            send(.exerciseTapped(summary.exerciseType))
+            send(.exerciseTapped(summary.exerciseType, summary.equipment))
         } label: {
             HStack(spacing: 12) {
                 exerciseRowDot(summary)
@@ -230,7 +230,7 @@ struct ExerciseAnalyticsView: View {
     private func exerciseRowHeader(_ summary: ExerciseSummary) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
-                Text(summary.exerciseType.displayName)
+                Text(summary.displayName)
                     .font(.subheadline)
                     .fontWeight(.medium)
                 if summary.hasPR {

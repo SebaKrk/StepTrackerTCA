@@ -22,6 +22,8 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
     /// Catalog exercise resolved from the plan text via AI / alias matching.
     /// `nil` for unmatched / custom entries — fall back to `unmatchedName` for display.
     public var exerciseType: ExerciseType?
+    /// Implement stated in the plan text; `nil` means the movement's default applies.
+    public var equipment: Equipment?
     /// Display name used when `exerciseType` is `nil` (OCR / AI couldn't match a catalog entry).
     /// Surfaced verbatim in the UI; presence indicates an "unknown" exercise.
     public var unmatchedName: String?
@@ -133,6 +135,7 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
         id: UUID = UUID(),
         date: Date = Date(),
         exerciseType: ExerciseType? = nil,
+        equipment: Equipment? = nil,
         unmatchedName: String? = nil,
         category: MovementCategory? = nil,
         workoutPlanScoreId: UUID? = nil,
@@ -158,6 +161,7 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
         self.id = id
         self.date = date
         self.exerciseType = exerciseType
+        self.equipment = equipment
         self.unmatchedName = unmatchedName
         self.category = category
         self.workoutPlanScoreId = workoutPlanScoreId
@@ -187,5 +191,24 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
     public func isEditable(now: Date) -> Bool {
         guard let editableUntil else { return false }
         return editableUntil > now
+    }
+}
+
+// MARK: - Implement
+
+extension ExerciseLog {
+
+    /// Implement in play: the one the plan text named, else the movement's default.
+    public var effectiveEquipment: Equipment? {
+        equipment ?? exerciseType?.defaultEquipment
+    }
+
+    /// Whether the result editor must offer a weight field.
+    /// The implement decides when it is known; the movement's category is the fallback.
+    public var requiresWeight: Bool {
+        if let effectiveEquipment {
+            return effectiveEquipment.impliesLoad
+        }
+        return exerciseType?.requiresWeight ?? false
     }
 }

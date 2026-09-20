@@ -32,9 +32,12 @@ struct ExerciseDetailFeature {
 
             case .view(.onAppear):
                 let exerciseType = state.exerciseType
+                let equipment = state.equipment
                 return .run { [exerciseLogClient] send in
                     let logs = try await exerciseLogClient.fetchByExerciseType(exerciseType)
-                    await send(.logsLoaded(logs))
+                    // Implement is filtered here, not in SQL: the column holds what the
+                    // plan text stated, while rows group by the effective implement.
+                    await send(.logsLoaded(logs.filter { $0.effectiveEquipment == equipment }))
                 }
 
             case let .logsLoaded(logs):

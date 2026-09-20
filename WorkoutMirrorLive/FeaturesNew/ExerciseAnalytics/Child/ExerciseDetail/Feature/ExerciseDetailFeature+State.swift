@@ -37,6 +37,10 @@ extension ExerciseDetailFeature {
         // MARK: - Properties
 
         let exerciseType: ExerciseType
+
+        /// Implement this screen is scoped to; `nil` = the movement's default.
+        var equipment: Equipment?
+
         var logs: [ExerciseLog] = []
 
         /// Weekly volume points for the chart.
@@ -66,7 +70,7 @@ extension ExerciseDetailFeature {
 
         // MARK: - Computed — Header
 
-        var displayName: String { exerciseType.displayName }
+        var displayName: String { exerciseType.displayName(with: equipment) }
         var category: MovementCategory { exerciseType.category }
         var count: Int { logs.count }
 

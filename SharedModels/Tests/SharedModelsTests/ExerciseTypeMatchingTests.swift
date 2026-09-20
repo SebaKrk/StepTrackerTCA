@@ -134,4 +134,144 @@ struct ExerciseTypeMatchingTests {
         #expect(ExerciseType.matched(fromRawName: "flux capacitor swings") == .unknown)
         #expect(ExerciseType.matched(fromRawName: "") == .unknown)
     }
+
+    // MARK: - Implement dimension (catalog v7)
+
+    @Test("A whole-name match wins before any implement token is stripped")
+    func equipmentStrippingIsFallbackOnly() {
+        // Movements that carry the implement in their identity must keep resolving
+        // exactly as before — stripping first would send them to .unknown.
+        #expect(ExerciseType.resolve(rawName: "kettlebell swing").type == .kettlebellSwing)
+        #expect(ExerciseType.resolve(rawName: "kettlebell swing").equipment == nil)
+        #expect(ExerciseType.resolve(rawName: "dumbbell snatch").type == .dumbbellSnatch)
+        #expect(ExerciseType.resolve(rawName: "dumbbell snatch").equipment == nil)
+    }
+
+    @Test("An implement stated in the name is lifted out of it")
+    func equipmentIsDetected() {
+        let goblet = ExerciseType.resolve(rawName: "kettlebell goblet squats")
+        #expect(goblet.type == .gobletSquat)
+        #expect(goblet.equipment == .kettlebell)
+
+        let press = ExerciseType.resolve(rawName: "single dumbbell strict press")
+        #expect(press.type == .shoulderPress)
+        #expect(press.equipment == .dumbbell)
+    }
+
+    @Test("Two different implements in one name are too ambiguous to guess")
+    func ambiguousEquipmentIsDropped() {
+        #expect(ExerciseType.resolve(rawName: "db kb thruster").equipment == nil)
+    }
+
+    @Test("Dropping a trailing plural does not glue unrelated movements together")
+    func singularisationEdgeCases() {
+        #expect(ExerciseType.resolve(rawName: "dips").type == .dips)
+        #expect(ExerciseType.resolve(rawName: "burpees").type == .burpees)
+        #expect(ExerciseType.resolve(rawName: "strict press").type == .shoulderPress)
+        #expect(ExerciseType.resolve(rawName: "turkish get up").type == .turkishGetUp)
+    }
+
+    @Test("Implement prefixes removed from the catalog still resolve, now with the implement")
+    func implementPrefixesResolveThroughStripping() {
+        let cases: [(String, ExerciseType, Equipment)] = [
+            ("DB bench press", .benchPress, .dumbbell),
+            ("barbell bench press", .benchPress, .barbell),
+            ("dumbbell curls", .bicepCurl, .dumbbell),
+            ("barbell bicep curls", .bicepCurl, .barbell),
+            ("DB floor press", .floorPress, .dumbbell),
+            ("BB hang cleans", .hangClean, .barbell),
+            ("barbell lunges", .lunges, .barbell),
+            ("DB lunges", .lunges, .dumbbell),
+            ("barbell push jerks", .pushJerk, .barbell),
+            ("BB push press", .pushPress, .barbell),
+            ("DB shoulder press", .shoulderPress, .dumbbell),
+            ("barbell split jerk", .splitJerk, .barbell),
+            ("BB clean", .squatClean, .barbell),
+            ("DB thruster", .thrusters, .dumbbell),
+            ("DB overhead extension", .tricepsExtension, .dumbbell),
+            ("dumbbell goblet squat", .gobletSquat, .dumbbell),
+            ("KB goblet squat", .gobletSquat, .kettlebell),
+        ]
+        for (rawName, expectedType, expectedEquipment) in cases {
+            let resolved = ExerciseType.resolve(rawName: rawName)
+            #expect(resolved.type == expectedType, "\(rawName) resolved to \(resolved.type)")
+            #expect(resolved.equipment == expectedEquipment, "\(rawName) implement was \(String(describing: resolved.equipment))")
+        }
+    }
+
+    @Test("Aliases that must keep their implement still resolve to the movement")
+    func implementKeptWhereStrippingWouldMisfire() {
+        // "barbell row" minus the implement is "row" — the rower, not a bent-over row.
+        #expect(ExerciseType.resolve(rawName: "barbell row").type == .bentOverRow)
+        #expect(ExerciseType.resolve(rawName: "BB row").type == .bentOverRow)
+        #expect(ExerciseType.resolve(rawName: "burpee over barbell").type == .burpeeOverBar)
+    }
+
+    @Test("Every unrecognized name from the app 0.7 harvest resolves under catalog v7")
+    func fieldDataV7() {
+        let cases: [(String, ExerciseType, Equipment?)] = [
+            ("turkish get up", .turkishGetUp, nil),
+            ("kettlebell goblet squats", .gobletSquat, .kettlebell),
+            ("single dumbbell strict press", .shoulderPress, .dumbbell),
+            ("snatch balance", .snatchBalance, nil),
+            ("good morning", .goodMorning, nil),
+            ("burpee pull-ups", .burpeePullUps, nil),
+            ("burpee over the DB", .burpeeOverDumbbell, nil),
+            ("one arm plank", .plank, nil),
+            ("overhead reverse lunges", .lunges, nil),
+            ("strict handstand push-ups", .handstandPushUps, nil),
+        ]
+        for (rawName, expectedType, expectedEquipment) in cases {
+            let resolved = ExerciseType.resolve(rawName: rawName)
+            #expect(resolved.type == expectedType, "\(rawName) resolved to \(resolved.type)")
+            #expect(resolved.equipment == expectedEquipment, "\(rawName) implement was \(String(describing: resolved.equipment))")
+        }
+    }
+
+    @Test("New v7 movements carry the implement they are normally done with")
+    func v7DefaultEquipment() {
+        #expect(ExerciseType.snatchBalance.defaultEquipment == .barbell)
+        #expect(ExerciseType.goodMorning.defaultEquipment == .barbell)
+        // The dumbbell is cleared, not lifted — so it carries no implement,
+        // exactly like .burpeeOverBar.
+        #expect(ExerciseType.burpeeOverDumbbell.defaultEquipment == nil)
+        #expect(ExerciseType.burpeeOverBar.defaultEquipment == nil)
+        #expect(ExerciseType.burpeePullUps.defaultEquipment == nil)
+    }
+
+    @Test("Catalog version is bumped so the re-match job replays old unknowns")
+    func catalogVersionBumped() {
+        #expect(ExerciseType.catalogVersion >= 7)
+    }
+
+    @Test("The burpee family resolves each variant to its own movement")
+    func burpeeFamily() {
+        #expect(ExerciseType.resolve(rawName: "burpees").type == .burpees)
+        #expect(ExerciseType.resolve(rawName: "burpee box jumps").type == .burpeeBoxJumps)
+        #expect(ExerciseType.resolve(rawName: "burpee broad jump").type == .burpeeBroadJump)
+        #expect(ExerciseType.resolve(rawName: "burpees to target").type == .burpeeToTarget)
+        #expect(ExerciseType.resolve(rawName: "burpee pull-ups").type == .burpeePullUps)
+    }
+
+    @Test("Clearing an object is scored apart from landing on it")
+    func burpeeBoxJumpOverIsItsOwnMovement() {
+        #expect(ExerciseType.resolve(rawName: "burpee box jump over").type == .burpeeBoxJumpOvers)
+        #expect(ExerciseType.resolve(rawName: "burpee over box").type == .burpeeBoxJumpOvers)
+        #expect(ExerciseType.resolve(rawName: "burpee box jump").type == .burpeeBoxJumps)
+    }
+
+    @Test("Lateral variants land on the object they clear")
+    func lateralBurpeeVariants() {
+        #expect(ExerciseType.resolve(rawName: "lateral burpee over bar").type == .burpeeOverBar)
+        #expect(ExerciseType.resolve(rawName: "lateral bar-facing burpee").type == .burpeeOverBar)
+        #expect(ExerciseType.resolve(rawName: "lateral burpee over dumbbell").type == .burpeeOverDumbbell)
+        #expect(ExerciseType.resolve(rawName: "db facing burpees").type == .burpeeOverDumbbell)
+        #expect(ExerciseType.resolve(rawName: "lateral burpee over box").type == .burpeeBoxJumpOvers)
+    }
+
+    @Test("The object jumped over is never mistaken for the implement lifted")
+    func jumpedOverObjectIsNotAnImplement() {
+        #expect(ExerciseType.resolve(rawName: "burpee over the DB").equipment == nil)
+        #expect(ExerciseType.resolve(rawName: "burpee over barbell").equipment == nil)
+    }
 }

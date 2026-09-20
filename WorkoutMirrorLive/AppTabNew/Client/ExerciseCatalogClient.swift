@@ -59,15 +59,18 @@ private enum ExerciseCatalogClientKey: DependencyKey {
                         .fetchAll(db)
                     for log in unknownLogs {
                         guard let rawName = log.unmatchedName else { continue }
-                        let resolved = ExerciseType.matched(fromRawName: rawName)
-                        guard resolved != .unknown else { continue }
+                        let resolved = ExerciseType.resolve(rawName: rawName)
+                        guard resolved.type != .unknown else { continue }
                         try ExerciseLogRecord
                             .where { $0.id.eq(log.id) }
                             .update {
                                 // Plain Swift values must be explicitly bound
                                 // into query expressions (library requirement).
-                                $0.exerciseType = #bind(resolved.rawValue)
-                                $0.category = #bind(resolved.category.rawValue)
+                                $0.exerciseType = #bind(resolved.type.rawValue)
+                                $0.category = #bind(resolved.type.category.rawValue)
+                                // Only rows still in the unknown bucket keep a raw name,
+                                // so this is the only history the implement can reach.
+                                $0.equipment = #bind(resolved.equipment?.rawValue)
                                 $0.updatedAt = #bind(now)
                             }
                             .execute(db)

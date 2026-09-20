@@ -1460,3 +1460,14 @@
 
 ### IPAD-00099 GymRoom narrowed to iOS
     - dropped the unused macOS and visionOS platforms left by the multiplatform template, which let the scene manifest and launch screen keys lose their per-SDK conditions
+
+### IOS-00135 Implement dimension — movement and equipment split apart
+
+    - the catalog grew combinatorially: every implement variant of a movement needed its own alias, so `goblet squat` carried four of them and still missed `kettlebell goblet squats` over a single plural "s"
+    - `ExerciseType` now describes the movement alone; `Equipment` rides alongside it on the plan exercise and on the log, with `defaultEquipment` per movement so a name only spells out the implement when it is unusual ("DB Snatch", never "BB Snatch")
+    - the matcher normalises the name, tries the catalog whole, and only then strips an implement token — that order keeps every existing match intact while filling the unknown bucket
+    - 48 implement-baked aliases removed, 3 base aliases added, 4 kept where stripping would misfire (`barbell row` minus the barbell is the rower)
+    - catalog v7 adds `snatchBalance`, `goodMorning` and a regrouped burpee family — `burpeePullUps`, `burpeeOverDumbbell`, `burpeeBoxJumpOvers`, `burpeeBroadJump`, `burpeeToTarget` — clearing the app 0.7 unrecognized-name harvest
+    - `burpeeBoxJumpOvers` splits off `burpeeBoxJumps`: clearing the box is a different standard from landing on it, so past "burpee box jump over" rows move to the new movement
+    - the weight field now follows the implement rather than the movement category, and analytics track each implement variant as its own row
+    - migration v14 adds a nullable `equipment` column; the re-match job backfills it, but only for rows still in the unknown bucket — elsewhere the raw name no longer exists

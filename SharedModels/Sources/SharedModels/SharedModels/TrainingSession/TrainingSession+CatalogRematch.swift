@@ -23,6 +23,7 @@ extension ExerciseSession {
     fileprivate init(
         id: UUID,
         type: ExerciseType,
+        equipment: Equipment?,
         customName: String?,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
@@ -31,6 +32,7 @@ extension ExerciseSession {
     ) {
         self.id = id
         self.type = type
+        self.equipment = equipment
         self.customName = customName
         self.target = target
         self.weight = weight
@@ -43,11 +45,12 @@ extension ExerciseSession {
     /// OCR/AI name only while the type is `.unknown`.
     public func rematchedAgainstCatalog() -> ExerciseSession? {
         guard type == .unknown, let rawName = customName else { return nil }
-        let resolved = ExerciseType.matched(fromRawName: rawName)
-        guard resolved != .unknown else { return nil }
+        let resolved = ExerciseType.resolve(rawName: rawName)
+        guard resolved.type != .unknown else { return nil }
         return ExerciseSession(
             id: id,
-            type: resolved,
+            type: resolved.type,
+            equipment: resolved.equipment ?? equipment,
             customName: nil,
             target: target,
             weight: weight,

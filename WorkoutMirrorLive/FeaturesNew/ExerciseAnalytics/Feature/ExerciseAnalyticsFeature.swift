@@ -38,8 +38,8 @@ struct ExerciseAnalyticsFeature {
                 state.sortMode = mode
                 return .none
 
-            case let .view(.exerciseTapped(exerciseType)):
-                state.detail = ExerciseDetailFeature.State(exerciseType: exerciseType)
+            case let .view(.exerciseTapped(exerciseType, equipment)):
+                state.detail = ExerciseDetailFeature.State(exerciseType: exerciseType, equipment: equipment)
                 return .none
 
             case let .logsLoaded(logs):
