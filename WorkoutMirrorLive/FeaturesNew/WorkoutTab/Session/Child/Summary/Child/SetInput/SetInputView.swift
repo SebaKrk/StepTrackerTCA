@@ -229,7 +229,7 @@ struct SetInputView: View {
     }
 
     private func needsWeight(for exercise: ExerciseLogInput) -> Bool {
-        if let type = exercise.exerciseType, type.requiresWeight {
+        if exercise.requiresWeight {
             return true
         }
         return exercise.plannedWeight != nil

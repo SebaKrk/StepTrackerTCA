@@ -17,7 +17,7 @@ public extension ExerciseLogInput {
     /// consistent across Summary screen, edit sheets, and post-workout result tables.
     var displayName: String {
         if let type = exerciseType, type != .unknown {
-            return type.displayName
+            return type.displayName(with: equipment)
         }
         if let custom = unmatchedName, !custom.isEmpty {
             return custom

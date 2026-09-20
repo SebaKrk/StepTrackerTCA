@@ -127,7 +127,8 @@ extension ExtractedExercise {
 
     fileprivate func toExerciseSession() -> ExerciseSession {
         // Map exercise name to ExerciseType
-        let exerciseType = ExerciseType.from(name: name)
+        let resolved = ExerciseType.resolvedFrom(name: name)
+        let exerciseType = resolved.type
 
         // Preserve original name for .unknown exercises
         let customName = (exerciseType == .unknown) ? name : nil
@@ -188,6 +189,7 @@ extension ExtractedExercise {
 
         return ExerciseSession(
             type: exerciseType,
+            equipment: resolved.equipment,
             customName: customName,
             target: target,
             weight: weight,
@@ -205,10 +207,10 @@ extension ExerciseType {
     /// Maps exercise name string to ExerciseType enum using aliases.
     /// Delegates to the shared catalog matcher so scan-time mapping and the
     /// one-time re-match job resolve names identically.
-    fileprivate static func from(name: String) -> ExerciseType {
-        let matched = ExerciseType.matched(fromRawName: name)
+    fileprivate static func resolvedFrom(name: String) -> (type: ExerciseType, equipment: Equipment?) {
+        let matched = ExerciseType.resolve(rawName: name)
         #if DEBUG
-        if matched == .unknown {
+        if matched.type == .unknown {
             // Fallback to .unknown - preserve original name in customName
             print("⚠️ [Mapper] Unknown exercise '\(name)' → using '.unknown'")
         }

@@ -162,6 +162,16 @@
         }
       }
     },
+    "Barbell" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sztanga"
+          }
+        }
+      }
+    },
     "Below Average" : {
       "localizations" : {
         "pl" : {
@@ -358,6 +368,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Martwe ciągi"
+          }
+        }
+      }
+    },
+    "Dumbbell" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hantel"
           }
         }
       }
@@ -683,6 +703,16 @@
         }
       }
     },
+    "Kettlebell" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kettlebell"
+          }
+        }
+      }
+    },
     "Knee sleeves" : {
       "localizations" : {
         "pl" : {
@@ -800,6 +830,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Maksymalny wysiłek. Tempo wyścigowe lub interwały sprintowe."
+          }
+        }
+      }
+    },
+    "Medicine ball" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piłka lekarska"
           }
         }
       }

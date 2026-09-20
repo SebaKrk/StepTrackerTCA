@@ -436,6 +436,15 @@ public enum AppDatabaseSchema {
             .execute(db)
         }
 
+        // Implement dimension (IOS-00135) — additive column, nullable.
+        // NULL means the plan text said nothing, so the movement default applies.
+        migrator.registerMigration("v14_exerciseLog_addEquipment") { db in
+            try #sql("""
+                ALTER TABLE "exerciseLogRecords" ADD COLUMN "equipment" TEXT
+                """)
+            .execute(db)
+        }
+
         return migrator
     }
 }

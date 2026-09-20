@@ -36,11 +36,11 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case pushPress
     case pushJerk
     case splitJerk
+    case snatchBalance
     
     // CrossFit/Cardio (bodyweight + tempo)
     case pullUps
     case pushUps
-    case burpees
     case airSquat
     case boxJumps
     case doubleUnders
@@ -81,12 +81,21 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case kneesToElbows
     case hollowHold
 
+    // Burpee family — one movement with a jumped-over object or an added skill.
+    // The object is what you clear, not what you lift, so it stays part of the identity.
+    case burpees
+    case burpeeBoxJumps
+    case burpeeBoxJumpOvers
+    case burpeeOverBar
+    case burpeeOverDumbbell
+    case burpeePullUps
+    case burpeeBroadJump
+    case burpeeToTarget
+
     // CrossFit Classics
     case wallBalls
     case thrusters
     case devilPress
-    case burpeeBoxJumps
-    case burpeeOverBar
     case dumbbellSnatch
     case dumbbellClean
     case dumbbellCleanAndJerk
@@ -112,6 +121,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case gluteBridge
     case tricepsExtension
     case bicepCurl
+    case goodMorning
     case plateRaise
     case landmineAntiRotation
 
@@ -214,6 +224,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .devilPress: return "Devil Press"
         case .burpeeBoxJumps: return "Burpee Box Jumps"
         case .burpeeOverBar: return "Burpee Over Bar"
+        case .burpeeBoxJumpOvers: return "Burpee Box Jump-Over"
+        case .burpeeBroadJump: return "Burpee Broad Jump"
+        case .burpeeToTarget: return "Burpee to Target"
         case .dumbbellSnatch: return "Dumbbell Snatch"
         case .dumbbellClean: return "Dumbbell Clean"
         case .dumbbellCleanAndJerk: return "Dumbbell Clean and Jerk"
@@ -261,6 +274,10 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .worldsGreatestStretch: return "World's Greatest Stretch"
         case .pvcPassThroughs: return "PVC Pass-Throughs"
         case .downwardDog: return "Downward Dog"
+        case .snatchBalance: return "Snatch Balance"
+        case .goodMorning: return "Good Morning"
+        case .burpeePullUps: return "Burpee Pull-ups"
+        case .burpeeOverDumbbell: return "Burpee Over Dumbbell"
         case .lunges: return "Lunges"
         case .unknown: return "Unknown Exercise"
         }
@@ -276,18 +293,20 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["front squat", "front squats", "FS"]
         case .romanianDeadlift:
             return ["romanian deadlift", "romanian dead lift", "RDL", "stiff leg deadlift"]
+        // Implement stays in these aliases: stripping it leaves "row", which the
+        // distance heuristic reads as the rower.
         case .bentOverRow:
             return ["bent over row", "bent-over row", "barbell row", "pendlay row", "BOR", "BB row"]
         case .gobletSquat:
-            return ["goblet squat", "goblet squats", "GS", "kettlebell goblet squat", "dumbbell goblet squat", "KB goblet squat", "DB goblet squat"]
+            return ["goblet squat", "goblet squats", "GS"]
         case .bulgarianSplitSquat:
             return ["bulgarian split squat", "bulgarian split squats", "BSS", "split squat", "rear foot elevated split squat", "RFESS"]
         case .benchPress:
-            return ["bench press", "bench", "BP", "close-grip bench press", "close grip bench press", "close-grip bench", "close grip bench", "CGBP", "narrow grip bench press", "narrow-grip bench press", "wide grip bench press", "wide-grip bench press", "incline bench press", "decline bench press", "DB bench press", "dumbbell bench press", "barbell bench press", "BB bench press"]
+            return ["bench press", "bench", "BP", "close-grip bench press", "close grip bench press", "close-grip bench", "close grip bench", "CGBP", "narrow grip bench press", "narrow-grip bench press", "wide grip bench press", "wide-grip bench press", "incline bench press", "decline bench press"]
         case .floorPress:
-            return ["floor press", "floor bench press", "FP", "DB floor press", "dumbbell floor press", "barbell floor press", "BB floor press"]
+            return ["floor press", "floor bench press", "FP"]
         case .shoulderPress:
-            return ["shoulder press", "strict press", "military press", "DB shoulder press", "dumbbell shoulder press", "press", "seated overhead press", "seated shoulder press", "overhead press", "OHP"]
+            return ["shoulder press", "strict press", "military press", "press", "seated overhead press", "seated shoulder press", "overhead press", "OHP"]
         case .overheadSquat:
             return ["overhead squat", "OHS"]
         case .snatch:
@@ -295,7 +314,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .cleanAndJerk:
             return ["clean and jerk", "cleans and jerks", "clean & jerk", "cleans & jerks", "C&J", "C&Js", "CJ", "CJs", "hang clean and jerk", "hang cleans and jerks", "hang clean & jerk", "hang cleans & jerks", "hang clean jerk", "hang clean jerks", "hang C&J", "hang C&Js", "hang CJ", "hang CJs"]
         case .squatClean:
-            return ["squat clean", "squat cleans", "clean", "cleans", "full clean", "full cleans", "barbell clean", "BB clean"]
+            return ["squat clean", "squat cleans", "clean", "cleans", "full clean", "full cleans"]
         case .powerClean:
             return ["power clean", "power cleans", "PC", "PCs"]
         case .powerSnatch:
@@ -305,13 +324,13 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .hangPowerSnatch:
             return ["HPS", "HPSs", "hang PS", "hang PSs", "hang power snatch", "hang power snatches"]
         case .hangClean:
-            return ["hang clean", "hang cleans", "HC", "HCs", "BB hang clean", "BB hang cleans", "barbell hang clean", "barbell hang cleans", "hang squat clean", "hang squat cleans", "hang clean squat"]
+            return ["hang clean", "hang cleans", "HC", "HCs", "hang squat clean", "hang squat cleans", "hang clean squat"]
         case .pushPress:
-            return ["push press", "push presses", "push-press", "push-presses", "PP", "barbell push press", "barbell push presses", "BB push press", "BB push presses"]
+            return ["push press", "push presses", "push-press", "push-presses", "PP"]
         case .pushJerk:
-            return ["push jerk", "push jerks", "push-jerk", "push-jerks", "PJ", "PJs", "barbell push jerk", "barbell push jerks"]
+            return ["push jerk", "push jerks", "push-jerk", "push-jerks", "PJ", "PJs"]
         case .splitJerk:
-            return ["split jerk", "split jerks", "split-jerk", "split-jerks", "barbell split jerk", "barbell split jerks", "SJ"]
+            return ["split jerk", "split jerks", "split-jerk", "split-jerks", "SJ"]
         case .pullUps:
             return ["pull-ups", "pull ups", "PU"]
         case .pushUps:
@@ -355,7 +374,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .medicineBallBoxStepUps:
             return ["medicine ball box step-ups", "medicine ball box step ups", "medicine ball box step-up", "medicine ball box step up", "medicine ball step-ups", "medicine ball step ups", "med ball box step-ups", "med ball box step ups", "med ball step-ups", "med ball step ups"]
         case .handstandPushUps:
-            return ["handstand push-ups", "handstand pushups", "HSPU"]
+            return ["handstand push-ups", "handstand pushups", "HSPU", "strict handstand push-ups", "strict HSPU"]
         case .barMuscleUps:
             return ["bar muscle-ups", "bar muscle ups", "BMU", "pull-up bar muscle-ups"]
         case .ringMuscleUps:
@@ -371,7 +390,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .ropeClimb:
             return ["rope climb", "rope climbing", "climb rope"]
         case .plank:
-            return ["plank", "front plank", "forearm plank", "plank on arms", "plank on forearms", "plank hold", "single leg plank", "one leg plank"]
+            return ["plank", "front plank", "forearm plank", "plank on arms", "plank on forearms", "plank hold", "single leg plank", "one leg plank", "one arm plank", "single arm plank"]
         case .chinUps:
             return ["chin-ups", "chin ups", "chinup", "chin-up", "chin up", "chinups"]
         case .skinTheCat:
@@ -383,13 +402,24 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .wallBalls:
             return ["wall balls", "wall ball", "WB", "wall ball shots"]
         case .thrusters:
-            return ["thrusters", "thruster", "barbell thruster", "DB thruster", "dumbbell thruster"]
+            return ["thrusters", "thruster"]
         case .devilPress:
             return ["devil press", "devil presses", "devils press", "dumbbell devil press", "DB devil press"]
         case .burpeeBoxJumps:
-            return ["burpee box jumps", "burpee box jump", "BBJ", "burpee over box", "burpee box jump over"]
+            return ["burpee box jumps", "burpee box jump", "BBJ"]
+        // Split from .burpeeBoxJumps: clearing the box is a different standard
+        // from landing on it, and CrossFit scores them as separate movements.
+        case .burpeeBoxJumpOvers:
+            return ["burpee box jump over", "burpee box jump overs", "burpee box jump-over",
+                    "burpee over box", "burpees over box", "BBJO", "lateral burpee over box"]
+        case .burpeeBroadJump:
+            return ["burpee broad jump", "burpee broad jumps", "broad jump burpee"]
+        case .burpeeToTarget:
+            return ["burpee to target", "burpees to target", "target burpee", "burpee to a target"]
+        // Implement stays in these aliases: stripping it leaves "burpee over",
+        // which matches nothing.
         case .burpeeOverBar:
-            return ["burpee over bar", "burpees over bar", "burpee over the bar", "burpees over the bar", "BOTB", "burpee over barbell", "burpees over barbell", "bar facing burpee", "bar facing burpees", "BFB", "bar-facing burpees", "bar-facing burpee"]
+            return ["burpee over bar", "burpees over bar", "burpee over the bar", "burpees over the bar", "BOTB", "burpee over barbell", "burpees over barbell", "bar facing burpee", "bar facing burpees", "BFB", "bar-facing burpees", "bar-facing burpee", "lateral burpee over bar", "lateral burpee over the bar", "lateral bar-facing burpee"]
         case .dumbbellSnatch:
             return ["dumbbell snatch", "DB snatch", "single arm dumbbell snatch", "DB power snatch"]
         case .dumbbellClean:
@@ -408,8 +438,18 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["ski erg", "ski", "skierg", "skiing"]
         case .singleUnders:
             return ["single unders", "single under", "SU", "jump rope", "jumping rope", "single jump rope"]
+        case .snatchBalance:
+            return ["snatch balance", "snatch balances"]
+        case .goodMorning:
+            return ["good morning", "good mornings", "GM"]
+        case .burpeePullUps:
+            return ["burpee pull-ups", "burpee pull up"]
+        // The implement stays in the name here: in "burpee over X" the object is
+        // the thing jumped over, not the thing lifted, so stripping it leaves no movement.
+        case .burpeeOverDumbbell:
+            return ["burpee over dumbbell", "dumbbell facing burpee", "burpee over db", "burpees over db", "burpee over dumbbells", "lateral burpee over dumbbell", "db facing burpee", "db facing burpees"]
         case .lunges:
-            return ["lunges", "lunge", "walking lunges", "reverse lunges", "goblet lunges", "goblet reverse lunges", "barbell lunges", "barbell lunge", "dumbbell lunges", "DB lunges"]
+            return ["lunges", "lunge", "walking lunges", "reverse lunges", "goblet lunges", "goblet reverse lunges", "overhead reverse lunges", "overhead lunges"]
         case .wallWalks:
             return ["wall walk", "wall walks", "WW"]
         case .vUps:
@@ -427,9 +467,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .gluteBridge:
             return ["glute bridge", "glute bridges", "one leg glute bridge", "single leg glute bridge", "hip thrust", "hip thrusts"]
         case .tricepsExtension:
-            return ["triceps extension", "tricep extension", "triceps extensions", "triceps plate extension", "plate triceps extension", "skull crusher", "skull crushers", "dumbbell overhead extension", "DB overhead extension", "overhead triceps extension", "overhead tricep extension", "dumbbell overhead triceps extension"]
+            return ["triceps extension", "tricep extension", "triceps extensions", "triceps plate extension", "plate triceps extension", "skull crusher", "skull crushers", "overhead triceps extension", "overhead tricep extension", "overhead extension"]
         case .bicepCurl:
-            return ["bicep curl", "bicep curls", "biceps curl", "biceps curls", "barbell bicep curl", "barbell bicep curls", "barbell curl", "barbell curls", "dumbbell bicep curl", "dumbbell bicep curls", "dumbbell curl", "dumbbell curls", "DB curl", "DB curls", "hammer curl", "hammer curls", "EZ bar curl", "EZ bar curls"]
+            return ["bicep curl", "bicep curls", "biceps curl", "biceps curls", "hammer curl", "hammer curls", "EZ bar curl", "EZ bar curls", "curl", "curls"]
         case .plateRaise:
             return ["plate raise", "plate raises", "plate front raise", "front raise", "front raises"]
         case .landmineAntiRotation:
@@ -495,10 +535,12 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         switch self {
         case .deadlift, .backSquat, .frontSquat, .benchPress, .floorPress, .shoulderPress, .overheadSquat,
              .romanianDeadlift, .bentOverRow, .gobletSquat, .bulgarianSplitSquat,
-             .gluteBridge, .tricepsExtension, .plateRaise, .landmineAntiRotation, .bicepCurl:
+             .gluteBridge, .tricepsExtension, .plateRaise, .landmineAntiRotation, .bicepCurl,
+             .goodMorning:
             return .strength
         case .snatch, .cleanAndJerk, .squatClean, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch,
-             .hangClean, .pushPress, .pushJerk, .splitJerk, .thrusters, .sumoDeadliftHighPull, .shoulderToOverhead:
+             .hangClean, .pushPress, .pushJerk, .splitJerk, .thrusters, .sumoDeadliftHighPull, .shoulderToOverhead,
+             .snatchBalance:
             return .olympicLifting
         case .pullUps, .pushUps, .toesToBar, .sitUps, .handstandPushUps, .barMuscleUps, .ringMuscleUps,
              .pistolSquats, .handstandWalk, .ringDips, .dips, .ropeClimb, .plank, .chinUps, .skinTheCat,
@@ -510,7 +552,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .burpees, .airSquat, .boxJumps, .doubleUnders, .wallBalls, .devilPress, .burpeeBoxJumps,
              .burpeeOverBar, .lunges, .mountainClimbers, .farmersCarry,
              .boxStepUps, .boxStepOvers, .overheadCarry, .bearHugCarry,
-             .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps:
+             .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps,
+             .burpeePullUps, .burpeeOverDumbbell, .burpeeBoxJumpOvers,
+             .burpeeBroadJump, .burpeeToTarget:
             return .mixed
         case .kettlebellSwing, .kettlebellClean, .kettlebellSnatch, .turkishGetUp, .kettlebellDeadlift:
             return .strength
@@ -534,11 +578,51 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// (e.g. Wall Balls always use a 6/9/14kg medicine ball).
     public var requiresWeight: Bool {
         switch self {
-        case .wallBalls, .farmersCarry, .overheadCarry, .bearHugCarry,
-             .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps:
+        case .farmersCarry, .overheadCarry, .bearHugCarry:
             return true
         default:
             return category == .strength || category == .olympicLifting
+        }
+    }
+
+    /// Catalog name with the implement spelled out only when it is not the movement's
+    /// usual one: "Snatch" stays plain, "DB Snatch" says what is unusual.
+    ///
+    /// Takes the DETECTED implement, not the effective one — comparing the effective
+    /// implement against the default would never differ, so nothing would ever show.
+    public func displayName(with equipment: Equipment?) -> String {
+        guard let equipment, equipment != defaultEquipment else { return displayName }
+        return "\(equipment.namePrefix) \(displayName)"
+    }
+
+    /// Implement the movement is normally performed with.
+    ///
+    /// Lets a name stay quiet about the obvious — a snatch is a barbell snatch — and
+    /// speak up only when the implement is unusual ("DB Snatch"). `nil` means no
+    /// implement is the obvious one, which is the correct answer for gymnastics,
+    /// cardio, mobility, and for movements done equally often with and without load.
+    public var defaultEquipment: Equipment? {
+        switch self {
+        case .snatch, .cleanAndJerk, .squatClean, .powerClean, .powerSnatch,
+             .hangPowerClean, .hangPowerSnatch, .hangClean, .pushPress, .pushJerk,
+             .splitJerk, .thrusters, .sumoDeadliftHighPull, .shoulderToOverhead,
+             .deadlift, .backSquat, .frontSquat, .benchPress, .floorPress,
+             .shoulderPress, .overheadSquat, .romanianDeadlift, .bentOverRow,
+             .snatchBalance, .goodMorning:
+            return .barbell
+
+        case .kettlebellSwing, .kettlebellClean, .kettlebellSnatch, .kettlebellPushPress,
+             .kettlebellDeadlift, .turkishGetUp, .gobletSquat:
+            return .kettlebell
+
+        case .dumbbellSnatch, .dumbbellClean, .dumbbellCleanAndJerk, .devilPress:
+            return .dumbbell
+
+        case .wallBalls, .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps:
+            return .medicineBall
+
+        default:
+            return nil
         }
     }
 
@@ -548,39 +632,143 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// re-runs when its stored version is lower — same contract as the
     /// effort-points weights version: results frozen in the database are only
     /// recomputed through an explicit, versioned pass.
-    public static let catalogVersion = 6
+    public static let catalogVersion = 7
 
-    /// Matches a raw OCR/AI exercise name against the catalog: exact match on
-    /// `rawValue` and `aliases` (lowercased + trimmed), then distance-based
-    /// suffix heuristics ("1,600-meter run" → `.running`). Returns `.unknown`
-    /// when nothing matches — callers preserve the raw name so a later
-    /// re-match can retry against an extended catalog.
-    public static func matched(fromRawName name: String) -> ExerciseType {
-        let normalized = name
-            .lowercased()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+    // MARK: Name normalisation
 
-        for exerciseType in ExerciseType.allCases {
-            if exerciseType.rawValue.lowercased() == normalized {
-                return exerciseType
-            }
-            if exerciseType.aliases.contains(where: { $0.lowercased() == normalized }) {
-                return exerciseType
+    /// Lowercases, folds separators to spaces and drops filler words, so that
+    /// "Burpee Over The Bar" and "burpee-over-bar" reach the catalog identically.
+    private static func normalized(_ raw: String) -> String {
+        raw.lowercased()
+            .replacingOccurrences(of: "-", with: " ")
+            .replacingOccurrences(of: "_", with: " ")
+            .split(separator: " ")
+            .map(String.init)
+            .filter { !$0.isEmpty && $0 != "the" }
+            .joined(separator: " ")
+    }
+
+    /// Drops a single trailing plural "s", so "goblet squats" reaches "goblet squat".
+    private static func singularized(_ name: String) -> String {
+        name.hasSuffix("s") ? String(name.dropLast()) : name
+    }
+
+    /// Normalized names — and their singular forms — mapped to catalog entries.
+    ///
+    /// Built once. The previous linear scan walked every case and every alias on each
+    /// scanned exercise and on each record the re-match job touches. First writer wins,
+    /// which preserves the old "first matching case" semantics.
+    private nonisolated static let aliasIndex: [String: ExerciseType] = {
+        var index: [String: ExerciseType] = [:]
+        for exerciseType in ExerciseType.allCases where exerciseType != .unknown {
+            for candidate in [exerciseType.rawValue] + exerciseType.aliases {
+                let key = normalized(candidate)
+                guard !key.isEmpty else { continue }
+                if index[key] == nil { index[key] = exerciseType }
+                let singular = singularized(key)
+                if index[singular] == nil { index[singular] = exerciseType }
             }
         }
+        return index
+    }()
 
-        // Distance-based entries (e.g. "1,600-meter run", "5km row") — extract
-        // the movement from the suffix.
-        if normalized.hasSuffix("run") || normalized.contains("meter run") || normalized.contains("km run") || normalized.contains("mile run") {
+    /// Looks a normalized name up, falling back to its singular form.
+    private static func indexed(_ name: String) -> ExerciseType? {
+        guard !name.isEmpty else { return nil }
+        return aliasIndex[name] ?? aliasIndex[singularized(name)]
+    }
+
+    // MARK: Implement detection
+
+    /// Implement tokens, longest first so "single dumbbell" wins over "dumbbell".
+    private nonisolated static let equipmentTokens: [(token: String, equipment: Equipment)] = [
+        ("single dumbbell", .dumbbell), ("double dumbbell", .dumbbell),
+        ("single db", .dumbbell), ("double db", .dumbbell),
+        ("single kettlebell", .kettlebell), ("double kettlebell", .kettlebell),
+        ("medicine ball", .medicineBall), ("med ball", .medicineBall),
+        ("dumbbells", .dumbbell), ("dumbbell", .dumbbell), ("db", .dumbbell),
+        ("kettlebells", .kettlebell), ("kettlebell", .kettlebell), ("kb", .kettlebell),
+        ("barbell", .barbell), ("bb", .barbell),
+    ]
+
+    /// Removes one implement token from an already normalized name.
+    ///
+    /// Returns `nil` when no token is present, when tokens of two different implements
+    /// appear (too ambiguous to guess), or when nothing would be left of the name.
+    private static func strippingEquipment(from name: String) -> (name: String, equipment: Equipment)? {
+        let words = name.split(separator: " ").map(String.init)
+        var distinct: Set<Equipment> = []
+        var hit: (range: Range<Int>, equipment: Equipment)?
+
+        for (token, equipment) in equipmentTokens {
+            let tokenWords = token.split(separator: " ").map(String.init)
+            guard let start = firstIndex(of: tokenWords, in: words) else { continue }
+            distinct.insert(equipment)
+            if hit == nil { hit = (start ..< (start + tokenWords.count), equipment) }
+        }
+
+        guard distinct.count == 1, let hit else { return nil }
+        var remaining = words
+        remaining.removeSubrange(hit.range)
+        let stripped = remaining.joined(separator: " ")
+        return stripped.isEmpty ? nil : (stripped, hit.equipment)
+    }
+
+    /// Index of the first whole-word occurrence of `needle` inside `haystack`.
+    private static func firstIndex(of needle: [String], in haystack: [String]) -> Int? {
+        guard !needle.isEmpty, haystack.count >= needle.count else { return nil }
+        for start in 0 ... (haystack.count - needle.count)
+        where Array(haystack[start ..< start + needle.count]) == needle {
+            return start
+        }
+        return nil
+    }
+
+    /// Distance-based entries ("1,600-meter run", "5km row") — the movement is in the suffix.
+    private static func distanceHeuristic(_ name: String) -> ExerciseType? {
+        if name.hasSuffix("run") || name.contains("meter run") || name.contains("km run") || name.contains("mile run") {
             return .running
         }
-        if normalized.hasSuffix("row") || normalized.contains("meter row") || normalized.contains("km row") {
+        if name.hasSuffix("row") || name.contains("meter row") || name.contains("km row") {
             return .rowing
         }
-        if normalized.hasSuffix("bike") || normalized.contains("meter bike") || normalized.contains("km bike") {
+        if name.hasSuffix("bike") || name.contains("meter bike") || name.contains("km bike") {
             return .cycling
         }
+        return nil
+    }
 
-        return .unknown
+    // MARK: Resolution
+
+    /// Resolves a raw OCR/AI name into a movement and, when the name says so, the
+    /// implement it was performed with.
+    ///
+    /// Order is part of the contract. A whole-name match is tried first, so names that
+    /// carry the implement in their identity ("kettlebell swing" → `.kettlebellSwing`)
+    /// keep resolving exactly as before; only on a miss is an implement token stripped.
+    /// Returns `.unknown` when nothing matches — callers preserve the raw name so a
+    /// later re-match can retry against an extended catalog.
+    public static func resolve(rawName: String) -> (type: ExerciseType, equipment: Equipment?) {
+        let target = normalized(rawName)
+
+        if let exerciseType = indexed(target) {
+            return (exerciseType, nil)
+        }
+
+        if let stripped = strippingEquipment(from: target),
+           let exerciseType = indexed(stripped.name) {
+            return (exerciseType, stripped.equipment)
+        }
+
+        if let exerciseType = distanceHeuristic(target) {
+            return (exerciseType, nil)
+        }
+
+        return (.unknown, nil)
+    }
+
+    /// Movement-only resolution, for callers that do not care about the implement.
+    public static func matched(fromRawName name: String) -> ExerciseType {
+        resolve(rawName: name).type
     }
 }
