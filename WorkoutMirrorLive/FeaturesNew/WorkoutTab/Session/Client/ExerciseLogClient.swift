@@ -42,35 +42,7 @@ private enum ExerciseLogClientKey: DependencyKey {
                 try await database.write { db in
                     for log in logs {
                         let record = ExerciseLogRecord(from: log, createdAt: now, updatedAt: now)
-                        let draft = ExerciseLogRecord.Draft(
-                            id: record.id,
-                            date: record.date,
-                            exerciseType: record.exerciseType,
-                            unmatchedName: record.unmatchedName,
-                            category: record.category,
-                            workoutPlanScoreId: record.workoutPlanScoreId,
-                            workoutSessionResultId: record.workoutSessionResultId,
-                            wodName: record.wodName,
-                            plannedReps: record.plannedReps,
-                            plannedWeight: record.plannedWeight,
-                            actualWeight: record.actualWeight,
-                            actualReps: record.actualReps,
-                            setsData: record.setsData,
-                            scaling: record.scaling,
-                            isPR: record.isPR,
-                            avgHeartRate: record.avgHeartRate,
-                            maxHeartRate: record.maxHeartRate,
-                            phaseStartDate: record.phaseStartDate,
-                            phaseEndDate: record.phaseEndDate,
-                            timeInPhase: record.timeInPhase,
-                            volumeLoad: record.volumeLoad,
-                            tempoPerRound: record.tempoPerRound,
-                            note: record.note,
-                            editableUntil: record.editableUntil,
-                            createdAt: record.createdAt,
-                            updatedAt: record.updatedAt
-                        )
-                        try ExerciseLogRecord.upsert { draft }.execute(db)
+                        try ExerciseLogRecord.upsert { ExerciseLogRecord.Draft(record) }.execute(db)
                     }
                 }
             },

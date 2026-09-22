@@ -54,10 +54,12 @@ extension ExerciseAnalyticsFeature {
                     equipment: identity.equipment,
                     count: logs.count,
                     maxWeight: logs.compactMap(\.actualWeight).max(),
-                    totalVolume: logs.compactMap(\.volumeLoad).reduce(0, +),
+                    totalVolume: logs.compactMap(\.effectiveVolumeLoad).reduce(0, +),
                     lastDate: logs.compactMap(\.date).max(),
                     category: type.category,
-                    hasPR: logs.contains(where: \.isPR)
+                    // A record is the heaviest single, so a movement only claims one
+                    // once it has been taken to a one-rep set.
+                    hasPR: logs.contains { $0.heaviestSingle != nil }
                 )
             }
             .sorted { sortComparator($0, $1) }

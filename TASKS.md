@@ -1471,3 +1471,12 @@
     - `burpeeBoxJumpOvers` splits off `burpeeBoxJumps`: clearing the box is a different standard from landing on it, so past "burpee box jump over" rows move to the new movement
     - the weight field now follows the implement rather than the movement category, and analytics track each implement variant as its own row
     - migration v14 adds a nullable `equipment` column; the re-match job backfills it, but only for rows still in the unknown bucket — elsewhere the raw name no longer exists
+
+### IOS-00136 Exercise log write path — duplicate saves, dropped equipment, dead metrics
+    - pulled the live database off the phone: 129 exercise rows where the saved results hold 104, inflating tonnage by 37% (75.1 t reported against 47.1 t performed) and every movement counter with it — front squat read 6 sessions against 3
+    - the save minted a fresh row id each time, so the upsert keyed on the primary key never matched and re-editing a result appended a whole second copy of the WOD; the sibling `WorkoutPlanScore` had carried that exact guard, with a comment, since July
+    - the row id now comes from the result's own exercise id, which round-trips through the saved score — the primary key becomes the natural key, and a movement legitimately repeated inside one WOD still keeps its separate rows
+    - `equipment` was lost twice on the way to disk: the log never received it from the summary, and the client hand-listed 25 fields into a draft that omitted it — building the draft from the record closes both, and stops the next column from vanishing the same way
+    - migration v15 drops the earlier copies, keeping the newest save batch per score because it carries the corrections the earlier ones lack; batches sit seconds apart against milliseconds within one, so genuine repeats survive
+    - volume load has been computed since April but landed once in 129 rows: it reads the raw fields instead of the effective ones resolved two lines below, and its parser turns "15x" into zero reps
+    - the PR board and the training log describe the same barbells without ever meeting — three of seven personal records have a twin row on the same date at the same weight, all flagged `isPR = 0`, while the log holds two single reps at 100 kg clean that the board still records as 80

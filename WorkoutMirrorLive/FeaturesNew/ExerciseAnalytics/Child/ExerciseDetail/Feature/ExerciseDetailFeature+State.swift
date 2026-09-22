@@ -78,6 +78,18 @@ extension ExerciseDetailFeature {
             logs.compactMap(\.actualWeight).max()
         }
 
+        /// Heaviest single ever recorded for this movement — the personal record.
+        var recordSingle: Double? {
+            logs.compactMap(\.heaviestSingle).max()
+        }
+
+        /// Logs holding that record. Derived from `logs` rather than stored, so editing a
+        /// weight or dropping a workout can never leave a record badge behind on a lighter lift.
+        var recordLogIds: Set<UUID> {
+            guard let recordSingle else { return [] }
+            return Set(logs.filter { $0.heaviestSingle == recordSingle }.map(\.id))
+        }
+
         /// Whether this exercise uses weight (has any actualWeight recorded).
         var hasWeight: Bool {
             logs.contains { ($0.actualWeight ?? 0) > 0 }
