@@ -18,7 +18,8 @@ public actor TrainingReadinessBackgroundManager {
     private let backgroundDeliveryManager: BackgroundDeliveryManager
     private let calculator: TrainingReadinessCalculator
     private let widgetDataClient: WidgetDataClient
-    
+    private let watchConnectivityManager: WatchConnectivityManager
+
     /// Health data types needed for training readiness calculation
     private let observedTypes: Set<HKSampleType> = [
         HKQuantityType(.restingHeartRate),
@@ -41,11 +42,13 @@ public actor TrainingReadinessBackgroundManager {
     public init(
         backgroundDeliveryManager: BackgroundDeliveryManager,
         calculator: TrainingReadinessCalculator,
-        widgetDataClient: WidgetDataClient
+        widgetDataClient: WidgetDataClient,
+        watchConnectivityManager: WatchConnectivityManager
     ) {
         self.backgroundDeliveryManager = backgroundDeliveryManager
         self.calculator = calculator
         self.widgetDataClient = widgetDataClient
+        self.watchConnectivityManager = watchConnectivityManager
     }
     
     // MARK: - Public API
@@ -126,7 +129,7 @@ public actor TrainingReadinessBackgroundManager {
             subscriber.yield(update)
         }
         
-        // 2. Widget Refresh - DEBOUNCED
+        // 2. Readiness publishing (widget + Watch) - DEBOUNCED
         // Debounce: skip if refreshed recently (5 minutes)
         if let lastRefresh = lastRefreshDate,
            Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
@@ -137,30 +140,40 @@ public actor TrainingReadinessBackgroundManager {
         // Update timestamp immediately to block subsequent WIDGET refresh calls
         lastRefreshDate = Date()
         
-        await refreshWidget()
+        await publishReadiness()
     }
     
-    private func refreshWidget() async {
-        print("🔄 Refreshing Training Readiness widget...")
-        
+    /// Recalculates readiness and feeds both consumers: the Home Screen widget
+    /// and the paired Apple Watch.
+    private func publishReadiness() async {
         do {
             // 1. Calculate training readiness
             let result = try await calculator.calculateTrainingReadiness()
-            
+
             // 2. Check if we have sufficient data
             guard !result.hasInsufficientData else {
-                print("⚠️ Insufficient data for training readiness")
                 await widgetDataClient.clear()
                 return
             }
-            
+
             // 3. Save to widget storage
             await widgetDataClient.saveReadinessResult(result)
-            
-            print("✅ Widget refreshed successfully - Score: \(result.overallScore)")
-            
+
+            // 4. Push to the paired Watch — a missing Watch must not fail the widget path.
+            do {
+                try await watchConnectivityManager.publishReadinessSnapshot(
+                    ReadinessSnapshot(result: result)
+                )
+            } catch {
+                #if DEBUG
+                print("❌ Failed to publish readiness to Watch: \(error.localizedDescription)")
+                #endif
+            }
+
         } catch {
-            print("❌ Failed to refresh widget: \(error.localizedDescription)")
+            #if DEBUG
+            print("❌ Failed to refresh readiness: \(error.localizedDescription)")
+            #endif
         }
     }
 }

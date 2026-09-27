@@ -4,8 +4,28 @@
     "%lld" : {
       "shouldTranslate" : false
     },
+    "%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
     "%lld%%" : {
       "shouldTranslate" : false
+    },
+    "7-day average: %lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "7-day average: %1$lld %2$@"
+          }
+        }
+      }
     },
     "Avg. Heart Rate" : {
       "localizations" : {
@@ -29,6 +49,9 @@
     },
     "BPM" : {
       "shouldTranslate" : false
+    },
+    "Breakdown" : {
+
     },
     "Discard" : {
       "extractionState" : "stale",
@@ -92,6 +115,9 @@
         }
       }
     },
+    "No Data" : {
+
+    },
     "OK" : {
       "localizations" : {
         "pl" : {
@@ -101,6 +127,9 @@
           }
         }
       }
+    },
+    "Open on iPhone" : {
+
     },
     "Pause" : {
       "localizations" : {
@@ -121,6 +150,9 @@
           }
         }
       }
+    },
+    "Range" : {
+
     },
     "Resume" : {
       "localizations" : {

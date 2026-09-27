@@ -1471,3 +1471,13 @@
     - `burpeeBoxJumpOvers` splits off `burpeeBoxJumps`: clearing the box is a different standard from landing on it, so past "burpee box jump over" rows move to the new movement
     - the weight field now follows the implement rather than the movement category, and analytics track each implement variant as its own row
     - migration v14 adds a nullable `equipment` column; the re-match job backfills it, but only for rows still in the unknown bucket — elsewhere the raw name no longer exists
+
+### IOS-00138 Training readiness on the Watch — a second state beside the workout
+
+    - branch: `dev/IOS-00138/IOS-00138`
+    - outside a workout the Watch showed nothing but a black "Waiting for workout…" screen, while training readiness lived only in an iPhone widget — deciding whether to push or back off meant reaching for the phone
+    - the idle screen becomes two pages: the readiness score with its level and how fresh the reading is, and the existing waiting screen; tapping the score drills into resting heart rate, HRV, sleep and previous-day load, each against its 7-day baseline
+    - readiness stays calculated on iPhone and the Watch never queries HealthKit for it — `HealthHub` is iOS-only structurally, not by an oversight in its manifest, and its dependency graph does not close on any other platform
+    - the result travels over the WatchConnectivity application context, a single overwritable slot that does not queue, so a day of debounced recalculations costs one delivery instead of one per recalculation
+    - the payload carries per-component scores and baselines — unlike the widget's, which drops them — and rebuilds the domain result on arrival, so the Watch reuses the existing level colours, component statuses and localized metric names rather than growing a third copy of the thresholds
+    - a workout still covers the whole screen and its flow is untouched: the tabs live under the cover, so the start/save race handling and crash recovery are unchanged

@@ -26,6 +26,7 @@ struct TrainingReadinessFeature {
     
     @Dependency(\.trainingReadinessClient) var trainingReadinessClient
     @Dependency(\.widgetDataClient) var widgetDataClient
+    @Dependency(\.watchConnectivityManager) var watchConnectivityManager
     @Dependency(\.continuousClock) var clock
     
     // MARK: - Reducer
@@ -54,6 +55,15 @@ struct TrainingReadinessFeature {
                 return .run {  [tier = state.subscriptionTier] send in
                     Logger.stats.info("[TR-Refresh] readinessCalculated START (saving + color change)")
                     await widgetDataClient.saveReadinessResult(result)
+                    // The observer path is debounced by 5 minutes; pushing here keeps
+                    // the Watch in step when the user refreshes on iPhone.
+                    do {
+                        try await watchConnectivityManager.publishReadinessSnapshot(
+                            ReadinessSnapshot(result: result)
+                        )
+                    } catch {
+                        Logger.stats.error("[TR-Refresh] Watch push failed: \(error.localizedDescription)")
+                    }
                     await send(.internal(.changeColor))
                     await send(.internal(.changeContentState(.ready(tier))))
                 }
