@@ -212,3 +212,62 @@ extension ExerciseLog {
         return exerciseType?.requiresWeight ?? false
     }
 }
+
+// MARK: - Volume load
+
+extension ExerciseLog {
+
+    /// Repetitions recorded as a dash-separated string: "10-10-10" → 30, "15x" → 15.
+    ///
+    /// The trailing "x" rides along from the plan's notation and has to go before parsing.
+    /// Anything that is not a rep count ("400m", "32 cal") yields nothing on purpose —
+    /// metres and calories must never be summed as repetitions.
+    public static func totalReps(from reps: String?) -> Int {
+        guard let reps else { return 0 }
+        return reps.split(separator: "-")
+            .compactMap {
+                Int($0.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: "x", with: ""))
+            }
+            .reduce(0, +)
+    }
+
+    /// Kilograms moved, from whichever shape the result was recorded in.
+    ///
+    /// Per set where the breakdown exists, since a pyramid lifts its top weight once rather
+    /// than on every rep; otherwise total reps times the single recorded weight.
+    public static func volumeLoad(sets: [SetEntry]?, reps: String?, weight: Double?) -> Double? {
+        if let sets {
+            let total = sets.reduce(into: 0.0) { running, set in
+                guard let setWeight = set.weight, setWeight > 0 else { return }
+                running += Double(set.reps) * setWeight
+            }
+            return total > 0 ? total : nil
+        }
+        guard let weight, weight > 0 else { return nil }
+        let reps = totalReps(from: reps)
+        guard reps > 0 else { return nil }
+        return Double(reps) * weight
+    }
+
+    /// Volume load for analytics: the value frozen at save time, else derived now.
+    ///
+    /// Logs written before the save-time computation was fixed carry `nil`, and deriving here
+    /// is what makes that history count instead of summing to zero.
+    public var effectiveVolumeLoad: Double? {
+        volumeLoad ?? Self.volumeLoad(sets: sets, reps: actualReps, weight: actualWeight)
+    }
+}
+
+// MARK: - Personal record
+
+extension ExerciseLog {
+
+    /// Heaviest one-rep set here, when the log carries a per-set breakdown.
+    ///
+    /// A record is the heaviest single, so three working reps at the same weight are
+    /// deliberately not one. `nil` for logs holding a single total instead of sets —
+    /// that number cannot say whether it was a max attempt or a working load.
+    public var heaviestSingle: Double? {
+        sets?.filter { $0.reps == 1 }.compactMap(\.weight).max()
+    }
+}
