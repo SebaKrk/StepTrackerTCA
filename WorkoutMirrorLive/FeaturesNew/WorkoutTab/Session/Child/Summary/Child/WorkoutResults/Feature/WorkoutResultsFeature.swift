@@ -230,6 +230,7 @@ extension WorkoutResultsFeature.State {
 
                 return ExerciseLogInput(
                     exerciseType: exercise.type,
+                    equipment: exercise.equipment,
                     unmatchedName: exercise.customName,
                     category: exercise.type.category,
                     target: exercise.target,

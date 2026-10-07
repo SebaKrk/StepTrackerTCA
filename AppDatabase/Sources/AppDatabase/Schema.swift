@@ -436,6 +436,32 @@ public enum AppDatabaseSchema {
             .execute(db)
         }
 
+        // Implement dimension (IOS-00135) — additive column, nullable.
+        // NULL means the plan text said nothing, so the movement default applies.
+        migrator.registerMigration("v14_exerciseLog_addEquipment") { db in
+            try #sql("""
+                ALTER TABLE "exerciseLogRecords" ADD COLUMN "equipment" TEXT
+                """)
+            .execute(db)
+        }
+
+        // Every save used to mint a fresh row id, so re-editing a result appended a second
+        // copy of the whole workout instead of overwriting it. One save writes its exercises
+        // within milliseconds while re-saves sit seconds apart, so the newest such batch is
+        // the last save — and it holds the corrections the earlier copies are missing.
+        // A movement legitimately repeated inside one workout shares that batch and survives.
+        migrator.registerMigration("v15_exerciseLog_dropDuplicateSaves") { db in
+            try #sql("""
+                DELETE FROM "exerciseLogRecords"
+                WHERE "workoutPlanScoreId" IS NOT NULL
+                  AND (julianday((SELECT MAX("newest"."createdAt")
+                                  FROM "exerciseLogRecords" AS "newest"
+                                  WHERE "newest"."workoutPlanScoreId" = "exerciseLogRecords"."workoutPlanScoreId"))
+                       - julianday("createdAt")) * 86400.0 > 2.0
+                """)
+            .execute(db)
+        }
+
         return migrator
     }
 }

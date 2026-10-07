@@ -14,6 +14,12 @@ extension AppFeatureAW {
     @ObservableState
     struct State: Equatable {
 
+        /// Tab selected on the idle screen while no workout is active.
+        var idleTab: IdleTab = .readiness
+
+        /// Readiness screen state. Always present — it is the base screen, not a destination.
+        var readiness = ReadinessFeature.State()
+
         /// Presented when a workout session is active on the paired iPhone.
         ///
         /// Set to a new `HRMirrorFeature.State` when `.workoutStarted` arrives,

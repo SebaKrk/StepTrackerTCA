@@ -31,6 +31,9 @@ struct AppFeatureAW {
     // MARK: - Reducer
 
     var body: some Reducer<State, Action> {
+        Scope(state: \.readiness, action: \.readiness) {
+            ReadinessFeature()
+        }
         Reduce { state, action in
             switch action {
 
@@ -214,9 +217,16 @@ struct AppFeatureAW {
                     }
                 )
 
+            case let .view(.idleTabChanged(tab)):
+                state.idleTab = tab
+                return .none
+
             // MARK: - Child Actions
 
             case .hrMirror:
+                return .none
+
+            case .readiness:
                 return .none
             }
         }

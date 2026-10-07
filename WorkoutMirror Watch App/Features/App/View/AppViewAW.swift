@@ -24,11 +24,16 @@ struct AppViewAW: View {
     // MARK: - View
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            waitingView
-            versionLabel
+        TabView(selection: $store.idleTab.sending(\.view.idleTabChanged)) {
+            ReadinessView(
+                store: store.scope(state: \.readiness, action: \.readiness)
+            )
+            .tag(IdleTab.readiness)
+
+            waitingTab
+                .tag(IdleTab.waitingForWorkout)
         }
+        .tabViewStyle(.page)
         .fullScreenCover(
             item: $store.scope(state: \.hrMirror, action: \.hrMirror)
         ) { hrMirrorStore in
@@ -48,6 +53,14 @@ struct AppViewAW: View {
     }
 
     // MARK: - Subviews
+
+    private var waitingTab: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            waitingView
+            versionLabel
+        }
+    }
 
     private var waitingView: some View {
         VStack(spacing: 12) {

@@ -1460,3 +1460,33 @@
 
 ### IPAD-00099 GymRoom narrowed to iOS
     - dropped the unused macOS and visionOS platforms left by the multiplatform template, which let the scene manifest and launch screen keys lose their per-SDK conditions
+
+### IOS-00135 Implement dimension — movement and equipment split apart
+
+    - the catalog grew combinatorially: every implement variant of a movement needed its own alias, so `goblet squat` carried four of them and still missed `kettlebell goblet squats` over a single plural "s"
+    - `ExerciseType` now describes the movement alone; `Equipment` rides alongside it on the plan exercise and on the log, with `defaultEquipment` per movement so a name only spells out the implement when it is unusual ("DB Snatch", never "BB Snatch")
+    - the matcher normalises the name, tries the catalog whole, and only then strips an implement token — that order keeps every existing match intact while filling the unknown bucket
+    - 48 implement-baked aliases removed, 3 base aliases added, 4 kept where stripping would misfire (`barbell row` minus the barbell is the rower)
+    - catalog v7 adds `snatchBalance`, `goodMorning` and a regrouped burpee family — `burpeePullUps`, `burpeeOverDumbbell`, `burpeeBoxJumpOvers`, `burpeeBroadJump`, `burpeeToTarget` — clearing the app 0.7 unrecognized-name harvest
+    - `burpeeBoxJumpOvers` splits off `burpeeBoxJumps`: clearing the box is a different standard from landing on it, so past "burpee box jump over" rows move to the new movement
+    - the weight field now follows the implement rather than the movement category, and analytics track each implement variant as its own row
+    - migration v14 adds a nullable `equipment` column; the re-match job backfills it, but only for rows still in the unknown bucket — elsewhere the raw name no longer exists
+
+### IOS-00136 Exercise log write path — duplicate saves, dropped equipment, dead metrics
+    - pulled the live database off the phone: 129 exercise rows where the saved results hold 104, inflating tonnage by 37% (75.1 t reported against 47.1 t performed) and every movement counter with it — front squat read 6 sessions against 3
+    - the save minted a fresh row id each time, so the upsert keyed on the primary key never matched and re-editing a result appended a whole second copy of the WOD; the sibling `WorkoutPlanScore` had carried that exact guard, with a comment, since July
+    - the row id now comes from the result's own exercise id, which round-trips through the saved score — the primary key becomes the natural key, and a movement legitimately repeated inside one WOD still keeps its separate rows
+    - `equipment` was lost twice on the way to disk: the log never received it from the summary, and the client hand-listed 25 fields into a draft that omitted it — building the draft from the record closes both, and stops the next column from vanishing the same way
+    - migration v15 drops the earlier copies, keeping the newest save batch per score because it carries the corrections the earlier ones lack; batches sit seconds apart against milliseconds within one, so genuine repeats survive
+    - volume load has been computed since April but landed once in 129 rows: it reads the raw fields instead of the effective ones resolved two lines below, and its parser turns "15x" into zero reps
+    - the PR board and the training log describe the same barbells without ever meeting — three of seven personal records have a twin row on the same date at the same weight, all flagged `isPR = 0`, while the log holds two single reps at 100 kg clean that the board still records as 80
+
+### IOS-00138 Training readiness on the Watch — a second state beside the workout
+
+    - branch: `dev/IOS-00138/IOS-00138`
+    - outside a workout the Watch showed nothing but a black "Waiting for workout…" screen, while training readiness lived only in an iPhone widget — deciding whether to push or back off meant reaching for the phone
+    - the idle screen becomes two pages: the readiness score with its level and how fresh the reading is, and the existing waiting screen; tapping the score drills into resting heart rate, HRV, sleep and previous-day load, each against its 7-day baseline
+    - readiness stays calculated on iPhone and the Watch never queries HealthKit for it — `HealthHub` is iOS-only structurally, not by an oversight in its manifest, and its dependency graph does not close on any other platform
+    - the result travels over the WatchConnectivity application context, a single overwritable slot that does not queue, so a day of debounced recalculations costs one delivery instead of one per recalculation
+    - the payload carries per-component scores and baselines — unlike the widget's, which drops them — and rebuilds the domain result on arrival, so the Watch reuses the existing level colours, component statuses and localized metric names rather than growing a third copy of the thresholds
+    - a workout still covers the whole screen and its flow is untouched: the tabs live under the cover, so the start/save race handling and crash recovery are unchanged

@@ -44,7 +44,7 @@ extension ExerciseAnalyticsFeature {
             case sortModeChanged(ExerciseAnalyticsSortMode)
             
             /// User tapped an exercise row.
-            case exerciseTapped(ExerciseType)
+            case exerciseTapped(ExerciseType, Equipment?)
         }
     }
 }

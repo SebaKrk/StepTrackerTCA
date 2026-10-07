@@ -21,7 +21,7 @@ struct RingActivitiesSummaryDetailsView: View {
                 VStack(spacing: 16) {
                     activityGroupBox(
                         type: .move,
-                        title: "W ruchu",
+                        title: String(localized: "Move", bundle: .main),
                         value: store.activityRingData.moveValue,
                         goal: store.activityRingData.moveGoal
                     )
@@ -35,7 +35,7 @@ struct RingActivitiesSummaryDetailsView: View {
                     
                     activityGroupBox(
                         type: .stand,
-                        title: "Na nogach",
+                        title: String(localized: "Stand", bundle: .main),
                         value: store.activityRingData.standValue,
                         goal: store.activityRingData.standGoal
                     )
@@ -117,7 +117,7 @@ struct RingActivitiesSummaryDetailsView: View {
                 
                 HStack(spacing: 0) {
                     activityMetric(
-                        title: "W ruchu",
+                        title: String(localized: "Move", bundle: .main),
                         value: Int(data.activeEnergyBurned),
                         unit: "kcal",
                         color: .pink
@@ -135,9 +135,9 @@ struct RingActivitiesSummaryDetailsView: View {
                     Divider().frame(height: 40)
                     
                     activityMetric(
-                        title: "Na nogach",
+                        title: String(localized: "Stand", bundle: .main),
                         value: data.standHours,
-                        unit: data.standHours == 1 ? "tak" : "nie",
+                        unit: data.standHours == 1 ? String(localized: "yes", bundle: .main) : String(localized: "no", bundle: .main),
                         color: .cyan
                     )
                 }

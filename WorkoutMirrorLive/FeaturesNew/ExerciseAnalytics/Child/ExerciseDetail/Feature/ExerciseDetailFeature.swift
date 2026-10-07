@@ -32,9 +32,12 @@ struct ExerciseDetailFeature {
 
             case .view(.onAppear):
                 let exerciseType = state.exerciseType
+                let equipment = state.equipment
                 return .run { [exerciseLogClient] send in
                     let logs = try await exerciseLogClient.fetchByExerciseType(exerciseType)
-                    await send(.logsLoaded(logs))
+                    // Implement is filtered here, not in SQL: the column holds what the
+                    // plan text stated, while rows group by the effective implement.
+                    await send(.logsLoaded(logs.filter { $0.effectiveEquipment == equipment }))
                 }
 
             case let .logsLoaded(logs):
@@ -131,13 +134,9 @@ struct ExerciseDetailFeature {
         return grouped.map { weekStart, weekLogs in
             let volume = weekLogs.reduce(0.0) { total, log in
                 // Weighted: use volumeLoad (reps × weight)
-                if let vl = log.volumeLoad, vl > 0 { return total + vl }
+                if let vl = log.effectiveVolumeLoad, vl > 0 { return total + vl }
                 // Bodyweight: sum reps as volume
-                guard let repsStr = log.actualReps else { return total }
-                let reps = repsStr.split(separator: "-")
-                    .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
-                    .reduce(0, +)
-                return total + Double(reps)
+                return total + Double(ExerciseLog.totalReps(from: log.actualReps))
             }
             return State.WeeklyVolumePoint(week: weekStart, volume: volume)
         }

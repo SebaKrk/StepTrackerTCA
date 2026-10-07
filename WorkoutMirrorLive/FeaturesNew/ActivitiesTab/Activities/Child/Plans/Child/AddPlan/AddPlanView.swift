@@ -80,15 +80,15 @@ struct AddPlanView: View {
     private var optionsSection: some View {
         VStack(spacing: 16) {
             optionButton(
-                title: "Scan Plan",
-                subtitle: "Take a photo of your workout notes",
+                title: String(localized: "Scan Plan", bundle: .main),
+                subtitle: String(localized: "Take a photo of your workout notes", bundle: .main),
                 icon: "camera.fill",
                 action: { send(.scanPlanTapped) }
             )
             
             optionButton(
-                title: "Manual Entry",
-                subtitle: "Enter workout details manually",
+                title: String(localized: "Manual Entry", bundle: .main),
+                subtitle: String(localized: "Enter workout details manually", bundle: .main),
                 icon: "pencil.line",
                 action: { send(.manualEntryTapped) }
             )

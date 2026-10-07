@@ -40,6 +40,15 @@ struct WatchConnectivityClientAW {
     /// `WCSession.transferFile()` — OS queues delivery for when iPhone is reachable.
     /// Files remain on Watch (no cleanup) for redundancy.
     var transferAllLogFiles: @Sendable () async -> Void
+
+    /// A stream of readiness snapshots pushed from the paired iPhone.
+    var readinessSnapshotStream: @Sendable () -> AsyncStream<ReadinessSnapshot>
+
+    /// The most recent snapshot already held by `WCSession`, if any.
+    ///
+    /// Read on appear so a freshly launched Watch app shows the last known
+    /// value immediately instead of waiting for the next push.
+    var latestReadinessSnapshot: @Sendable () -> ReadinessSnapshot?
 }
 
 // MARK: - Dependency Registration
@@ -106,6 +115,10 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
                 WCSession.default.transferFile(url, metadata: ["type": "workoutLog", "startedAt": Date()])
             }
             #endif
+        } readinessSnapshotStream: {
+            session.readinessStream
+        } latestReadinessSnapshot: {
+            session.latestSnapshot()
         }
     }()
 }
@@ -134,6 +147,23 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
         let (stream, newContinuation) = AsyncStream<WatchWorkoutEvent>.makeStream()
         continuation = newContinuation
         return stream
+    }
+
+    /// Mutable continuation for readiness snapshots — same single-consumer
+    /// pattern as `continuation` above.
+    private var readinessContinuation: AsyncStream<ReadinessSnapshot>.Continuation?
+
+    /// Returns a new `AsyncStream` each time it is accessed, matching `eventStream`.
+    var readinessStream: AsyncStream<ReadinessSnapshot> {
+        readinessContinuation?.finish()
+        let (stream, newContinuation) = AsyncStream<ReadinessSnapshot>.makeStream()
+        readinessContinuation = newContinuation
+        return stream
+    }
+
+    /// Decodes the snapshot currently held in `WCSession.receivedApplicationContext`.
+    func latestSnapshot() -> ReadinessSnapshot? {
+        decodeSnapshot(WCSession.default.receivedApplicationContext)
     }
 
     override init() {
@@ -198,6 +228,12 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
         decodeAndYield(userInfo)
     }
 
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        guard let snapshot = decodeSnapshot(applicationContext) else { return }
+        Logger.wc.info("[WatchSession] received readiness snapshot → score \(snapshot.overallScore)")
+        readinessContinuation?.yield(snapshot)
+    }
+
     // MARK: - Private
 
     private func decodeAndYield(_ dict: [String: Any]) {
@@ -219,5 +255,17 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
             }
         }
         continuation?.yield(event)
+    }
+
+    private func decodeSnapshot(_ dict: [String: Any]) -> ReadinessSnapshot? {
+        guard let data = dict[WatchContextKey.readinessSnapshot] as? Data,
+              let snapshot = try? JSONDecoder().decode(ReadinessSnapshot.self, from: data)
+        else { return nil }
+
+        guard snapshot.schemaVersion == ReadinessSnapshot.currentSchemaVersion else {
+            Logger.wc.error("[WatchSession] readiness snapshot schema \(snapshot.schemaVersion) not supported")
+            return nil
+        }
+        return snapshot
     }
 }

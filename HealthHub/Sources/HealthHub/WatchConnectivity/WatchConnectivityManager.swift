@@ -52,5 +52,14 @@ public protocol WatchConnectivityManager: Sendable {
     ///
     /// Yields events decoded from both `sendMessage` and `transferUserInfo` deliveries.
     var incomingWorkoutEventStream: AsyncStream<WatchWorkoutEvent> { get }
-    
+
+    /// Publishes the latest training readiness snapshot to the paired Watch.
+    ///
+    /// Uses `updateApplicationContext`: a single overwritable slot delivered in
+    /// the background. Unlike `transferUserInfo` it does not queue, so a burst
+    /// of recalculations costs one delivery instead of one per recalculation.
+    /// - Parameter snapshot: The snapshot to publish.
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not ready.
+    func publishReadinessSnapshot(_ snapshot: ReadinessSnapshot) async throws
+
 }

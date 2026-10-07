@@ -346,7 +346,7 @@ struct ExerciseDetailView: View {
 
     private func historyRowBadges(_ log: ExerciseLog) -> some View {
         HStack(spacing: 4) {
-            if log.isPR {
+            if store.recordLogIds.contains(log.id) {
                 prBadge
             }
             if let hr = log.avgHeartRate {

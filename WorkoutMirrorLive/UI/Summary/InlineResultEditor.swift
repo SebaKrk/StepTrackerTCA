@@ -201,7 +201,7 @@ struct InlineResultEditor: View {
     /// Bodyweight moves (pull-ups, burpees…) get no weight field — only lifts
     /// that load a bar. Falls back to the plan's weight when the type is unknown.
     private func takesWeight(_ exercise: ExerciseLogInput) -> Bool {
-        exercise.exerciseType?.requiresWeight ?? (exercise.plannedWeight != nil)
+        exercise.requiresWeight || (exercise.exerciseType == nil && exercise.plannedWeight != nil)
     }
 
     /// Clean numeric input + the target's unit as a trailing label (cal / m / s;

@@ -178,6 +178,8 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
 public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     public let id: UUID
     public let type: ExerciseType
+    /// Implement stated in the scanned name; `nil` means the movement's default applies.
+    public let equipment: Equipment?
     public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
@@ -188,6 +190,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
 
     public init(
         type: ExerciseType,
+        equipment: Equipment? = nil,
         customName: String? = nil,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
@@ -196,6 +199,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     ) {
         self.id = UUID()
         self.type = type
+        self.equipment = equipment
         self.customName = customName
         self.target = target
         self.weight = weight
@@ -206,6 +210,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     public init(id: UUID = UUID(), draft: ExerciseSessionDraft) {
         self.id = id
         self.type = draft.type
+        self.equipment = draft.equipment
         self.customName = draft.type == .unknown ? draft.customName : nil
         self.target = draft.target
         self.weight = draft.weight
@@ -213,12 +218,13 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         self.plannedSets = draft.plannedSets
     }
 
-    /// Display name - uses customName for .unknown exercises, otherwise type.displayName
+    /// Display name - uses customName for .unknown exercises, otherwise the catalog
+    /// name with the implement spelled out when it is not the movement's usual one.
     public var displayName: String {
         if type == .unknown, let custom = customName {
             return custom.capitalized  // Capitalize first letter
         }
-        return type.displayName
+        return type.displayName(with: equipment)
     }
 }
 

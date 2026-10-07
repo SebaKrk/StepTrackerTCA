@@ -241,17 +241,6 @@ struct SummaryFeature {
                         }()
 
                         for exercise in result.exercises {
-                            // Calculate volume load
-                            let volumeLoad: Double? = {
-                                guard let weight = exercise.actualWeight, weight > 0,
-                                      let repsStr = exercise.actualReps else { return nil }
-                                let totalReps = repsStr.split(separator: "-")
-                                    .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
-                                    .reduce(0, +)
-                                guard totalReps > 0 else { return nil }
-                                return Double(totalReps) * weight
-                            }()
-
                             // For Strength (sets), derive actualWeight from max set weight
                             let effectiveWeight: Double? = exercise.actualWeight
                                 ?? exercise.sets?.compactMap(\.weight).max()
@@ -262,9 +251,19 @@ struct SummaryFeature {
                                     sets.map { "\($0.reps)" }.joined(separator: "-")
                                 }
 
+                            let volumeLoad = ExerciseLog.volumeLoad(
+                                sets: exercise.sets,
+                                reps: effectiveReps,
+                                weight: effectiveWeight
+                            )
+
+                            // The input's id survives in the saved score, so reusing it here makes
+                            // re-saving an edited result overwrite the row instead of appending one.
                             let log = ExerciseLog(
+                                id: exercise.id,
                                 date: now,
                                 exerciseType: exercise.exerciseType,
+                                equipment: exercise.equipment,
                                 unmatchedName: exercise.unmatchedName,
                                 category: exercise.category,
                                 workoutPlanScoreId: scoreId,
