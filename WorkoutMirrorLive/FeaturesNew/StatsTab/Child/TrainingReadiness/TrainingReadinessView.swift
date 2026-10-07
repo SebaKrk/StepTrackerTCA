@@ -64,10 +64,15 @@ struct TrainingReadinessView: View {
         }
         .chartXScale(domain: 0...100)
         .chartXAxis {
-            AxisMarks(values: [0, 25, 50, 75, 90, 100]) { _ in
-                AxisValueLabel()
-                    .font(.footnote)
-                    .foregroundStyle(.primary)
+            AxisMarks(values: [0, 25, 50, 75, 90, 100]) { value in
+                AxisValueLabel {
+                    if let score = value.as(Int.self) {
+                        Text("\(score)")
+                            .font(.footnote)
+                            .fixedSize()
+                            .foregroundStyle(.primary)
+                    }
+                }
             }
         }
         .chartYScale(domain: 0...1)
