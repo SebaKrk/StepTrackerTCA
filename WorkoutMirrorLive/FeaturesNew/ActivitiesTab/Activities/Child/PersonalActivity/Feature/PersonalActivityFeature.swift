@@ -20,6 +20,7 @@ struct PersonalActivityFeature {
     @Dependency(\.activityClient) var activityClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.effortScoreClient) var effortScoreClient
+    @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
 
     // MARK: - Reducer
     
@@ -76,6 +77,11 @@ struct PersonalActivityFeature {
                 // Pipeline stage — same ID as the fetch (without cancelInFlight): a new fetch
                 // also kills this stage if it is in flight.
                 .cancellable(id: PersonalActivityCancelID.fetchPipeline)
+                .merge(with: loadExerciseNames(for: workouts.map(\.uuid)))
+
+            case let .exerciseNamesLoaded(namesByWorkout):
+                state.exerciseNamesByWorkout = namesByWorkout
+                return .none
 
             case let .maxHRByWorkoutResolved(map):
                 state.maxHRByWorkout = map
@@ -206,6 +212,10 @@ struct PersonalActivityFeature {
 
                 // MARK: - Destination
 
+            case .destination(.dismiss):
+                // Results may have been edited in details — names come from a one-shot read.
+                return loadExerciseNames(for: state.workouts.map(\.uuid))
+
             case .destination:
                 // The "Uzupełnij wyniki" badge updates itself — `pendingScores` is an
                 // observed SQLiteData query, saving results in details/Summary
@@ -218,6 +228,16 @@ struct PersonalActivityFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 
+    // MARK: - Effects
+
+    private func loadExerciseNames(for workoutIds: [UUID]) -> Effect<Action> {
+        .run { [workoutPlanScoreClient] send in
+            await withErrorReporting {
+                try await send(.exerciseNamesLoaded(workoutPlanScoreClient.fetchExerciseNames(workoutIds)))
+            }
+        }
+        .cancellable(id: PersonalActivityCancelID.exerciseNames, cancelInFlight: true)
+    }
 }
 
 // MARK: - Cancel IDs
@@ -241,5 +261,8 @@ nonisolated enum PersonalActivityCancelID: Hashable, Sendable {
     /// A new `fetchWorkouts` cancels any in-flight stage (`cancelInFlight` on the
     /// first stage), preventing interleaved snapshots and badge flicker.
     case fetchPipeline
+
+    /// Exercise-name read for plan-linked workouts — a newer read replaces an in-flight one.
+    case exerciseNames
 }
 

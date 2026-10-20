@@ -29,6 +29,8 @@ extension TrainingSessionEditorFeature {
         /// Activity types available for selection in the editor.
         static let supportedActivities: [WorkoutActivityType] = [
             .crossTraining,
+            .functional,
+            .endurance,
             .boxing,
             .running
         ]

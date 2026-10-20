@@ -1498,3 +1498,17 @@
     - current implementation in progress: equipment selector in Exercise Editor, equipment display in plan details and active workout summary, hidden for cardio/mobility, explicit selection passed into result input and persisted on exercise logs (schema v16)
     - SharedModels, AppDatabase, and the WorkoutMirrorLive iOS Simulator scheme compile; xcstrings JSON validates
     - pending: field-check scan → edit → save → result → history flow
+
+### IOS-00140 Show planned exercises in the activity list
+    - branch: `dev/IOS-00140/IOS-00140`
+    - when a completed activity is linked to a plan, list only exercise names in the activity card; use saved result names when available and fall back to the linked plan snapshot before results are entered
+    - keep HealthKit-only activities unchanged; hide the exercise section when the linked plan has no exercises
+    - appearance matches plan cards: centered `.caption` text, secondary color, names separated by ` · `, up to two lines; no heading, bullets, reps, or weights
+    - names are read once per list load through the plan-score client (only visible workouts) and refreshed after closing details; the view only renders the text
+    - verification pending: build and on-device check
+
+#### Follow-up ideas — activity history (backlog, no task IDs)
+    - tap an exercise name to open its history and progress chart, with sessions ordered by date
+    - compare the current workout with the previous occurrence of the same exercise; later add best result/PR where the movement supports a meaningful comparison
+    - add activity search and filters for exercise, workout type, linked plan, and date range
+    - add an exercise frequency view (sessions per week/month) alongside the existing performance trends
