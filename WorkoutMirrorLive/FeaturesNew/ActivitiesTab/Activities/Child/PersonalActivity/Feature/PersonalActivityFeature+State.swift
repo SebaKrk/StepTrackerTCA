@@ -55,6 +55,9 @@ extension PersonalActivityFeature {
         @FetchAll(WorkoutPlanScoreRecord.where { $0.resultsData.eq(Data("[]".utf8)) })
         var pendingScores
 
+        /// Exercise names shown on each activity card, keyed by `HKWorkout.uuid`.
+        var exerciseNamesByWorkout: [UUID: String] = [:]
+
         /// Workouts with an auto-linked plan but no results entered yet (IOS-00098-F).
         /// Drives the "Uzupełnij wyniki" badge on list rows.
         var pendingResultWorkoutIds: Set<UUID> {

@@ -35,6 +35,9 @@ extension PersonalActivityFeature {
         /// Handles the result of all workout zone analyses.
         case allWorkoutZonesAnalyzed([UUID: PrimaryZoneInfo])
 
+        /// Exercise names of plan-linked workouts loaded from the database.
+        case exerciseNamesLoaded([UUID: String])
+
         /// Triggered when workout deletion fails (e.g. not owned by this app).
         case deleteFailed
         

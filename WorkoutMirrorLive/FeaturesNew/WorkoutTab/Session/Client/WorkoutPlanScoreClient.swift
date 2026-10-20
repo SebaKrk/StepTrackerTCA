@@ -28,6 +28,10 @@ struct WorkoutPlanScoreClient: Sendable {
 
     /// Returns a single score by its ID, or `nil` if not found.
     var fetchById: @Sendable (UUID) async throws -> WorkoutPlanScore?
+
+    /// Returns exercise names joined with " · " for each given HKWorkout linked to a plan.
+    /// Workouts without a linked plan or without exercises are absent from the result.
+    var fetchExerciseNames: @Sendable ([UUID]) async throws -> [UUID: String]
 }
 
 // MARK: - DependencyValues
@@ -98,6 +102,22 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
                         .fetchOne(db)
                         .map { try $0.toDomain() }
                 }
+            },
+            fetchExerciseNames: { workoutIds in
+                try await database.read { db in
+                    try WorkoutPlanScoreRecord
+                        .where { $0.hkWorkoutId.in(workoutIds) }
+                        .leftJoin(TrainingSessionRecord.all) { $0.trainingSessionId.eq($1.id) }
+                        .select { ($0.hkWorkoutId, $0.resultsData, $1.workoutsData) }
+                        .fetchAll(db)
+                        .reduce(into: [UUID: String]()) { namesByWorkout, row in
+                            let (hkWorkoutId, resultsData, workoutsData) = row
+                            namesByWorkout[hkWorkoutId] = Self.exerciseNames(
+                                resultsData: resultsData,
+                                workoutsData: workoutsData
+                            )
+                        }
+                }
             }
         )
     }()
@@ -107,7 +127,26 @@ private enum WorkoutPlanScoreClientKey: DependencyKey {
             save: unimplemented("WorkoutPlanScoreClient.save"),
             fetchByTrainingSessionId: unimplemented("WorkoutPlanScoreClient.fetchByTrainingSessionId"),
             fetchByHKWorkoutId: unimplemented("WorkoutPlanScoreClient.fetchByHKWorkoutId"),
-            fetchById: unimplemented("WorkoutPlanScoreClient.fetchById")
+            fetchById: unimplemented("WorkoutPlanScoreClient.fetchById"),
+            fetchExerciseNames: unimplemented("WorkoutPlanScoreClient.fetchExerciseNames", placeholder: [:])
         )
+    }
+
+    // Logged results win; the plan snapshot covers auto-linked workouts with empty results.
+    nonisolated private static func exerciseNames(resultsData: Data, workoutsData: Data?) -> String? {
+        let decoder = JSONDecoder()
+        var names = withErrorReporting {
+            try decoder.decode([WorkoutSessionResult].self, from: resultsData)
+                .flatMap(\.exercises)
+                .map(\.displayName)
+        } ?? []
+        if names.isEmpty, let workoutsData {
+            names = withErrorReporting {
+                try decoder.decode([WorkoutSessionNew].self, from: workoutsData)
+                    .flatMap(\.exercises)
+                    .map(\.displayName)
+            } ?? []
+        }
+        return names.isEmpty ? nil : names.joined(separator: " · ")
     }
 }

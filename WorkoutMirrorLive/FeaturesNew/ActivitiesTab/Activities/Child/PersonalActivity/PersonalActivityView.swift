@@ -148,6 +148,7 @@ struct PersonalActivityView: View {
         GroupBox {
             VStack(spacing: 12) {
                 workoutStats(workout)
+                exerciseNames(store.exerciseNamesByWorkout[workout.uuid])
                 Divider()
                 primaryZoneSection(workout)
             }
@@ -160,6 +161,22 @@ struct PersonalActivityView: View {
         .styledGroupBox()
         .padding(4)
     }
+
+    @ViewBuilder
+    private func exerciseNames(_ names: String?) -> some View {
+        if let names {
+            VStack(spacing: 12) {
+                Divider()
+                Text(names)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+    }
+
     
     private func workoutHeaderButton(_ workout: HKWorkout) -> some View {
         Button {
