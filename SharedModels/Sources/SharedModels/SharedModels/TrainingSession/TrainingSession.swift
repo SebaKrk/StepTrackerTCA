@@ -180,6 +180,8 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     public let type: ExerciseType
     /// Implement stated in the scanned name; `nil` means the movement's default applies.
     public let equipment: Equipment?
+    /// Explicit override made in the exercise editor; nil means legacy/automatic.
+    public let equipmentSelection: ExerciseEquipmentSelection?
     public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
@@ -191,6 +193,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     public init(
         type: ExerciseType,
         equipment: Equipment? = nil,
+        equipmentSelection: ExerciseEquipmentSelection? = nil,
         customName: String? = nil,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
@@ -200,6 +203,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         self.id = UUID()
         self.type = type
         self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.customName = customName
         self.target = target
         self.weight = weight
@@ -211,6 +215,7 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         self.id = id
         self.type = draft.type
         self.equipment = draft.equipment
+        self.equipmentSelection = draft.equipmentSelection
         self.customName = draft.type == .unknown ? draft.customName : nil
         self.target = draft.target
         self.weight = draft.weight
@@ -224,7 +229,19 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         if type == .unknown, let custom = customName {
             return custom.capitalized  // Capitalize first letter
         }
-        return type.displayName(with: equipment)
+        return type.displayName(with: effectiveEquipment)
+    }
+
+    /// Equipment used for display and result-entry behavior.
+    public var effectiveEquipment: Equipment? {
+        switch equipmentSelection {
+        case .some(.automatic), nil:
+            return equipment ?? type.defaultEquipment
+        case .some(.none):
+            return nil
+        case let .some(.equipment(value)):
+            return value
+        }
     }
 }
 

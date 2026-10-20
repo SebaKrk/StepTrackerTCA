@@ -198,6 +198,18 @@ struct WorkoutDetailContent: View {
                         .foregroundStyle(.blue)
                 }
 
+                if exercise.type.supportsEquipmentSelection {
+                    if let equipment = exercise.effectiveEquipment {
+                        Label(equipment.displayName, systemImage: "dumbbell")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if exercise.equipmentSelection == .some(.none) {
+                        Label("No equipment", systemImage: "figure")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
                 if let sets = exercise.plannedSets, !sets.isEmpty {
                     plannedSetsList(sets)
                 }

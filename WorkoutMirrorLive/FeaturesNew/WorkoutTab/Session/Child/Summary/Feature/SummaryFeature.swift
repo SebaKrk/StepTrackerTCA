@@ -264,6 +264,7 @@ struct SummaryFeature {
                                 date: now,
                                 exerciseType: exercise.exerciseType,
                                 equipment: exercise.equipment,
+                                equipmentSelection: exercise.equipmentSelection,
                                 unmatchedName: exercise.unmatchedName,
                                 category: exercise.category,
                                 workoutPlanScoreId: scoreId,

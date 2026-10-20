@@ -30,6 +30,8 @@ extension ExerciseEditorFeature {
             case deleteTapped
             /// User tapped the exercise type row to open the picker.
             case pickExerciseTapped
+            /// User selected how the exercise's equipment should be resolved.
+            case equipmentSelectionChanged(ExerciseEquipmentSelection)
             /// User toggled the whole Target section — clears both the single
             /// target and the per-set scheme when disabled.
             case targetToggled(Bool)

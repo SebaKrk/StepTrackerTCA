@@ -282,9 +282,24 @@ struct InlineResultEditor: View {
     }
 
     private func exerciseName(_ exercise: ExerciseLogInput) -> some View {
-        Text(exercise.displayName)
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(theme.ink)
+        VStack(alignment: .leading, spacing: 2) {
+            Text(exercise.displayName)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(theme.ink)
+            if exercise.exerciseType?.supportsEquipmentSelection == true {
+                if exercise.equipmentSelection == .some(.none) {
+                    equipmentLabel(String(localized: "No equipment"), symbol: "figure")
+                } else if let equipment = exercise.effectiveEquipment {
+                    equipmentLabel(equipment.displayName, symbol: "dumbbell")
+                }
+            }
+        }
+    }
+
+    private func equipmentLabel(_ title: String, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .font(.system(size: 11))
+            .foregroundStyle(theme.inkTertiary)
     }
 
     @ViewBuilder

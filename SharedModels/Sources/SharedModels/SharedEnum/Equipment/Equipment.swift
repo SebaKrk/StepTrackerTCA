@@ -61,3 +61,32 @@ public enum Equipment: String, CaseIterable, Codable, Sendable {
         }
     }
 }
+
+/// User decision for the equipment used by a planned exercise.
+/// `automatic` keeps the scanned value when present, then falls back to the
+/// movement's catalog default. `none` is an explicit bodyweight/no-implement choice.
+public enum ExerciseEquipmentSelection: Equatable, Hashable, Codable, Sendable {
+    case automatic
+    case none
+    case equipment(Equipment)
+
+    public var storageValue: String {
+        switch self {
+        case .automatic: "automatic"
+        case .none: "none"
+        case let .equipment(equipment): "equipment:\(equipment.rawValue)"
+        }
+    }
+
+    public init?(storageValue: String) {
+        switch storageValue {
+        case "automatic": self = .automatic
+        case "none": self = .none
+        default:
+            guard storageValue.hasPrefix("equipment:"),
+                  let equipment = Equipment(rawValue: String(storageValue.dropFirst("equipment:".count)))
+            else { return nil }
+            self = .equipment(equipment)
+        }
+    }
+}

@@ -24,6 +24,8 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
     public var exerciseType: ExerciseType?
     /// Implement stated in the plan text; `nil` means the movement's default applies.
     public var equipment: Equipment?
+    /// Explicit user choice, persisted separately so `none` is not confused with legacy nil.
+    public var equipmentSelection: ExerciseEquipmentSelection?
     /// Display name used when `exerciseType` is `nil` (OCR / AI couldn't match a catalog entry).
     /// Surfaced verbatim in the UI; presence indicates an "unknown" exercise.
     public var unmatchedName: String?
@@ -136,6 +138,7 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
         date: Date = Date(),
         exerciseType: ExerciseType? = nil,
         equipment: Equipment? = nil,
+        equipmentSelection: ExerciseEquipmentSelection? = nil,
         unmatchedName: String? = nil,
         category: MovementCategory? = nil,
         workoutPlanScoreId: UUID? = nil,
@@ -162,6 +165,7 @@ public struct ExerciseLog: Identifiable, Equatable, Codable, Sendable {
         self.date = date
         self.exerciseType = exerciseType
         self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.unmatchedName = unmatchedName
         self.category = category
         self.workoutPlanScoreId = workoutPlanScoreId
@@ -200,12 +204,17 @@ extension ExerciseLog {
 
     /// Implement in play: the one the plan text named, else the movement's default.
     public var effectiveEquipment: Equipment? {
-        equipment ?? exerciseType?.defaultEquipment
+        switch equipmentSelection {
+        case .some(.automatic), nil: equipment ?? exerciseType?.defaultEquipment
+        case .some(.none): nil
+        case let .some(.equipment(value)): value
+        }
     }
 
     /// Whether the result editor must offer a weight field.
     /// The implement decides when it is known; the movement's category is the fallback.
     public var requiresWeight: Bool {
+        if equipmentSelection == .some(.none) { return false }
         if let effectiveEquipment {
             return effectiveEquipment.impliesLoad
         }

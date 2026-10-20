@@ -39,7 +39,7 @@ struct ResultCardView: View {
             kind: isStrength ? .strength : .wod,
             chipText: chipTitle,
             name: isStrength ? store.result.exercises.first?.displayName : nil,
-            planSub: strengthPlanSub,
+            planSub: strengthHeaderSubtitle,
             capText: capText,
             status: headerStatus,
             accent: accent
@@ -212,6 +212,8 @@ struct ResultCardView: View {
                         repPrefix: repPrefix(exercise.plannedReps),
                         name: exercise.displayName,
                         scaling: exercise.plannedWeight.map { "\(formatWeight($0)) kg" },
+                        equipment: equipmentCaption(for: exercise),
+                        equipmentSymbol: equipmentSymbol(for: exercise),
                         actual: withValues && !isMuted ? actual(for: exercise) : .none,
                         isMuted: withValues ? isMuted : false
                     )
@@ -293,6 +295,24 @@ struct ResultCardView: View {
     private var strengthPlanSub: String? {
         guard isStrength, let plannedReps = store.result.exercises.first?.plannedReps else { return nil }
         return String(localized: "Plan: \(plannedReps)")
+    }
+
+    private var strengthHeaderSubtitle: String? {
+        let equipment = store.result.exercises.first.flatMap { equipmentCaption(for: $0) }
+        let subtitle = [strengthPlanSub, equipment].compactMap { $0 }.joined(separator: " · ")
+        return subtitle.isEmpty ? nil : subtitle
+    }
+
+    private func equipmentCaption(for exercise: ExerciseLogInput) -> String? {
+        guard exercise.exerciseType?.supportsEquipmentSelection == true else { return nil }
+        if exercise.equipmentSelection == .some(.none) {
+            return String(localized: "No equipment")
+        }
+        return exercise.effectiveEquipment?.displayName
+    }
+
+    private func equipmentSymbol(for exercise: ExerciseLogInput) -> String {
+        exercise.equipmentSelection == .some(.none) ? "figure" : "dumbbell"
     }
 
     /// Format + timing chip. Tabata surfaces its round count instead of a cap.

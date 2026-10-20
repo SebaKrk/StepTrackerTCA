@@ -908,6 +908,26 @@
         }
       }
     },
+    "Automatic" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatycznie"
+          }
+        }
+      }
+    },
+    "Automatic · %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatycznie · %@"
+          }
+        }
+      }
+    },
     "Activities" : {
       "comment" : "The Activities Tab shows a list of completed workouts with details and quick actions.",
       "localizations" : {
@@ -4025,6 +4045,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak Treningów"
+          }
+        }
+      }
+    },
+    "No equipment" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bez sprzętu"
           }
         }
       }

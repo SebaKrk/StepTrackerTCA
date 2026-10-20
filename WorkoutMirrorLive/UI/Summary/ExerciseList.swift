@@ -16,6 +16,8 @@ struct ExerciseList: View {
         let repPrefix: String?
         let name: String
         let scaling: String?
+        var equipment: String? = nil
+        var equipmentSymbol: String = "dumbbell"
         let actual: Actual
         var isMuted: Bool = false
     }
@@ -59,6 +61,7 @@ struct ExerciseList: View {
             VStack(alignment: .leading, spacing: 2) {
                 nameLine(row)
                 scalingLine(row)
+                equipmentLine(row)
             }
             Spacer(minLength: 8)
             actualView(row)
@@ -91,6 +94,15 @@ struct ExerciseList: View {
         if let scaling = row.scaling {
             Text(scaling)
                 .font(.system(size: 12))
+                .foregroundStyle(theme.inkTertiary)
+        }
+    }
+
+    @ViewBuilder
+    private func equipmentLine(_ row: Row) -> some View {
+        if let equipment = row.equipment {
+            Label(equipment, systemImage: row.equipmentSymbol)
+                .font(.system(size: 11))
                 .foregroundStyle(theme.inkTertiary)
         }
     }
