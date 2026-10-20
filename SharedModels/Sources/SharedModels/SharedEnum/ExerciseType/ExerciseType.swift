@@ -626,6 +626,12 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         }
     }
 
+    /// Whether equipment is useful metadata for this movement. Cardio and mobility
+    /// exercises do not need an equipment picker, even when a device is involved.
+    public var supportsEquipmentSelection: Bool {
+        category != .cardio && category != .mobility
+    }
+
     // MARK: - Catalog Matching
 
     /// Bumped whenever cases or aliases are extended. The one-time re-match job

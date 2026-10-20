@@ -24,6 +24,7 @@ extension ExerciseSession {
         id: UUID,
         type: ExerciseType,
         equipment: Equipment?,
+        equipmentSelection: ExerciseEquipmentSelection?,
         customName: String?,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
@@ -33,6 +34,7 @@ extension ExerciseSession {
         self.id = id
         self.type = type
         self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.customName = customName
         self.target = target
         self.weight = weight
@@ -51,6 +53,7 @@ extension ExerciseSession {
             id: id,
             type: resolved.type,
             equipment: resolved.equipment ?? equipment,
+            equipmentSelection: equipmentSelection,
             customName: nil,
             target: target,
             weight: weight,

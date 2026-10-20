@@ -1490,3 +1490,11 @@
     - the result travels over the WatchConnectivity application context, a single overwritable slot that does not queue, so a day of debounced recalculations costs one delivery instead of one per recalculation
     - the payload carries per-component scores and baselines — unlike the widget's, which drops them — and rebuilds the domain result on arrival, so the Watch reuses the existing level colours, component statuses and localized metric names rather than growing a third copy of the thresholds
     - a workout still covers the whole screen and its flow is untouched: the tabs live under the cover, so the start/save race handling and crash recovery are unchanged
+
+### IOS-00139 Exercise equipment selection — show and correct scan mapping
+    - branch: `dev/IOS-00139/IOS-00139`
+    - show the equipment resolved from a scanned exercise and allow correction in the exercise editor before the plan is saved
+    - distinguish automatic resolution, explicit equipment, and explicit no-equipment; an explicit choice must survive catalog rematching and workout logging
+    - current implementation in progress: equipment selector in Exercise Editor, equipment display in plan details and active workout summary, hidden for cardio/mobility, explicit selection passed into result input and persisted on exercise logs (schema v16)
+    - SharedModels, AppDatabase, and the WorkoutMirrorLive iOS Simulator scheme compile; xcstrings JSON validates
+    - pending: field-check scan → edit → save → result → history flow

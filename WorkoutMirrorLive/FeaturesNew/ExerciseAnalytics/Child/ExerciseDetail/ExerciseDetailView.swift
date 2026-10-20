@@ -312,7 +312,11 @@ struct ExerciseDetailView: View {
     private func historyRowWodName(_ log: ExerciseLog) -> some View {
         // Raw OCR/AI name first — in the unknown bucket it's the only thing
         // that tells the sessions apart (wodName alone is usually "WOD 1").
-        let caption = [log.unmatchedName, log.wodName]
+        let equipmentCaption: String? = {
+            if log.equipmentSelection == .some(.none) { return String(localized: "No equipment") }
+            return log.effectiveEquipment?.displayName
+        }()
+        let caption = [log.unmatchedName, log.wodName, equipmentCaption]
             .compactMap { $0 }
             .joined(separator: " · ")
         if !caption.isEmpty {

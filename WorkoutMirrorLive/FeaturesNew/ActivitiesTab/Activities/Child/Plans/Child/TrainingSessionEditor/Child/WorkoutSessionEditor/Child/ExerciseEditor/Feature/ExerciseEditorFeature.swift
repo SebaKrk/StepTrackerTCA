@@ -53,6 +53,10 @@ struct ExerciseEditorFeature {
                 state.destination = .picker(ExercisePickerFeature.State())
                 return .none
 
+            case .view(.equipmentSelectionChanged(let selection)):
+                state.draft.equipmentSelection = selection
+                return .none
+
             case .view(.targetToggled(let enabled)):
                 state.draft.target = enabled ? .reps(10) : nil
                 state.draft.plannedSets = nil
@@ -99,6 +103,10 @@ struct ExerciseEditorFeature {
 
             case .destination(.presented(.picker(.delegate(.selected(let type))))):
                 state.draft.type = type
+                if !type.supportsEquipmentSelection {
+                    state.draft.equipment = nil
+                    state.draft.equipmentSelection = nil
+                }
                 if type != .unknown { state.draft.customName = nil }
                 return .none
 
