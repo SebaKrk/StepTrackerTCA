@@ -57,6 +57,15 @@ extension PersonalActivityFeature {
             /// Changes the sort option for workouts list.
             case changeSortOption(ActivitiesSortOption)
 
+            /// User picked an activity type in the filter menu; `nil` = all types.
+            case changeActivityTypeFilter(HKWorkoutActivityType?)
+
+            /// User edited the exercise search field.
+            case changeExerciseSearchText(String)
+
+            /// User opened or closed the search field; closing clears the search text.
+            case changeSearching(Bool)
+
             /// Opens workout details screen.
             case openDetails(HKWorkout)
 

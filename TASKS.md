@@ -1505,10 +1505,18 @@
     - keep HealthKit-only activities unchanged; hide the exercise section when the linked plan has no exercises
     - appearance matches plan cards: centered `.caption` text, secondary color, names separated by ` · `, up to two lines; no heading, bullets, reps, or weights
     - names are read once per list load through the plan-score client (only visible workouts) and refreshed after closing details; the view only renders the text
-    - verification pending: build and on-device check
+    - verified locally, merged to `develop`
 
 #### Follow-up ideas — activity history (backlog, no task IDs)
     - tap an exercise name to open its history and progress chart, with sessions ordered by date
     - compare the current workout with the previous occurrence of the same exercise; later add best result/PR where the movement supports a meaningful comparison
-    - add activity search and filters for exercise, workout type, linked plan, and date range
     - add an exercise frequency view (sessions per week/month) alongside the existing performance trends
+
+### IOS-00141 Activity list filters — exercise search and filter menu
+    - branch: `dev/IOS-00141/IOS-00141`
+    - navigation bar: a magnifier that opens an exercise search field (closing it clears the search) and one filter menu with submenus for sort, period, and activity type; replaces the old combined sort/date menu
+    - activity type submenu: single choice, "All", only types present in the loaded period, icon and workout count per type; the filter icon fills while a type is picked
+    - search and type filter combine; an empty result shows the system search-unavailable view; the filter menu stays available on an empty list so the period can be widened
+    - the magnifier search is a reusable navigation bar component, matching the search pattern from Smaczny Posiłek
+    - limits: filters are not remembered between launches; exercise search covers plan-linked workouts only, within the loaded period
+    - pending: build, on-device check (title hidden while searching, toolbar order), Polish translations for new strings
