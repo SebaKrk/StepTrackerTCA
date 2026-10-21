@@ -35,7 +35,32 @@ extension PersonalActivityFeature {
         
         /// Current sort option for ordering workouts.
         var sortDescriptors: ActivitiesSortOption = .newestFirst
-        
+
+        // MARK: - Filters
+
+        /// Selected activity type; `nil` = all types.
+        var activityTypeFilter: HKWorkoutActivityType?
+
+        /// Exercise search text; empty = no exercise filter.
+        var exerciseSearchText: String = ""
+
+        /// Activity types present in the loaded workouts, one per display name, sorted by name.
+        var availableActivityTypes: [HKWorkoutActivityType] = []
+
+        /// Number of loaded workouts per activity type, keyed by the type's display name.
+        var activityTypeCounts: [String: Int] = [:]
+
+        /// Workouts passing both filters — the list renders only these.
+        var filteredWorkouts: [HKWorkout] = []
+
+        /// Whether the search field is open in the navigation bar.
+        var isSearching: Bool = false
+
+        /// Whether a menu filter narrows the list — fills the filter icon.
+        var hasActiveFilter: Bool {
+            activityTypeFilter != nil
+        }
+
         /// Per-workout max heart rate, keyed by `HKWorkout.uuid`.
         /// Computed from `birthDate + workout.startDate` via `MaxHeartRateClient`,
         /// so each row uses its historical maxHR (zones stable as user ages).

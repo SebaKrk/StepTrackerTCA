@@ -54,6 +54,8 @@ struct PersonalActivityFeature {
                 state.workouts = workouts
                 state.zoneInfo = [:]
                 state.maxHRByWorkout = [:]
+                refreshActivityTypes(&state)
+                applyFilters(&state)
 
                 guard !workouts.isEmpty else {
                     return .send(.allWorkoutZonesAnalyzed([:]))
@@ -81,6 +83,7 @@ struct PersonalActivityFeature {
 
             case let .exerciseNamesLoaded(namesByWorkout):
                 state.exerciseNamesByWorkout = namesByWorkout
+                applyFilters(&state)
                 return .none
 
             case let .maxHRByWorkoutResolved(map):
@@ -153,7 +156,24 @@ struct PersonalActivityFeature {
                 state.sortDescriptors = value
                 state.viewState = .loading
                 return .send(.fetchWorkouts)
-                
+
+            case let .view(.changeActivityTypeFilter(type)):
+                state.activityTypeFilter = type
+                applyFilters(&state)
+                return .none
+
+            case let .view(.changeExerciseSearchText(text)):
+                state.exerciseSearchText = text
+                applyFilters(&state)
+                return .none
+
+            case let .view(.changeSearching(isSearching)):
+                state.isSearching = isSearching
+                guard !isSearching else { return .none }
+                state.exerciseSearchText = ""
+                applyFilters(&state)
+                return .none
+
             case let .view(.openDetails(workout)):
                 state.destination = .activityDetails(
                     ActivityDetailsFeature.State(
@@ -237,6 +257,37 @@ struct PersonalActivityFeature {
             }
         }
         .cancellable(id: PersonalActivityCancelID.exerciseNames, cancelInFlight: true)
+    }
+
+    // MARK: - Filters
+
+    // Unknown HealthKit types all display as "Other" — keyed by name so the menu lists it once.
+    private func refreshActivityTypes(_ state: inout State) {
+        var seenNames = Set<String>()
+        let types = state.workouts
+            .map(\.workoutActivityType)
+            .filter { seenNames.insert($0.name).inserted }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        state.availableActivityTypes = types
+        state.activityTypeCounts = Dictionary(
+            state.workouts.map { ($0.workoutActivityType.name, 1) },
+            uniquingKeysWith: +
+        )
+        if let selected = state.activityTypeFilter, !seenNames.contains(selected.name) {
+            state.activityTypeFilter = nil
+        }
+    }
+
+    private func applyFilters(_ state: inout State) {
+        let query = state.exerciseSearchText.trimmingCharacters(in: .whitespaces)
+        let typeName = state.activityTypeFilter?.name
+        let namesByWorkout = state.exerciseNamesByWorkout
+        state.filteredWorkouts = state.workouts.filter { workout in
+            let typeMatches = typeName == nil || workout.workoutActivityType.name == typeName
+            let exerciseMatches = query.isEmpty
+                || namesByWorkout[workout.uuid]?.localizedStandardContains(query) == true
+            return typeMatches && exerciseMatches
+        }
     }
 }
 
