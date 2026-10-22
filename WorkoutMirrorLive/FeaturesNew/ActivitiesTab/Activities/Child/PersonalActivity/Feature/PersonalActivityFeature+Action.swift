@@ -35,6 +35,9 @@ extension PersonalActivityFeature {
         /// Handles the result of all workout zone analyses.
         case allWorkoutZonesAnalyzed([UUID: PrimaryZoneInfo])
 
+        /// Exercise names of plan-linked workouts loaded from the database.
+        case exerciseNamesLoaded([UUID: String])
+
         /// Triggered when workout deletion fails (e.g. not owned by this app).
         case deleteFailed
         
@@ -53,6 +56,15 @@ extension PersonalActivityFeature {
 
             /// Changes the sort option for workouts list.
             case changeSortOption(ActivitiesSortOption)
+
+            /// User picked an activity type in the filter menu; `nil` = all types.
+            case changeActivityTypeFilter(HKWorkoutActivityType?)
+
+            /// User edited the exercise search field.
+            case changeExerciseSearchText(String)
+
+            /// User opened or closed the search field; closing clears the search text.
+            case changeSearching(Bool)
 
             /// Opens workout details screen.
             case openDetails(HKWorkout)

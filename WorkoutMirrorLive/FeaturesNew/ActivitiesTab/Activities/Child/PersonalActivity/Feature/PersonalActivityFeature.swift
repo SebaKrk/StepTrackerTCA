@@ -20,6 +20,7 @@ struct PersonalActivityFeature {
     @Dependency(\.activityClient) var activityClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
     @Dependency(\.effortScoreClient) var effortScoreClient
+    @Dependency(\.workoutPlanScoreClient) var workoutPlanScoreClient
 
     // MARK: - Reducer
     
@@ -53,6 +54,8 @@ struct PersonalActivityFeature {
                 state.workouts = workouts
                 state.zoneInfo = [:]
                 state.maxHRByWorkout = [:]
+                refreshActivityTypes(&state)
+                applyFilters(&state)
 
                 guard !workouts.isEmpty else {
                     return .send(.allWorkoutZonesAnalyzed([:]))
@@ -76,6 +79,12 @@ struct PersonalActivityFeature {
                 // Pipeline stage — same ID as the fetch (without cancelInFlight): a new fetch
                 // also kills this stage if it is in flight.
                 .cancellable(id: PersonalActivityCancelID.fetchPipeline)
+                .merge(with: loadExerciseNames(for: workouts.map(\.uuid)))
+
+            case let .exerciseNamesLoaded(namesByWorkout):
+                state.exerciseNamesByWorkout = namesByWorkout
+                applyFilters(&state)
+                return .none
 
             case let .maxHRByWorkoutResolved(map):
                 state.maxHRByWorkout = map
@@ -147,7 +156,24 @@ struct PersonalActivityFeature {
                 state.sortDescriptors = value
                 state.viewState = .loading
                 return .send(.fetchWorkouts)
-                
+
+            case let .view(.changeActivityTypeFilter(type)):
+                state.activityTypeFilter = type
+                applyFilters(&state)
+                return .none
+
+            case let .view(.changeExerciseSearchText(text)):
+                state.exerciseSearchText = text
+                applyFilters(&state)
+                return .none
+
+            case let .view(.changeSearching(isSearching)):
+                state.isSearching = isSearching
+                guard !isSearching else { return .none }
+                state.exerciseSearchText = ""
+                applyFilters(&state)
+                return .none
+
             case let .view(.openDetails(workout)):
                 state.destination = .activityDetails(
                     ActivityDetailsFeature.State(
@@ -206,6 +232,10 @@ struct PersonalActivityFeature {
 
                 // MARK: - Destination
 
+            case .destination(.dismiss):
+                // Results may have been edited in details — names come from a one-shot read.
+                return loadExerciseNames(for: state.workouts.map(\.uuid))
+
             case .destination:
                 // The "Uzupełnij wyniki" badge updates itself — `pendingScores` is an
                 // observed SQLiteData query, saving results in details/Summary
@@ -218,6 +248,47 @@ struct PersonalActivityFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 
+    // MARK: - Effects
+
+    private func loadExerciseNames(for workoutIds: [UUID]) -> Effect<Action> {
+        .run { [workoutPlanScoreClient] send in
+            await withErrorReporting {
+                try await send(.exerciseNamesLoaded(workoutPlanScoreClient.fetchExerciseNames(workoutIds)))
+            }
+        }
+        .cancellable(id: PersonalActivityCancelID.exerciseNames, cancelInFlight: true)
+    }
+
+    // MARK: - Filters
+
+    // Unknown HealthKit types all display as "Other" — keyed by name so the menu lists it once.
+    private func refreshActivityTypes(_ state: inout State) {
+        var seenNames = Set<String>()
+        let types = state.workouts
+            .map(\.workoutActivityType)
+            .filter { seenNames.insert($0.name).inserted }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        state.availableActivityTypes = types
+        state.activityTypeCounts = Dictionary(
+            state.workouts.map { ($0.workoutActivityType.name, 1) },
+            uniquingKeysWith: +
+        )
+        if let selected = state.activityTypeFilter, !seenNames.contains(selected.name) {
+            state.activityTypeFilter = nil
+        }
+    }
+
+    private func applyFilters(_ state: inout State) {
+        let query = state.exerciseSearchText.trimmingCharacters(in: .whitespaces)
+        let typeName = state.activityTypeFilter?.name
+        let namesByWorkout = state.exerciseNamesByWorkout
+        state.filteredWorkouts = state.workouts.filter { workout in
+            let typeMatches = typeName == nil || workout.workoutActivityType.name == typeName
+            let exerciseMatches = query.isEmpty
+                || namesByWorkout[workout.uuid]?.localizedStandardContains(query) == true
+            return typeMatches && exerciseMatches
+        }
+    }
 }
 
 // MARK: - Cancel IDs
@@ -241,5 +312,8 @@ nonisolated enum PersonalActivityCancelID: Hashable, Sendable {
     /// A new `fetchWorkouts` cancels any in-flight stage (`cancelInFlight` on the
     /// first stage), preventing interleaved snapshots and badge flicker.
     case fetchPipeline
+
+    /// Exercise-name read for plan-linked workouts — a newer read replaces an in-flight one.
+    case exerciseNames
 }
 

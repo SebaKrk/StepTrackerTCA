@@ -1490,3 +1490,33 @@
     - the result travels over the WatchConnectivity application context, a single overwritable slot that does not queue, so a day of debounced recalculations costs one delivery instead of one per recalculation
     - the payload carries per-component scores and baselines — unlike the widget's, which drops them — and rebuilds the domain result on arrival, so the Watch reuses the existing level colours, component statuses and localized metric names rather than growing a third copy of the thresholds
     - a workout still covers the whole screen and its flow is untouched: the tabs live under the cover, so the start/save race handling and crash recovery are unchanged
+
+### IOS-00139 Exercise equipment selection — show and correct scan mapping
+    - branch: `dev/IOS-00139/IOS-00139`
+    - show the equipment resolved from a scanned exercise and allow correction in the exercise editor before the plan is saved
+    - distinguish automatic resolution, explicit equipment, and explicit no-equipment; an explicit choice must survive catalog rematching and workout logging
+    - current implementation in progress: equipment selector in Exercise Editor, equipment display in plan details and active workout summary, hidden for cardio/mobility, explicit selection passed into result input and persisted on exercise logs (schema v16)
+    - SharedModels, AppDatabase, and the WorkoutMirrorLive iOS Simulator scheme compile; xcstrings JSON validates
+    - pending: field-check scan → edit → save → result → history flow
+
+### IOS-00140 Show planned exercises in the activity list
+    - branch: `dev/IOS-00140/IOS-00140`
+    - when a completed activity is linked to a plan, list only exercise names in the activity card; use saved result names when available and fall back to the linked plan snapshot before results are entered
+    - keep HealthKit-only activities unchanged; hide the exercise section when the linked plan has no exercises
+    - appearance matches plan cards: centered `.caption` text, secondary color, names separated by ` · `, up to two lines; no heading, bullets, reps, or weights
+    - names are read once per list load through the plan-score client (only visible workouts) and refreshed after closing details; the view only renders the text
+    - verified locally, merged to `develop`
+
+#### Follow-up ideas — activity history (backlog, no task IDs)
+    - tap an exercise name to open its history and progress chart, with sessions ordered by date
+    - compare the current workout with the previous occurrence of the same exercise; later add best result/PR where the movement supports a meaningful comparison
+    - add an exercise frequency view (sessions per week/month) alongside the existing performance trends
+
+### IOS-00141 Activity list filters — exercise search and filter menu
+    - branch: `dev/IOS-00141/IOS-00141`
+    - navigation bar: a magnifier that opens an exercise search field (closing it clears the search) and one filter menu with submenus for sort, period, and activity type; replaces the old combined sort/date menu
+    - activity type submenu: single choice, "All", only types present in the loaded period, icon and workout count per type; the filter icon fills while a type is picked
+    - search and type filter combine; an empty result shows the system search-unavailable view; the filter menu stays available on an empty list so the period can be widened
+    - the magnifier search is a reusable navigation bar component, matching the search pattern from Smaczny Posiłek
+    - limits: filters are not remembered between launches; exercise search covers plan-linked workouts only, within the loaded period
+    - pending: build, on-device check (title hidden while searching, toolbar order), Polish translations for new strings

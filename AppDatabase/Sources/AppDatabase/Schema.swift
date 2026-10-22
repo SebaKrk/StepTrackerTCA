@@ -462,6 +462,13 @@ public enum AppDatabaseSchema {
             .execute(db)
         }
 
+        // Explicit equipment choice (including deliberate no-implement) from the
+        // plan editor must survive the workout result save. Existing rows remain nil.
+        migrator.registerMigration("v16_exerciseLog_equipmentSelection") { db in
+            try #sql("ALTER TABLE \"exerciseLogRecords\" ADD COLUMN \"equipmentSelection\" TEXT")
+                .execute(db)
+        }
+
         return migrator
     }
 }
