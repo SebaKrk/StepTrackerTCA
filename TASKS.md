@@ -1520,3 +1520,11 @@
     - the magnifier search is a reusable navigation bar component, matching the search pattern from Smaczny Posiłek
     - limits: filters are not remembered between launches; exercise search covers plan-linked workouts only, within the loaded period
     - pending: build, on-device check (title hidden while searching, toolbar order), Polish translations for new strings
+
+### IOS-00143 Team — Firebase foundation (develop)
+    - branch: `dev/IOS-00143/IOS-00143`; first step of the Team tab (private groups, QR invites, daily plan, day/week leaderboard); plan in `PLANS/IOS-00143-team-v01.md`
+    - develop only: separate Firebase project `myfitnessjournal-dev` (Firestore `eur3`, anonymous auth); release (`myfitnessjournal-e8d43`) comes later
+    - A: config file chosen by bundle ID (`GoogleService-Info-Dev.plist` for develop, `GoogleService-Info.plist` for release), so both can live on every branch; Crashlytics dSYM upload follows the same rule; FirebaseAuth and FirebaseFirestore linked
+    - B: Firestore rules and indexes versioned in the repo (groups, members, invites, daily plans, entries)
+    - C: Team domain types in SharedModels, no Firebase: invites, entries, score normalization, day ranking, week standings, measurement window
+    - D: `TeamClient` with a Firestore-backed service; the rest of the app never imports Firebase
