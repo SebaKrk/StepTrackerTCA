@@ -8,7 +8,7 @@
 import Foundation
 
 /// Where a scanned invite code points.
-public struct TeamInviteReference: Equatable, Sendable {
+public struct TeamInviteReference: Hashable, Sendable {
 
     /// Group the invite belongs to.
     public let groupId: String
