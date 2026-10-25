@@ -101,6 +101,16 @@
         }
       }
     },
+    "Groups" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupy"
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "pl" : {

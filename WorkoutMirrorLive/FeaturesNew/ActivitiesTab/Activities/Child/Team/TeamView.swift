@@ -18,44 +18,40 @@ struct TeamView: View {
 
     // MARK: - Body (structure)
 
+    // Lives inside the Activities navigation stack — no stack, title or background of its own.
     var body: some View {
-        NavigationStack {
-            segmentContent
-                .safeAreaBar(edge: .top) {
-                    segmentPicker
+        segmentContent
+            .tint(store.color)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    segmentFilterMenu
                 }
-                .background(backgroundGradient)
-                .tint(store.color)
-                .navigationTitle(navigationTitle)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        scanInviteButton
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        createGroupButton
-                    }
+                ToolbarItem(placement: .topBarTrailing) {
+                    scanInviteButton
                 }
-                .sheet(
-                    item: $store.scope(state: \.destination?.createGroup, action: \.destination.createGroup)
-                ) { createGroupStore in
-                    CreateGroupView(store: createGroupStore)
-                        .presentationDetents([.medium])
+                ToolbarItem(placement: .topBarTrailing) {
+                    createGroupButton
                 }
-                .navigationDestination(
-                    item: $store.scope(state: \.destination?.group, action: \.destination.group)
-                ) { groupStore in
-                    GroupView(store: groupStore)
-                }
-                .sheet(
-                    item: $store.scope(state: \.destination?.invitationPreview, action: \.destination.invitationPreview)
-                ) { previewStore in
-                    InvitationPreviewView(store: previewStore)
-                }
-        }
-        .onAppear {
-            send(.viewDidAppear)
-        }
+            }
+            .sheet(
+                item: $store.scope(state: \.destination?.createGroup, action: \.destination.createGroup)
+            ) { createGroupStore in
+                CreateGroupView(store: createGroupStore)
+                    .presentationDetents([.medium])
+            }
+            .navigationDestination(
+                item: $store.scope(state: \.destination?.group, action: \.destination.group)
+            ) { groupStore in
+                GroupView(store: groupStore)
+            }
+            .sheet(
+                item: $store.scope(state: \.destination?.invitationPreview, action: \.destination.invitationPreview)
+            ) { previewStore in
+                InvitationPreviewView(store: previewStore)
+            }
+            .onAppear {
+                send(.viewDidAppear)
+            }
     }
 
     // MARK: - Segments (structure)
@@ -172,25 +168,22 @@ struct TeamView: View {
             .padding(.horizontal, 4)
     }
 
-    private var segmentPicker: some View {
-        Picker(segmentPickerTitle, selection: $store.segment.sending(\.view.segmentChanged)) {
-            ForEach(TeamSegment.allCases) { segment in
-                Text(segment.title)
-                    .tag(segment)
+    private var segmentFilterMenu: some View {
+        Menu {
+            Picker(segmentPickerTitle, selection: $store.segment.sending(\.view.segmentChanged)) {
+                ForEach(TeamSegment.allCases) { segment in
+                    Text(segment.title)
+                        .tag(segment)
+                }
             }
+        } label: {
+            Label(segmentPickerTitle, systemImage: segmentFilterIcon)
         }
-        .pickerStyle(.segmented)
-        .padding([.leading, .trailing], 6)
-        .padding(.bottom, 12)
     }
 
-    private var backgroundGradient: some View {
-        LinearGradient(
-            colors: [store.color.opacity(0.25), .clear],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .ignoresSafeArea()
+    // Filled while a non-default filter is on, like the system filter buttons.
+    private var segmentFilterIcon: String {
+        store.segment == .private ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill"
     }
 
     private func groupBadge(_ group: TeamGroup) -> some View {
@@ -321,8 +314,7 @@ struct TeamView: View {
 
     // MARK: - Text
 
-    private let navigationTitle = String(localized: "Team")
-    private let segmentPickerTitle = String(localized: "Team segment")
+    private let segmentPickerTitle = String(localized: "Groups")
     private let ownGroupCaption = String(localized: "Your group")
     private let noGroupsTitle = String(localized: "No Groups Yet")
     private let noGroupsMessage = String(localized: "Create a group or scan an invite from a friend to train on the same plan and compare results.")
