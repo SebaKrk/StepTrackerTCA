@@ -22,6 +22,15 @@ extension GroupFeature {
         /// Internal — loading members failed.
         case membersFailed
 
+        /// Internal — today's plan was read; carries whether a local copy exists.
+        case todayPlanLoaded(TeamPlan?, isDownloaded: Bool)
+
+        /// Internal — reading today's plan failed.
+        case todayPlanFailed
+
+        /// Internal — the card's download finished; `true` when the copy was saved.
+        case todayPlanDownloadFinished(Bool)
+
         /// Internal — the user is no longer a member.
         case left
 
@@ -51,6 +60,12 @@ extension GroupFeature {
 
             /// Called when the user taps "+" to publish today's plan.
             case publishPlanTapped
+
+            /// Called when the user opens today's plan.
+            case todayPlanPreviewTapped
+
+            /// Called when the user downloads today's plan from the card.
+            case todayPlanDownloadTapped
         }
 
         @CasePathable
