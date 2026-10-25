@@ -72,6 +72,7 @@ struct GroupView: View {
     private var membersList: some View {
         List {
             todaySection
+            leaderboardSection
             Section {
                 ForEach(store.members) { member in
                     memberRow(member)
@@ -79,6 +80,14 @@ struct GroupView: View {
             } header: {
                 Text(membersHeader)
             }
+        }
+    }
+
+    private var leaderboardSection: some View {
+        Section {
+            GroupLeaderboardView(store: store.scope(state: \.leaderboard, action: \.leaderboard))
+        } header: {
+            Text(leaderboardHeader)
         }
     }
 
@@ -257,6 +266,7 @@ struct GroupView: View {
 
     private let membersHeader = String(localized: "Members")
     private let todayHeader = String(localized: "Today's Plan")
+    private let leaderboardHeader = String(localized: "Leaderboard")
     private let todayFailedText = String(localized: "Couldn't load today's plan.")
     private let noTodayPlanTitle = String(localized: "No plan for today yet")
     private let noTodayPlanHint = String(localized: "Tap + to publish one from your Plans.")

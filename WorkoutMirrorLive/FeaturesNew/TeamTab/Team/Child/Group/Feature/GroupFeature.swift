@@ -21,6 +21,9 @@ struct GroupFeature {
     @Dependency(\.uuid) var uuid
 
     var body: some Reducer<State, Action> {
+        Scope(state: \.leaderboard, action: \.leaderboard) {
+            GroupLeaderboardFeature()
+        }
         Reduce { state, action in
             switch action {
 
@@ -83,6 +86,7 @@ struct GroupFeature {
 
             case let .todayPlanLoaded(plan, isDownloaded):
                 state.todayPlan = plan
+                state.leaderboard.planMinutes = plan?.sessionMinutes
                 state.isTodayPlanDownloaded = isDownloaded
                 state.todayPlanState = .success
                 return .none
@@ -132,7 +136,7 @@ struct GroupFeature {
                 }
                 return .none
 
-            case .alert, .delegate, .destination:
+            case .alert, .delegate, .destination, .leaderboard:
                 return .none
             }
         }

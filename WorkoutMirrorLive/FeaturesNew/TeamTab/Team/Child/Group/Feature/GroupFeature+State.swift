@@ -43,6 +43,9 @@ extension GroupFeature {
         /// Saving today's plan to Plans is in flight.
         var isDownloadingTodayPlan = false
 
+        /// Leaderboard section (today and the week).
+        var leaderboard: GroupLeaderboardFeature.State
+
         /// A leave request is in flight.
         var isLeaving = false
 
@@ -55,6 +58,15 @@ extension GroupFeature {
 
         /// Presentation state for navigation destinations.
         @Presents var destination: Destination.State?
+
+        // MARK: - Init
+
+        init(group: TeamGroup, myUid: String, displayName: String) {
+            self.group = group
+            self.myUid = myUid
+            self.displayName = displayName
+            self.leaderboard = GroupLeaderboardFeature.State(groupId: group.id, myUid: myUid)
+        }
 
         // MARK: - Derived
 

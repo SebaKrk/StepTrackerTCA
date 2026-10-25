@@ -43,6 +43,9 @@ extension GroupFeature {
         /// Handles navigation destinations within this feature.
         case destination(PresentationAction<Destination.Action>)
 
+        /// Leaderboard section.
+        case leaderboard(GroupLeaderboardFeature.Action)
+
         /// Messages for the parent.
         case delegate(Delegate)
 

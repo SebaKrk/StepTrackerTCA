@@ -1564,3 +1564,10 @@
     - A: the entry is built from the scored block (a capped For Time stays below finishers), effort and covered minutes inside the plan window, warm-start and late flags; writes are queued and never block saving
     - B: "Send to <group>" card on the Summary of a downloaded group plan — on by default, Rx/Scaled, kcal only with consent; works for iPhone workouts and for "complete results" after a Watch workout; editing results updates the same entry
     - v0.1 limits: kcal is the whole workout's active energy (not only the window); the warm-start flag uses heart rate only (no check of a workout just before)
+
+### IOS-00150 Team — today and week leaderboard
+    - branch: `dev/IOS-00150/IOS-00150` (from IOS-00149); plan in `PLANS/IOS-00143-team-v01.md` (T5)
+    - "Leaderboard" section on the group screen: Today / Week, Score / Effort, Rx / Scaled
+    - Today: live ranking of the scored block (finishers before capped, unranked at the bottom); Effort ranks only entries with the current weights version
+    - Week: sum of daily places Monday–Sunday, a missed day = last place + 1, ties go to more workouts
+    - badges: kcal (when shared), ✓ HR, measured X/Y min when coverage is under 90%, started warm, edited, late
