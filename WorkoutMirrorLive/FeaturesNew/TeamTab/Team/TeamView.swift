@@ -29,6 +29,9 @@ struct TeamView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
+                        scanInviteButton
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
                         createGroupButton
                     }
                 }
@@ -42,6 +45,11 @@ struct TeamView: View {
                     item: $store.scope(state: \.destination?.group, action: \.destination.group)
                 ) { groupStore in
                     GroupView(store: groupStore)
+                }
+                .sheet(
+                    item: $store.scope(state: \.destination?.invitationPreview, action: \.destination.invitationPreview)
+                ) { previewStore in
+                    InvitationPreviewView(store: previewStore)
                 }
         }
         .onAppear {
@@ -174,6 +182,15 @@ struct TeamView: View {
         }
     }
 
+    private var scanInviteButton: some View {
+        Button {
+            send(.scanInviteTapped)
+        } label: {
+            Label(scanInviteTitle, systemImage: "qrcode.viewfinder")
+        }
+        .disabled(store.myUid == nil)
+    }
+
     private var createGroupButton: some View {
         Button {
             send(.createGroupTapped)
@@ -230,4 +247,5 @@ struct TeamView: View {
     private let failedMessage = String(localized: "Unable to load your groups. Check your connection and try again.")
     private let retryTitle = String(localized: "Try Again")
     private let createGroupTitle = String(localized: "Create Group")
+    private let scanInviteTitle = String(localized: "Scan Invite")
 }

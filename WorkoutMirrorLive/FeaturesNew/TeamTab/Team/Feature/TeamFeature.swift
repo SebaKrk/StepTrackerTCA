@@ -39,6 +39,12 @@ struct TeamFeature {
                 state.destination = .createGroup(CreateGroupFeature.State(displayName: state.displayName))
                 return .none
 
+            case .view(.scanInviteTapped):
+                state.destination = .invitationPreview(
+                    InvitationPreviewFeature.State(displayName: state.displayName)
+                )
+                return .none
+
             case let .view(.groupTapped(group)):
                 guard let myUid = state.myUid else { return .none }
                 state.destination = .group(

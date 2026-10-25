@@ -47,6 +47,9 @@ extension TeamFeature {
 
             /// Called when the user taps a group in the list.
             case groupTapped(TeamGroup)
+
+            /// Called when the user taps the scanner to join with a code.
+            case scanInviteTapped
         }
     }
 

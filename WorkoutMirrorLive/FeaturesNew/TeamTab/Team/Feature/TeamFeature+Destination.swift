@@ -18,6 +18,9 @@ extension TeamFeature {
 
         /// Screen of one group.
         case group(GroupFeature)
+
+        /// Camera and the card of a scanned invite.
+        case invitationPreview(InvitationPreviewFeature)
     }
 
 }
