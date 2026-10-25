@@ -16,6 +16,9 @@ public enum BoardScore: Codable, Sendable, Equatable {
     /// Hit the time cap — fewer remaining reps is better; always below every finisher.
     case capped(capSeconds: Int, remainingReps: Int)
 
+    /// Hit the time cap, scored as rounds and reps done — more is better; below every finisher.
+    case cappedRounds(capSeconds: Int, rounds: Int, extraReps: Int)
+
     /// Rounds and extra reps — more is better.
     case amrap(rounds: Int, extraReps: Int)
 

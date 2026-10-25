@@ -196,6 +196,8 @@ nonisolated enum TeamDocumentMapper {
             return ["kind": "forTime", "seconds": seconds]
         case .capped(let capSeconds, let remainingReps):
             return ["kind": "capped", "capSeconds": capSeconds, "remainingReps": remainingReps]
+        case .cappedRounds(let capSeconds, let rounds, let extraReps):
+            return ["kind": "cappedRounds", "capSeconds": capSeconds, "rounds": rounds, "extraReps": extraReps]
         case .amrap(let rounds, let extraReps):
             return ["kind": "amrap", "rounds": rounds, "extraReps": extraReps]
         case .load(let kilograms):
@@ -213,6 +215,12 @@ nonisolated enum TeamDocumentMapper {
             return .forTime(seconds: try int(fields, "seconds", path))
         case "capped":
             return .capped(capSeconds: try int(fields, "capSeconds", path), remainingReps: try int(fields, "remainingReps", path))
+        case "cappedRounds":
+            return .cappedRounds(
+                capSeconds: try int(fields, "capSeconds", path),
+                rounds: try int(fields, "rounds", path),
+                extraReps: try int(fields, "extraReps", path)
+            )
         case "amrap":
             return .amrap(rounds: try int(fields, "rounds", path), extraReps: try int(fields, "extraReps", path))
         case "load":

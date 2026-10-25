@@ -126,7 +126,8 @@ struct TeamFeature {
         .run { [teamClient, userProfileClient] send in
             let uid = try await teamClient.ensureSignedIn()
             let profile = try? await userProfileClient.fetch()
-            await send(.signedIn(uid: uid, displayName: Self.displayName(profile: profile, uid: uid)))
+            let displayName = TeamDisplayName.make(nickname: profile?.nickname, name: profile?.name, uid: uid)
+            await send(.signedIn(uid: uid, displayName: displayName))
             for try await groups in teamClient.observeMyGroups() {
                 await send(.groupsUpdated(groups))
             }
@@ -135,16 +136,5 @@ struct TeamFeature {
             await send(.groupsFailed)
         }
         .cancellable(id: TeamCancelID.groups, cancelInFlight: true)
-    }
-
-    // Same order as GymRoom: nickname, then first name, then a stable "Athlete-XXX".
-    nonisolated private static func displayName(profile: UserProfile?, uid: String) -> String {
-        if let nickname = profile?.nickname, !nickname.isEmpty {
-            return nickname
-        }
-        if let name = profile?.name, !name.isEmpty {
-            return name
-        }
-        return "Athlete-" + uid.prefix(3).uppercased()
     }
 }
