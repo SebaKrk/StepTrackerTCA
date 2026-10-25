@@ -29,6 +29,12 @@ struct GroupFeature {
                 state.alert = Self.leaveConfirmation(isOwner: state.isOwner)
                 return .none
 
+            case .view(.inviteTapped):
+                state.destination = .invite(
+                    InviteFeature.State(group: state.group, displayName: state.displayName)
+                )
+                return .none
+
             // MARK: - Internal
 
             case let .membersLoaded(members):
@@ -66,11 +72,12 @@ struct GroupFeature {
                 }
                 return .none
 
-            case .alert, .delegate:
+            case .alert, .delegate, .destination:
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$destination, action: \.destination)
     }
 
     private func loadMembers(groupId: String) -> Effect<Action> {

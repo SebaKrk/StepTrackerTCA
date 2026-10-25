@@ -31,6 +31,9 @@ extension GroupFeature {
         /// Leave confirmation and error alerts.
         case alert(PresentationAction<Alert>)
 
+        /// Handles navigation destinations within this feature.
+        case destination(PresentationAction<Destination.Action>)
+
         /// Messages for the parent.
         case delegate(Delegate)
 
@@ -42,6 +45,9 @@ extension GroupFeature {
 
             /// Called when the user picks "Leave Group" from the menu.
             case leaveTapped
+
+            /// Called when the user taps the QR button to invite someone.
+            case inviteTapped
         }
 
         @CasePathable

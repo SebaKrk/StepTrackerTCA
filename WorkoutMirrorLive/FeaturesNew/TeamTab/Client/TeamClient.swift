@@ -35,6 +35,9 @@ struct TeamClient: Sendable {
 
     // MARK: - Invites
 
+    /// Returns the current account's latest invite to a group while it is still open, otherwise a new one.
+    var currentInvite: @Sendable (_ group: TeamGroup, _ createdByName: String) async throws -> TeamInvite
+
     /// Creates a QR invite valid for seven days.
     var createInvite: @Sendable (_ group: TeamGroup, _ createdByName: String) async throws -> TeamInvite
 
@@ -92,6 +95,7 @@ private enum TeamClientKey: DependencyKey {
             createGroup: { try await service.createGroup(name: $0, displayName: $1) },
             leaveGroup: { try await service.leaveGroup(groupId: $0) },
             members: { try await service.members(groupId: $0) },
+            currentInvite: { try await service.currentInvite(group: $0, createdByName: $1) },
             createInvite: { try await service.createInvite(group: $0, createdByName: $1) },
             revokeInvite: { try await service.revokeInvite(groupId: $0, inviteId: $1) },
             receiveInvite: { try await service.receiveInvite(reference: $0, displayName: $1) },
@@ -113,6 +117,7 @@ private enum TeamClientKey: DependencyKey {
             createGroup: unimplemented("TeamClient.createGroup"),
             leaveGroup: unimplemented("TeamClient.leaveGroup"),
             members: unimplemented("TeamClient.members"),
+            currentInvite: unimplemented("TeamClient.currentInvite"),
             createInvite: unimplemented("TeamClient.createInvite"),
             revokeInvite: unimplemented("TeamClient.revokeInvite"),
             receiveInvite: unimplemented("TeamClient.receiveInvite"),
@@ -135,6 +140,18 @@ private enum TeamClientKey: DependencyKey {
             createGroup: { name, _ in TeamGroup(id: "preview-group", name: name, ownerUid: "preview-uid", createdAt: .now) },
             leaveGroup: { _ in },
             members: { _ in [] },
+            currentInvite: { group, name in
+                TeamInvite(
+                    id: "preview-invite",
+                    groupId: group.id,
+                    groupName: group.name,
+                    createdByUid: "preview-uid",
+                    createdByName: name,
+                    createdAt: .now,
+                    expiresAt: .now.addingTimeInterval(7 * 24 * 60 * 60),
+                    isRevoked: false
+                )
+            },
             createInvite: { group, name in
                 TeamInvite(
                     id: "preview-invite",

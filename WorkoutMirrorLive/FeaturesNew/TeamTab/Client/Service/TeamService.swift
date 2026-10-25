@@ -66,6 +66,30 @@ nonisolated final class TeamService: @unchecked Sendable {
 
     // MARK: - Invites
 
+    // Reopening the invite screen shows the same code (and its scans) until it expires or is revoked.
+    func currentInvite(group: TeamGroup, createdByName: String) async throws -> TeamInvite {
+        let uid = try await ensureSignedIn()
+        let latest = try await groupRef(group.id).collection("invites")
+            .whereField("createdByUid", isEqualTo: uid)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 1)
+            .getDocuments()
+            .documents
+            .first
+        if let latest {
+            let invite = try TeamDocumentMapper.invite(
+                id: latest.documentID,
+                groupId: group.id,
+                data: latest.data(),
+                path: latest.reference.path
+            )
+            if invite.isOpen(at: Date()) {
+                return invite
+            }
+        }
+        return try await createInvite(group: group, createdByName: createdByName)
+    }
+
     func createInvite(group: TeamGroup, createdByName: String) async throws -> TeamInvite {
         let uid = try await ensureSignedIn()
         let now = Date()

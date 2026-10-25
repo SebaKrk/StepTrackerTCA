@@ -24,10 +24,18 @@ struct GroupView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
+                    inviteButton
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     moreMenu
                 }
             }
             .alert($store.scope(state: \.alert, action: \.alert))
+            .sheet(
+                item: $store.scope(state: \.destination?.invite, action: \.destination.invite)
+            ) { inviteStore in
+                InviteView(store: inviteStore)
+            }
             .onAppear {
                 send(.viewDidAppear)
             }
@@ -93,6 +101,14 @@ struct GroupView: View {
         }
     }
 
+    private var inviteButton: some View {
+        Button {
+            send(.inviteTapped)
+        } label: {
+            Label(inviteTitle, systemImage: "qrcode")
+        }
+    }
+
     private var moreMenu: some View {
         Menu {
             leaveButton
@@ -121,6 +137,7 @@ struct GroupView: View {
     // MARK: - Text
 
     private let membersHeader = String(localized: "Members")
+    private let inviteTitle = String(localized: "Invite")
     private let ownerLabel = String(localized: "Owner")
     private let youLabel = String(localized: "You")
     private let moreTitle = String(localized: "More")
