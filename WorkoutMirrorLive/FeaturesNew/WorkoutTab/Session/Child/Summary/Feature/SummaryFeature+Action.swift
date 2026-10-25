@@ -95,6 +95,9 @@ extension SummaryFeature {
         /// Forwarded actions of the embedded "Wyniki" section (per-WOD cards live inside).
         case results(WorkoutResultsFeature.Action)
 
+        /// Forwarded actions of the "Send to group" row.
+        case teamSubmit(TeamSubmitFeature.Action)
+
         // MARK: - Alerts
 
         case alert(PresentationAction<DiscardAlert>)

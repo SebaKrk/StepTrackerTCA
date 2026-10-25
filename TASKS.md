@@ -1558,3 +1558,9 @@
     - A: a plan copy downloaded from a group remembers its group plan (`teamPlanId`, migration v17); editing the copy drops the link
     - B: "+" on the group screen publishes today's plan from Plans with a scored block; at least 60 minutes ("Fill to 60 Minutes" helps); one plan per day, only its author may replace it
     - C: "Today's Plan" card on the group screen with Preview (same plan view as Plans) and Download to Plans; a second download is prevented ("In Your Plans")
+
+### IOS-00149 Team — send the result from the Summary
+    - branch: `dev/IOS-00149/IOS-00149` (from IOS-00148); plan in `PLANS/IOS-00143-team-v01.md` (T4)
+    - A: the entry is built from the scored block (a capped For Time stays below finishers), effort and covered minutes inside the plan window, warm-start and late flags; writes are queued and never block saving
+    - B: "Send to <group>" card on the Summary of a downloaded group plan — on by default, Rx/Scaled, kcal only with consent; works for iPhone workouts and for "complete results" after a Watch workout; editing results updates the same entry
+    - v0.1 limits: kcal is the whole workout's active energy (not only the window); the warm-start flag uses heart rate only (no check of a workout just before)
