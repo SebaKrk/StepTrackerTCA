@@ -236,9 +236,7 @@ struct PlansView: View {
     // MARK: - Helpers
 
     private func formatDuration(_ workout: TrainingSession) -> String {
-        let total = (workout.warmUp?.time ?? 0)
-            + workout.workouts.compactMap { $0.timeCap }.reduce(0, +)
-            + (workout.coolDown?.time ?? 0)
+        let total = workout.plannedTotalMinutes
         return total > 0 ? "~\(total) min" : "–"
     }
 
