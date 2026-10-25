@@ -1541,3 +1541,8 @@
     - B: scanner in the Team tab — non-invite codes are rejected; the card shows group, inviter and validity with Join / Later / Decline
     - C: "Invitations" section in the Team tab with pending, still-valid invites and Join / Decline
     - limit: someone who joined, left and scans the same code again keeps the old "joined" status — they need a new code
+
+### IOS-00146 Plan import keeps interval timer and equipment
+    - branch: `dev/IOS-00146/IOS-00146` (from IOS-00145)
+    - the identity-renewing copy used by QR import (and, next, by Team plan download) dropped the round timer of interval workouts and each exercise's equipment and equipment selection
+    - the copy now carries all three; nothing else changes
