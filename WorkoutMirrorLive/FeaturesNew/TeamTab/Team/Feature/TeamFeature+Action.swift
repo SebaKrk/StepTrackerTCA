@@ -25,6 +25,11 @@ extension TeamFeature {
         /// Internal — sign-in or the groups listener failed.
         case groupsFailed
 
+        // MARK: - Destination
+
+        /// Handles navigation destinations within this feature.
+        case destination(PresentationAction<Destination.Action>)
+
         @CasePathable
         enum View {
 
@@ -36,6 +41,9 @@ extension TeamFeature {
 
             /// Called when the user taps "Try again" after a failure.
             case retryTapped
+
+            /// Called when the user taps "+" or "Create Group".
+            case createGroupTapped
         }
     }
 

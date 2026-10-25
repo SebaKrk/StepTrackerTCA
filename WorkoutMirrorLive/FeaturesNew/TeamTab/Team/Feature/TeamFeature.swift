@@ -35,6 +35,10 @@ struct TeamFeature {
                 state.viewState = .loading
                 return startListening()
 
+            case .view(.createGroupTapped):
+                state.destination = .createGroup(CreateGroupFeature.State(displayName: state.displayName))
+                return .none
+
             // MARK: - Internal
 
             case let .signedIn(uid, displayName):
@@ -50,8 +54,14 @@ struct TeamFeature {
             case .groupsFailed:
                 state.viewState = .failed
                 return .none
+
+            // MARK: - Destination
+
+            case .destination:
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 
     // Signs in, then keeps the group list live for as long as the tab exists.

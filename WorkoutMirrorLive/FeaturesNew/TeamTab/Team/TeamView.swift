@@ -27,6 +27,17 @@ struct TeamView: View {
                 .background(backgroundGradient)
                 .navigationTitle(navigationTitle)
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        createGroupButton
+                    }
+                }
+                .sheet(
+                    item: $store.scope(state: \.destination?.createGroup, action: \.destination.createGroup)
+                ) { createGroupStore in
+                    CreateGroupView(store: createGroupStore)
+                        .presentationDetents([.medium])
+                }
         }
         .onAppear {
             send(.viewDidAppear)
@@ -136,6 +147,25 @@ struct TeamView: View {
             Label(noGroupsTitle, systemImage: "person.3")
         } description: {
             Text(noGroupsMessage)
+        } actions: {
+            emptyCreateGroupButton
+        }
+    }
+
+    private var createGroupButton: some View {
+        Button {
+            send(.createGroupTapped)
+        } label: {
+            Label(createGroupTitle, systemImage: "plus")
+        }
+        .disabled(store.myUid == nil)
+    }
+
+    private var emptyCreateGroupButton: some View {
+        Button {
+            send(.createGroupTapped)
+        } label: {
+            Label(createGroupTitle, systemImage: "plus")
         }
     }
 
@@ -177,4 +207,5 @@ struct TeamView: View {
     private let failedTitle = String(localized: "Something went wrong")
     private let failedMessage = String(localized: "Unable to load your groups. Check your connection and try again.")
     private let retryTitle = String(localized: "Try Again")
+    private let createGroupTitle = String(localized: "Create Group")
 }

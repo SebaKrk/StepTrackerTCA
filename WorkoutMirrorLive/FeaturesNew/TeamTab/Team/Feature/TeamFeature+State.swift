@@ -37,6 +37,11 @@ extension TeamFeature {
 
         /// Set after the first appearance so returning to the tab keeps the running listener.
         var hasStarted = false
+
+        // MARK: - Destination
+
+        /// Presentation state for navigation destinations.
+        @Presents var destination: Destination.State?
     }
 
 }
