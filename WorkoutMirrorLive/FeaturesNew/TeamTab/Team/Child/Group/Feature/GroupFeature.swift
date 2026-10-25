@@ -29,6 +29,12 @@ struct GroupFeature {
                 state.alert = Self.leaveConfirmation(isOwner: state.isOwner)
                 return .none
 
+            case .view(.publishPlanTapped):
+                state.destination = .publishPlan(
+                    PublishPlanFeature.State(groupId: state.group.id, myUid: state.myUid, displayName: state.displayName)
+                )
+                return .none
+
             case .view(.inviteTapped):
                 state.destination = .invite(
                     InviteFeature.State(group: state.group, displayName: state.displayName)

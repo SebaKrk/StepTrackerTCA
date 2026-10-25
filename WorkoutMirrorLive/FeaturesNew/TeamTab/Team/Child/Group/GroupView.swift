@@ -27,6 +27,9 @@ struct GroupView: View {
                     inviteButton
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    publishPlanButton
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     moreMenu
                 }
             }
@@ -35,6 +38,11 @@ struct GroupView: View {
                 item: $store.scope(state: \.destination?.invite, action: \.destination.invite)
             ) { inviteStore in
                 InviteView(store: inviteStore)
+            }
+            .sheet(
+                item: $store.scope(state: \.destination?.publishPlan, action: \.destination.publishPlan)
+            ) { publishStore in
+                PublishPlanView(store: publishStore)
             }
             .onAppear {
                 send(.viewDidAppear)
@@ -109,6 +117,14 @@ struct GroupView: View {
         }
     }
 
+    private var publishPlanButton: some View {
+        Button {
+            send(.publishPlanTapped)
+        } label: {
+            Label(publishPlanTitle, systemImage: "plus")
+        }
+    }
+
     private var moreMenu: some View {
         Menu {
             leaveButton
@@ -138,6 +154,7 @@ struct GroupView: View {
 
     private let membersHeader = String(localized: "Members")
     private let inviteTitle = String(localized: "Invite")
+    private let publishPlanTitle = String(localized: "Publish Today's Plan")
     private let ownerLabel = String(localized: "Owner")
     private let youLabel = String(localized: "You")
     private let moreTitle = String(localized: "More")

@@ -48,6 +48,9 @@ extension GroupFeature {
 
             /// Called when the user taps the QR button to invite someone.
             case inviteTapped
+
+            /// Called when the user taps "+" to publish today's plan.
+            case publishPlanTapped
         }
 
         @CasePathable
