@@ -69,6 +69,11 @@ extension TrainingSessionEditorFeature {
             mode == .create ? "New Workout" : "Edit Workout"
         }
 
+        /// Class length of the draft: warm-up, each block's planned minutes (or time cap), cool-down.
+        var plannedTotalMinutes: Int {
+            TrainingSession(draft: draft).plannedTotalMinutes
+        }
+
         // MARK: - Init
 
         init(session: TrainingSession? = nil) {

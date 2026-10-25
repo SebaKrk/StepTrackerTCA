@@ -1546,3 +1546,9 @@
     - branch: `dev/IOS-00146/IOS-00146` (from IOS-00145)
     - the identity-renewing copy used by QR import (and, next, by Team plan download) dropped the round timer of interval workouts and each exercise's equipment and equipment selection
     - the copy now carries all three; nothing else changes
+
+### IOS-00147 Planned minutes per block and a 60-minute class budget
+    - branch: `dev/IOS-00147/IOS-00147` (from IOS-00146)
+    - A: every workout block carries its minutes in the class, separate from the WOD time cap; old plans fall back to the cap; plan lists and detail show the real class length (a strength block no longer counts as 0)
+    - B: plan scanning asks the model for every section's minutes, adding up to at least 60
+    - C: "Time in Class" in the block editor and a "Class Length" bar (N of 60 min, missing / +X) in the plan editor
