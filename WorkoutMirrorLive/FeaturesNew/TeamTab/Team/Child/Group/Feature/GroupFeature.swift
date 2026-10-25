@@ -29,13 +29,19 @@ struct GroupFeature {
 
             // MARK: - View
 
+            // Restarted on every appearance, so returning from Plans re-checks the local copy too.
             case .view(.viewDidAppear):
-                return .merge(loadMembers(groupId: state.group.id), loadTodayPlan(groupId: state.group.id))
+                return .merge(listenToMembers(groupId: state.group.id), listenToTodayPlan(groupId: state.group.id))
 
             case .view(.todayPlanPreviewTapped):
                 guard let plan = state.todayPlan else { return .none }
                 state.destination = .planPreview(
-                    PlanPreviewFeature.State(groupId: state.group.id, plan: plan, isDownloaded: state.isTodayPlanDownloaded)
+                    PlanPreviewFeature.State(
+                        groupId: state.group.id,
+                        plan: plan,
+                        isDownloaded: state.isTodayPlanDownloaded,
+                        color: state.color
+                    )
                 )
                 return .none
 
@@ -63,13 +69,18 @@ struct GroupFeature {
 
             case .view(.publishPlanTapped):
                 state.destination = .publishPlan(
-                    PublishPlanFeature.State(groupId: state.group.id, myUid: state.myUid, displayName: state.displayName)
+                    PublishPlanFeature.State(
+                        groupId: state.group.id,
+                        myUid: state.myUid,
+                        displayName: state.displayName,
+                        color: state.color
+                    )
                 )
                 return .none
 
             case .view(.inviteTapped):
                 state.destination = .invite(
-                    InviteFeature.State(group: state.group, displayName: state.displayName)
+                    InviteFeature.State(group: state.group, displayName: state.displayName, color: state.color)
                 )
                 return .none
 
@@ -101,10 +112,6 @@ struct GroupFeature {
                     state.isTodayPlanDownloaded = true
                 }
                 return .none
-
-            case .destination(.presented(.publishPlan(.delegate(.published)))):
-                state.todayPlanState = .loading
-                return loadTodayPlan(groupId: state.group.id)
 
             case .destination(.presented(.planPreview(.delegate(.downloaded)))):
                 state.isTodayPlanDownloaded = true
@@ -144,26 +151,31 @@ struct GroupFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 
-    private func loadTodayPlan(groupId: String) -> Effect<Action> {
+    private func listenToTodayPlan(groupId: String) -> Effect<Action> {
         let day = TeamDay.id(for: date.now, calendar: calendar)
         return .run { [teamClient, trainingSessionClient] send in
-            let plan = try await teamClient.plan(groupId, day)
             let teamPlanId = TrainingSession.teamPlanId(groupId: groupId, day: day)
-            let copy = plan == nil ? nil : try await trainingSessionClient.fetchByTeamPlanId(teamPlanId)
-            await send(.todayPlanLoaded(plan, isDownloaded: copy != nil))
+            for try await plan in teamClient.observePlan(groupId, day) {
+                let copy = plan == nil ? nil : try await trainingSessionClient.fetchByTeamPlanId(teamPlanId)
+                await send(.todayPlanLoaded(plan, isDownloaded: copy != nil))
+            }
         } catch: { error, send in
             Logger.team.error("Today's plan failed: \(error.localizedDescription)")
             await send(.todayPlanFailed)
         }
+        .cancellable(id: GroupCancelID.todayPlan, cancelInFlight: true)
     }
 
-    private func loadMembers(groupId: String) -> Effect<Action> {
+    private func listenToMembers(groupId: String) -> Effect<Action> {
         .run { [teamClient] send in
-            await send(.membersLoaded(try await teamClient.members(groupId)))
+            for try await members in teamClient.observeMembers(groupId) {
+                await send(.membersLoaded(members))
+            }
         } catch: { error, send in
             Logger.team.error("Members failed: \(error.localizedDescription)")
             await send(.membersFailed)
         }
+        .cancellable(id: GroupCancelID.members, cancelInFlight: true)
     }
 
     // The owner leaving does not delete the group — the others keep training in it.

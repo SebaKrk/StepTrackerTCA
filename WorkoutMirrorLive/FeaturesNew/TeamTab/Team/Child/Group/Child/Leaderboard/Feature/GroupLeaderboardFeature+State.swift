@@ -31,6 +31,9 @@ extension GroupLeaderboardFeature {
         /// Rx or Scaled.
         var division: BoardDivision = .rx
 
+        /// The user picked a division; until then it follows the user's own entry.
+        var hasPickedDivision = false
+
         /// Length of today's plan — measurement window for the coverage badge; `nil` without a plan.
         var planMinutes: Int?
 

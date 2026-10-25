@@ -25,6 +25,7 @@ struct TeamView: View {
                     segmentPicker
                 }
                 .background(backgroundGradient)
+                .tint(store.color)
                 .navigationTitle(navigationTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -92,22 +93,23 @@ struct TeamView: View {
     }
 
     private var groupsList: some View {
-        List {
-            invitationsSection
-            groupsSection
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                invitationsSection
+                groupsSection
+            }
+            .padding()
         }
-        .scrollContentBackground(.hidden)
     }
 
     @ViewBuilder
     private var invitationsSection: some View {
         if !store.pendingInvitations.isEmpty {
-            Section {
+            VStack(alignment: .leading, spacing: 8) {
+                sectionHeader(invitationsHeader)
                 ForEach(store.pendingInvitations) { invitation in
-                    invitationRow(invitation)
+                    invitationCard(invitation)
                 }
-            } header: {
-                Text(invitationsHeader)
             }
         }
     }
@@ -115,49 +117,60 @@ struct TeamView: View {
     @ViewBuilder
     private var groupsSection: some View {
         if !store.groups.isEmpty {
-            Section {
+            VStack(alignment: .leading, spacing: 8) {
+                sectionHeader(groupsHeader)
                 ForEach(store.groups) { group in
-                    groupRow(group)
+                    groupCard(group)
                 }
-            } header: {
-                Text(groupsHeader)
             }
         }
     }
 
-    // MARK: - Invitation Row (structure)
+    // MARK: - Invitation Card (structure)
 
-    private func invitationRow(_ invitation: TeamInvitation) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            invitationTitles(invitation)
-            invitationButtons(invitation)
+    private func invitationCard(_ invitation: TeamInvitation) -> some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                invitationTitles(invitation)
+                invitationButtons(invitation)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, 4)
+        .styledGroupBox()
     }
 
-    // MARK: - Group Row (structure)
+    // MARK: - Group Card (structure)
 
-    private func groupRow(_ group: TeamGroup) -> some View {
+    private func groupCard(_ group: TeamGroup) -> some View {
         Button {
             send(.groupTapped(group))
         } label: {
-            groupRowContent(group)
+            groupCardContent(group)
         }
         .buttonStyle(.plain)
     }
 
-    private func groupRowContent(_ group: TeamGroup) -> some View {
-        HStack(spacing: 12) {
-            groupBadge(group)
-            groupTitles(group)
-            Spacer()
-            chevron
+    private func groupCardContent(_ group: TeamGroup) -> some View {
+        GroupBox {
+            HStack(spacing: 12) {
+                groupBadge(group)
+                groupTitles(group)
+                Spacer()
+                chevron
+            }
+            .contentShape(.rect)
         }
-        .padding(.vertical, 6)
-        .contentShape(.rect)
+        .styledGroupBox()
     }
 
     // MARK: - Implementation
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+    }
 
     private var segmentPicker: some View {
         Picker(segmentPickerTitle, selection: $store.segment.sending(\.view.segmentChanged)) {
@@ -177,6 +190,7 @@ struct TeamView: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+        .ignoresSafeArea()
     }
 
     private func groupBadge(_ group: TeamGroup) -> some View {

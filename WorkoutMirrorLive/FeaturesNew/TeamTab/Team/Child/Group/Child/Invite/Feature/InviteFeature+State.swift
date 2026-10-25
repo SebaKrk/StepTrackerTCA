@@ -9,6 +9,7 @@ import ComposableArchitecture
 import CoreGraphics
 import Foundation
 import SharedModels
+import SwiftUI
 
 extension InviteFeature {
 
@@ -22,6 +23,9 @@ extension InviteFeature {
 
         /// Name shown to people who scan the code.
         var displayName: String
+
+        /// Accent of the Team tab — background gradient and prominent controls.
+        var color: Color
 
         /// Invite behind the code on screen; `nil` until it is loaded.
         var invite: TeamInvite?

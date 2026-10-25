@@ -48,11 +48,15 @@ struct GroupLeaderboardFeature {
 
             case let .view(.divisionChanged(division)):
                 state.division = division
+                state.hasPickedDivision = true
                 recompute(&state)
                 return .none
 
             case let .dayEntriesUpdated(entries):
                 state.dayEntries = entries
+                if !state.hasPickedDivision, let mine = entries.first(where: { $0.uid == state.myUid }) {
+                    state.division = mine.division
+                }
                 // Today's live entries also refresh today's column of a loaded week.
                 let today = state.today
                 if state.weekEntries?[today] != nil {

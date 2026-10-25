@@ -20,6 +20,8 @@ struct GroupView: View {
 
     var body: some View {
         content
+            .background(backgroundGradient)
+            .tint(store.color)
             .navigationTitle(store.group.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -63,40 +65,56 @@ struct GroupView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .success:
-            membersList
+            groupCards
         case .failed:
             failedView
         }
     }
 
-    private var membersList: some View {
-        List {
-            todaySection
-            leaderboardSection
-            Section {
+    private var groupCards: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                sectionHeader(todayHeader)
+                todayCard
+                sectionHeader(leaderboardHeader)
+                    .padding(.top, 8)
+                leaderboardCard
+                sectionHeader(membersHeader)
+                    .padding(.top, 8)
+                membersCard
+            }
+            .padding()
+        }
+    }
+
+    private var todayCard: some View {
+        GroupBox {
+            todayContent
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .styledGroupBox()
+    }
+
+    private var leaderboardCard: some View {
+        GroupBox {
+            GroupLeaderboardView(store: store.scope(state: \.leaderboard, action: \.leaderboard))
+        }
+        .styledGroupBox()
+    }
+
+    private var membersCard: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
                 ForEach(store.members) { member in
                     memberRow(member)
+                    if member.id != store.members.last?.id {
+                        Divider()
+                    }
                 }
-            } header: {
-                Text(membersHeader)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-    }
-
-    private var leaderboardSection: some View {
-        Section {
-            GroupLeaderboardView(store: store.scope(state: \.leaderboard, action: \.leaderboard))
-        } header: {
-            Text(leaderboardHeader)
-        }
-    }
-
-    private var todaySection: some View {
-        Section {
-            todayContent
-        } header: {
-            Text(todayHeader)
-        }
+        .styledGroupBox()
     }
 
     @ViewBuilder
@@ -119,11 +137,36 @@ struct GroupView: View {
 
     private func todayPlanCard(_ plan: TeamPlan) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            todayPlanTitles(plan)
-            todayPlanBlocks(plan)
-            todayPlanButtons
+            todayPlanPreviewButton(plan)
+            if !store.isTodayPlanDownloaded {
+                downloadTodayPlanButton
+            }
         }
-        .padding(.vertical, 4)
+    }
+
+    // The whole plan summary opens the preview, like plan cards elsewhere.
+    private func todayPlanPreviewButton(_ plan: TeamPlan) -> some View {
+        Button {
+            send(.todayPlanPreviewTapped)
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                todayPlanHeader(plan)
+                todayPlanExercises(plan)
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func todayPlanHeader(_ plan: TeamPlan) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            todayPlanTitles(plan)
+            Spacer()
+            if store.isTodayPlanDownloaded {
+                InYourPlansBadge()
+            }
+            chevron
+        }
     }
 
     // MARK: - Implementation
@@ -138,28 +181,35 @@ struct GroupView: View {
         }
     }
 
-    private func todayPlanBlocks(_ plan: TeamPlan) -> some View {
-        Text(plan.session.workouts.map(\.name).joined(separator: " · "))
+    private func todayPlanExercises(_ plan: TeamPlan) -> some View {
+        Text(exercisesLine(plan.session))
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .lineLimit(2)
+            .multilineTextAlignment(.leading)
     }
 
-    private var todayPlanButtons: some View {
-        HStack(spacing: 10) {
-            previewTodayPlanButton
-            downloadTodayPlanButton
-        }
+    private var chevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.tertiary)
+            .padding(.top, 4)
     }
 
-    private var previewTodayPlanButton: some View {
-        Button {
-            send(.todayPlanPreviewTapped)
-        } label: {
-            Text(previewTitle)
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.bordered)
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 4)
+    }
+
+    private func exercisesLine(_ session: TrainingSession) -> String {
+        var seen = Set<String>()
+        let names = session.workouts
+            .flatMap(\.exercises)
+            .map(\.displayName)
+            .filter { seen.insert($0).inserted }
+        return names.isEmpty ? "–" : names.joined(separator: " · ")
     }
 
     private var downloadTodayPlanButton: some View {
@@ -169,16 +219,15 @@ struct GroupView: View {
             Group {
                 if store.isDownloadingTodayPlan {
                     ProgressView()
-                } else if store.isTodayPlanDownloaded {
-                    Label(downloadedTitle, systemImage: "checkmark")
                 } else {
-                    Text(downloadTitle)
+                    Label(downloadTitle, systemImage: "arrow.down.circle")
                 }
             }
+            .font(.headline)
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
-        .disabled(store.isTodayPlanDownloaded || store.isDownloadingTodayPlan)
+        .disabled(store.isDownloadingTodayPlan)
     }
 
     private var noTodayPlanText: some View {
@@ -219,6 +268,15 @@ struct GroupView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [store.color.opacity(0.25), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
     }
 
     private var inviteButton: some View {
@@ -270,9 +328,7 @@ struct GroupView: View {
     private let todayFailedText = String(localized: "Couldn't load today's plan.")
     private let noTodayPlanTitle = String(localized: "No plan for today yet")
     private let noTodayPlanHint = String(localized: "Tap + to publish one from your Plans.")
-    private let previewTitle = String(localized: "Preview")
     private let downloadTitle = String(localized: "Download to Plans")
-    private let downloadedTitle = String(localized: "In Your Plans")
     private let inviteTitle = String(localized: "Invite")
     private let publishPlanTitle = String(localized: "Publish Today's Plan")
     private let ownerLabel = String(localized: "Owner")

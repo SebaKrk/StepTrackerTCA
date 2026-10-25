@@ -9,7 +9,7 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
-/// Rows of the leaderboard section; the group screen puts them in a `List` section.
+/// Content of the leaderboard card on the group screen.
 @ViewAction(for: GroupLeaderboardFeature.self)
 struct GroupLeaderboardView: View {
 
@@ -20,10 +20,13 @@ struct GroupLeaderboardView: View {
     // MARK: - Body (structure)
 
     var body: some View {
-        Group {
+        VStack(alignment: .leading, spacing: 12) {
             pickers
+            lensCaption
+            Divider()
             content
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -56,19 +59,32 @@ struct GroupLeaderboardView: View {
         } else {
             ForEach(store.dayRows) { row in
                 dayRow(row)
+                if row.id != store.dayRows.last?.id {
+                    Divider()
+                }
             }
+            .frame(maxWidth: .infinity)
         }
     }
 
     @ViewBuilder
     private var weekRows: some View {
         if store.weekRows.isEmpty {
-            Text(noWeekResultsText)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(noWeekResultsText)
+                    .foregroundStyle(.secondary)
+                Text(noWeekResultsHint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         } else {
             ForEach(store.weekRows) { row in
                 weekRow(row)
+                if row.id != store.weekRows.last?.id {
+                    Divider()
+                }
             }
+            .frame(maxWidth: .infinity)
             Text(weekRuleText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -87,7 +103,7 @@ struct GroupLeaderboardView: View {
             HStack(spacing: 8) {
                 Picker(lensTitle, selection: $store.lens.sending(\.view.lensChanged)) {
                     Text(scoreTitle).tag(TeamLeaderboardLens.score)
-                    Text(effortTitle).tag(TeamLeaderboardLens.effort)
+                    Text(pointsTitle).tag(TeamLeaderboardLens.effort)
                 }
                 Picker(divisionTitle, selection: $store.division.sending(\.view.divisionChanged)) {
                     Text(rxTitle).tag(BoardDivision.rx)
@@ -96,7 +112,17 @@ struct GroupLeaderboardView: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding(.vertical, 4)
+    }
+
+    private var pointsCaption: String {
+        let minutes = store.planMinutes ?? 60
+        return String(localized: "Heart rate zone points from the first \(minutes) minutes — who worked hardest.")
+    }
+
+    private var lensCaption: some View {
+        Text(store.lens == .score ? scoreCaption : pointsCaption)
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 
     private func dayRow(_ row: TeamLeaderboardRow) -> some View {
@@ -201,12 +227,14 @@ struct GroupLeaderboardView: View {
     private let rangeTitle = String(localized: "Period")
     private let lensTitle = String(localized: "Rank by")
     private let scoreTitle = String(localized: "Score")
-    private let effortTitle = String(localized: "Effort")
+    private let pointsTitle = String(localized: "Points")
+    private let scoreCaption = String(localized: "Result of the scored block — time, rounds or load.")
     private let divisionTitle = String(localized: "Division")
     private let rxTitle = String(localized: "Rx")
     private let scaledTitle = String(localized: "Scaled")
     private let noResultsText = String(localized: "No results yet today.")
     private let noWeekResultsText = String(localized: "No results this week yet.")
+    private let noWeekResultsHint = String(localized: "Enter the WOD result in the Summary to get a place in the table.")
     private let weekRuleText = String(localized: "Sum of daily places — lower is better. A missed day counts as last place + 1; ties go to more workouts.")
     private let failedText = String(localized: "Couldn't load the leaderboard.")
     private let hrBadge = String(localized: "✓ HR")

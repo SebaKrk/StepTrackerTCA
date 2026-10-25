@@ -21,6 +21,7 @@ struct InviteView: View {
     var body: some View {
         NavigationStack {
             content
+                .background(backgroundGradient)
                 .navigationTitle(navigationTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -29,6 +30,7 @@ struct InviteView: View {
                     }
                 }
         }
+        .tint(store.color)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -50,34 +52,47 @@ struct InviteView: View {
     }
 
     private var inviteList: some View {
-        List {
-            codeSection
-            scansSection
+        ScrollView {
+            VStack(spacing: 16) {
+                codeCard
+                scansCard
+            }
+            .padding()
         }
     }
 
-    private var codeSection: some View {
-        Section {
-            qrCode
-            replaceCodeButton
-        } footer: {
-            Text(codeFooter)
+    private var codeCard: some View {
+        GroupBox {
+            VStack(spacing: 12) {
+                qrCode
+                codeFooterText
+                replaceCodeButton
+            }
+            .frame(maxWidth: .infinity)
         }
+        .styledGroupBox()
     }
 
-    private var scansSection: some View {
-        Section {
-            if store.scans.isEmpty {
-                Text(noScansText)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(store.scans) { scan in
-                    scanRow(scan)
+    private var scansCard: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                if store.scans.isEmpty {
+                    Text(noScansText)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(store.scans) { scan in
+                        scanRow(scan)
+                        if scan.id != store.scans.last?.id {
+                            Divider()
+                        }
+                    }
                 }
             }
-        } header: {
-            Text(scansHeader)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } label: {
+            cardLabel(scansHeader)
         }
+        .styledGroupBox()
     }
 
     // MARK: - Implementation
@@ -92,6 +107,29 @@ struct InviteView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
         }
+    }
+
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [store.color.opacity(0.25), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+
+    private func cardLabel(_ title: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+            Divider()
+        }
+    }
+
+    private var codeFooterText: some View {
+        Text(codeFooter)
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
     }
 
     private var replaceCodeButton: some View {

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SwiftUI
 
 extension InvitationPreviewFeature {
 
@@ -17,6 +18,9 @@ extension InvitationPreviewFeature {
 
         /// Name the group will see after joining.
         var displayName: String
+
+        /// Accent of the Team tab — background gradient and prominent controls.
+        var color: Color
 
         /// Current step.
         var phase: InvitationPreviewPhase = .scanning

@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import SwiftUI
 
 extension PublishPlanFeature {
 
@@ -25,10 +26,13 @@ extension PublishPlanFeature {
         /// Author name shown to the group.
         var displayName: String
 
+        /// Accent of the Team tab — background gradient and the publish button.
+        var color: Color
+
         /// The user's plans from Plans, newest first.
         var plans: [TrainingSession] = []
 
-        /// Plan picked for today, with any minutes filled in by "Fill to 60 min".
+        /// Plan opened from the list, with any minutes filled in by "Fill to 60 min"; `nil` shows the list.
         var selectedPlan: TrainingSession?
 
         /// Block whose score builds the leaderboard.
@@ -42,6 +46,12 @@ extension PublishPlanFeature {
 
         /// Message of the last failed attempt.
         var errorMessage: String?
+
+        /// UI-only — warm-up card expanded in the plan detail.
+        var isWarmupExpanded = true
+
+        /// UI-only — cool-down card expanded in the plan detail.
+        var isCooldownExpanded = true
 
         // MARK: - Derived
 

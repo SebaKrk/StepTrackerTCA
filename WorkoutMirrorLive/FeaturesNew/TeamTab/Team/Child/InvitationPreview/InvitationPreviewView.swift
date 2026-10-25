@@ -21,6 +21,7 @@ struct InvitationPreviewView: View {
     var body: some View {
         NavigationStack {
             phaseContent
+                .background(backgroundGradient)
                 .navigationTitle(navigationTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -29,6 +30,7 @@ struct InvitationPreviewView: View {
                     }
                 }
         }
+        .tint(store.color)
     }
 
     // MARK: - Phases (structure)
@@ -50,12 +52,16 @@ struct InvitationPreviewView: View {
 
     private func invitationCard(_ invitation: TeamInvitation, state: TeamInvitationState) -> some View {
         ScrollView {
-            VStack(spacing: 20) {
-                invitationHeader(invitation)
-                invitationFacts(invitation)
-                invitationActions(state)
+            GroupBox {
+                VStack(spacing: 20) {
+                    invitationHeader(invitation)
+                    invitationFacts(invitation)
+                    invitationActions(state)
+                }
+                .padding(.vertical, 8)
             }
-            .padding(20)
+            .styledGroupBox()
+            .padding()
         }
     }
 
@@ -72,6 +78,15 @@ struct InvitationPreviewView: View {
     }
 
     // MARK: - Implementation
+
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [store.color.opacity(0.25), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
 
     private var scanner: some View {
         QRScannerView { code in
