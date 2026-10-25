@@ -19,6 +19,9 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
     public let warmUp: WarmUpSession?
     public let workouts: [WorkoutSessionNew]
     public let coolDown: CoolDownSession?
+    /// Team daily plan this copy was downloaded from (`{groupId}/{day}`); `nil` for the user's own plans.
+    /// Editing the plan drops it, so a changed copy no longer posts to that leaderboard.
+    public let teamPlanId: String?
 
     public init(
         id: UUID = UUID(),
@@ -28,7 +31,8 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         location: WorkoutLocationType,
         warmUp: WarmUpSession?,
         workouts: [WorkoutSessionNew],
-        coolDown: CoolDownSession?
+        coolDown: CoolDownSession?,
+        teamPlanId: String? = nil
     ) {
         self.id = id
         self.date = date
@@ -38,6 +42,7 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         self.warmUp = warmUp
         self.workouts = workouts
         self.coolDown = coolDown
+        self.teamPlanId = teamPlanId
     }
 
     public init(id: UUID = UUID(), draft: TrainingSessionDraft) {
@@ -49,6 +54,7 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         self.warmUp = draft.warmUp
         self.workouts = draft.workouts
         self.coolDown = draft.coolDown
+        self.teamPlanId = nil
     }
 
     public static let previewTrainingSession = TrainingSession(

@@ -128,7 +128,8 @@ extension TrainingSession {
             location: location,
             warmUp: warmUp,
             workouts: rematchedWorkouts,
-            coolDown: coolDown
+            coolDown: coolDown,
+            teamPlanId: teamPlanId
         )
     }
 }

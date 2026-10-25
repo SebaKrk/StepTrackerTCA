@@ -15,6 +15,8 @@ struct TrainingSessionClient: Sendable {
     var save:     @Sendable (TrainingSession) async throws -> Void
     var fetchAll: @Sendable () async throws -> [TrainingSession]
     var delete:   @Sendable (UUID) async throws -> Void
+    /// Local copy of a Team daily plan (`{groupId}/{day}`), or `nil` when it was not downloaded.
+    var fetchByTeamPlanId: @Sendable (String) async throws -> TrainingSession?
 }
 
 extension DependencyValues {
@@ -43,6 +45,7 @@ private enum TrainingSessionClientKey: DependencyKey {
                         warmUpData: record.warmUpData,
                         workoutsData: record.workoutsData,
                         coolDownData: record.coolDownData,
+                        teamPlanId: record.teamPlanId,
                         createdAt: record.createdAt,
                         updatedAt: record.updatedAt
                     )
@@ -64,6 +67,14 @@ private enum TrainingSessionClientKey: DependencyKey {
                         .delete()
                         .execute(db)
                 }
+            },
+            fetchByTeamPlanId: { teamPlanId in
+                try await database.read { db in
+                    try TrainingSessionRecord
+                        .where { $0.teamPlanId.eq(teamPlanId) }
+                        .fetchOne(db)
+                        .map { try $0.toDomain() }
+                }
             }
         )
     }()
@@ -72,7 +83,8 @@ private enum TrainingSessionClientKey: DependencyKey {
         TrainingSessionClient(
             save: unimplemented("TrainingSessionClient.save"),
             fetchAll: unimplemented("TrainingSessionClient.fetchAll"),
-            delete: unimplemented("TrainingSessionClient.delete")
+            delete: unimplemented("TrainingSessionClient.delete"),
+            fetchByTeamPlanId: unimplemented("TrainingSessionClient.fetchByTeamPlanId")
         )
     }
 }
