@@ -75,6 +75,17 @@ public enum ClaudePrompt {
     - First workout "HSPU + Running": "Shoulder mobility and wrist prep (bear crawls, wall slides), light jogging 400m, HSPU scaling practice (box HSPU or pike push-ups)."
     - First workout "Deadlift": "Hip hinge practice, glute and hamstring activation (glute bridges, leg swings), light barbell deadlifts building to working weight."
 
+    Class time budget (CRITICAL - every section has a length):
+    - EVERY section MUST have "durationMinutes": the minutes it takes in the class,
+      including setup, explanation and rest — never null
+    - For a timed WOD, durationMinutes >= timeCapMinutes (e.g. "AMRAP 12'" → timeCapMinutes: 12,
+      durationMinutes: 15); a strength block without a cap still gets its minutes (typically 12-15)
+    - Use times written in the plan when present; otherwise estimate realistically
+      (strength/weightlifting 12-15, skill 8-10, a WOD = its cap + 3, cool-down 5-10)
+    - All durationMinutes together MUST add up to at least 60 (a standard class hour);
+      if the written work is shorter, give the remainder to the warm-up and the cool-down
+    - "totalEstimatedMinutes" = the sum of all durationMinutes
+
     Section naming rules (CRITICAL - avoid semantic conflicts):
     - Field "name": Describes WHAT the athlete will be working on (not format, not single exercise name)
       * Bad: "WOD: For time" (conflicts with type), "AMRAP 10'" (conflicts with type), "Back squat" (too specific)
@@ -219,7 +230,7 @@ public enum ClaudePrompt {
         {
           "type": "warmup|strength|conditioning|mobility|transition|cooldown",
           "name": "string | null",
-          "durationMinutes": number | null,
+          "durationMinutes": number (REQUIRED, minutes in the class — see Class time budget),
           "description": "string | null",
           "timeCapMinutes": number | null,
           "rounds": "string | null",
