@@ -84,7 +84,7 @@ struct TeamView: View {
 
     @ViewBuilder
     private var groupsListOrEmpty: some View {
-        if store.groups.isEmpty {
+        if store.groups.isEmpty && store.pendingInvitations.isEmpty {
             noGroupsView
         } else {
             groupsList
@@ -93,13 +93,46 @@ struct TeamView: View {
 
     private var groupsList: some View {
         List {
-            ForEach(store.groups) { group in
-                groupRow(group)
-            }
-            .listRowBackground(Color.clear)
+            invitationsSection
+            groupsSection
         }
-        .listStyle(.plain)
         .scrollContentBackground(.hidden)
+    }
+
+    @ViewBuilder
+    private var invitationsSection: some View {
+        if !store.pendingInvitations.isEmpty {
+            Section {
+                ForEach(store.pendingInvitations) { invitation in
+                    invitationRow(invitation)
+                }
+            } header: {
+                Text(invitationsHeader)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var groupsSection: some View {
+        if !store.groups.isEmpty {
+            Section {
+                ForEach(store.groups) { group in
+                    groupRow(group)
+                }
+            } header: {
+                Text(groupsHeader)
+            }
+        }
+    }
+
+    // MARK: - Invitation Row (structure)
+
+    private func invitationRow(_ invitation: TeamInvitation) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            invitationTitles(invitation)
+            invitationButtons(invitation)
+        }
+        .padding(.vertical, 4)
     }
 
     // MARK: - Group Row (structure)
@@ -164,6 +197,44 @@ struct TeamView: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private func invitationTitles(_ invitation: TeamInvitation) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(invitation.invite.groupName)
+                .font(.headline)
+            Text(String(localized: "From \(invitation.invite.createdByName)"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func invitationButtons(_ invitation: TeamInvitation) -> some View {
+        HStack(spacing: 10) {
+            declineInvitationButton(invitation)
+            joinInvitationButton(invitation)
+        }
+        .disabled(store.respondingInvitationIds.contains(invitation.id))
+    }
+
+    private func joinInvitationButton(_ invitation: TeamInvitation) -> some View {
+        Button {
+            send(.invitationJoinTapped(invitation))
+        } label: {
+            Text(joinTitle)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+    }
+
+    private func declineInvitationButton(_ invitation: TeamInvitation) -> some View {
+        Button(role: .destructive) {
+            send(.invitationDeclineTapped(invitation))
+        } label: {
+            Text(declineTitle)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
     }
 
     private var chevron: some View {
@@ -248,4 +319,8 @@ struct TeamView: View {
     private let retryTitle = String(localized: "Try Again")
     private let createGroupTitle = String(localized: "Create Group")
     private let scanInviteTitle = String(localized: "Scan Invite")
+    private let invitationsHeader = String(localized: "Invitations")
+    private let groupsHeader = String(localized: "My Groups")
+    private let joinTitle = String(localized: "Join")
+    private let declineTitle = String(localized: "Decline")
 }

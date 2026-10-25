@@ -1534,3 +1534,10 @@
     - A: Team tab in the bottom bar (replaces the unused Sharing placeholder) with a Private/Public switch; Private lists the user's groups live, Public shows a "coming soon" view; first visit signs in anonymously
     - B: "New group" sheet — name of 3–40 characters, shows the name other members will see (nickname → first name → Athlete-XXX)
     - C: group screen with members and "Leave group" behind a confirmation
+
+### IOS-00145 Team — QR invites with statuses
+    - branch: `dev/IOS-00145/IOS-00145` (from IOS-00144); plan in `PLANS/IOS-00143-team-v01.md` (T2)
+    - A: invite sheet on the group screen — QR valid for 7 days and reused until it expires; live list of who scanned it with status; revoke replaces the code
+    - B: scanner in the Team tab — non-invite codes are rejected; the card shows group, inviter and validity with Join / Later / Decline
+    - C: "Invitations" section in the Team tab with pending, still-valid invites and Join / Decline
+    - limit: someone who joined, left and scans the same code again keeps the old "joined" status — they need a new code
