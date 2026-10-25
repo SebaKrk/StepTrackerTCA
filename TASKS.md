@@ -1528,3 +1528,9 @@
     - B: Firestore rules and indexes versioned in the repo (groups, members, invites, daily plans, entries)
     - C: Team domain types in SharedModels, no Firebase: invites, entries, score normalization, day ranking, week standings, measurement window
     - D: `TeamClient` with a Firestore-backed service; the rest of the app never imports Firebase
+
+### IOS-00144 Team tab — groups list, create group, group screen
+    - branch: `dev/IOS-00144/IOS-00144` (from `dev/IOS-00143/IOS-00143`); plan in `PLANS/IOS-00143-team-v01.md` (T1)
+    - A: Team tab in the bottom bar (replaces the unused Sharing placeholder) with a Private/Public switch; Private lists the user's groups live, Public shows a "coming soon" view; first visit signs in anonymously
+    - B: "New group" sheet — name of 3–40 characters, shows the name other members will see (nickname → first name → Athlete-XXX)
+    - C: group screen with members and "Leave group" behind a confirmation
