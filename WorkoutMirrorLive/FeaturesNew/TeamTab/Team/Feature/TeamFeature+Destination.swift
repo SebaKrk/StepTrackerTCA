@@ -15,6 +15,9 @@ extension TeamFeature {
 
         /// Sheet for naming a new group.
         case createGroup(CreateGroupFeature)
+
+        /// Screen of one group.
+        case group(GroupFeature)
     }
 
 }

@@ -44,6 +44,9 @@ extension TeamFeature {
 
             /// Called when the user taps "+" or "Create Group".
             case createGroupTapped
+
+            /// Called when the user taps a group in the list.
+            case groupTapped(TeamGroup)
         }
     }
 

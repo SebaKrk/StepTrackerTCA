@@ -38,6 +38,11 @@ struct TeamView: View {
                     CreateGroupView(store: createGroupStore)
                         .presentationDetents([.medium])
                 }
+                .navigationDestination(
+                    item: $store.scope(state: \.destination?.group, action: \.destination.group)
+                ) { groupStore in
+                    GroupView(store: groupStore)
+                }
         }
         .onAppear {
             send(.viewDidAppear)
@@ -92,12 +97,23 @@ struct TeamView: View {
     // MARK: - Group Row (structure)
 
     private func groupRow(_ group: TeamGroup) -> some View {
+        Button {
+            send(.groupTapped(group))
+        } label: {
+            groupRowContent(group)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func groupRowContent(_ group: TeamGroup) -> some View {
         HStack(spacing: 12) {
             groupBadge(group)
             groupTitles(group)
             Spacer()
+            chevron
         }
         .padding(.vertical, 6)
+        .contentShape(.rect)
     }
 
     // MARK: - Implementation
@@ -140,6 +156,12 @@ struct TeamView: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private var chevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.tertiary)
     }
 
     private var noGroupsView: some View {

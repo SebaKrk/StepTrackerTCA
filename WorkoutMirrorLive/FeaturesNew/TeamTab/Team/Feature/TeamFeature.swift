@@ -39,6 +39,13 @@ struct TeamFeature {
                 state.destination = .createGroup(CreateGroupFeature.State(displayName: state.displayName))
                 return .none
 
+            case let .view(.groupTapped(group)):
+                guard let myUid = state.myUid else { return .none }
+                state.destination = .group(
+                    GroupFeature.State(group: group, myUid: myUid, displayName: state.displayName)
+                )
+                return .none
+
             // MARK: - Internal
 
             case let .signedIn(uid, displayName):
