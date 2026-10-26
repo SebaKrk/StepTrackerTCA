@@ -10,7 +10,7 @@ import SharedModels
 
 extension BoardScore {
 
-    /// Short text for a leaderboard row: "12:34", "CAP + 4", "5 rds + 12", "102.5 kg", "48 reps", "Done".
+    /// Short text for a leaderboard row: "12:34", "CAP + 4", "5 rds + 12", "102.5 kg", "48 reps", "No result".
     var displayText: String {
         switch self {
         case .forTime(let seconds):
@@ -26,7 +26,7 @@ extension BoardScore {
         case .reps(let reps):
             return String(localized: "\(reps) reps")
         case .unranked:
-            return String(localized: "Done")
+            return String(localized: "No result")
         }
     }
 }

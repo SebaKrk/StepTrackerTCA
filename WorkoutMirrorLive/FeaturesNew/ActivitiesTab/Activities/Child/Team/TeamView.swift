@@ -44,7 +44,7 @@ struct TeamView: View {
             ) { groupStore in
                 GroupView(store: groupStore)
             }
-            .sheet(
+            .fullScreenCover(
                 item: $store.scope(state: \.destination?.invitationPreview, action: \.destination.invitationPreview)
             ) { previewStore in
                 InvitationPreviewView(store: previewStore)

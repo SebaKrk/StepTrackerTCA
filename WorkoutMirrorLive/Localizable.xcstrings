@@ -91,26 +91,6 @@
         }
       }
     },
-    "Enter the WOD result in the Summary to get a place in the table." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wpisz wynik WOD w Podsumowaniu, żeby trafić do tabeli."
-          }
-        }
-      }
-    },
-    "Groups" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Grupy"
-          }
-        }
-      }
-    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -140,9 +120,6 @@
           }
         }
       }
-    },
-    "·" : {
-
     },
     "· %lld rounds + %lld reps" : {
       "localizations" : {
@@ -3414,6 +3391,16 @@
         }
       }
     },
+    "Enter the WOD result in the Summary to get a place in the table." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz wynik WOD w Podsumowaniu, żeby trafić do tabeli."
+          }
+        }
+      }
+    },
     "Enter total reps / calories" : {
       "localizations" : {
         "pl" : {
@@ -3864,6 +3851,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nazwa grupy"
+          }
+        }
+      }
+    },
+    "Groups" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupy"
           }
         }
       }
@@ -5451,6 +5448,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak planów"
+          }
+        }
+      }
+    },
+    "No result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wyniku"
           }
         }
       }
@@ -7888,6 +7895,7 @@
       }
     },
     "Team segment" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
