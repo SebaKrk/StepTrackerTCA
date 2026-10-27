@@ -91,6 +91,16 @@
         }
       }
     },
+    "Pick a plan from the list and add it for the whole group." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz plan z listy i dodaj go dla całej grupy."
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -1043,6 +1053,7 @@
       }
     },
     "A group plan lasts at least 60 minutes — everyone is measured over the same window." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2460,7 +2471,18 @@
         }
       }
     },
+    "Couldn't load the plan." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać planu."
+          }
+        }
+      }
+    },
     "Couldn't load today's plan." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3257,6 +3279,26 @@
         }
       }
     },
+    "Effort points and kcal summed Monday to Sunday — every workout counts." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suma punktów i kcal od poniedziałku do niedzieli — liczy się każdy trening."
+          }
+        }
+      }
+    },
+    "Effort points count from each member's start for this long — the same window for the whole group. The plan itself is published unchanged." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkty liczą się przez tyle minut od startu każdej osoby — to samo okno dla całej grupy. Sam plan publikujemy bez zmian."
+          }
+        }
+      }
+    },
     "Elevation" : {
       "localizations" : {
         "pl" : {
@@ -3392,6 +3434,7 @@
       }
     },
     "Enter the WOD result in the Summary to get a place in the table." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3593,6 +3636,7 @@
       }
     },
     "Fill to 60 Minutes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4530,6 +4574,16 @@
     "kcal" : {
       "shouldTranslate" : false
     },
+    "kcal only from members who share them." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "kcal tylko od osób, które je udostępniają."
+          }
+        }
+      }
+    },
     "kcla" : {
       "localizations" : {
         "pl" : {
@@ -5128,6 +5182,16 @@
         }
       }
     },
+    "Next Day" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Następny dzień"
+          }
+        }
+      }
+    },
     "Nick: %@" : {
       "localizations" : {
         "pl" : {
@@ -5433,11 +5497,43 @@
       }
     },
     "No plan for today yet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak planu na dziś"
+          }
+        }
+      }
+    },
+    "No plan that day" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak planu tego dnia"
+          }
+        }
+      }
+    },
+    "No plan was published that day." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tego dnia nie opublikowano planu."
+          }
+        }
+      }
+    },
+    "No Plan Yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak planu"
           }
         }
       }
@@ -5472,12 +5568,34 @@
         }
       }
     },
+    "No Results Yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wyników"
+          }
+        }
+      }
+    },
     "No results yet today." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak wyników na dziś."
+          }
+        }
+      }
+    },
+    "No results yet." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wyników."
           }
         }
       }
@@ -6032,6 +6150,16 @@
         }
       }
     },
+    "Plan of the Day" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan dnia"
+          }
+        }
+      }
+    },
     "Plan too large for a QR code" : {
       "localizations" : {
         "pl" : {
@@ -6156,6 +6284,16 @@
         }
       }
     },
+    "Points Window" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okno punktów"
+          }
+        }
+      }
+    },
     "Porównanie animacji" : {
       "localizations" : {
         "pl" : {
@@ -6212,6 +6350,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Podgląd"
+          }
+        }
+      }
+    },
+    "Previous Day" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poprzedni dzień"
           }
         }
       }
@@ -6615,6 +6763,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyniki"
+          }
+        }
+      }
+    },
+    "Results show up once members send a workout to the group." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyniki pojawią się, gdy ktoś wyśle trening do grupy."
           }
         }
       }
@@ -7753,6 +7911,7 @@
       }
     },
     "Sum of daily places — lower is better. A missed day counts as last place + 1; ties go to more workouts." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -7834,6 +7993,7 @@
       }
     },
     "Tap + to publish one from your Plans." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -8154,6 +8314,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aby zobaczyć swoje treningi, przyznaj dostęp do HealthKit w Ustawieniach."
+          }
+        }
+      }
+    },
+    "today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dziś"
           }
         }
       }

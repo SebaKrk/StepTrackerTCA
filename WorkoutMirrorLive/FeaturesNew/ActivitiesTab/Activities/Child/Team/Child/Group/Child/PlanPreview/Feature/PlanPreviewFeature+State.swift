@@ -20,11 +20,14 @@ extension PlanPreviewFeature {
         /// Group the plan belongs to.
         var groupId: String
 
-        /// Today's plan of the group.
+        /// The group's plan of the day on screen.
         var plan: TeamPlan
 
         /// A local copy is already in Plans.
         var isDownloaded: Bool
+
+        /// The plan is today's — past plans are view-only, their points window is over.
+        var canDownload: Bool
 
         /// Accent of the Team tab — background gradient and the download button.
         var color: Color

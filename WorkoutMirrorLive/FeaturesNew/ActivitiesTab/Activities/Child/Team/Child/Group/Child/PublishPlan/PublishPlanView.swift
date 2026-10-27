@@ -80,7 +80,7 @@ struct PublishPlanView: View {
         if let plan = store.selectedPlan {
             ScrollView {
                 VStack(spacing: 12) {
-                    classLengthCard
+                    effortWindowCard
                     scoredBlockCard(plan)
                     planContent(plan)
                 }
@@ -95,17 +95,14 @@ struct PublishPlanView: View {
         }
     }
 
-    private var classLengthCard: some View {
+    private var effortWindowCard: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
-                PlanBudgetBar(totalMinutes: store.plannedTotalMinutes, targetMinutes: PublishPlanFeature.State.classMinutes)
-                if store.missingMinutes > 0 {
-                    fillClassLengthButton
-                }
-                cardFooter(classLengthFooter)
+                effortWindowStepper
+                cardFooter(effortWindowFooter)
             }
         } label: {
-            cardLabel(classLengthHeader)
+            cardLabel(effortWindowHeader)
         }
         .styledGroupBox()
     }
@@ -196,13 +193,16 @@ struct PublishPlanView: View {
             .foregroundStyle(.red)
     }
 
-    private var fillClassLengthButton: some View {
-        Button {
-            send(.fillClassLengthTapped)
-        } label: {
-            Label(fillClassLengthTitle, systemImage: "wand.and.stars")
+    private var effortWindowStepper: some View {
+        Stepper(
+            value: $store.effortWindowMinutes.sending(\.view.effortWindowChanged),
+            in: PublishPlanFeature.State.effortWindowRange,
+            step: PublishPlanFeature.State.effortWindowStep
+        ) {
+            Text(String(localized: "\(store.effortWindowMinutes) min"))
+                .font(.title3.weight(.semibold))
+                .monospacedDigit()
         }
-        .buttonStyle(.bordered)
     }
 
     private var publishButton: some View {
@@ -265,9 +265,8 @@ struct PublishPlanView: View {
     private let planFooter = String(localized: "The group sees the whole plan and can download it to their Plans.")
     private let scoredBlockTitle = String(localized: "Scored Block")
     private let scoredBlockFooter = String(localized: "The leaderboard ranks results of this block.")
-    private let classLengthHeader = String(localized: "Class Length")
-    private let classLengthFooter = String(localized: "A group plan lasts at least 60 minutes — everyone is measured over the same window.")
-    private let fillClassLengthTitle = String(localized: "Fill to 60 Minutes")
+    private let effortWindowHeader = String(localized: "Points Window")
+    private let effortWindowFooter = String(localized: "Effort points count from each member's start for this long — the same window for the whole group. The plan itself is published unchanged.")
     private let cancelTitle = String(localized: "Cancel")
     private let publishTitle = String(localized: "Publish to Group")
     private let noPlansTitle = String(localized: "No Plans")

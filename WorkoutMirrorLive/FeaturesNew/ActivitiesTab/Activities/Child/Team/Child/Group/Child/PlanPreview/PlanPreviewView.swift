@@ -28,7 +28,9 @@ struct PlanPreviewView: View {
                 .padding()
             }
             .safeAreaBar(edge: .bottom) {
-                downloadBar
+                if store.canDownload {
+                    downloadBar
+                }
             }
             .background(backgroundGradient)
             .navigationTitle(store.plan.session.title)

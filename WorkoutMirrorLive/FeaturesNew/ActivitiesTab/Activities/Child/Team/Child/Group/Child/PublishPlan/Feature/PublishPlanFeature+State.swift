@@ -32,11 +32,14 @@ extension PublishPlanFeature {
         /// The user's plans from Plans, newest first.
         var plans: [TrainingSession] = []
 
-        /// Plan opened from the list, with any minutes filled in by "Fill to 60 min"; `nil` shows the list.
+        /// Plan opened from the list, published exactly as it is; `nil` shows the list.
         var selectedPlan: TrainingSession?
 
         /// Block whose score builds the leaderboard.
         var scoredBlockId: UUID?
+
+        /// Effort points window from each member's start — the same for the whole group.
+        var effortWindowMinutes = Self.defaultEffortWindowMinutes
 
         /// Loading state of the plan list.
         var viewState: ViewState = .loading
@@ -55,23 +58,19 @@ extension PublishPlanFeature {
 
         // MARK: - Derived
 
-        /// Class length of the selected plan.
-        var plannedTotalMinutes: Int {
-            selectedPlan?.plannedTotalMinutes ?? 0
-        }
-
-        /// Minutes missing to the 60-minute class.
-        var missingMinutes: Int {
-            selectedPlan?.missingPlannedMinutes(target: Self.classMinutes) ?? Self.classMinutes
-        }
-
-        /// Publish is allowed for a plan of at least 60 minutes with a scored block.
+        /// Publish is allowed for a selected plan with a scored block.
         var canPublish: Bool {
-            selectedPlan != nil && scoredBlockId != nil && missingMinutes == 0 && !isPublishing
+            selectedPlan != nil && scoredBlockId != nil && !isPublishing
         }
 
-        /// Shortest plan a group accepts — the server rule checks the same number.
-        static let classMinutes = 60
+        /// Window offered when a plan is opened.
+        static let defaultEffortWindowMinutes = 60
+
+        /// Allowed windows — the server rule rejects anything under 60 minutes.
+        static let effortWindowRange = 60...120
+
+        /// Stepper step of the window.
+        static let effortWindowStep = 5
     }
 
 }

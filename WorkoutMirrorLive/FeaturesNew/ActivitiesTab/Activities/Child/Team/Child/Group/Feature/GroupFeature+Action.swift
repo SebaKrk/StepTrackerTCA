@@ -22,14 +22,14 @@ extension GroupFeature {
         /// Internal — listening to members failed.
         case membersFailed
 
-        /// Internal — today's plan changed; carries whether a local copy exists.
-        case todayPlanLoaded(TeamPlan?, isDownloaded: Bool)
+        /// Internal — the selected day's plan changed; carries whether a local copy exists.
+        case dayPlanLoaded(TeamPlan?, isDownloaded: Bool)
 
-        /// Internal — listening to today's plan failed.
-        case todayPlanFailed
+        /// Internal — listening to the selected day's plan failed.
+        case dayPlanFailed
 
         /// Internal — the card's download finished; `true` when the copy was saved.
-        case todayPlanDownloadFinished(Bool)
+        case dayPlanDownloadFinished(Bool)
 
         /// Internal — the user is no longer a member.
         case left
@@ -64,11 +64,20 @@ extension GroupFeature {
             /// Called when the user taps "+" to publish today's plan.
             case publishPlanTapped
 
-            /// Called when the user opens today's plan.
-            case todayPlanPreviewTapped
+            /// Called when the user opens the selected day's plan.
+            case dayPlanPreviewTapped
 
             /// Called when the user downloads today's plan from the card.
-            case todayPlanDownloadTapped
+            case dayPlanDownloadTapped
+
+            /// Called when the user taps the arrow to the previous day.
+            case previousDayTapped
+
+            /// Called when the user taps the arrow to the next day.
+            case nextDayTapped
+
+            /// Called when the user picks a day in the week strip.
+            case daySelected(String)
         }
 
         @CasePathable

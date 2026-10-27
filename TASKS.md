@@ -1571,3 +1571,16 @@
     - Today: live ranking of the scored block (finishers before capped, unranked at the bottom); Effort ranks only entries with the current weights version
     - Week: sum of daily places Monday–Sunday, a missed day = last place + 1, ties go to more workouts
     - badges: kcal (when shared), ✓ HR, measured X/Y min when coverage is under 90%, started warm, edited, late
+
+### IOS-00152 Team — points first, day navigation, plan published as is
+    - branch: `dev/IOS-00152/IOS-00152` (from IOS-00151)
+    - the plan is published unchanged and the author's own plan becomes the group copy (no duplicate in Plans); the owner sets a points window (60–120 min) instead of filling the plan to 60 minutes
+    - the leaderboard ranks by effort points by default, everyone together; the score lens keeps Rx / Scaled; the week sums points and kcal with the workout count
+    - day navigator on the group screen (arrows and a Monday–Sunday strip with plan dots); plan and ranking follow the chosen day; past days are view-only
+    - empty cards use the system empty state with a fixed height and an "Add Plan" link for today; "+" in Team opens Create Group / Scan Invite; the group's QR moved into its "…" menu
+
+#### Follow-up — Team group identity (backlog, no task ID; after IOS-00152)
+    - the owner picks the group's colour from a fixed palette and a short name (badge initials) when creating the group, and can change both later
+    - both are stored in the group document (palette index, not a raw colour); groups without them keep today's look (tab colour, first two letters)
+    - Firestore rules accept and validate the new fields — deploy the rules before shipping the app, the create rule whitelists fields
+    - the group list badge and the group screen use the group's colour

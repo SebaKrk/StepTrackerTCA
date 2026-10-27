@@ -16,6 +16,9 @@ struct GroupView: View {
 
     @Bindable var store: StoreOf<GroupFeature>
 
+    // Fits ContentUnavailableView with its link, so a day with or without a plan keeps the card's height.
+    @ScaledMetric(relativeTo: .body) private var planMinHeight: CGFloat = 220
+
     // MARK: - Body (structure)
 
     var body: some View {
@@ -25,9 +28,6 @@ struct GroupView: View {
             .navigationTitle(store.group.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    inviteButton
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     publishPlanButton
                 }
@@ -74,8 +74,10 @@ struct GroupView: View {
     private var groupCards: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
-                sectionHeader(todayHeader)
-                todayCard
+                dayNavigatorCard
+                sectionHeader(dayPlanHeader)
+                    .padding(.top, 8)
+                dayPlanCard
                 sectionHeader(leaderboardHeader)
                     .padding(.top, 8)
                 leaderboardCard
@@ -87,10 +89,25 @@ struct GroupView: View {
         }
     }
 
-    private var todayCard: some View {
+    private var dayNavigatorCard: some View {
         GroupBox {
-            todayContent
-                .frame(maxWidth: .infinity, alignment: .leading)
+            DayNavigatorView(
+                weekDays: store.weekDays,
+                selectedDay: store.selectedDay,
+                today: store.today,
+                daysWithPlan: store.daysWithPlan,
+                onPrevious: { send(.previousDayTapped) },
+                onNext: { send(.nextDayTapped) },
+                onSelect: { send(.daySelected($0)) }
+            )
+        }
+        .styledGroupBox()
+    }
+
+    private var dayPlanCard: some View {
+        GroupBox {
+            dayPlanContent
+                .frame(maxWidth: .infinity, minHeight: planMinHeight, alignment: .topLeading)
         }
         .styledGroupBox()
     }
@@ -118,39 +135,43 @@ struct GroupView: View {
     }
 
     @ViewBuilder
-    private var todayContent: some View {
-        switch store.todayPlanState {
+    private var dayPlanContent: some View {
+        switch store.dayPlanState {
         case .loading:
             ProgressView()
                 .frame(maxWidth: .infinity)
         case .failed:
-            Text(todayFailedText)
-                .foregroundStyle(.secondary)
+            emptyPlanState(
+                title: failedTitle,
+                systemImage: "exclamationmark.triangle",
+                description: dayPlanFailedText,
+                showsAddPlan: false
+            )
         case .success:
-            if let plan = store.todayPlan {
-                todayPlanCard(plan)
+            if let plan = store.dayPlan {
+                dayPlanSummary(plan)
             } else {
-                noTodayPlanText
+                noDayPlanText
             }
         }
     }
 
-    private func todayPlanCard(_ plan: TeamPlan) -> some View {
+    private func dayPlanSummary(_ plan: TeamPlan) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            todayPlanPreviewButton(plan)
-            if !store.isTodayPlanDownloaded {
-                downloadTodayPlanButton
+            dayPlanPreviewButton(plan)
+            if store.isSelectedDayToday && !store.isDayPlanDownloaded {
+                downloadDayPlanButton
             }
         }
     }
 
     // The whole plan summary opens the preview, like plan cards elsewhere.
-    private func todayPlanPreviewButton(_ plan: TeamPlan) -> some View {
+    private func dayPlanPreviewButton(_ plan: TeamPlan) -> some View {
         Button {
-            send(.todayPlanPreviewTapped)
+            send(.dayPlanPreviewTapped)
         } label: {
             VStack(alignment: .leading, spacing: 12) {
-                todayPlanHeader(plan)
+                dayPlanHeader(plan)
                 Divider()
                 PlanSummaryDetails(session: plan.session)
             }
@@ -159,13 +180,13 @@ struct GroupView: View {
         .buttonStyle(.plain)
     }
 
-    private func todayPlanHeader(_ plan: TeamPlan) -> some View {
+    private func dayPlanHeader(_ plan: TeamPlan) -> some View {
         HStack(alignment: .top, spacing: 8) {
             // The title keeps its width; the badge shrinks to an icon when space runs out.
-            todayPlanTitles(plan)
+            dayPlanTitles(plan)
                 .layoutPriority(1)
             Spacer(minLength: 0)
-            if store.isTodayPlanDownloaded {
+            if store.isDayPlanDownloaded {
                 InYourPlansBadge()
             }
             chevron
@@ -174,7 +195,7 @@ struct GroupView: View {
 
     // MARK: - Implementation
 
-    private func todayPlanTitles(_ plan: TeamPlan) -> some View {
+    private func dayPlanTitles(_ plan: TeamPlan) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(plan.session.title)
                 .font(.headline)
@@ -199,12 +220,12 @@ struct GroupView: View {
     }
 
 
-    private var downloadTodayPlanButton: some View {
+    private var downloadDayPlanButton: some View {
         Button {
-            send(.todayPlanDownloadTapped)
+            send(.dayPlanDownloadTapped)
         } label: {
             Group {
-                if store.isDownloadingTodayPlan {
+                if store.isDownloadingDayPlan {
                     ProgressView()
                 } else {
                     Label(downloadTitle, systemImage: "arrow.down.circle")
@@ -214,16 +235,47 @@ struct GroupView: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
-        .disabled(store.isDownloadingTodayPlan)
+        .disabled(store.isDownloadingDayPlan)
     }
 
-    private var noTodayPlanText: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(noTodayPlanTitle)
-            Text(noTodayPlanHint)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+    private var noDayPlanText: some View {
+        emptyPlanState(
+            title: noPlanTitle,
+            systemImage: store.isSelectedDayToday ? "calendar.badge.plus" : "calendar",
+            description: store.isSelectedDayToday ? noTodayPlanHint : noPastPlanText,
+            showsAddPlan: store.isSelectedDayToday
+        )
+    }
+
+    private func emptyPlanState(title: String, systemImage: String, description: String, showsAddPlan: Bool) -> some View {
+        // Smaller than the full-screen default — it sits inside a card.
+        ContentUnavailableView {
+            Label {
+                Text(title)
+                    .font(.headline)
+            } icon: {
+                Image(systemName: systemImage)
+            }
+            .imageScale(.small)
+        } description: {
+            Text(description)
+                .font(.footnote)
+        } actions: {
+            if showsAddPlan {
+                emptyPublishPlanButton
+            }
         }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var emptyPublishPlanButton: some View {
+        Button {
+            send(.publishPlanTapped)
+        } label: {
+            Label(addPlanTitle, systemImage: "plus")
+                .font(.footnote.weight(.semibold))
+        }
+        .buttonStyle(.borderless)
     }
 
     private func memberRow(_ member: TeamMember) -> some View {
@@ -280,10 +332,13 @@ struct GroupView: View {
         } label: {
             Label(publishPlanTitle, systemImage: "plus")
         }
+        .disabled(!store.isSelectedDayToday)
     }
 
     private var moreMenu: some View {
         Menu {
+            inviteButton
+            Divider()
             leaveButton
         } label: {
             Label(moreTitle, systemImage: "ellipsis")
@@ -310,11 +365,13 @@ struct GroupView: View {
     // MARK: - Text
 
     private let membersHeader = String(localized: "Members")
-    private let todayHeader = String(localized: "Today's Plan")
+    private let dayPlanHeader = String(localized: "Plan of the Day")
     private let leaderboardHeader = String(localized: "Leaderboard")
-    private let todayFailedText = String(localized: "Couldn't load today's plan.")
-    private let noTodayPlanTitle = String(localized: "No plan for today yet")
-    private let noTodayPlanHint = String(localized: "Tap + to publish one from your Plans.")
+    private let dayPlanFailedText = String(localized: "Couldn't load the plan.")
+    private let noPlanTitle = String(localized: "No Plan Yet")
+    private let noTodayPlanHint = String(localized: "Pick a plan from the list and add it for the whole group.")
+    private let addPlanTitle = String(localized: "Add Plan")
+    private let noPastPlanText = String(localized: "No plan was published that day.")
     private let downloadTitle = String(localized: "Download to Plans")
     private let inviteTitle = String(localized: "Invite")
     private let publishPlanTitle = String(localized: "Publish Today's Plan")

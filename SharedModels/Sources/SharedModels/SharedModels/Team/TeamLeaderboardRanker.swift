@@ -10,7 +10,9 @@ import Foundation
 /// Orders one day's entries into leaderboard rows.
 public enum TeamLeaderboardRanker {
 
-    /// Rows of one division: ranked entries first by place, then entries without a place.
+    /// Ranked entries first by place, then entries without a place.
+    ///
+    /// Scores rank within one division; effort points rank everyone together.
     public static func rows(
         entries: [TeamEntry],
         lens: TeamLeaderboardLens,
@@ -18,12 +20,11 @@ public enum TeamLeaderboardRanker {
         myUid: String,
         weightsVersion: Int
     ) -> [TeamLeaderboardRow] {
-        let inDivision = entries.filter { $0.division == division }
         switch lens {
         case .score:
-            return scoreRows(inDivision, myUid: myUid)
+            return scoreRows(entries.filter { $0.division == division }, myUid: myUid)
         case .effort:
-            return effortRows(inDivision, myUid: myUid, weightsVersion: weightsVersion)
+            return effortRows(entries, myUid: myUid, weightsVersion: weightsVersion)
         }
     }
 

@@ -49,8 +49,9 @@ struct PublishPlanFeature {
                 state.scoredBlockId = id
                 return .none
 
-            case .view(.fillClassLengthTapped):
-                state.selectedPlan = state.selectedPlan?.fillingClassLength(to: State.classMinutes)
+            case let .view(.effortWindowChanged(minutes)):
+                let range = State.effortWindowRange
+                state.effortWindowMinutes = min(max(minutes, range.lowerBound), range.upperBound)
                 return .none
 
             case .view(.publishTapped):
@@ -66,10 +67,10 @@ struct PublishPlanFeature {
                     authorName: state.displayName,
                     session: session,
                     scoredBlockId: scoredBlockId,
-                    sessionMinutes: session.plannedTotalMinutes,
+                    sessionMinutes: state.effortWindowMinutes,
                     publishedAt: now
                 )
-                return .run { [groupId = state.groupId, myUid = state.myUid, teamClient] send in
+                return .run { [groupId = state.groupId, myUid = state.myUid, teamClient, trainingSessionClient] send in
                     // One plan per day: only its author may replace it.
                     if let existing = try await teamClient.plan(groupId, plan.id), existing.authorUid != myUid {
                         await send(.publishFailed(
@@ -78,6 +79,10 @@ struct PublishPlanFeature {
                         return
                     }
                     try await teamClient.publishPlan(groupId, plan)
+                    // The author's own plan becomes the group copy, so the group never offers a second download.
+                    try await trainingSessionClient.save(
+                        session.linkedToTeamPlan(TrainingSession.teamPlanId(groupId: groupId, day: plan.id))
+                    )
                     await send(.published(plan))
                 } catch: { error, send in
                     Logger.team.error("Publish failed: \(error.localizedDescription)")
@@ -119,6 +124,7 @@ struct PublishPlanFeature {
     private func select(_ state: inout State, planId: UUID) {
         state.selectedPlan = state.plans.first { $0.id == planId }
         state.scoredBlockId = state.selectedPlan?.defaultScoredBlockId
+        state.effortWindowMinutes = State.defaultEffortWindowMinutes
         state.errorMessage = nil
     }
 }

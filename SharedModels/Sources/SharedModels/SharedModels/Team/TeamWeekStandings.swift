@@ -7,70 +7,47 @@
 
 import Foundation
 
-/// Week table built from daily places, CrossFit Open style.
+/// Week table: effort points and kcal summed over the week's entries.
 public enum TeamWeekStandings {
 
-    /// Rows sorted by total places, then more workouts, then name.
+    /// Rows sorted by points, then more workouts, then name.
     ///
-    /// `entriesByDay` must contain a key for every day that had a plan (an empty array when nobody
-    /// submitted); days without a key had no plan and do not count.
+    /// Every entry counts as a workout; only points from the current weights table are summed,
+    /// since points from another table are not comparable.
     public static func rows(
         entriesByDay: [String: [TeamEntry]],
-        days: [String],
-        lens: TeamLeaderboardLens,
-        division: BoardDivision,
         myUid: String,
         weightsVersion: Int
     ) -> [TeamWeekRow] {
-        let plannedDays = days.filter { entriesByDay[$0] != nil }
-        var placesByUid: [String: [String: Int]] = [:]
-        var namesByUid: [String: String] = [:]
-        var rankedCountByDay: [String: Int] = [:]
+        var totalsByUid: [String: (name: String, points: Int, kcal: Double?, workouts: Int)] = [:]
 
-        for day in plannedDays {
-            let dayRows = TeamLeaderboardRanker.rows(
-                entries: entriesByDay[day] ?? [],
-                lens: lens,
-                division: division,
-                myUid: myUid,
-                weightsVersion: weightsVersion
-            )
-            let ranked = dayRows.filter { $0.place != nil }
-            rankedCountByDay[day] = ranked.count
-            for row in ranked {
-                placesByUid[row.entry.uid, default: [:]][day] = row.place
-                namesByUid[row.entry.uid] = row.entry.displayName
+        for entry in entriesByDay.values.joined() {
+            var total = totalsByUid[entry.uid] ?? (entry.displayName, 0, nil, 0)
+            if let points = entry.effortPoints, entry.weightsVersion == weightsVersion {
+                total.points += points
             }
+            if let kcal = entry.kcal {
+                total.kcal = (total.kcal ?? 0) + kcal
+            }
+            total.workouts += 1
+            totalsByUid[entry.uid] = total
         }
 
-        let totals = placesByUid.map { uid, places in
-            let missingDays = plannedDays.filter { places[$0] == nil }
-            let penalty = missingDays.reduce(0) { sum, day in sum + (rankedCountByDay[day] ?? 0) + 1 }
-            return (
-                uid: uid,
-                name: namesByUid[uid] ?? "",
-                places: places,
-                missingDays: missingDays,
-                total: places.values.reduce(0, +) + penalty,
-                workouts: places.count
-            )
-        }
-        .sorted { lhs, rhs in
-            if lhs.total != rhs.total { return lhs.total < rhs.total }
-            if lhs.workouts != rhs.workouts { return lhs.workouts > rhs.workouts }
-            return lhs.name < rhs.name
+        let sorted = totalsByUid.sorted { lhs, rhs in
+            if lhs.value.points != rhs.value.points { return lhs.value.points > rhs.value.points }
+            if lhs.value.workouts != rhs.value.workouts { return lhs.value.workouts > rhs.value.workouts }
+            return lhs.value.name < rhs.value.name
         }
 
-        return totals.enumerated().map { index, item in
+        return sorted.enumerated().map { index, item in
             TeamWeekRow(
-                uid: item.uid,
-                displayName: item.name,
-                placesByDay: item.places,
-                missingDays: item.missingDays,
-                total: item.total,
-                workouts: item.workouts,
+                uid: item.key,
+                displayName: item.value.name,
+                points: item.value.points,
+                kcal: item.value.kcal.map { Int($0.rounded()) },
+                workouts: item.value.workouts,
                 place: index + 1,
-                isMe: item.uid == myUid
+                isMe: item.key == myUid
             )
         }
     }

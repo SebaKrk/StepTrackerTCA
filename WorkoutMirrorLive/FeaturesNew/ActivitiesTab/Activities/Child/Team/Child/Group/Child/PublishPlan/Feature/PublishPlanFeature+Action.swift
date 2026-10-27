@@ -49,8 +49,8 @@ extension PublishPlanFeature {
             /// Called when the user picks the scored block.
             case scoredBlockSelected(UUID)
 
-            /// Called when the user asks to spread the missing minutes over the blocks.
-            case fillClassLengthTapped
+            /// Called when the user changes the effort points window.
+            case effortWindowChanged(Int)
 
             /// Called when the user taps "Publish".
             case publishTapped

@@ -16,7 +16,10 @@ extension GroupLeaderboardFeature {
 
         case view(View)
 
-        /// Internal — today's entries changed.
+        /// Sent by the group screen — shows `day`; the week is read again when it changed or `reloadWeek` is set.
+        case showDay(String, weekDays: [String], reloadWeek: Bool)
+
+        /// Internal — the shown day's entries changed.
         case dayEntriesUpdated([TeamEntry])
 
         /// Internal — the week's entries were read.
@@ -28,10 +31,7 @@ extension GroupLeaderboardFeature {
         @CasePathable
         enum View {
 
-            /// Called when the section appears.
-            case viewDidAppear
-
-            /// Called when the user switches Today / Week.
+            /// Called when the user switches Day / Week.
             case rangeChanged(TeamLeaderboardRange)
 
             /// Called when the user switches Score / Effort.

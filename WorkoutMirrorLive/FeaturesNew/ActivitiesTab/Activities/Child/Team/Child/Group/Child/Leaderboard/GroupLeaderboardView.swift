@@ -17,6 +17,9 @@ struct GroupLeaderboardView: View {
 
     @Bindable var store: StoreOf<GroupLeaderboardFeature>
 
+    // Fits ContentUnavailableView (about three rows), so empty, loading and filled states keep the card's height.
+    @ScaledMetric(relativeTo: .body) private var contentMinHeight: CGFloat = 200
+
     // MARK: - Body (structure)
 
     var body: some View {
@@ -25,11 +28,9 @@ struct GroupLeaderboardView: View {
             lensCaption
             Divider()
             content
+                .frame(maxWidth: .infinity, minHeight: contentMinHeight, alignment: .top)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .onAppear {
-            send(.viewDidAppear)
-        }
     }
 
     @ViewBuilder
@@ -37,10 +38,9 @@ struct GroupLeaderboardView: View {
         switch store.viewState {
         case .loading:
             ProgressView()
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: contentMinHeight)
         case .failed:
-            Text(failedText)
-                .foregroundStyle(.secondary)
+            emptyState(title: failedTitle, systemImage: "exclamationmark.triangle", description: failedText)
         case .success:
             switch store.range {
             case .day:
@@ -54,8 +54,7 @@ struct GroupLeaderboardView: View {
     @ViewBuilder
     private var dayRows: some View {
         if store.dayRows.isEmpty {
-            Text(noResultsText)
-                .foregroundStyle(.secondary)
+            emptyState(title: noResultsTitle, systemImage: "list.number", description: noResultsText)
         } else {
             ForEach(store.dayRows) { row in
                 dayRow(row)
@@ -70,13 +69,7 @@ struct GroupLeaderboardView: View {
     @ViewBuilder
     private var weekRows: some View {
         if store.weekRows.isEmpty {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(noWeekResultsText)
-                    .foregroundStyle(.secondary)
-                Text(noWeekResultsHint)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            emptyState(title: noResultsTitle, systemImage: "calendar", description: noWeekResultsText)
         } else {
             ForEach(store.weekRows) { row in
                 weekRow(row)
@@ -85,7 +78,7 @@ struct GroupLeaderboardView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            Text(weekRuleText)
+            Text(kcalNoteText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -100,15 +93,18 @@ struct GroupLeaderboardView: View {
                     Text(range.title).tag(range)
                 }
             }
+            // Kept on screen in every mode so switching never changes the card's height.
             HStack(spacing: 8) {
                 Picker(lensTitle, selection: $store.lens.sending(\.view.lensChanged)) {
-                    Text(scoreTitle).tag(TeamLeaderboardLens.score)
                     Text(pointsTitle).tag(TeamLeaderboardLens.effort)
+                    Text(scoreTitle).tag(TeamLeaderboardLens.score)
                 }
+                .disabled(store.range == .week)
                 Picker(divisionTitle, selection: $store.division.sending(\.view.divisionChanged)) {
                     Text(rxTitle).tag(BoardDivision.rx)
                     Text(scaledTitle).tag(BoardDivision.scaled)
                 }
+                .disabled(store.range == .week || store.lens == .effort)
             }
         }
         .pickerStyle(.segmented)
@@ -120,9 +116,34 @@ struct GroupLeaderboardView: View {
     }
 
     private var lensCaption: some View {
-        Text(store.lens == .score ? scoreCaption : pointsCaption)
+        Text(captionText)
             .font(.caption)
             .foregroundStyle(.secondary)
+    }
+
+    private var captionText: String {
+        switch (store.range, store.lens) {
+        case (.week, _): weekCaption
+        case (.day, .effort): pointsCaption
+        case (.day, .score): scoreCaption
+        }
+    }
+
+    private func emptyState(title: String, systemImage: String, description: String) -> some View {
+        // Smaller than the full-screen default — it sits inside a card.
+        ContentUnavailableView {
+            Label {
+                Text(title)
+                    .font(.headline)
+            } icon: {
+                Image(systemName: systemImage)
+            }
+            .imageScale(.small)
+        } description: {
+            Text(description)
+                .font(.footnote)
+        }
+        .frame(maxWidth: .infinity, minHeight: contentMinHeight)
     }
 
     private func dayRow(_ row: TeamLeaderboardRow) -> some View {
@@ -145,19 +166,19 @@ struct GroupLeaderboardView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(row.displayName)
                     .fontWeight(row.isMe ? .bold : .regular)
-                Text(dayPlaces(row))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-            }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("\(row.total)")
-                    .font(.body.weight(.bold))
-                    .monospacedDigit()
                 Text(String(localized: "\(row.workouts) workouts"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(String(localized: "\(row.points) pts"))
+                    .font(.body.weight(.bold))
+                    .monospacedDigit()
+                Text(row.kcal.map { "\($0) kcal" } ?? "—")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
             }
         }
         .foregroundStyle(row.isMe ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
@@ -226,13 +247,6 @@ struct GroupLeaderboardView: View {
         }
     }
 
-    private func dayPlaces(_ row: TeamWeekRow) -> String {
-        store.weekDays
-            .filter { row.placesByDay[$0] != nil || row.missingDays.contains($0) }
-            .map { day in row.placesByDay[day].map { "\($0)" } ?? "–" }
-            .joined(separator: " · ")
-    }
-
     // MARK: - Text
 
     private let rangeTitle = String(localized: "Period")
@@ -243,10 +257,12 @@ struct GroupLeaderboardView: View {
     private let divisionTitle = String(localized: "Division")
     private let rxTitle = String(localized: "Rx")
     private let scaledTitle = String(localized: "Scaled")
-    private let noResultsText = String(localized: "No results yet today.")
+    private let noResultsTitle = String(localized: "No Results Yet")
+    private let noResultsText = String(localized: "Results show up once members send a workout to the group.")
+    private let failedTitle = String(localized: "Something went wrong")
     private let noWeekResultsText = String(localized: "No results this week yet.")
-    private let noWeekResultsHint = String(localized: "Enter the WOD result in the Summary to get a place in the table.")
-    private let weekRuleText = String(localized: "Sum of daily places — lower is better. A missed day counts as last place + 1; ties go to more workouts.")
+    private let weekCaption = String(localized: "Effort points and kcal summed Monday to Sunday — every workout counts.")
+    private let kcalNoteText = String(localized: "kcal only from members who share them.")
     private let failedText = String(localized: "Couldn't load the leaderboard.")
     private let hrBadge = String(localized: "✓ HR")
     private let warmStartBadge = String(localized: "started warm")
