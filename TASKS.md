@@ -1552,3 +1552,9 @@
     - A: every workout block carries its minutes in the class, separate from the WOD time cap; old plans fall back to the cap; plan lists and detail show the real class length (a strength block no longer counts as 0)
     - B: plan scanning asks the model for every section's minutes, adding up to at least 60
     - C: "Time in Class" in the block editor and a "Class Length" bar (N of 60 min, missing / +X) in the plan editor
+
+### IOS-00148 Team — today's plan: publish, preview, download
+    - branch: `dev/IOS-00148/IOS-00148` (from IOS-00147); plan in `PLANS/IOS-00143-team-v01.md` (T3)
+    - A: a plan copy downloaded from a group remembers its group plan (`teamPlanId`, migration v17); editing the copy drops the link
+    - B: "+" on the group screen publishes today's plan from Plans with a scored block; at least 60 minutes ("Fill to 60 Minutes" helps); one plan per day, only its author may replace it
+    - C: "Today's Plan" card on the group screen with Preview (same plan view as Plans) and Download to Plans; a second download is prevented ("In Your Plans")

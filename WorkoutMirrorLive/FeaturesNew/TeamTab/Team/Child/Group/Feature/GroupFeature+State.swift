@@ -31,6 +31,18 @@ extension GroupFeature {
         /// Loading state of the member list.
         var viewState: ViewState = .loading
 
+        /// The group's plan for today; `nil` when none is published.
+        var todayPlan: TeamPlan?
+
+        /// Loading state of today's plan.
+        var todayPlanState: ViewState = .loading
+
+        /// Today's plan is already in the user's Plans.
+        var isTodayPlanDownloaded = false
+
+        /// Saving today's plan to Plans is in flight.
+        var isDownloadingTodayPlan = false
+
         /// A leave request is in flight.
         var isLeaving = false
 

@@ -27,6 +27,9 @@ struct GroupView: View {
                     inviteButton
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    publishPlanButton
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     moreMenu
                 }
             }
@@ -35,6 +38,16 @@ struct GroupView: View {
                 item: $store.scope(state: \.destination?.invite, action: \.destination.invite)
             ) { inviteStore in
                 InviteView(store: inviteStore)
+            }
+            .sheet(
+                item: $store.scope(state: \.destination?.publishPlan, action: \.destination.publishPlan)
+            ) { publishStore in
+                PublishPlanView(store: publishStore)
+            }
+            .sheet(
+                item: $store.scope(state: \.destination?.planPreview, action: \.destination.planPreview)
+            ) { previewStore in
+                PlanPreviewView(store: previewStore)
             }
             .onAppear {
                 send(.viewDidAppear)
@@ -58,6 +71,7 @@ struct GroupView: View {
 
     private var membersList: some View {
         List {
+            todaySection
             Section {
                 ForEach(store.members) { member in
                     memberRow(member)
@@ -68,7 +82,104 @@ struct GroupView: View {
         }
     }
 
+    private var todaySection: some View {
+        Section {
+            todayContent
+        } header: {
+            Text(todayHeader)
+        }
+    }
+
+    @ViewBuilder
+    private var todayContent: some View {
+        switch store.todayPlanState {
+        case .loading:
+            ProgressView()
+                .frame(maxWidth: .infinity)
+        case .failed:
+            Text(todayFailedText)
+                .foregroundStyle(.secondary)
+        case .success:
+            if let plan = store.todayPlan {
+                todayPlanCard(plan)
+            } else {
+                noTodayPlanText
+            }
+        }
+    }
+
+    private func todayPlanCard(_ plan: TeamPlan) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            todayPlanTitles(plan)
+            todayPlanBlocks(plan)
+            todayPlanButtons
+        }
+        .padding(.vertical, 4)
+    }
+
     // MARK: - Implementation
+
+    private func todayPlanTitles(_ plan: TeamPlan) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(plan.session.title)
+                .font(.headline)
+            Text(String(localized: "By \(plan.authorName) · \(plan.sessionMinutes) min"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func todayPlanBlocks(_ plan: TeamPlan) -> some View {
+        Text(plan.session.workouts.map(\.name).joined(separator: " · "))
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .lineLimit(2)
+    }
+
+    private var todayPlanButtons: some View {
+        HStack(spacing: 10) {
+            previewTodayPlanButton
+            downloadTodayPlanButton
+        }
+    }
+
+    private var previewTodayPlanButton: some View {
+        Button {
+            send(.todayPlanPreviewTapped)
+        } label: {
+            Text(previewTitle)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+    }
+
+    private var downloadTodayPlanButton: some View {
+        Button {
+            send(.todayPlanDownloadTapped)
+        } label: {
+            Group {
+                if store.isDownloadingTodayPlan {
+                    ProgressView()
+                } else if store.isTodayPlanDownloaded {
+                    Label(downloadedTitle, systemImage: "checkmark")
+                } else {
+                    Text(downloadTitle)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(store.isTodayPlanDownloaded || store.isDownloadingTodayPlan)
+    }
+
+    private var noTodayPlanText: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(noTodayPlanTitle)
+            Text(noTodayPlanHint)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
 
     private func memberRow(_ member: TeamMember) -> some View {
         HStack(spacing: 12) {
@@ -109,6 +220,14 @@ struct GroupView: View {
         }
     }
 
+    private var publishPlanButton: some View {
+        Button {
+            send(.publishPlanTapped)
+        } label: {
+            Label(publishPlanTitle, systemImage: "plus")
+        }
+    }
+
     private var moreMenu: some View {
         Menu {
             leaveButton
@@ -137,7 +256,15 @@ struct GroupView: View {
     // MARK: - Text
 
     private let membersHeader = String(localized: "Members")
+    private let todayHeader = String(localized: "Today's Plan")
+    private let todayFailedText = String(localized: "Couldn't load today's plan.")
+    private let noTodayPlanTitle = String(localized: "No plan for today yet")
+    private let noTodayPlanHint = String(localized: "Tap + to publish one from your Plans.")
+    private let previewTitle = String(localized: "Preview")
+    private let downloadTitle = String(localized: "Download to Plans")
+    private let downloadedTitle = String(localized: "In Your Plans")
     private let inviteTitle = String(localized: "Invite")
+    private let publishPlanTitle = String(localized: "Publish Today's Plan")
     private let ownerLabel = String(localized: "Owner")
     private let youLabel = String(localized: "You")
     private let moreTitle = String(localized: "More")

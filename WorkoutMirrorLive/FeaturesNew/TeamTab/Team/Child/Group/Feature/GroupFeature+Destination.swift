@@ -15,6 +15,12 @@ extension GroupFeature {
 
         /// Sheet with the QR invite and who scanned it.
         case invite(InviteFeature)
+
+        /// Sheet for publishing today's plan.
+        case publishPlan(PublishPlanFeature)
+
+        /// Read-only plan with "Download to Plans".
+        case planPreview(PlanPreviewFeature)
     }
 
 }

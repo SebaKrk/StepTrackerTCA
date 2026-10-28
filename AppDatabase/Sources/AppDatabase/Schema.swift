@@ -469,6 +469,13 @@ public enum AppDatabaseSchema {
                 .execute(db)
         }
 
+        // A plan downloaded from a Team group remembers which daily plan it came from,
+        // so a second download finds it and results post to that group. Own plans stay nil.
+        migrator.registerMigration("v17_trainingSession_teamPlanId") { db in
+            try #sql("ALTER TABLE \"trainingSessionRecords\" ADD COLUMN \"teamPlanId\" TEXT")
+                .execute(db)
+        }
+
         return migrator
     }
 }
