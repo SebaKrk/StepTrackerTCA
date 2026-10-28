@@ -46,8 +46,8 @@ extension PublishPlanFeature {
             /// Called when the user goes back from the plan detail to the list.
             case planDetailClosed
 
-            /// Called when the user picks the scored block.
-            case scoredBlockSelected(UUID)
+            /// Called when the user turns a block's leaderboard result on or off.
+            case scoredBlockToggled(UUID, isOn: Bool)
 
             /// Called when the user changes the effort points window.
             case effortWindowChanged(Int)

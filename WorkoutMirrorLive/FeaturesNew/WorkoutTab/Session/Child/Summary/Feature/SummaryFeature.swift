@@ -209,7 +209,7 @@ struct SummaryFeature {
                         }
                     }
 
-                    // 1b. Post the scored block to the group leaderboard (queued, never blocks the save).
+                    // 1b. Post the block results and effort to the group leaderboard (queued, never blocks the save).
                     if let team = teamSubmission, let workout = workoutForSnapshot {
                         let maxHR: Double
                         if let userMaxHeartRate {
@@ -221,8 +221,7 @@ struct SummaryFeature {
                             uid: team.context.uid,
                             displayName: team.context.displayName,
                             plan: team.plan,
-                            scoredResult: team.scoredResult,
-                            scoredBlock: team.scoredBlock,
+                            scores: team.scores,
                             division: team.division,
                             hrBuffer: hrBuffer,
                             maxHR: maxHR,
@@ -442,23 +441,28 @@ struct SummaryFeature {
 
     // MARK: - Helpers
 
-    // The downloaded copy keeps the block order of the group plan, so the scored block is found by position
-    // (the copy has fresh ids).
+    // The downloaded copy keeps the block order of the group plan, so scored blocks are found by position
+    // (the copy has fresh ids). The local block's type decides how a capped For Time is read.
     private static func teamSubmission(_ state: State) -> SummaryTeamSubmission? {
-        guard
-            let submit = state.teamSubmit, submit.willSubmit,
-            let context = submit.context, let plan = context.plan,
-            let index = plan.session.workouts.firstIndex(where: { $0.id == plan.scoredBlockId })
-        else { return nil }
+        guard let submit = state.teamSubmit, submit.willSubmit, let context = submit.context, let plan = context.plan else {
+            return nil
+        }
         let localBlocks = state.trainingSession?.workouts ?? []
+        var scores: [UUID: BoardScore] = [:]
+        for (index, block) in plan.session.workouts.enumerated() where plan.scoredBlockIds.contains(block.id) {
+            guard let result = state.results.cards.first(where: { $0.wodIndex == index })?.result.scoreResult else {
+                continue
+            }
+            let localBlock = localBlocks.indices.contains(index) ? localBlocks[index] : block
+            scores[block.id] = BoardScore(result, blockType: localBlock.type, timeCapMinutes: localBlock.timeCap)
+        }
         return SummaryTeamSubmission(
             groupId: submit.groupId,
             plan: plan,
             context: context,
             division: submit.division,
             includeKcal: submit.includeKcal,
-            scoredBlock: localBlocks.indices.contains(index) ? localBlocks[index] : plan.session.workouts[index],
-            scoredResult: state.results.cards.first { $0.wodIndex == index }?.result.scoreResult
+            scores: scores
         )
     }
 

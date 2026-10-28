@@ -21,6 +21,11 @@ extension TrainingSession {
         return (String(parts[0]), String(parts[1]))
     }
 
+    /// Blocks shown on a group leaderboard by default — every block that has a comparable result.
+    public var defaultScoredBlockIds: [WorkoutSessionNew.ID] {
+        workouts.filter { $0.type.boardScoreKind.isScored }.map(\.id)
+    }
+
     /// The same plan linked to a group's daily plan — the author's own plan after publishing.
     public func linkedToTeamPlan(_ teamPlanId: String) -> TrainingSession {
         TrainingSession(

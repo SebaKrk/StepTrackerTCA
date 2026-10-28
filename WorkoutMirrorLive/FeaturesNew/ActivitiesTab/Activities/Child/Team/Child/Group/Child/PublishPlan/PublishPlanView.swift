@@ -110,7 +110,9 @@ struct PublishPlanView: View {
     private func scoredBlockCard(_ plan: TrainingSession) -> some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
-                scoredBlockPicker(plan)
+                ForEach(plan.workouts) { block in
+                    scoredBlockToggle(block)
+                }
                 cardFooter(scoredBlockFooter)
             }
         } label: {
@@ -160,18 +162,20 @@ struct PublishPlanView: View {
             .padding(.bottom, 4)
     }
 
-    private func scoredBlockPicker(_ plan: TrainingSession) -> some View {
-        Picker(scoredBlockTitle, selection: Binding(
-            get: { store.scoredBlockId },
-            set: { id in if let id { send(.scoredBlockSelected(id)) } }
+    // Blocks without a comparable result stay listed, switched off, so the author sees why.
+    private func scoredBlockToggle(_ block: WorkoutSessionNew) -> some View {
+        Toggle(isOn: Binding(
+            get: { store.scoredBlockIds.contains(block.id) },
+            set: { isOn in send(.scoredBlockToggled(block.id, isOn: isOn)) }
         )) {
-            ForEach(plan.workouts) { block in
-                Text("\(block.name) · \(block.type.displayName)")
-                    .tag(Optional(block.id))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(block.name)
+                Text("\(block.type.displayName) · \(block.type.boardScoreKind.displayText)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
-        .pickerStyle(.menu)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .disabled(!block.type.boardScoreKind.isScored)
     }
 
     private func cardLabel(_ title: String) -> some View {
@@ -263,8 +267,8 @@ struct PublishPlanView: View {
     private let navigationTitle = String(localized: "Today's Plan")
     private let planListHintText = String(localized: "Pick a plan to see it in full before publishing.")
     private let planFooter = String(localized: "The group sees the whole plan and can download it to their Plans.")
-    private let scoredBlockTitle = String(localized: "Scored Block")
-    private let scoredBlockFooter = String(localized: "The leaderboard ranks results of this block.")
+    private let scoredBlockTitle = String(localized: "Results in the Leaderboard")
+    private let scoredBlockFooter = String(localized: "Members can enter a result for each block that is on. Effort points rank everyone either way.")
     private let effortWindowHeader = String(localized: "Points Window")
     private let effortWindowFooter = String(localized: "Effort points count from each member's start for this long — the same window for the whole group. The plan itself is published unchanged.")
     private let cancelTitle = String(localized: "Cancel")

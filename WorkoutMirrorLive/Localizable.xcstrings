@@ -91,12 +91,12 @@
         }
       }
     },
-    "Pick a plan from the list and add it for the whole group." : {
+    "Board" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wybierz plan z listy i dodaj go dla całej grupy."
+            "value" : "Tablica"
           }
         }
       }
@@ -887,6 +887,7 @@
       }
     },
     "✓ HR" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1754,6 +1755,16 @@
         }
       }
     },
+    "best load" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "najlepszy ciężar"
+          }
+        }
+      }
+    },
     "best pace" : {
       "localizations" : {
         "pl" : {
@@ -1791,6 +1802,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Błąd brak danych"
+          }
+        }
+      }
+    },
+    "Block" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blok"
           }
         }
       }
@@ -4084,6 +4106,7 @@
       }
     },
     "Heart rate zone points from the first %lld minutes — who worked hardest." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4988,6 +5011,16 @@
         }
       }
     },
+    "Members can enter a result for each block that is on. Effort points rank everyone either way." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dla każdego włączonego bloku można wpisać wynik. Punkty wysiłku i tak ustawiają wszystkich w tabeli."
+          }
+        }
+      }
+    },
     "Members see your name and your results for this group's plans — nothing else from your health data." : {
       "localizations" : {
         "pl" : {
@@ -5229,6 +5262,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych spalonych kalorii."
+          }
+        }
+      }
+    },
+    "no comparable result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bez porównywalnego wyniku"
           }
         }
       }
@@ -6109,6 +6152,16 @@
         }
       }
     },
+    "Pick a plan from the list and add it for the whole group." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz plan z listy i dodaj go dla całej grupy."
+          }
+        }
+      }
+    },
     "Pick a plan to see it in full before publishing." : {
       "localizations" : {
         "pl" : {
@@ -6523,11 +6576,22 @@
       }
     },
     "Rank by" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ranking według"
+          }
+        }
+      }
+    },
+    "Ranking" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranking"
           }
         }
       }
@@ -6748,6 +6812,7 @@
       }
     },
     "Result of the scored block — time, rounds or load." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -6763,6 +6828,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyniki"
+          }
+        }
+      }
+    },
+    "Results in the Leaderboard" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyniki w tabeli"
           }
         }
       }
@@ -7227,6 +7302,7 @@
       }
     },
     "Scored Block" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -8126,6 +8202,7 @@
       }
     },
     "The leaderboard ranks results of this block." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -8214,6 +8291,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ten kod QR nie prowadzi do grupy Zespołu."
+          }
+        }
+      }
+    },
+    "time" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "czas"
           }
         }
       }
@@ -8404,6 +8491,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Łączny ciężar — powtórzenia × obciążenie"
+          }
+        }
+      }
+    },
+    "total reps" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "łącznie powtórzeń"
           }
         }
       }

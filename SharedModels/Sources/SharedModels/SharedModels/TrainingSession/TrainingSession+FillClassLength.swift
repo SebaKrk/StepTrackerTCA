@@ -42,10 +42,4 @@ extension TrainingSession {
             teamPlanId: teamPlanId
         )
     }
-
-    /// Block a group leaderboard ranks by default: the first one that is not strength, weightlifting or mobility.
-    public var defaultScoredBlockId: WorkoutSessionNew.ID? {
-        let unscored: Set<ExerciseWorkoutType> = [.strength, .olympicWeightlifting, .mobility]
-        return workouts.first { !unscored.contains($0.type) }?.id ?? workouts.first?.id
-    }
 }

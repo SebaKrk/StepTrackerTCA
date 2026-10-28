@@ -25,7 +25,7 @@ extension GroupLeaderboardFeature {
         /// The shown day or its whole week.
         var range: TeamLeaderboardRange = .day
 
-        /// Rank by effort points (default) or by the scored block.
+        /// Rank by effort points (default) or by a block's result.
         var lens: TeamLeaderboardLens = .effort
 
         /// Rx or Scaled — splits the score ranking only.
@@ -34,8 +34,14 @@ extension GroupLeaderboardFeature {
         /// The user picked a division; until then it follows the user's own entry.
         var hasPickedDivision = false
 
-        /// Length of the shown day's plan — measurement window for the coverage badge; `nil` without a plan.
+        /// Points window of the shown day's plan — for the coverage badge; `nil` without a plan.
         var planMinutes: Int?
+
+        /// Blocks of the shown day's plan that have results, in plan order.
+        var scoredBlocks: [WorkoutSessionNew] = []
+
+        /// Block ranked under the score lens; `nil` when the plan has none.
+        var selectedBlockId: UUID?
 
         /// Day id shown in the day ranking.
         var day: String = ""
@@ -60,6 +66,11 @@ extension GroupLeaderboardFeature {
 
         /// Loading state of the selected range.
         var viewState: ViewState = .loading
+
+        /// Selection of the ranking menu: `nil` for effort points, otherwise the ranked block.
+        var rankingBlockId: UUID? {
+            lens == .score ? selectedBlockId : nil
+        }
 
         init(groupId: String, myUid: String) {
             self.groupId = groupId

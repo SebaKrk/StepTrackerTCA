@@ -78,7 +78,7 @@ struct GroupView: View {
                 sectionHeader(dayPlanHeader)
                     .padding(.top, 8)
                 dayPlanCard
-                sectionHeader(leaderboardHeader)
+                leaderboardHeaderRow
                     .padding(.top, 8)
                 leaderboardCard
                 sectionHeader(membersHeader)
@@ -90,18 +90,15 @@ struct GroupView: View {
     }
 
     private var dayNavigatorCard: some View {
-        GroupBox {
-            DayNavigatorView(
-                weekDays: store.weekDays,
-                selectedDay: store.selectedDay,
-                today: store.today,
-                daysWithPlan: store.daysWithPlan,
-                onPrevious: { send(.previousDayTapped) },
-                onNext: { send(.nextDayTapped) },
-                onSelect: { send(.daySelected($0)) }
-            )
-        }
-        .styledGroupBox()
+        DayNavigatorView(
+            weekDays: store.weekDays,
+            selectedDay: store.selectedDay,
+            today: store.today,
+            daysWithPlan: store.daysWithPlan,
+            onPrevious: { send(.previousDayTapped) },
+            onNext: { send(.nextDayTapped) },
+            onSelect: { send(.daySelected($0)) }
+        )
     }
 
     private var dayPlanCard: some View {
@@ -210,6 +207,20 @@ struct GroupView: View {
             .font(.footnote.weight(.semibold))
             .foregroundStyle(.tertiary)
             .padding(.top, 4)
+    }
+
+    // Filters apply to the whole section, so they sit next to the section title.
+    private var leaderboardHeaderRow: some View {
+        HStack {
+            // Falls back to the short title when the filters leave too little room.
+            ViewThatFits(in: .horizontal) {
+                sectionHeader(leaderboardHeader)
+                sectionHeader(leaderboardShortHeader)
+            }
+            Spacer(minLength: 8)
+            GroupLeaderboardFilters(store: store.scope(state: \.leaderboard, action: \.leaderboard))
+                .layoutPriority(1)
+        }
     }
 
     private func sectionHeader(_ title: String) -> some View {
@@ -367,6 +378,7 @@ struct GroupView: View {
     private let membersHeader = String(localized: "Members")
     private let dayPlanHeader = String(localized: "Plan of the Day")
     private let leaderboardHeader = String(localized: "Leaderboard")
+    private let leaderboardShortHeader = String(localized: "Board")
     private let dayPlanFailedText = String(localized: "Couldn't load the plan.")
     private let noPlanTitle = String(localized: "No Plan Yet")
     private let noTodayPlanHint = String(localized: "Pick a plan from the list and add it for the whole group.")

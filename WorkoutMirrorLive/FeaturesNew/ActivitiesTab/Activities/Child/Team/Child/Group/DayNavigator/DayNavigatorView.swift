@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Day switcher of the group screen: arrows around the selected day and the week strip below.
+/// Day switcher of the group screen: the week strip in a card, then glass arrows around the selected day.
 struct DayNavigatorView: View {
 
     // MARK: - Properties
@@ -23,20 +23,32 @@ struct DayNavigatorView: View {
     // MARK: - Body (structure)
 
     var body: some View {
+        // Week first as context, then the chosen day right above the content it shows.
         VStack(spacing: 12) {
+            weekStripCard
             header
-            weekStrip
         }
     }
 
+    // Floats above the content like the title bar in Photos: arrows and the day share one glass container.
     private var header: some View {
-        HStack {
-            previousButton
-            Spacer(minLength: 8)
-            titles
-            Spacer(minLength: 8)
-            nextButton
+        GlassEffectContainer(spacing: 8) {
+            HStack {
+                previousButton
+                Spacer(minLength: 8)
+                titles
+                Spacer(minLength: 8)
+                nextButton
+            }
         }
+        .tint(.primary)
+    }
+
+    private var weekStripCard: some View {
+        GroupBox {
+            weekStrip
+        }
+        .styledGroupBox()
     }
 
     private var weekStrip: some View {
@@ -50,23 +62,28 @@ struct DayNavigatorView: View {
     // MARK: - Implementation
 
     private var titles: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 0) {
             Text(weekdayTitle)
-                .font(.title3.weight(.semibold))
+                .font(.headline)
             Text(dateSubtitle)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
         }
         .lineLimit(1)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 6)
+        .glassEffect(.regular, in: .capsule)
     }
 
     private var previousButton: some View {
         Button(action: onPrevious) {
             Label(previousTitle, systemImage: "chevron.left")
                 .labelStyle(.iconOnly)
+                .font(.title3.weight(.semibold))
+                .frame(width: 32, height: 32)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.glass)
         .buttonBorderShape(.circle)
     }
 
@@ -74,8 +91,10 @@ struct DayNavigatorView: View {
         Button(action: onNext) {
             Label(nextTitle, systemImage: "chevron.right")
                 .labelStyle(.iconOnly)
+                .font(.title3.weight(.semibold))
+                .frame(width: 32, height: 32)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.glass)
         .buttonBorderShape(.circle)
         .disabled(selectedDay >= today)
     }

@@ -35,8 +35,8 @@ extension PublishPlanFeature {
         /// Plan opened from the list, published exactly as it is; `nil` shows the list.
         var selectedPlan: TrainingSession?
 
-        /// Block whose score builds the leaderboard.
-        var scoredBlockId: UUID?
+        /// Blocks whose results the leaderboard shows; may be empty — points rank everyone anyway.
+        var scoredBlockIds: Set<UUID> = []
 
         /// Effort points window from each member's start — the same for the whole group.
         var effortWindowMinutes = Self.defaultEffortWindowMinutes
@@ -58,9 +58,9 @@ extension PublishPlanFeature {
 
         // MARK: - Derived
 
-        /// Publish is allowed for a selected plan with a scored block.
+        /// Publish is allowed for any selected plan.
         var canPublish: Bool {
-            selectedPlan != nil && scoredBlockId != nil && !isPublishing
+            selectedPlan != nil && !isPublishing
         }
 
         /// Window offered when a plan is opened.

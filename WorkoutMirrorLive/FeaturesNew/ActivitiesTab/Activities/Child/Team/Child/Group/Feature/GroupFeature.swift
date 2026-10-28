@@ -117,10 +117,9 @@ struct GroupFeature {
 
             case let .dayPlanLoaded(plan, isDownloaded):
                 state.dayPlan = plan
-                state.leaderboard.planMinutes = plan?.sessionMinutes
                 state.isDayPlanDownloaded = isDownloaded
                 state.dayPlanState = .success
-                return .none
+                return .send(.leaderboard(.planChanged(plan)))
 
             case .dayPlanFailed:
                 state.dayPlanState = .failed

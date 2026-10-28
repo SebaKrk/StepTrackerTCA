@@ -12,33 +12,38 @@ public enum TeamLeaderboardRanker {
 
     /// Ranked entries first by place, then entries without a place.
     ///
-    /// Scores rank within one division; effort points rank everyone together.
+    /// Scores of `blockId` rank within one division; effort points rank everyone together.
     public static func rows(
         entries: [TeamEntry],
         lens: TeamLeaderboardLens,
+        blockId: UUID?,
         division: BoardDivision,
         myUid: String,
         weightsVersion: Int
     ) -> [TeamLeaderboardRow] {
         switch lens {
         case .score:
-            return scoreRows(entries.filter { $0.division == division }, myUid: myUid)
+            return scoreRows(entries.filter { $0.division == division }, blockId: blockId, myUid: myUid)
         case .effort:
             return effortRows(entries, myUid: myUid, weightsVersion: weightsVersion)
         }
     }
 
-    private static func scoreRows(_ entries: [TeamEntry], myUid: String) -> [TeamLeaderboardRow] {
+    private static func scoreRows(_ entries: [TeamEntry], blockId: UUID?, myUid: String) -> [TeamLeaderboardRow] {
         let sorted = entries
-            .map { entry in (entry: entry, key: BoardRankKey(score: entry.score, submittedAt: entry.submittedAt)) }
+            .map { entry in
+                let score = blockId.map { entry.score(for: $0) } ?? .unranked
+                return (entry: entry, score: score, key: BoardRankKey(score: score, submittedAt: entry.submittedAt))
+            }
             .sorted { $0.key < $1.key }
         var place = 0
         return sorted.map { item in
+            let isMe = item.entry.uid == myUid
             guard item.key.tier < BoardRankKey.unrankedTier else {
-                return TeamLeaderboardRow(place: nil, entry: item.entry, isMe: item.entry.uid == myUid)
+                return TeamLeaderboardRow(place: nil, entry: item.entry, score: item.score, isMe: isMe)
             }
             place += 1
-            return TeamLeaderboardRow(place: place, entry: item.entry, isMe: item.entry.uid == myUid)
+            return TeamLeaderboardRow(place: place, entry: item.entry, score: item.score, isMe: isMe)
         }
     }
 

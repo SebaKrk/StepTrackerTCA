@@ -1578,6 +1578,9 @@
     - the leaderboard ranks by effort points by default, everyone together; the score lens keeps Rx / Scaled; the week sums points and kcal with the workout count
     - day navigator on the group screen (arrows and a Monday–Sunday strip with plan dots); plan and ranking follow the chosen day; past days are view-only
     - empty cards use the system empty state with a fixed height and an "Add Plan" link for today; "+" in Team opens Create Group / Scan Invite; the group's QR moved into its "…" menu
+    - B: results per block — the author turns each block's result on or off when publishing (blocks without a comparable result are greyed out, zero is allowed); the Summary sends every entered block result; one rule decides each block type's result kind
+    - B: leaderboard filters (ranking: points or a block, Rx / Scaled for blocks only, day / week) as glass menus in the section title; the card holds only the list
+    - B: day navigator reworked — week strip card first, then glass arrows around the day and date
 
 #### Follow-up — Team group identity (backlog, no task ID; after IOS-00152)
     - the owner picks the group's colour from a fixed palette and a short name (badge initials) when creating the group, and can change both later

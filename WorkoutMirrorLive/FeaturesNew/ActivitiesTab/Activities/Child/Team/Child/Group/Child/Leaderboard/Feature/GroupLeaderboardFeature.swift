@@ -42,8 +42,27 @@ struct GroupLeaderboardFeature {
                 state.viewState = isLoaded ? .success : .loading
                 return .none
 
-            case let .view(.lensChanged(lens)):
-                state.lens = lens
+            case let .view(.rankingSelected(blockId)):
+                if let blockId {
+                    guard state.scoredBlocks.contains(where: { $0.id == blockId }) else { return .none }
+                    state.lens = .score
+                    state.selectedBlockId = blockId
+                } else {
+                    state.lens = .effort
+                }
+                recompute(&state)
+                return .none
+
+            case let .planChanged(plan):
+                state.planMinutes = plan?.sessionMinutes
+                state.scoredBlocks = plan?.scoredBlocks ?? []
+                // Keep the picked block while it is still in the plan, so live updates don't reset the menu.
+                if !state.scoredBlocks.contains(where: { $0.id == state.selectedBlockId }) {
+                    state.selectedBlockId = state.scoredBlocks.first?.id
+                }
+                if state.scoredBlocks.isEmpty {
+                    state.lens = .effort
+                }
                 recompute(&state)
                 return .none
 
@@ -96,6 +115,7 @@ struct GroupLeaderboardFeature {
         state.dayRows = TeamLeaderboardRanker.rows(
             entries: state.dayEntries,
             lens: state.lens,
+            blockId: state.selectedBlockId,
             division: state.division,
             myUid: state.myUid,
             weightsVersion: weightsVersion

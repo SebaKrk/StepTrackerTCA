@@ -112,22 +112,19 @@ nonisolated enum TeamDocumentMapper {
             "authorName": plan.authorName,
             "title": plan.session.title,
             "planPayload": try SharedPlanCodec.encode(plan: plan.session, exportedAt: plan.publishedAt),
-            "scoredBlockId": plan.scoredBlockId.uuidString,
+            "scoredBlockIds": plan.scoredBlockIds.map(\.uuidString),
             "sessionMinutes": plan.sessionMinutes,
             "publishedAt": Timestamp(date: plan.publishedAt),
         ]
     }
 
     static func plan(id: String, data: [String: Any], path: String) throws -> TeamPlan {
-        guard let scoredBlockId = UUID(uuidString: try string(data, "scoredBlockId", path)) else {
-            throw TeamServiceError.malformedDocument(path: path)
-        }
-        return TeamPlan(
+        TeamPlan(
             id: id,
             authorUid: try string(data, "authorUid", path),
             authorName: try string(data, "authorName", path),
             session: try SharedPlanCodec.decode(try string(data, "planPayload", path)).plan,
-            scoredBlockId: scoredBlockId,
+            scoredBlockIds: scoredBlockIds(data),
             sessionMinutes: try int(data, "sessionMinutes", path),
             publishedAt: try date(data, "publishedAt", path)
         )
@@ -139,7 +136,9 @@ nonisolated enum TeamDocumentMapper {
         var data: [String: Any] = [
             "uid": entry.uid,
             "displayName": entry.displayName,
-            "score": scoreData(entry.score),
+            "scores": entry.scores.reduce(into: [String: Any]()) { fields, item in
+                fields[item.key.uuidString] = scoreData(item.value)
+            },
             "division": entry.division.rawValue,
             "windowStart": Timestamp(date: entry.windowStart),
             "measuredMinutes": entry.measuredMinutes,
@@ -164,16 +163,13 @@ nonisolated enum TeamDocumentMapper {
     }
 
     static func entry(data: [String: Any], path: String) throws -> TeamEntry {
-        guard
-            let division = BoardDivision(rawValue: try string(data, "division", path)),
-            let scoreFields = data["score"] as? [String: Any]
-        else {
+        guard let division = BoardDivision(rawValue: try string(data, "division", path)) else {
             throw TeamServiceError.malformedDocument(path: path)
         }
         return TeamEntry(
             uid: try string(data, "uid", path),
             displayName: try string(data, "displayName", path),
-            score: try score(scoreFields, path),
+            scores: try scores(data, path),
             division: division,
             effortPoints: (data["effortPoints"] as? NSNumber)?.intValue,
             weightsVersion: (data["weightsVersion"] as? NSNumber)?.intValue,
@@ -189,6 +185,27 @@ nonisolated enum TeamDocumentMapper {
     }
 
     // MARK: - Score
+
+    // Plans published before per-block results carry a single `scoredBlockId`.
+    private static func scoredBlockIds(_ data: [String: Any]) -> [UUID] {
+        if let ids = data["scoredBlockIds"] as? [String] {
+            return ids.compactMap(UUID.init(uuidString:))
+        }
+        return (data["scoredBlockId"] as? String).flatMap(UUID.init(uuidString:)).map { [$0] } ?? []
+    }
+
+    // Entries sent before per-block results have a single `score` and no block id; they keep their points only.
+    private static func scores(_ data: [String: Any], _ path: String) throws -> [UUID: BoardScore] {
+        guard let fieldsByBlock = data["scores"] as? [String: Any] else { return [:] }
+        var scores: [UUID: BoardScore] = [:]
+        for (key, value) in fieldsByBlock {
+            guard let blockId = UUID(uuidString: key), let fields = value as? [String: Any] else {
+                throw TeamServiceError.malformedDocument(path: path)
+            }
+            scores[blockId] = try score(fields, path)
+        }
+        return scores
+    }
 
     private static func scoreData(_ score: BoardScore) -> [String: Any] {
         switch score {

@@ -41,12 +41,20 @@ struct PublishPlanFeature {
 
             case .view(.planDetailClosed):
                 state.selectedPlan = nil
-                state.scoredBlockId = nil
+                state.scoredBlockIds = []
                 state.errorMessage = nil
                 return .none
 
-            case let .view(.scoredBlockSelected(id)):
-                state.scoredBlockId = id
+            case let .view(.scoredBlockToggled(id, isOn)):
+                guard
+                    let block = state.selectedPlan?.workouts.first(where: { $0.id == id }),
+                    block.type.boardScoreKind.isScored
+                else { return .none }
+                if isOn {
+                    state.scoredBlockIds.insert(id)
+                } else {
+                    state.scoredBlockIds.remove(id)
+                }
                 return .none
 
             case let .view(.effortWindowChanged(minutes)):
@@ -55,9 +63,7 @@ struct PublishPlanFeature {
                 return .none
 
             case .view(.publishTapped):
-                guard state.canPublish, let session = state.selectedPlan, let scoredBlockId = state.scoredBlockId else {
-                    return .none
-                }
+                guard state.canPublish, let session = state.selectedPlan else { return .none }
                 state.isPublishing = true
                 state.errorMessage = nil
                 let now = date.now
@@ -66,7 +72,7 @@ struct PublishPlanFeature {
                     authorUid: state.myUid,
                     authorName: state.displayName,
                     session: session,
-                    scoredBlockId: scoredBlockId,
+                    scoredBlockIds: session.workouts.map(\.id).filter(state.scoredBlockIds.contains),
                     sessionMinutes: state.effortWindowMinutes,
                     publishedAt: now
                 )
@@ -123,7 +129,7 @@ struct PublishPlanFeature {
 
     private func select(_ state: inout State, planId: UUID) {
         state.selectedPlan = state.plans.first { $0.id == planId }
-        state.scoredBlockId = state.selectedPlan?.defaultScoredBlockId
+        state.scoredBlockIds = Set(state.selectedPlan?.defaultScoredBlockIds ?? [])
         state.effortWindowMinutes = State.defaultEffortWindowMinutes
         state.errorMessage = nil
     }
