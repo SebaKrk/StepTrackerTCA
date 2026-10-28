@@ -26,6 +26,12 @@ extension TeamFeature {
         /// Groups the user belongs to, oldest first.
         var groups: [TeamGroup] = []
 
+        /// Scanned invites still waiting for a decision and still valid, newest first.
+        var pendingInvitations: [TeamInvitation] = []
+
+        /// Invitations whose join or decline is in flight.
+        var respondingInvitationIds: Set<TeamInvitation.ID> = []
+
         /// Loading state of the private segment.
         var viewState: ViewState = .loading
 

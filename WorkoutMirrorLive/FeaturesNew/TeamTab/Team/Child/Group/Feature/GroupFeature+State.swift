@@ -12,7 +12,7 @@ import SharedModels
 extension GroupFeature {
 
     @ObservableState
-    struct State: Equatable {
+    struct State {
 
         // MARK: - Properties
 
@@ -38,6 +38,11 @@ extension GroupFeature {
 
         /// Confirmation before leaving, or the error after a failed attempt.
         @Presents var alert: AlertState<Action.Alert>?
+
+        // MARK: - Destination
+
+        /// Presentation state for navigation destinations.
+        @Presents var destination: Destination.State?
 
         // MARK: - Derived
 

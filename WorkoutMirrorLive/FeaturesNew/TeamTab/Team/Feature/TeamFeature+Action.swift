@@ -25,6 +25,12 @@ extension TeamFeature {
         /// Internal — sign-in or the groups listener failed.
         case groupsFailed
 
+        /// Internal — the scanned invites changed; carries the clock for their status.
+        case invitationsUpdated([TeamInvitation], now: Date)
+
+        /// Internal — join or decline of an invitation finished (successfully or not).
+        case invitationResponseFinished(TeamInvitation.ID)
+
         // MARK: - Destination
 
         /// Handles navigation destinations within this feature.
@@ -47,6 +53,15 @@ extension TeamFeature {
 
             /// Called when the user taps a group in the list.
             case groupTapped(TeamGroup)
+
+            /// Called when the user taps the scanner to join with a code.
+            case scanInviteTapped
+
+            /// Called when the user taps "Join" on a pending invitation.
+            case invitationJoinTapped(TeamInvitation)
+
+            /// Called when the user taps "Decline" on a pending invitation.
+            case invitationDeclineTapped(TeamInvitation)
         }
     }
 
