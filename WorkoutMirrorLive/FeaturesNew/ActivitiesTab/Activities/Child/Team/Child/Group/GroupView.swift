@@ -149,9 +149,10 @@ struct GroupView: View {
         Button {
             send(.todayPlanPreviewTapped)
         } label: {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 todayPlanHeader(plan)
-                todayPlanExercises(plan)
+                Divider()
+                PlanSummaryDetails(session: plan.session)
             }
             .contentShape(.rect)
         }
@@ -160,8 +161,10 @@ struct GroupView: View {
 
     private func todayPlanHeader(_ plan: TeamPlan) -> some View {
         HStack(alignment: .top, spacing: 8) {
+            // The title keeps its width; the badge shrinks to an icon when space runs out.
             todayPlanTitles(plan)
-            Spacer()
+                .layoutPriority(1)
+            Spacer(minLength: 0)
             if store.isTodayPlanDownloaded {
                 InYourPlansBadge()
             }
@@ -181,14 +184,6 @@ struct GroupView: View {
         }
     }
 
-    private func todayPlanExercises(_ plan: TeamPlan) -> some View {
-        Text(exercisesLine(plan.session))
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-            .lineLimit(2)
-            .multilineTextAlignment(.leading)
-    }
-
     private var chevron: some View {
         Image(systemName: "chevron.right")
             .font(.footnote.weight(.semibold))
@@ -203,14 +198,6 @@ struct GroupView: View {
             .padding(.horizontal, 4)
     }
 
-    private func exercisesLine(_ session: TrainingSession) -> String {
-        var seen = Set<String>()
-        let names = session.workouts
-            .flatMap(\.exercises)
-            .map(\.displayName)
-            .filter { seen.insert($0).inserted }
-        return names.isEmpty ? "–" : names.joined(separator: " · ")
-    }
 
     private var downloadTodayPlanButton: some View {
         Button {

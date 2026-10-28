@@ -134,9 +134,7 @@ struct GroupLeaderboardView: View {
                 badges(row.entry)
             }
             Spacer()
-            Text(value(for: row.entry))
-                .font(.body.weight(.bold))
-                .monospacedDigit()
+            valueText(for: row)
         }
         .foregroundStyle(row.isMe ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
     }
@@ -166,7 +164,7 @@ struct GroupLeaderboardView: View {
     }
 
     private func placeLabel(_ place: Int?) -> some View {
-        Text(place.map { "\($0)" } ?? "·")
+        Text(place.map { "\($0)" } ?? "–")
             .font(.headline)
             .monospacedDigit()
             .frame(width: 24)
@@ -204,6 +202,19 @@ struct GroupLeaderboardView: View {
             labels.append(lateBadge)
         }
         return labels
+    }
+
+    // Rows without a place show their value muted, so "No result" never reads like a score.
+    private func valueText(for row: TeamLeaderboardRow) -> some View {
+        Text(value(for: row.entry))
+            .font(row.place == nil ? .subheadline : .body.weight(.bold))
+            .foregroundStyle(valueStyle(for: row))
+            .monospacedDigit()
+    }
+
+    private func valueStyle(for row: TeamLeaderboardRow) -> AnyShapeStyle {
+        if row.place == nil { return AnyShapeStyle(.secondary) }
+        return row.isMe ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary)
     }
 
     private func value(for entry: TeamEntry) -> String {

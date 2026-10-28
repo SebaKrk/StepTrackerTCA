@@ -80,8 +80,6 @@ struct AppTabNewView: View {
             activitiesView
         case .workout:
             EmptyView()
-        case .team:
-            teamView
         default:
             ProgressView()
         }
@@ -103,14 +101,6 @@ struct AppTabNewView: View {
         )
     }
 
-    @ViewBuilder
-    var teamView: some View {
-        TeamView(store: store.scope(
-            state: \.team,
-            action: \.team)
-        )
-    }
-    
     //    @ViewBuilder
     //    var workoutView: some View {
     //        WorkoutView(store: store.scope(

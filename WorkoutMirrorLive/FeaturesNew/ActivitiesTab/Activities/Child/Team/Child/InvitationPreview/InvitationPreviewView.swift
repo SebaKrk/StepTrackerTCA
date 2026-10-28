@@ -92,7 +92,7 @@ struct InvitationPreviewView: View {
         QRScannerView { code in
             send(.codeScanned(code))
         }
-        .ignoresSafeArea(edges: .bottom)
+        .ignoresSafeArea()
         .overlay(alignment: .bottom) {
             Text(scanHint)
                 .font(.callout.weight(.semibold))

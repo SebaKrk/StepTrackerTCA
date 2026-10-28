@@ -29,6 +29,9 @@ struct ActivitiesFeature {
                 
             case .plans:
                 return .none
+
+            case .team:
+                return .none
             }
         }
         Scope(state: \.personalActivity, action: \.personalActivity) {
@@ -36,6 +39,9 @@ struct ActivitiesFeature {
         }
         Scope(state: \.plans, action: \.plans) {
             PlansFeature()
+        }
+        Scope(state: \.team, action: \.team) {
+            TeamFeature()
         }
     }
     

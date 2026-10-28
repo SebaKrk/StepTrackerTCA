@@ -14,6 +14,8 @@ extension ActivitiesFeature {
         case activity
         
         case plans
+
+        case team
         
         var id: Self { self }
         
@@ -23,6 +25,8 @@ extension ActivitiesFeature {
                 return String(localized: "Activity", bundle: .main)
             case .plans:
                 return String(localized: "Plans", bundle: .main)
+            case .team:
+                return String(localized: "Team", bundle: .main)
             }
         }
     }
