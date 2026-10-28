@@ -37,6 +37,19 @@ public enum TeamEffortWindow {
         return Int((seconds / 60).rounded())
     }
 
+    /// Heart rate was already in Zone 3 or above on average over the first three minutes —
+    /// a hint the athlete warmed up before starting the measurement.
+    public static func startedWarm(buffer: [(date: Date, bpm: Double)], maxHR: Double, start: Date) -> Bool {
+        guard maxHR > 0 else { return false }
+        let opening = samples(in: buffer, start: start, minutes: 3)
+        guard opening.count >= 3 else { return false }
+        let average = opening.reduce(0.0) { $0 + $1.bpm } / Double(opening.count)
+        return average / maxHR >= warmStartFraction
+    }
+
+    // Lower bound of Zone 3 (aerobic) in `HeartRateZone`.
+    private static let warmStartFraction = 0.7
+
     private static func samples(
         in buffer: [(date: Date, bpm: Double)],
         start: Date,

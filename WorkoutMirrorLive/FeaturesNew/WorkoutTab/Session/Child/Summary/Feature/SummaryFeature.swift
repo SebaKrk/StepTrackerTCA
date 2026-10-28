@@ -28,6 +28,8 @@ struct SummaryFeature {
     @Dependency(\.exerciseLogClient) var exerciseLogClient
     @Dependency(\.effortScoreClient) var effortScoreClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
+    @Dependency(\.teamClient) var teamClient
+    @Dependency(\.calendar) var calendar
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
@@ -58,6 +60,9 @@ struct SummaryFeature {
 
             case let .setTrainingSession(trainingSession):
                 state.trainingSession = trainingSession
+                if state.teamSubmit == nil {
+                    state.teamSubmit = TeamSubmitFeature.State(teamPlanId: trainingSession?.teamPlanId)
+                }
                 state.results = trainingSession.map {
                     .editable(
                         trainingSession: $0,
@@ -177,8 +182,11 @@ struct SummaryFeature {
                 let hrBuffer = state.hrBuffer
                 let phaseTimestamps = state.phaseTimestamps
                 let now = self.now
+                let teamSubmission = Self.teamSubmission(state)
+                let userMaxHeartRate = state.userMaxHeartRate
+                let today = TeamDay.id(for: now, calendar: calendar)
 
-                return .run { [exerciseLogClient, workoutPlanScoreClient, maxHeartRateClient, uuid] send in
+                return .run { [exerciseLogClient, workoutPlanScoreClient, maxHeartRateClient, teamClient, uuid] send in
                     // 1. Save WorkoutPlanScore (existing logic)
                     var scoreId: UUID?
                     if let session = trainingSession, let workoutId = hkWorkoutId {
@@ -196,6 +204,36 @@ struct SummaryFeature {
                         scoreId = score.id
                         do {
                             try await workoutPlanScoreClient.save(score)
+                        } catch {
+                            reportIssue(error)
+                        }
+                    }
+
+                    // 1b. Post the scored block to the group leaderboard (queued, never blocks the save).
+                    if let team = teamSubmission, let workout = workoutForSnapshot {
+                        let maxHR: Double
+                        if let userMaxHeartRate {
+                            maxHR = userMaxHeartRate
+                        } else {
+                            maxHR = await maxHeartRateClient.forWorkout(workout)
+                        }
+                        let entry = TeamEntryBuilder.entry(
+                            uid: team.context.uid,
+                            displayName: team.context.displayName,
+                            plan: team.plan,
+                            scoredResult: team.scoredResult,
+                            scoredBlock: team.scoredBlock,
+                            division: team.division,
+                            hrBuffer: hrBuffer,
+                            maxHR: maxHR,
+                            windowStart: workout.startDate,
+                            kcal: team.includeKcal ? Self.activeKcal(of: workout) : nil,
+                            existing: team.context.existingEntry,
+                            today: today,
+                            now: now
+                        )
+                        do {
+                            try await teamClient.submitEntry(team.groupId, team.plan.id, entry)
                         } catch {
                             reportIssue(error)
                         }
@@ -390,13 +428,45 @@ struct SummaryFeature {
             case .results:
                 // Remaining card actions — handled inside WorkoutResultsFeature.
                 return .none
+
+            case .teamSubmit:
+                return .none
             }
+        }
+        .ifLet(\.teamSubmit, action: \.teamSubmit) {
+            TeamSubmitFeature()
         }
         .ifLet(\.$discardAlert, action: \.alert)
         .ifLet(\.$errorAlert, action: \.errorAlert)
     }
 
     // MARK: - Helpers
+
+    // The downloaded copy keeps the block order of the group plan, so the scored block is found by position
+    // (the copy has fresh ids).
+    private static func teamSubmission(_ state: State) -> SummaryTeamSubmission? {
+        guard
+            let submit = state.teamSubmit, submit.willSubmit,
+            let context = submit.context, let plan = context.plan,
+            let index = plan.session.workouts.firstIndex(where: { $0.id == plan.scoredBlockId })
+        else { return nil }
+        let localBlocks = state.trainingSession?.workouts ?? []
+        return SummaryTeamSubmission(
+            groupId: submit.groupId,
+            plan: plan,
+            context: context,
+            division: submit.division,
+            includeKcal: submit.includeKcal,
+            scoredBlock: localBlocks.indices.contains(index) ? localBlocks[index] : plan.session.workouts[index],
+            scoredResult: state.results.cards.first { $0.wodIndex == index }?.result.scoreResult
+        )
+    }
+
+    nonisolated private static func activeKcal(of workout: HKWorkout) -> Double? {
+        workout.statistics(for: HKQuantityType(.activeEnergyBurned))?
+            .sumQuantity()?
+            .doubleValue(for: .kilocalorie())
+    }
 
     /// One-shot fetch of the user's max heart rate (USER max, not session peak).
     private func userMaxHeartRateEffect(_ state: State) -> Effect<Action> {

@@ -38,6 +38,8 @@ public struct BoardRankKey: Comparable, Sendable {
             (tier, primary, secondary) = (0, -Double(reps), 0)
         case .capped(_, let remainingReps):
             (tier, primary, secondary) = (1, Double(remainingReps), 0)
+        case .cappedRounds(_, let rounds, let extraReps):
+            (tier, primary, secondary) = (1, -Double(rounds), -Double(extraReps))
         case .unranked:
             (tier, primary, secondary) = (Self.unrankedTier, 0, 0)
         }

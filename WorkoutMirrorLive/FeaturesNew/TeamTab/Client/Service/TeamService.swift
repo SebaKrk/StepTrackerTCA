@@ -8,6 +8,7 @@
 import FirebaseAuth
 import FirebaseFirestore
 import Foundation
+import OSLog
 import SharedModels
 
 /// Firestore implementation behind `TeamClient` — the only place in the app that talks to Firebase for Team.
@@ -56,6 +57,12 @@ nonisolated final class TeamService: @unchecked Sendable {
     func leaveGroup(groupId: String) async throws {
         let uid = try await ensureSignedIn()
         try await groupRef(groupId).collection("members").document(uid).delete()
+    }
+
+    func group(groupId: String) async throws -> TeamGroup? {
+        let ref = groupRef(groupId)
+        guard let data = try await ref.getDocument().data() else { return nil }
+        return try TeamDocumentMapper.group(id: groupId, data: data, path: ref.path)
     }
 
     func members(groupId: String) async throws -> [TeamMember] {
@@ -216,11 +223,25 @@ nonisolated final class TeamService: @unchecked Sendable {
         return try TeamDocumentMapper.plan(id: day, data: data, path: planRef.path)
     }
 
-    func submitEntry(groupId: String, day: String, entry: TeamEntry) async throws {
-        try await groupRef(groupId)
+    func myEntry(groupId: String, day: String) async throws -> TeamEntry? {
+        let uid = try await ensureSignedIn()
+        let ref = groupRef(groupId).collection("plans").document(day).collection("entries").document(uid)
+        guard let data = try await ref.getDocument().data() else { return nil }
+        return try TeamDocumentMapper.entry(data: data, path: ref.path)
+    }
+
+    // Not awaited: Firestore keeps the write in its local queue and sends it when online,
+    // even after the Summary screen that triggered it has closed.
+    func submitEntry(groupId: String, day: String, entry: TeamEntry) {
+        let path = "groups/\(groupId)/plans/\(day)/entries/\(entry.uid)"
+        groupRef(groupId)
             .collection("plans").document(day)
             .collection("entries").document(entry.uid)
-            .setData(TeamDocumentMapper.entryData(entry))
+            .setData(TeamDocumentMapper.entryData(entry)) { error in
+                if let error {
+                    Logger.team.error("Entry \(path) not saved: \(error.localizedDescription)")
+                }
+            }
     }
 
     func observeDayEntries(groupId: String, day: String) -> AsyncThrowingStream<[TeamEntry], Error> {
