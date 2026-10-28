@@ -44,7 +44,8 @@ extension TrainingSession {
                             plannedSets: exercise.plannedSets
                         )
                     },
-                    interval: workout.interval
+                    interval: workout.interval,
+                    plannedMinutes: workout.plannedMinutes
                 )
             },
             coolDown: coolDown

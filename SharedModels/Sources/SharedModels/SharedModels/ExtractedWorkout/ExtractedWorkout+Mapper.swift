@@ -115,7 +115,8 @@ extension WorkoutSection {
             type: workoutType,
             timeCap: cap,
             rounds: roundsInt,
-            exercises: exerciseSessions
+            exercises: exerciseSessions,
+            plannedMinutes: durationMinutes
         )
     }
 
