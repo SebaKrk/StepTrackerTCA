@@ -35,17 +35,26 @@ extension GroupFeature {
         /// Loading state of the member list.
         var viewState: ViewState = .loading
 
-        /// The group's plan for today; `nil` when none is published.
-        var todayPlan: TeamPlan?
+        /// Today's day id — the latest day the navigator reaches.
+        var today = ""
 
-        /// Loading state of today's plan.
-        var todayPlanState: ViewState = .loading
+        /// Day on screen; the plan card and the day ranking follow it.
+        var selectedDay = ""
 
-        /// Today's plan is already in the user's Plans.
-        var isTodayPlanDownloaded = false
+        /// Monday…Sunday of the selected day's week.
+        var weekDays: [GroupDay] = []
 
-        /// Saving today's plan to Plans is in flight.
-        var isDownloadingTodayPlan = false
+        /// The group's plan of the selected day; `nil` when none was published.
+        var dayPlan: TeamPlan?
+
+        /// Loading state of the selected day's plan.
+        var dayPlanState: ViewState = .loading
+
+        /// The selected day's plan is already in the user's Plans.
+        var isDayPlanDownloaded = false
+
+        /// Saving the selected day's plan to Plans is in flight.
+        var isDownloadingDayPlan = false
 
         /// Leaderboard section (today and the week).
         var leaderboard: GroupLeaderboardFeature.State
@@ -78,6 +87,25 @@ extension GroupFeature {
         /// The current account created this group.
         var isOwner: Bool {
             group.ownerUid == myUid
+        }
+
+        /// Downloading and publishing work only for today — the points window runs from the workout start.
+        var isSelectedDayToday: Bool {
+            selectedDay == today
+        }
+
+        /// The selected day as a date; `nil` before the first appearance.
+        var selectedDate: Date? {
+            weekDays.first { $0.id == selectedDay }?.date
+        }
+
+        /// Days of the shown week that have a plan — dots of the week strip.
+        var daysWithPlan: Set<String> {
+            var days = Set(leaderboard.weekEntries?.keys.map { $0 } ?? [])
+            if dayPlan != nil {
+                days.insert(selectedDay)
+            }
+            return days
         }
     }
 

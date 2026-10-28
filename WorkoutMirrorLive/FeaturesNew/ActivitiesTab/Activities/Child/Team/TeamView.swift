@@ -27,10 +27,7 @@ struct TeamView: View {
                     segmentFilterMenu
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    scanInviteButton
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    createGroupButton
+                    addMenu
                 }
             }
             .sheet(
@@ -260,22 +257,31 @@ struct TeamView: View {
         }
     }
 
+    // Both ways into a group share one "+", so the bar keeps two items like the other segments.
+    private var addMenu: some View {
+        Menu {
+            createGroupButton
+            scanInviteButton
+        } label: {
+            Label(addTitle, systemImage: "plus")
+        }
+        .disabled(store.myUid == nil)
+    }
+
     private var scanInviteButton: some View {
         Button {
             send(.scanInviteTapped)
         } label: {
             Label(scanInviteTitle, systemImage: "qrcode.viewfinder")
         }
-        .disabled(store.myUid == nil)
     }
 
     private var createGroupButton: some View {
         Button {
             send(.createGroupTapped)
         } label: {
-            Label(createGroupTitle, systemImage: "plus")
+            Label(createGroupTitle, systemImage: "person.3")
         }
-        .disabled(store.myUid == nil)
     }
 
     private var emptyCreateGroupButton: some View {
@@ -323,6 +329,7 @@ struct TeamView: View {
     private let failedTitle = String(localized: "Something went wrong")
     private let failedMessage = String(localized: "Unable to load your groups. Check your connection and try again.")
     private let retryTitle = String(localized: "Try Again")
+    private let addTitle = String(localized: "Add")
     private let createGroupTitle = String(localized: "Create Group")
     private let scanInviteTitle = String(localized: "Scan Invite")
     private let invitationsHeader = String(localized: "Invitations")

@@ -31,6 +31,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9382096B2E39388600F49046"
                BuildableName = "WorkoutMirrorLive.app"
+               BlueprintName = "WorkoutMirrorLive"
                ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -62,6 +63,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9382096B2E39388600F49046"
             BuildableName = "WorkoutMirrorLive.app"
+            BlueprintName = "WorkoutMirrorLive"
             ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -97,6 +99,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9382096B2E39388600F49046"
             BuildableName = "WorkoutMirrorLive.app"
+            BlueprintName = "WorkoutMirrorLive"
             ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

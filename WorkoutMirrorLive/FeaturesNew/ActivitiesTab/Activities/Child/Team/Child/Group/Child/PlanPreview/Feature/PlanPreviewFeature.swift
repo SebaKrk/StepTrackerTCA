@@ -24,7 +24,7 @@ struct PlanPreviewFeature {
             switch action {
 
             case .view(.downloadTapped):
-                guard !state.isDownloaded, !state.isDownloading else { return .none }
+                guard state.canDownload, !state.isDownloaded, !state.isDownloading else { return .none }
                 state.isDownloading = true
                 state.errorMessage = nil
                 let copy = state.plan.session.downloadedTeamCopy(

@@ -16,8 +16,8 @@ public struct TeamEntry: Identifiable, Equatable, Codable, Sendable {
     /// Name shown on the leaderboard.
     public let displayName: String
 
-    /// Score of the plan's scored block.
-    public let score: BoardScore
+    /// Results per scored block of the plan; a block without one is missing.
+    public let scores: [UUID: BoardScore]
 
     /// Rx or Scaled.
     public let division: BoardDivision
@@ -54,10 +54,15 @@ public struct TeamEntry: Identifiable, Equatable, Codable, Sendable {
 
     public var id: String { uid }
 
+    /// Result of one block; `.unranked` when the member sent none.
+    public func score(for blockId: UUID) -> BoardScore {
+        scores[blockId] ?? .unranked
+    }
+
     public init(
         uid: String,
         displayName: String,
-        score: BoardScore,
+        scores: [UUID: BoardScore],
         division: BoardDivision,
         effortPoints: Int?,
         weightsVersion: Int?,
@@ -72,7 +77,7 @@ public struct TeamEntry: Identifiable, Equatable, Codable, Sendable {
     ) {
         self.uid = uid
         self.displayName = displayName
-        self.score = score
+        self.scores = scores
         self.division = division
         self.effortPoints = effortPoints
         self.weightsVersion = weightsVersion

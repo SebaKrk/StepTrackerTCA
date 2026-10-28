@@ -10,39 +10,59 @@ import Foundation
 import OSLog
 import SharedModels
 
-/// Leaderboard section of the group screen: today's ranking and the week table.
+/// Leaderboard section of the group screen: the shown day's ranking and its week table.
 @Reducer
 struct GroupLeaderboardFeature {
 
-    @Dependency(\.calendar) var calendar
-    @Dependency(\.date) var date
     @Dependency(\.teamClient) var teamClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
 
-            case .view(.viewDidAppear):
-                let now = date.now
-                state.today = TeamDay.id(for: now, calendar: calendar)
-                state.weekDays = TeamDay.weekIds(containing: now, calendar: calendar)
-                state.weekEntries = nil
+            // The week is always loaded: its plan days also feed the dots of the day navigator.
+            case let .showDay(day, weekDays, reloadWeek):
+                if reloadWeek || weekDays != state.weekDays {
+                    state.weekDays = weekDays
+                    state.weekEntries = nil
+                }
+                state.day = day
+                state.dayEntries = []
+                state.isDayLoaded = false
+                recompute(&state)
+                state.viewState = state.range == .week && state.weekEntries != nil ? .success : .loading
                 return .merge(
-                    listenToDay(groupId: state.groupId, day: state.today),
-                    state.range == .week ? loadWeek(groupId: state.groupId, days: state.weekDays) : .none
+                    listenToDay(groupId: state.groupId, day: day),
+                    state.weekEntries == nil ? loadWeek(groupId: state.groupId, days: weekDays) : .none
                 )
 
             case let .view(.rangeChanged(range)):
                 state.range = range
-                guard range == .week, state.weekEntries == nil else {
-                    state.viewState = .success
-                    return .none
-                }
-                state.viewState = .loading
-                return loadWeek(groupId: state.groupId, days: state.weekDays)
+                let isLoaded = range == .day ? state.isDayLoaded : state.weekEntries != nil
+                state.viewState = isLoaded ? .success : .loading
+                return .none
 
-            case let .view(.lensChanged(lens)):
-                state.lens = lens
+            case let .view(.rankingSelected(blockId)):
+                if let blockId {
+                    guard state.scoredBlocks.contains(where: { $0.id == blockId }) else { return .none }
+                    state.lens = .score
+                    state.selectedBlockId = blockId
+                } else {
+                    state.lens = .effort
+                }
+                recompute(&state)
+                return .none
+
+            case let .planChanged(plan):
+                state.planMinutes = plan?.sessionMinutes
+                state.scoredBlocks = plan?.scoredBlocks ?? []
+                // Keep the picked block while it is still in the plan, so live updates don't reset the menu.
+                if !state.scoredBlocks.contains(where: { $0.id == state.selectedBlockId }) {
+                    state.selectedBlockId = state.scoredBlocks.first?.id
+                }
+                if state.scoredBlocks.isEmpty {
+                    state.lens = .effort
+                }
                 recompute(&state)
                 return .none
 
@@ -54,13 +74,14 @@ struct GroupLeaderboardFeature {
 
             case let .dayEntriesUpdated(entries):
                 state.dayEntries = entries
+                state.isDayLoaded = true
                 if !state.hasPickedDivision, let mine = entries.first(where: { $0.uid == state.myUid }) {
                     state.division = mine.division
                 }
-                // Today's live entries also refresh today's column of a loaded week.
-                let today = state.today
-                if state.weekEntries?[today] != nil {
-                    state.weekEntries?[today] = entries
+                // The shown day's live entries also refresh its column of a loaded week.
+                let day = state.day
+                if state.weekEntries?[day] != nil {
+                    state.weekEntries?[day] = entries
                 }
                 recompute(&state)
                 if state.range == .day {
@@ -69,9 +90,16 @@ struct GroupLeaderboardFeature {
                 return .none
 
             case let .weekLoaded(entriesByDay):
-                state.weekEntries = entriesByDay
+                // Live entries may have arrived first; they are fresher than this one-shot read.
+                var merged = entriesByDay
+                if merged[state.day] != nil, state.isDayLoaded {
+                    merged[state.day] = state.dayEntries
+                }
+                state.weekEntries = merged
                 recompute(&state)
-                state.viewState = .success
+                if state.range == .week {
+                    state.viewState = .success
+                }
                 return .none
 
             case .failed:
@@ -87,15 +115,13 @@ struct GroupLeaderboardFeature {
         state.dayRows = TeamLeaderboardRanker.rows(
             entries: state.dayEntries,
             lens: state.lens,
+            blockId: state.selectedBlockId,
             division: state.division,
             myUid: state.myUid,
             weightsVersion: weightsVersion
         )
         state.weekRows = TeamWeekStandings.rows(
             entriesByDay: state.weekEntries ?? [:],
-            days: state.weekDays,
-            lens: state.lens,
-            division: state.division,
             myUid: state.myUid,
             weightsVersion: weightsVersion
         )
@@ -120,5 +146,6 @@ struct GroupLeaderboardFeature {
             Logger.team.error("Week entries failed: \(error.localizedDescription)")
             await send(.failed)
         }
+        .cancellable(id: GroupLeaderboardCancelID.week, cancelInFlight: true)
     }
 }

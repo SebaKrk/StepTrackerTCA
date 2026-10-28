@@ -41,22 +41,29 @@ struct PublishPlanFeature {
 
             case .view(.planDetailClosed):
                 state.selectedPlan = nil
-                state.scoredBlockId = nil
+                state.scoredBlockIds = []
                 state.errorMessage = nil
                 return .none
 
-            case let .view(.scoredBlockSelected(id)):
-                state.scoredBlockId = id
+            case let .view(.scoredBlockToggled(id, isOn)):
+                guard
+                    let block = state.selectedPlan?.workouts.first(where: { $0.id == id }),
+                    block.type.boardScoreKind.isScored
+                else { return .none }
+                if isOn {
+                    state.scoredBlockIds.insert(id)
+                } else {
+                    state.scoredBlockIds.remove(id)
+                }
                 return .none
 
-            case .view(.fillClassLengthTapped):
-                state.selectedPlan = state.selectedPlan?.fillingClassLength(to: State.classMinutes)
+            case let .view(.effortWindowChanged(minutes)):
+                let range = State.effortWindowRange
+                state.effortWindowMinutes = min(max(minutes, range.lowerBound), range.upperBound)
                 return .none
 
             case .view(.publishTapped):
-                guard state.canPublish, let session = state.selectedPlan, let scoredBlockId = state.scoredBlockId else {
-                    return .none
-                }
+                guard state.canPublish, let session = state.selectedPlan else { return .none }
                 state.isPublishing = true
                 state.errorMessage = nil
                 let now = date.now
@@ -65,11 +72,11 @@ struct PublishPlanFeature {
                     authorUid: state.myUid,
                     authorName: state.displayName,
                     session: session,
-                    scoredBlockId: scoredBlockId,
-                    sessionMinutes: session.plannedTotalMinutes,
+                    scoredBlockIds: session.workouts.map(\.id).filter(state.scoredBlockIds.contains),
+                    sessionMinutes: state.effortWindowMinutes,
                     publishedAt: now
                 )
-                return .run { [groupId = state.groupId, myUid = state.myUid, teamClient] send in
+                return .run { [groupId = state.groupId, myUid = state.myUid, teamClient, trainingSessionClient] send in
                     // One plan per day: only its author may replace it.
                     if let existing = try await teamClient.plan(groupId, plan.id), existing.authorUid != myUid {
                         await send(.publishFailed(
@@ -78,6 +85,10 @@ struct PublishPlanFeature {
                         return
                     }
                     try await teamClient.publishPlan(groupId, plan)
+                    // The author's own plan becomes the group copy, so the group never offers a second download.
+                    try await trainingSessionClient.save(
+                        session.linkedToTeamPlan(TrainingSession.teamPlanId(groupId: groupId, day: plan.id))
+                    )
                     await send(.published(plan))
                 } catch: { error, send in
                     Logger.team.error("Publish failed: \(error.localizedDescription)")
@@ -118,7 +129,8 @@ struct PublishPlanFeature {
 
     private func select(_ state: inout State, planId: UUID) {
         state.selectedPlan = state.plans.first { $0.id == planId }
-        state.scoredBlockId = state.selectedPlan?.defaultScoredBlockId
+        state.scoredBlockIds = Set(state.selectedPlan?.defaultScoredBlockIds ?? [])
+        state.effortWindowMinutes = State.defaultEffortWindowMinutes
         state.errorMessage = nil
     }
 }

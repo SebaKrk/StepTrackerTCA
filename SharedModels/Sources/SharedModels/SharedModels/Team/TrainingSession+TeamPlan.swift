@@ -21,6 +21,26 @@ extension TrainingSession {
         return (String(parts[0]), String(parts[1]))
     }
 
+    /// Blocks shown on a group leaderboard by default — every block that has a comparable result.
+    public var defaultScoredBlockIds: [WorkoutSessionNew.ID] {
+        workouts.filter { $0.type.boardScoreKind.isScored }.map(\.id)
+    }
+
+    /// The same plan linked to a group's daily plan — the author's own plan after publishing.
+    public func linkedToTeamPlan(_ teamPlanId: String) -> TrainingSession {
+        TrainingSession(
+            id: id,
+            date: date,
+            title: title,
+            activity: activity,
+            location: location,
+            warmUp: warmUp,
+            workouts: workouts,
+            coolDown: coolDown,
+            teamPlanId: teamPlanId
+        )
+    }
+
     /// Local copy of a group's plan: fresh ids everywhere (as on QR import) plus the team link.
     public func downloadedTeamCopy(id: UUID, date: Date, teamPlanId: String) -> TrainingSession {
         let copy = withNewIdentity(id: id, date: date)

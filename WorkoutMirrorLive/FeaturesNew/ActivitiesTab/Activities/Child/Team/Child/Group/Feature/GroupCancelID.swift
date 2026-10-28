@@ -13,6 +13,6 @@ nonisolated enum GroupCancelID: Hashable, Sendable {
     /// Live member list.
     case members
 
-    /// Live plan of today.
-    case todayPlan
+    /// Live plan of the selected day.
+    case dayPlan
 }

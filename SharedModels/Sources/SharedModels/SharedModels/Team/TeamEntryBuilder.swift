@@ -10,14 +10,13 @@ import Foundation
 /// Builds the entry a finished workout posts to its group's daily plan.
 public enum TeamEntryBuilder {
 
-    /// Entry for the scored block; effort, coverage and the warm-start flag come from the window
-    /// that starts at the workout start and lasts the plan length.
+    /// Entry with the member's block results; effort, coverage and the warm-start flag come from the window
+    /// that starts at the workout start and lasts the plan's points window.
     public static func entry(
         uid: String,
         displayName: String,
         plan: TeamPlan,
-        scoredResult: WodScoreResult?,
-        scoredBlock: WorkoutSessionNew?,
+        scores: [UUID: BoardScore],
         division: BoardDivision,
         hrBuffer: [(date: Date, bpm: Double)],
         maxHR: Double,
@@ -27,9 +26,6 @@ public enum TeamEntryBuilder {
         today: String,
         now: Date
     ) -> TeamEntry {
-        let score = scoredResult.map {
-            BoardScore($0, blockType: scoredBlock?.type ?? .forTime, timeCapMinutes: scoredBlock?.timeCap)
-        } ?? .unranked
         let secondsByZone = TeamEffortWindow.secondsByZone(
             buffer: hrBuffer,
             maxHR: maxHR,
@@ -40,7 +36,7 @@ public enum TeamEntryBuilder {
         return TeamEntry(
             uid: uid,
             displayName: displayName,
-            score: score,
+            scores: scores,
             division: division,
             effortPoints: hasHeartRate ? EffortPointsScoring.points(from: secondsByZone) : nil,
             weightsVersion: hasHeartRate ? EffortPointsScoring.currentWeightsVersion : nil,

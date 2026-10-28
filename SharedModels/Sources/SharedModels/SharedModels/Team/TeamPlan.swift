@@ -22,10 +22,10 @@ public struct TeamPlan: Identifiable, Equatable, Codable, Sendable {
     /// Full plan, shown read-only and copied into Plans on download.
     public let session: TrainingSession
 
-    /// Workout block whose score builds the leaderboard.
-    public let scoredBlockId: UUID
+    /// Workout blocks whose results the leaderboard shows, in plan order; may be empty.
+    public let scoredBlockIds: [UUID]
 
-    /// Measurement window length in minutes — the plan length, at least 60.
+    /// Effort points window in minutes from each member's start — at least 60.
     public let sessionMinutes: Int
 
     /// Publication time.
@@ -36,7 +36,7 @@ public struct TeamPlan: Identifiable, Equatable, Codable, Sendable {
         authorUid: String,
         authorName: String,
         session: TrainingSession,
-        scoredBlockId: UUID,
+        scoredBlockIds: [UUID],
         sessionMinutes: Int,
         publishedAt: Date
     ) {
@@ -44,8 +44,14 @@ public struct TeamPlan: Identifiable, Equatable, Codable, Sendable {
         self.authorUid = authorUid
         self.authorName = authorName
         self.session = session
-        self.scoredBlockId = scoredBlockId
+        self.scoredBlockIds = scoredBlockIds
         self.sessionMinutes = sessionMinutes
         self.publishedAt = publishedAt
+    }
+
+    /// Blocks with a result on the leaderboard, in plan order.
+    public var scoredBlocks: [WorkoutSessionNew] {
+        let ids = Set(scoredBlockIds)
+        return session.workouts.filter { ids.contains($0.id) }
     }
 }

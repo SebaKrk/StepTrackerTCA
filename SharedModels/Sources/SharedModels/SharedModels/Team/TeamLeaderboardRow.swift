@@ -16,14 +16,18 @@ public struct TeamLeaderboardRow: Identifiable, Equatable, Sendable {
     /// The member's entry.
     public let entry: TeamEntry
 
+    /// Result of the ranked block; `nil` when ranking by effort points.
+    public let score: BoardScore?
+
     /// The entry belongs to the current user.
     public let isMe: Bool
 
     public var id: String { entry.uid }
 
-    public init(place: Int?, entry: TeamEntry, isMe: Bool) {
+    public init(place: Int?, entry: TeamEntry, score: BoardScore? = nil, isMe: Bool) {
         self.place = place
         self.entry = entry
+        self.score = score
         self.isMe = isMe
     }
 }

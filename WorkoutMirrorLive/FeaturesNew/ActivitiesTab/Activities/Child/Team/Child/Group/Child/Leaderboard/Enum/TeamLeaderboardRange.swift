@@ -10,17 +10,17 @@ import Foundation
 /// Leaderboard period on the group screen.
 enum TeamLeaderboardRange: CaseIterable, Identifiable, Equatable {
 
-    /// Today's plan only.
+    /// The shown day's plan only.
     case day
 
-    /// Sum of daily places, Monday to Sunday.
+    /// Effort points and kcal summed Monday to Sunday.
     case week
 
     var id: Self { self }
 
     var title: String {
         switch self {
-        case .day: String(localized: "Today")
+        case .day: String(localized: "Day")
         case .week: String(localized: "Week")
         }
     }

@@ -16,16 +16,13 @@ public struct TeamWeekRow: Identifiable, Equatable, Sendable {
     /// Name shown in the table.
     public let displayName: String
 
-    /// Place on each day the member was ranked, keyed by day id.
-    public let placesByDay: [String: Int]
+    /// Sum of comparable effort points this week. Higher is better.
+    public let points: Int
 
-    /// Days with a plan where the member has no ranked entry.
-    public let missingDays: [String]
+    /// Sum of shared kcal this week; `nil` when the member shared none.
+    public let kcal: Int?
 
-    /// Sum of places; a missing day counts as that day's last place + 1. Lower is better.
-    public let total: Int
-
-    /// Number of days the member was ranked.
+    /// Number of workouts submitted this week.
     public let workouts: Int
 
     /// Place in the week from 1.
@@ -39,18 +36,16 @@ public struct TeamWeekRow: Identifiable, Equatable, Sendable {
     public init(
         uid: String,
         displayName: String,
-        placesByDay: [String: Int],
-        missingDays: [String],
-        total: Int,
+        points: Int,
+        kcal: Int?,
         workouts: Int,
         place: Int,
         isMe: Bool
     ) {
         self.uid = uid
         self.displayName = displayName
-        self.placesByDay = placesByDay
-        self.missingDays = missingDays
-        self.total = total
+        self.points = points
+        self.kcal = kcal
         self.workouts = workouts
         self.place = place
         self.isMe = isMe

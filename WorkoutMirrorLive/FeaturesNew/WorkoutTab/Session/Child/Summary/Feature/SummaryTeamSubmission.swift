@@ -26,9 +26,6 @@ struct SummaryTeamSubmission: Sendable {
     /// The user agreed to share kcal.
     let includeKcal: Bool
 
-    /// Scored block of the local copy — its type decides how a capped For Time is read.
-    let scoredBlock: WorkoutSessionNew
-
-    /// Score entered for that block; `nil` when the block was not scored.
-    let scoredResult: WodScoreResult?
+    /// Results entered for the plan's scored blocks, keyed by the group plan's block ids.
+    let scores: [UUID: BoardScore]
 }
