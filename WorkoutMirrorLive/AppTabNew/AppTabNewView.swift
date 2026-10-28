@@ -80,8 +80,8 @@ struct AppTabNewView: View {
             activitiesView
         case .workout:
             EmptyView()
-        case .sharing:
-            Text("sharing")
+        case .team:
+            teamView
         default:
             ProgressView()
         }
@@ -100,6 +100,14 @@ struct AppTabNewView: View {
         ActivitiesView(store: store.scope(
             state: \.activities,
             action: \.activities)
+        )
+    }
+
+    @ViewBuilder
+    var teamView: some View {
+        TeamView(store: store.scope(
+            state: \.team,
+            action: \.team)
         )
     }
     

@@ -200,6 +200,9 @@ struct AppTabNewFeature {
         Scope(state: \.stats, action: \.stats) {
             StatsFeature()
         }
+        Scope(state: \.team, action: \.team) {
+            TeamFeature()
+        }
         Scope(state: \.activities, action: \.activities) {
             ActivitiesFeature()
         }
@@ -319,6 +322,9 @@ extension AppTabNewFeature {
 
         ///
         case activities(ActivitiesFeature.Action)
+
+        /// Team tab — private groups, invites and shared daily plans.
+        case team(TeamFeature.Action)
         
         // MARK: - Destination
         
@@ -338,7 +344,7 @@ extension AppTabNewFeature {
         /// List of available tabs in the application.
         ///
         /// The order of tabs determines their placement in the UI.
-        var tabs: [AppScreen] = [.stats, .activities, .workout]
+        var tabs: [AppScreen] = [.stats, .activities, .team, .workout]
         
         /// The currently selected tab in the application.
         ///
@@ -352,6 +358,9 @@ extension AppTabNewFeature {
         
         ///
         var activities: ActivitiesFeature.State = .init()
+
+        /// Team tab — private groups, invites and shared daily plans.
+        var team: TeamFeature.State = .init()
         
         // MARK: - Destination
         

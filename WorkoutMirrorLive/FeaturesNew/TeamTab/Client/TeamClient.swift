@@ -165,7 +165,7 @@ private enum TeamClientKey: DependencyKey {
 
 private extension AsyncThrowingStream where Failure == Error {
     /// A stream that ends immediately without values.
-    static var finished: Self {
+    nonisolated static var finished: Self {
         Self { $0.finish() }
     }
 }
