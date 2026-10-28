@@ -91,6 +91,16 @@
         }
       }
     },
+    "Enter the WOD result in the Summary to get a place in the table." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz wynik WOD w Podsumowaniu, żeby trafić do tabeli."
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -120,6 +130,9 @@
           }
         }
       }
+    },
+    "·" : {
+
     },
     "· %lld rounds + %lld reps" : {
       "localizations" : {
@@ -252,6 +265,16 @@
         }
       }
     },
+    "%@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "%@ %@" : {
       "localizations" : {
         "en" : {
@@ -300,6 +323,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Informacje %@"
+          }
+        }
+      }
+    },
+    "%@ invites you to a private group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ zaprasza Cię do prywatnej grupy"
           }
         }
       }
@@ -554,6 +587,16 @@
     "%lld min cap" : {
       "shouldTranslate" : false
     },
+    "%lld min missing" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brakuje %lld min"
+          }
+        }
+      }
+    },
     "%lld movements in %lld categories" : {
       "localizations" : {
         "en" : {
@@ -566,6 +609,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld ruchów w %lld kategoriach"
+          }
+        }
+      }
+    },
+    "%lld of %lld min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld min"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld z %lld min"
           }
         }
       }
@@ -590,6 +649,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld pkt/min"
+          }
+        }
+      }
+    },
+    "%lld rds + %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld rds + %2$lld"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld rund + %lld"
           }
         }
       }
@@ -651,6 +726,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld WOD'y"
+          }
+        }
+      }
+    },
+    "%lld workouts" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treningi: %lld"
           }
         }
       }
@@ -738,6 +823,16 @@
         }
       }
     },
+    "+%lld min" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld min"
+          }
+        }
+      }
+    },
     "<6h" : {
       "shouldTranslate" : false
     },
@@ -794,6 +889,16 @@
         }
       }
     },
+    "✓ HR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ HR"
+          }
+        }
+      }
+    },
     "❌ Device not compatible" : {
       "localizations" : {
         "pl" : {
@@ -833,6 +938,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "2"
+          }
+        }
+      }
+    },
+    "3–40 characters. The group is private — people join only with your QR code." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–40 znaków. Grupa jest prywatna — dołączyć można tylko przez Twój kod QR."
           }
         }
       }
@@ -936,6 +1051,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "220 − wiek"
+          }
+        }
+      }
+    },
+    "A group plan lasts at least 60 minutes — everyone is measured over the same window." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan grupy trwa co najmniej 60 minut — każdy jest mierzony w tym samym oknie czasu."
           }
         }
       }
@@ -1406,6 +1531,16 @@
         }
       }
     },
+    "Ask the person who invited you for a new code." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poproś osobę, która Cię zaprosiła, o nowy kod."
+          }
+        }
+      }
+    },
     "Athlete" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1796,6 +1931,25 @@
         }
       }
     },
+    "By %@ · %lld min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "By %1$@ · %2$lld min"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od %@ · %lld min"
+          }
+        }
+      }
+    },
+    "By Time Cap" : {
+
+    },
     "Cadence" : {
       "localizations" : {
         "pl" : {
@@ -1898,6 +2052,32 @@
         }
       }
     },
+    "CAP · %lld left" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CAP · zostało %lld"
+          }
+        }
+      }
+    },
+    "CAP · %lld rds + %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "CAP · %1$lld rds + %2$lld"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CAP · %lld rund + %lld"
+          }
+        }
+      }
+    },
     "Category share of records" : {
       "localizations" : {
         "pl" : {
@@ -1944,6 +2124,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tutaj pojawią się wykresy porównujące wybrane treningi."
+          }
+        }
+      }
+    },
+    "Check your connection and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprawdź połączenie i spróbuj ponownie."
           }
         }
       }
@@ -1996,6 +2186,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zajęcia wciąż trwają"
+          }
+        }
+      }
+    },
+    "Class Length" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Długość zajęć"
           }
         }
       }
@@ -2253,6 +2453,36 @@
         }
       }
     },
+    "Couldn't Leave the Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się opuścić grupy"
+          }
+        }
+      }
+    },
+    "Couldn't load the leaderboard." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać tablicy wyników."
+          }
+        }
+      }
+    },
+    "Couldn't load today's plan." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać dzisiejszego planu."
+          }
+        }
+      }
+    },
     "Couldn't load workouts." : {
       "localizations" : {
         "pl" : {
@@ -2313,6 +2543,26 @@
         }
       }
     },
+    "Create" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utwórz"
+          }
+        }
+      }
+    },
+    "Create a group or scan an invite from a friend to train on the same plan and compare results." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utwórz grupę albo zeskanuj zaproszenie od znajomego, żeby trenować według tego samego planu i porównywać wyniki."
+          }
+        }
+      }
+    },
     "Create a training plan in the Plans tab first." : {
       "localizations" : {
         "pl" : {
@@ -2329,6 +2579,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utwórz plan treningowy"
+          }
+        }
+      }
+    },
+    "Create Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utwórz grupę"
+          }
+        }
+      }
+    },
+    "Create or scan a plan in Activities → Plans first." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najpierw utwórz lub zeskanuj plan w Aktywności → Plany."
           }
         }
       }
@@ -2493,6 +2763,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DEBUG: Utwórz trening"
+          }
+        }
+      }
+    },
+    "Decline" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzuć"
+          }
+        }
+      }
+    },
+    "Declined" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzucone"
           }
         }
       }
@@ -2725,6 +3015,16 @@
         }
       }
     },
+    "Division" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategoria"
+          }
+        }
+      }
+    },
     "dominant: %@" : {
       "localizations" : {
         "pl" : {
@@ -2741,6 +3041,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Download to Plans" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pobierz do Planów"
           }
         }
       }
@@ -2878,6 +3188,16 @@
         }
       }
     },
+    "edited" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "edytowany"
+          }
+        }
+      }
+    },
     "Editing locked" : {
       "localizations" : {
         "pl" : {
@@ -2915,6 +3235,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Edytuj wynik"
+          }
+        }
+      }
+    },
+    "Effort" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysiłek"
+          }
+        }
+      }
+    },
+    "Effort counts the first %lld minutes from the workout start." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysiłek liczony jest z pierwszych %lld minut od startu treningu."
           }
         }
       }
@@ -3143,6 +3484,16 @@
         }
       }
     },
+    "Expired" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wygasło"
+          }
+        }
+      }
+    },
     "Extra info" : {
       "localizations" : {
         "pl" : {
@@ -3244,6 +3595,16 @@
         }
       }
     },
+    "Fill to 60 Minutes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uzupełnij do 60 minut"
+          }
+        }
+      }
+    },
     "Find a Club" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3285,12 +3646,32 @@
         }
       }
     },
+    "For now, join private groups with a QR code from a friend." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na razie dołączaj do prywatnych grup kodem QR od znajomego."
+          }
+        }
+      }
+    },
     "Frequency" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Częstotliwość"
+          }
+        }
+      }
+    },
+    "From %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od %@"
           }
         }
       }
@@ -3312,6 +3693,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Żywienie"
+          }
+        }
+      }
+    },
+    "Full class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Całe zajęcia"
           }
         }
       }
@@ -3457,6 +3848,16 @@
         }
       }
     },
+    "Group name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa grupy"
+          }
+        }
+      }
+    },
     "Gym Room" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3484,6 +3885,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wymagany dostęp do Zdrowia"
+          }
+        }
+      }
+    },
+    "Health data — the group sees it next to your result. Never used for ranking." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane zdrowotne — grupa widzi je obok Twojego wyniku. Nigdy nie wpływają na ranking."
           }
         }
       }
@@ -3617,6 +4028,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strefa tętna"
+          }
+        }
+      }
+    },
+    "Heart rate zone points from the first %lld minutes — who worked hardest." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkty za strefy tętna z pierwszych %lld minut — kto pracował najmocniej."
           }
         }
       }
@@ -3908,6 +4329,16 @@
         }
       }
     },
+    "In Your Plans" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W Twoich planach"
+          }
+        }
+      }
+    },
     "Info" : {
       "localizations" : {
         "pl" : {
@@ -3968,12 +4399,72 @@
         }
       }
     },
+    "Invitations" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaproszenia"
+          }
+        }
+      }
+    },
+    "Invite" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaproś"
+          }
+        }
+      }
+    },
+    "Invite No Longer Valid" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaproszenie nieważne"
+          }
+        }
+      }
+    },
+    "Invite Not Found" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie znaleziono zaproszenia"
+          }
+        }
+      }
+    },
+    "Invite to Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaproś do grupy"
+          }
+        }
+      }
+    },
     "It was not possible to retrieve the health metrics data. Please try again later." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się pobrać danych zdrowotnych. Spróbuj ponownie później."
+          }
+        }
+      }
+    },
+    "Join" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołącz"
           }
         }
       }
@@ -3985,6 +4476,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dołącz do grupy fitness, aby śledzić postępy z zespołem i utrzymywać motywację razem."
+          }
+        }
+      }
+    },
+    "Join a Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołącz do grupy"
           }
         }
       }
@@ -4005,6 +4506,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dołącz do zajęć"
+          }
+        }
+      }
+    },
+    "Joined" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołączył(a)"
           }
         }
       }
@@ -4082,6 +4593,26 @@
         }
       }
     },
+    "late" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "spóźniony"
+          }
+        }
+      }
+    },
+    "Later" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Później"
+          }
+        }
+      }
+    },
     "Latest" : {
       "localizations" : {
         "pl" : {
@@ -4092,12 +4623,42 @@
         }
       }
     },
+    "Leaderboard" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica wyników"
+          }
+        }
+      }
+    },
     "Leave" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyjdź"
+          }
+        }
+      }
+    },
+    "Leave Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opuść grupę"
+          }
+        }
+      }
+    },
+    "Leave Group?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opuścić grupę?"
           }
         }
       }
@@ -4340,6 +4901,42 @@
         }
       }
     },
+    "measured %lld/%lld min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "measured %1$lld/%2$lld min"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zmierzono %lld/%lld min"
+          }
+        }
+      }
+    },
+    "Members" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Członkowie"
+          }
+        }
+      }
+    },
+    "Members see your name and your results for this group's plans — nothing else from your health data." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Członkowie widzą Twoje imię i wyniki z planów tej grupy — nic więcej z Twoich danych zdrowotnych."
+          }
+        }
+      }
+    },
     "Meters" : {
       "localizations" : {
         "pl" : {
@@ -4413,6 +5010,16 @@
         }
       }
     },
+    "More" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Więcej"
+          }
+        }
+      }
+    },
     "Move" : {
       "localizations" : {
         "pl" : {
@@ -4474,12 +5081,32 @@
         }
       }
     },
+    "My Groups" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moje grupy"
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nazwa"
+          }
+        }
+      }
+    },
+    "New Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowa grupa"
           }
         }
       }
@@ -4665,6 +5292,16 @@
         }
       }
     },
+    "No Groups Yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak grup"
+          }
+        }
+      }
+    },
     "No heart rate data" : {
       "localizations" : {
         "pl" : {
@@ -4767,6 +5404,16 @@
         }
       }
     },
+    "No one has scanned this code yet." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nikt jeszcze nie zeskanował tego kodu."
+          }
+        }
+      }
+    },
     "No permission" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4774,6 +5421,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak zgody"
+          }
+        }
+      }
+    },
+    "No plan for today yet" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak planu na dziś"
+          }
+        }
+      }
+    },
+    "No Plans" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak planów"
+          }
+        }
+      }
+    },
+    "No results this week yet." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wyników w tym tygodniu."
+          }
+        }
+      }
+    },
+    "No results yet today." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak wyników na dziś."
           }
         }
       }
@@ -4918,6 +5605,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak"
+          }
+        }
+      }
+    },
+    "Not a Group Invite" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To nie jest zaproszenie do grupy"
           }
         }
       }
@@ -5115,12 +5812,32 @@
         }
       }
     },
+    "Others see you as" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inni widzą Cię jako"
+          }
+        }
+      }
+    },
     "Outside rounds" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poza rundami"
+          }
+        }
+      }
+    },
+    "Owner" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Właściciel"
           }
         }
       }
@@ -5175,6 +5892,16 @@
         }
       }
     },
+    "Pending" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oczekuje"
+          }
+        }
+      }
+    },
     "per workout" : {
       "localizations" : {
         "pl" : {
@@ -5186,7 +5913,14 @@
       }
     },
     "Period" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okres"
+          }
+        }
+      }
     },
     "Permission required" : {
       "extractionState" : "stale",
@@ -5240,12 +5974,33 @@
         }
       }
     },
+    "Pick a plan to see it in full before publishing." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz plan, żeby obejrzeć go w całości przed publikacją."
+          }
+        }
+      }
+    },
     "placeholder" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "placeholder"
+          }
+        }
+      }
+    },
+    "Plan" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan"
           }
         }
       }
@@ -5344,12 +6099,32 @@
         }
       }
     },
+    "Point the camera at an invite code" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skieruj aparat na kod zaproszenia"
+          }
+        }
+      }
+    },
     "points" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "punkty"
+          }
+        }
+      }
+    },
+    "Points" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkty"
           }
         }
       }
@@ -5454,6 +6229,16 @@
         }
       }
     },
+    "Private" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prywatne"
+          }
+        }
+      }
+    },
     "Processing..." : {
       "localizations" : {
         "pl" : {
@@ -5501,6 +6286,83 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "pkt"
+          }
+        }
+      }
+    },
+    "Public" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Publiczne"
+          }
+        }
+      }
+    },
+    "Public Groups Coming Soon" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupy publiczne wkrótce"
+          }
+        }
+      }
+    },
+    "Publish" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opublikuj"
+          }
+        }
+      }
+    },
+    "Publish to Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opublikuj w grupie"
+          }
+        }
+      }
+    },
+    "Publish Today's Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opublikuj plan na dziś"
+          }
+        }
+      }
+    },
+    "Published by %@ · %lld min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Published by %1$@ · %2$lld min"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opublikował(a) %@ · %lld min"
+          }
+        }
+      }
+    },
+    "Rank by" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranking według"
           }
         }
       }
@@ -5720,6 +6582,16 @@
         }
       }
     },
+    "Result of the scored block — time, rounds or load." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik bloku punktowanego — czas, rundy albo ciężar."
+          }
+        }
+      }
+    },
     "Results" : {
       "localizations" : {
         "pl" : {
@@ -5747,6 +6619,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ponów"
+          }
+        }
+      }
+    },
+    "Revoke and Create New Code" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unieważnij i utwórz nowy kod"
+          }
+        }
+      }
+    },
+    "Revoked" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unieważnione"
           }
         }
       }
@@ -5998,6 +6890,26 @@
         }
       }
     },
+    "Scan Again" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanuj ponownie"
+          }
+        }
+      }
+    },
+    "Scan Invite" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanuj zaproszenie"
+          }
+        }
+      }
+    },
     "Scan Plan" : {
       "localizations" : {
         "pl" : {
@@ -6024,6 +6936,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zeskanuj odręczne notatki lub wpisz ręcznie"
+          }
+        }
+      }
+    },
+    "Scanned By" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeskanowali"
           }
         }
       }
@@ -6125,6 +7047,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wynik:"
+          }
+        }
+      }
+    },
+    "Scored Block" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blok punktowany"
           }
         }
       }
@@ -6292,12 +7224,32 @@
         }
       }
     },
+    "Send to %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij do: %@"
+          }
+        }
+      }
+    },
     "Send to developer" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyślij do developera"
+          }
+        }
+      }
+    },
+    "Send to Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij do grupy"
           }
         }
       }
@@ -6394,7 +7346,18 @@
         }
       }
     },
+    "Share kcal" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udostępnij kcal"
+          }
+        }
+      }
+    },
     "sharing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -6406,6 +7369,7 @@
     },
     "Sharing" : {
       "comment" : "The Sharing Tab shows the team you joined and shared workout activity.",
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -6451,6 +7415,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pokaż ten kod, żeby udostępnić plan"
+          }
+        }
+      }
+    },
+    "Show this code to someone next to you. Valid until %@." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaż ten kod osobie obok. Ważny do %@."
           }
         }
       }
@@ -6640,6 +7614,16 @@
         }
       }
     },
+    "started warm" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rozgrzany na starcie"
+          }
+        }
+      }
+    },
     "Starting on Apple Watch" : {
       "localizations" : {
         "pl" : {
@@ -6751,6 +7735,16 @@
         }
       }
     },
+    "Sum of daily places — lower is better. A missed day counts as last place + 1; ties go to more workouts." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suma miejsc z każdego dnia — mniej znaczy lepiej. Opuszczony dzień liczy się jako ostatnie miejsce + 1; przy remisie wygrywa więcej treningów."
+          }
+        }
+      }
+    },
     "Summary" : {
       "localizations" : {
         "pl" : {
@@ -6801,6 +7795,16 @@
         }
       }
     },
+    "Taken from your profile: nickname, then first name." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z Twojego profilu: pseudonim, a jeśli go brak — imię."
+          }
+        }
+      }
+    },
     "Takes HealthKit biological sex into account. Men: 207 − 0.78 × age; women: a separate variant. A good compromise when you want sex-specific accuracy." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6808,6 +7812,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uwzględnia biologiczną płeć z HealthKit. Mężczyźni: 207 − 0,78 × wiek; kobiety: osobny wariant. Dobry kompromis gdy chcesz dokładności dopasowanej do płci."
+          }
+        }
+      }
+    },
+    "Tap + to publish one from your Plans." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dotknij +, żeby opublikować plan ze swoich Planów."
           }
         }
       }
@@ -6853,12 +7867,22 @@
       }
     },
     "Team" : {
-      "extractionState" : "stale",
+      "comment" : "The Team Tab shows private groups, invites and shared daily plans.",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zespół"
+          }
+        }
+      }
+    },
+    "Team segment" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekcja zespołu"
           }
         }
       }
@@ -6873,6 +7897,16 @@
         }
       }
     },
+    "The code expired or was revoked. Ask for a new one." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kod wygasł albo został unieważniony. Poproś o nowy."
+          }
+        }
+      }
+    },
     "The entry was not deleted. Please try again." : {
       "localizations" : {
         "pl" : {
@@ -6883,12 +7917,42 @@
         }
       }
     },
+    "The group plan isn't available — the result stays only on this phone." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan grupy jest niedostępny — wynik zostanie tylko na tym telefonie."
+          }
+        }
+      }
+    },
+    "The group sees the whole plan and can download it to their Plans." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupa widzi cały plan i może pobrać go do swoich Planów."
+          }
+        }
+      }
+    },
     "The key is stored securely in the device's Keychain." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Klucz jest przechowywany bezpiecznie w Keychain urządzenia."
+          }
+        }
+      }
+    },
+    "The leaderboard ranks results of this block." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica wyników porównuje wyniki z tego bloku."
           }
         }
       }
@@ -6966,6 +8030,16 @@
         }
       }
     },
+    "This QR code doesn't lead to a Team group." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ten kod QR nie prowadzi do grupy Zespołu."
+          }
+        }
+      }
+    },
     "Time" : {
       "localizations" : {
         "pl" : {
@@ -6992,6 +8066,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Czas przekracza limit %lld:00"
+          }
+        }
+      }
+    },
+    "Time in Class" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas na zajęciach"
           }
         }
       }
@@ -7062,6 +8146,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dziś"
+          }
+        }
+      }
+    },
+    "Today's Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan na dziś"
+          }
+        }
+      }
+    },
+    "Today's plan was already published by %@." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ już opublikował(a) plan na dziś."
           }
         }
       }
@@ -7259,12 +8363,52 @@
         }
       }
     },
+    "Unable to load the group members. Check your connection and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać członków grupy. Sprawdź połączenie i spróbuj ponownie."
+          }
+        }
+      }
+    },
     "Unable to load workout plans. Please try again." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się wczytać planów treningowych. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Unable to load your groups. Check your connection and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać Twoich grup. Sprawdź połączenie i spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Unable to load your plans. Please try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać Twoich planów. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Unable to prepare the invite. Check your connection and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się przygotować zaproszenia. Sprawdź połączenie i spróbuj ponownie."
           }
         }
       }
@@ -7338,6 +8482,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usuwa z watcha"
+          }
+        }
+      }
+    },
+    "Valid until %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ważny do %@"
           }
         }
       }
@@ -7901,6 +9055,26 @@
         }
       }
     },
+    "You" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ty"
+          }
+        }
+      }
+    },
+    "You can come back only with a new invite." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wrócić możesz tylko z nowym zaproszeniem."
+          }
+        }
+      }
+    },
     "You can now start scanning for Bluetooth devices" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7908,6 +9082,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Możesz teraz rozpocząć skanowanie urządzeń Bluetooth"
+          }
+        }
+      }
+    },
+    "You created this group. It stays for the other members; you can come back only with a new invite." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To Twoja grupa. Zostanie dla pozostałych członków; wrócić możesz tylko z nowym zaproszeniem."
           }
         }
       }
@@ -7939,6 +9123,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Udostępnisz plik .txt z nazwami nierozpoznanych ćwiczeń i liczbą wystąpień — bez żadnych danych treningowych."
+          }
+        }
+      }
+    },
+    "You're already in this group." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jesteś już w tej grupie."
           }
         }
       }
@@ -7980,6 +9174,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pełna krzywa tętna z całego bloku. Zielone pasy to rundy, odstępy między nimi to przerwy."
+          }
+        }
+      }
+    },
+    "Your group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoja grupa"
+          }
+        }
+      }
+    },
+    "Your group result counts the first %lld minutes from the start. Start when you begin the plan, warm-up included." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik w grupie liczy pierwsze %lld minut od startu. Zacznij, gdy zaczynasz plan — razem z rozgrzewką."
           }
         }
       }

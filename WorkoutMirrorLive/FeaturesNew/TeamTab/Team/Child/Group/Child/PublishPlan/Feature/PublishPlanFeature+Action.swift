@@ -12,9 +12,12 @@ import SharedModels
 extension PublishPlanFeature {
 
     @CasePathable
-    enum Action: ViewAction {
+    enum Action: ViewAction, BindableAction {
 
         case view(View)
+
+        /// UI-only bindings (expanded cards).
+        case binding(BindingAction<State>)
 
         /// Internal — the user's plans were loaded.
         case plansLoaded([TrainingSession])
@@ -37,8 +40,11 @@ extension PublishPlanFeature {
             /// Called when the view appears.
             case viewDidAppear
 
-            /// Called when the user picks a plan.
+            /// Called when the user opens a plan from the list.
             case planSelected(UUID)
+
+            /// Called when the user goes back from the plan detail to the list.
+            case planDetailClosed
 
             /// Called when the user picks the scored block.
             case scoredBlockSelected(UUID)

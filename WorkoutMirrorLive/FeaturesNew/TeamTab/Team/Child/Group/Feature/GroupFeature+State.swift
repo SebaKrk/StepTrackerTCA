@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import SwiftUI
 
 extension GroupFeature {
 
@@ -24,6 +25,9 @@ extension GroupFeature {
 
         /// Name other members see, used for invites and entries.
         var displayName: String
+
+        /// Accent of the Team tab — background gradient and prominent controls.
+        var color: Color
 
         /// Members, earliest first.
         var members: [TeamMember] = []
@@ -43,6 +47,9 @@ extension GroupFeature {
         /// Saving today's plan to Plans is in flight.
         var isDownloadingTodayPlan = false
 
+        /// Leaderboard section (today and the week).
+        var leaderboard: GroupLeaderboardFeature.State
+
         /// A leave request is in flight.
         var isLeaving = false
 
@@ -55,6 +62,16 @@ extension GroupFeature {
 
         /// Presentation state for navigation destinations.
         @Presents var destination: Destination.State?
+
+        // MARK: - Init
+
+        init(group: TeamGroup, myUid: String, displayName: String, color: Color) {
+            self.group = group
+            self.myUid = myUid
+            self.displayName = displayName
+            self.color = color
+            self.leaderboard = GroupLeaderboardFeature.State(groupId: group.id, myUid: myUid)
+        }
 
         // MARK: - Derived
 

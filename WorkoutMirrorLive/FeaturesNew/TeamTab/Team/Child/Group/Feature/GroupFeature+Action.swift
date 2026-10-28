@@ -16,16 +16,16 @@ extension GroupFeature {
 
         case view(View)
 
-        /// Internal — members were loaded.
+        /// Internal — the member list changed.
         case membersLoaded([TeamMember])
 
-        /// Internal — loading members failed.
+        /// Internal — listening to members failed.
         case membersFailed
 
-        /// Internal — today's plan was read; carries whether a local copy exists.
+        /// Internal — today's plan changed; carries whether a local copy exists.
         case todayPlanLoaded(TeamPlan?, isDownloaded: Bool)
 
-        /// Internal — reading today's plan failed.
+        /// Internal — listening to today's plan failed.
         case todayPlanFailed
 
         /// Internal — the card's download finished; `true` when the copy was saved.
@@ -42,6 +42,9 @@ extension GroupFeature {
 
         /// Handles navigation destinations within this feature.
         case destination(PresentationAction<Destination.Action>)
+
+        /// Leaderboard section.
+        case leaderboard(GroupLeaderboardFeature.Action)
 
         /// Messages for the parent.
         case delegate(Delegate)

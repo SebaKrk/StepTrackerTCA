@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Foundation
 import SharedModels
+import SwiftUI
 
 extension PlanPreviewFeature {
 
@@ -24,6 +25,9 @@ extension PlanPreviewFeature {
 
         /// A local copy is already in Plans.
         var isDownloaded: Bool
+
+        /// Accent of the Team tab — background gradient and the download button.
+        var color: Color
 
         /// Saving the copy is in flight.
         var isDownloading = false

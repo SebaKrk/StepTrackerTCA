@@ -48,14 +48,14 @@ struct TeamFeature {
 
             case .view(.scanInviteTapped):
                 state.destination = .invitationPreview(
-                    InvitationPreviewFeature.State(displayName: state.displayName)
+                    InvitationPreviewFeature.State(displayName: state.displayName, color: state.color)
                 )
                 return .none
 
             case let .view(.groupTapped(group)):
                 guard let myUid = state.myUid else { return .none }
                 state.destination = .group(
-                    GroupFeature.State(group: group, myUid: myUid, displayName: state.displayName)
+                    GroupFeature.State(group: group, myUid: myUid, displayName: state.displayName, color: state.color)
                 )
                 return .none
 

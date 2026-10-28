@@ -65,10 +65,12 @@ nonisolated final class TeamService: @unchecked Sendable {
         return try TeamDocumentMapper.group(id: groupId, data: data, path: ref.path)
     }
 
-    func members(groupId: String) async throws -> [TeamMember] {
-        try await groupRef(groupId).collection("members").getDocuments().documents
-            .map { try TeamDocumentMapper.member(data: $0.data(), path: $0.reference.path) }
-            .sorted { $0.joinedAt < $1.joinedAt }
+    func observeMembers(groupId: String) -> AsyncThrowingStream<[TeamMember], Error> {
+        listen(
+            query: { [self] _ in groupRef(groupId).collection("members").order(by: "joinedAt") },
+            parse: { document in try TeamDocumentMapper.member(data: document.data(), path: document.reference.path) },
+            resolve: { members in members }
+        )
     }
 
     // MARK: - Invites
@@ -223,6 +225,28 @@ nonisolated final class TeamService: @unchecked Sendable {
         return try TeamDocumentMapper.plan(id: day, data: data, path: planRef.path)
     }
 
+    func observePlan(groupId: String, day: String) -> AsyncThrowingStream<TeamPlan?, Error> {
+        let planRef = groupRef(groupId).collection("plans").document(day)
+        return AsyncThrowingStream { continuation in
+            let handle = TeamListenerHandle()
+            let listener = planRef.addSnapshotListener { snapshot, error in
+                if let error {
+                    continuation.finish(throwing: error)
+                    return
+                }
+                guard let snapshot else { return }
+                do {
+                    let plan = try snapshot.data().map { try TeamDocumentMapper.plan(id: day, data: $0, path: planRef.path) }
+                    continuation.yield(plan)
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            handle.attach(listener)
+            continuation.onTermination = { _ in handle.remove() }
+        }
+    }
+
     func myEntry(groupId: String, day: String) async throws -> TeamEntry? {
         let uid = try await ensureSignedIn()
         let ref = groupRef(groupId).collection("plans").document(day).collection("entries").document(uid)
@@ -287,7 +311,8 @@ nonisolated final class TeamService: @unchecked Sendable {
             let task = Task { [self] in
                 do {
                     let uid = try await ensureSignedIn()
-                    let listener = query(uid).addSnapshotListener { snapshot, error in
+                    // Metadata changes re-resolve once the server confirms a local write; reads made before that can be denied by the rules.
+                    let listener = query(uid).addSnapshotListener(includeMetadataChanges: true) { snapshot, error in
                         if let error {
                             continuation.finish(throwing: error)
                             return

@@ -20,6 +20,7 @@ struct PublishPlanFeature {
     @Dependency(\.trainingSessionClient) var trainingSessionClient
 
     var body: some Reducer<State, Action> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
 
@@ -36,6 +37,12 @@ struct PublishPlanFeature {
 
             case let .view(.planSelected(id)):
                 select(&state, planId: id)
+                return .none
+
+            case .view(.planDetailClosed):
+                state.selectedPlan = nil
+                state.scoredBlockId = nil
+                state.errorMessage = nil
                 return .none
 
             case let .view(.scoredBlockSelected(id)):
@@ -85,9 +92,6 @@ struct PublishPlanFeature {
             case let .plansLoaded(plans):
                 state.plans = plans
                 state.viewState = .success
-                if let first = plans.first {
-                    select(&state, planId: first.id)
-                }
                 return .none
 
             case .plansFailed:
@@ -106,7 +110,7 @@ struct PublishPlanFeature {
                 state.errorMessage = message
                 return .none
 
-            case .delegate:
+            case .binding, .delegate:
                 return .none
             }
         }

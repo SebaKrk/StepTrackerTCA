@@ -33,8 +33,8 @@ struct TeamClient: Sendable {
     /// Returns a group the current account belongs to, or `nil` when it is gone or not accessible.
     var group: @Sendable (_ groupId: String) async throws -> TeamGroup?
 
-    /// Returns the members of a group, earliest first.
-    var members: @Sendable (_ groupId: String) async throws -> [TeamMember]
+    /// Emits the members of a group, earliest first, again after every join or leave.
+    var observeMembers: @Sendable (_ groupId: String) -> AsyncThrowingStream<[TeamMember], Error>
 
     // MARK: - Invites
 
@@ -66,6 +66,9 @@ struct TeamClient: Sendable {
 
     /// Returns the group's plan for a day, or `nil` when none was published.
     var plan: @Sendable (_ groupId: String, _ day: String) async throws -> TeamPlan?
+
+    /// Emits the group's plan for a day (`nil` while none is published), again after every change.
+    var observePlan: @Sendable (_ groupId: String, _ day: String) -> AsyncThrowingStream<TeamPlan?, Error>
 
     /// Returns the current account's entry for a day, or `nil` before the first submission.
     var myEntry: @Sendable (_ groupId: String, _ day: String) async throws -> TeamEntry?
@@ -102,7 +105,7 @@ private enum TeamClientKey: DependencyKey {
             createGroup: { try await service.createGroup(name: $0, displayName: $1) },
             leaveGroup: { try await service.leaveGroup(groupId: $0) },
             group: { try await service.group(groupId: $0) },
-            members: { try await service.members(groupId: $0) },
+            observeMembers: { service.observeMembers(groupId: $0) },
             currentInvite: { try await service.currentInvite(group: $0, createdByName: $1) },
             createInvite: { try await service.createInvite(group: $0, createdByName: $1) },
             revokeInvite: { try await service.revokeInvite(groupId: $0, inviteId: $1) },
@@ -112,6 +115,7 @@ private enum TeamClientKey: DependencyKey {
             observeSentInvitations: { service.observeSentInvitations(groupId: $0, inviteId: $1) },
             publishPlan: { try await service.publishPlan(groupId: $0, plan: $1) },
             plan: { try await service.plan(groupId: $0, day: $1) },
+            observePlan: { service.observePlan(groupId: $0, day: $1) },
             myEntry: { try await service.myEntry(groupId: $0, day: $1) },
             submitEntry: { service.submitEntry(groupId: $0, day: $1, entry: $2) },
             observeDayEntries: { service.observeDayEntries(groupId: $0, day: $1) },
@@ -126,7 +130,7 @@ private enum TeamClientKey: DependencyKey {
             createGroup: unimplemented("TeamClient.createGroup"),
             leaveGroup: unimplemented("TeamClient.leaveGroup"),
             group: unimplemented("TeamClient.group"),
-            members: unimplemented("TeamClient.members"),
+            observeMembers: unimplemented("TeamClient.observeMembers", placeholder: .finished),
             currentInvite: unimplemented("TeamClient.currentInvite"),
             createInvite: unimplemented("TeamClient.createInvite"),
             revokeInvite: unimplemented("TeamClient.revokeInvite"),
@@ -136,6 +140,7 @@ private enum TeamClientKey: DependencyKey {
             observeSentInvitations: unimplemented("TeamClient.observeSentInvitations", placeholder: .finished),
             publishPlan: unimplemented("TeamClient.publishPlan"),
             plan: unimplemented("TeamClient.plan"),
+            observePlan: unimplemented("TeamClient.observePlan", placeholder: .finished),
             myEntry: unimplemented("TeamClient.myEntry"),
             submitEntry: unimplemented("TeamClient.submitEntry"),
             observeDayEntries: unimplemented("TeamClient.observeDayEntries", placeholder: .finished),
@@ -151,7 +156,7 @@ private enum TeamClientKey: DependencyKey {
             createGroup: { name, _ in TeamGroup(id: "preview-group", name: name, ownerUid: "preview-uid", createdAt: .now) },
             leaveGroup: { _ in },
             group: { id in TeamGroup(id: id, name: "Poranna ekipa", ownerUid: "preview-uid", createdAt: .now) },
-            members: { _ in [] },
+            observeMembers: { _ in .finished },
             currentInvite: { group, name in
                 TeamInvite(
                     id: "preview-invite",
@@ -183,6 +188,7 @@ private enum TeamClientKey: DependencyKey {
             observeSentInvitations: { _, _ in .finished },
             publishPlan: { _, _ in },
             plan: { _, _ in nil },
+            observePlan: { _, _ in .finished },
             myEntry: { _, _ in nil },
             submitEntry: { _, _, _ in },
             observeDayEntries: { _, _ in .finished },

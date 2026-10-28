@@ -30,6 +30,7 @@ struct PlanPreviewView: View {
             .safeAreaBar(edge: .bottom) {
                 downloadBar
             }
+            .background(backgroundGradient)
             .navigationTitle(store.plan.session.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -38,20 +39,28 @@ struct PlanPreviewView: View {
                 }
             }
         }
+        .tint(store.color)
     }
 
     // MARK: - Implementation
 
     private var authorCard: some View {
         GroupBox {
-            Label(
-                String(localized: "Published by \(store.plan.authorName) · \(store.plan.sessionMinutes) min"),
-                systemImage: "person.crop.circle"
-            )
-            .font(.subheadline)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 8) {
+                authorLabel
+                Spacer()
+                if store.isDownloaded {
+                    InYourPlansBadge()
+                }
+            }
         }
         .styledGroupBox()
+    }
+
+    private var authorLabel: some View {
+        Text(String(localized: "Published by \(store.plan.authorName) · \(store.plan.sessionMinutes) min"))
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
     }
 
     // Same component as PlanDetail and the QR import — one way to read a plan.
@@ -70,7 +79,9 @@ struct PlanPreviewView: View {
                     .font(.footnote)
                     .foregroundStyle(.red)
             }
-            downloadButton
+            if !store.isDownloaded {
+                downloadButton
+            }
             Text(String(localized: "Your group result counts the first \(store.plan.sessionMinutes) minutes from the start. Start when you begin the plan, warm-up included."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -86,8 +97,6 @@ struct PlanPreviewView: View {
             Group {
                 if store.isDownloading {
                     ProgressView()
-                } else if store.isDownloaded {
-                    Label(downloadedTitle, systemImage: "checkmark")
                 } else {
                     Label(downloadTitle, systemImage: "arrow.down.circle")
                 }
@@ -97,7 +106,16 @@ struct PlanPreviewView: View {
         }
         .buttonStyle(.borderedProminent)
         .controlSize(.large)
-        .disabled(store.isDownloaded || store.isDownloading)
+        .disabled(store.isDownloading)
+    }
+
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [store.color.opacity(0.25), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
     }
 
     private var closeButton: some View {
@@ -111,6 +129,5 @@ struct PlanPreviewView: View {
     // MARK: - Text
 
     private let downloadTitle = String(localized: "Download to Plans")
-    private let downloadedTitle = String(localized: "In Your Plans")
     private let closeTitle = String(localized: "Close")
 }

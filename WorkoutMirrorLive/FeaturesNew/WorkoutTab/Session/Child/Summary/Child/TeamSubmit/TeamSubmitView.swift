@@ -15,6 +15,7 @@ struct TeamSubmitView: View {
     // MARK: - Properties
 
     @Bindable var store: StoreOf<TeamSubmitFeature>
+    @Environment(\.summaryPalette) private var palette
 
     // MARK: - Body (structure)
 
@@ -23,6 +24,8 @@ struct TeamSubmitView: View {
             sendToggle
             content
         }
+        // App-wide AccentColor is empty — switched-on toggles turn white without an explicit tint.
+        .tint(palette.mint)
         .onAppear {
             send(.viewDidAppear)
         }
