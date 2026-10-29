@@ -36,9 +36,4 @@ public enum WorkoutParsingBackend: String, CaseIterable, Sendable, Codable {
     public var showsTextStep: Bool {
         self == .claudeText
     }
-
-    /// Whether the photo itself leaves the phone; drives the one-time disclosure.
-    public var uploadsPhoto: Bool {
-        self != .claudeText
-    }
 }

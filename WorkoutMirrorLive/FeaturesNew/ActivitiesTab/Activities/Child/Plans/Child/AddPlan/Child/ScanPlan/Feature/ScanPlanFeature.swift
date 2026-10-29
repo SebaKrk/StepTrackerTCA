@@ -205,16 +205,6 @@ struct ScanPlanFeature {
             case .photoCrop:
                 return .none
 
-            case .uploadDisclosure(.presented(.send)):
-                state.$hasSeenUploadDisclosure.withLock { $0 = true }
-                return startParsing(&state)
-
-            case .uploadDisclosure(.dismiss):
-                return resetToIdle(&state)
-
-            case .uploadDisclosure:
-                return .none
-
             case .apiKeyEntry(.presented(.delegate(.keyDeleted))):
                 state.apiKeyEntry = nil
                 return .none
@@ -248,7 +238,6 @@ struct ScanPlanFeature {
         .ifLet(\.$workoutPreview, action: \.workoutPreview) {
             WorkoutPreviewFeature()
         }
-        .ifLet(\.$uploadDisclosure, action: \.uploadDisclosure)
         .ifLet(\.$photoCrop, action: \.photoCrop) {
             PhotoCropFeature()
         }
@@ -268,10 +257,6 @@ struct ScanPlanFeature {
             state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: false)
             return .none
         }
-        if state.parsingBackend.uploadsPhoto, state.selectedImageData != nil, !state.hasSeenUploadDisclosure {
-            state.uploadDisclosure = Self.uploadDisclosureAlert
-            return .none
-        }
         state.viewState = .analyzing
         state.failedStage = nil
         let input = WorkoutScanInput(imageData: state.selectedImageData, ocrText: state.extractedText)
@@ -284,19 +269,6 @@ struct ScanPlanFeature {
             }
         }
         .cancellable(id: CancelID.parse, cancelInFlight: true)
-    }
-
-    static let uploadDisclosureAlert = AlertState<Action.UploadDisclosure> {
-        TextState(String(localized: "Send the photo to Claude?"))
-    } actions: {
-        ButtonState(action: .send) {
-            TextState(String(localized: "Send"))
-        }
-        ButtonState(role: .cancel) {
-            TextState(String(localized: "Cancel"))
-        }
-    } message: {
-        TextState(String(localized: "The photo goes to Anthropic under your own API key and is used only to read the board. Crop out names and faces first."))
     }
 
     private func resetToIdle(_ state: inout State) -> Effect<Action> {

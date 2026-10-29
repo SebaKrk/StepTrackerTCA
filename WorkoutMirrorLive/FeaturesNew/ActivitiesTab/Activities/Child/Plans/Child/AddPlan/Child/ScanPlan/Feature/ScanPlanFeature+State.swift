@@ -51,10 +51,6 @@ extension ScanPlanFeature {
         @Shared(.appStorage("workoutParsingBackend"))
         var parsingBackend: WorkoutParsingBackend = .claudeVision
 
-        /// The user has read, once, that the photo is sent to Anthropic.
-        @Shared(.appStorage("scanPhotoUploadDisclosed"))
-        var hasSeenUploadDisclosure = false
-
         // MARK: - Destination
 
         /// Workout preview destination (navigation).
@@ -62,9 +58,6 @@ extension ScanPlanFeature {
 
         /// API key entry sheet.
         @Presents var apiKeyEntry: APIKeyEntryFeature.State?
-
-        /// One-time "the photo is sent to Claude" alert, shown before the first upload.
-        @Presents var uploadDisclosure: AlertState<Action.UploadDisclosure>?
 
         /// Crop sheet for a photo picked from the library.
         @Presents var photoCrop: PhotoCropFeature.State?

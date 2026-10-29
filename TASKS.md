@@ -1653,5 +1653,5 @@
 ### IOS-00162 Plan scan — crop, upload disclosure, state rename
     - branch: `dev/IOS-00162/IOS-00162` (from IOS-00161)
     - a photo from the library goes through `PhotoCropFeature` (corner handles, "Use the whole photo") before the scan; the document camera keeps its own crop
-    - one-time alert before the first upload: the photo goes to Anthropic under the user's key; cancel returns to the start screen
-    - `ScanPlanViewState.processingOCR` → `.analyzing`; `WorkoutParsingBackend.uploadsPhoto`
+    - `ScanPlanViewState.processingOCR` → `.analyzing`
+    - no upload alert: the photo-library permission is the one consent step the user is asked for

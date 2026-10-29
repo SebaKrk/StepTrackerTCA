@@ -21,14 +21,8 @@ extension ScanPlanFeature {
         case `internal`(Internal)
         case workoutPreview(PresentationAction<WorkoutPreviewFeature.Action>)
         case apiKeyEntry(PresentationAction<APIKeyEntryFeature.Action>)
-        case uploadDisclosure(PresentationAction<UploadDisclosure>)
         case photoCrop(PresentationAction<PhotoCropFeature.Action>)
         case delegate(Delegate)
-
-        enum UploadDisclosure: Equatable {
-            /// User agreed to send the photo.
-            case send
-        }
 
         enum Delegate {
             /// WorkoutPreview saved — passes session up so AddPlanFeature can persist.

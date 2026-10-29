@@ -59,7 +59,6 @@ struct ScanPlanView: View {
         .toolbar {
             apiKeyToolbarItem
         }
-        .alert($store.scope(state: \.uploadDisclosure, action: \.uploadDisclosure))
         .sheet(item: $store.scope(state: \.photoCrop, action: \.photoCrop)) { cropStore in
             PhotoCropView(store: cropStore)
         }
