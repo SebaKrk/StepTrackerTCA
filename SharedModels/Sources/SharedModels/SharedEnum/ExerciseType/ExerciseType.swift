@@ -107,6 +107,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case assaultBike
     case skiErg
     case singleUnders
+    case anyMachine
 
     // Gymnastics / Core (catalog v2)
     case wallWalks
@@ -124,6 +125,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case goodMorning
     case plateRaise
     case landmineAntiRotation
+    case sideBend
+    case facePull
 
     // Mixed / Carries (catalog v2)
     case boxStepUps
@@ -236,6 +239,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .assaultBike: return "Assault Bike"
         case .skiErg: return "Ski Erg"
         case .singleUnders: return "Single Unders"
+        case .anyMachine: return "Any Machine"
         case .wallWalks: return "Wall Walks"
         case .vUps: return "V-ups"
         case .chestToBarPullUps: return "Chest-to-Bar Pull-ups"
@@ -246,6 +250,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .gluteBridge: return "Glute Bridge"
         case .tricepsExtension: return "Triceps Extension"
         case .bicepCurl: return "Bicep Curl"
+        case .sideBend: return "Side Bend"
+        case .facePull: return "Face Pull"
         case .plateRaise: return "Plate Raise"
         case .landmineAntiRotation: return "Landmine Anti-Rotation"
         case .boxStepUps: return "Box Step-ups"
@@ -436,6 +442,8 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
             return ["assault bike", "air bike", "echo bike", "bike erg", "AB"]
         case .skiErg:
             return ["ski erg", "ski", "skierg", "skiing"]
+        case .anyMachine:
+            return ["any machine", "calories any machine", "calories on any machine", "cal any machine", "cal on any machine", "any cardio machine", "cardio machine", "machine of choice", "erg of choice", "any erg"]
         case .singleUnders:
             return ["single unders", "single under", "SU", "jump rope", "jumping rope", "single jump rope"]
         case .snatchBalance:
@@ -469,7 +477,11 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .tricepsExtension:
             return ["triceps extension", "tricep extension", "triceps extensions", "triceps plate extension", "plate triceps extension", "skull crusher", "skull crushers", "overhead triceps extension", "overhead tricep extension", "overhead extension"]
         case .bicepCurl:
-            return ["bicep curl", "bicep curls", "biceps curl", "biceps curls", "hammer curl", "hammer curls", "EZ bar curl", "EZ bar curls", "curl", "curls"]
+            return ["bicep curl", "bicep curls", "biceps curl", "biceps curls", "hammer curl", "hammer curls", "EZ bar curl", "EZ bar curls", "curl", "curls", "alternating curls", "alternating curl", "alternating biceps curls", "alternating bicep curls", "biceps alternating curls", "biceps alt. curls", "biceps alt curls", "alt curls"]
+        case .sideBend:
+            return ["side bend", "side bends", "kettlebell side bend", "kettlebell side bends", "kb side bend", "kb side bends", "dumbbell side bend", "db side bend", "suitcase side bend"]
+        case .facePull:
+            return ["face pull", "face pulls", "band face pull", "band face pulls", "cable face pull", "cable face pulls"]
         case .plateRaise:
             return ["plate raise", "plate raises", "plate front raise", "front raise", "front raises"]
         case .landmineAntiRotation:
@@ -536,7 +548,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .deadlift, .backSquat, .frontSquat, .benchPress, .floorPress, .shoulderPress, .overheadSquat,
              .romanianDeadlift, .bentOverRow, .gobletSquat, .bulgarianSplitSquat,
              .gluteBridge, .tricepsExtension, .plateRaise, .landmineAntiRotation, .bicepCurl,
-             .goodMorning:
+             .goodMorning, .sideBend, .facePull:
             return .strength
         case .snatch, .cleanAndJerk, .squatClean, .powerClean, .powerSnatch, .hangPowerClean, .hangPowerSnatch,
              .hangClean, .pushPress, .pushJerk, .splitJerk, .thrusters, .sumoDeadliftHighPull, .shoulderToOverhead,
@@ -547,7 +559,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
              .kneesToElbows, .hollowHold,
              .wallWalks, .vUps, .chestToBarPullUps, .ghdSitUps, .russianTwist, .lSit, .handstandShoulderTaps:
             return .gymnastics
-        case .running, .rowing, .cycling, .swimming, .assaultBike, .skiErg, .singleUnders:
+        case .running, .rowing, .cycling, .swimming, .assaultBike, .skiErg, .singleUnders, .anyMachine:
             return .cardio
         case .burpees, .airSquat, .boxJumps, .doubleUnders, .wallBalls, .devilPress, .burpeeBoxJumps,
              .burpeeOverBar, .lunges, .mountainClimbers, .farmersCarry,
@@ -638,7 +650,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// re-runs when its stored version is lower — same contract as the
     /// effort-points weights version: results frozen in the database are only
     /// recomputed through an explicit, versioned pass.
-    public static let catalogVersion = 7
+    public static let catalogVersion = 8
 
     // MARK: Name normalisation
 

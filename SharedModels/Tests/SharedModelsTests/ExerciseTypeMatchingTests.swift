@@ -109,6 +109,15 @@ struct ExerciseTypeMatchingTests {
         ("bench dips", .dips),
         ("medicine ball box step-ups", .medicineBallBoxStepUps),
         ("dumbbell overhead extension", .tricepsExtension),
+        // Catalog v8 — names seen on scanned boards
+        ("biceps alternating curls", .bicepCurl),
+        ("BICEPS ALT. CURLS", .bicepCurl),
+        ("kettlebell side bend", .sideBend),
+        ("KB side bend", .sideBend),
+        ("face pulls", .facePull),
+        ("band face pulls", .facePull),
+        ("calories on any machine", .anyMachine),
+        ("any machine", .anyMachine),
     ]
 
     @Test("Every field-data raw name resolves to its catalog case", arguments: fieldDataGolden)
@@ -241,7 +250,7 @@ struct ExerciseTypeMatchingTests {
 
     @Test("Catalog version is bumped so the re-match job replays old unknowns")
     func catalogVersionBumped() {
-        #expect(ExerciseType.catalogVersion >= 7)
+        #expect(ExerciseType.catalogVersion >= 8)
     }
 
     @Test("The burpee family resolves each variant to its own movement")

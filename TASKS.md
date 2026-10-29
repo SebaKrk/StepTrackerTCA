@@ -1638,3 +1638,9 @@
     - volume load repeats the per-round target by the block's rounds and doubles per-side movements (`ExerciseLogInput.volumeMultiplier`, applied at save time; old logs unchanged)
     - EMOM scores like Tabata: per-exercise reps summed into `forReps`, field left blank for entry, team board ranks it as published
     - `tempoPerRound` divides by the block's rounds instead of the exercise count
+
+### IOS-00160 Exercise catalog — names from scanned boards
+    - branch: `dev/IOS-00160/IOS-00160` (from IOS-00158)
+    - new cases: side bend, face pull, any machine (cardio of choice); bicep curl learns the alternating / "alt." spellings
+    - `catalogVersion` 8 so the re-match job repairs plans saved with these names as unknown
+    - golden names added to `ExerciseTypeMatchingTests`
