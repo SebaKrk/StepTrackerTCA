@@ -69,7 +69,6 @@ extension ScannedSection {
             rounds: rounds(for: type),
             exercises: exercises,
             interval: interval,
-            plannedMinutes: writtenMinutes ?? estimatedMinutes(cap: cap),
             notes: combinedNotes,
             everySeconds: type == .emom ? (everySec > 0 ? everySec : 60) : nil
         )
@@ -101,14 +100,6 @@ extension ScannedSection {
         }
     }
 
-    private func estimatedMinutes(cap: Int?) -> Int? {
-        if let cap { return cap + 3 }
-        switch kind {
-        case .mobility: return 10
-        case .strength, .skill, .accessory: return 12
-        case .conditioning, .warmup, .cooldown: return nil
-        }
-    }
 
     private var displayName: String {
         if !name.isEmpty { return name }

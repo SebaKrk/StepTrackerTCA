@@ -86,7 +86,6 @@ extension WorkoutSessionNew {
         rounds: Int?,
         exercises: [ExerciseSession],
         interval: IntervalPlan?,
-        plannedMinutes: Int?,
         notes: String?,
         everySeconds: Int?
     ) {
@@ -97,7 +96,6 @@ extension WorkoutSessionNew {
         self.rounds = rounds
         self.exercises = exercises
         self.interval = interval
-        self.plannedMinutes = plannedMinutes
         self.notes = notes
         self.everySeconds = everySeconds
     }
@@ -119,7 +117,6 @@ extension WorkoutSessionNew {
             rounds: rounds,
             exercises: rematchedExercises,
             interval: interval,
-            plannedMinutes: plannedMinutes,
             notes: notes,
             everySeconds: everySeconds
         )

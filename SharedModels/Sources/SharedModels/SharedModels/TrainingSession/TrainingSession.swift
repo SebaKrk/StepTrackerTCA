@@ -150,9 +150,6 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     /// Work/rest round timer of an `.intervals` session; nil for every other
     /// type. Optional Codable field — plans saved before it existed decode fine.
     public let interval: IntervalPlan?
-    /// Minutes the block takes in the class (setup and rest included), separate from the WOD
-    /// time cap. Optional Codable field — plans saved before it existed decode fine.
-    public let plannedMinutes: Int?
 
     /// Board remarks that fit no field: "rest 2 min between rounds", "no clock".
     public let notes: String?
@@ -167,7 +164,6 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         rounds: Int?,
         exercises: [ExerciseSession],
         interval: IntervalPlan? = nil,
-        plannedMinutes: Int? = nil,
         notes: String? = nil,
         everySeconds: Int? = nil
     ) {
@@ -178,7 +174,6 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.rounds = rounds
         self.exercises = exercises
         self.interval = interval
-        self.plannedMinutes = plannedMinutes
         self.notes = notes
         self.everySeconds = everySeconds
     }
@@ -191,7 +186,6 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.rounds = draft.rounds
         self.exercises = draft.exercises
         self.interval = draft.interval
-        self.plannedMinutes = draft.plannedMinutes
         self.notes = draft.notes
         self.everySeconds = draft.everySeconds
     }

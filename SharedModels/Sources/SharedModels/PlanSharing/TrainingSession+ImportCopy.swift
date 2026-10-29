@@ -49,7 +49,6 @@ extension TrainingSession {
                         )
                     },
                     interval: workout.interval,
-                    plannedMinutes: workout.plannedMinutes,
                     notes: workout.notes,
                     everySeconds: workout.everySeconds
                 )

@@ -1655,3 +1655,9 @@
     - a photo from the library goes through `PhotoCropFeature` (corner handles, "Use the whole photo") before the scan; the document camera keeps its own crop
     - `ScanPlanViewState.processingOCR` → `.analyzing`
     - no upload alert: the photo-library permission is the one consent step the user is asked for
+
+### IOS-00163 Plan editor — remove per-block class minutes
+    - branch: `dev/IOS-00163/IOS-00163` (from develop)
+    - the Team points window (IOS-00152) replaced the 60-minute class budget, so "Time in Class" per block, the "Class Length" bar and the fill-to-60 helper had no consumer left
+    - `WorkoutSessionNew.plannedMinutes` removed from the model, draft, re-match and import copies; class length is now warm-up + time caps + cool-down (display only)
+    - the scan mapper no longer estimates block minutes ("cap + 3"); written minutes still feed warm-up / cool-down
