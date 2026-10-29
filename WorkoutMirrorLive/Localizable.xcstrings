@@ -2706,6 +2706,9 @@
         }
       }
     },
+    "Crop to the board" : {
+
+    },
     "Cross" : {
       "localizations" : {
         "pl" : {
@@ -4649,6 +4652,9 @@
           }
         }
       }
+    },
+    "Keep the board, cut out names and faces — only the crop is sent." : {
+
     },
     "kg" : {
       "localizations" : {
@@ -7530,6 +7536,9 @@
         }
       }
     },
+    "Send the photo to Claude?" : {
+
+    },
     "Send to %@" : {
       "localizations" : {
         "pl" : {
@@ -8304,6 +8313,9 @@
         }
       }
     },
+    "The photo goes to Anthropic under your own API key and is used only to read the board. Crop out names and faces first." : {
+
+    },
     "The plan is too long for one scan. Scan it in two parts." : {
 
     },
@@ -8851,6 +8863,12 @@
           }
         }
       }
+    },
+    "Use" : {
+
+    },
+    "Use the whole photo" : {
+
     },
     "Usuwa z watcha" : {
       "localizations" : {

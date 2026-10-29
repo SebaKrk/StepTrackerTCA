@@ -118,6 +118,8 @@ struct ExerciseTypeMatchingTests {
         ("band face pulls", .facePull),
         ("calories on any machine", .anyMachine),
         ("any machine", .anyMachine),
+        ("cal on machine", .anyMachine),
+        ("calories on machine", .anyMachine),
     ]
 
     @Test("Every field-data raw name resolves to its catalog case", arguments: fieldDataGolden)

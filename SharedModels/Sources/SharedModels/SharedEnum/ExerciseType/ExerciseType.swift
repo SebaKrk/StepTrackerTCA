@@ -443,7 +443,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .skiErg:
             return ["ski erg", "ski", "skierg", "skiing"]
         case .anyMachine:
-            return ["any machine", "calories any machine", "calories on any machine", "cal any machine", "cal on any machine", "any cardio machine", "cardio machine", "machine of choice", "erg of choice", "any erg"]
+            return ["any machine", "calories any machine", "calories on any machine", "cal any machine", "cal on any machine", "cal on machine", "cals on machine", "calories on machine", "calories machine", "machine calories", "any cardio machine", "cardio machine", "machine of choice", "erg of choice", "any erg", "calories any erg"]
         case .singleUnders:
             return ["single unders", "single under", "SU", "jump rope", "jumping rope", "single jump rope"]
         case .snatchBalance:
