@@ -172,6 +172,10 @@ extension ExtractedExercise {
         let setsInfo: String? = sets.flatMap { sets -> String? in
             let validSets = sets.filter { $0.reps != nil }
             guard !validSets.isEmpty else { return nil }
+            // A rep ladder (no load, varying reps) reads like the whiteboard: "21-15-9".
+            let reps = validSets.compactMap(\.reps)
+            let isLadder = validSets.allSatisfy { $0.intensity == nil } && Set(reps).count > 1
+            if isLadder { return reps.map(String.init).joined(separator: "-") }
             let grouped = Dictionary(grouping: validSets) { "\($0.reps!)|\($0.intensity ?? "")" }
             let schemes = grouped
                 .sorted { $0.value.first?.setNumber ?? 0 < $1.value.first?.setNumber ?? 0 }
