@@ -152,7 +152,14 @@
       }
     },
     "\"%@\" is not in the exercise catalog — it will be saved under that name." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” nie ma w katalogu ćwiczeń. Zostanie zapisane pod tą nazwą."
+          }
+        }
+      }
     },
     "\"%@\" will be removed from this workout." : {
       "localizations" : {
@@ -404,8 +411,25 @@
         }
       }
     },
+    "Parsing backend" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backend parsowania"
+          }
+        }
+      }
+    },
     "%@/side" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/stronę"
+          }
+        }
+      }
     },
     "%d sessions" : {
       "localizations" : {
@@ -558,7 +582,14 @@
       "shouldTranslate" : false
     },
     "%lld kg looks like a misread load." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld kg wygląda na błędny odczyt obciążenia."
+          }
+        }
+      }
     },
     "%lld m" : {
       "localizations" : {
@@ -1470,7 +1501,14 @@
       }
     },
     "Analyzing photo..." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analizuję zdjęcie…"
+          }
+        }
+      }
     },
     "Analyzing your health data..." : {
       "localizations" : {
@@ -1954,7 +1992,14 @@
       }
     },
     "Buy-in" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buy-in"
+          }
+        }
+      }
     },
     "BW" : {
       "localizations" : {
@@ -2114,7 +2159,14 @@
       }
     },
     "Cash-out" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cash-out"
+          }
+        }
+      }
     },
     "Category share of records" : {
       "localizations" : {
@@ -2471,7 +2523,14 @@
       }
     },
     "Could not prepare the photo for analysis. Try another photo." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się przygotować zdjęcia do analizy. Spróbuj z innym zdjęciem."
+          }
+        }
+      }
     },
     "Could not process the selected image." : {
       "extractionState" : "stale",
@@ -2707,7 +2766,14 @@
       }
     },
     "Crop to the board" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przytnij do tablicy"
+          }
+        }
+      }
     },
     "Cross" : {
       "localizations" : {
@@ -3541,10 +3607,24 @@
       }
     },
     "every %lld min" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "co %lld min"
+          }
+        }
+      }
     },
     "every %lld s" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "co %lld s"
+          }
+        }
+      }
     },
     "Exercise" : {
       "localizations" : {
@@ -3740,7 +3820,14 @@
       }
     },
     "fix in editor" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "popraw w edytorze"
+          }
+        }
+      }
     },
     "For now, join private groups with a QR code from a friend." : {
       "localizations" : {
@@ -3753,7 +3840,14 @@
       }
     },
     "For Time without a cap — a DNF cannot be recorded." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For Time bez limitu czasu. Nie da się zapisać nieukończenia."
+          }
+        }
+      }
     },
     "Frequency" : {
       "localizations" : {
@@ -4654,7 +4748,14 @@
       }
     },
     "Keep the board, cut out names and faces — only the crop is sent." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostaw tablicę, wytnij nazwiska i twarze. Wysyłany jest tylko kadr."
+          }
+        }
+      }
     },
     "kg" : {
       "localizations" : {
@@ -4954,7 +5055,14 @@
       }
     },
     "max" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "max"
+          }
+        }
+      }
     },
     "Max" : {
       "localizations" : {
@@ -5719,7 +5827,14 @@
       }
     },
     "No time cap on the board — %lld min applied." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak limitu czasu na tablicy. Zastosowano %lld min."
+          }
+        }
+      }
     },
     "No volume data recorded for this exercise." : {
       "localizations" : {
@@ -5773,7 +5888,14 @@
       }
     },
     "No workout plan found in this photo." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tym zdjęciu nie ma planu treningu."
+          }
+        }
+      }
     },
     "No workout plan found in this text." : {
       "extractionState" : "stale",
@@ -6778,10 +6900,24 @@
       }
     },
     "rep ladder" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "drabinka powtórzeń"
+          }
+        }
+      }
     },
     "Rep ladder and round count were both written — the ladder was kept." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisano drabinkę i liczbę rund naraz. Zostawiono drabinkę."
+          }
+        }
+      }
     },
     "reps" : {
       "shouldTranslate" : false
@@ -6949,7 +7085,14 @@
       }
     },
     "Round" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Runda"
+          }
+        }
+      }
     },
     "Round %lld" : {
       "localizations" : {
@@ -6962,7 +7105,14 @@
       }
     },
     "round count" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "liczba rund"
+          }
+        }
+      }
     },
     "Round end" : {
 
@@ -7320,7 +7470,14 @@
       }
     },
     "Score · EMOM" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik · EMOM"
+          }
+        }
+      }
     },
     "Score · For Time" : {
       "localizations" : {
@@ -8216,10 +8373,24 @@
       }
     },
     "the alternatives" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alternatywy"
+          }
+        }
+      }
     },
     "The cap is not a whole number of %lld s intervals." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit nie jest wielokrotnością interwału %lld s."
+          }
+        }
+      }
     },
     "The code expired or was revoked. Ask for a new one." : {
       "localizations" : {
@@ -8262,7 +8433,14 @@
       }
     },
     "the interval" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "interwał"
+          }
+        }
+      }
     },
     "The key is stored securely in the device's Keychain." : {
       "localizations" : {
@@ -8297,10 +8475,24 @@
       }
     },
     "the movements" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ćwiczenia"
+          }
+        }
+      }
     },
     "the notes" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "notatki"
+          }
+        }
+      }
     },
     "The oldest and simplest — the 1971 Fox and Haskell formula. Easy to remember but statistically the least accurate. Pick it for values comparable with legacy fitness apps." : {
       "extractionState" : "stale",
@@ -8317,13 +8509,34 @@
 
     },
     "The plan is too long for one scan. Scan it in two parts." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan jest za długi na jeden skan. Zeskanuj go w dwóch częściach."
+          }
+        }
+      }
     },
     "The reader was not sure about: %@." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odczyt nie był pewny: %@."
+          }
+        }
+      }
     },
     "The women's load is heavier than the men's." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obciążenie dla kobiet jest większe niż dla mężczyzn."
+          }
+        }
+      }
     },
     "The workout is still running on the watch. End it on Apple Watch by holding the Stop button." : {
       "localizations" : {
@@ -8356,7 +8569,14 @@
       }
     },
     "This block has no movements." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ten blok nie ma żadnych ćwiczeń."
+          }
+        }
+      }
     },
     "This code doesn't contain a valid training plan." : {
       "localizations" : {
@@ -8410,7 +8630,14 @@
       }
     },
     "time cap" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "limit czasu"
+          }
+        }
+      }
     },
     "Time Cap" : {
       "localizations" : {
@@ -8493,7 +8720,14 @@
       }
     },
     "To check" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do sprawdzenia"
+          }
+        }
+      }
     },
     "To see your workouts, please grant access to HealthKit in Settings." : {
       "localizations" : {
@@ -8729,7 +8963,14 @@
       }
     },
     "Two blocks shared a name — a number was added." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dwa bloki miały tę samą nazwę. Dodano numer."
+          }
+        }
+      }
     },
     "Type" : {
       "localizations" : {
@@ -8865,10 +9106,24 @@
       }
     },
     "Use" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użyj"
+          }
+        }
+      }
     },
     "Use the whole photo" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użyj całego zdjęcia"
+          }
+        }
+      }
     },
     "Usuwa z watcha" : {
       "localizations" : {

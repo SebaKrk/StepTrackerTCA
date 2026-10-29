@@ -107,7 +107,8 @@ struct PhotoCropView: View {
         } label: {
             Text("Use the whole photo")
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.glass)
+        .controlSize(.large)
     }
 
     private var cancelButton: some View {
