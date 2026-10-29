@@ -167,18 +167,18 @@ struct ScanPlanFeature {
                 state.viewState = .textReady
                 return .none
 
-            case let .internal(.parsingCompleted(workout)):
-                state.extractedWorkout = workout
+            case let .internal(.parsingCompleted(board)):
+                state.extractedWorkout = board
 
-                guard !workout.sections.isEmpty else {
+                guard board.boardKind != .notAWorkout, !board.workoutSections.isEmpty else {
                     state.failedStage = .parsing
-                    state.viewState = .failed(String(localized: "No workout plan found in this text."))
+                    state.viewState = .failed(String(localized: "No workout plan found in this photo."))
                     return .none
                 }
 
                 // Auto-navigate to preview after successful parsing
                 state.workoutPreview = WorkoutPreviewFeature.State(
-                    trainingSession: workout.toTrainingSession(scanDate: date.now)
+                    trainingSession: board.toTrainingSession(scanDate: date.now)
                 )
 
                 return .none

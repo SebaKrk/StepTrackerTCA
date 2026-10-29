@@ -13,7 +13,7 @@ import SharedModels
 
 /// Client responsible for extracting text and parsing workouts from images.
 ///
-/// Pipeline: Image → Vision OCR → Text → chosen ``WorkoutParsingBackend`` → ExtractedWorkout
+/// Pipeline: Image → Vision OCR → Text → chosen ``WorkoutParsingBackend`` → ScannedBoard
 struct WorkoutExtractionClient: Sendable {
 
     /// Extracts raw text from image using Vision OCR.
@@ -23,7 +23,7 @@ struct WorkoutExtractionClient: Sendable {
     var parseWorkout: @Sendable (
         _ input: WorkoutScanInput,
         _ backend: WorkoutParsingBackend
-    ) async throws -> ExtractedWorkout
+    ) async throws -> ScannedBoard
 }
 
 extension DependencyValues {
@@ -80,35 +80,19 @@ extension WorkoutExtractionClient: DependencyKey {
                 """
             },
             parseWorkout: { _, _ in
-                ExtractedWorkout(
-                    name: "Preview Workout",
-                    date: "2026-02-11",
-                    totalEstimatedMinutes: 45,
+                ScannedBoard(
+                    boardKind: .strengthDay,
+                    title: "Preview Workout",
+                    activity: WorkoutActivityType.strengthTraining.rawValue,
                     sections: [
-                        WorkoutSection(
-                            type: .warmup,
-                            durationMinutes: 10,
-                            description: "General warmup and mobility"
-                        ),
-                        WorkoutSection(
-                            type: .strength,
+                        ScannedSection(
+                            kind: .strength,
                             name: "Bench Press + Squat + Deadlift",
-                            exercises: [
-                                ExtractedExercise(name: "Bench Press", sets: [
-                                    ExerciseSet(setNumber: 1, reps: 8, intensity: "80kg"),
-                                ]),
-                                ExtractedExercise(name: "Squat", sets: [
-                                    ExerciseSet(setNumber: 1, reps: 5, intensity: "100kg"),
-                                ]),
-                                ExtractedExercise(name: "Deadlift", sets: [
-                                    ExerciseSet(setNumber: 1, reps: 5, intensity: "120kg"),
-                                ]),
+                            movements: [
+                                ScannedMovement(name: "bench press", sets: [ScannedSet(value: 8, load: 80, loadUnit: .kg)]),
+                                ScannedMovement(name: "back squat", sets: [ScannedSet(value: 5, load: 100, loadUnit: .kg)]),
+                                ScannedMovement(name: "deadlift", sets: [ScannedSet(value: 5, load: 120, loadUnit: .kg)]),
                             ]
-                        ),
-                        WorkoutSection(
-                            type: .cooldown,
-                            durationMinutes: 5,
-                            description: "Stretching and mobility"
                         ),
                     ]
                 )

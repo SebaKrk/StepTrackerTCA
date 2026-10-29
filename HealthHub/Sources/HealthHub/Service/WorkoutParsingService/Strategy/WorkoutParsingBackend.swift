@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// Selects which backend turns a scan into an ``ExtractedWorkout``.
+/// Selects which backend turns a scan into a ``ScannedBoard``.
 ///
 /// Persisted as an app setting so the path can be switched at runtime.
 /// Adding a backend = add a case here + a ``WorkoutParsingStrategy`` implementation

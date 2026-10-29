@@ -11,7 +11,7 @@ import SharedModels
 /// Unified Claude API strategy for all AI-powered features.
 ///
 /// Handles two categories of requests:
-/// - **Structured parsing** — OCR text → ``ExtractedWorkout`` (JSON response)
+/// - **Structured parsing** — OCR text → ``ScannedBoard`` (structured-output JSON)
 /// - **Text generation** — workout data → plain-text descriptions (warm-up, cool-down)
 ///
 /// The response language for text generation is automatically matched to the device locale.
@@ -27,7 +27,7 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
         cachesSystemPrompt: true,
         disablesThinking: true,
         effort: .low,
-        outputSchema: ClaudeWorkoutOutputSchema.schema
+        outputSchema: ClaudeBoardOutputSchema.schema
     )
 
     /// Short prompts below the cacheable minimum; plain text out.
@@ -38,14 +38,17 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
 
     // MARK: - Properties
 
+    /// Transport to the Messages API.
     private let apiClient: ClaudeAPIClient
-    private let mapper: ClaudeWorkoutMapper
+
+    /// Turns the JSON reply into the board DTO.
+    private let mapper: ClaudeBoardMapper
 
     // MARK: - Initialization
 
     public init(
         apiClient: ClaudeAPIClient,
-        mapper: ClaudeWorkoutMapper = ClaudeWorkoutMapper()
+        mapper: ClaudeBoardMapper = ClaudeBoardMapper()
     ) {
         self.apiClient = apiClient
         self.mapper = mapper
@@ -58,8 +61,8 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
 
     // MARK: - WorkoutParsingStrategy
 
-    /// Parses OCR text into a structured workout using Claude API.
-    public func parseWorkoutText(_ text: String) async throws -> ExtractedWorkout {
+    /// Parses OCR text into a scanned board using Claude API.
+    public func parseWorkoutText(_ text: String) async throws -> ScannedBoard {
         let response = try await apiClient.sendMessage(
             model: Self.scanModel,
             system: ClaudePrompt.systemPrompt,

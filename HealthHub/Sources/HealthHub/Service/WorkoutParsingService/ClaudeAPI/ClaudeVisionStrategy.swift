@@ -22,7 +22,7 @@ public actor ClaudeVisionStrategy: WorkoutParsingStrategy {
         cachesSystemPrompt: true,
         disablesThinking: true,
         effort: .low,
-        outputSchema: ClaudeWorkoutOutputSchema.schema
+        outputSchema: ClaudeBoardOutputSchema.schema
     )
 
     // MARK: - Properties
@@ -30,8 +30,8 @@ public actor ClaudeVisionStrategy: WorkoutParsingStrategy {
     /// Transport to the Messages API.
     private let apiClient: ClaudeAPIClient
 
-    /// Turns the JSON reply into the DTO.
-    private let mapper: ClaudeWorkoutMapper
+    /// Turns the JSON reply into the board DTO.
+    private let mapper: ClaudeBoardMapper
 
     /// Whether the OCR transcript is sent next to the photo.
     private let includesOCRHint: Bool
@@ -45,7 +45,7 @@ public actor ClaudeVisionStrategy: WorkoutParsingStrategy {
     ///   for measuring whether the hint helps or anchors the model on OCR mistakes.
     public init(
         apiClient: ClaudeAPIClient,
-        mapper: ClaudeWorkoutMapper = ClaudeWorkoutMapper(),
+        mapper: ClaudeBoardMapper = ClaudeBoardMapper(),
         includesOCRHint: Bool
     ) {
         self.apiClient = apiClient
@@ -60,7 +60,7 @@ public actor ClaudeVisionStrategy: WorkoutParsingStrategy {
 
     // MARK: - WorkoutParsingStrategy
 
-    public func parseWorkout(_ input: WorkoutScanInput) async throws -> ExtractedWorkout {
+    public func parseWorkout(_ input: WorkoutScanInput) async throws -> ScannedBoard {
         guard let imageData = input.imageData else {
             return try await parseWorkoutText(input.ocrText)
         }
@@ -78,7 +78,7 @@ public actor ClaudeVisionStrategy: WorkoutParsingStrategy {
         return try mapper.map(response)
     }
 
-    public func parseWorkoutText(_ text: String) async throws -> ExtractedWorkout {
+    public func parseWorkoutText(_ text: String) async throws -> ScannedBoard {
         try await textFallback.parseWorkoutText(text)
     }
 }

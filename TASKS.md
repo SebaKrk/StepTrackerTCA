@@ -1618,10 +1618,10 @@
 
 ### IOS-00157 Plan scan — schema v2 and plan fields
     - branch: `dev/IOS-00157/IOS-00157` (from IOS-00155); plan in `PLANS/IOS-00157-schema-v2.md`; A = plan fields + threading, B = ScannedBoard v2 + prompt + mapper
-    - section kind × format enums, interval seconds, rep scheme vs round count, per-side, max effort, load tiers, uncertain[]
-    - new optional fields on `WorkoutSessionNew` / `ExerciseSession` / `PlannedSet`, threaded through every rebuild site (drafts, withNewIdentity, catalog rematch, fill class length)
-    - EMOM interval lands in `everySeconds`; `IntervalPlan` stays reserved for `.intervals`
-    - share payload schema version bumped; old builds keep decoding
+    - A: `SetUnit`, `MovementSegment`, `LoadTier`; `notes` / `everySeconds` on the workout, `perSide` / `isMaxEffort` / `segment` / `loadTiers` on the exercise, `unit` / `percentOfMax` / `isMaxEffort` on the set; threaded through drafts, withNewIdentity, catalog rematch and the editor; old plans decode unchanged, share codec stays at 1
+    - B1: `ScannedBoard` v2 DTO (closed enums, sentinels instead of optionals) + `toTrainingSession` (format → block type table, ladder → sets per round movement, loads → tiers + rounded kg pair, EMOM → `everySeconds`, `IntervalPlan` only for intervals)
+    - B2: prompt v7 (~1.3k words) under `ClaudeBoardOutputSchema`; `ClaudeBoardMapper`; strategies, client and scan feature return `ScannedBoard`; `check_v2.py` harness: 315 ok, 3 left on the garbled OCR rescan (photo path on device)
+    - `ExtractedWorkout`, `ClaudeWorkoutMapper`, `ClaudeWorkoutOutputSchema` stay in the tree unused until a cleanup commit
 
 ### IOS-00158 Plan scan — validators and confirm step
     - validators V1–V9 run on every backend's output (caps, rounds vs ladder, empty sections, duplicate movements, token budget)

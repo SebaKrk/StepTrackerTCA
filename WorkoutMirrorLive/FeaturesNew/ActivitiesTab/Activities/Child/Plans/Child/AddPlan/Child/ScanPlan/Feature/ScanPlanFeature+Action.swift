@@ -76,7 +76,7 @@ extension ScanPlanFeature {
             case textExtracted(String)
 
             /// Workout parsing completed successfully.
-            case parsingCompleted(ExtractedWorkout)
+            case parsingCompleted(ScannedBoard)
 
             /// A pipeline stage failed with an error message.
             case extractionFailed(String, FailedStage)
