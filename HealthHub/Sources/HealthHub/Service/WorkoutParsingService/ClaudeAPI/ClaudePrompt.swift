@@ -25,8 +25,9 @@ public enum ClaudePrompt {
     - Analyze the ENTIRE workout to determine dominant training character.
     - Pick exactly ONE value from: "running" | "walking" | "cycling" | "swimming" | "crossTraining" | "functional" | "endurance" | "boxing" | "strengthTraining"
     - Decision rules:
-      * "strengthTraining" — barbell/dumbbell focus, powerlifting (squat, deadlift, bench, OHP); one short EMOM
-        or finisher on an otherwise strength day still counts as "strengthTraining"
+      * "strengthTraining" — barbell/dumbbell focus, powerlifting (squat, deadlift, bench, OHP); ONE short EMOM
+        or finisher on an otherwise strength day still counts as "strengthTraining"; TWO or more format blocks
+        (e.g. an E2MOM and an AMRAP finisher) make it "crossTraining"
       * "crossTraining" — mixed modalities, WODs, AMRAP/EMOM/ForTime/Tabata, gymnastics + cardio + weights combinations (DEFAULT for CrossFit workouts)
       * "functional" — functional-fitness race/format: Hyrox, stations of functional movements chained with running/rowing (sled push/pull, wall balls, farmers carry, burpee broad jumps, ski erg)
       * "endurance" — endurance-focused conditioning: long or interval work built to sustain effort (long intervals, tempo pieces, EMOM/Tabata whose intent is aerobic capacity rather than a mixed WOD)
@@ -44,7 +45,8 @@ public enum ClaudePrompt {
       * "5km run, easy pace" → "running"
 
     Section types: warmup, strength, conditioning, mobility, transition, cooldown
-    - Always add warmup (first) and cooldown (last) if missing
+    - Emit "warmup" / "cooldown" ONLY when the board writes one; NEVER invent them
+      (the app lets the athlete generate a warm-up later)
     - Add at most ONE transition, only where a run of strength blocks is followed by a run of WODs;
       never between interleaved blocks of a strength day (strength → EMOM → strength gets no transition)
     - Order workout sections EXACTLY as they appear in OCR
@@ -130,17 +132,10 @@ public enum ClaudePrompt {
     - Time-based holds: unit "seconds" ("stretch 30 s" → reps: 30, unit: "seconds");
       keep per-side multipliers ("× 5 per side") in scalingOptions
 
-    Warmup section (IMPORTANT - analyze first workout to create specific prep):
-    - Duration: 15-20 minutes (realistic warm-up time)
-    - Description: Analyze the FIRST workout section and create targeted preparation:
-      * Mobility for specific movements (shoulder mobility for HSPU/snatch, hip flexibility for squats)
-      * Activation work (glute bridges for deadlifts, hollow holds for gymnastics)
-      * Light technical practice (empty barbell work, scaled movement drills)
-
-    Example warmups:
-    - First workout "Snatch": "Shoulder and wrist mobility (PVC pass-throughs, dislocates), hip and ankle prep for receiving position. Light barbell: 5 snatch deadlifts, 5 snatch pulls, 5 overhead squats."
-    - First workout "HSPU + Running": "Shoulder mobility and wrist prep (bear crawls, wall slides), light jogging 400m, HSPU scaling practice (box HSPU or pike push-ups)."
-    - First workout "Deadlift": "Hip hinge practice, glute and hamstring activation (glute bridges, leg swings), light barbell deadlifts building to working weight."
+    Warm-up / cool-down written on the board ("Warm-up: 3 rounds 10 air squats…", "Rozgrzewka", "Cool down: stretch"):
+    - type "warmup" / "cooldown", description = the written content verbatim (movements and reps included),
+      exercises null, durationMinutes = the written minutes or 10
+    - Nothing on the board about it → NO warmup / cooldown section at all
 
     Class time budget (CRITICAL - every section has a length):
     - EVERY section MUST have "durationMinutes": the minutes it takes in the class,
@@ -148,9 +143,8 @@ public enum ClaudePrompt {
     - For a timed WOD, durationMinutes >= timeCapMinutes (e.g. "AMRAP 12'" → timeCapMinutes: 12,
       durationMinutes: 15); a strength block without a cap still gets its minutes (typically 12-15)
     - Use times written next to a block when present (see "Block splitting"); otherwise estimate realistically
-      (strength/weightlifting 12-15, skill 8-10, a WOD = its cap + 3, cool-down 5-10)
-    - All durationMinutes together MUST add up to at least 60 (a standard class hour);
-      if the written work is shorter, give the remainder to the warm-up and the cool-down
+      (strength/weightlifting 12-15, skill 8-10, a WOD = its cap + 3)
+    - Never pad: the total is whatever the written blocks add up to, even if it is 25 minutes
     - "totalEstimatedMinutes" = the sum of all durationMinutes
 
     Section naming rules (CRITICAL - avoid semantic conflicts):
@@ -277,14 +271,8 @@ public enum ClaudePrompt {
     - "bax" → "box"
     - "squaf" → "squat"
 
-    Return raw JSON without any formatting or markdown code fences.
-    Output MUST be valid JSON starting with { and ending with }.
-    DO NOT wrap in ```json or ``` markers.
-    DO NOT add any explanations before or after the JSON.
-
-    Schema:
-
-    \(jsonSchema)
+    Output: one JSON object matching the schema enforced by the request. Every key is present;
+    use null for anything the board does not state. No prose before or after the JSON.
     """
 
     /// User prompt template - OCR text will be inserted here.
@@ -295,41 +283,4 @@ public enum ClaudePrompt {
         \(ocrText)
         """
     }
-
-    /// JSON schema for ExtractedWorkout.
-    private static let jsonSchema: String = """
-    {
-      "name": "string (workout name)",
-      "date": "string (yyyy-MM-dd format)",
-      "workoutType": "running|walking|cycling|swimming|crossTraining|functional|endurance|boxing|strengthTraining (REQUIRED, default: crossTraining if uncertain)",
-      "totalEstimatedMinutes": number,
-      "sections": [
-        {
-          "type": "warmup|strength|conditioning|mobility|transition|cooldown",
-          "name": "string | null",
-          "durationMinutes": number (REQUIRED, minutes in the class — see Class time budget),
-          "description": "string | null",
-          "timeCapMinutes": number | null,
-          "rounds": "string | null",
-          "exercises": [
-            {
-              "name": "string",
-              "reps": number | null,
-              "unit": "reps|seconds|minutes|meters|calories|laps | null",
-              "sets": [
-                {
-                  "setNumber": number,
-                  "reps": number,
-                  "intensity": "string | null",
-                  "restSeconds": number | null
-                }
-              ] | null,
-              "scalingOptions": "string | null"
-            }
-          ] | null,
-          "notes": "string | null"
-        }
-      ]
-    }
-    """
 }

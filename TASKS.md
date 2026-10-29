@@ -1596,10 +1596,10 @@
     - DEBUG picker on the scan screen switches the backend at runtime; behaviour unchanged (claudeText is the only case until IOS-00155)
 
 ### IOS-00154 Plan scan — Claude API contract on the current DTO
+    - branch: `dev/IOS-00154/IOS-00154` (from IOS-00153); plan in `PLANS/IOS-00154-claude-api-contract.md`
     - structured outputs (`output_config.format`) with enums for section type and rounds; the mapper stops guessing from free text
     - prompt caching, Sonnet 5.5, thinking `between_tools` + effort low; response decoded as content blocks with `stop_reason`
-    - mapper keeps section notes and description instead of dropping them
-    - prompt stops inventing warm-up / cool-down and padding to 60 min (editor already does both)
+    - prompt stops inventing warm-up / cool-down and padding to 60 min (editor already does both); section notes wait for a field in IOS-00157
     - harness run on f1–f7 before and after; expectations added for f7
 
 ### IOS-00155 Plan scan — ClaudeVisionStrategy becomes the default

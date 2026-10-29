@@ -19,7 +19,22 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
 
     // MARK: - Constants
 
-    private static let defaultModel = "claude-sonnet-4-5-20250929"
+    private static let scanModel = "claude-sonnet-5-5"
+    private static let notesModel = "claude-sonnet-5-5"
+
+    /// Structured JSON, cached rules, no thinking: the board is read, not reasoned about.
+    private static let scanOptions = ClaudeRequestOptions(
+        cachesSystemPrompt: true,
+        disablesThinking: true,
+        effort: .low,
+        outputSchema: ClaudeWorkoutOutputSchema.schema
+    )
+
+    /// Short prompts below the cacheable minimum; plain text out.
+    private static let notesOptions = ClaudeRequestOptions(
+        disablesThinking: true,
+        effort: .medium
+    )
 
     // MARK: - Properties
 
@@ -38,7 +53,11 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
 
     /// Convenience initializer with default HTTPClient.
     public init(apiKey: String? = nil) {
-        let apiClient = ClaudeAPIClient(httpClient: URLSessionHTTPClient(), apiKey: apiKey)
+        // Sorted keys keep the request bytes identical between calls — the cache
+        // prefix is matched byte by byte, and dictionary order is not stable.
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let apiClient = ClaudeAPIClient(httpClient: URLSessionHTTPClient(encoder: encoder), apiKey: apiKey)
         self.init(apiClient: apiClient)
     }
 
@@ -47,9 +66,10 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
     /// Parses OCR text into a structured workout using Claude API.
     public func parseWorkoutText(_ text: String) async throws -> ExtractedWorkout {
         let response = try await apiClient.sendMessage(
-            model: Self.defaultModel,
+            model: Self.scanModel,
             system: ClaudePrompt.systemPrompt,
-            userMessage: ClaudePrompt.userPrompt(ocrText: text)
+            userMessage: ClaudePrompt.userPrompt(ocrText: text),
+            options: Self.scanOptions
         )
         return try mapper.map(response)
     }
@@ -83,11 +103,12 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
     private func generateText(system: String, userMessage: String) async throws -> String {
         let localizedSystem = "\(system) Respond in \(preferredLanguageName())."
         let response = try await apiClient.sendMessage(
-            model: Self.defaultModel,
+            model: Self.notesModel,
             system: localizedSystem,
-            userMessage: userMessage
+            userMessage: userMessage,
+            options: Self.notesOptions
         )
-        return response.content.first?.text ?? ""
+        return response.firstText ?? ""
     }
 
     private func preferredLanguageName() -> String {

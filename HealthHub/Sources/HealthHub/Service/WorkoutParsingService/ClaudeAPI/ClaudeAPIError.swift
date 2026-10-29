@@ -22,6 +22,8 @@ public enum ClaudeAPIError: Error, LocalizedError, Equatable {
     case httpError(statusCode: Int)
     case emptyResponse
     case invalidJSON
+    case truncated
+    case refused
 
     public var errorDescription: String? {
         switch self {
@@ -43,6 +45,10 @@ public enum ClaudeAPIError: Error, LocalizedError, Equatable {
             return "Claude API returned empty response"
         case .invalidJSON:
             return "Failed to parse workout JSON from Claude response"
+        case .truncated:
+            return "Claude stopped at max_tokens — the workout JSON is incomplete"
+        case .refused:
+            return "Claude refused the request"
         }
     }
 }

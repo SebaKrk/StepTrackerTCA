@@ -91,16 +91,6 @@
         }
       }
     },
-    "Board" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tablica"
-          }
-        }
-      }
-    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -1866,6 +1856,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "uderzeń/min"
+          }
+        }
+      }
+    },
+    "Board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica"
           }
         }
       }
@@ -8233,6 +8233,9 @@
           }
         }
       }
+    },
+    "The plan is too long for one scan. Scan it in two parts." : {
+
     },
     "The workout is still running on the watch. End it on Apple Watch by holding the Stop button." : {
       "localizations" : {

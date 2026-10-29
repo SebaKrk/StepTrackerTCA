@@ -21,8 +21,11 @@ public struct ClaudeWorkoutMapper {
 
     /// Maps Claude API response to ExtractedWorkout.
     public func map(_ response: ClaudeAPIResponse) throws -> ExtractedWorkout {
+        if response.isTruncated { throw ClaudeAPIError.truncated }
+        if response.isRefusal { throw ClaudeAPIError.refused }
+
         // Extract JSON from content (remove markdown code fence if present)
-        guard let contentText = response.content.first?.text else {
+        guard let contentText = response.firstText else {
             throw ClaudeAPIError.emptyResponse
         }
 
