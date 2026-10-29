@@ -1630,6 +1630,9 @@
     - error states on card with the system empty view; retry keeps the paid-for photo
 
 ### IOS-00159 Plan scan — stats and Summary consumers
-    - strength card iterates every exercise of a block (supersets, tri-sets)
-    - volume counts rounds; EMOM scored and stored the same way
-    - new fields visible in plan detail, Summary and Statistics
+    - branch: `dev/IOS-00159/IOS-00159` (from IOS-00155-B); plan in `PLANS/IOS-00159-consumers.md`
+    - plan detail shows the schema v2 fields: EMOM cadence chip, block notes, per-side target, buy-in / cash-out badge, max effort, load tiers instead of the M/W pair, set unit / percent / max in planned sets
+    - Summary strength card renders every movement of a superset (section per lift, heaviest set names its lift, PR per lift); plan rows visible before entry
+    - volume load repeats the per-round target by the block's rounds and doubles per-side movements (`ExerciseLogInput.volumeMultiplier`, applied at save time; old logs unchanged)
+    - EMOM scores like Tabata: per-exercise reps summed into `forReps`, field left blank for entry, team board ranks it as published
+    - `tempoPerRound` divides by the block's rounds instead of the exercise count

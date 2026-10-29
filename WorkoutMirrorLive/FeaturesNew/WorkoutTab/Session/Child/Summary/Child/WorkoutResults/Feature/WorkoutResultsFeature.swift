@@ -234,6 +234,11 @@ extension WorkoutResultsFeature.State {
                     : exercise.plannedSets.map { String($0.reduce(0) { $0 + $1.reps }) }
                 let repsLabel = exercise.target?.compactString ?? ladderTotal
 
+                // A round-based WOD repeats the per-round target; Tabata / EMOM totals and
+                // ladders are already whole. Per-side doubles whatever the shape.
+                let repeatsPerRound = [.forTime, .amrap].contains(workout.type) && exercise.plannedSets == nil
+                let multiplier = (repeatsPerRound ? (workout.rounds ?? 1) : 1) * (exercise.perSide ? 2 : 1)
+
                 return ExerciseLogInput(
                     exerciseType: exercise.type,
                     equipment: exercise.equipment,
@@ -244,10 +249,11 @@ extension WorkoutResultsFeature.State {
                     plannedReps: repsLabel,
                     plannedWeight: weight,
                     actualWeight: sets == nil ? weight : nil,
-                    // Tabata's total-reps field starts empty (the plan holds an
+                    // Tabata / EMOM total-reps fields start empty (the plan holds an
                     // interval, not a rep total); other single-field types prefill.
-                    actualReps: (sets == nil && workout.type != .tabata) ? repsLabel : nil,
-                    sets: sets
+                    actualReps: (sets == nil && workout.type != .tabata && workout.type != .emom) ? repsLabel : nil,
+                    sets: sets,
+                    volumeMultiplier: multiplier == 1 ? nil : multiplier
                 )
             }
             return WorkoutSessionResult(

@@ -195,15 +195,12 @@ extension ScannedMovement {
         return WeightConfiguration(men: men, women: women ?? men)
     }
 
-    /// Everything the plan shows as a hint under the movement, in board language.
+    /// Everything the plan shows as a hint under the movement and has no field of its own.
     private var info: String? {
         var parts: [String] = []
         if !sets.isEmpty { parts.append(setsSummary) }
         if repRangeMax > 0, targetValue > 0 { parts.append("\(Int(targetValue))-\(repRangeMax) reps") }
         if maxEffort { parts.append("max effort") }
-        if loads.count > 1 || loads.first?.tier != .single, !loads.isEmpty {
-            parts.append(loads.map(\.summary).joined(separator: ", "))
-        }
         if restAfterSetSec > 0 { parts.append("Rest: \(restAfterSetSec) s") }
         if !alternatives.isEmpty { parts.append("or " + alternatives.joined(separator: " / ")) }
         return parts.isEmpty ? nil : parts.joined(separator: "\n")

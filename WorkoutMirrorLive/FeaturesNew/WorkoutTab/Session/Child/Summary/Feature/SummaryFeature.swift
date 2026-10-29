@@ -177,6 +177,11 @@ struct SummaryFeature {
 
                 let trainingSession = state.trainingSession
                 let resultInputs = state.results.cards.map(\.result)
+                let roundsByResult = Dictionary(
+                    uniqueKeysWithValues: state.results.cards.compactMap { card in
+                        card.rounds.map { (card.result.id, $0) }
+                    }
+                )
                 let hkWorkoutId = state.summary?.workout?.uuid
                 let workoutForSnapshot = state.summary?.workout
                 let hrBuffer = state.hrBuffer
@@ -266,12 +271,11 @@ struct SummaryFeature {
                             phaseHR = nil
                         }
 
-                        // Calculate tempoPerRound from WOD score
+                        // Pace per round of a timed block; a single-round block is its own pace.
                         let tempo: Double? = {
                             switch result.scoreResult {
                             case .forTime(let time):
-                                let totalRounds = result.exercises.count > 0 ? result.exercises.count : 1
-                                return time / Double(totalRounds)
+                                return time / Double(max(roundsByResult[result.id] ?? 1, 1))
                             default:
                                 return nil
                             }
@@ -291,7 +295,8 @@ struct SummaryFeature {
                             let volumeLoad = ExerciseLog.volumeLoad(
                                 sets: exercise.sets,
                                 reps: effectiveReps,
-                                weight: effectiveWeight
+                                weight: effectiveWeight,
+                                multiplier: exercise.volumeMultiplier ?? 1
                             )
 
                             // The input's id survives in the saved score, so reusing it here makes

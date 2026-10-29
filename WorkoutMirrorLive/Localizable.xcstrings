@@ -401,6 +401,9 @@
         }
       }
     },
+    "%@/side" : {
+
+    },
     "%d sessions" : {
       "localizations" : {
         "pl" : {
@@ -1944,6 +1947,9 @@
         }
       }
     },
+    "Buy-in" : {
+
+    },
     "BW" : {
       "localizations" : {
         "pl" : {
@@ -2100,6 +2106,9 @@
           }
         }
       }
+    },
+    "Cash-out" : {
+
     },
     "Category share of records" : {
       "localizations" : {
@@ -3522,6 +3531,12 @@
         }
       }
     },
+    "every %lld min" : {
+
+    },
+    "every %lld s" : {
+
+    },
     "Exercise" : {
       "localizations" : {
         "pl" : {
@@ -4919,6 +4934,9 @@
           }
         }
       }
+    },
+    "max" : {
+
     },
     "Max" : {
       "localizations" : {
@@ -7270,6 +7288,9 @@
           }
         }
       }
+    },
+    "Score · EMOM" : {
+
     },
     "Score · For Time" : {
       "localizations" : {
