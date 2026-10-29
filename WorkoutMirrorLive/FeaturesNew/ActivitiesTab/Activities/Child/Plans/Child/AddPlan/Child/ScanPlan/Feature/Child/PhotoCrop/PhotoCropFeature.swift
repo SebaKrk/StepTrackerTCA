@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CoreGraphics
 import Foundation
 
 /// Crops a gallery photo to the board before it leaves the phone.
