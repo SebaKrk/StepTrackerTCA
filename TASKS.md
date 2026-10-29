@@ -1617,6 +1617,7 @@
     - harness run with the Apple backends on the same fixtures
 
 ### IOS-00157 Plan scan — schema v2 and plan fields
+    - branch: `dev/IOS-00157/IOS-00157` (from IOS-00155); plan in `PLANS/IOS-00157-schema-v2.md`; A = plan fields + threading, B = ScannedBoard v2 + prompt + mapper
     - section kind × format enums, interval seconds, rep scheme vs round count, per-side, max effort, load tiers, uncertain[]
     - new optional fields on `WorkoutSessionNew` / `ExerciseSession` / `PlannedSet`, threaded through every rebuild site (drafts, withNewIdentity, catalog rematch, fill class length)
     - EMOM interval lands in `everySeconds`; `IntervalPlan` stays reserved for `.intervals`

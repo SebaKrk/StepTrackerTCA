@@ -41,11 +41,17 @@ extension TrainingSession {
                             target: exercise.target,
                             weight: exercise.weight,
                             info: exercise.info,
-                            plannedSets: exercise.plannedSets
+                            plannedSets: exercise.plannedSets,
+                            perSide: exercise.perSide,
+                            isMaxEffort: exercise.isMaxEffort,
+                            segment: exercise.segment,
+                            loadTiers: exercise.loadTiers
                         )
                     },
                     interval: workout.interval,
-                    plannedMinutes: workout.plannedMinutes
+                    plannedMinutes: workout.plannedMinutes,
+                    notes: workout.notes,
+                    everySeconds: workout.everySeconds
                 )
             },
             coolDown: coolDown

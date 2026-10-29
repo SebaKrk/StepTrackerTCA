@@ -20,9 +20,49 @@ import Foundation
 public struct PlannedSet: Sendable, Equatable, Codable {
     public let reps: Int
     public let suggestedWeight: Double?
+    /// What `reps` counts; nil means repetitions (plans saved before this field).
+    public let unit: SetUnit?
+    /// "@ 70%" as 70; the kg stays nil until the athlete's max is known.
+    public let percentOfMax: Double?
+    /// "3x max": `reps` is 0 and the athlete fills the number in afterwards.
+    public let isMaxEffort: Bool
 
-    public init(reps: Int, suggestedWeight: Double? = nil) {
+    public init(
+        reps: Int,
+        suggestedWeight: Double? = nil,
+        unit: SetUnit? = nil,
+        percentOfMax: Double? = nil,
+        isMaxEffort: Bool = false
+    ) {
         self.reps = reps
         self.suggestedWeight = suggestedWeight
+        self.unit = unit
+        self.percentOfMax = percentOfMax
+        self.isMaxEffort = isMaxEffort
+    }
+
+    /// Reps-only edit that keeps every other prescription of the set.
+    public func withReps(_ reps: Int) -> PlannedSet {
+        PlannedSet(
+            reps: reps,
+            suggestedWeight: suggestedWeight,
+            unit: unit,
+            percentOfMax: percentOfMax,
+            isMaxEffort: isMaxEffort
+        )
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case reps, suggestedWeight, unit, percentOfMax, isMaxEffort
+    }
+
+    // Plans saved before these fields lack the keys — read them as absent.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.reps = try container.decode(Int.self, forKey: .reps)
+        self.suggestedWeight = try container.decodeIfPresent(Double.self, forKey: .suggestedWeight)
+        self.unit = try container.decodeIfPresent(SetUnit.self, forKey: .unit)
+        self.percentOfMax = try container.decodeIfPresent(Double.self, forKey: .percentOfMax)
+        self.isMaxEffort = try container.decodeIfPresent(Bool.self, forKey: .isMaxEffort) ?? false
     }
 }

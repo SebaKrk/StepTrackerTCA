@@ -35,6 +35,10 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
     /// Per-set plan carried through editing — preserves structured sets parsed by AI.
     /// Without this, opening "Edit Exercise" would silently drop strength workout sets.
     public var plannedSets: [PlannedSet]?
+    public var perSide: Bool
+    public var isMaxEffort: Bool
+    public var segment: MovementSegment?
+    public var loadTiers: [LoadTier]?
 
     // MARK: - Init (create)
 
@@ -46,7 +50,11 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
         target: ExerciseTarget? = .reps(10),
         weight: WeightConfiguration? = nil,
         info: String = "",
-        plannedSets: [PlannedSet]? = nil
+        plannedSets: [PlannedSet]? = nil,
+        perSide: Bool = false,
+        isMaxEffort: Bool = false,
+        segment: MovementSegment? = nil,
+        loadTiers: [LoadTier]? = nil
     ) {
         self.type = type
         self.equipment = equipment
@@ -56,6 +64,10 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
         self.weight = weight
         self.info = info
         self.plannedSets = plannedSets
+        self.perSide = perSide
+        self.isMaxEffort = isMaxEffort
+        self.segment = segment
+        self.loadTiers = loadTiers
     }
 
     // MARK: - Init (edit)
@@ -69,5 +81,9 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
         self.weight = exercise.weight
         self.info = exercise.info ?? ""
         self.plannedSets = exercise.plannedSets
+        self.perSide = exercise.perSide
+        self.isMaxEffort = exercise.isMaxEffort
+        self.segment = exercise.segment
+        self.loadTiers = exercise.loadTiers
     }
 }

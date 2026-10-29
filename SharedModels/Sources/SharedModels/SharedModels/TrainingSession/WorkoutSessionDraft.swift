@@ -19,6 +19,8 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
     public var interval: IntervalPlan?
     /// Minutes the block takes in the class; `nil` falls back to the time cap.
     public var plannedMinutes: Int?
+    public var notes: String?
+    public var everySeconds: Int?
 
     public init(
         name: String = "",
@@ -27,7 +29,9 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         rounds: Int? = nil,
         exercises: [ExerciseSession] = [],
         interval: IntervalPlan? = nil,
-        plannedMinutes: Int? = nil
+        plannedMinutes: Int? = nil,
+        notes: String? = nil,
+        everySeconds: Int? = nil
     ) {
         self.name = name
         self.type = type
@@ -36,6 +40,8 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.exercises = exercises
         self.interval = interval
         self.plannedMinutes = plannedMinutes
+        self.notes = notes
+        self.everySeconds = everySeconds
     }
 
     public init(workout: WorkoutSessionNew) {
@@ -46,5 +52,7 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.exercises = workout.exercises
         self.interval = workout.interval
         self.plannedMinutes = workout.plannedMinutes
+        self.notes = workout.notes
+        self.everySeconds = workout.everySeconds
     }
 }
