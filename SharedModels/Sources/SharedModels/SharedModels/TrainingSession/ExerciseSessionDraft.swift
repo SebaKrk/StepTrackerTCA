@@ -35,9 +35,17 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
     /// Per-set plan carried through editing — preserves structured sets parsed by AI.
     /// Without this, opening "Edit Exercise" would silently drop strength workout sets.
     public var plannedSets: [PlannedSet]?
+
+    /// The target is per limb.
     public var perSide: Bool
+
+    /// "max reps": there is no target.
     public var isMaxEffort: Bool
+
+    /// Buy-in / cash-out of a WOD; nil means every round.
     public var segment: MovementSegment?
+
+    /// Every load option written on the board.
     public var loadTiers: [LoadTier]?
 
     // MARK: - Init (create)

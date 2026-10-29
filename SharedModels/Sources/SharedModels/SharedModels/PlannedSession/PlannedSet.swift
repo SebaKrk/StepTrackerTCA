@@ -18,12 +18,18 @@ import Foundation
 /// (e.g. `"@ 60kg"`). Percent-based prescriptions (e.g. `"@ 50-60%"`) and bodyweight
 /// (`"BW"`) leave it nil — the user enters the weight manually.
 public struct PlannedSet: Sendable, Equatable, Codable {
+    /// Prescribed count of the set; what it counts is `unit`.
     public let reps: Int
+
+    /// Weight in kg when the plan wrote one; nil for percent or bodyweight.
     public let suggestedWeight: Double?
+
     /// What `reps` counts; nil means repetitions (plans saved before this field).
     public let unit: SetUnit?
+
     /// "@ 70%" as 70; the kg stays nil until the athlete's max is known.
     public let percentOfMax: Double?
+
     /// "3x max": `reps` is 0 and the athlete fills the number in afterwards.
     public let isMaxEffort: Bool
 

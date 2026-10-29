@@ -19,7 +19,11 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
     public var interval: IntervalPlan?
     /// Minutes the block takes in the class; `nil` falls back to the time cap.
     public var plannedMinutes: Int?
+
+    /// Board remarks that fit no field.
     public var notes: String?
+
+    /// EMOM cadence in seconds; nil for other formats.
     public var everySeconds: Int?
 
     public init(

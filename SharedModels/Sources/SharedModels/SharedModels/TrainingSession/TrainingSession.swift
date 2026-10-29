@@ -153,8 +153,10 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     /// Minutes the block takes in the class (setup and rest included), separate from the WOD
     /// time cap. Optional Codable field — plans saved before it existed decode fine.
     public let plannedMinutes: Int?
+
     /// Board remarks that fit no field: "rest 2 min between rounds", "no clock".
     public let notes: String?
+
     /// EMOM cadence in seconds (60, 120 for E2MOM); display only, the session timer ignores it.
     public let everySeconds: Int?
 
@@ -211,12 +213,16 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     /// Per-set plan extracted from AI scan. Used by SetInputView to pre-fill rows.
     /// Nil when the plan has no structured set scheme (then `rounds`-based fallback is used).
     public let plannedSets: [PlannedSet]?
+
     /// "8/8", "10 per side": the target is per limb, so the volume doubles.
     public let perSide: Bool
+
     /// "max reps" / "max cal": there is no target, the athlete records what they did.
     public let isMaxEffort: Bool
+
     /// Buy-in / cash-out of a WOD; nil means part of every round.
     public let segment: MovementSegment?
+
     /// Every load option written on the board; `weight` is the rounded kg pair the session UI uses.
     public let loadTiers: [LoadTier]?
 

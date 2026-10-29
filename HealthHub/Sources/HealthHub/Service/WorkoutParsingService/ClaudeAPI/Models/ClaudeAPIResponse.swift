@@ -9,8 +9,14 @@ import Foundation
 
 /// Response from Claude API.
 public struct ClaudeAPIResponse: Decodable, Sendable {
+
+    /// Blocks of the reply in order.
     public let content: [ContentBlock]
+
+    /// Why the model stopped: `end_turn`, `max_tokens`, `refusal`, …
     public let stopReason: String?
+
+    /// Token accounting of the call; nil on old responses.
     public let usage: Usage?
 
     enum CodingKeys: String, CodingKey {
@@ -34,9 +40,17 @@ public struct ClaudeAPIResponse: Decodable, Sendable {
     /// Content blocks the API can return; new block kinds decode as `.other`
     /// instead of failing the whole response.
     public enum ContentBlock: Decodable, Sendable {
+
+        /// A text block with its content.
         case text(String)
+
+        /// A thinking block; its content is not read.
         case thinking
+
+        /// A thinking block the API redacted.
         case redactedThinking
+
+        /// A block kind this client does not know, with its `type`.
         case other(String)
 
         enum CodingKeys: String, CodingKey {
@@ -60,10 +74,19 @@ public struct ClaudeAPIResponse: Decodable, Sendable {
         }
     }
 
+    /// Token accounting of one call.
     public struct Usage: Decodable, Sendable {
+
+        /// Input tokens billed at full price.
         public let inputTokens: Int
+
+        /// Output tokens, thinking included.
         public let outputTokens: Int
+
+        /// Tokens written to the prompt cache.
         public let cacheCreationInputTokens: Int?
+
+        /// Tokens read from the prompt cache.
         public let cacheReadInputTokens: Int?
 
         enum CodingKeys: String, CodingKey {

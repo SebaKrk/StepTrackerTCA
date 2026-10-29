@@ -15,6 +15,7 @@ import UniformTypeIdentifiers
 /// more only costs upload time; image tokens scale with pixel count.
 enum ScanImageDownscaler {
 
+    /// Longest edge in pixels the model reads before resizing server-side.
     static let maxPixelSize = 1568
 
     static func jpeg(from data: Data, maxPixelSize: Int = maxPixelSize, quality: Double = 0.8) throws -> Data {

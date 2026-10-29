@@ -10,7 +10,10 @@ import Foundation
 /// One block of a user message: text, or an inline base64 image.
 public enum ClaudeContentBlock: Encodable, Sendable {
 
+    /// A text block.
     case text(String)
+
+    /// An inline base64 image with its media type, e.g. `image/jpeg`.
     case image(Data, mediaType: String)
 
     enum CodingKeys: String, CodingKey {

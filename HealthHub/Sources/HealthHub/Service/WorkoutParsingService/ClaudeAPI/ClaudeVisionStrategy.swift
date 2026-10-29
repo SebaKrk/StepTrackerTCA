@@ -27,9 +27,16 @@ public actor ClaudeVisionStrategy: WorkoutParsingStrategy {
 
     // MARK: - Properties
 
+    /// Transport to the Messages API.
     private let apiClient: ClaudeAPIClient
+
+    /// Turns the JSON reply into the DTO.
     private let mapper: ClaudeWorkoutMapper
+
+    /// Whether the OCR transcript is sent next to the photo.
     private let includesOCRHint: Bool
+
+    /// Text-only path used when the input carries no photo.
     private let textFallback: ClaudeStrategy
 
     // MARK: - Initialization

@@ -13,12 +13,25 @@ import Foundation
 /// handed to Claude's structured outputs.
 public indirect enum JSONValue: Encodable, Sendable, Equatable {
 
+    /// A JSON string.
     case string(String)
+
+    /// A JSON number without a fraction.
     case integer(Int)
+
+    /// A JSON number with a fraction.
     case number(Double)
+
+    /// `true` / `false`.
     case bool(Bool)
+
+    /// `null`.
     case null
+
+    /// An ordered list of values.
     case array([JSONValue])
+
+    /// A dictionary of members; key order is not preserved.
     case object([String: JSONValue])
 
     public func encode(to encoder: Encoder) throws {
