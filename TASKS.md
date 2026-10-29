@@ -1644,3 +1644,8 @@
     - new cases: side bend, face pull, any machine (cardio of choice); bicep curl learns the alternating / "alt." spellings
     - `catalogVersion` 8 so the re-match job repairs plans saved with these names as unknown
     - golden names added to `ExerciseTypeMatchingTests`
+
+### IOS-00161 Plan scan — remove the schema v1 DTO
+    - branch: `dev/IOS-00161/IOS-00161` (from IOS-00160)
+    - `ExtractedWorkout` + mapper (SharedModels) and `ClaudeWorkoutMapper` + `ClaudeWorkoutOutputSchema` (HealthHub) deleted; nothing called them since IOS-00157-B2
+    - flow docs in `ClaudeAPI/` rewritten for schema v2; v1 harness moved to `PLANS/scan-eval/legacy-v1/`
