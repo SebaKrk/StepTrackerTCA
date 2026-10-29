@@ -1649,3 +1649,9 @@
     - branch: `dev/IOS-00161/IOS-00161` (from IOS-00160)
     - `ExtractedWorkout` + mapper (SharedModels) and `ClaudeWorkoutMapper` + `ClaudeWorkoutOutputSchema` (HealthHub) deleted; nothing called them since IOS-00157-B2
     - flow docs in `ClaudeAPI/` rewritten for schema v2; v1 harness moved to `PLANS/scan-eval/legacy-v1/`
+
+### IOS-00162 Plan scan — crop, upload disclosure, state rename
+    - branch: `dev/IOS-00162/IOS-00162` (from IOS-00161)
+    - a photo from the library goes through `PhotoCropFeature` (corner handles, "Use the whole photo") before the scan; the document camera keeps its own crop
+    - one-time alert before the first upload: the photo goes to Anthropic under the user's key; cancel returns to the start screen
+    - `ScanPlanViewState.processingOCR` → `.analyzing`; `WorkoutParsingBackend.uploadsPhoto`

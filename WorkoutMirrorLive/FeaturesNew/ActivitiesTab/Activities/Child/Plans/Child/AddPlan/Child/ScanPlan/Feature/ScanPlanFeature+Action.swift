@@ -21,7 +21,14 @@ extension ScanPlanFeature {
         case `internal`(Internal)
         case workoutPreview(PresentationAction<WorkoutPreviewFeature.Action>)
         case apiKeyEntry(PresentationAction<APIKeyEntryFeature.Action>)
+        case uploadDisclosure(PresentationAction<UploadDisclosure>)
+        case photoCrop(PresentationAction<PhotoCropFeature.Action>)
         case delegate(Delegate)
+
+        enum UploadDisclosure: Equatable {
+            /// User agreed to send the photo.
+            case send
+        }
 
         enum Delegate {
             /// WorkoutPreview saved — passes session up so AddPlanFeature can persist.
@@ -69,7 +76,10 @@ extension ScanPlanFeature {
 
         enum Internal {
 
-            /// Image data loaded from the selected photo picker item.
+            /// Image data loaded from the selected photo picker item; nil when loading failed.
+            case galleryPhotoLoaded(Data?)
+
+            /// Image data ready to scan (document scan, or a cropped gallery photo).
             case imageLoaded(Data?)
 
             /// OCR text extracted successfully from image.

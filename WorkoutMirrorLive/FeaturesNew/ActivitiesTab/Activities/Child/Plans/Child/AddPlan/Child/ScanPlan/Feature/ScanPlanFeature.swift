@@ -81,11 +81,8 @@ struct ScanPlanFeature {
                 // network (iCloud Photo Library) and the idle screen would linger.
                 state.viewState = .loadingPhoto
                 return .run { send in
-                    if let data = try? await item.loadTransferable(type: Data.self) {
-                        await send(.internal(.imageLoaded(data)))
-                    } else {
-                        await send(.internal(.imageLoaded(nil)))
-                    }
+                    let data = try? await item.loadTransferable(type: Data.self)
+                    await send(.internal(.galleryPhotoLoaded(data)))
                 }
                 .cancellable(id: CancelID.photoLoad, cancelInFlight: true)
 
@@ -126,6 +123,16 @@ struct ScanPlanFeature {
 
                 // MARK: - Internal Action
 
+            case let .internal(.galleryPhotoLoaded(data)):
+                guard let data else {
+                    state.failedStage = .photoLoad
+                    state.viewState = .failed(String(localized: "Could not load the selected image."))
+                    return .none
+                }
+                // The document camera crops on its own; a library photo gets the same step here.
+                state.photoCrop = PhotoCropFeature.State(imageData: data)
+                return .none
+
             case let .internal(.imageLoaded(data)):
                 guard let data else {
                     state.failedStage = .photoLoad
@@ -133,7 +140,7 @@ struct ScanPlanFeature {
                     return .none
                 }
                 state.selectedImageData = data
-                state.viewState = .processingOCR
+                state.viewState = .analyzing
                 state.failedStage = nil
                 // The photo backend reads the picture itself — no OCR, no text step.
                 guard state.parsingBackend.needsOCRText else { return startParsing(&state) }
@@ -187,6 +194,27 @@ struct ScanPlanFeature {
                     await send(.view(.continueButtonTapped))
                 }
 
+            case .photoCrop(.presented(.delegate(.cropped(let data)))):
+                state.photoCrop = nil
+                return .send(.internal(.imageLoaded(data)))
+
+            case .photoCrop(.presented(.delegate(.cancelled))), .photoCrop(.dismiss):
+                state.photoCrop = nil
+                return resetToIdle(&state)
+
+            case .photoCrop:
+                return .none
+
+            case .uploadDisclosure(.presented(.send)):
+                state.$hasSeenUploadDisclosure.withLock { $0 = true }
+                return startParsing(&state)
+
+            case .uploadDisclosure(.dismiss):
+                return resetToIdle(&state)
+
+            case .uploadDisclosure:
+                return .none
+
             case .apiKeyEntry(.presented(.delegate(.keyDeleted))):
                 state.apiKeyEntry = nil
                 return .none
@@ -220,6 +248,10 @@ struct ScanPlanFeature {
         .ifLet(\.$workoutPreview, action: \.workoutPreview) {
             WorkoutPreviewFeature()
         }
+        .ifLet(\.$uploadDisclosure, action: \.uploadDisclosure)
+        .ifLet(\.$photoCrop, action: \.photoCrop) {
+            PhotoCropFeature()
+        }
         .ifLet(\.$apiKeyEntry, action: \.apiKeyEntry) {
             APIKeyEntryFeature()
         }
@@ -236,7 +268,11 @@ struct ScanPlanFeature {
             state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: false)
             return .none
         }
-        state.viewState = .processingOCR
+        if state.parsingBackend.uploadsPhoto, state.selectedImageData != nil, !state.hasSeenUploadDisclosure {
+            state.uploadDisclosure = Self.uploadDisclosureAlert
+            return .none
+        }
+        state.viewState = .analyzing
         state.failedStage = nil
         let input = WorkoutScanInput(imageData: state.selectedImageData, ocrText: state.extractedText)
         return .run { [backend = state.parsingBackend] send in
@@ -248,6 +284,19 @@ struct ScanPlanFeature {
             }
         }
         .cancellable(id: CancelID.parse, cancelInFlight: true)
+    }
+
+    static let uploadDisclosureAlert = AlertState<Action.UploadDisclosure> {
+        TextState(String(localized: "Send the photo to Claude?"))
+    } actions: {
+        ButtonState(action: .send) {
+            TextState(String(localized: "Send"))
+        }
+        ButtonState(role: .cancel) {
+            TextState(String(localized: "Cancel"))
+        }
+    } message: {
+        TextState(String(localized: "The photo goes to Anthropic under your own API key and is used only to read the board. Crop out names and faces first."))
     }
 
     private func resetToIdle(_ state: inout State) -> Effect<Action> {

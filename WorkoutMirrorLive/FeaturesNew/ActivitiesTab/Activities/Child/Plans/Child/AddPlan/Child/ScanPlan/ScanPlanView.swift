@@ -33,7 +33,7 @@ struct ScanPlanView: View {
             case .loadingPhoto:
                 loadingPhotoSection
 
-            case .processingOCR:
+            case .analyzing:
                 // Show image only during OCR, not during parsing
                 if store.extractedText.isEmpty {
                     imagePreviewSection
@@ -58,6 +58,10 @@ struct ScanPlanView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             apiKeyToolbarItem
+        }
+        .alert($store.scope(state: \.uploadDisclosure, action: \.uploadDisclosure))
+        .sheet(item: $store.scope(state: \.photoCrop, action: \.photoCrop)) { cropStore in
+            PhotoCropView(store: cropStore)
         }
         .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.apiKeyEntry)) { store in
             NavigationStack {

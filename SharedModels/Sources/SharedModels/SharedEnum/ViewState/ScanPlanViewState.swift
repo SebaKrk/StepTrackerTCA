@@ -16,8 +16,8 @@ public enum ScanPlanViewState: Equatable {
     /// Photo picked, loading its data from the library (may download from iCloud).
     case loadingPhoto
 
-    /// OCR text recognition in progress.
-    case processingOCR
+    /// Reading the photo: OCR for the text backends, then the model.
+    case analyzing
 
     /// Text successfully extracted and ready for editing.
     case textReady
