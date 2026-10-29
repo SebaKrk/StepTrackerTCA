@@ -153,20 +153,25 @@ struct ScanPlanFeature {
                 state.viewState = .textReady
                 return .none
 
-            case let .internal(.parsingCompleted(board)):
+            case let .internal(.parsingCompleted(rawBoard)):
+                let (board, fixes) = rawBoard.normalized()
                 state.extractedWorkout = board
+                let session = board.toTrainingSession(scanDate: date.now)
 
-                guard board.boardKind != .notAWorkout, !board.workoutSections.isEmpty else {
+                if let hard = ScanReviewValidator.hardFindings(board: board, plan: session).first {
                     state.failedStage = .parsing
-                    state.viewState = .failed(String(localized: "No workout plan found in this photo."))
+                    state.viewState = .failed(hard.message)
                     return .none
                 }
 
-                // Auto-navigate to preview after successful parsing
-                state.workoutPreview = WorkoutPreviewFeature.State(
-                    trainingSession: board.toTrainingSession(scanDate: date.now)
+                // Preview opens right away; the review card and a disabled Save carry the doubts.
+                var preview = WorkoutPreviewFeature.State(trainingSession: session)
+                preview.scannedSession = session
+                preview.boardFindings = IdentifiedArray(
+                    uniqueElements: ScanReviewValidator.boardFindings(board: board, fixes: fixes, plan: session)
                 )
-
+                preview.planFindings = IdentifiedArray(uniqueElements: ScanReviewValidator.planFindings(session))
+                state.workoutPreview = preview
                 return .none
 
             case let .internal(.extractionFailed(error, stage)):

@@ -151,6 +151,9 @@
         }
       }
     },
+    "\"%@\" is not in the exercise catalog — it will be saved under that name." : {
+
+    },
     "\"%@\" will be removed from this workout." : {
       "localizations" : {
         "pl" : {
@@ -553,6 +556,9 @@
     },
     "%lld kg" : {
       "shouldTranslate" : false
+    },
+    "%lld kg looks like a misread load." : {
+
     },
     "%lld m" : {
       "localizations" : {
@@ -3730,6 +3736,9 @@
         }
       }
     },
+    "fix in editor" : {
+
+    },
     "For now, join private groups with a QR code from a friend." : {
       "localizations" : {
         "pl" : {
@@ -3739,6 +3748,9 @@
           }
         }
       }
+    },
+    "For Time without a cap — a DNF cannot be recorded." : {
+
     },
     "Frequency" : {
       "localizations" : {
@@ -5700,6 +5712,9 @@
         }
       }
     },
+    "No time cap on the board — %lld min applied." : {
+
+    },
     "No volume data recorded for this exercise." : {
       "localizations" : {
         "pl" : {
@@ -6756,6 +6771,12 @@
         }
       }
     },
+    "rep ladder" : {
+
+    },
+    "Rep ladder and round count were both written — the ladder was kept." : {
+
+    },
     "reps" : {
       "shouldTranslate" : false
     },
@@ -6933,6 +6954,9 @@
           }
         }
       }
+    },
+    "round count" : {
+
     },
     "Round end" : {
 
@@ -8182,6 +8206,12 @@
         }
       }
     },
+    "the alternatives" : {
+
+    },
+    "The cap is not a whole number of %lld s intervals." : {
+
+    },
     "The code expired or was revoked. Ask for a new one." : {
       "localizations" : {
         "pl" : {
@@ -8222,6 +8252,9 @@
         }
       }
     },
+    "the interval" : {
+
+    },
     "The key is stored securely in the device's Keychain." : {
       "localizations" : {
         "pl" : {
@@ -8254,6 +8287,12 @@
         }
       }
     },
+    "the movements" : {
+
+    },
+    "the notes" : {
+
+    },
     "The oldest and simplest — the 1971 Fox and Haskell formula. Easy to remember but statistically the least accurate. Pick it for values comparable with legacy fitness apps." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8266,6 +8305,12 @@
       }
     },
     "The plan is too long for one scan. Scan it in two parts." : {
+
+    },
+    "The reader was not sure about: %@." : {
+
+    },
+    "The women's load is heavier than the men's." : {
 
     },
     "The workout is still running on the watch. End it on Apple Watch by holding the Stop button." : {
@@ -8297,6 +8342,9 @@
           }
         }
       }
+    },
+    "This block has no movements." : {
+
     },
     "This code doesn't contain a valid training plan." : {
       "localizations" : {
@@ -8348,6 +8396,9 @@
           }
         }
       }
+    },
+    "time cap" : {
+
     },
     "Time Cap" : {
       "localizations" : {
@@ -8428,6 +8479,9 @@
           }
         }
       }
+    },
+    "To check" : {
+
     },
     "To see your workouts, please grant access to HealthKit in Settings." : {
       "localizations" : {
@@ -8661,6 +8715,9 @@
           }
         }
       }
+    },
+    "Two blocks shared a name — a number was added." : {
+
     },
     "Type" : {
       "localizations" : {

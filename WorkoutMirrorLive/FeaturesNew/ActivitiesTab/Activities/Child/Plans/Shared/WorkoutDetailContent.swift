@@ -18,6 +18,10 @@ struct WorkoutDetailContent: View {
     let session: TrainingSession
     let isWarmupExpanded: Binding<Bool>
     let isCooldownExpanded: Binding<Bool>
+    /// Open scan findings per block id; empty everywhere but the scan preview.
+    var blockFlagCounts: [UUID: Int] = [:]
+    /// Movements with an open scan finding; empty everywhere but the scan preview.
+    var flaggedExerciseIds: Set<UUID> = []
 
     var body: some View {
         VStack(spacing: 12) {
@@ -161,14 +165,26 @@ struct WorkoutDetailContent: View {
             .padding(4)
         } label: {
             VStack {
-                Text(workout.name)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack {
+                    Text(workout.name)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Spacer()
+                    if let count = blockFlagCounts[workout.id], count > 0 {
+                        flagBadge(count)
+                    }
+                }
                 Divider()
             }
         }
         .styledGroupBox()
+    }
+
+    private func flagBadge(_ count: Int) -> some View {
+        Label("\(count)", systemImage: "exclamationmark.triangle.fill")
+            .font(.caption)
+            .fontWeight(.semibold)
+            .foregroundStyle(.orange)
     }
 
     // MARK: - Exercise Row
@@ -186,6 +202,12 @@ struct WorkoutDetailContent: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
+
+                    if flaggedExerciseIds.contains(exercise.id) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
 
                     if let segment = exercise.segment {
                         segmentBadge(segment)

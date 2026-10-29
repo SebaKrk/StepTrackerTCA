@@ -1624,10 +1624,12 @@
     - B2: prompt v7 (~1.3k words) under `ClaudeBoardOutputSchema`; `ClaudeBoardMapper`; strategies, client and scan feature return `ScannedBoard`; `check_v2.py` harness: 315 ok, 3 left on the garbled OCR rescan (photo path on device)
     - `ExtractedWorkout`, `ClaudeWorkoutMapper`, `ClaudeWorkoutOutputSchema` stay in the tree unused until a cleanup commit
 
-### IOS-00158 Plan scan — validators and confirm step
-    - validators V1–V9 run on every backend's output (caps, rounds vs ladder, empty sections, duplicate movements, token budget)
-    - review screen in `ScanPlanFeature` shown only when a flag is raised; uncertain numbers editable inline
-    - error states on card with the system empty view; retry keeps the paid-for photo
+### IOS-00158 Plan scan — validators and the review card
+    - branch: `dev/IOS-00158/IOS-00158` (from IOS-00159); plan in `PLANS/IOS-00158-review.md`
+    - `ScanReviewValidator` in SharedModels: hard stops (no plan, empty block), board doubts (model `uncertain`, default cap applied, ladder/rounds fix, duplicate names) and plan rules (EMOM cap vs cadence, For Time without cap, load > 300 kg, women heavier than men, movement outside the catalog)
+    - the preview opens right away with a "To check" card and badges on the flagged blocks and movements; Save stays disabled until every finding is closed
+    - rules re-run after each edit and close on their own; doubts close by "OK" or by editing their block
+    - no re-ask of the model, no value pickers — the plan editor is the fix path
 
 ### IOS-00159 Plan scan — stats and Summary consumers
     - branch: `dev/IOS-00159/IOS-00159` (from IOS-00155-B); plan in `PLANS/IOS-00159-consumers.md`
