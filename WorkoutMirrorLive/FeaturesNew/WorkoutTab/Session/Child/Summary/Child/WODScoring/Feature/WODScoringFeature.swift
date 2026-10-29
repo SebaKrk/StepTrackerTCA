@@ -234,9 +234,9 @@ struct WODScoringFeature {
                         : .completed
                     state.phase = hasScore ? .entered : .empty
 
-                case (.tabata, _):
-                    // One total-reps field per exercise; the headline is their sum.
-                    // No reps entered → just confirmed.
+                case (.tabata, _), (.emom, _):
+                    // One total-reps field per exercise; the headline is their sum — the
+                    // team board ranks both formats by total reps. No reps entered → just confirmed.
                     let total = state.result.exercises.reduce(0) { sum, exercise in
                         sum + (Int((exercise.actualReps ?? "").prefix(while: \.isNumber)) ?? 0)
                     }
@@ -248,7 +248,7 @@ struct WODScoringFeature {
                     state.result.scoreResult = .completed
                     state.phase = .entered
 
-                default: // emom — confirmation only
+                default: // intervals — confirmation only
                     state.result.scoreResult = .completed
                     state.phase = .entered
                 }

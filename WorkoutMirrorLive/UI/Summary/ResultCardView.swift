@@ -38,7 +38,7 @@ struct ResultCardView: View {
         ResultCardHeader(
             kind: isStrength ? .strength : .wod,
             chipText: chipTitle,
-            name: isStrength ? store.result.exercises.first?.displayName : nil,
+            name: isStrength ? strengthHeaderName : nil,
             planSub: strengthHeaderSubtitle,
             capText: capText,
             status: headerStatus,
@@ -61,7 +61,8 @@ struct ResultCardView: View {
     // Plan visible above the slot; one primary action per card.
     @ViewBuilder
     private var emptyContent: some View {
-        if !isStrength {
+        // A superset lists its movements up front; a single lift is named in the header.
+        if !isStrength || isMultiExerciseStrength {
             ExerciseList(items: ladderItems(withValues: false), accent: accent)
         }
         if let hint = emptyHint {
@@ -152,8 +153,8 @@ struct ResultCardView: View {
                     kind: String(localized: "Heaviest set"),
                     variant: .filled(
                         value: "\(formatWeight(top.weight)) kg",
-                        detail: "× \(top.reps)",
-                        isPR: store.result.exercises.first?.isPR ?? false
+                        detail: isMultiExerciseStrength ? "× \(top.reps) · \(top.exercise.displayName)" : "× \(top.reps)",
+                        isPR: top.exercise.isPR
                     )
                 )
             }
@@ -163,7 +164,7 @@ struct ResultCardView: View {
 
         case let .forReps(reps):
             ScoreLine(
-                kind: String(localized: "Score · Tabata"),
+                kind: store.wodType == .emom ? String(localized: "Score · EMOM") : String(localized: "Score · Tabata"),
                 variant: .filled(
                     value: String(localized: "\(reps) reps"),
                     detail: String(localized: "total"),
@@ -177,17 +178,37 @@ struct ResultCardView: View {
         }
     }
 
+    // One table per movement, so a superset shows every lift after "Done".
     @ViewBuilder
     private var strengthTable: some View {
-        if let exercise = store.result.exercises.first, let sets = exercise.sets {
-            SetTable(
-                sets: sets,
-                isEditing: false,
-                accent: accent,
-                isPR: exercise.isPR,
-                onReps: { _, _ in },
-                onWeight: { _, _ in }
-            )
+        ForEach(store.result.exercises) { exercise in
+            if let sets = exercise.sets {
+                if isMultiExerciseStrength {
+                    strengthSectionTitle(exercise)
+                }
+                SetTable(
+                    sets: sets,
+                    isEditing: false,
+                    accent: accent,
+                    isPR: exercise.isPR,
+                    onReps: { _, _ in },
+                    onWeight: { _, _ in }
+                )
+            }
+        }
+    }
+
+    private func strengthSectionTitle(_ exercise: ExerciseLogInput) -> some View {
+        HStack {
+            Text(exercise.displayName)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(theme.ink)
+            Spacer()
+            if let plannedReps = exercise.plannedReps {
+                Text(String(localized: "Plan: \(plannedReps)"))
+                    .font(.caption)
+                    .foregroundStyle(theme.inkSecondary)
+            }
         }
     }
 
@@ -292,12 +313,24 @@ struct ResultCardView: View {
         isStrength ? String(localized: "Strength") : store.result.name
     }
 
+    /// A single lift is named after the movement; a superset after the block.
+    private var strengthHeaderName: String? {
+        isMultiExerciseStrength ? store.result.name : store.result.exercises.first?.displayName
+    }
+
+    private var isMultiExerciseStrength: Bool {
+        isStrength && store.result.exercises.count > 1
+    }
+
     private var strengthPlanSub: String? {
-        guard isStrength, let plannedReps = store.result.exercises.first?.plannedReps else { return nil }
+        guard isStrength, !isMultiExerciseStrength,
+              let plannedReps = store.result.exercises.first?.plannedReps else { return nil }
         return String(localized: "Plan: \(plannedReps)")
     }
 
+    // Per-movement plan and equipment live in the section titles of a superset.
     private var strengthHeaderSubtitle: String? {
+        guard !isMultiExerciseStrength else { return nil }
         let equipment = store.result.exercises.first.flatMap { equipmentCaption(for: $0) }
         let subtitle = [strengthPlanSub, equipment].compactMap { $0 }.joined(separator: " · ")
         return subtitle.isEmpty ? nil : subtitle
@@ -364,7 +397,7 @@ struct ResultCardView: View {
     private var emptyHint: String? {
         switch store.wodType {
         case .strength, .olympicWeightlifting:
-            let count = store.result.exercises.first?.sets?.count ?? 0
+            let count = store.result.exercises.reduce(0) { $0 + ($1.sets?.count ?? 0) }
             return String(localized: "\(count) sets · reps + kg")
         case .forTime:
             return "mm:ss"
@@ -382,12 +415,12 @@ struct ResultCardView: View {
         }
     }
 
-    private var heaviestSet: (weight: Double, reps: Int)? {
-        let sets = store.result.exercises.flatMap { $0.sets ?? [] }
-        guard let top = sets.filter({ $0.weight != nil }).max(by: { ($0.weight ?? 0) < ($1.weight ?? 0) }),
-              let weight = top.weight
-        else { return nil }
-        return (weight, top.reps)
+    /// Heaviest loaded set across the block, with the movement it belongs to.
+    private var heaviestSet: (weight: Double, reps: Int, exercise: ExerciseLogInput)? {
+        let candidates = store.result.exercises.flatMap { exercise in
+            (exercise.sets ?? []).compactMap { set in set.weight.map { (weight: $0, reps: set.reps, exercise: exercise) } }
+        }
+        return candidates.max { $0.weight < $1.weight }
     }
 
     private func timeText(_ seconds: Int) -> String {

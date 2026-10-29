@@ -1587,3 +1587,71 @@
     - both are stored in the group document (palette index, not a raw colour); groups without them keep today's look (tab colour, first two letters)
     - Firestore rules accept and validate the new fields — deploy the rules before shipping the app, the create rule whitelists fields
     - the group list badge and the group screen use the group's colour
+
+### IOS-00153 Plan scan — parsing backends behind one seam
+    - branch: `dev/IOS-00153/IOS-00153` (from develop); plan in `PLANS/IOS-00153-scan-backends.md`
+    - `WorkoutScanInput` (photo + OCR text) replaces the bare string at the strategy seam; a default extension keeps text-only backends untouched
+    - `WorkoutParsingBackend` enum persisted as an app setting; `WorkoutParsingStrategyFactory` turns it into a strategy
+    - `WorkoutExtractionClient.parseWorkout` takes the input and the backend; `ScanPlanFeature` hands over the photo it already holds
+    - DEBUG picker on the scan screen switches the backend at runtime; behaviour unchanged (claudeText is the only case until IOS-00155)
+
+### IOS-00154 Plan scan — Claude API contract on the current DTO
+    - branch: `dev/IOS-00154/IOS-00154` (from IOS-00153); plan in `PLANS/IOS-00154-claude-api-contract.md`
+    - structured outputs (`output_config.format`) with enums for section type and rounds; the mapper stops guessing from free text
+    - prompt caching, Sonnet 5.5, thinking `between_tools` + effort low; response decoded as content blocks with `stop_reason`
+    - prompt stops inventing warm-up / cool-down and padding to 60 min (editor already does both); section notes wait for a field in IOS-00157
+    - harness run on f1–f7 before and after; expectations added for f7
+
+### IOS-00155 Plan scan — ClaudeVisionStrategy becomes the default
+    - branch: `dev/IOS-00155/IOS-00155` (from IOS-00154); plan in `PLANS/IOS-00155-claude-vision.md`
+    - photo sent as an image block, downscaled to the token budget; OCR text passed only as an untrusted hint
+    - mandatory crop before upload (names on whiteboards) and a one-time disclosure that the photo leaves the device
+    - on-device comparison text vs photo vs photo+hint on the handwritten board: photo alone wins (two WODs, Rx tiers, fewer tokens); the hint is kept only as a comparison backend
+    - default backend switches to claudeVision (photo only); claudeText and claudeVisionWithOCRHint remain selectable
+    - B: the photo path skips OCR and the text step (photo → "Analyzing photo…" → preview); OCR and the editor stay for claudeText; gallery crop and upload disclosure remain backlog
+
+### IOS-00156 Plan scan — Apple Foundation Models backends
+    - `FoundationModelsStrategy` restored from git (removed in IOS-00106) and rewritten for image input (`Attachment`, iOS 27) with a `@Generable` DTO mapped to `ExtractedWorkout`
+    - `FallbackParsingStrategy` decorator: Apple backend unavailable or empty result → claudeVision
+    - `PrivateCloudComputeStrategy` as the same session on a different `LanguageModel`, behind the entitlement
+    - decision recorded: min iOS 27 vs a single `#available` inside the factory
+    - harness run with the Apple backends on the same fixtures
+
+### IOS-00157 Plan scan — schema v2 and plan fields
+    - branch: `dev/IOS-00157/IOS-00157` (from IOS-00155); plan in `PLANS/IOS-00157-schema-v2.md`; A = plan fields + threading, B = ScannedBoard v2 + prompt + mapper
+    - A: `SetUnit`, `MovementSegment`, `LoadTier`; `notes` / `everySeconds` on the workout, `perSide` / `isMaxEffort` / `segment` / `loadTiers` on the exercise, `unit` / `percentOfMax` / `isMaxEffort` on the set; threaded through drafts, withNewIdentity, catalog rematch and the editor; old plans decode unchanged, share codec stays at 1
+    - B1: `ScannedBoard` v2 DTO (closed enums, sentinels instead of optionals) + `toTrainingSession` (format → block type table, ladder → sets per round movement, loads → tiers + rounded kg pair, EMOM → `everySeconds`, `IntervalPlan` only for intervals)
+    - B2: prompt v7 (~1.3k words) under `ClaudeBoardOutputSchema`; `ClaudeBoardMapper`; strategies, client and scan feature return `ScannedBoard`; `check_v2.py` harness: 315 ok, 3 left on the garbled OCR rescan (photo path on device)
+    - `ExtractedWorkout`, `ClaudeWorkoutMapper`, `ClaudeWorkoutOutputSchema` stay in the tree unused until a cleanup commit
+
+### IOS-00158 Plan scan — validators and the review card
+    - branch: `dev/IOS-00158/IOS-00158` (from IOS-00159); plan in `PLANS/IOS-00158-review.md`
+    - `ScanReviewValidator` in SharedModels: hard stops (no plan, empty block), board doubts (model `uncertain`, default cap applied, ladder/rounds fix, duplicate names) and plan rules (EMOM cap vs cadence, For Time without cap, load > 300 kg, women heavier than men, movement outside the catalog)
+    - the preview opens right away with a "To check" card and badges on the flagged blocks and movements; Save stays disabled until every finding is closed
+    - rules re-run after each edit and close on their own; doubts close by "OK" or by editing their block
+    - no re-ask of the model, no value pickers — the plan editor is the fix path
+
+### IOS-00159 Plan scan — stats and Summary consumers
+    - branch: `dev/IOS-00159/IOS-00159` (from IOS-00155-B); plan in `PLANS/IOS-00159-consumers.md`
+    - plan detail shows the schema v2 fields: EMOM cadence chip, block notes, per-side target, buy-in / cash-out badge, max effort, load tiers instead of the M/W pair, set unit / percent / max in planned sets
+    - Summary strength card renders every movement of a superset (section per lift, heaviest set names its lift, PR per lift); plan rows visible before entry
+    - volume load repeats the per-round target by the block's rounds and doubles per-side movements (`ExerciseLogInput.volumeMultiplier`, applied at save time; old logs unchanged)
+    - EMOM scores like Tabata: per-exercise reps summed into `forReps`, field left blank for entry, team board ranks it as published
+    - `tempoPerRound` divides by the block's rounds instead of the exercise count
+
+### IOS-00160 Exercise catalog — names from scanned boards
+    - branch: `dev/IOS-00160/IOS-00160` (from IOS-00158)
+    - new cases: side bend, face pull, any machine (cardio of choice); bicep curl learns the alternating / "alt." spellings
+    - `catalogVersion` 8 so the re-match job repairs plans saved with these names as unknown
+    - golden names added to `ExerciseTypeMatchingTests`
+
+### IOS-00161 Plan scan — remove the schema v1 DTO
+    - branch: `dev/IOS-00161/IOS-00161` (from IOS-00160)
+    - `ExtractedWorkout` + mapper (SharedModels) and `ClaudeWorkoutMapper` + `ClaudeWorkoutOutputSchema` (HealthHub) deleted; nothing called them since IOS-00157-B2
+    - flow docs in `ClaudeAPI/` rewritten for schema v2; v1 harness moved to `PLANS/scan-eval/legacy-v1/`
+
+### IOS-00162 Plan scan — crop, upload disclosure, state rename
+    - branch: `dev/IOS-00162/IOS-00162` (from IOS-00161)
+    - a photo from the library goes through `PhotoCropFeature` (corner handles, "Use the whole photo") before the scan; the document camera keeps its own crop
+    - `ScanPlanViewState.processingOCR` → `.analyzing`
+    - no upload alert: the photo-library permission is the one consent step the user is asked for

@@ -29,7 +29,11 @@ extension ExerciseSession {
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
         info: String?,
-        plannedSets: [PlannedSet]?
+        plannedSets: [PlannedSet]?,
+        perSide: Bool,
+        isMaxEffort: Bool,
+        segment: MovementSegment?,
+        loadTiers: [LoadTier]?
     ) {
         self.id = id
         self.type = type
@@ -40,6 +44,10 @@ extension ExerciseSession {
         self.weight = weight
         self.info = info
         self.plannedSets = plannedSets
+        self.perSide = perSide
+        self.isMaxEffort = isMaxEffort
+        self.segment = segment
+        self.loadTiers = loadTiers
     }
 
     /// Re-resolves an `.unknown` exercise against the current catalog.
@@ -58,7 +66,11 @@ extension ExerciseSession {
             target: target,
             weight: weight,
             info: info,
-            plannedSets: plannedSets
+            plannedSets: plannedSets,
+            perSide: perSide,
+            isMaxEffort: isMaxEffort,
+            segment: segment,
+            loadTiers: loadTiers
         )
     }
 }
@@ -74,7 +86,9 @@ extension WorkoutSessionNew {
         rounds: Int?,
         exercises: [ExerciseSession],
         interval: IntervalPlan?,
-        plannedMinutes: Int?
+        plannedMinutes: Int?,
+        notes: String?,
+        everySeconds: Int?
     ) {
         self.id = id
         self.name = name
@@ -84,6 +98,8 @@ extension WorkoutSessionNew {
         self.exercises = exercises
         self.interval = interval
         self.plannedMinutes = plannedMinutes
+        self.notes = notes
+        self.everySeconds = everySeconds
     }
 
     /// Returns a copy with all `.unknown` exercises re-resolved.
@@ -103,7 +119,9 @@ extension WorkoutSessionNew {
             rounds: rounds,
             exercises: rematchedExercises,
             interval: interval,
-            plannedMinutes: plannedMinutes
+            plannedMinutes: plannedMinutes,
+            notes: notes,
+            everySeconds: everySeconds
         )
     }
 }

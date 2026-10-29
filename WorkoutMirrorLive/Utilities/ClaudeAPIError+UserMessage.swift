@@ -26,8 +26,12 @@ extension ClaudeAPIError {
             String(localized: "No internet connection. Check your network and try again.")
         case .serverError:
             String(localized: "Claude service is temporarily unavailable. Try again later.")
-        case .invalidResponse, .httpError, .emptyResponse, .invalidJSON:
+        case .invalidResponse, .httpError, .emptyResponse, .invalidJSON, .refused:
             String(localized: "Claude returned an unexpected response. Try again.")
+        case .truncated:
+            String(localized: "The plan is too long for one scan. Scan it in two parts.")
+        case .invalidImage:
+            String(localized: "Could not prepare the photo for analysis. Try another photo.")
         }
     }
 

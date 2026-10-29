@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import PhotosUI
 import SwiftUI
 import SharedModels
@@ -32,7 +33,7 @@ struct ScanPlanView: View {
             case .loadingPhoto:
                 loadingPhotoSection
 
-            case .processingOCR:
+            case .analyzing:
                 // Show image only during OCR, not during parsing
                 if store.extractedText.isEmpty {
                     imagePreviewSection
@@ -57,6 +58,9 @@ struct ScanPlanView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             apiKeyToolbarItem
+        }
+        .sheet(item: $store.scope(state: \.photoCrop, action: \.photoCrop)) { cropStore in
+            PhotoCropView(store: cropStore)
         }
         .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.apiKeyEntry)) { store in
             NavigationStack {
@@ -107,8 +111,12 @@ struct ScanPlanView: View {
             }
             actionButtonsSection
                 .padding(.horizontal)
-                .padding(.bottom)
+            #if DEBUG
+            parsingBackendSection
+                .padding(.horizontal)
+            #endif
         }
+        .padding(.bottom)
     }
 
     // MARK: - Image Preview
@@ -213,13 +221,17 @@ struct ScanPlanView: View {
             ProgressView()
                 .controlSize(.large)
 
-            // Show different text based on whether we're doing OCR or parsing
-            Text(store.extractedText.isEmpty ? "Extracting text..." : "Parsing workout...")
+            Text(processingLabel)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var processingLabel: LocalizedStringKey {
+        if !store.parsingBackend.showsTextStep { return "Analyzing photo..." }
+        return store.extractedText.isEmpty ? "Extracting text..." : "Parsing workout..."
     }
 
     // MARK: - Text Ready View
@@ -255,6 +267,29 @@ struct ScanPlanView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
+
+    // MARK: - Parsing Backend (DEBUG)
+
+    #if DEBUG
+    private var parsingBackendSection: some View {
+        Picker(selection: parsingBackendBinding) {
+            ForEach(WorkoutParsingBackend.allCases, id: \.self) { backend in
+                Text(backend.rawValue)
+            }
+        } label: {
+            Text("Parsing backend")
+        }
+        .pickerStyle(.menu)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var parsingBackendBinding: Binding<WorkoutParsingBackend> {
+        Binding(
+            get: { store.parsingBackend },
+            set: { send(.parsingBackendChanged($0)) }
+        )
+    }
+    #endif
 
     // MARK: - Continue Button
 
@@ -308,7 +343,7 @@ struct ScanPlanView: View {
             .tint(store.color)
             .controlSize(.large)
 
-            if store.failedStage == .parsing && !store.extractedText.isEmpty {
+            if store.failedStage == .parsing && store.parsingBackend.showsTextStep && !store.extractedText.isEmpty {
                 editTextButton
             }
 

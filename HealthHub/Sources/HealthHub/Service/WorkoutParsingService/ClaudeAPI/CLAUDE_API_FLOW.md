@@ -1,72 +1,31 @@
-# Claude API Workout Parsing - Flow Diagram
+# Plan scan — flow (schema v2)
 
 ```mermaid
 graph TD
-    User[User] -->|Wybiera zdjecie| PhotoPicker[PhotoPicker]
-    PhotoPicker -->|Image Data| OCR[Vision OCR]
+    User[User] -->|Camera / gallery| Photo[JPEG]
+    Photo --> Backend{WorkoutParsingBackend}
 
-    OCR -->|Raw Text| StateText[State.extractedText]
-    StateText -->|Wyswietla w| TextEditor[TextEditor edytowalny]
+    Backend -->|claudeVision default| Vision[ClaudeVisionStrategy]
+    Backend -->|claudeText| OCR[Vision OCR] --> TextEdit[Text editor] --> Text[ClaudeStrategy]
+    Backend -->|claudeVisionWithOCRHint| OCR2[Vision OCR, no editor] --> Vision
 
-    TextEditor -->|User edytuje| StateText
-    StateText -->|Continue button| ParsingClient[WorkoutParsingClient]
+    Vision -->|image block + visionUserPrompt| Client[ClaudeAPIClient]
+    Text -->|userPrompt| Client
+    Client -->|system cache_control, between_tools, output_config.format = ClaudeBoardOutputSchema| API[Anthropic Messages API]
+    API -->|ClaudeAPIResponse: content blocks, stop_reason, usage| Mapper[ClaudeBoardMapper]
+    Mapper -->|JSONDecoder| Board[ScannedBoard]
 
-    ParsingClient --> StrategyDecision{Wybor strategii}
-    StrategyDecision -->|Claude API| ClaudeStrategy[ClaudeAPIStrategy]
-    StrategyDecision -->|Foundation Models| FMStrategy[FoundationModelsStrategy]
-
-    ClaudeStrategy -->|Tworzy request| APIClient[ClaudeAPIClient]
-    APIClient -->|Buduje payload| Request[ClaudeAPIRequest]
-
-    Request -->|HTTP POST| HTTPClient[URLSessionHTTPClient]
-    HTTPClient -->|Wysyla do| AnthropicAPI[Anthropic API]
-
-    AnthropicAPI -->|AI parsing| Claude[Claude Model]
-    Claude -->|JSON response| APIResponse[ClaudeAPIResponse]
-
-    APIResponse -->|Zwraca do| APIClient
-    APIClient -->|Przekazuje do| Mapper[ClaudeWorkoutMapper]
-
-    Mapper -->|Extract JSON| JSONExtractor[extractJSON]
-    JSONExtractor -->|Pure JSON string| Decoder[JSONDecoder]
-
-    Decoder -->|Dekoduje do| ExtractedWorkout[ExtractedWorkout]
-
-    FMStrategy -->|Foundation Models parsing| ExtractedWorkout
-
-    ExtractedWorkout -->|Custom decoder| WorkoutSection[WorkoutSection]
-    WorkoutSection --> ExtractedExercise[ExtractedExercise]
-    ExtractedExercise --> ExerciseSet[ExerciseSet]
-
-    ExtractedWorkout -->|Zwraca do| ParsingClient
-    ParsingClient -->|Zwraca do| Feature[ScanPlanFeature]
-
-    Feature -->|Konwertuje| DomainMapper[toTrainingSession]
-    DomainMapper -->|Mapuje exercises| ExerciseMapper[ExerciseType.from]
-
-    ExerciseMapper -->|Tworzy| TrainingSession[TrainingSession]
-    TrainingSession -->|Navigate to| Preview[WorkoutPreviewView]
-
-    AnthropicAPI -.->|Error| APIError[ClaudeAPIError]
-    HTTPClient -.->|Network Error| HTTPError[HTTP Error]
-    Decoder -.->|Decode Error| DecodeError[Decoding Error]
-
-    classDef userLayer fill:#e1f5ff,stroke:#01579b,stroke-width:2px
-    classDef stateLayer fill:#fff9c4,stroke:#f57f17,stroke-width:2px
-    classDef clientLayer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef apiLayer fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
-    classDef mapperLayer fill:#ffe0b2,stroke:#e65100,stroke-width:2px
-    classDef modelLayer fill:#fce4ec,stroke:#880e4f,stroke-width:2px
-    classDef errorLayer fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
-    classDef decisionLayer fill:#fff3e0,stroke:#e65100,stroke-width:3px
-
-    class User,PhotoPicker,TextEditor userLayer
-    class StateText,OCR stateLayer
-    class ParsingClient,ClaudeStrategy,FMStrategy,APIClient,HTTPClient clientLayer
-    class AnthropicAPI,Claude,Request,APIResponse apiLayer
-    class Mapper,JSONExtractor,Decoder,DomainMapper,ExerciseMapper mapperLayer
-    class ExtractedWorkout,WorkoutSection,ExtractedExercise,ExerciseSet,TrainingSession,Preview modelLayer
-    class APIError,HTTPError,DecodeError errorLayer
-    class StrategyDecision decisionLayer
+    Board -->|normalized| Norm[ladder/rounds, duplicate names]
+    Norm -->|toTrainingSession| Plan[TrainingSession]
+    Norm --> Validator[ScanReviewValidator]
+    Validator -->|hard| Failed[Scan failed]
+    Validator -->|doubts + rules| Findings[ScanFinding list]
+    Plan --> Preview[WorkoutPreviewFeature]
+    Findings --> Preview
+    Preview -->|Edit| Editor[TrainingSessionEditor] -->|saved| Preview
+    Preview -->|Save enabled when no finding is open| DB[(SQLite)]
 ```
 
+- Backend choice lives in `WorkoutParsingBackend` + `WorkoutParsingStrategyFactory`; the scan feature only knows the enum.
+- `ScannedBoard` has no optionals: 0, "" and [] mean "not on the board"; enums are closed, so the API enforces them.
+- `ExtractedWorkout` (schema v1) was removed in IOS-00161; the harness for it lives in `PLANS/scan-eval/legacy-v1/`.
