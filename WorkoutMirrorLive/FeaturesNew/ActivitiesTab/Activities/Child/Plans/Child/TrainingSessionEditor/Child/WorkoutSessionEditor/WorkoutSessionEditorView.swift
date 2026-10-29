@@ -84,8 +84,6 @@ struct WorkoutSessionEditorView: View {
                     Divider().padding(.leading)
                     roundsRow
                 }
-                Divider().padding(.leading)
-                plannedMinutesRow
             }
         } label: {
             groupBoxHeader("Details")
@@ -148,34 +146,6 @@ struct WorkoutSessionEditorView: View {
         }
     }
 
-    // Minutes the block takes in the class; off = counted by its time cap.
-    private var plannedMinutesRow: some View {
-        editorRow {
-            Text("Time in Class").foregroundStyle(.secondary)
-            Spacer()
-            if let minutes = store.draft.plannedMinutes {
-                Stepper(
-                    "\(minutes) min",
-                    value: Binding(
-                        get: { minutes },
-                        set: { store.send(.binding(.set(\.draft.plannedMinutes, $0))) }
-                    ),
-                    in: 1...120,
-                    step: 1
-                )
-                .fixedSize()
-            } else {
-                Text("By Time Cap").foregroundStyle(.secondary)
-            }
-            Toggle("", isOn: Binding(
-                get: { store.draft.plannedMinutes != nil },
-                set: { store.send(.binding(.set(\.draft.plannedMinutes, $0 ? (store.draft.timeCap ?? 10) : nil))) }
-            ))
-            .labelsHidden()
-            .tint(store.color)
-            .fixedSize()
-        }
-    }
 
     private var roundsRow: some View {
         editorRow {

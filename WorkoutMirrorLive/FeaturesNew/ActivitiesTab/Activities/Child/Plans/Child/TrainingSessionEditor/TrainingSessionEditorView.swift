@@ -22,7 +22,6 @@ struct TrainingSessionEditorView: View {
         ScrollView {
             VStack(spacing: 12) {
                 detailsGroupBox
-                classLengthGroupBox
                 warmupGroupBox
                 workoutsGroupBox
                 cooldownGroupBox
@@ -136,16 +135,6 @@ struct TrainingSessionEditorView: View {
         }
     }
 
-    // MARK: - Class Length GroupBox
-
-    private var classLengthGroupBox: some View {
-        GroupBox {
-            PlanBudgetBar(totalMinutes: store.plannedTotalMinutes, targetMinutes: 60)
-        } label: {
-            Text("Class Length")
-        }
-        .styledGroupBox()
-    }
 
     // MARK: - Warmup GroupBox
 
