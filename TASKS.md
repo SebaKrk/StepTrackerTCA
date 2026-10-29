@@ -1587,3 +1587,46 @@
     - both are stored in the group document (palette index, not a raw colour); groups without them keep today's look (tab colour, first two letters)
     - Firestore rules accept and validate the new fields — deploy the rules before shipping the app, the create rule whitelists fields
     - the group list badge and the group screen use the group's colour
+
+### IOS-00153 Plan scan — parsing backends behind one seam
+    - branch: `dev/IOS-00153/IOS-00153` (from develop); plan in `PLANS/IOS-00153-scan-backends.md`
+    - `WorkoutScanInput` (photo + OCR text) replaces the bare string at the strategy seam; a default extension keeps text-only backends untouched
+    - `WorkoutParsingBackend` enum persisted as an app setting; `WorkoutParsingStrategyFactory` turns it into a strategy
+    - `WorkoutExtractionClient.parseWorkout` takes the input and the backend; `ScanPlanFeature` hands over the photo it already holds
+    - DEBUG picker on the scan screen switches the backend at runtime; behaviour unchanged (claudeText is the only case until IOS-00155)
+
+### IOS-00154 Plan scan — Claude API contract on the current DTO
+    - structured outputs (`output_config.format`) with enums for section type and rounds; the mapper stops guessing from free text
+    - prompt caching, Sonnet 5.5, thinking `between_tools` + effort low; response decoded as content blocks with `stop_reason`
+    - mapper keeps section notes and description instead of dropping them
+    - prompt stops inventing warm-up / cool-down and padding to 60 min (editor already does both)
+    - harness run on f1–f7 before and after; expectations added for f7
+
+### IOS-00155 Plan scan — ClaudeVisionStrategy becomes the default
+    - photo sent as an image block, downscaled to the token budget; OCR text passed only as an untrusted hint
+    - mandatory crop before upload (names on whiteboards) and a one-time disclosure that the photo leaves the device
+    - harness compares text vs vision vs vision+hint on all fixtures; the hint stays only if it wins on digits
+    - default backend switches to claudeVision; claudeText remains selectable
+
+### IOS-00156 Plan scan — Apple Foundation Models backends
+    - `FoundationModelsStrategy` restored from git (removed in IOS-00106) and rewritten for image input (`Attachment`, iOS 27) with a `@Generable` DTO mapped to `ExtractedWorkout`
+    - `FallbackParsingStrategy` decorator: Apple backend unavailable or empty result → claudeVision
+    - `PrivateCloudComputeStrategy` as the same session on a different `LanguageModel`, behind the entitlement
+    - decision recorded: min iOS 27 vs a single `#available` inside the factory
+    - harness run with the Apple backends on the same fixtures
+
+### IOS-00157 Plan scan — schema v2 and plan fields
+    - section kind × format enums, interval seconds, rep scheme vs round count, per-side, max effort, load tiers, uncertain[]
+    - new optional fields on `WorkoutSessionNew` / `ExerciseSession` / `PlannedSet`, threaded through every rebuild site (drafts, withNewIdentity, catalog rematch, fill class length)
+    - EMOM interval lands in `everySeconds`; `IntervalPlan` stays reserved for `.intervals`
+    - share payload schema version bumped; old builds keep decoding
+
+### IOS-00158 Plan scan — validators and confirm step
+    - validators V1–V9 run on every backend's output (caps, rounds vs ladder, empty sections, duplicate movements, token budget)
+    - review screen in `ScanPlanFeature` shown only when a flag is raised; uncertain numbers editable inline
+    - error states on card with the system empty view; retry keeps the paid-for photo
+
+### IOS-00159 Plan scan — stats and Summary consumers
+    - strength card iterates every exercise of a block (supersets, tri-sets)
+    - volume counts rounds; EMOM scored and stored the same way
+    - new fields visible in plan detail, Summary and Statistics

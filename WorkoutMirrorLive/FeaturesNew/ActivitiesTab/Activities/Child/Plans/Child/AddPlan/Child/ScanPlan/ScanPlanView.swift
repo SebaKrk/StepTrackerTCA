@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import PhotosUI
 import SwiftUI
 import SharedModels
@@ -229,6 +230,9 @@ struct ScanPlanView: View {
             VStack(spacing: 24) {
                 smallImagePreviewSection
                 textEditorSection
+                #if DEBUG
+                parsingBackendSection
+                #endif
                 continueButtonSection
                 startOverButton
             }
@@ -255,6 +259,29 @@ struct ScanPlanView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
+
+    // MARK: - Parsing Backend (DEBUG)
+
+    #if DEBUG
+    private var parsingBackendSection: some View {
+        Picker(selection: parsingBackendBinding) {
+            ForEach(WorkoutParsingBackend.allCases, id: \.self) { backend in
+                Text(backend.rawValue)
+            }
+        } label: {
+            Text("Parsing backend")
+        }
+        .pickerStyle(.menu)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var parsingBackendBinding: Binding<WorkoutParsingBackend> {
+        Binding(
+            get: { store.parsingBackend },
+            set: { send(.parsingBackendChanged($0)) }
+        )
+    }
+    #endif
 
     // MARK: - Continue Button
 

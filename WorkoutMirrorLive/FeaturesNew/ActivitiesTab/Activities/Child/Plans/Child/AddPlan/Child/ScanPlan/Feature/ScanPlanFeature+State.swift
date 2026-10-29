@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import PhotosUI
 import SharedModels
 import SwiftUI
@@ -45,6 +46,10 @@ extension ScanPlanFeature {
         /// Which pipeline stage produced the current `.failed` state —
         /// drives smart retry (re-run only the failed stage, keep earlier work).
         var failedStage: FailedStage?
+
+        /// Backend that turns the scan into a workout; persisted so it survives relaunch.
+        @Shared(.appStorage("workoutParsingBackend"))
+        var parsingBackend: WorkoutParsingBackend = .claudeText
 
         // MARK: - Destination
 

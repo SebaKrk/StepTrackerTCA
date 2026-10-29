@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import PhotosUI
 import SharedModels
 import SwiftUI
@@ -61,6 +62,9 @@ extension ScanPlanFeature {
 
             /// Called when user taps the key icon in toolbar (add/manage API key).
             case apiKeySettingsTapped
+
+            /// Called when user picks a parsing backend (DEBUG picker).
+            case parsingBackendChanged(WorkoutParsingBackend)
         }
 
         enum Internal {

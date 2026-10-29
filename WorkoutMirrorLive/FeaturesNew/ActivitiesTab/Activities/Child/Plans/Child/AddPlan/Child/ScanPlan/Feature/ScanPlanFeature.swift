@@ -14,8 +14,8 @@ import SharedModels
 /// Feature responsible for extracting a workout plan from a photo.
 ///
 /// Flow: Take/select photo → Load image data → Extract text (Vision OCR) →
-/// Edit extracted text → Parse (Claude API) → Preview. Both steps go through
-/// ``WorkoutExtractionClient``.
+/// Edit extracted text → Parse (backend from settings) → Preview. Both steps go
+/// through ``WorkoutExtractionClient``.
 @Reducer
 struct ScanPlanFeature {
 
@@ -102,9 +102,10 @@ struct ScanPlanFeature {
                 }
                 state.viewState = .processingOCR
                 state.failedStage = nil
-                return .run { [text = state.extractedText] send in
+                let input = WorkoutScanInput(imageData: state.selectedImageData, ocrText: state.extractedText)
+                return .run { [backend = state.parsingBackend] send in
                     do {
-                        let workout = try await extractionClient.parseWorkout(text)
+                        let workout = try await extractionClient.parseWorkout(input, backend)
                         await send(.internal(.parsingCompleted(workout)))
                     } catch {
                         await send(.internal(.extractionFailed(ClaudeAPIError.userMessage(for: error), .parsing)))
@@ -134,6 +135,10 @@ struct ScanPlanFeature {
 
             case .view(.clearImageTapped):
                 return resetToIdle(&state)
+
+            case let .view(.parsingBackendChanged(backend)):
+                state.$parsingBackend.withLock { $0 = backend }
+                return .none
 
                 // MARK: - Internal Action
 

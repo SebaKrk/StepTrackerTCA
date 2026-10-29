@@ -13,14 +13,17 @@ import SharedModels
 
 /// Client responsible for extracting text and parsing workouts from images.
 ///
-/// Pipeline: Image → Vision OCR → Text → ClaudeStrategy (cloud) → ExtractedWorkout
+/// Pipeline: Image → Vision OCR → Text → chosen ``WorkoutParsingBackend`` → ExtractedWorkout
 struct WorkoutExtractionClient: Sendable {
 
     /// Extracts raw text from image using Vision OCR.
     var extractText: @Sendable (_ imageData: Data) async throws -> String
 
-    /// Parses raw OCR text into structured workout.
-    var parseWorkout: @Sendable (_ rawText: String) async throws -> ExtractedWorkout
+    /// Parses a scan (photo + OCR text) into a structured workout with the chosen backend.
+    var parseWorkout: @Sendable (
+        _ input: WorkoutScanInput,
+        _ backend: WorkoutParsingBackend
+    ) async throws -> ExtractedWorkout
 }
 
 extension DependencyValues {
@@ -34,7 +37,7 @@ extension WorkoutExtractionClient: DependencyKey {
 
     // MARK: - Live Value
 
-    /// Production client using Vision OCR + Claude API parsing.
+    /// Production client using Vision OCR + the backend picked in settings.
     ///
     /// API key is read at call-time from Keychain via ``APIKeyClient``.
     nonisolated static let liveValue: WorkoutExtractionClient = {
@@ -45,10 +48,10 @@ extension WorkoutExtractionClient: DependencyKey {
             extractText: { imageData in
                 try await ocrService.recognizeText(from: imageData)
             },
-            parseWorkout: { rawText in
+            parseWorkout: { input, backend in
                 @Dependency(\.apiKeyClient) var apiKeyClient
-                let strategy = ClaudeStrategy(apiKey: apiKeyClient.load())
-                return try await strategy.parseWorkoutText(rawText)
+                let strategy = WorkoutParsingStrategyFactory.make(backend, apiKey: apiKeyClient.load())
+                return try await strategy.parseWorkout(input)
             }
         )
     }()
@@ -73,7 +76,7 @@ extension WorkoutExtractionClient: DependencyKey {
                 Deadlift 3x5 120kg
                 """
             },
-            parseWorkout: { rawText in
+            parseWorkout: { _, _ in
                 ExtractedWorkout(
                     name: "Preview Workout",
                     date: "2026-02-11",
