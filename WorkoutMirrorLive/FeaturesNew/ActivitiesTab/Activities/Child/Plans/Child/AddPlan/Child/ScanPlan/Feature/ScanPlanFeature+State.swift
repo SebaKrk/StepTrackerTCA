@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import PhotosUI
 import SharedModels
 import SwiftUI
@@ -39,12 +40,16 @@ extension ScanPlanFeature {
         /// Text extracted from the image via OCR, editable by user.
         var extractedText: String = ""
 
-        /// Structured workout extracted from OCR text via Claude API.
-        var extractedWorkout: ExtractedWorkout?
+        /// The board as the model read it; nil until parsing succeeds.
+        var extractedWorkout: ScannedBoard?
 
         /// Which pipeline stage produced the current `.failed` state —
         /// drives smart retry (re-run only the failed stage, keep earlier work).
         var failedStage: FailedStage?
+
+        /// Backend that turns the scan into a workout; persisted so it survives relaunch.
+        @Shared(.appStorage("workoutParsingBackend"))
+        var parsingBackend: WorkoutParsingBackend = .claudeVision
 
         // MARK: - Destination
 
@@ -53,6 +58,9 @@ extension ScanPlanFeature {
 
         /// API key entry sheet.
         @Presents var apiKeyEntry: APIKeyEntryFeature.State?
+
+        /// Crop sheet for a photo picked from the library.
+        @Presents var photoCrop: PhotoCropFeature.State?
     }
 
     /// Pipeline stage that failed — determines what a Retry re-runs.

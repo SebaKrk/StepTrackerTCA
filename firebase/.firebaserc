@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "dev": "myfitnessjournal-dev",
+    "prod": "myfitnessjournal-e8d43"
+  }
+}

@@ -19,6 +19,9 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
     public let warmUp: WarmUpSession?
     public let workouts: [WorkoutSessionNew]
     public let coolDown: CoolDownSession?
+    /// Team daily plan this copy was downloaded from (`{groupId}/{day}`); `nil` for the user's own plans.
+    /// Editing the plan drops it, so a changed copy no longer posts to that leaderboard.
+    public let teamPlanId: String?
 
     public init(
         id: UUID = UUID(),
@@ -28,7 +31,8 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         location: WorkoutLocationType,
         warmUp: WarmUpSession?,
         workouts: [WorkoutSessionNew],
-        coolDown: CoolDownSession?
+        coolDown: CoolDownSession?,
+        teamPlanId: String? = nil
     ) {
         self.id = id
         self.date = date
@@ -38,6 +42,7 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         self.warmUp = warmUp
         self.workouts = workouts
         self.coolDown = coolDown
+        self.teamPlanId = teamPlanId
     }
 
     public init(id: UUID = UUID(), draft: TrainingSessionDraft) {
@@ -49,6 +54,7 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         self.warmUp = draft.warmUp
         self.workouts = draft.workouts
         self.coolDown = draft.coolDown
+        self.teamPlanId = nil
     }
 
     public static let previewTrainingSession = TrainingSession(
@@ -145,13 +151,21 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     /// type. Optional Codable field — plans saved before it existed decode fine.
     public let interval: IntervalPlan?
 
+    /// Board remarks that fit no field: "rest 2 min between rounds", "no clock".
+    public let notes: String?
+
+    /// EMOM cadence in seconds (60, 120 for E2MOM); display only, the session timer ignores it.
+    public let everySeconds: Int?
+
     public init(
         name: String,
         type: ExerciseWorkoutType,
         timeCap: Int?,
         rounds: Int?,
         exercises: [ExerciseSession],
-        interval: IntervalPlan? = nil
+        interval: IntervalPlan? = nil,
+        notes: String? = nil,
+        everySeconds: Int? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -160,6 +174,8 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.rounds = rounds
         self.exercises = exercises
         self.interval = interval
+        self.notes = notes
+        self.everySeconds = everySeconds
     }
 
     public init(id: UUID = UUID(), draft: WorkoutSessionDraft) {
@@ -170,6 +186,8 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.rounds = draft.rounds
         self.exercises = draft.exercises
         self.interval = draft.interval
+        self.notes = draft.notes
+        self.everySeconds = draft.everySeconds
     }
 }
 
@@ -190,6 +208,18 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     /// Nil when the plan has no structured set scheme (then `rounds`-based fallback is used).
     public let plannedSets: [PlannedSet]?
 
+    /// "8/8", "10 per side": the target is per limb, so the volume doubles.
+    public let perSide: Bool
+
+    /// "max reps" / "max cal": there is no target, the athlete records what they did.
+    public let isMaxEffort: Bool
+
+    /// Buy-in / cash-out of a WOD; nil means part of every round.
+    public let segment: MovementSegment?
+
+    /// Every load option written on the board; `weight` is the rounded kg pair the session UI uses.
+    public let loadTiers: [LoadTier]?
+
     public init(
         type: ExerciseType,
         equipment: Equipment? = nil,
@@ -198,7 +228,11 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
         info: String?,
-        plannedSets: [PlannedSet]? = nil
+        plannedSets: [PlannedSet]? = nil,
+        perSide: Bool = false,
+        isMaxEffort: Bool = false,
+        segment: MovementSegment? = nil,
+        loadTiers: [LoadTier]? = nil
     ) {
         self.id = UUID()
         self.type = type
@@ -209,6 +243,10 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         self.weight = weight
         self.info = info
         self.plannedSets = plannedSets
+        self.perSide = perSide
+        self.isMaxEffort = isMaxEffort
+        self.segment = segment
+        self.loadTiers = loadTiers
     }
 
     public init(id: UUID = UUID(), draft: ExerciseSessionDraft) {
@@ -221,6 +259,33 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
         self.weight = draft.weight
         self.info = draft.info.isEmpty ? nil : draft.info
         self.plannedSets = draft.plannedSets
+        self.perSide = draft.perSide
+        self.isMaxEffort = draft.isMaxEffort
+        self.segment = draft.segment
+        self.loadTiers = draft.loadTiers
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, type, equipment, equipmentSelection, customName, target, weight, info, plannedSets
+        case perSide, isMaxEffort, segment, loadTiers
+    }
+
+    // Plans saved before the flags existed lack the keys — read them as false / absent.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.type = try container.decode(ExerciseType.self, forKey: .type)
+        self.equipment = try container.decodeIfPresent(Equipment.self, forKey: .equipment)
+        self.equipmentSelection = try container.decodeIfPresent(ExerciseEquipmentSelection.self, forKey: .equipmentSelection)
+        self.customName = try container.decodeIfPresent(String.self, forKey: .customName)
+        self.target = try container.decodeIfPresent(ExerciseTarget.self, forKey: .target)
+        self.weight = try container.decodeIfPresent(WeightConfiguration.self, forKey: .weight)
+        self.info = try container.decodeIfPresent(String.self, forKey: .info)
+        self.plannedSets = try container.decodeIfPresent([PlannedSet].self, forKey: .plannedSets)
+        self.perSide = try container.decodeIfPresent(Bool.self, forKey: .perSide) ?? false
+        self.isMaxEffort = try container.decodeIfPresent(Bool.self, forKey: .isMaxEffort) ?? false
+        self.segment = try container.decodeIfPresent(MovementSegment.self, forKey: .segment)
+        self.loadTiers = try container.decodeIfPresent([LoadTier].self, forKey: .loadTiers)
     }
 
     /// Display name - uses customName for .unknown exercises, otherwise the catalog

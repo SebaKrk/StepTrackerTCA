@@ -1520,3 +1520,144 @@
     - the magnifier search is a reusable navigation bar component, matching the search pattern from Smaczny Posiłek
     - limits: filters are not remembered between launches; exercise search covers plan-linked workouts only, within the loaded period
     - pending: build, on-device check (title hidden while searching, toolbar order), Polish translations for new strings
+
+### IOS-00143 Team — Firebase foundation (develop)
+    - branch: `dev/IOS-00143/IOS-00143`; first step of the Team tab (private groups, QR invites, daily plan, day/week leaderboard); plan in `PLANS/IOS-00143-team-v01.md`
+    - develop only: separate Firebase project `myfitnessjournal-dev` (Firestore `eur3`, anonymous auth); release (`myfitnessjournal-e8d43`) comes later
+    - A: config file chosen by bundle ID (`GoogleService-Info-Dev.plist` for develop, `GoogleService-Info.plist` for release), so both can live on every branch; Crashlytics dSYM upload follows the same rule; FirebaseAuth and FirebaseFirestore linked
+    - B: Firestore rules and indexes versioned in the repo (groups, members, invites, daily plans, entries)
+    - C: Team domain types in SharedModels, no Firebase: invites, entries, score normalization, day ranking, week standings, measurement window
+    - D: `TeamClient` with a Firestore-backed service; the rest of the app never imports Firebase
+
+### IOS-00144 Team tab — groups list, create group, group screen
+    - branch: `dev/IOS-00144/IOS-00144` (from `dev/IOS-00143/IOS-00143`); plan in `PLANS/IOS-00143-team-v01.md` (T1)
+    - A: Team tab in the bottom bar (replaces the unused Sharing placeholder) with a Private/Public switch; Private lists the user's groups live, Public shows a "coming soon" view; first visit signs in anonymously
+    - B: "New group" sheet — name of 3–40 characters, shows the name other members will see (nickname → first name → Athlete-XXX)
+    - C: group screen with members and "Leave group" behind a confirmation
+
+### IOS-00145 Team — QR invites with statuses
+    - branch: `dev/IOS-00145/IOS-00145` (from IOS-00144); plan in `PLANS/IOS-00143-team-v01.md` (T2)
+    - A: invite sheet on the group screen — QR valid for 7 days and reused until it expires; live list of who scanned it with status; revoke replaces the code
+    - B: scanner in the Team tab — non-invite codes are rejected; the card shows group, inviter and validity with Join / Later / Decline
+    - C: "Invitations" section in the Team tab with pending, still-valid invites and Join / Decline
+    - limit: someone who joined, left and scans the same code again keeps the old "joined" status — they need a new code
+
+### IOS-00146 Plan import keeps interval timer and equipment
+    - branch: `dev/IOS-00146/IOS-00146` (from IOS-00145)
+    - the identity-renewing copy used by QR import (and, next, by Team plan download) dropped the round timer of interval workouts and each exercise's equipment and equipment selection
+    - the copy now carries all three; nothing else changes
+
+### IOS-00147 Planned minutes per block and a 60-minute class budget
+    - branch: `dev/IOS-00147/IOS-00147` (from IOS-00146)
+    - A: every workout block carries its minutes in the class, separate from the WOD time cap; old plans fall back to the cap; plan lists and detail show the real class length (a strength block no longer counts as 0)
+    - B: plan scanning asks the model for every section's minutes, adding up to at least 60
+    - C: "Time in Class" in the block editor and a "Class Length" bar (N of 60 min, missing / +X) in the plan editor
+
+### IOS-00148 Team — today's plan: publish, preview, download
+    - branch: `dev/IOS-00148/IOS-00148` (from IOS-00147); plan in `PLANS/IOS-00143-team-v01.md` (T3)
+    - A: a plan copy downloaded from a group remembers its group plan (`teamPlanId`, migration v17); editing the copy drops the link
+    - B: "+" on the group screen publishes today's plan from Plans with a scored block; at least 60 minutes ("Fill to 60 Minutes" helps); one plan per day, only its author may replace it
+    - C: "Today's Plan" card on the group screen with Preview (same plan view as Plans) and Download to Plans; a second download is prevented ("In Your Plans")
+
+### IOS-00149 Team — send the result from the Summary
+    - branch: `dev/IOS-00149/IOS-00149` (from IOS-00148); plan in `PLANS/IOS-00143-team-v01.md` (T4)
+    - A: the entry is built from the scored block (a capped For Time stays below finishers), effort and covered minutes inside the plan window, warm-start and late flags; writes are queued and never block saving
+    - B: "Send to <group>" card on the Summary of a downloaded group plan — on by default, Rx/Scaled, kcal only with consent; works for iPhone workouts and for "complete results" after a Watch workout; editing results updates the same entry
+    - v0.1 limits: kcal is the whole workout's active energy (not only the window); the warm-start flag uses heart rate only (no check of a workout just before)
+
+### IOS-00150 Team — today and week leaderboard
+    - branch: `dev/IOS-00150/IOS-00150` (from IOS-00149); plan in `PLANS/IOS-00143-team-v01.md` (T5)
+    - "Leaderboard" section on the group screen: Today / Week, Score / Effort, Rx / Scaled
+    - Today: live ranking of the scored block (finishers before capped, unranked at the bottom); Effort ranks only entries with the current weights version
+    - Week: sum of daily places Monday–Sunday, a missed day = last place + 1, ties go to more workouts
+    - badges: kcal (when shared), ✓ HR, measured X/Y min when coverage is under 90%, started warm, edited, late
+
+### IOS-00152 Team — points first, day navigation, plan published as is
+    - branch: `dev/IOS-00152/IOS-00152` (from IOS-00151)
+    - the plan is published unchanged and the author's own plan becomes the group copy (no duplicate in Plans); the owner sets a points window (60–120 min) instead of filling the plan to 60 minutes
+    - the leaderboard ranks by effort points by default, everyone together; the score lens keeps Rx / Scaled; the week sums points and kcal with the workout count
+    - day navigator on the group screen (arrows and a Monday–Sunday strip with plan dots); plan and ranking follow the chosen day; past days are view-only
+    - empty cards use the system empty state with a fixed height and an "Add Plan" link for today; "+" in Team opens Create Group / Scan Invite; the group's QR moved into its "…" menu
+    - B: results per block — the author turns each block's result on or off when publishing (blocks without a comparable result are greyed out, zero is allowed); the Summary sends every entered block result; one rule decides each block type's result kind
+    - B: leaderboard filters (ranking: points or a block, Rx / Scaled for blocks only, day / week) as glass menus in the section title; the card holds only the list
+    - B: day navigator reworked — week strip card first, then glass arrows around the day and date
+
+#### Follow-up — Team group identity (backlog, no task ID; after IOS-00152)
+    - the owner picks the group's colour from a fixed palette and a short name (badge initials) when creating the group, and can change both later
+    - both are stored in the group document (palette index, not a raw colour); groups without them keep today's look (tab colour, first two letters)
+    - Firestore rules accept and validate the new fields — deploy the rules before shipping the app, the create rule whitelists fields
+    - the group list badge and the group screen use the group's colour
+
+### IOS-00153 Plan scan — parsing backends behind one seam
+    - branch: `dev/IOS-00153/IOS-00153` (from develop); plan in `PLANS/IOS-00153-scan-backends.md`
+    - `WorkoutScanInput` (photo + OCR text) replaces the bare string at the strategy seam; a default extension keeps text-only backends untouched
+    - `WorkoutParsingBackend` enum persisted as an app setting; `WorkoutParsingStrategyFactory` turns it into a strategy
+    - `WorkoutExtractionClient.parseWorkout` takes the input and the backend; `ScanPlanFeature` hands over the photo it already holds
+    - DEBUG picker on the scan screen switches the backend at runtime; behaviour unchanged (claudeText is the only case until IOS-00155)
+
+### IOS-00154 Plan scan — Claude API contract on the current DTO
+    - branch: `dev/IOS-00154/IOS-00154` (from IOS-00153); plan in `PLANS/IOS-00154-claude-api-contract.md`
+    - structured outputs (`output_config.format`) with enums for section type and rounds; the mapper stops guessing from free text
+    - prompt caching, Sonnet 5.5, thinking `between_tools` + effort low; response decoded as content blocks with `stop_reason`
+    - prompt stops inventing warm-up / cool-down and padding to 60 min (editor already does both); section notes wait for a field in IOS-00157
+    - harness run on f1–f7 before and after; expectations added for f7
+
+### IOS-00155 Plan scan — ClaudeVisionStrategy becomes the default
+    - branch: `dev/IOS-00155/IOS-00155` (from IOS-00154); plan in `PLANS/IOS-00155-claude-vision.md`
+    - photo sent as an image block, downscaled to the token budget; OCR text passed only as an untrusted hint
+    - mandatory crop before upload (names on whiteboards) and a one-time disclosure that the photo leaves the device
+    - on-device comparison text vs photo vs photo+hint on the handwritten board: photo alone wins (two WODs, Rx tiers, fewer tokens); the hint is kept only as a comparison backend
+    - default backend switches to claudeVision (photo only); claudeText and claudeVisionWithOCRHint remain selectable
+    - B: the photo path skips OCR and the text step (photo → "Analyzing photo…" → preview); OCR and the editor stay for claudeText; gallery crop and upload disclosure remain backlog
+
+### IOS-00156 Plan scan — Apple Foundation Models backends
+    - `FoundationModelsStrategy` restored from git (removed in IOS-00106) and rewritten for image input (`Attachment`, iOS 27) with a `@Generable` DTO mapped to `ExtractedWorkout`
+    - `FallbackParsingStrategy` decorator: Apple backend unavailable or empty result → claudeVision
+    - `PrivateCloudComputeStrategy` as the same session on a different `LanguageModel`, behind the entitlement
+    - decision recorded: min iOS 27 vs a single `#available` inside the factory
+    - harness run with the Apple backends on the same fixtures
+
+### IOS-00157 Plan scan — schema v2 and plan fields
+    - branch: `dev/IOS-00157/IOS-00157` (from IOS-00155); plan in `PLANS/IOS-00157-schema-v2.md`; A = plan fields + threading, B = ScannedBoard v2 + prompt + mapper
+    - A: `SetUnit`, `MovementSegment`, `LoadTier`; `notes` / `everySeconds` on the workout, `perSide` / `isMaxEffort` / `segment` / `loadTiers` on the exercise, `unit` / `percentOfMax` / `isMaxEffort` on the set; threaded through drafts, withNewIdentity, catalog rematch and the editor; old plans decode unchanged, share codec stays at 1
+    - B1: `ScannedBoard` v2 DTO (closed enums, sentinels instead of optionals) + `toTrainingSession` (format → block type table, ladder → sets per round movement, loads → tiers + rounded kg pair, EMOM → `everySeconds`, `IntervalPlan` only for intervals)
+    - B2: prompt v7 (~1.3k words) under `ClaudeBoardOutputSchema`; `ClaudeBoardMapper`; strategies, client and scan feature return `ScannedBoard`; `check_v2.py` harness: 315 ok, 3 left on the garbled OCR rescan (photo path on device)
+    - `ExtractedWorkout`, `ClaudeWorkoutMapper`, `ClaudeWorkoutOutputSchema` stay in the tree unused until a cleanup commit
+
+### IOS-00158 Plan scan — validators and the review card
+    - branch: `dev/IOS-00158/IOS-00158` (from IOS-00159); plan in `PLANS/IOS-00158-review.md`
+    - `ScanReviewValidator` in SharedModels: hard stops (no plan, empty block), board doubts (model `uncertain`, default cap applied, ladder/rounds fix, duplicate names) and plan rules (EMOM cap vs cadence, For Time without cap, load > 300 kg, women heavier than men, movement outside the catalog)
+    - the preview opens right away with a "To check" card and badges on the flagged blocks and movements; Save stays disabled until every finding is closed
+    - rules re-run after each edit and close on their own; doubts close by "OK" or by editing their block
+    - no re-ask of the model, no value pickers — the plan editor is the fix path
+
+### IOS-00159 Plan scan — stats and Summary consumers
+    - branch: `dev/IOS-00159/IOS-00159` (from IOS-00155-B); plan in `PLANS/IOS-00159-consumers.md`
+    - plan detail shows the schema v2 fields: EMOM cadence chip, block notes, per-side target, buy-in / cash-out badge, max effort, load tiers instead of the M/W pair, set unit / percent / max in planned sets
+    - Summary strength card renders every movement of a superset (section per lift, heaviest set names its lift, PR per lift); plan rows visible before entry
+    - volume load repeats the per-round target by the block's rounds and doubles per-side movements (`ExerciseLogInput.volumeMultiplier`, applied at save time; old logs unchanged)
+    - EMOM scores like Tabata: per-exercise reps summed into `forReps`, field left blank for entry, team board ranks it as published
+    - `tempoPerRound` divides by the block's rounds instead of the exercise count
+
+### IOS-00160 Exercise catalog — names from scanned boards
+    - branch: `dev/IOS-00160/IOS-00160` (from IOS-00158)
+    - new cases: side bend, face pull, any machine (cardio of choice); bicep curl learns the alternating / "alt." spellings
+    - `catalogVersion` 8 so the re-match job repairs plans saved with these names as unknown
+    - golden names added to `ExerciseTypeMatchingTests`
+
+### IOS-00161 Plan scan — remove the schema v1 DTO
+    - branch: `dev/IOS-00161/IOS-00161` (from IOS-00160)
+    - `ExtractedWorkout` + mapper (SharedModels) and `ClaudeWorkoutMapper` + `ClaudeWorkoutOutputSchema` (HealthHub) deleted; nothing called them since IOS-00157-B2
+    - flow docs in `ClaudeAPI/` rewritten for schema v2; v1 harness moved to `PLANS/scan-eval/legacy-v1/`
+
+### IOS-00162 Plan scan — crop, upload disclosure, state rename
+    - branch: `dev/IOS-00162/IOS-00162` (from IOS-00161)
+    - a photo from the library goes through `PhotoCropFeature` (corner handles, "Use the whole photo") before the scan; the document camera keeps its own crop
+    - `ScanPlanViewState.processingOCR` → `.analyzing`
+    - no upload alert: the photo-library permission is the one consent step the user is asked for
+
+### IOS-00163 Plan editor — remove per-block class minutes
+    - branch: `dev/IOS-00163/IOS-00163` (from develop)
+    - the Team points window (IOS-00152) replaced the 60-minute class budget, so "Time in Class" per block, the "Class Length" bar and the fill-to-60 helper had no consumer left
+    - `WorkoutSessionNew.plannedMinutes` removed from the model, draft, re-match and import copies; class length is now warm-up + time caps + cool-down (display only)
+    - the scan mapper no longer estimates block minutes ("cap + 3"); written minutes still feed warm-up / cool-down

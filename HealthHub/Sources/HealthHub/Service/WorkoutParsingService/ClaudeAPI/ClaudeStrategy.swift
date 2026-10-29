@@ -11,7 +11,7 @@ import SharedModels
 /// Unified Claude API strategy for all AI-powered features.
 ///
 /// Handles two categories of requests:
-/// - **Structured parsing** — OCR text → ``ExtractedWorkout`` (JSON response)
+/// - **Structured parsing** — OCR text → ``ScannedBoard`` (structured-output JSON)
 /// - **Text generation** — workout data → plain-text descriptions (warm-up, cool-down)
 ///
 /// The response language for text generation is automatically matched to the device locale.
@@ -19,18 +19,36 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
 
     // MARK: - Constants
 
-    private static let defaultModel = "claude-sonnet-4-5-20250929"
+    private static let scanModel = "claude-sonnet-5-5"
+    private static let notesModel = "claude-sonnet-5-5"
+
+    /// Structured JSON, cached rules, no thinking: the board is read, not reasoned about.
+    private static let scanOptions = ClaudeRequestOptions(
+        cachesSystemPrompt: true,
+        disablesThinking: true,
+        effort: .low,
+        outputSchema: ClaudeBoardOutputSchema.schema
+    )
+
+    /// Short prompts below the cacheable minimum; plain text out.
+    private static let notesOptions = ClaudeRequestOptions(
+        disablesThinking: true,
+        effort: .medium
+    )
 
     // MARK: - Properties
 
+    /// Transport to the Messages API.
     private let apiClient: ClaudeAPIClient
-    private let mapper: ClaudeWorkoutMapper
+
+    /// Turns the JSON reply into the board DTO.
+    private let mapper: ClaudeBoardMapper
 
     // MARK: - Initialization
 
     public init(
         apiClient: ClaudeAPIClient,
-        mapper: ClaudeWorkoutMapper = ClaudeWorkoutMapper()
+        mapper: ClaudeBoardMapper = ClaudeBoardMapper()
     ) {
         self.apiClient = apiClient
         self.mapper = mapper
@@ -38,18 +56,18 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
 
     /// Convenience initializer with default HTTPClient.
     public init(apiKey: String? = nil) {
-        let apiClient = ClaudeAPIClient(httpClient: URLSessionHTTPClient(), apiKey: apiKey)
-        self.init(apiClient: apiClient)
+        self.init(apiClient: ClaudeAPIClient.standard(apiKey: apiKey))
     }
 
     // MARK: - WorkoutParsingStrategy
 
-    /// Parses OCR text into a structured workout using Claude API.
-    public func parseWorkoutText(_ text: String) async throws -> ExtractedWorkout {
+    /// Parses OCR text into a scanned board using Claude API.
+    public func parseWorkoutText(_ text: String) async throws -> ScannedBoard {
         let response = try await apiClient.sendMessage(
-            model: Self.defaultModel,
+            model: Self.scanModel,
             system: ClaudePrompt.systemPrompt,
-            userMessage: ClaudePrompt.userPrompt(ocrText: text)
+            userMessage: ClaudePrompt.userPrompt(ocrText: text),
+            options: Self.scanOptions
         )
         return try mapper.map(response)
     }
@@ -83,11 +101,12 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
     private func generateText(system: String, userMessage: String) async throws -> String {
         let localizedSystem = "\(system) Respond in \(preferredLanguageName())."
         let response = try await apiClient.sendMessage(
-            model: Self.defaultModel,
+            model: Self.notesModel,
             system: localizedSystem,
-            userMessage: userMessage
+            userMessage: userMessage,
+            options: Self.notesOptions
         )
-        return response.content.first?.text ?? ""
+        return response.firstText ?? ""
     }
 
     private func preferredLanguageName() -> String {

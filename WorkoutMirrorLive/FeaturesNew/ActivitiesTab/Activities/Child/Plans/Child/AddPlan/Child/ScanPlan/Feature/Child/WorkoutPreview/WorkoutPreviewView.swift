@@ -20,17 +20,24 @@ struct WorkoutPreviewView: View {
 
     var body: some View {
         ScrollView {
-            WorkoutDetailContent(
-                session: store.trainingSession,
-                isWarmupExpanded: Binding(
-                    get: { store.isWarmupExpanded },
-                    set: { _ in send(.warmupToggleTapped) }
-                ),
-                isCooldownExpanded: Binding(
-                    get: { store.isCooldownExpanded },
-                    set: { _ in send(.cooldownToggleTapped) }
+            VStack(spacing: 12) {
+                if !store.findings.isEmpty {
+                    findingsCard
+                }
+                WorkoutDetailContent(
+                    session: store.trainingSession,
+                    isWarmupExpanded: Binding(
+                        get: { store.isWarmupExpanded },
+                        set: { _ in send(.warmupToggleTapped) }
+                    ),
+                    isCooldownExpanded: Binding(
+                        get: { store.isCooldownExpanded },
+                        set: { _ in send(.cooldownToggleTapped) }
+                    ),
+                    blockFlagCounts: store.openFindingCountsByBlock,
+                    flaggedExerciseIds: store.flaggedExerciseIds
                 )
-            )
+            }
             .padding()
         }
         .background(
@@ -64,12 +71,26 @@ struct WorkoutPreviewView: View {
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                send(.saveButtonTapped)
-            } label: {
-                Text("Save")
-                    .fontWeight(.semibold)
-            }
+            saveButton
         }
+    }
+
+    // MARK: - Implementation
+
+    private var findingsCard: some View {
+        ScanFindingsCard(findings: store.findings) { id in
+            send(.confirmFindingTapped(id))
+        }
+    }
+
+    // Disabled until every finding is closed, so a doubtful plan never reaches the database.
+    private var saveButton: some View {
+        Button {
+            send(.saveButtonTapped)
+        } label: {
+            Text("Save")
+                .fontWeight(.semibold)
+        }
+        .disabled(!store.canSave)
     }
 }

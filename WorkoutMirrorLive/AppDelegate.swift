@@ -29,10 +29,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
-        // Firebase boots only when its config file is bundled — the plist ships in
-        // release builds only, so dev builds (no plist) leave crash reporting dormant.
-        if Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist") != nil {
-            FirebaseApp.configure()
+        // Each build picks its own Firebase project by bundle ID, so both plists can live
+        // on every branch and release ↔ develop merges never swap projects.
+        if let options = FirebaseConfigFile.options(for: Bundle.main) {
+            FirebaseApp.configure(options: options)
         }
         Task {
             await startBackgroundDelivery()

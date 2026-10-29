@@ -18,13 +18,21 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
     /// Work/rest round timer draft (`.intervals` type only).
     public var interval: IntervalPlan?
 
+    /// Board remarks that fit no field.
+    public var notes: String?
+
+    /// EMOM cadence in seconds; nil for other formats.
+    public var everySeconds: Int?
+
     public init(
         name: String = "",
         type: ExerciseWorkoutType = .amrap,
         timeCap: Int? = 15,
         rounds: Int? = nil,
         exercises: [ExerciseSession] = [],
-        interval: IntervalPlan? = nil
+        interval: IntervalPlan? = nil,
+        notes: String? = nil,
+        everySeconds: Int? = nil
     ) {
         self.name = name
         self.type = type
@@ -32,6 +40,8 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.rounds = rounds
         self.exercises = exercises
         self.interval = interval
+        self.notes = notes
+        self.everySeconds = everySeconds
     }
 
     public init(workout: WorkoutSessionNew) {
@@ -41,5 +51,7 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.rounds = workout.rounds
         self.exercises = workout.exercises
         self.interval = workout.interval
+        self.notes = workout.notes
+        self.everySeconds = workout.everySeconds
     }
 }

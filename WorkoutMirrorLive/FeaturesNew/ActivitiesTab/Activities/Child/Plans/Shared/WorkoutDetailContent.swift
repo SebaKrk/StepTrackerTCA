@@ -18,6 +18,10 @@ struct WorkoutDetailContent: View {
     let session: TrainingSession
     let isWarmupExpanded: Binding<Bool>
     let isCooldownExpanded: Binding<Bool>
+    /// Open scan findings per block id; empty everywhere but the scan preview.
+    var blockFlagCounts: [UUID: Int] = [:]
+    /// Movements with an open scan finding; empty everywhere but the scan preview.
+    var flaggedExerciseIds: Set<UUID> = []
 
     var body: some View {
         VStack(spacing: 12) {
@@ -140,6 +144,12 @@ struct WorkoutDetailContent: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+
+                    if let everySeconds = workout.everySeconds {
+                        Label(cadenceDescription(everySeconds), systemImage: "timer")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 Divider()
@@ -147,18 +157,34 @@ struct WorkoutDetailContent: View {
                 ForEach(workout.exercises) { exercise in
                     exerciseRow(exercise)
                 }
+
+                if let notes = workout.notes, !notes.isEmpty {
+                    workoutNotes(notes)
+                }
             }
             .padding(4)
         } label: {
             VStack {
-                Text(workout.name)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack {
+                    Text(workout.name)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Spacer()
+                    if let count = blockFlagCounts[workout.id], count > 0 {
+                        flagBadge(count)
+                    }
+                }
                 Divider()
             }
         }
         .styledGroupBox()
+    }
+
+    private func flagBadge(_ count: Int) -> some View {
+        Label("\(count)", systemImage: "exclamationmark.triangle.fill")
+            .font(.caption)
+            .fontWeight(.semibold)
+            .foregroundStyle(.orange)
     }
 
     // MARK: - Exercise Row
@@ -177,22 +203,30 @@ struct WorkoutDetailContent: View {
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
 
+                    if flaggedExerciseIds.contains(exercise.id) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+
+                    if let segment = exercise.segment {
+                        segmentBadge(segment)
+                    }
+
                     Spacer()
 
                     if let target = exercise.target {
-                        let (value, unit) = targetParts(target)
-                        HStack(spacing: 2) {
-                            Text(value)
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                            Text(unit)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
+                        targetLabel(target, perSide: exercise.perSide)
+                    } else if exercise.isMaxEffort {
+                        maxEffortLabel
                     }
                 }
 
-                if let weight = exercise.weight {
+                if let tiers = exercise.loadTiers, !tiers.isEmpty {
+                    Text(tiersDescription(tiers))
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                } else if let weight = exercise.weight {
                     Text(weightDescription(weight))
                         .font(.caption)
                         .foregroundStyle(.blue)
@@ -251,8 +285,24 @@ struct WorkoutDetailContent: View {
     }
 
     private func setValue(_ set: PlannedSet) -> String {
-        guard let kg = set.suggestedWeight else { return "\(set.reps)" }
-        return "\(set.reps) × \(kg.formatted(.number.precision(.fractionLength(0...1)))) kg"
+        let count = set.isMaxEffort ? String(localized: "max") : "\(set.reps)"
+        let unit = set.unit.flatMap(setUnitSuffix).map { " \($0)" } ?? ""
+        if let kg = set.suggestedWeight {
+            return "\(count)\(unit) × \(kg.formatted(.number.precision(.fractionLength(0...1)))) kg"
+        }
+        if let percent = set.percentOfMax {
+            return "\(count)\(unit) @ \(percent.formatted(.number.precision(.fractionLength(0...1))))%"
+        }
+        return "\(count)\(unit)"
+    }
+
+    private func setUnitSuffix(_ unit: SetUnit) -> String? {
+        switch unit {
+        case .reps: return nil
+        case .seconds: return "s"
+        case .meters: return "m"
+        case .calories: return "cal"
+        }
     }
 
     // The set scheme ("3×15") is the first line of `info` (guaranteed by the
@@ -333,9 +383,7 @@ struct WorkoutDetailContent: View {
     // MARK: - Helpers
 
     private func formatDuration() -> String {
-        let total = (session.warmUp?.time ?? 0)
-            + session.workouts.compactMap { $0.timeCap }.reduce(0, +)
-            + (session.coolDown?.time ?? 0)
+        let total = session.plannedTotalMinutes
         return total > 0 ? "~\(total) min" : "–"
     }
 
@@ -361,6 +409,91 @@ struct WorkoutDetailContent: View {
         if let men = weight.men { parts.append("M: \(men) kg") }
         if let women = weight.women { parts.append("W: \(women) kg") }
         return parts.joined(separator: " / ")
+    }
+
+    // MARK: - Schema v2 fields
+
+    private func workoutNotes(_ notes: String) -> some View {
+        Text(notes)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func targetLabel(_ target: ExerciseTarget, perSide: Bool) -> some View {
+        let (value, unit) = targetParts(target)
+        return HStack(spacing: 2) {
+            Text(value)
+                .font(.subheadline)
+                .foregroundColor(.primary)
+            Text(perSide ? String(localized: "\(unit)/side") : unit)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var maxEffortLabel: some View {
+        Text("max")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+    }
+
+    private func segmentBadge(_ segment: MovementSegment) -> some View {
+        Text(segmentTitle(segment))
+            .font(.caption2)
+            .fontWeight(.semibold)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Color.secondary.opacity(0.15))
+            .cornerRadius(4)
+    }
+
+    private func segmentTitle(_ segment: MovementSegment) -> String {
+        switch segment {
+        case .buyIn: return String(localized: "Buy-in")
+        case .round: return String(localized: "Round")
+        case .cashOut: return String(localized: "Cash-out")
+        }
+    }
+
+    private func cadenceDescription(_ everySeconds: Int) -> String {
+        everySeconds % 60 == 0
+            ? String(localized: "every \(everySeconds / 60) min")
+            : String(localized: "every \(everySeconds) s")
+    }
+
+    /// "Rx 24/16 kg · Rx+ 28/20 kg · Pro 32/24 kg"; a single load is just "22.5 kg".
+    private func tiersDescription(_ tiers: [LoadTier]) -> String {
+        tiers.map { tier in
+            let men = tier.men.map(formatLoad)
+            let women = tier.women.map(formatLoad)
+            let pair: String
+            switch (men, women) {
+            case let (m?, w?) where m != w: pair = "\(m)/\(w)"
+            case let (m?, _): pair = m
+            case let (nil, w?): pair = w
+            case (nil, nil): pair = "–"
+            }
+            let unit = tier.unit == .percentOfMax ? "%" : " \(tier.unit.rawValue)"
+            let name = tierTitle(tier.tier)
+            return name.isEmpty ? pair + unit : "\(name) \(pair)\(unit)"
+        }
+        .joined(separator: " · ")
+    }
+
+    private func tierTitle(_ tier: LoadTier.Tier) -> String {
+        switch tier {
+        case .single: return ""
+        case .rx: return "Rx"
+        case .rxPlus: return "Rx+"
+        case .pro: return "Pro"
+        case .scaled: return String(localized: "Scaled")
+        }
+    }
+
+    private func formatLoad(_ value: Double) -> String {
+        value.formatted(.number.precision(.fractionLength(0...1)))
     }
 
 }

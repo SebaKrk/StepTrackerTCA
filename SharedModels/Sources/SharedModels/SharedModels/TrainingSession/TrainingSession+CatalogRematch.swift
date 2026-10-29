@@ -29,7 +29,11 @@ extension ExerciseSession {
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
         info: String?,
-        plannedSets: [PlannedSet]?
+        plannedSets: [PlannedSet]?,
+        perSide: Bool,
+        isMaxEffort: Bool,
+        segment: MovementSegment?,
+        loadTiers: [LoadTier]?
     ) {
         self.id = id
         self.type = type
@@ -40,6 +44,10 @@ extension ExerciseSession {
         self.weight = weight
         self.info = info
         self.plannedSets = plannedSets
+        self.perSide = perSide
+        self.isMaxEffort = isMaxEffort
+        self.segment = segment
+        self.loadTiers = loadTiers
     }
 
     /// Re-resolves an `.unknown` exercise against the current catalog.
@@ -58,7 +66,11 @@ extension ExerciseSession {
             target: target,
             weight: weight,
             info: info,
-            plannedSets: plannedSets
+            plannedSets: plannedSets,
+            perSide: perSide,
+            isMaxEffort: isMaxEffort,
+            segment: segment,
+            loadTiers: loadTiers
         )
     }
 }
@@ -73,7 +85,9 @@ extension WorkoutSessionNew {
         timeCap: Int?,
         rounds: Int?,
         exercises: [ExerciseSession],
-        interval: IntervalPlan?
+        interval: IntervalPlan?,
+        notes: String?,
+        everySeconds: Int?
     ) {
         self.id = id
         self.name = name
@@ -82,6 +96,8 @@ extension WorkoutSessionNew {
         self.rounds = rounds
         self.exercises = exercises
         self.interval = interval
+        self.notes = notes
+        self.everySeconds = everySeconds
     }
 
     /// Returns a copy with all `.unknown` exercises re-resolved.
@@ -100,7 +116,9 @@ extension WorkoutSessionNew {
             timeCap: timeCap,
             rounds: rounds,
             exercises: rematchedExercises,
-            interval: interval
+            interval: interval,
+            notes: notes,
+            everySeconds: everySeconds
         )
     }
 }
@@ -125,7 +143,8 @@ extension TrainingSession {
             location: location,
             warmUp: warmUp,
             workouts: rematchedWorkouts,
-            coolDown: coolDown
+            coolDown: coolDown,
+            teamPlanId: teamPlanId
         )
     }
 }

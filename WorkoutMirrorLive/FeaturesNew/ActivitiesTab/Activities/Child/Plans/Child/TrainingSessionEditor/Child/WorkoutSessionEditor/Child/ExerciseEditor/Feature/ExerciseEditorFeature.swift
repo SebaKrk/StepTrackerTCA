@@ -94,8 +94,8 @@ struct ExerciseEditorFeature {
 
             case .view(.setRepsChanged(let index, let reps)):
                 guard var sets = state.draft.plannedSets, sets.indices.contains(index) else { return .none }
-                // Reps-only edit — the scanned per-set weight suggestion survives.
-                sets[index] = PlannedSet(reps: max(1, reps), suggestedWeight: sets[index].suggestedWeight)
+                // Reps-only edit — the scanned weight, unit and percent survive.
+                sets[index] = sets[index].withReps(max(1, reps))
                 state.draft.plannedSets = sets
                 return .none
 

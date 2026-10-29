@@ -74,4 +74,8 @@ extension Logger {
     /// `LiveClassFeature` + `JoinLiveClassFeature` + `PeerMirrorService` + `PeerMirrorBLE*Session`
     /// Covers: peer discovery, BLE pairing, HR broadcast iPhone → iPad, room lifecycle.
     public static let gymRoom = Logger(subsystem: subsystem, category: "GymRoom")
+
+    /// `TeamFeature` + `TeamService`
+    /// Covers: anonymous sign-in, groups, invites, daily plans and entries.
+    public static let team = Logger(subsystem: subsystem, category: "Team")
 }

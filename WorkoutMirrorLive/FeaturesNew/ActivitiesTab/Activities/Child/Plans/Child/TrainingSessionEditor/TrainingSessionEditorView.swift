@@ -135,6 +135,7 @@ struct TrainingSessionEditorView: View {
         }
     }
 
+
     // MARK: - Warmup GroupBox
 
     private var warmupGroupBox: some View {

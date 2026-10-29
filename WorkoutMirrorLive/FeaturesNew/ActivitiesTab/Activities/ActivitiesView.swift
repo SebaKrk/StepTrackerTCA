@@ -25,6 +25,8 @@ struct ActivitiesView: View {
                     personalActivityView
                 case .plans:
                     plansView
+                case .team:
+                    teamView
                 }
             }
             .safeAreaBar(edge: .top) {
@@ -64,6 +66,12 @@ struct ActivitiesView: View {
     private var plansView: some View {
         PlansView(
             store: store.scope(state: \.plans, action: \.plans)
+        )
+    }
+
+    private var teamView: some View {
+        TeamView(
+            store: store.scope(state: \.team, action: \.team)
         )
     }
     

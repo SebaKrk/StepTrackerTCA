@@ -1,0 +1,150 @@
+rules_version = '2';
+
+// Team: private groups joined by QR invite, one plan per group per day, one entry per member per plan.
+// Everything not matched below is denied.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function me() {
+      return request.auth.uid;
+    }
+
+    function groupPath(groupId) {
+      return /databases/$(database)/documents/groups/$(groupId);
+    }
+
+    function invitePath(groupId, inviteId) {
+      return /databases/$(database)/documents/groups/$(groupId)/invites/$(inviteId);
+    }
+
+    function isMember(groupId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(me()));
+    }
+
+    function isOwner(groupId) {
+      return signedIn() && get(groupPath(groupId)).data.ownerUid == me();
+    }
+
+    function validGroupName(name) {
+      return name is string && name.size() >= 3 && name.size() <= 40;
+    }
+
+    function validDisplayName(name) {
+      return name is string && name.size() >= 1 && name.size() <= 40;
+    }
+
+    function inviteIsOpen(groupId, inviteId) {
+      let invite = get(invitePath(groupId, inviteId)).data;
+      return invite.revoked == false && invite.expiresAt > request.time;
+    }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && uid == me();
+    }
+
+    match /groups/{groupId} {
+      allow read: if isMember(groupId);
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['name', 'ownerUid', 'createdAt'])
+        && request.resource.data.ownerUid == me()
+        && validGroupName(request.resource.data.name);
+      allow update: if isOwner(groupId)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && validGroupName(request.resource.data.name);
+      allow delete: if isOwner(groupId);
+
+      match /members/{uid} {
+        allow read: if isMember(groupId) || (signedIn() && uid == me());
+        // Owner joins in the same batch that creates the group; everyone else only
+        // in the same batch that accepts an open invite they scanned.
+        allow create: if signedIn()
+          && uid == me()
+          && request.resource.data.uid == me()
+          && validDisplayName(request.resource.data.displayName)
+          && (
+            getAfter(groupPath(groupId)).data.ownerUid == me()
+            || (
+              inviteIsOpen(groupId, request.resource.data.joinedViaInvite)
+              && getAfter(/databases/$(database)/documents/groups/$(groupId)/invites/$(request.resource.data.joinedViaInvite)/recipients/$(me())).data.status == 'accepted'
+            )
+          );
+        allow update: if false;
+        allow delete: if signedIn() && (uid == me() || isOwner(groupId));
+      }
+
+      match /invites/{inviteId} {
+        // Anyone signed in may open an invite by its unguessable id to preview it.
+        allow get: if signedIn();
+        allow list: if isMember(groupId);
+        allow create: if isMember(groupId)
+          && request.resource.data.createdByUid == me()
+          && request.resource.data.revoked == false
+          && request.resource.data.expiresAt > request.time
+          && request.resource.data.expiresAt < request.time + duration.value(31, 'd');
+        allow update: if signedIn()
+          && (resource.data.createdByUid == me() || isOwner(groupId))
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['revoked'])
+          && request.resource.data.revoked == true;
+        allow delete: if false;
+
+        match /recipients/{uid} {
+          allow read: if signedIn() && (uid == me() || isMember(groupId));
+          allow create: if signedIn()
+            && uid == me()
+            && request.resource.data.uid == me()
+            && request.resource.data.status == 'pending'
+            && validDisplayName(request.resource.data.displayName)
+            && inviteIsOpen(groupId, inviteId);
+          // pending → accepted / declined; a declined invite may be scanned again.
+          allow update: if signedIn()
+            && uid == me()
+            && request.resource.data.uid == me()
+            && inviteIsOpen(groupId, inviteId)
+            && (
+              (resource.data.status == 'pending' && request.resource.data.status in ['accepted', 'declined'])
+              || (resource.data.status == 'declined' && request.resource.data.status == 'pending')
+            );
+          allow delete: if false;
+        }
+      }
+
+      match /plans/{day} {
+        allow read: if isMember(groupId);
+        allow create: if isMember(groupId)
+          && day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.authorUid == me()
+          && request.resource.data.sessionMinutes is int
+          && request.resource.data.sessionMinutes >= 60;
+        allow update: if isMember(groupId)
+          && resource.data.authorUid == me()
+          && request.resource.data.authorUid == me()
+          && request.resource.data.sessionMinutes is int
+          && request.resource.data.sessionMinutes >= 60;
+        allow delete: if signedIn() && (resource.data.authorUid == me() || isOwner(groupId));
+
+        match /entries/{uid} {
+          allow read: if isMember(groupId);
+          allow create, update: if isMember(groupId)
+            && uid == me()
+            && request.resource.data.division in ['rx', 'scaled']
+            && exists(/databases/$(database)/documents/groups/$(groupId)/plans/$(day));
+          allow delete: if signedIn() && (uid == me() || isOwner(groupId));
+        }
+      }
+    }
+
+    // Collection-group reads for "my groups" and "my invitations": only your own documents.
+    match /{path=**}/members/{uid} {
+      allow read: if signedIn() && resource.data.uid == me();
+    }
+
+    match /{path=**}/recipients/{uid} {
+      allow read: if signedIn() && resource.data.uid == me();
+    }
+  }
+}

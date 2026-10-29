@@ -107,6 +107,10 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
     /// Optional note for this specific exercise.
     public var note: String
 
+    /// How many times the entered reps repeat in the block: the round count of a
+    /// For Time / AMRAP block, doubled for a per-side movement. `nil` means once.
+    public var volumeMultiplier: Int?
+
     // MARK: - Init
 
     public init(
@@ -124,7 +128,8 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
         sets: [SetEntry]? = nil,
         scaling: ScalingType = .rx,
         isPR: Bool = false,
-        note: String = ""
+        note: String = "",
+        volumeMultiplier: Int? = nil
     ) {
         self.id = id
         self.exerciseType = exerciseType
@@ -141,6 +146,7 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
         self.scaling = scaling
         self.isPR = isPR
         self.note = note
+        self.volumeMultiplier = volumeMultiplier
     }
 
     /// Builds an `ExerciseLogInput` mirroring an existing `ExerciseLog` for in-place editing.

@@ -48,7 +48,7 @@ struct InlineResultEditor: View {
             amrapEntry
         default:
             // Strength/Olympic score is derived from the heaviest set;
-            // EMOM/Tabata/Mobility are confirmation-only.
+            // EMOM/Tabata sum the per-exercise reps; Mobility is confirmation-only.
             EmptyView()
         }
     }
@@ -64,11 +64,11 @@ struct InlineResultEditor: View {
         }
     }
 
-    // Tabata fields aren't prefilled (the plan holds an interval, not a total) —
+    // Tabata / EMOM fields aren't prefilled (the plan holds an interval, not a total) —
     // tell the user to enter the reps/cal they actually completed across all rounds.
     @ViewBuilder
     private var totalRepsHint: some View {
-        if store.wodType == .tabata {
+        if store.wodType == .tabata || store.wodType == .emom {
             scoreEntryLabel(String(localized: "Enter total reps / calories"))
         }
     }
