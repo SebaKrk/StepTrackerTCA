@@ -23,4 +23,17 @@ public enum WorkoutParsingBackend: String, CaseIterable, Sendable, Codable {
 
     /// Photo + OCR transcript as an untrusted hint → Claude. Kept for comparison runs.
     case claudeVisionWithOCRHint
+
+    /// Whether Vision OCR must run before this backend can parse.
+    public var needsOCRText: Bool {
+        switch self {
+        case .claudeText, .claudeVisionWithOCRHint: return true
+        case .claudeVision: return false
+        }
+    }
+
+    /// Whether the user reviews the OCR text before parsing; only when text is the source of truth.
+    public var showsTextStep: Bool {
+        self == .claudeText
+    }
 }

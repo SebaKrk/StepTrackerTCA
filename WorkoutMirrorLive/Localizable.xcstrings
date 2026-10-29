@@ -5730,7 +5730,11 @@
         }
       }
     },
+    "No workout plan found in this photo." : {
+
+    },
     "No workout plan found in this text." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {

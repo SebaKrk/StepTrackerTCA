@@ -1608,6 +1608,7 @@
     - mandatory crop before upload (names on whiteboards) and a one-time disclosure that the photo leaves the device
     - on-device comparison text vs photo vs photo+hint on the handwritten board: photo alone wins (two WODs, Rx tiers, fewer tokens); the hint is kept only as a comparison backend
     - default backend switches to claudeVision (photo only); claudeText and claudeVisionWithOCRHint remain selectable
+    - B: the photo path skips OCR and the text step (photo → "Analyzing photo…" → preview); OCR and the editor stay for claudeText; gallery crop and upload disclosure remain backlog
 
 ### IOS-00156 Plan scan — Apple Foundation Models backends
     - `FoundationModelsStrategy` restored from git (removed in IOS-00106) and rewritten for image input (`Attachment`, iOS 27) with a `@Generable` DTO mapped to `ExtractedWorkout`

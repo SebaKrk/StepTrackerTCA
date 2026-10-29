@@ -108,8 +108,12 @@ struct ScanPlanView: View {
             }
             actionButtonsSection
                 .padding(.horizontal)
-                .padding(.bottom)
+            #if DEBUG
+            parsingBackendSection
+                .padding(.horizontal)
+            #endif
         }
+        .padding(.bottom)
     }
 
     // MARK: - Image Preview
@@ -214,13 +218,17 @@ struct ScanPlanView: View {
             ProgressView()
                 .controlSize(.large)
 
-            // Show different text based on whether we're doing OCR or parsing
-            Text(store.extractedText.isEmpty ? "Extracting text..." : "Parsing workout...")
+            Text(processingLabel)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var processingLabel: LocalizedStringKey {
+        if !store.parsingBackend.showsTextStep { return "Analyzing photo..." }
+        return store.extractedText.isEmpty ? "Extracting text..." : "Parsing workout..."
     }
 
     // MARK: - Text Ready View
@@ -230,9 +238,6 @@ struct ScanPlanView: View {
             VStack(spacing: 24) {
                 smallImagePreviewSection
                 textEditorSection
-                #if DEBUG
-                parsingBackendSection
-                #endif
                 continueButtonSection
                 startOverButton
             }
@@ -335,7 +340,7 @@ struct ScanPlanView: View {
             .tint(store.color)
             .controlSize(.large)
 
-            if store.failedStage == .parsing && !store.extractedText.isEmpty {
+            if store.failedStage == .parsing && store.parsingBackend.showsTextStep && !store.extractedText.isEmpty {
                 editTextButton
             }
 
