@@ -16,4 +16,11 @@ public enum WorkoutParsingBackend: String, CaseIterable, Sendable, Codable {
 
     /// Photo → Vision OCR → text → Claude. The original pipeline.
     case claudeText
+
+    /// Photo only → Claude. The default: on the handwritten board the OCR hint
+    /// added tokens and one misread without fixing anything.
+    case claudeVision
+
+    /// Photo + OCR transcript as an untrusted hint → Claude. Kept for comparison runs.
+    case claudeVisionWithOCRHint
 }

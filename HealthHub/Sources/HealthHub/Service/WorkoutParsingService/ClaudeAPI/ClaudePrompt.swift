@@ -17,9 +17,9 @@ public enum ClaudePrompt {
     ///
     /// Instructs Claude to parse CrossFit OCR text into JSON matching ExtractedWorkout schema.
     public static let systemPrompt: String = """
-    You are a CrossFit workout parser. Parse OCR text from workout photos into structured JSON.
+    You are a CrossFit workout parser. Parse a whiteboard / notebook photo or its OCR text into structured JSON.
 
-    CRITICAL: Preserve exact section order from OCR text. Do NOT reorder based on "standard" workout structure.
+    CRITICAL: Preserve the exact section order of the board. Do NOT reorder based on "standard" workout structure.
 
     Workout type classification (ALWAYS classify, never omit):
     - Analyze the ENTIRE workout to determine dominant training character.
@@ -49,7 +49,7 @@ public enum ClaudePrompt {
       (the app lets the athlete generate a warm-up later)
     - Add at most ONE transition, only where a run of strength blocks is followed by a run of WODs;
       never between interleaved blocks of a strength day (strength → EMOM → strength gets no transition)
-    - Order workout sections EXACTLY as they appear in OCR
+    - Order workout sections EXACTLY as they appear on the board
 
     Block splitting (CRITICAL — one section per prescribed block, NEVER one big "strength" bucket):
     - A board lists blocks as items marked with a number or a letter: "1)", "2)", "A)", "B)", "WOD 1", "Skill".
@@ -282,5 +282,27 @@ public enum ClaudePrompt {
 
         \(ocrText)
         """
+    }
+
+    /// User prompt for a photo scan; the OCR transcript, when given, is explicitly untrusted.
+    public static func visionUserPrompt(ocrHint: String?) -> String {
+        var prompt = """
+        Read the workout from the attached photo of a whiteboard or notebook page. The photo is the source of truth.
+        Ignore everything that is not the workout: attendance names, dates, doodles, the class clock.
+        """
+        if let ocrHint, !ocrHint.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            prompt += """
+
+
+            Below is an automatic OCR transcript of the same photo. It is an UNTRUSTED hint: handwriting OCR \
+            misreads digits and words and scrambles line order. Where the photo and the transcript disagree, \
+            trust the photo. Never copy a transcript word you cannot see on the photo.
+
+            <ocr_hint>
+            \(ocrHint)
+            </ocr_hint>
+            """
+        }
+        return prompt
     }
 }

@@ -50,6 +50,9 @@ extension WorkoutExtractionClient: DependencyKey {
             },
             parseWorkout: { input, backend in
                 @Dependency(\.apiKeyClient) var apiKeyClient
+                #if DEBUG
+                print("🧭 [WorkoutExtractionClient] backend=\(backend.rawValue) image=\(input.imageData?.count ?? 0) bytes text=\(input.ocrText.count) chars")
+                #endif
                 let strategy = WorkoutParsingStrategyFactory.make(backend, apiKey: apiKeyClient.load())
                 return try await strategy.parseWorkout(input)
             }

@@ -24,6 +24,7 @@ public enum ClaudeAPIError: Error, LocalizedError, Equatable {
     case invalidJSON
     case truncated
     case refused
+    case invalidImage
 
     public var errorDescription: String? {
         switch self {
@@ -49,6 +50,8 @@ public enum ClaudeAPIError: Error, LocalizedError, Equatable {
             return "Claude stopped at max_tokens — the workout JSON is incomplete"
         case .refused:
             return "Claude refused the request"
+        case .invalidImage:
+            return "The scanned photo could not be re-encoded for upload"
         }
     }
 }

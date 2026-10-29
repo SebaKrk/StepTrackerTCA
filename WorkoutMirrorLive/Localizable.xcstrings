@@ -2452,6 +2452,9 @@
         }
       }
     },
+    "Could not prepare the photo for analysis. Try another photo." : {
+
+    },
     "Could not process the selected image." : {
       "extractionState" : "stale",
       "localizations" : {

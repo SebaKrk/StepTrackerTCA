@@ -53,12 +53,7 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
 
     /// Convenience initializer with default HTTPClient.
     public init(apiKey: String? = nil) {
-        // Sorted keys keep the request bytes identical between calls — the cache
-        // prefix is matched byte by byte, and dictionary order is not stable.
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        let apiClient = ClaudeAPIClient(httpClient: URLSessionHTTPClient(encoder: encoder), apiKey: apiKey)
-        self.init(apiClient: apiClient)
+        self.init(apiClient: ClaudeAPIClient.standard(apiKey: apiKey))
     }
 
     // MARK: - WorkoutParsingStrategy

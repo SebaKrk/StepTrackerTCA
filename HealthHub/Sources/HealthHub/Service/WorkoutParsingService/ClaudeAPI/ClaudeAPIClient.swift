@@ -30,13 +30,40 @@ public actor ClaudeAPIClient {
         self.apiKey = apiKey ?? ""
     }
 
+    /// Client over `URLSession` with deterministic request bytes.
+    ///
+    /// Sorted keys keep the request identical between calls — the prompt cache
+    /// prefix is matched byte by byte, and dictionary order is not stable.
+    public static func standard(apiKey: String?) -> ClaudeAPIClient {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        return ClaudeAPIClient(httpClient: URLSessionHTTPClient(encoder: encoder), apiKey: apiKey)
+    }
+
     // MARK: - Public Methods
 
-    /// Sends a message to Claude API.
+    /// Sends a text-only user message to Claude API.
     public func sendMessage(
         model: String,
         system: String,
         userMessage: String,
+        maxTokens: Int = 4096,
+        options: ClaudeRequestOptions = ClaudeRequestOptions()
+    ) async throws -> ClaudeAPIResponse {
+        try await sendMessage(
+            model: model,
+            system: system,
+            content: [.text(userMessage)],
+            maxTokens: maxTokens,
+            options: options
+        )
+    }
+
+    /// Sends a user message made of text and image blocks to Claude API.
+    public func sendMessage(
+        model: String,
+        system: String,
+        content: [ClaudeContentBlock],
         maxTokens: Int = 4096,
         options: ClaudeRequestOptions = ClaudeRequestOptions()
     ) async throws -> ClaudeAPIResponse {
@@ -48,7 +75,7 @@ public actor ClaudeAPIClient {
             model: model,
             maxTokens: maxTokens,
             system: system,
-            messages: [.init(role: "user", content: userMessage)],
+            messages: [.init(role: "user", blocks: content)],
             options: options
         )
 

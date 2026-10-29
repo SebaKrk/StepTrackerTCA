@@ -1603,10 +1603,11 @@
     - harness run on f1–f7 before and after; expectations added for f7
 
 ### IOS-00155 Plan scan — ClaudeVisionStrategy becomes the default
+    - branch: `dev/IOS-00155/IOS-00155` (from IOS-00154); plan in `PLANS/IOS-00155-claude-vision.md`
     - photo sent as an image block, downscaled to the token budget; OCR text passed only as an untrusted hint
     - mandatory crop before upload (names on whiteboards) and a one-time disclosure that the photo leaves the device
-    - harness compares text vs vision vs vision+hint on all fixtures; the hint stays only if it wins on digits
-    - default backend switches to claudeVision; claudeText remains selectable
+    - on-device comparison text vs photo vs photo+hint on the handwritten board: photo alone wins (two WODs, Rx tiers, fewer tokens); the hint is kept only as a comparison backend
+    - default backend switches to claudeVision (photo only); claudeText and claudeVisionWithOCRHint remain selectable
 
 ### IOS-00156 Plan scan — Apple Foundation Models backends
     - `FoundationModelsStrategy` restored from git (removed in IOS-00106) and rewritten for image input (`Attachment`, iOS 27) with a `@Generable` DTO mapped to `ExtractedWorkout`

@@ -49,7 +49,7 @@ extension ScanPlanFeature {
 
         /// Backend that turns the scan into a workout; persisted so it survives relaunch.
         @Shared(.appStorage("workoutParsingBackend"))
-        var parsingBackend: WorkoutParsingBackend = .claudeText
+        var parsingBackend: WorkoutParsingBackend = .claudeVision
 
         // MARK: - Destination
 

@@ -11,7 +11,7 @@ import SharedModels
 /// Maps Claude API response to ExtractedWorkout.
 ///
 /// Extracts JSON from Claude response and decodes it directly to ExtractedWorkout.
-public struct ClaudeWorkoutMapper {
+public struct ClaudeWorkoutMapper: Sendable {
 
     // MARK: - Initialization
 

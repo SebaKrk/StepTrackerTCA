@@ -21,6 +21,10 @@ public enum WorkoutParsingStrategyFactory {
         switch backend {
         case .claudeText:
             return ClaudeStrategy(apiKey: apiKey)
+        case .claudeVision:
+            return ClaudeVisionStrategy(apiKey: apiKey, includesOCRHint: false)
+        case .claudeVisionWithOCRHint:
+            return ClaudeVisionStrategy(apiKey: apiKey, includesOCRHint: true)
         }
     }
 }

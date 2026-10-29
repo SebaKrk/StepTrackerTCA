@@ -49,11 +49,16 @@ public struct ClaudeAPIRequest: Encodable, Sendable {
 
     public struct Message: Encodable, Sendable {
         public let role: String
-        public let content: String
+        public let content: [ClaudeContentBlock]
 
         public init(role: String, content: String) {
             self.role = role
-            self.content = content
+            self.content = [.text(content)]
+        }
+
+        public init(role: String, blocks: [ClaudeContentBlock]) {
+            self.role = role
+            self.content = blocks
         }
     }
 
