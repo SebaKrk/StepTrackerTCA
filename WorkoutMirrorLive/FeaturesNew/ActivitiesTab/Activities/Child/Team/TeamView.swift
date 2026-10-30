@@ -86,14 +86,19 @@ struct TeamView: View {
         }
     }
 
+    // Cards in a plain List, like the activity list: drag to reorder, swipe to leave or delete.
     private var groupsList: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        List {
+            Group {
                 invitationsSection
                 groupsSection
             }
-            .padding()
+            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .refreshable {
             await send(.refreshPulled).finish()
         }
@@ -102,16 +107,14 @@ struct TeamView: View {
     @ViewBuilder
     private var invitationsSection: some View {
         if !store.pendingInvitations.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                sectionHeader(invitationsHeader)
-                ForEach(store.pendingInvitations) { invitation in
-                    TeamInvitationRow(
-                        invitation: invitation,
-                        isResponding: store.respondingInvitationIds.contains(invitation.id),
-                        onJoin: { send(.invitationJoinTapped(invitation)) },
-                        onDecline: { send(.invitationDeclineTapped(invitation)) }
-                    )
-                }
+            sectionHeader(invitationsHeader)
+            ForEach(store.pendingInvitations) { invitation in
+                TeamInvitationRow(
+                    invitation: invitation,
+                    isResponding: store.respondingInvitationIds.contains(invitation.id),
+                    onJoin: { send(.invitationJoinTapped(invitation)) },
+                    onDecline: { send(.invitationDeclineTapped(invitation)) }
+                )
             }
         }
     }
@@ -119,22 +122,48 @@ struct TeamView: View {
     @ViewBuilder
     private var groupsSection: some View {
         if !store.groups.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                sectionHeader(groupsHeader)
-                ForEach(store.groups) { group in
-                    TeamGroupCard(
-                        group: group,
-                        isMine: group.ownerUid == store.myUid,
-                        today: store.today,
-                        myEntry: store.myEntries[group.id],
-                        onTap: { send(.groupTapped(group)) }
-                    )
+            sectionHeader(groupsHeader)
+                .padding(.top, store.pendingInvitations.isEmpty ? 0 : 8)
+            ForEach(store.orderedGroups) { group in
+                TeamGroupCard(
+                    group: group,
+                    isMine: group.ownerUid == store.myUid,
+                    today: store.today,
+                    myEntry: store.myEntries[group.id],
+                    onTap: { send(.groupTapped(group)) }
+                )
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    groupSwipeButton(group)
                 }
+                .disabled(store.workingGroupIds.contains(group.id))
+            }
+            .onMove { source, destination in
+                send(.groupsMoved(from: source, to: destination), animation: .snappy)
             }
         }
     }
 
     // MARK: - Implementation
+
+    // Swipe on a card: the owner deletes, everyone else leaves — both confirmed by an alert.
+    @ViewBuilder
+    private func groupSwipeButton(_ group: TeamGroup) -> some View {
+        if group.ownerUid == store.myUid {
+            Button {
+                send(.groupDeleteTapped(group))
+            } label: {
+                Label(deleteGroupTitle, systemImage: "trash")
+            }
+            .tint(.red)
+        } else {
+            Button {
+                send(.groupLeaveTapped(group))
+            } label: {
+                Label(leaveGroupTitle, systemImage: "rectangle.portrait.and.arrow.right")
+            }
+            .tint(.red)
+        }
+    }
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
@@ -247,4 +276,6 @@ struct TeamView: View {
     private let scanInviteTitle = String(localized: "Scan Invite")
     private let invitationsHeader = String(localized: "Invitations")
     private let groupsHeader = String(localized: "My Groups")
+    private let deleteGroupTitle = String(localized: "Delete Group")
+    private let leaveGroupTitle = String(localized: "Leave Group")
 }

@@ -65,10 +65,15 @@ service cloud.firestore {
         && request.resource.data.ownerUid == me()
         && request.resource.data.memberCount == 1
         && validGroupName(request.resource.data.name);
+      // The owner renames or hands the group to an existing member (also while leaving, with the member count);
+      // members only move the counters.
       allow update: if (
           isOwner(groupId)
-          && request.resource.data.ownerUid == resource.data.ownerUid
           && validGroupName(request.resource.data.name)
+          && (
+            request.resource.data.ownerUid == resource.data.ownerUid
+            || exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.resource.data.ownerUid))
+          )
         ) || (
           (isMember(groupId) || isMemberAfter(groupId))
           && touchesOnlyCounters()
@@ -107,7 +112,7 @@ service cloud.firestore {
           && (resource.data.createdByUid == me() || isOwner(groupId))
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['revoked'])
           && request.resource.data.revoked == true;
-        allow delete: if false;
+        allow delete: if isOwner(groupId);
 
         match /recipients/{uid} {
           allow read: if signedIn() && (uid == me() || isMember(groupId));
@@ -126,7 +131,7 @@ service cloud.firestore {
               (resource.data.status == 'pending' && request.resource.data.status in ['accepted', 'declined'])
               || (resource.data.status == 'declined' && request.resource.data.status == 'pending')
             );
-          allow delete: if false;
+          allow delete: if signedIn() && (uid == me() || isOwner(groupId));
         }
       }
 

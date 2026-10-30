@@ -23,14 +23,21 @@ extension TeamFeature {
         /// Selected top segment.
         var segment: TeamSegment = .private
 
-        /// Groups the user belongs to, oldest first.
+        /// Groups the user belongs to, newest first.
         var groups: [TeamGroup] = []
+
+        /// The user's manual order of group ids, top to bottom — a preference of this device.
+        @Shared(.appStorage(.teamGroupOrder))
+        var orderedGroupIds: [String] = []
 
         /// Scanned invites still waiting for a decision and still valid, newest first.
         var pendingInvitations: [TeamInvitation] = []
 
         /// Invitations whose join or decline is in flight.
         var respondingInvitationIds: Set<TeamInvitation.ID> = []
+
+        /// Groups whose leave or delete is in flight.
+        var workingGroupIds: Set<TeamGroup.ID> = []
 
         /// Today's day id, set when the groups arrive — picks which plan summaries count as today's.
         var today = ""
@@ -49,6 +56,15 @@ extension TeamFeature {
 
         /// Set after the first appearance so returning to the tab keeps the running listener.
         var hasStarted = false
+
+        // MARK: - Derived
+
+        /// Groups the user has not placed yet (new ones) on top, newest first, then the saved order.
+        var orderedGroups: [TeamGroup] {
+            let placed = orderedGroupIds.compactMap { id in groups.first { $0.id == id } }
+            let unplaced = groups.filter { !orderedGroupIds.contains($0.id) }
+            return unplaced + placed
+        }
 
         // MARK: - Alert
 

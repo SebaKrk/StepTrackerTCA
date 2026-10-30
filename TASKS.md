@@ -1686,3 +1686,13 @@
     - invitation is one row: group, who invites, glass decline (confirmed by alert) and prominent join
     - group document carries `memberCount` and `lastPlan` (day, title, minutes, author, entryCount), moved in the same batches as membership, publish, first result and delete; rules let members touch only those two keys
     - "Your result" is one `myEntry` read per group with today's plan; a failed read leaves the column empty
+
+### IOS-00168 Team — manage the group
+    - branch: `rel/IOS-00168/IOS-00168` (from IOS-00167)
+    - owner-only "Manage Group" screen: Edit/Save in the toolbar for the name, member cards in a plain List with swipe to transfer ownership or remove (activity-list pattern), delete in the editor-style bottom bar; every change confirmed by an alert
+    - removing a member also closes the group's open invite codes and drops the member's scans, so the same QR cannot bring them back
+    - deleting a group removes members, invites, plans and results in batches of 499, the group document last
+    - group list: long press on a card offers Delete Group (owner) or Leave Group (member), both confirmed
+    - rules: the owner may hand `ownerUid` to an existing member; invites and recipients become deletable by the owner
+    - a leaving owner hands the group to the longest-standing member in the same batch; the last member leaving deletes it (closes the ownerless-group hole)
+    - group list as card rows in a plain List: newest first, drag to reorder (order stored on the device as `teamGroupOrder`), swipe to leave or delete

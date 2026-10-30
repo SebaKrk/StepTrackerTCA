@@ -61,12 +61,85 @@ nonisolated final class TeamService: @unchecked Sendable {
         return TeamGroup(id: groupRef.documentID, name: name, ownerUid: uid, createdAt: now, memberCount: 1)
     }
 
-    // The member count on the group document moves in the same batch as the membership itself.
-    func leaveGroup(groupId: String) async throws {
-        let uid = try await ensureSignedIn()
+    func renameGroup(groupId: String, name: String) async throws {
+        try await groupRef(groupId).updateData(["name": name])
+    }
+
+    func transferOwnership(groupId: String, to uid: String) async throws {
+        try await groupRef(groupId).updateData(["ownerUid": uid])
+    }
+
+    // A removed member must not walk back in with a code they already scanned, so open invites close too.
+    func removeMember(groupId: String, uid: String) async throws {
+        let group = groupRef(groupId)
+        let invites = try await group.collection("invites").getDocuments().documents
         let batch = db.batch()
-        batch.deleteDocument(groupRef(groupId).collection("members").document(uid))
-        batch.updateData(["memberCount": FieldValue.increment(Int64(-1))], forDocument: groupRef(groupId))
+        batch.deleteDocument(group.collection("members").document(uid))
+        batch.updateData(["memberCount": FieldValue.increment(Int64(-1))], forDocument: group)
+        for invite in invites {
+            if invite.data()["revoked"] as? Bool == false {
+                batch.updateData(["revoked": true], forDocument: invite.reference)
+            }
+            let recipient = invite.reference.collection("recipients").document(uid)
+            if try await recipient.getDocument().exists {
+                batch.deleteDocument(recipient)
+            }
+        }
+        try await batch.commit()
+    }
+
+    // Firestore does not cascade: every subcollection document goes explicitly, the group document last.
+    func deleteGroup(groupId: String) async throws {
+        let group = groupRef(groupId)
+        var refs: [DocumentReference] = []
+        refs += try await group.collection("members").getDocuments().documents.map(\.reference)
+        for invite in try await group.collection("invites").getDocuments().documents {
+            refs += try await invite.reference.collection("recipients").getDocuments().documents.map(\.reference)
+            refs.append(invite.reference)
+        }
+        for plan in try await group.collection("plans").getDocuments().documents {
+            refs += try await plan.reference.collection("entries").getDocuments().documents.map(\.reference)
+            refs.append(plan.reference)
+        }
+        refs.append(group)
+        try await deleteInBatches(refs)
+    }
+
+    // A batch holds 500 writes; the order keeps the group document in the final batch.
+    private func deleteInBatches(_ refs: [DocumentReference]) async throws {
+        for start in stride(from: 0, to: refs.count, by: 499) {
+            let batch = db.batch()
+            for ref in refs[start..<min(start + 499, refs.count)] {
+                batch.deleteDocument(ref)
+            }
+            try await batch.commit()
+        }
+    }
+
+    // The member count moves in the same batch as the membership. A leaving owner hands the group to the
+    // successor the screen picked from its live member list; the group is deleted only when the server
+    // confirms the owner is the last member — never on an empty or stale read.
+    func leaveGroup(groupId: String, successorUid: String?) async throws {
+        let uid = try await ensureSignedIn()
+        let group = groupRef(groupId)
+        let isOwner = try await group.getDocument(source: .server).data()?["ownerUid"] as? String == uid
+        var update: [String: Any] = ["memberCount": FieldValue.increment(Int64(-1))]
+        if isOwner {
+            if let successorUid {
+                update["ownerUid"] = successorUid
+            } else {
+                let members = try await group.collection("members").getDocuments(source: .server).documents
+                Logger.team.notice("Owner leaving \(groupId) without successor — server lists \(members.count) member(s)")
+                guard members.count == 1, members.first?.documentID == uid else {
+                    throw TeamServiceError.successorRequired
+                }
+                try await deleteGroup(groupId: groupId)
+                return
+            }
+        }
+        let batch = db.batch()
+        batch.deleteDocument(group.collection("members").document(uid))
+        batch.updateData(update, forDocument: group)
         try await batch.commit()
     }
 
@@ -440,7 +513,7 @@ nonisolated final class TeamService: @unchecked Sendable {
             for try await result in group {
                 if let result { groups.append(result) }
             }
-            return groups.sorted { $0.createdAt < $1.createdAt }
+            return groups.sorted { $0.createdAt > $1.createdAt }
         }
     }
 

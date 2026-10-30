@@ -73,6 +73,9 @@ extension GroupFeature {
             /// Called when the owner picks "Delete Today's Plan" from the menu.
             case deletePlanTapped
 
+            /// Called when the owner picks "Manage Group" from the menu.
+            case manageTapped
+
             /// Called when the user taps the QR button to invite someone.
             case inviteTapped
 
@@ -108,7 +111,7 @@ extension GroupFeature {
         @CasePathable
         enum Delegate {
 
-            /// The user left; the screen is closing.
+            /// The user left or the group was deleted; the screen is closing.
             case left
         }
     }

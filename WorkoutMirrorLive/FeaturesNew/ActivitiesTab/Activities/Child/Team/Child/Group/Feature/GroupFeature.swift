@@ -79,7 +79,7 @@ struct GroupFeature {
                 }
 
             case .view(.leaveTapped):
-                state.alert = Self.leaveConfirmation(isOwner: state.isOwner)
+                state.alert = .leave(isOwner: state.isOwner, successor: state.successor)
                 return .none
 
             case .view(.deletePlanTapped):
@@ -88,7 +88,7 @@ struct GroupFeature {
                 if state.leaderboard.dayEntries.isEmpty {
                     return deleteDayPlan(state: &state)
                 }
-                state.alert = Self.deletePlanConfirmation()
+                state.alert = .deletePlan()
                 return .none
 
             case .view(.publishPlanTapped):
@@ -100,6 +100,13 @@ struct GroupFeature {
                         displayName: state.displayName,
                         color: state.color
                     )
+                )
+                return .none
+
+            case .view(.manageTapped):
+                guard state.isOwner else { return .none }
+                state.destination = .manage(
+                    ManageGroupFeature.State(group: state.group, myUid: state.myUid, color: state.color)
                 )
                 return .none
 
@@ -142,6 +149,16 @@ struct GroupFeature {
                 state.isDayPlanDownloaded = true
                 return .none
 
+            case let .destination(.presented(.manage(.delegate(.groupChanged(group))))):
+                state.group = group
+                return .none
+
+            case .destination(.presented(.manage(.delegate(.deleted)))):
+                return .run { [dismiss] send in
+                    await send(.delegate(.left))
+                    await dismiss()
+                }
+
             // The preview sheet closes while the copy loads, then the session covers the screen.
             case .destination(.presented(.planPreview(.delegate(.startWorkout(let device))))):
                 guard state.isSelectedDayToday, let plan = state.dayPlan else { return .none }
@@ -161,11 +178,7 @@ struct GroupFeature {
                 return .none
 
             case let .workoutStartFailed(message):
-                state.alert = AlertState {
-                    TextState(String(localized: "Couldn't start the workout"))
-                } message: {
-                    TextState(message)
-                }
+                state.alert = .workoutStartFailed(message)
                 return .none
 
             case .alert(.presented(.confirmDeletePlan)):
@@ -177,17 +190,13 @@ struct GroupFeature {
 
             case let .deletePlanFailed(message):
                 state.isDeletingDayPlan = false
-                state.alert = AlertState {
-                    TextState(String(localized: "Couldn't Delete the Plan"))
-                } message: {
-                    TextState(message)
-                }
+                state.alert = .deletePlanFailed(message)
                 return .none
 
             case .alert(.presented(.confirmLeave)):
                 state.isLeaving = true
-                return .run { [groupId = state.group.id, teamClient] send in
-                    try await teamClient.leaveGroup(groupId)
+                return .run { [groupId = state.group.id, successorUid = state.successor?.uid, teamClient] send in
+                    try await teamClient.leaveGroup(groupId, successorUid)
                     await send(.left)
                 } catch: { error, send in
                     Logger.team.error("Leave group failed: \(error.localizedDescription)")
@@ -203,11 +212,7 @@ struct GroupFeature {
 
             case let .leaveFailed(message):
                 state.isLeaving = false
-                state.alert = AlertState {
-                    TextState(String(localized: "Couldn't Leave the Group"))
-                } message: {
-                    TextState(message)
-                }
+                state.alert = .leaveFailed(message)
                 return .none
 
             case .alert, .delegate, .destination, .leaderboard:
@@ -311,38 +316,4 @@ struct GroupFeature {
         .cancellable(id: GroupCancelID.members, cancelInFlight: true)
     }
 
-    private static func deletePlanConfirmation() -> AlertState<Action.Alert> {
-        AlertState {
-            TextState(String(localized: "Delete Today's Plan?"))
-        } actions: {
-            ButtonState(role: .destructive, action: .confirmDeletePlan) {
-                TextState(String(localized: "Delete"))
-            }
-            ButtonState(role: .cancel) {
-                TextState(String(localized: "Cancel"))
-            }
-        } message: {
-            TextState(String(localized: "Members have already posted results for this plan. They will be deleted with it."))
-        }
-    }
-
-    // The owner leaving does not delete the group — the others keep training in it.
-    private static func leaveConfirmation(isOwner: Bool) -> AlertState<Action.Alert> {
-        AlertState {
-            TextState(String(localized: "Leave Group?"))
-        } actions: {
-            ButtonState(role: .destructive, action: .confirmLeave) {
-                TextState(String(localized: "Leave"))
-            }
-            ButtonState(role: .cancel) {
-                TextState(String(localized: "Cancel"))
-            }
-        } message: {
-            TextState(
-                isOwner
-                    ? String(localized: "You created this group. It stays for the other members; you can come back only with a new invite.")
-                    : String(localized: "You can come back only with a new invite.")
-            )
-        }
-    }
 }

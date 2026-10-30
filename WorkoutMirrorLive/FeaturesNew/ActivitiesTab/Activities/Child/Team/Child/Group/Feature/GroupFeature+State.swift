@@ -97,6 +97,11 @@ extension GroupFeature {
             selectedDay == today
         }
 
+        /// Who inherits the group if the owner leaves: the longest-standing other member (members arrive sorted by join date).
+        var successor: TeamMember? {
+            members.first { $0.uid != myUid }
+        }
+
         /// Only the owner removes a plan, and only today's — past days are history.
         var canDeleteDayPlan: Bool {
             isOwner && isSelectedDayToday && dayPlan != nil && !isDeletingDayPlan

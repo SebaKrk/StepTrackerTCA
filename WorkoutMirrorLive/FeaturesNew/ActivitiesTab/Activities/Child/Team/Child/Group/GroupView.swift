@@ -56,6 +56,11 @@ struct GroupView: View {
             ) { sessionStore in
                 SessionView(store: sessionStore)
             }
+            .navigationDestination(
+                item: $store.scope(state: \.destination?.manage, action: \.destination.manage)
+            ) { manageStore in
+                ManageGroupView(store: manageStore)
+            }
             .onAppear {
                 send(.viewDidAppear)
             }
@@ -352,6 +357,9 @@ struct GroupView: View {
     private var moreMenu: some View {
         Menu {
             inviteButton
+            if store.isOwner {
+                manageButton
+            }
             if store.canDeleteDayPlan {
                 deletePlanButton
             }
@@ -361,6 +369,14 @@ struct GroupView: View {
             Label(moreTitle, systemImage: "ellipsis")
         }
         .disabled(store.isLeaving)
+    }
+
+    private var manageButton: some View {
+        Button {
+            send(.manageTapped)
+        } label: {
+            Label(manageTitle, systemImage: "person.2.badge.gearshape")
+        }
     }
 
     private var deletePlanButton: some View {
@@ -406,6 +422,7 @@ struct GroupView: View {
     private let moreTitle = String(localized: "More")
     private let leaveTitle = String(localized: "Leave Group")
     private let deletePlanTitle = String(localized: "Delete Today's Plan")
+    private let manageTitle = String(localized: "Manage Group")
     private let failedTitle = String(localized: "Something went wrong")
     private let failedMessage = String(localized: "Unable to load the group members. Check your connection and try again.")
 }

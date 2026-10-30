@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Foundation
 import OSLog
 import SharedModels
+import SwiftUI
 
 @Reducer
 struct TeamFeature {
@@ -48,11 +49,46 @@ struct TeamFeature {
                 return respond(&state, to: invitation, accept: true)
 
             case let .view(.invitationDeclineTapped(invitation)):
-                state.alert = Self.declineConfirmation(invitation)
+                state.alert = .declineInvitation(invitation)
                 return .none
 
             case let .alert(.presented(.confirmDecline(invitation))):
                 return respond(&state, to: invitation, accept: false)
+
+            case let .view(.groupsMoved(source, destination)):
+                // The saved order covers every group once a drag happened, so the move is a plain array move.
+                var ids = state.orderedGroups.map(\.id)
+                ids.move(fromOffsets: source, toOffset: destination)
+                state.$orderedGroupIds.withLock { $0 = ids }
+                return .none
+
+            case let .view(.groupDeleteTapped(group)):
+                guard group.ownerUid == state.myUid, !state.workingGroupIds.contains(group.id) else { return .none }
+                state.alert = .deleteGroup(group)
+                return .none
+
+            case let .view(.groupLeaveTapped(group)):
+                guard group.ownerUid != state.myUid, !state.workingGroupIds.contains(group.id) else { return .none }
+                state.alert = .leaveGroup(group)
+                return .none
+
+            case let .alert(.presented(.confirmDeleteGroup(group))):
+                state.workingGroupIds.insert(group.id)
+                return groupAction(group.id) { [teamClient] in try await teamClient.deleteGroup(group.id) }
+
+            case let .alert(.presented(.confirmLeaveGroup(group))):
+                state.workingGroupIds.insert(group.id)
+                // Only members leave from the list (owners see Delete), so there is no successor to name.
+                return groupAction(group.id) { [teamClient] in try await teamClient.leaveGroup(group.id, nil) }
+
+            case let .groupActionFinished(id):
+                state.workingGroupIds.remove(id)
+                return .none
+
+            case let .groupActionFailed(id, message):
+                state.workingGroupIds.remove(id)
+                state.alert = .groupActionFailed(message)
+                return .none
 
             case .view(.scanInviteTapped):
                 state.destination = .invitationPreview(
@@ -77,6 +113,8 @@ struct TeamFeature {
             case let .groupsUpdated(groups):
                 state.groups = groups
                 state.viewState = .success
+                // Positions of groups the user left or that were deleted fall away.
+                state.$orderedGroupIds.withLock { ids in ids.removeAll { id in !groups.contains { $0.id == id } } }
                 state.today = TeamDay.id(for: date.now, calendar: calendar)
                 return loadMyEntries(groups: groups, today: state.today)
 
@@ -116,20 +154,17 @@ struct TeamFeature {
         .cancellable(id: TeamCancelID.myEntries, cancelInFlight: true)
     }
 
-    private static func declineConfirmation(_ invitation: TeamInvitation) -> AlertState<Action.Alert> {
-        AlertState {
-            TextState(String(localized: "Decline Invitation?"))
-        } actions: {
-            ButtonState(role: .destructive, action: .confirmDecline(invitation)) {
-                TextState(String(localized: "Decline"))
-            }
-            ButtonState(role: .cancel) {
-                TextState(String(localized: "Cancel"))
-            }
-        } message: {
-            TextState(String(localized: "You can join \(invitation.invite.groupName) later only by scanning the code again."))
+    // The membership listener removes the card; this only tracks the spinner and the error.
+    private func groupAction(_ id: TeamGroup.ID, _ work: @escaping @Sendable () async throws -> Void) -> Effect<Action> {
+        .run { send in
+            try await work()
+            await send(.groupActionFinished(id))
+        } catch: { error, send in
+            Logger.team.error("Group action failed: \(error.localizedDescription)")
+            await send(.groupActionFailed(id, error.localizedDescription))
         }
     }
+
 
     // Counters on the group documents change outside the membership listener, so a visit re-reads them.
     private func refreshGroups() -> Effect<Action> {

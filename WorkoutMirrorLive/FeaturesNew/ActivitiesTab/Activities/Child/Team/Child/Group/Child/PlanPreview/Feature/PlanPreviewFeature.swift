@@ -61,11 +61,7 @@ struct PlanPreviewFeature {
 
             case let .downloadFailed(message):
                 state.isDownloading = false
-                state.alert = AlertState {
-                    TextState(String(localized: "Couldn't Download the Plan"))
-                } message: {
-                    TextState(message)
-                }
+                state.alert = .downloadFailed(message)
                 return .none
 
             case .alert:

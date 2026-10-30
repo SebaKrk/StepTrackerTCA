@@ -30,8 +30,21 @@ struct TeamClient: Sendable {
     /// Creates a private group with the current account as its owner and first member.
     var createGroup: @Sendable (_ name: String, _ displayName: String) async throws -> TeamGroup
 
-    /// Removes the current account from a group.
-    var leaveGroup: @Sendable (_ groupId: String) async throws -> Void
+    /// Removes the current account from a group. A leaving owner passes `successorUid` (the longest-standing
+    /// member from the live list); with none, the group is deleted only if the server confirms the owner is alone.
+    var leaveGroup: @Sendable (_ groupId: String, _ successorUid: String?) async throws -> Void
+
+    /// Renames the group (owner only, by the rules).
+    var renameGroup: @Sendable (_ groupId: String, _ name: String) async throws -> Void
+
+    /// Hands the group to another member (owner only, by the rules).
+    var transferOwnership: @Sendable (_ groupId: String, _ uid: String) async throws -> Void
+
+    /// Removes a member, closes the group's open invite codes and drops the member's scans (owner only).
+    var removeMember: @Sendable (_ groupId: String, _ uid: String) async throws -> Void
+
+    /// Deletes the group with its members, invites, plans and results (owner only).
+    var deleteGroup: @Sendable (_ groupId: String) async throws -> Void
 
     /// Returns a group the current account belongs to, or `nil` when it is gone or not accessible.
     var group: @Sendable (_ groupId: String) async throws -> TeamGroup?
@@ -113,7 +126,11 @@ private enum TeamClientKey: DependencyKey {
             observeMyGroups: { service.observeMyGroups() },
             myGroups: { try await service.myGroups() },
             createGroup: { try await service.createGroup(name: $0, displayName: $1) },
-            leaveGroup: { try await service.leaveGroup(groupId: $0) },
+            leaveGroup: { try await service.leaveGroup(groupId: $0, successorUid: $1) },
+            renameGroup: { try await service.renameGroup(groupId: $0, name: $1) },
+            transferOwnership: { try await service.transferOwnership(groupId: $0, to: $1) },
+            removeMember: { try await service.removeMember(groupId: $0, uid: $1) },
+            deleteGroup: { try await service.deleteGroup(groupId: $0) },
             group: { try await service.group(groupId: $0) },
             observeMembers: { service.observeMembers(groupId: $0) },
             currentInvite: { try await service.currentInvite(group: $0, createdByName: $1) },
@@ -142,6 +159,10 @@ private enum TeamClientKey: DependencyKey {
             myGroups: unimplemented("TeamClient.myGroups"),
             createGroup: unimplemented("TeamClient.createGroup"),
             leaveGroup: unimplemented("TeamClient.leaveGroup"),
+            renameGroup: unimplemented("TeamClient.renameGroup"),
+            transferOwnership: unimplemented("TeamClient.transferOwnership"),
+            removeMember: unimplemented("TeamClient.removeMember"),
+            deleteGroup: unimplemented("TeamClient.deleteGroup"),
             group: unimplemented("TeamClient.group"),
             observeMembers: unimplemented("TeamClient.observeMembers", placeholder: .finished),
             currentInvite: unimplemented("TeamClient.currentInvite"),
@@ -170,7 +191,11 @@ private enum TeamClientKey: DependencyKey {
             observeMyGroups: { .finished },
             myGroups: { [] },
             createGroup: { name, _ in TeamGroup(id: "preview-group", name: name, ownerUid: "preview-uid", createdAt: .now) },
-            leaveGroup: { _ in },
+            leaveGroup: { _, _ in },
+            renameGroup: { _, _ in },
+            transferOwnership: { _, _ in },
+            removeMember: { _, _ in },
+            deleteGroup: { _ in },
             group: { id in TeamGroup(id: id, name: "Poranna ekipa", ownerUid: "preview-uid", createdAt: .now) },
             observeMembers: { _ in .finished },
             currentInvite: { group, name in

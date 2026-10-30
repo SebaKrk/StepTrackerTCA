@@ -116,11 +116,7 @@ struct PublishPlanFeature {
 
             case let .publishFailed(message):
                 state.isPublishing = false
-                state.alert = AlertState {
-                    TextState(String(localized: "Couldn't Publish the Plan"))
-                } message: {
-                    TextState(message)
-                }
+                state.alert = .publishFailed(message)
                 return .none
 
             case .alert, .binding, .delegate:
