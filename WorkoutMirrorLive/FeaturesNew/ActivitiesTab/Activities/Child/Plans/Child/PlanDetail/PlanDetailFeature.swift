@@ -80,7 +80,7 @@ struct PlanDetailFeature {
             /// Toggles the cool-down section visibility.
             case cooldownToggleTapped
 
-            /// Starts a workout session with this plan — forwarded to parent via delegate.
+            /// Opens the device picker; the session starts once a device is chosen.
             case startWorkoutTapped
 
             /// Opens the workout history list for this plan.
@@ -98,8 +98,8 @@ struct PlanDetailFeature {
             /// Session was deleted — parent should remove it and dismiss.
             case deleted(UUID)
 
-            /// User tapped "Start Workout" — parent should present the session screen.
-            case startWorkout(TrainingSession)
+            /// Device chosen after "Start Workout" — parent should present the session screen.
+            case startWorkout(TrainingSession, DeviceOption)
         }
     }
 
@@ -133,7 +133,8 @@ struct PlanDetailFeature {
                 return .none
 
             case .view(.startWorkoutTapped):
-                return .send(.delegate(.startWorkout(state.trainingSession)))
+                state.destination = .devicePicker(DeviceFeature.State())
+                return .none
 
             case .view(.historyTapped):
                 state.destination = .history(
@@ -150,6 +151,10 @@ struct PlanDetailFeature {
             case .destination(.presented(.editor(.delegate(.saved(let session))))):
                 state.trainingSession = session
                 return .send(.delegate(.saved(session)))
+
+            case .destination(.presented(.devicePicker(.select(let device)))):
+                state.destination = nil
+                return .send(.delegate(.startWorkout(state.trainingSession, device)))
 
             case .destination(.presented(.editor(.delegate(.deleted(let id))))):
                 return .run { send in

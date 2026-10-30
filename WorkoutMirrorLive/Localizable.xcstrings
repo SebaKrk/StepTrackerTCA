@@ -605,6 +605,7 @@
       "shouldTranslate" : false
     },
     "%lld min missing" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -631,6 +632,7 @@
       }
     },
     "%lld of %lld min" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -841,6 +843,7 @@
       }
     },
     "+%lld min" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2017,9 +2020,6 @@
         }
       }
     },
-    "By Time Cap" : {
-
-    },
     "Cadence" : {
       "localizations" : {
         "pl" : {
@@ -2250,6 +2250,16 @@
         }
       }
     },
+    "Choose device" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz urządzenie"
+          }
+        }
+      }
+    },
     "Choose Exercise" : {
       "localizations" : {
         "pl" : {
@@ -2271,6 +2281,7 @@
       }
     },
     "Class Length" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -3881,6 +3892,7 @@
       }
     },
     "Full class" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -8655,6 +8667,7 @@
       }
     },
     "Time in Class" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {

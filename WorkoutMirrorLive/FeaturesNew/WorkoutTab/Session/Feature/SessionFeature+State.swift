@@ -29,9 +29,9 @@ extension SessionFeature {
 
         /// Device the user picked in Configuration (final semantics 2026-07-09):
         /// `.iphone` = literally the iPhone (never Watch-primary, HR from BLE strap),
-        /// `.watch` = Watch-primary when ready, `nil` (plan start, no picker) =
-        /// auto-detect in `viewDidAppear` where a CONNECTED BLE strap wins over
-        /// the Watch. Declared after `selectedWorkout` so the memberwise init keeps
+        /// `.watch` = Watch-primary when ready, `nil` (defensive, every start has
+        /// a picker) = auto-detect in `viewDidAppear` where a CONNECTED BLE strap
+        /// wins over the Watch. Declared after `selectedWorkout` so the memberwise init keeps
         /// the natural `State(selectedWorkout:requestedDevice:)` argument order.
         var requestedDevice: DeviceOption? = nil
 

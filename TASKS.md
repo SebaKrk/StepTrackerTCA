@@ -1661,3 +1661,9 @@
     - the Team points window (IOS-00152) replaced the 60-minute class budget, so "Time in Class" per block, the "Class Length" bar and the fill-to-60 helper had no consumer left
     - `WorkoutSessionNew.plannedMinutes` removed from the model, draft, re-match and import copies; class length is now warm-up + time caps + cool-down (display only)
     - the scan mapper no longer estimates block minutes ("cap + 3"); written minutes still feed warm-up / cool-down
+
+### IOS-00164 Plan start — device picker
+    - branch: `rel/IOS-00164/IOS-00164` (from release 0.9.1)
+    - "Start Workout" in plan detail opens a sheet with the same `DeviceView` as a free workout; the session starts with the chosen `DeviceOption`
+    - before, a plan start passed `requestedDevice = nil` (auto-detect), so a paired Watch always won, even one left on the charger
+    - `nil` stays only as a defensive fallback in `SessionFeature`
