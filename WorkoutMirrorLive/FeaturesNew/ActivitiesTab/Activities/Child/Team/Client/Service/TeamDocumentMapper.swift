@@ -19,6 +19,7 @@ nonisolated enum TeamDocumentMapper {
             "name": name,
             "ownerUid": ownerUid,
             "createdAt": Timestamp(date: createdAt),
+            "memberCount": 1,
         ]
     }
 
@@ -27,7 +28,30 @@ nonisolated enum TeamDocumentMapper {
             id: id,
             name: try string(data, "name", path),
             ownerUid: try string(data, "ownerUid", path),
-            createdAt: try date(data, "createdAt", path)
+            createdAt: try date(data, "createdAt", path),
+            memberCount: (data["memberCount"] as? NSNumber)?.intValue,
+            lastPlan: try (data["lastPlan"] as? [String: Any]).map { try planSummary($0, path) }
+        )
+    }
+
+    /// Summary of a plan kept on the group document for the list.
+    static func planSummaryData(_ plan: TeamPlan, entryCount: Int) -> [String: Any] {
+        [
+            "day": plan.id,
+            "title": plan.session.title,
+            "sessionMinutes": plan.sessionMinutes,
+            "authorName": plan.authorName,
+            "entryCount": entryCount,
+        ]
+    }
+
+    private static func planSummary(_ data: [String: Any], _ path: String) throws -> TeamGroupPlanSummary {
+        TeamGroupPlanSummary(
+            day: try string(data, "day", path),
+            title: try string(data, "title", path),
+            sessionMinutes: try int(data, "sessionMinutes", path),
+            authorName: try string(data, "authorName", path),
+            entryCount: try int(data, "entryCount", path)
         )
     }
 

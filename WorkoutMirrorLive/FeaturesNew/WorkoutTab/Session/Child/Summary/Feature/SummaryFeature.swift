@@ -237,7 +237,12 @@ struct SummaryFeature {
                             now: now
                         )
                         do {
-                            try await teamClient.submitEntry(team.groupId, team.plan.id, entry)
+                            try await teamClient.submitEntry(
+                                team.groupId,
+                                team.plan.id,
+                                entry,
+                                team.context.existingEntry == nil
+                            )
                         } catch {
                             reportIssue(error)
                         }

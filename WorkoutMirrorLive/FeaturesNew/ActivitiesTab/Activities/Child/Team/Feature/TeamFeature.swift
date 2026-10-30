@@ -13,6 +13,7 @@ import SharedModels
 @Reducer
 struct TeamFeature {
 
+    @Dependency(\.calendar) var calendar
     @Dependency(\.date) var date
     @Dependency(\.teamClient) var teamClient
     @Dependency(\.userProfileClient) var userProfileClient
@@ -24,9 +25,12 @@ struct TeamFeature {
             // MARK: - View
 
             case .view(.viewDidAppear):
-                guard !state.hasStarted else { return .none }
+                guard !state.hasStarted else { return refreshGroups() }
                 state.hasStarted = true
                 return startListening()
+
+            case .view(.refreshPulled):
+                return refreshGroups()
 
             case let .view(.segmentChanged(segment)):
                 state.segment = segment
@@ -44,6 +48,10 @@ struct TeamFeature {
                 return respond(&state, to: invitation, accept: true)
 
             case let .view(.invitationDeclineTapped(invitation)):
+                state.alert = Self.declineConfirmation(invitation)
+                return .none
+
+            case let .alert(.presented(.confirmDecline(invitation))):
                 return respond(&state, to: invitation, accept: false)
 
             case .view(.scanInviteTapped):
@@ -69,6 +77,11 @@ struct TeamFeature {
             case let .groupsUpdated(groups):
                 state.groups = groups
                 state.viewState = .success
+                state.today = TeamDay.id(for: date.now, calendar: calendar)
+                return loadMyEntries(groups: groups, today: state.today)
+
+            case let .myEntriesLoaded(entries):
+                state.myEntries = entries
                 return .none
 
             case .groupsFailed:
@@ -85,11 +98,47 @@ struct TeamFeature {
 
             // MARK: - Destination
 
-            case .destination:
+            case .alert, .destination:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
+    }
+
+    // Only groups with a plan today have a result to show.
+    private func loadMyEntries(groups: [TeamGroup], today: String) -> Effect<Action> {
+        let groupIds = groups.filter { $0.lastPlan?.day == today }.map(\.id)
+        guard !groupIds.isEmpty else { return .send(.myEntriesLoaded([:])) }
+        return .run { [teamClient] send in
+            await send(.myEntriesLoaded(await teamClient.myEntries(groupIds, today)))
+        }
+        .cancellable(id: TeamCancelID.myEntries, cancelInFlight: true)
+    }
+
+    private static func declineConfirmation(_ invitation: TeamInvitation) -> AlertState<Action.Alert> {
+        AlertState {
+            TextState(String(localized: "Decline Invitation?"))
+        } actions: {
+            ButtonState(role: .destructive, action: .confirmDecline(invitation)) {
+                TextState(String(localized: "Decline"))
+            }
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "Cancel"))
+            }
+        } message: {
+            TextState(String(localized: "You can join \(invitation.invite.groupName) later only by scanning the code again."))
+        }
+    }
+
+    // Counters on the group documents change outside the membership listener, so a visit re-reads them.
+    private func refreshGroups() -> Effect<Action> {
+        .run { [teamClient] send in
+            await send(.groupsUpdated(try await teamClient.myGroups()))
+        } catch: { error, _ in
+            Logger.team.error("Team groups refresh failed: \(error.localizedDescription)")
+        }
+        .cancellable(id: TeamCancelID.refresh, cancelInFlight: true)
     }
 
     // Groups and scanned invites stay live for as long as the tab exists.

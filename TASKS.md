@@ -1679,3 +1679,10 @@
     - "Delete Today's Plan" in the group menu, owner only, today only; a plan with no results goes at once, one with results asks first
     - `TeamClient.deletePlan` removes the plan document and its `entries` subcollection in one batch (rules already allowed the owner)
     - the card and the leaderboard clear through their listeners; members' downloaded copies stay in their Plans
+
+### IOS-00167 Team — group list cards and counters
+    - branch: `rel/IOS-00167/IOS-00167` (from IOS-00164)
+    - group card built like the plan card: icon, name, "Your group · N members", then Plan today / Results / Your result columns; a day without a plan shows one line
+    - invitation is one row: group, who invites, glass decline (confirmed by alert) and prominent join
+    - group document carries `memberCount` and `lastPlan` (day, title, minutes, author, entryCount), moved in the same batches as membership, publish, first result and delete; rules let members touch only those two keys
+    - "Your result" is one `myEntry` read per group with today's plan; a failed read leaves the column empty

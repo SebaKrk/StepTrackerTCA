@@ -22,10 +22,25 @@ public struct TeamGroup: Identifiable, Equatable, Codable, Sendable {
     /// Creation time.
     public let createdAt: Date
 
-    public init(id: String, name: String, ownerUid: String, createdAt: Date) {
+    /// Members in the group; `nil` for groups created before the counter existed.
+    public let memberCount: Int?
+
+    /// The most recently published plan with its result count; `nil` when none was published.
+    public let lastPlan: TeamGroupPlanSummary?
+
+    public init(
+        id: String,
+        name: String,
+        ownerUid: String,
+        createdAt: Date,
+        memberCount: Int? = nil,
+        lastPlan: TeamGroupPlanSummary? = nil
+    ) {
         self.id = id
         self.name = name
         self.ownerUid = ownerUid
         self.createdAt = createdAt
+        self.memberCount = memberCount
+        self.lastPlan = lastPlan
     }
 }

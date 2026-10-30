@@ -32,6 +32,12 @@ extension TeamFeature {
         /// Invitations whose join or decline is in flight.
         var respondingInvitationIds: Set<TeamInvitation.ID> = []
 
+        /// Today's day id, set when the groups arrive — picks which plan summaries count as today's.
+        var today = ""
+
+        /// The user's result for today's plan, by group id; groups without one are absent.
+        var myEntries: [String: TeamEntry] = [:]
+
         /// Loading state of the private segment.
         var viewState: ViewState = .loading
 
@@ -43,6 +49,11 @@ extension TeamFeature {
 
         /// Set after the first appearance so returning to the tab keeps the running listener.
         var hasStarted = false
+
+        // MARK: - Alert
+
+        /// Confirmation before declining an invitation.
+        @Presents var alert: AlertState<Action.Alert>?
 
         // MARK: - Destination
 

@@ -31,6 +31,12 @@ extension TeamFeature {
         /// Internal — join or decline of an invitation finished (successfully or not).
         case invitationResponseFinished(TeamInvitation.ID)
 
+        /// Internal — the user's results for today's plans arrived, by group id.
+        case myEntriesLoaded([String: TeamEntry])
+
+        /// Decline confirmation.
+        case alert(PresentationAction<Alert>)
+
         // MARK: - Destination
 
         /// Handles navigation destinations within this feature.
@@ -48,6 +54,9 @@ extension TeamFeature {
             /// Called when the user taps "Try again" after a failure.
             case retryTapped
 
+            /// Called on pull to refresh; the effect ends when the groups are re-read.
+            case refreshPulled
+
             /// Called when the user taps "+" or "Create Group".
             case createGroupTapped
 
@@ -62,6 +71,13 @@ extension TeamFeature {
 
             /// Called when the user taps "Decline" on a pending invitation.
             case invitationDeclineTapped(TeamInvitation)
+        }
+
+        @CasePathable
+        enum Alert: Equatable {
+
+            /// The user confirmed declining the invitation.
+            case confirmDecline(TeamInvitation)
         }
     }
 

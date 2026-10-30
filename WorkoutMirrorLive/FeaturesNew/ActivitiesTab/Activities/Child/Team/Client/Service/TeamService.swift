@@ -32,6 +32,13 @@ nonisolated final class TeamService: @unchecked Sendable {
 
     // MARK: - Groups
 
+    // The listener fires on membership changes only, so counters written to the group document need a re-read.
+    func myGroups() async throws -> [TeamGroup] {
+        let uid = try await ensureSignedIn()
+        let memberships = try await db.collectionGroup("members").whereField("uid", isEqualTo: uid).getDocuments()
+        return try await groups(ids: memberships.documents.compactMap { $0.reference.parent.parent?.documentID })
+    }
+
     func observeMyGroups() -> AsyncThrowingStream<[TeamGroup], Error> {
         listen(
             query: { [self] uid in db.collectionGroup("members").whereField("uid", isEqualTo: uid) },
@@ -51,12 +58,16 @@ nonisolated final class TeamService: @unchecked Sendable {
             forDocument: groupRef.collection("members").document(uid)
         )
         try await batch.commit()
-        return TeamGroup(id: groupRef.documentID, name: name, ownerUid: uid, createdAt: now)
+        return TeamGroup(id: groupRef.documentID, name: name, ownerUid: uid, createdAt: now, memberCount: 1)
     }
 
+    // The member count on the group document moves in the same batch as the membership itself.
     func leaveGroup(groupId: String) async throws {
         let uid = try await ensureSignedIn()
-        try await groupRef(groupId).collection("members").document(uid).delete()
+        let batch = db.batch()
+        batch.deleteDocument(groupRef(groupId).collection("members").document(uid))
+        batch.updateData(["memberCount": FieldValue.increment(Int64(-1))], forDocument: groupRef(groupId))
+        try await batch.commit()
     }
 
     func group(groupId: String) async throws -> TeamGroup? {
@@ -173,6 +184,7 @@ nonisolated final class TeamService: @unchecked Sendable {
             ),
             forDocument: groupRef(invite.groupId).collection("members").document(uid)
         )
+        batch.updateData(["memberCount": FieldValue.increment(Int64(1))], forDocument: groupRef(invite.groupId))
         try await batch.commit()
     }
 
@@ -215,8 +227,17 @@ nonisolated final class TeamService: @unchecked Sendable {
 
     // MARK: - Plans and entries
 
+    // Replacing a day's plan keeps its entries, so the summary counts the ones already there.
     func publishPlan(groupId: String, plan: TeamPlan) async throws {
-        try await groupRef(groupId).collection("plans").document(plan.id).setData(TeamDocumentMapper.planData(plan))
+        let planRef = groupRef(groupId).collection("plans").document(plan.id)
+        let entryCount = try await planRef.collection("entries").getDocuments().count
+        let batch = db.batch()
+        batch.setData(try TeamDocumentMapper.planData(plan), forDocument: planRef)
+        batch.updateData(
+            ["lastPlan": TeamDocumentMapper.planSummaryData(plan, entryCount: entryCount)],
+            forDocument: groupRef(groupId)
+        )
+        try await batch.commit()
     }
 
     func plan(groupId: String, day: String) async throws -> TeamPlan? {
@@ -251,11 +272,15 @@ nonisolated final class TeamService: @unchecked Sendable {
     func deletePlan(groupId: String, day: String) async throws {
         let planRef = groupRef(groupId).collection("plans").document(day)
         let entries = try await planRef.collection("entries").getDocuments().documents
+        let summaryDay = (try await groupRef(groupId).getDocument().data()?["lastPlan"] as? [String: Any])?["day"] as? String
         let batch = db.batch()
         for entry in entries {
             batch.deleteDocument(entry.reference)
         }
         batch.deleteDocument(planRef)
+        if summaryDay == day {
+            batch.updateData(["lastPlan": FieldValue.delete()], forDocument: groupRef(groupId))
+        }
         try await batch.commit()
     }
 
@@ -266,9 +291,25 @@ nonisolated final class TeamService: @unchecked Sendable {
         return try TeamDocumentMapper.entry(data: data, path: ref.path)
     }
 
+    // One read per group, in parallel; a group whose read fails is simply absent from the result.
+    func myEntries(groupIds: [String], day: String) async -> [String: TeamEntry] {
+        await withTaskGroup(of: (String, TeamEntry?).self) { group in
+            for groupId in groupIds {
+                group.addTask { [self] in (groupId, try? await myEntry(groupId: groupId, day: day)) }
+            }
+            var entries: [String: TeamEntry] = [:]
+            for await (groupId, entry) in group {
+                if let entry {
+                    entries[groupId] = entry
+                }
+            }
+            return entries
+        }
+    }
+
     // Not awaited: Firestore keeps the write in its local queue and sends it when online,
     // even after the Summary screen that triggered it has closed.
-    func submitEntry(groupId: String, day: String, entry: TeamEntry) {
+    func submitEntry(groupId: String, day: String, entry: TeamEntry, isFirst: Bool) {
         let path = "groups/\(groupId)/plans/\(day)/entries/\(entry.uid)"
         groupRef(groupId)
             .collection("plans").document(day)
@@ -278,6 +319,16 @@ nonisolated final class TeamService: @unchecked Sendable {
                     Logger.team.error("Entry \(path) not saved: \(error.localizedDescription)")
                 }
             }
+        guard isFirst else { return }
+        // The list counter follows the group's current plan only; a late result for an older day leaves it alone.
+        // Offline the read fails and the counter stays behind by one until the next publish recounts it.
+        Task { [groupRef = groupRef(groupId)] in
+            guard
+                let data = try? await groupRef.getDocument().data(),
+                (data["lastPlan"] as? [String: Any])?["day"] as? String == day
+            else { return }
+            try? await groupRef.updateData(["lastPlan.entryCount": FieldValue.increment(Int64(1))])
+        }
     }
 
     func observeDayEntries(groupId: String, day: String) -> AsyncThrowingStream<[TeamEntry], Error> {

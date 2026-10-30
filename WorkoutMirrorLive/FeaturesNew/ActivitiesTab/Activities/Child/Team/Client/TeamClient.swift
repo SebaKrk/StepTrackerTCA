@@ -24,6 +24,9 @@ struct TeamClient: Sendable {
     /// Emits the groups the current account belongs to, again after every membership change.
     var observeMyGroups: @Sendable () -> AsyncThrowingStream<[TeamGroup], Error>
 
+    /// Reads the user's groups once — pull to refresh and returning to the tab.
+    var myGroups: @Sendable () async throws -> [TeamGroup]
+
     /// Creates a private group with the current account as its owner and first member.
     var createGroup: @Sendable (_ name: String, _ displayName: String) async throws -> TeamGroup
 
@@ -76,9 +79,12 @@ struct TeamClient: Sendable {
     /// Returns the current account's entry for a day, or `nil` before the first submission.
     var myEntry: @Sendable (_ groupId: String, _ day: String) async throws -> TeamEntry?
 
+    /// Returns the current account's entries for a day across groups, by group id; groups without one are absent.
+    var myEntries: @Sendable (_ groupIds: [String], _ day: String) async -> [String: TeamEntry]
+
     /// Queues the current account's entry for a day (replacing an earlier one); returns without waiting
     /// for the network, so the write survives going offline and the screen closing.
-    var submitEntry: @Sendable (_ groupId: String, _ day: String, _ entry: TeamEntry) async throws -> Void
+    var submitEntry: @Sendable (_ groupId: String, _ day: String, _ entry: TeamEntry, _ isFirst: Bool) async throws -> Void
 
     /// Emits all entries for a day, again after every change.
     var observeDayEntries: @Sendable (_ groupId: String, _ day: String) -> AsyncThrowingStream<[TeamEntry], Error>
@@ -105,6 +111,7 @@ private enum TeamClientKey: DependencyKey {
         return TeamClient(
             ensureSignedIn: { try await service.ensureSignedIn() },
             observeMyGroups: { service.observeMyGroups() },
+            myGroups: { try await service.myGroups() },
             createGroup: { try await service.createGroup(name: $0, displayName: $1) },
             leaveGroup: { try await service.leaveGroup(groupId: $0) },
             group: { try await service.group(groupId: $0) },
@@ -121,7 +128,8 @@ private enum TeamClientKey: DependencyKey {
             observePlan: { service.observePlan(groupId: $0, day: $1) },
             deletePlan: { try await service.deletePlan(groupId: $0, day: $1) },
             myEntry: { try await service.myEntry(groupId: $0, day: $1) },
-            submitEntry: { service.submitEntry(groupId: $0, day: $1, entry: $2) },
+            myEntries: { await service.myEntries(groupIds: $0, day: $1) },
+            submitEntry: { service.submitEntry(groupId: $0, day: $1, entry: $2, isFirst: $3) },
             observeDayEntries: { service.observeDayEntries(groupId: $0, day: $1) },
             weekEntries: { try await service.weekEntries(groupId: $0, days: $1) }
         )
@@ -131,6 +139,7 @@ private enum TeamClientKey: DependencyKey {
         TeamClient(
             ensureSignedIn: unimplemented("TeamClient.ensureSignedIn"),
             observeMyGroups: unimplemented("TeamClient.observeMyGroups", placeholder: .finished),
+            myGroups: unimplemented("TeamClient.myGroups"),
             createGroup: unimplemented("TeamClient.createGroup"),
             leaveGroup: unimplemented("TeamClient.leaveGroup"),
             group: unimplemented("TeamClient.group"),
@@ -147,6 +156,7 @@ private enum TeamClientKey: DependencyKey {
             observePlan: unimplemented("TeamClient.observePlan", placeholder: .finished),
             deletePlan: unimplemented("TeamClient.deletePlan"),
             myEntry: unimplemented("TeamClient.myEntry"),
+            myEntries: unimplemented("TeamClient.myEntries", placeholder: [:]),
             submitEntry: unimplemented("TeamClient.submitEntry"),
             observeDayEntries: unimplemented("TeamClient.observeDayEntries", placeholder: .finished),
             weekEntries: unimplemented("TeamClient.weekEntries")
@@ -158,6 +168,7 @@ private enum TeamClientKey: DependencyKey {
         TeamClient(
             ensureSignedIn: { "preview-uid" },
             observeMyGroups: { .finished },
+            myGroups: { [] },
             createGroup: { name, _ in TeamGroup(id: "preview-group", name: name, ownerUid: "preview-uid", createdAt: .now) },
             leaveGroup: { _ in },
             group: { id in TeamGroup(id: id, name: "Poranna ekipa", ownerUid: "preview-uid", createdAt: .now) },
@@ -196,7 +207,8 @@ private enum TeamClientKey: DependencyKey {
             observePlan: { _, _ in .finished },
             deletePlan: { _, _ in },
             myEntry: { _, _ in nil },
-            submitEntry: { _, _, _ in },
+            myEntries: { _, _ in [:] },
+            submitEntry: { _, _, _, _ in },
             observeDayEntries: { _, _ in .finished },
             weekEntries: { _, _ in [:] }
         )

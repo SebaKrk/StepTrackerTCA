@@ -4,6 +4,9 @@
     "" : {
 
     },
+    " " : {
+
+    },
     " cal" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -591,6 +594,40 @@
         }
       }
     },
+    "%lld members" : {
+      "localizations" : {
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osoby"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osób"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osoba"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osoby"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld min" : {
       "localizations" : {
         "pl" : {
@@ -627,6 +664,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld ruchów w %lld kategoriach"
+          }
+        }
+      }
+    },
+    "%lld of %lld" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld z %2$lld"
           }
         }
       }
@@ -2939,6 +2986,16 @@
         }
       }
     },
+    "Decline Invitation?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzucić zaproszenie?"
+          }
+        }
+      }
+    },
     "Declined" : {
       "localizations" : {
         "pl" : {
@@ -4099,6 +4156,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kontakt z podłożem"
+          }
+        }
+      }
+    },
+    "Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupa"
           }
         }
       }
@@ -5793,6 +5860,16 @@
         }
       }
     },
+    "No plan today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak planu na dziś"
+          }
+        }
+      }
+    },
     "No plan was published that day." : {
       "localizations" : {
         "pl" : {
@@ -6473,6 +6550,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plan dnia"
+          }
+        }
+      }
+    },
+    "Plan today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan dziś"
           }
         }
       }
@@ -7822,6 +7909,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wysłać do developera?"
+          }
+        }
+      }
+    },
+    "sent" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wysłany"
           }
         }
       }
@@ -9812,6 +9909,16 @@
         }
       }
     },
+    "You can join %@ later only by scanning the code again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do grupy %@ dołączysz później tylko po ponownym zeskanowaniu kodu."
+          }
+        }
+      }
+    },
     "You can now start scanning for Bluetooth devices" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9992,6 +10099,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twoje rekordy"
+          }
+        }
+      }
+    },
+    "Your result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój wynik"
           }
         }
       }

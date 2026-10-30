@@ -43,6 +43,17 @@ service cloud.firestore {
       return invite.revoked == false && invite.expiresAt > request.time;
     }
 
+    // Counters on the group document move in the same batch as the membership or plan write.
+    // The joiner is not a member yet when the batch starts, so the member created in it counts too.
+    function touchesOnlyCounters() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount', 'lastPlan']);
+    }
+
+    function isMemberAfter(groupId) {
+      return signedIn()
+        && existsAfter(/databases/$(database)/documents/groups/$(groupId)/members/$(me()));
+    }
+
     match /users/{uid} {
       allow read, write: if signedIn() && uid == me();
     }
@@ -50,12 +61,18 @@ service cloud.firestore {
     match /groups/{groupId} {
       allow read: if isMember(groupId);
       allow create: if signedIn()
-        && request.resource.data.keys().hasOnly(['name', 'ownerUid', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['name', 'ownerUid', 'createdAt', 'memberCount'])
         && request.resource.data.ownerUid == me()
+        && request.resource.data.memberCount == 1
         && validGroupName(request.resource.data.name);
-      allow update: if isOwner(groupId)
-        && request.resource.data.ownerUid == resource.data.ownerUid
-        && validGroupName(request.resource.data.name);
+      allow update: if (
+          isOwner(groupId)
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && validGroupName(request.resource.data.name)
+        ) || (
+          (isMember(groupId) || isMemberAfter(groupId))
+          && touchesOnlyCounters()
+        );
       allow delete: if isOwner(groupId);
 
       match /members/{uid} {
