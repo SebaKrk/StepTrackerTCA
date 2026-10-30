@@ -31,8 +31,14 @@ extension PublishPlanFeature {
         /// Internal — publishing failed; carries the message to show.
         case publishFailed(String)
 
+        /// Failure alert — OK only.
+        case alert(PresentationAction<Alert>)
+
         /// Messages for the parent.
         case delegate(Delegate)
+
+        /// The failure alert has no custom buttons.
+        enum Alert: Equatable {}
 
         @CasePathable
         enum View {

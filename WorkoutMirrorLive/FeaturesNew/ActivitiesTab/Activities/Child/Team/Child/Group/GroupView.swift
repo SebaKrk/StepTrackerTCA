@@ -51,6 +51,11 @@ struct GroupView: View {
             ) { previewStore in
                 PlanPreviewView(store: previewStore)
             }
+            .fullScreenCover(
+                item: $store.scope(state: \.destination?.session, action: \.destination.session)
+            ) { sessionStore in
+                SessionView(store: sessionStore)
+            }
             .onAppear {
                 send(.viewDidAppear)
             }
@@ -154,12 +159,7 @@ struct GroupView: View {
     }
 
     private func dayPlanSummary(_ plan: TeamPlan) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            dayPlanPreviewButton(plan)
-            if store.isSelectedDayToday && !store.isDayPlanDownloaded {
-                downloadDayPlanButton
-            }
-        }
+        dayPlanPreviewButton(plan)
     }
 
     // The whole plan summary opens the preview, like plan cards elsewhere.
@@ -183,10 +183,13 @@ struct GroupView: View {
             dayPlanTitles(plan)
                 .layoutPriority(1)
             Spacer(minLength: 0)
+            // Before the download the arrow is the only control; the chevron joins the badge after it.
             if store.isDayPlanDownloaded {
                 InYourPlansBadge()
+                chevron
+            } else if store.isSelectedDayToday {
+                downloadDayPlanButton
             }
-            chevron
         }
     }
 
@@ -231,22 +234,22 @@ struct GroupView: View {
     }
 
 
+    // Icon only — it sits in the header where the "In your Plans" badge takes over after the download.
     private var downloadDayPlanButton: some View {
         Button {
             send(.dayPlanDownloadTapped)
         } label: {
-            Group {
-                if store.isDownloadingDayPlan {
-                    ProgressView()
-                } else {
-                    Label(downloadTitle, systemImage: "arrow.down.circle")
-                }
+            if store.isDownloadingDayPlan {
+                ProgressView()
+            } else {
+                Image(systemName: "arrow.down.circle")
+                    .font(.title2)
+                    .foregroundStyle(store.color)
             }
-            .font(.headline)
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.borderless)
         .disabled(store.isDownloadingDayPlan)
+        .accessibilityLabel(downloadTitle)
     }
 
     private var noDayPlanText: some View {
@@ -349,12 +352,23 @@ struct GroupView: View {
     private var moreMenu: some View {
         Menu {
             inviteButton
+            if store.canDeleteDayPlan {
+                deletePlanButton
+            }
             Divider()
             leaveButton
         } label: {
             Label(moreTitle, systemImage: "ellipsis")
         }
         .disabled(store.isLeaving)
+    }
+
+    private var deletePlanButton: some View {
+        Button(role: .destructive) {
+            send(.deletePlanTapped)
+        } label: {
+            Label(deletePlanTitle, systemImage: "trash")
+        }
     }
 
     private var leaveButton: some View {
@@ -391,6 +405,7 @@ struct GroupView: View {
     private let youLabel = String(localized: "You")
     private let moreTitle = String(localized: "More")
     private let leaveTitle = String(localized: "Leave Group")
+    private let deletePlanTitle = String(localized: "Delete Today's Plan")
     private let failedTitle = String(localized: "Something went wrong")
     private let failedMessage = String(localized: "Unable to load the group members. Check your connection and try again.")
 }

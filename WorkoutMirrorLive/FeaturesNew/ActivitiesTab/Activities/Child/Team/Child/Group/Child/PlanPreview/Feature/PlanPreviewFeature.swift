@@ -26,7 +26,6 @@ struct PlanPreviewFeature {
             case .view(.downloadTapped):
                 guard state.canDownload, !state.isDownloaded, !state.isDownloading else { return .none }
                 state.isDownloading = true
-                state.errorMessage = nil
                 let copy = state.plan.session.downloadedTeamCopy(
                     id: uuid(),
                     date: date.now,
@@ -40,8 +39,20 @@ struct PlanPreviewFeature {
                     await send(.downloadFailed(error.localizedDescription))
                 }
 
+            case .view(.startWorkoutTapped):
+                guard state.canDownload, state.isDownloaded else { return .none }
+                state.devicePicker = DeviceFeature.State()
+                return .none
+
             case .view(.closeTapped):
                 return .run { [dismiss] _ in await dismiss() }
+
+            case .devicePicker(.presented(.select(let device))):
+                state.devicePicker = nil
+                return .send(.delegate(.startWorkout(device)))
+
+            case .devicePicker:
+                return .none
 
             case .downloaded:
                 state.isDownloading = false
@@ -50,12 +61,23 @@ struct PlanPreviewFeature {
 
             case let .downloadFailed(message):
                 state.isDownloading = false
-                state.errorMessage = message
+                state.alert = AlertState {
+                    TextState(String(localized: "Couldn't Download the Plan"))
+                } message: {
+                    TextState(message)
+                }
+                return .none
+
+            case .alert:
                 return .none
 
             case .binding, .delegate:
                 return .none
             }
+        }
+        .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$devicePicker, action: \.devicePicker) {
+            DeviceFeature()
         }
     }
 }

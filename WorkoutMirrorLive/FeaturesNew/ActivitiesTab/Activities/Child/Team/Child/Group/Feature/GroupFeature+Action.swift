@@ -31,6 +31,18 @@ extension GroupFeature {
         /// Internal — the card's download finished; `true` when the copy was saved.
         case dayPlanDownloadFinished(Bool)
 
+        /// Internal — the local copy of today's plan is ready to run on the chosen device.
+        case workoutReady(TrainingSession, DeviceOption)
+
+        /// Internal — preparing the copy failed; carries the message to show.
+        case workoutStartFailed(String)
+
+        /// Internal — today's plan and its entries are gone.
+        case planDeleted
+
+        /// Internal — deleting the plan failed; carries the message to show.
+        case deletePlanFailed(String)
+
         /// Internal — the user is no longer a member.
         case left
 
@@ -57,6 +69,9 @@ extension GroupFeature {
 
             /// Called when the user picks "Leave Group" from the menu.
             case leaveTapped
+
+            /// Called when the owner picks "Delete Today's Plan" from the menu.
+            case deletePlanTapped
 
             /// Called when the user taps the QR button to invite someone.
             case inviteTapped
@@ -85,6 +100,9 @@ extension GroupFeature {
 
             /// The user confirmed leaving.
             case confirmLeave
+
+            /// The owner confirmed deleting today's plan with its results.
+            case confirmDeletePlan
         }
 
         @CasePathable

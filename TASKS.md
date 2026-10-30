@@ -1667,3 +1667,15 @@
     - "Start Workout" in plan detail opens a sheet with the same `DeviceView` as a free workout; the session starts with the chosen `DeviceOption`
     - before, a plan start passed `requestedDevice = nil` (auto-detect), so a paired Watch always won, even one left on the charger
     - `nil` stays only as a defensive fallback in `SessionFeature`
+
+### IOS-00165 Team — start the workout from the group
+    - branch: `rel/IOS-00164/IOS-00164` (on top of IOS-00164)
+    - today's card downloads only: an arrow icon in the header that becomes the "In your Plans" badge
+    - the plan preview gets "Start Workout" in the bottom bar (activity icon, as in plan detail); it opens the device picker and the session runs from the group screen on the copy in Plans (fetched by `teamPlanId`)
+    - past days remain view-only
+
+### IOS-00166 Team — owner deletes today's plan
+    - branch: `rel/IOS-00164/IOS-00164` (on top of IOS-00165)
+    - "Delete Today's Plan" in the group menu, owner only, today only; a plan with no results goes at once, one with results asks first
+    - `TeamClient.deletePlan` removes the plan document and its `entries` subcollection in one batch (rules already allowed the owner)
+    - the card and the leaderboard clear through their listeners; members' downloaded copies stay in their Plans

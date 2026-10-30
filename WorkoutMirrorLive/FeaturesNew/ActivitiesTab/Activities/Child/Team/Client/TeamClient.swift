@@ -70,6 +70,9 @@ struct TeamClient: Sendable {
     /// Emits the group's plan for a day (`nil` while none is published), again after every change.
     var observePlan: @Sendable (_ groupId: String, _ day: String) -> AsyncThrowingStream<TeamPlan?, Error>
 
+    /// Removes the group's plan for a day together with every entry posted to it (owner only, by the rules).
+    var deletePlan: @Sendable (_ groupId: String, _ day: String) async throws -> Void
+
     /// Returns the current account's entry for a day, or `nil` before the first submission.
     var myEntry: @Sendable (_ groupId: String, _ day: String) async throws -> TeamEntry?
 
@@ -116,6 +119,7 @@ private enum TeamClientKey: DependencyKey {
             publishPlan: { try await service.publishPlan(groupId: $0, plan: $1) },
             plan: { try await service.plan(groupId: $0, day: $1) },
             observePlan: { service.observePlan(groupId: $0, day: $1) },
+            deletePlan: { try await service.deletePlan(groupId: $0, day: $1) },
             myEntry: { try await service.myEntry(groupId: $0, day: $1) },
             submitEntry: { service.submitEntry(groupId: $0, day: $1, entry: $2) },
             observeDayEntries: { service.observeDayEntries(groupId: $0, day: $1) },
@@ -141,6 +145,7 @@ private enum TeamClientKey: DependencyKey {
             publishPlan: unimplemented("TeamClient.publishPlan"),
             plan: unimplemented("TeamClient.plan"),
             observePlan: unimplemented("TeamClient.observePlan", placeholder: .finished),
+            deletePlan: unimplemented("TeamClient.deletePlan"),
             myEntry: unimplemented("TeamClient.myEntry"),
             submitEntry: unimplemented("TeamClient.submitEntry"),
             observeDayEntries: unimplemented("TeamClient.observeDayEntries", placeholder: .finished),
@@ -189,6 +194,7 @@ private enum TeamClientKey: DependencyKey {
             publishPlan: { _, _ in },
             plan: { _, _ in nil },
             observePlan: { _, _ in .finished },
+            deletePlan: { _, _ in },
             myEntry: { _, _ in nil },
             submitEntry: { _, _, _ in },
             observeDayEntries: { _, _ in .finished },

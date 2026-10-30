@@ -247,6 +247,18 @@ nonisolated final class TeamService: @unchecked Sendable {
         }
     }
 
+    // Entries are a subcollection, so deleting the plan alone would leave them behind.
+    func deletePlan(groupId: String, day: String) async throws {
+        let planRef = groupRef(groupId).collection("plans").document(day)
+        let entries = try await planRef.collection("entries").getDocuments().documents
+        let batch = db.batch()
+        for entry in entries {
+            batch.deleteDocument(entry.reference)
+        }
+        batch.deleteDocument(planRef)
+        try await batch.commit()
+    }
+
     func myEntry(groupId: String, day: String) async throws -> TeamEntry? {
         let uid = try await ensureSignedIn()
         let ref = groupRef(groupId).collection("plans").document(day).collection("entries").document(uid)

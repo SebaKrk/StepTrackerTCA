@@ -2554,6 +2554,26 @@
         }
       }
     },
+    "Couldn't Delete the Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się usunąć planu"
+          }
+        }
+      }
+    },
+    "Couldn't Download the Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się pobrać planu"
+          }
+        }
+      }
+    },
     "Couldn't Leave the Group" : {
       "localizations" : {
         "pl" : {
@@ -2615,6 +2635,16 @@
         }
       }
     },
+    "Couldn't Publish the Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się opublikować planu"
+          }
+        }
+      }
+    },
     "Couldn't reach the class for 5 minutes. Your workout is still recording." : {
       "localizations" : {
         "pl" : {
@@ -2641,6 +2671,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się zapisać wyniku"
+          }
+        }
+      }
+    },
+    "Couldn't start the workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się rozpocząć treningu"
           }
         }
       }
@@ -2965,6 +3005,26 @@
         }
       }
     },
+    "Delete Today's Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń dzisiejszy plan"
+          }
+        }
+      }
+    },
+    "Delete Today's Plan?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć dzisiejszy plan?"
+          }
+        }
+      }
+    },
     "Delete Training Session?" : {
       "localizations" : {
         "pl" : {
@@ -3163,6 +3223,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Download the plan to Plans first." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najpierw pobierz plan do Planów."
           }
         }
       }
@@ -5169,6 +5239,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dla każdego włączonego bloku można wpisać wynik. Punkty wysiłku i tak ustawiają wszystkich w tabeli."
+          }
+        }
+      }
+    },
+    "Members have already posted results for this plan. They will be deleted with it." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Członkowie wpisali już wyniki do tego planu. Zostaną usunięte razem z nim."
           }
         }
       }
@@ -8777,12 +8857,12 @@
         }
       }
     },
-    "Today's plan was already published by %@." : {
+    "Today's plan was already published by %@. A group has one plan per day — publish first next time, or create a new group for yours." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ już opublikował(a) plan na dziś."
+            "value" : "%@ już opublikował(a) plan na dziś. Grupa ma jeden plan dziennie: następnym razem opublikuj pierwszy albo załóż nową grupę dla swojego."
           }
         }
       }

@@ -121,7 +121,7 @@ extension DeviceFeature {
 extension DeviceFeature {
 
     @ObservableState
-    struct State {
+    struct State: Equatable {
 
         ///
         var selected: DeviceOption? = nil

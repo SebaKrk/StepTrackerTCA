@@ -83,12 +83,11 @@ struct PublishPlanView: View {
                     effortWindowCard
                     scoredBlockCard(plan)
                     planContent(plan)
+                    publishSection
                 }
                 .padding()
             }
-            .safeAreaBar(edge: .bottom) {
-                publishBar
-            }
+            .alert($store.scope(state: \.alert, action: \.alert))
             .background(backgroundGradient)
             .navigationTitle(plan.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -130,16 +129,14 @@ struct PublishPlanView: View {
         )
     }
 
-    private var publishBar: some View {
+    // Last card of the scroll: the whole plan is read before the button appears.
+    private var publishSection: some View {
         VStack(spacing: 8) {
-            if let message = store.errorMessage {
-                errorText(message)
-            }
             publishButton
             cardFooter(planFooter)
                 .multilineTextAlignment(.center)
         }
-        .padding()
+        .padding(.top, 8)
     }
 
     // MARK: - Implementation
@@ -189,12 +186,6 @@ struct PublishPlanView: View {
         Text(text)
             .font(.caption)
             .foregroundStyle(.secondary)
-    }
-
-    private func errorText(_ message: String) -> some View {
-        Text(message)
-            .font(.footnote)
-            .foregroundStyle(.red)
     }
 
     private var effortWindowStepper: some View {

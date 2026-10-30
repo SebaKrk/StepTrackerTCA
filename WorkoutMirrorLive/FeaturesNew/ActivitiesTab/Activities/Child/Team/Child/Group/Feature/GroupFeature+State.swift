@@ -62,6 +62,9 @@ extension GroupFeature {
         /// A leave request is in flight.
         var isLeaving = false
 
+        /// Deleting today's plan is in flight.
+        var isDeletingDayPlan = false
+
         // MARK: - Alert
 
         /// Confirmation before leaving, or the error after a failed attempt.
@@ -92,6 +95,11 @@ extension GroupFeature {
         /// Downloading and publishing work only for today — the points window runs from the workout start.
         var isSelectedDayToday: Bool {
             selectedDay == today
+        }
+
+        /// Only the owner removes a plan, and only today's — past days are history.
+        var canDeleteDayPlan: Bool {
+            isOwner && isSelectedDayToday && dayPlan != nil && !isDeletingDayPlan
         }
 
         /// The selected day as a date; `nil` before the first appearance.

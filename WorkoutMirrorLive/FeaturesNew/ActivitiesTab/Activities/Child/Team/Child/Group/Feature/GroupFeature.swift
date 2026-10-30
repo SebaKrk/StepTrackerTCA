@@ -69,11 +69,7 @@ struct GroupFeature {
                     !state.isDownloadingDayPlan
                 else { return .none }
                 state.isDownloadingDayPlan = true
-                let copy = plan.session.downloadedTeamCopy(
-                    id: uuid(),
-                    date: date.now,
-                    teamPlanId: TrainingSession.teamPlanId(groupId: state.group.id, day: plan.id)
-                )
+                let copy = teamCopy(of: plan, groupId: state.group.id)
                 return .run { [trainingSessionClient] send in
                     try await trainingSessionClient.save(copy)
                     await send(.dayPlanDownloadFinished(true))
@@ -84,6 +80,15 @@ struct GroupFeature {
 
             case .view(.leaveTapped):
                 state.alert = Self.leaveConfirmation(isOwner: state.isOwner)
+                return .none
+
+            case .view(.deletePlanTapped):
+                guard state.canDeleteDayPlan else { return .none }
+                // Results already posted deserve a second look; an empty plan goes right away.
+                if state.leaderboard.dayEntries.isEmpty {
+                    return deleteDayPlan(state: &state)
+                }
+                state.alert = Self.deletePlanConfirmation()
                 return .none
 
             case .view(.publishPlanTapped):
@@ -135,6 +140,48 @@ struct GroupFeature {
             case .destination(.presented(.planPreview(.delegate(.downloaded)))),
                  .destination(.presented(.publishPlan(.delegate(.published)))):
                 state.isDayPlanDownloaded = true
+                return .none
+
+            // The preview sheet closes while the copy loads, then the session covers the screen.
+            case .destination(.presented(.planPreview(.delegate(.startWorkout(let device))))):
+                guard state.isSelectedDayToday, let plan = state.dayPlan else { return .none }
+                state.destination = nil
+                return loadWorkoutCopy(plan: plan, groupId: state.group.id, device: device)
+
+            case let .workoutReady(copy, device):
+                let workout = WorkoutType(hkType: copy.activity.hkType) ?? .cross
+                state.destination = .session(
+                    SessionFeature.State(
+                        selectedWorkout: workout,
+                        requestedDevice: device,
+                        trainingSession: copy,
+                        countDown: CountDownFeature.State(workoutType: copy.activity)
+                    )
+                )
+                return .none
+
+            case let .workoutStartFailed(message):
+                state.alert = AlertState {
+                    TextState(String(localized: "Couldn't start the workout"))
+                } message: {
+                    TextState(message)
+                }
+                return .none
+
+            case .alert(.presented(.confirmDeletePlan)):
+                return deleteDayPlan(state: &state)
+
+            case .planDeleted:
+                state.isDeletingDayPlan = false
+                return .none
+
+            case let .deletePlanFailed(message):
+                state.isDeletingDayPlan = false
+                state.alert = AlertState {
+                    TextState(String(localized: "Couldn't Delete the Plan"))
+                } message: {
+                    TextState(message)
+                }
                 return .none
 
             case .alert(.presented(.confirmLeave)):
@@ -201,6 +248,43 @@ struct GroupFeature {
         return show(day: day, state: &state, reloadWeek: false)
     }
 
+    /// The user's own copy of a group plan — what Plans stores and the Summary posts from.
+    private func teamCopy(of plan: TeamPlan, groupId: String) -> TrainingSession {
+        plan.session.downloadedTeamCopy(
+            id: uuid(),
+            date: date.now,
+            teamPlanId: TrainingSession.teamPlanId(groupId: groupId, day: plan.id)
+        )
+    }
+
+    // The session runs on the copy in Plans; the start button only shows once it exists.
+    private func loadWorkoutCopy(plan: TeamPlan, groupId: String, device: DeviceOption) -> Effect<Action> {
+        let teamPlanId = TrainingSession.teamPlanId(groupId: groupId, day: plan.id)
+        return .run { [trainingSessionClient] send in
+            guard let copy = try await trainingSessionClient.fetchByTeamPlanId(teamPlanId) else {
+                await send(.workoutStartFailed(String(localized: "Download the plan to Plans first.")))
+                return
+            }
+            await send(.workoutReady(copy, device))
+        } catch: { error, send in
+            Logger.team.error("Start workout failed: \(error.localizedDescription)")
+            await send(.workoutStartFailed(error.localizedDescription))
+        }
+    }
+
+    // The plan and entry listeners clear the card and the board on their own once the delete lands.
+    private func deleteDayPlan(state: inout State) -> Effect<Action> {
+        guard state.canDeleteDayPlan else { return .none }
+        state.isDeletingDayPlan = true
+        return .run { [groupId = state.group.id, day = state.selectedDay, teamClient] send in
+            try await teamClient.deletePlan(groupId, day)
+            await send(.planDeleted)
+        } catch: { error, send in
+            Logger.team.error("Delete plan failed: \(error.localizedDescription)")
+            await send(.deletePlanFailed(error.localizedDescription))
+        }
+    }
+
     private func listenToDayPlan(groupId: String, day: String) -> Effect<Action> {
         .run { [teamClient, trainingSessionClient] send in
             let teamPlanId = TrainingSession.teamPlanId(groupId: groupId, day: day)
@@ -225,6 +309,21 @@ struct GroupFeature {
             await send(.membersFailed)
         }
         .cancellable(id: GroupCancelID.members, cancelInFlight: true)
+    }
+
+    private static func deletePlanConfirmation() -> AlertState<Action.Alert> {
+        AlertState {
+            TextState(String(localized: "Delete Today's Plan?"))
+        } actions: {
+            ButtonState(role: .destructive, action: .confirmDeletePlan) {
+                TextState(String(localized: "Delete"))
+            }
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "Cancel"))
+            }
+        } message: {
+            TextState(String(localized: "Members have already posted results for this plan. They will be deleted with it."))
+        }
     }
 
     // The owner leaving does not delete the group — the others keep training in it.
