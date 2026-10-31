@@ -12,8 +12,9 @@ import SwiftUI
 
 extension PlanPreviewFeature {
 
+    // No `Equatable`: the presented `ConfigurationFeature.State` is not one, by house convention.
     @ObservableState
-    struct State: Equatable {
+    struct State {
 
         // MARK: - Properties
 
