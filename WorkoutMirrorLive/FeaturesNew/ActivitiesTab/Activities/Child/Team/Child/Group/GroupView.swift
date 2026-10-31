@@ -47,7 +47,8 @@ struct GroupView: View {
                 PublishPlanView(store: publishStore)
             }
             .sheet(
-                item: $store.scope(state: \.destination?.planPreview, action: \.destination.planPreview)
+                item: $store.scope(state: \.destination?.planPreview, action: \.destination.planPreview),
+                onDismiss: { send(.previewDismissed) }
             ) { previewStore in
                 PlanPreviewView(store: previewStore)
             }
@@ -393,6 +394,7 @@ struct GroupView: View {
         } label: {
             Label(leaveTitle, systemImage: "rectangle.portrait.and.arrow.right")
         }
+        .disabled(!store.canLeave)
     }
 
     private var failedView: some View {

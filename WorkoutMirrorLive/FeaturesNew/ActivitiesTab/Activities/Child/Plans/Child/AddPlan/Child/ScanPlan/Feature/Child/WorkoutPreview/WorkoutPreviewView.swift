@@ -74,6 +74,7 @@ struct WorkoutPreviewView: View {
             } label: {
                 Text("Edit")
             }
+            .disabled(store.isGeneratingNotes)
         }
 
         ToolbarItem(placement: .topBarTrailing) {

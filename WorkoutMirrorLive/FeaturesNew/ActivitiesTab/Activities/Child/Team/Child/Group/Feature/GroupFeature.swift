@@ -79,17 +79,24 @@ struct GroupFeature {
                 }
 
             case .view(.leaveTapped):
+                guard state.canLeave else { return .none }
                 state.alert = .leave(isOwner: state.isOwner, successor: state.successor)
                 return .none
 
             case .view(.deletePlanTapped):
                 guard state.canDeleteDayPlan else { return .none }
-                // Results already posted deserve a second look; an empty plan goes right away.
-                if state.leaderboard.dayEntries.isEmpty {
+                // Results already posted deserve a second look; only a board known to be empty goes right away.
+                if state.isDayBoardKnownEmpty {
                     return deleteDayPlan(state: &state)
                 }
                 state.alert = .deletePlan()
                 return .none
+
+            case .view(.previewDismissed):
+                state.isPreviewClosing = false
+                guard let pending = state.pendingWorkout else { return .none }
+                state.pendingWorkout = nil
+                return .send(.workoutReady(pending.plan, pending.device))
 
             case .view(.publishPlanTapped):
                 guard state.isSelectedDayToday else { return .none }
@@ -159,13 +166,19 @@ struct GroupFeature {
                     await dismiss()
                 }
 
-            // The preview sheet closes while the copy loads, then the session covers the screen.
+            // The sheet closes first; the session is presented only after its onDismiss, whichever
+            // arrives later — the copy from the database or the end of the dismiss animation.
             case .destination(.presented(.planPreview(.delegate(.startWorkout(let device))))):
                 guard state.isSelectedDayToday, let plan = state.dayPlan else { return .none }
                 state.destination = nil
+                state.isPreviewClosing = true
                 return loadWorkoutCopy(plan: plan, groupId: state.group.id, device: device)
 
             case let .workoutReady(copy, device):
+                guard !state.isPreviewClosing else {
+                    state.pendingWorkout = GroupPendingWorkout(plan: copy, device: device)
+                    return .none
+                }
                 let workout = WorkoutType(hkType: copy.activity.hkType) ?? .cross
                 state.destination = .session(
                     SessionFeature.State(

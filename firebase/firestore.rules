@@ -49,6 +49,24 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberCount', 'lastPlan']);
     }
 
+    // Whatever touched them, the counters keep the shape the app reads.
+    function validCounters() {
+      let data = request.resource.data;
+      return (!('memberCount' in data) || (data.memberCount is int && data.memberCount >= 0))
+        && (!('lastPlan' in data) || validPlanSummary(data.lastPlan));
+    }
+
+    function validPlanSummary(plan) {
+      return plan is map
+        && plan.keys().hasOnly(['day', 'title', 'sessionMinutes', 'authorName', 'entryCount'])
+        && plan.day is string
+        && plan.title is string
+        && plan.authorName is string
+        && plan.sessionMinutes is int
+        && plan.entryCount is int
+        && plan.entryCount >= 0;
+    }
+
     function isMemberAfter(groupId) {
       return signedIn()
         && existsAfter(/databases/$(database)/documents/groups/$(groupId)/members/$(me()));
@@ -67,16 +85,18 @@ service cloud.firestore {
         && validGroupName(request.resource.data.name);
       // The owner renames or hands the group to an existing member (also while leaving, with the member count);
       // members only move the counters.
-      allow update: if (
-          isOwner(groupId)
-          && validGroupName(request.resource.data.name)
-          && (
-            request.resource.data.ownerUid == resource.data.ownerUid
-            || exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.resource.data.ownerUid))
+      allow update: if validCounters() && (
+          (
+            isOwner(groupId)
+            && validGroupName(request.resource.data.name)
+            && (
+              request.resource.data.ownerUid == resource.data.ownerUid
+              || exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.resource.data.ownerUid))
+            )
+          ) || (
+            (isMember(groupId) || isMemberAfter(groupId))
+            && touchesOnlyCounters()
           )
-        ) || (
-          (isMember(groupId) || isMemberAfter(groupId))
-          && touchesOnlyCounters()
         );
       allow delete: if isOwner(groupId);
 

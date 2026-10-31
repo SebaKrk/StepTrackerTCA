@@ -1702,3 +1702,11 @@
     - scan preview offers "Generate" when the board has no warm-up or cool-down; only the missing sections are generated (10 min each, same client as the editor), failure shows an alert
     - generated notes answer in the device language but keep exercise names in English; the scan prompt asks for free-text fields in the device language via the per-request user prompt, so the cached system prompt stays unchanged
     - mapper no longer writes "Check: …" into block notes (the review card already lists those doubts); the rest line is localized
+
+### IOS-00170 Team — hardening before 0.9.1 (2)
+    - branch: `rel/IOS-00170/IOS-00170` (from IOS-00169); plan in `PLANS/IOS-00170-team-hardening.md`
+    - A1 result dots never build a negative range; a drifted counter reads as unknown in the mapper
+    - A2 deleting today's plan skips the alert only when the board is loaded and empty
+    - A3 "Leave Group" waits for the member list, so the alert names the real successor
+    - A4 rules validate `memberCount` and `lastPlan` shape on every update (deploy prod + dev)
+    - B1 deleting the group dismisses once (parent only); B2 the session waits for the preview sheet's onDismiss; B3 notes generation is cancellable and blocks Save/Edit while running; B4 the saved group order is never pruned

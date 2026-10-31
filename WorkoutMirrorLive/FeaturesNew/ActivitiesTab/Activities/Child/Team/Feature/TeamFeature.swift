@@ -9,7 +9,6 @@ import ComposableArchitecture
 import Foundation
 import OSLog
 import SharedModels
-import SwiftUI
 
 @Reducer
 struct TeamFeature {
@@ -49,7 +48,7 @@ struct TeamFeature {
                 return respond(&state, to: invitation, accept: true)
 
             case let .view(.invitationDeclineTapped(invitation)):
-                state.alert = .declineInvitation(invitation)
+                state.alert = .confirmDeclineInvitation(invitation)
                 return .none
 
             case let .alert(.presented(.confirmDecline(invitation))):
@@ -57,19 +56,18 @@ struct TeamFeature {
 
             case let .view(.groupsMoved(source, destination)):
                 // The saved order covers every group once a drag happened, so the move is a plain array move.
-                var ids = state.orderedGroups.map(\.id)
-                ids.move(fromOffsets: source, toOffset: destination)
+                let ids = Self.moved(state.orderedGroups.map(\.id), from: source, to: destination)
                 state.$orderedGroupIds.withLock { $0 = ids }
                 return .none
 
             case let .view(.groupDeleteTapped(group)):
                 guard group.ownerUid == state.myUid, !state.workingGroupIds.contains(group.id) else { return .none }
-                state.alert = .deleteGroup(group)
+                state.alert = .confirmDeleteGroup(group)
                 return .none
 
             case let .view(.groupLeaveTapped(group)):
                 guard group.ownerUid != state.myUid, !state.workingGroupIds.contains(group.id) else { return .none }
-                state.alert = .leaveGroup(group)
+                state.alert = .confirmLeaveGroup(group)
                 return .none
 
             case let .alert(.presented(.confirmDeleteGroup(group))):
@@ -113,8 +111,8 @@ struct TeamFeature {
             case let .groupsUpdated(groups):
                 state.groups = groups
                 state.viewState = .success
-                // Positions of groups the user left or that were deleted fall away.
-                state.$orderedGroupIds.withLock { ids in ids.removeAll { id in !groups.contains { $0.id == id } } }
+                // The saved order is never pruned here: a snapshot can be short by a group whose read failed,
+                // and ids of groups that are gone cost nothing — `orderedGroups` skips them.
                 state.today = TeamDay.id(for: date.now, calendar: calendar)
                 return loadMyEntries(groups: groups, today: state.today)
 
@@ -152,6 +150,19 @@ struct TeamFeature {
             await send(.myEntriesLoaded(await teamClient.myEntries(groupIds, today)))
         }
         .cancellable(id: TeamCancelID.myEntries, cancelInFlight: true)
+    }
+
+    // Same semantics as SwiftUI's `move(fromOffsets:toOffset:)`: `destination` is an offset in the
+    // original array, before the moved items were taken out.
+    private static func moved(_ ids: [String], from source: IndexSet, to destination: Int) -> [String] {
+        let moving = source.map { ids[$0] }
+        var rest = ids
+        for offset in source.sorted(by: >) {
+            rest.remove(at: offset)
+        }
+        let target = destination - source.filter { $0 < destination }.count
+        rest.insert(contentsOf: moving, at: target)
+        return rest
     }
 
     // The membership listener removes the card; this only tracks the spinner and the error.

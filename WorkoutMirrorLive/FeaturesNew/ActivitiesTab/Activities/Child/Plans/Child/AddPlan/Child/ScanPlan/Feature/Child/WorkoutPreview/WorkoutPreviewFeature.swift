@@ -55,9 +55,10 @@ struct WorkoutPreviewFeature {
             Array(boardFindings) + Array(planFindings)
         }
 
-        /// Saving waits until no finding is open.
+        /// Saving waits until no finding is open and no generation is in flight — otherwise the plan
+        /// would be stored without the sections the user just asked for.
         var canSave: Bool {
-            !findings.contains(where: \.isOpen)
+            !findings.contains(where: \.isOpen) && !isGeneratingNotes
         }
 
         /// Open findings per block, for the badges in the plan.
@@ -159,6 +160,7 @@ struct WorkoutPreviewFeature {
             switch action {
 
             case .view(.editButtonTapped):
+                guard !state.isGeneratingNotes else { return .none }
                 state.destination = .editor(TrainingSessionEditorFeature.State(session: state.trainingSession))
                 return .none
 
@@ -183,6 +185,7 @@ struct WorkoutPreviewFeature {
                 } catch: { error, send in
                     await send(.notesGenerationFailed(error.localizedDescription))
                 }
+                .cancellable(id: WorkoutPreviewCancelID.notesGeneration, cancelInFlight: true)
 
             // MARK: - Internal
 

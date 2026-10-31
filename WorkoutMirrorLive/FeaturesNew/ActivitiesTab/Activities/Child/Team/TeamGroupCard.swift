@@ -138,10 +138,11 @@ struct TeamGroupCard: View {
         .frame(maxWidth: .infinity)
     }
 
-    // Dots read at a glance for small groups; bigger ones keep the number only.
+    // Dots read at a glance for small groups; bigger ones keep the number only. The range is guarded:
+    // a counter can arrive as 0 (or worse) from a client that drifted.
     @ViewBuilder
     private func resultDots(_ plan: TeamGroupPlanSummary) -> some View {
-        if let total = group.memberCount, total <= 8 {
+        if let total = group.memberCount, (1...8).contains(total) {
             HStack(spacing: 3) {
                 ForEach(0..<total, id: \.self) { index in
                     Circle()

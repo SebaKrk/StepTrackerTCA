@@ -11,7 +11,7 @@ import SharedModels
 
 extension AlertState where Action == TeamFeature.Action.Alert {
 
-    static func declineInvitation(_ invitation: TeamInvitation) -> Self {
+    static func confirmDeclineInvitation(_ invitation: TeamInvitation) -> Self {
         Self {
             TextState(String(localized: "Decline Invitation?"))
         } actions: {
@@ -26,7 +26,7 @@ extension AlertState where Action == TeamFeature.Action.Alert {
         }
     }
 
-    static func deleteGroup(_ group: TeamGroup) -> Self {
+    static func confirmDeleteGroup(_ group: TeamGroup) -> Self {
         Self {
             TextState(String(localized: "Delete \(group.name)?"))
         } actions: {
@@ -41,7 +41,7 @@ extension AlertState where Action == TeamFeature.Action.Alert {
         }
     }
 
-    static func leaveGroup(_ group: TeamGroup) -> Self {
+    static func confirmLeaveGroup(_ group: TeamGroup) -> Self {
         Self {
             TextState(String(localized: "Leave \(group.name)?"))
         } actions: {

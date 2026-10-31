@@ -119,12 +119,10 @@ struct ManageGroupFeature {
                 state.working = nil
                 return .none
 
+            // The parent pops this screen together with its own; a second dismiss here would race it.
             case .groupDeleted:
                 state.working = nil
-                return .run { [dismiss] send in
-                    await send(.delegate(.deleted))
-                    await dismiss()
-                }
+                return .send(.delegate(.deleted))
 
             case let .actionFailed(message):
                 state.working = nil

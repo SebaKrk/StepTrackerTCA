@@ -65,6 +65,12 @@ extension GroupFeature {
         /// Deleting today's plan is in flight.
         var isDeletingDayPlan = false
 
+        /// The plan preview sheet is closing after "Start Workout"; the session waits for its `onDismiss`.
+        var isPreviewClosing = false
+
+        /// Workout that arrived while the preview sheet was still closing.
+        var pendingWorkout: GroupPendingWorkout?
+
         // MARK: - Alert
 
         /// Confirmation before leaving, or the error after a failed attempt.
@@ -105,6 +111,16 @@ extension GroupFeature {
         /// Only the owner removes a plan, and only today's — past days are history.
         var canDeleteDayPlan: Bool {
             isOwner && isSelectedDayToday && dayPlan != nil && !isDeletingDayPlan
+        }
+
+        /// Leaving needs the member list: the alert names the successor from it.
+        var canLeave: Bool {
+            viewState == .success && !isLeaving
+        }
+
+        /// Results of today's plan are known, so an empty board really is empty.
+        var isDayBoardKnownEmpty: Bool {
+            leaderboard.isDayLoaded && leaderboard.dayEntries.isEmpty
         }
 
         /// The selected day as a date; `nil` before the first appearance.

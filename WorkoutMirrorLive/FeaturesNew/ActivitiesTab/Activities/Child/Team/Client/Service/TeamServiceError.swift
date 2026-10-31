@@ -34,7 +34,7 @@ extension TeamServiceError: LocalizedError {
         case .malformedDocument:
             return String(localized: "The group data could not be read.")
         case .successorRequired:
-            return String(localized: "Other members are still in the group. Open it and leave from there, so one of them takes over.")
+            return String(localized: "The member list is still loading, so no one could take over the group. Try again in a moment.")
         }
     }
 }

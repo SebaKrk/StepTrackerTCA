@@ -6500,16 +6500,6 @@
         }
       }
     },
-    "Other members are still in the group. Open it and leave from there, so one of them takes over." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "W grupie są jeszcze inni członkowie. Otwórz ją i wyjdź stamtąd, aby jedna z tych osób przejęła grupę."
-          }
-        }
-      }
-    },
     "Others see you as" : {
       "localizations" : {
         "pl" : {
@@ -8876,6 +8866,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tablica wyników porównuje wyniki z tego bloku."
+          }
+        }
+      }
+    },
+    "The member list is still loading, so no one could take over the group. Try again in a moment." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista członków jeszcze się ładuje, więc nikt nie mógł przejąć grupy. Spróbuj za chwilę."
           }
         }
       }

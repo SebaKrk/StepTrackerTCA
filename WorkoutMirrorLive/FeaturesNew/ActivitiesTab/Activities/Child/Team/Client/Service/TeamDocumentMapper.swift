@@ -29,8 +29,10 @@ nonisolated enum TeamDocumentMapper {
             name: try string(data, "name", path),
             ownerUid: try string(data, "ownerUid", path),
             createdAt: try date(data, "createdAt", path),
-            memberCount: (data["memberCount"] as? NSNumber)?.intValue,
-            lastPlan: try (data["lastPlan"] as? [String: Any]).map { try planSummary($0, path) }
+            // Counters are written by every member's client; a drifted or malformed one must not take the
+            // whole group list down, so it reads as "unknown" instead.
+            memberCount: (data["memberCount"] as? NSNumber).flatMap { $0.intValue >= 0 ? $0.intValue : nil },
+            lastPlan: (data["lastPlan"] as? [String: Any]).flatMap { try? planSummary($0, path) }
         )
     }
 

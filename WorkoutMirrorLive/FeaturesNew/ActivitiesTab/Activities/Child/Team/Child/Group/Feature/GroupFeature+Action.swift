@@ -76,6 +76,9 @@ extension GroupFeature {
             /// Called when the owner picks "Manage Group" from the menu.
             case manageTapped
 
+            /// Called when the plan preview sheet has finished closing.
+            case previewDismissed
+
             /// Called when the user taps the QR button to invite someone.
             case inviteTapped
 
