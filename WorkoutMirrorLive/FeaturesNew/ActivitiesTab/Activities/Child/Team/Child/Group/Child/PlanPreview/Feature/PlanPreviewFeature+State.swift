@@ -47,7 +47,7 @@ extension PlanPreviewFeature {
         // MARK: - Child
 
         /// Sheet picking the HR source; the choice goes to the parent as `startWorkout`.
-        @Presents var devicePicker: DeviceFeature.State?
+        @Presents var configuration: ConfigurationFeature.State?
     }
 
 }

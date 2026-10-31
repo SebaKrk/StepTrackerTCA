@@ -133,7 +133,9 @@ struct PlanDetailFeature {
                 return .none
 
             case .view(.startWorkoutTapped):
-                state.destination = .devicePicker(DeviceFeature.State())
+                state.destination = .configuration(
+                    ConfigurationFeature.State(lockedWorkout: WorkoutType(hkType: state.trainingSession.activity.hkType) ?? .cross)
+                )
                 return .none
 
             case .view(.historyTapped):
@@ -152,8 +154,10 @@ struct PlanDetailFeature {
                 state.trainingSession = session
                 return .send(.delegate(.saved(session)))
 
-            case .destination(.presented(.devicePicker(.select(let device)))):
+            case let .destination(.presented(.configuration(.delegate(.start(_, device))))):
                 state.destination = nil
+                // `nil` never reaches here: the picker always commits a device before it delegates.
+                guard let device else { return .none }
                 return .send(.delegate(.startWorkout(state.trainingSession, device)))
 
             case .destination(.presented(.editor(.delegate(.deleted(let id))))):

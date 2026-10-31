@@ -29,7 +29,7 @@ extension PlanPreviewFeature {
         case alert(PresentationAction<Alert>)
 
         /// Device picker presentation.
-        case devicePicker(PresentationAction<DeviceFeature.Action>)
+        case configuration(PresentationAction<ConfigurationFeature.Action>)
 
         /// The failure alert has no custom buttons.
         enum Alert: Equatable {}

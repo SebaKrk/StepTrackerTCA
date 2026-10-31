@@ -46,24 +46,12 @@ struct PlanPreviewView: View {
                 }
             }
             .sheet(
-                item: $store.scope(state: \.devicePicker, action: \.devicePicker)
-            ) { deviceStore in
-                devicePickerSheet(deviceStore)
-                    .presentationDetents([.medium])
+                item: $store.scope(state: \.configuration, action: \.configuration)
+            ) { configurationStore in
+                ConfigurationView(store: configurationStore)
             }
         }
         .tint(store.color)
-    }
-
-    // MARK: - Device Picker (structure)
-
-    private func devicePickerSheet(_ deviceStore: StoreOf<DeviceFeature>) -> some View {
-        VStack(spacing: 24) {
-            devicePickerTitle
-            DeviceView(store: deviceStore)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
     }
 
     // MARK: - Implementation
@@ -144,11 +132,6 @@ struct PlanPreviewView: View {
         store.plan.session.activity.iconName.replacingOccurrences(of: ".circle.fill", with: "")
     }
 
-    private var devicePickerTitle: some View {
-        Text(chooseDeviceTitle)
-            .font(.title2.weight(.semibold))
-    }
-
     private var backgroundGradient: some View {
         LinearGradient(
             colors: [store.color.opacity(0.25), .clear],
@@ -170,6 +153,5 @@ struct PlanPreviewView: View {
 
     private let downloadTitle = String(localized: "Download to Plans")
     private let startWorkoutTitle = String(localized: "Start Workout")
-    private let chooseDeviceTitle = String(localized: "Choose device")
     private let closeTitle = String(localized: "Close")
 }

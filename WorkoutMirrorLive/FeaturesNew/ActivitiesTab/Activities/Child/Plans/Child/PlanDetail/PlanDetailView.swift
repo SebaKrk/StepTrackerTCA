@@ -54,22 +54,10 @@ struct PlanDetailView: View {
             SharePlanView(store: shareStore)
         }
         .sheet(
-            item: $store.scope(state: \.destination?.devicePicker, action: \.destination.devicePicker)
-        ) { deviceStore in
-            devicePickerSheet(deviceStore)
-                .presentationDetents([.medium])
+            item: $store.scope(state: \.destination?.configuration, action: \.destination.configuration)
+        ) { configurationStore in
+            ConfigurationView(store: configurationStore)
         }
-    }
-
-    // MARK: - Device Picker
-
-    private func devicePickerSheet(_ deviceStore: StoreOf<DeviceFeature>) -> some View {
-        VStack(spacing: 24) {
-            devicePickerTitle
-            DeviceView(store: deviceStore)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
     }
 
     // MARK: - Workout Content
@@ -143,11 +131,6 @@ struct PlanDetailView: View {
         }
     }
 
-    private var devicePickerTitle: some View {
-        Text(chooseDeviceTitle)
-            .font(.title2.weight(.semibold))
-    }
-
     private var startWorkoutButton: some View {
         Button {
             send(.startWorkoutTapped)
@@ -163,8 +146,6 @@ struct PlanDetailView: View {
 }
 
 // MARK: - Text
-
-private let chooseDeviceTitle = String(localized: "Choose device")
 
 // MARK: - Preview
 

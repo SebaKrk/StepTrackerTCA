@@ -41,17 +41,21 @@ struct PlanPreviewFeature {
 
             case .view(.startWorkoutTapped):
                 guard state.canDownload, state.isDownloaded else { return .none }
-                state.devicePicker = DeviceFeature.State()
+                state.configuration = ConfigurationFeature.State(
+                    lockedWorkout: WorkoutType(hkType: state.plan.session.activity.hkType) ?? .cross
+                )
                 return .none
 
             case .view(.closeTapped):
                 return .run { [dismiss] _ in await dismiss() }
 
-            case .devicePicker(.presented(.select(let device))):
-                state.devicePicker = nil
+            case let .configuration(.presented(.delegate(.start(_, device)))):
+                state.configuration = nil
+                // `nil` never reaches here: the picker always commits a device before it delegates.
+                guard let device else { return .none }
                 return .send(.delegate(.startWorkout(device)))
 
-            case .devicePicker:
+            case .configuration:
                 return .none
 
             case .downloaded:
@@ -72,8 +76,8 @@ struct PlanPreviewFeature {
             }
         }
         .ifLet(\.$alert, action: \.alert)
-        .ifLet(\.$devicePicker, action: \.devicePicker) {
-            DeviceFeature()
+        .ifLet(\.$configuration, action: \.configuration) {
+            ConfigurationFeature()
         }
     }
 }

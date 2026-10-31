@@ -21,7 +21,7 @@ extension PlanDetailFeature {
         /// Share this plan as a QR code.
         case share(SharePlanFeature)
 
-        /// Pick the HR source before the plan starts.
-        case devicePicker(DeviceFeature)
+        /// Pick the HR source before the plan starts; the activity comes from the plan.
+        case configuration(ConfigurationFeature)
     }
 }
