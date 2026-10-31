@@ -2651,6 +2651,16 @@
         }
       }
     },
+    "Couldn't generate the notes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wygenerować opisu"
+          }
+        }
+      }
+    },
     "Couldn't Leave the Group" : {
       "localizations" : {
         "pl" : {
@@ -4116,6 +4126,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ogólna populacja"
+          }
+        }
+      }
+    },
+    "Generate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generuj"
+          }
+        }
+      }
+    },
+    "Generate them from the scanned blocks; you can edit the text afterwards." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wygeneruj je na podstawie zeskanowanych bloków, tekst możesz potem poprawić."
           }
         }
       }
@@ -5705,6 +5735,16 @@
         }
       }
     },
+    "No cool-down on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tablicy nie ma cool-downu"
+          }
+        }
+      }
+    },
     "No data" : {
       "localizations" : {
         "pl" : {
@@ -6121,6 +6161,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych objętościowych dla tego ćwiczenia."
+          }
+        }
+      }
+    },
+    "No warm-up on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tablicy nie ma rozgrzewki"
+          }
+        }
+      }
+    },
+    "No warm-up or cool-down on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tablicy nie ma rozgrzewki ani cool-downu"
           }
         }
       }

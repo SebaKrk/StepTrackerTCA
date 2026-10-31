@@ -1696,3 +1696,9 @@
     - rules: the owner may hand `ownerUid` to an existing member; invites and recipients become deletable by the owner
     - a leaving owner hands the group to the longest-standing member in the same batch; the last member leaving deletes it (closes the ownerless-group hole)
     - group list as card rows in a plain List: newest first, drag to reorder (order stored on the device as `teamGroupOrder`), swipe to leave or delete
+
+### IOS-00169 Plan scan — generated warm-up / cool-down and the user's language
+    - branch: `rel/IOS-00169/IOS-00169` (from IOS-00168)
+    - scan preview offers "Generate" when the board has no warm-up or cool-down; only the missing sections are generated (10 min each, same client as the editor), failure shows an alert
+    - generated notes answer in the device language but keep exercise names in English; the scan prompt asks for free-text fields in the device language via the per-request user prompt, so the cached system prompt stays unchanged
+    - mapper no longer writes "Check: …" into block notes (the review card already lists those doubts); the rest line is localized

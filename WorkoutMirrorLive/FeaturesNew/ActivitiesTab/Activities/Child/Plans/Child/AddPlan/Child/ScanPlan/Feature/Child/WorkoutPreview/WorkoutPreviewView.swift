@@ -24,6 +24,10 @@ struct WorkoutPreviewView: View {
                 if !store.findings.isEmpty {
                     findingsCard
                 }
+                if store.canGenerateNotes {
+                    generateNotesCard
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
                 WorkoutDetailContent(
                     session: store.trainingSession,
                     isWarmupExpanded: Binding(
@@ -48,9 +52,11 @@ struct WorkoutPreviewView: View {
             )
             .ignoresSafeArea()
         )
+        .animation(.snappy, value: store.canGenerateNotes)
         .navigationTitle(store.trainingSession.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .navigationDestination(
             item: $store.scope(state: \.destination?.editor, action: \.destination.editor)
         ) { editorStore in
@@ -75,7 +81,47 @@ struct WorkoutPreviewView: View {
         }
     }
 
+    // MARK: - Generate Notes Card (structure)
+
+    private var generateNotesCard: some View {
+        GroupBox {
+            HStack(spacing: 12) {
+                generateNotesText
+                Spacer(minLength: 0)
+                generateNotesButton
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .styledGroupBox()
+    }
+
     // MARK: - Implementation
+
+    private var generateNotesText: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(generateNotesTitle)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(generateNotesHint)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var generateNotesButton: some View {
+        Button {
+            send(.generateNotesTapped)
+        } label: {
+            if store.isGeneratingNotes {
+                ProgressView()
+            } else {
+                Text(generateTitle)
+                    .fontWeight(.semibold)
+            }
+        }
+        .buttonStyle(.glass)
+        .disabled(store.isGeneratingNotes)
+    }
 
     private var findingsCard: some View {
         ScanFindingsCard(findings: store.findings) { id in
@@ -93,4 +139,20 @@ struct WorkoutPreviewView: View {
         }
         .disabled(!store.canSave)
     }
+
+    // MARK: - Text
+
+    private var generateNotesTitle: String {
+        switch (store.trainingSession.warmUp == nil, store.trainingSession.coolDown == nil) {
+        case (true, true):
+            return String(localized: "No warm-up or cool-down on the board")
+        case (true, false):
+            return String(localized: "No warm-up on the board")
+        default:
+            return String(localized: "No cool-down on the board")
+        }
+    }
+
+    private let generateNotesHint = String(localized: "Generate them from the scanned blocks; you can edit the text afterwards.")
+    private let generateTitle = String(localized: "Generate")
 }

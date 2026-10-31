@@ -13,11 +13,12 @@ enum TrainingNotesPrompt {
 
     // MARK: - System Prompts
 
+    // A cue the athlete glances at on the gym floor, not an article: the length is the whole point.
     static let warmUpSystem =
-        "You are a fitness coach. Generate a concise warm-up description (2-4 sentences) for the given workout. Respond with plain text only, no markdown."
+        "You are a fitness coach. Write a warm-up cue for the given workout: at most 3 short lines, about 40 words in total. Line 1 names what to prime (joints, muscles, movement pattern) for these blocks. Lines 2–3 list 2–3 movements, each with a time or rep count. No introduction, no explanations, plain text only, no markdown, no bullets."
 
     static let coolDownSystem =
-        "You are a fitness coach. Generate a concise cool-down description (2-4 sentences) for the given workout. Respond with plain text only, no markdown."
+        "You are a fitness coach. Write a cool-down cue for the given workout: at most 3 short lines, about 40 words in total. Line 1 names what to release after these blocks. Lines 2–3 list 2–3 stretches or breathing drills, each with a time. No introduction, no explanations, plain text only, no markdown, no bullets."
 
     // MARK: - User Prompts
 
@@ -52,7 +53,7 @@ enum TrainingNotesPrompt {
             }
         }
         let verb = type == .warmUp ? "warm-up" : "cool-down"
-        lines.append("\nGenerate a \(verb) routine for this workout.")
+        lines.append("\nWrite the \(verb) cue for this workout.")
         return lines.joined(separator: "\n")
     }
 }

@@ -86,6 +86,8 @@ public enum ClaudePrompt {
         Parse this CrossFit workout OCR text:
 
         \(ocrText)
+
+        \(languageRule())
         """
     }
 
@@ -94,6 +96,7 @@ public enum ClaudePrompt {
         var prompt = """
         Read the workout from the attached photo of a whiteboard or notebook page. The photo is the source of truth.
         Ignore everything that is not the workout: attendance names, dates, doodles, the class clock.
+        \(languageRule())
         """
         if let ocrHint, !ocrHint.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             prompt += """
@@ -109,5 +112,18 @@ public enum ClaudePrompt {
             """
         }
         return prompt
+    }
+
+    // MARK: - Language
+
+    /// The device language as an English name ("Polish"), for prompts that must answer in the user's language.
+    public static func preferredLanguageName() -> String {
+        let code = Locale.current.language.languageCode?.identifier ?? "en"
+        return Locale(identifier: "en").localizedString(forLanguageCode: code) ?? "English"
+    }
+
+    // In the per-request user prompt, not the cached system prompt, so the cache survives a language change.
+    private static func languageRule() -> String {
+        "Write every free-text field (notes, labels, warm-up and cool-down text) in \(preferredLanguageName()). Movement names (name) stay English catalog style; rawName keeps the board spelling."
     }
 }
