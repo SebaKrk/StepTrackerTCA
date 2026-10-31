@@ -65,12 +65,17 @@ struct GroupFeature {
                 guard
                     state.isSelectedDayToday,
                     let plan = state.dayPlan,
-                    !state.isDayPlanDownloaded,
+                    !state.isDayPlanDownloaded || state.isDayPlanStale,
                     !state.isDownloadingDayPlan
                 else { return .none }
                 state.isDownloadingDayPlan = true
                 let copy = teamCopy(of: plan, groupId: state.group.id)
+                let teamPlanId = TrainingSession.teamPlanId(groupId: state.group.id, day: plan.id)
                 return .run { [trainingSessionClient] send in
+                    // A republished plan replaces the copy instead of adding a second one under the same link.
+                    if let stale = try await trainingSessionClient.fetchByTeamPlanId(teamPlanId) {
+                        try await trainingSessionClient.delete(stale.id)
+                    }
                     try await trainingSessionClient.save(copy)
                     await send(.dayPlanDownloadFinished(true))
                 } catch: { error, send in
@@ -128,17 +133,21 @@ struct GroupFeature {
             case let .membersLoaded(members):
                 state.members = members
                 state.viewState = .success
-                return .none
+                return syncCountersIfNeeded(&state)
 
             case .membersFailed:
                 state.viewState = .failed
                 return .none
 
-            case let .dayPlanLoaded(plan, isDownloaded):
+            case let .dayPlanLoaded(plan, downloadedAt):
                 state.dayPlan = plan
-                state.isDayPlanDownloaded = isDownloaded
+                state.dayPlanDownloadedAt = downloadedAt
+                state.isDayPlanDownloaded = downloadedAt != nil
                 state.dayPlanState = .success
-                return .send(.leaderboard(.planChanged(plan)))
+                return .merge(
+                    .send(.leaderboard(.planChanged(plan))),
+                    syncCountersIfNeeded(&state)
+                )
 
             case .dayPlanFailed:
                 state.dayPlanState = .failed
@@ -228,6 +237,9 @@ struct GroupFeature {
                 state.alert = .leaveFailed(message)
                 return .none
 
+            case .leaderboard(.dayEntriesUpdated):
+                return syncCountersIfNeeded(&state)
+
             case .alert, .delegate, .destination, .leaderboard:
                 return .none
             }
@@ -290,6 +302,36 @@ struct GroupFeature {
         }
     }
 
+    // Counters live on the group document and can drift: an older build, a failed batch, a result sent
+    // offline. Once everything this screen needs is loaded, any member writes back what they can see.
+    // Runs at most once per visit — the group in state is a snapshot and would otherwise never match.
+    private func syncCountersIfNeeded(_ state: inout State) -> Effect<Action> {
+        guard
+            !state.hasSyncedCounters,
+            state.viewState == .success,
+            state.isSelectedDayToday,
+            state.leaderboard.isDayLoaded
+        else { return .none }
+        state.hasSyncedCounters = true
+        let memberCount = state.members.count == state.group.memberCount ? nil : state.members.count
+        let summary = state.dayPlan.map { plan in
+            TeamGroupPlanSummary(
+                day: plan.id,
+                title: plan.session.title,
+                sessionMinutes: plan.sessionMinutes,
+                authorName: plan.authorName,
+                entryCount: state.leaderboard.dayEntries.count
+            )
+        }
+        let lastPlan = summary == state.group.lastPlan ? nil : summary
+        guard memberCount != nil || lastPlan != nil else { return .none }
+        return .run { [groupId = state.group.id, teamClient] _ in
+            try await teamClient.syncCounters(groupId, memberCount, lastPlan)
+        } catch: { error, _ in
+            Logger.team.error("Counter sync failed: \(error.localizedDescription)")
+        }
+    }
+
     // The plan and entry listeners clear the card and the board on their own once the delete lands.
     private func deleteDayPlan(state: inout State) -> Effect<Action> {
         guard state.canDeleteDayPlan else { return .none }
@@ -308,7 +350,7 @@ struct GroupFeature {
             let teamPlanId = TrainingSession.teamPlanId(groupId: groupId, day: day)
             for try await plan in teamClient.observePlan(groupId, day) {
                 let copy = plan == nil ? nil : try await trainingSessionClient.fetchByTeamPlanId(teamPlanId)
-                await send(.dayPlanLoaded(plan, isDownloaded: copy != nil))
+                await send(.dayPlanLoaded(plan, downloadedAt: copy?.date))
             }
         } catch: { error, send in
             Logger.team.error("Day plan failed: \(error.localizedDescription)")

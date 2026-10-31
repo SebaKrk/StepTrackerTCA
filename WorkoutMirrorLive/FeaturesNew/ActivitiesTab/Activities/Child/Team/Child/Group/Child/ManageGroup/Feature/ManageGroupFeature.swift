@@ -32,9 +32,10 @@ struct ManageGroupFeature {
                 state.isEditingName = true
                 return .none
 
+            // An invalid name keeps the field open (Save is disabled); an unchanged one just closes editing.
             case .view(.saveNameTapped):
+                guard state.canCommitName else { return .none }
                 guard state.canSaveName else {
-                    state.name = state.group.name
                     state.isEditingName = false
                     return .none
                 }

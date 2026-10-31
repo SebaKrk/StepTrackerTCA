@@ -67,6 +67,15 @@ extension GroupLeaderboardFeature {
         /// Loading state of the selected range.
         var viewState: ViewState = .loading
 
+        /// Reading the shown day's entries failed.
+        var hasDayFailed = false
+
+        /// Reading the week failed.
+        var hasWeekFailed = false
+
+        /// The last failure was a lost connection, so the card says so instead of blaming the data.
+        var isOffline = false
+
         /// Selection of the ranking menu: `nil` for effort points, otherwise the ranked block.
         var rankingBlockId: UUID? {
             lens == .score ? selectedBlockId : nil

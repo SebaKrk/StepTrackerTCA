@@ -53,6 +53,12 @@ extension GroupFeature {
         /// The selected day's plan is already in the user's Plans.
         var isDayPlanDownloaded = false
 
+        /// When the local copy of the selected day's plan was taken; `nil` without a copy.
+        var dayPlanDownloadedAt: Date?
+
+        /// The counters on the group document were already repaired on this screen.
+        var hasSyncedCounters = false
+
         /// Saving the selected day's plan to Plans is in flight.
         var isDownloadingDayPlan = false
 
@@ -106,6 +112,12 @@ extension GroupFeature {
         /// Who inherits the group if the owner leaves: the longest-standing other member (members arrive sorted by join date).
         var successor: TeamMember? {
             members.first { $0.uid != myUid }
+        }
+
+        /// The author republished the plan after the user downloaded it, so the copy in Plans is behind.
+        var isDayPlanStale: Bool {
+            guard let plan = dayPlan, let downloadedAt = dayPlanDownloadedAt else { return false }
+            return plan.publishedAt > downloadedAt
         }
 
         /// Only the owner removes a plan, and only today's — past days are history.

@@ -23,7 +23,7 @@ extension GroupFeature {
         case membersFailed
 
         /// Internal — the selected day's plan changed; carries whether a local copy exists.
-        case dayPlanLoaded(TeamPlan?, isDownloaded: Bool)
+        case dayPlanLoaded(TeamPlan?, downloadedAt: Date?)
 
         /// Internal — listening to the selected day's plan failed.
         case dayPlanFailed

@@ -38,12 +38,24 @@ nonisolated enum TeamDocumentMapper {
 
     /// Summary of a plan kept on the group document for the list.
     static func planSummaryData(_ plan: TeamPlan, entryCount: Int) -> [String: Any] {
+        planSummaryData(
+            TeamGroupPlanSummary(
+                day: plan.id,
+                title: plan.session.title,
+                sessionMinutes: plan.sessionMinutes,
+                authorName: plan.authorName,
+                entryCount: entryCount
+            )
+        )
+    }
+
+    static func planSummaryData(_ summary: TeamGroupPlanSummary) -> [String: Any] {
         [
-            "day": plan.id,
-            "title": plan.session.title,
-            "sessionMinutes": plan.sessionMinutes,
-            "authorName": plan.authorName,
-            "entryCount": entryCount,
+            "day": summary.day,
+            "title": summary.title,
+            "sessionMinutes": summary.sessionMinutes,
+            "authorName": summary.authorName,
+            "entryCount": summary.entryCount,
         ]
     }
 

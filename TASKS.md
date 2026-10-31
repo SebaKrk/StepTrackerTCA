@@ -1710,3 +1710,15 @@
     - A3 "Leave Group" waits for the member list, so the alert names the real successor
     - A4 rules validate `memberCount` and `lastPlan` shape on every update (deploy prod + dev)
     - B1 deleting the group dismisses once (parent only); B2 the session waits for the preview sheet's onDismiss; B3 notes generation is cancellable and blocks Save/Edit while running; B4 the saved group order is never pruned
+    - C4 a failed day or week no longer blanks the other range; a lost connection says so and the board offers Try Again
+    - C1 counters repair themselves: any member writes back memberCount and today's lastPlan once the screen has the data
+    - C2 a republished plan shows "Plan changed" with the download arrow; downloading again replaces the copy instead of adding a second
+    - D1 an invalid group name keeps the field open with a red rule instead of silently reverting
+    - D2 DeviceFeature split into +State / +Action; D3 the seven dead IOS-00163 string keys removed
+
+### IOS-00171 Workout start — one screen everywhere
+    - branch: `rel/IOS-00170/IOS-00170`
+    - starting from a plan or from a group now presents `ConfigurationFeature` with the activity taken from the plan, instead of a bespoke sheet holding only `DeviceView`
+    - both paths gain what the main flow always had: close button, Bluetooth and Watch status, the device scanner
+    - with a locked activity the device pick starts the workout directly, so the plan start keeps its single tap
+    - `devicePicker` destinations and the three copies of the sheet are gone

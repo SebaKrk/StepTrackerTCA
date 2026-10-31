@@ -34,6 +34,9 @@ struct TeamClient: Sendable {
     /// member from the live list); with none, the group is deleted only if the server confirms the owner is alone.
     var leaveGroup: @Sendable (_ groupId: String, _ successorUid: String?) async throws -> Void
 
+    /// Repairs the group's denormalized counters; `nil` leaves that counter untouched.
+    var syncCounters: @Sendable (_ groupId: String, _ memberCount: Int?, _ lastPlan: TeamGroupPlanSummary?) async throws -> Void
+
     /// Renames the group (owner only, by the rules).
     var renameGroup: @Sendable (_ groupId: String, _ name: String) async throws -> Void
 
@@ -127,6 +130,7 @@ private enum TeamClientKey: DependencyKey {
             myGroups: { try await service.myGroups() },
             createGroup: { try await service.createGroup(name: $0, displayName: $1) },
             leaveGroup: { try await service.leaveGroup(groupId: $0, successorUid: $1) },
+            syncCounters: { try await service.syncCounters(groupId: $0, memberCount: $1, lastPlan: $2) },
             renameGroup: { try await service.renameGroup(groupId: $0, name: $1) },
             transferOwnership: { try await service.transferOwnership(groupId: $0, to: $1) },
             removeMember: { try await service.removeMember(groupId: $0, uid: $1) },
@@ -159,6 +163,7 @@ private enum TeamClientKey: DependencyKey {
             myGroups: unimplemented("TeamClient.myGroups"),
             createGroup: unimplemented("TeamClient.createGroup"),
             leaveGroup: unimplemented("TeamClient.leaveGroup"),
+            syncCounters: unimplemented("TeamClient.syncCounters"),
             renameGroup: unimplemented("TeamClient.renameGroup"),
             transferOwnership: unimplemented("TeamClient.transferOwnership"),
             removeMember: unimplemented("TeamClient.removeMember"),
@@ -192,6 +197,7 @@ private enum TeamClientKey: DependencyKey {
             myGroups: { [] },
             createGroup: { name, _ in TeamGroup(id: "preview-group", name: name, ownerUid: "preview-uid", createdAt: .now) },
             leaveGroup: { _, _ in },
+            syncCounters: { _, _, _ in },
             renameGroup: { _, _ in },
             transferOwnership: { _, _ in },
             removeMember: { _, _ in },

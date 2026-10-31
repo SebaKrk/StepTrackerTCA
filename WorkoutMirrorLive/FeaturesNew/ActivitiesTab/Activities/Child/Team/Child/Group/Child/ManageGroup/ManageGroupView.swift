@@ -65,7 +65,7 @@ struct ManageGroupView: View {
             VStack(alignment: .leading, spacing: 8) {
                 if store.isEditingName {
                     nameField
-                    cardFooter(nameHint)
+                    nameHintText
                 } else {
                     nameText
                 }
@@ -169,6 +169,15 @@ struct ManageGroupView: View {
                     .fontWeight(store.isEditingName ? .semibold : .regular)
             }
         }
+        .disabled(store.isEditingName && !store.canCommitName)
+    }
+
+    // The rule turns red instead of the typed name disappearing on an impossible save.
+    private var nameHintText: some View {
+        Text(nameHint)
+            .font(.caption)
+            .foregroundStyle(store.isNameValid ? AnyShapeStyle(.secondary) : AnyShapeStyle(.red))
+            .padding(.horizontal, 4)
     }
 
     private func memberInitials(_ member: TeamMember) -> some View {

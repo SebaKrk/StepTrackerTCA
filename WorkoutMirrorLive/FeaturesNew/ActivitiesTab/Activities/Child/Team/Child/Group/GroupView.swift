@@ -190,7 +190,11 @@ struct GroupView: View {
                 .layoutPriority(1)
             Spacer(minLength: 0)
             // Before the download the arrow is the only control; the chevron joins the badge after it.
-            if store.isDayPlanDownloaded {
+            // A republished plan sends the user back to the arrow, so the copy can be refreshed.
+            if store.isDayPlanStale, store.isSelectedDayToday {
+                planChangedBadge
+                downloadDayPlanButton
+            } else if store.isDayPlanDownloaded {
                 InYourPlansBadge()
                 chevron
             } else if store.isSelectedDayToday {
@@ -239,6 +243,12 @@ struct GroupView: View {
             .padding(.horizontal, 4)
     }
 
+
+    private var planChangedBadge: some View {
+        Text(planChangedTitle)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.orange)
+    }
 
     // Icon only — it sits in the header where the "In your Plans" badge takes over after the download.
     private var downloadDayPlanButton: some View {
@@ -417,6 +427,7 @@ struct GroupView: View {
     private let addPlanTitle = String(localized: "Add Plan")
     private let noPastPlanText = String(localized: "No plan was published that day.")
     private let downloadTitle = String(localized: "Download to Plans")
+    private let planChangedTitle = String(localized: "Plan changed")
     private let inviteTitle = String(localized: "Invite")
     private let publishPlanTitle = String(localized: "Publish Today's Plan")
     private let ownerLabel = String(localized: "Owner")

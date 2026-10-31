@@ -61,6 +61,20 @@ nonisolated final class TeamService: @unchecked Sendable {
         return TeamGroup(id: groupRef.documentID, name: name, ownerUid: uid, createdAt: now, memberCount: 1)
     }
 
+    // Counters are denormalized, so a group written by an older build (or a failed batch) can drift.
+    // Any member repairs them from what they can already see; the rules allow only these two keys.
+    func syncCounters(groupId: String, memberCount: Int?, lastPlan: TeamGroupPlanSummary?) async throws {
+        var data: [String: Any] = [:]
+        if let memberCount {
+            data["memberCount"] = memberCount
+        }
+        if let lastPlan {
+            data["lastPlan"] = TeamDocumentMapper.planSummaryData(lastPlan)
+        }
+        guard !data.isEmpty else { return }
+        try await groupRef(groupId).updateData(data)
+    }
+
     func renameGroup(groupId: String, name: String) async throws {
         try await groupRef(groupId).updateData(["name": name])
     }

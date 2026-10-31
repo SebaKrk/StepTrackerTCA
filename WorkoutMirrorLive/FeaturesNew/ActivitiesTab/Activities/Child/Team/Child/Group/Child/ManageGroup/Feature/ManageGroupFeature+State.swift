@@ -62,9 +62,19 @@ extension ManageGroupFeature {
             name.trimmingCharacters(in: .whitespacesAndNewlines)
         }
 
-        /// The name changed and is valid.
+        /// Group names run 3–40 characters, like at creation.
+        var isNameValid: Bool {
+            (3...40).contains(trimmedName.count)
+        }
+
+        /// "Save" is offered for any valid name: an unchanged one simply closes editing.
+        var canCommitName: Bool {
+            isNameValid && !isWorking
+        }
+
+        /// The name changed and is valid, so saving it is worth a confirmation.
         var canSaveName: Bool {
-            (3...40).contains(trimmedName.count) && trimmedName != group.name && !isWorking
+            canCommitName && trimmedName != group.name
         }
 
         /// Any change is in flight.

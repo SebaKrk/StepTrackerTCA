@@ -661,17 +661,6 @@
     "%lld min cap" : {
       "shouldTranslate" : false
     },
-    "%lld min missing" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brakuje %lld min"
-          }
-        }
-      }
-    },
     "%lld movements in %lld categories" : {
       "localizations" : {
         "en" : {
@@ -694,23 +683,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld z %2$lld"
-          }
-        }
-      }
-    },
-    "%lld of %lld min" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld of %2$lld min"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld z %lld min"
           }
         }
       }
@@ -905,17 +877,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "+ Dodaj notatkę"
-          }
-        }
-      }
-    },
-    "+%lld min" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "+%lld min"
           }
         }
       }
@@ -2327,16 +2288,6 @@
         }
       }
     },
-    "Choose device" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wybierz urządzenie"
-          }
-        }
-      }
-    },
     "Choose Exercise" : {
       "localizations" : {
         "pl" : {
@@ -2353,17 +2304,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zajęcia wciąż trwają"
-          }
-        }
-      }
-    },
-    "Class Length" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Długość zajęć"
           }
         }
       }
@@ -3985,17 +3925,6 @@
         }
       }
     },
-    "Fill to 60 Minutes" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uzupełnij do 60 minut"
-          }
-        }
-      }
-    },
     "Find a Club" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4104,17 +4033,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Żywienie"
-          }
-        }
-      }
-    },
-    "Full class" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Całe zajęcia"
           }
         }
       }
@@ -5725,6 +5643,16 @@
         }
       }
     },
+    "No Connection" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak połączenia"
+          }
+        }
+      }
+    },
     "No connection to Apple Watch" : {
       "localizations" : {
         "pl" : {
@@ -6720,6 +6648,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plan podpięty — dotknij, aby dodać"
+          }
+        }
+      }
+    },
+    "Plan changed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan zmieniony"
           }
         }
       }
@@ -8859,6 +8797,16 @@
         }
       }
     },
+    "The leaderboard loads once you are back online." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica wczyta się, gdy wróci połączenie."
+          }
+        }
+      }
+    },
     "The leaderboard ranks results of this block." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9099,17 +9047,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Czas przekracza limit %lld:00"
-          }
-        }
-      }
-    },
-    "Time in Class" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Czas na zajęciach"
           }
         }
       }
