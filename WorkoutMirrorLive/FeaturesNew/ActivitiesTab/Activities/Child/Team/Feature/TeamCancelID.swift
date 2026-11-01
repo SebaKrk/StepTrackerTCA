@@ -15,4 +15,10 @@ nonisolated enum TeamCancelID: Hashable, Sendable {
 
     /// Live list of invites the user scanned.
     case invitations
+
+    /// One-shot read of the user's results for today's plans.
+    case myEntries
+
+    /// One-shot re-read of the groups (pull to refresh, return to the tab).
+    case refresh
 }

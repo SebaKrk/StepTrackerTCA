@@ -53,6 +53,12 @@ extension GroupFeature {
         /// The selected day's plan is already in the user's Plans.
         var isDayPlanDownloaded = false
 
+        /// When the local copy of the selected day's plan was taken; `nil` without a copy.
+        var dayPlanDownloadedAt: Date?
+
+        /// The counters on the group document were already repaired on this screen.
+        var hasSyncedCounters = false
+
         /// Saving the selected day's plan to Plans is in flight.
         var isDownloadingDayPlan = false
 
@@ -61,6 +67,15 @@ extension GroupFeature {
 
         /// A leave request is in flight.
         var isLeaving = false
+
+        /// Deleting today's plan is in flight.
+        var isDeletingDayPlan = false
+
+        /// The plan preview sheet is closing after "Start Workout"; the session waits for its `onDismiss`.
+        var isPreviewClosing = false
+
+        /// Workout that arrived while the preview sheet was still closing.
+        var pendingWorkout: GroupPendingWorkout?
 
         // MARK: - Alert
 
@@ -92,6 +107,32 @@ extension GroupFeature {
         /// Downloading and publishing work only for today — the points window runs from the workout start.
         var isSelectedDayToday: Bool {
             selectedDay == today
+        }
+
+        /// Who inherits the group if the owner leaves: the longest-standing other member (members arrive sorted by join date).
+        var successor: TeamMember? {
+            members.first { $0.uid != myUid }
+        }
+
+        /// The author republished the plan after the user downloaded it, so the copy in Plans is behind.
+        var isDayPlanStale: Bool {
+            guard let plan = dayPlan, let downloadedAt = dayPlanDownloadedAt else { return false }
+            return plan.publishedAt > downloadedAt
+        }
+
+        /// Only the owner removes a plan, and only today's — past days are history.
+        var canDeleteDayPlan: Bool {
+            isOwner && isSelectedDayToday && dayPlan != nil && !isDeletingDayPlan
+        }
+
+        /// Leaving needs the member list: the alert names the successor from it.
+        var canLeave: Bool {
+            viewState == .success && !isLeaving
+        }
+
+        /// Results of today's plan are known, so an empty board really is empty.
+        var isDayBoardKnownEmpty: Bool {
+            leaderboard.isDayLoaded && leaderboard.dayEntries.isEmpty
         }
 
         /// The selected day as a date; `nil` before the first appearance.

@@ -168,6 +168,14 @@ struct ConfigurationFeature {
                 // alert inside `DeviceFeature`, so a cancelled alert leaves
                 // nothing selected here either.
                 state.selectedDevice = option
+                // A plan start knows the activity already, so the pick is the last thing we need.
+                if let workout = state.lockedWorkout, option != .mirror {
+                    return .run { send in
+                        try await clock.sleep(for: .milliseconds(1250))
+                        await send(.delegate(.start(workout, option)))
+                        await self.dismiss()
+                    }
+                }
                 switch option {
                 case .watch, .hrBelt, .iphone, .airPods:
                     return .run { send in

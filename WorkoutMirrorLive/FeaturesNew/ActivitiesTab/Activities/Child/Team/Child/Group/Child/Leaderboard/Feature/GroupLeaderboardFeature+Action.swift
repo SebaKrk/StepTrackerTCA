@@ -28,8 +28,8 @@ extension GroupLeaderboardFeature {
         /// Internal — the week's entries were read.
         case weekLoaded([String: [TeamEntry]])
 
-        /// Internal — reading failed.
-        case failed
+        /// Internal — reading one range failed; `isOffline` tells a lost connection from a real error.
+        case failed(TeamLeaderboardRange, isOffline: Bool)
 
         @CasePathable
         enum View {
@@ -42,6 +42,9 @@ extension GroupLeaderboardFeature {
 
             /// Called when the user switches Rx / Scaled.
             case divisionChanged(BoardDivision)
+
+            /// Called when the user taps "Try again" on a failed board.
+            case retryTapped
         }
     }
 

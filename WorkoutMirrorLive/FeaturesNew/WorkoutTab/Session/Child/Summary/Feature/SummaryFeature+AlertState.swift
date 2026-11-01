@@ -24,3 +24,19 @@ extension AlertState where Action == SummaryFeature.Action.DiscardAlert {
         }
     }
 }
+
+extension AlertState where Action == Never {
+
+    /// A real HealthKit error while discarding — the workout is still there, so the Summary stays open.
+    static func discardFailed(_ message: String) -> Self {
+        Self {
+            TextState(String(localized: "Failed to discard workout"))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localized: "OK"))
+            }
+        } message: {
+            TextState(message)
+        }
+    }
+}

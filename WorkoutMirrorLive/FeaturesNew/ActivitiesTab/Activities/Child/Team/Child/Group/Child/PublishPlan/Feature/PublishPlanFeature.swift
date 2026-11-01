@@ -42,7 +42,6 @@ struct PublishPlanFeature {
             case .view(.planDetailClosed):
                 state.selectedPlan = nil
                 state.scoredBlockIds = []
-                state.errorMessage = nil
                 return .none
 
             case let .view(.scoredBlockToggled(id, isOn)):
@@ -65,7 +64,6 @@ struct PublishPlanFeature {
             case .view(.publishTapped):
                 guard state.canPublish, let session = state.selectedPlan else { return .none }
                 state.isPublishing = true
-                state.errorMessage = nil
                 let now = date.now
                 let plan = TeamPlan(
                     id: TeamDay.id(for: now, calendar: calendar),
@@ -80,7 +78,7 @@ struct PublishPlanFeature {
                     // One plan per day: only its author may replace it.
                     if let existing = try await teamClient.plan(groupId, plan.id), existing.authorUid != myUid {
                         await send(.publishFailed(
-                            String(localized: "Today's plan was already published by \(existing.authorName).")
+                            String(localized: "Today's plan was already published by \(existing.authorName). A group has one plan per day — publish first next time, or create a new group for yours.")
                         ))
                         return
                     }
@@ -118,19 +116,19 @@ struct PublishPlanFeature {
 
             case let .publishFailed(message):
                 state.isPublishing = false
-                state.errorMessage = message
+                state.alert = .publishFailed(message)
                 return .none
 
-            case .binding, .delegate:
+            case .alert, .binding, .delegate:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 
     private func select(_ state: inout State, planId: UUID) {
         state.selectedPlan = state.plans.first { $0.id == planId }
         state.scoredBlockIds = Set(state.selectedPlan?.defaultScoredBlockIds ?? [])
         state.effortWindowMinutes = State.defaultEffortWindowMinutes
-        state.errorMessage = nil
     }
 }

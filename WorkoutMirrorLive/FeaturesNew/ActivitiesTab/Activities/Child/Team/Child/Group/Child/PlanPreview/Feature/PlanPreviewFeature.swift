@@ -26,7 +26,6 @@ struct PlanPreviewFeature {
             case .view(.downloadTapped):
                 guard state.canDownload, !state.isDownloaded, !state.isDownloading else { return .none }
                 state.isDownloading = true
-                state.errorMessage = nil
                 let copy = state.plan.session.downloadedTeamCopy(
                     id: uuid(),
                     date: date.now,
@@ -40,8 +39,24 @@ struct PlanPreviewFeature {
                     await send(.downloadFailed(error.localizedDescription))
                 }
 
+            case .view(.startWorkoutTapped):
+                guard state.canDownload, state.isDownloaded else { return .none }
+                state.configuration = ConfigurationFeature.State(
+                    lockedWorkout: WorkoutType(hkType: state.plan.session.activity.hkType) ?? .cross
+                )
+                return .none
+
             case .view(.closeTapped):
                 return .run { [dismiss] _ in await dismiss() }
+
+            case let .configuration(.presented(.delegate(.start(_, device)))):
+                state.configuration = nil
+                // `nil` never reaches here: the picker always commits a device before it delegates.
+                guard let device else { return .none }
+                return .send(.delegate(.startWorkout(device)))
+
+            case .configuration:
+                return .none
 
             case .downloaded:
                 state.isDownloading = false
@@ -50,12 +65,19 @@ struct PlanPreviewFeature {
 
             case let .downloadFailed(message):
                 state.isDownloading = false
-                state.errorMessage = message
+                state.alert = .downloadFailed(message)
+                return .none
+
+            case .alert:
                 return .none
 
             case .binding, .delegate:
                 return .none
             }
+        }
+        .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$configuration, action: \.configuration) {
+            ConfigurationFeature()
         }
     }
 }

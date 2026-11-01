@@ -12,8 +12,9 @@ import SwiftUI
 
 extension PlanPreviewFeature {
 
+    // No `Equatable`: the presented `ConfigurationFeature.State` is not one, by house convention.
     @ObservableState
-    struct State: Equatable {
+    struct State {
 
         // MARK: - Properties
 
@@ -35,14 +36,19 @@ extension PlanPreviewFeature {
         /// Saving the copy is in flight.
         var isDownloading = false
 
-        /// Message of the last failed download.
-        var errorMessage: String?
+        /// Why the last download failed — shown as an alert over the plan.
+        @Presents var alert: AlertState<Action.Alert>?
 
         /// UI-only — warm-up card expanded.
         var isWarmupExpanded = true
 
         /// UI-only — cool-down card expanded.
         var isCooldownExpanded = true
+
+        // MARK: - Child
+
+        /// Sheet picking the HR source; the choice goes to the parent as `startWorkout`.
+        @Presents var configuration: ConfigurationFeature.State?
     }
 
 }

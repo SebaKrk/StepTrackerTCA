@@ -47,8 +47,8 @@ extension PublishPlanFeature {
         /// Publishing is in flight.
         var isPublishing = false
 
-        /// Message of the last failed attempt.
-        var errorMessage: String?
+        /// Why the last attempt failed — shown as an alert over the plan.
+        @Presents var alert: AlertState<Action.Alert>?
 
         /// UI-only — warm-up card expanded in the plan detail.
         var isWarmupExpanded = true

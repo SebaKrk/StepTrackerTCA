@@ -29,17 +29,30 @@ struct GroupLeaderboardFeature {
                 state.day = day
                 state.dayEntries = []
                 state.isDayLoaded = false
+                state.hasDayFailed = false
+                if state.weekEntries == nil {
+                    state.hasWeekFailed = false
+                }
                 recompute(&state)
-                state.viewState = state.range == .week && state.weekEntries != nil ? .success : .loading
+                refreshViewState(&state)
                 return .merge(
                     listenToDay(groupId: state.groupId, day: day),
                     state.weekEntries == nil ? loadWeek(groupId: state.groupId, days: weekDays) : .none
                 )
 
+            case .view(.retryTapped):
+                state.hasDayFailed = false
+                state.hasWeekFailed = false
+                state.isOffline = false
+                refreshViewState(&state)
+                return .merge(
+                    listenToDay(groupId: state.groupId, day: state.day),
+                    state.weekEntries == nil ? loadWeek(groupId: state.groupId, days: state.weekDays) : .none
+                )
+
             case let .view(.rangeChanged(range)):
                 state.range = range
-                let isLoaded = range == .day ? state.isDayLoaded : state.weekEntries != nil
-                state.viewState = isLoaded ? .success : .loading
+                refreshViewState(&state)
                 return .none
 
             case let .view(.rankingSelected(blockId)):
@@ -83,10 +96,9 @@ struct GroupLeaderboardFeature {
                 if state.weekEntries?[day] != nil {
                     state.weekEntries?[day] = entries
                 }
+                state.hasDayFailed = false
                 recompute(&state)
-                if state.range == .day {
-                    state.viewState = .success
-                }
+                refreshViewState(&state)
                 return .none
 
             case let .weekLoaded(entriesByDay):
@@ -96,16 +108,32 @@ struct GroupLeaderboardFeature {
                     merged[state.day] = state.dayEntries
                 }
                 state.weekEntries = merged
+                state.hasWeekFailed = false
                 recompute(&state)
-                if state.range == .week {
-                    state.viewState = .success
-                }
+                refreshViewState(&state)
                 return .none
 
-            case .failed:
-                state.viewState = .failed
+            case let .failed(range, isOffline):
+                state.isOffline = isOffline
+                switch range {
+                case .day:
+                    state.hasDayFailed = true
+                case .week:
+                    state.hasWeekFailed = true
+                }
+                refreshViewState(&state)
                 return .none
             }
+        }
+    }
+
+    // One range failing must not blank the other: only the shown range decides what the card shows.
+    private func refreshViewState(_ state: inout State) {
+        switch state.range {
+        case .day:
+            state.viewState = state.isDayLoaded ? .success : (state.hasDayFailed ? .failed : .loading)
+        case .week:
+            state.viewState = state.weekEntries != nil ? .success : (state.hasWeekFailed ? .failed : .loading)
         }
     }
 
@@ -134,7 +162,7 @@ struct GroupLeaderboardFeature {
             }
         } catch: { error, send in
             Logger.team.error("Day entries failed: \(error.localizedDescription)")
-            await send(.failed)
+            await send(.failed(.day, isOffline: TeamServiceError.isOffline(error)))
         }
         .cancellable(id: GroupLeaderboardCancelID.dayEntries, cancelInFlight: true)
     }
@@ -144,7 +172,7 @@ struct GroupLeaderboardFeature {
             await send(.weekLoaded(try await teamClient.weekEntries(groupId, days)))
         } catch: { error, send in
             Logger.team.error("Week entries failed: \(error.localizedDescription)")
-            await send(.failed)
+            await send(.failed(.week, isOffline: TeamServiceError.isOffline(error)))
         }
         .cancellable(id: GroupLeaderboardCancelID.week, cancelInFlight: true)
     }

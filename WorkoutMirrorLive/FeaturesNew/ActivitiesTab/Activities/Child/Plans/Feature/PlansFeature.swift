@@ -75,12 +75,13 @@ struct PlansFeature {
             case let .destination(.presented(.importPlan(.delegate(.imported(session))))):
                 return saveAndReload(session)
 
-            case .destination(.presented(.planDetail(.delegate(.startWorkout(let session))))):
+            case .destination(.presented(.planDetail(.delegate(.startWorkout(let session, let device))))):
                 state.destination = nil
                 let workout = WorkoutType(hkType: session.activity.hkType) ?? .cross
                 state.destination = .session(
                     SessionFeature.State(
                         selectedWorkout: workout,
+                        requestedDevice: device,
                         trainingSession: session,
                         countDown: CountDownFeature.State(workoutType: session.activity)
                     )

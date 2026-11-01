@@ -4,6 +4,9 @@
     "" : {
 
     },
+    " " : {
+
+    },
     " cal" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -374,6 +377,26 @@
         }
       }
     },
+    "%@ will manage the group. You stay as a member." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ będzie zarządzać grupą. Ty zostajesz jako członek."
+          }
+        }
+      }
+    },
+    "%@, the longest-standing member, becomes the owner. You can come back only with a new invite." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Właścicielem zostanie %@, najdłużej w grupie. Wrócić możesz tylko z nowym zaproszeniem."
+          }
+        }
+      }
+    },
     "%@: %@" : {
       "localizations" : {
         "en" : {
@@ -591,6 +614,40 @@
         }
       }
     },
+    "%lld members" : {
+      "localizations" : {
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osoby"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osób"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osoba"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld osoby"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld min" : {
       "localizations" : {
         "pl" : {
@@ -603,16 +660,6 @@
     },
     "%lld min cap" : {
       "shouldTranslate" : false
-    },
-    "%lld min missing" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brakuje %lld min"
-          }
-        }
-      }
     },
     "%lld movements in %lld categories" : {
       "localizations" : {
@@ -630,18 +677,12 @@
         }
       }
     },
-    "%lld of %lld min" : {
+    "%lld of %lld" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld of %2$lld min"
-          }
-        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld z %lld min"
+            "value" : "%1$lld z %2$lld"
           }
         }
       }
@@ -840,16 +881,6 @@
         }
       }
     },
-    "+%lld min" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "+%lld min"
-          }
-        }
-      }
-    },
     "<6h" : {
       "shouldTranslate" : false
     },
@@ -956,6 +987,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "2"
+          }
+        }
+      }
+    },
+    "3–40 characters. Every member sees the new name." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–40 znaków. Nową nazwę zobaczą wszyscy członkowie."
           }
         }
       }
@@ -2017,9 +2058,6 @@
         }
       }
     },
-    "By Time Cap" : {
-
-    },
     "Cadence" : {
       "localizations" : {
         "pl" : {
@@ -2266,16 +2304,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zajęcia wciąż trwają"
-          }
-        }
-      }
-    },
-    "Class Length" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Długość zajęć"
           }
         }
       }
@@ -2543,6 +2571,36 @@
         }
       }
     },
+    "Couldn't Delete the Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się usunąć planu"
+          }
+        }
+      }
+    },
+    "Couldn't Download the Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się pobrać planu"
+          }
+        }
+      }
+    },
+    "Couldn't generate the notes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wygenerować opisu"
+          }
+        }
+      }
+    },
     "Couldn't Leave the Group" : {
       "localizations" : {
         "pl" : {
@@ -2604,6 +2662,16 @@
         }
       }
     },
+    "Couldn't Publish the Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się opublikować planu"
+          }
+        }
+      }
+    },
     "Couldn't reach the class for 5 minutes. Your workout is still recording." : {
       "localizations" : {
         "pl" : {
@@ -2630,6 +2698,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się zapisać wyniku"
+          }
+        }
+      }
+    },
+    "Couldn't start the workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się rozpocząć treningu"
+          }
+        }
+      }
+    },
+    "Couldn't Update the Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zmienić grupy"
           }
         }
       }
@@ -2888,6 +2976,16 @@
         }
       }
     },
+    "Decline Invitation?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odrzucić zaproszenie?"
+          }
+        }
+      }
+    },
     "Declined" : {
       "localizations" : {
         "pl" : {
@@ -2924,6 +3022,16 @@
         }
       }
     },
+    "Delete %@?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć %@?"
+          }
+        }
+      }
+    },
     "Delete entry" : {
       "localizations" : {
         "pl" : {
@@ -2944,12 +3052,52 @@
         }
       }
     },
+    "Delete Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń grupę"
+          }
+        }
+      }
+    },
+    "Delete Group?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć grupę?"
+          }
+        }
+      }
+    },
     "Delete Key" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usuń klucz"
+          }
+        }
+      }
+    },
+    "Delete Today's Plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń dzisiejszy plan"
+          }
+        }
+      }
+    },
+    "Delete Today's Plan?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć dzisiejszy plan?"
           }
         }
       }
@@ -3152,6 +3300,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gotowe"
+          }
+        }
+      }
+    },
+    "Download the plan to Plans first." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najpierw pobierz plan do Planów."
           }
         }
       }
@@ -3616,6 +3774,16 @@
         }
       }
     },
+    "Every member sees the new name." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nową nazwę zobaczą wszyscy członkowie."
+          }
+        }
+      }
+    },
     "Exercise" : {
       "localizations" : {
         "pl" : {
@@ -3757,17 +3925,6 @@
         }
       }
     },
-    "Fill to 60 Minutes" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uzupełnij do 60 minut"
-          }
-        }
-      }
-    },
     "Find a Club" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3880,16 +4037,6 @@
         }
       }
     },
-    "Full class" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Całe zajęcia"
-          }
-        }
-      }
-    },
     "General population" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3897,6 +4044,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ogólna populacja"
+          }
+        }
+      }
+    },
+    "Generate" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generuj"
+          }
+        }
+      }
+    },
+    "Generate them from the scanned blocks; you can edit the text afterwards." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wygeneruj je na podstawie zeskanowanych bloków, tekst możesz potem poprawić."
           }
         }
       }
@@ -4017,6 +4184,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kontakt z podłożem"
+          }
+        }
+      }
+    },
+    "Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grupa"
           }
         }
       }
@@ -4643,6 +4820,16 @@
         }
       }
     },
+    "It disappears for everyone with its plans and results. Plan copies in members' Plans stay." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zniknie dla wszystkich razem z planami i wynikami. Kopie planów w Planach członków zostają."
+          }
+        }
+      }
+    },
     "It was not possible to retrieve the health metrics data. Please try again later." : {
       "localizations" : {
         "pl" : {
@@ -4710,6 +4897,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dołączył(a)"
+          }
+        }
+      }
+    },
+    "Joined %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W grupie od %@"
           }
         }
       }
@@ -4853,6 +5050,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyjdź"
+          }
+        }
+      }
+    },
+    "Leave %@?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opuścić %@?"
           }
         }
       }
@@ -5013,6 +5220,16 @@
         }
       }
     },
+    "Manage Group" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zarządzaj grupą"
+          }
+        }
+      }
+    },
     "manage workout type" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5157,6 +5374,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dla każdego włączonego bloku można wpisać wynik. Punkty wysiłku i tak ustawiają wszystkich w tabeli."
+          }
+        }
+      }
+    },
+    "Members have already posted results for this plan. They will be deleted with it." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Członkowie wpisali już wyniki do tego planu. Zostaną usunięte razem z nim."
           }
         }
       }
@@ -5416,12 +5643,32 @@
         }
       }
     },
+    "No Connection" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak połączenia"
+          }
+        }
+      }
+    },
     "No connection to Apple Watch" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak połączenia z Apple Watch"
+          }
+        }
+      }
+    },
+    "No cool-down on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tablicy nie ma cool-downu"
           }
         }
       }
@@ -5701,6 +5948,16 @@
         }
       }
     },
+    "No plan today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak planu na dziś"
+          }
+        }
+      }
+    },
     "No plan was published that day." : {
       "localizations" : {
         "pl" : {
@@ -5832,6 +6089,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych objętościowych dla tego ćwiczenia."
+          }
+        }
+      }
+    },
+    "No warm-up on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tablicy nie ma rozgrzewki"
+          }
+        }
+      }
+    },
+    "No warm-up or cool-down on the board" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tablicy nie ma rozgrzewki ani cool-downu"
           }
         }
       }
@@ -6375,12 +6652,32 @@
         }
       }
     },
+    "Plan changed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan zmieniony"
+          }
+        }
+      }
+    },
     "Plan of the Day" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plan dnia"
+          }
+        }
+      }
+    },
+    "Plan today" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan dziś"
           }
         }
       }
@@ -6860,6 +7157,16 @@
         }
       }
     },
+    "Remove %@?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć %@?"
+          }
+        }
+      }
+    },
     "Remove all scheduled workouts" : {
       "localizations" : {
         "pl" : {
@@ -6896,6 +7203,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usunąć rozgrzewkę?"
+          }
+        }
+      }
+    },
+    "Rename Group?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmienić nazwę grupy?"
           }
         }
       }
@@ -7734,6 +8051,16 @@
         }
       }
     },
+    "sent" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wysłany"
+          }
+        }
+      }
+    },
     "Series" : {
       "localizations" : {
         "pl" : {
@@ -8236,6 +8563,16 @@
         }
       }
     },
+    "Swipe a member left to transfer ownership or remove them." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przesuń członka w lewo, aby przekazać własność lub go usunąć."
+          }
+        }
+      }
+    },
     "Tabata · %lld rounds" : {
       "localizations" : {
         "pl" : {
@@ -8410,6 +8747,16 @@
         }
       }
     },
+    "The group data could not be read." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się odczytać danych grupy."
+          }
+        }
+      }
+    },
     "The group plan isn't available — the result stays only on this phone." : {
       "localizations" : {
         "pl" : {
@@ -8450,6 +8797,16 @@
         }
       }
     },
+    "The leaderboard loads once you are back online." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica wczyta się, gdy wróci połączenie."
+          }
+        }
+      }
+    },
     "The leaderboard ranks results of this block." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8457,6 +8814,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tablica wyników porównuje wyniki z tego bloku."
+          }
+        }
+      }
+    },
+    "The member list is still loading, so no one could take over the group. Try again in a moment." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista członków jeszcze się ładuje, więc nikt nie mógł przejąć grupy. Spróbuj za chwilę."
           }
         }
       }
@@ -8563,6 +8930,16 @@
         }
       }
     },
+    "They lose access to the group; their results stay on the board. Open invite codes are closed, so show a new one." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Straci dostęp do grupy, wyniki zostaną na tablicy. Otwarte kody zaproszeń zostaną zamknięte, pokaż nowy."
+          }
+        }
+      }
+    },
     "This block has no movements." : {
       "localizations" : {
         "pl" : {
@@ -8590,6 +8967,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "To urządzenie nie obsługuje Bluetooth Low Energy wymaganego przez monitory tętna"
+          }
+        }
+      }
+    },
+    "This invite does not exist." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To zaproszenie nie istnieje."
+          }
+        }
+      }
+    },
+    "This invite was closed or has expired." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To zaproszenie zostało zamknięte lub wygasło."
           }
         }
       }
@@ -8650,16 +9047,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Czas przekracza limit %lld:00"
-          }
-        }
-      }
-    },
-    "Time in Class" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Czas na zajęciach"
           }
         }
       }
@@ -8764,12 +9151,12 @@
         }
       }
     },
-    "Today's plan was already published by %@." : {
+    "Today's plan was already published by %@. A group has one plan per day — publish first next time, or create a new group for yours." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ już opublikował(a) plan na dziś."
+            "value" : "%@ już opublikował(a) plan na dziś. Grupa ma jeden plan dziennie: następnym razem opublikuj pierwszy albo załóż nową grupę dla swojego."
           }
         }
       }
@@ -8880,6 +9267,19 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "wybór zakładki treningowej"
+          }
+        }
+      }
+    },
+    "Transfer" : {
+
+    },
+    "Transfer Ownership?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przekazać własność?"
           }
         }
       }
@@ -9709,12 +10109,42 @@
         }
       }
     },
+    "You are the only member, so the group is deleted with its plans and results." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jesteś jedynym członkiem, więc grupa zostanie usunięta razem z planami i wynikami."
+          }
+        }
+      }
+    },
+    "You · Owner" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ty · Właściciel"
+          }
+        }
+      }
+    },
     "You can come back only with a new invite." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wrócić możesz tylko z nowym zaproszeniem."
+          }
+        }
+      }
+    },
+    "You can join %@ later only by scanning the code again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do grupy %@ dołączysz później tylko po ponownym zeskanowaniu kodu."
           }
         }
       }
@@ -9726,16 +10156,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Możesz teraz rozpocząć skanowanie urządzeń Bluetooth"
-          }
-        }
-      }
-    },
-    "You created this group. It stays for the other members; you can come back only with a new invite." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To Twoja grupa. Zostanie dla pozostałych członków; wrócić możesz tylko z nowym zaproszeniem."
           }
         }
       }
@@ -9899,6 +10319,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twoje rekordy"
+          }
+        }
+      }
+    },
+    "Your result" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój wynik"
           }
         }
       }

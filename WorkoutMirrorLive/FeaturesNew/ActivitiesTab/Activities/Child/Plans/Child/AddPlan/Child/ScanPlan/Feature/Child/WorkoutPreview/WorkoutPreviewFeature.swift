@@ -16,6 +16,10 @@ import SwiftUI
 @Reducer
 struct WorkoutPreviewFeature {
 
+    // MARK: - Dependencies
+
+    @Dependency(\.trainingNotesGeneratorClient) var notesClient
+
     // MARK: - State
 
     @ObservableState
@@ -37,18 +41,24 @@ struct WorkoutPreviewFeature {
         /// Rules on the plan; recomputed after every edit, confirmations carried over.
         var planFindings: IdentifiedArrayOf<ScanFinding> = []
 
+        /// Warm-up card expanded.
         var isWarmupExpanded: Bool = true
 
+        /// Cool-down card expanded.
         var isCooldownExpanded: Bool = true
+
+        /// Warm-up and cool-down are being generated for the sections the board did not have.
+        var isGeneratingNotes = false
 
         /// Everything the review card lists, board findings first.
         var findings: [ScanFinding] {
             Array(boardFindings) + Array(planFindings)
         }
 
-        /// Saving waits until no finding is open.
+        /// Saving waits until no finding is open and no generation is in flight — otherwise the plan
+        /// would be stored without the sections the user just asked for.
         var canSave: Bool {
-            !findings.contains(where: \.isOpen)
+            !findings.contains(where: \.isOpen) && !isGeneratingNotes
         }
 
         /// Open findings per block, for the badges in the plan.
@@ -64,6 +74,15 @@ struct WorkoutPreviewFeature {
             Set(findings.filter(\.isOpen).compactMap(\.exerciseId))
         }
 
+        /// The board had no warm-up, no cool-down, or neither — the offer to generate them shows.
+        var canGenerateNotes: Bool {
+            !trainingSession.workouts.isEmpty
+                && (trainingSession.warmUp == nil || trainingSession.coolDown == nil)
+        }
+
+        /// Generation failure.
+        @Presents var alert: AlertState<Action.Alert>?
+
         @Presents var destination: Destination.State?
     }
 
@@ -72,9 +91,32 @@ struct WorkoutPreviewFeature {
     @CasePathable
     enum Action: ViewAction {
 
+        // MARK: - View Actions
+
         case view(View)
+
+        // MARK: - Internal Actions
+
+        /// Internal — generated texts for the sections the board lacked; `nil` where the plan already had one.
+        case notesGenerated(warmUp: String?, coolDown: String?)
+
+        /// Internal — generation failed; carries the message to show.
+        case notesGenerationFailed(String)
+
+        // MARK: - Alert
+
+        /// Generation failure alert.
+        case alert(PresentationAction<Alert>)
+
+        // MARK: - Destination
+
         case destination(PresentationAction<Destination.Action>)
+
+        // MARK: - Delegate
+
         case delegate(Delegate)
+
+        // MARK: - View
 
         @CasePathable
         enum View {
@@ -85,12 +127,25 @@ struct WorkoutPreviewFeature {
             /// Called when user taps "Save" — persists and dismisses.
             case saveButtonTapped
 
+            /// Called when the user asks for a warm-up and cool-down the board did not have.
+            case generateNotesTapped
+
+            /// Toggles the warm-up card.
             case warmupToggleTapped
+
+            /// Toggles the cool-down card.
             case cooldownToggleTapped
 
             /// User looked at the board and closed a doubt.
             case confirmFindingTapped(ScanFinding.ID)
         }
+
+        // MARK: - Alert Actions
+
+        /// The failure alert has no custom buttons.
+        enum Alert: Equatable {}
+
+        // MARK: - Delegate Actions
 
         enum Delegate {
             /// User saved the workout — passes session up so parent can persist.
@@ -105,12 +160,48 @@ struct WorkoutPreviewFeature {
             switch action {
 
             case .view(.editButtonTapped):
+                guard !state.isGeneratingNotes else { return .none }
                 state.destination = .editor(TrainingSessionEditorFeature.State(session: state.trainingSession))
                 return .none
 
             case .view(.saveButtonTapped):
                 guard state.canSave else { return .none }
                 return .send(.delegate(.saved(state.trainingSession)))
+
+            // Only the missing sections are generated, in parallel, with the editor's default length.
+            case .view(.generateNotesTapped):
+                guard state.canGenerateNotes, !state.isGeneratingNotes else { return .none }
+                state.isGeneratingNotes = true
+                let context = TrainingNotesContext(
+                    workouts: state.trainingSession.workouts,
+                    durationMinutes: Self.generatedNotesMinutes
+                )
+                let needsWarmUp = state.trainingSession.warmUp == nil
+                let needsCoolDown = state.trainingSession.coolDown == nil
+                return .run { [notesClient] send in
+                    async let warmUp: String? = needsWarmUp ? try await notesClient.generateWarmUp(context) : nil
+                    async let coolDown: String? = needsCoolDown ? try await notesClient.generateCoolDown(context) : nil
+                    await send(.notesGenerated(warmUp: try await warmUp, coolDown: try await coolDown))
+                } catch: { error, send in
+                    await send(.notesGenerationFailed(error.localizedDescription))
+                }
+                .cancellable(id: WorkoutPreviewCancelID.notesGeneration, cancelInFlight: true)
+
+            // MARK: - Internal
+
+            case let .notesGenerated(warmUp, coolDown):
+                state.isGeneratingNotes = false
+                state.trainingSession = Self.plan(
+                    state.trainingSession,
+                    warmUp: warmUp.map { WarmUpSession(goal: .timeLimit, time: Self.generatedNotesMinutes, description: $0) },
+                    coolDown: coolDown.map { CoolDownSession(goal: .timeLimit, time: Self.generatedNotesMinutes, description: $0) }
+                )
+                return .none
+
+            case let .notesGenerationFailed(message):
+                state.isGeneratingNotes = false
+                state.alert = .notesGenerationFailed(message)
+                return .none
 
             case let .view(.confirmFindingTapped(id)):
                 state.boardFindings[id: id]?.isConfirmed = true
@@ -145,14 +236,31 @@ struct WorkoutPreviewFeature {
                 }
                 return .none
 
-            case .destination:
-                return .none
-
-            case .delegate:
+            case .alert, .destination, .delegate:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
     }
 
+    // MARK: - Helpers
+
+    /// Default length of a generated warm-up or cool-down, same as a section added in the editor.
+    private static let generatedNotesMinutes = 10
+
+    // The scanned blocks stay untouched; only the missing sections are filled in.
+    private static func plan(_ plan: TrainingSession, warmUp: WarmUpSession?, coolDown: CoolDownSession?) -> TrainingSession {
+        TrainingSession(
+            id: plan.id,
+            date: plan.date,
+            title: plan.title,
+            activity: plan.activity,
+            location: plan.location,
+            warmUp: plan.warmUp ?? warmUp,
+            workouts: plan.workouts,
+            coolDown: plan.coolDown ?? coolDown,
+            teamPlanId: plan.teamPlanId
+        )
+    }
 }

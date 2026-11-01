@@ -47,9 +47,20 @@ struct GroupView: View {
                 PublishPlanView(store: publishStore)
             }
             .sheet(
-                item: $store.scope(state: \.destination?.planPreview, action: \.destination.planPreview)
+                item: $store.scope(state: \.destination?.planPreview, action: \.destination.planPreview),
+                onDismiss: { send(.previewDismissed) }
             ) { previewStore in
                 PlanPreviewView(store: previewStore)
+            }
+            .fullScreenCover(
+                item: $store.scope(state: \.destination?.session, action: \.destination.session)
+            ) { sessionStore in
+                SessionView(store: sessionStore)
+            }
+            .navigationDestination(
+                item: $store.scope(state: \.destination?.manage, action: \.destination.manage)
+            ) { manageStore in
+                ManageGroupView(store: manageStore)
             }
             .onAppear {
                 send(.viewDidAppear)
@@ -154,12 +165,7 @@ struct GroupView: View {
     }
 
     private func dayPlanSummary(_ plan: TeamPlan) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            dayPlanPreviewButton(plan)
-            if store.isSelectedDayToday && !store.isDayPlanDownloaded {
-                downloadDayPlanButton
-            }
-        }
+        dayPlanPreviewButton(plan)
     }
 
     // The whole plan summary opens the preview, like plan cards elsewhere.
@@ -183,10 +189,17 @@ struct GroupView: View {
             dayPlanTitles(plan)
                 .layoutPriority(1)
             Spacer(minLength: 0)
-            if store.isDayPlanDownloaded {
+            // Before the download the arrow is the only control; the chevron joins the badge after it.
+            // A republished plan sends the user back to the arrow, so the copy can be refreshed.
+            if store.isDayPlanStale, store.isSelectedDayToday {
+                planChangedBadge
+                downloadDayPlanButton
+            } else if store.isDayPlanDownloaded {
                 InYourPlansBadge()
+                chevron
+            } else if store.isSelectedDayToday {
+                downloadDayPlanButton
             }
-            chevron
         }
     }
 
@@ -231,22 +244,28 @@ struct GroupView: View {
     }
 
 
+    private var planChangedBadge: some View {
+        Text(planChangedTitle)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.orange)
+    }
+
+    // Icon only — it sits in the header where the "In your Plans" badge takes over after the download.
     private var downloadDayPlanButton: some View {
         Button {
             send(.dayPlanDownloadTapped)
         } label: {
-            Group {
-                if store.isDownloadingDayPlan {
-                    ProgressView()
-                } else {
-                    Label(downloadTitle, systemImage: "arrow.down.circle")
-                }
+            if store.isDownloadingDayPlan {
+                ProgressView()
+            } else {
+                Image(systemName: "arrow.down.circle")
+                    .font(.title2)
+                    .foregroundStyle(store.color)
             }
-            .font(.headline)
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.borderless)
         .disabled(store.isDownloadingDayPlan)
+        .accessibilityLabel(downloadTitle)
     }
 
     private var noDayPlanText: some View {
@@ -349,6 +368,12 @@ struct GroupView: View {
     private var moreMenu: some View {
         Menu {
             inviteButton
+            if store.isOwner {
+                manageButton
+            }
+            if store.canDeleteDayPlan {
+                deletePlanButton
+            }
             Divider()
             leaveButton
         } label: {
@@ -357,12 +382,29 @@ struct GroupView: View {
         .disabled(store.isLeaving)
     }
 
+    private var manageButton: some View {
+        Button {
+            send(.manageTapped)
+        } label: {
+            Label(manageTitle, systemImage: "person.2.badge.gearshape")
+        }
+    }
+
+    private var deletePlanButton: some View {
+        Button(role: .destructive) {
+            send(.deletePlanTapped)
+        } label: {
+            Label(deletePlanTitle, systemImage: "trash")
+        }
+    }
+
     private var leaveButton: some View {
         Button(role: .destructive) {
             send(.leaveTapped)
         } label: {
             Label(leaveTitle, systemImage: "rectangle.portrait.and.arrow.right")
         }
+        .disabled(!store.canLeave)
     }
 
     private var failedView: some View {
@@ -385,12 +427,15 @@ struct GroupView: View {
     private let addPlanTitle = String(localized: "Add Plan")
     private let noPastPlanText = String(localized: "No plan was published that day.")
     private let downloadTitle = String(localized: "Download to Plans")
+    private let planChangedTitle = String(localized: "Plan changed")
     private let inviteTitle = String(localized: "Invite")
     private let publishPlanTitle = String(localized: "Publish Today's Plan")
     private let ownerLabel = String(localized: "Owner")
     private let youLabel = String(localized: "You")
     private let moreTitle = String(localized: "More")
     private let leaveTitle = String(localized: "Leave Group")
+    private let deletePlanTitle = String(localized: "Delete Today's Plan")
+    private let manageTitle = String(localized: "Manage Group")
     private let failedTitle = String(localized: "Something went wrong")
     private let failedMessage = String(localized: "Unable to load the group members. Check your connection and try again.")
 }

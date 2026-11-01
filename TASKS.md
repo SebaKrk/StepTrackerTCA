@@ -1661,3 +1661,64 @@
     - the Team points window (IOS-00152) replaced the 60-minute class budget, so "Time in Class" per block, the "Class Length" bar and the fill-to-60 helper had no consumer left
     - `WorkoutSessionNew.plannedMinutes` removed from the model, draft, re-match and import copies; class length is now warm-up + time caps + cool-down (display only)
     - the scan mapper no longer estimates block minutes ("cap + 3"); written minutes still feed warm-up / cool-down
+
+### IOS-00164 Plan start — device picker
+    - branch: `rel/IOS-00164/IOS-00164` (from release 0.9.1)
+    - "Start Workout" in plan detail opens a sheet with the same `DeviceView` as a free workout; the session starts with the chosen `DeviceOption`
+    - before, a plan start passed `requestedDevice = nil` (auto-detect), so a paired Watch always won, even one left on the charger
+    - `nil` stays only as a defensive fallback in `SessionFeature`
+
+### IOS-00165 Team — start the workout from the group
+    - branch: `rel/IOS-00164/IOS-00164` (on top of IOS-00164)
+    - today's card downloads only: an arrow icon in the header that becomes the "In your Plans" badge
+    - the plan preview gets "Start Workout" in the bottom bar (activity icon, as in plan detail); it opens the device picker and the session runs from the group screen on the copy in Plans (fetched by `teamPlanId`)
+    - past days remain view-only
+
+### IOS-00166 Team — owner deletes today's plan
+    - branch: `rel/IOS-00164/IOS-00164` (on top of IOS-00165)
+    - "Delete Today's Plan" in the group menu, owner only, today only; a plan with no results goes at once, one with results asks first
+    - `TeamClient.deletePlan` removes the plan document and its `entries` subcollection in one batch (rules already allowed the owner)
+    - the card and the leaderboard clear through their listeners; members' downloaded copies stay in their Plans
+
+### IOS-00167 Team — group list cards and counters
+    - branch: `rel/IOS-00167/IOS-00167` (from IOS-00164)
+    - group card built like the plan card: icon, name, "Your group · N members", then Plan today / Results / Your result columns; a day without a plan shows one line
+    - invitation is one row: group, who invites, glass decline (confirmed by alert) and prominent join
+    - group document carries `memberCount` and `lastPlan` (day, title, minutes, author, entryCount), moved in the same batches as membership, publish, first result and delete; rules let members touch only those two keys
+    - "Your result" is one `myEntry` read per group with today's plan; a failed read leaves the column empty
+
+### IOS-00168 Team — manage the group
+    - branch: `rel/IOS-00168/IOS-00168` (from IOS-00167)
+    - owner-only "Manage Group" screen: Edit/Save in the toolbar for the name, member cards in a plain List with swipe to transfer ownership or remove (activity-list pattern), delete in the editor-style bottom bar; every change confirmed by an alert
+    - removing a member also closes the group's open invite codes and drops the member's scans, so the same QR cannot bring them back
+    - deleting a group removes members, invites, plans and results in batches of 499, the group document last
+    - group list: long press on a card offers Delete Group (owner) or Leave Group (member), both confirmed
+    - rules: the owner may hand `ownerUid` to an existing member; invites and recipients become deletable by the owner
+    - a leaving owner hands the group to the longest-standing member in the same batch; the last member leaving deletes it (closes the ownerless-group hole)
+    - group list as card rows in a plain List: newest first, drag to reorder (order stored on the device as `teamGroupOrder`), swipe to leave or delete
+
+### IOS-00169 Plan scan — generated warm-up / cool-down and the user's language
+    - branch: `rel/IOS-00169/IOS-00169` (from IOS-00168)
+    - scan preview offers "Generate" when the board has no warm-up or cool-down; only the missing sections are generated (10 min each, same client as the editor), failure shows an alert
+    - generated notes answer in the device language but keep exercise names in English; the scan prompt asks for free-text fields in the device language via the per-request user prompt, so the cached system prompt stays unchanged
+    - mapper no longer writes "Check: …" into block notes (the review card already lists those doubts); the rest line is localized
+
+### IOS-00170 Team — hardening before 0.9.1 (2)
+    - branch: `rel/IOS-00170/IOS-00170` (from IOS-00169); plan in `PLANS/IOS-00170-team-hardening.md`
+    - A1 result dots never build a negative range; a drifted counter reads as unknown in the mapper
+    - A2 deleting today's plan skips the alert only when the board is loaded and empty
+    - A3 "Leave Group" waits for the member list, so the alert names the real successor
+    - A4 rules validate `memberCount` and `lastPlan` shape on every update (deploy prod + dev)
+    - B1 deleting the group dismisses once (parent only); B2 the session waits for the preview sheet's onDismiss; B3 notes generation is cancellable and blocks Save/Edit while running; B4 the saved group order is never pruned
+    - C4 a failed day or week no longer blanks the other range; a lost connection says so and the board offers Try Again
+    - C1 counters repair themselves: any member writes back memberCount and today's lastPlan once the screen has the data
+    - C2 a republished plan shows "Plan changed" with the download arrow; downloading again replaces the copy instead of adding a second
+    - D1 an invalid group name keeps the field open with a red rule instead of silently reverting
+    - D2 DeviceFeature split into +State / +Action; D3 the seven dead IOS-00163 string keys removed
+
+### IOS-00171 Workout start — one screen everywhere
+    - branch: `rel/IOS-00170/IOS-00170`
+    - starting from a plan or from a group now presents `ConfigurationFeature` with the activity taken from the plan, instead of a bespoke sheet holding only `DeviceView`
+    - both paths gain what the main flow always had: close button, Bluetooth and Watch status, the device scanner
+    - with a locked activity the device pick starts the workout directly, so the plan start keeps its single tap
+    - `devicePicker` destinations and the three copies of the sheet are gone

@@ -24,4 +24,9 @@ extension String {
         AppStorageKeys.quickPickerWorkouts
     }
 
+    /// Manual order of Team groups, top to bottom
+    public static var teamGroupOrder: String {
+        AppStorageKeys.teamGroupOrder
+    }
+
 }

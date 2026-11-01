@@ -24,14 +24,13 @@ struct PlanPreviewView: View {
                 VStack(spacing: 12) {
                     authorCard
                     planDetail
+                    if store.canDownload {
+                        windowNote
+                    }
                 }
                 .padding()
             }
-            .safeAreaBar(edge: .bottom) {
-                if store.canDownload {
-                    downloadBar
-                }
-            }
+            .alert($store.scope(state: \.alert, action: \.alert))
             .background(backgroundGradient)
             .navigationTitle(store.plan.session.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -39,6 +38,17 @@ struct PlanPreviewView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     closeButton
                 }
+                if store.canDownload {
+                    ToolbarItemGroup(placement: .bottomBar) {
+                        Spacer()
+                        planActionButton
+                    }
+                }
+            }
+            .sheet(
+                item: $store.scope(state: \.configuration, action: \.configuration)
+            ) { configurationStore in
+                ConfigurationView(store: configurationStore)
             }
         }
         .tint(store.color)
@@ -74,41 +84,52 @@ struct PlanPreviewView: View {
         )
     }
 
-    private var downloadBar: some View {
-        VStack(spacing: 8) {
-            if let message = store.errorMessage {
-                Text(message)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
-            }
-            if !store.isDownloaded {
-                downloadButton
-            }
-            Text(String(localized: "Your group result counts the first \(store.plan.sessionMinutes) minutes from the start. Start when you begin the plan, warm-up included."))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+    // Last line of the scroll, under the plan the rule applies to.
+    private var windowNote: some View {
+        Text(String(localized: "Your group result counts the first \(store.plan.sessionMinutes) minutes from the start. Start when you begin the plan, warm-up included."))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 4)
+    }
+
+    // One slot in the bar: download first, then the same place offers the start.
+    @ViewBuilder
+    private var planActionButton: some View {
+        if store.isDownloaded {
+            startWorkoutButton
+        } else {
+            downloadButton
         }
-        .padding()
+    }
+
+    // Same shape as "Start Workout" in plan detail: the activity's icon, bottom-right.
+    private var startWorkoutButton: some View {
+        Button {
+            send(.startWorkoutTapped)
+        } label: {
+            Label(startWorkoutTitle, systemImage: activityIconName)
+                .fontWeight(.semibold)
+        }
     }
 
     private var downloadButton: some View {
         Button {
             send(.downloadTapped)
         } label: {
-            Group {
-                if store.isDownloading {
-                    ProgressView()
-                } else {
-                    Label(downloadTitle, systemImage: "arrow.down.circle")
-                }
+            if store.isDownloading {
+                ProgressView()
+            } else {
+                Label(downloadTitle, systemImage: "arrow.down.circle")
+                    .fontWeight(.semibold)
             }
-            .font(.headline)
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
         .disabled(store.isDownloading)
+    }
+
+    private var activityIconName: String {
+        store.plan.session.activity.iconName.replacingOccurrences(of: ".circle.fill", with: "")
     }
 
     private var backgroundGradient: some View {
@@ -131,5 +152,6 @@ struct PlanPreviewView: View {
     // MARK: - Text
 
     private let downloadTitle = String(localized: "Download to Plans")
+    private let startWorkoutTitle = String(localized: "Start Workout")
     private let closeTitle = String(localized: "Close")
 }

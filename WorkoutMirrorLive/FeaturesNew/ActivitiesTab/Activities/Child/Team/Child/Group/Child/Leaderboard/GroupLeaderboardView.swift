@@ -44,7 +44,7 @@ struct GroupLeaderboardView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, minHeight: contentMinHeight)
         case .failed:
-            emptyState(title: failedTitle, systemImage: "exclamationmark.triangle", description: failedText)
+            failedState
         case .success:
             switch store.range {
             case .day:
@@ -92,6 +92,33 @@ struct GroupLeaderboardView: View {
     }
 
     // MARK: - Implementation
+
+    // The only state with an action: a lost connection is fixed by the user, not by waiting.
+    private var failedState: some View {
+        ContentUnavailableView {
+            Label {
+                Text(store.isOffline ? offlineTitle : failedTitle)
+                    .font(.headline)
+            } icon: {
+                Image(systemName: store.isOffline ? "wifi.slash" : "exclamationmark.triangle")
+            }
+            .imageScale(.small)
+        } description: {
+            Text(store.isOffline ? offlineText : failedText)
+                .font(.footnote)
+        } actions: {
+            retryButton
+        }
+        .frame(maxWidth: .infinity, minHeight: contentMinHeight)
+    }
+
+    private var retryButton: some View {
+        Button {
+            send(.retryTapped)
+        } label: {
+            Text(retryTitle)
+        }
+    }
 
     private func emptyState(title: String, systemImage: String, description: String) -> some View {
         // Smaller than the full-screen default — it sits inside a card.
@@ -215,6 +242,9 @@ struct GroupLeaderboardView: View {
     private let weekCaption = String(localized: "Effort points and kcal summed Monday to Sunday — every workout counts.")
     private let kcalNoteText = String(localized: "kcal only from members who share them.")
     private let failedText = String(localized: "Couldn't load the leaderboard.")
+    private let offlineTitle = String(localized: "No Connection")
+    private let offlineText = String(localized: "The leaderboard loads once you are back online.")
+    private let retryTitle = String(localized: "Try Again")
     private let warmStartBadge = String(localized: "started warm")
     private let editedBadge = String(localized: "edited")
     private let lateBadge = String(localized: "late")

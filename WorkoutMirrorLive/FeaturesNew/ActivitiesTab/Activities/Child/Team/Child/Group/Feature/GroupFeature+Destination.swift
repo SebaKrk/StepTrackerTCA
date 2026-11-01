@@ -21,6 +21,12 @@ extension GroupFeature {
 
         /// Read-only plan with "Download to Plans".
         case planPreview(PlanPreviewFeature)
+
+        /// Full-screen workout on today's plan.
+        case session(SessionFeature)
+
+        /// Owner's screen: name, members, ownership, deletion.
+        case manage(ManageGroupFeature)
     }
 
 }

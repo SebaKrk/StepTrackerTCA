@@ -23,13 +23,25 @@ extension GroupFeature {
         case membersFailed
 
         /// Internal — the selected day's plan changed; carries whether a local copy exists.
-        case dayPlanLoaded(TeamPlan?, isDownloaded: Bool)
+        case dayPlanLoaded(TeamPlan?, downloadedAt: Date?)
 
         /// Internal — listening to the selected day's plan failed.
         case dayPlanFailed
 
         /// Internal — the card's download finished; `true` when the copy was saved.
         case dayPlanDownloadFinished(Bool)
+
+        /// Internal — the local copy of today's plan is ready to run on the chosen device.
+        case workoutReady(TrainingSession, DeviceOption)
+
+        /// Internal — preparing the copy failed; carries the message to show.
+        case workoutStartFailed(String)
+
+        /// Internal — today's plan and its entries are gone.
+        case planDeleted
+
+        /// Internal — deleting the plan failed; carries the message to show.
+        case deletePlanFailed(String)
 
         /// Internal — the user is no longer a member.
         case left
@@ -58,6 +70,15 @@ extension GroupFeature {
             /// Called when the user picks "Leave Group" from the menu.
             case leaveTapped
 
+            /// Called when the owner picks "Delete Today's Plan" from the menu.
+            case deletePlanTapped
+
+            /// Called when the owner picks "Manage Group" from the menu.
+            case manageTapped
+
+            /// Called when the plan preview sheet has finished closing.
+            case previewDismissed
+
             /// Called when the user taps the QR button to invite someone.
             case inviteTapped
 
@@ -85,12 +106,15 @@ extension GroupFeature {
 
             /// The user confirmed leaving.
             case confirmLeave
+
+            /// The owner confirmed deleting today's plan with its results.
+            case confirmDeletePlan
         }
 
         @CasePathable
         enum Delegate {
 
-            /// The user left; the screen is closing.
+            /// The user left or the group was deleted; the screen is closing.
             case left
         }
     }

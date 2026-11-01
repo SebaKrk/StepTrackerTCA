@@ -99,7 +99,7 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
     // MARK: - Private
 
     private func generateText(system: String, userMessage: String) async throws -> String {
-        let localizedSystem = "\(system) Respond in \(preferredLanguageName())."
+        let localizedSystem = "\(system) Respond in \(ClaudePrompt.preferredLanguageName()). Keep exercise and movement names in English (\"squat clean\", \"toes to bar\"); everything else in that language."
         let response = try await apiClient.sendMessage(
             model: Self.notesModel,
             system: localizedSystem,
@@ -107,10 +107,5 @@ public actor ClaudeStrategy: WorkoutParsingStrategy {
             options: Self.notesOptions
         )
         return response.firstText ?? ""
-    }
-
-    private func preferredLanguageName() -> String {
-        let code = Locale.current.language.languageCode?.identifier ?? "en"
-        return Locale(identifier: "en").localizedString(forLanguageCode: code) ?? "English"
     }
 }

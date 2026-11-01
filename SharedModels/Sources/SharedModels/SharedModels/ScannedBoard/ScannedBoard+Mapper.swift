@@ -107,11 +107,13 @@ extension ScannedSection {
         return kind.rawValue.capitalized
     }
 
+    // Doubts (`uncertain`) are not notes: the review card lists them as findings.
     private var combinedNotes: String? {
         var parts: [String] = []
         if !notes.isEmpty { parts.append(notes) }
-        if restBetweenRoundsSec > 0 { parts.append("Rest \(restBetweenRoundsSec) s between rounds") }
-        if !uncertain.isEmpty { parts.append("Check: " + uncertain.joined(separator: ", ")) }
+        if restBetweenRoundsSec > 0 {
+            parts.append(String(localized: "Rest \(restBetweenRoundsSec) s between rounds", bundle: .module))
+        }
         return parts.isEmpty ? nil : parts.joined(separator: "\n")
     }
 }

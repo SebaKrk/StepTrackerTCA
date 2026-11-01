@@ -1114,6 +1114,16 @@
         }
       }
     },
+    "Rest %lld s between rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przerwa %lld s między rundami"
+          }
+        }
+      }
+    },
     "RHR" : {
       "localizations" : {
         "pl" : {

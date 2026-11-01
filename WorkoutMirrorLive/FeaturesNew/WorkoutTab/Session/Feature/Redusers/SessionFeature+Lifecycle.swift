@@ -38,8 +38,9 @@ extension SessionFeature {
                     //   a paired-but-off-wrist Watch (e.g. on a charger) still
                     //   reports `.ready`, since that status only checks `isPaired`.
                     // - `.watch` → Watch-primary when the Watch is ready.
-                    // - `nil` (plan start, no picker) → auto-detect: a CONNECTED BLE
-                    //   strap wins over the Watch.
+                    // - `nil` (defensive, every start has a picker) → auto-detect: a CONNECTED BLE
+                    //   strap wins over the Watch. Unreachable in practice since every entry point
+                    //   commits a device, so treat this branch as a safety net, not a tested path.
                     let useWatch: Bool
                     switch requestedDevice {
                     case .iphone?, .hrBelt?, .airPods?:

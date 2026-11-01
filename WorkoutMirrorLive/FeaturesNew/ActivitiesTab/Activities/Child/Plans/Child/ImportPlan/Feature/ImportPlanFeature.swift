@@ -25,7 +25,7 @@ struct ImportPlanFeature {
                     // the one-shot QRScannerView has stopped its session, and
                     // without a remount the camera stays frozen with no retry.
                     state.scanAttempt += 1
-                    state.alert = Self.malformedAlert
+                    state.alert = .malformed
                     return .none
                 }
                 // Fresh identity at every level (see withNewIdentity) — B's own copy,
@@ -49,11 +49,5 @@ struct ImportPlanFeature {
             }
         }
         .ifLet(\.$alert, action: \.alert)
-    }
-
-    static let malformedAlert = AlertState<Action.Alert> {
-        TextState(String(localized: "Couldn't read the plan"))
-    } message: {
-        TextState(String(localized: "This code doesn't contain a valid training plan."))
     }
 }

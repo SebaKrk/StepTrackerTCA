@@ -237,7 +237,12 @@ struct SummaryFeature {
                             now: now
                         )
                         do {
-                            try await teamClient.submitEntry(team.groupId, team.plan.id, entry)
+                            try await teamClient.submitEntry(
+                                team.groupId,
+                                team.plan.id,
+                                entry,
+                                team.context.existingEntry == nil
+                            )
                         } catch {
                             reportIssue(error)
                         }
@@ -406,15 +411,7 @@ struct SummaryFeature {
 
             case let .discardCompleted(errorMessage: .some(message)):
                 state.isDiscarding = false
-                state.errorAlert = AlertState {
-                    TextState(String(localized: "Failed to discard workout"))
-                } actions: {
-                    ButtonState(role: .cancel) {
-                        TextState(String(localized: "OK"))
-                    }
-                } message: {
-                    TextState(message)
-                }
+                state.errorAlert = .discardFailed(message)
                 return .none
 
             case .errorAlert:

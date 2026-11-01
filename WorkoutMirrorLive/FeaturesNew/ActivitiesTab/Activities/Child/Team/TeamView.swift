@@ -46,6 +46,7 @@ struct TeamView: View {
             ) { previewStore in
                 InvitationPreviewView(store: previewStore)
             }
+            .alert($store.scope(state: \.alert, action: \.alert))
             .onAppear {
                 send(.viewDidAppear)
             }
@@ -85,24 +86,35 @@ struct TeamView: View {
         }
     }
 
+    // Cards in a plain List, like the activity list: drag to reorder, swipe to leave or delete.
     private var groupsList: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        List {
+            Group {
                 invitationsSection
                 groupsSection
             }
-            .padding()
+            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .refreshable {
+            await send(.refreshPulled).finish()
         }
     }
 
     @ViewBuilder
     private var invitationsSection: some View {
         if !store.pendingInvitations.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                sectionHeader(invitationsHeader)
-                ForEach(store.pendingInvitations) { invitation in
-                    invitationCard(invitation)
-                }
+            sectionHeader(invitationsHeader)
+            ForEach(store.pendingInvitations) { invitation in
+                TeamInvitationRow(
+                    invitation: invitation,
+                    isResponding: store.respondingInvitationIds.contains(invitation.id),
+                    onJoin: { send(.invitationJoinTapped(invitation)) },
+                    onDecline: { send(.invitationDeclineTapped(invitation)) }
+                )
             }
         }
     }
@@ -110,53 +122,48 @@ struct TeamView: View {
     @ViewBuilder
     private var groupsSection: some View {
         if !store.groups.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                sectionHeader(groupsHeader)
-                ForEach(store.groups) { group in
-                    groupCard(group)
+            sectionHeader(groupsHeader)
+                .padding(.top, store.pendingInvitations.isEmpty ? 0 : 8)
+            ForEach(store.orderedGroups) { group in
+                TeamGroupCard(
+                    group: group,
+                    isMine: group.ownerUid == store.myUid,
+                    today: store.today,
+                    myEntry: store.myEntries[group.id],
+                    onTap: { send(.groupTapped(group)) }
+                )
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    groupSwipeButton(group)
                 }
+                .disabled(store.workingGroupIds.contains(group.id))
+            }
+            .onMove { source, destination in
+                send(.groupsMoved(from: source, to: destination), animation: .snappy)
             }
         }
-    }
-
-    // MARK: - Invitation Card (structure)
-
-    private func invitationCard(_ invitation: TeamInvitation) -> some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 10) {
-                invitationTitles(invitation)
-                invitationButtons(invitation)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .styledGroupBox()
-    }
-
-    // MARK: - Group Card (structure)
-
-    private func groupCard(_ group: TeamGroup) -> some View {
-        Button {
-            send(.groupTapped(group))
-        } label: {
-            groupCardContent(group)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func groupCardContent(_ group: TeamGroup) -> some View {
-        GroupBox {
-            HStack(spacing: 12) {
-                groupBadge(group)
-                groupTitles(group)
-                Spacer()
-                chevron
-            }
-            .contentShape(.rect)
-        }
-        .styledGroupBox()
     }
 
     // MARK: - Implementation
+
+    // Swipe on a card: the owner deletes, everyone else leaves — both confirmed by an alert.
+    @ViewBuilder
+    private func groupSwipeButton(_ group: TeamGroup) -> some View {
+        if group.ownerUid == store.myUid {
+            Button {
+                send(.groupDeleteTapped(group))
+            } label: {
+                Label(deleteGroupTitle, systemImage: "trash")
+            }
+            .tint(.red)
+        } else {
+            Button {
+                send(.groupLeaveTapped(group))
+            } label: {
+                Label(leaveGroupTitle, systemImage: "rectangle.portrait.and.arrow.right")
+            }
+            .tint(.red)
+        }
+    }
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
@@ -181,70 +188,6 @@ struct TeamView: View {
     // Filled while a non-default filter is on, like the system filter buttons.
     private var segmentFilterIcon: String {
         store.segment == .private ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill"
-    }
-
-    private func groupBadge(_ group: TeamGroup) -> some View {
-        Text(group.name.prefix(2).uppercased())
-            .font(.subheadline.weight(.heavy))
-            .foregroundStyle(.white)
-            .frame(width: 44, height: 44)
-            .background(store.color.gradient, in: .rect(cornerRadius: 12))
-    }
-
-    private func groupTitles(_ group: TeamGroup) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(group.name)
-                .font(.headline)
-            if group.ownerUid == store.myUid {
-                Text(ownGroupCaption)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-
-    private func invitationTitles(_ invitation: TeamInvitation) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(invitation.invite.groupName)
-                .font(.headline)
-            Text(String(localized: "From \(invitation.invite.createdByName)"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private func invitationButtons(_ invitation: TeamInvitation) -> some View {
-        HStack(spacing: 10) {
-            declineInvitationButton(invitation)
-            joinInvitationButton(invitation)
-        }
-        .disabled(store.respondingInvitationIds.contains(invitation.id))
-    }
-
-    private func joinInvitationButton(_ invitation: TeamInvitation) -> some View {
-        Button {
-            send(.invitationJoinTapped(invitation))
-        } label: {
-            Text(joinTitle)
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.borderedProminent)
-    }
-
-    private func declineInvitationButton(_ invitation: TeamInvitation) -> some View {
-        Button(role: .destructive) {
-            send(.invitationDeclineTapped(invitation))
-        } label: {
-            Text(declineTitle)
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.bordered)
-    }
-
-    private var chevron: some View {
-        Image(systemName: "chevron.right")
-            .font(.footnote.weight(.semibold))
-            .foregroundStyle(.tertiary)
     }
 
     private var noGroupsView: some View {
@@ -321,7 +264,6 @@ struct TeamView: View {
     // MARK: - Text
 
     private let segmentPickerTitle = String(localized: "Groups")
-    private let ownGroupCaption = String(localized: "Your group")
     private let noGroupsTitle = String(localized: "No Groups Yet")
     private let noGroupsMessage = String(localized: "Create a group or scan an invite from a friend to train on the same plan and compare results.")
     private let publicTitle = String(localized: "Public Groups Coming Soon")
@@ -334,6 +276,6 @@ struct TeamView: View {
     private let scanInviteTitle = String(localized: "Scan Invite")
     private let invitationsHeader = String(localized: "Invitations")
     private let groupsHeader = String(localized: "My Groups")
-    private let joinTitle = String(localized: "Join")
-    private let declineTitle = String(localized: "Decline")
+    private let deleteGroupTitle = String(localized: "Delete Group")
+    private let leaveGroupTitle = String(localized: "Leave Group")
 }

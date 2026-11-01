@@ -13,6 +13,7 @@ import SharedModels
 @Reducer
 struct TeamFeature {
 
+    @Dependency(\.calendar) var calendar
     @Dependency(\.date) var date
     @Dependency(\.teamClient) var teamClient
     @Dependency(\.userProfileClient) var userProfileClient
@@ -24,9 +25,12 @@ struct TeamFeature {
             // MARK: - View
 
             case .view(.viewDidAppear):
-                guard !state.hasStarted else { return .none }
+                guard !state.hasStarted else { return refreshGroups() }
                 state.hasStarted = true
                 return startListening()
+
+            case .view(.refreshPulled):
+                return refreshGroups()
 
             case let .view(.segmentChanged(segment)):
                 state.segment = segment
@@ -44,7 +48,45 @@ struct TeamFeature {
                 return respond(&state, to: invitation, accept: true)
 
             case let .view(.invitationDeclineTapped(invitation)):
+                state.alert = .confirmDeclineInvitation(invitation)
+                return .none
+
+            case let .alert(.presented(.confirmDecline(invitation))):
                 return respond(&state, to: invitation, accept: false)
+
+            case let .view(.groupsMoved(source, destination)):
+                // The saved order covers every group once a drag happened, so the move is a plain array move.
+                let ids = Self.moved(state.orderedGroups.map(\.id), from: source, to: destination)
+                state.$orderedGroupIds.withLock { $0 = ids }
+                return .none
+
+            case let .view(.groupDeleteTapped(group)):
+                guard group.ownerUid == state.myUid, !state.workingGroupIds.contains(group.id) else { return .none }
+                state.alert = .confirmDeleteGroup(group)
+                return .none
+
+            case let .view(.groupLeaveTapped(group)):
+                guard group.ownerUid != state.myUid, !state.workingGroupIds.contains(group.id) else { return .none }
+                state.alert = .confirmLeaveGroup(group)
+                return .none
+
+            case let .alert(.presented(.confirmDeleteGroup(group))):
+                state.workingGroupIds.insert(group.id)
+                return groupAction(group.id) { [teamClient] in try await teamClient.deleteGroup(group.id) }
+
+            case let .alert(.presented(.confirmLeaveGroup(group))):
+                state.workingGroupIds.insert(group.id)
+                // Only members leave from the list (owners see Delete), so there is no successor to name.
+                return groupAction(group.id) { [teamClient] in try await teamClient.leaveGroup(group.id, nil) }
+
+            case let .groupActionFinished(id):
+                state.workingGroupIds.remove(id)
+                return .none
+
+            case let .groupActionFailed(id, message):
+                state.workingGroupIds.remove(id)
+                state.alert = .groupActionFailed(message)
+                return .none
 
             case .view(.scanInviteTapped):
                 state.destination = .invitationPreview(
@@ -69,6 +111,13 @@ struct TeamFeature {
             case let .groupsUpdated(groups):
                 state.groups = groups
                 state.viewState = .success
+                // The saved order is never pruned here: a snapshot can be short by a group whose read failed,
+                // and ids of groups that are gone cost nothing — `orderedGroups` skips them.
+                state.today = TeamDay.id(for: date.now, calendar: calendar)
+                return loadMyEntries(groups: groups, today: state.today)
+
+            case let .myEntriesLoaded(entries):
+                state.myEntries = entries
                 return .none
 
             case .groupsFailed:
@@ -85,11 +134,57 @@ struct TeamFeature {
 
             // MARK: - Destination
 
-            case .destination:
+            case .alert, .destination:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
+    }
+
+    // Only groups with a plan today have a result to show.
+    private func loadMyEntries(groups: [TeamGroup], today: String) -> Effect<Action> {
+        let groupIds = groups.filter { $0.lastPlan?.day == today }.map(\.id)
+        guard !groupIds.isEmpty else { return .send(.myEntriesLoaded([:])) }
+        return .run { [teamClient] send in
+            await send(.myEntriesLoaded(await teamClient.myEntries(groupIds, today)))
+        }
+        .cancellable(id: TeamCancelID.myEntries, cancelInFlight: true)
+    }
+
+    // Same semantics as SwiftUI's `move(fromOffsets:toOffset:)`: `destination` is an offset in the
+    // original array, before the moved items were taken out.
+    private static func moved(_ ids: [String], from source: IndexSet, to destination: Int) -> [String] {
+        let moving = source.map { ids[$0] }
+        var rest = ids
+        for offset in source.sorted(by: >) {
+            rest.remove(at: offset)
+        }
+        let target = destination - source.filter { $0 < destination }.count
+        rest.insert(contentsOf: moving, at: target)
+        return rest
+    }
+
+    // The membership listener removes the card; this only tracks the spinner and the error.
+    private func groupAction(_ id: TeamGroup.ID, _ work: @escaping @Sendable () async throws -> Void) -> Effect<Action> {
+        .run { send in
+            try await work()
+            await send(.groupActionFinished(id))
+        } catch: { error, send in
+            Logger.team.error("Group action failed: \(error.localizedDescription)")
+            await send(.groupActionFailed(id, error.localizedDescription))
+        }
+    }
+
+
+    // Counters on the group documents change outside the membership listener, so a visit re-reads them.
+    private func refreshGroups() -> Effect<Action> {
+        .run { [teamClient] send in
+            await send(.groupsUpdated(try await teamClient.myGroups()))
+        } catch: { error, _ in
+            Logger.team.error("Team groups refresh failed: \(error.localizedDescription)")
+        }
+        .cancellable(id: TeamCancelID.refresh, cancelInFlight: true)
     }
 
     // Groups and scanned invites stay live for as long as the tab exists.
