@@ -1749,3 +1749,8 @@
     - flipping to "not finished" no longer writes: the status segment is live on an untouched card, so syncing there would have stamped every movement with the steppers' zeroes
     - the second stepper names its ceiling ("4 of 21"), since in a ladder a round's number and its size are both plausible readings of the same box
     - switching a block's type in the editor clears the ladder, which no other type can express and no screen can clear by hand
+
+### IOS-00175 Activity details — the results card is the call to action
+    - a plan with no results yet carried its colour on an inner button sitting inside a neutral card, so the tap target read as a control rather than as the card it actually is
+    - `styledGroupBox(tint:)` colours the whole card instead; the default stays neutral, so no other card in the app changes
+    - the inner button drops its own background — two tinted layers of the same colour drew a visible frame inside a frame
