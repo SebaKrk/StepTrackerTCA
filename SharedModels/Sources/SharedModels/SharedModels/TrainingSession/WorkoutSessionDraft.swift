@@ -24,6 +24,9 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
     /// EMOM cadence in seconds; nil for other formats.
     public var everySeconds: Int?
 
+    /// Rep ladder of the block ("10-9-8…1"); nil when every round has the same count.
+    public var repScheme: [Int]?
+
     public init(
         name: String = "",
         type: ExerciseWorkoutType = .amrap,
@@ -32,7 +35,8 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         exercises: [ExerciseSession] = [],
         interval: IntervalPlan? = nil,
         notes: String? = nil,
-        everySeconds: Int? = nil
+        everySeconds: Int? = nil,
+        repScheme: [Int]? = nil
     ) {
         self.name = name
         self.type = type
@@ -42,6 +46,7 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.interval = interval
         self.notes = notes
         self.everySeconds = everySeconds
+        self.repScheme = repScheme
     }
 
     public init(workout: WorkoutSessionNew) {
@@ -53,5 +58,6 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.interval = workout.interval
         self.notes = workout.notes
         self.everySeconds = workout.everySeconds
+        self.repScheme = workout.repScheme
     }
 }

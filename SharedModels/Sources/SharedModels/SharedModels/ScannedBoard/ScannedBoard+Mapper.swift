@@ -70,7 +70,8 @@ extension ScannedSection {
             exercises: exercises,
             interval: interval,
             notes: combinedNotes,
-            everySeconds: type == .emom ? (everySec > 0 ? everySec : 60) : nil
+            everySeconds: type == .emom ? (everySec > 0 ? everySec : 60) : nil,
+            repScheme: repScheme.isEmpty ? nil : repScheme
         )
     }
 
@@ -80,7 +81,8 @@ extension ScannedSection {
         switch format {
         case .forTime: return .forTime
         case .amrap, .maxEffort: return .amrap
-        case .emom: return .emom
+        // Death By has no plan type of its own; the clock beat is what the session needs.
+        case .emom, .deathBy: return .emom
         case .tabata: return .tabata
         case .intervals: return .intervals
         case .roundsUntimed: return .strength
@@ -92,10 +94,12 @@ extension ScannedSection {
 
     private func rounds(for type: ExerciseWorkoutType) -> Int? {
         switch type {
-        case .forTime, .tabata, .strength, .olympicWeightlifting:
+        // An EMOM's roundCount is how many times the list is completed — written on the
+        // board and needed for the session total. AMRAP's is unknowable by definition.
+        case .forTime, .emom, .tabata, .strength, .olympicWeightlifting:
             if roundCount > 0 { return roundCount }
             return (type == .forTime && !repScheme.isEmpty) ? repScheme.count : nil
-        case .amrap, .emom, .mobility, .intervals:
+        case .amrap, .mobility, .intervals:
             return nil
         }
     }
@@ -181,7 +185,7 @@ extension ScannedMovement {
     /// The session UI keeps one rounded kg pair; Rx wins, then a single load, then the first tier.
     private var weightConfiguration: WeightConfiguration? {
         let chosen = loads.first { $0.tier == .rx } ?? loads.first { $0.tier == .single } ?? loads.first
-        guard let chosen, chosen.unit != .percentOfMax else { return nil }
+        guard let chosen, chosen.unit != .percentOfMax, chosen.unit != .percentOfBodyWeight else { return nil }
         let men = chosen.unit.kilograms(chosen.men).map { Int($0.rounded()) }
         let women = chosen.unit.kilograms(chosen.women).map { Int($0.rounded()) }
         guard men != nil || women != nil else { return nil }
@@ -193,6 +197,9 @@ extension ScannedMovement {
         var parts: [String] = []
         if !sets.isEmpty { parts.append(setsSummary) }
         if repRangeMax > 0, targetValue > 0 { parts.append("\(Int(targetValue))-\(repRangeMax) reps") }
+        if targetValueWomen > 0, targetValueWomen != targetValue {
+            parts.append("\(Int(targetValue))/\(Int(targetValueWomen)) \(targetUnit.rawValue)")
+        }
         if maxEffort { parts.append("max effort") }
         if restAfterSetSec > 0 { parts.append("Rest: \(restAfterSetSec) s") }
         if !alternatives.isEmpty { parts.append("or " + alternatives.joined(separator: " / ")) }
@@ -228,6 +235,7 @@ extension ScannedSet {
         case .kg: return "\(base) @ \(Self.number(load)) kg"
         case .lb: return "\(base) @ \(Self.number(load)) lb"
         case .percentOfMax: return "\(base) @ \(Self.number(load))%"
+        case .percentOfBodyWeight: return "\(base) @ \(Self.number(load))% BW"
         }
     }
 
@@ -245,7 +253,11 @@ extension ScannedLoad {
         let pair = men == women || women == 0
             ? ScannedSet.number(men)
             : "\(ScannedSet.number(men))/\(ScannedSet.number(women))"
-        let unitLabel = unit == .percentOfMax ? "%" : " \(unit.rawValue)"
+        let unitLabel: String = switch unit {
+        case .percentOfMax: "%"
+        case .percentOfBodyWeight: "% BW"
+        case .kg, .lb, .pood: " \(unit.rawValue)"
+        }
         switch tier {
         case .single: return pair + unitLabel
         case .rx: return "Rx \(pair)\(unitLabel)"
@@ -262,7 +274,7 @@ extension ScannedLoadUnit {
         switch self {
         case .kg: return value
         case .lb: return (value * 0.45359237 * 2).rounded() / 2
-        case .percentOfMax, .none: return nil
+        case .percentOfMax, .percentOfBodyWeight, .none: return nil
         }
     }
 }
@@ -274,7 +286,7 @@ extension LoadTier.Unit {
         case .kg: return value
         case .lb: return value * 0.45359237
         case .pood: return value * 16
-        case .percentOfMax: return nil
+        case .percentOfMax, .percentOfBodyWeight: return nil
         }
     }
 }

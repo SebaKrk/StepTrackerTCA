@@ -120,6 +120,11 @@ struct ExerciseTypeMatchingTests {
         ("any machine", .anyMachine),
         ("cal on machine", .anyMachine),
         ("calories on machine", .anyMachine),
+        // Catalog v9 — names seen on scanned boards
+        ("alternating dumbbell snatch", .dumbbellSnatch),
+        ("alternating DB snatch", .dumbbellSnatch),
+        ("alt dumbbell snatch", .dumbbellSnatch),
+        ("DB snatch alt", .dumbbellSnatch),
     ]
 
     @Test("Every field-data raw name resolves to its catalog case", arguments: fieldDataGolden)
@@ -252,7 +257,7 @@ struct ExerciseTypeMatchingTests {
 
     @Test("Catalog version is bumped so the re-match job replays old unknowns")
     func catalogVersionBumped() {
-        #expect(ExerciseType.catalogVersion >= 8)
+        #expect(ExerciseType.catalogVersion >= 9)
     }
 
     @Test("The burpee family resolves each variant to its own movement")
