@@ -18,6 +18,9 @@ public enum ScannedLoadUnit: String, Codable, Sendable, CaseIterable {
     /// Percent of the athlete's one-rep max.
     case percentOfMax
 
+    /// Percent of the athlete's own body weight ("75% of body weight").
+    case percentOfBodyWeight
+
     /// The set has no load.
     case none
 }

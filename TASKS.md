@@ -1722,3 +1722,35 @@
     - both paths gain what the main flow always had: close button, Bluetooth and Watch status, the device scanner
     - with a locked activity the device pick starts the workout directly, so the plan start keeps its single tap
     - `devicePicker` destinations and the three copies of the sheet are gone
+
+### IOS-00172 Plan scan — every scan saved for diagnosis
+    - branch: `dev/IOS-00172/IOS-00172` (from develop)
+    - each scan writes `Documents/Diagnostics/ScanRuns/<timestamp>/` with the downscaled photo, the OCR transcript when the backend uses one, the board the model returned and a metadata file
+    - `meta.json` records the backend, so a bad result can be attributed to the prompt or to Vision OCR rather than guessed at
+    - a failed parse is recorded too: the thrown error lands in the metadata instead of vanishing with the screen
+    - the whole recorder sits behind `#if DEBUG` and never throws — a failed dump must not take down the user's scan
+    - no UI and no migration: `UIFileSharingEnabled` already exposes `Documents`, so the folders are reachable from the Files app without a cable
+    - the dumps double as fixture material for `PLANS/scan-eval/`
+
+### IOS-00173 Plan scan — what the board says survives the parse
+    - branch: `dev/IOS-00172/IOS-00172` (shared with IOS-00172)
+    - the four dumps of 07/11 showed three losses: an "alternating" snatch fell out of the catalog, the women's half of "12/9 cal row" lived only in prose, and "75% of body weight" was stored as 75% of a one-rep max
+    - `targetValueWomen` and `LoadTier.Unit.percentOfBodyWeight` give those two numbers a field of their own, so a woman's target and a body-weight load stop being guesses
+    - the prompt gains a FORMAT section: every format now states what it must fill, which ends the invented time caps and the dropped EMOM round count
+    - an EMOM keeps its round count through the mapper, so six passes of twelve burpees log as seventy-two
+    - a WOD's rep ladder moves to the block where it belongs: one chip in the header instead of ten "Set N" rows under each movement
+    - `deathBy` joins the formats — the only shape the schema could not express, since it ends in failure rather than a count
+
+### IOS-00174 WOD result — the ladder enters its own reps
+    - branch: `dev/IOS-00172/IOS-00172` (shared with IOS-00172 and IOS-00173)
+    - a capped For Time with a rep ladder asked for the same number twice: the score picker, then the reps of every movement — and the second entry kept the plan's total, logging 55 reps for a 31-rep effort
+    - the reps now follow from the score; only the weight is still typed. `LadderScore` holds the arithmetic, counting a part-finished round across the movements in board order the way a scoreboard does
+    - the write is scoped twice over: only a reps target, because after the save the unit suffix is the only thing marking calories as calories, and only a movement that follows the block's ladder rather than a scheme of its own
+    - flipping to "not finished" no longer writes: the status segment is live on an untouched card, so syncing there would have stamped every movement with the steppers' zeroes
+    - the second stepper names its ceiling ("4 of 21"), since in a ladder a round's number and its size are both plausible readings of the same box
+    - switching a block's type in the editor clears the ladder, which no other type can express and no screen can clear by hand
+
+### IOS-00175 Activity details — the results card is the call to action
+    - a plan with no results yet carried its colour on an inner button sitting inside a neutral card, so the tap target read as a control rather than as the card it actually is
+    - `styledGroupBox(tint:)` colours the whole card instead; the default stays neutral, so no other card in the app changes
+    - the inner button drops its own background — two tinted layers of the same colour drew a visible frame inside a frame

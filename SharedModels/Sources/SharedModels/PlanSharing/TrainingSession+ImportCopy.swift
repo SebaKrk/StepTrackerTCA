@@ -50,7 +50,8 @@ extension TrainingSession {
                     },
                     interval: workout.interval,
                     notes: workout.notes,
-                    everySeconds: workout.everySeconds
+                    everySeconds: workout.everySeconds,
+                    repScheme: workout.repScheme
                 )
             },
             coolDown: coolDown

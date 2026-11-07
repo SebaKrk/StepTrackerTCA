@@ -427,7 +427,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .burpeeOverBar:
             return ["burpee over bar", "burpees over bar", "burpee over the bar", "burpees over the bar", "BOTB", "burpee over barbell", "burpees over barbell", "bar facing burpee", "bar facing burpees", "BFB", "bar-facing burpees", "bar-facing burpee", "lateral burpee over bar", "lateral burpee over the bar", "lateral bar-facing burpee"]
         case .dumbbellSnatch:
-            return ["dumbbell snatch", "DB snatch", "single arm dumbbell snatch", "DB power snatch"]
+            return ["dumbbell snatch", "DB snatch", "single arm dumbbell snatch", "DB power snatch",
+                    "alternating dumbbell snatch", "alternating DB snatch", "alt dumbbell snatch",
+                    "alt DB snatch", "DB snatch alt", "dumbbell snatch alternating"]
         case .dumbbellClean:
             return ["dumbbell clean", "DB clean", "dumbbell power clean", "DB power clean"]
         case .dumbbellCleanAndJerk:
@@ -650,7 +652,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// re-runs when its stored version is lower — same contract as the
     /// effort-points weights version: results frozen in the database are only
     /// recomputed through an explicit, versioned pass.
-    public static let catalogVersion = 8
+    public static let catalogVersion = 9
 
     // MARK: Name normalisation
 

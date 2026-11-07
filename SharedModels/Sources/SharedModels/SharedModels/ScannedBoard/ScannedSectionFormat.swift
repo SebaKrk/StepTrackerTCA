@@ -21,6 +21,9 @@ public enum ScannedSectionFormat: String, Codable, Sendable, CaseIterable {
     /// Every minute on the minute (or E2MOM, see `everySec`).
     case emom
 
+    /// An EMOM whose reps grow every round until the athlete fails; the end is failure, not a count.
+    case deathBy
+
     /// Tabata.
     case tabata
 

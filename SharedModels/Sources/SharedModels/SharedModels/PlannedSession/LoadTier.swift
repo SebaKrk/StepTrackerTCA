@@ -46,6 +46,9 @@ public struct LoadTier: Equatable, Codable, Sendable {
 
         /// Percent of the athlete's one-rep max.
         case percentOfMax
+
+        /// Percent of the athlete's own body weight ("Rx: 75% of body weight").
+        case percentOfBodyWeight
     }
 
     /// Which option this is.

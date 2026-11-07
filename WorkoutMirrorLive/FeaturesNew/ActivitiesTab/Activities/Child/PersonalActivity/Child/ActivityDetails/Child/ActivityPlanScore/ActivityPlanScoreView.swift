@@ -49,7 +49,7 @@ struct ActivityPlanScoreView: View {
             } label: {
                 resultsLabel
             }
-            .styledGroupBox()
+            .styledGroupBox(tint: .orange)
         } else {
             VStack(alignment: .leading, spacing: 12) {
                 resultCards
@@ -106,9 +106,7 @@ struct ActivityPlanScoreView: View {
                     .font(.caption)
                     .foregroundStyle(.orange)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 11)
-            .background(.orange.opacity(0.16), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+            .padding(.vertical, 4)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

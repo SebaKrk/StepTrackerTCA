@@ -37,8 +37,9 @@ enum ClaudeBoardOutputSchema {
             "kind": enumeration(["warmup", "skill", "strength", "accessory", "conditioning", "mobility", "cooldown"],
                                 "strength = loaded set work; conditioning = any block with a format keyword; mobility = stretches, holds, rehab"),
             "name": string("What the athlete works on, never the format: Back Squat, WOD 1, Strength"),
-            "format": enumeration(["none", "forTime", "amrap", "emom", "tabata", "intervals", "roundsUntimed", "maxEffort"],
-                                  "none for plain set work; roundsUntimed for '3 rounds not for time'; maxEffort for 'max reps in N min'"),
+            "format": enumeration(["none", "forTime", "amrap", "emom", "deathBy", "tabata", "intervals",
+                                   "roundsUntimed", "maxEffort"],
+                                  "none for plain set work; roundsUntimed for '3 rounds not for time'; maxEffort for 'max reps in N min'; deathBy for an EMOM with reps growing until failure"),
             "timeCapMin": number("Minutes next to the format keyword or TC of THIS block; 0 when none"),
             "everySec": integer("EMOM cadence in seconds: 60, 120 for E2MOM, 0 otherwise"),
             "workSec": integer("Work seconds of tabata / intervals (tabata 20); 0 otherwise"),
@@ -55,14 +56,16 @@ enum ClaudeBoardOutputSchema {
     )
 
     private static let movement: JSONValue = object(
-        required: ["name", "rawName", "segment", "targetValue", "targetUnit", "repRangeMax", "perSide",
-                   "maxEffort", "sets", "loads", "restAfterSetSec", "alternatives"],
+        required: ["name", "rawName", "segment", "targetValue", "targetUnit", "targetValueWomen",
+                   "repRangeMax", "perSide", "maxEffort", "sets", "loads", "restAfterSetSec",
+                   "alternatives"],
         properties: [
             "name": string("Normalised English movement name: kettlebell swing, box jumps, running"),
             "rawName": string("Exactly as written on the board"),
             "segment": enumeration(["buyIn", "round", "cashOut"], "round unless the board marks a buy-in or cash-out"),
             "targetValue": number("Single target per round: 20 reps → 20, 400 m → 400; 0 when sets[] or the section repScheme carry the numbers"),
             "targetUnit": enumeration(["reps", "seconds", "minutes", "meters", "km", "calories", "laps"], "Unit of targetValue"),
+            "targetValueWomen": number("Women's number of an Rx split written with a counting unit: '12/9 cal row' → targetValue 12, this 9; 0 when the board writes one number"),
             "repRangeMax": integer("Upper bound of a rep range: '8-12' → targetValue 8, repRangeMax 12; 0 otherwise"),
             "perSide": boolean("True for an equal pair without a unit on a unilateral movement: 8/8, 10 per side"),
             "maxEffort": boolean("True for 'max reps' / 'max cal'; targetValue stays 0"),
@@ -80,7 +83,8 @@ enum ClaudeBoardOutputSchema {
             "maxEffort": boolean("True for a 'max' set"),
             "unit": enumeration(["reps", "seconds", "meters", "calories"], "What value counts"),
             "load": number("Load of this set: 80 for '@ 80 kg', 70 for '@ 70%'; 0 when none"),
-            "loadUnit": enumeration(["kg", "lb", "percentOfMax", "none"], "Unit of load; none when load is 0"),
+            "loadUnit": enumeration(["kg", "lb", "percentOfMax", "percentOfBodyWeight", "none"],
+                                    "Unit of load; percentOfBodyWeight only when the board says body weight; none when load is 0"),
         ]
     )
 
@@ -90,7 +94,8 @@ enum ClaudeBoardOutputSchema {
             "tier": enumeration(["single", "rx", "rxPlus", "pro", "scaled"], "single when the board prints one load with no tier label"),
             "men": number("First number of a men/women pair; the only number for a single load"),
             "women": number("Second number of the pair; equal to men for a single load"),
-            "unit": enumeration(["kg", "lb", "pood", "percentOfMax"], "Unit of the pair; kg when the board gives bare numbers like 24/16"),
+            "unit": enumeration(["kg", "lb", "pood", "percentOfMax", "percentOfBodyWeight"],
+                                "Unit of the pair; kg when the board gives bare numbers like 24/16; percentOfBodyWeight only when the board says body weight"),
         ]
     )
 

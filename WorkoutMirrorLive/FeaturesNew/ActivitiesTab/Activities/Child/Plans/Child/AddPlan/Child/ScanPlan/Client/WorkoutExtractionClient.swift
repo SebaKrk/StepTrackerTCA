@@ -50,11 +50,37 @@ extension WorkoutExtractionClient: DependencyKey {
             },
             parseWorkout: { input, backend in
                 @Dependency(\.apiKeyClient) var apiKeyClient
+                @Dependency(\.date) var date
                 #if DEBUG
                 print("🧭 [WorkoutExtractionClient] backend=\(backend.rawValue) image=\(input.imageData?.count ?? 0) bytes text=\(input.ocrText.count) chars")
                 #endif
                 let strategy = WorkoutParsingStrategyFactory.make(backend, apiKey: apiKeyClient.load())
+                #if DEBUG
+                let recorder = ScanRunRecorder()
+                let startedAt = date.now
+                do {
+                    let board = try await strategy.parseWorkout(input)
+                    await recorder.record(
+                        input,
+                        backend: backend,
+                        outcome: .success(board),
+                        startedAt: startedAt,
+                        finishedAt: date.now
+                    )
+                    return board
+                } catch {
+                    await recorder.record(
+                        input,
+                        backend: backend,
+                        outcome: .failure(String(describing: error)),
+                        startedAt: startedAt,
+                        finishedAt: date.now
+                    )
+                    throw error
+                }
+                #else
                 return try await strategy.parseWorkout(input)
+                #endif
             }
         )
     }()
