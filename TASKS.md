@@ -1722,3 +1722,12 @@
     - both paths gain what the main flow always had: close button, Bluetooth and Watch status, the device scanner
     - with a locked activity the device pick starts the workout directly, so the plan start keeps its single tap
     - `devicePicker` destinations and the three copies of the sheet are gone
+
+### IOS-00172 Plan scan — every scan saved for diagnosis
+    - branch: `dev/IOS-00172/IOS-00172` (from develop)
+    - each scan writes `Documents/Diagnostics/ScanRuns/<timestamp>/` with the downscaled photo, the OCR transcript when the backend uses one, the board the model returned and a metadata file
+    - `meta.json` records the backend, so a bad result can be attributed to the prompt or to Vision OCR rather than guessed at
+    - a failed parse is recorded too: the thrown error lands in the metadata instead of vanishing with the screen
+    - the whole recorder sits behind `#if DEBUG` and never throws — a failed dump must not take down the user's scan
+    - no UI and no migration: `UIFileSharingEnabled` already exposes `Documents`, so the folders are reachable from the Files app without a cable
+    - the dumps double as fixture material for `PLANS/scan-eval/`
