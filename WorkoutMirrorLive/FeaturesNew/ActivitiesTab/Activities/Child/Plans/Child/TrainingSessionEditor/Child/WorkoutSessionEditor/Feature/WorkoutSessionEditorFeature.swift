@@ -35,6 +35,11 @@ struct WorkoutSessionEditorFeature {
                 } else {
                     state.draft.interval = nil
                 }
+                // A rep ladder only means something for time; no other type can express
+                // it and the editor offers no way to clear it by hand.
+                if state.draft.type != .forTime {
+                    state.draft.repScheme = nil
+                }
                 return .none
 
             case .binding:

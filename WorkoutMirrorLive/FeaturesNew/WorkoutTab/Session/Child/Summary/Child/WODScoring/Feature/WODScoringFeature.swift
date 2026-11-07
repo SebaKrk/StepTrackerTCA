@@ -61,6 +61,49 @@ struct WODScoringFeature {
         /// Planned round count (Tabata rows, "· N rund" chip). `nil` when absent.
         var rounds: Int?
 
+        /// Rep ladder of the block ("10-9-8…1"); when present it derives the reps instead of the user.
+        var repScheme: [Int]?
+
+        /// The ladder owns the reps, so the editor shows them instead of asking for them.
+        var ladderDrivesReps: Bool {
+            repScheme?.isEmpty == false && wodType == .forTime && wodStatus == .notFinished
+        }
+
+        /// Reps the next round holds across every movement; drives the "4 of 21" hint.
+        var ladderRoundSize: Int? {
+            guard let repScheme, ladderDrivesReps else { return nil }
+            return LadderScore.roundSize(
+                ladder: repScheme,
+                movementCount: result.exercises.count,
+                completedRounds: dnfRounds
+            )
+        }
+
+        /// Movements whose reps the ladder currently writes.
+        ///
+        /// A property, not a method: the view reaches state through the store's
+        /// key-path lookup, which cannot call one.
+        var ladderOwnedIndices: Set<Int> {
+            guard ladderDrivesReps else { return [] }
+            return Set(result.exercises.indices.filter { ladderOwns(exerciseAt: $0) })
+        }
+
+        /// Whether this exercise follows the block's ladder rather than a scheme of its own.
+        ///
+        /// Two exclusions matter. A non-reps target must keep its unit suffix, because
+        /// after the save that suffix is the only thing marking calories as calories.
+        /// And a movement with its own written sets has a different total, so the
+        /// ladder must not speak for it.
+        func ladderOwns(exerciseAt index: Int) -> Bool {
+            guard let repScheme, result.exercises.indices.contains(index) else { return false }
+            let exercise = result.exercises[index]
+            switch exercise.target {
+            case .reps, .none: break
+            default: return false
+            }
+            return Int(exercise.plannedReps ?? "") == repScheme.reduce(0, +)
+        }
+
         /// ActivityDetails renders cards without editing affordances.
         var isReadOnly: Bool = false
 
@@ -98,6 +141,7 @@ struct WODScoringFeature {
             wodType: ExerciseWorkoutType? = nil,
             capMinutes: Int? = nil,
             rounds: Int? = nil,
+            repScheme: [Int]? = nil,
             isReadOnly: Bool = false,
             wasScored: Bool = false
         ) {
@@ -106,6 +150,7 @@ struct WODScoringFeature {
             self.wodType = wodType ?? result.derivedWodType
             self.capMinutes = capMinutes
             self.rounds = rounds
+            self.repScheme = repScheme
             self.isReadOnly = isReadOnly
             // `.completed` is ambiguous — both "nothing entered yet" and a
             // confirmed EMOM/Tabata result. `wasScored` (card built from a saved
@@ -255,12 +300,16 @@ struct WODScoringFeature {
                 return .none
 
             case let .view(.setStatus(status)):
+                guard !state.isReadOnly else { return .none }
                 state.wodStatus = status
                 // DNF needs the rounds picker right away — don't make the user
                 // hunt for the edit button after flipping the status.
-                if status == .notFinished, !state.isReadOnly, state.phase != .editing {
+                if status == .notFinished, state.phase != .editing {
                     state.phase = .editing
                 }
+                // Only the way back is synced: flipping TO not-finished must not
+                // stamp an untouched card with the steppers' zeroes.
+                if status == .completed { syncLadderReps(&state) }
                 return .none
 
             case .view(.markNotFinishedFromHint):
@@ -269,10 +318,12 @@ struct WODScoringFeature {
 
             case let .view(.updateRounds(rounds)):
                 state.dnfRounds = max(0, rounds)
+                syncLadderReps(&state)
                 return .none
 
             case let .view(.updateExtraReps(reps)):
                 state.dnfExtraReps = max(0, reps)
+                syncLadderReps(&state)
                 return .none
 
             case let .view(.updateDraftMinutes(minutes)):
@@ -331,6 +382,32 @@ struct WODScoringFeature {
                 state.noteState = .editing
                 return .none
             }
+        }
+    }
+
+    // MARK: - Ladder
+
+    /// Writes the reps a rep-ladder WOD implies, so the athlete enters the score once
+    /// instead of restating it per movement.
+    ///
+    /// Called only where the athlete expressed a score — never on the flip to
+    /// not-finished, which would stamp an untouched card with the steppers' zeroes.
+    private func syncLadderReps(_ state: inout State) {
+        guard !state.isReadOnly,
+              state.wodType == .forTime,
+              let ladder = state.repScheme, !ladder.isEmpty
+        else { return }
+
+        for index in state.result.exercises.indices where state.ladderOwns(exerciseAt: index) {
+            let reps = state.wodStatus == .completed
+                ? ladder.reduce(0, +)
+                : LadderScore.reps(
+                    ladder: ladder,
+                    movementIndex: index,
+                    completedRounds: state.dnfRounds,
+                    extraReps: state.dnfExtraReps
+                )
+            state.result.exercises[index].actualReps = "\(reps)"
         }
     }
 }
