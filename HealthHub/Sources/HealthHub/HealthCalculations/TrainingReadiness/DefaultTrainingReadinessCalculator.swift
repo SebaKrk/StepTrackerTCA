@@ -9,8 +9,11 @@ import ComposableArchitecture
 import Foundation
 import SharedModels
 
-@preconcurrency
-public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculator, @unchecked Sendable {
+/// Default readiness calculator.
+///
+/// A value type: it holds only injected dependencies and no mutable state, so it
+/// is `Sendable` on its own terms rather than by an `@unchecked` promise.
+public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
 
     // MARK: - Dependency
 

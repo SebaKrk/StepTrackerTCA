@@ -121,7 +121,9 @@ public actor TrainingReadinessBackgroundManager {
     }
     
     private func handleNewData(for type: HKSampleType) async {
+        #if DEBUG
         print("📊 New data detected for \(type.identifier)")
+        #endif
         
         // 1. Broadcast to App (Start observing features) - IMMEDIATE
         let update = HealthDataUpdate(type: type, timestamp: Date())
@@ -133,7 +135,9 @@ public actor TrainingReadinessBackgroundManager {
         // Debounce: skip if refreshed recently (5 minutes)
         if let lastRefresh = lastRefreshDate,
            Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
+            #if DEBUG
             print("⏭️ Skipping WIDGET refresh - debounced (last refresh: \(Int(Date().timeIntervalSince(lastRefresh)))s ago)")
+            #endif
             return
         }
         

@@ -44,25 +44,35 @@ struct TrainingReadinessProvider: TimelineProvider {
             return nil
         }
         
-        // Convert DTO to TrainingReadinessResult
+        // Convert DTO to TrainingReadinessResult. The widget stores measured
+        // values only, so component scores come back as 0 — it renders the
+        // numbers and the overall ring, never per-component status.
         return TrainingReadinessResult(
             overallScore: widgetData.overallScore,
             components: TrainingReadinessComponents(
-                restingHeartRate: widgetData.rhrValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "bpm", minScore: -15, maxScore: 15)
-                },
-                heartRateVariability: widgetData.hrvValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "ms", minScore: -15, maxScore: 15)
-                },
-                sleepQuality: widgetData.sleepValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "hours", minScore: -10, maxScore: 15)
-                },
-                previousDayLoad: widgetData.activityValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "kcal", minScore: -10, maxScore: 5)
-                }
+                restingHeartRate: component(.rhr, value: widgetData.rhrValue),
+                heartRateVariability: component(.hrv, value: widgetData.hrvValue),
+                sleepQuality: component(.sleep, value: widgetData.sleepValue),
+                previousDayLoad: component(.activity, value: widgetData.activityValue)
             ),
+            calculatedAt: widgetData.calculatedAt,
             isReliable: true
         )
+    }
+
+    /// Rebuilds one component from the stored value, taking its range from
+    /// `HealthMetricType` so the widget cannot drift from the app.
+    private func component(_ metric: HealthMetricType, value: Double?) -> TrainingComponentScore? {
+        value.map {
+            TrainingComponentScore(
+                score: 0,
+                currentValue: $0,
+                baselineValue: nil,
+                unit: metric.unit,
+                minScore: metric.minScore,
+                maxScore: metric.maxScore
+            )
+        }
     }
 }
 

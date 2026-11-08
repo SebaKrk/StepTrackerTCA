@@ -501,57 +501,6 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     /// - Returns: A `HealthKitData` object containing total active energy in kilocalories,
     ///           or `nil` if no activity data is available for yesterday
     /// - Throws: HealthKit errors if data access fails or permissions are not granted
-//    public func getYesterdayActiveEnergy() async throws -> HealthKitData? {
-//        let window = TrainingReadinessTimeWindows.yesterdayFullDay()
-//        let healthStore = manager.healthStore
-//
-//        let query = HealthKitQueryBuilder.buildQuery(
-//            for: .activeEnergyBurned,
-//            startDate: window.start,
-//            endDate: window.end,
-//            options: .cumulativeSum
-//        )
-//
-//        let results = try await query.result(for: healthStore)
-//
-//        let processedData = HealthKitQueryBuilder.processHealthKitData(
-//            results.statistics(),
-//            unit: .kilocalorie(),
-//            options: .cumulativeSum
-//        )
-//
-//        let totalEnergy = processedData.last?.value ?? 0
-//
-//        let workouts = try await HealthKitQueryBuilder.fetchWorkouts(
-//            from: window.start,
-//            to: window.end,
-//            healthStore: healthStore
-//        )
-//
-//        let energyType = HKQuantityType(.activeEnergyBurned)
-//        let workoutEnergy = workouts.reduce(0.0) { total, workout in
-//            if let statistics = workout.statistics(for: energyType),
-//               let sum = statistics.sumQuantity() {
-//                return total + sum.doubleValue(for: HKUnit.kilocalorie())
-//            }
-//            return total
-//        }
-//
-//        let backgroundEnergy = totalEnergy - workoutEnergy
-//
-//        // MARK: - 🔍 DEBUG
-//        print("🏃 Activity window: \(window.start) → \(window.end)")
-//        print("🏃 Workout energy: \(String(format: "%.0f", workoutEnergy)) kcal (\(workouts.count) workouts)")
-//        print("🏃 Background energy: \(String(format: "%.0f", backgroundEnergy)) kcal")
-//        print("🏃 Total energy: \(String(format: "%.0f", totalEnergy)) kcal")
-//        print("═══════════════════════════════════════════════════")
-//
-//        guard totalEnergy > 0 else {
-//            return nil
-//        }
-//
-//        return HealthKitData(date: window.end, value: totalEnergy)
-//    }
 
     /// Retrieves active energy for a specific day using workout + fallback logic.
     ///
