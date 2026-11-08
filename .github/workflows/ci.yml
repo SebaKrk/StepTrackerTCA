@@ -61,6 +61,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The app deploys to iOS 26.5 but reaches iOS 27 API behind #available, so it
+      # needs the 27 SDK to compile at all: #available decides what may RUN, the SDK
+      # decides what may be WRITTEN, and an older SDK simply has no such symbol.
+      # Runs before the simulator is chosen — the device list follows the selection.
+      - name: Select an Xcode carrying the iOS 27 SDK
+        run: |
+          echo "Installed Xcodes:"
+          ls -d /Applications/Xcode*.app
+          for app in $(ls -d /Applications/Xcode*.app | sort -rV); do
+            if ls "$app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs" \
+               | grep -q "iPhoneOS27"; then
+              sudo xcode-select -s "$app/Contents/Developer"
+              xcodebuild -version
+              exit 0
+            fi
+          done
+          echo "::error::No Xcode with an iOS 27 SDK on this image — TabRole.prominent cannot compile."
+          exit 1
+
       # The runner's installed devices change with the image, so the device is asked
       # for rather than pinned. The newest runtime first and only then a device: an
       # image carries several iOS versions, and a device on an older one is ineligible
