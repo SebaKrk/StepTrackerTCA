@@ -25,9 +25,11 @@ pre-commit:
     #
     # It was worse than no gate: the only way past it is LEFTHOOK=0, which also
     # disables sharedmodels-tests, so a broken check was switching off a working one.
-    # Package builds are still verified (`swift build --package-path AppDatabase`)
-    # and the app build covers the rest. Re-enable once Sharing links on macOS,
-    # or move this suite to an iOS Simulator destination in CI.
+    #
+    # The suite is NOT lost: CI runs it against an iOS Simulator, where the symbol
+    # resolves — job `simulator-tests (AppDatabase)`. This hook stays off regardless,
+    # because booting a simulator does not belong in a pre-commit gate. Re-enable only
+    # if Sharing ever links on macOS and `swift test` becomes instant again.
     #
     # appdatabase-tests:
     #   glob: "AppDatabase/**/*.swift"

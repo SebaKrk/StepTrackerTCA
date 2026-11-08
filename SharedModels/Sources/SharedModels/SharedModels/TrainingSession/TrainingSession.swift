@@ -373,6 +373,23 @@ public enum ExerciseTarget: Equatable, Codable, Sendable {
         }
     }
 
+    /// The stored form of a number the athlete typed, carrying this target's suffix.
+    ///
+    /// The inverse of `compactString` for every unit the editor types into. Rounds and
+    /// laps are the exception: they store bare, matching a field that shows no suffix
+    /// for them, so the two are NOT symmetric there.
+    public func stored(entered value: String) -> String {
+        guard !value.isEmpty else { return "" }
+        switch self {
+        case .reps:     return "\(value)x"
+        case .calories: return "\(value) cal"
+        case .meters:   return "\(value)m"
+        case .seconds:  return "\(value)s"
+        case .minutes:  return "\(value) min"
+        case .rounds, .laps: return value
+        }
+    }
+
     /// The same unit holding a different number — one round's work scaled to the whole block.
     public func with(count: Int) -> ExerciseTarget {
         switch self {

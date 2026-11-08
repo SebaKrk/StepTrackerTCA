@@ -1,5 +1,5 @@
 //
-//  DNFFields.swift
+//  RoundsAndRepsFields.swift
 //  WorkoutMirrorLive
 //
 //  Created by Sebastian Ściuba on 27/07/2026.
@@ -7,20 +7,32 @@
 
 import SwiftUI
 
-/// Rounds + reps stepper tiles. Serve two matrix rows: DNF capture
-/// ("Dokąd doszedłeś przed upływem limitu?") and plain AMRAP scoring ("Wynik")
-/// — only the title differs; the amber DNF semantics live in ScoreLine/segment.
-struct DNFFields: View {
+/// Completed rounds plus the reps of the unfinished one.
+///
+/// Serves every block scored that way — a plain AMRAP and an attempt the cap cut
+/// short — and only the title tells them apart. The amber "unfinished" treatment
+/// lives in the score line and the status segment, not here.
+struct RoundsAndRepsFields: View {
 
     // MARK: - Properties
 
+    /// What the tiles are asking for; the caller words it per format.
     let title: String
+
+    /// Whole rounds the athlete finished.
     let rounds: Int
+
+    /// Reps of the round left unfinished.
     let extraReps: Int
 
+    /// Called with the new round count.
     let onRounds: (Int) -> Void
+
+    /// Called with the new rep count.
     let onExtraReps: (Int) -> Void
+
     @Environment(\.summaryPalette) private var theme
+
     // MARK: - Body
 
     var body: some View {
@@ -44,7 +56,7 @@ struct DNFFields: View {
 
     private var completedRoundsStepper: some View {
         stepperTile(
-            label: String(localized: "Completed rounds"),
+            label: String(localized: "Completed rounds", bundle: .main),
             value: rounds,
             onChange: onRounds
         )
@@ -52,7 +64,7 @@ struct DNFFields: View {
 
     private var extraRepsStepper: some View {
         stepperTile(
-            label: String(localized: "Reps in round"),
+            label: String(localized: "Reps in round", bundle: .main),
             value: extraReps,
             onChange: onExtraReps
         )
@@ -110,10 +122,10 @@ struct DNFFields: View {
 
 // MARK: - Previews
 
-#Preview("DNFFields — DNF i AMRAP (galeria 5)") {
+#Preview("RoundsAndRepsFields — DNF i AMRAP (galeria 5)") {
     VStack(spacing: 16) {
         VStack {
-            DNFFields(
+            RoundsAndRepsFields(
                 title: "How far did you get before the cap?",
                 rounds: 4,
                 extraReps: 12,
@@ -124,7 +136,7 @@ struct DNFFields: View {
         .summaryCard()
 
         VStack {
-            DNFFields(
+            RoundsAndRepsFields(
                 title: "Score",
                 rounds: 6,
                 extraReps: 14,

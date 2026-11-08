@@ -196,16 +196,13 @@ extension WorkoutResultsFeature.State {
 
     /// Fresh, empty results mapped from the plan (moved from SummaryFeature.setTrainingSession).
     private static func freshResults(from workouts: [WorkoutSessionNew]) -> [WorkoutSessionResult] {
-        let isStrength = { (type: ExerciseWorkoutType) -> Bool in
-            type == .strength || type == .olympicWeightlifting
-        }
         return workouts.map { workout -> WorkoutSessionResult in
             let exercises = workout.exercises.map { exercise in
                 // Strength → structured plannedSets (reps×weight). Mobility → per-set
                 // rows too, but reps-only and never round-derived. Everything else
                 // (For Time / AMRAP / EMOM / Tabata) → one value field per exercise.
                 let sets: [SetEntry]? = {
-                    guard isStrength(workout.type) || workout.type == .mobility else { return nil }
+                    guard workout.type.keepsSetRows else { return nil }
 
                     if let planned = exercise.plannedSets, !planned.isEmpty {
                         return planned.map {
@@ -229,12 +226,12 @@ extension WorkoutResultsFeature.State {
                 // Tabata totals, ladders and set tables are already whole; an AMRAP's
                 // rounds are unknown until the athlete scores them, and the score
                 // writes the reps then.
-                let repeatsRounds = [.forTime, .emom].contains(workout.type) && exercise.plannedSets == nil
+                let repeatsRounds = workout.type.multipliesTargetByRounds && exercise.plannedSets == nil
                 let repeats = (repeatsRounds ? (workout.rounds ?? 1) : 1) * (exercise.perSide ? 2 : 1)
                 let plannedTotal = exercise.target.map { $0.with(count: $0.count * repeats) }
 
                 // A WOD rep ladder has no single target — its total is the planned rep count.
-                let ladderTotal: String? = isStrength(workout.type)
+                let ladderTotal: String? = workout.type.isStrength
                     ? nil
                     : exercise.plannedSets.map { String($0.reduce(0) { $0 + $1.reps }) }
                 let repsLabel = plannedTotal?.compactString ?? ladderTotal
@@ -249,9 +246,11 @@ extension WorkoutResultsFeature.State {
                     plannedReps: repsLabel,
                     plannedWeight: weight,
                     actualWeight: sets == nil ? weight : nil,
-                    // Tabata / EMOM total-reps fields start empty (the plan holds an
-                    // interval, not a rep total); other single-field types prefill.
-                    actualReps: (sets == nil && workout.type != .tabata && workout.type != .emom) ? repsLabel : nil,
+                    // A block scored by totals starts empty: its plan holds an interval,
+                    // not a rep count, so there is nothing truthful to prefill.
+                    actualReps: sets == nil && workout.type.scoreEntryKind != .totalPerMovement
+                        ? repsLabel
+                        : nil,
                     sets: sets
                 )
             }

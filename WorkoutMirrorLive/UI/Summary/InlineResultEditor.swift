@@ -22,11 +22,12 @@ struct InlineResultEditor: View {
     @Bindable var store: StoreOf<WODScoringFeature>
     let accent: Color
     @Environment(\.summaryPalette) private var theme
+
     // MARK: - Body
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            scoreEntry
+            scoreEntrySection
             capHint
             totalRepsHint
             exerciseFields
@@ -38,43 +39,47 @@ struct InlineResultEditor: View {
     // MARK: - Structure
 
     @ViewBuilder
-    private var scoreEntry: some View {
-        switch (store.wodType, store.wodStatus) {
-        case (.forTime, .completed):
+    private var scoreEntrySection: some View {
+        switch store.scoreEntry {
+        case .time:
             forTimeEntry
-        case (.forTime, .notFinished):
-            dnfEntry
-        case (.amrap, _):
-            amrapEntry
-        default:
-            // Strength/Olympic score is derived from the heaviest set;
-            // EMOM/Tabata sum the per-exercise reps; Mobility is confirmation-only.
+        case .roundsAndReps:
+            roundsAndRepsEntry
+        case .sets, .totalPerMovement, .confirmation:
+            // Sets derive their score from the heaviest one, a per-movement total is
+            // summed from the rows below, and a confirmation block asks nothing.
             EmptyView()
         }
     }
 
     @ViewBuilder
     private var exerciseFields: some View {
+        // Read once: the set is rebuilt on every access, and the rows below are a loop.
+        let derivedReps = store.derivedRepsIndices
         ForEach(Array(store.result.exercises.enumerated()), id: \.element.id) { index, exercise in
             if let sets = exercise.sets, !sets.isEmpty {
                 setBasedExercise(index: index, exercise: exercise, sets: sets)
             } else {
-                simpleExerciseRow(index: index, exercise: exercise)
+                simpleExerciseRow(
+                    index: index,
+                    exercise: exercise,
+                    showsDerivedReps: derivedReps.contains(index)
+                )
             }
         }
     }
 
-    // Tabata / EMOM fields aren't prefilled (the plan holds an interval, not a total) —
-    // tell the user to enter the reps/cal they actually completed across all rounds.
+    // The plan holds an interval here, not a rep count, so these fields start empty
+    // and the athlete has to be told what goes in them.
     @ViewBuilder
     private var totalRepsHint: some View {
-        if store.wodType == .tabata || store.wodType == .emom {
-            scoreEntryLabel(String(localized: "Enter total reps / calories"))
+        if store.scoreEntry == .totalPerMovement {
+            scoreEntryLabel(String(localized: "Enter total reps / calories", bundle: .main))
         }
     }
 
     private var doneButton: some View {
-        CardActionButton(title: String(localized: "Gotowe")) {
+        CardActionButton(title: String(localized: "Gotowe", bundle: .main)) {
             send(.doneTapped)
         }
     }
@@ -83,7 +88,7 @@ struct InlineResultEditor: View {
 
     private var forTimeEntry: some View {
         VStack(alignment: .leading, spacing: 8) {
-            scoreEntryLabel(String(localized: "Score · For Time"))
+            scoreEntryLabel(store.wodType.scoreLabel)
             TimePickerField(
                 minutes: store.draftMinutes,
                 seconds: store.draftSeconds,
@@ -94,9 +99,9 @@ struct InlineResultEditor: View {
         }
     }
 
-    private var dnfEntry: some View {
-        DNFFields(
-            title: String(localized: "How far did you get before the cap?"),
+    private var roundsAndRepsEntry: some View {
+        RoundsAndRepsFields(
+            title: roundsAndRepsTitle,
             rounds: store.dnfRounds,
             extraReps: store.dnfExtraReps,
             onRounds: { send(.updateRounds($0)) },
@@ -104,14 +109,10 @@ struct InlineResultEditor: View {
         )
     }
 
-    private var amrapEntry: some View {
-        DNFFields(
-            title: String(localized: "Score"),
-            rounds: store.dnfRounds,
-            extraReps: store.dnfExtraReps,
-            onRounds: { send(.updateRounds($0)) },
-            onExtraReps: { send(.updateExtraReps($0)) }
-        )
+    private var roundsAndRepsTitle: String {
+        store.capturesUnfinished
+            ? String(localized: "How far did you get before the cap?", bundle: .main)
+            : String(localized: "Score", bundle: .main)
     }
 
     private func scoreEntryLabel(_ text: String) -> some View {
@@ -129,7 +130,7 @@ struct InlineResultEditor: View {
             HStack(spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 11))
-                Text(String(localized: "Time exceeds the \(capMinutes):00 cap"))
+                Text(String(localized: "Time exceeds the \(capMinutes):00 cap", bundle: .main))
                     .font(.system(size: 12))
                 markAsNotFinishedButton
             }
@@ -141,7 +142,7 @@ struct InlineResultEditor: View {
         Button {
             send(.markNotFinishedFromHint)
         } label: {
-            Text(String(localized: "Mark as Not finished?"))
+            Text(String(localized: "Mark as Not finished?", bundle: .main))
                 .font(.system(size: 12, weight: .bold))
                 .underline()
         }
@@ -157,14 +158,18 @@ struct InlineResultEditor: View {
                 accent: accent,
                 isPR: exercise.isPR,
                 // Mobility sets are reps-only — stretching never loads a bar.
-                showsWeight: store.wodType != .mobility,
+                showsWeight: store.wodType.takesWeight,
                 onReps: { setIndex, text in send(.updateSetReps(exerciseIndex: index, setIndex: setIndex, text: text)) },
                 onWeight: { setIndex, text in send(.updateSetWeight(exerciseIndex: index, setIndex: setIndex, text: text)) }
             )
         }
     }
 
-    private func simpleExerciseRow(index: Int, exercise: ExerciseLogInput) -> some View {
+    private func simpleExerciseRow(
+        index: Int,
+        exercise: ExerciseLogInput,
+        showsDerivedReps: Bool
+    ) -> some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 1) {
                 exerciseName(exercise)
@@ -172,7 +177,7 @@ struct InlineResultEditor: View {
             }
             Spacer(minLength: 8)
             // Reps that follow from the score above are shown, not asked for.
-            if store.derivedRepsIndices.contains(index) {
+            if showsDerivedReps {
                 derivedRepsLabel(exercise)
             } else {
                 actualValueField(index: index, exercise: exercise)
@@ -214,25 +219,29 @@ struct InlineResultEditor: View {
     /// analytics stay unaffected.
     private func actualValueField(index: Int, exercise: ExerciseLogInput) -> some View {
         fieldWithUnit(
-            unit: unitLabel(for: exercise.target),
-            text: numericPart(of: exercise.actualReps)
+            unit: ExerciseTarget.unitLabel(for: exercise.target),
+            text: EnteredValue.numericPrefix(exercise.actualReps)
         ) { typed in
-            send(.updateExerciseReps(
-                exerciseIndex: index,
-                text: recompose(typed, target: exercise.target)
-            ))
+            repsTyped(typed, index: index, target: exercise.target)
         }
+    }
+
+    private func repsTyped(_ typed: String, index: Int, target: ExerciseTarget?) {
+        send(.updateExerciseReps(
+            exerciseIndex: index,
+            text: target?.stored(entered: typed) ?? typed
+        ))
     }
 
     /// Reps the ladder implies — same lane as the editable field, so the rows stay aligned.
     private func derivedRepsLabel(_ exercise: ExerciseLogInput) -> some View {
         HStack(spacing: 4) {
-            Text(numericPart(of: exercise.actualReps))
+            Text(EnteredValue.numericPrefix(exercise.actualReps))
                 .font(.system(size: 16, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(theme.ink)
                 .frame(width: 58, alignment: .trailing)
-            Text(String(localized: "reps"))
+            Text(ExerciseTarget.unitLabel(for: exercise.target))
                 .font(.system(size: 12))
                 .foregroundStyle(theme.inkTertiary)
                 .frame(width: unitColumnWidth, alignment: .leading)
@@ -242,20 +251,20 @@ struct InlineResultEditor: View {
     private func weightField(index: Int, exercise: ExerciseLogInput) -> some View {
         fieldWithUnit(
             unit: "kg",
-            text: exercise.actualWeight.map { formatWeight($0) } ?? ""
+            text: exercise.actualWeight.map(\.roundedWeightText) ?? ""
         ) { send(.updateExerciseWeight(exerciseIndex: index, text: $0)) }
     }
 
     /// Numeric input with the unit as a trailing label (10 · reps, 20 · cal,
     /// 30 · kg) — the value stays a clean editable number.
     private func fieldWithUnit(
-        unit: String?,
+        unit: String,
         text: String,
         onChange: @escaping (String) -> Void
     ) -> some View {
         HStack(spacing: 4) {
             numericField(placeholder: "0", text: text, onChange: onChange)
-            Text(unit ?? "")
+            Text(unit)
                 .font(.system(size: 12))
                 .foregroundStyle(theme.inkTertiary)
                 .frame(width: unitColumnWidth, alignment: .leading)
@@ -267,51 +276,13 @@ struct InlineResultEditor: View {
     private var unitColumnWidth: CGFloat { 32 }
     private var valueColumnWidth: CGFloat { 58 + 4 + unitColumnWidth }
 
-    /// Human unit shown beside the value: reps → "reps" (mirrors "cal"),
-    /// cardio by target. `nil` only when there is no meaningful unit.
-    private func unitLabel(for target: ExerciseTarget?) -> String? {
-        switch target {
-        case .reps, .none: String(localized: "reps")
-        case .calories: "cal"
-        case .meters: "m"
-        case .seconds: "s"
-        case .minutes: "min"
-        case .rounds: String(localized: "rund")
-        case .laps: String(localized: "laps")
-        }
-    }
-
-    /// Leading numeric part of the stored value ("20 cal" → "20", "10x" → "10").
-    private func numericPart(of actualReps: String?) -> String {
-        guard let actualReps else { return "" }
-        return String(actualReps.prefix { $0.isNumber || $0 == "-" || $0 == "." })
-    }
-
-    /// Re-attach the target's storage suffix so the persisted string keeps the
-    /// `ExerciseTarget.compactString` format ("8" + calories → "8 cal").
-    private func recompose(_ value: String, target: ExerciseTarget?) -> String {
-        guard !value.isEmpty else { return "" }
-        switch target {
-        case .calories: return "\(value) cal"
-        case .meters: return "\(value)m"
-        case .seconds: return "\(value)s"
-        case .minutes: return "\(value) min"
-        case .reps: return "\(value)x"
-        case .rounds, .laps, .none: return value
-        }
-    }
-
     private func exerciseName(_ exercise: ExerciseLogInput) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(exercise.displayName)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(theme.ink)
-            if exercise.exerciseType?.supportsEquipmentSelection == true {
-                if exercise.equipmentSelection == .some(.none) {
-                    equipmentLabel(String(localized: "No equipment"), symbol: "figure")
-                } else if let equipment = exercise.effectiveEquipment {
-                    equipmentLabel(equipment.displayName, symbol: "dumbbell")
-                }
+            if let caption = exercise.equipmentCaption {
+                equipmentLabel(caption, symbol: exercise.equipmentSymbol)
             }
         }
     }
@@ -325,7 +296,7 @@ struct InlineResultEditor: View {
     @ViewBuilder
     private func planLabel(_ exercise: ExerciseLogInput) -> some View {
         if let plannedReps = exercise.plannedReps {
-            Text(String(localized: "Plan: \(prescription(exercise, total: plannedReps))"))
+            Text(String(localized: "Plan: \(prescription(exercise, total: plannedReps))", bundle: .main))
                 .font(.system(size: 11))
                 .foregroundStyle(theme.inkTertiary)
         }
@@ -358,12 +329,6 @@ struct InlineResultEditor: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(theme.stroke, lineWidth: 1)
             )
-    }
-
-    private func formatWeight(_ weight: Double) -> String {
-        weight.truncatingRemainder(dividingBy: 1) == 0
-            ? String(Int(weight))
-            : String(format: "%.1f", weight)
     }
 }
 

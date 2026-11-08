@@ -127,7 +127,7 @@ struct PREntryEditorView: View {
     }
 
     private var amrapRow: some View {
-        DNFFields(
+        RoundsAndRepsFields(
             title: String(localized: "Score"),
             rounds: store.amrapRounds,
             extraReps: store.amrapExtraReps,
