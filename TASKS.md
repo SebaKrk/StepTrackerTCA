@@ -1776,3 +1776,12 @@
     - Mobility keeps the round count the mapper used to discard, and spends it the way Strength does: rounds become set rows
     - the plan editor stops offering a round count for an AMRAP — a format whose rounds are the result cannot carry a prescribed one that anything reads
     - rows written before this cannot be repaired from the log alone; the multiplier that would disambiguate them survives only inside the parent score's JSON. Backfill is its own ticket
+
+### IOS-00179 Training readiness — a score for the day, and a day that survives
+    - branch: `dev/IOS-00179/IOS-00179` (from develop)
+    - every window ended at a fixed clock hour that still lay in the future, so HealthKit answered with a partial reading: the same night scored 55 at 06:00 and 75 at 12:00. Windows are now anchored to the sleep session that actually closed — nothing ends in the future, and recalculating at noon or at midnight returns the same number
+    - three of the four baselines averaged the day under test into the seven days it was compared against, damping every deviation towards zero; baselines now start one day back, as the activity one always did
+    - the overall score normalises against the components actually present instead of adding to a fixed 50, so a morning without HRV is no longer scored lower than the same morning with it. The scale is recentred: 50 means every component sits on its own baseline and reads as Fair, not Poor
+    - nothing was ever stored — `getTrainingReadinessHistory` returned an empty array while a finished trend screen waited behind it. Each scored day is now persisted (migration v18, keyed by the readiness day, upsert) together with the algorithm version that produced it
+    - before the night closes the card says so instead of showing a retry overlay; the waiting state stays out of the shared `ContentState`, which fifteen other features depend on
+    - one calculation issued about thirty sequential HealthKit queries; the four components now run concurrently and each baseline is a single query grouped in memory
