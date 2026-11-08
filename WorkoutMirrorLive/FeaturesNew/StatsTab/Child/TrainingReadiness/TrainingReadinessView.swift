@@ -16,25 +16,12 @@ struct TrainingReadinessView: View {
     
     var body: some View {
         GroupBox {
-            if store.isAwaitingSleepData {
-                awaitingSleepData
-            } else {
-                charts
-            }
+            cardContent
         } label: {
-            HStack {
-                Text("Training Readiness")
-                    .font(.caption)
-                Spacer()
-                Text(store.readinessLabel)
-                    .font(.caption)
-                    .foregroundStyle(store.readinessLevel.color)
-                    .opacity(isLevelVisible ? 1 : 0)
-            }
+            header
         }
         .styledGroupBox()
-        .frame(height: 120)
-        .animation(.snappy(duration: 0.3), value: store.isAwaitingSleepData)
+        .frame(height: cardHeight)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -55,24 +42,55 @@ struct TrainingReadinessView: View {
 
     }
     
+    /// Either the waiting explanation or the score itself.
+    @ViewBuilder
+    private var cardContent: some View {
+        if store.isAwaitingSleepData {
+            awaitingSleepData
+        } else {
+            charts
+        }
+    }
+
+    /// Card title and, once there is a score, its level.
+    private var header: some View {
+        HStack {
+            Text("Training Readiness", bundle: .main)
+                .font(.caption)
+
+            Spacer()
+
+            readinessLevelLabel
+        }
+    }
+
+    /// The level name, hidden rather than removed so the header does not reflow.
+    private var readinessLevelLabel: some View {
+        Text(store.readinessLabel)
+            .font(.caption)
+            .foregroundStyle(store.readinessLevel.color)
+            .opacity(store.isReadinessLevelVisible ? 1 : 0)
+    }
+
     /// Shown before the night closes, in place of a score that cannot exist yet.
     ///
-    /// Laid out by hand rather than with `ContentUnavailableView`: the card is a
-    /// fixed 120pt tall so it lines up with its neighbours, and the system view's
-    /// padding does not fit inside that.
+    /// Laid out by hand rather than with `ContentUnavailableView`, whose padding
+    /// does not fit the fixed card height.
     private var awaitingSleepData: some View {
         VStack(spacing: 6) {
             Image(systemName: "bed.double")
                 .font(.title3)
                 .foregroundStyle(.secondary)
 
-            Text("Waiting for sleep data")
+            Text("Waiting for sleep data", bundle: .main)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             Text(awaitingSleepHint)
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .multilineTextAlignment(.center)
@@ -82,18 +100,16 @@ struct TrainingReadinessView: View {
     /// Tells the user when the score should appear, when that is known.
     private var awaitingSleepHint: String {
         guard let expectedBy = store.sleepDataExpectedBy else {
-            return String(localized: "Your score appears once the night is recorded")
+            return String(localized: "Your score appears once the night is recorded", bundle: .main)
         }
 
         let time = expectedBy.formatted(date: .omitted, time: .shortened)
 
-        return String(localized: "Your score appears after \(time)")
+        return String(localized: "Your score appears after \(time)", bundle: .main)
     }
 
-    /// The readiness level only makes sense once a score exists.
-    private var isLevelVisible: Bool {
-        store.contentState.isReady && !store.isAwaitingSleepData
-    }
+    /// Fixed so the card lines up with its neighbours in the stats grid.
+    private var cardHeight: CGFloat { 120 }
 
     @ViewBuilder
     private var charts: some View {

@@ -28,7 +28,20 @@ struct TrainingReadinessFeature {
     @Dependency(\.widgetDataClient) var widgetDataClient
     @Dependency(\.watchConnectivityManager) var watchConnectivityManager
     @Dependency(\.continuousClock) var clock
-    
+    @Dependency(\.date) var date
+
+    // MARK: - Cancellation
+
+    /// Identifies the in-flight calculation so a new one replaces it.
+    nonisolated enum CancelID: Hashable {
+
+        /// The readiness calculation effect.
+        case load
+
+        /// The timer that retries once the night should have closed.
+        case awaitingDeadline
+    }
+
     // MARK: - Reducer
     
     var body: some Reducer<State, Action> {
@@ -72,16 +85,33 @@ struct TrainingReadinessFeature {
             case let .internal(.awaitingSleepData(expectedBy)):
                 state.availability = .awaitingSleepData(expectedBy: expectedBy)
                 state.readinessResult = nil
+                state.errorMessage = nil
                 state.$color.withLock { $0 = .gray }
                 // Terminal state, not a failure: the card explains the wait
                 // itself, so the "no data / retry" overlay must stay away.
-                return .send(.internal(.changeContentState(.ready(state.subscriptionTier))))
+                return .merge(
+                    .send(
+                        .internal(.changeContentState(.ready(state.subscriptionTier))),
+                        animation: .snappy(duration: 0.3)
+                    ),
+                    wakeUpEffect(at: expectedBy)
+                )
+
+            case .internal(.awaitingDeadlineReached):
+                return .send(.internal(.loadReadinessData))
+
+            case let .internal(.noScore(contentState)):
+                state.readinessResult = nil
+                state.availability = .available
+                state.$color.withLock { $0 = .gray }
+                return .send(
+                    .internal(.changeContentState(contentState)),
+                    animation: .snappy(duration: 0.3)
+                )
 
             case let .internal(.calculationFailed(error)):
                 state.errorMessage = error
-                state.availability = .available
-                state.$color.withLock { $0 = .gray }
-                return .send(.internal(.changeContentState(.noData)))
+                return .send(.internal(.noScore(.noData)))
                 
             case .internal(.loadReadinessData):
                 return .run { send in
@@ -110,24 +140,31 @@ struct TrainingReadinessFeature {
                             await widgetDataClient.clear()
                             // Too few components to score. This triggers the overlay
                             // in the View, which offers a "Refresh" button.
-                            await send(.internal(.changeContentState(.noData)))
+                            await send(.internal(.noScore(.noData)))
 
                         case .accessDenied:
                             await widgetDataClient.clear()
-                            await send(.internal(.changeContentState(.unauthorized)))
+                            await send(.internal(.noScore(.unauthorized)))
                         }
+                    } catch is CancellationError {
+                        return
                     } catch {
+                        try? await minimumVisibility
                         await send(.internal(.calculationFailed(error.localizedDescription)))
                     }
                 }
+                .cancellable(id: CancelID.load, cancelInFlight: true)
                 
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                // Keyed on the absence of a result, not on `.noData`: a morning
-                // spent waiting for sleep data leaves the card in `.ready`, and
-                // the old guard would then never retry once the night closed.
-                guard state.readinessResult == nil else {
+                // A morning spent waiting leaves the card in `.ready` with no
+                // result, so keying on `.noData` alone would never retry once the
+                // night closed. Denied access is excluded: retrying it on every
+                // appearance only re-asks HealthKit for a refusal.
+                guard state.contentState != .loading,
+                      state.contentState != .unauthorized,
+                      state.readinessResult == nil else {
                     return .none
                 }
                 return .concatenate(
@@ -151,5 +188,25 @@ struct TrainingReadinessFeature {
         }
         //._printChanges()
     }
-    
+
+    // MARK: - Private Methods
+
+    /// Retries once the night should have closed.
+    ///
+    /// Without this the card promises a score "after 10:00" and then does
+    /// nothing at 10:00 for a user who stays on the screen.
+    private func wakeUpEffect(at deadline: Date?) -> Effect<Action> {
+        guard let deadline else { return .none }
+
+        let delay = deadline.timeIntervalSince(date.now)
+
+        guard delay > 0 else { return .none }
+
+        return .run { send in
+            try await clock.sleep(for: .seconds(delay))
+            await send(.internal(.awaitingDeadlineReached))
+        }
+        .cancellable(id: CancelID.awaitingDeadline, cancelInFlight: true)
+    }
+
 }

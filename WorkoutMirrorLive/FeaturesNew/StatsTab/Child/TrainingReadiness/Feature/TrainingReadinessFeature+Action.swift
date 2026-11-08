@@ -21,14 +21,23 @@ extension TrainingReadinessFeature {
         
         enum Internal {
             
-            ///
+            /// Moves the card to a new content state
             case changeContentState(ContentState)
-            
+
             /// Action triggered after readiness calculation completes
             case readinessCalculated(TrainingReadinessResult)
-            
+
             /// Action triggered when the night has not ended yet
             case awaitingSleepData(expectedBy: Date?)
+
+            /// Clears any previous score and reports why there is none.
+            ///
+            /// One action for every "no score" branch, so the state fields cannot
+            /// end up contradicting each other.
+            case noScore(ContentState)
+
+            /// Action triggered when the night should have closed by now
+            case awaitingDeadlineReached
 
             /// Action triggered when calculation fails
             case calculationFailed(String)

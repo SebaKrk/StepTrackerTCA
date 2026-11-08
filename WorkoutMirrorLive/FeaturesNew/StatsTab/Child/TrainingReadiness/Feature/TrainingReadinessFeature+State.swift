@@ -46,6 +46,14 @@ extension TrainingReadinessFeature {
             guard case let .awaitingSleepData(expectedBy) = availability else { return nil }
             return expectedBy
         }
+
+        /// Whether the readiness level belongs on screen
+        ///
+        /// Without a score there is no level — `readinessLevel` would fall back
+        /// to `.fair` and state something the data does not support.
+        var isReadinessLevelVisible: Bool {
+            contentState.isReady && !isAwaitingSleepData
+        }
         
         /// Error message if calculation fails
         var errorMessage: String?
