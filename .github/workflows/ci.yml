@@ -62,15 +62,22 @@ jobs:
       - uses: actions/checkout@v4
 
       # The runner's installed devices change with the image, so the device is asked
-      # for rather than pinned. Lowest-numbered plain iPhone: a foldable or a Pro Max
-      # would run the suites just as well, but not reproducibly between images.
+      # for rather than pinned. The newest runtime first and only then a device: an
+      # image carries several iOS versions, and a device on an older one is ineligible
+      # for a package that deploys to iOS 26 — xcodebuild rejects it as no destination
+      # at all. Lowest-numbered plain iPhone within that runtime, for reproducibility.
       - name: Pick an available iOS simulator
         id: simulator
         run: |
           device=$(xcrun simctl list devices available --json \
             | jq -r '[.devices | to_entries[]
-                      | select(.key | contains("iOS")) | .value[]
-                      | select(.isAvailable and (.name | startswith("iPhone")))]
+                      | select(.key | test("iOS-[0-9]+-[0-9]+"))
+                      | (.key | capture("iOS-(?<maj>[0-9]+)-(?<min>[0-9]+)")) as $v
+                      | .value[]
+                      | select(.isAvailable and (.name | startswith("iPhone")))
+                      | { name, udid, rank: (($v.maj | tonumber) * 1000 + ($v.min | tonumber)) }]
+                     | max_by(.rank).rank as $newest
+                     | map(select(.rank == $newest))
                      | sort_by(.name) | .[0]')
           udid=$(echo "$device" | jq -r '.udid // empty')
           if [ -z "$udid" ]; then
@@ -78,7 +85,7 @@ jobs:
             xcrun simctl list devices available
             exit 1
           fi
-          echo "Testing on $(echo "$device" | jq -r '.name')"
+          echo "Testing on $(echo "$device" | jq -r '.name') (runtime rank $(echo "$device" | jq -r '.rank'))"
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
 
       - name: Run tests
