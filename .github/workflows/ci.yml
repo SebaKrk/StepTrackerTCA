@@ -44,7 +44,10 @@ jobs:
   # macOS build never emits). Minutes rather than seconds — a full build each.
   simulator-tests:
     name: simulator-tests (${{ matrix.name }})
-    runs-on: macos-26
+    # Not macos-26: that image carries only 26.x toolchains, and the app reaches iOS 27
+    # API. GitHub exposes Xcode 27 under its own label rather than a macos-NN one, so
+    # this stays a pinned image — `macos-latest` is still not Xcode 27.
+    runs-on: xcode-27
     strategy:
       fail-fast: false
       matrix:
