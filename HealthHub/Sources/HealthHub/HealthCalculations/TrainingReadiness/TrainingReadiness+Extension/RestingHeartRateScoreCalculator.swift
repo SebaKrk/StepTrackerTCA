@@ -11,17 +11,18 @@ import SharedModels
 // MARK: - Resting Heart Rate Score Calculation
 
 extension DefaultTrainingReadinessCalculator {
-    
+
     /// Calculates training readiness score based on resting heart rate data.
     ///
-    /// Compares this morning's resting heart rate against a 7-day baseline to determine
+    /// Compares the night's resting heart rate against a 7-day baseline to determine
     /// cardiovascular recovery status. Lower RHR relative to baseline indicates
     /// better recovery and training readiness.
     ///
     /// ## Time Windows
-    /// - Current: This morning (4 AM - 11 AM today) - first measurement after waking
-    /// - Baseline: Average of morning RHR from last 7 days
+    /// - Current: the night being assessed, plus a grace period for the Watch to write it
+    /// - Baseline: same window across the 7 preceding days, excluding the day being scored
     ///
+    /// - Parameter day: The readiness day being calculated
     /// - Returns: `TrainingComponentScore` with RHR contribution, or `nil` if data unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
@@ -31,21 +32,24 @@ extension DefaultTrainingReadinessCalculator {
     /// - RHR within normal range: 0 points (neutral)
     /// - RHR moderately elevated: -5 points (suboptimal recovery)
     /// - RHR significantly elevated: -15 points (poor recovery)
-    func calculateRestingHeartRateScore() async throws -> TrainingComponentScore? {
-        // Fetch this morning's RHR
-        guard let currentRHR = try await personalDataManager.getThisMorningRestingHeartRate() else {
+    func calculateRestingHeartRateScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
+        let window = TrainingReadinessTimeWindows.restingHeartRateWindow(for: day)
+
+        guard let currentRHR = try await personalDataManager.getRestingHeartRate(in: window) else {
             return nil
         }
-        
-        // Fetch baseline (7-day morning average)
-        let baselineRHR = try await personalDataManager.getAverageMorningRestingHeartRate(days: 7)
-        
-        // Calculate score
+
+        let baselineWindows = TrainingReadinessTimeWindows.previousRestingHeartRateWindows(
+            count: baselineDayCount,
+            before: day
+        )
+        let baselineRHR = try await personalDataManager.getAverageRestingHeartRate(in: baselineWindows)
+
         let score = calculateHeartRateScore(
             current: currentRHR.value,
             baseline: baselineRHR?.value
         )
-        
+
         return TrainingComponentScore(
             score: score,
             currentValue: currentRHR.value,
@@ -56,20 +60,20 @@ extension DefaultTrainingReadinessCalculator {
             timestamp: currentRHR.date
         )
     }
-    
+
     /// Calculates score based on difference between current and baseline RHR.
     ///
     /// - Parameters:
-    ///   - current: This morning's resting heart rate in bpm
-    ///   - baseline: Baseline (7-day morning average) resting heart rate in bpm
+    ///   - current: The night's resting heart rate in bpm
+    ///   - baseline: Baseline (7-day average) resting heart rate in bpm
     /// - Returns: Score from -15 to +15 based on RHR deviation
     private func calculateHeartRateScore(current: Double, baseline: Double?) -> Int {
         guard let baseline = baseline else {
             return 0
         }
-        
+
         let difference = current - baseline
-        
+
         switch difference {
         case let diff where diff > 5:
             return -15
@@ -80,7 +84,7 @@ extension DefaultTrainingReadinessCalculator {
         case let diff where diff < -1:
             return 5
         default:
-            return 0   
+            return 0
         }
     }
 }

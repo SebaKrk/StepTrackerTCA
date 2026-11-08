@@ -6,139 +6,167 @@
 //
 
 import Foundation
+import SharedModels
 
-/// Defines standardized time windows for retrieving training readiness metrics.
-///
-/// Provides precise time ranges for health data queries, ensuring consistency across
-/// different data types and avoiding ambiguous "last 24 hours" queries. Each window
-/// is optimized for the specific physiological metric being measured.
+/// Builds the time ranges a readiness calculation queries HealthKit with.
 ///
 /// ## Design Rationale
-/// Training readiness should reflect the body's state at a specific point in time
-/// (typically morning assessment). Using fixed time windows ensures:
-/// - Consistent data collection across days
-/// - Meaningful baseline comparisons
-/// - Clinically relevant measurement periods
+/// Every window is derived from a `ReadinessDay`, never from the current time.
+/// That is the invariant the whole feature rests on: no window may end in the
+/// future, because HealthKit would answer with a partial reading and the score
+/// would depend on when the app was opened rather than on how the user slept.
 ///
 /// ## Usage
 /// ```swift
-/// let sleepWindow = TrainingReadinessTimeWindows.lastNightSleepWindow()
-/// let samples = try await fetchSleepData(from: sleepWindow.start, to: sleepWindow.end)
+/// let window = TrainingReadinessTimeWindows.restingHeartRateWindow(for: day)
+/// let samples = try await fetchRHR(from: window.lowerBound, to: window.upperBound)
 /// ```
 struct TrainingReadinessTimeWindows {
-    
-    /// Returns the time range for last night's sleep session.
+
+    /// How long after waking the Watch may still write the day's resting heart rate.
+    private static let restingHeartRateGrace: TimeInterval = 2 * 60 * 60
+
+    /// Hour the fallback night window ends at when no sleep was recorded.
+    static let fallbackWakeHour = 10
+
+    /// Hour the fallback night window starts at on the previous evening.
     ///
-    /// Defines a pragmatic window from yesterday evening to this morning that captures
-    /// the primary sleep session. This 14-hour window (8 PM → 10 AM) is designed to
-    /// reliably capture sleep data even with variations in actual sleep timing.
+    /// Deliberately early: a window that starts too late silently drops sleep
+    /// that began in the evening, which would under-report the night.
+    static let fallbackSleepHour = 20
+
+    /// Returns the window covering the night being assessed.
     ///
-    /// - Returns: A tuple with start and end dates for last night's sleep window
-    static func lastNightSleepWindow() -> (start: Date, end: Date) {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        let windowEnd = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: now)!
-        
-        let windowStart = calendar.date(byAdding: .hour, value: -14, to: windowEnd)!
-        
-        return (start: windowStart, end: windowEnd)
-    }
-    
-    /// Returns the time range for this morning's resting heart rate.
+    /// Heart rate variability is only meaningful when measured at rest, so it is
+    /// read from exactly this range.
     ///
-    /// Covers from midnight to 11 AM today to capture RHR measurements during sleep
-    /// and early morning. RHR is typically measured by Apple Watch during sleep.
-    ///
-    /// - Returns: Tuple of (startDate, endDate) for the morning RHR window
-    static func thisMorningRHRWindow() -> (start: Date, end: Date) {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        let startOfToday = calendar.startOfDay(for: now)
-        
-        let endOfWindow = calendar.date(byAdding: .hour, value: 11, to: startOfToday)!
-        
-        return (startOfToday, endOfWindow)
-    }
-    
-    /// Returns the time range for last night's HRV measurement.
-    ///
-    /// Covers from 8 PM yesterday to 10 AM today to capture HRV during sleep.
-    /// HRV is most meaningful when measured during rest/sleep periods.
-    ///
-    /// - Returns: Tuple of (startDate, endDate) for the nighttime HRV window
-    static func lastNightHRVWindow() -> (start: Date, end: Date) {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        let endOfWindow = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: now)!
-        
-        let startOfWindow = calendar.date(byAdding: .hour, value: -14, to: endOfWindow)!
-        
-        return (startOfWindow, endOfWindow)
-    }
-    
-    /// Returns the time range for yesterday's full day (00:00 to 23:59).
-    ///
-    /// Used for measuring previous day's activity load, which impacts current readiness.
-    ///
-    /// - Returns: Tuple of (startDate, endDate) for yesterday's full day
-    static func yesterdayFullDay() -> (start: Date, end: Date) {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: now)!
-        let startOfYesterday = calendar.startOfDay(for: yesterday)
-        
-        let endOfYesterday = calendar.date(byAdding: .day, value: 1, to: startOfYesterday)!
-            .addingTimeInterval(-1)
-        
-        return (startOfYesterday, endOfYesterday)
+    /// - Parameter day: The readiness day being calculated
+    /// - Returns: Range from falling asleep to waking up
+    static func nightWindow(for day: ReadinessDay) -> ClosedRange<Date> {
+        day.nightWindow
     }
 
-    /// Returns an array of date ranges for the last N nights.
+    /// Returns the window a resting heart rate reading is accepted from.
     ///
-    /// Used for calculating baseline averages over multiple sleep sessions.
+    /// Extends past waking because the Watch writes the daily resting heart rate
+    /// once it has processed the night, not at the moment of waking.
     ///
-    /// - Parameter nights: Number of previous nights to include
-    /// - Returns: Array of (startDate, endDate) tuples, one per night
-    static func lastNights(count nights: Int) -> [(start: Date, end: Date)] {
-        let calendar = Calendar.current
-        var ranges: [(Date, Date)] = []
-        
-        for dayOffset in 0..<nights {
-            let referenceDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date())!
-            
-            let endOfWindow = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: referenceDate)!
-            let startOfWindow = calendar.date(byAdding: .hour, value: -20, to: endOfWindow)!
-            
-            ranges.append((startOfWindow, endOfWindow))
-        }
-        
-        return ranges
+    /// - Parameter day: The readiness day being calculated
+    /// - Returns: Range from falling asleep to shortly after waking
+    static func restingHeartRateWindow(for day: ReadinessDay) -> ClosedRange<Date> {
+        day.nightWindow.lowerBound...day.wakeTime.addingTimeInterval(restingHeartRateGrace)
     }
-    
-    /// Returns an array of date ranges for the last N full days.
+
+    /// Returns the full calendar day preceding the readiness day.
     ///
-    /// Used for calculating baseline activity averages.
+    /// Yesterday's training load is what the body is recovering from.
     ///
-    /// - Parameter days: Number of previous days to include
-    /// - Returns: Array of (startDate, endDate) tuples, one per day
-    static func lastFullDays(count days: Int) -> [(start: Date, end: Date)] {
-        let calendar = Calendar.current
-        var ranges: [(Date, Date)] = []
-        
-        for dayOffset in 1...days {
-            let targetDay = calendar.date(byAdding: .day, value: -dayOffset, to: Date())!
-            let startOfDay = calendar.startOfDay(for: targetDay)
-            let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-                .addingTimeInterval(-1)
-            
-            ranges.append((startOfDay, endOfDay))
+    /// - Parameters:
+    ///   - day: The readiness day being calculated
+    ///   - calendar: Calendar used to resolve day boundaries
+    /// - Returns: Range covering the previous day, or `nil` if it cannot be resolved
+    static func previousDay(
+        for day: ReadinessDay,
+        calendar: Calendar = .current
+    ) -> ClosedRange<Date>? {
+        guard let start = calendar.date(byAdding: .day, value: -1, to: day.dayStart),
+              let end = calendar.date(byAdding: .day, value: 1, to: start) else {
+            return nil
         }
-        
-        return ranges
+        return start...end.addingTimeInterval(-1)
     }
-    
+
+    /// Returns one range per preceding calendar day, used for activity baselines.
+    ///
+    /// Starts at one day back: the day being scored must never be part of the
+    /// baseline it is compared against.
+    ///
+    /// - Parameters:
+    ///   - count: How many preceding days to cover
+    ///   - day: The readiness day being calculated
+    ///   - calendar: Calendar used to resolve day boundaries
+    /// - Returns: Ranges ordered from most recent to oldest
+    static func previousDays(
+        count: Int,
+        before day: ReadinessDay,
+        calendar: Calendar = .current
+    ) -> [ClosedRange<Date>] {
+        (1...max(count, 1)).compactMap { dayOffset in
+            guard let start = calendar.date(byAdding: .day, value: -dayOffset, to: day.dayStart),
+                  let end = calendar.date(byAdding: .day, value: 1, to: start) else {
+                return nil
+            }
+            return start...end.addingTimeInterval(-1)
+        }
+    }
+
+    /// Returns one night window per preceding day, used for sleep and HRV baselines.
+    ///
+    /// Each window mirrors the shape of the fallback night so every day in the
+    /// baseline is measured the same way. Starts at one day back for the same
+    /// reason as `previousDays(count:before:)`.
+    ///
+    /// - Parameters:
+    ///   - count: How many preceding nights to cover
+    ///   - day: The readiness day being calculated
+    ///   - calendar: Calendar used to resolve day boundaries
+    /// - Returns: Ranges ordered from most recent to oldest
+    static func previousNights(
+        count: Int,
+        before day: ReadinessDay,
+        calendar: Calendar = .current
+    ) -> [ClosedRange<Date>] {
+        (1...max(count, 1)).compactMap { dayOffset in
+            guard let reference = calendar.date(byAdding: .day, value: -dayOffset, to: day.dayStart) else {
+                return nil
+            }
+            return fallbackNightWindow(endingOn: reference, calendar: calendar)
+        }
+    }
+
+    /// Returns one resting heart rate window per preceding day.
+    ///
+    /// Mirrors `restingHeartRateWindow(for:)` so the baseline is measured the same
+    /// way as the value compared against it.
+    ///
+    /// - Parameters:
+    ///   - count: How many preceding days to cover
+    ///   - day: The readiness day being calculated
+    ///   - calendar: Calendar used to resolve day boundaries
+    /// - Returns: Ranges ordered from most recent to oldest
+    static func previousRestingHeartRateWindows(
+        count: Int,
+        before day: ReadinessDay,
+        calendar: Calendar = .current
+    ) -> [ClosedRange<Date>] {
+        previousNights(count: count, before: day, calendar: calendar).map { night in
+            night.lowerBound...night.upperBound.addingTimeInterval(restingHeartRateGrace)
+        }
+    }
+
+    /// Returns the clock-based night window for a day with no recorded sleep.
+    ///
+    /// - Parameters:
+    ///   - dayStart: Midnight of the day the window belongs to
+    ///   - calendar: Calendar used to resolve hour boundaries
+    /// - Returns: Range from the previous evening to the fallback wake hour
+    static func fallbackNightWindow(
+        endingOn dayStart: Date,
+        calendar: Calendar = .current
+    ) -> ClosedRange<Date>? {
+        guard let end = calendar.date(
+            bySettingHour: fallbackWakeHour,
+            minute: 0,
+            second: 0,
+            of: dayStart
+        ) else { return nil }
+
+        let hoursBack = (24 - fallbackSleepHour) + fallbackWakeHour
+
+        guard let start = calendar.date(byAdding: .hour, value: -hoursBack, to: end) else {
+            return nil
+        }
+
+        return start...end
+    }
 }

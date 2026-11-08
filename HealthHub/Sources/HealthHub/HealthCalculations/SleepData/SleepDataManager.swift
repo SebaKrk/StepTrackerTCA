@@ -15,70 +15,51 @@ import SharedModels
 /// sleep duration data needed for training readiness calculations.
 ///
 /// ## Overview
-/// The protocol uses pragmatic time windows rather than precise sleep session boundaries:
-/// - Last night's sleep: Data from evening (8 PM yesterday) to morning (10 AM today)
-/// - Historical averages: Same windows applied to previous nights
-///
-/// This approach ensures reliable data retrieval even when Apple Watch sleep tracking
-/// has gaps or inconsistencies in session boundaries.
+/// Callers pass the windows they want read. Readiness derives those windows from
+/// an actual sleep session, so the protocol must not assume fixed clock hours of
+/// its own — that assumption is what made the score depend on the time of day.
 ///
 /// ## Usage
 /// ```swift
 /// let sleepManager = DefaultSleepDataManager()
 ///
-/// // Get last night's total sleep
-/// if let lastNight = try await sleepManager.getLastNightSleep() {
-///     print("Slept \(lastNight.value) hours last night")
-/// }
+/// // Raw intervals, to reconstruct the night
+/// let intervals = try await sleepManager.getSleepIntervals(in: searchStart...now)
 ///
-/// // Get 7-day average
-/// if let average = try await sleepManager.getAverageSleepFromLastNights(nights: 7) {
+/// // Baseline across the preceding nights
+/// if let average = try await sleepManager.getAverageSleepHours(in: nightWindows) {
 ///     print("Average sleep: \(average.value) hours")
 /// }
 /// ```
 public protocol SleepDataManager: Sendable {
     
-    /// Retrieves total sleep duration from last night.
+    /// Retrieves raw asleep intervals within a window.
     ///
-    /// Fetches sleep data from the pragmatic window spanning yesterday evening (8 PM)
-    /// to this morning (10 AM). This captures the primary sleep session regardless of
-    /// exact start/end times or brief awakenings.
+    /// Returns the intervals themselves rather than a total, so the caller can
+    /// reconstruct where one night ends and the next begins. Awake and in-bed
+    /// periods are excluded; duplicates from device sync are not, and are the
+    /// caller's to merge.
     ///
-    /// The method sums all "asleep" periods within this window, excluding:
-    /// - Time spent awake in bed
-    /// - Time spent in bed but not asleep
-    ///
-    /// - Returns: A `HealthKitData` object containing sleep duration in hours, or `nil` if unavailable
+    /// - Parameter window: Range to read intervals from
+    /// - Returns: Asleep intervals overlapping the window, in no guaranteed order
     /// - Throws: HealthKit errors if data access fails
+    func getSleepIntervals(in window: ClosedRange<Date>) async throws -> [SleepSessionBuilder.Interval]
+
+    /// Retrieves average sleep duration across the given night windows.
     ///
-    /// ## Time Window
-    /// - Start: 8:00 PM yesterday
-    /// - End: 10:00 AM today
-    /// - Captures: Core sleep, deep sleep, REM sleep
-    /// - Excludes: Awake time, in-bed-but-not-asleep time
-    func getLastNightSleep() async throws -> HealthKitData?
-    
-    /// Retrieves average sleep duration from specified number of nights.
+    /// Only nights with data contribute to the average, so a missing night lowers
+    /// the sample count rather than the mean.
     ///
-    /// Calculates the mean sleep duration by fetching data from multiple nights using
-    /// the same pragmatic time window (8 PM → 10 AM) for each night. Only nights with
-    /// available data are included in the average calculation.
-    ///
-    /// - Parameter nights: Number of nights to average (default: 7)
+    /// - Parameter windows: One range per night to average over
     /// - Returns: A `HealthKitData` object containing average sleep in hours, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
-    /// ## Calculation Details
-    /// - Each night uses 8 PM → 10 AM window
-    /// - Average includes only nights with data
-    /// - Result timestamp is current date/time
-    ///
     /// ## Example
     /// ```swift
-    /// // Get 7-night average for baseline comparison
-    /// let baseline = try await getAverageSleepFromLastNights(nights: 7)
+    /// let windows = TrainingReadinessTimeWindows.previousNights(count: 7, before: day)
+    /// let baseline = try await getAverageSleepHours(in: windows)
     /// ```
-    func getAverageSleepFromLastNights(nights: Int) async throws -> HealthKitData?
+    func getAverageSleepHours(in windows: [ClosedRange<Date>]) async throws -> HealthKitData?
     
     /// Retrieves sleep duration data for each of the last N nights as individual data points.
     ///

@@ -11,13 +11,14 @@ import SharedModels
 // MARK: - Activity Load Score Calculation
 
 extension DefaultTrainingReadinessCalculator {
-    
+
     /// Calculates training readiness score based on previous day's training load.
     ///
-    /// Evaluates yesterday's active energy expenditure against recent averages to
-    /// determine recovery status and current training readiness.
+    /// Evaluates the preceding day's active energy expenditure against recent averages
+    /// to determine recovery status and current training readiness.
     /// Lower previous day loads indicate better recovery and higher readiness.
     ///
+    /// - Parameter day: The readiness day being calculated
     /// - Returns: `TrainingComponentScore` with load contribution, or `nil` if data unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
@@ -28,40 +29,46 @@ extension DefaultTrainingReadinessCalculator {
     /// - Normal training (80-130%): 0 points (neutral readiness)
     /// - Heavy training (130-180%): -5 points (moderate fatigue)
     /// - Very heavy training (180%+): -10 points (significant fatigue, recovery needed)
-    func calculateActivityLoadScore() async throws -> TrainingComponentScore? {
-        guard let yesterdayLoad = try await personalDataManager.getYesterdayActiveEnergy() else {
+    func calculateActivityLoadScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
+        guard let window = TrainingReadinessTimeWindows.previousDay(for: day),
+              let previousLoad = try await personalDataManager.getActiveEnergy(in: window) else {
             return nil
         }
-        
-        let baselineLoad = try await personalDataManager.getAverageDailyActiveEnergy(days: 7)
-        
+
+        let baselineWindows = TrainingReadinessTimeWindows.previousDays(
+            count: baselineDayCount,
+            before: day
+        )
+        let baselineLoad = try await personalDataManager.getAverageActiveEnergy(in: baselineWindows)
+
         let score = calculateLoadComponentScore(
-            current: yesterdayLoad.value,
+            current: previousLoad.value,
             baseline: baselineLoad?.value
         )
-        
+
         return TrainingComponentScore(
             score: score,
-            currentValue: yesterdayLoad.value,
+            currentValue: previousLoad.value,
             baselineValue: baselineLoad?.value,
             unit: "kcal",
             minScore: -10,
             maxScore: 5,
-            timestamp: yesterdayLoad.date
+            timestamp: previousLoad.date
         )
     }
-    
+
     /// Calculates training readiness score based on previous day load compared to baseline.
     ///
     /// Lower previous day loads indicate better recovery and readiness for training.
     /// Higher loads suggest residual fatigue and need for recovery.
     ///
     /// - Parameters:
-    ///   - current: Yesterday's active energy burned in kcal
+    ///   - current: Previous day's active energy burned in kcal
     ///   - baseline: Average daily active energy (7-day baseline) in kcal
     /// - Returns: Score from -10 to +5 based on recovery status
     private func calculateLoadComponentScore(current: Double, baseline: Double?) -> Int {
-        guard let baseline = baseline else {
+        // A baseline at or below zero would make the ratio meaningless or infinite.
+        guard let baseline = baseline, baseline > 0 else {
             return 0
         }
         let percentageOfBaseline = (current / baseline) * 100

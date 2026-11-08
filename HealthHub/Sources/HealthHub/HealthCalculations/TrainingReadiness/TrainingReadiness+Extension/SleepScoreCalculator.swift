@@ -11,12 +11,17 @@ import SharedModels
 // MARK: - Sleep Quality Score Calculation
 
 extension DefaultTrainingReadinessCalculator {
-    
+
     /// Calculates training readiness score based on sleep duration and quality.
     ///
-    /// Evaluates last night's sleep duration against optimal ranges and recent averages
+    /// Evaluates the night's sleep duration against optimal ranges and recent averages
     /// to determine recovery quality. Adequate sleep is critical for training readiness.
     ///
+    /// Takes the duration straight from the resolved session when the day is sleep
+    /// anchored — it has already been deduplicated and merged — and falls back to
+    /// reading the clock window only when no session was recorded.
+    ///
+    /// - Parameter day: The readiness day being calculated
     /// - Returns: `TrainingComponentScore` with sleep contribution, or `nil` if data unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
@@ -25,40 +30,52 @@ extension DefaultTrainingReadinessCalculator {
     /// - 6-7 or 9-10 hours: +5 points (acceptable)
     /// - Less than 6 or more than 10 hours: -10 points (suboptimal)
     /// - Additional points based on comparison to personal baseline
-    func calculateSleepScore() async throws -> TrainingComponentScore? {
-        
-        guard let currentSleep = try await sleepDataManager.getLastNightSleep() else {
+    func calculateSleepScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
+        guard let currentHours = try await sleepHours(for: day) else {
             return nil
         }
-        
-        // Fetch baseline (7-night average)
-        let baselineSleep = try await sleepDataManager.getAverageSleepFromLastNights(nights: 7)
-        
-        // Calculate score
+
+        let baselineWindows = TrainingReadinessTimeWindows.previousNights(
+            count: baselineDayCount,
+            before: day
+        )
+        let baselineSleep = try await sleepDataManager.getAverageSleepHours(in: baselineWindows)
+
         let score = calculateSleepComponentScore(
-            current: currentSleep.value,
+            current: currentHours,
             baseline: baselineSleep?.value
         )
-        
+
         return TrainingComponentScore(
             score: score,
-            currentValue: currentSleep.value,
+            currentValue: currentHours,
             baselineValue: baselineSleep?.value,
             // The only readiness unit that differs between languages (bpm/ms/kcal
             // are universal) — resolved against the app bundle at display time.
             unit: String(localized: "hours"),
-            minScore: -10,
+            minScore: -15,
             maxScore: 15,
-            timestamp: currentSleep.date
+            timestamp: day.wakeTime
         )
     }
-    
+
+    /// Hours slept on the given day, from the session when there is one.
+    private func sleepHours(for day: ReadinessDay) async throws -> Double? {
+        if let session = day.sleepSession {
+            return session.asleepHours > 0 ? session.asleepHours : nil
+        }
+
+        let measured = try await sleepDataManager.getAverageSleepHours(in: [day.nightWindow])
+
+        return measured?.value
+    }
+
     /// Calculates score based on sleep duration and comparison to baseline.
     ///
     /// - Parameters:
-    ///   - current: Last night's sleep duration in hours
+    ///   - current: The night's sleep duration in hours
     ///   - baseline: Average sleep duration in hours (7-night baseline)
-    /// - Returns: Score from -10 to +15 based on sleep quality
+    /// - Returns: Score from -15 to +15 based on sleep quality
     private func calculateSleepComponentScore(current: Double, baseline: Double?) -> Int {
         var score = 0
         switch current {
@@ -69,11 +86,11 @@ extension DefaultTrainingReadinessCalculator {
         default:
             score -= 10
         }
-        
+
         // Additional score based on baseline comparison
         if let baseline = baseline {
             let difference = current - baseline
-            
+
             switch difference {
             case let diff where diff > 1.0:
                 score += 5
