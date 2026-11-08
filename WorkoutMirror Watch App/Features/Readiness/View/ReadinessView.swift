@@ -148,8 +148,11 @@ struct ReadinessView: View {
 
     /// Angular width of a level's slice, taken from its own score range so the
     /// thresholds live in exactly one place.
+    ///
+    /// Uses `chartRange` rather than `range`: the latter leaves a point between
+    /// levels, which would make the slices sum to less than the full ring.
     private func sliceWidth(of level: ReadinessLevel) -> Double {
-        Double(level.range.count)
+        level.chartRange.upperBound - level.chartRange.lowerBound
     }
 
     private var ringDiameter: CGFloat { 92 }

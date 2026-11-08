@@ -100,8 +100,8 @@ struct ReadinessTrendView: View {
             // Background zone bands
             ForEach(ReadinessLevel.allCases, id: \.self) { level in
                 RectangleMark(
-                    yStart: .value("Min", level.range.lowerBound),
-                    yEnd: .value("Max", level.range.upperBound)
+                    yStart: .value("Min", level.chartRange.lowerBound),
+                    yEnd: .value("Max", level.chartRange.upperBound)
                 )
                 .foregroundStyle(level.color.opacity(0.1))
             }

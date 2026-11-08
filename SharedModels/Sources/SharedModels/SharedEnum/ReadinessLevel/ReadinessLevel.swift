@@ -13,24 +13,27 @@ import SwiftUI
 ///
 /// ## Usage
 /// ```swift
-/// let level = ReadinessLevel(from: 75) // .good
-/// print(level.range) // 70...84
+/// let level = ReadinessLevel(from: 70) // .good
+/// print(level.range) // 60...79
 /// ```
 ///
 /// ## Score Ranges
-/// - **Excellent (85-100)**: Optimal readiness for high-intensity training
-/// - **Good (70-84)**: Ready for moderate to high-intensity sessions
-/// - **Fair (55-69)**: Suitable for light to moderate training
-/// - **Poor (40-54)**: Active recovery or light exercise recommended
-/// - **Very Poor (0-39)**: Rest day strongly recommended
-public enum ReadinessLevel: CaseIterable, Sendable {
-    
+/// The scale is centred on 50: a day where every component sits on its own
+/// baseline scores 50 and reads as **Fair**, not as a warning.
+///
+/// - **Excellent (80-100)**: Optimal readiness for high-intensity training
+/// - **Good (60-79)**: Ready for moderate to high-intensity sessions
+/// - **Fair (45-59)**: A normal day — train as planned
+/// - **Poor (30-44)**: Active recovery or light exercise recommended
+/// - **Very Poor (0-29)**: Rest day strongly recommended
+public enum ReadinessLevel: String, CaseIterable, Sendable {
+
     case veryPoor
     case poor
     case fair
     case good
     case excellent
-    
+
     /// Title key for localization
     public var title: String {
         switch self {
@@ -41,26 +44,26 @@ public enum ReadinessLevel: CaseIterable, Sendable {
         case .excellent: return String(localized: "Excellent", bundle: .module)
         }
     }
-    
+
     /// Creates a ReadinessLevel from a numerical score (0-100).
     ///
     /// - Parameter value: Training readiness score from 0 to 100
     /// - Returns: Corresponding ReadinessLevel enum case
     public init(from value: Int) {
         switch value {
-        case 85...100:
+        case 80...:
             self = .excellent
-        case 70..<85:
+        case 60..<80:
             self = .good
-        case 55..<70:
+        case 45..<60:
             self = .fair
-        case 40..<55:
+        case 30..<45:
             self = .poor
         default:
             self = .veryPoor
         }
     }
-    
+
     /// Color representation for UI display.
     ///
     /// Returns appropriate SwiftUI Color for each readiness level:
@@ -83,22 +86,45 @@ public enum ReadinessLevel: CaseIterable, Sendable {
             return .red
         }
     }
-    
+
     /// The score range associated with this readiness level.
     ///
     /// - Returns: ClosedRange representing the score boundaries for this level
     public var range: ClosedRange<Int> {
         switch self {
         case .excellent:
-            return 85...100
+            return 80...100
         case .good:
-            return 70...84
+            return 60...79
         case .fair:
-            return 55...69
+            return 45...59
         case .poor:
-            return 40...54
+            return 30...44
         case .veryPoor:
-            return 0...39
+            return 0...29
         }
     }
+
+    /// Continuous bounds for charting, where each level ends where the next begins.
+    ///
+    /// `range` leaves a one-point gap between levels, which would draw as a seam
+    /// in a bar or ring. Charts use this instead, so the scale is defined once
+    /// here rather than copied into every chart that draws it.
+    public var chartRange: ClosedRange<Double> {
+        switch self {
+        case .excellent:
+            return 80...100
+        case .good:
+            return 60...80
+        case .fair:
+            return 45...60
+        case .poor:
+            return 30...45
+        case .veryPoor:
+            return 0...30
+        }
+    }
+
+    /// The score a day lands on when every component sits on its baseline.
+    public static let neutralScore = 50
 }

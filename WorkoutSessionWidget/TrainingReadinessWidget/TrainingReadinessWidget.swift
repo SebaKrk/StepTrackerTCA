@@ -259,17 +259,21 @@ struct TrainingReadinessWidgetEntryView : View {
     // MARK: - Logic
     
     struct ReadinessSegment {
-        let range: ClosedRange<Int>
+        let range: ClosedRange<Double>
         let color: Color
+
+        /// How much of the ring this segment covers.
+        var width: Double {
+            range.upperBound - range.lowerBound
+        }
     }
-    
-    let segments: [ReadinessSegment] = [
-        ReadinessSegment(range: 0...40, color: .red),
-        ReadinessSegment(range: 40...55, color: .orange),
-        ReadinessSegment(range: 55...70, color: .yellow),
-        ReadinessSegment(range: 70...85, color: .mint),
-        ReadinessSegment(range: 85...100, color: .green)
-    ]
+
+    /// Built from `ReadinessLevel` so the widget cannot drift from the app.
+    var segments: [ReadinessSegment] {
+        ReadinessLevel.allCases.map {
+            ReadinessSegment(range: $0.chartRange, color: $0.color)
+        }
+    }
     
     struct ChartSlice: Identifiable {
         let id = UUID()
@@ -279,33 +283,13 @@ struct TrainingReadinessWidgetEntryView : View {
     
     func generateBackgroundTrack() -> [ChartSlice] {
         segments.map { segment in
-            let width = Double(segment.range.upperBound - segment.range.lowerBound)
-            return ChartSlice(value: width, color: segment.color.opacity(0.15))
+            ChartSlice(value: segment.width, color: segment.color.opacity(0.15))
         }
     }
-    
-    func generateForegroundSlices(for score: Int) -> [ChartSlice] {
-        var slices: [ChartSlice] = []
-        
-        for segment in segments {
-            let start = segment.range.lowerBound
-            let end = segment.range.upperBound
-            
-            if score >= end {
-                let width = Double(end - start)
-                slices.append(ChartSlice(value: width, color: segment.color))
-            } else if score > start {
-                let filledPortion = Double(score - start)
-                slices.append(ChartSlice(value: filledPortion, color: segment.color))
-            }
-        }
-        return slices
-    }
-    
+
     func generateForegroundTrack() -> [ChartSlice] {
         segments.map { segment in
-            let width = Double(segment.range.upperBound - segment.range.lowerBound)
-            return ChartSlice(value: width, color: segment.color)
+            ChartSlice(value: segment.width, color: segment.color)
         }
     }
     

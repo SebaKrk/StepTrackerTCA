@@ -84,41 +84,33 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
 
     // MARK: - Private Methods
 
+    /// Combines component scores into a 0-100 readiness score.
+    ///
+    /// Normalises against the components that are actually present, so a day
+    /// missing HRV is not scored lower than the same day with it. A day where
+    /// every component sits on its own baseline lands on the neutral score.
     private func calculateOverallScore(from components: TrainingReadinessComponents) -> Int {
-        var totalScore = 50
-        var componentCount = 0
+        let available = components.available
 
-        if let rhr = components.restingHeartRate {
-            totalScore += rhr.score
-            componentCount += 1
-        }
+        guard !available.isEmpty else { return ReadinessLevel.neutralScore }
 
-        if let hrv = components.heartRateVariability {
-            totalScore += hrv.score
-            componentCount += 1
-        }
+        let points = available.reduce(0) { $0 + $1.score }
 
-        if let sleep = components.sleepQuality {
-            totalScore += sleep.score
-            componentCount += 1
-        }
+        // Positive and negative headroom differ per component, so the direction
+        // of the deviation decides which pool it is measured against.
+        let headroom = points >= 0
+            ? available.reduce(0) { $0 + $1.maxScore }
+            : available.reduce(0) { $0 + abs($1.minScore) }
 
-        if let load = components.previousDayLoad {
-            totalScore += load.score
-            componentCount += 1
-        }
+        guard headroom > 0 else { return ReadinessLevel.neutralScore }
 
-        return max(0, min(100, totalScore))
+        let span = Double(ReadinessLevel.neutralScore)
+        let offset = (span * Double(points) / Double(headroom)).rounded()
+
+        return max(0, min(100, ReadinessLevel.neutralScore + Int(offset)))
     }
 
     private func checkReliability(components: TrainingReadinessComponents) -> Bool {
-        let availableComponents = [
-            components.restingHeartRate,
-            components.heartRateVariability,
-            components.sleepQuality,
-            components.previousDayLoad
-        ].compactMap { $0 }.count
-
-        return availableComponents >= 2 || components.restingHeartRate != nil
+        components.available.count >= TrainingReadinessResult.minimumReliableComponents
     }
 }
