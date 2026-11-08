@@ -22,6 +22,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     @Dependency(\.trainingManager) var trainingManager
     @Dependency(\.healthStore) var healthStore
     @Dependency(\.sessionClient) var sessionClient
+    @Dependency(\.workoutActivityClient) var workoutActivityClient
+    @Dependency(\.timerActivityClient) var timerActivityClient
+
+    /// Captured before anything in this process can start a Live Activity, so the
+    /// launch sweep reaps only banners an earlier process left behind.
+    private let launchedAt = Date()
 
     // MARK: - Application Lifecycle
 
@@ -57,6 +63,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         do {
             guard let session = try await healthStore.recoverActiveWorkoutSession() else {
                 Logger.session.info("[Recovery] no active session to recover")
+                await endOrphanedLiveActivities()
                 return
             }
             Logger.session.info("[Recovery] recovered session (type=\(session.type.rawValue), state=\(session.state.rawValue))")
@@ -69,8 +76,27 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                 try await sessionClient.recoverPrimarySession(session)
             }
         } catch {
+            // No sweep here on purpose. A thrown query says nothing about whether a
+            // workout is running, so reaping on it would end a correct banner whenever
+            // HealthKit is briefly unavailable while the Watch is genuinely recording.
+            // A banner left standing degrades to its stale state; one ended wrongly is gone.
             Logger.session.error("[Recovery] recoverActiveWorkoutSession failed: \(error.localizedDescription)")
         }
+    }
+
+    /// Clears a Live Activity the previous process left behind.
+    ///
+    /// The activity outlives its process while its id lives only in memory, so after a
+    /// relaunch nothing can reach it — Apple's own guidance is to reconcile at launch.
+    /// Only safe with no session to recover: then any banner still on screen is
+    /// certainly stale. A recovered session keeps its activity, wrong or not, because
+    /// this device cannot tell whether the Watch is still recording.
+    private func endOrphanedLiveActivities() async {
+        // Both types, because a session shows either banner and reaping one strands the other.
+        let workouts = await workoutActivityClient.endOrphans(launchedAt)
+        let timers = await timerActivityClient.endOrphans(launchedAt)
+        guard workouts + timers > 0 else { return }
+        Logger.session.info("[Recovery] ended \(workouts) workout + \(timers) timer Live Activity left by a previous process")
     }
 
     // MARK: - Background Delivery

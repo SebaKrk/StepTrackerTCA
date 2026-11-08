@@ -1754,3 +1754,14 @@
     - a plan with no results yet carried its colour on an inner button sitting inside a neutral card, so the tap target read as a control rather than as the card it actually is
     - `styledGroupBox(tint:)` colours the whole card instead; the default stays neutral, so no other card in the app changes
     - the inner button drops its own background — two tinted layers of the same colour drew a visible frame inside a frame
+
+### IOS-00176 Watch dies mid-workout — stop the iPhone claiming it is still running
+    - branch: `dev/IOS-00176/IOS-00176` (from develop)
+    - when the Watch app dies it reports nothing, so the iPhone keeps a Live Activity that says a workout is in progress; the id of that activity lived only in the process that started it, so after a relaunch nothing could end it and it stayed up to the system's own 8/12-hour cap
+    - the app now reconciles at launch, as Apple's guidance says to: with no session to recover, every activity left behind is ended by enumerating them rather than by id — both the workout and the timer banner, since a session shows either one and reaping one strands the other
+    - the sweep only reaps activities older than the launch that runs it: it is detached and can land after the user has already begun a new workout
+    - a thrown recovery query deliberately does NOT sweep — a failure says nothing about whether a workout is running, and a banner ended wrongly is gone while one left standing only goes stale
+    - each activity carries a `staleDate` of fifteen minutes: long enough to outlast HealthKit's batching and a pause, which stops the builder collecting and so looks exactly like silence
+    - stale data gets its own neutral treatment rather than reusing the Watch-disconnect one — that indicator names a device an iPhone-only workout never had, and an orange alarm is the wrong thing to show for a rest between blocks
+    - a mirrored session still cannot be ended from the iPhone: ending it relays to the Watch's primary session and would cut it off before it saves. The escape hatch closes the iPhone side only, and the comment that claimed otherwise now says so
+    - detecting a silent death while the app runs is deliberately left out — it needs a durable watchdog with a multi-minute threshold, and these three changes already remove the visible symptom
