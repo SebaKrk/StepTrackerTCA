@@ -24,6 +24,9 @@ public struct ScannedMovement: Codable, Sendable, Equatable {
     /// Unit of `targetValue`.
     public let targetUnit: ScannedTargetUnit
 
+    /// Women's half of an Rx split ("12/9 cal row" → 12 in `targetValue`, 9 here); 0 when the board writes one number.
+    public let targetValueWomen: Double
+
     /// Upper bound of a rep range ("8-12" → target 8, max 12); 0 when none.
     public let repRangeMax: Int
 
@@ -51,6 +54,7 @@ public struct ScannedMovement: Codable, Sendable, Equatable {
         segment: MovementSegment = .round,
         targetValue: Double = 0,
         targetUnit: ScannedTargetUnit = .reps,
+        targetValueWomen: Double = 0,
         repRangeMax: Int = 0,
         perSide: Bool = false,
         maxEffort: Bool = false,
@@ -64,6 +68,7 @@ public struct ScannedMovement: Codable, Sendable, Equatable {
         self.segment = segment
         self.targetValue = targetValue
         self.targetUnit = targetUnit
+        self.targetValueWomen = targetValueWomen
         self.repRangeMax = repRangeMax
         self.perSide = perSide
         self.maxEffort = maxEffort

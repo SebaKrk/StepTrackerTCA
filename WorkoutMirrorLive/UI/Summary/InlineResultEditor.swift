@@ -99,6 +99,7 @@ struct InlineResultEditor: View {
             title: String(localized: "How far did you get before the cap?"),
             rounds: store.dnfRounds,
             extraReps: store.dnfExtraReps,
+            extraRepsCeiling: store.ladderRoundSize,
             onRounds: { send(.updateRounds($0)) },
             onExtraReps: { send(.updateExtraReps($0)) }
         )
@@ -171,7 +172,12 @@ struct InlineResultEditor: View {
                 planLabel(exercise)
             }
             Spacer(minLength: 8)
-            actualValueField(index: index, exercise: exercise)
+            // A ladder's reps follow from the score above, so they are shown, not asked for.
+            if store.ladderOwnedIndices.contains(index) {
+                derivedRepsLabel(exercise)
+            } else {
+                actualValueField(index: index, exercise: exercise)
+            }
             // Reserve the weight lane only when some exercise in this WOD loads a
             // bar — a weightless WOD (EMOM/Tabata) right-aligns its values instead
             // of leaving a blank kg gap on the right.
@@ -216,6 +222,21 @@ struct InlineResultEditor: View {
                 exerciseIndex: index,
                 text: recompose(typed, target: exercise.target)
             ))
+        }
+    }
+
+    /// Reps the ladder implies — same lane as the editable field, so the rows stay aligned.
+    private func derivedRepsLabel(_ exercise: ExerciseLogInput) -> some View {
+        HStack(spacing: 4) {
+            Text(numericPart(of: exercise.actualReps))
+                .font(.system(size: 16, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(theme.ink)
+                .frame(width: 58, alignment: .trailing)
+            Text(String(localized: "reps"))
+                .font(.system(size: 12))
+                .foregroundStyle(theme.inkTertiary)
+                .frame(width: unitColumnWidth, alignment: .leading)
         }
     }
 

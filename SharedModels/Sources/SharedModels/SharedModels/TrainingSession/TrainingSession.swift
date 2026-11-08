@@ -157,6 +157,10 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     /// EMOM cadence in seconds (60, 120 for E2MOM); display only, the session timer ignores it.
     public let everySeconds: Int?
 
+    /// Rep ladder of the block ("10-9-8…1" → [10, 9, … 1]); nil when every round has the same count.
+    /// Optional Codable field — plans saved before it existed decode fine.
+    public let repScheme: [Int]?
+
     public init(
         name: String,
         type: ExerciseWorkoutType,
@@ -165,7 +169,8 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         exercises: [ExerciseSession],
         interval: IntervalPlan? = nil,
         notes: String? = nil,
-        everySeconds: Int? = nil
+        everySeconds: Int? = nil,
+        repScheme: [Int]? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -176,6 +181,7 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.interval = interval
         self.notes = notes
         self.everySeconds = everySeconds
+        self.repScheme = repScheme
     }
 
     public init(id: UUID = UUID(), draft: WorkoutSessionDraft) {
@@ -188,6 +194,7 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.interval = draft.interval
         self.notes = draft.notes
         self.everySeconds = draft.everySeconds
+        self.repScheme = draft.repScheme
     }
 }
 

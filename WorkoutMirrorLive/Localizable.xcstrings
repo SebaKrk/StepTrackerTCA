@@ -183,6 +183,9 @@
     "/%lld" : {
 
     },
+    "% of body weight" : {
+
+    },
     "%.0f %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6305,6 +6308,9 @@
         }
       }
     },
+    "of %lld" : {
+
+    },
     "Off" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -10109,22 +10115,22 @@
         }
       }
     },
-    "You are the only member, so the group is deleted with its plans and results." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jesteś jedynym członkiem, więc grupa zostanie usunięta razem z planami i wynikami."
-          }
-        }
-      }
-    },
     "You · Owner" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ty · Właściciel"
+          }
+        }
+      }
+    },
+    "You are the only member, so the group is deleted with its plans and results." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jesteś jedynym członkiem, więc grupa zostanie usunięta razem z planami i wynikami."
           }
         }
       }

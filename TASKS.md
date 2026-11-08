@@ -1722,3 +1722,46 @@
     - both paths gain what the main flow always had: close button, Bluetooth and Watch status, the device scanner
     - with a locked activity the device pick starts the workout directly, so the plan start keeps its single tap
     - `devicePicker` destinations and the three copies of the sheet are gone
+
+### IOS-00172 Plan scan — every scan saved for diagnosis
+    - branch: `dev/IOS-00172/IOS-00172` (from develop)
+    - each scan writes `Documents/Diagnostics/ScanRuns/<timestamp>/` with the downscaled photo, the OCR transcript when the backend uses one, the board the model returned and a metadata file
+    - `meta.json` records the backend, so a bad result can be attributed to the prompt or to Vision OCR rather than guessed at
+    - a failed parse is recorded too: the thrown error lands in the metadata instead of vanishing with the screen
+    - the whole recorder sits behind `#if DEBUG` and never throws — a failed dump must not take down the user's scan
+    - no UI and no migration: `UIFileSharingEnabled` already exposes `Documents`, so the folders are reachable from the Files app without a cable
+    - the dumps double as fixture material for `PLANS/scan-eval/`
+
+### IOS-00173 Plan scan — what the board says survives the parse
+    - branch: `dev/IOS-00172/IOS-00172` (shared with IOS-00172)
+    - the four dumps of 07/11 showed three losses: an "alternating" snatch fell out of the catalog, the women's half of "12/9 cal row" lived only in prose, and "75% of body weight" was stored as 75% of a one-rep max
+    - `targetValueWomen` and `LoadTier.Unit.percentOfBodyWeight` give those two numbers a field of their own, so a woman's target and a body-weight load stop being guesses
+    - the prompt gains a FORMAT section: every format now states what it must fill, which ends the invented time caps and the dropped EMOM round count
+    - an EMOM keeps its round count through the mapper, so six passes of twelve burpees log as seventy-two
+    - a WOD's rep ladder moves to the block where it belongs: one chip in the header instead of ten "Set N" rows under each movement
+    - `deathBy` joins the formats — the only shape the schema could not express, since it ends in failure rather than a count
+
+### IOS-00174 WOD result — the ladder enters its own reps
+    - branch: `dev/IOS-00172/IOS-00172` (shared with IOS-00172 and IOS-00173)
+    - a capped For Time with a rep ladder asked for the same number twice: the score picker, then the reps of every movement — and the second entry kept the plan's total, logging 55 reps for a 31-rep effort
+    - the reps now follow from the score; only the weight is still typed. `LadderScore` holds the arithmetic, counting a part-finished round across the movements in board order the way a scoreboard does
+    - the write is scoped twice over: only a reps target, because after the save the unit suffix is the only thing marking calories as calories, and only a movement that follows the block's ladder rather than a scheme of its own
+    - flipping to "not finished" no longer writes: the status segment is live on an untouched card, so syncing there would have stamped every movement with the steppers' zeroes
+    - the second stepper names its ceiling ("4 of 21"), since in a ladder a round's number and its size are both plausible readings of the same box
+    - switching a block's type in the editor clears the ladder, which no other type can express and no screen can clear by hand
+
+### IOS-00175 Activity details — the results card is the call to action
+    - a plan with no results yet carried its colour on an inner button sitting inside a neutral card, so the tap target read as a control rather than as the card it actually is
+    - `styledGroupBox(tint:)` colours the whole card instead; the default stays neutral, so no other card in the app changes
+    - the inner button drops its own background — two tinted layers of the same colour drew a visible frame inside a frame
+
+### IOS-00176 Watch dies mid-workout — stop the iPhone claiming it is still running
+    - branch: `dev/IOS-00176/IOS-00176` (from develop)
+    - when the Watch app dies it reports nothing, so the iPhone keeps a Live Activity that says a workout is in progress; the id of that activity lived only in the process that started it, so after a relaunch nothing could end it and it stayed up to the system's own 8/12-hour cap
+    - the app now reconciles at launch, as Apple's guidance says to: with no session to recover, every activity left behind is ended by enumerating them rather than by id — both the workout and the timer banner, since a session shows either one and reaping one strands the other
+    - the sweep only reaps activities older than the launch that runs it: it is detached and can land after the user has already begun a new workout
+    - a thrown recovery query deliberately does NOT sweep — a failure says nothing about whether a workout is running, and a banner ended wrongly is gone while one left standing only goes stale
+    - each activity carries a `staleDate` of fifteen minutes: long enough to outlast HealthKit's batching and a pause, which stops the builder collecting and so looks exactly like silence
+    - stale data gets its own neutral treatment rather than reusing the Watch-disconnect one — that indicator names a device an iPhone-only workout never had, and an orange alarm is the wrong thing to show for a rest between blocks
+    - a mirrored session still cannot be ended from the iPhone: ending it relays to the Watch's primary session and would cut it off before it saves. The escape hatch closes the iPhone side only, and the comment that claimed otherwise now says so
+    - detecting a silent death while the app runs is deliberately left out — it needs a durable watchdog with a multi-minute threshold, and these three changes already remove the visible symptom

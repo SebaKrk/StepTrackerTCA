@@ -175,6 +175,7 @@ extension WorkoutResultsFeature.State {
                     wodType: workout?.type,
                     capMinutes: workout?.timeCap,
                     rounds: workout?.rounds,
+                    repScheme: workout?.repScheme,
                     wasScored: wasScored
                 )
             }
@@ -234,9 +235,9 @@ extension WorkoutResultsFeature.State {
                     : exercise.plannedSets.map { String($0.reduce(0) { $0 + $1.reps }) }
                 let repsLabel = exercise.target?.compactString ?? ladderTotal
 
-                // A round-based WOD repeats the per-round target; Tabata / EMOM totals and
-                // ladders are already whole. Per-side doubles whatever the shape.
-                let repeatsPerRound = [.forTime, .amrap].contains(workout.type) && exercise.plannedSets == nil
+                // A round-based WOD repeats the per-round target; Tabata totals and ladders
+                // are already whole. Per-side doubles whatever the shape.
+                let repeatsPerRound = [.forTime, .amrap, .emom].contains(workout.type) && exercise.plannedSets == nil
                 let multiplier = (repeatsPerRound ? (workout.rounds ?? 1) : 1) * (exercise.perSide ? 2 : 1)
 
                 return ExerciseLogInput(

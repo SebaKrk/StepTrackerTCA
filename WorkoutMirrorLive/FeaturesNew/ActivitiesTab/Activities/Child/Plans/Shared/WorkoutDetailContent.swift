@@ -139,7 +139,11 @@ struct WorkoutDetailContent: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    if let rounds = workout.rounds {
+                    if let ladder = workout.repScheme, !ladder.isEmpty {
+                        Label(ladderDescription(ladder), systemImage: "arrow.clockwise")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if let rounds = workout.rounds {
                         Label("\(rounds) rounds", systemImage: "arrow.clockwise")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -155,7 +159,7 @@ struct WorkoutDetailContent: View {
                 Divider()
 
                 ForEach(workout.exercises) { exercise in
-                    exerciseRow(exercise)
+                    exerciseRow(exercise, type: workout.type)
                 }
 
                 if let notes = workout.notes, !notes.isEmpty {
@@ -189,7 +193,7 @@ struct WorkoutDetailContent: View {
 
     // MARK: - Exercise Row
 
-    private func exerciseRow(_ exercise: ExerciseSession) -> some View {
+    private func exerciseRow(_ exercise: ExerciseSession, type: ExerciseWorkoutType) -> some View {
         HStack(alignment: .top, spacing: 12) {
             Circle()
                 .fill(Color.blue.opacity(0.3))
@@ -244,11 +248,11 @@ struct WorkoutDetailContent: View {
                     }
                 }
 
-                if let sets = exercise.plannedSets, !sets.isEmpty {
+                if type.showsPerSetRows, let sets = exercise.plannedSets, !sets.isEmpty {
                     plannedSetsList(sets)
                 }
 
-                if let note = exerciseNote(exercise) {
+                if let note = exerciseNote(exercise, type: type) {
                     Text(note)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -305,12 +309,12 @@ struct WorkoutDetailContent: View {
         }
     }
 
-    // The set scheme ("3×15") is the first line of `info` (guaranteed by the
-    // mapper whenever plannedSets exists) and is shown as explicit rows above,
-    // so only the remaining note (cue/scaling) renders here.
-    private func exerciseNote(_ exercise: ExerciseSession) -> String? {
+    // The set scheme ("3×15") is the first line of `info` and is shown as explicit
+    // rows above, so only the remaining note (cue/scaling) renders here. A WOD
+    // prints no rows, so its whole note survives.
+    private func exerciseNote(_ exercise: ExerciseSession, type: ExerciseWorkoutType) -> String? {
         guard let info = exercise.info else { return nil }
-        guard let sets = exercise.plannedSets, !sets.isEmpty else { return info }
+        guard type.showsPerSetRows, let sets = exercise.plannedSets, !sets.isEmpty else { return info }
         let remainder = info
             .split(separator: "\n", omittingEmptySubsequences: false)
             .dropFirst()
@@ -475,7 +479,11 @@ struct WorkoutDetailContent: View {
             case let (nil, w?): pair = w
             case (nil, nil): pair = "–"
             }
-            let unit = tier.unit == .percentOfMax ? "%" : " \(tier.unit.rawValue)"
+            let unit: String = switch tier.unit {
+            case .percentOfMax: "%"
+            case .percentOfBodyWeight: String(localized: "% of body weight")
+            case .kg, .lb, .pood: " \(tier.unit.rawValue)"
+            }
             let name = tierTitle(tier.tier)
             return name.isEmpty ? pair + unit : "\(name) \(pair)\(unit)"
         }
@@ -494,6 +502,16 @@ struct WorkoutDetailContent: View {
 
     private func formatLoad(_ value: Double) -> String {
         value.formatted(.number.precision(.fractionLength(0...1)))
+    }
+
+    /// "10→1 · 55" for an unbroken run of rungs; "21-15-9 · 45" when the ladder skips.
+    private func ladderDescription(_ ladder: [Int]) -> String {
+        let total = ladder.reduce(0, +)
+        let isRun = ladder.count > 3 && zip(ladder, ladder.dropFirst()).allSatisfy { $0 - $1 == 1 }
+        let scheme = isRun
+            ? "\(ladder[0])→\(ladder[ladder.count - 1])"
+            : ladder.map(String.init).joined(separator: "-")
+        return "\(scheme) · \(total)"
     }
 
 }

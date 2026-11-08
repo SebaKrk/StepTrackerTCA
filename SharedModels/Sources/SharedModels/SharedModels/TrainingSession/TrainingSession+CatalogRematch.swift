@@ -87,7 +87,8 @@ extension WorkoutSessionNew {
         exercises: [ExerciseSession],
         interval: IntervalPlan?,
         notes: String?,
-        everySeconds: Int?
+        everySeconds: Int?,
+        repScheme: [Int]?
     ) {
         self.id = id
         self.name = name
@@ -98,6 +99,7 @@ extension WorkoutSessionNew {
         self.interval = interval
         self.notes = notes
         self.everySeconds = everySeconds
+        self.repScheme = repScheme
     }
 
     /// Returns a copy with all `.unknown` exercises re-resolved.
@@ -118,7 +120,8 @@ extension WorkoutSessionNew {
             exercises: rematchedExercises,
             interval: interval,
             notes: notes,
-            everySeconds: everySeconds
+            everySeconds: everySeconds,
+            repScheme: repScheme
         )
     }
 }
