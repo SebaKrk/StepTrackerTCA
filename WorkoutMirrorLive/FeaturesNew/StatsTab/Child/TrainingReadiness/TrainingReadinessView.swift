@@ -16,7 +16,11 @@ struct TrainingReadinessView: View {
     
     var body: some View {
         GroupBox {
-            charts
+            if store.isAwaitingSleepData {
+                awaitingSleepData
+            } else {
+                charts
+            }
         } label: {
             HStack {
                 Text("Training Readiness")
@@ -25,11 +29,12 @@ struct TrainingReadinessView: View {
                 Text(store.readinessLabel)
                     .font(.caption)
                     .foregroundStyle(store.readinessLevel.color)
-                    .opacity(store.contentState.isReady ? 1 : 0)
+                    .opacity(isLevelVisible ? 1 : 0)
             }
         }
         .styledGroupBox()
         .frame(height: 120)
+        .animation(.snappy(duration: 0.3), value: store.isAwaitingSleepData)
         .onAppear {
             send(.viewDidAppear)
         }
@@ -50,6 +55,46 @@ struct TrainingReadinessView: View {
 
     }
     
+    /// Shown before the night closes, in place of a score that cannot exist yet.
+    ///
+    /// Laid out by hand rather than with `ContentUnavailableView`: the card is a
+    /// fixed 120pt tall so it lines up with its neighbours, and the system view's
+    /// padding does not fit inside that.
+    private var awaitingSleepData: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "bed.double")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+
+            Text("Waiting for sleep data")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text(awaitingSleepHint)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .multilineTextAlignment(.center)
+        .transition(.opacity)
+    }
+
+    /// Tells the user when the score should appear, when that is known.
+    private var awaitingSleepHint: String {
+        guard let expectedBy = store.sleepDataExpectedBy else {
+            return String(localized: "Your score appears once the night is recorded")
+        }
+
+        let time = expectedBy.formatted(date: .omitted, time: .shortened)
+
+        return String(localized: "Your score appears after \(time)")
+    }
+
+    /// The readiness level only makes sense once a score exists.
+    private var isLevelVisible: Bool {
+        store.contentState.isReady && !store.isAwaitingSleepData
+    }
+
     @ViewBuilder
     private var charts: some View {
         Chart {

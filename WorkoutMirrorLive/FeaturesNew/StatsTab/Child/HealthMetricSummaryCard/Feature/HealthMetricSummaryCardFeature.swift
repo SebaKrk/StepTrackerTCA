@@ -43,12 +43,19 @@ struct HealthMetricSummaryCardFeature {
             case .internal(.loadSummaryData):
                 return .run { send in
                     do {
-                        let result = try await trainingReadinessClient.calculate()
-                        
-                        if result.healthKitAccessDenied {
-                            await send(.internal(.changeContentState(.unauthorized)))
-                        } else {
+                        let outcome = try await trainingReadinessClient.calculate()
+
+                        switch outcome {
+                        case let .ready(result):
                             await send(.internal(.dataLoaded(result.components)))
+
+                        case .accessDenied:
+                            await send(.internal(.changeContentState(.unauthorized)))
+
+                        case .awaitingSleepData, .insufficientData:
+                            // Placeholders rather than an error: these metrics
+                            // simply have nothing to show for the day yet.
+                            await send(.internal(.dataLoaded(nil)))
                         }
                     } catch {
                         // Instead of showing global error, we load nil data to trigger placeholders

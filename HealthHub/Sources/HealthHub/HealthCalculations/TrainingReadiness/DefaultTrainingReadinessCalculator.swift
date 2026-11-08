@@ -37,14 +37,36 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
 
     // MARK: - API
 
-    public func calculateTrainingReadiness() async throws -> TrainingReadinessResult {
-        guard let day = try await dayResolver.resolve() else {
-            throw ReadinessCalculationError.awaitingSleepData(
-                expectedBy: dayResolver.expectedAvailability()
-            )
+    public func calculateReadinessOutcome() async throws -> ReadinessOutcome {
+        let resolver = dayResolver
+
+        guard let day = try await resolver.resolve() else {
+            return .awaitingSleepData(expectedBy: resolver.expectedAvailability())
         }
 
-        return try await calculateTrainingReadiness(for: day)
+        let result = try await calculateTrainingReadiness(for: day)
+
+        if result.healthKitAccessDenied {
+            return .accessDenied
+        }
+
+        if result.hasInsufficientData {
+            return .insufficientData
+        }
+
+        // Persisted here rather than in the feature, so the background observer
+        // path records history too — it is what runs on most mornings. Only days
+        // worth showing are stored; a partial read must not enter the trend.
+        // A failed write must not cost the user today's score.
+        do {
+            try await readinessHistoryClient.save(result, day)
+        } catch {
+            #if DEBUG
+            print("❌ Failed to persist readiness for \(day.dayStart): \(error.localizedDescription)")
+            #endif
+        }
+
+        return .ready(result)
     }
 
     /// Calculates readiness for an already resolved day.
@@ -71,25 +93,12 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
         let overallScore = calculateOverallScore(from: components)
         let isReliable = checkReliability(components: components)
 
-        let result = TrainingReadinessResult(
+        return TrainingReadinessResult(
             overallScore: overallScore,
             components: components,
             calculatedAt: date.now,
             isReliable: isReliable
         )
-
-        // Persisted here rather than in the feature, so the background observer
-        // path records history too — it is what runs on most mornings.
-        // A failed write must not cost the user today's score.
-        do {
-            try await readinessHistoryClient.save(result, day)
-        } catch {
-            #if DEBUG
-            print("❌ Failed to persist readiness for \(day.dayStart): \(error.localizedDescription)")
-            #endif
-        }
-
-        return result
     }
 
     public func getTrainingReadinessHistory(days: Int) async throws -> [TrainingReadinessResult] {

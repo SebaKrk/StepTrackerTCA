@@ -29,11 +29,11 @@ import HealthHub
 @DependencyClient
 public struct TrainingReadinessClient: Sendable {
     
-    /// Calculates current training readiness based on available health data.
+    /// Calculates readiness for the current day, or reports why it cannot.
     ///
-    /// - Returns: `TrainingReadinessResult` containing overall score and component breakdown
+    /// - Returns: `ReadinessOutcome` carrying the score or the reason there is none
     /// - Throws: Errors if HealthKit access fails or calculation encounters issues
-    public var calculate: @Sendable () async throws -> TrainingReadinessResult
+    public var calculate: @Sendable () async throws -> ReadinessOutcome
     
     /// Retrieves historical training readiness data.
     ///
@@ -56,7 +56,7 @@ public enum TrainingReadinessClientKey: DependencyKey {
         
         return TrainingReadinessClient(
             calculate: {
-                return try await calculator.calculateTrainingReadiness()
+                return try await calculator.calculateReadinessOutcome()
             },
             history: { days in
                 try await calculator.getTrainingReadinessHistory(days: days)

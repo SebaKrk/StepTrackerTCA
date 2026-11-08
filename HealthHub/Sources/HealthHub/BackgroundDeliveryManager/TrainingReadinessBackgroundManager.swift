@@ -148,10 +148,14 @@ public actor TrainingReadinessBackgroundManager {
     private func publishReadiness() async {
         do {
             // 1. Calculate training readiness
-            let result = try await calculator.calculateTrainingReadiness()
+            let outcome = try await calculator.calculateReadinessOutcome()
 
-            // 2. Check if we have sufficient data
-            guard !result.hasInsufficientData else {
+            // 2. Only a scored day reaches the widget and the Watch. Waiting on
+            //    sleep is not an error — it just has nothing to publish yet.
+            guard let result = outcome.result else {
+                if case .awaitingSleepData = outcome {
+                    return
+                }
                 await widgetDataClient.clear()
                 return
             }

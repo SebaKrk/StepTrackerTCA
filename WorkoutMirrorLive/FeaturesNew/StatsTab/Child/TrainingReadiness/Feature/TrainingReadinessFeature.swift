@@ -52,6 +52,7 @@ struct TrainingReadinessFeature {
                 
             case let .internal(.readinessCalculated(result)):
                 state.readinessResult = result
+                state.availability = .available
                 return .run {  [tier = state.subscriptionTier] send in
                     Logger.stats.info("[TR-Refresh] readinessCalculated START (saving + color change)")
                     await widgetDataClient.saveReadinessResult(result)
@@ -68,8 +69,17 @@ struct TrainingReadinessFeature {
                     await send(.internal(.changeContentState(.ready(tier))))
                 }
                 
+            case let .internal(.awaitingSleepData(expectedBy)):
+                state.availability = .awaitingSleepData(expectedBy: expectedBy)
+                state.readinessResult = nil
+                state.$color.withLock { $0 = .gray }
+                // Terminal state, not a failure: the card explains the wait
+                // itself, so the "no data / retry" overlay must stay away.
+                return .send(.internal(.changeContentState(.ready(state.subscriptionTier))))
+
             case let .internal(.calculationFailed(error)):
                 state.errorMessage = error
+                state.availability = .available
                 state.$color.withLock { $0 = .gray }
                 return .send(.internal(.changeContentState(.noData)))
                 
@@ -84,19 +94,27 @@ struct TrainingReadinessFeature {
                     Logger.stats.info("[TR-Refresh] anti-flash sleep DONE (500ms), starting HK calc")
 
                     do {
-                        let result = try await trainingReadinessClient.calculate()
-                        Logger.stats.info("[TR-Refresh] HK calc DONE, dispatching readinessCalculated")
-                        
-                        if result.healthKitAccessDenied {
+                        let outcome = try await trainingReadinessClient.calculate()
+                        Logger.stats.info("[TR-Refresh] HK calc DONE, dispatching outcome")
+
+                        switch outcome {
+                        case let .ready(result):
+                            await send(.internal(.readinessCalculated(result)))
+
+                        case let .awaitingSleepData(expectedBy):
+                            // Not an error: the night simply has not ended yet.
+                            // The widget keeps whatever it last showed.
+                            await send(.internal(.awaitingSleepData(expectedBy: expectedBy)))
+
+                        case .insufficientData:
+                            await widgetDataClient.clear()
+                            // Too few components to score. This triggers the overlay
+                            // in the View, which offers a "Refresh" button.
+                            await send(.internal(.changeContentState(.noData)))
+
+                        case .accessDenied:
                             await widgetDataClient.clear()
                             await send(.internal(.changeContentState(.unauthorized)))
-                        } else if result.hasInsufficientData {
-                            await widgetDataClient.clear()
-                            // If data is insufficient (e.g. no RHR/HRV), we enter .noData state.
-                            // This triggers the overlay in the View, which offers a "Refresh" button.
-                            await send(.internal(.changeContentState(.noData)))
-                        } else {
-                            await send(.internal(.readinessCalculated(result)))
                         }
                     } catch {
                         await send(.internal(.calculationFailed(error.localizedDescription)))
@@ -106,8 +124,10 @@ struct TrainingReadinessFeature {
                 // MARK: - View Actions
                 
             case .view(.viewDidAppear):
-                guard state.readinessResult == nil,
-                      state.contentState == .noData else {
+                // Keyed on the absence of a result, not on `.noData`: a morning
+                // spent waiting for sleep data leaves the card in `.ready`, and
+                // the old guard would then never retry once the night closed.
+                guard state.readinessResult == nil else {
                     return .none
                 }
                 return .concatenate(

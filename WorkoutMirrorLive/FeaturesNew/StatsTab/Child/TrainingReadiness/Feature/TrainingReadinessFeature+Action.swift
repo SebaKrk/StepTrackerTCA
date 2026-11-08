@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 /// Implementation of `TrainingReadinessFeature` action
@@ -26,6 +27,9 @@ extension TrainingReadinessFeature {
             /// Action triggered after readiness calculation completes
             case readinessCalculated(TrainingReadinessResult)
             
+            /// Action triggered when the night has not ended yet
+            case awaitingSleepData(expectedBy: Date?)
+
             /// Action triggered when calculation fails
             case calculationFailed(String)
             

@@ -31,6 +31,21 @@ extension TrainingReadinessFeature {
         
         /// Training readiness calculation result
         var readinessResult: TrainingReadinessResult?
+
+        /// Whether a score can exist yet today
+        var availability: ReadinessAvailability = .available
+
+        /// Whether the card should explain that the night is not over yet
+        var isAwaitingSleepData: Bool {
+            if case .awaitingSleepData = availability { return true }
+            return false
+        }
+
+        /// When a result is expected, for the waiting copy
+        var sleepDataExpectedBy: Date? {
+            guard case let .awaitingSleepData(expectedBy) = availability else { return nil }
+            return expectedBy
+        }
         
         /// Error message if calculation fails
         var errorMessage: String?

@@ -10,21 +10,30 @@ import SharedModels
 import ComposableArchitecture
 
 actor DataAnalyzer {
-    
+
+    /// Why an analysis could not be produced.
+    enum AnalysisError: Error {
+
+        /// There is no score to interpret yet — typically the night is still open.
+        case readinessUnavailable
+    }
+
     private let model: SystemLanguageModel = .default
     private let readinessClient: TrainingReadinessClient
-    
+
     var available: Bool {
         model.isAvailable
     }
-    
+
     init(readinessClient: TrainingReadinessClient) {
         self.readinessClient = readinessClient
     }
-    
+
     /// Returns AsyncThrowingStream of String.PartiallyGenerated for real AI responses
     func streamAnalysis() async throws -> AsyncThrowingStream<String.PartiallyGenerated, Error> {
-        let result = try await readinessClient.calculate()
+        guard let result = try await readinessClient.calculate().result else {
+            throw AnalysisError.readinessUnavailable
+        }
         let tool = TrainingReadinessMetricsTool(result: result)
         
         return AsyncThrowingStream { continuation in
@@ -43,30 +52,30 @@ actor DataAnalyzer {
                 Do not guess, do not assume trends, and do not reference past data unless explicitly provided.
                 
                 **CRITICAL: Training Readiness Score Scale (0-100):**
-                The Training Readiness Score is calculated from 4 components with a baseline of 50 points.
+                The Training Readiness Score is calculated from 4 components and normalised
+                against the components actually available that day. A score of 50 means every
+                component sits on the user's own baseline — that is a normal day, not a warning.
                 DO NOT mention point values in your response - only interpret the overall score and components.
                 
                 **CRITICAL: Keep your response concise - maximum 150 words total.**
                 
                 **Overall Score Interpretation:**
-                - 0-30: Critical Recovery Needed
+                - 0-29: Very Poor
                   → Complete rest required. Body is severely fatigued or stressed.
                   → No training recommended. Focus on sleep, nutrition, and stress management.
-                
-                - 31-50: Low Readiness
+
+                - 30-44: Poor
                   → Active recovery only (walking, stretching, light mobility).
                   → Avoid any moderate or high-intensity training.
-                
-                - 51-70: Moderate Readiness
-                  → Light to moderate training intensity acceptable.
-                  → Monitor how you feel during warm-up and adjust accordingly.
-                  → Avoid high-intensity or heavy volume sessions.
-                
-                - 71-85: Good Readiness
-                  → Normal training intensity and volume appropriate.
-                  → Body is well-recovered and ready for standard workouts.
-                
-                - 86-100: Excellent Readiness
+
+                - 45-59: Fair
+                  → A normal day. Train as planned, at the usual intensity and volume.
+                  → This is where most days land; it is not a sign of a problem.
+
+                - 60-79: Good
+                  → Body is well-recovered. Moderate to high intensity appropriate.
+
+                - 80-100: Excellent
                   → Optimal condition for high-intensity training.
                   → Body is fully recovered. Great day for PRs or challenging sessions.
                 
@@ -99,7 +108,7 @@ actor DataAnalyzer {
                 3. **Sleep Quality:**
                    - Measured: Last night's duration
                    - Baseline: 7-night average
-                   - Point range: -10 to +15
+                   - Point range: -15 to +15
                    
                    Interpretation:
                    • 7-9 hours: Optimal recovery
