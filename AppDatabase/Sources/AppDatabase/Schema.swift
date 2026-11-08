@@ -476,6 +476,35 @@ public enum AppDatabaseSchema {
                 .execute(db)
         }
 
+        // Readiness history. Keyed by the readiness day, so recalculating a day
+        // replaces it instead of appending a second row for the same morning.
+        migrator.registerMigration("v18_trainingReadinessHistory") { db in
+            try #sql("""
+                CREATE TABLE "trainingReadinessRecords" (
+                  "id"                        TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "overallScore"              INTEGER NOT NULL,
+                  "algorithmVersion"          INTEGER NOT NULL,
+                  "isReliable"                INTEGER NOT NULL,
+                  "anchor"                    TEXT NOT NULL,
+                  "wakeTime"                  TEXT NOT NULL,
+                  "restingHeartRateScore"     INTEGER,
+                  "restingHeartRateValue"     REAL,
+                  "restingHeartRateBaseline"  REAL,
+                  "hrvScore"                  INTEGER,
+                  "hrvValue"                  REAL,
+                  "hrvBaseline"               REAL,
+                  "sleepScore"                INTEGER,
+                  "sleepValue"                REAL,
+                  "sleepBaseline"             REAL,
+                  "loadScore"                 INTEGER,
+                  "loadValue"                 REAL,
+                  "loadBaseline"              REAL,
+                  "calculatedAt"              TEXT NOT NULL
+                ) STRICT
+                """)
+            .execute(db)
+        }
+
         return migrator
     }
 }

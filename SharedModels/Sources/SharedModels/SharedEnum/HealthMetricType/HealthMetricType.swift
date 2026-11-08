@@ -24,7 +24,30 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
         case .activity: return "flame.fill"
         }
     }
-    
+
+    /// Lowest number of points this component can contribute to readiness.
+    ///
+    /// Lives here rather than in each calculator so the scoring range, the
+    /// widget and the stored history cannot drift apart.
+    public var minScore: Int {
+        switch self {
+        case .rhr: return -15
+        case .hrv: return -15
+        case .sleep: return -15
+        case .activity: return -10
+        }
+    }
+
+    /// Highest number of points this component can contribute to readiness.
+    public var maxScore: Int {
+        switch self {
+        case .rhr: return 15
+        case .hrv: return 15
+        case .sleep: return 15
+        case .activity: return 5
+        }
+    }
+
     public var title: String {
         switch self {
         case .rhr:

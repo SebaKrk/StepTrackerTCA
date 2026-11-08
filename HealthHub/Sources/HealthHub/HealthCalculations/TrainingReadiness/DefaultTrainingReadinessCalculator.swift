@@ -16,6 +16,7 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
 
     @Dependency(\.personalDataManager) var personalDataManager
     @Dependency(\.sleepDataManager) var sleepDataManager
+    @Dependency(\.readinessHistoryClient) var readinessHistoryClient
     @Dependency(\.date) var date
 
     // MARK: - Properties
@@ -70,16 +71,29 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
         let overallScore = calculateOverallScore(from: components)
         let isReliable = checkReliability(components: components)
 
-        return TrainingReadinessResult(
+        let result = TrainingReadinessResult(
             overallScore: overallScore,
             components: components,
             calculatedAt: date.now,
             isReliable: isReliable
         )
+
+        // Persisted here rather than in the feature, so the background observer
+        // path records history too — it is what runs on most mornings.
+        // A failed write must not cost the user today's score.
+        do {
+            try await readinessHistoryClient.save(result, day)
+        } catch {
+            #if DEBUG
+            print("❌ Failed to persist readiness for \(day.dayStart): \(error.localizedDescription)")
+            #endif
+        }
+
+        return result
     }
 
     public func getTrainingReadinessHistory(days: Int) async throws -> [TrainingReadinessResult] {
-        return []
+        try await readinessHistoryClient.history(days)
     }
 
     // MARK: - Private Methods
