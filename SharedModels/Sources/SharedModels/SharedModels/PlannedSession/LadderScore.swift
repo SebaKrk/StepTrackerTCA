@@ -27,14 +27,4 @@ public enum LadderScore {
         let owedToEarlierMovements = movementIndex * rung
         return whole + min(max(extraReps - owedToEarlierMovements, 0), rung)
     }
-
-    /// Reps the next round holds across every movement; `nil` once the ladder is finished.
-    public static func roundSize(
-        ladder: [Int],
-        movementCount: Int,
-        completedRounds: Int
-    ) -> Int? {
-        guard completedRounds >= 0, completedRounds < ladder.count, movementCount > 0 else { return nil }
-        return ladder[completedRounds] * movementCount
-    }
 }

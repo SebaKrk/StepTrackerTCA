@@ -1765,3 +1765,14 @@
     - stale data gets its own neutral treatment rather than reusing the Watch-disconnect one — that indicator names a device an iPhone-only workout never had, and an orange alarm is the wrong thing to show for a rest between blocks
     - a mirrored session still cannot be ended from the iPhone: ending it relays to the Watch's primary session and would cut it off before it saves. The escape hatch closes the iPhone side only, and the comment that claimed otherwise now says so
     - detecting a silent death while the app runs is deliberately left out — it needs a durable watchdog with a multi-minute threshold, and these three changes already remove the visible symptom
+
+### IOS-00177 Volume tells the truth — what is stored is what was done
+    - branch: `dev/IOS-00177/IOS-00177` (from develop)
+    - the per-exercise field meant one thing for For Time and AMRAP (per round), another for EMOM and Tabata (the block's total) and another for Strength (per set), while one formula `rounds ?? 1` was applied to all of them — so reps and volume disagreed about which one was the truth
+    - the invariant now holds everywhere: an exercise stores the athlete's actual total for the whole block, and the plan's round count is spent at prefill instead of surviving as a runtime factor. `volumeMultiplier` is gone, and `volumeLoad` no longer takes one
+    - `RoundScore` carries the arithmetic a flat block needs: rounds times a movement's own share, plus whatever of the partial round reached it. `LadderScore` stays separate — a ladder's round shrinks while every movement shares its size, here it is the other way round, and one signature covers both only by taking a closure
+    - the score tiles now write the reps for an AMRAP and for a capped For Time without a ladder, the way the ladder already did; the unit travels with the number, since after the save the suffix is all that marks calories as calories
+    - a multiplier was never persisted on the log row, so a weightless movement lost it entirely — `volumeLoad` returns nil without a weight. That is why a five-round block of pull-ups charted as one round, in every format, from the beginning
+    - Mobility keeps the round count the mapper used to discard, and spends it the way Strength does: rounds become set rows
+    - the plan editor stops offering a round count for an AMRAP — a format whose rounds are the result cannot carry a prescribed one that anything reads
+    - rows written before this cannot be repaired from the log alone; the multiplier that would disambiguate them survives only inside the parent score's JSON. Backfill is its own ticket

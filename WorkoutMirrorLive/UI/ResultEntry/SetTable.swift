@@ -16,14 +16,31 @@ struct SetTable: View {
 
     // MARK: - Properties
 
+    /// The block's sets in board order; the row number is the position.
     let sets: [SetEntry]
+
+    /// Cells become numeric fields instead of frozen text.
     let isEditing: Bool
+
+    /// The section's accent, marking the heaviest set.
     let accent: Color
+
+    /// A personal record was set here, so the top row earns its chip.
     let isPR: Bool
+
+    /// Drops the kg column entirely — mobility counts reps only.
     var showsWeight: Bool = true
+
+    /// Reports a typed rep count. Required even read-only, so an editable table
+    /// can never compile without a way to save what the athlete types.
     let onReps: (_ setIndex: Int, _ text: String) -> Void
+
+    /// Reports a typed load, required on the same terms as `onReps`.
     let onWeight: (_ setIndex: Int, _ text: String) -> Void
+
+    /// Colors of the surrounding Summary section.
     @Environment(\.summaryPalette) private var theme
+
     // MARK: - Body
 
     var body: some View {
@@ -49,8 +66,8 @@ struct SetTable: View {
 
     private var headerRow: some View {
         HStack(spacing: 0) {
-            headerCell(String(localized: "Set"), width: 52, alignment: .leading)
-            headerCell(String(localized: "Reps"), alignment: .leading)
+            headerCell(String(localized: "Set", bundle: .main), width: 52, alignment: .leading)
+            headerCell(String(localized: "Reps", bundle: .main), alignment: .leading)
             if showsWeight {
                 headerCell("kg", alignment: .trailing)
             }
@@ -89,7 +106,7 @@ struct SetTable: View {
     private func repsCell(index: Int, set: SetEntry, isTop: Bool) -> some View {
         if isEditing {
             numericField(
-                placeholder: String(localized: "Reps"),
+                placeholder: String(localized: "Reps", bundle: .main),
                 text: "\(set.reps)",
                 keyboard: .numberPad,
                 alignment: .leading
@@ -109,14 +126,14 @@ struct SetTable: View {
         if isEditing {
             numericField(
                 placeholder: "kg",
-                text: set.weight.map { formatWeight($0) } ?? "",
+                text: set.weight.map(\.roundedWeightText) ?? "",
                 keyboard: .decimalPad,
                 alignment: .trailing
             ) { onWeight(index, $0) }
             .frame(maxWidth: .infinity, alignment: .trailing)
         } else {
             HStack(spacing: 6) {
-                Text(set.weight.map { formatWeight($0) } ?? "—")
+                Text(set.weight.map(\.roundedWeightText) ?? "—")
                     .font(.system(size: 14, weight: .bold))
                     .monospacedDigit()
                     .foregroundStyle(isTop ? accent : theme.ink)
@@ -168,12 +185,6 @@ struct SetTable: View {
     private func isTopSet(index: Int) -> Bool {
         guard let maxWeight = sets.compactMap(\.weight).max(), maxWeight > 0 else { return false }
         return sets.firstIndex { $0.weight == maxWeight } == index
-    }
-
-    private func formatWeight(_ weight: Double) -> String {
-        weight.truncatingRemainder(dividingBy: 1) == 0
-            ? String(Int(weight))
-            : String(format: "%.1f", weight)
     }
 
     private var prChip: some View {
