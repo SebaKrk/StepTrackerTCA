@@ -363,6 +363,28 @@ public enum ExerciseTarget: Equatable, Codable, Sendable {
         case .laps(let n):     return "\(n) laps"
         }
     }
+
+    /// The bare number, whatever the unit carries it.
+    public var count: Int {
+        switch self {
+        case .reps(let n), .calories(let n), .meters(let n),
+             .seconds(let n), .minutes(let n), .rounds(let n), .laps(let n):
+            return n
+        }
+    }
+
+    /// The same unit holding a different number — one round's work scaled to the whole block.
+    public func with(count: Int) -> ExerciseTarget {
+        switch self {
+        case .reps:     return .reps(count)
+        case .calories: return .calories(count)
+        case .meters:   return .meters(count)
+        case .seconds:  return .seconds(count)
+        case .minutes:  return .minutes(count)
+        case .rounds:   return .rounds(count)
+        case .laps:     return .laps(count)
+        }
+    }
 }
 
 // MARK: - Snapshot

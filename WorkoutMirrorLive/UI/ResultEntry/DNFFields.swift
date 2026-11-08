@@ -18,10 +18,6 @@ struct DNFFields: View {
     let rounds: Int
     let extraReps: Int
 
-    /// Reps the next round holds in total; shown as "4 of 21" so a ladder's round
-    /// number cannot be mistaken for its size. `nil` hides the hint.
-    var extraRepsCeiling: Int?
-
     let onRounds: (Int) -> Void
     let onExtraReps: (Int) -> Void
     @Environment(\.summaryPalette) private var theme
@@ -58,7 +54,6 @@ struct DNFFields: View {
         stepperTile(
             label: String(localized: "Reps in round"),
             value: extraReps,
-            ceiling: extraRepsCeiling,
             onChange: onExtraReps
         )
     }
@@ -66,7 +61,6 @@ struct DNFFields: View {
     private func stepperTile(
         label: String,
         value: Int,
-        ceiling: Int? = nil,
         onChange: @escaping (Int) -> Void
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -78,18 +72,10 @@ struct DNFFields: View {
             HStack(spacing: 8) {
                 stepButton(systemName: "minus") { onChange(max(0, value - 1)) }
                 Spacer(minLength: 0)
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text("\(value)")
-                        .font(.system(size: 24, weight: .heavy))
-                        .monospacedDigit()
-                        .foregroundStyle(theme.ink)
-                    if let ceiling {
-                        Text(String(localized: "of \(ceiling)"))
-                            .font(.system(size: 12, weight: .semibold))
-                            .monospacedDigit()
-                            .foregroundStyle(theme.inkTertiary)
-                    }
-                }
+                Text("\(value)")
+                    .font(.system(size: 24, weight: .heavy))
+                    .monospacedDigit()
+                    .foregroundStyle(theme.ink)
                 Spacer(minLength: 0)
                 stepButton(systemName: "plus") { onChange(value + 1) }
             }

@@ -99,7 +99,6 @@ struct InlineResultEditor: View {
             title: String(localized: "How far did you get before the cap?"),
             rounds: store.dnfRounds,
             extraReps: store.dnfExtraReps,
-            extraRepsCeiling: store.ladderRoundSize,
             onRounds: { send(.updateRounds($0)) },
             onExtraReps: { send(.updateExtraReps($0)) }
         )
@@ -172,8 +171,8 @@ struct InlineResultEditor: View {
                 planLabel(exercise)
             }
             Spacer(minLength: 8)
-            // A ladder's reps follow from the score above, so they are shown, not asked for.
-            if store.ladderOwnedIndices.contains(index) {
+            // Reps that follow from the score above are shown, not asked for.
+            if store.derivedRepsIndices.contains(index) {
                 derivedRepsLabel(exercise)
             } else {
                 actualValueField(index: index, exercise: exercise)
@@ -326,10 +325,20 @@ struct InlineResultEditor: View {
     @ViewBuilder
     private func planLabel(_ exercise: ExerciseLogInput) -> some View {
         if let plannedReps = exercise.plannedReps {
-            Text(String(localized: "Plan: \(plannedReps)"))
+            Text(String(localized: "Plan: \(prescription(exercise, total: plannedReps))"))
                 .font(.system(size: 11))
                 .foregroundStyle(theme.inkTertiary)
         }
+    }
+
+    /// The board's own wording behind the prefilled total: "5 × 10x" says where the
+    /// number beside it came from, which a bare "50x" leaves the athlete to guess.
+    private func prescription(_ exercise: ExerciseLogInput, total: String) -> String {
+        guard let rounds = store.rounds, rounds > 1,
+              exercise.sets == nil,
+              let target = exercise.target
+        else { return total }
+        return "\(rounds) × \(target.compactString)"
     }
 
     private func numericField(

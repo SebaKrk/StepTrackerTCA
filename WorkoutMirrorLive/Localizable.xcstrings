@@ -6308,9 +6308,6 @@
         }
       }
     },
-    "of %lld" : {
-
-    },
     "Off" : {
       "extractionState" : "stale",
       "localizations" : {

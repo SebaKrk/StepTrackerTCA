@@ -69,23 +69,34 @@ struct WODScoringFeature {
             repScheme?.isEmpty == false && wodType == .forTime && wodStatus == .notFinished
         }
 
-        /// Reps the next round holds across every movement; drives the "4 of 21" hint.
-        var ladderRoundSize: Int? {
-            guard let repScheme, ladderDrivesReps else { return nil }
-            return LadderScore.roundSize(
-                ladder: repScheme,
-                movementCount: result.exercises.count,
-                completedRounds: dnfRounds
-            )
+        /// Every round holds the same work, so the score tiles imply each movement's total.
+        ///
+        /// A ladder speaks first where it has something to say: its rounds shrink, and
+        /// the flat arithmetic here would read them all as the first rung.
+        var roundDrivesReps: Bool {
+            guard repScheme?.isEmpty != false else { return false }
+            switch wodType {
+            case .amrap: return true
+            case .forTime: return wodStatus == .notFinished
+            default: return false
+            }
         }
 
-        /// Movements whose reps the ladder currently writes.
+        /// One round's work per movement in board order; zero where the round does not speak for it.
+        var roundSizes: [Int] {
+            result.exercises.indices.map { index in
+                roundOwns(exerciseAt: index) ? (result.exercises[index].target?.count ?? 0) : 0
+            }
+        }
+
+        /// Movements whose reps the score currently writes.
         ///
         /// A property, not a method: the view reaches state through the store's
         /// key-path lookup, which cannot call one.
-        var ladderOwnedIndices: Set<Int> {
-            guard ladderDrivesReps else { return [] }
-            return Set(result.exercises.indices.filter { ladderOwns(exerciseAt: $0) })
+        var derivedRepsIndices: Set<Int> {
+            Set(result.exercises.indices.filter { index in
+                (ladderDrivesReps && ladderOwns(exerciseAt: index)) || roundOwns(exerciseAt: index)
+            })
         }
 
         /// Whether this exercise follows the block's ladder rather than a scheme of its own.
@@ -102,6 +113,18 @@ struct WODScoringFeature {
             default: return false
             }
             return Int(exercise.plannedReps ?? "") == repScheme.reduce(0, +)
+        }
+
+        /// Whether this movement's total follows the block's rounds rather than the athlete's typing.
+        ///
+        /// A movement with written sets carries a total of its own, and a `.rounds`
+        /// target counts rounds rather than work — neither follows the block.
+        func roundOwns(exerciseAt index: Int) -> Bool {
+            guard roundDrivesReps, result.exercises.indices.contains(index) else { return false }
+            let exercise = result.exercises[index]
+            guard exercise.sets?.isEmpty != false, let target = exercise.target else { return false }
+            if case .rounds = target { return false }
+            return target.count > 0
         }
 
         /// ActivityDetails renders cards without editing affordances.
@@ -309,7 +332,7 @@ struct WODScoringFeature {
                 }
                 // Only the way back is synced: flipping TO not-finished must not
                 // stamp an untouched card with the steppers' zeroes.
-                if status == .completed { syncLadderReps(&state) }
+                if status == .completed { syncDerivedReps(&state) }
                 return .none
 
             case .view(.markNotFinishedFromHint):
@@ -318,12 +341,12 @@ struct WODScoringFeature {
 
             case let .view(.updateRounds(rounds)):
                 state.dnfRounds = max(0, rounds)
-                syncLadderReps(&state)
+                syncDerivedReps(&state)
                 return .none
 
             case let .view(.updateExtraReps(reps)):
                 state.dnfExtraReps = max(0, reps)
-                syncLadderReps(&state)
+                syncDerivedReps(&state)
                 return .none
 
             case let .view(.updateDraftMinutes(minutes)):
@@ -385,16 +408,22 @@ struct WODScoringFeature {
         }
     }
 
-    // MARK: - Ladder
+    // MARK: - Derived reps
 
-    /// Writes the reps a rep-ladder WOD implies, so the athlete enters the score once
+    /// Writes the reps the entered score implies, so the athlete states it once
     /// instead of restating it per movement.
     ///
     /// Called only where the athlete expressed a score — never on the flip to
     /// not-finished, which would stamp an untouched card with the steppers' zeroes.
+    private func syncDerivedReps(_ state: inout State) {
+        guard !state.isReadOnly else { return }
+        syncLadderReps(&state)
+        syncRoundReps(&state)
+    }
+
+    /// A ladder's rounds shrink, so each movement's total is the sum of the rungs it reached.
     private func syncLadderReps(_ state: inout State) {
-        guard !state.isReadOnly,
-              state.wodType == .forTime,
+        guard state.wodType == .forTime,
               let ladder = state.repScheme, !ladder.isEmpty
         else { return }
 
@@ -408,6 +437,27 @@ struct WODScoringFeature {
                     extraReps: state.dnfExtraReps
                 )
             state.result.exercises[index].actualReps = "\(reps)"
+        }
+    }
+
+    /// A flat block repeats one round, so each movement's total is its own share of
+    /// the rounds plus whatever of the partial round reached it.
+    ///
+    /// The unit travels with the number: after the save the suffix is the only thing
+    /// marking calories as calories.
+    private func syncRoundReps(_ state: inout State) {
+        guard state.roundDrivesReps else { return }
+        let sizes = state.roundSizes
+
+        for index in state.result.exercises.indices where state.roundOwns(exerciseAt: index) {
+            let total = RoundScore.reps(
+                roundSizes: sizes,
+                movementIndex: index,
+                completedRounds: state.dnfRounds,
+                extraReps: state.dnfExtraReps
+            )
+            state.result.exercises[index].actualReps = state.result.exercises[index].target
+                .map { $0.with(count: total).compactString }
         }
     }
 }
