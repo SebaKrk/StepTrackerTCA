@@ -78,12 +78,14 @@ public final class DefaultTrainingReadinessCalculator: TrainingReadinessCalculat
     /// - Returns: The readiness result for that day
     /// - Throws: HealthKit errors if data access fails
     func calculateTrainingReadiness(for day: ReadinessDay) async throws -> TrainingReadinessResult {
-        let restingHeartRateComponent = try await calculateRestingHeartRateScore(for: day)
-        let hrvComponent = try await calculateHRVScore(for: day)
-        let sleepComponent = try await calculateSleepScore(for: day)
-        let activityLoadComponent = try await calculateActivityLoadScore(for: day)
+        // The four components share no state and each issues its own HealthKit
+        // reads, so running them in sequence only added up their latencies.
+        async let restingHeartRateComponent = calculateRestingHeartRateScore(for: day)
+        async let hrvComponent = calculateHRVScore(for: day)
+        async let sleepComponent = calculateSleepScore(for: day)
+        async let activityLoadComponent = calculateActivityLoadScore(for: day)
 
-        let components = TrainingReadinessComponents(
+        let components = try await TrainingReadinessComponents(
             restingHeartRate: restingHeartRateComponent,
             heartRateVariability: hrvComponent,
             sleepQuality: sleepComponent,

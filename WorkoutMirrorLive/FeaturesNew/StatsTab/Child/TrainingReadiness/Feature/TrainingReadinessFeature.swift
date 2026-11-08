@@ -86,15 +86,15 @@ struct TrainingReadinessFeature {
             case .internal(.loadReadinessData):
                 return .run { send in
                     Logger.stats.info("[TR-Refresh] loadReadinessData START")
-                    // Anti-flash skeleton: ensure loading state is visible for at least 500ms
-                    // (industry-standard minimum visibility duration) even if HK calculation
-                    // is fast. Without this, skeleton may flash and disappear before the user
-                    // perceives any loading state.
-                    try await clock.sleep(for: .milliseconds(500))
-                    Logger.stats.info("[TR-Refresh] anti-flash sleep DONE (500ms), starting HK calc")
+                    // Anti-flash skeleton: keep the loading state visible for at
+                    // least 500ms even when the calculation is fast. Started
+                    // alongside the calculation, not before it, so it sets a
+                    // floor on perceived latency instead of adding to it.
+                    async let minimumVisibility: Void = clock.sleep(for: .milliseconds(500))
 
                     do {
                         let outcome = try await trainingReadinessClient.calculate()
+                        try await minimumVisibility
                         Logger.stats.info("[TR-Refresh] HK calc DONE, dispatching outcome")
 
                         switch outcome {

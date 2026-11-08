@@ -32,15 +32,20 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
     public func getAverageSleepHours(
         in windows: [ClosedRange<Date>]
     ) async throws -> HealthKitData? {
-        var nightlyValues: [Double] = []
+        guard let start = windows.map(\.lowerBound).min(),
+              let end = windows.map(\.upperBound).max() else {
+            return nil
+        }
 
-        for window in windows {
-            let intervals = try await asleepIntervals(in: window)
-            let hours = totalAsleepHours(in: intervals)
+        // One query spanning every night, then grouped in memory. Seven nights
+        // used to mean seven round trips to HealthKit for a single baseline.
+        let allIntervals = try await asleepIntervals(in: start...end)
 
-            if hours > 0 {
-                nightlyValues.append(hours)
-            }
+        let nightlyValues: [Double] = windows.compactMap { window in
+            let nightIntervals = allIntervals.filter { window.contains($0.start) }
+            let hours = totalAsleepHours(in: nightIntervals)
+
+            return hours > 0 ? hours : nil
         }
 
         guard !nightlyValues.isEmpty else { return nil }
