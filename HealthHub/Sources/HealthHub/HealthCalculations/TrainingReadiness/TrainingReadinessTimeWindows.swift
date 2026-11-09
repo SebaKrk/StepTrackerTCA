@@ -23,9 +23,6 @@ import SharedModels
 /// ```
 struct TrainingReadinessTimeWindows {
 
-    /// How long after waking the Watch may still write the day's resting heart rate.
-    private static let restingHeartRateGrace: TimeInterval = 2 * 60 * 60
-
     /// Hour the fallback night window ends at when no sleep was recorded.
     static let fallbackWakeHour = 10
 
@@ -48,13 +45,27 @@ struct TrainingReadinessTimeWindows {
 
     /// Returns the window a resting heart rate reading is accepted from.
     ///
-    /// Extends past waking because the Watch writes the daily resting heart rate
-    /// once it has processed the night, not at the moment of waking.
+    /// Resting heart rate is a per-day aggregate the Watch stamps with the start
+    /// of the day it describes, not a moment measured during the night, so the
+    /// window is a whole calendar day rather than a slice around waking.
     ///
-    /// - Parameter day: The readiness day being calculated
-    /// - Returns: Range from falling asleep to shortly after waking
-    static func restingHeartRateWindow(for day: ReadinessDay) -> ClosedRange<Date> {
-        day.nightWindow.lowerBound...day.wakeTime.addingTimeInterval(restingHeartRateGrace)
+    /// It stops at the readiness day's own midnight on purpose: today's sample
+    /// does not exist until the Watch has processed today, and letting it appear
+    /// part-way through the day would move a score already on screen.
+    ///
+    /// - Parameters:
+    ///   - day: The readiness day being calculated
+    ///   - calendar: Calendar used to resolve day boundaries
+    /// - Returns: Range covering the day before the readiness day
+    static func restingHeartRateWindow(
+        for day: ReadinessDay,
+        calendar: Calendar = .current
+    ) -> ClosedRange<Date> {
+        guard let start = calendar.date(byAdding: .day, value: -1, to: day.dayStart) else {
+            return day.dayStart...day.dayStart
+        }
+
+        return start...day.dayStart.addingTimeInterval(-1)
     }
 
     /// Returns the full calendar day preceding the readiness day.
@@ -76,22 +87,31 @@ struct TrainingReadinessTimeWindows {
         return start...end.addingTimeInterval(-1)
     }
 
-    /// Returns one range per preceding calendar day, used for activity baselines.
+    /// Returns one range per preceding calendar day.
     ///
-    /// Starts at one day back: the day being scored must never be part of the
-    /// baseline it is compared against.
+    /// Used for every signal the system aggregates per day — resting heart rate
+    /// and activity load — so both are measured the same way.
     ///
     /// - Parameters:
-    ///   - count: How many preceding days to cover
+    ///   - count: How many days to cover
     ///   - day: The readiness day being calculated
+    ///   - skipped: How many days to leave out directly before the readiness day
     ///   - calendar: Calendar used to resolve day boundaries
     /// - Returns: Ranges ordered from most recent to oldest
+    ///
+    /// - Note: Pass `skipping: 1` for a baseline whose measured value is already
+    ///   yesterday's aggregate — otherwise the day being scored sits inside the
+    ///   baseline it is compared against and dilutes its own deviation.
     static func previousDays(
         count: Int,
         before day: ReadinessDay,
+        skipping skipped: Int = 0,
         calendar: Calendar = .current
     ) -> [ClosedRange<Date>] {
-        (1...max(count, 1)).compactMap { dayOffset in
+        let first = max(skipped, 0) + 1
+        let last = first + max(count, 1) - 1
+
+        return (first...last).compactMap { dayOffset in
             guard let start = calendar.date(byAdding: .day, value: -dayOffset, to: day.dayStart),
                   let end = calendar.date(byAdding: .day, value: 1, to: start) else {
                 return nil
@@ -124,26 +144,6 @@ struct TrainingReadinessTimeWindows {
         }
     }
 
-    /// Returns one resting heart rate window per preceding day.
-    ///
-    /// Mirrors `restingHeartRateWindow(for:)` so the baseline is measured the same
-    /// way as the value compared against it.
-    ///
-    /// - Parameters:
-    ///   - count: How many preceding days to cover
-    ///   - day: The readiness day being calculated
-    ///   - calendar: Calendar used to resolve day boundaries
-    /// - Returns: Ranges ordered from most recent to oldest
-    static func previousRestingHeartRateWindows(
-        count: Int,
-        before day: ReadinessDay,
-        calendar: Calendar = .current
-    ) -> [ClosedRange<Date>] {
-        previousNights(count: count, before: day, calendar: calendar).map { night in
-            night.lowerBound...night.upperBound.addingTimeInterval(restingHeartRateGrace)
-        }
-    }
-
     /// Returns the clock-based night window for a day with no recorded sleep.
     ///
     /// - Parameters:
@@ -161,9 +161,16 @@ struct TrainingReadinessTimeWindows {
             of: dayStart
         ) else { return nil }
 
-        let hoursBack = (24 - fallbackSleepHour) + fallbackWakeHour
-
-        guard let start = calendar.date(byAdding: .hour, value: -hoursBack, to: end) else {
+        // Set on the previous day rather than subtracted as absolute hours: on a
+        // daylight-saving night the subtraction yields 21:00 or 19:00 and makes
+        // one night of the baseline pool span an hour more or less than the rest.
+        guard let previousDay = calendar.date(byAdding: .day, value: -1, to: dayStart),
+              let start = calendar.date(
+                  bySettingHour: fallbackSleepHour,
+                  minute: 0,
+                  second: 0,
+                  of: previousDay
+              ) else {
             return nil
         }
 

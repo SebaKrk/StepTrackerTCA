@@ -21,11 +21,18 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
     @Dependency(\.sleepDataManager) var sleepDataManager
     @Dependency(\.readinessHistoryClient) var readinessHistoryClient
     @Dependency(\.date) var date
+    @Dependency(\.calendar) var calendar
 
     // MARK: - Properties
 
-    /// How many preceding days each component compares itself against.
+    /// How many days with data a baseline needs.
     let baselineDayCount = 7
+
+    /// How far back to look for those days.
+    ///
+    /// A gap no longer shrinks the baseline, it only reaches further back — the
+    /// same shape Apple uses for overnight vitals (7 nights out of 49).
+    let baselinePoolDays = 49
 
     /// Resolves which day is being scored, and whether it can be scored yet.
     ///
@@ -33,6 +40,12 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
     private var dayResolver: ReadinessDayResolver {
         ReadinessDayResolver()
     }
+
+    /// How many days of history a rebuild reaches back over.
+    ///
+    /// Two months is enough for the trend chart to mean something from the first
+    /// launch, without turning the rebuild into a long job.
+    let backfillDayCount = 60
 
     // MARK: - Lifecycle
 
@@ -110,7 +123,112 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
         try await readinessHistoryClient.history(days)
     }
 
+    /// Baseline windows shaped like the night the day was measured over.
+    ///
+    /// A sleep-anchored day reads HRV and sleep from the session itself, so its
+    /// baseline has to be sessions too. Comparing roughly seven asleep hours
+    /// against fourteen-hour clock windows that also cover the evening and the
+    /// morning awake biased every comparison the same way — HRV is lower awake,
+    /// so the difference read as a surplus that was not there, and that surplus
+    /// is what pushes a day across a level boundary.
+    ///
+    /// A clock-anchored day has no session to measure, so both sides stay
+    /// clock-shaped and the comparison is consistent again.
+    ///
+    /// - Parameter day: The readiness day being calculated
+    /// - Returns: Baseline windows, newest first
+    /// - Throws: HealthKit errors if sleep data cannot be read
+    func baselineNightWindows(for day: ReadinessDay) async throws -> [ClosedRange<Date>] {
+        let pool = TrainingReadinessTimeWindows.previousNights(
+            count: baselinePoolDays,
+            before: day,
+            calendar: calendar
+        )
+
+        guard day.sleepSession != nil else { return pool }
+
+        guard let searchStart = pool.map(\.lowerBound).min(),
+              let searchEnd = pool.map(\.upperBound).max() else {
+            return []
+        }
+
+        let sessions = try await sleepDataManager.nightSessions(
+            in: searchStart...searchEnd,
+            calendar: calendar
+        )
+
+        // Mapped over the pool rather than over the dictionary, so the result keeps
+        // the pool's newest-first order that `takingFirst` depends on.
+        return pool.compactMap { night in
+            sessions[calendar.startOfDay(for: night.upperBound)]
+                .map { $0.start...$0.end }
+        }
+    }
+
+    public func rebuildHistoryIfNeeded() async throws -> Int {
+        // The version flag lives outside the database, so a migration that clears
+        // the table can leave the flag claiming a rebuild that no longer exists.
+        // An empty history is therefore its own reason to rebuild.
+        let isRebuilt = readinessHistoryClient.backfilledVersion() >= ReadinessAlgorithm.currentVersion
+        let hasHistory = try await !readinessHistoryClient.history(backfillDayCount).isEmpty
+
+        guard !isRebuilt || !hasHistory else { return 0 }
+
+        guard let count = try await rebuildHistory(days: backfillDayCount) else {
+            // Access was refused, so there is nothing to conclude about history.
+            // Marking the version here would retire the rebuild for good the one
+            // time it ran before the user granted permission.
+            return 0
+        }
+
+        // Marked even when nothing was written: permission was granted and there
+        // simply is no history, so retrying every launch would never end.
+        readinessHistoryClient.setBackfilledVersion(ReadinessAlgorithm.currentVersion)
+
+        return count
+    }
+
     // MARK: - Private Methods
+
+    /// Scores every day in the window and writes them in one batch.
+    ///
+    /// - Parameter days: How many days back to rebuild
+    /// - Returns: How many days had enough data to store, or `nil` when HealthKit
+    ///   refused access — a property of the store, not of any one day
+    private func rebuildHistory(days: Int) async throws -> Int? {
+        let resolver = dayResolver
+        let today = calendar.startOfDay(for: date.now)
+
+        var scored: [ReadinessDayResult] = []
+
+        // Sequential on purpose: each day issues a handful of HealthKit reads, and
+        // a task group spanning two months floods the daemon without buying time.
+        for dayOffset in 1...max(days, 1) {
+            try Task.checkCancellation()
+
+            guard let dayStart = calendar.date(byAdding: .day, value: -dayOffset, to: today),
+                  let day = try await resolver.resolve(forDayStartingAt: dayStart) else {
+                continue
+            }
+
+            let result = try await calculateTrainingReadiness(for: day)
+
+            // Access is all-or-nothing, so one refusal ends the whole rebuild
+            // rather than quietly producing an empty history.
+            if result.healthKitAccessDenied { return nil }
+
+            // Same bar as a live calculation: a partial day must not enter the trend.
+            guard !result.hasInsufficientData else { continue }
+
+            scored.append(ReadinessDayResult(result: result, day: day))
+        }
+
+        guard !scored.isEmpty else { return 0 }
+
+        try await readinessHistoryClient.saveMany(scored)
+
+        return scored.count
+    }
 
     /// Combines component scores into a 0-100 readiness score.
     ///

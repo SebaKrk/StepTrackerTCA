@@ -30,16 +30,26 @@ extension DefaultTrainingReadinessCalculator {
     /// - Heavy training (130-180%): -5 points (moderate fatigue)
     /// - Very heavy training (180%+): -10 points (significant fatigue, recovery needed)
     func calculateActivityLoadScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
-        guard let window = TrainingReadinessTimeWindows.previousDay(for: day),
+        guard let window = TrainingReadinessTimeWindows.previousDay(
+                  for: day,
+                  calendar: calendar
+              ),
               let previousLoad = try await personalDataManager.getActiveEnergy(in: window) else {
             return nil
         }
 
+        // `skipping: 1` because the measured value IS yesterday — without it the
+        // day being scored sits inside its own baseline and dilutes its deviation.
         let baselineWindows = TrainingReadinessTimeWindows.previousDays(
-            count: baselineDayCount,
-            before: day
+            count: baselinePoolDays,
+            before: day,
+            skipping: 1,
+            calendar: calendar
         )
-        let baselineLoad = try await personalDataManager.getAverageActiveEnergy(in: baselineWindows)
+        let baselineLoad = try await personalDataManager.getAverageActiveEnergy(
+            in: baselineWindows,
+            takingFirst: baselineDayCount
+        )
 
         let score = calculateLoadComponentScore(
             current: previousLoad.value,

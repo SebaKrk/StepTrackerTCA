@@ -366,7 +366,10 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     /// - Parameter windows: One range per day to average over
     /// - Returns: A `HealthKitData` object containing average RHR in bpm, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    public func getAverageRestingHeartRate(in windows: [ClosedRange<Date>]) async throws -> HealthKitData? {
+    public func getAverageRestingHeartRate(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData? {
 
         // One query spanning every window, then grouped in memory. Seven windows
         // used to mean seven round trips to HealthKit for a single baseline.
@@ -377,16 +380,82 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
 
         let unit = HKUnit.count().unitDivided(by: .minute())
 
+        // `last`, not `first`: the samples are oldest-first and the measured value
+        // takes the newest reading of its day. Picking the oldest here compared two
+        // different quantities whenever a second source also writes this type.
         let allValues: [Double] = windows.compactMap { window in
             samples
-                .first { window.contains($0.startDate) }
+                .last { window.contains($0.startDate) }
                 .map { $0.quantity.doubleValue(for: unit) }
         }
 
-        guard !allValues.isEmpty else { return nil }
+        // Newest first, so this keeps the most recent days that have a reading
+        // and treats the rest of the pool as a reserve for gaps.
+        let used = Array(allValues.prefix(max(count, 1)))
 
-        let average = allValues.reduce(0, +) / Double(allValues.count)
+        guard !used.isEmpty else { return nil }
+
+        let average = used.reduce(0, +) / Double(used.count)
         return HealthKitData(date: windows.first?.upperBound ?? Date(), value: average)
+    }
+
+    /// Sums active energy per calendar day across the span the windows cover.
+    ///
+    /// HealthKit does the bucketing, so overlapping and out-of-order samples are
+    /// apportioned the same way the Health app reports them.
+    ///
+    /// - Parameter windows: Windows the caller will group the result by
+    /// - Returns: Day start to total kilocalories, for days that burned anything
+    private func dailyActiveEnergyTotals(
+        covering windows: [ClosedRange<Date>]
+    ) async throws -> [Date: Double] {
+        guard let start = windows.map(\.lowerBound).min(),
+              let end = windows.map(\.upperBound).max() else {
+            return [:]
+        }
+
+        let healthStore = manager.healthStore
+        let calendar = Calendar.current
+        let anchor = calendar.startOfDay(for: start)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: start,
+            end: end,
+            options: .strictStartDate
+        )
+
+        let collection: HKStatisticsCollection? = try await withCheckedThrowingContinuation {
+            (continuation: CheckedContinuation<HKStatisticsCollection?, Error>) in
+            let query = HKStatisticsCollectionQuery(
+                quantityType: HKQuantityType(.activeEnergyBurned),
+                quantitySamplePredicate: predicate,
+                options: .cumulativeSum,
+                anchorDate: anchor,
+                intervalComponents: DateComponents(day: 1)
+            )
+
+            query.initialResultsHandler = { _, results, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: results)
+                }
+            }
+
+            healthStore.execute(query)
+        }
+
+        guard let collection else { return [:] }
+
+        var totals: [Date: Double] = [:]
+
+        collection.enumerateStatistics(from: anchor, to: end) { statistics, _ in
+            guard let sum = statistics.sumQuantity() else { return }
+
+            totals[calendar.startOfDay(for: statistics.startDate)] =
+                sum.doubleValue(for: .kilocalorie())
+        }
+
+        return totals
     }
 
     /// Reads every sample of a type across the span the windows cover.
@@ -466,7 +535,10 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     /// - Parameter windows: One range per night to average over
     /// - Returns: A `HealthKitData` object containing average HRV in milliseconds, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    public func getAverageHRV(in windows: [ClosedRange<Date>]) async throws -> HealthKitData? {
+    public func getAverageHRV(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData? {
         // One query spanning every window, then grouped in memory — see
         // `quantitySamples(of:covering:)`.
         let samples = try await quantitySamples(
@@ -486,9 +558,13 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             return total / Double(nightSamples.count)
         }
 
-        guard !allValues.isEmpty else { return nil }
+        // Newest first, so this keeps the most recent nights that have samples
+        // and treats the rest of the pool as a reserve for gaps.
+        let used = Array(allValues.prefix(max(count, 1)))
 
-        let average = allValues.reduce(0, +) / Double(allValues.count)
+        guard !used.isEmpty else { return nil }
+
+        let average = used.reduce(0, +) / Double(used.count)
         return HealthKitData(date: windows.first?.upperBound ?? Date(), value: average)
     }
     
@@ -575,36 +651,33 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
     /// - Parameter windows: One range per day to average over
     /// - Returns: A `HealthKitData` object containing average daily energy in kcal, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    public func getAverageActiveEnergy(in windows: [ClosedRange<Date>]) async throws -> HealthKitData? {
-        // Each day is a separate cumulative sum, so they cannot be collapsed into
-        // one query the way sample reads can — but they are independent, and
-        // running them concurrently turns seven latencies into roughly one.
-        let dailyValues: [Double] = try await withThrowingTaskGroup(
-            of: Double?.self
-        ) { group in
-            for window in windows {
-                group.addTask {
-                    try await self.getActiveEnergyForDay(
-                        dayStart: window.lowerBound,
-                        dayEnd: window.upperBound
-                    )
-                }
+    public func getAverageActiveEnergy(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData? {
+        // One statistics collection bucketed per day by HealthKit itself. A task
+        // group of one query per window was acceptable for a seven-day baseline
+        // and does not scale to a 49-day pool, let alone a history backfill.
+        // A task group also loses ordering, which `takingFirst` depends on.
+        let totals = try await dailyActiveEnergyTotals(covering: windows)
+        let calendar = Calendar.current
+
+        let dailyValues: [Double] = windows.compactMap { window in
+            guard let value = totals[calendar.startOfDay(for: window.lowerBound)],
+                  value > 0 else {
+                return nil
             }
 
-            var values: [Double] = []
-
-            for try await value in group {
-                if let value, value > 0 {
-                    values.append(value)
-                }
-            }
-
-            return values
+            return value
         }
 
-        guard !dailyValues.isEmpty else { return nil }
+        // Newest first, so this keeps the most recent days that burned anything
+        // and treats the rest of the pool as a reserve for gaps.
+        let used = Array(dailyValues.prefix(max(count, 1)))
 
-        let average = dailyValues.reduce(0, +) / Double(dailyValues.count)
+        guard !used.isEmpty else { return nil }
+
+        let average = used.reduce(0, +) / Double(used.count)
         return HealthKitData(date: windows.first?.upperBound ?? Date(), value: average)
     }
     

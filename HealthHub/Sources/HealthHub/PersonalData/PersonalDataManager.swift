@@ -188,10 +188,16 @@ public protocol PersonalDataManager: Sendable {
     /// Only windows with a reading contribute, so a missing day lowers the sample
     /// count rather than the mean.
     ///
-    /// - Parameter windows: One range per day to average over
+    /// - Parameters:
+    ///   - windows: One range per day to average over, newest first
+    ///   - count: How many windows with data are enough; extras are a reserve the
+    ///     averaging falls back on when recent ones are empty
     /// - Returns: A `HealthKitData` object containing average RHR in bpm, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getAverageRestingHeartRate(in windows: [ClosedRange<Date>]) async throws -> HealthKitData?
+    func getAverageRestingHeartRate(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData?
 
     /// Retrieves average heart rate variability within a window.
     ///
@@ -205,10 +211,16 @@ public protocol PersonalDataManager: Sendable {
 
     /// Retrieves average heart rate variability across the given windows.
     ///
-    /// - Parameter windows: One range per night to average over
+    /// - Parameters:
+    ///   - windows: One range per night to average over, newest first
+    ///   - count: How many windows with data are enough; extras are a reserve the
+    ///     averaging falls back on when recent ones are empty
     /// - Returns: A `HealthKitData` object containing average HRV in milliseconds, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getAverageHRV(in windows: [ClosedRange<Date>]) async throws -> HealthKitData?
+    func getAverageHRV(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData?
 
     /// Retrieves total active energy burned within a window.
     ///
@@ -219,10 +231,16 @@ public protocol PersonalDataManager: Sendable {
 
     /// Retrieves average daily active energy across the given windows.
     ///
-    /// - Parameter windows: One range per day to average over
+    /// - Parameters:
+    ///   - windows: One range per day to average over, newest first
+    ///   - count: How many windows with data are enough; extras are a reserve the
+    ///     averaging falls back on when recent ones are empty
     /// - Returns: A `HealthKitData` object containing average daily energy in kcal, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getAverageActiveEnergy(in windows: [ClosedRange<Date>]) async throws -> HealthKitData?
+    func getAverageActiveEnergy(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData?
     
     /// DEBUG: Lists all RHR measurements from the last 7 days
     func debugListAllRHR() async throws

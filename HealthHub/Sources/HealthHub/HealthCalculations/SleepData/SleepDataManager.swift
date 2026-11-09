@@ -27,7 +27,7 @@ import SharedModels
 /// let intervals = try await sleepManager.getSleepIntervals(in: searchStart...now)
 ///
 /// // Baseline across the preceding nights
-/// if let average = try await sleepManager.getAverageSleepHours(in: nightWindows) {
+/// if let average = try await sleepManager.getAverageSleepHours(in: nightWindows, takingFirst: 7) {
 ///     print("Average sleep: \(average.value) hours")
 /// }
 /// ```
@@ -50,16 +50,38 @@ public protocol SleepDataManager: Sendable {
     /// Only nights with data contribute to the average, so a missing night lowers
     /// the sample count rather than the mean.
     ///
-    /// - Parameter windows: One range per night to average over
+    /// - Parameters:
+    ///   - windows: One range per night to average over, newest first
+    ///   - count: How many windows with data are enough; extras are a reserve the
+    ///     averaging falls back on when recent ones are empty
     /// - Returns: A `HealthKitData` object containing average sleep in hours, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
     /// ## Example
     /// ```swift
-    /// let windows = TrainingReadinessTimeWindows.previousNights(count: 7, before: day)
-    /// let baseline = try await getAverageSleepHours(in: windows)
+    /// let windows = TrainingReadinessTimeWindows.previousNights(count: 49, before: day)
+    /// let baseline = try await getAverageSleepHours(in: windows, takingFirst: 7)
     /// ```
-    func getAverageSleepHours(in windows: [ClosedRange<Date>]) async throws -> HealthKitData?
+    func getAverageSleepHours(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData?
+
+    /// Returns each day's night session across a range, keyed by the day it ended.
+    ///
+    /// One query for the whole range. A baseline for a signal sampled during sleep
+    /// has to be shaped like the measured night — a session, not a clock window —
+    /// and one query per night does not scale to a 49-night pool or a rebuild.
+    ///
+    /// - Parameters:
+    ///   - window: Range covering every day to resolve
+    ///   - calendar: Calendar used to resolve day boundaries
+    /// - Returns: Day start to the night session that ended on that day
+    /// - Throws: HealthKit errors if data access fails
+    func nightSessions(
+        in window: ClosedRange<Date>,
+        calendar: Calendar
+    ) async throws -> [Date: SleepSession]
     
     /// Retrieves sleep duration data for each of the last N nights as individual data points.
     ///

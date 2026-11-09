@@ -14,13 +14,16 @@ extension DefaultTrainingReadinessCalculator {
 
     /// Calculates training readiness score based on resting heart rate data.
     ///
-    /// Compares the night's resting heart rate against a 7-day baseline to determine
-    /// cardiovascular recovery status. Lower RHR relative to baseline indicates
-    /// better recovery and training readiness.
+    /// Compares the last closed day's resting heart rate against a baseline to
+    /// determine cardiovascular recovery status. Lower RHR relative to baseline
+    /// indicates better recovery and training readiness.
     ///
     /// ## Time Windows
-    /// - Current: the night being assessed, plus a grace period for the Watch to write it
-    /// - Baseline: same window across the 7 preceding days, excluding the day being scored
+    /// - Current: the whole calendar day before the readiness day — the Watch writes
+    ///   resting heart rate as a per-day aggregate stamped with that day's start,
+    ///   not as a measurement taken during the night
+    /// - Baseline: the same whole-day window, 7 days with data drawn from the 49
+    ///   preceding days, starting two days back so the measured day is excluded
     ///
     /// - Parameter day: The readiness day being calculated
     /// - Returns: `TrainingComponentScore` with RHR contribution, or `nil` if data unavailable
@@ -33,17 +36,27 @@ extension DefaultTrainingReadinessCalculator {
     /// - RHR moderately elevated: -5 points (suboptimal recovery)
     /// - RHR significantly elevated: -15 points (poor recovery)
     func calculateRestingHeartRateScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
-        let window = TrainingReadinessTimeWindows.restingHeartRateWindow(for: day)
+        let window = TrainingReadinessTimeWindows.restingHeartRateWindow(
+            for: day,
+            calendar: calendar
+        )
 
         guard let currentRHR = try await personalDataManager.getRestingHeartRate(in: window) else {
             return nil
         }
 
-        let baselineWindows = TrainingReadinessTimeWindows.previousRestingHeartRateWindows(
-            count: baselineDayCount,
-            before: day
+        // `skipping: 1` because the measured value is already yesterday's
+        // aggregate — without it the day would sit inside its own baseline.
+        let baselineWindows = TrainingReadinessTimeWindows.previousDays(
+            count: baselinePoolDays,
+            before: day,
+            skipping: 1,
+            calendar: calendar
         )
-        let baselineRHR = try await personalDataManager.getAverageRestingHeartRate(in: baselineWindows)
+        let baselineRHR = try await personalDataManager.getAverageRestingHeartRate(
+            in: baselineWindows,
+            takingFirst: baselineDayCount
+        )
 
         let score = calculateHeartRateScore(
             current: currentRHR.value,

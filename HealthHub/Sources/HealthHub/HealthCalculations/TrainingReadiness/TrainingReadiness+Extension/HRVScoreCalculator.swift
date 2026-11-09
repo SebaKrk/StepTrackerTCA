@@ -35,11 +35,11 @@ extension DefaultTrainingReadinessCalculator {
             return nil
         }
 
-        let baselineWindows = TrainingReadinessTimeWindows.previousNights(
-            count: baselineDayCount,
-            before: day
+        let baselineWindows = try await baselineNightWindows(for: day)
+        let baselineHRV = try await personalDataManager.getAverageHRV(
+            in: baselineWindows,
+            takingFirst: baselineDayCount
         )
-        let baselineHRV = try await personalDataManager.getAverageHRV(in: baselineWindows)
 
         let score = calculateHRVComponentScore(
             current: currentHRV.value,

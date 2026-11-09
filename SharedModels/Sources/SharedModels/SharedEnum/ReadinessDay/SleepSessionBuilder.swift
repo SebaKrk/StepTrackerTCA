@@ -39,6 +39,12 @@ public enum SleepSessionBuilder {
     /// sessions; a longer gap means a separate sleep, such as an afternoon nap.
     public static let defaultMaxGap: TimeInterval = 60 * 60
 
+    /// Shortest session that still counts as a night.
+    ///
+    /// Below this it is a nap, or an evening HealthKit has not finished writing —
+    /// either way not something a day should be scored against.
+    public static let defaultMinimumNightDuration: TimeInterval = 3 * 60 * 60
+
     /// Groups intervals into sessions, newest last.
     ///
     /// - Parameters:
@@ -80,13 +86,15 @@ public enum SleepSessionBuilder {
     ///   - cutoff: Moment the session has to have ended before
     ///   - maxGap: Largest gap that still belongs to the same session
     /// - Returns: The latest closed session, or `nil` when there is none
-    public static func latestClosedSession(
+    public static func nightSession(
         from intervals: [Interval],
         endedBefore cutoff: Date,
+        minimumDuration: TimeInterval = defaultMinimumNightDuration,
         maxGap: TimeInterval = defaultMaxGap
     ) -> SleepSession? {
         sessions(from: intervals, maxGap: maxGap)
-            .last { $0.end <= cutoff }
+            .filter { $0.end <= cutoff && $0.asleepDuration >= minimumDuration }
+            .max { $0.asleepDuration < $1.asleepDuration }
     }
 
     // MARK: - Private Helpers

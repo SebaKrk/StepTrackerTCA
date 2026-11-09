@@ -13,9 +13,11 @@ import SQLiteData
 
 /// SQLite record for one day's training readiness score.
 ///
-/// The primary key is the readiness day itself — midnight of the day the user
-/// woke up — with `ON CONFLICT REPLACE`, so recalculating a day simply overwrites
-/// it and there is no separate upsert path to get wrong.
+/// The primary key is the readiness day as a calendar date (`yyyy-MM-dd`) with
+/// `ON CONFLICT REPLACE`, so recalculating a day simply overwrites it and there
+/// is no separate upsert path to get wrong. A date rather than a stored instant:
+/// an instant carries a time zone offset and would split one local day into two
+/// rows once the user travels. See `ReadinessDayKey`.
 ///
 /// Not `CloudKitSyncable` on purpose: every row is derived from HealthKit and can
 /// be recomputed on a new device, so it is a local cache of history rather than
@@ -29,8 +31,8 @@ public struct TrainingReadinessRecord: Identifiable, Sendable {
 
     // MARK: - Properties
 
-    /// Midnight of the day this score belongs to — the day the user woke up.
-    public var id: Date
+    /// The day this score belongs to, as `yyyy-MM-dd`.
+    public var id: String
 
     /// Overall readiness score from 0 to 100.
     public var overallScore: Int
@@ -94,7 +96,7 @@ public struct TrainingReadinessRecord: Identifiable, Sendable {
     /// Creates a readiness record.
     ///
     /// - Parameters:
-    ///   - id: Midnight of the readiness day
+    ///   - id: The readiness day as `yyyy-MM-dd`
     ///   - overallScore: Overall score from 0 to 100
     ///   - algorithmVersion: Version of the rules that produced it
     ///   - isReliable: Whether enough components were available
@@ -114,7 +116,7 @@ public struct TrainingReadinessRecord: Identifiable, Sendable {
     ///   - loadBaseline: Active energy baseline
     ///   - calculatedAt: When the row was written
     public init(
-        id: Date,
+        id: String,
         overallScore: Int,
         algorithmVersion: Int,
         isReliable: Bool,

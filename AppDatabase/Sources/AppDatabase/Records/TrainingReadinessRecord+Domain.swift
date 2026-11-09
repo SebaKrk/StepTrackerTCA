@@ -22,7 +22,7 @@ public extension TrainingReadinessRecord {
         let components = result.components
 
         self.init(
-            id: day.dayStart,
+            id: ReadinessDayKey.key(for: day.dayStart),
             overallScore: result.overallScore,
             algorithmVersion: algorithmVersion,
             isReliable: result.isReliable,
@@ -49,7 +49,8 @@ public extension TrainingReadinessRecord {
     ///
     /// `calculatedAt` carries the readiness day rather than the write timestamp:
     /// charts plot results by that property, and a day has to land on the day it
-    /// describes, not on the moment the row happened to be written.
+    /// describes, not on the moment the row happened to be written. A key that
+    /// cannot be parsed falls back to `wakeTime`, which is on the same day.
     func toDomain() -> TrainingReadinessResult {
         TrainingReadinessResult(
             overallScore: overallScore,
@@ -79,7 +80,7 @@ public extension TrainingReadinessRecord {
                     baseline: loadBaseline
                 )
             ),
-            calculatedAt: id,
+            calculatedAt: ReadinessDayKey.dayStart(from: id) ?? wakeTime,
             isReliable: isReliable
         )
     }

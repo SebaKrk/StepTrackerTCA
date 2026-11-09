@@ -49,6 +49,44 @@ struct ReadinessDayResolver {
         return clockAnchoredDay(now: now)
     }
 
+    /// Resolves a day that has already closed, for rebuilding history.
+    ///
+    /// Differs from `resolve()` in two ways, both because the day is in the past:
+    /// it never withholds a result waiting for the night to end, and it ignores
+    /// `maximumSessionAge` — an old session is precisely what it is looking for.
+    ///
+    /// - Parameter dayStart: Midnight of the day to resolve
+    /// - Returns: The resolved day, or `nil` if its boundaries cannot be built
+    /// - Throws: HealthKit errors if sleep data cannot be read
+    func resolve(forDayStartingAt dayStart: Date) async throws -> ReadinessDay? {
+        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart),
+              let searchStart = calendar.date(
+                  byAdding: .second,
+                  value: -Int(lookback),
+                  to: dayEnd
+              ) else { return nil }
+
+        let intervals = try await sleepDataManager.getSleepIntervals(in: searchStart...dayEnd)
+
+        if let session = SleepSessionBuilder.nightSession(
+            from: intervals,
+            endedBefore: dayEnd
+        ), calendar.isDate(session.end, inSameDayAs: dayStart) {
+            return ReadinessDay(
+                dayStart: dayStart,
+                nightWindow: session.start...session.end,
+                anchor: .sleep(session)
+            )
+        }
+
+        guard let window = TrainingReadinessTimeWindows.fallbackNightWindow(
+            endingOn: dayStart,
+            calendar: calendar
+        ) else { return nil }
+
+        return ReadinessDay(dayStart: dayStart, nightWindow: window, anchor: .clock)
+    }
+
     /// When a result is expected to become available, for the waiting state.
     ///
     /// - Returns: End of the fallback night window, or `nil` if it cannot be resolved
@@ -72,7 +110,7 @@ struct ReadinessDayResolver {
 
         let intervals = try await sleepDataManager.getSleepIntervals(in: searchStart...now)
 
-        guard let session = SleepSessionBuilder.latestClosedSession(
+        guard let session = SleepSessionBuilder.nightSession(
             from: intervals,
             endedBefore: now
         ) else { return nil }

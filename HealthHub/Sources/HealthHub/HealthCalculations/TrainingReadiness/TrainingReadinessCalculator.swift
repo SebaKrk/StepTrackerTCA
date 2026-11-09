@@ -74,6 +74,21 @@ public protocol TrainingReadinessCalculator: Sendable {
     /// - Results are calculated on-demand rather than cached
     /// - Consider limiting requests to reasonable ranges (7-30 days) for optimal UX
     func getTrainingReadinessHistory(days: Int) async throws -> [TrainingReadinessResult]
+
+    /// Rebuilds stored history from HealthKit, when it has not been built for the
+    /// current algorithm version.
+    ///
+    /// A readiness day is derived entirely from HealthKit and from boundaries that
+    /// already happened, so scoring a past day gives the same answer today as it
+    /// would have given that morning. That makes history recomputable rather than
+    /// something that has to accumulate a day at a time.
+    ///
+    /// Also the answer to a version bump: rows written by older rules are not
+    /// comparable with new ones, and this is what makes them comparable again.
+    ///
+    /// - Returns: How many days were written, zero when nothing was needed
+    /// - Throws: HealthKit errors if data access fails
+    func rebuildHistoryIfNeeded() async throws -> Int
 }
 
 

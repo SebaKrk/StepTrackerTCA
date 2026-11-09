@@ -17,6 +17,10 @@ public actor TrainingReadinessBackgroundManager {
     
     private let backgroundDeliveryManager: BackgroundDeliveryManager
     private let calculator: TrainingReadinessCalculator
+
+    /// The one-off history rebuild, tracked so it can be cancelled and so a
+    /// second `start()` cannot launch a rebuild alongside a running one.
+    private var rebuildTask: Task<Void, Never>?
     private let widgetDataClient: WidgetDataClient
     private let watchConnectivityManager: WatchConnectivityManager
 
@@ -76,12 +80,44 @@ public actor TrainingReadinessBackgroundManager {
                 }
             }
         }
+
+        // Detached from start(): a one-off catch-up must not delay registering
+        // background delivery, and it has no bearing on whether that succeeded.
+        // Guarded rather than cancel-and-restart: restarting would throw away a
+        // rebuild that is most of the way through sixty days of HealthKit reads.
+        guard rebuildTask == nil else { return }
+
+        rebuildTask = Task { [calculator] in
+            do {
+                let days = try await calculator.rebuildHistoryIfNeeded()
+
+                #if DEBUG
+                if days > 0 {
+                    print("✅ [Readiness] history rebuilt from HealthKit: \(days) days")
+                }
+                #endif
+            } catch {
+                #if DEBUG
+                print("⚠️ [Readiness] history rebuild failed: \(error)")
+                #endif
+            }
+
+            await self.clearRebuildTask()
+        }
+    }
+
+    /// Releases the rebuild slot once the rebuild has finished.
+    private func clearRebuildTask() {
+        rebuildTask = nil
     }
     
     /// Stops all background observations.
     public func stop() async throws {
         observationTask?.cancel()
         observationTask = nil
+
+        rebuildTask?.cancel()
+        rebuildTask = nil
         
         try await backgroundDeliveryManager.disable(for: observedTypes)
     }

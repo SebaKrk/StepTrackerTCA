@@ -35,11 +35,11 @@ extension DefaultTrainingReadinessCalculator {
             return nil
         }
 
-        let baselineWindows = TrainingReadinessTimeWindows.previousNights(
-            count: baselineDayCount,
-            before: day
+        let baselineWindows = try await baselineNightWindows(for: day)
+        let baselineSleep = try await sleepDataManager.getAverageSleepHours(
+            in: baselineWindows,
+            takingFirst: baselineDayCount
         )
-        let baselineSleep = try await sleepDataManager.getAverageSleepHours(in: baselineWindows)
 
         let score = calculateSleepComponentScore(
             current: currentHours,
@@ -65,7 +65,7 @@ extension DefaultTrainingReadinessCalculator {
             return session.asleepHours > 0 ? session.asleepHours : nil
         }
 
-        let measured = try await sleepDataManager.getAverageSleepHours(in: [day.nightWindow])
+        let measured = try await sleepDataManager.getAverageSleepHours(in: [day.nightWindow], takingFirst: 1)
 
         return measured?.value
     }

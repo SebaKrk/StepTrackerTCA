@@ -505,6 +505,17 @@ public enum AppDatabaseSchema {
             .execute(db)
         }
 
+        migrator.registerMigration("v19_readinessDayKeyAsCalendarDate") { db in
+            // The key changed from a stored instant to a calendar date, so old
+            // keys neither sort nor compare against new ones. Every row is
+            // derived from HealthKit and the backfill rebuilds them, which is
+            // cheaper and safer than translating offsets that may no longer hold.
+            try #sql("""
+                DELETE FROM "trainingReadinessRecords"
+                """)
+            .execute(db)
+        }
+
         return migrator
     }
 }
