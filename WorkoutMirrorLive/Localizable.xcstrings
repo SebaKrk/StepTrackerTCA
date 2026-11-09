@@ -3757,6 +3757,16 @@
         }
       }
     },
+    "estimated" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "szacunkowo"
+          }
+        }
+      }
+    },
     "every %lld min" : {
       "localizations" : {
         "pl" : {
@@ -4498,6 +4508,7 @@
       }
     },
     "hours" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -9615,6 +9626,16 @@
         }
       }
     },
+    "Waiting for sleep data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czekam na dane ze snu"
+          }
+        }
+      }
+    },
     "Waiting for Watch workout..." : {
       "localizations" : {
         "pl" : {
@@ -10352,6 +10373,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twój wynik"
+          }
+        }
+      }
+    },
+    "Your score appears after %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik pojawi się po %@"
+          }
+        }
+      }
+    },
+    "Your score appears once the night is recorded" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik pojawi się, gdy noc zostanie zapisana"
           }
         }
       }

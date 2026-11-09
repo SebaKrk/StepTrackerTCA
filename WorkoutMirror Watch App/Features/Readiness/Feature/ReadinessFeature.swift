@@ -39,7 +39,7 @@ struct ReadinessFeature {
                 return .none
 
             case .view(.scoreTapped):
-                guard let snapshot = state.snapshot, snapshot.isReliable else { return .none }
+                guard let snapshot = state.snapshot else { return .none }
                 state.details = ReadinessDetailsFeature.State(snapshot: snapshot)
                 return .none
 

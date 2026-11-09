@@ -66,10 +66,22 @@ struct TrainingReadinessView: View {
 
     /// The level name, hidden rather than removed so the header does not reflow.
     private var readinessLevelLabel: some View {
-        Text(store.readinessLabel)
+        Text(readinessLevelText)
             .font(.caption)
-            .foregroundStyle(store.readinessLevel.color)
+            .foregroundStyle(
+                store.isResultProvisional ? Color.secondary : store.readinessLevel.color
+            )
             .opacity(store.isReadinessLevelVisible ? 1 : 0)
+    }
+
+    /// Level name, qualified when the score rests on partial data.
+    ///
+    /// Said in the same line rather than a second row: the card is a fixed height
+    /// and another row would push the chart out of it.
+    private var readinessLevelText: String {
+        guard store.isResultProvisional else { return store.readinessLabel }
+
+        return "\(store.readinessLabel) · \(String(localized: "estimated", bundle: .main))"
     }
 
     /// Shown before the night closes, in place of a score that cannot exist yet.

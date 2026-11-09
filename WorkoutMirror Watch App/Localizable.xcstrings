@@ -141,6 +141,16 @@
         }
       }
     },
+    "estimated" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "szacunkowo"
+          }
+        }
+      }
+    },
     "pts" : {
       "localizations" : {
         "pl" : {

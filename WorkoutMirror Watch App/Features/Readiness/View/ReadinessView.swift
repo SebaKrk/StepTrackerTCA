@@ -29,7 +29,7 @@ struct ReadinessView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                if let snapshot = store.snapshot, snapshot.isReliable {
+                if let snapshot = store.snapshot {
                     scoreContent(for: snapshot)
                 } else {
                     noDataView
@@ -66,12 +66,25 @@ struct ReadinessView: View {
     }
 
     private func levelLabel(for snapshot: ReadinessSnapshot) -> some View {
-        Text(snapshot.result.readinessLevel.title)
+        Text(levelText(for: snapshot))
             .font(.caption2.bold())
-            .foregroundStyle(snapshot.result.readinessLevel.color)
+            .foregroundStyle(
+                snapshot.isReliable ? snapshot.result.readinessLevel.color : Color.secondary
+            )
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Level name, qualified when the score rests on partial data.
+    ///
+    /// Matches the phone: a score built on two components is shown and marked,
+    /// not withheld — withholding it here while the phone shows it told the user
+    /// their two devices disagreed.
+    private func levelText(for snapshot: ReadinessSnapshot) -> String {
+        guard !snapshot.isReliable else { return snapshot.result.readinessLevel.title }
+
+        return "\(snapshot.result.readinessLevel.title) · \(String(localized: "estimated"))"
     }
 
     private func freshnessLabel(for snapshot: ReadinessSnapshot) -> some View {

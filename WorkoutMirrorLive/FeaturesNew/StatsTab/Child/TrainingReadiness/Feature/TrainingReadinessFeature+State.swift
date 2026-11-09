@@ -77,6 +77,11 @@ extension TrainingReadinessFeature {
         var isReliable: Bool {
             readinessResult?.isReliable ?? false
         }
+
+        /// Whether there is a score, but on too few components to state plainly
+        var isResultProvisional: Bool {
+            readinessResult != nil && !isReliable
+        }
     }
     
 }
