@@ -110,30 +110,32 @@ public struct TrainingComponentScore: Sendable, Equatable {
 
 extension TrainingComponentScore {
     
-    /// Computed status based on the score's position within the min-max range.
+    /// Share of a component's own range above which its effect counts as strong.
+    private static let strongEffectShare = 0.7
+
+    /// How this component moves today's readiness.
     ///
-    /// Divides the score range into four equal quartiles:
-    /// - Bottom 25%: Poor
-    /// - Second 25%: Below Average
-    /// - Third 25%: Good
-    /// - Top 25%: Excellent
+    /// Derived from the sign of the score, not from its position in the range:
+    /// zero means the component sits on its own baseline, which is neutral and
+    /// has to read as neutral. Splitting the range into quartiles put zero in the
+    /// second one, so the most ordinary outcome was shown as a warning.
+    ///
+    /// Strength is measured against the component's own headroom, because they
+    /// are not comparable: activity can only contribute +5 where sleep can give
+    /// +15, so a flat point threshold would call the same effort strong in one
+    /// component and marginal in another.
     public var status: ScoreStatus {
-        let totalRange = maxScore - minScore
-        let quarterRange = Double(totalRange) / 4.0
-        
-        let boundary1 = minScore + Int(quarterRange)
-        let boundary2 = minScore + Int(quarterRange * 2)
-        let boundary3 = minScore + Int(quarterRange * 3)
-        
-        if score <= boundary1 {
-            return .poor
-        } else if score <= boundary2 {
-            return .belowAverage
-        } else if score <= boundary3 {
-            return .good
-        } else {
-            return .excellent
+        guard score != 0 else { return .neutral }
+
+        if score > 0 {
+            let strongFrom = Double(maxScore) * Self.strongEffectShare
+
+            return Double(score) >= strongFrom ? .stronglyRaises : .raises
         }
+
+        let strongFrom = Double(minScore) * Self.strongEffectShare
+
+        return Double(score) <= strongFrom ? .stronglyLowers : .lowers
     }
 }
 

@@ -39,7 +39,14 @@ struct TrainingReadinessView: View {
              onRetryTapped: {
                  send(.retryButtonTapped)
              })
-
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.explanation,
+                action: \.destination.explanation
+            )
+        ) { explanationStore in
+            ReadinessExplanationView(store: explanationStore)
+        }
     }
     
     /// Either the waiting explanation or the score itself.
@@ -48,11 +55,15 @@ struct TrainingReadinessView: View {
         if store.isAwaitingSleepData {
             awaitingSleepData
         } else {
-            charts
+            VStack(alignment: .trailing, spacing: 2) {
+                charts
+
+                readinessLevelLabel
+            }
         }
     }
 
-    /// Card title and, once there is a score, its level.
+    /// Card title and the way into the explanation.
     private var header: some View {
         HStack {
             Text("Training Readiness", bundle: .main)
@@ -60,11 +71,30 @@ struct TrainingReadinessView: View {
 
             Spacer()
 
-            readinessLevelLabel
+            infoButton
         }
     }
 
-    /// The level name, hidden rather than removed so the header does not reflow.
+    /// Opens the explanation of what the number is and is not.
+    ///
+    /// The score carries no context on the card — a bare 55 says nothing about
+    /// where it came from or what it leaves out, and this is the only place to
+    /// say that the figures are indicative.
+    private var infoButton: some View {
+        Button {
+            send(.infoButtonTapped)
+        } label: {
+            Image(systemName: "info.circle")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// The level name, hidden rather than removed so the card does not reflow.
+    ///
+    /// Sits under the chart rather than in the heading, so it is read together
+    /// with the value it describes instead of at the far edge of the card.
     private var readinessLevelLabel: some View {
         Text(readinessLevelText)
             .font(.caption)

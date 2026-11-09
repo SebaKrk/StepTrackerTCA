@@ -804,6 +804,16 @@
         }
       }
     },
+    "Lowers" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obniża"
+          }
+        }
+      }
+    },
     "Male" : {
       "localizations" : {
         "pl" : {
@@ -984,6 +994,16 @@
         }
       }
     },
+    "No effect" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bez wpływu"
+          }
+        }
+      }
+    },
     "No heart rate data available. Check Health app." : {
       "localizations" : {
         "pl" : {
@@ -1110,6 +1130,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyciskania"
+          }
+        }
+      }
+    },
+    "Raises" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podnosi"
           }
         }
       }
@@ -1396,6 +1426,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Siła"
+          }
+        }
+      }
+    },
+    "Strongly lowers" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mocno obniża"
+          }
+        }
+      }
+    },
+    "Strongly raises" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mocno podnosi"
           }
         }
       }

@@ -89,7 +89,7 @@ struct HealthMetricSummaryCardView: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
                 currentValueLabel(data)
-                currentStatusLabel(for: metric, data: data)
+                currentStatusLabel(data)
             }
             Spacer()
             chartView(data)
@@ -121,23 +121,20 @@ struct HealthMetricSummaryCardView: View {
         }
     }
     
-    func currentStatusLabel(for metric: HealthMetricType, data: TrainingComponentScore) -> some View {
+    /// How this component moves readiness, in the same words for every metric.
+    ///
+    /// Activity used to branch into `ActivityStatus`, which describes the size of
+    /// the training load instead of its effect — three tiles spoke about effect
+    /// and the fourth about load, in one row. The load wording still belongs in
+    /// the details sheet, where there is room to say both.
+    func currentStatusLabel(_ data: TrainingComponentScore) -> some View {
         HStack(spacing: 4) {
-            if metric == .activity, let activityStatus = data.asActivityStatus {
-                Image(systemName: activityStatus.icon)
-                    .foregroundColor(activityStatus.color)
-                    .font(.caption)
-                Text(activityStatus.title)
-                    .font(.caption)
-                    .foregroundColor(activityStatus.color)
-            } else {
-                Image(systemName: data.status.icon)
-                    .foregroundColor(data.status.color)
-                    .font(.caption)
-                Text(data.status.text)
-                    .font(.caption)
-                    .foregroundColor(data.status.color)
-            }
+            Image(systemName: data.status.icon)
+                .foregroundColor(data.status.color)
+                .font(.caption)
+            Text(data.status.text)
+                .font(.caption)
+                .foregroundColor(data.status.color)
         }
     }
     

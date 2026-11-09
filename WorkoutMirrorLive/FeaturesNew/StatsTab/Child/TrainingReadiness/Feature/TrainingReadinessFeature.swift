@@ -180,12 +180,22 @@ struct TrainingReadinessFeature {
                 
             case .view(.retryButtonTapped):
                 return .send(.delegate(.refreshRequested))
+
+            case .view(.infoButtonTapped):
+                state.destination = .explanation(ReadinessExplanationFeature.State())
+                return .none
+
+                // MARK: - Destination Actions
+
+            case .destination:
+                return .none
                 
             case .delegate(.refreshRequested),
                  .delegate(.refreshDidComplete):
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
         //._printChanges()
     }
 

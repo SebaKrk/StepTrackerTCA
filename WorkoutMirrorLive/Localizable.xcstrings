@@ -94,6 +94,166 @@
         }
       }
     },
+    "50 means every signal sits at your usual level. That is normal, not a warning. Above 50 you are better recovered than usual, below it — less." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 oznacza, że każdy sygnał jest na Twoim zwykłym poziomie. To stan normalny, nie ostrzeżenie. Powyżej 50 jesteś lepiej wyregenerowany niż zwykle, poniżej — gorzej."
+          }
+        }
+      }
+    },
+    "A single number from 0 to 100 saying how much your body can take today. It compares you against yourself, not against anyone else." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedna liczba od 0 do 100, która mówi, ile organizm udźwignie dzisiaj. Porównuje Cię do Ciebie samego, nie do innych."
+          }
+        }
+      }
+    },
+    "Every signal is compared against 7 days that have data, looked for across the last 49. A week without the Watch makes the app reach further back instead of averaging fewer days." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Każdy sygnał porównujemy do 7 dni z danymi, szukanych w ostatnich 49. Tydzień bez zegarka sprawia, że aplikacja sięga głębiej w historię, zamiast liczyć średnią z mniejszej liczby dni."
+          }
+        }
+      }
+    },
+    "Heart rate variability" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmienność rytmu serca"
+          }
+        }
+      }
+    },
+    "How much yesterday's training left for today." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ile wczorajszy trening zostawił na dziś."
+          }
+        }
+      }
+    },
+    "Sleep" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sen"
+          }
+        }
+      }
+    },
+    "The score knows nothing about stress, alcohol, medication or crossing time zones — only about their traces in the signals. If it says you are ready and you feel broken, trust yourself." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik nic nie wie o stresie, alkoholu, lekach ani podróży przez strefy czasowe — zna tylko ich ślady w sygnałach. Jeśli mówi, że jesteś gotowy, a czujesz się rozbity, zaufaj sobie."
+          }
+        }
+      }
+    },
+    "These figures are indicative. They are not a diagnosis and not medical advice." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To dane poglądowe. Nie są diagnozą ani poradą medyczną."
+          }
+        }
+      }
+    },
+    "What it does not know" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czego nie wie"
+          }
+        }
+      }
+    },
+    "What it is built from" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z czego się składa"
+          }
+        }
+      }
+    },
+    "What the number means" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co znaczy ta liczba"
+          }
+        }
+      }
+    },
+    "Where your baseline comes from" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skąd bierze się Twoja norma"
+          }
+        }
+      }
+    },
+    "Whether the night was long enough, and how it compares with your own average." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy noc była wystarczająco długa i jak wypada na tle Twojej średniej."
+          }
+        }
+      }
+    },
+    "Whether your heart has returned to rest." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy serce wróciło do spoczynku."
+          }
+        }
+      }
+    },
+    "Whether your nervous system is rested." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy układ nerwowy jest wypoczęty."
+          }
+        }
+      }
+    },
+    "Yesterday's load" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczorajsze obciążenie"
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "pl" : {

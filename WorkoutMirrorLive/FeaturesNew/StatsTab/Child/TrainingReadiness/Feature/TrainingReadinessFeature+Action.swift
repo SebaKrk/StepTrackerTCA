@@ -63,8 +63,15 @@ extension TrainingReadinessFeature {
             
             /// Action triggered when retry button is tapped
             case retryButtonTapped
+
+            /// Action triggered when the explanation button is tapped
+            case infoButtonTapped
         }
         
+        // MARK: - Destination Action
+
+        case destination(PresentationAction<Destination.Action>)
+
         // MARK: - Delegate Action
         
         case delegate(Delegate)

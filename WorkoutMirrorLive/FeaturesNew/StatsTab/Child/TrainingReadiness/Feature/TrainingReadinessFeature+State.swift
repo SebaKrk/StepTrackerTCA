@@ -26,6 +26,9 @@ extension TrainingReadinessFeature {
         ///
         var requiredTier: SubscriptionTier = .pro
         
+        /// Presented explanation of how the score is produced
+        @Presents var destination: Destination.State?
+
         ////
         var contentState: ContentState = .noData
         
