@@ -47,7 +47,7 @@ public enum ScoreStatus: Sendable, Equatable {
         case .lowers:
             return String(localized: "Lowers", bundle: .module)
         case .neutral:
-            return String(localized: "No effect", bundle: .module)
+            return String(localized: "Unchanged", bundle: .module)
         case .raises:
             return String(localized: "Raises", bundle: .module)
         case .stronglyRaises:
@@ -67,11 +67,16 @@ public enum ScoreStatus: Sendable, Equatable {
     }
 
     /// Color associated with the status.
+    ///
+    /// Deliberately the same five colours `ReadinessLevel` uses, in the same
+    /// order: yellow is the middle of the overall scale, so a component sitting
+    /// on its baseline has to be yellow too. Grey would have made "the middle"
+    /// mean one colour on the gauge and another on the tiles.
     public var color: Color {
         switch self {
         case .stronglyLowers: return .red
         case .lowers: return .orange
-        case .neutral: return .secondary
+        case .neutral: return .yellow
         case .raises: return .mint
         case .stronglyRaises: return .green
         }

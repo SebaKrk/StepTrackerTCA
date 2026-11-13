@@ -28,14 +28,18 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             let dateOfBirthComponents = try manager.healthStore.dateOfBirthComponents()
 
             guard let birthDate = Calendar.current.date(from: dateOfBirthComponents) else {
+                #if DEBUG
                 print("Failed to create date from components")
+                #endif
                 return nil
             }
 
             let calendar = Calendar.current
             return calendar.dateComponents([.year], from: birthDate, to: Date()).year
         } catch {
+            #if DEBUG
             print("Failed to fetch age: \(error)")
+            #endif
             return nil
         }
     }
@@ -46,7 +50,9 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             let dateOfBirthComponents = try manager.healthStore.dateOfBirthComponents()
             return Calendar.current.date(from: dateOfBirthComponents)
         } catch {
+            #if DEBUG
             print("Failed to fetch birth date: \(error)")
+            #endif
             return nil
         }
     }
@@ -63,7 +69,9 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             @unknown default: return .unknown
             }
         } catch {
+            #if DEBUG
             print("Failed to fetch biological sex: \(error)")
+            #endif
             return nil
         }
     }
@@ -105,7 +113,9 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
             unit: .gramUnit(with: .kilo),
             options: .discreteAverage
         )
+        #if DEBUG
         print("📊 Weight result: \(processedData.last?.value ?? -1) kg")
+        #endif
         
         return processedData.last
     }
@@ -458,6 +468,21 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         return totals
     }
 
+    public func heartRateCoverage(in window: ClosedRange<Date>) async throws -> ClosedRange<Date>? {
+        let samples = try await quantitySamples(
+            of: HKQuantityType(.heartRate),
+            covering: [window]
+        )
+
+        guard let first = samples.first?.startDate,
+              let last = samples.last?.endDate,
+              last > first else {
+            return nil
+        }
+
+        return first...last
+    }
+
     /// Reads every sample of a type across the span the windows cover.
     ///
     /// Returns them sorted by start date so callers can slice per window without
@@ -721,7 +746,9 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         }
         
         if results.isEmpty {
+            #if DEBUG
             print("❌ No RHR data found at all in last 7 days!")
+            #endif
         }
     }
     

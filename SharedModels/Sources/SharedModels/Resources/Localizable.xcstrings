@@ -11,32 +11,12 @@
         }
       }
     },
-    "14 Days" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "14 dni"
-          }
-        }
-      }
-    },
     "1–2 days recovery" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "1–2 dni regeneracji"
-          }
-        }
-      }
-    },
-    "28 Days" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "28 dni"
           }
         }
       }
@@ -77,6 +57,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "7 dni"
+          }
+        }
+      }
+    },
+    "14 Days" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 dni"
+          }
+        }
+      }
+    },
+    "28 Days" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "28 dni"
           }
         }
       }
@@ -173,6 +173,7 @@
       }
     },
     "Below Average" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -362,6 +363,16 @@
         }
       }
     },
+    "day" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dzień"
+          }
+        }
+      }
+    },
     "Deadlifts" : {
       "localizations" : {
         "pl" : {
@@ -407,17 +418,18 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pełna gotowość"
+            "value" : "Doskonała"
           }
         }
       }
     },
     "Fair" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Umiarkowana"
+            "value" : "Typowa"
           }
         }
       }
@@ -509,36 +521,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gimnastyka"
-          }
-        }
-      }
-    },
-    "HR Recovery" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regeneracja tętna"
-          }
-        }
-      }
-    },
-    "HR Recovery measures how many beats per minute (bpm) your heart rate drops in the first minute after stopping exercise.\n\nFaster recovery indicates better cardiovascular fitness and a more responsive autonomic nervous system.\n\nFormula:\nHR Recovery = Max HR during workout − HR after 1 minute\n\nTypical values:\n• < 12 bpm: Poor\n• 12–20 bpm: Average\n• 20–30 bpm: Good\n• 30–40 bpm: Very Good\n• > 40 bpm: Excellent" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Regeneracja Tętna mierzy o ile uderzeń na minutę (bpm) spada Twoje tętno w pierwszej minucie po zakończeniu ćwiczeń.\n\nSzybsza regeneracja wskazuje na lepszą sprawność układu krążenia i bardziej responsywny układ autonomiczny.\n\nWzór:\nRegeneracja Tętna = Maks. tętno podczas treningu − Tętno po 1 minucie\n\nTypowe wartości:\n• < 12 bpm: Słaba\n• 12–20 bpm: Przeciętna\n• 20–30 bpm: Dobra\n• 30–40 bpm: Bardzo dobra\n• > 40 bpm: Doskonała"
-          }
-        }
-      }
-    },
-    "HRV" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HRV"
           }
         }
       }
@@ -673,6 +655,56 @@
         }
       }
     },
+    "hours" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "godziny"
+          }
+        }
+      }
+    },
+    "HR Recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja tętna"
+          }
+        }
+      }
+    },
+    "HR Recovery measures how many beats per minute (bpm) your heart rate drops in the first minute after stopping exercise.\n\nFaster recovery indicates better cardiovascular fitness and a more responsive autonomic nervous system.\n\nFormula:\nHR Recovery = Max HR during workout − HR after 1 minute\n\nTypical values:\n• < 12 bpm: Poor\n• 12–20 bpm: Average\n• 20–30 bpm: Good\n• 30–40 bpm: Very Good\n• > 40 bpm: Excellent" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeneracja Tętna mierzy o ile uderzeń na minutę (bpm) spada Twoje tętno w pierwszej minucie po zakończeniu ćwiczeń.\n\nSzybsza regeneracja wskazuje na lepszą sprawność układu krążenia i bardziej responsywny układ autonomiczny.\n\nWzór:\nRegeneracja Tętna = Maks. tętno podczas treningu − Tętno po 1 minucie\n\nTypowe wartości:\n• < 12 bpm: Słaba\n• 12–20 bpm: Przeciętna\n• 20–30 bpm: Dobra\n• 30–40 bpm: Bardzo dobra\n• > 40 bpm: Doskonała"
+          }
+        }
+      }
+    },
+    "hrTSS" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hrTSS"
+          }
+        }
+      }
+    },
+    "HRV" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HRV"
+          }
+        }
+      }
+    },
     "In WOD" : {
       "localizations" : {
         "pl" : {
@@ -733,6 +765,16 @@
         }
       }
     },
+    "Light activity, active recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lekka aktywność, aktywna regeneracja"
+          }
+        }
+      }
+    },
     "Light Effort" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -740,16 +782,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lekki wysiłek"
-          }
-        }
-      }
-    },
-    "Light activity, active recovery" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lekka aktywność, aktywna regeneracja"
           }
         }
       }
@@ -824,22 +856,22 @@
         }
       }
     },
-    "Maximum Recovery" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maksymalna regeneracja"
-          }
-        }
-      }
-    },
     "Maximum effort. Race pace or sprint intervals." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Maksymalny wysiłek. Tempo wyścigowe lub interwały sprintowe."
+          }
+        }
+      }
+    },
+    "Maximum Recovery" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksymalna regeneracja"
           }
         }
       }
@@ -904,16 +936,6 @@
         }
       }
     },
-    "Moderate Fatigue" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Umiarkowane zmęczenie"
-          }
-        }
-      }
-    },
     "Moderate effort, aerobic base" : {
       "localizations" : {
         "pl" : {
@@ -930,6 +952,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Umiarkowany wysiłek. Pozwól na ~24 godziny przed następną ciężką sesją."
+          }
+        }
+      }
+    },
+    "Moderate Fatigue" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umiarkowane zmęczenie"
           }
         }
       }
@@ -974,17 +1006,18 @@
         }
       }
     },
-    "No HRV data found. Regular measurements required." : {
+    "No activity recorded for yesterday yet." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Brak danych HRV. Wymagane regularne pomiary."
+            "value" : "Brak zapisu aktywności z wczoraj."
           }
         }
       }
     },
     "No calories burned data available." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -995,6 +1028,7 @@
       }
     },
     "No effect" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1005,11 +1039,33 @@
       }
     },
     "No heart rate data available. Check Health app." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych tętna. Sprawdź aplikację Zdrowie."
+          }
+        }
+      }
+    },
+    "No HRV data found. Regular measurements required." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych HRV. Wymagane regularne pomiary."
+          }
+        }
+      }
+    },
+    "No HRV recorded for this night yet." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zapisu HRV z tej nocy."
           }
         }
       }
@@ -1024,12 +1080,33 @@
         }
       }
     },
+    "No resting heart rate for this day yet." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak tętna spoczynkowego z tego dnia."
+          }
+        }
+      }
+    },
     "No sleep data. Track your sleep to see insights." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych snu. Śledź sen, aby zobaczyć analizy."
+          }
+        }
+      }
+    },
+    "No sleep recorded for this night yet." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak zapisu snu z tej nocy."
           }
         }
       }
@@ -1119,7 +1196,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Słaba gotowość"
+            "value" : "Słaba"
           }
         }
       }
@@ -1144,32 +1221,62 @@
         }
       }
     },
-    "Rest %lld s between rounds" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przerwa %lld s między rundami"
-          }
-        }
-      }
-    },
-    "RHR" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "RHR"
-          }
-        }
-      }
-    },
     "Rapid heart rate recovery after exercise." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szybki spadek tętna po wysiłku."
+          }
+        }
+      }
+    },
+    "Readiness high" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysoka"
+          }
+        }
+      }
+    },
+    "Readiness low" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niska"
+          }
+        }
+      }
+    },
+    "Readiness typical" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typowa"
+          }
+        }
+      }
+    },
+    "Readiness very high" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo wysoka"
+          }
+        }
+      }
+    },
+    "Readiness very low" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo niska"
           }
         }
       }
@@ -1214,6 +1321,16 @@
         }
       }
     },
+    "Rest %lld s between rounds" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przerwa %lld s między rundami"
+          }
+        }
+      }
+    },
     "Resting" : {
       "localizations" : {
         "pl" : {
@@ -1239,7 +1356,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tętno spoczynkowe (RHR) to liczba uderzeń serca na minutę podczas odpoczynku. Niższe wartości zazwyczaj wskazują na lepszą kondycję cardiovascular i regenerację. Apple Watch mierzy RHR automatycznie podczas snu i odpoczynku."
+            "value" : "Tętno spoczynkowe (RHR) to liczba uderzeń serca na minutę podczas odpoczynku. Niższe wartości zazwyczaj wskazują na lepszą wydolność układu krążenia i regenerację. Apple Watch mierzy RHR automatycznie podczas snu i odpoczynku."
           }
         }
       }
@@ -1250,6 +1367,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wznów trening"
+          }
+        }
+      }
+    },
+    "RHR" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RHR"
           }
         }
       }
@@ -1404,16 +1531,6 @@
         }
       }
     },
-    "Strength Training" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trening siłowy"
-          }
-        }
-      }
-    },
     "Strength category" : {
       "localizations" : {
         "en" : {
@@ -1430,12 +1547,22 @@
         }
       }
     },
+    "Strength Training" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening siłowy"
+          }
+        }
+      }
+    },
     "Strongly lowers" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mocno obniża"
+            "value" : "Silnie obniża"
           }
         }
       }
@@ -1445,7 +1572,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mocno podnosi"
+            "value" : "Silnie podnosi"
           }
         }
       }
@@ -1466,16 +1593,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tempo"
-          }
-        }
-      }
-    },
-    "The Girls" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The Girls"
           }
         }
       }
@@ -1506,6 +1623,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strefa spalania tłuszczu to optymalny zakres dla osób chcących schudnąć i poprawić wydajność metaboliczną. W tym tempie Twoje ciało wykorzystuje głównie kwasy tłuszczowe jako źródło energii, co prowadzi do efektywnego spalania tkanki tłuszczowej. Długotrwały trening w tej strefie poprawia zdolność organizmu do utleniania tłuszczów, zwiększa wrażliwość na insulinę i buduje solidną bazę tlenową bez nadmiernego zmęczenia."
+          }
+        }
+      }
+    },
+    "The Girls" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Girls"
           }
         }
       }
@@ -1550,7 +1677,9 @@
         }
       }
     },
-    "Timer Name" : {},
+    "Timer Name" : {
+
+    },
     "Treadmill" : {
       "localizations" : {
         "pl" : {
@@ -1581,6 +1710,16 @@
         }
       }
     },
+    "Unchanged" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bez zmian"
+          }
+        }
+      }
+    },
     "Unknown" : {
       "localizations" : {
         "pl" : {
@@ -1591,12 +1730,12 @@
         }
       }
     },
-    "VO2max" : {
+    "Very demanding session. Full recovery may take 3+ days." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VO2max"
+            "value" : "Bardzo wymagająca sesja. Pełna regeneracja może zająć 3+ dni."
           }
         }
       }
@@ -1607,36 +1746,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bardzo dobry"
-          }
-        }
-      }
-    },
-    "Very High" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bardzo wysoki"
-          }
-        }
-      }
-    },
-    "Very Poor" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bardzo niski"
-          }
-        }
-      }
-    },
-    "Very demanding session. Full recovery may take 3+ days." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bardzo wymagająca sesja. Pełna regeneracja może zająć 3+ dni."
           }
         }
       }
@@ -1657,6 +1766,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bardzo ciężka, moc beztlenowa"
+          }
+        }
+      }
+    },
+    "Very High" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo wysoki"
           }
         }
       }
@@ -1691,6 +1810,17 @@
         }
       }
     },
+    "Very Poor" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bardzo niska"
+          }
+        }
+      }
+    },
     "Very rapid heart rate recovery. Strong autonomic response." : {
       "localizations" : {
         "pl" : {
@@ -1707,6 +1837,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Intensywna"
+          }
+        }
+      }
+    },
+    "VO2max" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VO2max"
           }
         }
       }
@@ -1807,36 +1947,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strefa 5"
-          }
-        }
-      }
-    },
-    "day" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "dzień"
-          }
-        }
-      }
-    },
-    "hours" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "godziny"
-          }
-        }
-      }
-    },
-    "hrTSS" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "hrTSS"
           }
         }
       }

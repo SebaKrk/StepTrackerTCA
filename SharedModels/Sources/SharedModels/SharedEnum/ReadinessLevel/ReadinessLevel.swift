@@ -37,11 +37,11 @@ public enum ReadinessLevel: String, CaseIterable, Sendable {
     /// Title key for localization
     public var title: String {
         switch self {
-        case .veryPoor: return String(localized: "Very Poor", bundle: .module)
-        case .poor: return String(localized: "Poor", bundle: .module)
-        case .fair: return String(localized: "Fair", bundle: .module)
-        case .good: return String(localized: "Good", bundle: .module)
-        case .excellent: return String(localized: "Excellent", bundle: .module)
+        case .veryPoor: return String(localized: "Readiness very low", bundle: .module)
+        case .poor: return String(localized: "Readiness low", bundle: .module)
+        case .fair: return String(localized: "Readiness typical", bundle: .module)
+        case .good: return String(localized: "Readiness high", bundle: .module)
+        case .excellent: return String(localized: "Readiness very high", bundle: .module)
         }
     }
 
@@ -127,4 +127,15 @@ public enum ReadinessLevel: String, CaseIterable, Sendable {
 
     /// The score a day lands on when every component sits on its baseline.
     public static let neutralScore = 50
+
+    /// Tick values for the readiness gauge.
+    ///
+    /// The lower bound of every level plus the top of the scale: a tick that does
+    /// not sit on a level boundary invites reading the gauge as a plain ruler and
+    /// tells the user nothing about where one level ends.
+    public static var axisValues: [Int] {
+        allCases
+            .map { Int($0.chartRange.lowerBound) }
+            .sorted() + [100]
+    }
 }

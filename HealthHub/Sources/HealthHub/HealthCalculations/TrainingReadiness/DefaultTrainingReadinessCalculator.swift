@@ -41,6 +41,20 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
         ReadinessDayResolver()
     }
 
+    /// Resolves what a night's recording says, before anything scores it.
+    ///
+    /// Built per call for the same reason as `dayResolver`.
+    var nightMeasurementResolver: NightMeasurementResolver {
+        NightMeasurementResolver()
+    }
+
+    /// How many nights the long-term sleep average covers.
+    ///
+    /// Long enough that a habit shows and a bad week does not. Unrelated to the
+    /// baseline pool: that one asks what is normal for the user, this one asks
+    /// whether that normal is enough.
+    let longTermSleepNightCount = 60
+
     /// How many days of history a rebuild reaches back over.
     ///
     /// Two months is enough for the trend chart to mean something from the first
@@ -94,11 +108,17 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
     /// - Returns: The readiness result for that day
     /// - Throws: HealthKit errors if data access fails
     func calculateTrainingReadiness(for day: ReadinessDay) async throws -> TrainingReadinessResult {
+        // HRV and sleep compare against the same nights, and running them in
+        // parallel meant each fetched that set for itself — 49 nights read twice
+        // every morning, and 120 identical reads in a 60-day rebuild. Resolved
+        // once, before the fan-out, at the cost of one serialised read.
+        let nightWindows = try await baselineNightWindows(for: day)
+
         // The four components share no state and each issues its own HealthKit
         // reads, so running them in sequence only added up their latencies.
         async let restingHeartRateComponent = calculateRestingHeartRateScore(for: day)
-        async let hrvComponent = calculateHRVScore(for: day)
-        async let sleepComponent = calculateSleepScore(for: day)
+        async let hrvComponent = calculateHRVScore(for: day, baselineWindows: nightWindows)
+        async let sleepComponent = calculateSleepScore(for: day, baselineWindows: nightWindows)
         async let activityLoadComponent = calculateActivityLoadScore(for: day)
 
         let components = try await TrainingReadinessComponents(

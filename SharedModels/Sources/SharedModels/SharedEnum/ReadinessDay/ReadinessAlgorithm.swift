@@ -26,5 +26,12 @@ public enum ReadinessAlgorithm {
     ///   baselines clip to the window instead of dropping straddling intervals.
     ///   HRV and sleep compare a session against sessions, never against clock
     ///   windows that also cover time awake
-    public static let currentVersion = 2
+    /// - 3: sleep scored purely against the user's own baseline, like every other
+    ///   component — it was the last one adding points for an absolute duration
+    /// - 4: a night with no sleep but heart rate throughout scores as zero sleep
+    ///   instead of as missing data, and a recording that stopped mid-night drops
+    ///   the component instead of being scored as a short night
+    /// - 5: activity load range made symmetric (-5...+5), so a full set of
+    ///   components maps points to the score one-to-one in both directions
+    public static let currentVersion = 5
 }

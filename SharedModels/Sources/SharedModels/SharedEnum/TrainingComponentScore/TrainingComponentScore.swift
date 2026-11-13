@@ -76,6 +76,31 @@ public struct TrainingComponentScore: Sendable, Equatable {
     /// Provides transparency about data freshness. Used to display relative time ("Dziś o 8:07")
     /// in the UI. May be nil for compatibility with existing code.
     public let timestamp: Date?
+
+    /// Average over a long window, where one is meaningful.
+    ///
+    /// `baselineValue` says what is normal for this user; this says whether that
+    /// normal is itself enough. A differential score cannot see a habit, because
+    /// the habit is the baseline it compares against — only a longer window and an
+    /// outside standard can. Today only sleep sets it.
+    public let longTermValue: Double?
+
+    /// Lowest long-term average that still supports recovery, where one exists.
+    ///
+    /// Kept beside the value rather than in the view: the threshold is a fact
+    /// about the signal, not about how it is drawn.
+    public let longTermMinimum: Double?
+
+    /// Whether this user's own norm for the signal sits below that minimum.
+    ///
+    /// Never affects the score. A habit is not an event of today, so charging it
+    /// points every morning would make the score stop describing today — which is
+    /// the mistake the absolute sleep bands used to make.
+    public var isLongTermBelowMinimum: Bool {
+        guard let longTermValue, let longTermMinimum else { return false }
+
+        return longTermValue < longTermMinimum
+    }
     
     /// Creates a new TrainingComponentScore.
     ///
@@ -87,6 +112,8 @@ public struct TrainingComponentScore: Sendable, Equatable {
     ///   - minScore: Minimum possible score for this component
     ///   - maxScore: Maximum possible score for this component
     ///   - timestamp: Optional timestamp when measurement was taken
+    ///   - longTermValue: Optional average over a long window
+    ///   - longTermMinimum: Optional lowest healthy long-term average
     public init(
         score: Int,
         currentValue: Double,
@@ -94,7 +121,9 @@ public struct TrainingComponentScore: Sendable, Equatable {
         unit: String,
         minScore: Int,
         maxScore: Int,
-        timestamp: Date? = nil
+        timestamp: Date? = nil,
+        longTermValue: Double? = nil,
+        longTermMinimum: Double? = nil
     ) {
         self.score = score
         self.currentValue = currentValue
@@ -103,6 +132,8 @@ public struct TrainingComponentScore: Sendable, Equatable {
         self.minScore = minScore
         self.maxScore = maxScore
         self.timestamp = timestamp
+        self.longTermValue = longTermValue
+        self.longTermMinimum = longTermMinimum
     }
 }
 
@@ -111,7 +142,28 @@ public struct TrainingComponentScore: Sendable, Equatable {
 extension TrainingComponentScore {
     
     /// Share of a component's own range above which its effect counts as strong.
-    private static let strongEffectShare = 0.7
+    static let strongEffectShare = 0.7
+
+    /// The score range split into the five statuses, lowest first.
+    ///
+    /// The gauge behind a score and the label beside it have to agree, and the
+    /// only way to guarantee that is to draw both from one set of thresholds.
+    /// Scores are integers, so the neutral band is one point wide around zero and
+    /// renders as a tick rather than a stripe.
+    public var statusBands: [StatusBand] {
+        let low = Double(minScore)
+        let high = Double(maxScore)
+        let strongLow = (low * Self.strongEffectShare).rounded(.up) - 0.5
+        let strongHigh = (high * Self.strongEffectShare).rounded(.up) - 0.5
+
+        return [
+            StatusBand(status: .stronglyLowers, range: (low - 0.5)...strongLow),
+            StatusBand(status: .lowers, range: strongLow...(-0.5)),
+            StatusBand(status: .neutral, range: (-0.5)...0.5),
+            StatusBand(status: .raises, range: 0.5...strongHigh),
+            StatusBand(status: .stronglyRaises, range: strongHigh...(high + 0.5))
+        ]
+    }
 
     /// How this component moves today's readiness.
     ///

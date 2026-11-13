@@ -242,6 +242,18 @@ public protocol PersonalDataManager: Sendable {
         takingFirst count: Int
     ) async throws -> HealthKitData?
     
+    /// Returns the span that heart rate samples cover inside a window.
+    ///
+    /// Tells "the Watch was not worn" apart from "the Watch was worn and the user
+    /// did not sleep" — sleep samples alone cannot, because both look like no
+    /// sleep at all. Also shows where a recording stopped, which is how a Watch
+    /// that ran out of battery mid-night is recognised.
+    ///
+    /// - Parameter window: Range to look in
+    /// - Returns: First to last sample start, or `nil` when nothing was recorded
+    /// - Throws: HealthKit errors if data access fails
+    func heartRateCoverage(in window: ClosedRange<Date>) async throws -> ClosedRange<Date>?
+
     /// DEBUG: Lists all RHR measurements from the last 7 days
     func debugListAllRHR() async throws
     

@@ -28,14 +28,16 @@ extension DefaultTrainingReadinessCalculator {
     /// - HRV within normal range: 0 points (neutral)
     /// - HRV moderately lower: -10 points (suboptimal recovery)
     /// - HRV significantly lower: -15 points (poor autonomic balance)
-    func calculateHRVScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
+    func calculateHRVScore(
+        for day: ReadinessDay,
+        baselineWindows: [ClosedRange<Date>]
+    ) async throws -> TrainingComponentScore? {
         let window = TrainingReadinessTimeWindows.nightWindow(for: day)
 
         guard let currentHRV = try await personalDataManager.getHRV(in: window) else {
             return nil
         }
 
-        let baselineWindows = try await baselineNightWindows(for: day)
         let baselineHRV = try await personalDataManager.getAverageHRV(
             in: baselineWindows,
             takingFirst: baselineDayCount

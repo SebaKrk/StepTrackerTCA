@@ -27,8 +27,8 @@ extension DefaultTrainingReadinessCalculator {
     /// - Active recovery (15-45%): +5 points (optimal - fresh legs!)
     /// - Light training (45-80%): +2 points (well recovered)
     /// - Normal training (80-130%): 0 points (neutral readiness)
-    /// - Heavy training (130-180%): -5 points (moderate fatigue)
-    /// - Very heavy training (180%+): -10 points (significant fatigue, recovery needed)
+    /// - Heavy training (130-180%): -3 points (moderate fatigue)
+    /// - Very heavy training (180%+): -5 points (significant fatigue, recovery needed)
     func calculateActivityLoadScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
         guard let window = TrainingReadinessTimeWindows.previousDay(
                   for: day,
@@ -61,7 +61,7 @@ extension DefaultTrainingReadinessCalculator {
             currentValue: previousLoad.value,
             baselineValue: baselineLoad?.value,
             unit: "kcal",
-            minScore: -10,
+            minScore: -5,
             maxScore: 5,
             timestamp: previousLoad.date
         )
@@ -92,9 +92,9 @@ extension DefaultTrainingReadinessCalculator {
         case 80..<130:
             return 0
         case 130..<180:
-            return -5
+            return -3
         case 180...:
-            return -10
+            return -5
         default:
             return 0
         }

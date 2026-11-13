@@ -177,15 +177,35 @@ public actor TrainingReadinessBackgroundManager {
             return
         }
         
-        // Update timestamp immediately to block subsequent WIDGET refresh calls
-        lastRefreshDate = Date()
-        
-        await publishReadiness()
+        // Marked only once something was actually published. Waiting on sleep
+        // used to consume the window: the morning's four syncs arrive seconds
+        // apart, so a first event fired before the night closed would block the
+        // sleep event that follows — the one sync the result depends on.
+        if await publishReadiness() {
+            lastRefreshDate = Date()
+        }
     }
     
+    /// Recalculates readiness now, for a caller outside the observer path.
+    ///
+    /// Bypasses the debounce on purpose: a scheduled refresh already arrives at
+    /// the system's pace, and the window exists to collapse the burst of observer
+    /// callbacks that a morning sync fires, not to ration deliberate runs.
+    ///
+    /// - Returns: Whether anything reached the widget
+    @discardableResult
+    public func refreshNow() async -> Bool {
+        await publishReadiness()
+    }
+
     /// Recalculates readiness and feeds both consumers: the Home Screen widget
     /// and the paired Apple Watch.
-    private func publishReadiness() async {
+    ///
+    /// - Returns: Whether anything reached the widget, and the debounce window
+    ///   should therefore close. A failure counts as published — retrying it on
+    ///   every sample would turn a broken read into a loop.
+    @discardableResult
+    private func publishReadiness() async -> Bool {
         do {
             // 1. Calculate training readiness
             let outcome = try await calculator.calculateReadinessOutcome()
@@ -194,10 +214,10 @@ public actor TrainingReadinessBackgroundManager {
             //    sleep is not an error — it just has nothing to publish yet.
             guard let result = outcome.result else {
                 if case .awaitingSleepData = outcome {
-                    return
+                    return false
                 }
                 await widgetDataClient.clear()
-                return
+                return true
             }
 
             // 3. Save to widget storage
@@ -214,10 +234,13 @@ public actor TrainingReadinessBackgroundManager {
                 #endif
             }
 
+            return true
         } catch {
             #if DEBUG
             print("❌ Failed to refresh readiness: \(error.localizedDescription)")
             #endif
+
+            return true
         }
     }
 }
