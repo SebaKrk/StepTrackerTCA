@@ -1777,6 +1777,13 @@
     - the plan editor stops offering a round count for an AMRAP — a format whose rounds are the result cannot carry a prescribed one that anything reads
     - rows written before this cannot be repaired from the log alone; the multiplier that would disambiguate them survives only inside the parent score's JSON. Backfill is its own ticket
 
+### IOS-00180 Readiness follow-up — act on the review of IOS-00179
+    - branch: `dev/IOS-00180/IOS-00180` (from develop)
+    - heart rate coverage was the span between first and last sample, so a Watch worn until 21:00 and again from 08:00 read as eleven hours of continuous wear — sleep scored zero and the day lost fifteen points over a night with no data at all
+    - the observer debounce stamped its timestamp after the await; the method is reentrant, so the morning's four observers walked past a window nobody had claimed, and an open night left every overnight sample triggering a full recalculation
+    - the history rebuild treated "four missing components" as a refused permission, which is also what a day before the user owned a Watch looks like — one such day discarded everything already scored and repeated sixty days of reads on every launch
+    - the background task expired without reporting completion, and a cancelled rebuild cleared a slot a newer one already owned
+
 ### IOS-00179 Training readiness — a score for the day, and a day that survives
     - branch: `dev/IOS-00179/IOS-00179` (from develop)
     - every window ended at a fixed clock hour that still lay in the future, so HealthKit answered with a partial reading: the same night scored 55 at 06:00 and 75 at 12:00. Windows are now anchored to the sleep session that actually closed — nothing ends in the future, and recalculating at noon or at midnight returns the same number
@@ -1793,3 +1800,8 @@
     - the component tiles read their status from a quartile split of the point range, which has no neutral case — zero points, meaning "sits on your baseline", landed in the second quartile and was presented as "Below Average" with a warning triangle. Status now describes the component's effect on readiness, with a neutral case, and strength is measured against each component's own headroom
     - the activity tile branched into `ActivityStatus`, which describes the size of the load rather than its effect, so three tiles spoke about effect and the fourth about load in one row
     - the card gained an explanation sheet: what the score is built from, what 50 means, where the baseline comes from, and that the figures are indicative rather than a diagnosis. The level label moved under the chart so it reads together with the value
+    - colour for a score was derived by four copies of a quartile split, none of which knew about the five statuses the label used — a tile could show a yellow pill beside a mint word for the same number. Thresholds now live once, in `TrainingComponentScore.statusBands`
+    - activity load range made symmetric so a full set of components maps to `50 + sum of points`; it read 27 where the tiles summed to -25, because negative headroom was 55 against 50 positive
+    - a night with no sleep but heart rate throughout scores as zero sleep rather than as missing data, and a recording that stopped mid-night drops the component instead of reading as a short night — `NightMeasurementResolver` decides which of the three happened
+    - the explanation screen is the app's own card stack rather than a system `Form`, and its wash runs under the navigation bar; stopping it at the safe area left a black band no toolbar modifier could fix
+    - the widget asks for an hourly re-read and a background task wakes the app on its own schedule, so a stale score no longer waits for the app to be opened by hand
