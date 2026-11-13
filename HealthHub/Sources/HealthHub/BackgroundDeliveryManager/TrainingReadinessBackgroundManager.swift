@@ -21,6 +21,9 @@ public actor TrainingReadinessBackgroundManager {
     /// The one-off history rebuild, tracked so it can be cancelled and so a
     /// second `start()` cannot launch a rebuild alongside a running one.
     private var rebuildTask: Task<Void, Never>?
+
+    /// Identifies which rebuild owns the slot, so a stale one cannot free it.
+    private var rebuildGeneration = 0
     private let widgetDataClient: WidgetDataClient
     private let watchConnectivityManager: WatchConnectivityManager
 
@@ -87,6 +90,9 @@ public actor TrainingReadinessBackgroundManager {
         // rebuild that is most of the way through sixty days of HealthKit reads.
         guard rebuildTask == nil else { return }
 
+        rebuildGeneration += 1
+        let generation = rebuildGeneration
+
         rebuildTask = Task { [calculator] in
             do {
                 let days = try await calculator.rebuildHistoryIfNeeded()
@@ -102,12 +108,18 @@ public actor TrainingReadinessBackgroundManager {
                 #endif
             }
 
-            await self.clearRebuildTask()
+            await self.clearRebuildTask(generation: generation)
         }
     }
 
-    /// Releases the rebuild slot once the rebuild has finished.
-    private func clearRebuildTask() {
+    /// Releases the rebuild slot, unless a newer rebuild already owns it.
+    ///
+    /// Cancellation is not instant: a task cancelled by `stop()` still runs to its
+    /// end, and without this check it would clear the slot out from under the
+    /// rebuild a later `start()` had begun — letting a third one run alongside it.
+    private func clearRebuildTask(generation: Int) {
+        guard generation == rebuildGeneration else { return }
+
         rebuildTask = nil
     }
     
@@ -177,12 +189,15 @@ public actor TrainingReadinessBackgroundManager {
             return
         }
         
-        // Marked only once something was actually published. Waiting on sleep
-        // used to consume the window: the morning's four syncs arrive seconds
-        // apart, so a first event fired before the night closed would block the
-        // sleep event that follows — the one sync the result depends on.
-        if await publishReadiness() {
-            lastRefreshDate = Date()
+        // Claimed before suspending, because this method is reentrant: the
+        // morning's four observers all reach it while the first calculation is
+        // still awaiting, and a window that is only checked stops nobody.
+        lastRefreshDate = Date()
+
+        // Reopened when nothing was published. Waiting on sleep must not consume
+        // the window — the sync being waited for lands inside it minutes later.
+        if await publishReadiness() == false {
+            lastRefreshDate = nil
         }
     }
     

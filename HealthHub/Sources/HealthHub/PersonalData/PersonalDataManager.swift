@@ -250,9 +250,9 @@ public protocol PersonalDataManager: Sendable {
     /// that ran out of battery mid-night is recognised.
     ///
     /// - Parameter window: Range to look in
-    /// - Returns: First to last sample start, or `nil` when nothing was recorded
+    /// - Returns: How much of the window is covered, or `nil` when nothing was recorded
     /// - Throws: HealthKit errors if data access fails
-    func heartRateCoverage(in window: ClosedRange<Date>) async throws -> ClosedRange<Date>?
+    func heartRateCoverage(in window: ClosedRange<Date>) async throws -> HeartRateCoverage?
 
     /// DEBUG: Lists all RHR measurements from the last 7 days
     func debugListAllRHR() async throws
