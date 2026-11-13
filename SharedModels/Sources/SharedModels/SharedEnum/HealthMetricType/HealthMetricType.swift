@@ -24,7 +24,30 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
         case .activity: return "flame.fill"
         }
     }
-    
+
+    /// Lowest number of points this component can contribute to readiness.
+    ///
+    /// Lives here rather than in each calculator so the scoring range, the
+    /// widget and the stored history cannot drift apart.
+    public var minScore: Int {
+        switch self {
+        case .rhr: return -15
+        case .hrv: return -15
+        case .sleep: return -15
+        case .activity: return -5
+        }
+    }
+
+    /// Highest number of points this component can contribute to readiness.
+    public var maxScore: Int {
+        switch self {
+        case .rhr: return 15
+        case .hrv: return 15
+        case .sleep: return 15
+        case .activity: return 5
+        }
+    }
+
     public var title: String {
         switch self {
         case .rhr:
@@ -76,16 +99,22 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
         }
     }
     
+    /// Why this metric has nothing to show.
+    ///
+    /// States the absence and stops there. The earlier wording told the user to
+    /// check the Health app or start tracking sleep — instructions that read as a
+    /// fault report, and sent people looking for a problem on a morning when the
+    /// Watch simply had not synced yet.
     public var missingDataMessage: String {
         switch self {
         case .rhr:
-            return String(localized: "No heart rate data available. Check Health app.", defaultValue: "No heart rate data available. Check Health app.", bundle: .module)
+            return String(localized: "No resting heart rate for this day yet.", defaultValue: "No resting heart rate for this day yet.", bundle: .module)
         case .hrv:
-            return String(localized: "No HRV data found. Regular measurements required.", defaultValue: "No HRV data found. Regular measurements required.", bundle: .module)
+            return String(localized: "No HRV recorded for this night yet.", defaultValue: "No HRV recorded for this night yet.", bundle: .module)
         case .sleep:
-            return String(localized: "No sleep data. Track your sleep to see insights.", defaultValue: "No sleep data. Track your sleep to see insights.", bundle: .module)
+            return String(localized: "No sleep recorded for this night yet.", defaultValue: "No sleep recorded for this night yet.", bundle: .module)
         case .activity:
-            return String(localized: "No calories burned data available.", defaultValue: "No calories burned data available.", bundle: .module)
+            return String(localized: "No activity recorded for yesterday yet.", defaultValue: "No activity recorded for yesterday yet.", bundle: .module)
         }
     }
     

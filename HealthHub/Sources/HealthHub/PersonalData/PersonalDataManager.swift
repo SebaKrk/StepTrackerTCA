@@ -172,56 +172,88 @@ public protocol PersonalDataManager: Sendable {
     
     // MARK: - Training Readiness Specific
     
-    /// Retrieves this morning's resting heart rate measurement.
+    /// Retrieves the resting heart rate recorded within a window.
     ///
-    /// Fetches RHR from the extended morning window (midnight - 11 AM today) to capture
-    /// measurements taken during sleep and early morning. Apple Watch typically records
-    /// RHR during sleep periods.
+    /// Takes the most recent reading in the window. Readiness passes the night
+    /// plus a short grace period, because the Watch writes the daily value once
+    /// it has processed the night rather than at the moment of waking.
     ///
+    /// - Parameter window: Range to read the measurement from
     /// - Returns: A `HealthKitData` object containing RHR in bpm, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getThisMorningRestingHeartRate() async throws -> HealthKitData?
-    
-    /// Retrieves average morning resting heart rate from specified number of days.
+    func getRestingHeartRate(in window: ClosedRange<Date>) async throws -> HealthKitData?
+
+    /// Retrieves average resting heart rate across the given windows.
     ///
-    /// Fetches RHR measurements from the extended morning window (midnight - 11 AM) for
-    /// each of the specified days and calculates their average.
+    /// Only windows with a reading contribute, so a missing day lowers the sample
+    /// count rather than the mean.
     ///
-    /// - Parameter days: Number of days to average (default: 7)
-    /// - Returns: A `HealthKitData` object containing average morning RHR in bpm, or `nil` if unavailable
+    /// - Parameters:
+    ///   - windows: One range per day to average over, newest first
+    ///   - count: How many windows with data are enough; extras are a reserve the
+    ///     averaging falls back on when recent ones are empty
+    /// - Returns: A `HealthKitData` object containing average RHR in bpm, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getAverageMorningRestingHeartRate(days: Int) async throws -> HealthKitData?
-    
-    /// Retrieves last night's HRV measurement.
+    func getAverageRestingHeartRate(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData?
+
+    /// Retrieves average heart rate variability within a window.
     ///
-    /// Fetches HRV from last night's sleep window (8 PM yesterday - 10 AM today).
+    /// Averages every sample in the range, so readiness passes the night window
+    /// exactly — HRV is only meaningful measured at rest.
     ///
+    /// - Parameter window: Range to average samples over
     /// - Returns: A `HealthKitData` object containing HRV in milliseconds, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getLastNightHRV() async throws -> HealthKitData?
-    
-    /// Retrieves average nightly HRV from specified number of nights.
+    func getHRV(in window: ClosedRange<Date>) async throws -> HealthKitData?
+
+    /// Retrieves average heart rate variability across the given windows.
     ///
-    /// - Parameter nights: Number of nights to average (default: 7)
+    /// - Parameters:
+    ///   - windows: One range per night to average over, newest first
+    ///   - count: How many windows with data are enough; extras are a reserve the
+    ///     averaging falls back on when recent ones are empty
     /// - Returns: A `HealthKitData` object containing average HRV in milliseconds, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getAverageNightlyHRV(nights: Int) async throws -> HealthKitData?
-    
-    /// Retrieves yesterday's total active energy burned.
+    func getAverageHRV(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData?
+
+    /// Retrieves total active energy burned within a window.
     ///
-    /// Fetches activity from full previous day (00:00 - 23:59 yesterday).
-    ///
+    /// - Parameter window: Range to sum energy over
     /// - Returns: A `HealthKitData` object containing active energy in kcal, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getYesterdayActiveEnergy() async throws -> HealthKitData?
-    
-    /// Retrieves average daily active energy from specified number of days.
+    func getActiveEnergy(in window: ClosedRange<Date>) async throws -> HealthKitData?
+
+    /// Retrieves average daily active energy across the given windows.
     ///
-    /// - Parameter days: Number of days to average (default: 7)
+    /// - Parameters:
+    ///   - windows: One range per day to average over, newest first
+    ///   - count: How many windows with data are enough; extras are a reserve the
+    ///     averaging falls back on when recent ones are empty
     /// - Returns: A `HealthKitData` object containing average daily energy in kcal, or `nil` if unavailable
     /// - Throws: HealthKit errors if data access fails
-    func getAverageDailyActiveEnergy(days: Int) async throws -> HealthKitData?
+    func getAverageActiveEnergy(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData?
     
+    /// Returns the span that heart rate samples cover inside a window.
+    ///
+    /// Tells "the Watch was not worn" apart from "the Watch was worn and the user
+    /// did not sleep" — sleep samples alone cannot, because both look like no
+    /// sleep at all. Also shows where a recording stopped, which is how a Watch
+    /// that ran out of battery mid-night is recognised.
+    ///
+    /// - Parameter window: Range to look in
+    /// - Returns: First to last sample start, or `nil` when nothing was recorded
+    /// - Throws: HealthKit errors if data access fails
+    func heartRateCoverage(in window: ClosedRange<Date>) async throws -> ClosedRange<Date>?
+
     /// DEBUG: Lists all RHR measurements from the last 7 days
     func debugListAllRHR() async throws
     

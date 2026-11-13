@@ -53,24 +53,32 @@ struct WorkoutActivityFeature {
                 
             case let .start(workoutName, initialState):
                 guard !state.isActive else {
+                    #if DEBUG
                     print("⚠️ [WorkoutActivityFeature] Already active")
+                    #endif
                     return .none
                 }
                 
+                #if DEBUG
                 print("🚀 [WorkoutActivityFeature] Starting: \(workoutName)")
+                #endif
                 
                 return .run { send in
                     do {
                         let activityID = try await workoutActivityClient.start(workoutName, initialState)
                         await send(.activityStarted(activityID: activityID))
                     } catch {
+                        #if DEBUG
                         print("❌ [WorkoutActivityFeature] Start failed: \(error)")
+                        #endif
                     }
                 }
                 
             case let .activityStarted(activityID):
                 state.activityID = activityID
+                #if DEBUG
                 print("✅ [WorkoutActivityFeature] Started: \(activityID)")
+                #endif
                 return .none
                 
             case let .update(newState):
@@ -82,7 +90,9 @@ struct WorkoutActivityFeature {
                     do {
                         try await workoutActivityClient.update(activityID, newState)
                     } catch {
+                        #if DEBUG
                         print("❌ [WorkoutActivityFeature] Update failed: \(error)")
+                        #endif
                     }
                 }
                 
@@ -90,21 +100,27 @@ struct WorkoutActivityFeature {
                 guard let activityID = state.activityID else {
                     return .none
                 }
-                
-                print("🛑 [WorkoutActivityFeature] Stopping: \(activityID)")
-                
-                return .run { send in
+
+                // Cleared before the call, not after it: `Activity.end` is an IPC
+                // round trip that ignores task cancellation, so a `send` placed
+                // after it lands on a presentation the session already dismissed.
+                state.activityID = nil
+
+                return .run { _ in
                     do {
                         try await workoutActivityClient.stop(activityID)
-                        await send(.activityStopped)
                     } catch {
+                        #if DEBUG
                         print("❌ [WorkoutActivityFeature] Stop failed: \(error)")
+                        #endif
                     }
                 }
                 
             case .activityStopped:
                 state.activityID = nil
+                #if DEBUG
                 print("✅ [WorkoutActivityFeature] Stopped")
+                #endif
                 return .none
             }
         }

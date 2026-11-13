@@ -86,20 +86,31 @@ public struct TrainingReadinessResult: Sendable, Equatable {
 }
 
 public extension TrainingReadinessResult {
-    
+
+    /// How many components a result needs before it is shown at all.
+    ///
+    /// Two signals still carry information once the score is normalised against
+    /// the components that exist — and a night without the Watch takes sleep, HRV
+    /// and resting heart rate together, so demanding three would hide the day
+    /// entirely rather than qualify it.
+    static let minimumVisibleComponents = 2
+
+    /// How many it needs before the score is presented without a caveat.
+    ///
+    /// Deliberately above `minimumVisibleComponents`: "is there anything to show"
+    /// and "can this be trusted" are different questions, and collapsing them
+    /// onto one number left `isReliable` always true and the stored column a
+    /// column of ones.
+    static let minimumReliableComponents = 3
+
     /// Counts how many components are missing (nil).
     var missingComponentCount: Int {
-        var missing = 0
-        if components.restingHeartRate == nil { missing += 1 }
-        if components.heartRateVariability == nil { missing += 1 }
-        if components.sleepQuality == nil { missing += 1 }
-        if components.previousDayLoad == nil { missing += 1 }
-        return missing
+        components.all.filter { $0 == nil }.count
     }
 
-    /// Returns `true` if too many components are missing to consider the result reliable.
+    /// Returns `true` if too few components are available to consider the result reliable.
     var hasInsufficientData: Bool {
-        missingComponentCount >= 2
+        components.available.count < Self.minimumVisibleComponents
     }
     
     /// Returns `true` if all data components are missing, indicating that HealthKit access is likely denied.

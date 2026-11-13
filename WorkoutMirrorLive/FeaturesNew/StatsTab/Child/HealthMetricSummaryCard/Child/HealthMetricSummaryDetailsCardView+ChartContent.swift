@@ -55,24 +55,5 @@ extension HealthMetricSummaryDetailsCardView {
                     .foregroundColor(.primary)
             }
     }
-    
-    // Zwraca kolor na podstawie wyniku (score)
-    func colorForScore(_ score: Int, data: TrainingComponentScore) -> Color {
-        let totalRange = data.maxScore - data.minScore
-        let quarterRange = Double(totalRange) / 4.0
-        
-        let boundary1 = data.minScore + Int(quarterRange)
-        let boundary2 = data.minScore + Int(quarterRange * 2)
-        let boundary3 = data.minScore + Int(quarterRange * 3)
-        
-        if score <= boundary1 {
-            return .red
-        } else if score <= boundary2 {
-            return .orange
-        } else if score <= boundary3 {
-            return .yellow
-        } else {
-            return .green
-        }
-    }
+
 }

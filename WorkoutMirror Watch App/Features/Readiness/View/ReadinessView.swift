@@ -29,7 +29,7 @@ struct ReadinessView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                if let snapshot = store.snapshot, snapshot.isReliable {
+                if let snapshot = store.snapshot {
                     scoreContent(for: snapshot)
                 } else {
                     noDataView
@@ -66,12 +66,25 @@ struct ReadinessView: View {
     }
 
     private func levelLabel(for snapshot: ReadinessSnapshot) -> some View {
-        Text(snapshot.result.readinessLevel.title)
+        Text(levelText(for: snapshot))
             .font(.caption2.bold())
-            .foregroundStyle(snapshot.result.readinessLevel.color)
+            .foregroundStyle(
+                snapshot.isReliable ? snapshot.result.readinessLevel.color : Color.secondary
+            )
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Level name, qualified when the score rests on partial data.
+    ///
+    /// Matches the phone: a score built on two components is shown and marked,
+    /// not withheld — withholding it here while the phone shows it told the user
+    /// their two devices disagreed.
+    private func levelText(for snapshot: ReadinessSnapshot) -> String {
+        guard !snapshot.isReliable else { return snapshot.result.readinessLevel.title }
+
+        return "\(snapshot.result.readinessLevel.title) · \(String(localized: "estimated"))"
     }
 
     private func freshnessLabel(for snapshot: ReadinessSnapshot) -> some View {
@@ -148,8 +161,11 @@ struct ReadinessView: View {
 
     /// Angular width of a level's slice, taken from its own score range so the
     /// thresholds live in exactly one place.
+    ///
+    /// Uses `chartRange` rather than `range`: the latter leaves a point between
+    /// levels, which would make the slices sum to less than the full ring.
     private func sliceWidth(of level: ReadinessLevel) -> Double {
-        Double(level.range.count)
+        level.chartRange.upperBound - level.chartRange.lowerBound
     }
 
     private var ringDiameter: CGFloat { 92 }

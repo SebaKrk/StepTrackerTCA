@@ -11,78 +11,124 @@ import SharedModels
 // MARK: - Sleep Quality Score Calculation
 
 extension DefaultTrainingReadinessCalculator {
-    
-    /// Calculates training readiness score based on sleep duration and quality.
+
+    /// Lowest long-term nightly average that still supports recovery.
     ///
-    /// Evaluates last night's sleep duration against optimal ranges and recent averages
-    /// to determine recovery quality. Adequate sleep is critical for training readiness.
+    /// Below this the shortfall stops being a preference and starts being a debt.
+    /// It never costs points — it only lets the app say so.
+    static let minimumHealthySleepHours = 6.0
+
+    /// Calculates training readiness score from how the night compares with the
+    /// user's own baseline.
     ///
+    /// What the night actually was — measured, nothing recorded, no sleep at all,
+    /// or a recording that stopped early — is decided by `NightMeasurementResolver`.
+    /// This function only turns hours into points.
+    ///
+    /// - Parameter day: The readiness day being calculated
     /// - Returns: `TrainingComponentScore` with sleep contribution, or `nil` if data unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
     /// ## Scoring Logic
-    /// - 7-9 hours of sleep: +10 points (optimal)
-    /// - 6-7 or 9-10 hours: +5 points (acceptable)
-    /// - Less than 6 or more than 10 hours: -10 points (suboptimal)
-    /// - Additional points based on comparison to personal baseline
-    func calculateSleepScore() async throws -> TrainingComponentScore? {
-        
-        guard let currentSleep = try await sleepDataManager.getLastNightSleep() else {
+    /// Entirely relative to the user's own baseline, in hours:
+    /// - more than +1.0 against baseline: +15 points
+    /// - +0.5 to +1.0: +10 points
+    /// - within half an hour either way: 0 points — this is the norm
+    /// - -1.5 to -0.5: -10 points
+    /// - more than -1.5: -15 points
+    func calculateSleepScore(
+        for day: ReadinessDay,
+        baselineWindows: [ClosedRange<Date>]
+    ) async throws -> TrainingComponentScore? {
+        let measurement = try await nightMeasurementResolver.resolve(for: day)
+
+        let currentHours: Double
+
+        switch measurement {
+        case let .measured(hours):
+            currentHours = hours
+
+        case .noSleep:
+            // A measurement of zero, not an absence of one.
+            currentHours = 0
+
+        case .notWorn, .truncated:
+            // Nothing to compare: either nothing was recorded, or what was
+            // recorded stopped before the night did.
             return nil
         }
-        
-        // Fetch baseline (7-night average)
-        let baselineSleep = try await sleepDataManager.getAverageSleepFromLastNights(nights: 7)
-        
-        // Calculate score
+
+        let baselineSleep = try await sleepDataManager.getAverageSleepHours(
+            in: baselineWindows,
+            takingFirst: baselineDayCount
+        )
+
         let score = calculateSleepComponentScore(
-            current: currentSleep.value,
+            current: currentHours,
             baseline: baselineSleep?.value
         )
-        
+
+        // Separate from the baseline on purpose: the baseline says what is normal
+        // for this user, and a purely differential score therefore cannot notice
+        // that the norm itself is too low. This window can.
+        let longTermWindows = TrainingReadinessTimeWindows.previousNights(
+            count: longTermSleepNightCount,
+            before: day,
+            calendar: calendar
+        )
+        let longTermSleep = try await sleepDataManager.getAverageSleepHours(
+            in: longTermWindows,
+            takingFirst: longTermSleepNightCount
+        )
+
         return TrainingComponentScore(
             score: score,
-            currentValue: currentSleep.value,
+            currentValue: currentHours,
             baselineValue: baselineSleep?.value,
             // The only readiness unit that differs between languages (bpm/ms/kcal
             // are universal) — resolved against the app bundle at display time.
             unit: String(localized: "hours"),
-            minScore: -10,
+            minScore: -15,
             maxScore: 15,
-            timestamp: currentSleep.date
+            timestamp: day.wakeTime,
+            longTermValue: longTermSleep?.value,
+            longTermMinimum: Self.minimumHealthySleepHours
         )
     }
-    
-    /// Calculates score based on sleep duration and comparison to baseline.
+
+    /// Calculates score from how the night compares with the user's own baseline.
+    ///
+    /// Purely differential, like resting heart rate and HRV. It used to add points
+    /// for an absolute 7-9 hours regardless of the baseline, which broke the one
+    /// promise the whole feature makes — that it compares you against yourself.
+    /// Someone who always sleeps five hours was scored as badly recovered on a
+    /// night that matched their own norm exactly, and a zero no longer meant
+    /// "on your baseline" for this component alone.
+    ///
+    /// The cost is deliberate: chronic short sleep no longer shows up here. That
+    /// is a fact about the user's habits, not about today's recovery, and it
+    /// belongs wherever sleep itself is reported rather than in a readiness score.
     ///
     /// - Parameters:
-    ///   - current: Last night's sleep duration in hours
-    ///   - baseline: Average sleep duration in hours (7-night baseline)
-    /// - Returns: Score from -10 to +15 based on sleep quality
+    ///   - current: The night's sleep duration in hours
+    ///   - baseline: Average sleep duration in hours
+    /// - Returns: Score from -15 to +15 based on deviation from the baseline
     private func calculateSleepComponentScore(current: Double, baseline: Double?) -> Int {
-        var score = 0
-        switch current {
-        case 7.0...9.0:
-            score += 10
-        case 6.0..<7.0, 9.0...10.0:
-            score += 5
+        guard let baseline, baseline > 0 else { return 0 }
+
+        let difference = current - baseline
+
+        switch difference {
+        case let diff where diff > 1.0:
+            return 15
+        case let diff where diff > 0.5:
+            return 10
+        case let diff where diff < -1.5:
+            return -15
+        case let diff where diff < -0.5:
+            return -10
         default:
-            score -= 10
+            return 0
         }
-        
-        // Additional score based on baseline comparison
-        if let baseline = baseline {
-            let difference = current - baseline
-            
-            switch difference {
-            case let diff where diff > 1.0:
-                score += 5
-            case let diff where diff < -1.5:
-                score -= 5
-            default:
-                score += 0
-            }
-        }
-        return score
     }
 }

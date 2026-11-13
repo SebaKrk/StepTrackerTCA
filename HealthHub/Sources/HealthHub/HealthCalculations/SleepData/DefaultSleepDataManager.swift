@@ -12,283 +12,187 @@ import SharedModels
 
 @preconcurrency
 public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendable {
-    
+
     // MARK: - Dependency
-    
+
     @Dependency(\.authorizationManager) var manager
-    
+
     // MARK: - Lifecycle
-    
+
     public init() {}
-    
+
     // MARK: - API
-    
-    /// Retrieves total sleep duration from last night.
-    ///
-    /// Fetches sleep data from the pragmatic window spanning yesterday evening (8 PM)
-    /// to this morning (10 AM). This captures the primary sleep session regardless of
-    /// exact start/end times or brief awakenings.
-    ///
-    /// - Returns: A `HealthKitData` object containing sleep duration in hours, or `nil` if unavailable
-    /// - Throws: HealthKit errors if data access fails
-    public func getLastNightSleep() async throws -> HealthKitData? {
-        let window = TrainingReadinessTimeWindows.lastNightSleepWindow()
-        
+
+    public func getSleepIntervals(
+        in window: ClosedRange<Date>
+    ) async throws -> [SleepSessionBuilder.Interval] {
+        try await asleepIntervals(in: window)
+    }
+
+    public func getAverageSleepHours(
+        in windows: [ClosedRange<Date>],
+        takingFirst count: Int
+    ) async throws -> HealthKitData? {
+        guard let start = windows.map(\.lowerBound).min(),
+              let end = windows.map(\.upperBound).max() else {
+            return nil
+        }
+
+        // One query spanning every night, then grouped in memory. Seven nights
+        // used to mean seven round trips to HealthKit for a single baseline.
+        let allIntervals = try await asleepIntervals(in: start...end)
+
+        let nightlyValues: [Double] = windows.compactMap { window in
+            let hours = asleepHours(of: allIntervals, overlapping: window)
+
+            return hours > 0 ? hours : nil
+        }
+
+        // Newest first, so this keeps the most recent nights that have data and
+        // treats the rest of the pool as a reserve for gaps.
+        let used = Array(nightlyValues.prefix(max(count, 1)))
+
+        guard !used.isEmpty else { return nil }
+
+        let average = used.reduce(0, +) / Double(used.count)
+
+        return HealthKitData(date: windows.first?.upperBound ?? Date(), value: average)
+    }
+
+    public func nightSessions(
+        in window: ClosedRange<Date>,
+        calendar: Calendar
+    ) async throws -> [Date: SleepSession] {
+        let intervals = try await asleepIntervals(in: window)
+        let sessions = SleepSessionBuilder.sessions(from: intervals)
+
+        // Same rule the resolver uses for today: the longest qualifying session of
+        // a day is its night, so a nap never stands in for one.
+        return sessions.reduce(into: [Date: SleepSession]()) { result, session in
+            guard session.asleepDuration >= SleepSessionBuilder.defaultMinimumNightDuration else {
+                return
+            }
+
+            let day = calendar.startOfDay(for: session.end)
+
+            if let existing = result[day], existing.asleepDuration >= session.asleepDuration {
+                return
+            }
+
+            result[day] = session
+        }
+    }
+
+    // MARK: - Historical Data Per-Night Implementation
+
+    public func getSleepHistory(nights: Int) async throws -> [HealthKitData?] {
+        let calendar = Calendar.current
+        var results: [HealthKitData?] = []
+
+        for nightsAgo in 0..<nights {
+            guard let targetDate = calendar.date(byAdding: .day, value: -nightsAgo, to: Date()),
+                  let window = TrainingReadinessTimeWindows.fallbackNightWindow(
+                      endingOn: calendar.startOfDay(for: targetDate),
+                      calendar: calendar
+                  ) else {
+                results.append(nil)
+                continue
+            }
+
+            let intervals = try await asleepIntervals(in: window)
+            let hours = totalAsleepHours(in: intervals)
+
+            results.append(
+                hours > 0 ? HealthKitData(date: window.lowerBound, value: hours) : nil
+            )
+        }
+
+        return results.reversed()
+    }
+
+    // MARK: - Private Methods
+
+    /// Reads asleep intervals from HealthKit, dropping awake and in-bed periods.
+    private func asleepIntervals(
+        in window: ClosedRange<Date>
+    ) async throws -> [SleepSessionBuilder.Interval] {
         let sleepType = HKCategoryType(.sleepAnalysis)
-        
+
         let predicate = HKQuery.predicateForSamples(
-            withStart: window.start,
-            end: window.end,
+            withStart: window.lowerBound,
+            end: window.upperBound,
             options: .strictStartDate
         )
-        
+
         let samplePredicate = HKSamplePredicate.categorySample(
             type: sleepType,
             predicate: predicate
         )
-        
+
         let descriptor = HKSampleQueryDescriptor(
             predicates: [samplePredicate],
-            sortDescriptors: [SortDescriptor(\HKCategorySample.startDate, order: .reverse)]
+            sortDescriptors: [SortDescriptor(\HKCategorySample.startDate, order: .forward)]
         )
-        
+
         let samples = try await descriptor.result(for: manager.healthStore)
-        
-        // Filter for actual sleep stages (exclude awake and in bed)
-        let sleepSamples = samples.filter { sample in
-            guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value) else {
-                return false
-            }
-            
-            switch value {
-            case .asleepCore, .asleepDeep, .asleepREM, .asleepUnspecified, .asleep:
-                return true
-            case .awake, .inBed:
-                return false
-            @unknown default:
-                return false
-            }
-        }
-        
-        let totalSleepSeconds = calculateTotalSleepDuration(from: sleepSamples)
-        let totalSleepHours = totalSleepSeconds / 3600.0
-        
-        // MARK: - 🔍 DEBUG
-//        print("═══════════════════════════════════════════════════")
-//        print("🛏️ Sleep window: \(window.start) → \(window.end)")
-//        print("🛏️ Raw samples: \(sleepSamples.count)")
-//        print("🛏️ Total sleep (after dedup & merge): \(String(format: "%.2f", totalSleepHours))h")
-//        print("═══════════════════════════════════════════════════")
-          
-        guard totalSleepHours > 0 else { return nil }
-        
-        return HealthKitData(
-            date: window.end,
-            value: totalSleepHours
-        )
+
+        return samples
+            .filter(isAsleep)
+            .map { SleepSessionBuilder.Interval(start: $0.startDate, end: $0.endDate) }
     }
-    
-    /// Retrieves average sleep duration from specified number of nights.
+
+    /// Total time asleep across intervals, with duplicates and overlaps removed.
     ///
-    /// Calculates the mean sleep duration by fetching data from multiple nights using
-    /// the same pragmatic time window (8 PM → 10 AM) for each night.
-    ///
-    /// - Parameter nights: Number of nights to average (default: 7)
-    /// - Returns: A `HealthKitData` object containing average sleep in hours, or `nil` if unavailable
-    /// - Throws: HealthKit errors if data access fails
-    public func getAverageSleepFromLastNights(nights: Int = 7) async throws -> HealthKitData? {
-        let sleepType = HKCategoryType(.sleepAnalysis)
-        var nightlyValues: [Double] = []
-        
-        // Iterate through each night
-        for dayOffset in 0..<nights {
-            let calendar = Calendar.current
-            let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date())!
-            
-            // Create window for this specific night: 8 PM yesterday → 10 AM today
-            let windowEnd = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: targetDate)!
-            let windowStart = calendar.date(byAdding: .hour, value: -14, to: windowEnd)! // 14 hours back = 8 PM previous day
-            
-            let predicate = HKQuery.predicateForSamples(
-                withStart: windowStart,
-                end: windowEnd,
-                options: .strictStartDate
-            )
-            
-            let samplePredicate = HKSamplePredicate.categorySample(
-                type: sleepType,
-                predicate: predicate
-            )
-            
-            let descriptor = HKSampleQueryDescriptor(
-                predicates: [samplePredicate],
-                sortDescriptors: []
-            )
-            
-            let samples = try await descriptor.result(for: manager.healthStore)
-            
-            // Filter for actual sleep stages
-            let sleepSamples = samples.filter { sample in
-                guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value) else {
-                    return false
-                }
-                
-                switch value {
-                case .asleepCore, .asleepDeep, .asleepREM, .asleepUnspecified, .asleep:
-                    return true
-                case .awake, .inBed:
-                    return false
-                @unknown default:
-                    return false
-                }
-            }
-            
-            // Calculate sleep for this night with deduplication
-            if !sleepSamples.isEmpty {
-                let nightSleepSeconds = calculateTotalSleepDuration(from: sleepSamples)
-                let nightSleepHours = nightSleepSeconds / 3600.0
-                
-                if nightSleepHours > 0 {
-                    nightlyValues.append(nightSleepHours)
-                }
-            }
-        }
-        
-        // Calculate average
-        guard !nightlyValues.isEmpty else { return nil }
-        
-        let average = nightlyValues.reduce(0, +) / Double(nightlyValues.count)
-        
-        return HealthKitData(
-            date: Date(),
-            value: average
-        )
+    /// HealthKit returns duplicated samples whenever two devices sync the same
+    /// night, so the intervals have to be merged before they are summed.
+    private func totalAsleepHours(in intervals: [SleepSessionBuilder.Interval]) -> Double {
+        SleepSessionBuilder
+            .sessions(from: intervals)
+            .reduce(0.0) { $0 + $1.asleepDuration } / 3600.0
     }
-    
-    // MARK: - Private Methods
-    
-    /// Calculates total sleep duration from samples, handling duplicates and overlapping intervals.
+
+    /// Hours of sleep falling inside a window.
     ///
-    /// HealthKit often returns duplicate samples (from sync between devices) and overlapping
-    /// intervals. This method:
-    /// 1. Deduplicates samples with identical start/end times
-    /// 2. Merges overlapping time intervals
-    /// 3. Returns accurate total sleep time
+    /// Clips each interval to the window rather than keeping or dropping it by its
+    /// start. Dropping a straddling interval wholesale under-reported every night
+    /// of an early sleeper's baseline — a 19:30 bedtime lost its first 30 minutes
+    /// against a 20:00 window — while the measured night was never clipped, so the
+    /// comparison showed a surplus that did not exist.
     ///
-    /// - Parameter samples: Array of HKCategorySample representing sleep stages
-    /// - Returns: Total sleep duration in seconds
-    private func calculateTotalSleepDuration(from samples: [HKCategorySample]) -> TimeInterval {
-        guard !samples.isEmpty else { return 0 }
-        
-        // Step 1: Deduplicate - remove samples with identical start/end times
-        var uniqueIntervals = Set<String>()
-        var intervals: [(start: Date, end: Date)] = []
-        
-        for sample in samples {
-            let key = "\(sample.startDate.timeIntervalSince1970)-\(sample.endDate.timeIntervalSince1970)"
-            if !uniqueIntervals.contains(key) {
-                uniqueIntervals.insert(key)
-                intervals.append((sample.startDate, sample.endDate))
-            }
+    /// - Parameters:
+    ///   - intervals: Raw asleep intervals spanning the whole range
+    ///   - window: The night to measure
+    /// - Returns: Hours asleep within the window
+    private func asleepHours(
+        of intervals: [SleepSessionBuilder.Interval],
+        overlapping window: ClosedRange<Date>
+    ) -> Double {
+        let clipped = intervals.compactMap { interval -> SleepSessionBuilder.Interval? in
+            let start = max(interval.start, window.lowerBound)
+            let end = min(interval.end, window.upperBound)
+
+            guard end > start else { return nil }
+
+            return SleepSessionBuilder.Interval(start: start, end: end)
         }
-        
-        // Step 2: Sort by start time
-        intervals.sort { $0.start < $1.start }
-        
-        // Step 3: Merge overlapping intervals
-        var merged: [(start: Date, end: Date)] = []
-        
-        for interval in intervals {
-            if merged.isEmpty {
-                merged.append(interval)
-            } else {
-                let last = merged[merged.count - 1]
-                
-                // Check if intervals overlap or touch
-                if interval.start <= last.end {
-                    // Merge: extend the end time if needed
-                    merged[merged.count - 1] = (last.start, max(last.end, interval.end))
-                } else {
-                    // No overlap: add as new interval
-                    merged.append(interval)
-                }
-            }
-        }
-        
-        // Step 4: Sum up merged intervals
-        let totalSeconds = merged.reduce(0.0) { total, interval in
-            total + interval.end.timeIntervalSince(interval.start)
-        }
-        
-        return totalSeconds
+
+        return totalAsleepHours(in: clipped)
     }
-    
-    // MARK: - Historical Data Per-Night Implementation
-    
-    public func getSleepHistory(nights: Int) async throws -> [HealthKitData?] {
-        let sleepType = HKCategoryType(.sleepAnalysis)
-        var results: [HealthKitData?] = []
-        
-        for nightsAgo in 0..<nights {
-            let calendar = Calendar.current
-            guard let targetDate = calendar.date(byAdding: .day, value: -nightsAgo, to: Date()) else {
-                results.append(nil)
-                continue
-            }
-            
-            // Okno per-night: 8 PM wczoraj → 10 AM dzisiaj (ta sama logika co getLastNightSleep)
-            let windowEnd = calendar.date(bySettingHour: 10, minute: 0, second: 0, of: targetDate)!
-            let windowStart = calendar.date(byAdding: .hour, value: -14, to: windowEnd)!
-            
-            let predicate = HKQuery.predicateForSamples(
-                withStart: windowStart,
-                end: windowEnd,
-                options: .strictStartDate
-            )
-            
-            let samplePredicate = HKSamplePredicate.categorySample(
-                type: sleepType,
-                predicate: predicate
-            )
-            
-            let descriptor = HKSampleQueryDescriptor(
-                predicates: [samplePredicate],
-                sortDescriptors: []
-            )
-            
-            let samples = try await descriptor.result(for: manager.healthStore)
-            
-            // Filter for actual sleep stages (exclude awake and in bed)
-            let sleepSamples = samples.filter { sample in
-                guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value) else {
-                    return false
-                }
-                
-                switch value {
-                case .asleepCore, .asleepDeep, .asleepREM, .asleepUnspecified, .asleep:
-                    return true
-                case .awake, .inBed:
-                    return false
-                @unknown default:
-                    return false
-                }
-            }
-            
-            if !sleepSamples.isEmpty {
-                let nightSleepSeconds = calculateTotalSleepDuration(from: sleepSamples)
-                let nightSleepHours = nightSleepSeconds / 3600.0
-                
-                if nightSleepHours > 0 {
-                    results.append(HealthKitData(date: windowStart, value: nightSleepHours))
-                } else {
-                    results.append(nil)
-                }
-            } else {
-                results.append(nil)
-            }
+
+    /// Whether a sample represents actual sleep rather than time awake in bed.
+    private func isAsleep(_ sample: HKCategorySample) -> Bool {
+        guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value) else {
+            return false
         }
-        
-        return results.reversed()
+
+        switch value {
+        case .asleepCore, .asleepDeep, .asleepREM, .asleepUnspecified, .asleep:
+            return true
+        case .awake, .inBed:
+            return false
+        @unknown default:
+            return false
+        }
     }
 }
 

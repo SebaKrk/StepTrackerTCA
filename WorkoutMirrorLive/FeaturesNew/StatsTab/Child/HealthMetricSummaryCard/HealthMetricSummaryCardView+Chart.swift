@@ -12,7 +12,7 @@ import SharedModels
 extension HealthMetricSummaryCardView {
     
     struct MetricSegment {
-        let range: ClosedRange<Int>
+        let range: ClosedRange<Double>
         let color: Color
         let cornerRadius: CornerRadius
         
@@ -28,41 +28,29 @@ extension HealthMetricSummaryCardView {
         }
     }
     
+    /// The gauge behind the score, drawn from the same thresholds as its label.
+    ///
+    /// Was a quartile split of the range, which produced colours the status
+    /// vocabulary does not contain — a yellow band under a mint label — and left
+    /// the backdrop contradicting the text even once the pill was fixed.
     func metricSegments(for data: TrainingComponentScore) -> [MetricSegment] {
-        let min = data.minScore
-        let max = data.maxScore
-        let totalRange = max - min
-        let quarterRange = Double(totalRange) / 4.0
-        
-        let boundary1 = min + Int(quarterRange)
-        let boundary2 = min + Int(quarterRange * 2)
-        let boundary3 = min + Int(quarterRange * 3)
-        
-        return [
-            MetricSegment(range: min...boundary1, color: .red, cornerRadius: .bottom),
-            MetricSegment(range: boundary1...boundary2, color: .orange, cornerRadius: .none),
-            MetricSegment(range: boundary2...boundary3, color: .yellow, cornerRadius: .none),
-            MetricSegment(range: boundary3...max, color: .green, cornerRadius: .top)
-        ]
-    }
-    
-    func colorForScore(_ score: Int, data: TrainingComponentScore) -> Color {
-        let totalRange = data.maxScore - data.minScore
-        let quarterRange = Double(totalRange) / 4.0
-        
-        let boundary1 = data.minScore + Int(quarterRange)
-        let boundary2 = data.minScore + Int(quarterRange * 2)
-        let boundary3 = data.minScore + Int(quarterRange * 3)
-        
-        if score <= boundary1 {
-            return .red
-        } else if score <= boundary2 {
-            return .orange
-        } else if score <= boundary3 {
-            return .yellow
-        } else {
-            return .green
+        let bands = data.statusBands
+
+        return bands.enumerated().map { index, band in
+            MetricSegment(
+                range: band.range,
+                color: band.status.color,
+                cornerRadius: cornerRadius(at: index, of: bands.count)
+            )
         }
+    }
+
+    /// Rounds only the ends of the gauge.
+    private func cornerRadius(at index: Int, of count: Int) -> MetricSegment.CornerRadius {
+        if index == 0 { return .bottom }
+        if index == count - 1 { return .top }
+
+        return MetricSegment.CornerRadius.none
     }
     
     @ChartContentBuilder
@@ -72,11 +60,10 @@ extension HealthMetricSummaryCardView {
         }
         
         let clampedScore = max(data.minScore, min(data.maxScore, data.score))
-        
-        
+
         metricIndicator(clampedScore)
             .annotation(position: .overlay, alignment: .center) {
-                metricLabel(value: data.score, color: colorForScore(data.score, data: data))
+                metricLabel(value: data.score, color: data.status.color)
             }
     }
     
@@ -103,7 +90,7 @@ extension HealthMetricSummaryCardView {
     func metricIndicator(_ score: Int) -> some ChartContent {
         PointMark(
             x: .value("X", 0.5),
-            y: .value("Score", score)
+            y: .value("Score", Double(score))
         )
         .symbolSize(0)
     }

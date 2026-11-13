@@ -39,9 +39,12 @@ struct HealthMetricSummaryDetailsCardView: View {
     
     // MARK: - Computed Properties
     
-    /// Dynamiczny kolor bazowany na wyniku (score)
+    /// Tint for this screen, taken from the same status the label shows.
+    ///
+    /// Was a third copy of the quartile rule, so the screen's own wash disagreed
+    /// with the status it displayed a few points below it.
     private var scoreColor: Color {
-        colorForScore(store.initialData.score, data: store.initialData)
+        store.initialData.status.color
     }
     
     /// Średnia wartość z całego tygodnia
@@ -57,6 +60,11 @@ struct HealthMetricSummaryDetailsCardView: View {
                 metricsSummaryView
                 chartView
                 averageView
+
+                if store.initialData.isLongTermBelowMinimum {
+                    chronicDeficitView
+                }
+
                 descriptionView
             }
             .padding()
@@ -210,6 +218,56 @@ struct HealthMetricSummaryDetailsCardView: View {
         .foregroundStyle(.secondary)
     }
     
+    /// Says in full what the tile could only mark.
+    ///
+    /// Sits here rather than on the readiness card because it is a fact about a
+    /// habit, not about today — and because this is where the user comes looking
+    /// for context on this one signal.
+    private var chronicDeficitView: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(
+                    "Your own average over the last 60 nights is \(longTermSleepText) — below what recovery needs.",
+                    bundle: .main
+                )
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(
+                    "This does not lower your readiness score: the score compares you against your own norm, and a norm that is too low cannot show up in that comparison.",
+                    bundle: .main
+                )
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        } label: {
+            VStack(alignment: .leading) {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+
+                    Text("Chronic shortfall", bundle: .main)
+
+                    Spacer()
+                }
+                .foregroundStyle(.orange)
+                .font(.caption)
+
+                Divider()
+            }
+        }
+        .styledGroupBox()
+        .padding(4)
+    }
+
+    /// The long-term average, in the metric's own unit.
+    private var longTermSleepText: String {
+        guard let value = store.initialData.longTermValue else { return "—" }
+
+        return "\(String(format: "%.1f", value)) \(store.initialData.unit)"
+    }
+
     private var descriptionView: some View {
         GroupBox {
             VStack(spacing: 12) {

@@ -92,20 +92,26 @@ struct TimerActivityFeature {
                         let activityID = try await timerActivityClient.start(timerName, initialState)
                         await send(.activityStarted(activityID: activityID))
                     } catch {
+                        #if DEBUG
                         print("❌ [TimerActivityFeature] Start failed: \(error)")
+                        #endif
                     }
                 }
                 
             case let .activityStarted(activityID):
                 state.activityID = activityID
                 state.timerState = .running
+                #if DEBUG
                 print("✅ [TimerActivityFeature] Started: \(activityID)")
+                #endif
                 
                 return .run { send in
                     let activities = Activity<TimerActivityAttributes>.activities
                     guard let activity = activities.first(where: { $0.id == activityID }) else { return }
                     
+                    #if DEBUG
                     print("👁️ [TimerActivityFeature] Observing updates for \(activityID)")
+                    #endif
                     
                     await withTaskGroup(of: Void.self) { group in
                         group.addTask {
@@ -117,7 +123,9 @@ struct TimerActivityFeature {
                         group.addTask {
                             for await stateUpdate in activity.activityStateUpdates {
                                 if stateUpdate == .dismissed || stateUpdate == .ended {
+                                    #if DEBUG
                                     print("🛑 [TimerActivityFeature] Activity ended/dismissed externally")
+                                    #endif
                                     await send(.activityStopped)
                                 }
                             }
@@ -127,7 +135,9 @@ struct TimerActivityFeature {
                 
             case let .activityUpdated(newState):
                 state.timerState = newState.isRunning ? .running : .paused
+                #if DEBUG
                 print("🔄 [TimerActivityFeature] Synced state: isRunning=\(newState.isRunning)")
+                #endif
                 return .none
                 
             case let .update(newState):
@@ -136,20 +146,30 @@ struct TimerActivityFeature {
                     do {
                         try await timerActivityClient.update(activityID, newState)
                     } catch {
+                        #if DEBUG
                         print("⚠️ [TimerActivityFeature] Update failed: \(error)")
+                        #endif
                     }
                 }
                 
             case .stop:
                 guard let activityID = state.activityID else { return .none }
-                return .run { send in
-                    do {
-                        try await timerActivityClient.stop(activityID)
-                    } catch {
-                        print("⚠️ [TimerActivityFeature] Stop failed: \(error)")
+
+                // The local reset goes first so the stopwatch is hidden before the
+                // session dismisses; `Activity.end` ignores cancellation and must
+                // not be the one carrying an action back into a dead presentation.
+                return .merge(
+                    .send(.activityStopped),
+                    .run { _ in
+                        do {
+                            try await timerActivityClient.stop(activityID)
+                        } catch {
+                            #if DEBUG
+                            print("⚠️ [TimerActivityFeature] Stop failed: \(error)")
+                            #endif
+                        }
                     }
-                    await send(.activityStopped)
-                }
+                )
                 
             case .activityStopped:
                 state.activityID = nil

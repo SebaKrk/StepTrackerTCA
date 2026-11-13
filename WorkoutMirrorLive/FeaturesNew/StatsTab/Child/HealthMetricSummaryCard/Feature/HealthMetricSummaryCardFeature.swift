@@ -33,7 +33,16 @@ struct HealthMetricSummaryCardFeature {
                     return .none
                 }
                 
+            case .internal(.awaitingSleepData):
+                state.isAwaitingSleepData = true
+                state.components = nil
+                return .run { [tier = state.subscriptionTier] send in
+                    try await clock.sleep(for: .milliseconds(500))
+                    await send(.internal(.changeContentState(.ready(tier))))
+                }
+
             case let .internal(.dataLoaded(data)):
+                state.isAwaitingSleepData = false
                 state.components = data
                 return .run {  [tier = state.subscriptionTier] send in
                     try await clock.sleep(for: .milliseconds(500))
@@ -43,12 +52,25 @@ struct HealthMetricSummaryCardFeature {
             case .internal(.loadSummaryData):
                 return .run { send in
                     do {
-                        let result = try await trainingReadinessClient.calculate()
-                        
-                        if result.healthKitAccessDenied {
-                            await send(.internal(.changeContentState(.unauthorized)))
-                        } else {
+                        let outcome = try await trainingReadinessClient.calculate()
+
+                        switch outcome {
+                        case let .ready(result):
                             await send(.internal(.dataLoaded(result.components)))
+
+                        case .accessDenied:
+                            await send(.internal(.changeContentState(.unauthorized)))
+
+                        case .awaitingSleepData:
+                            // Not the same as missing data: the night simply has
+                            // not closed, and the tiles must not send the user off
+                            // to check the Health app over it.
+                            await send(.internal(.awaitingSleepData))
+
+                        case .insufficientData:
+                            // Placeholders rather than an error: these metrics
+                            // simply have nothing to show for the day yet.
+                            await send(.internal(.dataLoaded(nil)))
                         }
                     } catch {
                         // Instead of showing global error, we load nil data to trigger placeholders

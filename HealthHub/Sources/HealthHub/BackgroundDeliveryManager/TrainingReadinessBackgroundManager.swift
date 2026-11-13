@@ -17,6 +17,10 @@ public actor TrainingReadinessBackgroundManager {
     
     private let backgroundDeliveryManager: BackgroundDeliveryManager
     private let calculator: TrainingReadinessCalculator
+
+    /// The one-off history rebuild, tracked so it can be cancelled and so a
+    /// second `start()` cannot launch a rebuild alongside a running one.
+    private var rebuildTask: Task<Void, Never>?
     private let widgetDataClient: WidgetDataClient
     private let watchConnectivityManager: WatchConnectivityManager
 
@@ -76,12 +80,44 @@ public actor TrainingReadinessBackgroundManager {
                 }
             }
         }
+
+        // Detached from start(): a one-off catch-up must not delay registering
+        // background delivery, and it has no bearing on whether that succeeded.
+        // Guarded rather than cancel-and-restart: restarting would throw away a
+        // rebuild that is most of the way through sixty days of HealthKit reads.
+        guard rebuildTask == nil else { return }
+
+        rebuildTask = Task { [calculator] in
+            do {
+                let days = try await calculator.rebuildHistoryIfNeeded()
+
+                #if DEBUG
+                if days > 0 {
+                    print("✅ [Readiness] history rebuilt from HealthKit: \(days) days")
+                }
+                #endif
+            } catch {
+                #if DEBUG
+                print("⚠️ [Readiness] history rebuild failed: \(error)")
+                #endif
+            }
+
+            await self.clearRebuildTask()
+        }
+    }
+
+    /// Releases the rebuild slot once the rebuild has finished.
+    private func clearRebuildTask() {
+        rebuildTask = nil
     }
     
     /// Stops all background observations.
     public func stop() async throws {
         observationTask?.cancel()
         observationTask = nil
+
+        rebuildTask?.cancel()
+        rebuildTask = nil
         
         try await backgroundDeliveryManager.disable(for: observedTypes)
     }
@@ -121,7 +157,9 @@ public actor TrainingReadinessBackgroundManager {
     }
     
     private func handleNewData(for type: HKSampleType) async {
+        #if DEBUG
         print("📊 New data detected for \(type.identifier)")
+        #endif
         
         // 1. Broadcast to App (Start observing features) - IMMEDIATE
         let update = HealthDataUpdate(type: type, timestamp: Date())
@@ -133,27 +171,53 @@ public actor TrainingReadinessBackgroundManager {
         // Debounce: skip if refreshed recently (5 minutes)
         if let lastRefresh = lastRefreshDate,
            Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
+            #if DEBUG
             print("⏭️ Skipping WIDGET refresh - debounced (last refresh: \(Int(Date().timeIntervalSince(lastRefresh)))s ago)")
+            #endif
             return
         }
         
-        // Update timestamp immediately to block subsequent WIDGET refresh calls
-        lastRefreshDate = Date()
-        
-        await publishReadiness()
+        // Marked only once something was actually published. Waiting on sleep
+        // used to consume the window: the morning's four syncs arrive seconds
+        // apart, so a first event fired before the night closed would block the
+        // sleep event that follows — the one sync the result depends on.
+        if await publishReadiness() {
+            lastRefreshDate = Date()
+        }
     }
     
+    /// Recalculates readiness now, for a caller outside the observer path.
+    ///
+    /// Bypasses the debounce on purpose: a scheduled refresh already arrives at
+    /// the system's pace, and the window exists to collapse the burst of observer
+    /// callbacks that a morning sync fires, not to ration deliberate runs.
+    ///
+    /// - Returns: Whether anything reached the widget
+    @discardableResult
+    public func refreshNow() async -> Bool {
+        await publishReadiness()
+    }
+
     /// Recalculates readiness and feeds both consumers: the Home Screen widget
     /// and the paired Apple Watch.
-    private func publishReadiness() async {
+    ///
+    /// - Returns: Whether anything reached the widget, and the debounce window
+    ///   should therefore close. A failure counts as published — retrying it on
+    ///   every sample would turn a broken read into a loop.
+    @discardableResult
+    private func publishReadiness() async -> Bool {
         do {
             // 1. Calculate training readiness
-            let result = try await calculator.calculateTrainingReadiness()
+            let outcome = try await calculator.calculateReadinessOutcome()
 
-            // 2. Check if we have sufficient data
-            guard !result.hasInsufficientData else {
+            // 2. Only a scored day reaches the widget and the Watch. Waiting on
+            //    sleep is not an error — it just has nothing to publish yet.
+            guard let result = outcome.result else {
+                if case .awaitingSleepData = outcome {
+                    return false
+                }
                 await widgetDataClient.clear()
-                return
+                return true
             }
 
             // 3. Save to widget storage
@@ -170,10 +234,13 @@ public actor TrainingReadinessBackgroundManager {
                 #endif
             }
 
+            return true
         } catch {
             #if DEBUG
             print("❌ Failed to refresh readiness: \(error.localizedDescription)")
             #endif
+
+            return true
         }
     }
 }
