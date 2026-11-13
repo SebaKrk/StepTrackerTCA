@@ -46,6 +46,8 @@ struct TrainingReadinessView: View {
             )
         ) { explanationStore in
             ReadinessExplanationView(store: explanationStore)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
     
@@ -55,24 +57,28 @@ struct TrainingReadinessView: View {
         if store.isAwaitingSleepData {
             awaitingSleepData
         } else {
-            VStack(alignment: .trailing, spacing: 2) {
-                charts
-
-                readinessLevelLabel
-            }
+            charts
         }
     }
 
-    /// Card title and the way into the explanation.
+    /// Card title, the level it currently shows, and the way into the explanation.
     private var header: some View {
-        HStack {
-            Text("Training Readiness", bundle: .main)
-                .font(.caption)
+        HStack(spacing: 8) {
+            titleLabel
 
-            Spacer()
+            Spacer(minLength: 8)
+
+            readinessLevelLabel
 
             infoButton
         }
+    }
+
+    /// Card name; never truncated — the level label shrinks instead.
+    private var titleLabel: some View {
+        Text("Training Readiness", bundle: .main)
+            .font(.caption)
+            .fixedSize()
     }
 
     /// Opens the explanation of what the number is and is not.
@@ -87,21 +93,25 @@ struct TrainingReadinessView: View {
             Image(systemName: "info.circle")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .padding(.leading, 4)
+                .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text("About Training Readiness", bundle: .main))
     }
 
-    /// The level name, hidden rather than removed so the card does not reflow.
+    /// The level name, hidden rather than removed so the info button never jumps.
     ///
-    /// Sits under the chart rather than in the heading, so it is read together
-    /// with the value it describes instead of at the far edge of the card.
+    /// Shrinks instead of wrapping: the card is a fixed height and the heading has
+    /// to hold the title, this label and the button on the narrowest iPhone.
     private var readinessLevelLabel: some View {
         Text(readinessLevelText)
             .font(.caption)
-            .foregroundStyle(
-                store.isResultProvisional ? Color.secondary : store.readinessLevel.color
-            )
+            .foregroundStyle(store.readinessTint)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .opacity(store.isReadinessLevelVisible ? 1 : 0)
+            .accessibilityHidden(!store.isReadinessLevelVisible)
     }
 
     /// Level name, qualified when the score rests on partial data.
@@ -151,7 +161,10 @@ struct TrainingReadinessView: View {
     }
 
     /// Fixed so the card lines up with its neighbours in the stats grid.
-    private var cardHeight: CGFloat { 120 }
+    ///
+    /// Scaled, because everything inside it — heading, level label, axis labels
+    /// and the value pill — grows with Dynamic Type while a hard 120 would not.
+    @ScaledMetric(relativeTo: .caption) private var cardHeight: CGFloat = 120
 
     @ViewBuilder
     private var charts: some View {
@@ -161,14 +174,16 @@ struct TrainingReadinessView: View {
                 .annotation(position: .top, alignment: .center, spacing: -10) {
                     readinessLabel(
                         value: store.readinessValue,
-                        color: store.readinessLevel.color
+                        color: store.readinessTint
                     )
                 }
         }
         .chartXScale(domain: 0...100)
         .chartXAxis {
-            AxisMarks(values: [0, 25, 50, 75, 90, 100]) { value in
-                AxisValueLabel {
+            // `fixedSize` is required — without it Charts compresses every label
+            // to an ellipsis. `anchor: .top` is what centres it on its own value.
+            AxisMarks(values: ReadinessLevel.axisValues) { value in
+                AxisValueLabel(anchor: .top) {
                     if let score = value.as(Int.self) {
                         Text("\(score)")
                             .font(.footnote)

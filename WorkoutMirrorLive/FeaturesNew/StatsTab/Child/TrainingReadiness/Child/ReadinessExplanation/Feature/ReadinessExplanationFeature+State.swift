@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import SharedModels
 
 /// Implementation of `ReadinessExplanationFeature` state
 extension ReadinessExplanationFeature {
@@ -13,8 +14,18 @@ extension ReadinessExplanationFeature {
     @ObservableState
     struct State: Equatable {
 
+        /// The level shown on the card this was opened from.
+        ///
+        /// Only tints the background, the way the metric details screen tints its
+        /// own — so the sheet reads as belonging to the card it came out of.
+        let level: ReadinessLevel
+
         /// Creates the state.
-        init() {}
+        ///
+        /// - Parameter level: The level currently on the card
+        init(level: ReadinessLevel) {
+            self.level = level
+        }
     }
 
 }

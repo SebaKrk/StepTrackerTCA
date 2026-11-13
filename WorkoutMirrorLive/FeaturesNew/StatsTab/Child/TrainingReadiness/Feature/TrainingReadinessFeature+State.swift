@@ -85,6 +85,15 @@ extension TrainingReadinessFeature {
         var isResultProvisional: Bool {
             readinessResult != nil && !isReliable
         }
+
+        /// Colour shared by the score pill and the level label
+        ///
+        /// They used to be tinted independently, so a provisional result greyed
+        /// the label while the pill kept the level's colour — the card showed one
+        /// value in two different meanings.
+        var readinessTint: Color {
+            isResultProvisional ? Color.secondary : readinessLevel.color
+        }
     }
     
 }

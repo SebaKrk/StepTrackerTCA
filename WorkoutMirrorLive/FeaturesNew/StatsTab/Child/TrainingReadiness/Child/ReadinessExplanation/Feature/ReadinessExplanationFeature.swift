@@ -9,8 +9,9 @@ import ComposableArchitecture
 
 /// A feature that explains how the readiness score is produced.
 ///
-/// Holds no state: the explanation is the same every time. It exists as a feature
-/// rather than a local flag because a view may not own presentation state.
+/// Holds no state beyond the level it was opened at: the explanation is the same
+/// every time. It exists as a feature rather than a local flag because a view may
+/// not own presentation state.
 @Reducer
 struct ReadinessExplanationFeature {
 

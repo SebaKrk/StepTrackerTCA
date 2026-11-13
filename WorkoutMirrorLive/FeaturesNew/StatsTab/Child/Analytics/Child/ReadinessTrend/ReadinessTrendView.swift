@@ -114,7 +114,7 @@ struct ReadinessTrendView: View {
                     y: .value("Score", result.overallScore)
                 )
                 .foregroundStyle(.primary)
-                .lineStyle(StrokeStyle(lineWidth: 2))
+                .lineStyle(StrokeStyle(lineWidth: 1))
                 .opacity(isSelected ? 1.0 : 0.3)
 
                 PointMark(

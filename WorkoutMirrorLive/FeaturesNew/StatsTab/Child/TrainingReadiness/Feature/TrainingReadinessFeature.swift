@@ -182,7 +182,9 @@ struct TrainingReadinessFeature {
                 return .send(.delegate(.refreshRequested))
 
             case .view(.infoButtonTapped):
-                state.destination = .explanation(ReadinessExplanationFeature.State())
+                state.destination = .explanation(
+                    ReadinessExplanationFeature.State(level: state.readinessLevel)
+                )
                 return .none
 
                 // MARK: - Destination Actions
