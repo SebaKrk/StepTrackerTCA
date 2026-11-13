@@ -69,7 +69,7 @@ struct NightMeasurementResolver {
             return false
         }
 
-        return coverage.upperBound.timeIntervalSince(coverage.lowerBound) >= minimumNightCoverage
+        return coverage.covered >= minimumNightCoverage
     }
 
     /// Whether the recording appears to have stopped rather than the night ended.
@@ -89,7 +89,7 @@ struct NightMeasurementResolver {
         }
 
         let stoppedWithSession = abs(
-            coverage.upperBound.timeIntervalSince(session.end)
+            coverage.lastSample.timeIntervalSince(session.end)
         ) <= truncationGrace
 
         let unmeasuredAfter = day.nightWindow.upperBound.timeIntervalSince(session.end)

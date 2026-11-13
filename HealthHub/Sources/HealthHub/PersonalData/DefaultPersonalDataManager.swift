@@ -468,19 +468,40 @@ public final class DefaultPersonalDataManager: PersonalDataManager, @unchecked S
         return totals
     }
 
-    public func heartRateCoverage(in window: ClosedRange<Date>) async throws -> ClosedRange<Date>? {
+    /// Longest break between samples that still counts as continuous wear.
+    ///
+    /// Heart rate during sleep lands every few minutes, so a gap beyond this is
+    /// the Watch being off the wrist rather than a sparse stretch.
+    private static let maximumSampleGap: TimeInterval = 20 * 60
+
+    public func heartRateCoverage(in window: ClosedRange<Date>) async throws -> HeartRateCoverage? {
         let samples = try await quantitySamples(
             of: HKQuantityType(.heartRate),
             covering: [window]
         )
 
-        guard let first = samples.first?.startDate,
-              let last = samples.last?.endDate,
-              last > first else {
-            return nil
+        guard let last = samples.last?.endDate else { return nil }
+
+        // Summed rather than spanned: the distance between the first and last
+        // sample counts the hours the Watch spent on the charger as if they were
+        // measured, which is the opposite of what the caller is asking.
+        var covered: TimeInterval = 0
+        var previousEnd: Date?
+
+        for sample in samples {
+            if let previousEnd {
+                let gap = sample.startDate.timeIntervalSince(previousEnd)
+
+                if gap > 0, gap <= Self.maximumSampleGap {
+                    covered += gap
+                }
+            }
+
+            covered += max(0, sample.endDate.timeIntervalSince(sample.startDate))
+            previousEnd = sample.endDate
         }
 
-        return first...last
+        return HeartRateCoverage(covered: covered, lastSample: last)
     }
 
     /// Reads every sample of a type across the span the windows cover.

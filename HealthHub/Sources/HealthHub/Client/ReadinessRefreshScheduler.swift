@@ -79,10 +79,13 @@ extension ReadinessRefreshScheduler: DependencyKey {
                     task.setTaskCompleted(success: true)
                 }
 
-                // The system gives these tasks seconds, not minutes, and kills the
-                // process if the budget is ignored.
+                // The system gives these tasks seconds, not minutes. Completion has
+                // to be reported from here as well: HealthKit's query wrappers do
+                // not observe cancellation, so the job can outlive the budget, and
+                // expiring without reporting makes iOS grant fewer runs next time.
                 task.expirationHandler = {
                     job.cancel()
+                    task.setTaskCompleted(success: false)
                 }
             }
         },

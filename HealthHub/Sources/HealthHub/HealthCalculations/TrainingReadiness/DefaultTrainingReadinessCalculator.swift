@@ -194,15 +194,11 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
 
         guard !isRebuilt || !hasHistory else { return 0 }
 
-        guard let count = try await rebuildHistory(days: backfillDayCount) else {
-            // Access was refused, so there is nothing to conclude about history.
-            // Marking the version here would retire the rebuild for good the one
-            // time it ran before the user granted permission.
-            return 0
-        }
+        let count = try await rebuildHistory(days: backfillDayCount)
 
-        // Marked even when nothing was written: permission was granted and there
-        // simply is no history, so retrying every launch would never end.
+        // Marked even when nothing was written: with no history in HealthKit there
+        // is nothing to catch up on, and retrying every launch would never end.
+        // Days recorded from now on arrive through the normal path anyway.
         readinessHistoryClient.setBackfilledVersion(ReadinessAlgorithm.currentVersion)
 
         return count
@@ -213,9 +209,8 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
     /// Scores every day in the window and writes them in one batch.
     ///
     /// - Parameter days: How many days back to rebuild
-    /// - Returns: How many days had enough data to store, or `nil` when HealthKit
-    ///   refused access — a property of the store, not of any one day
-    private func rebuildHistory(days: Int) async throws -> Int? {
+    /// - Returns: How many days had enough data to store
+    private func rebuildHistory(days: Int) async throws -> Int {
         let resolver = dayResolver
         let today = calendar.startOfDay(for: date.now)
 
@@ -233,11 +228,11 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
 
             let result = try await calculateTrainingReadiness(for: day)
 
-            // Access is all-or-nothing, so one refusal ends the whole rebuild
-            // rather than quietly producing an empty history.
-            if result.healthKitAccessDenied { return nil }
-
-            // Same bar as a live calculation: a partial day must not enter the trend.
+            // Same bar as a live calculation: a partial day must not enter the
+            // trend. A completely empty day is skipped like any other — it is far
+            // more likely to predate the user's Watch than to mean a refusal, and
+            // `healthKitAccessDenied` (four missing components) cannot tell those
+            // apart. Aborting on it discarded every day already scored.
             guard !result.hasInsufficientData else { continue }
 
             scored.append(ReadinessDayResult(result: result, day: day))
