@@ -54,7 +54,7 @@ extension HealthMetricSummaryCardView {
                 Image(systemName: metric.icon)
                     .font(.title2)
                     .foregroundStyle(.primary)
-                Text(metric.missingDataMessage)
+                Text(placeholderMessage(for: metric))
                     .foregroundColor(.gray)
                     .font(.caption)
                     .multilineTextAlignment(.center)
@@ -63,33 +63,35 @@ extension HealthMetricSummaryCardView {
         }
     }
     
+    /// Status colours bottom-up, matching `TrainingComponentScore.statusBands`.
+    private var placeholderBands: [ScoreStatus] {
+        [.stronglyLowers, .lowers, .neutral, .raises, .stronglyRaises]
+    }
+
+    /// Why this tile is empty, in the same words the readiness card is using.
+    ///
+    /// Waiting for the night to close is not missing data, and telling the user to
+    /// check the Health app over it sent them looking for a fault that is not there.
+    private func placeholderMessage(for metric: HealthMetricType) -> String {
+        guard store.isAwaitingSleepData else { return metric.missingDataMessage }
+
+        return String(localized: "Waiting for sleep data", bundle: .main)
+    }
+
     @ViewBuilder
     private func placeholderChart(for metric: HealthMetricType) -> some View {
+        // Five bands in the status colours, so the blurred placeholder has the
+        // same silhouette as the gauge it stands in for.
         Chart {
-            // Mimic the 4-segment gauge scale
-            RectangleMark(
-                xStart: .value("X", 0), xEnd: .value("X", 1),
-                yStart: .value("Y", 0), yEnd: .value("Y", 25)
-            )
-            .foregroundStyle(.red.opacity(0.3))
-            
-            RectangleMark(
-                xStart: .value("X", 0), xEnd: .value("X", 1),
-                yStart: .value("Y", 25), yEnd: .value("Y", 50)
-            )
-            .foregroundStyle(.orange.opacity(0.3))
-            
-            RectangleMark(
-                xStart: .value("X", 0), xEnd: .value("X", 1),
-                yStart: .value("Y", 50), yEnd: .value("Y", 75)
-            )
-            .foregroundStyle(.yellow.opacity(0.3))
-            
-            RectangleMark(
-                xStart: .value("X", 0), xEnd: .value("X", 1),
-                yStart: .value("Y", 75), yEnd: .value("Y", 100)
-            )
-            .foregroundStyle(.green.opacity(0.3))
+            ForEach(Array(placeholderBands.enumerated()), id: \.offset) { index, status in
+                RectangleMark(
+                    xStart: .value("X", 0),
+                    xEnd: .value("X", 1),
+                    yStart: .value("Y", index * 20),
+                    yEnd: .value("Y", (index + 1) * 20)
+                )
+                .foregroundStyle(status.color.opacity(0.3))
+            }
         }
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)

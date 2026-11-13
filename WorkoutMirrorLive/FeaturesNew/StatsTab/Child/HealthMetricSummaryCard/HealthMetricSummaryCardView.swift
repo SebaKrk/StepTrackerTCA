@@ -108,6 +108,10 @@ struct HealthMetricSummaryCardView: View {
                 Text(data.unit)
                     .font(.caption)
                     .foregroundColor(.secondary)
+
+                if data.isLongTermBelowMinimum {
+                    chronicDeficitMark
+                }
             }
             
             // Timestamp - only for RHR and HRV (values that sync during the day)
@@ -121,6 +125,17 @@ struct HealthMetricSummaryCardView: View {
         }
     }
     
+    /// Marks a signal whose own long-term norm is below what recovery needs.
+    ///
+    /// A mark, not a sentence: the tile has no room for one, and the detail screen
+    /// says it in full. Carries no points — the score still describes today only.
+    private var chronicDeficitMark: some View {
+        Image(systemName: "exclamationmark.triangle.fill")
+            .font(.caption2)
+            .foregroundStyle(.orange)
+            .accessibilityLabel(Text("Chronic shortfall", bundle: .main))
+    }
+
     /// How this component moves readiness, in the same words for every metric.
     ///
     /// Activity used to branch into `ActivityStatus`, which describes the size of
@@ -128,13 +143,18 @@ struct HealthMetricSummaryCardView: View {
     /// and the fourth about load, in one row. The load wording still belongs in
     /// the details sheet, where there is room to say both.
     func currentStatusLabel(_ data: TrainingComponentScore) -> some View {
-        HStack(spacing: 4) {
+        // Baseline-aligned: the status text is longer than it was and wraps at
+        // larger Dynamic Type, which left the icon floating mid-height.
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
             Image(systemName: data.status.icon)
                 .foregroundColor(data.status.color)
                 .font(.caption)
+
             Text(data.status.text)
                 .font(.caption)
                 .foregroundColor(data.status.color)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
     
