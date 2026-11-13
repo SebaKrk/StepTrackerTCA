@@ -31,7 +31,14 @@ struct TrainingReadinessProvider: TimelineProvider {
         let finalResult: TrainingReadinessResult? = loadedResult ?? (context.isPreview ? .preview : nil)
         
         let entry = TrainingReadinessEntry(date: Date(), result: finalResult)
-        let timeline = Timeline(entries: [entry], policy: .never)
+
+        // Hourly rather than `.never`: the widget cannot calculate anything, but
+        // it can re-read what the app wrote while it was asleep. With `.never` a
+        // score computed in the background reached the screen only if the reload
+        // happened to get through.
+        let nextReload = Date(timeIntervalSinceNow: 60 * 60)
+        let timeline = Timeline(entries: [entry], policy: .after(nextReload))
+
         completion(timeline)
     }
     

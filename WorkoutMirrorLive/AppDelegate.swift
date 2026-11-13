@@ -24,6 +24,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.workoutActivityClient) var workoutActivityClient
     @Dependency(\.timerActivityClient) var timerActivityClient
+    @Dependency(\.readinessRefreshScheduler) var readinessRefreshScheduler
 
     /// Captured before anything in this process can start a Live Activity, so the
     /// launch sweep reaps only banners an earlier process left behind.
@@ -40,6 +41,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         if let options = FirebaseConfigFile.options(for: Bundle.main) {
             FirebaseApp.configure(options: options)
         }
+        // Before anything async: the system requires every task identifier to be
+        // registered by the time this method returns, or it traps on submit.
+        registerReadinessRefresh()
+
         Task {
             await startBackgroundDelivery()
         }
@@ -97,6 +102,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let timers = await timerActivityClient.endOrphans(launchedAt)
         guard workouts + timers > 0 else { return }
         Logger.session.info("[Recovery] ended \(workouts) workout + \(timers) timer Live Activity left by a previous process")
+    }
+
+    // MARK: - Scheduled Refresh
+
+    /// Registers the background refresh and asks for the first run.
+    private func registerReadinessRefresh() {
+        readinessRefreshScheduler.register()
+        readinessRefreshScheduler.schedule()
     }
 
     // MARK: - Background Delivery
