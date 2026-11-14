@@ -5,7 +5,6 @@
 //  Created by Sebastian Sciuba on 29/09/2025.
 //
 
-import ComposableArchitecture
 import Foundation
 import HealthKit
 import SharedModels
@@ -13,13 +12,19 @@ import SharedModels
 @preconcurrency
 public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendable {
 
-    // MARK: - Dependency
+    // MARK: - Properties
 
-    @Dependency(\.authorizationManager) var manager
+    /// Where the sleep readings come from.
+    ///
+    /// Live by default. A history rebuild passes a prefetch instead, so the same
+    /// session logic answers from memory without knowing the difference.
+    private let sampleSource: any SleepSampleSource
 
     // MARK: - Lifecycle
 
-    public init() {}
+    public init(sampleSource: any SleepSampleSource = HealthStoreSampleSource()) {
+        self.sampleSource = sampleSource
+    }
 
     // MARK: - API
 
@@ -112,33 +117,11 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
 
     // MARK: - Private Methods
 
-    /// Reads asleep intervals from HealthKit, dropping awake and in-bed periods.
+    /// Reads asleep intervals, dropping awake and in-bed periods.
     private func asleepIntervals(
         in window: ClosedRange<Date>
     ) async throws -> [SleepSessionBuilder.Interval] {
-        let sleepType = HKCategoryType(.sleepAnalysis)
-
-        let predicate = HKQuery.predicateForSamples(
-            withStart: window.lowerBound,
-            end: window.upperBound,
-            options: .strictStartDate
-        )
-
-        let samplePredicate = HKSamplePredicate.categorySample(
-            type: sleepType,
-            predicate: predicate
-        )
-
-        let descriptor = HKSampleQueryDescriptor(
-            predicates: [samplePredicate],
-            sortDescriptors: [SortDescriptor(\HKCategorySample.startDate, order: .forward)]
-        )
-
-        let samples = try await descriptor.result(for: manager.healthStore)
-
-        return samples
-            .filter(isAsleep)
-            .map { SleepSessionBuilder.Interval(start: $0.startDate, end: $0.endDate) }
+        try await sampleSource.asleepIntervals(in: window)
     }
 
     /// Total time asleep across intervals, with duplicates and overlaps removed.
@@ -177,22 +160,6 @@ public final class DefaultSleepDataManager: SleepDataManager, @unchecked Sendabl
         }
 
         return totalAsleepHours(in: clipped)
-    }
-
-    /// Whether a sample represents actual sleep rather than time awake in bed.
-    private func isAsleep(_ sample: HKCategorySample) -> Bool {
-        guard let value = HKCategoryValueSleepAnalysis(rawValue: sample.value) else {
-            return false
-        }
-
-        switch value {
-        case .asleepCore, .asleepDeep, .asleepREM, .asleepUnspecified, .asleep:
-            return true
-        case .awake, .inBed:
-            return false
-        @unknown default:
-            return false
-        }
     }
 }
 

@@ -12,6 +12,38 @@ import Foundation
 /// Stored alongside every saved score, so a trend chart can tell a change in the
 /// user's recovery from a change in how the score is computed. Same invariant as
 /// `ExerciseType.catalogVersion` and the Effort Points weights version.
+///
+/// ## Contract
+///
+/// These rules hold across every component. Breaking one is a deliberate change
+/// to what the score means rather than a fix, and bumps the version (K10).
+///
+/// **What the score means**
+/// - **K1** — 50 is a day in line with the user's own norm, and a deviation
+///   upwards weighs exactly as much as the same deviation downwards.
+/// - **K2** — every component compares today against the user's own norm, never
+///   against an absolute value or a population figure.
+///
+/// **Windows**
+/// - **K3** — a window never ends in the future.
+/// - **K4** — a window matches the granularity of its signal: daily aggregates
+///   (resting heart rate, active energy) are read as whole calendar days, while
+///   session signals (HRV, sleep) are read as the night's sleep session.
+///
+/// **Baselines**
+/// - **K5** — the measured day is excluded from its own baseline.
+/// - **K6** — a baseline takes N days *with data* out of a pool of M. A gap
+///   reaches further back rather than shrinking the baseline.
+///
+/// **Missing data**
+/// - **K7** — a missing component never lowers the score; the normalisation
+///   divides by the components that are present.
+/// - **K8** — a truncated recording drops its component, but no sleep while the
+///   Watch was worn is zero hours of sleep: a result, not missing data.
+///
+/// **Stability**
+/// - **K9** — the same day yields the same score, whenever it is computed.
+/// - **K10** — changing any rule above bumps `currentVersion` in the same commit.
 public enum ReadinessAlgorithm {
 
     /// Version of the rules currently in use.

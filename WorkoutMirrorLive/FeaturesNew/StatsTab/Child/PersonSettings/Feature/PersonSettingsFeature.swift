@@ -18,7 +18,6 @@ struct PersonSettingsFeature {
 
     @Dependency(\.personalDataClient) var personalDataClient
     @Dependency(\.maxHeartRateClient) var maxHeartRateClient
-    @Dependency(\.apiKeyClient) var apiKeyClient
     @Dependency(\.userProfileClient) var userProfileClient
     @Dependency(\.dismiss) var dismiss
     
@@ -99,14 +98,8 @@ struct PersonSettingsFeature {
             case .view(.xMarkButtonTapped):
                 return .run { _ in await self.dismiss() }
 
-            case .view(.apiKeyTapped):
-                let hasKey = apiKeyClient.load() != nil
-                state.destination = .apiKey(
-                    APIKeyEntryFeature.State(
-                        hasExistingKey: hasKey,
-                        isPresentedAsSheet: false
-                    )
-                )
+            case .view(.developerTapped):
+                state.destination = .developerSettings(DeveloperSettingsFeature.State())
                 return .none
 
             case .view(.editProfileTapped):
@@ -121,14 +114,6 @@ struct PersonSettingsFeature {
 
             case .view(.heartRateZonesTapped):
                 state.destination = .heartRateZoneInfo(HeartRateZoneInfoFeature.State())
-                return .none
-
-            case .destination(.presented(.apiKey(.delegate(.keySaved)))):
-                state.destination = nil
-                return .none
-
-            case .destination(.presented(.apiKey(.delegate(.keyDeleted)))):
-                state.destination = nil
                 return .none
 
             case .destination(.presented(.editProfile(.delegate(.profileSaved)))):

@@ -38,7 +38,8 @@ extension DefaultTrainingReadinessCalculator {
     /// - more than -1.5: -15 points
     func calculateSleepScore(
         for day: ReadinessDay,
-        baselineWindows: [ClosedRange<Date>]
+        baselineWindows: [ClosedRange<Date>],
+        includesLongTermTrends: Bool = true
     ) async throws -> TrainingComponentScore? {
         let measurement = try await nightMeasurementResolver.resolve(for: day)
 
@@ -71,15 +72,20 @@ extension DefaultTrainingReadinessCalculator {
         // Separate from the baseline on purpose: the baseline says what is normal
         // for this user, and a purely differential score therefore cannot notice
         // that the norm itself is too low. This window can.
-        let longTermWindows = TrainingReadinessTimeWindows.previousNights(
-            count: longTermSleepNightCount,
-            before: day,
-            calendar: calendar
-        )
-        let longTermSleep = try await sleepDataManager.getAverageSleepHours(
-            in: longTermWindows,
-            takingFirst: longTermSleepNightCount
-        )
+        //
+        // Skipped during a rebuild: only the current day displays it, no column
+        // stores it, and asking for it there reads sixty nights per rebuilt day
+        // to discard every answer.
+        let longTermSleep = includesLongTermTrends
+            ? try await sleepDataManager.getAverageSleepHours(
+                in: TrainingReadinessTimeWindows.previousNights(
+                    count: longTermSleepNightCount,
+                    before: day,
+                    calendar: calendar
+                ),
+                takingFirst: longTermSleepNightCount
+            )
+            : nil
 
         return TrainingComponentScore(
             score: score,

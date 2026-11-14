@@ -107,7 +107,20 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
     /// - Parameter day: The day to score
     /// - Returns: The readiness result for that day
     /// - Throws: HealthKit errors if data access fails
-    func calculateTrainingReadiness(for day: ReadinessDay) async throws -> TrainingReadinessResult {
+    /// Scores one day.
+    ///
+    /// - Parameters:
+    ///   - day: The day to score
+    ///   - includesLongTermTrends: Whether to work out the long-term sleep
+    ///     average. Only the current day shows it, and nothing stores it, so a
+    ///     rebuild asking for it would read sixty nights per day and throw every
+    ///     answer away.
+    /// - Returns: The day's score and its components
+    /// - Throws: HealthKit errors if data access fails
+    func calculateTrainingReadiness(
+        for day: ReadinessDay,
+        includesLongTermTrends: Bool = true
+    ) async throws -> TrainingReadinessResult {
         // HRV and sleep compare against the same nights, and running them in
         // parallel meant each fetched that set for itself — 49 nights read twice
         // every morning, and 120 identical reads in a 60-day rebuild. Resolved
@@ -118,7 +131,11 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
         // reads, so running them in sequence only added up their latencies.
         async let restingHeartRateComponent = calculateRestingHeartRateScore(for: day)
         async let hrvComponent = calculateHRVScore(for: day, baselineWindows: nightWindows)
-        async let sleepComponent = calculateSleepScore(for: day, baselineWindows: nightWindows)
+        async let sleepComponent = calculateSleepScore(
+            for: day,
+            baselineWindows: nightWindows,
+            includesLongTermTrends: includesLongTermTrends
+        )
         async let activityLoadComponent = calculateActivityLoadScore(for: day)
 
         let components = try await TrainingReadinessComponents(
@@ -206,19 +223,56 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
 
     // MARK: - Private Methods
 
-    /// Scores every day in the window and writes them in one batch.
+    /// Reads the whole span once, then scores every day in it from memory.
     ///
     /// - Parameter days: How many days back to rebuild
     /// - Returns: How many days had enough data to store
     private func rebuildHistory(days: Int) async throws -> Int {
-        let resolver = dayResolver
         let today = calendar.startOfDay(for: date.now)
+        let dayCount = max(days, 1)
+
+        // Every scored day reaches another seven weeks back for its own baseline,
+        // and the earliest night window opens the evening before that. Read live,
+        // the same weeks are fetched once per day scored; read once up front, the
+        // whole rebuild costs four queries and the rest is arithmetic.
+        guard let prefetchStart = calendar.date(
+            byAdding: .day,
+            value: -(dayCount + baselinePoolDays + 2),
+            to: today
+        ) else {
+            return 0
+        }
+
+        let prefetched = try await PrefetchedHealthSamples.covering(prefetchStart...date.now)
+
+        // The scoring is unchanged — only where its readings come from is. Anything
+        // the prefetch does not hold falls through to HealthKit on its own.
+        return try await withDependencies {
+            $0.personalDataManager = DefaultPersonalDataManager(sampleSource: prefetched)
+            $0.sleepDataManager = DefaultSleepDataManager(sampleSource: prefetched)
+        } operation: {
+            try await scoreHistory(dayCount: dayCount, endingOn: today)
+        }
+    }
+
+    /// Scores each day below `today` and writes the ones worth keeping.
+    ///
+    /// Split from `rebuildHistory(days:)` so the loop runs inside the overridden
+    /// dependencies rather than resolving them before the override is in place.
+    ///
+    /// - Parameters:
+    ///   - dayCount: How many days back to score
+    ///   - today: The day the count reaches back from, exclusive
+    /// - Returns: How many days had enough data to store
+    private func scoreHistory(dayCount: Int, endingOn today: Date) async throws -> Int {
+        let resolver = dayResolver
 
         var scored: [ReadinessDayResult] = []
 
-        // Sequential on purpose: each day issues a handful of HealthKit reads, and
-        // a task group spanning two months floods the daemon without buying time.
-        for dayOffset in 1...max(days, 1) {
+        // Sequential on purpose: what is left to read per day is the heart rate of
+        // one night, and a task group spanning two months floods the daemon with it
+        // without buying time.
+        for dayOffset in 1...dayCount {
             try Task.checkCancellation()
 
             guard let dayStart = calendar.date(byAdding: .day, value: -dayOffset, to: today),
@@ -226,7 +280,10 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
                 continue
             }
 
-            let result = try await calculateTrainingReadiness(for: day)
+            let result = try await calculateTrainingReadiness(
+                for: day,
+                includesLongTermTrends: false
+            )
 
             // Same bar as a live calculation: a partial day must not enter the
             // trend. A completely empty day is skipped like any other — it is far
