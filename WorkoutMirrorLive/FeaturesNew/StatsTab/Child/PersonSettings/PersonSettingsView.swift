@@ -32,9 +32,9 @@ struct PersonSettingsView: View {
                 .navigationTitle("Personal Settings")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(
-                    item: $store.scope(state: \.destination?.apiKey, action: \.destination.apiKey)
-                ) { apiKeyStore in
-                    APIKeyEntryView(store: apiKeyStore)
+                    item: $store.scope(state: \.destination?.developerSettings, action: \.destination.developerSettings)
+                ) { developerStore in
+                    DeveloperSettingsView(store: developerStore)
                 }
                 .sheet(
                     item: $store.scope(state: \.destination?.editProfile, action: \.destination.editProfile)
@@ -93,28 +93,32 @@ struct PersonSettingsView: View {
             } header: {
                 Text(String(localized: "Heart rate & activity"))
             } footer: {
-                Text(String(localized: "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. All information stays private on your device."))
+                Text(String(localized: "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. It stays on this device unless you send a diagnostics bundle yourself."))
             }
 
             Section {
-                HStack {
-                    Image(systemName: "key.fill")
-                        .foregroundStyle(.secondary)
-                    Text("API Key")
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    send(.apiKeyTapped)
-                }
+                developerRow
             } header: {
-                Text("Developer")
+                Text(String(localized: "Developer"))
             } footer: {
-                Text("Manage API keys for AI-powered workout parsing and analysis.")
+                Text(String(localized: "API keys for plan scanning, and diagnostics you can send when something goes wrong."))
             }
+        }
+    }
+
+    private var developerRow: some View {
+        HStack {
+            Image(systemName: "wrench.and.screwdriver.fill")
+                .foregroundStyle(.secondary)
+            Text(String(localized: "Developer tools"))
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            send(.developerTapped)
         }
     }
     

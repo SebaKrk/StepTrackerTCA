@@ -1,6 +1,46 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "API keys for plan scanning, and diagnostics you can send when something goes wrong." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klucze API do skanowania planów oraz diagnostyka, którą możesz wysłać, gdy coś nie działa."
+          }
+        }
+      }
+    },
+    "Describe what went wrong, and roughly when it happened:\n\n" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opisz, co poszło nie tak i mniej więcej kiedy:\n\n"
+          }
+        }
+      }
+    },
+    "Developer tools" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Narzędzia dewelopera"
+          }
+        }
+      }
+    },
+    "Sent to %@." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysyłane na %@."
+          }
+        }
+      }
+    },
     "" : {
 
     },
@@ -90,36 +130,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "-"
-          }
-        }
-      }
-    },
-    "Chronic shortfall" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chroniczny niedobór"
-          }
-        }
-      }
-    },
-    "This does not lower your readiness score: the score compares you against your own norm, and a norm that is too low cannot show up in that comparison." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To nie obniża Twojego wyniku gotowości: wynik porównuje Cię do Twojej własnej normy, a zbyt niska norma nie może się w tym porównaniu ujawnić."
-          }
-        }
-      }
-    },
-    "Your own average over the last 60 nights is %@ — below what recovery needs." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Twoja średnia z ostatnich 60 nocy to %@ — poniżej tego, czego wymaga regeneracja."
           }
         }
       }
@@ -1685,6 +1695,16 @@
         }
       }
     },
+    "Attach database" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołącz bazę danych"
+          }
+        }
+      }
+    },
     "Authorization status: %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2357,6 +2377,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wybierz ćwiczenie"
+          }
+        }
+      }
+    },
+    "Chronic shortfall" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chroniczny niedobór"
           }
         }
       }
@@ -3252,6 +3282,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wybór urządzenia"
+          }
+        }
+      }
+    },
+    "Diagnostics" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnostyka"
           }
         }
       }
@@ -8125,6 +8165,16 @@
         }
       }
     },
+    "Send diagnostics" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij diagnostykę"
+          }
+        }
+      }
+    },
     "Send to %@" : {
       "localizations" : {
         "pl" : {
@@ -8851,6 +8901,26 @@
         }
       }
     },
+    "The bundle describes the app only — versions, migrations and row counts. No training data leaves the device." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paczka opisuje wyłącznie aplikację — wersje, migracje i liczby wierszy. Żadne dane treningowe nie opuszczają urządzenia."
+          }
+        }
+      }
+    },
+    "The bundle will carry your full training history and your profile." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paczka będzie zawierać całą Twoją historię treningową i profil."
+          }
+        }
+      }
+    },
     "The cap is not a whole number of %lld s intervals." : {
       "localizations" : {
         "pl" : {
@@ -9121,6 +9191,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "To urządzenie nie obsługuje Bluetooth Low Energy wymaganego przez monitory tętna"
+          }
+        }
+      }
+    },
+    "This does not lower your readiness score: the score compares you against your own norm, and a norm that is too low cannot show up in that comparison." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To nie obniża Twojego wyniku gotowości: wynik porównuje Cię do Twojej własnej normy, a zbyt niska norma nie może się w tym porównaniu ujawnić."
           }
         }
       }
@@ -10527,6 +10607,16 @@
         }
       }
     },
+    "Your own average over the last 60 nights is %@ — below what recovery needs." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoja średnia z ostatnich 60 nocy to %@ — poniżej tego, czego wymaga regeneracja."
+          }
+        }
+      }
+    },
     "Your past results for this plan — track your progress over time." : {
       "localizations" : {
         "pl" : {
@@ -10549,11 +10639,22 @@
       }
     },
     "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. All information stays private on your device." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."
+          }
+        }
+      }
+    },
+    "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. It stays on this device unless you send a diagnostics bundle yourself." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje dane osobowe służą do wyliczania stref tętna, spalonych kalorii i rekomendacji treningowych. Zostają na tym urządzeniu, chyba że sam wyślesz paczkę diagnostyczną."
           }
         }
       }
