@@ -38,6 +38,8 @@ private enum UserProfileClientKey: DependencyKey {
                         name: profile.name,
                         surname: profile.surname,
                         nickname: profile.nickname,
+                        accountUid: profile.accountUid,
+                        onboardedAt: profile.onboardedAt,
                         createdAt: now,
                         updatedAt: now
                     )

@@ -21,9 +21,12 @@ struct PersonProfileEditView: View {
 
     var body: some View {
         NavigationStack {
+            // The contact section is hidden until sign-in exists. Apple supplies
+            // the address at login — often a private relay one — and a hand-typed
+            // second address would leave no way to tell which is real. The stored
+            // value is kept untouched and returns with that screen.
             Form {
                 profileSection
-                contactSection
             }
             .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.inline)

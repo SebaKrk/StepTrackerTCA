@@ -41,6 +41,11 @@ struct AppTabNewView: View {
             ) { store in
                 SessionView(store: store)
             }
+            .fullScreenCover(
+                item: $store.scope(state: \.onboarding, action: \.onboarding)
+            ) { store in
+                OnboardingView(store: store)
+            }
     }
 
     private var tabView: some View {

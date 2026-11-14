@@ -516,6 +516,19 @@ public enum AppDatabaseSchema {
             .execute(db)
         }
 
+        migrator.registerMigration("v20_userProfile_accountAndOnboarding") { db in
+            try #sql("""
+                ALTER TABLE "userProfileRecords"
+                ADD COLUMN "accountUid" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT ''
+                """)
+            .execute(db)
+
+            try #sql("""
+                ALTER TABLE "userProfileRecords" ADD COLUMN "onboardedAt" TEXT
+                """)
+            .execute(db)
+        }
+
         return migrator
     }
 }

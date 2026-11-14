@@ -1,6 +1,56 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "First name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imię"
+          }
+        }
+      }
+    },
+    "How should others see you?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak mają Cię widzieć inni?"
+          }
+        }
+      }
+    },
+    "Let's start" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaczynamy"
+          }
+        }
+      }
+    },
+    "People in your groups and the coach in the gym see your nickname. Your name and surname stay on this device." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój pseudonim widzą osoby w Twoich grupach i trener na sali. Imię i nazwisko zostają na tym urządzeniu."
+          }
+        }
+      }
+    },
+    "Surname (optional)" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwisko (opcjonalnie)"
+          }
+        }
+      }
+    },
     "API keys for plan scanning, and diagnostics you can send when something goes wrong." : {
       "localizations" : {
         "pl" : {
