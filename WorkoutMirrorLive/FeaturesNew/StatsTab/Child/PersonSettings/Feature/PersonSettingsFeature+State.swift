@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import HealthHub
 import SharedModels
 
@@ -51,7 +52,7 @@ extension PersonSettingsFeature {
 
         /// Max heart rate calculated from age and biological sex
         var maxHR: Int?
-        
+
         // MARK: - Destination
         
         /// destination from PersonSettingsFeature
