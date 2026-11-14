@@ -62,7 +62,6 @@ struct PersonSettingsView: View {
                 coreMetricsCell("Name", store.userProfile?.name ?? "-")
                 coreMetricsCell("Surname", store.userProfile?.surname ?? "-")
                 coreMetricsCell("Nickname", store.userProfile?.nickname ?? "-")
-                coreMetricsCell("Email", store.userProfile?.email ?? "-")
             } header: {
                 Text("Identity")
             } footer: {

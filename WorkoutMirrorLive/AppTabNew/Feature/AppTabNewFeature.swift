@@ -21,6 +21,8 @@ struct AppTabNewFeature {
     @Dependency(\.effortScoreClient) var effortScoreClient
     @Dependency(\.classParticipationClient) var classParticipationClient
     @Dependency(\.exerciseCatalogClient) var exerciseCatalogClient
+    @Dependency(\.userProfileClient) var userProfileClient
+    @Dependency(\.teamClient) var teamClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
 
@@ -74,8 +76,35 @@ struct AppTabNewFeature {
                         } catch {
                             Logger.session.error("[Catalog] rematch failed: \(error)")
                         }
+                    },
+                    .run { [userProfileClient] send in
+                        await send(.profileLoaded(try? await userProfileClient.fetch()))
                     }
                 )
+
+            case let .profileLoaded(stored):
+                // A stored nickname is what onboarding exists to produce, so its
+                // absence is the only thing that reopens the gate.
+                guard let profile = stored,
+                      !profile.nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    state.onboarding = OnboardingFeature.State(existing: stored)
+                    return .none
+                }
+
+                guard profile.accountUid.isEmpty else { return .none }
+
+                // Onboarding ran without a network, so the account was never
+                // created. Catching up here keeps the profile keyed by an
+                // account rather than by a device.
+                return .run { [userProfileClient, teamClient] _ in
+                    guard let uid = try? await teamClient.ensureSignedIn(), !uid.isEmpty else {
+                        return
+                    }
+
+                    var updated = profile
+                    updated.accountUid = uid
+                    try? await userProfileClient.save(updated)
+                }
 
             case let .workoutSavedEventReceived(workoutId):
                 // The list/badge refresh happens without our involvement: the list observes
@@ -189,9 +218,13 @@ struct AppTabNewFeature {
                     .send(.persistClassRecap(workoutId))
                 )
 
+            case .onboarding(.presented(.delegate(.finished))):
+                state.onboarding = nil
+                return .none
+
             case .destination:
                 return .none
-                
+
             default:
                 return .none
             }
@@ -202,6 +235,9 @@ struct AppTabNewFeature {
         }
         Scope(state: \.activities, action: \.activities) {
             ActivitiesFeature()
+        }
+        .ifLet(\.$onboarding, action: \.onboarding) {
+            OnboardingFeature()
         }
         .ifLet(\.$destination, action: \.destination)
     }
@@ -302,6 +338,9 @@ extension AppTabNewFeature {
         /// effort-score flow — a workout can have a recap, a score, both, or neither.
         case persistClassRecap(UUID)
 
+        /// The stored profile, read at launch to decide whether onboarding runs.
+        case profileLoaded(UserProfile?)
+
         // MARK: - View Actions
         
         case view(View)
@@ -324,6 +363,11 @@ extension AppTabNewFeature {
         
         /// Action to handle navigation destinations within this feature.
         case destination(PresentationAction<Destination.Action>)
+
+        // MARK: - Onboarding
+
+        /// Welcome screen, presented over everything until a profile exists.
+        case onboarding(PresentationAction<OnboardingFeature.Action>)
     }
 }
 
@@ -357,6 +401,12 @@ extension AppTabNewFeature {
         
         /// destination from WorkoutFeature
         @Presents var destination: Destination.State?
+
+        // MARK: - Onboarding
+
+        /// Welcome screen. Kept apart from `destination` because it is a gate
+        /// into the app, not somewhere the app navigates to.
+        @Presents var onboarding: OnboardingFeature.State?
     }
     
 }
