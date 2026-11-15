@@ -78,6 +78,13 @@ extension LiveSessionFeature {
         /// Phase panel state. Non-nil only when the workout has an associated training plan.
         var phasePanel: PhasePanelFeature.State? = nil
 
+        /// Whether the plan panel is hidden, toggled from the session toolbar.
+        ///
+        /// Persisted: someone who trains without reading the plan should not
+        /// have to hide it again at the start of every workout.
+        @Shared(.appStorage("liveSessionPlanHidden"))
+        var isPlanHidden: Bool = false
+
         // MARK: - Interval Timer
 
         /// Boxing-rounds timer. Non-nil when the plan carries an `IntervalPlan`

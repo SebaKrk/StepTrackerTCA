@@ -118,6 +118,9 @@ extension LiveSessionFeature {
             /// User swiped the cycling tile carousel to another page.
             case distanceTilePageChanged(DistanceTilePage)
 
+            /// Toolbar: shows or hides the training plan panel.
+            case planVisibilityToggled
+
             /// Landscape card header: switches the main card zones ⇄ intervals.
             case landscapeTimerToggleTapped
         }
