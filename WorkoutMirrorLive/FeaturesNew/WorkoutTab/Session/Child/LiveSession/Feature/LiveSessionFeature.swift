@@ -212,6 +212,10 @@ struct LiveSessionFeature {
                 state.distanceTilePage = page
                 return .none
 
+            case .view(.planVisibilityToggled):
+                state.$isPlanHidden.withLock { $0.toggle() }
+                return .none
+
             case .view(.landscapeTimerToggleTapped):
                 return .send(.toggleIntervalTimerVisibility)
                 
