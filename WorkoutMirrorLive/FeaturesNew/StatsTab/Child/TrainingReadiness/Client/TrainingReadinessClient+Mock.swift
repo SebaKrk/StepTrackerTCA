@@ -54,6 +54,7 @@ public extension TrainingReadinessClient {
                 )
             )
         },
+        invalidate: {},
         history: { days in
             []
         }
@@ -90,6 +91,7 @@ public extension TrainingReadinessClient {
                 )
             )
         },
+        invalidate: {},
         history: { _ in [] }
     )
 
@@ -106,6 +108,7 @@ public extension TrainingReadinessClient {
                 )
             )
         },
+        invalidate: {},
         history: { _ in [] }
     )
 

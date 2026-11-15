@@ -34,6 +34,12 @@ public struct TrainingReadinessClient: Sendable {
     /// - Returns: `ReadinessOutcome` carrying the score or the reason there is none
     /// - Throws: Errors if HealthKit access fails or calculation encounters issues
     public var calculate: @Sendable () async throws -> ReadinessOutcome
+
+    /// Drops the shared result, so the next `calculate` reads HealthKit again.
+    ///
+    /// Sent before a pull-to-refresh fans out: both cards then join one fresh
+    /// calculation instead of being served what they already had.
+    public var invalidate: @Sendable () async -> Void
     
     /// Retrieves historical training readiness data.
     ///
@@ -53,10 +59,18 @@ public extension DependencyValues {
 public enum TrainingReadinessClientKey: DependencyKey {
     public static let liveValue: TrainingReadinessClient = {
         @Dependency(\.trainingReadinessCalculator) var calculator
-        
+
+        // Both stats cards ask on their own appearance, within the same frame.
+        let coordinator = ReadinessCalculationCoordinator {
+            try await calculator.calculateReadinessOutcome()
+        }
+
         return TrainingReadinessClient(
             calculate: {
-                return try await calculator.calculateReadinessOutcome()
+                try await coordinator.outcome()
+            },
+            invalidate: {
+                await coordinator.invalidate()
             },
             history: { days in
                 try await calculator.getTrainingReadinessHistory(days: days)
