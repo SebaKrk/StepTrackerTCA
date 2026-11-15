@@ -33,9 +33,9 @@ struct HealthMetricSummaryCardFeature {
                     return .none
                 }
                 
-            case .internal(.awaitingSleepData):
+            case let .internal(.awaitingSleepData(components)):
                 state.isAwaitingSleepData = true
-                state.components = nil
+                state.components = components
                 return .run { [tier = state.subscriptionTier] send in
                     try await clock.sleep(for: .milliseconds(500))
                     await send(.internal(.changeContentState(.ready(tier))))
@@ -61,11 +61,12 @@ struct HealthMetricSummaryCardFeature {
                         case .accessDenied:
                             await send(.internal(.changeContentState(.unauthorized)))
 
-                        case .awaitingSleepData:
+                        case let .awaitingSleepData(_, components):
                             // Not the same as missing data: the night simply has
                             // not closed, and the tiles must not send the user off
-                            // to check the Health app over it.
-                            await send(.internal(.awaitingSleepData))
+                            // to check the Health app over it. The tiles it does
+                            // not gate arrive filled.
+                            await send(.internal(.awaitingSleepData(components)))
 
                         case .insufficientData:
                             // Placeholders rather than an error: these metrics

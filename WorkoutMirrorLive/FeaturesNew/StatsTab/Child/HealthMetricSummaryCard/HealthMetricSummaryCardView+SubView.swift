@@ -73,7 +73,9 @@ extension HealthMetricSummaryCardView {
     /// Waiting for the night to close is not missing data, and telling the user to
     /// check the Health app over it sent them looking for a fault that is not there.
     private func placeholderMessage(for metric: HealthMetricType) -> String {
-        guard store.isAwaitingSleepData else { return metric.missingDataMessage }
+        guard store.isAwaitingSleepData, metric.isMeasuredDuringSleep else {
+            return metric.missingDataMessage
+        }
 
         return String(localized: "Waiting for sleep data", bundle: .main)
     }

@@ -23,8 +23,9 @@ extension HealthMetricSummaryCardFeature {
             ///
             case changeContentState(ContentState)
             
-            /// Action triggered when the night has not ended yet
-            case awaitingSleepData
+            /// Action triggered when the night has not ended yet, carrying the
+            /// components that do not depend on it.
+            case awaitingSleepData(TrainingReadinessComponents)
 
             ///
             case dataLoaded(TrainingReadinessComponents?)

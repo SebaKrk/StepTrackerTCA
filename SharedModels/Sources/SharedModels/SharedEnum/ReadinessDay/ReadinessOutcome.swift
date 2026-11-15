@@ -19,8 +19,13 @@ public enum ReadinessOutcome: Sendable, Equatable {
 
     /// The night is still open, so scoring it would mean scoring half a night.
     ///
-    /// - Parameter expectedBy: When a result should become available, if known.
-    case awaitingSleepData(expectedBy: Date?)
+    /// Carries the components the night does not gate: the day has no score yet,
+    /// but resting heart rate and yesterday's load are already known.
+    ///
+    /// - Parameters:
+    ///   - expectedBy: When a result should become available, if known.
+    ///   - components: The components measurable before the night closes.
+    case awaitingSleepData(expectedBy: Date?, components: TrainingReadinessComponents)
 
     /// Too few components were available to score the day.
     case insufficientData

@@ -131,7 +131,7 @@ struct TrainingReadinessFeature {
                         case let .ready(result):
                             await send(.internal(.readinessCalculated(result)))
 
-                        case let .awaitingSleepData(expectedBy):
+                        case let .awaitingSleepData(expectedBy, _):
                             // Not an error: the night simply has not ended yet.
                             // The widget keeps whatever it last showed.
                             await send(.internal(.awaitingSleepData(expectedBy: expectedBy)))

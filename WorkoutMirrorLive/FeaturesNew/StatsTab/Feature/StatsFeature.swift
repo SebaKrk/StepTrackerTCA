@@ -20,6 +20,7 @@ struct StatsFeature {
     @Dependency(\.authorizationManager) var authorizationManager
     @Dependency(\.dataAnalyzerClient) var dataAnalyzerClient 
     @Dependency(\.trainingReadinessBackgroundManager) var trainingReadinessBackgroundManager
+    @Dependency(\.trainingReadinessClient) var trainingReadinessClient
     
     // MARK: - Reducer
     
@@ -174,7 +175,12 @@ struct StatsFeature {
                     .run { _ in try? await Task.sleep(for: .seconds(2)) }
                         .cancellable(id: StatsFeatureCancelID.refresh, cancelInFlight: true)
                 )
-                return .merge(effects)
+                // Dropped before the children ask, not after: they share one
+                // calculation, and the one from before the pull would answer both.
+                return .concatenate(
+                    .run { _ in await trainingReadinessClient.invalidate() },
+                    .merge(effects)
+                )
                 
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())
