@@ -71,7 +71,11 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
         let resolver = dayResolver
 
         guard let day = try await resolver.resolve() else {
-            return .awaitingSleepData(expectedBy: resolver.expectedAvailability())
+            // The open night gates the score, not every measurement behind it.
+            return .awaitingSleepData(
+                expectedBy: resolver.expectedAvailability(),
+                components: try await nightIndependentComponents(resolver: resolver)
+            )
         }
 
         let result = try await calculateTrainingReadiness(for: day)
@@ -97,6 +101,39 @@ public struct DefaultTrainingReadinessCalculator: TrainingReadinessCalculator {
         }
 
         return .ready(result)
+    }
+
+    /// The components that can be measured while the night is still open.
+    ///
+    /// Resting heart rate reads yesterday's whole day and the load reads
+    /// yesterday's active energy, so both are the same numbers the scored day
+    /// will carry once the night closes. HRV and sleep are left empty: their
+    /// window is the night that has not ended.
+    ///
+    /// - Parameter resolver: Resolver that provides the provisional day
+    /// - Returns: Components with HRV and sleep empty
+    /// - Throws: HealthKit errors if data access fails
+    private func nightIndependentComponents(
+        resolver: ReadinessDayResolver
+    ) async throws -> TrainingReadinessComponents {
+        guard let day = resolver.provisionalDay(now: date.now) else {
+            return TrainingReadinessComponents(
+                restingHeartRate: nil,
+                heartRateVariability: nil,
+                sleepQuality: nil,
+                previousDayLoad: nil
+            )
+        }
+
+        async let restingHeartRateComponent = calculateRestingHeartRateScore(for: day)
+        async let activityLoadComponent = calculateActivityLoadScore(for: day)
+
+        return try await TrainingReadinessComponents(
+            restingHeartRate: restingHeartRateComponent,
+            heartRateVariability: nil,
+            sleepQuality: nil,
+            previousDayLoad: activityLoadComponent
+        )
     }
 
     /// Calculates readiness for an already resolved day.

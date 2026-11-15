@@ -95,7 +95,17 @@ public extension TrainingReadinessClient {
 
     /// Mock for the morning state, before the night has been recorded.
     static let awaitingSleepMock = Self(
-        calculate: { .awaitingSleepData(expectedBy: nil) },
+        calculate: {
+            .awaitingSleepData(
+                expectedBy: nil,
+                components: TrainingReadinessComponents(
+                    restingHeartRate: nil,
+                    heartRateVariability: nil,
+                    sleepQuality: nil,
+                    previousDayLoad: nil
+                )
+            )
+        },
         history: { _ in [] }
     )
 

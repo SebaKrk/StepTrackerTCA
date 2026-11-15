@@ -126,15 +126,29 @@ struct ReadinessDayResolver {
 
     /// Builds a day from fixed clock hours, once that window has fully passed.
     private func clockAnchoredDay(now: Date) -> ReadinessDay? {
+        guard let day = provisionalDay(now: now) else { return nil }
+
+        // Before the window closes there is nothing complete to score.
+        guard now >= day.nightWindow.upperBound else { return nil }
+
+        return day
+    }
+
+    /// Builds the clock-anchored day while its window may still be open.
+    ///
+    /// Only components that do not read the night may be calculated from it —
+    /// anything measured inside the window would be reading a window that has
+    /// not finished, which is what makes a score move between recalculations.
+    ///
+    /// - Parameter now: The moment the day is being resolved for
+    /// - Returns: The day, or `nil` if its boundaries cannot be built
+    func provisionalDay(now: Date) -> ReadinessDay? {
         let dayStart = calendar.startOfDay(for: now)
 
         guard let window = TrainingReadinessTimeWindows.fallbackNightWindow(
             endingOn: dayStart,
             calendar: calendar
         ) else { return nil }
-
-        // Before the window closes there is nothing complete to score.
-        guard now >= window.upperBound else { return nil }
 
         return ReadinessDay(dayStart: dayStart, nightWindow: window, anchor: .clock)
     }

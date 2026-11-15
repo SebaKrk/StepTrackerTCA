@@ -105,6 +105,17 @@ public enum HealthMetricType: String, CaseIterable, Identifiable, Sendable {
     /// check the Health app or start tracking sleep — instructions that read as a
     /// fault report, and sent people looking for a problem on a morning when the
     /// Watch simply had not synced yet.
+    /// Whether the metric is read from the night itself.
+    ///
+    /// Only these two wait for the night to close. The other two are whole days
+    /// that already ended, so telling the user they wait on sleep is untrue.
+    public var isMeasuredDuringSleep: Bool {
+        switch self {
+        case .hrv, .sleep: return true
+        case .rhr, .activity: return false
+        }
+    }
+
     public var missingDataMessage: String {
         switch self {
         case .rhr:
