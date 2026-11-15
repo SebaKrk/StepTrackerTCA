@@ -27,7 +27,14 @@ extension StatsFeature {
         ///
         /// - Parameter: `StatsFeatureContext` representing the selected context.
         case selectedPickerChange(StatsFeatureContext)
-        
+
+        /// Returns the tab to the state it opens in — sent when its tab bar item
+        /// is tapped while it is already the selected tab.
+        case resetToRoot
+
+        /// Reports whether the Today scroll view sits away from its top.
+        case todayScrolledChanged(Bool)
+
         /// Updates the availability state of Apple Intelligence.
         case updateDataAnalyzer(Bool)
         

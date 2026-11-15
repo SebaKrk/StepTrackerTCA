@@ -53,6 +53,15 @@ struct PlansFeature {
                 state.destination = .importPlan(ImportPlanFeature.State())
                 return .none
 
+            case let .view(.scrolledChanged(isScrolled)):
+                guard state.isScrolled != isScrolled else { return .none }
+                state.isScrolled = isScrolled
+                return .none
+
+            case .scrollToTop:
+                state.scrollToTopToken += 1
+                return .none
+
                 // MARK: - Destination
 
             case .destination(.presented(.addPlan(.delegate(.saved(let session))))):

@@ -32,14 +32,5 @@ extension OnboardingFeature {
             case continueTapped
         }
 
-        // MARK: - Delegate
-
-        case delegate(Delegate)
-
-        enum Delegate {
-
-            /// The profile is stored and the app can take over.
-            case finished
-        }
     }
 }

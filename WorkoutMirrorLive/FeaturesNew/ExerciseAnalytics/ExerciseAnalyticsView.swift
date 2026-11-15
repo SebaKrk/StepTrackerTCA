@@ -19,17 +19,34 @@ struct ExerciseAnalyticsView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                monthSelector
-                movementBalanceCard
-                sortModePicker
-                exerciseListCard
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 16) {
+                    // A marker of its own, so the anchor cannot disappear with
+                    // the content it was attached to.
+                    Color.clear
+                        .frame(height: 0)
+                        .id(Self.topAnchor)
+                    monthSelector
+                    movementBalanceCard
+                    sortModePicker
+                    exerciseListCard
+                }
+                .padding()
             }
-            .padding()
-        }
-        .onAppear {
-            send(.onAppear)
+            // The offset at rest is the negated top inset, so the sum is zero
+            // exactly when the view sits at its top.
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top > 1
+            } action: { _, isScrolled in
+                send(.scrolledChanged(isScrolled))
+            }
+            .onChange(of: store.scrollToTopToken) {
+                withAnimation { proxy.scrollTo(Self.topAnchor, anchor: .top) }
+            }
+            .onAppear {
+                send(.onAppear)
+            }
         }
         .sheet(item: $store.scope(state: \.detail, action: \.detail)) { store in
             NavigationStack {
@@ -37,6 +54,9 @@ struct ExerciseAnalyticsView: View {
             }
         }
     }
+
+    /// Identifies the first card, so the proxy has something to scroll back to.
+    private static let topAnchor = "exercise-analytics-top"
 
     // MARK: - Month Selector
 

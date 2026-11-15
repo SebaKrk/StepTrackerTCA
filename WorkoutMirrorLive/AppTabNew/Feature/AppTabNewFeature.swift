@@ -38,10 +38,31 @@ struct AppTabNewFeature {
                 
                 // MARK: - Action
             case let .tabChanged(tab):
-                if tab == .workout {
-                    return .send(.activateWorkoutView)
-                } else {
-                    state.selectedTab = tab
+                guard tab != .workout else { return .send(.activateWorkoutView) }
+
+                // Tapping the tab you are already on returns it to its root.
+                // UIKit's tab controller does this for free; SwiftUI does not,
+                // so the app felt like it ignored the tap.
+                guard tab != state.selectedTab else {
+                    return .send(.resetTabToRoot(tab))
+                }
+
+                state.selectedTab = tab
+                return .none
+
+            case let .resetTabToRoot(tab):
+                // Each tab clears its own state — the parent knows that a tab
+                // has a root, not what that root is made of.
+                switch tab {
+                case .stats:
+                    return .send(.stats(.resetToRoot))
+                case .activities:
+                    return .send(.activities(.resetToRoot))
+                case .workout:
+                    // Re-opens its configurator through `tabChanged` already.
+                    return .none
+                case .live, .person:
+                    // Declared in `AppScreen` but never shown in `state.tabs`.
                     return .none
                 }
                 
@@ -218,10 +239,6 @@ struct AppTabNewFeature {
                     .send(.persistClassRecap(workoutId))
                 )
 
-            case .onboarding(.presented(.delegate(.finished))):
-                state.onboarding = nil
-                return .none
-
             case .destination:
                 return .none
 
@@ -340,6 +357,9 @@ extension AppTabNewFeature {
 
         /// The stored profile, read at launch to decide whether onboarding runs.
         case profileLoaded(UserProfile?)
+
+        /// Returns a tab to the state it opens in, after its own item was tapped.
+        case resetTabToRoot(AppScreen)
 
         // MARK: - View Actions
         

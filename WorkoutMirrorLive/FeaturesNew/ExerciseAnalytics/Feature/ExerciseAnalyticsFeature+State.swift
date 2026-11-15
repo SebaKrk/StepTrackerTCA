@@ -38,6 +38,16 @@ extension ExerciseAnalyticsFeature {
         /// Navigation destination for exercise detail drilldown.
         @Presents var detail: ExerciseDetailFeature.State?
 
+        // MARK: - Scrolling
+
+        /// Whether the scroll view sits away from its top.
+        var isScrolled: Bool = false
+
+        /// Bumped to ask the scroll view to go back to the top.
+        ///
+        /// A counter rather than a flag, so two taps in a row both land.
+        var scrollToTopToken: Int = 0
+
         // MARK: - Computed
 
         /// Groups logs by exercise type and returns sorted summaries for the list.

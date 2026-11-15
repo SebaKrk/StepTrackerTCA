@@ -121,8 +121,17 @@ struct PersonalActivityFeature {
             case let .allWorkoutZonesAnalyzed(zoneInfo):
                 state.zoneInfo = zoneInfo
                 return .send(.changeViewState(.success))
-                
+
+            case .scrollToTop:
+                state.scrollToTopToken += 1
+                return .none
+
                 // MARK: - View Action
+
+            case let .view(.scrolledChanged(isScrolled)):
+                guard state.isScrolled != isScrolled else { return .none }
+                state.isScrolled = isScrolled
+                return .none
                 
             case .view(.viewDidAppear):
                 return .merge(

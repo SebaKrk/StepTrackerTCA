@@ -29,6 +29,15 @@ struct ExerciseAnalyticsFeature {
                 state.selectedMonth = now
                 return loadLogs(for: state.selectedMonth)
 
+            case let .view(.scrolledChanged(isScrolled)):
+                guard state.isScrolled != isScrolled else { return .none }
+                state.isScrolled = isScrolled
+                return .none
+
+            case .scrollToTop:
+                state.scrollToTopToken += 1
+                return .none
+
             case let .view(.monthChanged(date)):
                 state.selectedMonth = date
                 state.isChartAnimated = false
