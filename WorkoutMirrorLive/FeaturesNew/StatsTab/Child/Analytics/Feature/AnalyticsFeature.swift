@@ -49,6 +49,15 @@ struct AnalyticsFeature {
                 }
                 return .send(.internal(.initializeChildren))
 
+            case let .view(.scrolledChanged(isScrolled)):
+                guard state.isScrolled != isScrolled else { return .none }
+                state.isScrolled = isScrolled
+                return .none
+
+            case .scrollToTop:
+                state.scrollToTopToken += 1
+                return .none
+
             case .view(.refresh):
                 var effects: [Effect<Action>] = []
                 if state.workoutVolume != nil {

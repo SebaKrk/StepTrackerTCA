@@ -23,6 +23,16 @@ extension AnalyticsFeature {
         @Shared(.appStorage(.subscriptionTier))
         var subscriptionTier: SubscriptionTier = .basic
 
+        // MARK: - Scrolling
+
+        /// Whether the scroll view sits away from its top.
+        var isScrolled: Bool = false
+
+        /// Bumped to ask the scroll view to go back to the top.
+        ///
+        /// A counter rather than a flag, so two taps in a row both land.
+        var scrollToTopToken: Int = 0
+
         // MARK: - Child
 
         /// Child feature displaying weekly workout volume as a stacked bar chart.

@@ -17,6 +17,7 @@ struct OnboardingFeature {
 
     @Dependency(\.userProfileClient) var userProfileClient
     @Dependency(\.teamClient) var teamClient
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
 
@@ -46,7 +47,14 @@ struct OnboardingFeature {
                 // MARK: - Action
             case let .saveFinished(didSucceed):
                 state.isSaving = false
-                return didSucceed ? .send(.delegate(.finished)) : .none
+
+                guard didSucceed else { return .none }
+
+                // The screen closes itself rather than handing the parent a
+                // delegate to nil the state on. The parent's write landed
+                // before `ifLet` ran, so the child was already gone when its
+                // own action arrived.
+                return .run { _ in await dismiss() }
 
                 // MARK: - View Action
             case .view(.continueTapped):
@@ -75,10 +83,6 @@ struct OnboardingFeature {
                     reportIssue(error)
                     await send(.saveFinished(false))
                 }
-
-                // MARK: - Delegate
-            case .delegate:
-                return .none
             }
         }
     }

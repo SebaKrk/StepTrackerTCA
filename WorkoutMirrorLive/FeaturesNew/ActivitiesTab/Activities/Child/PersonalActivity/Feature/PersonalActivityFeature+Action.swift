@@ -41,15 +41,21 @@ extension PersonalActivityFeature {
         /// Triggered when workout deletion fails (e.g. not owned by this app).
         case deleteFailed
         
+        /// Asks the list to scroll back to its top.
+        case scrollToTop
+
         // MARK: - View Actions
-        
+
         case view(View)
-        
+
         @CasePathable
         enum View {
 
             /// Triggered when the view appears on screen.
             case viewDidAppear
+
+            /// Reports whether the list sits away from its top.
+            case scrolledChanged(Bool)
 
             /// Changes the number of days to fetch workouts for.
             case changeDays(Int)
