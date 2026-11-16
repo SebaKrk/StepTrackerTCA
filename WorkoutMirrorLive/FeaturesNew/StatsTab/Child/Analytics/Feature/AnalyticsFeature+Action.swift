@@ -29,6 +29,9 @@ extension AnalyticsFeature {
             case initializeChildren
         }
 
+        /// Asks the scroll view to go back to its top.
+        case scrollToTop
+
         // MARK: - View Actions
 
         case view(View)
@@ -38,6 +41,9 @@ extension AnalyticsFeature {
             /// Triggered when the analytics view appears on screen.
             /// Initializes children if not yet created (first appearance only).
             case viewDidAppear
+
+            /// Reports whether the scroll view sits away from its top.
+            case scrolledChanged(Bool)
 
             /// Triggered by pull-to-refresh gesture.
             /// Cascades refresh to all active child features.

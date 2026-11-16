@@ -300,8 +300,7 @@ struct SummaryFeature {
                             let volumeLoad = ExerciseLog.volumeLoad(
                                 sets: exercise.sets,
                                 reps: effectiveReps,
-                                weight: effectiveWeight,
-                                multiplier: exercise.volumeMultiplier ?? 1
+                                weight: effectiveWeight
                             )
 
                             // The input's id survives in the saved score, so reusing it here makes

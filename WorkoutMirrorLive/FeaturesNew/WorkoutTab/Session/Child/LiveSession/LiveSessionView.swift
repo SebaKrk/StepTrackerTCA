@@ -95,6 +95,7 @@ struct LiveSessionView: View {
             Spacer()
         }
         .padding([.leading, .trailing], 8)
+        .animation(.default, value: store.isPlanHidden)
     }
 
     // MARK: - Landscape
@@ -439,10 +440,14 @@ struct LiveSessionView: View {
 
     @ViewBuilder
     private var phasePanelSection: some View {
-        if !store.phaseStopwatch.isManagingPhase,
+        // The minimum height goes with the panel. Left behind it would hold a
+        // 180-point empty box open and the toolbar toggle would free nothing.
+        if !store.isPlanHidden,
+           !store.phaseStopwatch.isManagingPhase,
            let phasePanelStore = store.scope(state: \.phasePanel, action: \.phasePanel) {
             PhasePanelView(store: phasePanelStore)
                 .frame(minHeight: 180)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
         }
     }
 

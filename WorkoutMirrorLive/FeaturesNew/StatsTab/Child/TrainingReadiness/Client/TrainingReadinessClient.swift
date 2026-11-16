@@ -29,11 +29,17 @@ import HealthHub
 @DependencyClient
 public struct TrainingReadinessClient: Sendable {
     
-    /// Calculates current training readiness based on available health data.
+    /// Calculates readiness for the current day, or reports why it cannot.
     ///
-    /// - Returns: `TrainingReadinessResult` containing overall score and component breakdown
+    /// - Returns: `ReadinessOutcome` carrying the score or the reason there is none
     /// - Throws: Errors if HealthKit access fails or calculation encounters issues
-    public var calculate: @Sendable () async throws -> TrainingReadinessResult
+    public var calculate: @Sendable () async throws -> ReadinessOutcome
+
+    /// Drops the shared result, so the next `calculate` reads HealthKit again.
+    ///
+    /// Sent before a pull-to-refresh fans out: both cards then join one fresh
+    /// calculation instead of being served what they already had.
+    public var invalidate: @Sendable () async -> Void
     
     /// Retrieves historical training readiness data.
     ///
@@ -53,10 +59,18 @@ public extension DependencyValues {
 public enum TrainingReadinessClientKey: DependencyKey {
     public static let liveValue: TrainingReadinessClient = {
         @Dependency(\.trainingReadinessCalculator) var calculator
-        
+
+        // Both stats cards ask on their own appearance, within the same frame.
+        let coordinator = ReadinessCalculationCoordinator {
+            try await calculator.calculateReadinessOutcome()
+        }
+
         return TrainingReadinessClient(
             calculate: {
-                return try await calculator.calculateTrainingReadiness()
+                try await coordinator.outcome()
+            },
+            invalidate: {
+                await coordinator.invalidate()
             },
             history: { days in
                 try await calculator.getTrainingReadinessHistory(days: days)
@@ -66,45 +80,3 @@ public enum TrainingReadinessClientKey: DependencyKey {
     
     public static let testValue = TrainingReadinessClient.mock
 }
-
-// tak sie nie robi, 
-//public enum TrainingReadinessClientKey: DependencyKey {
-//    public static let liveValue: TrainingReadinessClient = {
-//        @Dependency(\.trainingReadinessCalculator) var calculator
-//        
-//        let cache = LockIsolated<TrainingReadinessResult?>(nil)
-//        let inFlight = LockIsolated<Task<TrainingReadinessResult, Error>?>(nil)
-//        
-//        return TrainingReadinessClient(
-//            calculate: {
-//                // 1. Zwróć z cache jeśli mamy
-//                if let cached = cache.value {
-//                    print("📦 TrainingReadinessClient - returning CACHED")
-//                    return cached
-//                }
-//                
-//                // 2. Jeśli już trwa request, poczekaj na niego
-//                if let existingTask = inFlight.value {
-//                    print("⏳ TrainingReadinessClient - waiting for IN-FLIGHT request")
-//                    return try await existingTask.value
-//                }
-//                
-//                // 3. Nowy request
-//                print("🔄 TrainingReadinessClient - fetching NEW")
-//                let task = Task {
-//                    try await calculator.calculateTrainingReadiness()
-//                }
-//                inFlight.setValue(task)
-//                
-//                let result = try await task.value
-//                cache.setValue(result)
-//                inFlight.setValue(nil)
-//                
-//                return result
-//            },
-//            history: { days in
-//                try await calculator.getTrainingReadinessHistory(days: days)
-//            }
-//        )
-//    }()
-//}

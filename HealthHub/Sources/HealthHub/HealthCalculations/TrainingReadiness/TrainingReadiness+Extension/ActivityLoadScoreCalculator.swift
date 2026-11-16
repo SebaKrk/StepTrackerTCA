@@ -11,13 +11,14 @@ import SharedModels
 // MARK: - Activity Load Score Calculation
 
 extension DefaultTrainingReadinessCalculator {
-    
+
     /// Calculates training readiness score based on previous day's training load.
     ///
-    /// Evaluates yesterday's active energy expenditure against recent averages to
-    /// determine recovery status and current training readiness.
+    /// Evaluates the preceding day's active energy expenditure against recent averages
+    /// to determine recovery status and current training readiness.
     /// Lower previous day loads indicate better recovery and higher readiness.
     ///
+    /// - Parameter day: The readiness day being calculated
     /// - Returns: `TrainingComponentScore` with load contribution, or `nil` if data unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
@@ -26,42 +27,58 @@ extension DefaultTrainingReadinessCalculator {
     /// - Active recovery (15-45%): +5 points (optimal - fresh legs!)
     /// - Light training (45-80%): +2 points (well recovered)
     /// - Normal training (80-130%): 0 points (neutral readiness)
-    /// - Heavy training (130-180%): -5 points (moderate fatigue)
-    /// - Very heavy training (180%+): -10 points (significant fatigue, recovery needed)
-    func calculateActivityLoadScore() async throws -> TrainingComponentScore? {
-        guard let yesterdayLoad = try await personalDataManager.getYesterdayActiveEnergy() else {
+    /// - Heavy training (130-180%): -3 points (moderate fatigue)
+    /// - Very heavy training (180%+): -5 points (significant fatigue, recovery needed)
+    func calculateActivityLoadScore(for day: ReadinessDay) async throws -> TrainingComponentScore? {
+        guard let window = TrainingReadinessTimeWindows.previousDay(
+                  for: day,
+                  calendar: calendar
+              ),
+              let previousLoad = try await personalDataManager.getActiveEnergy(in: window) else {
             return nil
         }
-        
-        let baselineLoad = try await personalDataManager.getAverageDailyActiveEnergy(days: 7)
-        
+
+        // `skipping: 1` because the measured value IS yesterday — without it the
+        // day being scored sits inside its own baseline and dilutes its deviation.
+        let baselineWindows = TrainingReadinessTimeWindows.previousDays(
+            count: baselinePoolDays,
+            before: day,
+            skipping: 1,
+            calendar: calendar
+        )
+        let baselineLoad = try await personalDataManager.getAverageActiveEnergy(
+            in: baselineWindows,
+            takingFirst: baselineDayCount
+        )
+
         let score = calculateLoadComponentScore(
-            current: yesterdayLoad.value,
+            current: previousLoad.value,
             baseline: baselineLoad?.value
         )
-        
+
         return TrainingComponentScore(
             score: score,
-            currentValue: yesterdayLoad.value,
+            currentValue: previousLoad.value,
             baselineValue: baselineLoad?.value,
             unit: "kcal",
-            minScore: -10,
+            minScore: -5,
             maxScore: 5,
-            timestamp: yesterdayLoad.date
+            timestamp: previousLoad.date
         )
     }
-    
+
     /// Calculates training readiness score based on previous day load compared to baseline.
     ///
     /// Lower previous day loads indicate better recovery and readiness for training.
     /// Higher loads suggest residual fatigue and need for recovery.
     ///
     /// - Parameters:
-    ///   - current: Yesterday's active energy burned in kcal
+    ///   - current: Previous day's active energy burned in kcal
     ///   - baseline: Average daily active energy (7-day baseline) in kcal
     /// - Returns: Score from -10 to +5 based on recovery status
     private func calculateLoadComponentScore(current: Double, baseline: Double?) -> Int {
-        guard let baseline = baseline else {
+        // A baseline at or below zero would make the ratio meaningless or infinite.
+        guard let baseline = baseline, baseline > 0 else {
             return 0
         }
         let percentageOfBaseline = (current / baseline) * 100
@@ -75,9 +92,9 @@ extension DefaultTrainingReadinessCalculator {
         case 80..<130:
             return 0
         case 130..<180:
-            return -5
+            return -3
         case 180...:
-            return -10
+            return -5
         default:
             return 0
         }

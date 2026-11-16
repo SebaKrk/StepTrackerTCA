@@ -164,6 +164,7 @@ struct MigratorTests {
             "exerciseLogRecords",
             "gymClassRecords",
             "prEntryRecords",
+            "trainingReadinessRecords",
             "trainingSessionRecords",
             "userProfileRecords",
             "workoutEffortScoreRecords",

@@ -81,8 +81,12 @@ struct WorkoutSessionEditorView: View {
                 } else {
                     Divider().padding(.leading)
                     timeCapRow
-                    Divider().padding(.leading)
-                    roundsRow
+                    // An AMRAP's rounds are the result, not the prescription — a planned
+                    // number here would be read as work the athlete is known to have done.
+                    if store.draft.type != .amrap {
+                        Divider().padding(.leading)
+                        roundsRow
+                    }
                 }
             }
         } label: {

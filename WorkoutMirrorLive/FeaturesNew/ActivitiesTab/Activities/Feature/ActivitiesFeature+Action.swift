@@ -17,7 +17,11 @@ extension ActivitiesFeature {
         
         /// Updates the selected tab context (activity/plans/team).
         case selectedPickerChange(TrainingTabContext)
-        
+
+        /// Returns the tab to the state it opens in — sent when its tab bar item
+        /// is tapped while it is already the selected tab.
+        case resetToRoot
+
         // MARK: - Child Features
         
         /// Forwards actions to the Personal Activity feature.

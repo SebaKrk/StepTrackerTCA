@@ -6,12 +6,13 @@
 //
 
 import Charts
+import SharedModels
 import SwiftUI
 
 extension TrainingReadinessView {
     
     struct ReadinessSegment {
-        let range: ClosedRange<Int>
+        let range: ClosedRange<Double>
         let color: Color
         let cornerRadius: CornerRadius
         
@@ -27,14 +28,33 @@ extension TrainingReadinessView {
         }
     }
     
+    /// Built from `ReadinessLevel` so the scale is defined in one place.
     var readinessSegments: [ReadinessSegment] {
-        [
-            ReadinessSegment(range: 0...40, color: .red, cornerRadius: .leading),
-            ReadinessSegment(range: 40...55, color: .orange, cornerRadius: .none),
-            ReadinessSegment(range: 55...70, color: .yellow, cornerRadius: .none),
-            ReadinessSegment(range: 70...85, color: .mint, cornerRadius: .none),
-            ReadinessSegment(range: 85...100, color: .green, cornerRadius: .trailing)
-        ]
+        let levels: [ReadinessLevel] = ReadinessLevel.allCases
+        let lastIndex: Int = levels.count - 1
+        var segments: [ReadinessSegment] = []
+
+        for (index, level) in levels.enumerated() {
+            let corners: ReadinessSegment.CornerRadius
+
+            if index == 0 {
+                corners = .leading
+            } else if index == lastIndex {
+                corners = .trailing
+            } else {
+                corners = .none
+            }
+
+            segments.append(
+                ReadinessSegment(
+                    range: level.chartRange,
+                    color: level.color,
+                    cornerRadius: corners
+                )
+            )
+        }
+
+        return segments
     }
     
     @ChartContentBuilder

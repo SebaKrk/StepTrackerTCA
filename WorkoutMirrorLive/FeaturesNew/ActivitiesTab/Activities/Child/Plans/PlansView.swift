@@ -71,18 +71,31 @@ struct PlansView: View {
         if store.sessions.isEmpty {
             emptyPlansView
         } else {
-            List {
-                ForEach(store.sessions) { workout in
-                    PlanSummaryCard(session: workout) {
-                        send(.workoutTapped(workout))
+            ScrollViewReader { proxy in
+                List {
+                    ForEach(store.sessions) { workout in
+                        PlanSummaryCard(session: workout) {
+                            send(.workoutTapped(workout))
+                        }
                     }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                // The offset at rest is the negated top inset, so the sum is
+                // zero exactly when the list sits at its top.
+                .onScrollGeometryChange(for: Bool.self) { geometry in
+                    geometry.contentOffset.y + geometry.contentInsets.top > 1
+                } action: { _, isScrolled in
+                    send(.scrolledChanged(isScrolled))
+                }
+                .onChange(of: store.scrollToTopToken) {
+                    guard let first = store.sessions.first else { return }
+                    withAnimation { proxy.scrollTo(first.id, anchor: .top) }
+                }
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
         }
     }
 

@@ -31,7 +31,14 @@ struct TrainingReadinessProvider: TimelineProvider {
         let finalResult: TrainingReadinessResult? = loadedResult ?? (context.isPreview ? .preview : nil)
         
         let entry = TrainingReadinessEntry(date: Date(), result: finalResult)
-        let timeline = Timeline(entries: [entry], policy: .never)
+
+        // Hourly rather than `.never`: the widget cannot calculate anything, but
+        // it can re-read what the app wrote while it was asleep. With `.never` a
+        // score computed in the background reached the screen only if the reload
+        // happened to get through.
+        let nextReload = Date(timeIntervalSinceNow: 60 * 60)
+        let timeline = Timeline(entries: [entry], policy: .after(nextReload))
+
         completion(timeline)
     }
     
@@ -44,25 +51,39 @@ struct TrainingReadinessProvider: TimelineProvider {
             return nil
         }
         
-        // Convert DTO to TrainingReadinessResult
+        // Convert DTO to TrainingReadinessResult. The widget stores measured
+        // values only, so component scores come back as 0 — it renders the
+        // numbers and the overall ring, never per-component status.
+        let components = TrainingReadinessComponents(
+            restingHeartRate: component(.rhr, value: widgetData.rhrValue),
+            heartRateVariability: component(.hrv, value: widgetData.hrvValue),
+            sleepQuality: component(.sleep, value: widgetData.sleepValue),
+            previousDayLoad: component(.activity, value: widgetData.activityValue)
+        )
+
         return TrainingReadinessResult(
             overallScore: widgetData.overallScore,
-            components: TrainingReadinessComponents(
-                restingHeartRate: widgetData.rhrValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "bpm", minScore: -15, maxScore: 15)
-                },
-                heartRateVariability: widgetData.hrvValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "ms", minScore: -15, maxScore: 15)
-                },
-                sleepQuality: widgetData.sleepValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "hours", minScore: -10, maxScore: 15)
-                },
-                previousDayLoad: widgetData.activityValue.map {
-                    TrainingComponentScore(score: 0, currentValue: $0, baselineValue: nil, unit: "kcal", minScore: -10, maxScore: 5)
-                }
-            ),
-            isReliable: true
+            components: components,
+            calculatedAt: widgetData.calculatedAt,
+            // Re-derived rather than assumed: hardcoding `true` let a score built
+            // on two components look exactly like one built on four.
+            isReliable: components.available.count >= TrainingReadinessResult.minimumReliableComponents
         )
+    }
+
+    /// Rebuilds one component from the stored value, taking its range from
+    /// `HealthMetricType` so the widget cannot drift from the app.
+    private func component(_ metric: HealthMetricType, value: Double?) -> TrainingComponentScore? {
+        value.map {
+            TrainingComponentScore(
+                score: 0,
+                currentValue: $0,
+                baselineValue: nil,
+                unit: metric.unit,
+                minScore: metric.minScore,
+                maxScore: metric.maxScore
+            )
+        }
     }
 }
 
@@ -103,7 +124,7 @@ struct TrainingReadinessWidgetEntryView : View {
         ZStack {
             // Blurred placeholder background
             VStack(spacing: 2) {
-                smallHeader
+                smallHeader(caveat: nil)
                 readinessChart(diameter: nil, score: 0, showScore: false)
                 Text("-")
             }
@@ -125,21 +146,22 @@ struct TrainingReadinessWidgetEntryView : View {
     
     func smallView(for result: TrainingReadinessResult) -> some View {
         VStack(spacing: 2) {
-            smallHeader
+            smallHeader(caveat: caveat(for: result))
             readinessChart(diameter: nil, score: result.overallScore, showScore: true)
             statusText(for: result)
         }
     }
-    
+
     func mediumView(for result: TrainingReadinessResult) -> some View {
         VStack(spacing: 12) {
-            mediumHeader(date: entry.date)
+            mediumHeader(for: result)
             HStack(spacing: 20) {
-                VStack {
+                VStack(spacing: 2) {
                     readinessChart(diameter: 100, score: result.overallScore, showScore: true)
                     Text(result.readinessLevel.title)
                         .font(.caption.bold())
                         .foregroundStyle(result.readinessLevel.color)
+                    estimateMarker(for: result)
                 }
                 breakdownList(for: result)
             }
@@ -148,27 +170,49 @@ struct TrainingReadinessWidgetEntryView : View {
     
     // MARK: - Subviews
     
-    var smallHeader: some View {
-        HStack {
+    func smallHeader(caveat: String?) -> some View {
+        HStack(spacing: 4) {
             Text("Training Readiness")
                 .bold()
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            Spacer()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            Spacer(minLength: 0)
+
+            if let caveat {
+                Text(caveat)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(Color.orange)
+                    .lineLimit(1)
+            }
         }
     }
-    
-    func mediumHeader(date: Date) -> some View {
+
+    func mediumHeader(for result: TrainingReadinessResult) -> some View {
         HStack {
             Text("TRAINING READINESS")
                 .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(.secondary)
-            
+
             Spacer()
-            
-            Text(date.formatted(date: .numeric, time: .omitted))
+
+            // The score's own date, not the moment the timeline was built — the
+            // widget keeps the last score through a morning that has none yet.
+            Text(result.calculatedAt.formatted(date: .numeric, time: .omitted))
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(isFromToday(result) ? Color.secondary : Color.orange)
+        }
+    }
+
+    func estimateMarker(for result: TrainingReadinessResult) -> some View {
+        Group {
+            if !result.isReliable {
+                Text("estimated")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
         }
     }
     
@@ -256,20 +300,45 @@ struct TrainingReadinessWidgetEntryView : View {
         }
     }
     
-    // MARK: - Logic
-    
-    struct ReadinessSegment {
-        let range: ClosedRange<Int>
-        let color: Color
+    // MARK: - Provenance
+
+    /// Whether the score on screen was calculated today.
+    func isFromToday(_ result: TrainingReadinessResult) -> Bool {
+        Calendar.current.isDateInToday(result.calculatedAt)
     }
-    
-    let segments: [ReadinessSegment] = [
-        ReadinessSegment(range: 0...40, color: .red),
-        ReadinessSegment(range: 40...55, color: .orange),
-        ReadinessSegment(range: 55...70, color: .yellow),
-        ReadinessSegment(range: 70...85, color: .mint),
-        ReadinessSegment(range: 85...100, color: .green)
-    ]
+
+    /// What the figure needs saying about it in the small family, if anything.
+    ///
+    /// A score from another day is wrong about today whatever built it, so it
+    /// outranks the estimate caveat instead of sharing the one slot with it.
+    func caveat(for result: TrainingReadinessResult) -> String? {
+        guard isFromToday(result) else {
+            return result.calculatedAt.formatted(.relative(presentation: .named))
+        }
+
+        // The same key the Watch marks an estimate with, rather than a second
+        // string for one word.
+        return result.isReliable ? nil : String(localized: "estimated")
+    }
+
+    // MARK: - Logic
+
+    struct ReadinessSegment {
+        let range: ClosedRange<Double>
+        let color: Color
+
+        /// How much of the ring this segment covers.
+        var width: Double {
+            range.upperBound - range.lowerBound
+        }
+    }
+
+    /// Built from `ReadinessLevel` so the widget cannot drift from the app.
+    var segments: [ReadinessSegment] {
+        ReadinessLevel.allCases.map {
+            ReadinessSegment(range: $0.chartRange, color: $0.color)
+        }
+    }
     
     struct ChartSlice: Identifiable {
         let id = UUID()
@@ -279,33 +348,13 @@ struct TrainingReadinessWidgetEntryView : View {
     
     func generateBackgroundTrack() -> [ChartSlice] {
         segments.map { segment in
-            let width = Double(segment.range.upperBound - segment.range.lowerBound)
-            return ChartSlice(value: width, color: segment.color.opacity(0.15))
+            ChartSlice(value: segment.width, color: segment.color.opacity(0.15))
         }
     }
-    
-    func generateForegroundSlices(for score: Int) -> [ChartSlice] {
-        var slices: [ChartSlice] = []
-        
-        for segment in segments {
-            let start = segment.range.lowerBound
-            let end = segment.range.upperBound
-            
-            if score >= end {
-                let width = Double(end - start)
-                slices.append(ChartSlice(value: width, color: segment.color))
-            } else if score > start {
-                let filledPortion = Double(score - start)
-                slices.append(ChartSlice(value: filledPortion, color: segment.color))
-            }
-        }
-        return slices
-    }
-    
+
     func generateForegroundTrack() -> [ChartSlice] {
         segments.map { segment in
-            let width = Double(segment.range.upperBound - segment.range.lowerBound)
-            return ChartSlice(value: width, color: segment.color)
+            ChartSlice(value: segment.width, color: segment.color)
         }
     }
     

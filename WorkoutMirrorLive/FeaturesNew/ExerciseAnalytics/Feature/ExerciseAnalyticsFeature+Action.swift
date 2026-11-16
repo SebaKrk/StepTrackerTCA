@@ -27,15 +27,21 @@ extension ExerciseAnalyticsFeature {
         /// Presentation action for exercise detail drilldown.
         case detail(PresentationAction<ExerciseDetailFeature.Action>)
 
+        /// Asks the scroll view to go back to its top.
+        case scrollToTop
+
         // MARK: - View Actions
 
         case view(View)
 
         @CasePathable
         enum View {
-            
+
             /// Triggered when the view appears on screen.
             case onAppear
+
+            /// Reports whether the scroll view sits away from its top.
+            case scrolledChanged(Bool)
             
             /// User navigated to a different month.
             case monthChanged(Date)

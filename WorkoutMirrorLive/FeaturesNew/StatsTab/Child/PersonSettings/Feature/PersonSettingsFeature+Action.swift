@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 import SharedModels
 
 /// Implementation of `PersonSettingsFeature` action
@@ -55,8 +56,9 @@ extension PersonSettingsFeature {
             /// Action triggered when close button is tapped
             case xMarkButtonTapped
 
-            /// Action triggered when API key row is tapped
-            case apiKeyTapped
+            /// Action triggered when the Developer row is tapped — opens API key
+            /// management and diagnostics.
+            case developerTapped
 
             /// Action triggered when edit profile row is tapped
             case editProfileTapped
@@ -67,6 +69,7 @@ extension PersonSettingsFeature {
             /// Action triggered when the HR zones row is tapped — opens the zone
             /// reference (descriptions + effort points scoring) as a sheet.
             case heartRateZonesTapped
+
         }
         
         // MARK: - Destination

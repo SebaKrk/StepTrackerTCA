@@ -243,21 +243,21 @@ extension ExerciseLog {
     /// Kilograms moved, from whichever shape the result was recorded in.
     ///
     /// Per set where the breakdown exists, since a pyramid lifts its top weight once rather
-    /// than on every rep; otherwise total reps times the single recorded weight. `multiplier`
-    /// repeats the whole thing: rounds of a WOD, ×2 for a per-side movement.
-    public static func volumeLoad(sets: [SetEntry]?, reps: String?, weight: Double?, multiplier: Int = 1) -> Double? {
-        let factor = Double(max(multiplier, 1))
+    /// than on every rep; otherwise total reps times the single recorded weight. There is no
+    /// round factor: what is recorded is already the whole block's work, which is what lets
+    /// this derive the same number at read time as the save wrote.
+    public static func volumeLoad(sets: [SetEntry]?, reps: String?, weight: Double?) -> Double? {
         if let sets {
             let total = sets.reduce(into: 0.0) { running, set in
                 guard let setWeight = set.weight, setWeight > 0 else { return }
                 running += Double(set.reps) * setWeight
             }
-            return total > 0 ? total * factor : nil
+            return total > 0 ? total : nil
         }
         guard let weight, weight > 0 else { return nil }
         let reps = totalReps(from: reps)
         guard reps > 0 else { return nil }
-        return Double(reps) * weight * factor
+        return Double(reps) * weight
     }
 
     /// Volume load for analytics: the value frozen at save time, else derived now.

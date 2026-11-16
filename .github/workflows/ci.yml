@@ -1,4 +1,4 @@
-# CI — SPM package tests (scope: build + test, no signing, no secrets).
+# CI — package and unit tests (scope: build + test, no signing, no secrets).
 # Design decisions and risk register: context/foundation/infrastructure.md
 # Pinned runner image (NOT macos-latest) — see "Unknown Unknowns" in the decision doc.
 name: CI
@@ -14,14 +14,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Packages whose test bundle links on macOS — seconds, no simulator.
   spm-tests:
     name: spm-tests (${{ matrix.package }})
     runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
-        # Packages with test targets.
-        package: [SharedModels, AppDatabase]
+        package: [SharedModels]
     steps:
       - uses: actions/checkout@v4
 
@@ -38,3 +38,83 @@ jobs:
 
       - name: Run tests
         run: swift test --package-path "${{ matrix.package }}"
+
+  # Suites that need a simulator: the app target's reducer tests, and AppDatabase,
+  # whose bundle cannot link on macOS (Sharing references a SwiftUICore symbol the
+  # macOS build never emits). Minutes rather than seconds — a full build each.
+  simulator-tests:
+    name: simulator-tests (${{ matrix.name }})
+    # Not macos-26: that image carries only 26.x toolchains, and the app reaches iOS 27
+    # API. GitHub exposes Xcode 27 under its own label rather than a macos-NN one, so
+    # this stays a pinned image — `macos-latest` is still not Xcode 27.
+    runs-on: xcode-27
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: WorkoutMirrorLive
+            directory: .
+            arguments: >-
+              -project MyFitnessJournal.xcodeproj
+              -scheme WorkoutMirrorLive
+              -only-testing:WorkoutMirrorLiveTests
+          - name: AppDatabase
+            directory: AppDatabase
+            arguments: -scheme AppDatabase
+    steps:
+      - uses: actions/checkout@v4
+
+      # The app deploys to iOS 26.5 but reaches iOS 27 API behind #available, so it
+      # needs the 27 SDK to compile at all: #available decides what may RUN, the SDK
+      # decides what may be WRITTEN, and an older SDK simply has no such symbol.
+      # Runs before the simulator is chosen — the device list follows the selection.
+      - name: Select an Xcode carrying the iOS 27 SDK
+        run: |
+          echo "Installed Xcodes:"
+          ls -d /Applications/Xcode*.app
+          for app in $(ls -d /Applications/Xcode*.app | sort -rV); do
+            if ls "$app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs" \
+               | grep -q "iPhoneOS27"; then
+              sudo xcode-select -s "$app/Contents/Developer"
+              xcodebuild -version
+              exit 0
+            fi
+          done
+          echo "::error::No Xcode with an iOS 27 SDK on this image — TabRole.prominent cannot compile."
+          exit 1
+
+      # The runner's installed devices change with the image, so the device is asked
+      # for rather than pinned. The newest runtime first and only then a device: an
+      # image carries several iOS versions, and a device on an older one is ineligible
+      # for a package that deploys to iOS 26 — xcodebuild rejects it as no destination
+      # at all. Lowest-numbered plain iPhone within that runtime, for reproducibility.
+      - name: Pick an available iOS simulator
+        id: simulator
+        run: |
+          device=$(xcrun simctl list devices available --json \
+            | jq -r '[.devices | to_entries[]
+                      | select(.key | test("iOS-[0-9]+-[0-9]+"))
+                      | (.key | capture("iOS-(?<maj>[0-9]+)-(?<min>[0-9]+)")) as $v
+                      | .value[]
+                      | select(.isAvailable and (.name | startswith("iPhone")))
+                      | { name, udid, rank: (($v.maj | tonumber) * 1000 + ($v.min | tonumber)) }]
+                     | max_by(.rank).rank as $newest
+                     | map(select(.rank == $newest))
+                     | sort_by(.name) | .[0]')
+          udid=$(echo "$device" | jq -r '.udid // empty')
+          if [ -z "$udid" ]; then
+            echo "No iPhone simulator on this image:"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "Testing on $(echo "$device" | jq -r '.name') (runtime rank $(echo "$device" | jq -r '.rank'))"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests
+        working-directory: ${{ matrix.directory }}
+        run: |
+          xcodebuild test \
+            ${{ matrix.arguments }} \
+            -destination "platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO

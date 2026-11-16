@@ -1062,6 +1062,16 @@
         }
       }
     },
+    "50 means every signal sits at your usual level. That is normal, not a warning. Above 50 you are better recovered than usual, below it — less." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 oznacza, że każdy sygnał jest na Twoim zwykłym poziomie. To stan normalny, nie ostrzeżenie. Powyżej 50 jesteś lepiej wyregenerowany niż zwykle, poniżej — gorzej."
+          }
+        }
+      }
+    },
     "206 − 0.88 × age" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1124,6 +1134,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plan grupy trwa co najmniej 60 minut — każdy jest mierzony w tym samym oknie czasu."
+          }
+        }
+      }
+    },
+    "A single number from 0 to 100 saying how much your body can take today. It compares you against yourself, not against anyone else." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedna liczba od 0 do 100, która mówi, ile organizm udźwignie dzisiaj. Porównuje Cię do Ciebie samego, nie do innych."
+          }
+        }
+      }
+    },
+    "About Training Readiness" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O gotowości treningowej"
           }
         }
       }
@@ -1574,6 +1604,16 @@
         }
       }
     },
+    "API keys for plan scanning, and diagnostics you can send when something goes wrong." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klucze API do skanowania planów oraz diagnostyka, którą możesz wysłać, gdy coś nie działa."
+          }
+        }
+      }
+    },
     "Apple Health Integration" : {
       "localizations" : {
         "pl" : {
@@ -1621,6 +1661,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zawodnik"
+          }
+        }
+      }
+    },
+    "Attach database" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołącz bazę danych"
           }
         }
       }
@@ -2297,6 +2347,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wybierz ćwiczenie"
+          }
+        }
+      }
+    },
+    "Chronic shortfall" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chroniczny niedobór"
           }
         }
       }
@@ -3135,6 +3195,16 @@
         }
       }
     },
+    "Describe what went wrong, and roughly when it happened:\n\n" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opisz, co poszło nie tak i mniej więcej kiedy:\n\n"
+          }
+        }
+      }
+    },
     "Description" : {
       "localizations" : {
         "pl" : {
@@ -3185,6 +3255,16 @@
         }
       }
     },
+    "Developer tools" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Narzędzia dewelopera"
+          }
+        }
+      }
+    },
     "Device Picker" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3192,6 +3272,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wybór urządzenia"
+          }
+        }
+      }
+    },
+    "Diagnostics" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnostyka"
           }
         }
       }
@@ -3757,6 +3847,16 @@
         }
       }
     },
+    "estimated" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "szacunkowo"
+          }
+        }
+      }
+    },
     "every %lld min" : {
       "localizations" : {
         "pl" : {
@@ -3783,6 +3883,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nową nazwę zobaczą wszyscy członkowie."
+          }
+        }
+      }
+    },
+    "Every signal is compared against 7 days that have data, looked for across the last 49. A week without the Watch makes the app reach further back instead of averaging fewer days." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Każdy sygnał porównujemy do 7 dni z danymi, szukanych w ostatnich 49. Tydzień bez zegarka sprawia, że aplikacja sięga głębiej w historię, zamiast liczyć średnią z mniejszej liczby dni."
           }
         }
       }
@@ -3945,6 +4055,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zakończ"
+          }
+        }
+      }
+    },
+    "First name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imię"
           }
         }
       }
@@ -4395,6 +4515,16 @@
         }
       }
     },
+    "Heart rate variability" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmienność rytmu serca"
+          }
+        }
+      }
+    },
     "Heart Rate Zone" : {
       "localizations" : {
         "pl" : {
@@ -4498,6 +4628,7 @@
       }
     },
     "hours" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4537,12 +4668,42 @@
         }
       }
     },
+    "How much yesterday's training left for today." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ile wczorajszy trening zostawił na dziś."
+          }
+        }
+      }
+    },
     "How often each exercise appeared in your training" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jak często dane ćwiczenie pojawiało się w treningu"
+          }
+        }
+      }
+    },
+    "How should others see you?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak mają Cię widzieć inni?"
+          }
+        }
+      }
+    },
+    "How the night compares with your own average." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak długość nocy wypada na tle Twojej średniej."
           }
         }
       }
@@ -5083,6 +5244,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opuścić grupę?"
+          }
+        }
+      }
+    },
+    "Let's start" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaczynamy"
           }
         }
       }
@@ -6308,9 +6479,6 @@
         }
       }
     },
-    "of %lld" : {
-
-    },
     "Off" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6531,6 +6699,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oczekuje"
+          }
+        }
+      }
+    },
+    "People in your groups and the coach in the gym see your nickname. Your name and surname stay on this device." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój pseudonim widzą osoby w Twoich grupach i trener na sali. Imię i nazwisko zostają na tym urządzeniu."
           }
         }
       }
@@ -8017,6 +8195,16 @@
         }
       }
     },
+    "Send diagnostics" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyślij diagnostykę"
+          }
+        }
+      }
+    },
     "Send to %@" : {
       "localizations" : {
         "pl" : {
@@ -8063,6 +8251,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "wysłany"
+          }
+        }
+      }
+    },
+    "Sent to %@." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysyłane na %@."
           }
         }
       }
@@ -8234,6 +8432,16 @@
     },
     "sk-ant-..." : {
       "shouldTranslate" : false
+    },
+    "Sleep" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sen"
+          }
+        }
+      }
     },
     "Slide to unlock" : {
       "localizations" : {
@@ -8569,6 +8777,16 @@
         }
       }
     },
+    "Surname (optional)" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwisko (opcjonalnie)"
+          }
+        }
+      }
+    },
     "Swipe a member left to transfer ownership or remove them." : {
       "localizations" : {
         "pl" : {
@@ -8713,12 +8931,42 @@
         }
       }
     },
+    "That is separate from history: on first launch the app rebuilds 60 days of results from Apple Health, so the trend chart means something straight away." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To co innego niż historia: przy pierwszym uruchomieniu aplikacja odtwarza z Apple Health 60 dni wyników, więc wykres trendu ma sens od razu."
+          }
+        }
+      }
+    },
     "the alternatives" : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "alternatywy"
+          }
+        }
+      }
+    },
+    "The bundle describes the app only — versions, migrations and row counts. No training data leaves the device." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paczka opisuje wyłącznie aplikację — wersje, migracje i liczby wierszy. Żadne dane treningowe nie opuszczają urządzenia."
+          }
+        }
+      }
+    },
+    "The bundle will carry your full training history and your profile." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paczka będzie zawierać całą Twoją historię treningową i profil."
           }
         }
       }
@@ -8896,6 +9144,16 @@
         }
       }
     },
+    "The score knows nothing about stress, alcohol, medication or crossing time zones — only about their traces in the signals. If it says you are ready and you feel broken, trust yourself." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik nic nie wie o stresie, alkoholu, lekach ani podróży przez strefy czasowe — zna tylko ich ślady w sygnałach. Jeśli mówi, że jesteś gotowy, a czujesz się rozbity, zaufaj sobie."
+          }
+        }
+      }
+    },
     "The women's load is heavier than the men's." : {
       "localizations" : {
         "pl" : {
@@ -8932,6 +9190,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trening zostanie usunięty z HealthKit i nie zostanie zapisany."
+          }
+        }
+      }
+    },
+    "These figures are indicative. They are not a diagnosis and not medical advice." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To dane poglądowe. Nie są diagnozą ani poradą medyczną."
           }
         }
       }
@@ -8973,6 +9241,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "To urządzenie nie obsługuje Bluetooth Low Energy wymaganego przez monitory tętna"
+          }
+        }
+      }
+    },
+    "This does not lower your readiness score: the score compares you against your own norm, and a norm that is too low cannot show up in that comparison." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To nie obniża Twojego wyniku gotowości: wynik porównuje Cię do Twojej własnej normy, a zbyt niska norma nie może się w tym porównaniu ujawnić."
           }
         }
       }
@@ -9618,6 +9896,16 @@
         }
       }
     },
+    "Waiting for sleep data" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czekam na dane ze snu"
+          }
+        }
+      }
+    },
     "Waiting for Watch workout..." : {
       "localizations" : {
         "pl" : {
@@ -9795,6 +10083,87 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Co to jest %@?"
+          }
+        }
+      }
+    },
+    "What it does not know" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czego nie wie"
+          }
+        }
+      }
+    },
+    "What it is built from" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z czego się składa"
+          }
+        }
+      }
+    },
+    "What the number means" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co znaczy ta liczba"
+          }
+        }
+      }
+    },
+    "What this is" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czym to jest"
+          }
+        }
+      }
+    },
+    "Where your baseline comes from" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skąd bierze się Twoja norma"
+          }
+        }
+      }
+    },
+    "Whether the night was long enough, and how it compares with your own average." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy noc była wystarczająco długa i jak wypada na tle Twojej średniej."
+          }
+        }
+      }
+    },
+    "Whether your heart has returned to rest." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy serce wróciło do spoczynku."
+          }
+        }
+      }
+    },
+    "Whether your nervous system is rested." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy układ nerwowy jest wypoczęty."
           }
         }
       }
@@ -10105,6 +10474,16 @@
         }
       }
     },
+    "Yesterday's load" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wczorajsze obciążenie"
+          }
+        }
+      }
+    },
     "You" : {
       "localizations" : {
         "pl" : {
@@ -10278,6 +10657,16 @@
         }
       }
     },
+    "Your own average over the last 60 nights is %@ — below what recovery needs." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoja średnia z ostatnich 60 nocy to %@ — poniżej tego, czego wymaga regeneracja."
+          }
+        }
+      }
+    },
     "Your past results for this plan — track your progress over time." : {
       "localizations" : {
         "pl" : {
@@ -10300,11 +10689,22 @@
       }
     },
     "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. All information stays private on your device." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twoje dane osobiste są używane do obliczania dokładnych stref tętna, spalonych kalorii i rekomendacji treningowych. Wszystkie informacje pozostają prywatne na Twoim urządzeniu."
+          }
+        }
+      }
+    },
+    "Your personal data is used to calculate accurate heart-rate zones, calories burned and training recommendations. It stays on this device unless you send a diagnostics bundle yourself." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje dane osobowe służą do wyliczania stref tętna, spalonych kalorii i rekomendacji treningowych. Zostają na tym urządzeniu, chyba że sam wyślesz paczkę diagnostyczną."
           }
         }
       }
@@ -10355,6 +10755,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twój wynik"
+          }
+        }
+      }
+    },
+    "Your score appears after %@" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik pojawi się po %@"
+          }
+        }
+      }
+    },
+    "Your score appears once the night is recorded" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wynik pojawi się, gdy noc zostanie zapisana"
           }
         }
       }

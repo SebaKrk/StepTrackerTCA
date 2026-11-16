@@ -1765,3 +1765,43 @@
     - stale data gets its own neutral treatment rather than reusing the Watch-disconnect one — that indicator names a device an iPhone-only workout never had, and an orange alarm is the wrong thing to show for a rest between blocks
     - a mirrored session still cannot be ended from the iPhone: ending it relays to the Watch's primary session and would cut it off before it saves. The escape hatch closes the iPhone side only, and the comment that claimed otherwise now says so
     - detecting a silent death while the app runs is deliberately left out — it needs a durable watchdog with a multi-minute threshold, and these three changes already remove the visible symptom
+
+### IOS-00177 Volume tells the truth — what is stored is what was done
+    - branch: `dev/IOS-00177/IOS-00177` (from develop)
+    - the per-exercise field meant one thing for For Time and AMRAP (per round), another for EMOM and Tabata (the block's total) and another for Strength (per set), while one formula `rounds ?? 1` was applied to all of them — so reps and volume disagreed about which one was the truth
+    - the invariant now holds everywhere: an exercise stores the athlete's actual total for the whole block, and the plan's round count is spent at prefill instead of surviving as a runtime factor. `volumeMultiplier` is gone, and `volumeLoad` no longer takes one
+    - `RoundScore` carries the arithmetic a flat block needs: rounds times a movement's own share, plus whatever of the partial round reached it. `LadderScore` stays separate — a ladder's round shrinks while every movement shares its size, here it is the other way round, and one signature covers both only by taking a closure
+    - the score tiles now write the reps for an AMRAP and for a capped For Time without a ladder, the way the ladder already did; the unit travels with the number, since after the save the suffix is all that marks calories as calories
+    - a multiplier was never persisted on the log row, so a weightless movement lost it entirely — `volumeLoad` returns nil without a weight. That is why a five-round block of pull-ups charted as one round, in every format, from the beginning
+    - Mobility keeps the round count the mapper used to discard, and spends it the way Strength does: rounds become set rows
+    - the plan editor stops offering a round count for an AMRAP — a format whose rounds are the result cannot carry a prescribed one that anything reads
+    - rows written before this cannot be repaired from the log alone; the multiplier that would disambiguate them survives only inside the parent score's JSON. Backfill is its own ticket
+
+### IOS-00180 Readiness follow-up — act on the review of IOS-00179
+    - branch: `dev/IOS-00180/IOS-00180` (from develop)
+    - heart rate coverage was the span between first and last sample, so a Watch worn until 21:00 and again from 08:00 read as eleven hours of continuous wear — sleep scored zero and the day lost fifteen points over a night with no data at all
+    - the observer debounce stamped its timestamp after the await; the method is reentrant, so the morning's four observers walked past a window nobody had claimed, and an open night left every overnight sample triggering a full recalculation
+    - the history rebuild treated "four missing components" as a refused permission, which is also what a day before the user owned a Watch looks like — one such day discarded everything already scored and repeated sixty days of reads on every launch
+    - the background task expired without reporting completion, and a cancelled rebuild cleared a slot a newer one already owned
+
+### IOS-00179 Training readiness — a score for the day, and a day that survives
+    - branch: `dev/IOS-00179/IOS-00179` (from develop)
+    - every window ended at a fixed clock hour that still lay in the future, so HealthKit answered with a partial reading: the same night scored 55 at 06:00 and 75 at 12:00. Windows are now anchored to the sleep session that actually closed — nothing ends in the future, and recalculating at noon or at midnight returns the same number
+    - three of the four baselines averaged the day under test into the seven days it was compared against, damping every deviation towards zero; baselines now start one day back, as the activity one always did
+    - the overall score normalises against the components actually present instead of adding to a fixed 50, so a morning without HRV is no longer scored lower than the same morning with it. The scale is recentred: 50 means every component sits on its own baseline and reads as Fair, not Poor
+    - nothing was ever stored — `getTrainingReadinessHistory` returned an empty array while a finished trend screen waited behind it. Each scored day is now persisted (migration v18, keyed by the readiness day, upsert) together with the algorithm version that produced it
+    - before the night closes the card says so instead of showing a retry overlay; the waiting state stays out of the shared `ContentState`, which fifteen other features depend on
+    - one calculation issued about thirty sequential HealthKit queries; the four components now run concurrently and each baseline is a single query grouped in memory
+    - second pass, after Apple shipped its own Readiness in watchOS 27: resting heart rate and activity load are per-day aggregates the system stamps with the start of the day they describe, so a window anchored to waking excluded yesterday's sample while today's did not exist yet — resting heart rate was silently absent from every morning. Both now read whole calendar days
+    - baselines draw 7 days with data from a 49-day pool instead of the last 7 days, so a gap reaches further back rather than shrinking the sample; sleep baselines clip intervals to the window instead of dropping any that began before it
+    - the night is the longest closed sleep session of the day, not the most recent: an afternoon nap is its own session, so an evening recalculation scored the day against the nap and overwrote the morning's row
+    - history is rebuilt from HealthKit on first launch (60 days) — a readiness day is derived entirely from events that already happened, so a past day scores the same today as it did that morning. The day key became a calendar date, since a stored instant splits one local day into two rows after a time zone change
+    - the two questions "is there anything to show" and "can this be trusted" were collapsed onto one threshold, leaving `isReliable` always true; a score on two components is now shown and marked as estimated on both phone and Watch
+    - the component tiles read their status from a quartile split of the point range, which has no neutral case — zero points, meaning "sits on your baseline", landed in the second quartile and was presented as "Below Average" with a warning triangle. Status now describes the component's effect on readiness, with a neutral case, and strength is measured against each component's own headroom
+    - the activity tile branched into `ActivityStatus`, which describes the size of the load rather than its effect, so three tiles spoke about effect and the fourth about load in one row
+    - the card gained an explanation sheet: what the score is built from, what 50 means, where the baseline comes from, and that the figures are indicative rather than a diagnosis. The level label moved under the chart so it reads together with the value
+    - colour for a score was derived by four copies of a quartile split, none of which knew about the five statuses the label used — a tile could show a yellow pill beside a mint word for the same number. Thresholds now live once, in `TrainingComponentScore.statusBands`
+    - activity load range made symmetric so a full set of components maps to `50 + sum of points`; it read 27 where the tiles summed to -25, because negative headroom was 55 against 50 positive
+    - a night with no sleep but heart rate throughout scores as zero sleep rather than as missing data, and a recording that stopped mid-night drops the component instead of reading as a short night — `NightMeasurementResolver` decides which of the three happened
+    - the explanation screen is the app's own card stack rather than a system `Form`, and its wash runs under the navigation bar; stopping it at the safe area left a black band no toolbar modifier could fix
+    - the widget asks for an hourly re-read and a background task wakes the app on its own schedule, so a stale score no longer waits for the app to be opened by hand

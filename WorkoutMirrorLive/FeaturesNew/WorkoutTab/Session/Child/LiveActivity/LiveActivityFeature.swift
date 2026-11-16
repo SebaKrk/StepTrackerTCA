@@ -58,7 +58,9 @@ struct LiveActivityFeature {
             case .workout(.start):
                 // Ensure mutual exclusion: Stop timer if active
                 if state.timer.isActive {
+                    #if DEBUG
                     print("🔄 [LiveActivityFeature] Stopping timer to start workout")
+                    #endif
                     return .send(.timer(.stop))
                 }
                 return .none
@@ -66,7 +68,9 @@ struct LiveActivityFeature {
             case .timer(.start):
                 // Ensure mutual exclusion: Stop workout if active
                 if state.workout.isActive {
+                    #if DEBUG
                     print("🔄 [LiveActivityFeature] Stopping workout to start timer")
+                    #endif
                     return .send(.workout(.stop))
                 }
                 return .none

@@ -43,23 +43,22 @@ import SharedModels
 /// - Provide consistent scoring across different users and conditions
 public protocol TrainingReadinessCalculator: Sendable {
     
-    /// Calculates current training readiness based on available health data.
+    /// Calculates readiness for the current day, or says why it cannot.
     ///
-    /// Analyzes recent physiological metrics to determine the user's readiness for training.
-    /// The calculation considers multiple factors including heart rate patterns, sleep quality,
-    /// recovery indicators, and previous training load.
+    /// Returns an outcome rather than a result, because "the night is not over
+    /// yet" is a normal state with a different answer for the user than missing
+    /// permissions — and neither can be told apart by counting `nil` components.
     ///
-    /// - Returns: A `TrainingReadinessResult` containing the overall score, component breakdown,
-    ///           and reliability indicators
-    /// - Throws: HealthKit errors if data access fails, or calculation errors if processing fails
+    /// - Returns: A `ReadinessOutcome` carrying the score or the reason there is none
+    /// - Throws: HealthKit errors if data access fails
     ///
     /// ## Data Requirements
     /// While the calculation can work with partial data, optimal results require:
     /// - At least 7 days of baseline heart rate data
-    /// - Recent sleep data (last 1-2 nights)
+    /// - A completed sleep session for the current night
     /// - Activity data from previous day
     /// - HRV data (if available)
-    func calculateTrainingReadiness() async throws -> TrainingReadinessResult
+    func calculateReadinessOutcome() async throws -> ReadinessOutcome
     
     /// Retrieves historical training readiness data for trend analysis.
     ///
@@ -75,6 +74,21 @@ public protocol TrainingReadinessCalculator: Sendable {
     /// - Results are calculated on-demand rather than cached
     /// - Consider limiting requests to reasonable ranges (7-30 days) for optimal UX
     func getTrainingReadinessHistory(days: Int) async throws -> [TrainingReadinessResult]
+
+    /// Rebuilds stored history from HealthKit, when it has not been built for the
+    /// current algorithm version.
+    ///
+    /// A readiness day is derived entirely from HealthKit and from boundaries that
+    /// already happened, so scoring a past day gives the same answer today as it
+    /// would have given that morning. That makes history recomputable rather than
+    /// something that has to accumulate a day at a time.
+    ///
+    /// Also the answer to a version bump: rows written by older rules are not
+    /// comparable with new ones, and this is what makes them comparable again.
+    ///
+    /// - Returns: How many days were written, zero when nothing was needed
+    /// - Throws: HealthKit errors if data access fails
+    func rebuildHistoryIfNeeded() async throws -> Int
 }
 
 

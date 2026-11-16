@@ -28,6 +28,12 @@ extension HealthMetricSummaryCardFeature {
         
         ///
         var components: TrainingReadinessComponents? = nil
+
+        /// Whether the day cannot be scored yet, rather than having no data
+        ///
+        /// Both arrive here as empty components, but they are opposite messages:
+        /// one says "come back later", the other says "something is wrong".
+        var isAwaitingSleepData: Bool = false
         
         /// Represents the navigation destination state within `HealthMetricSummaryCardFeature`.
         /// This property handles transitions to different screens or modals within the feature.

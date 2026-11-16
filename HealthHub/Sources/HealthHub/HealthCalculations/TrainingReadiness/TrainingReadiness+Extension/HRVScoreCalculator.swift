@@ -11,13 +11,14 @@ import SharedModels
 // MARK: - Heart Rate Variability Score Calculation
 
 extension DefaultTrainingReadinessCalculator {
-    
+
     /// Calculates training readiness score based on heart rate variability data.
     ///
-    /// Compares current HRV against a 7-day baseline to assess autonomic nervous
+    /// Compares the night's HRV against a 7-day baseline to assess autonomic nervous
     /// system balance and recovery. Higher HRV relative to baseline indicates
     /// better parasympathetic activity and training readiness.
     ///
+    /// - Parameter day: The readiness day being calculated
     /// - Returns: `TrainingComponentScore` with HRV contribution, or `nil` if data unavailable
     /// - Throws: HealthKit errors if data access fails
     ///
@@ -27,21 +28,26 @@ extension DefaultTrainingReadinessCalculator {
     /// - HRV within normal range: 0 points (neutral)
     /// - HRV moderately lower: -10 points (suboptimal recovery)
     /// - HRV significantly lower: -15 points (poor autonomic balance)
-    func calculateHRVScore() async throws -> TrainingComponentScore? {
-        // Fetch current HRV (last night's value)
-        guard let currentHRV = try await personalDataManager.getLastNightHRV() else {
+    func calculateHRVScore(
+        for day: ReadinessDay,
+        baselineWindows: [ClosedRange<Date>]
+    ) async throws -> TrainingComponentScore? {
+        let window = TrainingReadinessTimeWindows.nightWindow(for: day)
+
+        guard let currentHRV = try await personalDataManager.getHRV(in: window) else {
             return nil
         }
-        
-        // Fetch baseline (7-night average)
-        let baselineHRV = try await personalDataManager.getAverageNightlyHRV(nights: 7)
-        
-        // Calculate score
+
+        let baselineHRV = try await personalDataManager.getAverageHRV(
+            in: baselineWindows,
+            takingFirst: baselineDayCount
+        )
+
         let score = calculateHRVComponentScore(
             current: currentHRV.value,
             baseline: baselineHRV?.value
         )
-        
+
         return TrainingComponentScore(
             score: score,
             currentValue: currentHRV.value,
@@ -52,7 +58,7 @@ extension DefaultTrainingReadinessCalculator {
             timestamp: currentHRV.date
         )
     }
-    
+
     /// Calculates score based on difference between current and baseline HRV.
     ///
     /// Note: Unlike resting heart rate, higher HRV indicates better readiness.
@@ -63,11 +69,10 @@ extension DefaultTrainingReadinessCalculator {
     /// - Returns: Score from -15 to +15 based on HRV deviation
     private func calculateHRVComponentScore(current: Double, baseline: Double?) -> Int {
         guard let baseline = baseline else {
-            print("    ⚠️ HRV: No baseline available, returning 0")
             return 0
         }
         let difference = current - baseline
-        
+
         switch difference {
         case let diff where diff > 10:
             return 15

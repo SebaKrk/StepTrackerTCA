@@ -73,5 +73,18 @@ public struct TrainingReadinessComponents: Sendable, Equatable {
         self.sleepQuality = sleepQuality
         self.previousDayLoad = previousDayLoad
     }
-    
+
+    /// Every component slot, including the ones with no data.
+    public var all: [TrainingComponentScore?] {
+        [restingHeartRate, heartRateVariability, sleepQuality, previousDayLoad]
+    }
+
+    /// Only the components that actually have data.
+    ///
+    /// The overall score normalises against this set, so a missing component
+    /// shrinks the point pool instead of quietly dragging the score down.
+    public var available: [TrainingComponentScore] {
+        all.compactMap { $0 }
+    }
+
 }

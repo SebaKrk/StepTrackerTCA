@@ -19,6 +19,9 @@ extension PlansFeature {
         /// Internal — delivered when SQLite fetch completes.
         case sessionsLoaded([TrainingSession])
 
+        /// Asks the list to scroll back to its top.
+        case scrollToTop
+
         // MARK: - Destination
 
         /// Handles navigation destinations within this feature.
@@ -38,6 +41,9 @@ extension PlansFeature {
 
             /// Called when user taps "Import Plan".
             case importPlanTapped
+
+            /// Reports whether the list sits away from its top.
+            case scrolledChanged(Bool)
         }
     }
 

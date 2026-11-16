@@ -96,10 +96,10 @@ extension ScannedSection {
         switch type {
         // An EMOM's roundCount is how many times the list is completed — written on the
         // board and needed for the session total. AMRAP's is unknowable by definition.
-        case .forTime, .emom, .tabata, .strength, .olympicWeightlifting:
+        case .forTime, .emom, .tabata, .strength, .olympicWeightlifting, .mobility:
             if roundCount > 0 { return roundCount }
             return (type == .forTime && !repScheme.isEmpty) ? repScheme.count : nil
-        case .amrap, .mobility, .intervals:
+        case .amrap, .intervals:
             return nil
         }
     }

@@ -17,6 +17,13 @@ public actor TrainingReadinessBackgroundManager {
     
     private let backgroundDeliveryManager: BackgroundDeliveryManager
     private let calculator: TrainingReadinessCalculator
+
+    /// The one-off history rebuild, tracked so it can be cancelled and so a
+    /// second `start()` cannot launch a rebuild alongside a running one.
+    private var rebuildTask: Task<Void, Never>?
+
+    /// Identifies which rebuild owns the slot, so a stale one cannot free it.
+    private var rebuildGeneration = 0
     private let widgetDataClient: WidgetDataClient
     private let watchConnectivityManager: WatchConnectivityManager
 
@@ -76,12 +83,53 @@ public actor TrainingReadinessBackgroundManager {
                 }
             }
         }
+
+        // Detached from start(): a one-off catch-up must not delay registering
+        // background delivery, and it has no bearing on whether that succeeded.
+        // Guarded rather than cancel-and-restart: restarting would throw away a
+        // rebuild that is most of the way through sixty days of HealthKit reads.
+        guard rebuildTask == nil else { return }
+
+        rebuildGeneration += 1
+        let generation = rebuildGeneration
+
+        rebuildTask = Task { [calculator] in
+            do {
+                let days = try await calculator.rebuildHistoryIfNeeded()
+
+                #if DEBUG
+                if days > 0 {
+                    print("✅ [Readiness] history rebuilt from HealthKit: \(days) days")
+                }
+                #endif
+            } catch {
+                #if DEBUG
+                print("⚠️ [Readiness] history rebuild failed: \(error)")
+                #endif
+            }
+
+            await self.clearRebuildTask(generation: generation)
+        }
+    }
+
+    /// Releases the rebuild slot, unless a newer rebuild already owns it.
+    ///
+    /// Cancellation is not instant: a task cancelled by `stop()` still runs to its
+    /// end, and without this check it would clear the slot out from under the
+    /// rebuild a later `start()` had begun — letting a third one run alongside it.
+    private func clearRebuildTask(generation: Int) {
+        guard generation == rebuildGeneration else { return }
+
+        rebuildTask = nil
     }
     
     /// Stops all background observations.
     public func stop() async throws {
         observationTask?.cancel()
         observationTask = nil
+
+        rebuildTask?.cancel()
+        rebuildTask = nil
         
         try await backgroundDeliveryManager.disable(for: observedTypes)
     }
@@ -121,7 +169,9 @@ public actor TrainingReadinessBackgroundManager {
     }
     
     private func handleNewData(for type: HKSampleType) async {
+        #if DEBUG
         print("📊 New data detected for \(type.identifier)")
+        #endif
         
         // 1. Broadcast to App (Start observing features) - IMMEDIATE
         let update = HealthDataUpdate(type: type, timestamp: Date())
@@ -133,27 +183,56 @@ public actor TrainingReadinessBackgroundManager {
         // Debounce: skip if refreshed recently (5 minutes)
         if let lastRefresh = lastRefreshDate,
            Date().timeIntervalSince(lastRefresh) < minimumRefreshInterval {
+            #if DEBUG
             print("⏭️ Skipping WIDGET refresh - debounced (last refresh: \(Int(Date().timeIntervalSince(lastRefresh)))s ago)")
+            #endif
             return
         }
         
-        // Update timestamp immediately to block subsequent WIDGET refresh calls
+        // Claimed before suspending, because this method is reentrant: the
+        // morning's four observers all reach it while the first calculation is
+        // still awaiting, and a window that is only checked stops nobody.
         lastRefreshDate = Date()
-        
-        await publishReadiness()
+
+        // Reopened when nothing was published. Waiting on sleep must not consume
+        // the window — the sync being waited for lands inside it minutes later.
+        if await publishReadiness() == false {
+            lastRefreshDate = nil
+        }
     }
     
+    /// Recalculates readiness now, for a caller outside the observer path.
+    ///
+    /// Bypasses the debounce on purpose: a scheduled refresh already arrives at
+    /// the system's pace, and the window exists to collapse the burst of observer
+    /// callbacks that a morning sync fires, not to ration deliberate runs.
+    ///
+    /// - Returns: Whether anything reached the widget
+    @discardableResult
+    public func refreshNow() async -> Bool {
+        await publishReadiness()
+    }
+
     /// Recalculates readiness and feeds both consumers: the Home Screen widget
     /// and the paired Apple Watch.
-    private func publishReadiness() async {
+    ///
+    /// - Returns: Whether anything reached the widget, and the debounce window
+    ///   should therefore close. A failure counts as published — retrying it on
+    ///   every sample would turn a broken read into a loop.
+    @discardableResult
+    private func publishReadiness() async -> Bool {
         do {
             // 1. Calculate training readiness
-            let result = try await calculator.calculateTrainingReadiness()
+            let outcome = try await calculator.calculateReadinessOutcome()
 
-            // 2. Check if we have sufficient data
-            guard !result.hasInsufficientData else {
+            // 2. Only a scored day reaches the widget and the Watch. Waiting on
+            //    sleep is not an error — it just has nothing to publish yet.
+            guard let result = outcome.result else {
+                if case .awaitingSleepData = outcome {
+                    return false
+                }
                 await widgetDataClient.clear()
-                return
+                return true
             }
 
             // 3. Save to widget storage
@@ -170,10 +249,13 @@ public actor TrainingReadinessBackgroundManager {
                 #endif
             }
 
+            return true
         } catch {
             #if DEBUG
             print("❌ Failed to refresh readiness: \(error.localizedDescription)")
             #endif
+
+            return true
         }
     }
 }

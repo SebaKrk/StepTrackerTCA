@@ -140,26 +140,39 @@ struct PersonalActivityView: View {
         } else if store.filteredWorkouts.isEmpty {
             noMatchingWorkoutsView
         } else {
-            List {
-                ForEach(store.filteredWorkouts, id: \.uuid) { workout in
-                    workoutCard(workout)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button {
-                                send(.deleteWorkoutSwiped(workout))
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+            ScrollViewReader { proxy in
+                List {
+                    ForEach(store.filteredWorkouts, id: \.uuid) { workout in
+                        workoutCard(workout)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button {
+                                    send(.deleteWorkoutSwiped(workout))
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .tint(.red)
                             }
-                            .tint(.red)
-                        }
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .refreshable {
-                send(.refresh)
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .refreshable {
+                    send(.refresh)
+                }
+                // The offset at rest is the negated top inset, so the sum is
+                // zero exactly when the list sits at its top.
+                .onScrollGeometryChange(for: Bool.self) { geometry in
+                    geometry.contentOffset.y + geometry.contentInsets.top > 1
+                } action: { _, isScrolled in
+                    send(.scrolledChanged(isScrolled))
+                }
+                .onChange(of: store.scrollToTopToken) {
+                    guard let first = store.filteredWorkouts.first else { return }
+                    withAnimation { proxy.scrollTo(first.uuid, anchor: .top) }
+                }
             }
         }
     }
