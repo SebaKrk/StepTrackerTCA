@@ -76,24 +76,30 @@ public enum SleepSessionBuilder {
         return sessions
     }
 
-    /// Returns the most recent session that already ended before a cutoff.
+    /// Returns the longest session that ended inside a window.
     ///
-    /// A session still in progress is excluded on purpose — readiness must not
-    /// score half a night.
+    /// Longest rather than latest: a nap is a session of its own, and an evening
+    /// recalculation must not score the day against it. A session still running
+    /// is excluded by the window's upper bound — readiness must not score half a
+    /// night.
+    ///
+    /// The window is what stops "longest" from reaching across nights, so the
+    /// caller owns it: only whoever asks knows which span may compete.
     ///
     /// - Parameters:
     ///   - intervals: Raw asleep intervals, in any order
-    ///   - cutoff: Moment the session has to have ended before
+    ///   - window: Span the session has to have ended within
+    ///   - minimumDuration: Shortest session that still counts as a night
     ///   - maxGap: Largest gap that still belongs to the same session
-    /// - Returns: The latest closed session, or `nil` when there is none
+    /// - Returns: The longest qualifying session, or `nil` when there is none
     public static func nightSession(
         from intervals: [Interval],
-        endedBefore cutoff: Date,
+        endedIn window: ClosedRange<Date>,
         minimumDuration: TimeInterval = defaultMinimumNightDuration,
         maxGap: TimeInterval = defaultMaxGap
     ) -> SleepSession? {
         sessions(from: intervals, maxGap: maxGap)
-            .filter { $0.end <= cutoff && $0.asleepDuration >= minimumDuration }
+            .filter { window.contains($0.end) && $0.asleepDuration >= minimumDuration }
             .max { $0.asleepDuration < $1.asleepDuration }
     }
 

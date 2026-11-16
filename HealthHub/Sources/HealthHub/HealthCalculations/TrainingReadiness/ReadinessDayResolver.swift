@@ -27,7 +27,7 @@ struct ReadinessDayResolver {
     /// How far back to look for the night that anchors the day.
     private let lookback: TimeInterval = 36 * 60 * 60
 
-    /// How stale the last night may be before the clock fallback takes over.
+    /// How far back a night may have ended and still anchor today.
     ///
     /// Beyond this the Watch clearly was not worn, and carrying the old night
     /// forward would score a day against someone else's sleep.
@@ -68,10 +68,12 @@ struct ReadinessDayResolver {
 
         let intervals = try await sleepDataManager.getSleepIntervals(in: searchStart...dayEnd)
 
+        // Bounded to the day instead of checked after the pick: the longest
+        // session in a 36-hour lookback is often the night before this one.
         if let session = SleepSessionBuilder.nightSession(
             from: intervals,
-            endedBefore: dayEnd
-        ), calendar.isDate(session.end, inSameDayAs: dayStart) {
+            endedIn: dayStart...dayEnd
+        ) {
             return ReadinessDay(
                 dayStart: dayStart,
                 nightWindow: session.start...session.end,
@@ -106,16 +108,20 @@ struct ReadinessDayResolver {
             byAdding: .second,
             value: -Int(lookback),
             to: now
+        ), let earliestAcceptableEnd = calendar.date(
+            byAdding: .second,
+            value: -Int(maximumSessionAge),
+            to: now
         ) else { return nil }
 
         let intervals = try await sleepDataManager.getSleepIntervals(in: searchStart...now)
 
+        // The age limit selects the night rather than rejecting one: applied after
+        // the pick, a longer night from two days ago beat last night and lost both.
         guard let session = SleepSessionBuilder.nightSession(
             from: intervals,
-            endedBefore: now
+            endedIn: earliestAcceptableEnd...now
         ) else { return nil }
-
-        guard now.timeIntervalSince(session.end) <= maximumSessionAge else { return nil }
 
         return ReadinessDay(
             dayStart: calendar.startOfDay(for: session.end),

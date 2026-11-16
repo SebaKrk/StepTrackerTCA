@@ -54,16 +54,20 @@ struct TrainingReadinessProvider: TimelineProvider {
         // Convert DTO to TrainingReadinessResult. The widget stores measured
         // values only, so component scores come back as 0 — it renders the
         // numbers and the overall ring, never per-component status.
+        let components = TrainingReadinessComponents(
+            restingHeartRate: component(.rhr, value: widgetData.rhrValue),
+            heartRateVariability: component(.hrv, value: widgetData.hrvValue),
+            sleepQuality: component(.sleep, value: widgetData.sleepValue),
+            previousDayLoad: component(.activity, value: widgetData.activityValue)
+        )
+
         return TrainingReadinessResult(
             overallScore: widgetData.overallScore,
-            components: TrainingReadinessComponents(
-                restingHeartRate: component(.rhr, value: widgetData.rhrValue),
-                heartRateVariability: component(.hrv, value: widgetData.hrvValue),
-                sleepQuality: component(.sleep, value: widgetData.sleepValue),
-                previousDayLoad: component(.activity, value: widgetData.activityValue)
-            ),
+            components: components,
             calculatedAt: widgetData.calculatedAt,
-            isReliable: true
+            // Re-derived rather than assumed: hardcoding `true` let a score built
+            // on two components look exactly like one built on four.
+            isReliable: components.available.count >= TrainingReadinessResult.minimumReliableComponents
         )
     }
 
@@ -120,7 +124,7 @@ struct TrainingReadinessWidgetEntryView : View {
         ZStack {
             // Blurred placeholder background
             VStack(spacing: 2) {
-                smallHeader
+                smallHeader(caveat: nil)
                 readinessChart(diameter: nil, score: 0, showScore: false)
                 Text("-")
             }
@@ -142,21 +146,22 @@ struct TrainingReadinessWidgetEntryView : View {
     
     func smallView(for result: TrainingReadinessResult) -> some View {
         VStack(spacing: 2) {
-            smallHeader
+            smallHeader(caveat: caveat(for: result))
             readinessChart(diameter: nil, score: result.overallScore, showScore: true)
             statusText(for: result)
         }
     }
-    
+
     func mediumView(for result: TrainingReadinessResult) -> some View {
         VStack(spacing: 12) {
-            mediumHeader(date: entry.date)
+            mediumHeader(for: result)
             HStack(spacing: 20) {
-                VStack {
+                VStack(spacing: 2) {
                     readinessChart(diameter: 100, score: result.overallScore, showScore: true)
                     Text(result.readinessLevel.title)
                         .font(.caption.bold())
                         .foregroundStyle(result.readinessLevel.color)
+                    estimateMarker(for: result)
                 }
                 breakdownList(for: result)
             }
@@ -165,27 +170,49 @@ struct TrainingReadinessWidgetEntryView : View {
     
     // MARK: - Subviews
     
-    var smallHeader: some View {
-        HStack {
+    func smallHeader(caveat: String?) -> some View {
+        HStack(spacing: 4) {
             Text("Training Readiness")
                 .bold()
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            Spacer()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            Spacer(minLength: 0)
+
+            if let caveat {
+                Text(caveat)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(Color.orange)
+                    .lineLimit(1)
+            }
         }
     }
-    
-    func mediumHeader(date: Date) -> some View {
+
+    func mediumHeader(for result: TrainingReadinessResult) -> some View {
         HStack {
             Text("TRAINING READINESS")
                 .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(.secondary)
-            
+
             Spacer()
-            
-            Text(date.formatted(date: .numeric, time: .omitted))
+
+            // The score's own date, not the moment the timeline was built — the
+            // widget keeps the last score through a morning that has none yet.
+            Text(result.calculatedAt.formatted(date: .numeric, time: .omitted))
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(isFromToday(result) ? Color.secondary : Color.orange)
+        }
+    }
+
+    func estimateMarker(for result: TrainingReadinessResult) -> some View {
+        Group {
+            if !result.isReliable {
+                Text("estimated")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
         }
     }
     
@@ -273,8 +300,29 @@ struct TrainingReadinessWidgetEntryView : View {
         }
     }
     
+    // MARK: - Provenance
+
+    /// Whether the score on screen was calculated today.
+    func isFromToday(_ result: TrainingReadinessResult) -> Bool {
+        Calendar.current.isDateInToday(result.calculatedAt)
+    }
+
+    /// What the figure needs saying about it in the small family, if anything.
+    ///
+    /// A score from another day is wrong about today whatever built it, so it
+    /// outranks the estimate caveat instead of sharing the one slot with it.
+    func caveat(for result: TrainingReadinessResult) -> String? {
+        guard isFromToday(result) else {
+            return result.calculatedAt.formatted(.relative(presentation: .named))
+        }
+
+        // The same key the Watch marks an estimate with, rather than a second
+        // string for one word.
+        return result.isReliable ? nil : String(localized: "estimated")
+    }
+
     // MARK: - Logic
-    
+
     struct ReadinessSegment {
         let range: ClosedRange<Double>
         let color: Color

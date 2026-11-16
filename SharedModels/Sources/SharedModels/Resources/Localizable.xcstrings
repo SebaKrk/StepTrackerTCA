@@ -131,17 +131,6 @@
         }
       }
     },
-    "Anaerobic" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beztlenowa"
-          }
-        }
-      }
-    },
     "Average" : {
       "localizations" : {
         "pl" : {
@@ -168,17 +157,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sztanga"
-          }
-        }
-      }
-    },
-    "Below Average" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poniżej przeciętnej"
           }
         }
       }
@@ -423,34 +401,12 @@
         }
       }
     },
-    "Fair" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Typowa"
-          }
-        }
-      }
-    },
     "Faster-than-average heart rate recovery." : {
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szybszy niż przeciętny spadek tętna."
-          }
-        }
-      }
-    },
-    "Fat Burning" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spalanie tłuszczu"
           }
         }
       }
@@ -775,17 +731,6 @@
         }
       }
     },
-    "Light Effort" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lekki wysiłek"
-          }
-        }
-      }
-    },
     "Light session. You'll be ready for another hard workout soon." : {
       "localizations" : {
         "pl" : {
@@ -1016,50 +961,6 @@
         }
       }
     },
-    "No calories burned data available." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak danych o spalonych kaloriach."
-          }
-        }
-      }
-    },
-    "No effect" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bez wpływu"
-          }
-        }
-      }
-    },
-    "No heart rate data available. Check Health app." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak danych tętna. Sprawdź aplikację Zdrowie."
-          }
-        }
-      }
-    },
-    "No HRV data found. Regular measurements required." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak danych HRV. Wymagane regularne pomiary."
-          }
-        }
-      }
-    },
     "No HRV recorded for this night yet." : {
       "localizations" : {
         "pl" : {
@@ -1086,17 +987,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak tętna spoczynkowego z tego dnia."
-          }
-        }
-      }
-    },
-    "No sleep data. Track your sleep to see insights." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak danych snu. Śledź sen, aby zobaczyć analizy."
           }
         }
       }
@@ -1256,7 +1146,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Typowa"
+            "value" : "W normie"
           }
         }
       }
@@ -1678,7 +1568,14 @@
       }
     },
     "Timer Name" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa minutnika"
+          }
+        }
+      }
     },
     "Treadmill" : {
       "localizations" : {
@@ -1806,17 +1703,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bardzo lekki wysiłek. Aktywna regeneracja lub intensywność rozgrzewki."
-          }
-        }
-      }
-    },
-    "Very Poor" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bardzo niska"
           }
         }
       }

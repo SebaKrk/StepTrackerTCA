@@ -85,7 +85,14 @@ public actor ReadinessCalculationCoordinator {
         defer { inFlight = nil }
 
         let outcome = try await task.value
-        cache = (outcome, .now)
+
+        // A wait is not a result: the sync that ends it lands minutes later, so a
+        // cached one keeps answering after the night it describes has closed.
+        if case .awaitingSleepData = outcome {
+            cache = nil
+        } else {
+            cache = (outcome, .now)
+        }
 
         return outcome
     }
