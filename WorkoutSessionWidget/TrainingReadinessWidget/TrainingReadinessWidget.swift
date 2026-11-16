@@ -209,7 +209,7 @@ struct TrainingReadinessWidgetEntryView : View {
     func estimateMarker(for result: TrainingReadinessResult) -> some View {
         Group {
             if !result.isReliable {
-                Text("Estimated")
+                Text("estimated")
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
             }
@@ -316,7 +316,9 @@ struct TrainingReadinessWidgetEntryView : View {
             return result.calculatedAt.formatted(.relative(presentation: .named))
         }
 
-        return result.isReliable ? nil : String(localized: "Estimated")
+        // The same key the Watch marks an estimate with, rather than a second
+        // string for one word.
+        return result.isReliable ? nil : String(localized: "estimated")
     }
 
     // MARK: - Logic

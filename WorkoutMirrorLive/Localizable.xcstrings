@@ -1,96 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "First name" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Imię"
-          }
-        }
-      }
-    },
-    "How should others see you?" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jak mają Cię widzieć inni?"
-          }
-        }
-      }
-    },
-    "Let's start" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaczynamy"
-          }
-        }
-      }
-    },
-    "People in your groups and the coach in the gym see your nickname. Your name and surname stay on this device." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Twój pseudonim widzą osoby w Twoich grupach i trener na sali. Imię i nazwisko zostają na tym urządzeniu."
-          }
-        }
-      }
-    },
-    "Surname (optional)" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nazwisko (opcjonalnie)"
-          }
-        }
-      }
-    },
-    "API keys for plan scanning, and diagnostics you can send when something goes wrong." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Klucze API do skanowania planów oraz diagnostyka, którą możesz wysłać, gdy coś nie działa."
-          }
-        }
-      }
-    },
-    "Describe what went wrong, and roughly when it happened:\n\n" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opisz, co poszło nie tak i mniej więcej kiedy:\n\n"
-          }
-        }
-      }
-    },
-    "Developer tools" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Narzędzia dewelopera"
-          }
-        }
-      }
-    },
-    "Sent to %@." : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wysyłane na %@."
-          }
-        }
-      }
-    },
     "" : {
 
     },
@@ -1694,6 +1604,16 @@
         }
       }
     },
+    "API keys for plan scanning, and diagnostics you can send when something goes wrong." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klucze API do skanowania planów oraz diagnostyka, którą możesz wysłać, gdy coś nie działa."
+          }
+        }
+      }
+    },
     "Apple Health Integration" : {
       "localizations" : {
         "pl" : {
@@ -3275,6 +3195,16 @@
         }
       }
     },
+    "Describe what went wrong, and roughly when it happened:\n\n" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opisz, co poszło nie tak i mniej więcej kiedy:\n\n"
+          }
+        }
+      }
+    },
     "Description" : {
       "localizations" : {
         "pl" : {
@@ -3321,6 +3251,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deweloper"
+          }
+        }
+      }
+    },
+    "Developer tools" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Narzędzia dewelopera"
           }
         }
       }
@@ -4119,6 +4059,16 @@
         }
       }
     },
+    "First name" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imię"
+          }
+        }
+      }
+    },
     "first result on the board" : {
       "localizations" : {
         "pl" : {
@@ -4738,6 +4688,16 @@
         }
       }
     },
+    "How should others see you?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak mają Cię widzieć inni?"
+          }
+        }
+      }
+    },
     "How the night compares with your own average." : {
       "localizations" : {
         "pl" : {
@@ -5284,6 +5244,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opuścić grupę?"
+          }
+        }
+      }
+    },
+    "Let's start" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaczynamy"
           }
         }
       }
@@ -6729,6 +6699,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oczekuje"
+          }
+        }
+      }
+    },
+    "People in your groups and the coach in the gym see your nickname. Your name and surname stay on this device." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój pseudonim widzą osoby w Twoich grupach i trener na sali. Imię i nazwisko zostają na tym urządzeniu."
           }
         }
       }
@@ -8275,6 +8255,16 @@
         }
       }
     },
+    "Sent to %@." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysyłane na %@."
+          }
+        }
+      }
+    },
     "Series" : {
       "localizations" : {
         "pl" : {
@@ -8783,6 +8773,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nazwisko"
+          }
+        }
+      }
+    },
+    "Surname (optional)" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwisko (opcjonalnie)"
           }
         }
       }
