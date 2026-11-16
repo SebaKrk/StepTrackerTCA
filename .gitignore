@@ -136,3 +136,7 @@ AppDatabase/SQLiteData-Cheatsheet.md
 # Ręczne kopie zapasowe pbxproj — mają prawo istnieć na dysku, nigdy w repo
 *.pbxproj.backup
 *.pbxproj.bak
+
+# Produkcyjna konfiguracja Firebase — weszła tu raz i została w historii.
+# Wariant -Dev jest śledzony świadomie, dlatego wzorzec celuje w sam plik bez sufiksu.
+GoogleService-Info.plist
