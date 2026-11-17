@@ -12,6 +12,11 @@ const SCAN_MODEL = "claude-sonnet-5-5";
 const NOTES_MODEL = "claude-sonnet-5-5";
 const MAX_TOKENS = 4096;
 
+// Models a request may ask for where overriding is switched on. An allowlist
+// rather than a free field: the caller must not be able to name an expensive
+// model we never meant to run, or a string that only looks like one.
+const ALLOWED_MODELS = new Set(["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"]);
+
 /**
  * One Messages API call.
  *
@@ -108,4 +113,4 @@ async function safeText(response) {
   }
 }
 
-module.exports = { sendMessage, SCAN_MODEL, NOTES_MODEL };
+module.exports = { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS };

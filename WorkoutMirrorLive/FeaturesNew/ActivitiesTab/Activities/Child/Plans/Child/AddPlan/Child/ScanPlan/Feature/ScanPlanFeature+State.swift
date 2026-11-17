@@ -51,6 +51,10 @@ extension ScanPlanFeature {
         @Shared(.appStorage("workoutParsingBackend"))
         var parsingBackend: WorkoutParsingBackend = .claudeVision
 
+        /// Model the scan runs on; only a debug build can move it off the default.
+        @Shared(.appStorage("scanModelChoice"))
+        var scanModel: ScanModelChoice = .serverDefault
+
         // MARK: - Destination
 
         /// Workout preview destination (navigation).

@@ -35,25 +35,35 @@ public actor ProxyStrategy: WorkoutParsingStrategy {
 
     public func parseWorkout(_ input: WorkoutScanInput) async throws -> ScannedBoard {
         guard backend.needsPhoto, let imageData = input.imageData else {
-            return try await parseWorkoutText(input.ocrText)
+            return try await parseText(input.ocrText, model: input.model)
         }
         let jpeg = try ScanImageDownscaler.jpeg(from: imageData)
         let board = try await proxy.scanBoard(
             mode: backend.proxyMode,
             imageData: jpeg,
             ocrText: input.ocrText,
-            language: ScanLanguage.preferredName()
+            language: ScanLanguage.preferredName(),
+            model: input.model
         )
         logBoard(board)
         return board
     }
 
     public func parseWorkoutText(_ text: String) async throws -> ScannedBoard {
+        try await parseText(text, model: nil)
+    }
+
+    /// The text path, with the model the caller asked for.
+    ///
+    /// `parseWorkoutText` comes from the protocol and carries only the transcript,
+    /// so the overridden model travels through here instead.
+    private func parseText(_ text: String, model: String?) async throws -> ScannedBoard {
         let board = try await proxy.scanBoard(
             mode: .text,
             imageData: nil,
             ocrText: text,
-            language: ScanLanguage.preferredName()
+            language: ScanLanguage.preferredName(),
+            model: model
         )
         logBoard(board)
         return board

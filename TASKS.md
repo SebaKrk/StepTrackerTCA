@@ -1814,3 +1814,11 @@
     - a global daily ceiling fails the request before the API is reached, so a viral morning or a retry loop cannot empty the account overnight. Credit running out upstream (402) is logged for us and reads to the user as a temporary outage: the state of the account behind the app is not their problem
     - the three parsing backends stayed as they were and travel as a mode on the request, so switching them in settings still compares the three prompts; `WorkoutParsingStrategyFactory` keeps its seam for an on-device backend
     - training notes went the same way — warm-up and cool-down are built from workout and exercise names only, with the wording owned by the function, so a rebuilt request cannot turn the shared key into a general-purpose assistant
+
+### IOS-00189 Compare scan models on a real board
+    - branch: `dev/IOS-00189/IOS-00189` (from the IOS-00188 head, which develop has not taken yet)
+    - picking a model for each plan tier is a cost decision worth twenty times the scan price, and nothing in the repository could answer it: the fixtures in `PLANS/scan-eval/` cover prompts, not models, and a gym whiteboard in bad light is the case that decides it
+    - a scan may now name its model, and the function honours that only where `ALLOW_MODEL_OVERRIDE` is set — a file that exists for development alone, so production answers with the pinned model however the request was built
+    - the name is checked against an allowlist rather than passed through, because a caller that can name any string can name the most expensive model there is
+    - the debug build gets a picker beside the backend one, so the same board can be read by Haiku, Sonnet and Opus in a row and the cost of each compared from the function log
+    - nothing ships: the picker lives behind `#if DEBUG` and the override behind an environment flag, and a release build has neither

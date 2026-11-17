@@ -106,6 +106,8 @@ struct ScanPlanView: View {
             #if DEBUG
             parsingBackendSection
                 .padding(.horizontal)
+            scanModelSection
+                .padding(.horizontal)
             #endif
         }
         .padding(.bottom)
@@ -279,6 +281,26 @@ struct ScanPlanView: View {
         Binding(
             get: { store.parsingBackend },
             set: { send(.parsingBackendChanged($0)) }
+        )
+    }
+
+    /// Only the development deployment honours this; elsewhere the server decides.
+    private var scanModelSection: some View {
+        Picker(selection: scanModelBinding) {
+            ForEach(ScanModelChoice.allCases, id: \.self) { model in
+                Text(model.displayName)
+            }
+        } label: {
+            Text("Scan model")
+        }
+        .pickerStyle(.menu)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var scanModelBinding: Binding<ScanModelChoice> {
+        Binding(
+            get: { store.scanModel },
+            set: { send(.scanModelChanged($0)) }
         )
     }
     #endif

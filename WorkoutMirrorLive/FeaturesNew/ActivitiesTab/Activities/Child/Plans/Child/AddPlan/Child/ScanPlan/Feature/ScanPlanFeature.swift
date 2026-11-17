@@ -120,6 +120,10 @@ struct ScanPlanFeature {
                 state.$parsingBackend.withLock { $0 = backend }
                 return .none
 
+            case let .view(.scanModelChanged(model)):
+                state.$scanModel.withLock { $0 = model }
+                return .none
+
                 // MARK: - Internal Action
 
             case let .internal(.galleryPhotoLoaded(data)):
@@ -267,7 +271,11 @@ struct ScanPlanFeature {
     private func startParsing(_ state: inout State) -> Effect<Action> {
         state.viewState = .analyzing
         state.failedStage = nil
-        let input = WorkoutScanInput(imageData: state.selectedImageData, ocrText: state.extractedText)
+        let input = WorkoutScanInput(
+            imageData: state.selectedImageData,
+            ocrText: state.extractedText,
+            model: state.scanModel.requestedModel
+        )
         return .run { [backend = state.parsingBackend] send in
             do {
                 let board = try await extractionClient.parseWorkout(input, backend)

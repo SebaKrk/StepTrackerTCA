@@ -4,7 +4,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 
-const { sendMessage, SCAN_MODEL, NOTES_MODEL } = require("./src/anthropic");
+const { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS } = require("./src/anthropic");
 const boardPrompt = require("./src/boardPrompt");
 const notesPrompt = require("./src/notesPrompt");
 const { boardSchema } = require("./src/boardSchema");
@@ -35,7 +35,7 @@ const MAX_NAME_CHARS = 120;
 /** Reads a board photo into the `ScannedBoard` JSON the app already decodes. */
 exports.scanBoard = onCall(options, async (request) => {
   const uid = requireUid(request);
-  const { mode, image, ocrText, language } = parseScanInput(request.data ?? {});
+  const { mode, image, ocrText, language, model } = parseScanInput(request.data ?? {});
 
   const taken = await quota.reserve(uid, "scan");
   try {
@@ -49,7 +49,7 @@ exports.scanBoard = onCall(options, async (request) => {
 
     const text = await sendMessage({
       apiKey: anthropicKey.value(),
-      model: SCAN_MODEL,
+      model,
       system: boardPrompt.systemPrompt,
       content,
       cacheSystem: true,
@@ -113,7 +113,19 @@ function parseScanInput(data) {
     if (image.length > MAX_IMAGE_BASE64) throw new HttpsError("invalid-argument", "image-too-large");
   }
 
-  return { mode, image, ocrText, language };
+  return { mode, image, ocrText, language, model: scanModel(data.model) };
+}
+
+/**
+ * The model this scan runs on.
+ *
+ * A caller may name one only where `ALLOW_MODEL_OVERRIDE` is set, which lives in
+ * the development environment file alone — production ignores the field however
+ * the request was built, so comparing models never becomes a user-facing switch.
+ */
+function scanModel(requested) {
+  if (process.env.ALLOW_MODEL_OVERRIDE !== "true") return SCAN_MODEL;
+  return ALLOWED_MODELS.has(requested) ? requested : SCAN_MODEL;
 }
 
 function parseNoteInput(data) {
