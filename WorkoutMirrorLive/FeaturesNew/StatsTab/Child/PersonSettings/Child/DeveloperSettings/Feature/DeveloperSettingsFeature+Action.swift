@@ -25,9 +25,6 @@ extension DeveloperSettingsFeature {
 
         enum View {
 
-            /// Action triggered when API key row is tapped
-            case apiKeyTapped
-
             /// Action triggered when the "attach database" switch is flipped.
             case includeDatabaseToggled
 
@@ -37,10 +34,5 @@ extension DeveloperSettingsFeature {
             /// Action triggered when the composer or share sheet closes, sent or not.
             case diagnosticsDeliveryDismissed
         }
-
-        // MARK: - Destination
-
-        /// Action to handle navigation destinations within this feature.
-        case destination(PresentationAction<Destination.Action>)
     }
 }

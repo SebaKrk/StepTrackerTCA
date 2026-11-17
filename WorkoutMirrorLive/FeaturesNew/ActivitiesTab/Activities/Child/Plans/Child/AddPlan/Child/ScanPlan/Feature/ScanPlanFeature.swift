@@ -31,8 +31,8 @@ struct ScanPlanFeature {
 
     // MARK: - Dependency
 
-    @Dependency(\.apiKeyClient) var apiKeyClient
     @Dependency(\.date) var date
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.workoutExtractionClient) var extractionClient
 
     // MARK: - Body
@@ -65,7 +65,7 @@ struct ScanPlanFeature {
             case .view(.documentScanFailed):
                 state.isCameraPresented = false
                 state.failedStage = .photoLoad
-                state.viewState = .failed(String(localized: "Scanning failed. Try again."))
+                state.viewState = .failed(Self.cameraFailure)
                 return .none
 
             case .view(.editTextTapped):
@@ -85,11 +85,6 @@ struct ScanPlanFeature {
                     await send(.internal(.galleryPhotoLoaded(data)))
                 }
                 .cancellable(id: CancelID.photoLoad, cancelInFlight: true)
-
-            case .view(.apiKeySettingsTapped):
-                let hasKey = apiKeyClient.load() != nil
-                state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: hasKey)
-                return .none
 
             case .view(.continueButtonTapped):
                 guard !state.extractedText.isEmpty else { return .none }
@@ -117,6 +112,10 @@ struct ScanPlanFeature {
             case .view(.clearImageTapped):
                 return resetToIdle(&state)
 
+            case .view(.addManuallyTapped):
+                // Closing this screen lands on Add Plan, where the manual form lives.
+                return .run { _ in await dismiss() }
+
             case let .view(.parsingBackendChanged(backend)):
                 state.$parsingBackend.withLock { $0 = backend }
                 return .none
@@ -126,7 +125,7 @@ struct ScanPlanFeature {
             case let .internal(.galleryPhotoLoaded(data)):
                 guard let data else {
                     state.failedStage = .photoLoad
-                    state.viewState = .failed(String(localized: "Could not load the selected image."))
+                    state.viewState = .failed(Self.photoLoadFailure)
                     return .none
                 }
                 // The document camera crops on its own; a library photo gets the same step here.
@@ -136,7 +135,7 @@ struct ScanPlanFeature {
             case let .internal(.imageLoaded(data)):
                 guard let data else {
                     state.failedStage = .photoLoad
-                    state.viewState = .failed(String(localized: "Could not load the selected image."))
+                    state.viewState = .failed(Self.photoLoadFailure)
                     return .none
                 }
                 state.selectedImageData = data
@@ -149,7 +148,7 @@ struct ScanPlanFeature {
                         let rawText = try await extractionClient.extractText(data)
                         await send(.internal(.textExtracted(rawText)))
                     } catch {
-                        await send(.internal(.extractionFailed(error.localizedDescription, .ocr)))
+                        await send(.internal(.extractionFailed(ScanProxyError.scanFailure(for: error), .ocr)))
                     }
                 }
                 .cancellable(id: CancelID.ocr, cancelInFlight: true)
@@ -167,7 +166,7 @@ struct ScanPlanFeature {
 
                 if let hard = ScanReviewValidator.hardFindings(board: board, plan: session).first {
                     state.failedStage = .parsing
-                    state.viewState = .failed(hard.message)
+                    state.viewState = .failed(Self.reviewFailure(hard.message))
                     return .none
                 }
 
@@ -186,14 +185,6 @@ struct ScanPlanFeature {
                 state.viewState = .failed(error)
                 return .none
 
-                // MARK: - API Key Entry
-
-            case .apiKeyEntry(.presented(.delegate(.keySaved))):
-                state.apiKeyEntry = nil
-                return .run { send in
-                    await send(.view(.continueButtonTapped))
-                }
-
             case .photoCrop(.presented(.delegate(.cropped(let data)))):
                 state.photoCrop = nil
                 return .send(.internal(.imageLoaded(data)))
@@ -203,13 +194,6 @@ struct ScanPlanFeature {
                 return resetToIdle(&state)
 
             case .photoCrop:
-                return .none
-
-            case .apiKeyEntry(.presented(.delegate(.keyDeleted))):
-                state.apiKeyEntry = nil
-                return .none
-
-            case .apiKeyEntry:
                 return .none
 
                 // MARK: - Workout Preview
@@ -222,9 +206,13 @@ struct ScanPlanFeature {
                 return .send(.delegate(.saved(session)))
 
             case .workoutPreview(.dismiss):
-                // Back from preview keeps the OCR text — the user may only
-                // want to tweak it and re-parse, not redo the whole scan.
                 state.extractedWorkout = nil
+                // Back from preview keeps the OCR text — the user may only want
+                // to tweak it and re-parse. The photo backends have no transcript,
+                // so for them that screen would be an empty editor.
+                guard state.parsingBackend.showsTextStep, !state.extractedText.isEmpty else {
+                    return resetToIdle(&state)
+                }
                 state.viewState = .textReady
                 return .none
 
@@ -241,22 +229,42 @@ struct ScanPlanFeature {
         .ifLet(\.$photoCrop, action: \.photoCrop) {
             PhotoCropFeature()
         }
-        .ifLet(\.$apiKeyEntry, action: \.apiKeyEntry) {
-            APIKeyEntryFeature()
-        }
+    }
+
+    // MARK: - Failures
+
+    /// The document scanner itself failed — a different photo usually works.
+    nonisolated static let cameraFailure = ScanFailure(
+        title: String(localized: "Scanning failed"),
+        message: String(localized: "The scanner could not capture the page. Try again."),
+        canRetry: true
+    )
+
+    /// The picked image could not be read, often an iCloud photo that never downloaded.
+    nonisolated static let photoLoadFailure = ScanFailure(
+        title: String(localized: "Could not open the photo"),
+        message: String(localized: "Pick the photo again, or take a new one."),
+        canRetry: false
+    )
+
+    /// The board parsed, but the review found something that blocks a usable plan.
+    ///
+    /// The finding already reads as a full sentence, so it becomes the body.
+    nonisolated static func reviewFailure(_ message: String) -> ScanFailure {
+        ScanFailure(
+            title: String(localized: "The plan could not be read"),
+            message: message,
+            canRetry: true
+        )
     }
 
     // MARK: - Helpers
 
     /// Full reset to the initial screen, killing any in-flight effect so a
     /// late OCR/parse result cannot resurrect the state it belonged to.
-    /// Sends the photo and text to the chosen backend; the API key gate lives here
-    /// so every entry point (auto-start, Continue, Retry) behaves the same.
+    /// Sends the photo and text to the chosen backend through the proxy; the daily
+    /// allowance is checked server-side, so every entry point behaves the same.
     private func startParsing(_ state: inout State) -> Effect<Action> {
-        guard apiKeyClient.load() != nil else {
-            state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: false)
-            return .none
-        }
         state.viewState = .analyzing
         state.failedStage = nil
         let input = WorkoutScanInput(imageData: state.selectedImageData, ocrText: state.extractedText)
@@ -265,7 +273,7 @@ struct ScanPlanFeature {
                 let board = try await extractionClient.parseWorkout(input, backend)
                 await send(.internal(.parsingCompleted(board)))
             } catch {
-                await send(.internal(.extractionFailed(ClaudeAPIError.userMessage(for: error), .parsing)))
+                await send(.internal(.extractionFailed(ScanProxyError.scanFailure(for: error), .parsing)))
             }
         }
         .cancellable(id: CancelID.parse, cancelInFlight: true)

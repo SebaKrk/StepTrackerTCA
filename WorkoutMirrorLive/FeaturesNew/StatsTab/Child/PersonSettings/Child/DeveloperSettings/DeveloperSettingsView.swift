@@ -21,11 +21,6 @@ struct DeveloperSettingsView: View {
         rootView
             .navigationTitle(Text(String(localized: "Developer")))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(
-                item: $store.scope(state: \.destination?.apiKey, action: \.destination.apiKey)
-            ) { apiKeyStore in
-                APIKeyEntryView(store: apiKeyStore)
-            }
             .sheet(isPresented: isSendingMail) {
                 diagnosticsMailComposer
             }
@@ -38,33 +33,8 @@ struct DeveloperSettingsView: View {
 
     private var rootView: some View {
         List {
-            apiKeySection
             diagnosticsSection
             sendDiagnosticsSection
-        }
-    }
-
-    private var apiKeySection: some View {
-        Section {
-            apiKeyRow
-        } footer: {
-            Text(String(localized: "Manage API keys for AI-powered workout parsing and analysis."))
-        }
-    }
-
-    private var apiKeyRow: some View {
-        HStack {
-            Image(systemName: "key.fill")
-                .foregroundStyle(.secondary)
-            Text(String(localized: "API Key"))
-            Spacer()
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            send(.apiKeyTapped)
         }
     }
 

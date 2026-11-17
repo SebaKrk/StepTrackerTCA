@@ -130,7 +130,7 @@ struct TrainingSessionEditorFeature {
 
             case .`internal`(.warmUpGenerationResult(.failure(let error))):
                 state.isGeneratingWarmUpNotes = false
-                state.alert = .generationFailed(ClaudeAPIError.userMessage(for: error))
+                state.alert = .generationFailed(ScanProxyError.userMessage(for: error))
                 return .none
 
             case .`internal`(.coolDownGenerationResult(.success(let text))):
@@ -140,7 +140,7 @@ struct TrainingSessionEditorFeature {
 
             case .`internal`(.coolDownGenerationResult(.failure(let error))):
                 state.isGeneratingCoolDownNotes = false
-                state.alert = .generationFailed(ClaudeAPIError.userMessage(for: error))
+                state.alert = .generationFailed(ScanProxyError.userMessage(for: error))
                 return .none
 
             // MARK: - Workouts

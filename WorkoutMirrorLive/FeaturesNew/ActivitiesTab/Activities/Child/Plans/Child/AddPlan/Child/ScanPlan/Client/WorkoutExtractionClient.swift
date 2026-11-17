@@ -39,22 +39,22 @@ extension WorkoutExtractionClient: DependencyKey {
 
     /// Production client using Vision OCR + the backend picked in settings.
     ///
-    /// API key is read at call-time from Keychain via ``APIKeyClient``.
+    /// The parsing call goes through ``ScanProxy``: the API key lives in the
+    /// deployed function, so nothing here reads or holds one.
     nonisolated static let liveValue: WorkoutExtractionClient = {
-        
+
         let ocrService = ScanPlanService()
-        
+
         return WorkoutExtractionClient(
             extractText: { imageData in
                 try await ocrService.recognizeText(from: imageData)
             },
             parseWorkout: { input, backend in
-                @Dependency(\.apiKeyClient) var apiKeyClient
                 @Dependency(\.date) var date
                 #if DEBUG
                 print("🧭 [WorkoutExtractionClient] backend=\(backend.rawValue) image=\(input.imageData?.count ?? 0) bytes text=\(input.ocrText.count) chars")
                 #endif
-                let strategy = WorkoutParsingStrategyFactory.make(backend, apiKey: apiKeyClient.load())
+                let strategy = WorkoutParsingStrategyFactory.make(backend, proxy: ScanProxy.shared)
                 #if DEBUG
                 let recorder = ScanRunRecorder()
                 let startedAt = date.now

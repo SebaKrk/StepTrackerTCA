@@ -31,10 +31,5 @@ extension DeveloperSettingsFeature {
         /// Archive waiting in the share sheet, used when the device has no mail
         /// account — the composer would refuse to open at all.
         var diagnosticsShareURL: URL?
-
-        // MARK: - Destination
-
-        /// destination from DeveloperSettingsFeature
-        @Presents var destination: Destination.State?
     }
 }

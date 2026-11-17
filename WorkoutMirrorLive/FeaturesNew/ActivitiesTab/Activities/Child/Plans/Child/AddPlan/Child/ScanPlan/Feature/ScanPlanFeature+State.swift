@@ -56,9 +56,6 @@ extension ScanPlanFeature {
         /// Workout preview destination (navigation).
         @Presents var workoutPreview: WorkoutPreviewFeature.State?
 
-        /// API key entry sheet.
-        @Presents var apiKeyEntry: APIKeyEntryFeature.State?
-
         /// Crop sheet for a photo picked from the library.
         @Presents var photoCrop: PhotoCropFeature.State?
     }
