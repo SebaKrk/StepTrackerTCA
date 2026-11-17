@@ -32,6 +32,23 @@ public enum WorkoutParsingBackend: String, CaseIterable, Sendable, Codable {
         }
     }
 
+    /// Whether the photo itself is sent; text-only backends never upload one.
+    public var needsPhoto: Bool {
+        switch self {
+        case .claudeVision, .claudeVisionWithOCRHint: return true
+        case .claudeText: return false
+        }
+    }
+
+    /// The word the proxy understands for this backend's prompt.
+    public var proxyMode: ScanProxyMode {
+        switch self {
+        case .claudeText: return .text
+        case .claudeVision: return .vision
+        case .claudeVisionWithOCRHint: return .visionWithHint
+        }
+    }
+
     /// Whether the user reviews the OCR text before parsing; only when text is the source of truth.
     public var showsTextStep: Bool {
         self == .claudeText

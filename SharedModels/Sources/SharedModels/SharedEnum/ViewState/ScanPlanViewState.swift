@@ -23,5 +23,5 @@ public enum ScanPlanViewState: Equatable {
     case textReady
 
     /// An error occurred during image loading, OCR, or parsing.
-    case failed(String)
+    case failed(ScanFailure)
 }

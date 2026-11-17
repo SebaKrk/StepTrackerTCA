@@ -43,8 +43,8 @@ struct ScanPlanView: View {
             case .textReady:
                 textReadyView
 
-            case let .failed(error):
-                failedSection(error: error)
+            case let .failed(failure):
+                failedSection(failure)
             }
         }
         .background(
@@ -56,16 +56,8 @@ struct ScanPlanView: View {
         )
         .navigationTitle("Scan Plan")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            apiKeyToolbarItem
-        }
         .sheet(item: $store.scope(state: \.photoCrop, action: \.photoCrop)) { cropStore in
             PhotoCropView(store: cropStore)
-        }
-        .sheet(item: $store.scope(state: \.apiKeyEntry, action: \.apiKeyEntry)) { store in
-            NavigationStack {
-                APIKeyEntryView(store: store)
-            }
         }
         .photosPicker(isPresented: $store.isPickerPresented,
                       selection: $store.selectedItem)
@@ -321,71 +313,137 @@ struct ScanPlanView: View {
 
     // MARK: - Failed
 
-    private func failedSection(error: String) -> some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 50))
-                .foregroundStyle(.red)
-
-            Text(error)
+    private func failedSection(_ failure: ScanFailure) -> some View {
+        ContentUnavailableView {
+            Label(failure.title, systemImage: failedSymbol)
+        } description: {
+            Text(failure.message)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            Spacer()
-            Button {
-                send(.retryTapped)
-            } label: {
-                Label("Retry", systemImage: "arrow.clockwise")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(store.color)
-            .controlSize(.large)
-
-            if store.failedStage == .parsing && store.parsingBackend.showsTextStep && !store.extractedText.isEmpty {
-                editTextButton
-            }
-
-            startOverButton
+        } actions: {
+            failedActions(failure)
         }
-        .padding(.top, 40)
+    }
+
+    /// One way forward plus a reset — retrying where it can work, manual entry where it cannot.
+    @ViewBuilder
+    private func failedActions(_ failure: ScanFailure) -> some View {
+        if failure.canRetry {
+            retryButton
+        } else {
+            addManuallyButton
+        }
+
+        if showsEditTextButton {
+            editTextButton
+        }
+
+        startOverButton
+    }
+
+    private var retryButton: some View {
+        Button {
+            send(.retryTapped)
+        } label: {
+            Label(retryTitle, systemImage: "arrow.clockwise")
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(store.color)
+    }
+
+    private var addManuallyButton: some View {
+        Button {
+            send(.addManuallyTapped)
+        } label: {
+            Label(addManuallyTitle, systemImage: "square.and.pencil")
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(store.color)
+    }
+
+    /// A parsing failure keeps the OCR text, so editing it is a real second chance.
+    private var showsEditTextButton: Bool {
+        store.failedStage == .parsing
+            && store.parsingBackend.showsTextStep
+            && !store.extractedText.isEmpty
     }
 
     private var editTextButton: some View {
         Button {
             send(.editTextTapped)
         } label: {
-            Label("Edit Text", systemImage: "pencil")
-                .frame(maxWidth: .infinity)
+            Label(editTextTitle, systemImage: "pencil")
         }
         .buttonStyle(.bordered)
         .tint(store.color)
-        .controlSize(.large)
     }
 
-    // MARK: - API Key Toolbar
+    // MARK: - Copy
 
-    private var shouldShowApiKeyButton: Bool {
-        switch store.viewState {
-        case .idle, .failed:
-            return true
-        default:
-            return false
-        }
+    private let failedSymbol = "exclamationmark.triangle"
+    private let retryTitle = String(localized: "Retry")
+    private let addManuallyTitle = String(localized: "Add plan manually")
+    private let editTextTitle = String(localized: "Edit Text")
+}
+
+// MARK: - Previews
+
+/// Renders the failure screen for one error, so every variant is reviewable.
+private func failurePreview(
+    _ error: ScanProxyError,
+    stage: ScanPlanFeature.FailedStage = .parsing,
+    extractedText: String = ""
+) -> some View {
+    var state = ScanPlanFeature.State()
+    state.viewState = .failed(error.scanFailure)
+    state.failedStage = stage
+    state.extractedText = extractedText
+    // Only the text backend keeps an editable transcript worth offering back.
+    state.$parsingBackend.withLock { $0 = extractedText.isEmpty ? .claudeVision : .claudeText }
+
+    return NavigationStack {
+        ScanPlanView(store: Store(initialState: state) { ScanPlanFeature() })
     }
+}
 
-    @ToolbarContentBuilder
-    private var apiKeyToolbarItem: some ToolbarContent {
-        if shouldShowApiKeyButton {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    send(.apiKeySettingsTapped)
-                } label: {
-                    Image(systemName: "key")
-                }
-            }
-        }
-    }
+/// Tomorrow at midnight — fixed so the preview copy does not drift by the hour.
+private let previewReset = Calendar.current.startOfDay(for: .now).addingTimeInterval(86_400)
 
+#Preview("limit wyczerpany") {
+    failurePreview(.dailyLimitReached(resetsAt: previewReset))
+}
+
+#Preview("limit bez godziny") {
+    failurePreview(.dailyLimitReached(resetsAt: nil))
+}
+
+#Preview("brak połączenia") {
+    failurePreview(.network)
+}
+
+#Preview("usługa niedostępna") {
+    failurePreview(.serviceUnavailable)
+}
+
+#Preview("zbyt wiele żądań") {
+    failurePreview(.rateLimited)
+}
+
+#Preview("plan za długi") {
+    failurePreview(.truncated)
+}
+
+#Preview("złe zdjęcie") {
+    failurePreview(.invalidImage, stage: .photoLoad)
+}
+
+#Preview("brak logowania") {
+    failurePreview(.notSignedIn, stage: .photoLoad)
+}
+
+#Preview("nieoczekiwana odpowiedź") {
+    failurePreview(.invalidResponse)
+}
+
+#Preview("z edycją tekstu") {
+    failurePreview(.serviceUnavailable, extractedText: "FRAN\n21-15-9\nThrusters 43 kg\nPull-ups")
 }

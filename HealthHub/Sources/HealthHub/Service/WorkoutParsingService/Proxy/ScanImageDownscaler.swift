@@ -20,7 +20,7 @@ enum ScanImageDownscaler {
 
     static func jpeg(from data: Data, maxPixelSize: Int = maxPixelSize, quality: Double = 0.8) throws -> Data {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-            throw ClaudeAPIError.invalidImage
+            throw ScanProxyError.invalidImage
         }
         let thumbnailOptions: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -28,16 +28,16 @@ enum ScanImageDownscaler {
             kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
         ]
         guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary) else {
-            throw ClaudeAPIError.invalidImage
+            throw ScanProxyError.invalidImage
         }
         let output = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(output, UTType.jpeg.identifier as CFString, 1, nil) else {
-            throw ClaudeAPIError.invalidImage
+            throw ScanProxyError.invalidImage
         }
         let encodeOptions: [CFString: Any] = [kCGImageDestinationLossyCompressionQuality: quality]
         CGImageDestinationAddImage(destination, image, encodeOptions as CFDictionary)
         guard CGImageDestinationFinalize(destination) else {
-            throw ClaudeAPIError.invalidImage
+            throw ScanProxyError.invalidImage
         }
         return output as Data
     }
