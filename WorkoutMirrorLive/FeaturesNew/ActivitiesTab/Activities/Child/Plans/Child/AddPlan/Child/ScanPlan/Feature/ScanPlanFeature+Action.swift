@@ -65,6 +65,9 @@ extension ScanPlanFeature {
 
             /// Called when user picks a parsing backend (DEBUG picker).
             case parsingBackendChanged(WorkoutParsingBackend)
+
+            /// Called when user picks the model to scan with (DEBUG picker).
+            case scanModelChanged(ScanModelChoice)
         }
 
         enum Internal {

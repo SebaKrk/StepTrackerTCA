@@ -48,17 +48,20 @@ public actor ScanProxyClient {
     ///   - imageData: JPEG of the board, already downscaled; `nil` for a text-only scan.
     ///   - ocrText: OCR transcript — the source for `text`, an untrusted hint for `visionWithHint`.
     ///   - language: English name of the device language, for the free-text fields.
+    ///   - model: Model to run on; ignored by every deployment but development.
     public func scanBoard(
         mode: ScanProxyMode,
         imageData: Data?,
         ocrText: String,
-        language: String
+        language: String,
+        model: String? = nil
     ) async throws -> ScannedBoard {
         let request = ScanRequest(
             mode: mode.rawValue,
             image: imageData?.base64EncodedString(),
             ocrText: ocrText,
-            language: language
+            language: language,
+            model: model
         )
         let response: ScanResponse = try await call(Self.scanFunction, body: request)
         return response.board
@@ -197,6 +200,7 @@ public actor ScanProxyClient {
         let image: String?
         let ocrText: String
         let language: String
+        let model: String?
     }
 
     /// Reply of a board scan.
