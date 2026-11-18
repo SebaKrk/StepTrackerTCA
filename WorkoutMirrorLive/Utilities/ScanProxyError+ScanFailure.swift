@@ -80,7 +80,22 @@ extension ScanProxyError {
                 canRetry: false
             )
 
-        case .invalidRequest, .invalidResponse, .refused, .unexpected:
+        // Our own request was malformed, so the same scan fails the same way.
+        case .invalidRequest:
+            return ScanFailure(
+                title: String(localized: "Something went wrong on our side"),
+                message: String(localized: "Repeating the same scan will not help. Add the plan manually for now."),
+                canRetry: false
+            )
+
+        case .refused:
+            return ScanFailure(
+                title: String(localized: "The photo could not be turned into a plan"),
+                message: String(localized: "Take a new photo of the board, or add the plan manually."),
+                canRetry: false
+            )
+
+        case .invalidResponse, .unexpected:
             return ScanFailure(
                 title: String(localized: "Unexpected response"),
                 message: String(localized: "The scan did not go through. Try again."),

@@ -6,16 +6,37 @@ const { logger } = require("firebase-functions");
 const ENDPOINT = "https://api.anthropic.com/v1/messages";
 const API_VERSION = "2023-06-01";
 
-// Both features run on the model the app pinned before the key moved server-side,
-// so this ticket changes who holds the key and nothing about what the model reads.
+// The model the app pinned before the key moved server-side.
 const SCAN_MODEL = "claude-sonnet-5-5";
-const NOTES_MODEL = "claude-sonnet-5-5";
+
+// A cue is three formulaic lines, not a reading task, so the cheapest model
+// writes it as well as any — at a twentieth of the price.
+const NOTES_MODEL = "claude-haiku-5-5";
 const MAX_TOKENS = 4096;
 
 // Models a request may ask for where overriding is switched on. An allowlist
 // rather than a free field: the caller must not be able to name an expensive
 // model we never meant to run, or a string that only looks like one.
 const ALLOWED_MODELS = new Set(["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"]);
+
+/**
+ * How to turn thinking down, which each model spells differently.
+ *
+ * Reading a board needs no deliberation and thinking tokens are billed as output,
+ * so every model runs with as little of it as it accepts. Sonnet 5.5 rejects
+ * `disabled` and wants `between_tools`; Haiku 5.5 takes `disabled`; Opus 5.5
+ * cannot turn it off at all, so it is left out and `effort` does the work.
+ */
+function thinkingFor(model) {
+  switch (model) {
+    case "claude-sonnet-5-5":
+      return { type: "between_tools" };
+    case "claude-haiku-5-5":
+      return { type: "disabled" };
+    default:
+      return null;
+  }
+}
 
 /**
  * One Messages API call.
@@ -29,12 +50,13 @@ async function sendMessage({ apiKey, model, system, content, cacheSystem, effort
     max_tokens: MAX_TOKENS,
     system: [cacheSystem ? { type: "text", text: system, cache_control: { type: "ephemeral" } } : { type: "text", text: system }],
     messages: [{ role: "user", content }],
-    // Sonnet 5.5 rejects `disabled`; `between_tools` is the lowest setting it accepts.
-    thinking: { type: "between_tools" },
     output_config: schema
       ? { effort, format: { type: "json_schema", schema } }
       : { effort },
   };
+
+  const thinking = thinkingFor(model);
+  if (thinking) body.thinking = thinking;
 
   let response;
   try {
@@ -89,8 +111,9 @@ function mappedError(status, bodyText) {
     logger.warn("anthropic server error", { status });
     return new HttpsError("unavailable", "service-unavailable");
   }
+  // A 4xx means the request we built is wrong, so repeating it cannot succeed.
   logger.error("anthropic rejected the request", { status, body: bodyText });
-  return new HttpsError("internal", "upstream-error");
+  return new HttpsError("internal", "upstream-rejected");
 }
 
 function logUsage(model, payload) {

@@ -120,7 +120,7 @@ struct WorkoutPreviewView: View {
                     .fontWeight(.semibold)
             }
         }
-        .buttonStyle(.glass)
+        .buttonStyle(.glassProminent)
         .disabled(store.isGeneratingNotes)
     }
 

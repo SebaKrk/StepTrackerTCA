@@ -24,6 +24,9 @@ public actor ScanProxyClient {
     /// Callable that writes a warm-up or cool-down cue.
     private static let noteFunction = "trainingNote"
 
+    /// Wire value asking the proxy for both cues in one reply.
+    private static let bothKinds = "both"
+
     // MARK: - Properties
 
     /// Endpoint and identity provider for the deployed functions.
@@ -76,14 +79,52 @@ public actor ScanProxyClient {
         durationMinutes: Int?,
         language: String
     ) async throws -> String {
+        let notes = try await notes(kind: kind.rawValue, workouts: workouts, durationMinutes: durationMinutes, language: language)
+        guard let text = kind == .warmUp ? notes.warmUp : notes.coolDown else {
+            throw ScanProxyError.invalidResponse
+        }
+        return text
+    }
+
+    /// Asks for the cues a plan is missing, with the model choosing how long each takes.
+    ///
+    /// Both missing is one round-trip: it costs one unit of the daily allowance,
+    /// and a failure cannot leave one cue paid for and the other missing.
+    public func proposedNotes(
+        warmUp: Bool,
+        coolDown: Bool,
+        workouts: [TrainingNoteWorkout],
+        language: String
+    ) async throws -> TrainingNotes {
+        guard warmUp || coolDown else { throw ScanProxyError.invalidRequest }
+        let kind = warmUp && coolDown ? Self.bothKinds : (warmUp ? TrainingNoteKind.warmUp.rawValue : TrainingNoteKind.coolDown.rawValue)
+        let notes = try await notes(kind: kind, workouts: workouts, durationMinutes: nil, language: language)
+        guard !warmUp || notes.warmUp != nil, !coolDown || notes.coolDown != nil else {
+            throw ScanProxyError.invalidResponse
+        }
+        return notes
+    }
+
+    /// One note round-trip; `kind` is a wire value, not a user-facing choice.
+    private func notes(
+        kind: String,
+        workouts: [TrainingNoteWorkout],
+        durationMinutes: Int?,
+        language: String
+    ) async throws -> TrainingNotes {
         let request = NoteRequest(
-            kind: kind.rawValue,
+            kind: kind,
             workouts: workouts,
             durationMinutes: durationMinutes,
             language: language
         )
         let response: NoteResponse = try await call(Self.noteFunction, body: request)
-        return response.text
+        return TrainingNotes(
+            warmUp: response.warmUp,
+            warmUpMinutes: response.warmUpMinutes,
+            coolDown: response.coolDown,
+            coolDownMinutes: response.coolDownMinutes
+        )
     }
 
     // MARK: - Private
@@ -159,6 +200,7 @@ public actor ScanProxyClient {
             switch failure.message {
             case "truncated": return .truncated
             case "refused": return .refused
+            case "upstream-rejected": return .invalidRequest
             default: return .unexpected
             }
         default:
@@ -216,8 +258,11 @@ public actor ScanProxyClient {
         let language: String
     }
 
-    /// Reply of a training-note request.
+    /// Reply of a training-note request; the cue not asked for comes back null.
     private struct NoteResponse: Decodable {
-        let text: String
+        let warmUp: String?
+        let warmUpMinutes: Int?
+        let coolDown: String?
+        let coolDownMinutes: Int?
     }
 }

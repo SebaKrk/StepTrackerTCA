@@ -7501,6 +7501,16 @@
         }
       }
     },
+    "Repeating the same scan will not help. Add the plan manually for now." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponowienie tego samego skanu nie pomoże. Na razie dodaj plan ręcznie."
+          }
+        }
+      }
+    },
     "reps" : {
       "shouldTranslate" : false
     },
@@ -8583,6 +8593,16 @@
         }
       }
     },
+    "Something went wrong on our side" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coś poszło nie tak po naszej stronie"
+          }
+        }
+      }
+    },
     "Something went wrong while loading your workout history." : {
       "localizations" : {
         "pl" : {
@@ -8927,6 +8947,16 @@
         }
       }
     },
+    "Take a new photo of the board, or add the plan manually." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrób nowe zdjęcie tablicy albo dodaj plan ręcznie."
+          }
+        }
+      }
+    },
     "Take a new photo, ideally straight at the board and in good light." : {
       "localizations" : {
         "pl" : {
@@ -9251,6 +9281,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Najstarsza i najprostsza — wzór Fox i Haskell z 1971 roku. Łatwa do zapamiętania, ale najmniej dokładna statystycznie. Wybierz jeśli chcesz wartość porównywalną z historycznymi aplikacjami fitness."
+          }
+        }
+      }
+    },
+    "The photo could not be turned into a plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zamienić zdjęcia w plan"
           }
         }
       }
