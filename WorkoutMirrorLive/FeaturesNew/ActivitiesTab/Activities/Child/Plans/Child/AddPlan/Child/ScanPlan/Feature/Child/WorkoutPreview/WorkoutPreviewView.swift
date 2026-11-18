@@ -118,9 +118,11 @@ struct WorkoutPreviewView: View {
             } else {
                 Text(generateTitle)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.white)
             }
         }
         .buttonStyle(.glassProminent)
+        .tint(store.color)
         .disabled(store.isGeneratingNotes)
     }
 
