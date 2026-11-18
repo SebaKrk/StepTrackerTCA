@@ -23,7 +23,9 @@ const systemPrompt = (kind, language) => {
   const base = baseSystem(kind);
   return (
     `${base} Respond in ${language}. ` +
-    'Keep exercise and movement names in English ("squat clean", "toes to bar"); everything else in that language.'
+    "Write natural, fluent text in that language. Body parts, muscles, stretches and everyday movements " +
+    "must be in that language. Keep the English name only for a movement that has no common name in that " +
+    'language ("Turkish get-up", "toes to bar").'
   );
 };
 
