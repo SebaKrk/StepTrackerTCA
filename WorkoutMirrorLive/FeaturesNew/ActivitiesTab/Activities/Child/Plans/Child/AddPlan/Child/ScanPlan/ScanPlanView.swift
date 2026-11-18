@@ -104,9 +104,7 @@ struct ScanPlanView: View {
             actionButtonsSection
                 .padding(.horizontal)
             #if DEBUG
-            parsingBackendSection
-                .padding(.horizontal)
-            scanModelSection
+            debugPickersSection
                 .padding(.horizontal)
             #endif
         }
@@ -262,10 +260,19 @@ struct ScanPlanView: View {
         }
     }
 
-    // MARK: - Parsing Backend (DEBUG)
+    // MARK: - Parsing Backend and Model (DEBUG)
 
     #if DEBUG
-    private var parsingBackendSection: some View {
+    /// Backend on the left, model on the right — two menus sharing one row.
+    private var debugPickersSection: some View {
+        HStack {
+            parsingBackendPicker
+            Spacer()
+            scanModelPicker
+        }
+    }
+
+    private var parsingBackendPicker: some View {
         Picker(selection: parsingBackendBinding) {
             ForEach(WorkoutParsingBackend.allCases, id: \.self) { backend in
                 Text(backend.rawValue)
@@ -274,7 +281,7 @@ struct ScanPlanView: View {
             Text("Parsing backend")
         }
         .pickerStyle(.menu)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .labelsHidden()
     }
 
     private var parsingBackendBinding: Binding<WorkoutParsingBackend> {
@@ -285,7 +292,7 @@ struct ScanPlanView: View {
     }
 
     /// Only the development deployment honours this; elsewhere the server decides.
-    private var scanModelSection: some View {
+    private var scanModelPicker: some View {
         Picker(selection: scanModelBinding) {
             ForEach(ScanModelChoice.allCases, id: \.self) { model in
                 Text(model.displayName)
@@ -294,7 +301,7 @@ struct ScanPlanView: View {
             Text("Scan model")
         }
         .pickerStyle(.menu)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .labelsHidden()
     }
 
     private var scanModelBinding: Binding<ScanModelChoice> {
@@ -464,6 +471,14 @@ private let previewReset = Calendar.current.startOfDay(for: .now).addingTimeInte
 
 #Preview("nieoczekiwana odpowiedź") {
     failurePreview(.invalidResponse)
+}
+
+#Preview("błąd po naszej stronie") {
+    failurePreview(.invalidRequest)
+}
+
+#Preview("model odmówił") {
+    failurePreview(.refused)
 }
 
 #Preview("z edycją tekstu") {
