@@ -1822,3 +1822,14 @@
     - the name is checked against an allowlist rather than passed through, because a caller that can name any string can name the most expensive model there is
     - the debug build gets a picker beside the backend one, so the same board can be read by Haiku, Sonnet and Opus in a row and the cost of each compared from the function log
     - nothing ships: the picker lives behind `#if DEBUG` and the override behind an environment flag, and a release build has neither
+
+### IOS-00190 A scan failure says whether trying again can help
+    - branch: `dev/IOS-00190/IOS-00190` (from develop)
+    - every failure of a scan ended in the same Retry button, including the ones where the request itself was wrong — a button that fails the same way on every tap. The function now maps a 4xx from the model to `upstream-rejected`, the phone decodes it as `invalidRequest`, and the catch-all failure is split into a rejected request, a refusal and an unexpected reply: the first two lead to manual entry, and Retry stays only where repeating can succeed
+    - the thinking setting is chosen per model rather than sent as one value: only Sonnet 5.5 accepts `between_tools`, Haiku takes `disabled` and Opus cannot turn it off
+    - warm-up and cool-down cues were two parallel requests, so a plan missing both cost two units of the daily allowance and could half-fail. `proposedNotes` asks for both in one reply, carried by `TrainingNotes`; the allowance is raised to 6 now that one tap costs one unit
+    - the preview sends no length, because nobody picked one there: the model chooses, held to 5-20 minutes for a warm-up and 3-15 for a cool-down. Notes are written with Haiku
+    - on failure the user reads the proxy's localized message instead of the developer text, with Polish copy for the four new messages
+    - the scan system prompt is no longer cached: writing it costs 25% more and nothing reads it below roughly 70 scans a day
+    - Generate on the workout preview uses `.glassProminent`, matching the invitation row's primary button — the plain glass pill looked disabled
+    - debug builds carry their own icon, the regular one under a white DEV ribbon (`AppIconDev`, source in `Design/AppIcon/AppIcon-dev-master.svg`), so a development install is told apart from a release one on the home screen; Release keeps `AppIcon`
