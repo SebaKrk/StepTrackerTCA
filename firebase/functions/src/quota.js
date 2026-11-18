@@ -12,7 +12,7 @@ const GLOBAL_DOC = "_global";
 const TIME_ZONE = "Europe/Warsaw";
 
 /** What one free account gets per day, per feature. Raising a tier raises these. */
-const LIMITS = { scan: 2, note: 3 };
+const LIMITS = { scan: 2, note: 6 };
 
 /**
  * Calls the whole app may make in one day, across every user.

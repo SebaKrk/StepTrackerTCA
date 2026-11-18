@@ -8,6 +8,7 @@ const { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS } = require("./src/
 const boardPrompt = require("./src/boardPrompt");
 const notesPrompt = require("./src/notesPrompt");
 const { boardSchema } = require("./src/boardSchema");
+const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
 
 initializeApp();
@@ -52,7 +53,8 @@ exports.scanBoard = onCall(options, async (request) => {
       model,
       system: boardPrompt.systemPrompt,
       content,
-      cacheSystem: true,
+      // Writing the cache costs 25% more and nothing reads it below ~70 scans a day.
+      cacheSystem: false,
       effort: "low",
       schema: boardSchema,
     });
@@ -78,10 +80,12 @@ exports.trainingNote = onCall(options, async (request) => {
       content: [{ type: "text", text: notesPrompt.userPrompt(kind, workouts, durationMinutes) }],
       cacheSystem: false,
       effort: "medium",
-      schema: null,
+      // No length from the caller means the model picks one, and a schema is the
+      // only way it can report a number next to the prose.
+      schema: durationMinutes === null ? notesSchema(kind) : null,
     });
 
-    return { text, quota: taken };
+    return { ...notes(kind, text, durationMinutes), quota: taken };
   } catch (error) {
     await quota.release(uid, "note");
     throw asHttpsError(error);
@@ -128,9 +132,37 @@ function scanModel(requested) {
   return ALLOWED_MODELS.has(requested) ? requested : SCAN_MODEL;
 }
 
+/**
+ * Every cue in the reply, whichever was asked for.
+ *
+ * One shape for every kind so the phone decodes a single type; anything not
+ * requested is null rather than absent. A length comes back only when the model
+ * chose it — one the caller set is already theirs.
+ */
+function notes(kind, text, durationMinutes) {
+  if (durationMinutes !== null) {
+    return kind === "warmUp"
+      ? { warmUp: text, warmUpMinutes: null, coolDown: null, coolDownMinutes: null }
+      : { warmUp: null, warmUpMinutes: null, coolDown: text, coolDownMinutes: null };
+  }
+  const parsed = JSON.parse(text);
+  return {
+    warmUp: parsed.warmUp ?? null,
+    warmUpMinutes: clampMinutes(parsed.warmUpMinutes, BOUNDS.warmUp),
+    coolDown: parsed.coolDown ?? null,
+    coolDownMinutes: clampMinutes(parsed.coolDownMinutes, BOUNDS.coolDown),
+  };
+}
+
+/** The model's own number, held to the range the prompt asked for. */
+function clampMinutes(value, bounds) {
+  if (!Number.isFinite(value)) return null;
+  return Math.min(bounds.max, Math.max(bounds.min, Math.round(value)));
+}
+
 function parseNoteInput(data) {
   const kind = data.kind;
-  if (!["warmUp", "coolDown"].includes(kind)) {
+  if (!["warmUp", "coolDown", "both"].includes(kind)) {
     throw new HttpsError("invalid-argument", "unknown-kind");
   }
 
@@ -145,8 +177,10 @@ function parseNoteInput(data) {
       .map((exercise) => clamp(asString(exercise, ""), MAX_NAME_CHARS)),
   }));
 
+  // Asked for both cues, the model decides each length: one number cannot serve two.
   const duration = Number(data.durationMinutes);
-  const durationMinutes = Number.isFinite(duration) && duration > 0 ? Math.round(duration) : null;
+  const durationMinutes =
+    kind !== "both" && Number.isFinite(duration) && duration > 0 ? Math.round(duration) : null;
 
   return {
     kind,
