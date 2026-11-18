@@ -22,6 +22,7 @@ struct TrainingNotesContext: Sendable {
 struct TrainingNotesGeneratorClient: Sendable {
     var generateWarmUp: @Sendable (_ context: TrainingNotesContext) async throws -> String
     var generateCoolDown: @Sendable (_ context: TrainingNotesContext) async throws -> String
+    var generateMissing: @Sendable (_ context: TrainingNotesContext, _ warmUp: Bool, _ coolDown: Bool) async throws -> TrainingNotes
 }
 
 // MARK: - DependencyKey
@@ -36,6 +37,14 @@ extension TrainingNotesGeneratorClient: DependencyKey {
             },
             generateCoolDown: { context in
                 try await note(.coolDown, context)
+            },
+            generateMissing: { context, warmUp, coolDown in
+                try await ScanProxy.shared.proposedNotes(
+                    warmUp: warmUp,
+                    coolDown: coolDown,
+                    workouts: context.workouts.map(noteWorkout),
+                    language: ScanLanguage.preferredName()
+                )
             }
         )
     }()
@@ -62,7 +71,8 @@ extension TrainingNotesGeneratorClient: DependencyKey {
     static var testValue: TrainingNotesGeneratorClient {
         TrainingNotesGeneratorClient(
             generateWarmUp: unimplemented("TrainingNotesGeneratorClient.generateWarmUp"),
-            generateCoolDown: unimplemented("TrainingNotesGeneratorClient.generateCoolDown")
+            generateCoolDown: unimplemented("TrainingNotesGeneratorClient.generateCoolDown"),
+            generateMissing: unimplemented("TrainingNotesGeneratorClient.generateMissing")
         )
     }
 }
