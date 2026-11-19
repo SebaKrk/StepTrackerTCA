@@ -6,8 +6,8 @@ const { logger } = require("firebase-functions");
 const ENDPOINT = "https://api.anthropic.com/v1/messages";
 const API_VERSION = "2023-06-01";
 
-// The model the app pinned before the key moved server-side.
-const SCAN_MODEL = "claude-sonnet-5-5";
+// The cheapest model that reads a board: about a twentieth of Sonnet's price per scan.
+const SCAN_MODEL = "claude-haiku-5-5";
 
 // A cue is three formulaic lines, not a reading task, so the cheapest model
 // writes it as well as any — at a twentieth of the price.
