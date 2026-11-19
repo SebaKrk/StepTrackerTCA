@@ -66,6 +66,7 @@ struct TeamInvitationRow: View {
             } else {
                 Text(joinTitle)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.white)
             }
         }
         .buttonStyle(.glassProminent)
