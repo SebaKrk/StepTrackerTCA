@@ -30,6 +30,13 @@ extension PRMovementDetailFeature {
         /// Delete-failure alert; a failed delete must be visible, never silent.
         @Presents var alert: AlertState<Action.Alert>?
 
+        /// The offer of Pro, shown when a section Basic does not open is tapped.
+        @Presents var subscriptionOffer: SubscriptionOfferFeature.State?
+
+        /// The tier the whole app reads; Basic sees the record, Pro sees how it was reached.
+        @Shared(.appStorage(.subscriptionTier))
+        var subscriptionTier: SubscriptionTier = .basic
+
         /// User-picked chart year; nil = auto (the latest year with entries).
         var selectedChartYear: Int?
 
@@ -52,6 +59,21 @@ extension PRMovementDetailFeature {
                 .sorted { lhs, rhs in
                     lhs.date != rhs.date ? lhs.date > rhs.date : lhs.createdAt > rhs.createdAt
                 }
+        }
+
+        /// Whether the progress chart and the older history need Pro.
+        var isProgressLocked: Bool {
+            subscriptionTier == .basic
+        }
+
+        /// History rows the current tier opens; Basic keeps the newest, so a fresh mistake can be deleted.
+        var openHistoryEntries: [PREntry] {
+            isProgressLocked ? Array(entries.prefix(1)) : entries
+        }
+
+        /// History rows that need Pro; shown blurred.
+        var lockedHistoryEntries: [PREntry] {
+            isProgressLocked ? Array(entries.dropFirst()) : []
         }
 
         /// Current PRs derived purely from history (FR-007).

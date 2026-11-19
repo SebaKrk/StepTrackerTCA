@@ -28,6 +28,11 @@ struct PRMovementDetailView: View {
                 $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
             )
             .alert($store.scope(state: \.alert, action: \.alert))
+            .sheet(
+                item: $store.scope(state: \.subscriptionOffer, action: \.subscriptionOffer)
+            ) { offerStore in
+                SubscriptionOfferView(store: offerStore)
+            }
     }
 
     // MARK: - Structure
@@ -265,6 +270,21 @@ struct PRMovementDetailView: View {
         }
         .padding(16)
         .prCard()
+        .blur(radius: store.isProgressLocked ? 3 : 0)
+        .allowsHitTesting(!store.isProgressLocked)
+        .overlay {
+            if store.isProgressLocked {
+                lockedProgressOverlay
+            }
+        }
+        .animation(.default, value: store.isProgressLocked)
+    }
+
+    private var lockedProgressOverlay: some View {
+        OverlayView.lockedBasic {
+            send(.unlockTapped)
+        }
+        .transition(.opacity)
     }
 
     private var chartYearChips: some View {
@@ -410,13 +430,47 @@ struct PRMovementDetailView: View {
 
     private var historyRows: some View {
         VStack(spacing: 0) {
-            ForEach(store.entries) { entry in
-                historyRow(entry)
-                if entry.id != store.entries.last?.id {
-                    hairline
-                }
+            historyRowList(store.openHistoryEntries)
+            if !store.lockedHistoryEntries.isEmpty {
+                hairline
+                lockedHistoryRows
             }
         }
+        .animation(.default, value: store.isProgressLocked)
+    }
+
+    private func historyRowList(_ entries: [PREntry]) -> some View {
+        ForEach(entries) { entry in
+            historyRow(entry)
+            if entry.id != entries.last?.id {
+                hairline
+            }
+        }
+    }
+
+    private var lockedHistoryRows: some View {
+        VStack(spacing: 0) {
+            historyRowList(store.lockedHistoryEntries)
+        }
+        .blur(radius: 3)
+        .allowsHitTesting(false)
+        .overlay {
+            lockedHistoryButton
+        }
+    }
+
+    private var lockedHistoryButton: some View {
+        Button {
+            send(.unlockTapped)
+        } label: {
+            Image(systemName: "lock.fill")
+                .font(.title2)
+                .foregroundStyle(.yellow)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .transition(.opacity)
     }
 
     private func historyRow(_ entry: PREntry) -> some View {
