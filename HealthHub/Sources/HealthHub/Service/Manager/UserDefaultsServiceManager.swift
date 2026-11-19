@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SharedModels
 
 /// A generic, thread-safe manager for UserDefaults operations.
 /// Supports both standard UserDefaults and App Group shared containers.
@@ -83,7 +84,7 @@ public final class UserDefaultsServiceManager: @unchecked Sendable {
 
 public extension UserDefaultsServiceManager {
     /// Shared instance for App Group (Widget + Main App communication)
-    static let appGroup = UserDefaultsServiceManager(suiteName: "group.com.ss.WorkoutMirrorLive")
+    static let appGroup = UserDefaultsServiceManager(suiteName: AppGroup.identifier)
     
     /// Standard UserDefaults instance
     static let standard = UserDefaultsServiceManager()
