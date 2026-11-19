@@ -39,6 +39,9 @@ extension PlansFeature {
             /// Called when user taps on a workout card.
             case workoutTapped(TrainingSession)
 
+            /// Called when user taps the banner above the plans Basic does not open.
+            case unlockOlderTapped
+
             /// Called when user taps "Import Plan".
             case importPlanTapped
 

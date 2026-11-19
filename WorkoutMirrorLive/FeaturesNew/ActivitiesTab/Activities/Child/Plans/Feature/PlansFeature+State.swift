@@ -21,8 +21,30 @@ extension PlansFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .gray
 
+        /// The tier the whole app reads; Basic opens only the most recent plans.
+        @Shared(.appStorage(.subscriptionTier))
+        var subscriptionTier: SubscriptionTier = .basic
+
         /// Training session plans loaded from SQLite.
         var sessions: [TrainingSession] = []
+
+        /// Plans Basic may open: the most recent few.
+        var openSessionIDs: Set<UUID> = []
+
+        /// Whether opening this plan needs Pro.
+        func isLocked(_ session: TrainingSession) -> Bool {
+            subscriptionTier == .basic && !openSessionIDs.contains(session.id)
+        }
+
+        /// Plans the current tier opens.
+        var unlockedSessions: [TrainingSession] {
+            sessions.filter { !isLocked($0) }
+        }
+
+        /// Plans that need Pro; shown blurred under the banner.
+        var lockedSessions: [TrainingSession] {
+            sessions.filter { isLocked($0) }
+        }
 
         /// Current view state.
         var viewState: ViewState = .loading

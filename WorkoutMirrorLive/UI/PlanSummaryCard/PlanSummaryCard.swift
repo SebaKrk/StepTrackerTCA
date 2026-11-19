@@ -13,7 +13,13 @@ struct PlanSummaryCard: View {
 
     // MARK: - Properties
 
+    /// The plan the card summarises.
     let session: TrainingSession
+
+    /// Whether opening the plan needs Pro; blurs the card under a lock.
+    var isLocked = false
+
+    /// Called when the header is tapped.
     let onTap: () -> Void
 
     // MARK: - Body (structure)
@@ -25,7 +31,33 @@ struct PlanSummaryCard: View {
             cardLabel
         }
         .styledGroupBox()
+        .blur(radius: isLocked ? 3 : 0)
+        .allowsHitTesting(!isLocked)
+        .overlay {
+            if isLocked {
+                lockedOverlay
+            }
+        }
+        .animation(.default, value: isLocked)
         .padding(4)
+    }
+
+    private var lockedOverlay: some View {
+        Button {
+            onTap()
+        } label: {
+            lockBadge
+        }
+        .buttonStyle(.plain)
+        .transition(.opacity)
+    }
+
+    private var lockBadge: some View {
+        Image(systemName: "lock.fill")
+            .font(.title2)
+            .foregroundStyle(.yellow)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
     }
 
     private var cardLabel: some View {

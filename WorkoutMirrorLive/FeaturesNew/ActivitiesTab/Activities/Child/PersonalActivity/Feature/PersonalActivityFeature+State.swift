@@ -24,6 +24,13 @@ extension PersonalActivityFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .gray
         
+        /// The tier the whole app reads; Basic opens only the most recent workouts.
+        @Shared(.appStorage(.subscriptionTier))
+        var subscriptionTier: SubscriptionTier = .basic
+
+        /// Workouts Basic may open: the most recent few of those loaded.
+        var openWorkoutIDs: Set<UUID> = []
+
         /// Current view state (loading, success, or failed).
         var viewState: ViewState = .loading
         
@@ -55,6 +62,21 @@ extension PersonalActivityFeature {
 
         /// Whether the search field is open in the navigation bar.
         var isSearching: Bool = false
+
+        /// Whether opening this workout needs Pro.
+        func isLocked(_ workout: HKWorkout) -> Bool {
+            subscriptionTier == .basic && !openWorkoutIDs.contains(workout.uuid)
+        }
+
+        /// Listed workouts the current tier opens.
+        var unlockedWorkouts: [HKWorkout] {
+            filteredWorkouts.filter { !isLocked($0) }
+        }
+
+        /// Listed workouts that need Pro; shown blurred under the banner.
+        var lockedWorkouts: [HKWorkout] {
+            filteredWorkouts.filter { isLocked($0) }
+        }
 
         /// Whether a menu filter narrows the list — fills the filter icon.
         var hasActiveFilter: Bool {

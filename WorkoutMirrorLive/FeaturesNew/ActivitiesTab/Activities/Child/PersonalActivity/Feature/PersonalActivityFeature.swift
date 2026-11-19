@@ -52,6 +52,9 @@ struct PersonalActivityFeature {
 
             case let .workoutsFetched(.success(workouts)):
                 state.workouts = workouts
+                state.openWorkoutIDs = BasicAccess.openIDs(
+                    mostRecentOf: workouts.map { (id: $0.uuid, date: $0.startDate) }
+                )
                 state.zoneInfo = [:]
                 state.maxHRByWorkout = [:]
                 refreshActivityTypes(&state)
@@ -184,6 +187,10 @@ struct PersonalActivityFeature {
                 return .none
 
             case let .view(.openDetails(workout)):
+                guard !state.isLocked(workout) else {
+                    state.destination = .subscriptionOffer(SubscriptionOfferFeature.State())
+                    return .none
+                }
                 state.destination = .activityDetails(
                     ActivityDetailsFeature.State(
                         workout: workout,
@@ -193,6 +200,10 @@ struct PersonalActivityFeature {
                 )
                 return .none
                 
+            case .view(.unlockOlderTapped):
+                state.destination = .subscriptionOffer(SubscriptionOfferFeature.State())
+                return .none
+
             case let .view(.showZoneInfo(zone)):
                 state.destination = .zoneInfo(
                     HeartRateZoneInfoFeature.State(

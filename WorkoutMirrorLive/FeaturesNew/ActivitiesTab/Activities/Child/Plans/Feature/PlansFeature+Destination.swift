@@ -24,6 +24,9 @@ extension PlansFeature {
 
         /// Import a shared plan by scanning a QR code.
         case importPlan(ImportPlanFeature)
+
+        /// The offer of Pro, shown when a plan Basic does not open is tapped.
+        case subscriptionOffer(SubscriptionOfferFeature)
     }
     
 }
