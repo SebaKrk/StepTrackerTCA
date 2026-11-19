@@ -65,7 +65,7 @@ extension PersonalActivityFeature {
 
         /// Whether opening this workout needs Pro.
         func isLocked(_ workout: HKWorkout) -> Bool {
-            subscriptionTier == .basic && !openWorkoutIDs.contains(workout.uuid)
+            !subscriptionTier.opens(.olderWorkouts) && !openWorkoutIDs.contains(workout.uuid)
         }
 
         /// Listed workouts the current tier opens.

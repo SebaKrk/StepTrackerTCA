@@ -25,7 +25,7 @@ struct ReadinessTrendView: View {
                 .subscriptionOverlay(
                     contentState: store.contentState,
                     subscriptionTier: store.subscriptionTier,
-                    requiredTier: store.requiredTier
+                    feature: .readinessTrend
                 )
         } label: {
             headerView

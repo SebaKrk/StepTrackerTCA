@@ -29,7 +29,7 @@ struct TrainingReadinessView: View {
         .subscriptionOverlay(
              contentState: store.contentState,
              subscriptionTier: store.subscriptionTier,
-             requiredTier: store.requiredTier,
+             feature: .readiness,
              onUnlockTapped: {
                  // send(.unlockButtonTapped)
              },

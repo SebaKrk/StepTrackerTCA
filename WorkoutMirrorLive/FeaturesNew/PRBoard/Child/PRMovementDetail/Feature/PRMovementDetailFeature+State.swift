@@ -63,7 +63,7 @@ extension PRMovementDetailFeature {
 
         /// Whether the progress chart and the older history need Pro.
         var isProgressLocked: Bool {
-            subscriptionTier == .basic
+            !subscriptionTier.opens(.recordProgress)
         }
 
         /// History rows the current tier opens; Basic keeps the newest, so a fresh mistake can be deleted.

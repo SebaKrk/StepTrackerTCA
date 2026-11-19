@@ -52,7 +52,7 @@ struct PersonalActivityFeature {
 
             case let .workoutsFetched(.success(workouts)):
                 state.workouts = workouts
-                state.openWorkoutIDs = BasicAccess.openIDs(
+                state.openWorkoutIDs = SubscriptionTier.basic.openIDs(
                     mostRecentOf: workouts.map { (id: $0.uuid, date: $0.startDate) }
                 )
                 state.zoneInfo = [:]

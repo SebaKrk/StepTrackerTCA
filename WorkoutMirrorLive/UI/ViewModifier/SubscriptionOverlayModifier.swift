@@ -20,7 +20,7 @@ import SharedModels
 ///     .subscriptionOverlay(
 ///         contentState: .ready,
 ///         subscriptionTier: .basic,
-///         requiredTier: .pro,
+///         feature: .readiness,
 ///         onUnlockTapped: { /* Handle upgrade */ }
 ///     )
 /// ```
@@ -34,8 +34,8 @@ struct SubscriptionOverlayModifier: ViewModifier {
     /// The user's current subscription tier
     let subscriptionTier: SubscriptionTier
     
-    /// The minimum subscription tier required to access this content
-    let requiredTier: SubscriptionTier
+    /// The Pro feature this content belongs to
+    let feature: ProFeature
     
     /// Closure called when the user taps the unlock/upgrade button
     let onUnlockTapped: (() -> Void)?
@@ -58,12 +58,7 @@ struct SubscriptionOverlayModifier: ViewModifier {
             return false
         }
         
-        switch (subscriptionTier, requiredTier) {
-        case (.basic, .pro):
-            return false
-        default:
-            return true
-        }
+        return subscriptionTier.opens(feature)
     }
     
     /// Determines whether the content should be blurred

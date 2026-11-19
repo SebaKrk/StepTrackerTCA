@@ -38,7 +38,7 @@ struct PlansFeature {
 
             case let .sessionsLoaded(sessions):
                 state.sessions = sessions
-                state.openSessionIDs = BasicAccess.openIDs(
+                state.openSessionIDs = SubscriptionTier.basic.openIDs(
                     mostRecentOf: sessions.map { (id: $0.id, date: $0.date) }
                 )
                 state.viewState = .success

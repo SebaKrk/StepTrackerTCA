@@ -33,7 +33,7 @@ extension PlansFeature {
 
         /// Whether opening this plan needs Pro.
         func isLocked(_ session: TrainingSession) -> Bool {
-            subscriptionTier == .basic && !openSessionIDs.contains(session.id)
+            !subscriptionTier.opens(.olderPlans) && !openSessionIDs.contains(session.id)
         }
 
         /// Plans the current tier opens.

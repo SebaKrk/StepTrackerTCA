@@ -93,7 +93,7 @@ struct StatsView: View {
 #if DEBUG
             let showDataAnalyzerButton = true
 #else
-            let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier == .pro
+            let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier.opens(.dataAnalyzer)
 #endif
             if showDataAnalyzerButton {
                 ToolbarItem(placement: .topBarTrailing) {
