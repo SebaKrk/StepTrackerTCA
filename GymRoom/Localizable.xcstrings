@@ -21,6 +21,12 @@
             "value" : "%lld %% du cours"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%% della lezione"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -41,6 +47,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld/%lld athlètes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld atleti"
           }
         },
         "pl" : {
@@ -76,6 +88,12 @@
             "value" : "Énergie active"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energia attiva"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -96,6 +114,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Adresse ou salle (ex. Iron Den)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indirizzo o sala (es. Iron Den)"
           }
         },
         "pl" : {
@@ -120,6 +144,12 @@
             "value" : "Tous les athlètes"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti gli atleti"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -140,6 +170,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tous les athlètes seront déconnectés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti gli atleti verranno disconnessi."
           }
         },
         "pl" : {
@@ -164,6 +200,12 @@
             "value" : "Toutes les zones"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutte le zone"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -184,6 +226,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Athlète"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atleta"
           }
         },
         "pl" : {
@@ -208,6 +256,12 @@
             "value" : "Athlètes"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atleti"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -230,6 +284,12 @@
             "value" : "FC moy."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC media"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -247,6 +307,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BPM"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "BPM"
@@ -274,6 +340,12 @@
             "value" : "Calories"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calorie"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -294,6 +366,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Calories brûlées"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calorie bruciate"
           }
         },
         "pl" : {
@@ -318,6 +396,12 @@
             "value" : "Annuler"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -338,6 +422,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Capacité"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capienza"
           }
         },
         "pl" : {
@@ -362,6 +452,12 @@
             "value" : "Nom du cours"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome della lezione"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -382,6 +478,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lezioni"
           }
         },
         "pl" : {
@@ -417,6 +519,12 @@
             "value" : "Connexion…"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connessione…"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -437,6 +545,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de charger les données des athlètes pour ce cours. Veuillez réessayer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile caricare i dati degli atleti per questa lezione. Riprova."
           }
         },
         "pl" : {
@@ -461,6 +575,12 @@
             "value" : "Impossible de charger l'historique des cours. Veuillez réessayer."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile caricare la cronologia delle lezioni. Riprova."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -481,6 +601,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de charger les cours. Veuillez réessayer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile caricare le lezioni. Riprova."
           }
         },
         "pl" : {
@@ -505,6 +631,12 @@
             "value" : "Supprimer"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -525,6 +657,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer le cours ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare la lezione?"
           }
         },
         "pl" : {
@@ -549,6 +687,12 @@
             "value" : "Supprimer la séance ?"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare la sessione?"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +713,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Détails"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dettagli"
           }
         },
         "pl" : {
@@ -593,6 +743,12 @@
             "value" : "Terminé"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fine"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -613,6 +769,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Durée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata"
           }
         },
         "pl" : {
@@ -637,6 +799,12 @@
             "value" : "Modifier"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -657,6 +825,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Modifier le cours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica lezione"
           }
         },
         "pl" : {
@@ -681,6 +855,12 @@
             "value" : "Terminer"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Termina"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -701,6 +881,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Terminer le cours ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminare la lezione?"
           }
         },
         "pl" : {
@@ -725,6 +911,12 @@
             "value" : "Terminer la séance ?"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminare la sessione?"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -745,6 +937,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "L'heure de fin sera définie sur maintenant. Les athlètes encore actifs seront clôturés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'ora di fine verrà impostata su adesso. Gli atleti ancora attivi verranno chiusi."
           }
         },
         "pl" : {
@@ -769,6 +967,12 @@
             "value" : "Fin du cours…"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiusura della lezione…"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -789,6 +993,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin de l'interruption"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fine interruzione"
           }
         },
         "pl" : {
@@ -813,6 +1023,12 @@
             "value" : "Début de l'interruption"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizio interruzione"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -830,6 +1046,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gym Room"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gym Room"
@@ -857,6 +1079,12 @@
             "value" : "Zones FC"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zone FC"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -874,6 +1102,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC max"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "FC max"
@@ -901,6 +1135,12 @@
             "value" : "FC min"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC min"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -921,6 +1161,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "FC dans le temps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC nel tempo"
           }
         },
         "pl" : {
@@ -945,6 +1191,12 @@
             "value" : "Historique"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cronologia"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -965,6 +1217,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Individuel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Individuale"
           }
         },
         "pl" : {
@@ -989,6 +1247,12 @@
             "value" : "EN DIRECT"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LIVE"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1011,6 +1275,12 @@
             "value" : "Échec du chargement"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caricamento non riuscito"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1031,6 +1301,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lieu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luogo"
           }
         },
         "pl" : {
@@ -1066,6 +1342,12 @@
             "value" : "FC max"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC max"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1086,6 +1368,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Athlètes max."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Max atleti"
           }
         },
         "pl" : {
@@ -1110,6 +1398,12 @@
             "value" : "Minute"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuto"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1130,6 +1424,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nouveau cours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuova lezione"
           }
         },
         "pl" : {
@@ -1154,6 +1454,12 @@
             "value" : "Prochain cours"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossima lezione"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1174,6 +1480,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune donnée d'athlètes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun dato sugli atleti"
           }
         },
         "pl" : {
@@ -1198,6 +1510,12 @@
             "value" : "Aucun cours"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna lezione"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1218,6 +1536,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun cours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessuna lezione"
           }
         },
         "pl" : {
@@ -1242,6 +1566,12 @@
             "value" : "Aucun cours passé"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessuna lezione passata"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1262,6 +1592,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune mesure — athlète hors de portée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna lettura — atleta fuori portata"
           }
         },
         "pl" : {
@@ -1286,6 +1622,12 @@
             "value" : "Aucun échantillon"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun campione"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1308,6 +1650,12 @@
             "value" : "Pas assez de données"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dati insufficienti"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1328,6 +1676,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "En cours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In corso"
           }
         },
         "pl" : {
@@ -1363,6 +1717,12 @@
             "value" : "Points"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punti"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1383,6 +1743,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rang"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posizione"
           }
         },
         "pl" : {
@@ -1407,6 +1773,12 @@
             "value" : "Classement"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classifica"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1427,6 +1799,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Répéter chaque semaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripeti ogni settimana"
           }
         },
         "pl" : {
@@ -1451,6 +1829,12 @@
             "value" : "Résultats — %@"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risultati — %@"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1471,6 +1855,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lancez un cours pour le voir ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni una lezione per vederla qui."
           }
         },
         "pl" : {
@@ -1495,6 +1885,12 @@
             "value" : "Enregistrer"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1515,6 +1911,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Planning"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programma"
           }
         },
         "pl" : {
@@ -1539,6 +1941,12 @@
             "value" : "Programmé"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programmate"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1559,6 +1967,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Programmé le"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programmata per"
           }
         },
         "pl" : {
@@ -1583,6 +1997,12 @@
             "value" : "Secondes"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secondi"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1603,6 +2023,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minute sélectionnée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuto selezionato"
           }
         },
         "pl" : {
@@ -1627,6 +2053,12 @@
             "value" : "Temps sélectionné"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo selezionato"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1647,6 +2079,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Séries"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serie"
           }
         },
         "pl" : {
@@ -1671,6 +2109,12 @@
             "value" : "Définir la date du cours"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta data e ora"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1693,6 +2137,12 @@
             "value" : "Scanner avec un code QR"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scansiona con codice QR"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1713,6 +2163,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Démarrer le cours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvia lezione"
           }
         },
         "pl" : {
@@ -1748,6 +2204,12 @@
             "value" : "Touchez + pour créer votre premier cours."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tocca + per creare la tua prima lezione."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1768,6 +2230,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Équipe"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Squadra"
           }
         },
         "pl" : {
@@ -1792,6 +2260,12 @@
             "value" : "Cet athlète n'a envoyé aucune donnée FC."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo atleta non ha inviato dati FC."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1812,6 +2286,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun athlète n'était connecté à ce cours."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A questa lezione non si è connesso nessun atleta."
           }
         },
         "pl" : {
@@ -1836,6 +2316,12 @@
             "value" : "Cet appareil prend en charge jusqu'à %lld athlètes. Réduisez la valeur pour enregistrer."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo dispositivo supporta fino a %lld atleti. Riduci il valore per salvare."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1856,6 +2342,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toutes les données des athlètes de ce cours seront également supprimées."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verranno eliminati anche tutti i dati degli atleti di questa lezione."
           }
         },
         "pl" : {
@@ -1880,6 +2372,12 @@
             "value" : "Toutes les séances associées et les données des athlètes seront également supprimées."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verranno eliminate anche tutte le sessioni collegate e i dati degli atleti."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1900,6 +2398,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Temps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo"
           }
         },
         "pl" : {
@@ -1924,6 +2428,12 @@
             "value" : "Temps dans les zones"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo nelle zone"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1944,6 +2454,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aujourd'hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oggi"
           }
         },
         "pl" : {
@@ -1968,6 +2484,12 @@
             "value" : "Cours entier"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lezione intera"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1990,6 +2512,12 @@
             "value" : "Réessayer"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprova"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2010,6 +2538,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entraînement trop court pour analyser la FC — 5 minutes minimum."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamento troppo breve per analizzare la FC — minimo 5 minuti."
           }
         },
         "pl" : {
@@ -2045,6 +2579,12 @@
             "value" : "Hier"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ieri"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2065,6 +2605,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zone"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona"
           }
         },
         "pl" : {
@@ -2089,6 +2635,12 @@
             "value" : "Fin de la zone"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fine zona"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2111,6 +2663,12 @@
             "value" : "Début de la zone"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizio zona"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2131,6 +2689,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "temps actif"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tempo attivo"
           }
         },
         "pl" : {
@@ -2158,6 +2722,12 @@
             "value" : "pts"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pt"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2178,6 +2748,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "chaque semaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "settimanale"
           }
         },
         "pl" : {

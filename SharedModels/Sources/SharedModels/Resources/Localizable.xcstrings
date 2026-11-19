@@ -15,6 +15,12 @@
             "value" : "1 jour de récupération"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 giorno di recupero"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -35,6 +41,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1–2 jours de récupération"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1–2 giorni di recupero"
           }
         },
         "pl" : {
@@ -59,6 +71,12 @@
             "value" : "2–4 jours de récupération"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–4 giorni di recupero"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -79,6 +97,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "3 mois"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 mesi"
           }
         },
         "pl" : {
@@ -103,6 +127,12 @@
             "value" : "5+ jours de récupération"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5+ giorni di recupero"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -123,6 +153,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "7 jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 giorni"
           }
         },
         "pl" : {
@@ -147,6 +183,12 @@
             "value" : "14 jours"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 giorni"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -167,6 +209,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "28 jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "28 giorni"
           }
         },
         "pl" : {
@@ -191,6 +239,12 @@
             "value" : "Activité"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attività"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -211,6 +265,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Niveau d'activité"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Livello di attività"
           }
         },
         "pl" : {
@@ -235,6 +295,12 @@
             "value" : "Le niveau d'activité mesure l'énergie dépensée la veille. Une activité trop intense peut nuire à la préparation du jour. Surveiller la charge d'entraînement aide à éviter le surentraînement."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il livello di attività misura l'energia spesa nel giorno precedente. Troppa attività può influire negativamente sulla prontezza di oggi. Monitorare il carico di allenamento aiuta a evitare il sovrallenamento."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -255,6 +321,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aérobie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aerobica"
           }
         },
         "pl" : {
@@ -279,6 +351,12 @@
             "value" : "Effort max"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Massimale"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -299,6 +377,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Moyenne"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nella media"
           }
         },
         "pl" : {
@@ -323,6 +407,12 @@
             "value" : "Barre et anneaux"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sbarra e anelli"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -343,6 +433,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Barre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilanciere"
           }
         },
         "pl" : {
@@ -367,6 +463,12 @@
             "value" : "Ceinture"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cintura"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -389,6 +491,12 @@
             "value" : "Benchmarks"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benchmark"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -406,6 +514,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boxe"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Boxe"
@@ -433,6 +547,12 @@
             "value" : "Cardio"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -453,6 +573,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Magnésie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Magnesite"
           }
         },
         "pl" : {
@@ -477,6 +603,12 @@
             "value" : "Choisir une activité"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli attività"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -499,6 +631,12 @@
             "value" : "Choisir un appareil"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli dispositivo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -516,6 +654,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean & Jerk"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clean & Jerk"
@@ -543,6 +687,12 @@
             "value" : "Escalade"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrampicata"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -563,6 +713,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Effort confortable. Développe la base aérobie et l'endurance."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo confortevole. Costruisce base aerobica e resistenza."
           }
         },
         "pl" : {
@@ -587,6 +743,12 @@
             "value" : "Allure confortable, combustion des graisses"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo confortevole, brucia grassi"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -607,6 +769,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compétition"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gara"
           }
         },
         "pl" : {
@@ -631,6 +799,12 @@
             "value" : "Repos complet, activité minimale"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riposo completo, attività minima"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -651,6 +825,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conditionnement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condizionamento"
           }
         },
         "pl" : {
@@ -675,6 +855,12 @@
             "value" : "Retour au calme"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Defaticamento"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -692,6 +878,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cross"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cross"
@@ -719,6 +911,12 @@
             "value" : "Cross-training"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cross training"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -739,6 +937,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vélo"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciclismo"
           }
         },
         "pl" : {
@@ -763,6 +967,12 @@
             "value" : "jour"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "giorno"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -783,6 +993,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deadlifts"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deadlift"
           }
         },
         "pl" : {
@@ -807,6 +1023,12 @@
             "value" : "Haltère"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manubrio"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -827,6 +1049,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Terminer l'entraînement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Termina allenamento"
           }
         },
         "pl" : {
@@ -851,6 +1079,12 @@
             "value" : "Endurance"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resistenza"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -871,6 +1105,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Excellente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eccellente"
           }
         },
         "pl" : {
@@ -895,6 +1135,12 @@
             "value" : "Récupération de la fréquence cardiaque plus rapide que la moyenne."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero della frequenza cardiaca più rapido della media."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -915,6 +1161,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Femme"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Donna"
           }
         },
         "pl" : {
@@ -939,6 +1191,12 @@
             "value" : "Gratuit"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gratis"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -959,6 +1217,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Frais"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fresco"
           }
         },
         "pl" : {
@@ -983,6 +1247,12 @@
             "value" : "Fonctionnel"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funzionale"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1003,6 +1273,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bonne"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buono"
           }
         },
         "pl" : {
@@ -1027,6 +1303,12 @@
             "value" : "Bonne préparation"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buona prontezza"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1049,6 +1331,12 @@
             "value" : "Gymnastique"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ginnastica"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1066,6 +1354,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Handstand"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Handstand"
@@ -1093,6 +1387,12 @@
             "value" : "Effort dur au seuil lactique. Allure maximale soutenable."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo duro alla soglia del lattato. Massimo ritmo sostenibile."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1113,6 +1413,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Effort dur, seuil lactique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo duro, soglia del lattato"
           }
         },
         "pl" : {
@@ -1137,6 +1443,12 @@
             "value" : "Le Heart Rate Training Stress Score (hrTSS) mesure la charge d'entraînement à partir de l'intensité et de la durée de la séance. Il estime la récupération dont votre corps a besoin après une séance.\n\nUn score de 100 correspond à environ une heure à l'intensité du seuil lactique.\n\nFormule :\nhrTSS = Durée (heures) × Facteur d'intensité² × 100\n\nOù Facteur d'intensité = FC moyenne / FC au seuil\nFC au seuil = FC max × 0,93"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'Heart Rate Training Stress Score (hrTSS) misura il carico di allenamento in base a intensità e durata dell'allenamento. Stima quanto recupero serve al tuo corpo dopo una sessione.\n\nUn punteggio di 100 equivale a circa un'ora a intensità di soglia del lattato.\n\nFormula:\nhrTSS = Durata (ore) × Fattore di intensità² × 100\n\nDove Fattore di intensità = FC media / FC di soglia\nFC di soglia = FC max × 0,93"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1157,6 +1469,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Variabilité de la fréquence cardiaque"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variabilità della frequenza cardiaca"
           }
         },
         "pl" : {
@@ -1181,6 +1499,12 @@
             "value" : "La variabilité de la fréquence cardiaque (HRV) mesure la variation du temps entre deux battements consécutifs. Une HRV élevée suggère un meilleur équilibre du système nerveux et une meilleure préparation à l'entraînement. C'est l'un des meilleurs indicateurs de récupération."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La variabilità della frequenza cardiaca (HRV) misura la variazione di tempo tra battiti consecutivi. Un'HRV più alta suggerisce un miglior equilibrio del sistema nervoso e una maggiore prontezza all'allenamento. È uno dei migliori indicatori di recupero."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1201,6 +1525,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hero WODs"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hero WOD"
           }
         },
         "pl" : {
@@ -1225,6 +1555,12 @@
             "value" : "Élevé"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alto"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1245,6 +1581,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fatigue élevée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affaticamento elevato"
           }
         },
         "pl" : {
@@ -1269,6 +1611,12 @@
             "value" : "Charge élevée - disponibilité réduite"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carico alto - disponibilità ridotta"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1289,6 +1637,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Besoin de récupération élevé. Limitez les séances dures."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fabbisogno di recupero alto. Limita le sessioni dure."
           }
         },
         "pl" : {
@@ -1313,6 +1667,12 @@
             "value" : "Charge d'entraînement élevée. Prévoyez 2-3 jours de récupération ou de travail léger."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carico di allenamento alto. Prevedi 2-3 giorni di recupero o lavoro leggero."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1333,6 +1693,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Randonnée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escursionismo"
           }
         },
         "pl" : {
@@ -1357,6 +1723,12 @@
             "value" : "heures"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ore"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1377,6 +1749,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Récupération FC"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero FC"
           }
         },
         "pl" : {
@@ -1401,6 +1779,12 @@
             "value" : "La récupération FC mesure de combien de battements par minute (bpm) votre fréquence cardiaque baisse dans la première minute après l'arrêt de l'effort.\n\nUne récupération plus rapide indique une meilleure forme cardiovasculaire et un système nerveux autonome plus réactif.\n\nFormule :\nRécupération FC = FC max pendant l'entraînement − FC après 1 minute\n\nValeurs typiques :\n• < 12 bpm : Faible\n• 12–20 bpm : Moyenne\n• 20–30 bpm : Bonne\n• 30–40 bpm : Très bonne\n• > 40 bpm : Excellente"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Recupero FC misura di quanti battiti al minuto (bpm) scende la tua frequenza cardiaca nel primo minuto dopo la fine dell'esercizio.\n\nUn recupero più rapido indica una migliore forma cardiovascolare e un sistema nervoso autonomo più reattivo.\n\nFormula:\nRecupero FC = FC max durante l'allenamento − FC dopo 1 minuto\n\nValori tipici:\n• < 12 bpm: Scarso\n• 12–20 bpm: Nella media\n• 20–30 bpm: Buono\n• 30–40 bpm: Molto buono\n• > 40 bpm: Eccellente"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1418,6 +1802,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hrTSS"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "hrTSS"
@@ -1445,6 +1835,12 @@
             "value" : "HRV"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HRV"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1465,6 +1861,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "En WOD"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nel WOD"
           }
         },
         "pl" : {
@@ -1489,6 +1891,12 @@
             "value" : "Facteur d'intensité"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fattore di intensità"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1511,6 +1919,12 @@
             "value" : "Le facteur d'intensité (IF) indique l'intensité de votre effort par rapport à votre fréquence cardiaque au seuil lactique (LTHR).\n\nUn IF de 1,0 signifie que vous avez travaillé exactement à l'intensité du seuil. Les valeurs supérieures à 1,0 indiquent des efforts plus durs que l'allure au seuil.\n\nFormule :\nIF = FC moyenne / LTHR\n\nOù LTHR = FC max × 0,85\n\nValeurs typiques :\n• < 0,75 : Récupération / Facile\n• 0,75–0,85 : Aérobie / Endurance\n• 0,85–0,95 : Tempo\n• 0,95–1,00 : Seuil\n• > 1,00 : VO2max / Effort max"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Fattore di intensità (IF) mostra quanto hai lavorato duro rispetto alla tua frequenza cardiaca alla soglia del lattato (LTHR).\n\nUn IF di 1,0 significa che ti sei allenato esattamente a intensità di soglia. Valori sopra 1,0 indicano sforzi più duri del ritmo di soglia.\n\nFormula:\nIF = FC media / LTHR\n\nDove LTHR = FC max × 0,85\n\nValori tipici:\n• < 0,75: Recupero / Facile\n• 0,75–0,85: Aerobica / Resistenza\n• 0,85–0,95: Tempo\n• 0,95–1,00: Soglia\n• > 1,00: VO2max / Massimale"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1528,6 +1942,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kettlebell"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kettlebell"
@@ -1555,6 +1975,12 @@
             "value" : "Genouillères"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ginocchiere"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1575,6 +2001,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Léger"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggero"
           }
         },
         "pl" : {
@@ -1599,6 +2031,12 @@
             "value" : "Activité légère, récupération active"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attività leggera, recupero attivo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1619,6 +2057,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Séance légère. Vous pourrez bientôt enchaîner sur un entraînement dur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessione leggera. Sarai presto pronto per un altro allenamento duro."
           }
         },
         "pl" : {
@@ -1643,6 +2087,12 @@
             "value" : "Les plus longs d'abord"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dal più lungo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1663,6 +2113,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Faible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basso"
           }
         },
         "pl" : {
@@ -1687,6 +2143,12 @@
             "value" : "Charge faible - disponibilité élevée"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carico basso - disponibilità alta"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1707,6 +2169,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Besoin de récupération faible. Sans effet sur l'entraînement du lendemain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fabbisogno di recupero basso. Nessun effetto sull'allenamento di domani."
           }
         },
         "pl" : {
@@ -1731,6 +2199,12 @@
             "value" : "Abaisse"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbassa"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1751,6 +2225,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Homme"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uomo"
           }
         },
         "pl" : {
@@ -1775,6 +2255,12 @@
             "value" : "Effort maximal. Allure de course ou intervalles de sprint."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo massimo. Ritmo gara o intervalli sprint."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1795,6 +2281,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Récupération maximale"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero massimo"
           }
         },
         "pl" : {
@@ -1819,6 +2311,12 @@
             "value" : "Médecine-ball"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palla medica"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1839,6 +2337,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Charge minimale - forme optimale"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carico minimo - forma al top"
           }
         },
         "pl" : {
@@ -1863,6 +2367,12 @@
             "value" : "Mise en miroir"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duplicazione"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1883,6 +2393,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mixte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Misto"
           }
         },
         "pl" : {
@@ -1907,6 +2423,12 @@
             "value" : "Mobilité"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mobilità"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1927,6 +2449,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Modérée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moderata"
           }
         },
         "pl" : {
@@ -1951,6 +2479,12 @@
             "value" : "Effort modéré, base aérobie"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo moderato, base aerobica"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1971,6 +2505,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Effort modéré. Prévoyez ~24 heures avant la prochaine séance dure."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo moderato. Lascia passare ~24 ore prima della prossima sessione dura."
           }
         },
         "pl" : {
@@ -1995,6 +2535,12 @@
             "value" : "Fatigue modérée"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affaticamento moderato"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2015,6 +2561,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Besoin de récupération modéré. Planifiez la prochaine séance avec soin."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fabbisogno di recupero moderato. Pianifica con cura la prossima sessione."
           }
         },
         "pl" : {
@@ -2039,6 +2591,12 @@
             "value" : "Effort modéré à dur. Améliore le seuil lactique."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo medio-duro. Migliora la soglia del lattato."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2059,6 +2617,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Préparation neutre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza neutra"
           }
         },
         "pl" : {
@@ -2083,6 +2647,12 @@
             "value" : "Les plus récents d'abord"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dal più recente"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2103,6 +2673,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune activité enregistrée pour hier."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessuna attività registrata per ieri."
           }
         },
         "pl" : {
@@ -2127,6 +2703,12 @@
             "value" : "Aucune HRV enregistrée pour cette nuit."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessuna HRV registrata per questa notte."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2147,6 +2729,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jour sans charge - récupération complète"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giorno senza carico - ripristino completo"
           }
         },
         "pl" : {
@@ -2171,6 +2759,12 @@
             "value" : "Pas de fréquence cardiaque au repos pour ce jour."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessuna frequenza cardiaca a riposo per questo giorno."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2191,6 +2785,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun sommeil enregistré pour cette nuit."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessun sonno registrato per questa notte."
           }
         },
         "pl" : {
@@ -2215,6 +2815,12 @@
             "value" : "Non défini"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non impostato"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2235,6 +2841,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les plus anciens d'abord"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dal meno recente"
           }
         },
         "pl" : {
@@ -2259,6 +2871,12 @@
             "value" : "Mouvements olympiques"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alzate olimpiche"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2279,6 +2897,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Préparation optimale"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza ottimale"
           }
         },
         "pl" : {
@@ -2303,6 +2927,12 @@
             "value" : "Autre"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altro"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2323,6 +2953,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mettre en pause"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metti in pausa l'allenamento"
           }
         },
         "pl" : {
@@ -2347,6 +2983,12 @@
             "value" : "Prévu"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pianificato"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2367,6 +3009,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lancer/suspendre le minuteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvia/pausa timer"
           }
         },
         "pl" : {
@@ -2391,6 +3039,12 @@
             "value" : "Faible"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scarso"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2411,6 +3065,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Presses"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press"
           }
         },
         "pl" : {
@@ -2435,6 +3095,12 @@
             "value" : "Augmente"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alza"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2455,6 +3121,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Récupération rapide de la fréquence cardiaque après l'effort."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero rapido della frequenza cardiaca dopo l'esercizio."
           }
         },
         "pl" : {
@@ -2479,6 +3151,12 @@
             "value" : "Préparation élevée"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza alta"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2499,6 +3177,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Préparation faible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza bassa"
           }
         },
         "pl" : {
@@ -2523,6 +3207,12 @@
             "value" : "Préparation habituelle"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza nella norma"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2543,6 +3233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Préparation très élevée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza molto alta"
           }
         },
         "pl" : {
@@ -2567,6 +3263,12 @@
             "value" : "Préparation très faible"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza molto bassa"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2587,6 +3289,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bientôt prêt"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Presto pronto"
           }
         },
         "pl" : {
@@ -2611,6 +3319,12 @@
             "value" : "Récupération"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2631,6 +3345,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Besoin de récupération"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fabbisogno di recupero"
           }
         },
         "pl" : {
@@ -2655,6 +3375,12 @@
             "value" : "Le besoin de récupération estime le repos nécessaire avant votre prochain entraînement dur.\n\nIl combine la charge d'entraînement (hrTSS), la récupération de la fréquence cardiaque et d'autres facteurs pour calculer le temps de récupération optimal.\n\nFormule :\nRécupération (heures) = Récupération de base × Modificateur HRR × Modificateur HRV × Modificateur sommeil\n\nLa récupération de base est déterminée par le hrTSS :\n• < 30 : 12 heures\n• 30–50 : 18 heures\n• 50–80 : 28 heures\n• 80–120 : 42 heures\n• 120–160 : 56 heures\n• > 160 : 72 heures\n\nLes modificateurs s'ajustent selon vos mesures de récupération (meilleure récupération FC = temps de récupération plus court)."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Fabbisogno di recupero stima quanto riposo ti serve prima del prossimo allenamento duro.\n\nCombina carico di allenamento (hrTSS), recupero della frequenza cardiaca e altri fattori per calcolare il tempo di recupero ottimale.\n\nFormula:\nRecupero (ore) = Recupero base × Modificatore HRR × Modificatore HRV × Modificatore sonno\n\nIl Recupero base è determinato dall'hrTSS:\n• < 30: 12 ore\n• 30–50: 18 ore\n• 50–80: 28 ore\n• 80–120: 42 ore\n• 120–160: 56 ore\n• > 160: 72 ore\n\nI modificatori si adattano in base alle tue metriche di recupero (Recupero FC migliore = tempo di recupero più breve)."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2675,6 +3401,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Repos de %lld s entre les tours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riposo %lld s tra i round"
           }
         },
         "pl" : {
@@ -2699,6 +3431,12 @@
             "value" : "Repos"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riposo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2719,6 +3457,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fréquence cardiaque au repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequenza cardiaca a riposo"
           }
         },
         "pl" : {
@@ -2743,6 +3487,12 @@
             "value" : "La fréquence cardiaque au repos (RHR) est le nombre de battements par minute au repos. Des valeurs basses indiquent généralement une meilleure forme cardiovasculaire et une meilleure récupération. L'Apple Watch mesure automatiquement la RHR pendant le sommeil et le repos."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La frequenza cardiaca a riposo (RHR) è il numero di battiti al minuto a riposo. Valori più bassi indicano di solito una migliore forma cardiovascolare e un miglior recupero. Apple Watch misura la RHR automaticamente durante il sonno e il riposo."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2765,6 +3515,12 @@
             "value" : "Reprendre l'entraînement"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprendi allenamento"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2782,6 +3538,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RHR"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "RHR"
@@ -2809,6 +3571,12 @@
             "value" : "Rameur"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vogatore"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2829,6 +3597,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Course à pied"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corsa"
           }
         },
         "pl" : {
@@ -2853,6 +3627,12 @@
             "value" : "Programmé"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programmato"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2873,6 +3653,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les plus courts d'abord"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dal più breve"
           }
         },
         "pl" : {
@@ -2897,6 +3683,12 @@
             "value" : "Important"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Significativo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2917,6 +3709,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stress important. Envisagez 1-2 jours d'entraînement léger."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stress significativo. Valuta 1-2 giorni di allenamento leggero."
           }
         },
         "pl" : {
@@ -2941,6 +3739,12 @@
             "value" : "Sommeil"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonno"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2961,6 +3765,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Qualité du sommeil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qualità del sonno"
           }
         },
         "pl" : {
@@ -2985,6 +3795,12 @@
             "value" : "La qualité du sommeil est évaluée d'après le temps passé dans les phases de sommeil (profond, paradoxal, léger). Un meilleur sommeil améliore la récupération et la préparation à l'entraînement. 7 à 9 heures sont recommandées pour les adultes."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La qualità del sonno è valutata dal tempo trascorso nelle fasi del sonno (profondo, REM, leggero). Dormire meglio migliora recupero e prontezza all'allenamento. Per gli adulti si consigliano 7–9 ore."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3007,6 +3823,12 @@
             "value" : "Récupération lente de la fréquence cardiaque. Peut indiquer de la fatigue ou du stress."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero lento della frequenza cardiaca. Può indicare affaticamento o stress."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3024,6 +3846,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snatch"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Snatch"
@@ -3051,6 +3879,12 @@
             "value" : "Squats"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Squat"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3071,6 +3905,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Arrêter le minuteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ferma timer"
           }
         },
         "pl" : {
@@ -3095,6 +3935,12 @@
             "value" : "Sangles"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cinghie"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3115,6 +3961,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Musculation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forza"
           }
         },
         "pl" : {
@@ -3145,6 +3997,12 @@
             "value" : "Force"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forza"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3165,6 +4023,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Musculation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamento di forza"
           }
         },
         "pl" : {
@@ -3189,6 +4053,12 @@
             "value" : "Abaisse fortement"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbassa molto"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3209,6 +4079,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Augmente fortement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alza molto"
           }
         },
         "pl" : {
@@ -3233,6 +4109,12 @@
             "value" : "Natation"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuoto"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3250,6 +4132,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tempo"
@@ -3277,6 +4165,12 @@
             "value" : "La zone aérobie constitue le socle de l'endurance et joue un rôle essentiel dans le développement du système cardiorespiratoire. S'entraîner dans cette plage maximise la consommation d'oxygène, augmente le nombre et la taille des mitochondries dans les muscles et améliore l'efficacité du cœur. En restant dans cette zone, vous développez votre endurance de base, augmentez votre volume d'éjection systolique et améliorez votre capacité physique générale, qui sert de base à toutes les autres formes d'activité."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La zona aerobica è il fondamento della resistenza ed è cruciale per sviluppare il sistema cardiorespiratorio. Allenarsi in questo intervallo massimizza il consumo di ossigeno, aumenta numero e dimensione dei mitocondri nei muscoli e migliora l'efficienza del cuore. Restando in questa zona sviluppi la resistenza di base, aumenti la gittata sistolica e migliori la capacità fisica generale, che è la base di ogni altra forma di attività."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3297,6 +4191,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La zone anaérobie correspond à l'intensité d'entraînement la plus élevée, où votre corps travaille principalement en filière anaérobie. Elle s'accompagne d'une forte accumulation de lactate et d'un épuisement rapide du glycogène musculaire. S'entraîner dans cette zone développe la puissance anaérobie, augmente la capacité à tamponner le lactate et améliore l'aptitude à fournir des efforts très intenses et de courte durée. Cette zone est à utiliser avec parcimonie en raison du stress métabolique élevé et des longs temps de récupération."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La zona anaerobica è l'intensità di allenamento più alta, in cui il corpo lavora soprattutto con il sistema anaerobico. Qui si verificano un forte accumulo di lattato e un rapido esaurimento del glicogeno muscolare. Allenarsi in questa zona sviluppa la potenza anaerobica, aumenta la capacità di tamponare il lattato e migliora la capacità di sostenere sforzi molto intensi e brevi. Va usata con parsimonia per l'elevato stress metabolico e i lunghi tempi di recupero."
           }
         },
         "pl" : {
@@ -3321,6 +4221,12 @@
             "value" : "La zone de combustion des graisses est la plage idéale pour perdre du poids et améliorer l'efficacité métabolique. À cette allure, votre corps utilise principalement les acides gras comme source d'énergie, ce qui permet de brûler efficacement les tissus adipeux. Un entraînement de longue durée dans cette zone améliore la capacité de votre corps à oxyder les graisses, augmente la sensibilité à l'insuline et construit une base aérobie solide sans fatigue excessive."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La zona brucia grassi è l'intervallo ottimale per chi vuole perdere peso e migliorare l'efficienza metabolica. A questo ritmo il corpo usa soprattutto gli acidi grassi come fonte di energia, bruciando in modo efficace il tessuto adiposo. Allenamenti lunghi in questa zona migliorano la capacità del corpo di ossidare i grassi, aumentano la sensibilità all'insulina e costruiscono una solida base aerobica senza affaticamento eccessivo."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3338,6 +4244,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Girls"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The Girls"
@@ -3365,6 +4277,12 @@
             "value" : "La zone de récupération est le niveau d'activité physique le plus léger, idéal pour les jours de repos ou la récupération active après des séances intenses. Dans cette zone, votre corps élimine efficacement les déchets métaboliques, améliore la circulation sanguine et favorise la réparation musculaire. En restant dans cette zone, vous gagnez en souplesse, accélérez la récupération et préparez votre corps aux prochains défis d'entraînement sans stress physiologique supplémentaire."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La zona di recupero è il livello più leggero di attività fisica, perfetto per i giorni di riposo o per il recupero attivo dopo sessioni intense. In questa zona il corpo elimina in modo efficace i prodotti di scarto del metabolismo, migliora la circolazione sanguigna e sostiene i processi di riparazione muscolare. Restando in questa zona migliori la flessibilità, acceleri il recupero e prepari il corpo alle prossime sfide di allenamento senza ulteriore stress fisiologico.\""
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3385,6 +4303,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La zone de repos correspond à votre fréquence cardiaque de base lors d'un repos complet, du sommeil ou d'activités quotidiennes minimales. C'est l'état naturel de récupération de votre corps, celui où se produisent la réparation cellulaire, la régulation hormonale et la restauration du système nerveux. Une fréquence cardiaque au repos saine témoigne d'une bonne forme cardiovasculaire et d'un bon état de santé général. Cette zone est essentielle pour récupérer du stress, bien dormir et préparer votre corps aux périodes d'activité."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La zona di riposo rappresenta la tua frequenza cardiaca di base durante il riposo completo, il sonno o attività quotidiane minime. È lo stato naturale di recupero del corpo, in cui avvengono riparazione cellulare, regolazione ormonale e ripristino del sistema nervoso. Una frequenza cardiaca a riposo sana indica una buona forma cardiovascolare e una buona salute generale. Questa zona è essenziale per recuperare dallo stress, per la qualità del sonno e per preparare il corpo ai periodi attivi."
           }
         },
         "pl" : {
@@ -3409,6 +4333,12 @@
             "value" : "La zone du seuil est l'intensité à laquelle votre corps est en équilibre entre métabolisme aérobie et anaérobie. Dans cette plage, la production et l'élimination du lactate s'équilibrent. L'entraînement au seuil améliore nettement votre seuil lactique, augmente la puissance critique et développe la capacité à maintenir une intensité élevée sur de longues durées. C'est une zone clé pour améliorer les performances sportives et la capacité lors d'efforts sous-maximaux."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La zona di soglia è l'intensità a cui il corpo è in equilibrio tra metabolismo aerobico e anaerobico. In questo intervallo c'è equilibrio tra produzione e smaltimento del lattato. L'allenamento di soglia migliora nettamente la soglia del lattato, aumenta la potenza critica e sviluppa la capacità di mantenere un'intensità alta per periodi prolungati. È una zona chiave per migliorare prestazioni atletiche e capacità negli sforzi submassimali."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3429,6 +4359,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seuil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soglia"
           }
         },
         "pl" : {
@@ -3453,6 +4389,12 @@
             "value" : "Nom du minuteur"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome timer"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3473,6 +4415,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tapis de course"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tapis roulant"
           }
         },
         "pl" : {
@@ -3497,6 +4445,12 @@
             "value" : "Récupération de la fréquence cardiaque typique, dans la plage attendue."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero tipico della frequenza cardiaca, nell'intervallo previsto."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3517,6 +4471,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Charge habituelle - état normal"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carico tipico - condizione standard"
           }
         },
         "pl" : {
@@ -3541,6 +4501,12 @@
             "value" : "Inchangé"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invariato"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3561,6 +4527,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inconnu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sconosciuto"
           }
         },
         "pl" : {
@@ -3585,6 +4557,12 @@
             "value" : "Séance très exigeante. La récupération complète peut prendre 3 jours ou plus."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessione molto impegnativa. Il recupero completo può richiedere 3+ giorni."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3605,6 +4583,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Très bonne"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Molto buono"
           }
         },
         "pl" : {
@@ -3629,6 +4613,12 @@
             "value" : "Effort très dur. Travaille la consommation maximale d'oxygène."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo molto duro. Allena il massimo consumo di ossigeno."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3649,6 +4639,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Très dur, puissance anaérobie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Molto duro, potenza anaerobica"
           }
         },
         "pl" : {
@@ -3673,6 +4669,12 @@
             "value" : "Très élevé"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Molto alto"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3693,6 +4695,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Charge très élevée - priorité : récupération"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carico molto alto - priorità: recupero"
           }
         },
         "pl" : {
@@ -3717,6 +4725,12 @@
             "value" : "Besoin de récupération très élevé. Récupération prolongée nécessaire."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fabbisogno di recupero molto alto. Serve un recupero prolungato."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3737,6 +4751,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Effort très léger. Récupération active ou intensité d'échauffement."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sforzo molto leggero. Recupero attivo o intensità da riscaldamento."
           }
         },
         "pl" : {
@@ -3761,6 +4781,12 @@
             "value" : "Récupération très rapide de la fréquence cardiaque. Forte réponse du système autonome."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recupero molto rapido della frequenza cardiaca. Forte risposta autonomica."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3783,6 +4809,12 @@
             "value" : "Intense"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intensa"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3800,6 +4832,12 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VO2max"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "VO2max"
@@ -3827,6 +4865,12 @@
             "value" : "Marche"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camminata"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3847,6 +4891,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gilet lesté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giubbotto zavorrato"
           }
         },
         "pl" : {
@@ -3871,6 +4921,12 @@
             "value" : "Haltérophilie"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesistica"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3891,6 +4947,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bandes de poignet"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Polsiere"
           }
         },
         "pl" : {
@@ -3915,6 +4977,12 @@
             "value" : "Année"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anno"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3935,6 +5003,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zone 1"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona 1"
           }
         },
         "pl" : {
@@ -3959,6 +5033,12 @@
             "value" : "Zone 2"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona 2"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3979,6 +5059,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zone 3"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona 3"
           }
         },
         "pl" : {
@@ -4003,6 +5089,12 @@
             "value" : "Zone 4"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona 4"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4023,6 +5115,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zone 5"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona 5"
           }
         },
         "pl" : {
