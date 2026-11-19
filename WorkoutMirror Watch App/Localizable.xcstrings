@@ -19,6 +19,12 @@
     },
     "7-day average: %lld %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ø 7 Tage: %1$lld %2$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -47,6 +53,12 @@
     },
     "Avg. Heart Rate" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ø Herzfrequenz"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -75,6 +87,12 @@
     },
     "Battery below 5%" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akku unter 5 %"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -106,6 +124,12 @@
     },
     "Breakdown" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufschlüsselung"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -139,6 +163,12 @@
     },
     "Done" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -167,6 +197,12 @@
     },
     "Effort Points" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effort Points"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -206,6 +242,12 @@
     },
     "End the workout to keep its data." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beende das Training, um die Daten zu behalten."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -234,6 +276,12 @@
     },
     "End workout" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training beenden"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -262,6 +310,12 @@
     },
     "No Data" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Daten"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -284,6 +338,12 @@
     },
     "OK" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -312,6 +372,12 @@
     },
     "Open on iPhone" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf iPhone öffnen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -334,6 +400,12 @@
     },
     "Pause" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausieren"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -362,6 +434,12 @@
     },
     "estimated" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "geschätzt"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -390,6 +468,12 @@
     },
     "pts" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pkt."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -418,6 +502,12 @@
     },
     "Range" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereich"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -440,6 +530,12 @@
     },
     "Resume" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsetzen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -468,6 +564,12 @@
     },
     "Saving…" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird gesichert…"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -507,6 +609,12 @@
     },
     "Stop" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopp"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -535,6 +643,12 @@
     },
     "Total Energy" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamtenergie"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -563,6 +677,12 @@
     },
     "Total Time" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamtzeit"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -602,6 +722,12 @@
     },
     "Waiting for workout…" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warten auf Training…"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -630,6 +756,12 @@
     },
     "Workout data unavailable" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainingsdaten nicht verfügbar"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -658,6 +790,12 @@
     },
     "Workout ended" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training beendet"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -686,6 +824,12 @@
     },
     "Workout saved" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training gesichert"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
