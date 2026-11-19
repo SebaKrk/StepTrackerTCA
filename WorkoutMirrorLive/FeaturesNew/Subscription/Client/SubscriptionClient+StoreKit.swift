@@ -30,11 +30,18 @@ extension SubscriptionClient {
         refreshTier: {
             let isActive = await StoreKitSubscriptionService.shared.hasActiveSubscription()
             let tier: SubscriptionTier = isActive ? .pro : .basic
+            let hasChanged = tier != StoredSubscriptionTier.current
             StoredSubscriptionTier.set(tier)
+            if hasChanged {
+                await TierChangeEffects.tierChanged(to: tier)
+            } else {
+                await TierChangeEffects.tierConfirmed(tier)
+            }
             return tier
         },
         overrideTier: { tier in
             StoredSubscriptionTier.set(tier)
+            await TierChangeEffects.tierChanged(to: tier)
         }
     )
 }

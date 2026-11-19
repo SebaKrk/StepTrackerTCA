@@ -21,7 +21,7 @@ struct TrainingReadinessProvider: TimelineProvider {
 
     func getSnapshot(in context: Context, completion: @escaping (TrainingReadinessEntry) -> ()) {
         let result = loadReadinessResult() ?? .preview
-        completion(TrainingReadinessEntry(date: Date(), result: result))
+        completion(TrainingReadinessEntry(date: Date(), result: result, isLocked: isLocked))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<TrainingReadinessEntry>) -> ()) {
@@ -30,7 +30,7 @@ struct TrainingReadinessProvider: TimelineProvider {
         // Use loaded result, or fallback to preview ONLY if we are in a preview context
         let finalResult: TrainingReadinessResult? = loadedResult ?? (context.isPreview ? .preview : nil)
         
-        let entry = TrainingReadinessEntry(date: Date(), result: finalResult)
+        let entry = TrainingReadinessEntry(date: Date(), result: finalResult, isLocked: isLocked)
 
         // Hourly rather than `.never`: the widget cannot calculate anything, but
         // it can re-read what the app wrote while it was asleep. With `.never` a
@@ -42,6 +42,11 @@ struct TrainingReadinessProvider: TimelineProvider {
         completion(timeline)
     }
     
+    /// Whether the app marked readiness as needing Pro.
+    private var isLocked: Bool {
+        userDefaults?.bool(forKey: AppGroup.readinessLockedKey) ?? false
+    }
+
     private func loadReadinessResult() -> TrainingReadinessResult? {
         guard let data = userDefaults?.data(forKey: key) else {
             return nil
@@ -90,6 +95,9 @@ struct TrainingReadinessProvider: TimelineProvider {
 struct TrainingReadinessEntry: TimelineEntry {
     let date: Date
     let result: TrainingReadinessResult?
+
+    /// Whether readiness needs Pro; the widget then shows a lock instead of a score.
+    var isLocked = false
 }
 
 struct TrainingReadinessWidgetEntryView : View {
@@ -100,7 +108,9 @@ struct TrainingReadinessWidgetEntryView : View {
 
     var body: some View {
         Group {
-            if let result = entry.result {
+            if entry.isLocked {
+                lockedView
+            } else if let result = entry.result {
                 switch family {
                 case .systemSmall:
                     smallView(for: result)
@@ -144,6 +154,28 @@ struct TrainingReadinessWidgetEntryView : View {
         }
     }
     
+    var lockedView: some View {
+        ZStack {
+            VStack(spacing: 2) {
+                smallHeader(caveat: nil)
+                readinessChart(diameter: nil, score: 0, showScore: false)
+                Text("-")
+            }
+            .blur(radius: 6)
+
+            VStack(spacing: 4) {
+                Image(systemName: "lock.fill")
+                    .font(.largeTitle)
+                    .foregroundStyle(.yellow)
+                Text("Readiness in Pro")
+                    .font(.caption.bold())
+                Text("Open App")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
     func smallView(for result: TrainingReadinessResult) -> some View {
         VStack(spacing: 2) {
             smallHeader(caveat: caveat(for: result))

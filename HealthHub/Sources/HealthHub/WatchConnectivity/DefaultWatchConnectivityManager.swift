@@ -322,4 +322,19 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         try session.updateApplicationContext([WatchContextKey.readinessSnapshot: data])
         Logger.wc.info("publishReadinessSnapshot → score \(snapshot.overallScore)")
     }
+
+    /// Tells the paired Watch that readiness needs Pro.
+    ///
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not active.
+    public func publishReadinessLocked() async throws {
+        guard let session, session.activationState == .activated else {
+            Logger.wc.error("publishReadinessLocked: session not activated")
+            throw WatchConnectivityError.sessionNotActivated
+        }
+        guard session.isPaired, session.isWatchAppInstalled else { return }
+
+        // Replaces the whole context — see WatchContextKey.
+        try session.updateApplicationContext([WatchContextKey.readinessLocked: true])
+        Logger.wc.info("publishReadinessLocked")
+    }
 }

@@ -1853,3 +1853,7 @@
     - everything that sells Pro is gold and never follows the readiness colour: a lock should look the same on a good day and a bad one
     - a personal record stays free; the progress chart and the history older than the newest entry need Pro, and the newest entry stays open so a mistyped result can still be deleted
     - the readiness trend popup uses the opaque container of the health metrics trend; on material the zone bands showed through the text
+    - what each tier opens is one table (`ProFeature`, `SubscriptionTier.opens`) in SharedModels; no screen keeps its own "needs Pro", and "the three most recent" is a number in that table
+    - the stored tier has one writer, `SubscriptionClient`; the offer screen and the developer menu ask it, and the app asks it on launch. Screens still read the stored tier, so they react at once
+    - every locked surface goes through `.proLocked` and `ProGold`; four hand-made locks and three copies of the gradient are gone
+    - the widget and the Watch showed readiness to everyone: they only display what the iPhone sends, and the iPhone sent it from two places without looking at the tier. `ReadinessBroadcaster` is now the only sender; under Basic it sends a lock that replaces the last score, and a tier change sends again

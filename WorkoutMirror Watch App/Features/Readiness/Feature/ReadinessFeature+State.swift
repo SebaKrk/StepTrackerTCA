@@ -17,6 +17,9 @@ extension ReadinessFeature {
         /// Latest snapshot pushed from the paired iPhone; `nil` until the first one arrives.
         var snapshot: ReadinessSnapshot?
 
+        /// Whether the iPhone reported that readiness needs Pro.
+        var isLocked = false
+
         /// Presented when the user drills into the component breakdown.
         @Presents var details: ReadinessDetailsFeature.State?
     }

@@ -40,6 +40,7 @@ extension SubscriptionClient {
         purchase: { _ in
             try await Task.sleep(for: .milliseconds(700))
             StoredSubscriptionTier.set(.pro)
+            await TierChangeEffects.tierChanged(to: .pro)
             return .purchased
         },
         restorePurchases: {
@@ -49,10 +50,13 @@ extension SubscriptionClient {
             StoredSubscriptionTier.current == .pro
         },
         refreshTier: {
-            StoredSubscriptionTier.current
+            let tier = StoredSubscriptionTier.current
+            await TierChangeEffects.tierConfirmed(tier)
+            return tier
         },
         overrideTier: { tier in
             StoredSubscriptionTier.set(tier)
+            await TierChangeEffects.tierChanged(to: tier)
         }
     )
 }

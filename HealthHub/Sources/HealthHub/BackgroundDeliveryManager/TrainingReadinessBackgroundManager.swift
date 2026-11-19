@@ -27,6 +27,9 @@ public actor TrainingReadinessBackgroundManager {
     private let widgetDataClient: WidgetDataClient
     private let watchConnectivityManager: WatchConnectivityManager
 
+    /// The one sender to the widget and the Watch; it decides between a score and the lock.
+    private let broadcaster: ReadinessBroadcaster
+
     /// Health data types needed for training readiness calculation
     private let observedTypes: Set<HKSampleType> = [
         HKQuantityType(.restingHeartRate),
@@ -56,6 +59,10 @@ public actor TrainingReadinessBackgroundManager {
         self.calculator = calculator
         self.widgetDataClient = widgetDataClient
         self.watchConnectivityManager = watchConnectivityManager
+        self.broadcaster = ReadinessBroadcaster(
+            widgetDataClient: widgetDataClient,
+            watchConnectivityManager: watchConnectivityManager
+        )
     }
     
     // MARK: - Public API
@@ -235,19 +242,8 @@ public actor TrainingReadinessBackgroundManager {
                 return true
             }
 
-            // 3. Save to widget storage
-            await widgetDataClient.saveReadinessResult(result)
-
-            // 4. Push to the paired Watch — a missing Watch must not fail the widget path.
-            do {
-                try await watchConnectivityManager.publishReadinessSnapshot(
-                    ReadinessSnapshot(result: result)
-                )
-            } catch {
-                #if DEBUG
-                print("❌ Failed to publish readiness to Watch: \(error.localizedDescription)")
-                #endif
-            }
+            // 3. Hand the score to the widget and the Watch
+            await broadcaster.publish(result)
 
             return true
         } catch {

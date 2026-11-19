@@ -303,3 +303,23 @@ public extension DependencyValues {
         set { self[TrainingReadinessBackgroundManagerKey.self] = newValue }
     }
 }
+
+/// A TCA dependency key for the one sender of readiness to the widget and the Watch.
+public enum ReadinessBroadcasterKey: DependencyKey {
+    public static let liveValue: ReadinessBroadcaster = {
+        @Dependency(\.widgetDataClient) var widgetDataClient
+        @Dependency(\.watchConnectivityManager) var watchConnectivityManager
+
+        return ReadinessBroadcaster(
+            widgetDataClient: widgetDataClient,
+            watchConnectivityManager: watchConnectivityManager
+        )
+    }()
+}
+
+public extension DependencyValues {
+    var readinessBroadcaster: ReadinessBroadcaster {
+        get { self[ReadinessBroadcasterKey.self] }
+        set { self[ReadinessBroadcasterKey.self] = newValue }
+    }
+}

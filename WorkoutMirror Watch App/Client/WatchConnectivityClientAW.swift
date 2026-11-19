@@ -41,14 +41,14 @@ struct WatchConnectivityClientAW {
     /// Files remain on Watch (no cleanup) for redundancy.
     var transferAllLogFiles: @Sendable () async -> Void
 
-    /// A stream of readiness snapshots pushed from the paired iPhone.
-    var readinessSnapshotStream: @Sendable () -> AsyncStream<ReadinessSnapshot>
+    /// A stream of what the paired iPhone pushes about readiness: a score, or the lock.
+    var readinessDeliveryStream: @Sendable () -> AsyncStream<ReadinessDelivery>
 
-    /// The most recent snapshot already held by `WCSession`, if any.
+    /// The most recent delivery already held by `WCSession`, if any.
     ///
     /// Read on appear so a freshly launched Watch app shows the last known
     /// value immediately instead of waiting for the next push.
-    var latestReadinessSnapshot: @Sendable () -> ReadinessSnapshot?
+    var latestReadinessDelivery: @Sendable () -> ReadinessDelivery?
 }
 
 // MARK: - Dependency Registration
@@ -115,10 +115,10 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
                 WCSession.default.transferFile(url, metadata: ["type": "workoutLog", "startedAt": Date()])
             }
             #endif
-        } readinessSnapshotStream: {
+        } readinessDeliveryStream: {
             session.readinessStream
-        } latestReadinessSnapshot: {
-            session.latestSnapshot()
+        } latestReadinessDelivery: {
+            session.latestDelivery()
         }
     }()
 }
@@ -149,21 +149,21 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
         return stream
     }
 
-    /// Mutable continuation for readiness snapshots — same single-consumer
+    /// Mutable continuation for readiness deliveries — same single-consumer
     /// pattern as `continuation` above.
-    private var readinessContinuation: AsyncStream<ReadinessSnapshot>.Continuation?
+    private var readinessContinuation: AsyncStream<ReadinessDelivery>.Continuation?
 
     /// Returns a new `AsyncStream` each time it is accessed, matching `eventStream`.
-    var readinessStream: AsyncStream<ReadinessSnapshot> {
+    var readinessStream: AsyncStream<ReadinessDelivery> {
         readinessContinuation?.finish()
-        let (stream, newContinuation) = AsyncStream<ReadinessSnapshot>.makeStream()
+        let (stream, newContinuation) = AsyncStream<ReadinessDelivery>.makeStream()
         readinessContinuation = newContinuation
         return stream
     }
 
-    /// Decodes the snapshot currently held in `WCSession.receivedApplicationContext`.
-    func latestSnapshot() -> ReadinessSnapshot? {
-        decodeSnapshot(WCSession.default.receivedApplicationContext)
+    /// Decodes the delivery currently held in `WCSession.receivedApplicationContext`.
+    func latestDelivery() -> ReadinessDelivery? {
+        decodeDelivery(WCSession.default.receivedApplicationContext)
     }
 
     override init() {
@@ -229,9 +229,9 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
     }
 
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
-        guard let snapshot = decodeSnapshot(applicationContext) else { return }
-        Logger.wc.info("[WatchSession] received readiness snapshot → score \(snapshot.overallScore)")
-        readinessContinuation?.yield(snapshot)
+        guard let delivery = decodeDelivery(applicationContext) else { return }
+        Logger.wc.info("[WatchSession] received readiness delivery")
+        readinessContinuation?.yield(delivery)
     }
 
     // MARK: - Private
@@ -255,6 +255,14 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
             }
         }
         continuation?.yield(event)
+    }
+
+    /// The lock wins over a snapshot: a context carrying both must not show a score.
+    private func decodeDelivery(_ dict: [String: Any]) -> ReadinessDelivery? {
+        if dict[WatchContextKey.readinessLocked] as? Bool == true {
+            return .locked
+        }
+        return decodeSnapshot(dict).map(ReadinessDelivery.snapshot)
     }
 
     private func decodeSnapshot(_ dict: [String: Any]) -> ReadinessSnapshot? {

@@ -16,9 +16,9 @@ extension ReadinessFeature {
 
         // MARK: - Internal Actions
 
-        /// Delivered when the paired iPhone pushes a new readiness snapshot
+        /// Delivered when the paired iPhone pushes a score or the lock
         /// through the WatchConnectivity application context.
-        case snapshotReceived(ReadinessSnapshot)
+        case deliveryReceived(ReadinessDelivery)
 
         // MARK: - View Actions
 
