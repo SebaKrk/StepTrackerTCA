@@ -9,6 +9,12 @@
     },
     "%lld%% of class" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%% de la clase"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -19,6 +25,12 @@
     },
     "%lld/%lld athletes" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld atletas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -40,6 +52,12 @@
     },
     "Active Energy" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energía activa"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -50,6 +68,12 @@
     },
     "Address or room (e.g. Iron Den)" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección o sala (p. ej., Iron Den)"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -60,6 +84,12 @@
     },
     "All Athletes" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los atletas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -70,6 +100,12 @@
     },
     "All athletes will be disconnected." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se desconectará a todos los atletas."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -80,6 +116,12 @@
     },
     "All zones" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las zonas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -90,6 +132,12 @@
     },
     "Athlete" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atleta"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -100,6 +148,12 @@
     },
     "Athletes" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atletas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -110,6 +164,12 @@
     },
     "Avg HR" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC media"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -120,6 +180,12 @@
     },
     "BPM" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BPM"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -130,6 +196,12 @@
     },
     "Calories" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calorías"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -140,6 +212,12 @@
     },
     "Calories burned" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calorías quemadas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -150,6 +228,12 @@
     },
     "Cancel" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -160,6 +244,12 @@
     },
     "Capacity" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aforo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -170,6 +260,12 @@
     },
     "Class name" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre de la clase"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -180,6 +276,12 @@
     },
     "Classes" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clases"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -201,6 +303,12 @@
     },
     "Connecting…" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectando…"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -211,6 +319,12 @@
     },
     "Couldn't load athlete data for this class. Please try again." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han podido cargar los datos de atletas de esta clase. Inténtalo de nuevo."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -221,6 +335,12 @@
     },
     "Couldn't load class history. Please try again." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido cargar el historial de clases. Inténtalo de nuevo."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -231,6 +351,12 @@
     },
     "Couldn't load classes. Please try again." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han podido cargar las clases. Inténtalo de nuevo."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -241,6 +367,12 @@
     },
     "Delete" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -251,6 +383,12 @@
     },
     "Delete class?" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar la clase?"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -261,6 +399,12 @@
     },
     "Delete session?" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar la sesión?"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -271,6 +415,12 @@
     },
     "Details" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -281,6 +431,12 @@
     },
     "Done" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -291,6 +447,12 @@
     },
     "Duration" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -301,6 +463,12 @@
     },
     "Edit" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -311,6 +479,12 @@
     },
     "Edit class" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar clase"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -321,6 +495,12 @@
     },
     "End" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminar"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -331,6 +511,12 @@
     },
     "End class?" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Terminar la clase?"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -341,6 +527,12 @@
     },
     "End session?" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Terminar la sesión?"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -351,6 +543,12 @@
     },
     "End time will be set to now. Athletes still active will be finalized." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La hora de fin se fijará en este momento. Se cerrarán los datos de los atletas aún activos."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -361,6 +559,12 @@
     },
     "Ending class…" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminando la clase…"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -371,6 +575,12 @@
     },
     "Gap end" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fin del hueco"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -381,6 +591,12 @@
     },
     "Gap start" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicio del hueco"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -391,6 +607,12 @@
     },
     "Gym Room" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gym Room"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -401,6 +623,12 @@
     },
     "HR Zones" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zonas de FC"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -411,6 +639,12 @@
     },
     "HR max" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC máx."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -421,6 +655,12 @@
     },
     "HR min" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC mín."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -431,6 +671,12 @@
     },
     "HR over time" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC en el tiempo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -441,6 +687,12 @@
     },
     "History" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historial"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +703,12 @@
     },
     "Individual" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Individual"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -461,6 +719,12 @@
     },
     "LIVE" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EN DIRECTO"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -471,6 +735,12 @@
     },
     "Loading failed" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -481,6 +751,12 @@
     },
     "Location" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubicación"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -502,6 +778,12 @@
     },
     "Max HR" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC máx."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -512,6 +794,12 @@
     },
     "Max athletes" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Máx. de atletas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -522,6 +810,12 @@
     },
     "Minute" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuto"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -532,6 +826,12 @@
     },
     "New class" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva clase"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -542,6 +842,12 @@
     },
     "Next class" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próxima clase"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -552,6 +858,12 @@
     },
     "No athletes data" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin datos de atletas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -562,6 +874,12 @@
     },
     "No classes" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin clases"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -572,6 +890,12 @@
     },
     "No classes yet" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay clases"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -582,6 +906,12 @@
     },
     "No past classes yet" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay clases anteriores"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -592,6 +922,12 @@
     },
     "No reading — athlete out of range" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin lectura — atleta fuera de alcance"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -602,6 +938,12 @@
     },
     "No samples" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin muestras"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -612,6 +954,12 @@
     },
     "Not enough data" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datos insuficientes"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -622,6 +970,12 @@
     },
     "Ongoing" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En curso"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -643,6 +997,12 @@
     },
     "Points" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puntos"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -653,6 +1013,12 @@
     },
     "Rank" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puesto"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -663,6 +1029,12 @@
     },
     "Ranking" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranking"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -673,6 +1045,12 @@
     },
     "Repeat weekly" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repetir cada semana"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -683,6 +1061,12 @@
     },
     "Results — %@" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultados — %@"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -693,6 +1077,12 @@
     },
     "Run a class to see it here." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imparte una clase para verla aquí."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -703,6 +1093,12 @@
     },
     "Save" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -713,6 +1109,12 @@
     },
     "Schedule" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Horario"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -723,6 +1125,12 @@
     },
     "Scheduled" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programadas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -733,6 +1141,12 @@
     },
     "Scheduled at" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha y hora"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -743,6 +1157,12 @@
     },
     "Seconds" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segundos"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -753,6 +1173,12 @@
     },
     "Selected Minute" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuto seleccionado"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -763,6 +1189,12 @@
     },
     "Selected Time" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo seleccionado"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -773,6 +1205,12 @@
     },
     "Series" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Series"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -783,6 +1221,12 @@
     },
     "Set scheduled time" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fijar fecha y hora"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -793,6 +1237,12 @@
     },
     "Skanuj kodem QR" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear con código QR"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -803,6 +1253,12 @@
     },
     "Start class" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar clase"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -824,6 +1280,12 @@
     },
     "Tap + to create your first class." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca + para crear tu primera clase."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -834,6 +1296,12 @@
     },
     "Team" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equipo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -844,6 +1312,12 @@
     },
     "This athlete didn't send any HR data." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este atleta no ha enviado datos de FC."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -854,6 +1328,12 @@
     },
     "This class had no peers connected." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta clase no tuvo atletas conectados."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -864,6 +1344,12 @@
     },
     "This device supports up to %lld athletes. Reduce the value to save." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este dispositivo admite hasta %lld atletas. Reduce el valor para guardar."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -874,6 +1360,12 @@
     },
     "This will also delete all athlete data from this class." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También se eliminarán todos los datos de atletas de esta clase."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -884,6 +1376,12 @@
     },
     "This will also delete all related sessions and athlete data." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También se eliminarán todas las sesiones relacionadas y los datos de atletas."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -894,6 +1392,12 @@
     },
     "Time" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -904,6 +1408,12 @@
     },
     "Time in zones" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo en zonas"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -914,6 +1424,12 @@
     },
     "Today" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoy"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -924,6 +1440,12 @@
     },
     "Total class" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clase completa"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -934,6 +1456,12 @@
     },
     "Try again" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a intentar"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -944,6 +1472,12 @@
     },
     "Workout too short to analyze HR — 5 minutes minimum." : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenamiento demasiado corto para analizar la FC — mínimo 5 minutos."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -965,6 +1499,12 @@
     },
     "Yesterday" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayer"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -975,6 +1515,12 @@
     },
     "Zone" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -985,6 +1531,12 @@
     },
     "Zone end" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fin de zona"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -995,6 +1547,12 @@
     },
     "Zone start" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicio de zona"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1005,6 +1563,12 @@
     },
     "active time" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tiempo activo"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1018,6 +1582,12 @@
     },
     "pts" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pts"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1028,6 +1598,12 @@
     },
     "weekly" : {
       "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cada semana"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
