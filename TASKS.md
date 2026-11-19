@@ -1841,3 +1841,15 @@
     - format specifiers are checked against the source for every entry before a catalog is written, so a translation can reorder words but never drop or retype a placeholder
     - training shorthand stays as athletes write it on the board (AMRAP, EMOM, WOD, Rx, PR)
     - warm-up and cool-down cues need no change: the server already writes in the language the app sends, and that language follows the app's own localization
+
+### IOS-00192 Basic and Pro: the offer after the free period, two trial strategies
+    - branch: `dev/IOS-00192/IOS-00192` (from develop)
+    - the app had three tiers switched by hand and no way to sell any of them. The plan is two tiers: everything is open for 14 days, then recording stays free and depth (older workouts and plans, statistics) needs Pro
+    - two trial strategies behind one switch, so a storefront can be moved from one to the other without touching a screen: the app counts the days and nobody enters a card, or the App Store runs an introductory offer
+    - purchases go through `SubscriptionClient`; today it answers from a mock, and the StoreKit implementation sits next to it for the day the products exist in App Store Connect
+    - the offer screen is its own feature, opened from the tier menu for now, so the lock on a fourth workout or a blurred chart can present the same screen later
+    - Elite is gone: two tiers are what the offer sells, and a card asking a fresh Pro buyer to "Go Elite" was the first thing they saw. Everything Elite opened now needs Pro, and a device that stored `elite` reads it as Pro
+    - Basic opens the three most recent workouts and plans; older ones stay in the list, blurred under a lock, below one pinned banner that counts them and opens the offer. A button on every card read as nagging, so the cards carry the lock alone
+    - everything that sells Pro is gold and never follows the readiness colour: a lock should look the same on a good day and a bad one
+    - a personal record stays free; the progress chart and the history older than the newest entry need Pro, and the newest entry stays open so a mistyped result can still be deleted
+    - the readiness trend popup uses the opaque container of the health metrics trend; on material the zone bands showed through the text
