@@ -66,9 +66,10 @@ struct TeamInvitationRow: View {
             } else {
                 Text(joinTitle)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
             }
         }
-        .buttonStyle(.glassProminent)
+        .buttonStyle(.glass)
     }
 
     // MARK: - Text

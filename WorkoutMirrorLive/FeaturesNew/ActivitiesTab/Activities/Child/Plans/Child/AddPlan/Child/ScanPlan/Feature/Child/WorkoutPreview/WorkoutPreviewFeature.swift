@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import SharedModels
 import SwiftUI
 
@@ -98,7 +99,7 @@ struct WorkoutPreviewFeature {
         // MARK: - Internal Actions
 
         /// Internal — generated texts for the sections the board lacked; `nil` where the plan already had one.
-        case notesGenerated(warmUp: String?, coolDown: String?)
+        case notesGenerated(TrainingNotes)
 
         /// Internal — generation failed; carries the message to show.
         case notesGenerationFailed(String)
@@ -168,33 +169,36 @@ struct WorkoutPreviewFeature {
                 guard state.canSave else { return .none }
                 return .send(.delegate(.saved(state.trainingSession)))
 
-            // Only the missing sections are generated, in parallel, with the editor's default length.
+            // Only the missing sections are generated, with the editor's default length.
             case .view(.generateNotesTapped):
                 guard state.canGenerateNotes, !state.isGeneratingNotes else { return .none }
                 state.isGeneratingNotes = true
+                // No length is sent: nobody picked one here, so the model proposes it.
                 let context = TrainingNotesContext(
                     workouts: state.trainingSession.workouts,
-                    durationMinutes: Self.generatedNotesMinutes
+                    durationMinutes: nil
                 )
                 let needsWarmUp = state.trainingSession.warmUp == nil
                 let needsCoolDown = state.trainingSession.coolDown == nil
                 return .run { [notesClient] send in
-                    async let warmUp: String? = needsWarmUp ? try await notesClient.generateWarmUp(context) : nil
-                    async let coolDown: String? = needsCoolDown ? try await notesClient.generateCoolDown(context) : nil
-                    await send(.notesGenerated(warmUp: try await warmUp, coolDown: try await coolDown))
+                    await send(.notesGenerated(try await notesClient.generateMissing(context, needsWarmUp, needsCoolDown)))
                 } catch: { error, send in
-                    await send(.notesGenerationFailed(error.localizedDescription))
+                    await send(.notesGenerationFailed(ScanProxyError.userMessage(for: error)))
                 }
                 .cancellable(id: WorkoutPreviewCancelID.notesGeneration, cancelInFlight: true)
 
             // MARK: - Internal
 
-            case let .notesGenerated(warmUp, coolDown):
+            case let .notesGenerated(notes):
                 state.isGeneratingNotes = false
                 state.trainingSession = Self.plan(
                     state.trainingSession,
-                    warmUp: warmUp.map { WarmUpSession(goal: .timeLimit, time: Self.generatedNotesMinutes, description: $0) },
-                    coolDown: coolDown.map { CoolDownSession(goal: .timeLimit, time: Self.generatedNotesMinutes, description: $0) }
+                    warmUp: notes.warmUp.map {
+                        WarmUpSession(goal: .timeLimit, time: notes.warmUpMinutes ?? Self.generatedNotesMinutes, description: $0)
+                    },
+                    coolDown: notes.coolDown.map {
+                        CoolDownSession(goal: .timeLimit, time: notes.coolDownMinutes ?? Self.generatedNotesMinutes, description: $0)
+                    }
                 )
                 return .none
 

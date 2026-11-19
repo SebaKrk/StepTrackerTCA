@@ -8,7 +8,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.ss.lf.WorkoutMirrorLive</string>
+		<string>group.com.ss.WorkoutMirrorLive</string>
 	</array>
 </dict>
 </plist>

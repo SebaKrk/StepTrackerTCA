@@ -180,6 +180,14 @@ service cloud.firestore {
       }
     }
 
+    // Daily allowance for the scan and training-note proxies.
+    // Only the functions write here: a client able to edit the counter would have
+    // no limit at all. Reading your own row is what the screen shows.
+    match /scanQuota/{uid} {
+      allow read: if signedIn() && uid == me();
+      allow write: if false;
+    }
+
     // Collection-group reads for "my groups" and "my invitations": only your own documents.
     match /{path=**}/members/{uid} {
       allow read: if signedIn() && resource.data.uid == me();

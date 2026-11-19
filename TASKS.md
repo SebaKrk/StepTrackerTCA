@@ -1805,3 +1805,31 @@
     - a night with no sleep but heart rate throughout scores as zero sleep rather than as missing data, and a recording that stopped mid-night drops the component instead of reading as a short night — `NightMeasurementResolver` decides which of the three happened
     - the explanation screen is the app's own card stack rather than a system `Form`, and its wash runs under the navigation bar; stopping it at the safe area left a black band no toolbar modifier could fix
     - the widget asks for an hourly re-read and a background task wakes the app on its own schedule, so a stale score no longer waits for the app to be opened by hand
+
+### IOS-00188 The scan key moves to the server, and the first scan of the day is free
+    - branch: `dev/IOS-00188/IOS-00188` (from develop)
+    - every user had to paste their own Anthropic key before they could scan anything, which made the feature unreachable for anyone who is not a developer. The key now lives in Google Secret Manager and is mounted into a Cloud Function at deploy time; the phone sends the photo and an identity token and never sees a key, so the whole key-entry screen, its Keychain client and the Developer Settings row are gone
+    - the prompt, the output schema and the API call moved to `firebase/functions/` with them. Leaving the Swift copies behind would have meant two prompts drifting apart — which had already happened: `PLANS/scan-eval/prompt_final.txt` was three sections behind `ClaudePrompt.swift`, so the harness had been scoring a prompt nobody shipped. One copy now, in the function, and `apply_to_function.py` publishes to it
+    - a free account gets one board scan and three training-note cues per day, counted per account in `scanQuota/{uid}` against a day that the server resolves in Europe/Warsaw — a device clock set to another zone would otherwise hand out extra days. The allowance is reserved before the model is called and released when the call fails, so an outage on our side never costs the user their free scan
+    - a global daily ceiling fails the request before the API is reached, so a viral morning or a retry loop cannot empty the account overnight. Credit running out upstream (402) is logged for us and reads to the user as a temporary outage: the state of the account behind the app is not their problem
+    - the three parsing backends stayed as they were and travel as a mode on the request, so switching them in settings still compares the three prompts; `WorkoutParsingStrategyFactory` keeps its seam for an on-device backend
+    - training notes went the same way — warm-up and cool-down are built from workout and exercise names only, with the wording owned by the function, so a rebuilt request cannot turn the shared key into a general-purpose assistant
+
+### IOS-00189 Compare scan models on a real board
+    - branch: `dev/IOS-00189/IOS-00189` (from the IOS-00188 head, which develop has not taken yet)
+    - picking a model for each plan tier is a cost decision worth twenty times the scan price, and nothing in the repository could answer it: the fixtures in `PLANS/scan-eval/` cover prompts, not models, and a gym whiteboard in bad light is the case that decides it
+    - a scan may now name its model, and the function honours that only where `ALLOW_MODEL_OVERRIDE` is set — a file that exists for development alone, so production answers with the pinned model however the request was built
+    - the name is checked against an allowlist rather than passed through, because a caller that can name any string can name the most expensive model there is
+    - the debug build gets a picker beside the backend one, so the same board can be read by Haiku, Sonnet and Opus in a row and the cost of each compared from the function log
+    - nothing ships: the picker lives behind `#if DEBUG` and the override behind an environment flag, and a release build has neither
+
+### IOS-00190 A scan failure says whether trying again can help
+    - branch: `dev/IOS-00190/IOS-00190` (from develop)
+    - every failure of a scan ended in the same Retry button, including the ones where the request itself was wrong — a button that fails the same way on every tap. The function now maps a 4xx from the model to `upstream-rejected`, the phone decodes it as `invalidRequest`, and the catch-all failure is split into a rejected request, a refusal and an unexpected reply: the first two lead to manual entry, and Retry stays only where repeating can succeed
+    - the thinking setting is chosen per model rather than sent as one value: only Sonnet 5.5 accepts `between_tools`, Haiku takes `disabled` and Opus cannot turn it off
+    - warm-up and cool-down cues were two parallel requests, so a plan missing both cost two units of the daily allowance and could half-fail. `proposedNotes` asks for both in one reply, carried by `TrainingNotes`; the allowance is raised to 6 now that one tap costs one unit
+    - the preview sends no length, because nobody picked one there: the model chooses, held to 5-20 minutes for a warm-up and 3-15 for a cool-down. Notes are written with Haiku
+    - on failure the user reads the proxy's localized message instead of the developer text, with Polish copy for the four new messages
+    - the scan system prompt is no longer cached: writing it costs 25% more and nothing reads it below roughly 70 scans a day
+    - Generate on the workout preview uses `.glassProminent`, matching the invitation row's primary button — the plain glass pill looked disabled
+    - debug builds carry their own icon, the regular one under a white DEV ribbon (`AppIconDev`, source in `Design/AppIcon/AppIcon-dev-master.svg`), so a development install is told apart from a release one on the home screen; Release keeps `AppIcon`

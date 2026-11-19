@@ -118,6 +118,7 @@ struct WorkoutPreviewView: View {
             } else {
                 Text(generateTitle)
                     .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
             }
         }
         .buttonStyle(.glass)

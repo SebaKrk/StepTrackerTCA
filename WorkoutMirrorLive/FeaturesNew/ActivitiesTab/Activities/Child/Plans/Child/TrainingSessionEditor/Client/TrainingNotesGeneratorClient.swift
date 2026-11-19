@@ -22,37 +22,57 @@ struct TrainingNotesContext: Sendable {
 struct TrainingNotesGeneratorClient: Sendable {
     var generateWarmUp: @Sendable (_ context: TrainingNotesContext) async throws -> String
     var generateCoolDown: @Sendable (_ context: TrainingNotesContext) async throws -> String
+    var generateMissing: @Sendable (_ context: TrainingNotesContext, _ warmUp: Bool, _ coolDown: Bool) async throws -> TrainingNotes
 }
 
 // MARK: - DependencyKey
 
 extension TrainingNotesGeneratorClient: DependencyKey {
 
+    /// Production client; the cue is written by the proxy, which holds the API key.
     nonisolated static let liveValue: TrainingNotesGeneratorClient = {
         TrainingNotesGeneratorClient(
             generateWarmUp: { context in
-                @Dependency(\.apiKeyClient) var apiKeyClient
-                let strategy = ClaudeStrategy(apiKey: apiKeyClient.load())
-                return try await strategy.generateWarmUp(
-                    workouts: context.workouts,
-                    durationMinutes: context.durationMinutes
-                )
+                try await note(.warmUp, context)
             },
             generateCoolDown: { context in
-                @Dependency(\.apiKeyClient) var apiKeyClient
-                let strategy = ClaudeStrategy(apiKey: apiKeyClient.load())
-                return try await strategy.generateCoolDown(
-                    workouts: context.workouts,
-                    durationMinutes: context.durationMinutes
+                try await note(.coolDown, context)
+            },
+            generateMissing: { context, warmUp, coolDown in
+                try await ScanProxy.shared.proposedNotes(
+                    warmUp: warmUp,
+                    coolDown: coolDown,
+                    workouts: context.workouts.map(noteWorkout),
+                    language: ScanLanguage.preferredName()
                 )
             }
         )
     }()
 
+    /// One proxy round-trip for either cue.
+    nonisolated private static func note(_ kind: TrainingNoteKind, _ context: TrainingNotesContext) async throws -> String {
+        try await ScanProxy.shared.trainingNote(
+            kind: kind,
+            workouts: context.workouts.map(noteWorkout),
+            durationMinutes: context.durationMinutes,
+            language: ScanLanguage.preferredName()
+        )
+    }
+
+    /// Names only — the proxy owns the wording of the prompt.
+    nonisolated private static func noteWorkout(_ workout: WorkoutSessionNew) -> TrainingNoteWorkout {
+        TrainingNoteWorkout(
+            name: workout.name,
+            type: workout.type.rawValue,
+            exercises: workout.exercises.map(\.displayName)
+        )
+    }
+
     static var testValue: TrainingNotesGeneratorClient {
         TrainingNotesGeneratorClient(
             generateWarmUp: unimplemented("TrainingNotesGeneratorClient.generateWarmUp"),
-            generateCoolDown: unimplemented("TrainingNotesGeneratorClient.generateCoolDown")
+            generateCoolDown: unimplemented("TrainingNotesGeneratorClient.generateCoolDown"),
+            generateMissing: unimplemented("TrainingNotesGeneratorClient.generateMissing")
         )
     }
 }

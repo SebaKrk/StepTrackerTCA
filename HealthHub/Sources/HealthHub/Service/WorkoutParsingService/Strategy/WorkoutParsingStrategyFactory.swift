@@ -13,18 +13,14 @@ import Foundation
 /// so the feature layer depends on the enum and the protocol alone.
 public enum WorkoutParsingStrategyFactory {
 
-    /// - Parameter apiKey: Claude API key for cloud backends; ignored by on-device ones.
+    /// - Parameter proxy: Transport to the server-side proxy; ignored by on-device backends.
     public static func make(
         _ backend: WorkoutParsingBackend,
-        apiKey: String?
+        proxy: ScanProxyClient
     ) -> any WorkoutParsingStrategy {
         switch backend {
-        case .claudeText:
-            return ClaudeStrategy(apiKey: apiKey)
-        case .claudeVision:
-            return ClaudeVisionStrategy(apiKey: apiKey, includesOCRHint: false)
-        case .claudeVisionWithOCRHint:
-            return ClaudeVisionStrategy(apiKey: apiKey, includesOCRHint: true)
+        case .claudeText, .claudeVision, .claudeVisionWithOCRHint:
+            return ProxyStrategy(backend: backend, proxy: proxy)
         }
     }
 }

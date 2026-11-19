@@ -14,7 +14,6 @@ struct DeveloperSettingsFeature {
 
     // MARK: - Dependency
 
-    @Dependency(\.apiKeyClient) var apiKeyClient
     @Dependency(\.diagnosticsClient) var diagnosticsClient
 
     // MARK: - Reducer
@@ -40,16 +39,6 @@ struct DeveloperSettingsFeature {
                 return .none
 
                 // MARK: - View Action
-            case .view(.apiKeyTapped):
-                let hasKey = apiKeyClient.load() != nil
-                state.destination = .apiKey(
-                    APIKeyEntryFeature.State(
-                        hasExistingKey: hasKey,
-                        isPresentedAsSheet: false
-                    )
-                )
-                return .none
-
             case .view(.includeDatabaseToggled):
                 state.includesDatabaseInDiagnostics.toggle()
                 return .none
@@ -73,20 +62,7 @@ struct DeveloperSettingsFeature {
                 state.diagnosticsShareURL = nil
                 return .none
 
-            case .destination(.presented(.apiKey(.delegate(.keySaved)))):
-                state.destination = nil
-                return .none
-
-            case .destination(.presented(.apiKey(.delegate(.keyDeleted)))):
-                state.destination = nil
-                return .none
-
-            case .destination:
-                return .none
             }
-        }
-        .ifLet(\.$destination, action: \.destination) {
-            Destination.body
         }
     }
 }

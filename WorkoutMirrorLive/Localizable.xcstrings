@@ -1386,6 +1386,16 @@
         }
       }
     },
+    "Add plan manually" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj plan ręcznie"
+          }
+        }
+      }
+    },
     "Add to my plans" : {
       "localizations" : {
         "pl" : {
@@ -1585,6 +1595,7 @@
       }
     },
     "Anthropic API Key" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1595,6 +1606,7 @@
       }
     },
     "API Key" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2383,6 +2395,7 @@
       }
     },
     "Claude returned an unexpected response. Try again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2393,6 +2406,7 @@
       }
     },
     "Claude service is temporarily unavailable. Try again later." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2594,6 +2608,7 @@
       }
     },
     "Could not load the selected image." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2603,7 +2618,28 @@
         }
       }
     },
+    "Could not open the photo" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się otworzyć zdjęcia"
+          }
+        }
+      }
+    },
+    "Could not prepare the photo" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się przygotować zdjęcia"
+          }
+        }
+      }
+    },
     "Could not prepare the photo for analysis. Try another photo." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2946,6 +2982,16 @@
         }
       }
     },
+    "Daily limit reached" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit na dziś wyczerpany"
+          }
+        }
+      }
+    },
     "Dashboard" : {
       "comment" : "The Dashboard Tab presents an overview of key metrics and activities.",
       "localizations" : {
@@ -3136,6 +3182,7 @@
       }
     },
     "Delete Key" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -4925,6 +4972,7 @@
       }
     },
     "Invalid or missing API key. Check the key in settings." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -5384,7 +5432,18 @@
         }
       }
     },
+    "Make sure you have a stable internet connection and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upewnij się, że masz stabilne połączenie z internetem, i spróbuj ponownie."
+          }
+        }
+      }
+    },
     "Manage API keys for AI-powered workout parsing and analysis." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -5817,6 +5876,16 @@
         }
       }
     },
+    "No connection" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak połączenia"
+          }
+        }
+      }
+    },
     "No Connection" : {
       "localizations" : {
         "pl" : {
@@ -6050,6 +6119,7 @@
       }
     },
     "No internet connection. Check your network and try again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -6805,6 +6875,16 @@
         }
       }
     },
+    "Pick the photo again, or take a new one." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz zdjęcie ponownie albo zrób nowe."
+          }
+        }
+      }
+    },
     "placeholder" : {
       "localizations" : {
         "pl" : {
@@ -7421,6 +7501,16 @@
         }
       }
     },
+    "Repeating the same scan will not help. Add the plan manually for now." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponowienie tego samego skanu nie pomoże. Na razie dodaj plan ręcznie."
+          }
+        }
+      }
+    },
     "reps" : {
       "shouldTranslate" : false
     },
@@ -7455,6 +7545,7 @@
       }
     },
     "Required for workout parsing via Claude API. Stored securely in Keychain — never sent anywhere except Anthropic." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -7789,6 +7880,7 @@
       }
     },
     "Save Key" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -7870,6 +7962,16 @@
         }
       }
     },
+    "Scan it in two parts — one for each half of the board." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeskanuj go w dwóch częściach — osobno dla każdej połowy tablicy."
+          }
+        }
+      }
+    },
     "Scan Plan" : {
       "localizations" : {
         "pl" : {
@@ -7910,12 +8012,43 @@
         }
       }
     },
+    "Scanning failed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanowanie się nie powiodło"
+          }
+        }
+      }
+    },
     "Scanning failed. Try again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Skanowanie nie powiodło się. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Scanning unavailable" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanowanie niedostępne"
+          }
+        }
+      }
+    },
+    "Scanning unavailable on this device" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skanowanie niedostępne na tym urządzeniu"
           }
         }
       }
@@ -8430,9 +8563,6 @@
         }
       }
     },
-    "sk-ant-..." : {
-      "shouldTranslate" : false
-    },
     "Sleep" : {
       "localizations" : {
         "pl" : {
@@ -8459,6 +8589,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Coś poszło nie tak"
+          }
+        }
+      }
+    },
+    "Something went wrong on our side" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coś poszło nie tak po naszej stronie"
           }
         }
       }
@@ -8807,6 +8947,26 @@
         }
       }
     },
+    "Take a new photo of the board, or add the plan manually." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrób nowe zdjęcie tablicy albo dodaj plan ręcznie."
+          }
+        }
+      }
+    },
+    "Take a new photo, ideally straight at the board and in good light." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrób nowe zdjęcie, najlepiej prosto na tablicę i w dobrym świetle."
+          }
+        }
+      }
+    },
     "Take a photo of your workout notes" : {
       "localizations" : {
         "pl" : {
@@ -9042,6 +9202,7 @@
       }
     },
     "The key is stored securely in the device's Keychain." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -9124,7 +9285,38 @@
         }
       }
     },
+    "The photo could not be turned into a plan" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zamienić zdjęcia w plan"
+          }
+        }
+      }
+    },
+    "The plan could not be read" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się odczytać planu"
+          }
+        }
+      }
+    },
+    "The plan is too long" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan jest za długi"
+          }
+        }
+      }
+    },
     "The plan is too long for one scan. Scan it in two parts." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -9455,7 +9647,18 @@
         }
       }
     },
+    "Too many requests" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zbyt wiele żądań"
+          }
+        }
+      }
+    },
     "Too many requests. Try again in a moment." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -9721,6 +9924,16 @@
         }
       }
     },
+    "Unexpected response" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieoczekiwana odpowiedź"
+          }
+        }
+      }
+    },
     "Universal" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9870,6 +10083,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Objętość tygodniowo"
+          }
+        }
+      }
+    },
+    "Wait a moment and try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odczekaj chwilę i spróbuj ponownie."
           }
         }
       }
@@ -10545,6 +10768,26 @@
         }
       }
     },
+    "You can scan two plans a day. The next scan is available at %@." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dziennie możesz zeskanować dwa plany. Następny skan będzie dostępny o %@."
+          }
+        }
+      }
+    },
+    "You can scan two plans a day. The next scan is available tomorrow." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dziennie możesz zeskanować dwa plany. Następny skan będzie dostępny jutro."
+          }
+        }
+      }
+    },
     "You have no devices connected." : {
       "localizations" : {
         "pl" : {
@@ -10816,6 +11059,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zwiń"
+          }
+        }
+      }
+    },
+    "The service is not responding right now. Try again in a few minutes." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usługa chwilowo nie odpowiada. Spróbuj za kilka minut."
+          }
+        }
+      }
+    },
+    "Close and reopen the app, then try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknij i uruchom aplikację ponownie, potem spróbuj jeszcze raz."
+          }
+        }
+      }
+    },
+    "The scan did not go through. Try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skan się nie powiódł. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "The scanner could not capture the page. Try again." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skaner nie zarejestrował strony. Spróbuj ponownie."
           }
         }
       }
