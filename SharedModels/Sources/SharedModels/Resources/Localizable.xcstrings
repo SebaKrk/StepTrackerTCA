@@ -3746,7 +3746,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erhöht"
+            "value" : "Steigert"
           }
         },
         "es" : {
@@ -4942,7 +4942,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erhöht stark"
+            "value" : "Steigert stark"
           }
         },
         "es" : {
