@@ -24,8 +24,9 @@ const systemPrompt = (kind, language) => {
   return (
     `${base} Respond in ${language}. ` +
     "Write natural, fluent text in that language. Body parts, muscles, stretches and everyday movements " +
-    "must be in that language. Keep the English name only for a movement that has no common name in that " +
-    'language ("Turkish get-up", "toes to bar").'
+    "must be in that language. " +
+    "Never translate a movement name word for word: use the name coaches actually use in that language, " +
+    'and keep the English name when there is none ("Turkish get-up", "toes to bar").'
   );
 };
 
