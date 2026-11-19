@@ -30,6 +30,12 @@
             "state" : "translated",
             "value" : "Media de 7 días: %1$lld %2$@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moyenne sur 7 jours : %1$lld %2$@"
+          }
         }
       }
     },
@@ -39,6 +45,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "FC media"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FC moyenne"
           }
         },
         "pl" : {
@@ -55,6 +67,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Batería por debajo del 5 %"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batterie sous 5 %"
           }
         },
         "pl" : {
@@ -74,6 +92,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Desglose"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Répartition"
           }
         }
       }
@@ -97,6 +121,12 @@
             "value" : "Listo"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminé"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -111,6 +141,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Puntos de esfuerzo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Points d'effort"
           }
         },
         "pl" : {
@@ -140,6 +176,12 @@
             "value" : "Termina el entrenamiento para conservar los datos."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminez l'entraînement pour conserver ses données."
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -154,6 +196,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Terminar entrenamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminer l'entraînement"
           }
         },
         "pl" : {
@@ -171,12 +219,24 @@
             "state" : "translated",
             "value" : "Sin datos"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune donnée"
+          }
         }
       }
     },
     "OK" : {
       "localizations" : {
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
@@ -197,6 +257,12 @@
             "state" : "translated",
             "value" : "Abrir en el iPhone"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir sur l'iPhone"
+          }
         }
       }
     },
@@ -206,6 +272,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pausa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
           }
         },
         "pl" : {
@@ -224,6 +296,12 @@
             "value" : "estimado"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "estimé"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -235,6 +313,12 @@
     "pts" : {
       "localizations" : {
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pts"
+          }
+        },
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "pts"
@@ -255,6 +339,12 @@
             "state" : "translated",
             "value" : "Rango"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plage"
+          }
         }
       }
     },
@@ -264,6 +354,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reanudar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reprendre"
           }
         },
         "pl" : {
@@ -280,6 +376,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Guardando…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement…"
           }
         },
         "pl" : {
@@ -309,6 +411,12 @@
             "value" : "Detener"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -325,6 +433,12 @@
             "value" : "Energía total"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Énergie totale"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -339,6 +453,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tiempo total"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temps total"
           }
         },
         "pl" : {
@@ -368,6 +488,12 @@
             "value" : "Esperando entrenamiento…"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En attente de l'entraînement…"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -382,6 +508,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datos del entrenamiento no disponibles"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Données d'entraînement indisponibles"
           }
         },
         "pl" : {
@@ -400,6 +532,12 @@
             "value" : "Entrenamiento terminado"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entraînement terminé"
+          }
+        },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -414,6 +552,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entrenamiento guardado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entraînement enregistré"
           }
         },
         "pl" : {
