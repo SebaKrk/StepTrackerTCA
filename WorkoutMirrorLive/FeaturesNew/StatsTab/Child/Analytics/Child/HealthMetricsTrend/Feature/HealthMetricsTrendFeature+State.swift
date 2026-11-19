@@ -18,7 +18,7 @@ extension HealthMetricsTrendFeature {
         var subscriptionTier: SubscriptionTier = .basic
 
         /// Minimum subscription tier required to access this feature.
-        let requiredTier: SubscriptionTier = .elite
+        let requiredTier: SubscriptionTier = .pro
 
         /// Current loading state of the chart.
         var viewState: ViewState = .loading

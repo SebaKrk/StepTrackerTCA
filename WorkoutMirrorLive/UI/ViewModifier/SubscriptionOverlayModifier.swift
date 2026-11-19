@@ -59,9 +59,7 @@ struct SubscriptionOverlayModifier: ViewModifier {
         }
         
         switch (subscriptionTier, requiredTier) {
-        case (.basic, .pro), (.basic, .elite):
-            return false
-        case (.pro, .elite):
+        case (.basic, .pro):
             return false
         default:
             return true
@@ -107,22 +105,8 @@ struct SubscriptionOverlayModifier: ViewModifier {
         switch contentState {
         case .ready:
             if !hasAccess {
-                switch subscriptionTier {
-                case .basic:
-                    /// Basic users see "Unlock Pro" prompt
-                    OverlayView.lockedBasic {
-                        onUnlockTapped?()
-                    }
-                case .pro:
-                    /// Pro users see "Go Elite" prompt only if Elite is required
-                    if requiredTier == .elite {
-                        OverlayView.lockedPro {
-                            onUnlockTapped?()
-                        }
-                    }
-                case .elite:
-                    /// Elite users have access to everything
-                    EmptyView()
+                OverlayView.lockedBasic {
+                    onUnlockTapped?()
                 }
             }
             

@@ -192,6 +192,19 @@ struct StatsFeature {
                 
             case let .view(.subscriptionTierButtonTapped(value)):
                 return .send(.changeSubscriptionTier(value))
+
+            case let .view(.trialEndedPreviewButtonTapped(strategy)):
+                state.$subscriptionTier.withLock { $0 = .basic }
+                // Sample numbers until the offer reads the real counts.
+                state.destination = .subscriptionOffer(
+                    SubscriptionOfferFeature.State(
+                        strategyOverride: strategy,
+                        recordedWorkouts: 12,
+                        savedPlans: 9,
+                        personalRecords: 4
+                    )
+                )
+                return .none
                 
                 // MARK: - Destination
                 

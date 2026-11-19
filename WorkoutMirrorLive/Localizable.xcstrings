@@ -94,6 +94,142 @@
         }
       }
     },
+    "Locked: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesperrt: %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloqueados: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verrouillés : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloccati: %lld"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknięte: %lld"
+          }
+        }
+      }
+    },
+    "Older plans in Pro" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ältere Pläne mit Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planes anteriores con Pro"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plans plus anciens avec Pro"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piani precedenti con Pro"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starsze plany w Pro"
+          }
+        }
+      }
+    },
+    "Older workouts in Pro" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ältere Trainings mit Pro"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenamientos anteriores con Pro"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entraînements plus anciens avec Pro"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamenti precedenti con Pro"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starsze treningi w Pro"
+          }
+        }
+      }
+    },
+    "Unlock" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freischalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloquear"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloquer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sblocca"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odblokuj"
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -683,6 +819,40 @@
         }
       }
     },
+    "%@ per month" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ pro Monat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ al mes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ par mois"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ al mese"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ miesięcznie"
+          }
+        }
+      }
+    },
     "%@ scores" : {
       "localizations" : {
         "de" : {
@@ -1010,6 +1180,74 @@
     },
     "%lld BPM" : {
       "shouldTranslate" : false
+    },
+    "%lld days free, then %@ per month" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld Tage kostenlos, danach %2$@ pro Monat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld días gratis, después %2$@ al mes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld jours gratuits, puis %2$@ par mois"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld giorni gratis, poi %2$@ al mese"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld dni za darmo, potem %2$@ miesięcznie"
+          }
+        }
+      }
+    },
+    "%lld days free, then %@ per year" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld Tage kostenlos, danach %2$@ pro Jahr"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld días gratis, después %2$@ al año"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld jours gratuits, puis %2$@ par an"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld giorni gratis, poi %2$@ all’anno"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld dni za darmo, potem %2$@ rocznie"
+          }
+        }
+      }
     },
     "%lld entries" : {
       "localizations" : {
@@ -5736,6 +5974,40 @@
         }
       }
     },
+    "Cancel anytime" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jederzeit kündbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancela cuando quieras"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulez à tout moment"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla quando vuoi"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rezygnujesz, kiedy chcesz"
+          }
+        }
+      }
+    },
     "CAP · %lld left" : {
       "localizations" : {
         "de" : {
@@ -6269,6 +6541,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zamknij"
+          }
+        }
+      }
+    },
+    "Close and reopen the app, then try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließe die App, öffne sie wieder und versuche es dann erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cierra la app, vuelve a abrirla e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermez l'app, rouvrez-la, puis réessayez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiudi e riapri l'app, poi riprova."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknij i uruchom aplikację ponownie, potem spróbuj jeszcze raz."
           }
         }
       }
@@ -7187,6 +7493,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się wczytać tablicy wyników."
+          }
+        }
+      }
+    },
+    "Couldn't load the offer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angebot konnte nicht geladen werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo cargar la oferta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de charger l’offre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile caricare l’offerta"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się wczytać oferty"
           }
         }
       }
@@ -10318,6 +10658,7 @@
       }
     },
     "Elite Feature" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -11052,6 +11393,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Każdy sygnał porównujemy do 7 dni z danymi, szukanych w ostatnich 49. Tydzień bez zegarka sprawia, że aplikacja sięga głębiej w historię, zamiast liczyć średnią z mniejszej liczby dni."
+          }
+        }
+      }
+    },
+    "Everything is unlocked. Cancel anytime before the trial ends." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles ist freigeschaltet. Jederzeit vor Ende der Testphase kündbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo está desbloqueado. Cancela cuando quieras antes de que termine la prueba."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout est débloqué. Annulez à tout moment avant la fin de l’essai."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutto è sbloccato. Annulla quando vuoi prima della fine della prova."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszystko jest odblokowane. Zrezygnujesz w dowolnej chwili przed końcem okresu próbnego."
           }
         }
       }
@@ -11895,6 +12270,40 @@
         }
       }
     },
+    "Full history of workouts and plans" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamter Verlauf von Trainings und Plänen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historial completo de entrenamientos y planes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique complet des entraînements et des plans"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cronologia completa di allenamenti e piani"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cała historia treningów i planów"
+          }
+        }
+      }
+    },
     "General population" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -12145,6 +12554,7 @@
       }
     },
     "Go Elite" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13181,6 +13591,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Najcięższa seria"
+          }
+        }
+      }
+    },
+    "Here is what you recorded in that time." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das hast du in dieser Zeit aufgezeichnet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto es lo que registraste en ese tiempo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voici ce que vous avez enregistré pendant cette période."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ecco cosa hai registrato in questo periodo."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oto, co udało się zapisać w tym czasie."
           }
         }
       }
@@ -16586,6 +17030,40 @@
         }
       }
     },
+    "Monthly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatlich"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensual"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensuel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensile"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miesięczny"
+          }
+        }
+      }
+    },
     "More" : {
       "localizations" : {
         "de" : {
@@ -16616,6 +17094,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Więcej"
+          }
+        }
+      }
+    },
+    "More board scans every day" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr Whiteboard-Scans pro Tag"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más escaneos de la pizarra cada día"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus de scans du tableau chaque jour"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Più scansioni della lavagna ogni giorno"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Więcej skanów tablicy każdego dnia"
           }
         }
       }
@@ -22163,6 +22675,40 @@
         }
       }
     },
+    "Restore Purchases" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Käufe wiederherstellen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar compras"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer les achats"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina acquisti"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywróć zakupy"
+          }
+        }
+      }
+    },
     "Result" : {
       "localizations" : {
         "de" : {
@@ -23118,6 +23664,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zapisz"
+          }
+        }
+      }
+    },
+    "Save %lld%%" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld %% sparen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahorra un %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Économisez %lld %%"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risparmi il %lld%%"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oszczędzasz %lld%%"
           }
         }
       }
@@ -25710,6 +26290,40 @@
         }
       }
     },
+    "Start free trial" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kostenlos testen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar la prueba gratis"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commencer l’essai gratuit"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizia la prova gratuita"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zacznij darmowy okres próbny"
+          }
+        }
+      }
+    },
     "start in 5 min" : {
       "localizations" : {
         "de" : {
@@ -25959,6 +26573,40 @@
         }
       }
     },
+    "Statistics, analytics and exercises" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistik, Analyse und Übungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estadísticas, análisis y ejercicios"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiques, analyses et exercices"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiche, analisi ed esercizi"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statystyki, analiza i ćwiczenia"
+          }
+        }
+      }
+    },
     "Stats" : {
       "comment" : "The Stats Tab presents charts and analytics for workouts and health metrics.",
       "localizations" : {
@@ -26092,6 +26740,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zostań"
+          }
+        }
+      }
+    },
+    "Stay on Basic" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei Basic bleiben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguir con Basic"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rester sur Basic"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resta con Basic"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostań przy Basic"
           }
         }
       }
@@ -27556,6 +28238,40 @@
         }
       }
     },
+    "The purchase didn't go through. Try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Kauf ist fehlgeschlagen. Versuche es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La compra no se completó. Inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’achat n’a pas abouti. Réessayez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’acquisto non è andato a buon fine. Riprova."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakup się nie powiódł. Spróbuj ponownie."
+          }
+        }
+      }
+    },
     "The reader was not sure about: %@." : {
       "localizations" : {
         "de" : {
@@ -27590,6 +28306,74 @@
         }
       }
     },
+    "The scan did not go through. Try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Scan ist fehlgeschlagen. Versuche es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El escaneo no se ha completado. Inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le scan n'a pas abouti. Réessayez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La scansione non è andata a buon fine. Riprova."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skan się nie powiódł. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "The scanner could not capture the page. Try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Scanner konnte die Seite nicht erfassen. Versuche es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El escáner no ha podido capturar la página. Inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le scanner n'a pas pu capturer la page. Réessayez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo scanner non è riuscito ad acquisire la pagina. Riprova."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skaner nie zarejestrował strony. Spróbuj ponownie."
+          }
+        }
+      }
+    },
     "The score knows nothing about stress, alcohol, medication or crossing time zones — only about their traces in the signals. If it says you are ready and you feel broken, trust yourself." : {
       "localizations" : {
         "de" : {
@@ -27620,6 +28404,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wynik nic nie wie o stresie, alkoholu, lekach ani podróży przez strefy czasowe — zna tylko ich ślady w sygnałach. Jeśli mówi, że jesteś gotowy, a czujesz się rozbity, zaufaj sobie."
+          }
+        }
+      }
+    },
+    "The service is not responding right now. Try again in a few minutes." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Dienst antwortet gerade nicht. Versuche es in ein paar Minuten erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servicio no responde ahora mismo. Inténtalo en unos minutos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le service ne répond pas pour le moment. Réessayez dans quelques minutes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il servizio al momento non risponde. Riprova tra qualche minuto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usługa chwilowo nie odpowiada. Spróbuj za kilka minut."
           }
         }
       }
@@ -28938,6 +29756,40 @@
         }
       }
     },
+    "Training readiness with explanation" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainingsbereitschaft mit Erklärung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposición para entrenar con explicación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Préparation à l’entraînement avec explication"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prontezza all’allenamento con spiegazione"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gotowość treningowa z wyjaśnieniem"
+          }
+        }
+      }
+    },
     "trainingTabPicker" : {
       "localizations" : {
         "de" : {
@@ -29143,6 +29995,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Spróbuj ponownie za chwilę."
+          }
+        }
+      }
+    },
+    "Try Pro free for 14 days" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teste Pro 14 Tage kostenlos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba Pro gratis durante 14 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essayez Pro gratuitement pendant 14 jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova Pro gratis per 14 giorni"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wypróbuj Pro za darmo przez 14 dni"
           }
         }
       }
@@ -31750,6 +32636,40 @@
         }
       }
     },
+    "Yearly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jährlich"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anual"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuale"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roczny"
+          }
+        }
+      }
+    },
     "yes" : {
       "localizations" : {
         "de" : {
@@ -32176,6 +33096,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jesteś już w tej grupie."
+          }
+        }
+      }
+    },
+    "Your 14 days of Pro are over" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine 14 Tage Pro sind vorbei"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus 14 días de Pro han terminado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos 14 jours de Pro sont terminés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi 14 giorni di Pro sono finiti"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje 14 dni z Pro dobiegło końca"
           }
         }
       }
@@ -32791,6 +33745,40 @@
         }
       }
     },
+    "Your workouts keep being saved and nothing is lost. Without Pro you open the 3 most recent." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Trainings werden weiter gespeichert, nichts geht verloren. Ohne Pro öffnest du die 3 letzten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus entrenamientos se siguen guardando y nada se pierde. Sin Pro abres los 3 últimos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos entraînements continuent d’être enregistrés et rien ne disparaît. Sans Pro, vous ouvrez les 3 derniers."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi allenamenti continuano a essere salvati e nulla va perso. Senza Pro apri gli ultimi 3."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje treningi dalej się zapisują i nic nie znika. Bez Pro otwierasz 3 ostatnie."
+          }
+        }
+      }
+    },
     "Zamknij" : {
       "localizations" : {
         "de" : {
@@ -32866,142 +33854,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zwiń"
-          }
-        }
-      }
-    },
-    "The service is not responding right now. Try again in a few minutes." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Dienst antwortet gerade nicht. Versuche es in ein paar Minuten erneut."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El servicio no responde ahora mismo. Inténtalo en unos minutos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le service ne répond pas pour le moment. Réessayez dans quelques minutes."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il servizio al momento non risponde. Riprova tra qualche minuto."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usługa chwilowo nie odpowiada. Spróbuj za kilka minut."
-          }
-        }
-      }
-    },
-    "Close and reopen the app, then try again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schließe die App, öffne sie wieder und versuche es dann erneut."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cierra la app, vuelve a abrirla e inténtalo de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fermez l'app, rouvrez-la, puis réessayez."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chiudi e riapri l'app, poi riprova."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zamknij i uruchom aplikację ponownie, potem spróbuj jeszcze raz."
-          }
-        }
-      }
-    },
-    "The scan did not go through. Try again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Scan ist fehlgeschlagen. Versuche es erneut."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El escaneo no se ha completado. Inténtalo de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le scan n'a pas abouti. Réessayez."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La scansione non è andata a buon fine. Riprova."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skan się nie powiódł. Spróbuj ponownie."
-          }
-        }
-      }
-    },
-    "The scanner could not capture the page. Try again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Scanner konnte die Seite nicht erfassen. Versuche es erneut."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El escáner no ha podido capturar la página. Inténtalo de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le scanner n'a pas pu capturer la page. Réessayez."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lo scanner non è riuscito ad acquisire la pagina. Riprova."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skaner nie zarejestrował strony. Spróbuj ponownie."
           }
         }
       }

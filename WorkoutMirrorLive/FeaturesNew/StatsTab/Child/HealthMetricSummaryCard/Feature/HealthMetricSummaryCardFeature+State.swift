@@ -21,7 +21,7 @@ extension HealthMetricSummaryCardFeature {
         //@Shared var subscriptionTier: SubscriptionTier
         
         ///
-        var requiredTier: SubscriptionTier = .elite
+        var requiredTier: SubscriptionTier = .pro
         
         ///
         var contentState: ContentState = .loading

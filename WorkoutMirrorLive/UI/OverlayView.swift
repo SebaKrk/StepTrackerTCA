@@ -71,18 +71,6 @@ extension OverlayView {
         )
     }
 
-    static func lockedPro(action: @escaping () -> Void) -> OverlayView {
-        OverlayView(
-            icon: "lock.fill",
-            iconColor: .orange,
-            title: String(localized: "Elite Feature", bundle: .main),
-            buttonIcon: "flame.fill",
-            buttonText: String(localized: "Go Elite", bundle: .main),
-            buttonColor: .orange,
-            action: action
-        )
-    }
-    
     static func unauthorized(action: @escaping () -> Void) -> OverlayView {
         OverlayView(
             icon: "heart.text.square.fill",
