@@ -226,33 +226,10 @@ struct PersonalActivityView: View {
             }
         }
         .styledGroupBox()
-        .blur(radius: store.state.isLocked(workout) ? 3 : 0)
-        .allowsHitTesting(!store.state.isLocked(workout))
-        .overlay {
-            if store.state.isLocked(workout) {
-                lockedOverlay(workout)
-            }
-        }
-        .animation(.default, value: store.subscriptionTier)
-        .padding(4)
-    }
-
-    private func lockedOverlay(_ workout: HKWorkout) -> some View {
-        Button {
+        .proLocked(store.state.isLocked(workout)) {
             send(.openDetails(workout))
-        } label: {
-            lockBadge
         }
-        .buttonStyle(.plain)
-        .transition(.opacity)
-    }
-
-    private var lockBadge: some View {
-        Image(systemName: "lock.fill")
-            .font(.title2)
-            .foregroundStyle(.yellow)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
+        .padding(4)
     }
 
     @ViewBuilder

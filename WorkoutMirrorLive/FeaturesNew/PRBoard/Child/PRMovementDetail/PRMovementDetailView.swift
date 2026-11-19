@@ -270,21 +270,9 @@ struct PRMovementDetailView: View {
         }
         .padding(16)
         .prCard()
-        .blur(radius: store.isProgressLocked ? 3 : 0)
-        .allowsHitTesting(!store.isProgressLocked)
-        .overlay {
-            if store.isProgressLocked {
-                lockedProgressOverlay
-            }
-        }
-        .animation(.default, value: store.isProgressLocked)
-    }
-
-    private var lockedProgressOverlay: some View {
-        OverlayView.lockedBasic {
+        .proLocked(store.isProgressLocked, style: .prompt) {
             send(.unlockTapped)
         }
-        .transition(.opacity)
     }
 
     private var chartYearChips: some View {
@@ -452,25 +440,9 @@ struct PRMovementDetailView: View {
         VStack(spacing: 0) {
             historyRowList(store.lockedHistoryEntries)
         }
-        .blur(radius: 3)
-        .allowsHitTesting(false)
-        .overlay {
-            lockedHistoryButton
-        }
-    }
-
-    private var lockedHistoryButton: some View {
-        Button {
+        .proLocked(true) {
             send(.unlockTapped)
-        } label: {
-            Image(systemName: "lock.fill")
-                .font(.title2)
-                .foregroundStyle(.yellow)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .transition(.opacity)
     }
 
     private func historyRow(_ entry: PREntry) -> some View {

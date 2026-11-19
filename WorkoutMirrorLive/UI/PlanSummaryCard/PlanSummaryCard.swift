@@ -31,33 +31,10 @@ struct PlanSummaryCard: View {
             cardLabel
         }
         .styledGroupBox()
-        .blur(radius: isLocked ? 3 : 0)
-        .allowsHitTesting(!isLocked)
-        .overlay {
-            if isLocked {
-                lockedOverlay
-            }
-        }
-        .animation(.default, value: isLocked)
-        .padding(4)
-    }
-
-    private var lockedOverlay: some View {
-        Button {
+        .proLocked(isLocked) {
             onTap()
-        } label: {
-            lockBadge
         }
-        .buttonStyle(.plain)
-        .transition(.opacity)
-    }
-
-    private var lockBadge: some View {
-        Image(systemName: "lock.fill")
-            .font(.title2)
-            .foregroundStyle(.yellow)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
+        .padding(4)
     }
 
     private var cardLabel: some View {

@@ -59,9 +59,9 @@ struct UnlockOlderItemsBanner: View {
     private var crownBadge: some View {
         Image(systemName: "crown.fill")
             .font(.subheadline)
-            .foregroundStyle(.yellow)
+            .foregroundStyle(ProGold.lock)
             .frame(width: 36, height: 36)
-            .background(.yellow.opacity(0.15), in: Circle())
+            .background(ProGold.lock.opacity(0.15), in: Circle())
     }
 
     private var titleText: some View {
@@ -82,16 +82,11 @@ struct UnlockOlderItemsBanner: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(gold, in: Capsule())
+            .background(ProGold.gradient, in: Capsule())
     }
 
     private var border: some View {
         RoundedRectangle(cornerRadius: 16)
-            .stroke(gold, lineWidth: 2)
-    }
-
-    // Gold on purpose, the same as every other lock: it must not follow the readiness colour.
-    private var gold: LinearGradient {
-        LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
+            .stroke(ProGold.gradient, lineWidth: 2)
     }
 }

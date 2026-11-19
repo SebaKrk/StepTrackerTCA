@@ -47,11 +47,7 @@ struct OverlayView: View {
     @ViewBuilder
     private var buttonBackground: some View {
         if case .yellow = buttonColor {
-            LinearGradient(
-                colors: [.yellow, .orange],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
+            ProGold.gradient
         } else {
             buttonColor
         }

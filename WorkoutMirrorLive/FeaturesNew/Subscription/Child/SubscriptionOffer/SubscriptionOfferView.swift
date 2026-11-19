@@ -142,7 +142,7 @@ struct SubscriptionOfferView: View {
                 .padding(.vertical, 6)
         }
         .buttonStyle(.glassProminent)
-        .tint(goldAccent)
+        .tint(ProGold.accent)
         .disabled(store.isPurchasing || store.selectedProduct == nil)
     }
 
@@ -194,7 +194,7 @@ struct SubscriptionOfferView: View {
     private var crownBadge: some View {
         Image(systemName: "crown.fill")
             .font(.title)
-            .foregroundStyle(gold)
+            .foregroundStyle(ProGold.gradient)
             .frame(width: 64, height: 64)
             .glassEffect(in: Circle())
     }
@@ -245,7 +245,7 @@ struct SubscriptionOfferView: View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Image(systemName: "checkmark")
                 .font(.subheadline.bold())
-                .foregroundStyle(goldAccent)
+                .foregroundStyle(ProGold.accent)
             Text(text)
                 .font(.subheadline)
         }
@@ -288,7 +288,7 @@ struct SubscriptionOfferView: View {
         .glassEffect(in: RoundedRectangle(cornerRadius: 16))
         .overlay {
             RoundedRectangle(cornerRadius: 16)
-                .stroke(gold, lineWidth: 2)
+                .stroke(ProGold.gradient, lineWidth: 2)
                 .opacity(product.id == store.selectedProductID ? 1 : 0)
         }
     }
@@ -322,10 +322,10 @@ struct SubscriptionOfferView: View {
     private func savingsBadge(_ percent: Int) -> some View {
         Text("Save \(percent)%")
             .font(.caption.bold())
-            .foregroundStyle(goldAccent)
+            .foregroundStyle(ProGold.accent)
             .padding(.horizontal, 8)
             .padding(.vertical, 2)
-            .background(goldAccent.opacity(0.15), in: Capsule())
+            .background(ProGold.accent.opacity(0.15), in: Capsule())
     }
 
     @ViewBuilder
@@ -375,21 +375,11 @@ struct SubscriptionOfferView: View {
 
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: [Color.yellow.opacity(0.25), .clear],
+            colors: [ProGold.lock.opacity(0.25), .clear],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
         .ignoresSafeArea()
-    }
-
-    // Gold on purpose, the same as every other lock: it must not follow the readiness colour.
-    private var gold: LinearGradient {
-        LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
-    }
-
-    /// The solid gold for text-sized marks, where the pale end of the gradient would not read.
-    private var goldAccent: Color {
-        .orange
     }
 }
 
