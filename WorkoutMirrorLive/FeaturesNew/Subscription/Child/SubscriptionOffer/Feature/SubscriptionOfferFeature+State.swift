@@ -14,10 +14,6 @@ extension SubscriptionOfferFeature {
     @ObservableState
     struct State: Equatable {
 
-        /// The tier the whole app reads; a purchase raises it to Pro.
-        @Shared(.appStorage(.subscriptionTier))
-        var subscriptionTier: SubscriptionTier = .basic
-
         /// A strategy forced by whoever opened the offer; `nil` asks the storefront.
         var strategyOverride: TrialStrategy?
 

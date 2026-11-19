@@ -23,6 +23,7 @@ struct AppTabNewFeature {
     @Dependency(\.exerciseCatalogClient) var exerciseCatalogClient
     @Dependency(\.userProfileClient) var userProfileClient
     @Dependency(\.teamClient) var teamClient
+    @Dependency(\.subscriptionClient) var subscriptionClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
 
@@ -88,6 +89,10 @@ struct AppTabNewFeature {
                         }
                     }
                     .cancellable(id: AppTabNewCancelID.watchSavedEventListener, cancelInFlight: true),
+                    // The stored tier is only a copy; the client settles what it should be.
+                    .run { [subscriptionClient] _ in
+                        _ = await subscriptionClient.refreshTier()
+                    },
                     // One-time catalog re-match (guarded by a stored version):
                     // repairs historical `.unknown` exercise logs and plans after
                     // the ExerciseType catalog was extended.

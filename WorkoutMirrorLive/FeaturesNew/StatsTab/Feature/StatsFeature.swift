@@ -19,6 +19,7 @@ struct StatsFeature {
     
     @Dependency(\.authorizationManager) var authorizationManager
     @Dependency(\.dataAnalyzerClient) var dataAnalyzerClient 
+    @Dependency(\.subscriptionClient) var subscriptionClient
     @Dependency(\.trainingReadinessBackgroundManager) var trainingReadinessBackgroundManager
     @Dependency(\.trainingReadinessClient) var trainingReadinessClient
     
@@ -74,8 +75,9 @@ struct StatsFeature {
                 return .none
 
             case let .changeSubscriptionTier(value):
-                state.$subscriptionTier.withLock { $0 = value }
-                return .none
+                return .run { _ in
+                    await subscriptionClient.overrideTier(value)
+                }
                 
             case let .updateDataAnalyzer(isAvailable):
                 state.isDataAnalyzerAvailable = isAvailable
@@ -194,7 +196,6 @@ struct StatsFeature {
                 return .send(.changeSubscriptionTier(value))
 
             case let .view(.trialEndedPreviewButtonTapped(strategy)):
-                state.$subscriptionTier.withLock { $0 = .basic }
                 // Sample numbers until the offer reads the real counts.
                 state.destination = .subscriptionOffer(
                     SubscriptionOfferFeature.State(
@@ -204,7 +205,9 @@ struct StatsFeature {
                         personalRecords: 4
                     )
                 )
-                return .none
+                return .run { _ in
+                    await subscriptionClient.overrideTier(.basic)
+                }
                 
                 // MARK: - Destination
                 

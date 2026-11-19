@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SharedModels
 
 extension SubscriptionClient {
 
@@ -25,6 +26,15 @@ extension SubscriptionClient {
         },
         hasActiveSubscription: {
             await StoreKitSubscriptionService.shared.hasActiveSubscription()
+        },
+        refreshTier: {
+            let isActive = await StoreKitSubscriptionService.shared.hasActiveSubscription()
+            let tier: SubscriptionTier = isActive ? .pro : .basic
+            StoredSubscriptionTier.set(tier)
+            return tier
+        },
+        overrideTier: { tier in
+            StoredSubscriptionTier.set(tier)
         }
     )
 }

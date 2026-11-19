@@ -6,10 +6,13 @@
 //
 
 import Foundation
+import SharedModels
 
 extension SubscriptionClient {
 
     /// A stand-in for the App Store: fixed products, and every purchase succeeds.
+    ///
+    /// The stored tier is its whole idea of an entitlement, so a refresh changes nothing.
     static let mock = SubscriptionClient(
         trialStrategy: {
             .appManaged
@@ -36,13 +39,20 @@ extension SubscriptionClient {
         },
         purchase: { _ in
             try await Task.sleep(for: .milliseconds(700))
+            StoredSubscriptionTier.set(.pro)
             return .purchased
         },
         restorePurchases: {
             false
         },
         hasActiveSubscription: {
-            false
+            StoredSubscriptionTier.current == .pro
+        },
+        refreshTier: {
+            StoredSubscriptionTier.current
+        },
+        overrideTier: { tier in
+            StoredSubscriptionTier.set(tier)
         }
     )
 }

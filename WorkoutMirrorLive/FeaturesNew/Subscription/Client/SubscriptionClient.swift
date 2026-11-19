@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedModels
 
 /// The one boundary every purchase goes through, so no screen talks to the App Store itself.
 @DependencyClient
@@ -26,6 +27,12 @@ struct SubscriptionClient: Sendable {
 
     /// Whether a subscription is active right now.
     var hasActiveSubscription: @Sendable () async -> Bool = { false }
+
+    /// Works out the tier the user is entitled to, stores it, and returns it.
+    var refreshTier: @Sendable () async -> SubscriptionTier = { .basic }
+
+    /// Forces a tier, for the developer menu.
+    var overrideTier: @Sendable (SubscriptionTier) async -> Void
 }
 
 extension DependencyValues {

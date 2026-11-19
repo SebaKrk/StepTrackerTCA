@@ -44,7 +44,7 @@ struct SubscriptionOfferFeature {
             case let .internal(.purchaseFinished(outcome)):
                 state.isPurchasing = false
                 guard outcome == .purchased else { return .none }
-                return unlockPro(&state)
+                return refreshTierAndClose()
 
             case .internal(.purchaseFailed):
                 state.isPurchasing = false
@@ -54,7 +54,7 @@ struct SubscriptionOfferFeature {
             case let .internal(.restoreFinished(isActive)):
                 state.isPurchasing = false
                 guard isActive else { return .none }
-                return unlockPro(&state)
+                return refreshTierAndClose()
 
                 // MARK: - View Actions
 
@@ -114,10 +114,10 @@ struct SubscriptionOfferFeature {
 
     // MARK: - Helpers
 
-    /// Raises the shared tier to Pro and closes the offer.
-    private func unlockPro(_ state: inout State) -> Effect<Action> {
-        state.$subscriptionTier.withLock { $0 = .pro }
-        return .run { _ in
+    /// Lets the client store the tier the purchase earned, then closes the offer.
+    private func refreshTierAndClose() -> Effect<Action> {
+        .run { _ in
+            _ = await subscriptionClient.refreshTier()
             await dismiss()
         }
     }
