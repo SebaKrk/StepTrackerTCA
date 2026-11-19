@@ -1833,3 +1833,11 @@
     - the scan system prompt is no longer cached: writing it costs 25% more and nothing reads it below roughly 70 scans a day
     - Generate on the workout preview uses `.glassProminent`, matching the invitation row's primary button — the plain glass pill looked disabled
     - debug builds carry their own icon, the regular one under a white DEV ribbon (`AppIconDev`, source in `Design/AppIcon/AppIcon-dev-master.svg`), so a development install is told apart from a release one on the home screen; Release keeps `AppIcon`
+
+### IOS-00191 The app speaks German, French, Spanish and Italian
+    - branch: `dev/IOS-00191/IOS-00191` (from develop)
+    - the app shipped in English and Polish only, while most of its European audience reads neither: German is the most common mother tongue in the EU, France is the largest CrossFit market in Europe, and Spain and Italy pair many boxes with weaker English. The four languages are added to every String Catalog in use — the app, the shared models, the Watch app and GymRoom — one commit per language
+    - keys marked `shouldTranslate: false` and keys Xcode reports as stale are left alone; a stale key is no longer read by any code
+    - format specifiers are checked against the source for every entry before a catalog is written, so a translation can reorder words but never drop or retype a placeholder
+    - training shorthand stays as athletes write it on the board (AMRAP, EMOM, WOD, Rx, PR)
+    - warm-up and cool-down cues need no change: the server already writes in the language the app sends, and that language follows the app's own localization
