@@ -87,10 +87,11 @@ struct StatsView: View {
             }
             .matchedTransitionSource(id: "prBoard", in: zoomTransition)
         } else {
+#if DEBUG
+            // A developer's switch: a shipped build must not let anyone pick their own tier.
             ToolbarItem(placement: .topBarLeading) {
                 subscriptionTierMenu
             }
-#if DEBUG
             let showDataAnalyzerButton = true
 #else
             let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier.opens(.dataAnalyzer)
