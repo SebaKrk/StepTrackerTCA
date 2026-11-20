@@ -128,6 +128,40 @@
         }
       }
     },
+    "No time cap on the board. Tap OK to keep it without a limit — only the finish time is recorded." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Time Cap am Whiteboard. Tippe auf OK, um ohne Limit zu speichern — erfasst wird nur die Endzeit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay límite de tiempo en la pizarra. Toca OK para dejarlo sin límite — solo se registra el tiempo final."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas de temps limite au tableau. Touchez OK pour garder sans limite — seul le temps final est enregistré."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun time cap sulla lavagna. Tocca OK per lasciarlo senza limite — viene registrato solo il tempo finale."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak limitu czasu na tablicy. Stuknij OK, aby zostawić bez limitu — zapisze się tylko czas ukończenia."
+          }
+        }
+      }
+    },
     "Older plans in Pro" : {
       "localizations" : {
         "de" : {
@@ -12129,40 +12163,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Na razie dołączaj do prywatnych grup kodem QR od znajomego."
-          }
-        }
-      }
-    },
-    "For Time without a cap — a DNF cannot be recorded." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For Time ohne Cap — ein DNF kann nicht erfasst werden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For Time sin límite — no se puede registrar un DNF."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For Time sans temps limite — impossible d'enregistrer un DNF."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For Time senza cap — non si può registrare un DNF."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For Time bez limitu czasu. Nie da się zapisać nieukończenia."
           }
         }
       }

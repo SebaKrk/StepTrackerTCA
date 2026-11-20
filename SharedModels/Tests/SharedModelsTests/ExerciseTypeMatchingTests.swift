@@ -48,6 +48,11 @@ struct ExerciseTypeMatchingTests {
         ("handstand shoulder taps", .handstandShoulderTaps),
         ("overhead carry", .overheadCarry),
         ("bear hug carries", .bearHugCarry),
+        ("Sled Push", .sledPush),
+        ("Sled Pull", .sledPull),
+        ("Sandbag Carry", .sandbagCarry),
+        ("Sandbag Lunges", .lunges),
+        ("Sandbag Walking Lunges", .lunges),
         ("triceps plate extension", .tricepsExtension),
         ("plate raise", .plateRaise),
         ("landmine anti-rotation", .landmineAntiRotation),
@@ -143,6 +148,7 @@ struct ExerciseTypeMatchingTests {
         #expect(ExerciseType.matched(fromRawName: "1,600-meter run") == .running)
         #expect(ExerciseType.matched(fromRawName: "500m row") == .rowing)
         #expect(ExerciseType.matched(fromRawName: "2 km bike") == .cycling)
+        #expect(ExerciseType.matched(fromRawName: "1000m SkiErg") == .skiErg)
     }
 
     @Test("Unrecognized names still fall back to .unknown")
@@ -257,7 +263,7 @@ struct ExerciseTypeMatchingTests {
 
     @Test("Catalog version is bumped so the re-match job replays old unknowns")
     func catalogVersionBumped() {
-        #expect(ExerciseType.catalogVersion >= 9)
+        #expect(ExerciseType.catalogVersion >= 10)
     }
 
     @Test("The burpee family resolves each variant to its own movement")

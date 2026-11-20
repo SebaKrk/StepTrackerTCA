@@ -1857,3 +1857,27 @@
     - the stored tier has one writer, `SubscriptionClient`; the offer screen and the developer menu ask it, and the app asks it on launch. Screens still read the stored tier, so they react at once
     - every locked surface goes through `.proLocked` and `ProGold`; four hand-made locks and three copies of the gradient are gone
     - the widget and the Watch showed readiness to everyone: they only display what the iPhone sends, and the iPhone sent it from two places without looking at the tier. `ReadinessBroadcaster` is now the only sender; under Basic it sends a lock that replaces the last score, and a tier change sends again
+
+### IOS-00193 The catalog knows the sled and the sandbag
+    - branch: `dev/IOS-00193/IOS-00193` (from develop)
+    - a run-and-stations race session scanned with three stations falling into "unknown": Sled Push, Sled Pull and Sandbag Lunges. The other five stations already resolved
+    - the sled is two movements of its own, each always loaded; the sandbag is an implement, so "Sandbag Lunges" is lunges done with a sandbag rather than a ninth kind of lunge
+    - "Sandbag Carry" was filed under Bear Hug Carry, which is a different carry; it is now its own movement and the alias is gone from the bear hug
+    - a hand-typed "1000m SkiErg" resolves through the distance suffix, like a run or a row
+    - catalog version 10, so the re-match job replays the unknowns already stored
+    - the board reader took "8 rounds for time: 1 km run + station" for strength and for eight rounds of everything; it now reads one For Time block with the run written before each station
+    - the scan form asks for what is on the board first and for the judgments last: a transcription, then format, times and movements, then rounds, kind and activity. The model fills the form top to bottom, so its conclusions now follow its evidence
+    - coach shorthand is expanded (BBJ, FC, SB, WB and friends), and a movement name never carries the list marker, the distance or the load
+    - a For Time without a cap blocked Save and sent the user to the editor; the app could always store one, so the review card now asks for an OK instead
+    - a long plan did not fit a QR code. Identifiers were over half of it and the receiver throws them away, so the QR code leaves them out and the reader mints new ones. Team plans keep the full envelope, which older builds still read
+
+### IOS-00194 Fitness Run: the run is written once, the stations are the list (planned)
+    - branch: not created yet (from develop, after IOS-00193 is merged)
+    - today a run-and-stations race is a For Time block of 16 movements, the same run repeated before every station: a long plan, a wall of fields in the summary, a dense QR code
+    - the block stays For Time and gains an optional `fitnessRun` (the run done before every station), next to `interval`; blocks without it are untouched and stored plans keep working
+    - scan: the form gets the run-before-each-station field and the reader stops repeating the run; the brand name leaves the prompt
+    - plan and summary: one line for the run above numbered stations; summary rows are plain text and only the tapped row shows fields, with the plan shown only where the result differs
+    - editor: a "run before every station" switch with its distance
+    - editor, every block type: drag handles to reorder movements. The reducer already handles `exerciseMoved`, the view never sends it
+    - live session and Watch: to be explored before any promise
+    - open: the time field stops at 99 minutes, and these sessions run longer

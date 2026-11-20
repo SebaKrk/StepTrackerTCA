@@ -134,6 +134,11 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     case overheadCarry
     case bearHugCarry
 
+    // Sled and sandbag stations (catalog v10)
+    case sledPush
+    case sledPull
+    case sandbagCarry
+
     // Olympic umbrella (catalog v2)
     case shoulderToOverhead
 
@@ -258,6 +263,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .boxStepOvers: return "Box Step-overs"
         case .overheadCarry: return "Overhead Carry"
         case .bearHugCarry: return "Bear Hug Carry"
+        case .sledPush: return "Sled Push"
+        case .sledPull: return "Sled Pull"
+        case .sandbagCarry: return "Sandbag Carry"
         case .shoulderToOverhead: return "Shoulder to Overhead"
         case .catCow: return "Cat-Cow"
         case .birdDog: return "Bird Dog"
@@ -495,7 +503,13 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .overheadCarry:
             return ["overhead carry", "overhead carries", "OH carry", "overhead walk"]
         case .bearHugCarry:
-            return ["bear hug carry", "bear hug carries", "bear hug walk", "sandbag carry", "sandbag carries"]
+            return ["bear hug carry", "bear hug carries", "bear hug walk"]
+        case .sledPush:
+            return ["sled push", "sled pushes", "prowler push", "sled drive"]
+        case .sledPull:
+            return ["sled pull", "sled pulls", "sled drag", "rope sled pull"]
+        case .sandbagCarry:
+            return ["sandbag carry", "sandbag carries", "sandbag walk"]
         case .shoulderToOverhead:
             return ["shoulder to overhead", "shoulders to overhead", "shoulder-to-overhead", "S2O", "STOH", "STO"]
         case .catCow:
@@ -566,6 +580,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .burpees, .airSquat, .boxJumps, .doubleUnders, .wallBalls, .devilPress, .burpeeBoxJumps,
              .burpeeOverBar, .lunges, .mountainClimbers, .farmersCarry,
              .boxStepUps, .boxStepOvers, .overheadCarry, .bearHugCarry,
+             .sledPush, .sledPull, .sandbagCarry,
              .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps,
              .burpeePullUps, .burpeeOverDumbbell, .burpeeBoxJumpOvers,
              .burpeeBroadJump, .burpeeToTarget:
@@ -592,7 +607,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// (e.g. Wall Balls always use a 6/9/14kg medicine ball).
     public var requiresWeight: Bool {
         switch self {
-        case .farmersCarry, .overheadCarry, .bearHugCarry:
+        case .farmersCarry, .overheadCarry, .bearHugCarry, .sledPush, .sledPull, .sandbagCarry:
             return true
         default:
             return category == .strength || category == .olympicLifting
@@ -635,6 +650,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         case .wallBalls, .ballSlam, .medicineBallSquat, .medicineBallBoxStepUps:
             return .medicineBall
 
+        case .sandbagCarry:
+            return .sandbag
+
         default:
             return nil
         }
@@ -652,7 +670,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
     /// re-runs when its stored version is lower — same contract as the
     /// effort-points weights version: results frozen in the database are only
     /// recomputed through an explicit, versioned pass.
-    public static let catalogVersion = 9
+    public static let catalogVersion = 10
 
     // MARK: Name normalisation
 
@@ -709,6 +727,7 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         ("dumbbells", .dumbbell), ("dumbbell", .dumbbell), ("db", .dumbbell),
         ("kettlebells", .kettlebell), ("kettlebell", .kettlebell), ("kb", .kettlebell),
         ("barbell", .barbell), ("bb", .barbell),
+        ("sandbags", .sandbag), ("sandbag", .sandbag),
     ]
 
     /// Removes one implement token from an already normalized name.
@@ -754,6 +773,9 @@ public enum ExerciseType: String, CaseIterable, Codable, Sendable {
         }
         if name.hasSuffix("bike") || name.contains("meter bike") || name.contains("km bike") {
             return .cycling
+        }
+        if name.hasSuffix("ski erg") || name.hasSuffix("skierg") {
+            return .skiErg
         }
         return nil
     }
