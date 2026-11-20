@@ -37,7 +37,21 @@ struct SharedPlanCodecTests {
         let encoded = try SharedPlanCodec.encode(plan: plan, exportedAt: exportedAt)
         let decoded = try SharedPlanCodec.decode(encoded)
         #expect(decoded.plan == plan)
-        #expect(decoded.schemaVersion == SharedPlanCodec.currentSchemaVersion)
+        #expect(decoded.schemaVersion == SharedPlanCodec.identifiedSchemaVersion)
+    }
+
+    @Test("QR encoding drops the identifiers and keeps the plan")
+    func qrRoundTrip() throws {
+        let plan = fixedDatePlan
+        let full = try SharedPlanCodec.encode(plan: plan, exportedAt: exportedAt)
+        let slim = try SharedPlanCodec.encodeForQR(plan: plan, exportedAt: exportedAt)
+        let decoded = try SharedPlanCodec.decode(slim).plan
+        #expect(slim.utf8.count < full.utf8.count)
+        #expect(decoded.id != plan.id)
+        #expect(decoded.title == plan.title)
+        #expect(decoded.workouts.map(\.name) == plan.workouts.map(\.name))
+        #expect(decoded.workouts.map { $0.exercises.map(\.type) } == plan.workouts.map { $0.exercises.map(\.type) })
+        #expect(decoded.workouts.flatMap(\.exercises).map(\.target) == plan.workouts.flatMap(\.exercises).map(\.target))
     }
 
     @Test("decode rejects a newer schema version")
@@ -48,7 +62,7 @@ struct SharedPlanCodecTests {
             plan: .previewTrainingSession
         )
         let encoded = try SharedPlanCodec.encode(future)
-        #expect(throws: SharedPlanCodecError.unsupportedVersion(found: 999, supported: 1)) {
+        #expect(throws: SharedPlanCodecError.unsupportedVersion(found: 999, supported: SharedPlanCodec.currentSchemaVersion)) {
             try SharedPlanCodec.decode(encoded)
         }
     }

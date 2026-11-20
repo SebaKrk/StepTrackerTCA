@@ -28,6 +28,11 @@ public final class WidgetDataManager: @unchecked Sendable {
     public func load() -> WidgetReadinessData? {
         storage.load(forKey: key)
     }
+    /// Records whether the widget's readiness needs Pro.
+    public func setLocked(_ isLocked: Bool) {
+        storage.set(isLocked, forKey: AppGroup.readinessLockedKey)
+    }
+
     /// Requires removing widget readiness data.
     public func clear() {
         storage.remove(forKey: key)

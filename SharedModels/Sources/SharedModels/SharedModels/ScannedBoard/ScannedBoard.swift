@@ -41,6 +41,12 @@ public struct ScannedBoard: Codable, Sendable, Equatable {
         self.sections = sections
     }
 
+    /// Newest board form this build reads; the proxy shapes its reply for the form the caller names.
+    ///
+    /// Form 2 added `runBeforeEachMeters`: a caller on form 1 gets the run written out before each station instead.
+    /// Form 3 added `repSchemeContinues`: a caller below it gets an open ladder as a note.
+    public static let formVersion = 3
+
     /// Blocks that become workouts; warm-up / cool-down text is not a workout.
     public var workoutSections: [ScannedSection] {
         sections.filter { $0.kind != .warmup && $0.kind != .cooldown }

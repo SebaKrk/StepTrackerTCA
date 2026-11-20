@@ -12,12 +12,7 @@ extension ReadinessTrendView {
 
     // MARK: - Annotation Popup
 
-    /// The value under the scrubber.
-    ///
-    /// On material rather than `secondarySystemBackground`: the chart sits on a
-    /// tinted wash over a dark card, and a flat fill of that colour came out all
-    /// but invisible. The level keeps its own colour here, so the popup names the
-    /// same thing the point under it already shows.
+    /// The value under the scrubber, in the same opaque container as the health metrics trend.
     func annotationPopup(score: Int, level: ReadinessLevel) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text("\(score)")
@@ -28,15 +23,11 @@ extension ReadinessTrendView {
                 .font(.caption2)
                 .foregroundStyle(level.color)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+        .padding(8)
         .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(.regularMaterial)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(level.color.opacity(0.5), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
         )
     }
 }

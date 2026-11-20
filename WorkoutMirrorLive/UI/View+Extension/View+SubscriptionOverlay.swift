@@ -18,7 +18,7 @@ extension View {
     /// - Parameters:
     ///   - contentState: The current state of the content
     ///   - subscriptionTier: The user's current subscription level
-    ///   - requiredTier: The minimum subscription level required for this content
+    ///   - feature: The Pro feature this content belongs to
     ///   - onUnlockTapped: Optional closure called when upgrade button is tapped
     ///   - onHealthAccessTapped: Optional closure called when health access is needed
     ///   - onRetryTapped: Optional closure called when retry button is tapped
@@ -31,7 +31,7 @@ extension View {
     ///     .subscriptionOverlay(
     ///         contentState: store.contentState,
     ///         subscriptionTier: store.subscriptionTier,
-    ///         requiredTier: .pro,
+    ///         feature: .readiness,
     ///         onUnlockTapped: {
     ///             store.send(.unlockButtonTapped)
     ///         }
@@ -40,7 +40,7 @@ extension View {
     func subscriptionOverlay(
         contentState: ContentState,
         subscriptionTier: SubscriptionTier,
-        requiredTier: SubscriptionTier,
+        feature: ProFeature,
         onUnlockTapped: (() -> Void)? = nil,
         onHealthAccessTapped: (() -> Void)? = nil,
         onRetryTapped: (() -> Void)? = nil
@@ -49,7 +49,7 @@ extension View {
             SubscriptionOverlayModifier(
                 contentState: contentState,
                 subscriptionTier: subscriptionTier,
-                requiredTier: requiredTier,
+                feature: feature,
                 onUnlockTapped: onUnlockTapped,
                 onHealthAccessTapped: onHealthAccessTapped,
                 onRetryTapped: onRetryTapped

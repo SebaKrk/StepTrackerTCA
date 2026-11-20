@@ -181,4 +181,251 @@ struct WODScoringFeatureTests {
         await store.send(.view(.addNoteTapped))
         await store.send(.view(.updateRounds(4)))
     }
+
+    // MARK: - Fitness run
+
+    /// Three stations behind a 1000 m run, built the way the results builder writes them:
+    /// the whole run first, then one row per station.
+    private static func fitnessRunState() -> WODScoringFeature.State {
+        let run = ExerciseTarget.meters(3000)
+        let ski = ExerciseTarget.meters(1000)
+        let sled = ExerciseTarget.meters(50)
+        let wallBalls = ExerciseTarget.reps(100)
+        return WODScoringFeature.State(
+            wodIndex: 0,
+            result: WorkoutSessionResult(
+                name: "WOD 1",
+                description: "",
+                exercises: [
+                    ExerciseLogInput(
+                        exerciseType: .running, target: run,
+                        plannedReps: run.compactString, actualReps: run.compactString
+                    ),
+                    ExerciseLogInput(
+                        exerciseType: .skiErg, target: ski,
+                        plannedReps: ski.compactString, actualReps: ski.compactString
+                    ),
+                    ExerciseLogInput(
+                        exerciseType: .sledPush, target: sled,
+                        plannedReps: sled.compactString, plannedWeight: 152,
+                        actualWeight: 152, actualReps: sled.compactString
+                    ),
+                    ExerciseLogInput(
+                        exerciseType: .wallBalls, target: wallBalls,
+                        plannedReps: wallBalls.compactString, plannedWeight: 6,
+                        actualWeight: 6, actualReps: wallBalls.compactString
+                    ),
+                ]
+            ),
+            wodType: .forTime,
+            fitnessRun: FitnessRunPlan(runMeters: 1000)
+        )
+    }
+
+    private static func fitnessRunStore() -> TestStoreOf<WODScoringFeature> {
+        let store = TestStore(initialState: fitnessRunState()) { WODScoringFeature() }
+        store.exhaustivity = .off
+        return store
+    }
+
+    @Test("A fitness run offers the choice even without a cap")
+    func fitnessRunOffersTheSegmentWithoutACap() {
+        #expect(Self.fitnessRunState().statusKind == .segment(.completed))
+        #expect(Self.state(wodType: .forTime).statusKind == nil)
+    }
+
+    @Test("A fitness run counts its stations and never offers all of them as unfinished")
+    func fitnessRunCountsStations() async {
+        let store = Self.fitnessRunStore()
+        #expect(store.state.runRowIndex == 0)
+        #expect(store.state.stationCount == 3)
+
+        await store.send(.view(.setStatus(.notFinished)))
+        await store.send(.view(.updateRounds(99)))
+        #expect(store.state.dnfRounds == 2)
+    }
+
+    /// Counting from zero would empty every row on the flip, typed values included.
+    @Test("The flip to unfinished starts one station short and keeps what was typed")
+    func flipStartsOneStationShort() async {
+        let store = Self.fitnessRunStore()
+
+        await store.send(.view(.updateExerciseWeight(exerciseIndex: 2, text: "130")))
+        await store.send(.view(.setStatus(.notFinished)))
+
+        let rows = store.state.result.exercises
+        #expect(store.state.dnfRounds == 2)
+        #expect(store.state.interruptedExerciseIndex == 3)
+        #expect(rows[2].actualWeight == 130)
+        #expect(rows[3].actualReps == nil)
+        #expect(rows[0].actualReps == ExerciseTarget.meters(2000).compactString)
+    }
+
+    @Test("Stopping short empties the stations never reached and counts the runs done")
+    func unfinishedFitnessRunRedrawsTheList() async {
+        let store = Self.fitnessRunStore()
+
+        await store.send(.view(.setStatus(.notFinished)))
+        await store.send(.view(.updateRounds(1)))
+
+        let rows = store.state.result.exercises
+        #expect(store.state.interruptedExerciseIndex == 2)
+        #expect(rows[0].actualReps == ExerciseTarget.meters(1000).compactString)
+        #expect(rows[1].actualReps == rows[1].plannedReps)
+        #expect(rows[2].actualReps == nil)
+        #expect(rows[2].actualWeight == nil)
+        #expect(rows[3].actualReps == nil)
+    }
+
+    @Test("Work on the interrupted station is stored in its own unit and earns its run")
+    func partialStationKeepsItsUnit() async {
+        let store = Self.fitnessRunStore()
+
+        await store.send(.view(.setStatus(.notFinished)))
+        await store.send(.view(.updateRounds(1)))
+        await store.send(.view(.updateExtraReps(20)))
+
+        let rows = store.state.result.exercises
+        #expect(rows[2].actualReps == ExerciseTarget.meters(20).compactString)
+        #expect(rows[2].actualWeight == 152)
+        #expect(rows[0].actualReps == ExerciseTarget.meters(2000).compactString)
+        #expect(rows[3].actualReps == nil)
+    }
+
+    @Test("Moving the counter takes the partial work with the station it belonged to")
+    func movingTheCounterDropsThePartial() async {
+        let store = Self.fitnessRunStore()
+
+        await store.send(.view(.setStatus(.notFinished)))
+        await store.send(.view(.updateRounds(1)))
+        await store.send(.view(.updateExtraReps(20)))
+        await store.send(.view(.updateRounds(2)))
+
+        let rows = store.state.result.exercises
+        #expect(store.state.dnfExtraReps == 0)
+        #expect(rows[2].actualReps == rows[2].plannedReps)
+        #expect(rows[2].actualWeight == 152)
+        #expect(store.state.interruptedExerciseIndex == 3)
+        #expect(rows[3].actualReps == nil)
+        #expect(rows[0].actualReps == ExerciseTarget.meters(2000).compactString)
+    }
+
+    @Test("Back to completed restores the plan and keeps what the athlete typed")
+    func completedRestoresTheList() async {
+        let store = Self.fitnessRunStore()
+
+        await store.send(.view(.updateExerciseWeight(exerciseIndex: 2, text: "130")))
+        await store.send(.view(.setStatus(.notFinished)))
+        await store.send(.view(.updateRounds(2)))
+        await store.send(.view(.setStatus(.completed)))
+
+        let rows = store.state.result.exercises
+        #expect(store.state.interruptedExerciseIndex == nil)
+        #expect(rows[0].actualReps == ExerciseTarget.meters(3000).compactString)
+        #expect(rows[2].actualWeight == 130)
+        #expect(rows[3].actualReps == rows[3].plannedReps)
+        #expect(rows[3].actualWeight == 6)
+    }
+
+    @Test("An unfinished fitness run scores stations plus the partial work")
+    func unfinishedFitnessRunScore() async {
+        let store = Self.fitnessRunStore()
+
+        await store.send(.view(.setStatus(.notFinished)))
+        await store.send(.view(.updateRounds(1)))
+        await store.send(.view(.updateExtraReps(20)))
+        await store.send(.view(.doneTapped))
+
+        #expect(store.state.result.scoreResult == .amrap(rounds: 1, extraReps: 20))
+        #expect(store.state.isDNF)
+        #expect(store.state.phase == .entered)
+    }
+
+    /// The stations are done once each; the flat-round arithmetic of a capped For Time
+    /// would multiply their targets by the counter.
+    @Test("A fitness run never multiplies a station by the counter")
+    func fitnessRunDoesNotMultiplyStations() async {
+        let store = Self.fitnessRunStore()
+
+        await store.send(.view(.setStatus(.notFinished)))
+        await store.send(.view(.updateRounds(2)))
+
+        #expect(!store.state.roundDrivesReps)
+        #expect(store.state.result.exercises[1].actualReps == ExerciseTarget.meters(1000).compactString)
+    }
+
+    // MARK: - Open ladder
+
+    /// "AMRAP 15': 1-2-3-4-5-6-…" over three movements, none with a number of its own.
+    private static func openLadderStore() -> TestStoreOf<WODScoringFeature> {
+        let state = WODScoringFeature.State(
+            wodIndex: 0,
+            result: WorkoutSessionResult(
+                name: "WOD 2",
+                description: "",
+                exercises: [
+                    ExerciseLogInput(exerciseType: .toesToBar),
+                    ExerciseLogInput(exerciseType: .burpeeBoxJumps),
+                    ExerciseLogInput(exerciseType: .deadlift, plannedWeight: 80, actualWeight: 80),
+                ]
+            ),
+            wodType: .amrap,
+            capMinutes: 15,
+            openLadder: OpenLadderPlan(firstRung: 1, step: 1)
+        )
+        let store = TestStore(initialState: state) { WODScoringFeature() }
+        store.exhaustivity = .off
+        return store
+    }
+
+    @Test("An open ladder writes every movement's reps from the two counters")
+    func openLadderCountsFromTheCounters() async {
+        let store = Self.openLadderStore()
+
+        await store.send(.view(.updateRounds(8)))
+        await store.send(.view(.updateExtraReps(15)))
+
+        let rows = store.state.result.exercises
+        #expect(rows.map(\.actualReps) == ["45", "42", "36"])
+        #expect(rows[2].actualWeight == 80)
+        #expect(store.state.derivedRepsIndices == [0, 1, 2])
+        #expect(store.state.openLadderShares[0] == .init(whole: 36, partial: 9))
+        #expect(store.state.openLadderShares[1] == .init(whole: 36, partial: 6))
+        #expect(store.state.openLadderShares[2] == .init(whole: 36, partial: 0))
+    }
+
+    @Test("Loose reps stop one short of a whole round")
+    func openLadderCapsLooseReps() async {
+        let store = Self.openLadderStore()
+
+        await store.send(.view(.updateRounds(8)))
+        await store.send(.view(.updateExtraReps(99)))
+        #expect(store.state.dnfExtraReps == 26)
+
+        // Round 3 holds three reps of each of the three movements.
+        await store.send(.view(.updateRounds(2)))
+        #expect(store.state.dnfExtraReps == 8)
+        #expect(store.state.result.exercises.map(\.actualReps) == ["6", "6", "5"])
+    }
+
+    @Test("An open ladder scores rounds plus loose reps like any AMRAP")
+    func openLadderScore() async {
+        let store = Self.openLadderStore()
+
+        await store.send(.view(.updateRounds(8)))
+        await store.send(.view(.updateExtraReps(15)))
+        await store.send(.view(.doneTapped))
+
+        #expect(store.state.result.scoreResult == .amrap(rounds: 8, extraReps: 15))
+        #expect(!store.state.isDNF)
+    }
+
+    @Test("A ladder that climbs by two counts its own rungs")
+    func openLadderWithAStep() {
+        let ladder = OpenLadderPlan(writtenRungs: [2, 4, 6])
+        #expect(ladder == OpenLadderPlan(firstRung: 2, step: 2))
+        #expect(ladder?.rungs(count: 4) == [2, 4, 6, 8])
+        #expect(ladder?.summary == "2-4-6-8-10-12…")
+        #expect(OpenLadderPlan(writtenRungs: []) == nil)
+    }
 }

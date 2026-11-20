@@ -52,13 +52,13 @@ const set = object(
 
 const movement = object(
   [
-    "name", "rawName", "segment", "targetValue", "targetUnit", "targetValueWomen",
+    "rawName", "name", "segment", "targetValue", "targetUnit", "targetValueWomen",
     "repRangeMax", "perSide", "maxEffort", "sets", "loads", "restAfterSetSec",
     "alternatives",
   ],
   {
-    name: string("Normalised English movement name: kettlebell swing, box jumps, running"),
     rawName: string("Exactly as written on the board"),
+    name: string("Normalised English movement name: kettlebell swing, box jumps, running"),
     segment: enumeration(["buyIn", "round", "cashOut"], "round unless the board marks a buy-in or cash-out"),
     targetValue: number("Single target per round: 20 reps → 20, 400 m → 400; 0 when sets[] or the section repScheme carry the numbers"),
     targetUnit: enumeration(["reps", "seconds", "minutes", "meters", "km", "calories", "laps"], "Unit of targetValue"),
@@ -73,19 +73,16 @@ const movement = object(
   }
 );
 
+// Key order is the order the model writes in: what is on the board first
+// (format, times, movements), the judgments about it (rounds, kind, name) after.
 const section = object(
   [
-    "label", "kind", "name", "format", "timeCapMin", "everySec", "workSec", "restSec",
-    "roundCount", "repScheme", "restBetweenRoundsSec", "writtenDurationMin", "text",
-    "notes", "uncertain", "movements",
+    "label", "format", "timeCapMin", "everySec", "workSec", "restSec", "repScheme",
+    "repSchemeContinues", "runBeforeEachMeters", "text", "movements", "roundCount", "restBetweenRoundsSec", "writtenDurationMin", "kind", "name",
+    "notes", "uncertain",
   ],
   {
     label: string("Marker as written: A), B1-B3, WOD 1; empty when none. A1/A2 share one block"),
-    kind: enumeration(
-      ["warmup", "skill", "strength", "accessory", "conditioning", "mobility", "cooldown"],
-      "strength = loaded set work; conditioning = any block with a format keyword; mobility = stretches, holds, rehab"
-    ),
-    name: string("What the athlete works on, never the format: Back Squat, WOD 1, Strength"),
     format: enumeration(
       ["none", "forTime", "amrap", "emom", "deathBy", "tabata", "intervals", "roundsUntimed", "maxEffort"],
       "none for plain set work; roundsUntimed for '3 rounds not for time'; maxEffort for 'max reps in N min'; deathBy for an EMOM with reps growing until failure"
@@ -94,31 +91,45 @@ const section = object(
     everySec: integer("EMOM cadence in seconds: 60, 120 for E2MOM, 0 otherwise"),
     workSec: integer("Work seconds of tabata / intervals (tabata 20); 0 otherwise"),
     restSec: integer("Rest seconds of tabata / intervals (tabata 10); 0 otherwise"),
-    roundCount: integer("How many times the whole list repeats ('4 rounds', tabata 8, '} 3x'); 0 when a repScheme is used"),
     repScheme: array(integer("Reps of one round"), "Rep ladder like 21-15-9; empty otherwise. Never a load, never a set scheme of one movement"),
+    repSchemeContinues: boolean(
+      "True when the ladder is written open-ended and goes on past its last rung: '1-2-3-4-5-6-…', '2-4-6 itd.', '+1 every round'. repScheme then holds the rungs written. False otherwise"
+    ),
+    runBeforeEachMeters: integer(
+      "Metres of a run done before EVERY movement of the list ('1 km run + station' above a list of stations → 1000); the run is then NOT among the movements. 0 otherwise"
+    ),
+    text: string("Warm-up / cool-down board text verbatim; empty for other kinds"),
+    movements: array(movement, "Movements of the block in board order; empty for warm-up / cool-down text"),
+    roundCount: integer("How many times the whole list repeats ('4 rounds', tabata 8, '} 3x'); 0 when a repScheme is used"),
     restBetweenRoundsSec: integer("'rest 2 min between rounds' → 120; 0 otherwise"),
     writtenDurationMin: number("Minutes written next to the block that are not a cap ('| 12,5 min'); 0 otherwise"),
-    text: string("Warm-up / cool-down board text verbatim; empty for other kinds"),
+    kind: enumeration(
+      ["warmup", "skill", "strength", "accessory", "conditioning", "mobility", "cooldown"],
+      "strength = loaded set work; conditioning = any block with a format keyword; mobility = stretches, holds, rehab"
+    ),
+    name: string("What the athlete works on, never the format: Back Squat, WOD 1, Strength"),
     notes: string("Anything else written about the block; empty when nothing"),
     uncertain: array(string("Field name"), "Fields you could not read with confidence, e.g. timeCapMin"),
-    movements: array(movement, "Movements of the block in board order; empty for warm-up / cool-down text"),
   }
 );
 
 const boardSchema = object(
-  ["boardKind", "title", "activity", "classTimeCapMin", "sections"],
+  ["reading", "title", "classTimeCapMin", "sections", "boardKind", "activity"],
   {
-    boardKind: enumeration(
-      ["strengthDay", "wodDay", "mixed", "notAWorkout"],
-      "notAWorkout when the photo shows no training plan"
+    reading: string(
+      "The board copied line by line exactly as written, abbreviations kept, before any interpretation; empty when it is not a workout"
     ),
     title: string("Short workout title; the board's own heading when it has one"),
-    activity: enumeration(
-      ["crossTraining", "strengthTraining", "functional", "endurance", "boxing", "running", "cycling", "swimming", "walking"],
-      "Dominant character of the whole board; crossTraining when mixed or unsure"
-    ),
     classTimeCapMin: number("A lone TC written at the top of the board (class budget); 0 when none. Never a block cap"),
     sections: array(section, "Every block in board order, warm-up and cool-down included only when written"),
+    boardKind: enumeration(
+      ["strengthDay", "wodDay", "mixed", "notAWorkout"],
+      "Decided from the sections above; notAWorkout when the photo shows no training plan"
+    ),
+    activity: enumeration(
+      ["crossTraining", "strengthTraining", "functional", "endurance", "boxing", "running", "cycling", "swimming", "walking"],
+      "Dominant character of the whole board, decided from the sections above; crossTraining when mixed or unsure"
+    ),
   }
 );
 

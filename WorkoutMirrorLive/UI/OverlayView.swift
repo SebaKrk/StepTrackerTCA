@@ -47,11 +47,7 @@ struct OverlayView: View {
     @ViewBuilder
     private var buttonBackground: some View {
         if case .yellow = buttonColor {
-            LinearGradient(
-                colors: [.yellow, .orange],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
+            ProGold.gradient
         } else {
             buttonColor
         }
@@ -71,18 +67,6 @@ extension OverlayView {
         )
     }
 
-    static func lockedPro(action: @escaping () -> Void) -> OverlayView {
-        OverlayView(
-            icon: "lock.fill",
-            iconColor: .orange,
-            title: String(localized: "Elite Feature", bundle: .main),
-            buttonIcon: "flame.fill",
-            buttonText: String(localized: "Go Elite", bundle: .main),
-            buttonColor: .orange,
-            action: action
-        )
-    }
-    
     static func unauthorized(action: @escaping () -> Void) -> OverlayView {
         OverlayView(
             icon: "heart.text.square.fill",

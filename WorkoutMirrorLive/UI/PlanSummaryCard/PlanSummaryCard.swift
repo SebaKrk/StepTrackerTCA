@@ -13,7 +13,13 @@ struct PlanSummaryCard: View {
 
     // MARK: - Properties
 
+    /// The plan the card summarises.
     let session: TrainingSession
+
+    /// Whether opening the plan needs Pro; blurs the card under a lock.
+    var isLocked = false
+
+    /// Called when the header is tapped.
     let onTap: () -> Void
 
     // MARK: - Body (structure)
@@ -25,6 +31,9 @@ struct PlanSummaryCard: View {
             cardLabel
         }
         .styledGroupBox()
+        .proLocked(isLocked) {
+            onTap()
+        }
         .padding(4)
     }
 

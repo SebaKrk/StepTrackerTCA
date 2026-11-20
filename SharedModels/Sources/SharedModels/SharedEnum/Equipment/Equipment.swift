@@ -26,6 +26,9 @@ public enum Equipment: String, CaseIterable, Codable, Sendable {
     /// Medicine ball or wall ball.
     case medicineBall
 
+    /// Sandbag, carried or lunged with.
+    case sandbag
+
     /// Full name for detail screens.
     public var displayName: String {
         switch self {
@@ -33,6 +36,7 @@ public enum Equipment: String, CaseIterable, Codable, Sendable {
         case .dumbbell:     return String(localized: "Dumbbell", bundle: .module)
         case .kettlebell:   return String(localized: "Kettlebell", bundle: .module)
         case .medicineBall: return String(localized: "Medicine ball", bundle: .module)
+        case .sandbag:      return String(localized: "Sandbag", bundle: .module)
         }
     }
 
@@ -47,6 +51,7 @@ public enum Equipment: String, CaseIterable, Codable, Sendable {
         case .dumbbell:     return "Dumbbell"
         case .kettlebell:   return "Kettlebell"
         case .medicineBall: return "Medicine Ball"
+        case .sandbag:      return "Sandbag"
         }
     }
 
@@ -56,7 +61,7 @@ public enum Equipment: String, CaseIterable, Codable, Sendable {
     /// must break the build here instead of silently claiming a weight field.
     public var impliesLoad: Bool {
         switch self {
-        case .barbell, .dumbbell, .kettlebell, .medicineBall:
+        case .barbell, .dumbbell, .kettlebell, .medicineBall, .sandbag:
             return true
         }
     }

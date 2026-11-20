@@ -49,6 +49,9 @@ extension HealthMetricSummaryCardFeature {
             
             /// Action triggered when user pulls to refresh
             case refresh
+
+            /// Action triggered when the unlock button on the locked cards is tapped
+            case unlockButtonTapped
         }
         
         // MARK: - Destination
@@ -66,6 +69,9 @@ extension HealthMetricSummaryCardFeature {
             /// Signals to parent that this feature has finished its refresh cycle
             /// (entered a terminal state — `.ready`, `.noData`, or `.unauthorized`).
             case refreshDidComplete
+
+            /// Asks the parent to present the offer of Pro.
+            case unlockRequested
         }
     }
 

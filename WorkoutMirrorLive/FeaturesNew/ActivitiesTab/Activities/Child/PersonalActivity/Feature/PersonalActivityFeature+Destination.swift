@@ -17,6 +17,9 @@ extension PersonalActivityFeature {
         
         /// Shows activity details screen.
         case activityDetails(ActivityDetailsFeature)
+
+        /// The offer of Pro, shown when a workout Basic does not open is tapped.
+        case subscriptionOffer(SubscriptionOfferFeature)
     }
     
 }

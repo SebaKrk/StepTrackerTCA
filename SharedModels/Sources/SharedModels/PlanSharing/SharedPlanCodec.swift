@@ -19,7 +19,11 @@ public enum SharedPlanCodecError: Error, Equatable {
 /// keeps the string URL-safe so the same encoding can back a future share link.
 public enum SharedPlanCodec {
 
-    public static let currentSchemaVersion = 1
+    /// Newest envelope version this build can read.
+    public static let currentSchemaVersion = 2
+
+    /// Envelope version of a plan carried with its identifiers; builds before the QR diet read it.
+    public static let identifiedSchemaVersion = 1
 
     /// Byte budget for a payload we are willing to render as a QR code.
     /// Below the ECC-M version-40 max, with margin for reliable phone-screen scans.
@@ -29,11 +33,21 @@ public enum SharedPlanCodec {
     public static func encode(plan: TrainingSession, exportedAt: Date) throws -> String {
         try encode(
             SharedPlanPayload(
-                schemaVersion: currentSchemaVersion,
+                schemaVersion: identifiedSchemaVersion,
                 exportedAt: exportedAt,
                 plan: plan
             )
         )
+    }
+
+    /// Encodes a plan for a QR code: identifiers are left out, the receiver mints its own.
+    ///
+    /// Random UUIDs do not compress and were over half of the code.
+    public static func encodeForQR(plan: TrainingSession, exportedAt: Date) throws -> String {
+        let payload = SharedPlanPayload(schemaVersion: currentSchemaVersion, exportedAt: exportedAt, plan: plan)
+        let json = try mapIdentifiers(in: try encoder.encode(payload)) { $0.removeValue(forKey: identifierKey) }
+        let compressed = try (json as NSData).compressed(using: .zlib) as Data
+        return base64url(from: compressed)
     }
 
     public static func encode(_ payload: SharedPlanPayload) throws -> String {
@@ -58,7 +72,10 @@ public enum SharedPlanCodec {
                 supported: currentSchemaVersion
             )
         }
-        guard let payload = try? decoder.decode(SharedPlanPayload.self, from: json) else {
+        let identified = try? mapIdentifiers(in: json) { object in
+            if object[identifierKey] == nil { object[identifierKey] = UUID().uuidString }
+        }
+        guard let identified, let payload = try? decoder.decode(SharedPlanPayload.self, from: identified) else {
             throw SharedPlanCodecError.malformed
         }
         return payload
@@ -74,6 +91,34 @@ public enum SharedPlanCodec {
     }
 
     // MARK: - Implementation
+
+    /// JSON key of an identifier at every level of a plan.
+    private static let identifierKey = "id"
+
+    /// Applies `transform` to the plan, its blocks and their movements — the levels that carry an identifier.
+    private static func mapIdentifiers(
+        in json: Data,
+        _ transform: (inout [String: Any]) -> Void
+    ) throws -> Data {
+        guard var root = try JSONSerialization.jsonObject(with: json) as? [String: Any],
+              var plan = root["plan"] as? [String: Any] else {
+            throw SharedPlanCodecError.malformed
+        }
+        let workouts = (plan["workouts"] as? [[String: Any]] ?? []).map { workout in
+            var workout = workout
+            workout["exercises"] = (workout["exercises"] as? [[String: Any]] ?? []).map { exercise in
+                var exercise = exercise
+                transform(&exercise)
+                return exercise
+            }
+            transform(&workout)
+            return workout
+        }
+        plan["workouts"] = workouts
+        transform(&plan)
+        root["plan"] = plan
+        return try JSONSerialization.data(withJSONObject: root)
+    }
 
     private static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()

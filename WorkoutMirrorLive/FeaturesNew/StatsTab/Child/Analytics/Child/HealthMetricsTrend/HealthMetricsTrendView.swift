@@ -25,7 +25,10 @@ struct HealthMetricsTrendView: View {
                 .subscriptionOverlay(
                     contentState: store.contentState,
                     subscriptionTier: store.subscriptionTier,
-                    requiredTier: store.requiredTier
+                    feature: .healthTrends,
+                    onUnlockTapped: {
+                        send(.unlockButtonTapped)
+                    }
                 )
         } label: {
             headerView

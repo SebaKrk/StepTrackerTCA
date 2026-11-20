@@ -59,6 +59,12 @@ struct ReadinessTrendFeature {
 
                 // MARK: - View
 
+            case .view(.unlockButtonTapped):
+                return .send(.delegate(.unlockRequested))
+
+            case .delegate:
+                return .none
+
             case .view(.viewDidAppear):
                 guard state.historyData == nil else {
                     return .none

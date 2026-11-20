@@ -75,6 +75,9 @@ extension PersonalActivityFeature {
             /// Opens workout details screen.
             case openDetails(HKWorkout)
 
+            /// User tapped the banner above the workouts Basic does not open.
+            case unlockOlderTapped
+
             /// Shows heart rate zone info for the specified zone.
             case showZoneInfo(HeartRateZone)
 

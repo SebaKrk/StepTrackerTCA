@@ -59,6 +59,14 @@ struct PersonalActivityView: View {
         ) { detailsStore in
             ActivityDetailsView(store: detailsStore)
         }
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.subscriptionOffer,
+                action: \.destination.subscriptionOffer
+            )
+        ) { offerStore in
+            SubscriptionOfferView(store: offerStore)
+        }
         .alert(store: store.scope(state: \.$deleteAlert, action: \.alert))
         .alert(store: store.scope(state: \.$errorAlert, action: \.errorAlert))
         .onAppear {
@@ -142,21 +150,16 @@ struct PersonalActivityView: View {
         } else {
             ScrollViewReader { proxy in
                 List {
-                    ForEach(store.filteredWorkouts, id: \.uuid) { workout in
-                        workoutCard(workout)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button {
-                                    send(.deleteWorkoutSwiped(workout))
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                .tint(.red)
-                            }
+                    workoutRows(store.unlockedWorkouts)
+                    if !store.lockedWorkouts.isEmpty {
+                        Section {
+                            workoutRows(store.lockedWorkouts)
+                        } header: {
+                            unlockOlderWorkoutsBanner
+                        }
                     }
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
                 }
+                .animation(.default, value: store.subscriptionTier)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .refreshable {
@@ -170,11 +173,40 @@ struct PersonalActivityView: View {
                     send(.scrolledChanged(isScrolled))
                 }
                 .onChange(of: store.scrollToTopToken) {
-                    guard let first = store.filteredWorkouts.first else { return }
+                    guard let first = store.unlockedWorkouts.first ?? store.lockedWorkouts.first else { return }
                     withAnimation { proxy.scrollTo(first.uuid, anchor: .top) }
                 }
             }
         }
+    }
+
+    private func workoutRows(_ workouts: [HKWorkout]) -> some View {
+        ForEach(workouts, id: \.uuid) { workout in
+            workoutCard(workout)
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button {
+                        send(.deleteWorkoutSwiped(workout))
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .tint(.red)
+                }
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+    }
+
+    /// Pinned by the list while the locked workouts scroll under it.
+    private var unlockOlderWorkoutsBanner: some View {
+        UnlockOlderItemsBanner(
+            title: String(localized: "Older workouts in Pro"),
+            lockedCount: store.lockedWorkouts.count
+        ) {
+            send(.unlockOlderTapped)
+        }
+        .textCase(nil)
+        .listRowInsets(EdgeInsets())
     }
     
     // MARK: - Workout Card
@@ -194,6 +226,9 @@ struct PersonalActivityView: View {
             }
         }
         .styledGroupBox()
+        .proLocked(store.state.isLocked(workout)) {
+            send(.openDetails(workout))
+        }
         .padding(4)
     }
 

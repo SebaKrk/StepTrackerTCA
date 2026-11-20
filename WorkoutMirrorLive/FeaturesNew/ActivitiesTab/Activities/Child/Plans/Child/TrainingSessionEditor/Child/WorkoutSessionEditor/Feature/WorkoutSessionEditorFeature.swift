@@ -39,6 +39,7 @@ struct WorkoutSessionEditorFeature {
                 // it and the editor offers no way to clear it by hand.
                 if state.draft.type != .forTime {
                     state.draft.repScheme = nil
+                    state.draft.fitnessRun = nil
                 }
                 return .none
 

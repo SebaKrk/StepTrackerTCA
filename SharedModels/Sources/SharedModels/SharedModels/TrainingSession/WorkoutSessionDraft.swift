@@ -27,6 +27,12 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
     /// Rep ladder of the block ("10-9-8…1"); nil when every round has the same count.
     public var repScheme: [Int]?
 
+    /// A run done before every station; nil for an ordinary block.
+    public var fitnessRun: FitnessRunPlan?
+
+    /// A ladder that keeps climbing past what the board wrote; nil for a block without one.
+    public var openLadder: OpenLadderPlan?
+
     public init(
         name: String = "",
         type: ExerciseWorkoutType = .amrap,
@@ -36,7 +42,9 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         interval: IntervalPlan? = nil,
         notes: String? = nil,
         everySeconds: Int? = nil,
-        repScheme: [Int]? = nil
+        repScheme: [Int]? = nil,
+        fitnessRun: FitnessRunPlan? = nil,
+        openLadder: OpenLadderPlan? = nil
     ) {
         self.name = name
         self.type = type
@@ -47,6 +55,8 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.notes = notes
         self.everySeconds = everySeconds
         self.repScheme = repScheme
+        self.fitnessRun = fitnessRun
+        self.openLadder = openLadder
     }
 
     public init(workout: WorkoutSessionNew) {
@@ -59,5 +69,7 @@ public struct WorkoutSessionDraft: Equatable, Sendable {
         self.notes = workout.notes
         self.everySeconds = workout.everySeconds
         self.repScheme = workout.repScheme
+        self.fitnessRun = workout.fitnessRun
+        self.openLadder = workout.openLadder
     }
 }

@@ -26,20 +26,20 @@ struct ReadinessFeature {
             switch action {
 
             case .view(.onAppear):
-                state.snapshot = watchClient.latestReadinessSnapshot()
+                apply(watchClient.latestReadinessDelivery(), to: &state)
                 return .run { send in
-                    for await snapshot in watchClient.readinessSnapshotStream() {
-                        await send(.snapshotReceived(snapshot))
+                    for await delivery in watchClient.readinessDeliveryStream() {
+                        await send(.deliveryReceived(delivery))
                     }
                 }
                 .cancellable(id: CancelID.readinessStream, cancelInFlight: true)
 
-            case let .snapshotReceived(snapshot):
-                state.snapshot = snapshot
+            case let .deliveryReceived(delivery):
+                apply(delivery, to: &state)
                 return .none
 
             case .view(.scoreTapped):
-                guard let snapshot = state.snapshot else { return .none }
+                guard !state.isLocked, let snapshot = state.snapshot else { return .none }
                 state.details = ReadinessDetailsFeature.State(snapshot: snapshot)
                 return .none
 
@@ -49,6 +49,23 @@ struct ReadinessFeature {
         }
         .ifLet(\.$details, action: \.details) {
             ReadinessDetailsFeature()
+        }
+    }
+
+    // MARK: - Helpers
+
+    /// A score replaces the lock and the lock replaces the score, so neither outlives the other.
+    private func apply(_ delivery: ReadinessDelivery?, to state: inout State) {
+        switch delivery {
+        case let .snapshot(snapshot):
+            state.snapshot = snapshot
+            state.isLocked = false
+        case .locked:
+            state.snapshot = nil
+            state.details = nil
+            state.isLocked = true
+        case nil:
+            break
         }
     }
 

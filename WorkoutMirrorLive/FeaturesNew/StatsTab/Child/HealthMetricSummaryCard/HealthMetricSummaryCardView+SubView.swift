@@ -110,7 +110,7 @@ extension HealthMetricSummaryCardView {
     HealthMetricSummaryCardView(
         store: Store(
             initialState: HealthMetricSummaryCardFeature.State(
-                contentState: .ready(.elite),
+                contentState: .ready(.pro),
                 components: TrainingReadinessComponents(
                     restingHeartRate: nil,
                     heartRateVariability: nil,
