@@ -46,7 +46,7 @@ private enum PlanShareClientKey: DependencyKey {
             #if DEBUG
             logger.debug("[PlanShare] encode+render START")
             #endif
-            let encoded = try SharedPlanCodec.encode(plan: plan, exportedAt: now)
+            let encoded = try SharedPlanCodec.encodeForQR(plan: plan, exportedAt: now)
             guard SharedPlanCodec.fitsInQR(encoded) else {
                 #if DEBUG
                 logger.debug("[PlanShare] tooLargeForQR (\(encoded.count) chars)")
