@@ -87,6 +87,10 @@ struct WorkoutSessionEditorView: View {
                         Divider().padding(.leading)
                         roundsRow
                     }
+                    if store.draft.type == .forTime {
+                        Divider().padding(.leading)
+                        fitnessRunRow
+                    }
                 }
             }
         } label: {
@@ -177,6 +181,33 @@ struct WorkoutSessionEditorView: View {
             .tint(store.color)
             .fixedSize()
         }
+    }
+
+    private var fitnessRunRow: some View {
+        editorRow {
+            Text("Run before every station").foregroundStyle(.secondary)
+            Spacer()
+            if let fitnessRun = store.draft.fitnessRun {
+                Stepper(
+                    "\(fitnessRun.runMeters) m",
+                    value: Binding(
+                        get: { fitnessRun.runMeters },
+                        set: { store.send(.binding(.set(\.draft.fitnessRun, FitnessRunPlan(runMeters: $0)))) }
+                    ),
+                    in: 100...5000,
+                    step: 100
+                )
+                .fixedSize()
+            }
+            Toggle("", isOn: Binding(
+                get: { store.draft.fitnessRun != nil },
+                set: { store.send(.binding(.set(\.draft.fitnessRun, $0 ? FitnessRunPlan(runMeters: 1000) : nil))) }
+            ))
+            .labelsHidden()
+            .tint(store.color)
+            .fixedSize()
+        }
+        .animation(.default, value: store.draft.fitnessRun)
     }
 
     // MARK: - Interval Rows (Rounds type)
@@ -298,24 +329,74 @@ struct WorkoutSessionEditorView: View {
             VStack(spacing: 0) {
                 ForEach(Array(store.draft.exercises.enumerated()), id: \.element.id) { index, exercise in
                     if index > 0 { Divider().padding(.leading) }
-                    Button { send(.exerciseTapped(exercise)) } label: {
-                        exerciseRow(exercise)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .contextMenu {
-                        Button(role: .destructive) {
-                            send(.exerciseDeleted(IndexSet(integer: index)))
+                    HStack(spacing: 8) {
+                        Button {
+                            send(.exerciseTapped(exercise))
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            exerciseRow(exercise)
+                                .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            if index > 0 {
+                                Button {
+                                    send(.exerciseMoved(from: IndexSet(integer: index), to: index - 1))
+                                } label: {
+                                    Label("Move up", systemImage: "arrow.up")
+                                }
+                            }
+                            if index < store.draft.exercises.count - 1 {
+                                Button {
+                                    send(.exerciseMoved(from: IndexSet(integer: index), to: index + 2))
+                                } label: {
+                                    Label("Move down", systemImage: "arrow.down")
+                                }
+                            }
+                            Button(role: .destructive) {
+                                send(.exerciseDeleted(IndexSet(integer: index)))
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                        reorderHandle(exercise)
+                    }
+                    .dropDestination(for: String.self) { droppedIds, _ in
+                        exerciseDropped(droppedIds, onto: index)
                     }
                 }
             }
+            .animation(.default, value: store.draft.exercises)
         } label: {
-            groupBoxHeader("Exercises")
+            groupBoxHeader(store.draft.fitnessRun == nil ? "Exercises" : "Stations")
         }
         .styledGroupBox()
+    }
+
+    /// Grip that lifts a row; dropping it on another row moves it there.
+    private func reorderHandle(_ exercise: ExerciseSession) -> some View {
+        Image(systemName: "line.3.horizontal")
+            .font(.body)
+            .foregroundStyle(.tertiary)
+            .frame(width: 32, height: 36)
+            .contentShape(Rectangle())
+            .draggable(exercise.id.uuidString) {
+                Text(exercise.displayName)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+            }
+            .accessibilityLabel(Text("Reorder"))
+    }
+
+    /// Turns a drop into the reducer's move; `Array.move` wants the slot after the row when moving down.
+    private func exerciseDropped(_ droppedIds: [String], onto index: Int) -> Bool {
+        guard let droppedId = droppedIds.first,
+              let from = store.draft.exercises.firstIndex(where: { $0.id.uuidString == droppedId }),
+              from != index
+        else { return false }
+        send(.exerciseMoved(from: IndexSet(integer: from), to: from < index ? index + 1 : index))
+        return true
     }
 
     private func exerciseRow(_ exercise: ExerciseSession) -> some View {
