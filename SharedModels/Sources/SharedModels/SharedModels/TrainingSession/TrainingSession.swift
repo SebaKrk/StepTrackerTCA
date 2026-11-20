@@ -161,6 +161,10 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     /// Optional Codable field — plans saved before it existed decode fine.
     public let repScheme: [Int]?
 
+    /// A run done before every station; nil for an ordinary block.
+    /// Optional Codable field — plans saved before it existed decode fine.
+    public let fitnessRun: FitnessRunPlan?
+
     public init(
         name: String,
         type: ExerciseWorkoutType,
@@ -170,7 +174,8 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         interval: IntervalPlan? = nil,
         notes: String? = nil,
         everySeconds: Int? = nil,
-        repScheme: [Int]? = nil
+        repScheme: [Int]? = nil,
+        fitnessRun: FitnessRunPlan? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -182,6 +187,7 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.notes = notes
         self.everySeconds = everySeconds
         self.repScheme = repScheme
+        self.fitnessRun = fitnessRun
     }
 
     public init(id: UUID = UUID(), draft: WorkoutSessionDraft) {
@@ -195,6 +201,7 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.notes = draft.notes
         self.everySeconds = draft.everySeconds
         self.repScheme = draft.repScheme
+        self.fitnessRun = draft.fitnessRun
     }
 }
 
@@ -441,6 +448,7 @@ extension WorkoutSessionNew {
         if let rounds { header.append("\(rounds) rounds") }
         if let timeCap { header.append("\(timeCap) min cap") }
         if !header.isEmpty { lines.append(header.joined(separator: ", ")) }
+        if let fitnessRun { lines.append("Run \(fitnessRun.runMeters)m before every station") }
 
         for exercise in exercises {
             lines.append(exercise.snapshotLine)

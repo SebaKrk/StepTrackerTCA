@@ -40,7 +40,7 @@ NUMBERS — where they go
 - A set scheme on a movement ("4x5", "5x5 @ 80 kg", "5-5-5-5-5", "10-10-8-8", "2x5 @ 50-60%, 2x4 @ 60-70%") → sets[], one entry per set, in order, with each set's load (percent range → its lower bound). "3x max" → three sets with maxEffort true and value 0. targetValue stays 0.
 - A rep ladder shared by the whole block ("21-15-9", "30-20-10-5") → the section's repScheme, roundCount 0, every movement under it has targetValue 0 and sets []. Never put the ladder in loads or notes.
 - "N rounds" / "4 rounds for time" → roundCount N. Buy-in before the rounds and cash-out after → movement segment buyIn / cashOut.
-- A run chained with a list of stations ("8 rounds for time: 1 km run + station" above a numbered list, Hyrox simulation): the list is NOT repeated. Each round is the run and the NEXT station. Emit ONE forTime block, roundCount 1, movements in race order: run, station 1, run, station 2, … with the run written once per station. Activity functional.
+- A run chained with a list of stations ("8 rounds for time: 1 km run + station", "8x: 1k bieg → stacja" above a numbered list; boards headed "fitness race", "Hyrox" or "sim" are usually this): the list is NOT repeated and the run is NOT a movement. Emit ONE forTime block, roundCount 1, runBeforeEachMeters = the run in metres (1 km → 1000), movements = the stations only, in board order. Activity functional. runBeforeEachMeters stays 0 for every other block, including a run that is simply one movement among others.
 - A WOD movement with one number ("20 KB snatches", "400 m run", "15 cal row", "30 s plank", "2 min wall sit", "4 laps") → targetValue + targetUnit. "1,600 m" / "1.6 km" → 1600 meters.
 - An UNEQUAL pair carrying a counting unit ("12/9 cal row", "10/7 cal bike", "21/15 wall balls") = men / women → targetValue 12, targetValueWomen 9. Never notes, never loads.
 - A rep range ("8-12", "3-5") → targetValue = lower bound, repRangeMax = upper bound.
@@ -56,7 +56,7 @@ LOADS
 ACTIVITY (whole board)
 - strengthTraining: barbell / dumbbell set work; one short EMOM or finisher on a strength day still counts.
 - crossTraining: mixed modalities, WODs; two or more format blocks make it crossTraining. Default when unsure.
-- functional: Hyrox-style stations (sled, wall balls, farmers carry, ski erg) chained with running / rowing.
+- functional: race-style stations (sled, wall balls, farmers carry, ski erg) chained with running / rowing.
 - endurance: long or interval aerobic work ("4×4 min hard / 3 min easy row").
 - boxing / running / cycling / swimming / walking: a single-modality session.
 
@@ -108,20 +108,18 @@ Board:
                 { name "assault bike", rawName "Cal AAB", targetValue 10, targetUnit calories, targetValueWomen 7 } ] }
   Note on C: six movements on a 60 s beat inside a 36 min cap → the list is completed 6 times, so roundCount 6.
 
-WORKED EXAMPLE 3 — a Hyrox simulation
+WORKED EXAMPLE 3 — a run chained with stations
 Board:
-  HYROX SIM
+  FITNESS RACE SIM
   8 rounds for time: 1 km Run + station
   1) 1000 m SkiErg   2) 50 m Sled Push 152 kg   3) 50 m Sled Pull 103 kg
   4) 80 m Burpee Broad Jumps   5) 1000 m Row   6) 200 m Farmers Carry 2x24 kg
   7) 100 m Sandbag Lunges 20 kg   8) 100 Wall Balls 6 kg
 → activity functional, ONE section:
-  { label "", kind conditioning, name "WOD 1", format forTime, roundCount 1, timeCapMin 0,
-    movements [ { name "running", targetValue 1000, targetUnit meters },
-                { name "ski erg", targetValue 1000, targetUnit meters },
-                { name "running", targetValue 1000, targetUnit meters },
+  { label "", format forTime, timeCapMin 0, runBeforeEachMeters 1000,
+    movements [ { name "ski erg", targetValue 1000, targetUnit meters },
                 { name "sled push", targetValue 50, targetUnit meters, loads [ { tier single, men 152, women 152, unit kg } ] },
-                { name "running", targetValue 1000, targetUnit meters },
                 { name "sled pull", targetValue 50, targetUnit meters, loads [ { tier single, men 103, women 103, unit kg } ] },
-                the remaining five stations follow the same way, each after its own 1000 m run ] }
-  Note: "8 rounds" here counts run + station pairs, never eight passes of the whole list. Sixteen movements, roundCount 1.
+                the remaining five stations follow the same way ],
+    roundCount 1, kind conditioning, name "WOD 1" }
+  Note: "8 rounds" here counts run + station pairs, never eight passes of the whole list. Eight movements, no running among them, roundCount 1.

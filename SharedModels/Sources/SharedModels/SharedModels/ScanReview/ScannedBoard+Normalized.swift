@@ -45,6 +45,7 @@ extension ScannedBoard {
                 restSec: section.restSec,
                 roundCount: roundCount,
                 repScheme: section.repScheme,
+                runBeforeEachMeters: section.runBeforeEachMeters,
                 restBetweenRoundsSec: section.restBetweenRoundsSec,
                 writtenDurationMin: section.writtenDurationMin,
                 text: section.text,

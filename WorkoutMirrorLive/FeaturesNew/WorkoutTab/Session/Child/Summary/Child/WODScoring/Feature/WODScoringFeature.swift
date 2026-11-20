@@ -74,6 +74,48 @@ struct WODScoringFeature {
         /// Rep ladder of the block ("10-9-8…1"); when present it derives the reps instead of the user.
         var repScheme: [Int]?
 
+        /// The run done before every station; nil for an ordinary block.
+        var fitnessRun: FitnessRunPlan?
+
+        /// The row whose fields are open in a fitness run card; every other row reads as text.
+        var editedExerciseIndex: Int?
+
+        /// Highest minute the time wheels offer; a fitness run outlasts the 99 minutes of an uncapped WOD.
+        var maxDraftMinutes: Int {
+            capMinutes ?? (fitnessRun == nil ? 99 : 240)
+        }
+
+        /// The row holding the whole run of a fitness run; the results builder writes it first.
+        var runRowIndex: Int? {
+            guard fitnessRun != nil, let first = result.exercises.first, first.exerciseType == .running else { return nil }
+            return 0
+        }
+
+        /// Result rows holding the stations of a fitness run: everything after the run row.
+        var stationIndices: Range<Int> {
+            ((runRowIndex ?? -1) + 1)..<result.exercises.count
+        }
+
+        /// Stations of a fitness run; zero for an ordinary block.
+        var stationCount: Int {
+            fitnessRun == nil ? 0 : stationIndices.count
+        }
+
+        /// The station an unfinished fitness run stopped on, as a result row.
+        var interruptedExerciseIndex: Int? {
+            guard fitnessRun != nil, capturesUnfinished else { return nil }
+            let index = stationIndices.lowerBound + dnfRounds
+            return stationIndices.contains(index) ? index : nil
+        }
+
+        /// Rows whose entered value or load no longer matches the plan.
+        var changedExerciseIndices: Set<Int> {
+            Set(result.exercises.indices.filter { index in
+                let exercise = result.exercises[index]
+                return exercise.actualReps != exercise.plannedReps || exercise.actualWeight != exercise.plannedWeight
+            })
+        }
+
         /// The rounds tiles are capturing an attempt the cap cut short, not a plain score.
         var capturesUnfinished: Bool {
             wodType == .forTime && wodStatus == .notFinished
@@ -95,7 +137,8 @@ struct WODScoringFeature {
         /// factory passes the plan through; do not "maintain" it as live behaviour.
         var statusKind: StatusKind? {
             switch wodType {
-            case .forTime where capMinutes != nil:
+            // A fitness run has no cap to miss, yet an athlete can still stop short of the last station.
+            case .forTime where capMinutes != nil || fitnessRun != nil:
                 if isReadOnly { return phase == .entered ? .pill(isDNF ? .notFinished : .completed) : nil }
                 return .segment(wodStatus)
             case .forTime, .emom, .tabata, .mobility:
@@ -115,6 +158,8 @@ struct WODScoringFeature {
         /// A ladder speaks first where it has something to say: its rounds shrink, and
         /// the flat arithmetic here would read them all as the first rung.
         var roundDrivesReps: Bool {
+            // The stations of a fitness run are done once each, never multiplied by a round count.
+            guard fitnessRun == nil else { return false }
             guard repScheme?.isEmpty != false else { return false }
             switch wodType {
             case .amrap: return true
@@ -221,6 +266,7 @@ struct WODScoringFeature {
             capMinutes: Int? = nil,
             rounds: Int? = nil,
             repScheme: [Int]? = nil,
+            fitnessRun: FitnessRunPlan? = nil,
             isReadOnly: Bool = false,
             wasScored: Bool = false
         ) {
@@ -230,6 +276,7 @@ struct WODScoringFeature {
             self.capMinutes = capMinutes
             self.rounds = rounds
             self.repScheme = repScheme
+            self.fitnessRun = fitnessRun
             self.isReadOnly = isReadOnly
             // `.completed` is ambiguous — both "nothing entered yet" and a
             // confirmed EMOM/Tabata result. `wasScored` (card built from a saved
@@ -292,6 +339,9 @@ struct WODScoringFeature {
 
             /// Per-exercise actual weight field (non-set-based exercises).
             case updateExerciseWeight(exerciseIndex: Int, text: String)
+
+            /// Tap on a row of a fitness run card — opens its fields, or closes them when already open.
+            case exerciseRowTapped(Int)
 
             /// "+ Dodaj notatkę" — opens the note field.
             case addNoteTapped
@@ -384,15 +434,30 @@ struct WODScoringFeature {
                 }
                 // Only the way back is synced: flipping TO not-finished must not
                 // stamp an untouched card with the steppers' zeroes.
-                if status == .completed { syncDerivedReps(&state) }
+                if status == .notFinished { seedUnfinishedStations(&state) }
+                // A fitness run redraws its stations on the way in as well: the list is the score.
+                if status == .completed || state.fitnessRun != nil { syncDerivedReps(&state) }
                 return .none
 
             case .view(.markNotFinishedFromHint):
                 state.wodStatus = .notFinished
+                seedUnfinishedStations(&state)
+                if state.fitnessRun != nil { syncDerivedReps(&state) }
                 return .none
 
             case let .view(.updateRounds(rounds)):
-                state.dnfRounds = max(0, rounds)
+                guard state.fitnessRun != nil else {
+                    state.dnfRounds = max(0, rounds)
+                    syncDerivedReps(&state)
+                    return .none
+                }
+                // The partial work belonged to the station left behind, so it goes with it.
+                if let interrupted = state.interruptedExerciseIndex {
+                    state.result.exercises[interrupted].actualReps = nil
+                }
+                state.dnfExtraReps = 0
+                // Every station done is a finished run, which the other side of the segment says.
+                state.dnfRounds = min(max(0, rounds), max(0, state.stationCount - 1))
                 syncDerivedReps(&state)
                 return .none
 
@@ -402,7 +467,7 @@ struct WODScoringFeature {
                 return .none
 
             case let .view(.updateDraftMinutes(minutes)):
-                state.draftMinutes = min(max(0, minutes), state.capMinutes ?? 99)
+                state.draftMinutes = min(max(0, minutes), state.maxDraftMinutes)
                 return .none
 
             case let .view(.updateDraftSeconds(seconds)):
@@ -425,6 +490,10 @@ struct WODScoringFeature {
                 else { return .none }
                 sets[setIndex].weight = Double(text.replacingOccurrences(of: ",", with: "."))
                 state.result.exercises[exerciseIndex].sets = sets
+                return .none
+
+            case let .view(.exerciseRowTapped(index)):
+                state.editedExerciseIndex = state.editedExerciseIndex == index ? nil : index
                 return .none
 
             case let .view(.updateExerciseReps(exerciseIndex, text)):
@@ -468,6 +537,50 @@ struct WODScoringFeature {
     private func syncDerivedReps(_ state: inout State) {
         syncLadderReps(&state)
         syncRoundReps(&state)
+        syncFitnessRunRows(&state)
+    }
+
+    /// An untouched counter starts one station short of the end: counting from zero would
+    /// empty every row on the flip, along with whatever the athlete had typed into them.
+    private func seedUnfinishedStations(_ state: inout State) {
+        guard state.fitnessRun != nil, state.dnfRounds == 0, state.dnfExtraReps == 0 else { return }
+        state.dnfRounds = max(0, state.stationCount - 1)
+    }
+
+    /// A fitness run is scored by its list: finished stations hold their work, the one the
+    /// athlete stopped on holds what was done of it, the rest hold nothing, and the run
+    /// row counts one run per station reached.
+    private func syncFitnessRunRows(_ state: inout State) {
+        guard let fitnessRun = state.fitnessRun else { return }
+        let stations = state.stationIndices
+        let isFinished = state.wodStatus == .completed
+        let finished = isFinished ? stations.count : min(state.dnfRounds, stations.count)
+        let partial = isFinished ? 0 : state.dnfExtraReps
+
+        for index in stations {
+            let position = index - stations.lowerBound
+            var exercise = state.result.exercises[index]
+            if position < finished {
+                // A station brought back keeps what the athlete typed; only an emptied one returns to the plan.
+                if exercise.actualReps == nil {
+                    exercise.actualReps = exercise.plannedReps
+                    exercise.actualWeight = exercise.plannedWeight
+                }
+            } else if position == finished, partial > 0 {
+                exercise.actualReps = exercise.target?.with(count: partial).compactString ?? "\(partial)"
+                exercise.actualWeight = exercise.plannedWeight
+            } else {
+                exercise.actualReps = nil
+                exercise.actualWeight = nil
+            }
+            state.result.exercises[index] = exercise
+        }
+
+        if let runRowIndex = state.runRowIndex {
+            let runs = finished + (partial > 0 ? 1 : 0)
+            state.result.exercises[runRowIndex].actualReps
+                = ExerciseTarget.meters(fitnessRun.runMeters * runs).compactString
+        }
     }
 
     /// A ladder's rounds shrink, so each movement's total is the sum of the rungs it reached.

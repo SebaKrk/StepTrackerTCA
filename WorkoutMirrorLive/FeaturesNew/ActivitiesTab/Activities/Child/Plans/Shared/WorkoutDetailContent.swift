@@ -143,6 +143,8 @@ struct WorkoutDetailContent: View {
                         Label(ladderDescription(ladder), systemImage: "arrow.clockwise")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                    } else if workout.fitnessRun != nil {
+                        fitnessRunBadge
                     } else if let rounds = workout.rounds {
                         Label("\(rounds) rounds", systemImage: "arrow.clockwise")
                             .font(.caption)
@@ -158,8 +160,16 @@ struct WorkoutDetailContent: View {
 
                 Divider()
 
-                ForEach(workout.exercises) { exercise in
-                    exerciseRow(exercise, type: workout.type)
+                if let fitnessRun = workout.fitnessRun {
+                    fitnessRunLine(fitnessRun)
+                    ForEach(Array(workout.exercises.enumerated()), id: \.element.id) { index, exercise in
+                        exerciseRow(exercise, type: workout.type, stationNumber: index + 1)
+                    }
+                    fitnessRunTotals(fitnessRun, stationCount: workout.exercises.count)
+                } else {
+                    ForEach(workout.exercises) { exercise in
+                        exerciseRow(exercise, type: workout.type)
+                    }
                 }
 
                 if let notes = workout.notes, !notes.isEmpty {
@@ -184,6 +194,41 @@ struct WorkoutDetailContent: View {
         .styledGroupBox()
     }
 
+    // MARK: - Fitness Run
+
+    private var fitnessRunBadge: some View {
+        Text("Fitness Run")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private func fitnessRunLine(_ fitnessRun: FitnessRunPlan) -> some View {
+        Text("Run \(fitnessRun.runMeters) m before every station")
+            .font(.subheadline)
+            .fontWeight(.medium)
+            .foregroundStyle(.blue)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.blue.opacity(0.15), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func fitnessRunTotals(_ fitnessRun: FitnessRunPlan, stationCount: Int) -> some View {
+        Text("Stations: \(stationCount) · run in total: \(fitnessRun.totalRunMeters(stationCount: stationCount)) m")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private func stationNumberLabel(_ number: Int) -> some View {
+        Text("\(number)")
+            .font(.caption)
+            .fontWeight(.semibold)
+            .monospacedDigit()
+            .foregroundStyle(.secondary)
+            .frame(width: 16, alignment: .leading)
+            .padding(.top, 2)
+    }
+
     private func flagBadge(_ count: Int) -> some View {
         Label("\(count)", systemImage: "exclamationmark.triangle.fill")
             .font(.caption)
@@ -193,12 +238,20 @@ struct WorkoutDetailContent: View {
 
     // MARK: - Exercise Row
 
-    private func exerciseRow(_ exercise: ExerciseSession, type: ExerciseWorkoutType) -> some View {
+    private func exerciseRow(
+        _ exercise: ExerciseSession,
+        type: ExerciseWorkoutType,
+        stationNumber: Int? = nil
+    ) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Circle()
-                .fill(Color.blue.opacity(0.3))
-                .frame(width: 8, height: 8)
-                .padding(.top, 6)
+            if let stationNumber {
+                stationNumberLabel(stationNumber)
+            } else {
+                Circle()
+                    .fill(Color.blue.opacity(0.3))
+                    .frame(width: 8, height: 8)
+                    .padding(.top, 6)
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack {

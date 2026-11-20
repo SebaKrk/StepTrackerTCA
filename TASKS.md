@@ -1871,13 +1871,27 @@
     - a For Time without a cap blocked Save and sent the user to the editor; the app could always store one, so the review card now asks for an OK instead
     - a long plan did not fit a QR code. Identifiers were over half of it and the receiver throws them away, so the QR code leaves them out and the reader mints new ones. Team plans keep the full envelope, which older builds still read
 
-### IOS-00194 Fitness Run: the run is written once, the stations are the list (planned)
-    - branch: not created yet (from develop, after IOS-00193 is merged)
-    - today a run-and-stations race is a For Time block of 16 movements, the same run repeated before every station: a long plan, a wall of fields in the summary, a dense QR code
+### IOS-00194 Fitness Run: the run is written once, the stations are the list
+    - branch: `dev/IOS-00194/IOS-00194` (from develop)
+    - a run-and-stations race was a For Time block of 16 movements, the same run repeated before every station: a long plan, a wall of fields in the summary, a dense QR code
     - the block stays For Time and gains an optional `fitnessRun` (the run done before every station), next to `interval`; blocks without it are untouched and stored plans keep working
-    - scan: the form gets the run-before-each-station field and the reader stops repeating the run; the brand name leaves the prompt
-    - plan and summary: one line for the run above numbered stations; summary rows are plain text and only the tapped row shows fields, with the plan shown only where the result differs
-    - editor: a "run before every station" switch with its distance
-    - editor, every block type: drag handles to reorder movements. The reducer already handles `exerciseMoved`, the view never sends it
-    - live session and Watch: to be explored before any promise
-    - open: the time field stops at 99 minutes, and these sessions run longer
+    - scan: the form has a run-before-each-station field and the reader lists the stations only. The app names the form it reads; a build that names none gets the run written out before every station by the proxy, so older builds lose nothing
+    - plan: one line for the run above numbered stations, and the totals under them
+    - summary: the run is one result row holding the whole distance, so it is stored once and counted. Rows read as text and only the tapped row shows its fields; the plan appears only where the result differs. The time wheels reach 240 minutes for these blocks
+    - editor: a "run before every station" switch with its distance, For Time only
+    - editor, every block type: a grip to drag a movement onto another row, and move up / move down in the row menu. The reducer already handled `exerciseMoved`; the view never sent it
+    - the block's text snapshot names the run, which is what the live session and the Watch show
+    - unfinished: a fitness run offers completed / not finished even without a cap. Not finished asks for the stations done with the same stepper every other block uses; the station the athlete stopped on is the one row that asks how much of it was done, the rows after it hold nothing, and the run row counts one run per station reached. Stored as rounds plus loose work, so the team board already ranks it below every finisher
+    - the counter starts one station short of the end: counting from zero emptied every row on the flip, typed values included
+    - not done: the time at which an unfinished run stopped, a per-run split time, a dedicated live-session screen that walks station by station, and a score line that says "stations" instead of "rds"
+
+### IOS-00195 A plan's QR code is a link: it opens the app, or the App Store (planned)
+    - branch: not created yet
+    - today the QR code holds the bare payload, so only our own scanner can read it; the phone's camera shows a string
+    - the code carries an address with the plan after it. With the app installed the camera opens it straight on the import; without it a small page sends the visitor to the App Store
+    - the plan rides in the fragment of the address, which is never sent to a server, so it stays between the two phones
+    - needs: a domain or Firebase Hosting, the landing page, the app-site association file, and the Associated Domains entitlement
+    - a new envelope version, since older builds cannot read an address; the address costs about 30 characters of the code
+    - someone who installs the app from the page scans the code again: the App Store hands nothing to a fresh install
+    - the same address would let a plan travel as a link in a message
+    - worth doing just before the App Store release: there is no download address before that

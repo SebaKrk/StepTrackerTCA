@@ -71,7 +71,10 @@ extension ScannedSection {
             interval: interval,
             notes: combinedNotes,
             everySeconds: type == .emom ? (everySec > 0 ? everySec : 60) : nil,
-            repScheme: repScheme.isEmpty ? nil : repScheme
+            repScheme: repScheme.isEmpty ? nil : repScheme,
+            fitnessRun: (runBeforeEachMeters > 0 && !exercises.isEmpty)
+                ? FitnessRunPlan(runMeters: runBeforeEachMeters)
+                : nil
         )
     }
 

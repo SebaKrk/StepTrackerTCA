@@ -77,8 +77,8 @@ const movement = object(
 // (format, times, movements), the judgments about it (rounds, kind, name) after.
 const section = object(
   [
-    "label", "format", "timeCapMin", "everySec", "workSec", "restSec", "repScheme", "text",
-    "movements", "roundCount", "restBetweenRoundsSec", "writtenDurationMin", "kind", "name",
+    "label", "format", "timeCapMin", "everySec", "workSec", "restSec", "repScheme",
+    "runBeforeEachMeters", "text", "movements", "roundCount", "restBetweenRoundsSec", "writtenDurationMin", "kind", "name",
     "notes", "uncertain",
   ],
   {
@@ -92,6 +92,9 @@ const section = object(
     workSec: integer("Work seconds of tabata / intervals (tabata 20); 0 otherwise"),
     restSec: integer("Rest seconds of tabata / intervals (tabata 10); 0 otherwise"),
     repScheme: array(integer("Reps of one round"), "Rep ladder like 21-15-9; empty otherwise. Never a load, never a set scheme of one movement"),
+    runBeforeEachMeters: integer(
+      "Metres of a run done before EVERY movement of the list ('1 km run + station' above a list of stations → 1000); the run is then NOT among the movements. 0 otherwise"
+    ),
     text: string("Warm-up / cool-down board text verbatim; empty for other kinds"),
     movements: array(movement, "Movements of the block in board order; empty for warm-up / cool-down text"),
     roundCount: integer("How many times the whole list repeats ('4 rounds', tabata 8, '} 3x'); 0 when a repScheme is used"),
