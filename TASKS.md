@@ -1895,3 +1895,14 @@
     - someone who installs the app from the page scans the code again: the App Store hands nothing to a fresh install
     - the same address would let a plan travel as a link in a message
     - worth doing just before the App Store release: there is no download address before that
+
+### IOS-00196 An open ladder counts its own reps
+    - branch: `dev/IOS-00196/IOS-00196` (from develop)
+    - "AMRAP 15': 1-2-3-4-5-6-…" came out of the scan with the ladder in a note, so the summary showed an empty field per movement and left the athlete to add up every round by hand
+    - a block gains an optional `openLadder` (first rung and step), next to `fitnessRun`; a closed ladder like 21-15-9 stays where it was
+    - scan: the form has a `repSchemeContinues` flag, and the reader keeps the ladder out of the notes. A build below form 3 gets it back as a note, which is what it always received
+    - scan: one line of the board is one movement — "burpee box jump" was read as burpees and box jumps
+    - summary: the two counters of an AMRAP write every movement's reps, the whole rounds in full and the round in progress in board order. The loose-reps counter names its round and stops one short of a whole one; each row says where its number came from
+    - plan: the ladder is a quiet label beside the type and the cap, "AMRAP · 15 min · 1-2-3-4-5-6…", the way a closed ladder already reads; the fitness run moved to the same place and lost its blue bar
+    - the reader fills the ladder field on one scan and writes the ladder into the notes on the next, so the proxy enforces it: an open ladder found in the notes of a block without numbers becomes the ladder, and a note quoting it is dropped
+    - not done: the editor cannot set an open ladder by hand, and a ladder that starts descending and continues is read but untested
