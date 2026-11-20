@@ -10,13 +10,26 @@ import Foundation
 /// The one table of what each tier opens.
 extension SubscriptionTier {
 
+    /// Whether Basic is limited at all.
+    ///
+    /// Off in shipped builds until Pro can really be bought: a limit nobody can lift
+    /// would only lock people out. Debug builds keep it on so the locks stay testable.
+    public static var enforcesLimits: Bool {
+        #if DEBUG
+        true
+        #else
+        false
+        #endif
+    }
+
     /// Whether this tier opens a feature sold with Pro.
     public func opens(_ feature: ProFeature) -> Bool {
-        self == .pro
+        !Self.enforcesLimits || self == .pro
     }
 
     /// How many of the most recent workouts or plans this tier opens; `nil` opens all.
     public var openRecentItemCount: Int? {
+        guard Self.enforcesLimits else { return nil }
         switch self {
         case .basic:
             return 3
