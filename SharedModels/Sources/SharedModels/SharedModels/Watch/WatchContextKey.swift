@@ -16,4 +16,7 @@ public enum WatchContextKey {
 
     /// Holds a JSON-encoded `ReadinessSnapshot`.
     public static let readinessSnapshot = "readinessSnapshot"
+
+    /// Holds `true` when readiness needs Pro; sent instead of a snapshot.
+    public static let readinessLocked = "readinessLocked"
 }

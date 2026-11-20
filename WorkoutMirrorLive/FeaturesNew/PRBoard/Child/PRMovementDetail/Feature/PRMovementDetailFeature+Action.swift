@@ -29,6 +29,9 @@ extension PRMovementDetailFeature {
         /// Presentation actions of the delete-failure alert.
         case alert(PresentationAction<Alert>)
 
+        /// Forwards actions of the presented offer of Pro.
+        case subscriptionOffer(PresentationAction<SubscriptionOfferFeature.Action>)
+
         /// Alert has no custom buttons — OK only dismisses it.
         @CasePathable
         enum Alert: Equatable {}
@@ -44,6 +47,9 @@ extension PRMovementDetailFeature {
 
             /// Switches the progress chart to one year's entries.
             case chartYearTapped(Int)
+
+            /// Asks to open a section Basic does not open — shows the offer of Pro.
+            case unlockTapped
         }
 
         @CasePathable

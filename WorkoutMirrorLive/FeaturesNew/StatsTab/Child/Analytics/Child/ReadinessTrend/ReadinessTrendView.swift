@@ -25,7 +25,10 @@ struct ReadinessTrendView: View {
                 .subscriptionOverlay(
                     contentState: store.contentState,
                     subscriptionTier: store.subscriptionTier,
-                    requiredTier: store.requiredTier
+                    feature: .readinessTrend,
+                    onUnlockTapped: {
+                        send(.unlockButtonTapped)
+                    }
                 )
         } label: {
             headerView

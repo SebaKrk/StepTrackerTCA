@@ -86,6 +86,10 @@ extension StatsFeature {
             /// Triggered when the user selects a subscription tier option.
             /// Sends the chosen tier as an associated value.
             case subscriptionTierButtonTapped(SubscriptionTier)
+
+            /// Triggered from the tier menu to preview the end of the free period
+            /// under the given trial strategy.
+            case trialEndedPreviewButtonTapped(TrialStrategy)
             
             /// Checks whether the DataAnalyzer API is available on the current device (iOS 26+).
             case checkDataAnalyzerAvailability

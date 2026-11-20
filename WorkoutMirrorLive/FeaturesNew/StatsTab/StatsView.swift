@@ -72,6 +72,10 @@ struct StatsView: View {
                 PRBoardView(store: store)
                     .navigationTransition(.zoom(sourceID: "prBoard", in: zoomTransition))
             }
+            .sheet(item: $store.scope(state: \.destination?.subscriptionOffer,
+                                      action: \.destination.subscriptionOffer)) { store in
+                SubscriptionOfferView(store: store)
+            }
     }
     
     @ToolbarContentBuilder
@@ -89,7 +93,7 @@ struct StatsView: View {
 #if DEBUG
             let showDataAnalyzerButton = true
 #else
-            let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier == .elite
+            let showDataAnalyzerButton = store.isDataAnalyzerAvailable && store.subscriptionTier.opens(.dataAnalyzer)
 #endif
             if showDataAnalyzerButton {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -110,6 +114,8 @@ struct StatsView: View {
                     send(.subscriptionTierButtonTapped(tier))
                 }
             }
+            trialEndedPreviewButton(.appManaged, title: "Basic after 14 days — no card")
+            trialEndedPreviewButton(.storeIntroOffer, title: "Basic after 14 days — with card")
             Divider()
             Text(store.subscriptionTier.name)
         } label: {
@@ -117,6 +123,14 @@ struct StatsView: View {
         }
     }
     
+    private func trialEndedPreviewButton(_ strategy: TrialStrategy, title: String) -> some View {
+        Button {
+            send(.trialEndedPreviewButtonTapped(strategy))
+        } label: {
+            Text(verbatim: title)
+        }
+    }
+
     private var dataAnalyzerButton: some View {
         Button {
             send(.dataAnalyzerButtonTapped)

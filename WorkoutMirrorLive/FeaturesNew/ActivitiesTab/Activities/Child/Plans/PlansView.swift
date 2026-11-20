@@ -59,6 +59,14 @@ struct PlansView: View {
         ) { importStore in
             ImportPlanView(store: importStore)
         }
+        .sheet(
+            item: $store.scope(
+                state: \.destination?.subscriptionOffer,
+                action: \.destination.subscriptionOffer
+            )
+        ) { offerStore in
+            SubscriptionOfferView(store: offerStore)
+        }
         .onAppear {
             send(.viewDidAppear)
         }
@@ -73,15 +81,16 @@ struct PlansView: View {
         } else {
             ScrollViewReader { proxy in
                 List {
-                    ForEach(store.sessions) { workout in
-                        PlanSummaryCard(session: workout) {
-                            send(.workoutTapped(workout))
+                    planRows(store.unlockedSessions, isLocked: false)
+                    if !store.lockedSessions.isEmpty {
+                        Section {
+                            planRows(store.lockedSessions, isLocked: true)
+                        } header: {
+                            unlockOlderPlansBanner
                         }
                     }
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
                 }
+                .animation(.default, value: store.subscriptionTier)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 // The offset at rest is the negated top inset, so the sum is
@@ -92,11 +101,34 @@ struct PlansView: View {
                     send(.scrolledChanged(isScrolled))
                 }
                 .onChange(of: store.scrollToTopToken) {
-                    guard let first = store.sessions.first else { return }
+                    guard let first = store.unlockedSessions.first ?? store.lockedSessions.first else { return }
                     withAnimation { proxy.scrollTo(first.id, anchor: .top) }
                 }
             }
         }
+    }
+
+    private func planRows(_ sessions: [TrainingSession], isLocked: Bool) -> some View {
+        ForEach(sessions) { workout in
+            PlanSummaryCard(session: workout, isLocked: isLocked) {
+                send(.workoutTapped(workout))
+            }
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+    }
+
+    /// Pinned by the list while the locked plans scroll under it.
+    private var unlockOlderPlansBanner: some View {
+        UnlockOlderItemsBanner(
+            title: String(localized: "Older plans in Pro"),
+            lockedCount: store.lockedSessions.count
+        ) {
+            send(.unlockOlderTapped)
+        }
+        .textCase(nil)
+        .listRowInsets(EdgeInsets())
     }
 
     // MARK: - Implementation
