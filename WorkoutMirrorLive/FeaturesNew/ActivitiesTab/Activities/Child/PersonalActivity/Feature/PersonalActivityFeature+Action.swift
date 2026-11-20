@@ -35,24 +35,42 @@ extension PersonalActivityFeature {
         /// Handles the result of all workout zone analyses.
         case allWorkoutZonesAnalyzed([UUID: PrimaryZoneInfo])
 
+        /// Exercise names of plan-linked workouts loaded from the database.
+        case exerciseNamesLoaded([UUID: String])
+
         /// Triggered when workout deletion fails (e.g. not owned by this app).
         case deleteFailed
         
+        /// Asks the list to scroll back to its top.
+        case scrollToTop
+
         // MARK: - View Actions
-        
+
         case view(View)
-        
+
         @CasePathable
         enum View {
 
             /// Triggered when the view appears on screen.
             case viewDidAppear
 
+            /// Reports whether the list sits away from its top.
+            case scrolledChanged(Bool)
+
             /// Changes the number of days to fetch workouts for.
             case changeDays(Int)
 
             /// Changes the sort option for workouts list.
             case changeSortOption(ActivitiesSortOption)
+
+            /// User picked an activity type in the filter menu; `nil` = all types.
+            case changeActivityTypeFilter(HKWorkoutActivityType?)
+
+            /// User edited the exercise search field.
+            case changeExerciseSearchText(String)
+
+            /// User opened or closed the search field; closing clears the search text.
+            case changeSearching(Bool)
 
             /// Opens workout details screen.
             case openDetails(HKWorkout)

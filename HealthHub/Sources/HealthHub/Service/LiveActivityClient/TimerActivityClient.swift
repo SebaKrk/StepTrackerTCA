@@ -37,6 +37,13 @@ public struct TimerActivityClient: Sendable {
     public var stop: @Sendable (
         _ activityId: String
     ) async throws -> Void
+
+    /// Ends the timer Live Activities started before `startedBefore`, without needing an id.
+    ///
+    /// The session shows either this banner or the workout one, so launch-time
+    /// reconciliation has to reap both — reaping one type leaves the other stranded.
+    /// The cutoff keeps the sweep off anything this launch created.
+    public var endOrphans: @Sendable (_ startedBefore: Date) async -> Int = { _ in 0 }
 }
 
 // MARK: - DependencyKey
@@ -51,7 +58,7 @@ extension TimerActivityClient: DependencyKey {
             
             let activity = try Activity.request(
                 attributes: attributes,
-                content: .init(state: initialState, staleDate: nil),
+                content: .init(state: initialState, staleDate: LiveActivityStaleness.date),
                 pushType: nil
             )
             
@@ -64,7 +71,7 @@ extension TimerActivityClient: DependencyKey {
             }
             
             await activity.update(
-                .init(state: newState, staleDate: nil)
+                .init(state: newState, staleDate: LiveActivityStaleness.date)
             )
         },
         stop: { activityId in
@@ -74,9 +81,17 @@ extension TimerActivityClient: DependencyKey {
             }
             
             await activity.end(nil, dismissalPolicy: .immediate)
+        },
+        endOrphans: { startedBefore in
+            let orphans = Activity<TimerActivityAttributes>.activities
+                .filter { $0.attributes.startTime < startedBefore }
+            for activity in orphans {
+                await activity.end(nil, dismissalPolicy: .immediate)
+            }
+            return orphans.count
         }
     )
-    
+
     public static let previewValue = Self(
         start: { timerName, initialState in
             print("⏱️ [Timer Preview] Started: \(timerName)")
@@ -91,6 +106,10 @@ extension TimerActivityClient: DependencyKey {
         },
         stop: { activityId in
             print("🛑 [Timer Preview] Stopped: \(activityId)")
+        },
+        endOrphans: { _ in
+            print("🛑 [Timer Preview] Ended orphaned activities")
+            return 0
         }
     )
     

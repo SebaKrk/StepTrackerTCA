@@ -181,14 +181,35 @@ struct StatsView: View {
     }
     
     private var todayView: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                ringActivitiesSummaryView()
-                trainingReadinessView()
-                summaryCards()
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 12) {
+                    // A marker of its own, never a card: every card here is
+                    // conditional, and `scrollTo` on an id that is not in the
+                    // hierarchy does nothing at all, silently.
+                    Color.clear
+                        .frame(height: 0)
+                        .id(Self.topAnchor)
+                    ringActivitiesSummaryView()
+                    trainingReadinessView()
+                    summaryCards()
+                }
+            }
+            // The offset at rest is the negated top inset, so the sum is zero
+            // exactly when the view sits at its top.
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top > 1
+            } action: { _, isScrolled in
+                store.send(.todayScrolledChanged(isScrolled))
+            }
+            .onChange(of: store.scrollToTopToken) {
+                withAnimation { proxy.scrollTo(Self.topAnchor, anchor: .top) }
             }
         }
     }
+
+    /// Identifies the first card, so the proxy has something to scroll back to.
+    private static let topAnchor = "stats-today-top"
     
     @ViewBuilder
     private var analyticsActivityView: some View {

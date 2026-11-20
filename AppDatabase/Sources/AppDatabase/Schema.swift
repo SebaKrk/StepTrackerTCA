@@ -436,6 +436,99 @@ public enum AppDatabaseSchema {
             .execute(db)
         }
 
+        // Implement dimension (IOS-00135) — additive column, nullable.
+        // NULL means the plan text said nothing, so the movement default applies.
+        migrator.registerMigration("v14_exerciseLog_addEquipment") { db in
+            try #sql("""
+                ALTER TABLE "exerciseLogRecords" ADD COLUMN "equipment" TEXT
+                """)
+            .execute(db)
+        }
+
+        // Every save used to mint a fresh row id, so re-editing a result appended a second
+        // copy of the whole workout instead of overwriting it. One save writes its exercises
+        // within milliseconds while re-saves sit seconds apart, so the newest such batch is
+        // the last save — and it holds the corrections the earlier copies are missing.
+        // A movement legitimately repeated inside one workout shares that batch and survives.
+        migrator.registerMigration("v15_exerciseLog_dropDuplicateSaves") { db in
+            try #sql("""
+                DELETE FROM "exerciseLogRecords"
+                WHERE "workoutPlanScoreId" IS NOT NULL
+                  AND (julianday((SELECT MAX("newest"."createdAt")
+                                  FROM "exerciseLogRecords" AS "newest"
+                                  WHERE "newest"."workoutPlanScoreId" = "exerciseLogRecords"."workoutPlanScoreId"))
+                       - julianday("createdAt")) * 86400.0 > 2.0
+                """)
+            .execute(db)
+        }
+
+        // Explicit equipment choice (including deliberate no-implement) from the
+        // plan editor must survive the workout result save. Existing rows remain nil.
+        migrator.registerMigration("v16_exerciseLog_equipmentSelection") { db in
+            try #sql("ALTER TABLE \"exerciseLogRecords\" ADD COLUMN \"equipmentSelection\" TEXT")
+                .execute(db)
+        }
+
+        // A plan downloaded from a Team group remembers which daily plan it came from,
+        // so a second download finds it and results post to that group. Own plans stay nil.
+        migrator.registerMigration("v17_trainingSession_teamPlanId") { db in
+            try #sql("ALTER TABLE \"trainingSessionRecords\" ADD COLUMN \"teamPlanId\" TEXT")
+                .execute(db)
+        }
+
+        // Readiness history. Keyed by the readiness day, so recalculating a day
+        // replaces it instead of appending a second row for the same morning.
+        migrator.registerMigration("v18_trainingReadinessHistory") { db in
+            try #sql("""
+                CREATE TABLE "trainingReadinessRecords" (
+                  "id"                        TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+                  "overallScore"              INTEGER NOT NULL,
+                  "algorithmVersion"          INTEGER NOT NULL,
+                  "isReliable"                INTEGER NOT NULL,
+                  "anchor"                    TEXT NOT NULL,
+                  "wakeTime"                  TEXT NOT NULL,
+                  "restingHeartRateScore"     INTEGER,
+                  "restingHeartRateValue"     REAL,
+                  "restingHeartRateBaseline"  REAL,
+                  "hrvScore"                  INTEGER,
+                  "hrvValue"                  REAL,
+                  "hrvBaseline"               REAL,
+                  "sleepScore"                INTEGER,
+                  "sleepValue"                REAL,
+                  "sleepBaseline"             REAL,
+                  "loadScore"                 INTEGER,
+                  "loadValue"                 REAL,
+                  "loadBaseline"              REAL,
+                  "calculatedAt"              TEXT NOT NULL
+                ) STRICT
+                """)
+            .execute(db)
+        }
+
+        migrator.registerMigration("v19_readinessDayKeyAsCalendarDate") { db in
+            // The key changed from a stored instant to a calendar date, so old
+            // keys neither sort nor compare against new ones. Every row is
+            // derived from HealthKit and the backfill rebuilds them, which is
+            // cheaper and safer than translating offsets that may no longer hold.
+            try #sql("""
+                DELETE FROM "trainingReadinessRecords"
+                """)
+            .execute(db)
+        }
+
+        migrator.registerMigration("v20_userProfile_accountAndOnboarding") { db in
+            try #sql("""
+                ALTER TABLE "userProfileRecords"
+                ADD COLUMN "accountUid" TEXT NOT NULL ON CONFLICT REPLACE DEFAULT ''
+                """)
+            .execute(db)
+
+            try #sql("""
+                ALTER TABLE "userProfileRecords" ADD COLUMN "onboardedAt" TEXT
+                """)
+            .execute(db)
+        }
+
         return migrator
     }
 }

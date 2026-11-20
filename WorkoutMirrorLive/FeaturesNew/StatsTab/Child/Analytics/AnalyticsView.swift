@@ -18,18 +18,39 @@ struct AnalyticsView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                workoutVolumeSection()
-                weightTrendSection()
-                readinessTrendSection()
-                healthMetricsTrendSection()
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 12) {
+                    // A marker of its own, never a section: every section here
+                    // is conditional, and `scrollTo` on an id that is not in
+                    // the hierarchy does nothing at all, silently.
+                    Color.clear
+                        .frame(height: 0)
+                        .id(Self.topAnchor)
+                    workoutVolumeSection()
+                    weightTrendSection()
+                    readinessTrendSection()
+                    healthMetricsTrendSection()
+                }
+            }
+            // The offset at rest is the negated top inset, so the sum is zero
+            // exactly when the view sits at its top.
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top > 1
+            } action: { _, isScrolled in
+                send(.scrolledChanged(isScrolled))
+            }
+            .onChange(of: store.scrollToTopToken) {
+                withAnimation { proxy.scrollTo(Self.topAnchor, anchor: .top) }
+            }
+            .onAppear {
+                send(.viewDidAppear)
             }
         }
-        .onAppear {
-            send(.viewDidAppear)
-        }
     }
+
+    /// Identifies the first section, so the proxy has something to scroll back to.
+    private static let topAnchor = "analytics-top"
 
     // MARK: - Sections
 

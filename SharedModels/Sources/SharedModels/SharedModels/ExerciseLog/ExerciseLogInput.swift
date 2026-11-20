@@ -49,6 +49,12 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
     /// Known exercise type from the catalog. `nil` when the exercise was not matched.
     public var exerciseType: ExerciseType?
 
+    /// Implement stated in the plan text; `nil` means the movement's default applies.
+    public var equipment: Equipment?
+
+    /// Explicit plan choice; nil denotes an older plan using automatic resolution.
+    public var equipmentSelection: ExerciseEquipmentSelection?
+
     /// Original name from OCR/AI when `exerciseType` is `nil` (unmatched exercise).
     public var unmatchedName: String?
 
@@ -106,6 +112,8 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
     public init(
         id: UUID = UUID(),
         exerciseType: ExerciseType? = nil,
+        equipment: Equipment? = nil,
+        equipmentSelection: ExerciseEquipmentSelection? = nil,
         unmatchedName: String? = nil,
         category: MovementCategory? = nil,
         target: ExerciseTarget? = nil,
@@ -120,6 +128,8 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
     ) {
         self.id = id
         self.exerciseType = exerciseType
+        self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.unmatchedName = unmatchedName
         self.category = category
         self.target = target
@@ -140,6 +150,8 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
         self.init(
             id: log.id,
             exerciseType: log.exerciseType,
+            equipment: log.equipment,
+            equipmentSelection: log.equipmentSelection,
             unmatchedName: log.unmatchedName,
             category: log.category,
             plannedReps: log.plannedReps,
@@ -151,5 +163,29 @@ public struct ExerciseLogInput: Equatable, Codable, Sendable, Identifiable {
             isPR: log.isPR,
             note: log.note ?? ""
         )
+    }
+}
+
+// MARK: - Implement
+
+extension ExerciseLogInput {
+
+    /// Implement in play: the one the plan text named, else the movement's default.
+    public var effectiveEquipment: Equipment? {
+        switch equipmentSelection {
+        case .some(.automatic), nil: equipment ?? exerciseType?.defaultEquipment
+        case .some(.none): nil
+        case let .some(.equipment(value)): value
+        }
+    }
+
+    /// Whether the result editor must offer a weight field.
+    /// The implement decides when it is known; the movement's category is the fallback.
+    public var requiresWeight: Bool {
+        if equipmentSelection == .some(.none) { return false }
+        if let effectiveEquipment {
+            return effectiveEquipment.impliesLoad
+        }
+        return exerciseType?.requiresWeight ?? false
     }
 }

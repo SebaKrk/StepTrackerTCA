@@ -20,14 +20,33 @@ struct ResultCardHeader: View {
 
     // MARK: - Properties
 
+    /// Which chip color the block carries.
     let kind: Kind
+
+    /// Text inside that chip — the block's name, or "Strength".
     let chipText: String
+
+    /// Movement or block name beside the chips; absent for a plain WOD.
     let name: String?
+
+    /// Plan line under the header, already assembled by the card.
     let planSub: String?
+
+    /// Format and timing chip ("11 min cap"); absent where the format has no clock.
     let capText: String?
-    let status: StatusControl.Mode?
+
+    /// Status control on the right, as the reducer decided it. `nil` means none.
+    let status: WODScoringFeature.StatusKind?
+
+    /// The section's accent.
     let accent: Color
+
+    /// Reports a pick from the status segment; never fires for a frozen pill.
+    let onStatusChange: (WODScoringFeature.WodStatus) -> Void
+
+    /// Colors of the surrounding Summary section.
     @Environment(\.summaryPalette) private var theme
+
     // MARK: - Body
 
     var body: some View {
@@ -116,8 +135,13 @@ struct ResultCardHeader: View {
 
     @ViewBuilder
     private var statusControl: some View {
-        if let status {
-            StatusControl(mode: status, accent: accent)
+        switch status {
+        case let .pill(verdict):
+            StatusPill(status: verdict, accent: accent)
+        case let .segment(current):
+            StatusSegment(status: current, accent: accent, onChange: onStatusChange)
+        case .none:
+            EmptyView()
         }
     }
 
@@ -142,7 +166,8 @@ struct ResultCardHeader: View {
                 planSub: "Plan: 2×2 @ 85%, 3×2 @ 95%",
                 capText: nil,
                 status: nil,
-                accent: SummaryTheme.mint
+                accent: SummaryTheme.mint,
+                onStatusChange: { _ in }
             )
         }
         .summaryCard()
@@ -154,8 +179,9 @@ struct ResultCardHeader: View {
                 name: nil,
                 planSub: nil,
                 capText: "11 min cap",
-                status: .segment(status: .completed, onChange: { _ in }),
-                accent: SummaryTheme.mint
+                status: .segment(.completed),
+                accent: SummaryTheme.mint,
+                onStatusChange: { _ in }
             )
         }
         .summaryCard()
@@ -167,8 +193,9 @@ struct ResultCardHeader: View {
                 name: nil,
                 planSub: nil,
                 capText: nil,
-                status: .pill(completed: true),
-                accent: SummaryTheme.mint
+                status: .pill(.completed),
+                accent: SummaryTheme.mint,
+                onStatusChange: { _ in }
             )
         }
         .summaryCard()

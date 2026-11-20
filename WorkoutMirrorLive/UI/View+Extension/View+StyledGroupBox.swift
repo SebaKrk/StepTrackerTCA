@@ -8,7 +8,9 @@
 import SwiftUI
 
 extension View {
-    func styledGroupBox() -> some View {
-        self.modifier(StyledGroupBoxModifier())
+    /// `tint` colours the whole card instead of the neutral skin — for a card that
+    /// is itself a call to action, so the colour does not have to sit on an inner button.
+    func styledGroupBox(tint: Color? = nil) -> some View {
+        self.modifier(StyledGroupBoxModifier(tint: tint))
     }
 }

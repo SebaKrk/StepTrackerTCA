@@ -53,6 +53,10 @@ struct ExerciseEditorFeature {
                 state.destination = .picker(ExercisePickerFeature.State())
                 return .none
 
+            case .view(.equipmentSelectionChanged(let selection)):
+                state.draft.equipmentSelection = selection
+                return .none
+
             case .view(.targetToggled(let enabled)):
                 state.draft.target = enabled ? .reps(10) : nil
                 state.draft.plannedSets = nil
@@ -90,8 +94,8 @@ struct ExerciseEditorFeature {
 
             case .view(.setRepsChanged(let index, let reps)):
                 guard var sets = state.draft.plannedSets, sets.indices.contains(index) else { return .none }
-                // Reps-only edit — the scanned per-set weight suggestion survives.
-                sets[index] = PlannedSet(reps: max(1, reps), suggestedWeight: sets[index].suggestedWeight)
+                // Reps-only edit — the scanned weight, unit and percent survive.
+                sets[index] = sets[index].withReps(max(1, reps))
                 state.draft.plannedSets = sets
                 return .none
 
@@ -99,6 +103,10 @@ struct ExerciseEditorFeature {
 
             case .destination(.presented(.picker(.delegate(.selected(let type))))):
                 state.draft.type = type
+                if !type.supportsEquipmentSelection {
+                    state.draft.equipment = nil
+                    state.draft.equipmentSelection = nil
+                }
                 if type != .unknown { state.draft.customName = nil }
                 return .none
 

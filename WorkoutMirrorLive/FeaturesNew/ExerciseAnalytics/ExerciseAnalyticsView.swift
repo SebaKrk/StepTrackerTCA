@@ -19,17 +19,34 @@ struct ExerciseAnalyticsView: View {
     // MARK: - Body
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                monthSelector
-                movementBalanceCard
-                sortModePicker
-                exerciseListCard
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 16) {
+                    // A marker of its own, so the anchor cannot disappear with
+                    // the content it was attached to.
+                    Color.clear
+                        .frame(height: 0)
+                        .id(Self.topAnchor)
+                    monthSelector
+                    movementBalanceCard
+                    sortModePicker
+                    exerciseListCard
+                }
+                .padding()
             }
-            .padding()
-        }
-        .onAppear {
-            send(.onAppear)
+            // The offset at rest is the negated top inset, so the sum is zero
+            // exactly when the view sits at its top.
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top > 1
+            } action: { _, isScrolled in
+                send(.scrolledChanged(isScrolled))
+            }
+            .onChange(of: store.scrollToTopToken) {
+                withAnimation { proxy.scrollTo(Self.topAnchor, anchor: .top) }
+            }
+            .onAppear {
+                send(.onAppear)
+            }
         }
         .sheet(item: $store.scope(state: \.detail, action: \.detail)) { store in
             NavigationStack {
@@ -37,6 +54,9 @@ struct ExerciseAnalyticsView: View {
             }
         }
     }
+
+    /// Identifies the first card, so the proxy has something to scroll back to.
+    private static let topAnchor = "exercise-analytics-top"
 
     // MARK: - Month Selector
 
@@ -206,7 +226,7 @@ struct ExerciseAnalyticsView: View {
 
     private func exerciseRow(_ summary: ExerciseSummary) -> some View {
         Button {
-            send(.exerciseTapped(summary.exerciseType))
+            send(.exerciseTapped(summary.exerciseType, summary.equipment))
         } label: {
             HStack(spacing: 12) {
                 exerciseRowDot(summary)
@@ -230,7 +250,7 @@ struct ExerciseAnalyticsView: View {
     private func exerciseRowHeader(_ summary: ExerciseSummary) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
-                Text(summary.exerciseType.displayName)
+                Text(summary.displayName)
                     .font(.subheadline)
                     .fontWeight(.medium)
                 if summary.hasPR {

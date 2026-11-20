@@ -41,6 +41,7 @@ extension AppFeatureAW {
 
         case view(ViewAction)
 
+        @CasePathable
         enum ViewAction {
 
             /// Called when `AppViewAW` appears on screen.
@@ -48,12 +49,18 @@ extension AppFeatureAW {
             /// Starts listening on the `incomingEventStream` from the paired iPhone.
             case onAppear
 
+            /// Called when the user switches the idle screen tab.
+            case idleTabChanged(IdleTab)
+
         }
-        
+
         // MARK: - Child Actions
 
         /// Delegates to `HRMirrorFeature` child reducer.
         case hrMirror(PresentationAction<HRMirrorFeature.Action>)
+
+        /// Delegates to `ReadinessFeature` child reducer.
+        case readiness(ReadinessFeature.Action)
 
     }
 

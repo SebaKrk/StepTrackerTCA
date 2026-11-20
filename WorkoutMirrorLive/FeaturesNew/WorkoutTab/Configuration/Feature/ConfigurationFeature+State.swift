@@ -32,6 +32,10 @@ extension ConfigurationFeature {
         
         /// Wybrany typ treningu
         var selectedWorkout: WorkoutType? = nil
+
+        /// Aktywność narzucona przez plan — wtedy krok wyboru aktywności nie istnieje,
+        /// a wybór urządzenia od razu startuje trening.
+        let lockedWorkout: WorkoutType?
         
         ///
         var isHeartRateConnected: Bool = false
@@ -57,6 +61,14 @@ extension ConfigurationFeature {
         
         /// DeviceFeature child state
         var device: DeviceFeature.State = .init()
+
+        // MARK: - Init
+
+        /// `lockedWorkout` set means the caller already knows the activity (a plan start).
+        init(lockedWorkout: WorkoutType? = nil) {
+            self.lockedWorkout = lockedWorkout
+            self.selectedWorkout = lockedWorkout
+        }
         
         /// ActivityPickerFeature child state
         var activity: ActivityPickerFeature.State = .init()

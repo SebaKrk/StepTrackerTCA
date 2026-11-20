@@ -7,11 +7,30 @@
 # don't touch a package stay instant.
 
 pre-commit:
+  # Merge and rebase commits carry content already tested on the source
+  # branch; re-running the suites there only blocks release back-merges.
+  skip:
+    - merge
+    - rebase
   parallel: false
   commands:
     sharedmodels-tests:
       glob: "SharedModels/**/*.swift"
       run: DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --package-path SharedModels
-    appdatabase-tests:
-      glob: "AppDatabase/**/*.swift"
-      run: DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --package-path AppDatabase
+    # DISABLED (2026-09-20). AppDatabaseTests cannot link on macOS: Sharing (via
+    # SQLiteData) references its own `__generation: SwiftUI.State<Int>` symbol that
+    # the macOS build never emits, so every commit touching AppDatabase failed here.
+    # Verified dead ends: linking SwiftUI as an allowed client of SwiftUICore, and a
+    # clean .build rebuild — the symbol stays undefined either way.
+    #
+    # It was worse than no gate: the only way past it is LEFTHOOK=0, which also
+    # disables sharedmodels-tests, so a broken check was switching off a working one.
+    #
+    # The suite is NOT lost: CI runs it against an iOS Simulator, where the symbol
+    # resolves — job `simulator-tests (AppDatabase)`. This hook stays off regardless,
+    # because booting a simulator does not belong in a pre-commit gate. Re-enable only
+    # if Sharing ever links on macOS and `swift test` becomes instant again.
+    #
+    # appdatabase-tests:
+    #   glob: "AppDatabase/**/*.swift"
+    #   run: DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test --package-path AppDatabase

@@ -25,36 +25,73 @@ public struct ExerciseSessionDraft: Equatable, Sendable {
     /// Coaching cues, scaling notes or set schemes as free text.
     public var info: String
 
+    /// Implement stated in the scanned name, carried through editing.
+    /// Without this, opening "Edit Exercise" would silently drop it.
+    public var equipment: Equipment?
+
+    /// Explicit user choice; nil preserves legacy plans as automatic selection.
+    public var equipmentSelection: ExerciseEquipmentSelection?
+
     /// Per-set plan carried through editing — preserves structured sets parsed by AI.
     /// Without this, opening "Edit Exercise" would silently drop strength workout sets.
     public var plannedSets: [PlannedSet]?
+
+    /// The target is per limb.
+    public var perSide: Bool
+
+    /// "max reps": there is no target.
+    public var isMaxEffort: Bool
+
+    /// Buy-in / cash-out of a WOD; nil means every round.
+    public var segment: MovementSegment?
+
+    /// Every load option written on the board.
+    public var loadTiers: [LoadTier]?
 
     // MARK: - Init (create)
 
     public init(
         type: ExerciseType = .deadlift,
+        equipment: Equipment? = nil,
+        equipmentSelection: ExerciseEquipmentSelection? = nil,
         customName: String? = nil,
         target: ExerciseTarget? = .reps(10),
         weight: WeightConfiguration? = nil,
         info: String = "",
-        plannedSets: [PlannedSet]? = nil
+        plannedSets: [PlannedSet]? = nil,
+        perSide: Bool = false,
+        isMaxEffort: Bool = false,
+        segment: MovementSegment? = nil,
+        loadTiers: [LoadTier]? = nil
     ) {
         self.type = type
+        self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.customName = customName
         self.target = target
         self.weight = weight
         self.info = info
         self.plannedSets = plannedSets
+        self.perSide = perSide
+        self.isMaxEffort = isMaxEffort
+        self.segment = segment
+        self.loadTiers = loadTiers
     }
 
     // MARK: - Init (edit)
 
     public init(exercise: ExerciseSession) {
         self.type = exercise.type
+        self.equipment = exercise.equipment
+        self.equipmentSelection = exercise.equipmentSelection
         self.customName = exercise.customName
         self.target = exercise.target
         self.weight = exercise.weight
         self.info = exercise.info ?? ""
         self.plannedSets = exercise.plannedSets
+        self.perSide = exercise.perSide
+        self.isMaxEffort = exercise.isMaxEffort
+        self.segment = exercise.segment
+        self.loadTiers = exercise.loadTiers
     }
 }

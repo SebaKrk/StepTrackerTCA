@@ -57,7 +57,17 @@ extension StatsFeature {
         /// Navigation destination controlled by the stats view.
         /// Used to present sheets or pushes defined in `Destination`.
         @Presents var destination: Destination.State?
-        
+
+        // MARK: - Scrolling
+
+        /// Whether the Today scroll view sits away from its top.
+        var isTodayScrolled: Bool = false
+
+        /// Bumped to ask the Today scroll view to go back to the top.
+        ///
+        /// A counter rather than a flag, so two taps in a row both land.
+        var scrollToTopToken: Int = 0
+
         // MARK: - Child
 
         /// Child feature responsible for training readiness calculations and display.

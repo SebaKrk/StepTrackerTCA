@@ -1,0 +1,54 @@
+//
+//  PlanPreviewFeature+State.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Ściuba on 25/10/2026.
+//
+
+import ComposableArchitecture
+import Foundation
+import SharedModels
+import SwiftUI
+
+extension PlanPreviewFeature {
+
+    // No `Equatable`: the presented `ConfigurationFeature.State` is not one, by house convention.
+    @ObservableState
+    struct State {
+
+        // MARK: - Properties
+
+        /// Group the plan belongs to.
+        var groupId: String
+
+        /// The group's plan of the day on screen.
+        var plan: TeamPlan
+
+        /// A local copy is already in Plans.
+        var isDownloaded: Bool
+
+        /// The plan is today's — past plans are view-only, their points window is over.
+        var canDownload: Bool
+
+        /// Accent of the Team tab — background gradient and the download button.
+        var color: Color
+
+        /// Saving the copy is in flight.
+        var isDownloading = false
+
+        /// Why the last download failed — shown as an alert over the plan.
+        @Presents var alert: AlertState<Action.Alert>?
+
+        /// UI-only — warm-up card expanded.
+        var isWarmupExpanded = true
+
+        /// UI-only — cool-down card expanded.
+        var isCooldownExpanded = true
+
+        // MARK: - Child
+
+        /// Sheet picking the HR source; the choice goes to the parent as `startWorkout`.
+        @Presents var configuration: ConfigurationFeature.State?
+    }
+
+}

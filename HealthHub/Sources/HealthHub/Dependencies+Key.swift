@@ -281,13 +281,15 @@ public enum TrainingReadinessBackgroundManagerKey: DependencyKey {
         @Dependency(\.backgroundDeliveryManager) var backgroundDeliveryManager
         @Dependency(\.trainingReadinessCalculator) var calculator
         @Dependency(\.widgetDataClient) var widgetDataClient
-        
+        @Dependency(\.watchConnectivityManager) var watchConnectivityManager
+
         print("Dependency - 📦 TrainingReadinessBackgroundManagerKey: All dependencies resolved")
-        
+
         let manager = TrainingReadinessBackgroundManager(
             backgroundDeliveryManager: backgroundDeliveryManager,
             calculator: calculator,
-            widgetDataClient: widgetDataClient
+            widgetDataClient: widgetDataClient,
+            watchConnectivityManager: watchConnectivityManager
         )
         
         print("Dependency - ✅ TrainingReadinessBackgroundManagerKey: Manager created successfully")

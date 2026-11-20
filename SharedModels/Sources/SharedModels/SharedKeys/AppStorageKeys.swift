@@ -33,4 +33,7 @@ public enum AppStorageKeys {
     /// Activity Picker quick row. Stored as `[String]` of `WorkoutType.storageKey` values.
     public static let quickPickerWorkouts = "quickPickerWorkouts"
 
+    /// Storage key for the user's manual order of Team groups, as `[String]` of group ids top to bottom.
+    public static let teamGroupOrder = "teamGroupOrder"
+
 }

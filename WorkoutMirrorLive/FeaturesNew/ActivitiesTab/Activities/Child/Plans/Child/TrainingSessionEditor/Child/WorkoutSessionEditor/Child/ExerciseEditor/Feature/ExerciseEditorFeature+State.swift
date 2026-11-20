@@ -59,6 +59,14 @@ extension ExerciseEditorFeature {
             mode == .create ? "New Exercise" : "Edit Exercise"
         }
 
+        var equipmentSelectionForPicker: ExerciseEquipmentSelection {
+            draft.equipmentSelection ?? .automatic
+        }
+
+        var automaticEquipment: Equipment? {
+            draft.equipment ?? draft.type.defaultEquipment
+        }
+
         // MARK: - Init
 
         init(exercise: ExerciseSession? = nil) {

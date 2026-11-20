@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import HealthHub
 import PhotosUI
 import SharedModels
 import SwiftUI
@@ -19,7 +20,7 @@ extension ScanPlanFeature {
         case view(View)
         case `internal`(Internal)
         case workoutPreview(PresentationAction<WorkoutPreviewFeature.Action>)
-        case apiKeyEntry(PresentationAction<APIKeyEntryFeature.Action>)
+        case photoCrop(PresentationAction<PhotoCropFeature.Action>)
         case delegate(Delegate)
 
         enum Delegate {
@@ -59,23 +60,32 @@ extension ScanPlanFeature {
             /// Called when user taps "Clear" to remove selected image.
             case clearImageTapped
 
-            /// Called when user taps the key icon in toolbar (add/manage API key).
-            case apiKeySettingsTapped
+            /// Called when user gives up on scanning and wants to type the plan in.
+            case addManuallyTapped
+
+            /// Called when user picks a parsing backend (DEBUG picker).
+            case parsingBackendChanged(WorkoutParsingBackend)
+
+            /// Called when user picks the model to scan with (DEBUG picker).
+            case scanModelChanged(ScanModelChoice)
         }
 
         enum Internal {
 
-            /// Image data loaded from the selected photo picker item.
+            /// Image data loaded from the selected photo picker item; nil when loading failed.
+            case galleryPhotoLoaded(Data?)
+
+            /// Image data ready to scan (document scan, or a cropped gallery photo).
             case imageLoaded(Data?)
 
             /// OCR text extracted successfully from image.
             case textExtracted(String)
 
             /// Workout parsing completed successfully.
-            case parsingCompleted(ExtractedWorkout)
+            case parsingCompleted(ScannedBoard)
 
-            /// A pipeline stage failed with an error message.
-            case extractionFailed(String, FailedStage)
+            /// A pipeline stage failed with presentable copy.
+            case extractionFailed(ScanFailure, FailedStage)
         }
     }
 

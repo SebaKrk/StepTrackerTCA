@@ -73,6 +73,7 @@ struct SummaryView: View {
                 if !store.results.cards.isEmpty {
                     workoutResultsSection
                 }
+                teamSubmitCard
                 saveSentinel
             }
             .padding(.horizontal, contentHorizontalPadding)
@@ -82,6 +83,14 @@ struct SummaryView: View {
         // Tap anywhere that isn't a text field to dismiss the keyboard (numeric
         // pads have no Return key). Controls and field-to-field focus keep working.
         .dismissesKeyboardOnBackgroundTap()
+    }
+
+    @ViewBuilder
+    private var teamSubmitCard: some View {
+        if let teamSubmitStore = store.scope(state: \.teamSubmit, action: \.teamSubmit) {
+            TeamSubmitView(store: teamSubmitStore)
+                .summaryCard()
+        }
     }
 
     /// Invisible bottom marker — the floating save bar reveals once it scrolls

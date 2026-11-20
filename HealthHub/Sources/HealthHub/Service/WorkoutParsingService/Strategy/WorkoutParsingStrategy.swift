@@ -8,17 +8,32 @@
 import Foundation
 import SharedModels
 
-/// Protocol defining a strategy for parsing OCR text into structured workouts.
+/// Protocol defining a strategy for parsing a scanned board into a ``ScannedBoard``.
 ///
-/// Sole production backend: ``ClaudeStrategy`` (cloud, Claude API). The protocol
-/// stays as the seam for tests and any future alternative backend, keeping the
-/// feature layer decoupled from implementation details.
+/// Backends are picked by ``WorkoutParsingBackend`` through ``WorkoutParsingStrategyFactory``.
+/// Text-only backends implement ``parseWorkoutText(_:)`` and inherit the default
+/// ``parseWorkout(_:)``; image-capable backends override ``parseWorkout(_:)``.
 public protocol WorkoutParsingStrategy: Sendable {
+
+    /// Parses a scan (photo and/or OCR text) into a structured workout.
+    ///
+    /// - Parameter input: The photo and the OCR text the scan produced.
+    /// - Returns: The board as the model read it, in board order.
+    /// - Throws: Strategy-specific errors (e.g., network failures, model unavailability).
+    func parseWorkout(_ input: WorkoutScanInput) async throws -> ScannedBoard
 
     /// Parses raw OCR text into a structured workout.
     ///
     /// - Parameter text: Raw text recognized by Vision OCR from a workout photo.
-    /// - Returns: A structured ``ExtractedWorkout`` with parsed sections and exercises.
+    /// - Returns: The board as the model read it, in board order.
     /// - Throws: Strategy-specific errors (e.g., network failures, model unavailability).
-    func parseWorkoutText(_ text: String) async throws -> ExtractedWorkout
+    func parseWorkoutText(_ text: String) async throws -> ScannedBoard
+}
+
+public extension WorkoutParsingStrategy {
+
+    /// Text-only backends keep working untouched: the image is simply not read.
+    func parseWorkout(_ input: WorkoutScanInput) async throws -> ScannedBoard {
+        try await parseWorkoutText(input.ocrText)
+    }
 }

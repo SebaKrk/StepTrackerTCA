@@ -35,13 +35,23 @@ extension TrainingSession {
                     exercises: workout.exercises.map { exercise in
                         ExerciseSession(
                             type: exercise.type,
+                            equipment: exercise.equipment,
+                            equipmentSelection: exercise.equipmentSelection,
                             customName: exercise.customName,
                             target: exercise.target,
                             weight: exercise.weight,
                             info: exercise.info,
-                            plannedSets: exercise.plannedSets
+                            plannedSets: exercise.plannedSets,
+                            perSide: exercise.perSide,
+                            isMaxEffort: exercise.isMaxEffort,
+                            segment: exercise.segment,
+                            loadTiers: exercise.loadTiers
                         )
-                    }
+                    },
+                    interval: workout.interval,
+                    notes: workout.notes,
+                    everySeconds: workout.everySeconds,
+                    repScheme: workout.repScheme
                 )
             },
             coolDown: coolDown

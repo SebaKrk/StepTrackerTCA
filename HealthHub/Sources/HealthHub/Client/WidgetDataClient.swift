@@ -48,7 +48,9 @@ extension WidgetDataClient: DependencyKey {
             saveReadinessResult: { result in
                 let widgetData = WidgetReadinessData(
                     overallScore: result.overallScore,
-                    readinessLevelRaw: result.readinessLevel.title,
+                    // Stable identifier, not the localized title: a language
+                    // change must not invalidate what was already stored.
+                    readinessLevelRaw: result.readinessLevel.rawValue,
                     rhrValue: result.components.restingHeartRate?.currentValue,
                     hrvValue: result.components.heartRateVariability?.currentValue,
                     sleepValue: result.components.sleepQuality?.currentValue,

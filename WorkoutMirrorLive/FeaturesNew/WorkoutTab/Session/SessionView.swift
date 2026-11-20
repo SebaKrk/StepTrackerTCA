@@ -201,10 +201,28 @@ struct SessionView: View {
             ToolbarItem(placement: .topBarLeading) {
                 joinLiveClassButton
             }
+            if store.live.phasePanel != nil {
+                ToolbarItem(placement: .topBarTrailing) {
+                    planVisibilityButton
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 timerButton
             }
         }
+    }
+
+    /// Only present when the workout carries a plan — with nothing to show there
+    /// is nothing to hide, and an inert toolbar slot reads as a broken control.
+    ///
+    /// State goes through the fill variant, the way `person.3` does next to it.
+    private var planVisibilityButton: some View {
+        Button {
+            store.send(.live(.view(.planVisibilityToggled)))
+        } label: {
+            Image(systemName: store.live.isPlanHidden ? "doc.text" : "doc.text.fill")
+        }
+        .disabledWithOpacity(store.controls.isLocked)
     }
 
     private var heartRateZoneButton: some View {

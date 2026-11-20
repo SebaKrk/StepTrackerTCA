@@ -19,6 +19,9 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
     public let warmUp: WarmUpSession?
     public let workouts: [WorkoutSessionNew]
     public let coolDown: CoolDownSession?
+    /// Team daily plan this copy was downloaded from (`{groupId}/{day}`); `nil` for the user's own plans.
+    /// Editing the plan drops it, so a changed copy no longer posts to that leaderboard.
+    public let teamPlanId: String?
 
     public init(
         id: UUID = UUID(),
@@ -28,7 +31,8 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         location: WorkoutLocationType,
         warmUp: WarmUpSession?,
         workouts: [WorkoutSessionNew],
-        coolDown: CoolDownSession?
+        coolDown: CoolDownSession?,
+        teamPlanId: String? = nil
     ) {
         self.id = id
         self.date = date
@@ -38,6 +42,7 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         self.warmUp = warmUp
         self.workouts = workouts
         self.coolDown = coolDown
+        self.teamPlanId = teamPlanId
     }
 
     public init(id: UUID = UUID(), draft: TrainingSessionDraft) {
@@ -49,6 +54,7 @@ public struct TrainingSession: Identifiable, Equatable, Codable, Sendable {
         self.warmUp = draft.warmUp
         self.workouts = draft.workouts
         self.coolDown = draft.coolDown
+        self.teamPlanId = nil
     }
 
     public static let previewTrainingSession = TrainingSession(
@@ -145,13 +151,26 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
     /// type. Optional Codable field — plans saved before it existed decode fine.
     public let interval: IntervalPlan?
 
+    /// Board remarks that fit no field: "rest 2 min between rounds", "no clock".
+    public let notes: String?
+
+    /// EMOM cadence in seconds (60, 120 for E2MOM); display only, the session timer ignores it.
+    public let everySeconds: Int?
+
+    /// Rep ladder of the block ("10-9-8…1" → [10, 9, … 1]); nil when every round has the same count.
+    /// Optional Codable field — plans saved before it existed decode fine.
+    public let repScheme: [Int]?
+
     public init(
         name: String,
         type: ExerciseWorkoutType,
         timeCap: Int?,
         rounds: Int?,
         exercises: [ExerciseSession],
-        interval: IntervalPlan? = nil
+        interval: IntervalPlan? = nil,
+        notes: String? = nil,
+        everySeconds: Int? = nil,
+        repScheme: [Int]? = nil
     ) {
         self.id = UUID()
         self.name = name
@@ -160,6 +179,9 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.rounds = rounds
         self.exercises = exercises
         self.interval = interval
+        self.notes = notes
+        self.everySeconds = everySeconds
+        self.repScheme = repScheme
     }
 
     public init(id: UUID = UUID(), draft: WorkoutSessionDraft) {
@@ -170,6 +192,9 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
         self.rounds = draft.rounds
         self.exercises = draft.exercises
         self.interval = draft.interval
+        self.notes = draft.notes
+        self.everySeconds = draft.everySeconds
+        self.repScheme = draft.repScheme
     }
 }
 
@@ -178,6 +203,10 @@ public struct WorkoutSessionNew: Identifiable, Equatable, Codable, Sendable {
 public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     public let id: UUID
     public let type: ExerciseType
+    /// Implement stated in the scanned name; `nil` means the movement's default applies.
+    public let equipment: Equipment?
+    /// Explicit override made in the exercise editor; nil means legacy/automatic.
+    public let equipmentSelection: ExerciseEquipmentSelection?
     public let customName: String?  // Custom name for .unknown exercises (from OCR/AI)
     public let target: ExerciseTarget?
     public let weight: WeightConfiguration?
@@ -186,39 +215,105 @@ public struct ExerciseSession: Identifiable, Equatable, Codable, Sendable {
     /// Nil when the plan has no structured set scheme (then `rounds`-based fallback is used).
     public let plannedSets: [PlannedSet]?
 
+    /// "8/8", "10 per side": the target is per limb, so the volume doubles.
+    public let perSide: Bool
+
+    /// "max reps" / "max cal": there is no target, the athlete records what they did.
+    public let isMaxEffort: Bool
+
+    /// Buy-in / cash-out of a WOD; nil means part of every round.
+    public let segment: MovementSegment?
+
+    /// Every load option written on the board; `weight` is the rounded kg pair the session UI uses.
+    public let loadTiers: [LoadTier]?
+
     public init(
         type: ExerciseType,
+        equipment: Equipment? = nil,
+        equipmentSelection: ExerciseEquipmentSelection? = nil,
         customName: String? = nil,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
         info: String?,
-        plannedSets: [PlannedSet]? = nil
+        plannedSets: [PlannedSet]? = nil,
+        perSide: Bool = false,
+        isMaxEffort: Bool = false,
+        segment: MovementSegment? = nil,
+        loadTiers: [LoadTier]? = nil
     ) {
         self.id = UUID()
         self.type = type
+        self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.customName = customName
         self.target = target
         self.weight = weight
         self.info = info
         self.plannedSets = plannedSets
+        self.perSide = perSide
+        self.isMaxEffort = isMaxEffort
+        self.segment = segment
+        self.loadTiers = loadTiers
     }
 
     public init(id: UUID = UUID(), draft: ExerciseSessionDraft) {
         self.id = id
         self.type = draft.type
+        self.equipment = draft.equipment
+        self.equipmentSelection = draft.equipmentSelection
         self.customName = draft.type == .unknown ? draft.customName : nil
         self.target = draft.target
         self.weight = draft.weight
         self.info = draft.info.isEmpty ? nil : draft.info
         self.plannedSets = draft.plannedSets
+        self.perSide = draft.perSide
+        self.isMaxEffort = draft.isMaxEffort
+        self.segment = draft.segment
+        self.loadTiers = draft.loadTiers
     }
 
-    /// Display name - uses customName for .unknown exercises, otherwise type.displayName
+    private enum CodingKeys: String, CodingKey {
+        case id, type, equipment, equipmentSelection, customName, target, weight, info, plannedSets
+        case perSide, isMaxEffort, segment, loadTiers
+    }
+
+    // Plans saved before the flags existed lack the keys — read them as false / absent.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.type = try container.decode(ExerciseType.self, forKey: .type)
+        self.equipment = try container.decodeIfPresent(Equipment.self, forKey: .equipment)
+        self.equipmentSelection = try container.decodeIfPresent(ExerciseEquipmentSelection.self, forKey: .equipmentSelection)
+        self.customName = try container.decodeIfPresent(String.self, forKey: .customName)
+        self.target = try container.decodeIfPresent(ExerciseTarget.self, forKey: .target)
+        self.weight = try container.decodeIfPresent(WeightConfiguration.self, forKey: .weight)
+        self.info = try container.decodeIfPresent(String.self, forKey: .info)
+        self.plannedSets = try container.decodeIfPresent([PlannedSet].self, forKey: .plannedSets)
+        self.perSide = try container.decodeIfPresent(Bool.self, forKey: .perSide) ?? false
+        self.isMaxEffort = try container.decodeIfPresent(Bool.self, forKey: .isMaxEffort) ?? false
+        self.segment = try container.decodeIfPresent(MovementSegment.self, forKey: .segment)
+        self.loadTiers = try container.decodeIfPresent([LoadTier].self, forKey: .loadTiers)
+    }
+
+    /// Display name - uses customName for .unknown exercises, otherwise the catalog
+    /// name with the implement spelled out when it is not the movement's usual one.
     public var displayName: String {
         if type == .unknown, let custom = customName {
             return custom.capitalized  // Capitalize first letter
         }
-        return type.displayName
+        return type.displayName(with: effectiveEquipment)
+    }
+
+    /// Equipment used for display and result-entry behavior.
+    public var effectiveEquipment: Equipment? {
+        switch equipmentSelection {
+        case .some(.automatic), nil:
+            return equipment ?? type.defaultEquipment
+        case .some(.none):
+            return nil
+        case let .some(.equipment(value)):
+            return value
+        }
     }
 }
 
@@ -266,6 +361,45 @@ public enum ExerciseTarget: Equatable, Codable, Sendable {
         case .minutes(let n):  return "\(n) min"
         case .rounds(let n):   return "\(n) rounds"
         case .laps(let n):     return "\(n) laps"
+        }
+    }
+
+    /// The bare number, whatever the unit carries it.
+    public var count: Int {
+        switch self {
+        case .reps(let n), .calories(let n), .meters(let n),
+             .seconds(let n), .minutes(let n), .rounds(let n), .laps(let n):
+            return n
+        }
+    }
+
+    /// The stored form of a number the athlete typed, carrying this target's suffix.
+    ///
+    /// The inverse of `compactString` for every unit the editor types into. Rounds and
+    /// laps are the exception: they store bare, matching a field that shows no suffix
+    /// for them, so the two are NOT symmetric there.
+    public func stored(entered value: String) -> String {
+        guard !value.isEmpty else { return "" }
+        switch self {
+        case .reps:     return "\(value)x"
+        case .calories: return "\(value) cal"
+        case .meters:   return "\(value)m"
+        case .seconds:  return "\(value)s"
+        case .minutes:  return "\(value) min"
+        case .rounds, .laps: return value
+        }
+    }
+
+    /// The same unit holding a different number — one round's work scaled to the whole block.
+    public func with(count: Int) -> ExerciseTarget {
+        switch self {
+        case .reps:     return .reps(count)
+        case .calories: return .calories(count)
+        case .meters:   return .meters(count)
+        case .seconds:  return .seconds(count)
+        case .minutes:  return .minutes(count)
+        case .rounds:   return .rounds(count)
+        case .laps:     return .laps(count)
         }
     }
 }

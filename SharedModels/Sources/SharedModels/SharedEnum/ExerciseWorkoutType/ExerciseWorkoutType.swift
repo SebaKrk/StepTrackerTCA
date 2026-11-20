@@ -75,6 +75,17 @@ public enum ExerciseWorkoutType: String, CaseIterable, Codable, Sendable {
         }
     }
 
+    /// Whether a plan preview lists every planned set as its own row.
+    ///
+    /// A WOD's rep ladder belongs to the block, not to the movement: printed per
+    /// exercise it repeats once per movement and calls rounds "sets".
+    public var showsPerSetRows: Bool {
+        switch self {
+        case .strength, .olympicWeightlifting, .mobility: return true
+        case .amrap, .forTime, .emom, .tabata, .intervals: return false
+        }
+    }
+
     public var isTimerRequired: Bool {
         switch self {
         case .amrap:                return true

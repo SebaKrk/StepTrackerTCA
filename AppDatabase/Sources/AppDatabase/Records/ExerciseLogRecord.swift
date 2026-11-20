@@ -36,6 +36,12 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
     /// ExerciseType rawValue — nil when exercise is unmatched
     public var exerciseType: String?
 
+    /// Equipment rawValue — nil when the plan text said nothing about the implement
+    public var equipment: String?
+
+    /// Explicit equipment selection token; nil for logs created before this feature.
+    public var equipmentSelection: String?
+
     /// Free-text name when no ExerciseType match was found
     public var unmatchedName: String?
 
@@ -132,6 +138,8 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
         id: UUID,
         date: Date,
         exerciseType: String?,
+        equipment: String?,
+        equipmentSelection: String? = nil,
         unmatchedName: String?,
         category: String?,
         workoutPlanScoreId: UUID?,
@@ -160,6 +168,8 @@ public struct ExerciseLogRecord: Identifiable, CloudKitSyncable {
         self.id = id
         self.date = date
         self.exerciseType = exerciseType
+        self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.unmatchedName = unmatchedName
         self.category = category
         self.workoutPlanScoreId = workoutPlanScoreId
@@ -206,6 +216,8 @@ extension ExerciseLogRecord {
             id: log.id,
             date: log.date,
             exerciseType: log.exerciseType?.rawValue,
+            equipment: log.equipment?.rawValue,
+            equipmentSelection: log.equipmentSelection?.storageValue,
             unmatchedName: log.unmatchedName,
             category: log.category?.rawValue,
             workoutPlanScoreId: log.workoutPlanScoreId,
@@ -237,6 +249,8 @@ extension ExerciseLogRecord {
             id: id,
             date: date,
             exerciseType: exerciseType.flatMap { ExerciseType(rawValue: $0) },
+            equipment: equipment.flatMap { Equipment(rawValue: $0) },
+            equipmentSelection: equipmentSelection.flatMap(ExerciseEquipmentSelection.init(storageValue:)),
             unmatchedName: unmatchedName,
             category: category.flatMap { MovementCategory(rawValue: $0) },
             workoutPlanScoreId: workoutPlanScoreId,

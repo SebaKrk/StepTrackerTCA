@@ -1453,3 +1453,383 @@
     - low-battery warning at ≤5% (D): new `WatchDeviceClient` (polled `batteryLevel` — watchOS has no low-battery callback — plus warning haptic), once-a-minute poll during the session, one-shot full-screen overlay "End workout / OK" — ending now is the only guaranteed save, since post-power-off recovery is undocumented; no banner, no auto-end by design; system presentations over the paged TabView proved broken on watchOS 26 (alert → UIKit assertion trap, sheet → rendered but dead to touch on device), so the warning joined the proven saving/summary overlay chain (PL translations of the 4 new keys pending in Xcode)
     - review round 2 (post-commit): `sessionStoppedContinuation` double-resume race fixed with a dedicated lock (timeout task vs delegate callbacks — CheckedContinuation traps on double resume); 5% threshold compared as rounded integer percent (`Double(Float(0.05)) > 0.05` silently made the guard behave as ≤4% — found on a real device test); late battery poll can no longer sheet over the "Saving…"/summary screen
     
+
+### IOS-00134 Prominent workout tab — iOS 27 TabRole migration
+    - the workout tab was declared `role: .search` purely to borrow the tab bar's separated "prominent" pill; the search role carries semantics the tab never implemented (magnifier symbol, the `.searchable` contract, VoiceOver "Search", the field transform on selection)
+    - iOS 27 adds `TabRole.prominent` — the official API for exactly that treatment; role selection moved out of the `Tab(…)` call into `tabRole(for:)`, so the tab content builder keeps one stable shape instead of branching into `_ConditionalContent`
+
+### IPAD-00099 GymRoom narrowed to iOS
+    - dropped the unused macOS and visionOS platforms left by the multiplatform template, which let the scene manifest and launch screen keys lose their per-SDK conditions
+
+### IOS-00135 Implement dimension — movement and equipment split apart
+
+    - the catalog grew combinatorially: every implement variant of a movement needed its own alias, so `goblet squat` carried four of them and still missed `kettlebell goblet squats` over a single plural "s"
+    - `ExerciseType` now describes the movement alone; `Equipment` rides alongside it on the plan exercise and on the log, with `defaultEquipment` per movement so a name only spells out the implement when it is unusual ("DB Snatch", never "BB Snatch")
+    - the matcher normalises the name, tries the catalog whole, and only then strips an implement token — that order keeps every existing match intact while filling the unknown bucket
+    - 48 implement-baked aliases removed, 3 base aliases added, 4 kept where stripping would misfire (`barbell row` minus the barbell is the rower)
+    - catalog v7 adds `snatchBalance`, `goodMorning` and a regrouped burpee family — `burpeePullUps`, `burpeeOverDumbbell`, `burpeeBoxJumpOvers`, `burpeeBroadJump`, `burpeeToTarget` — clearing the app 0.7 unrecognized-name harvest
+    - `burpeeBoxJumpOvers` splits off `burpeeBoxJumps`: clearing the box is a different standard from landing on it, so past "burpee box jump over" rows move to the new movement
+    - the weight field now follows the implement rather than the movement category, and analytics track each implement variant as its own row
+    - migration v14 adds a nullable `equipment` column; the re-match job backfills it, but only for rows still in the unknown bucket — elsewhere the raw name no longer exists
+
+### IOS-00136 Exercise log write path — duplicate saves, dropped equipment, dead metrics
+    - pulled the live database off the phone: 129 exercise rows where the saved results hold 104, inflating tonnage by 37% (75.1 t reported against 47.1 t performed) and every movement counter with it — front squat read 6 sessions against 3
+    - the save minted a fresh row id each time, so the upsert keyed on the primary key never matched and re-editing a result appended a whole second copy of the WOD; the sibling `WorkoutPlanScore` had carried that exact guard, with a comment, since July
+    - the row id now comes from the result's own exercise id, which round-trips through the saved score — the primary key becomes the natural key, and a movement legitimately repeated inside one WOD still keeps its separate rows
+    - `equipment` was lost twice on the way to disk: the log never received it from the summary, and the client hand-listed 25 fields into a draft that omitted it — building the draft from the record closes both, and stops the next column from vanishing the same way
+    - migration v15 drops the earlier copies, keeping the newest save batch per score because it carries the corrections the earlier ones lack; batches sit seconds apart against milliseconds within one, so genuine repeats survive
+    - volume load has been computed since April but landed once in 129 rows: it reads the raw fields instead of the effective ones resolved two lines below, and its parser turns "15x" into zero reps
+    - the PR board and the training log describe the same barbells without ever meeting — three of seven personal records have a twin row on the same date at the same weight, all flagged `isPR = 0`, while the log holds two single reps at 100 kg clean that the board still records as 80
+
+### IOS-00138 Training readiness on the Watch — a second state beside the workout
+
+    - branch: `dev/IOS-00138/IOS-00138`
+    - outside a workout the Watch showed nothing but a black "Waiting for workout…" screen, while training readiness lived only in an iPhone widget — deciding whether to push or back off meant reaching for the phone
+    - the idle screen becomes two pages: the readiness score with its level and how fresh the reading is, and the existing waiting screen; tapping the score drills into resting heart rate, HRV, sleep and previous-day load, each against its 7-day baseline
+    - readiness stays calculated on iPhone and the Watch never queries HealthKit for it — `HealthHub` is iOS-only structurally, not by an oversight in its manifest, and its dependency graph does not close on any other platform
+    - the result travels over the WatchConnectivity application context, a single overwritable slot that does not queue, so a day of debounced recalculations costs one delivery instead of one per recalculation
+    - the payload carries per-component scores and baselines — unlike the widget's, which drops them — and rebuilds the domain result on arrival, so the Watch reuses the existing level colours, component statuses and localized metric names rather than growing a third copy of the thresholds
+    - a workout still covers the whole screen and its flow is untouched: the tabs live under the cover, so the start/save race handling and crash recovery are unchanged
+
+### IOS-00139 Exercise equipment selection — show and correct scan mapping
+    - branch: `dev/IOS-00139/IOS-00139`
+    - show the equipment resolved from a scanned exercise and allow correction in the exercise editor before the plan is saved
+    - distinguish automatic resolution, explicit equipment, and explicit no-equipment; an explicit choice must survive catalog rematching and workout logging
+    - current implementation in progress: equipment selector in Exercise Editor, equipment display in plan details and active workout summary, hidden for cardio/mobility, explicit selection passed into result input and persisted on exercise logs (schema v16)
+    - SharedModels, AppDatabase, and the WorkoutMirrorLive iOS Simulator scheme compile; xcstrings JSON validates
+    - pending: field-check scan → edit → save → result → history flow
+
+### IOS-00140 Show planned exercises in the activity list
+    - branch: `dev/IOS-00140/IOS-00140`
+    - when a completed activity is linked to a plan, list only exercise names in the activity card; use saved result names when available and fall back to the linked plan snapshot before results are entered
+    - keep HealthKit-only activities unchanged; hide the exercise section when the linked plan has no exercises
+    - appearance matches plan cards: centered `.caption` text, secondary color, names separated by ` · `, up to two lines; no heading, bullets, reps, or weights
+    - names are read once per list load through the plan-score client (only visible workouts) and refreshed after closing details; the view only renders the text
+    - verified locally, merged to `develop`
+
+#### Follow-up ideas — activity history (backlog, no task IDs)
+    - tap an exercise name to open its history and progress chart, with sessions ordered by date
+    - compare the current workout with the previous occurrence of the same exercise; later add best result/PR where the movement supports a meaningful comparison
+    - add an exercise frequency view (sessions per week/month) alongside the existing performance trends
+
+### IOS-00141 Activity list filters — exercise search and filter menu
+    - branch: `dev/IOS-00141/IOS-00141`
+    - navigation bar: a magnifier that opens an exercise search field (closing it clears the search) and one filter menu with submenus for sort, period, and activity type; replaces the old combined sort/date menu
+    - activity type submenu: single choice, "All", only types present in the loaded period, icon and workout count per type; the filter icon fills while a type is picked
+    - search and type filter combine; an empty result shows the system search-unavailable view; the filter menu stays available on an empty list so the period can be widened
+    - the magnifier search is a reusable navigation bar component, matching the search pattern from Smaczny Posiłek
+    - limits: filters are not remembered between launches; exercise search covers plan-linked workouts only, within the loaded period
+    - pending: build, on-device check (title hidden while searching, toolbar order), Polish translations for new strings
+
+### IOS-00143 Team — Firebase foundation (develop)
+    - branch: `dev/IOS-00143/IOS-00143`; first step of the Team tab (private groups, QR invites, daily plan, day/week leaderboard); plan in `PLANS/IOS-00143-team-v01.md`
+    - develop only: separate Firebase project `myfitnessjournal-dev` (Firestore `eur3`, anonymous auth); release (`myfitnessjournal-e8d43`) comes later
+    - A: config file chosen by bundle ID (`GoogleService-Info-Dev.plist` for develop, `GoogleService-Info.plist` for release), so both can live on every branch; Crashlytics dSYM upload follows the same rule; FirebaseAuth and FirebaseFirestore linked
+    - B: Firestore rules and indexes versioned in the repo (groups, members, invites, daily plans, entries)
+    - C: Team domain types in SharedModels, no Firebase: invites, entries, score normalization, day ranking, week standings, measurement window
+    - D: `TeamClient` with a Firestore-backed service; the rest of the app never imports Firebase
+
+### IOS-00144 Team tab — groups list, create group, group screen
+    - branch: `dev/IOS-00144/IOS-00144` (from `dev/IOS-00143/IOS-00143`); plan in `PLANS/IOS-00143-team-v01.md` (T1)
+    - A: Team tab in the bottom bar (replaces the unused Sharing placeholder) with a Private/Public switch; Private lists the user's groups live, Public shows a "coming soon" view; first visit signs in anonymously
+    - B: "New group" sheet — name of 3–40 characters, shows the name other members will see (nickname → first name → Athlete-XXX)
+    - C: group screen with members and "Leave group" behind a confirmation
+
+### IOS-00145 Team — QR invites with statuses
+    - branch: `dev/IOS-00145/IOS-00145` (from IOS-00144); plan in `PLANS/IOS-00143-team-v01.md` (T2)
+    - A: invite sheet on the group screen — QR valid for 7 days and reused until it expires; live list of who scanned it with status; revoke replaces the code
+    - B: scanner in the Team tab — non-invite codes are rejected; the card shows group, inviter and validity with Join / Later / Decline
+    - C: "Invitations" section in the Team tab with pending, still-valid invites and Join / Decline
+    - limit: someone who joined, left and scans the same code again keeps the old "joined" status — they need a new code
+
+### IOS-00146 Plan import keeps interval timer and equipment
+    - branch: `dev/IOS-00146/IOS-00146` (from IOS-00145)
+    - the identity-renewing copy used by QR import (and, next, by Team plan download) dropped the round timer of interval workouts and each exercise's equipment and equipment selection
+    - the copy now carries all three; nothing else changes
+
+### IOS-00147 Planned minutes per block and a 60-minute class budget
+    - branch: `dev/IOS-00147/IOS-00147` (from IOS-00146)
+    - A: every workout block carries its minutes in the class, separate from the WOD time cap; old plans fall back to the cap; plan lists and detail show the real class length (a strength block no longer counts as 0)
+    - B: plan scanning asks the model for every section's minutes, adding up to at least 60
+    - C: "Time in Class" in the block editor and a "Class Length" bar (N of 60 min, missing / +X) in the plan editor
+
+### IOS-00148 Team — today's plan: publish, preview, download
+    - branch: `dev/IOS-00148/IOS-00148` (from IOS-00147); plan in `PLANS/IOS-00143-team-v01.md` (T3)
+    - A: a plan copy downloaded from a group remembers its group plan (`teamPlanId`, migration v17); editing the copy drops the link
+    - B: "+" on the group screen publishes today's plan from Plans with a scored block; at least 60 minutes ("Fill to 60 Minutes" helps); one plan per day, only its author may replace it
+    - C: "Today's Plan" card on the group screen with Preview (same plan view as Plans) and Download to Plans; a second download is prevented ("In Your Plans")
+
+### IOS-00149 Team — send the result from the Summary
+    - branch: `dev/IOS-00149/IOS-00149` (from IOS-00148); plan in `PLANS/IOS-00143-team-v01.md` (T4)
+    - A: the entry is built from the scored block (a capped For Time stays below finishers), effort and covered minutes inside the plan window, warm-start and late flags; writes are queued and never block saving
+    - B: "Send to <group>" card on the Summary of a downloaded group plan — on by default, Rx/Scaled, kcal only with consent; works for iPhone workouts and for "complete results" after a Watch workout; editing results updates the same entry
+    - v0.1 limits: kcal is the whole workout's active energy (not only the window); the warm-start flag uses heart rate only (no check of a workout just before)
+
+### IOS-00150 Team — today and week leaderboard
+    - branch: `dev/IOS-00150/IOS-00150` (from IOS-00149); plan in `PLANS/IOS-00143-team-v01.md` (T5)
+    - "Leaderboard" section on the group screen: Today / Week, Score / Effort, Rx / Scaled
+    - Today: live ranking of the scored block (finishers before capped, unranked at the bottom); Effort ranks only entries with the current weights version
+    - Week: sum of daily places Monday–Sunday, a missed day = last place + 1, ties go to more workouts
+    - badges: kcal (when shared), ✓ HR, measured X/Y min when coverage is under 90%, started warm, edited, late
+
+### IOS-00152 Team — points first, day navigation, plan published as is
+    - branch: `dev/IOS-00152/IOS-00152` (from IOS-00151)
+    - the plan is published unchanged and the author's own plan becomes the group copy (no duplicate in Plans); the owner sets a points window (60–120 min) instead of filling the plan to 60 minutes
+    - the leaderboard ranks by effort points by default, everyone together; the score lens keeps Rx / Scaled; the week sums points and kcal with the workout count
+    - day navigator on the group screen (arrows and a Monday–Sunday strip with plan dots); plan and ranking follow the chosen day; past days are view-only
+    - empty cards use the system empty state with a fixed height and an "Add Plan" link for today; "+" in Team opens Create Group / Scan Invite; the group's QR moved into its "…" menu
+    - B: results per block — the author turns each block's result on or off when publishing (blocks without a comparable result are greyed out, zero is allowed); the Summary sends every entered block result; one rule decides each block type's result kind
+    - B: leaderboard filters (ranking: points or a block, Rx / Scaled for blocks only, day / week) as glass menus in the section title; the card holds only the list
+    - B: day navigator reworked — week strip card first, then glass arrows around the day and date
+
+#### Follow-up — Team group identity (backlog, no task ID; after IOS-00152)
+    - the owner picks the group's colour from a fixed palette and a short name (badge initials) when creating the group, and can change both later
+    - both are stored in the group document (palette index, not a raw colour); groups without them keep today's look (tab colour, first two letters)
+    - Firestore rules accept and validate the new fields — deploy the rules before shipping the app, the create rule whitelists fields
+    - the group list badge and the group screen use the group's colour
+
+### IOS-00153 Plan scan — parsing backends behind one seam
+    - branch: `dev/IOS-00153/IOS-00153` (from develop); plan in `PLANS/IOS-00153-scan-backends.md`
+    - `WorkoutScanInput` (photo + OCR text) replaces the bare string at the strategy seam; a default extension keeps text-only backends untouched
+    - `WorkoutParsingBackend` enum persisted as an app setting; `WorkoutParsingStrategyFactory` turns it into a strategy
+    - `WorkoutExtractionClient.parseWorkout` takes the input and the backend; `ScanPlanFeature` hands over the photo it already holds
+    - DEBUG picker on the scan screen switches the backend at runtime; behaviour unchanged (claudeText is the only case until IOS-00155)
+
+### IOS-00154 Plan scan — Claude API contract on the current DTO
+    - branch: `dev/IOS-00154/IOS-00154` (from IOS-00153); plan in `PLANS/IOS-00154-claude-api-contract.md`
+    - structured outputs (`output_config.format`) with enums for section type and rounds; the mapper stops guessing from free text
+    - prompt caching, Sonnet 5.5, thinking `between_tools` + effort low; response decoded as content blocks with `stop_reason`
+    - prompt stops inventing warm-up / cool-down and padding to 60 min (editor already does both); section notes wait for a field in IOS-00157
+    - harness run on f1–f7 before and after; expectations added for f7
+
+### IOS-00155 Plan scan — ClaudeVisionStrategy becomes the default
+    - branch: `dev/IOS-00155/IOS-00155` (from IOS-00154); plan in `PLANS/IOS-00155-claude-vision.md`
+    - photo sent as an image block, downscaled to the token budget; OCR text passed only as an untrusted hint
+    - mandatory crop before upload (names on whiteboards) and a one-time disclosure that the photo leaves the device
+    - on-device comparison text vs photo vs photo+hint on the handwritten board: photo alone wins (two WODs, Rx tiers, fewer tokens); the hint is kept only as a comparison backend
+    - default backend switches to claudeVision (photo only); claudeText and claudeVisionWithOCRHint remain selectable
+    - B: the photo path skips OCR and the text step (photo → "Analyzing photo…" → preview); OCR and the editor stay for claudeText; gallery crop and upload disclosure remain backlog
+
+### IOS-00156 Plan scan — Apple Foundation Models backends
+    - `FoundationModelsStrategy` restored from git (removed in IOS-00106) and rewritten for image input (`Attachment`, iOS 27) with a `@Generable` DTO mapped to `ExtractedWorkout`
+    - `FallbackParsingStrategy` decorator: Apple backend unavailable or empty result → claudeVision
+    - `PrivateCloudComputeStrategy` as the same session on a different `LanguageModel`, behind the entitlement
+    - decision recorded: min iOS 27 vs a single `#available` inside the factory
+    - harness run with the Apple backends on the same fixtures
+
+### IOS-00157 Plan scan — schema v2 and plan fields
+    - branch: `dev/IOS-00157/IOS-00157` (from IOS-00155); plan in `PLANS/IOS-00157-schema-v2.md`; A = plan fields + threading, B = ScannedBoard v2 + prompt + mapper
+    - A: `SetUnit`, `MovementSegment`, `LoadTier`; `notes` / `everySeconds` on the workout, `perSide` / `isMaxEffort` / `segment` / `loadTiers` on the exercise, `unit` / `percentOfMax` / `isMaxEffort` on the set; threaded through drafts, withNewIdentity, catalog rematch and the editor; old plans decode unchanged, share codec stays at 1
+    - B1: `ScannedBoard` v2 DTO (closed enums, sentinels instead of optionals) + `toTrainingSession` (format → block type table, ladder → sets per round movement, loads → tiers + rounded kg pair, EMOM → `everySeconds`, `IntervalPlan` only for intervals)
+    - B2: prompt v7 (~1.3k words) under `ClaudeBoardOutputSchema`; `ClaudeBoardMapper`; strategies, client and scan feature return `ScannedBoard`; `check_v2.py` harness: 315 ok, 3 left on the garbled OCR rescan (photo path on device)
+    - `ExtractedWorkout`, `ClaudeWorkoutMapper`, `ClaudeWorkoutOutputSchema` stay in the tree unused until a cleanup commit
+
+### IOS-00158 Plan scan — validators and the review card
+    - branch: `dev/IOS-00158/IOS-00158` (from IOS-00159); plan in `PLANS/IOS-00158-review.md`
+    - `ScanReviewValidator` in SharedModels: hard stops (no plan, empty block), board doubts (model `uncertain`, default cap applied, ladder/rounds fix, duplicate names) and plan rules (EMOM cap vs cadence, For Time without cap, load > 300 kg, women heavier than men, movement outside the catalog)
+    - the preview opens right away with a "To check" card and badges on the flagged blocks and movements; Save stays disabled until every finding is closed
+    - rules re-run after each edit and close on their own; doubts close by "OK" or by editing their block
+    - no re-ask of the model, no value pickers — the plan editor is the fix path
+
+### IOS-00159 Plan scan — stats and Summary consumers
+    - branch: `dev/IOS-00159/IOS-00159` (from IOS-00155-B); plan in `PLANS/IOS-00159-consumers.md`
+    - plan detail shows the schema v2 fields: EMOM cadence chip, block notes, per-side target, buy-in / cash-out badge, max effort, load tiers instead of the M/W pair, set unit / percent / max in planned sets
+    - Summary strength card renders every movement of a superset (section per lift, heaviest set names its lift, PR per lift); plan rows visible before entry
+    - volume load repeats the per-round target by the block's rounds and doubles per-side movements (`ExerciseLogInput.volumeMultiplier`, applied at save time; old logs unchanged)
+    - EMOM scores like Tabata: per-exercise reps summed into `forReps`, field left blank for entry, team board ranks it as published
+    - `tempoPerRound` divides by the block's rounds instead of the exercise count
+
+### IOS-00160 Exercise catalog — names from scanned boards
+    - branch: `dev/IOS-00160/IOS-00160` (from IOS-00158)
+    - new cases: side bend, face pull, any machine (cardio of choice); bicep curl learns the alternating / "alt." spellings
+    - `catalogVersion` 8 so the re-match job repairs plans saved with these names as unknown
+    - golden names added to `ExerciseTypeMatchingTests`
+
+### IOS-00161 Plan scan — remove the schema v1 DTO
+    - branch: `dev/IOS-00161/IOS-00161` (from IOS-00160)
+    - `ExtractedWorkout` + mapper (SharedModels) and `ClaudeWorkoutMapper` + `ClaudeWorkoutOutputSchema` (HealthHub) deleted; nothing called them since IOS-00157-B2
+    - flow docs in `ClaudeAPI/` rewritten for schema v2; v1 harness moved to `PLANS/scan-eval/legacy-v1/`
+
+### IOS-00162 Plan scan — crop, upload disclosure, state rename
+    - branch: `dev/IOS-00162/IOS-00162` (from IOS-00161)
+    - a photo from the library goes through `PhotoCropFeature` (corner handles, "Use the whole photo") before the scan; the document camera keeps its own crop
+    - `ScanPlanViewState.processingOCR` → `.analyzing`
+    - no upload alert: the photo-library permission is the one consent step the user is asked for
+
+### IOS-00163 Plan editor — remove per-block class minutes
+    - branch: `dev/IOS-00163/IOS-00163` (from develop)
+    - the Team points window (IOS-00152) replaced the 60-minute class budget, so "Time in Class" per block, the "Class Length" bar and the fill-to-60 helper had no consumer left
+    - `WorkoutSessionNew.plannedMinutes` removed from the model, draft, re-match and import copies; class length is now warm-up + time caps + cool-down (display only)
+    - the scan mapper no longer estimates block minutes ("cap + 3"); written minutes still feed warm-up / cool-down
+
+### IOS-00164 Plan start — device picker
+    - branch: `rel/IOS-00164/IOS-00164` (from release 0.9.1)
+    - "Start Workout" in plan detail opens a sheet with the same `DeviceView` as a free workout; the session starts with the chosen `DeviceOption`
+    - before, a plan start passed `requestedDevice = nil` (auto-detect), so a paired Watch always won, even one left on the charger
+    - `nil` stays only as a defensive fallback in `SessionFeature`
+
+### IOS-00165 Team — start the workout from the group
+    - branch: `rel/IOS-00164/IOS-00164` (on top of IOS-00164)
+    - today's card downloads only: an arrow icon in the header that becomes the "In your Plans" badge
+    - the plan preview gets "Start Workout" in the bottom bar (activity icon, as in plan detail); it opens the device picker and the session runs from the group screen on the copy in Plans (fetched by `teamPlanId`)
+    - past days remain view-only
+
+### IOS-00166 Team — owner deletes today's plan
+    - branch: `rel/IOS-00164/IOS-00164` (on top of IOS-00165)
+    - "Delete Today's Plan" in the group menu, owner only, today only; a plan with no results goes at once, one with results asks first
+    - `TeamClient.deletePlan` removes the plan document and its `entries` subcollection in one batch (rules already allowed the owner)
+    - the card and the leaderboard clear through their listeners; members' downloaded copies stay in their Plans
+
+### IOS-00167 Team — group list cards and counters
+    - branch: `rel/IOS-00167/IOS-00167` (from IOS-00164)
+    - group card built like the plan card: icon, name, "Your group · N members", then Plan today / Results / Your result columns; a day without a plan shows one line
+    - invitation is one row: group, who invites, glass decline (confirmed by alert) and prominent join
+    - group document carries `memberCount` and `lastPlan` (day, title, minutes, author, entryCount), moved in the same batches as membership, publish, first result and delete; rules let members touch only those two keys
+    - "Your result" is one `myEntry` read per group with today's plan; a failed read leaves the column empty
+
+### IOS-00168 Team — manage the group
+    - branch: `rel/IOS-00168/IOS-00168` (from IOS-00167)
+    - owner-only "Manage Group" screen: Edit/Save in the toolbar for the name, member cards in a plain List with swipe to transfer ownership or remove (activity-list pattern), delete in the editor-style bottom bar; every change confirmed by an alert
+    - removing a member also closes the group's open invite codes and drops the member's scans, so the same QR cannot bring them back
+    - deleting a group removes members, invites, plans and results in batches of 499, the group document last
+    - group list: long press on a card offers Delete Group (owner) or Leave Group (member), both confirmed
+    - rules: the owner may hand `ownerUid` to an existing member; invites and recipients become deletable by the owner
+    - a leaving owner hands the group to the longest-standing member in the same batch; the last member leaving deletes it (closes the ownerless-group hole)
+    - group list as card rows in a plain List: newest first, drag to reorder (order stored on the device as `teamGroupOrder`), swipe to leave or delete
+
+### IOS-00169 Plan scan — generated warm-up / cool-down and the user's language
+    - branch: `rel/IOS-00169/IOS-00169` (from IOS-00168)
+    - scan preview offers "Generate" when the board has no warm-up or cool-down; only the missing sections are generated (10 min each, same client as the editor), failure shows an alert
+    - generated notes answer in the device language but keep exercise names in English; the scan prompt asks for free-text fields in the device language via the per-request user prompt, so the cached system prompt stays unchanged
+    - mapper no longer writes "Check: …" into block notes (the review card already lists those doubts); the rest line is localized
+
+### IOS-00170 Team — hardening before 0.9.1 (2)
+    - branch: `rel/IOS-00170/IOS-00170` (from IOS-00169); plan in `PLANS/IOS-00170-team-hardening.md`
+    - A1 result dots never build a negative range; a drifted counter reads as unknown in the mapper
+    - A2 deleting today's plan skips the alert only when the board is loaded and empty
+    - A3 "Leave Group" waits for the member list, so the alert names the real successor
+    - A4 rules validate `memberCount` and `lastPlan` shape on every update (deploy prod + dev)
+    - B1 deleting the group dismisses once (parent only); B2 the session waits for the preview sheet's onDismiss; B3 notes generation is cancellable and blocks Save/Edit while running; B4 the saved group order is never pruned
+    - C4 a failed day or week no longer blanks the other range; a lost connection says so and the board offers Try Again
+    - C1 counters repair themselves: any member writes back memberCount and today's lastPlan once the screen has the data
+    - C2 a republished plan shows "Plan changed" with the download arrow; downloading again replaces the copy instead of adding a second
+    - D1 an invalid group name keeps the field open with a red rule instead of silently reverting
+    - D2 DeviceFeature split into +State / +Action; D3 the seven dead IOS-00163 string keys removed
+
+### IOS-00171 Workout start — one screen everywhere
+    - branch: `rel/IOS-00170/IOS-00170`
+    - starting from a plan or from a group now presents `ConfigurationFeature` with the activity taken from the plan, instead of a bespoke sheet holding only `DeviceView`
+    - both paths gain what the main flow always had: close button, Bluetooth and Watch status, the device scanner
+    - with a locked activity the device pick starts the workout directly, so the plan start keeps its single tap
+    - `devicePicker` destinations and the three copies of the sheet are gone
+
+### IOS-00172 Plan scan — every scan saved for diagnosis
+    - branch: `dev/IOS-00172/IOS-00172` (from develop)
+    - each scan writes `Documents/Diagnostics/ScanRuns/<timestamp>/` with the downscaled photo, the OCR transcript when the backend uses one, the board the model returned and a metadata file
+    - `meta.json` records the backend, so a bad result can be attributed to the prompt or to Vision OCR rather than guessed at
+    - a failed parse is recorded too: the thrown error lands in the metadata instead of vanishing with the screen
+    - the whole recorder sits behind `#if DEBUG` and never throws — a failed dump must not take down the user's scan
+    - no UI and no migration: `UIFileSharingEnabled` already exposes `Documents`, so the folders are reachable from the Files app without a cable
+    - the dumps double as fixture material for `PLANS/scan-eval/`
+
+### IOS-00173 Plan scan — what the board says survives the parse
+    - branch: `dev/IOS-00172/IOS-00172` (shared with IOS-00172)
+    - the four dumps of 07/11 showed three losses: an "alternating" snatch fell out of the catalog, the women's half of "12/9 cal row" lived only in prose, and "75% of body weight" was stored as 75% of a one-rep max
+    - `targetValueWomen` and `LoadTier.Unit.percentOfBodyWeight` give those two numbers a field of their own, so a woman's target and a body-weight load stop being guesses
+    - the prompt gains a FORMAT section: every format now states what it must fill, which ends the invented time caps and the dropped EMOM round count
+    - an EMOM keeps its round count through the mapper, so six passes of twelve burpees log as seventy-two
+    - a WOD's rep ladder moves to the block where it belongs: one chip in the header instead of ten "Set N" rows under each movement
+    - `deathBy` joins the formats — the only shape the schema could not express, since it ends in failure rather than a count
+
+### IOS-00174 WOD result — the ladder enters its own reps
+    - branch: `dev/IOS-00172/IOS-00172` (shared with IOS-00172 and IOS-00173)
+    - a capped For Time with a rep ladder asked for the same number twice: the score picker, then the reps of every movement — and the second entry kept the plan's total, logging 55 reps for a 31-rep effort
+    - the reps now follow from the score; only the weight is still typed. `LadderScore` holds the arithmetic, counting a part-finished round across the movements in board order the way a scoreboard does
+    - the write is scoped twice over: only a reps target, because after the save the unit suffix is the only thing marking calories as calories, and only a movement that follows the block's ladder rather than a scheme of its own
+    - flipping to "not finished" no longer writes: the status segment is live on an untouched card, so syncing there would have stamped every movement with the steppers' zeroes
+    - the second stepper names its ceiling ("4 of 21"), since in a ladder a round's number and its size are both plausible readings of the same box
+    - switching a block's type in the editor clears the ladder, which no other type can express and no screen can clear by hand
+
+### IOS-00175 Activity details — the results card is the call to action
+    - a plan with no results yet carried its colour on an inner button sitting inside a neutral card, so the tap target read as a control rather than as the card it actually is
+    - `styledGroupBox(tint:)` colours the whole card instead; the default stays neutral, so no other card in the app changes
+    - the inner button drops its own background — two tinted layers of the same colour drew a visible frame inside a frame
+
+### IOS-00176 Watch dies mid-workout — stop the iPhone claiming it is still running
+    - branch: `dev/IOS-00176/IOS-00176` (from develop)
+    - when the Watch app dies it reports nothing, so the iPhone keeps a Live Activity that says a workout is in progress; the id of that activity lived only in the process that started it, so after a relaunch nothing could end it and it stayed up to the system's own 8/12-hour cap
+    - the app now reconciles at launch, as Apple's guidance says to: with no session to recover, every activity left behind is ended by enumerating them rather than by id — both the workout and the timer banner, since a session shows either one and reaping one strands the other
+    - the sweep only reaps activities older than the launch that runs it: it is detached and can land after the user has already begun a new workout
+    - a thrown recovery query deliberately does NOT sweep — a failure says nothing about whether a workout is running, and a banner ended wrongly is gone while one left standing only goes stale
+    - each activity carries a `staleDate` of fifteen minutes: long enough to outlast HealthKit's batching and a pause, which stops the builder collecting and so looks exactly like silence
+    - stale data gets its own neutral treatment rather than reusing the Watch-disconnect one — that indicator names a device an iPhone-only workout never had, and an orange alarm is the wrong thing to show for a rest between blocks
+    - a mirrored session still cannot be ended from the iPhone: ending it relays to the Watch's primary session and would cut it off before it saves. The escape hatch closes the iPhone side only, and the comment that claimed otherwise now says so
+    - detecting a silent death while the app runs is deliberately left out — it needs a durable watchdog with a multi-minute threshold, and these three changes already remove the visible symptom
+
+### IOS-00177 Volume tells the truth — what is stored is what was done
+    - branch: `dev/IOS-00177/IOS-00177` (from develop)
+    - the per-exercise field meant one thing for For Time and AMRAP (per round), another for EMOM and Tabata (the block's total) and another for Strength (per set), while one formula `rounds ?? 1` was applied to all of them — so reps and volume disagreed about which one was the truth
+    - the invariant now holds everywhere: an exercise stores the athlete's actual total for the whole block, and the plan's round count is spent at prefill instead of surviving as a runtime factor. `volumeMultiplier` is gone, and `volumeLoad` no longer takes one
+    - `RoundScore` carries the arithmetic a flat block needs: rounds times a movement's own share, plus whatever of the partial round reached it. `LadderScore` stays separate — a ladder's round shrinks while every movement shares its size, here it is the other way round, and one signature covers both only by taking a closure
+    - the score tiles now write the reps for an AMRAP and for a capped For Time without a ladder, the way the ladder already did; the unit travels with the number, since after the save the suffix is all that marks calories as calories
+    - a multiplier was never persisted on the log row, so a weightless movement lost it entirely — `volumeLoad` returns nil without a weight. That is why a five-round block of pull-ups charted as one round, in every format, from the beginning
+    - Mobility keeps the round count the mapper used to discard, and spends it the way Strength does: rounds become set rows
+    - the plan editor stops offering a round count for an AMRAP — a format whose rounds are the result cannot carry a prescribed one that anything reads
+    - rows written before this cannot be repaired from the log alone; the multiplier that would disambiguate them survives only inside the parent score's JSON. Backfill is its own ticket
+
+### IOS-00180 Readiness follow-up — act on the review of IOS-00179
+    - branch: `dev/IOS-00180/IOS-00180` (from develop)
+    - heart rate coverage was the span between first and last sample, so a Watch worn until 21:00 and again from 08:00 read as eleven hours of continuous wear — sleep scored zero and the day lost fifteen points over a night with no data at all
+    - the observer debounce stamped its timestamp after the await; the method is reentrant, so the morning's four observers walked past a window nobody had claimed, and an open night left every overnight sample triggering a full recalculation
+    - the history rebuild treated "four missing components" as a refused permission, which is also what a day before the user owned a Watch looks like — one such day discarded everything already scored and repeated sixty days of reads on every launch
+    - the background task expired without reporting completion, and a cancelled rebuild cleared a slot a newer one already owned
+
+### IOS-00179 Training readiness — a score for the day, and a day that survives
+    - branch: `dev/IOS-00179/IOS-00179` (from develop)
+    - every window ended at a fixed clock hour that still lay in the future, so HealthKit answered with a partial reading: the same night scored 55 at 06:00 and 75 at 12:00. Windows are now anchored to the sleep session that actually closed — nothing ends in the future, and recalculating at noon or at midnight returns the same number
+    - three of the four baselines averaged the day under test into the seven days it was compared against, damping every deviation towards zero; baselines now start one day back, as the activity one always did
+    - the overall score normalises against the components actually present instead of adding to a fixed 50, so a morning without HRV is no longer scored lower than the same morning with it. The scale is recentred: 50 means every component sits on its own baseline and reads as Fair, not Poor
+    - nothing was ever stored — `getTrainingReadinessHistory` returned an empty array while a finished trend screen waited behind it. Each scored day is now persisted (migration v18, keyed by the readiness day, upsert) together with the algorithm version that produced it
+    - before the night closes the card says so instead of showing a retry overlay; the waiting state stays out of the shared `ContentState`, which fifteen other features depend on
+    - one calculation issued about thirty sequential HealthKit queries; the four components now run concurrently and each baseline is a single query grouped in memory
+    - second pass, after Apple shipped its own Readiness in watchOS 27: resting heart rate and activity load are per-day aggregates the system stamps with the start of the day they describe, so a window anchored to waking excluded yesterday's sample while today's did not exist yet — resting heart rate was silently absent from every morning. Both now read whole calendar days
+    - baselines draw 7 days with data from a 49-day pool instead of the last 7 days, so a gap reaches further back rather than shrinking the sample; sleep baselines clip intervals to the window instead of dropping any that began before it
+    - the night is the longest closed sleep session of the day, not the most recent: an afternoon nap is its own session, so an evening recalculation scored the day against the nap and overwrote the morning's row
+    - history is rebuilt from HealthKit on first launch (60 days) — a readiness day is derived entirely from events that already happened, so a past day scores the same today as it did that morning. The day key became a calendar date, since a stored instant splits one local day into two rows after a time zone change
+    - the two questions "is there anything to show" and "can this be trusted" were collapsed onto one threshold, leaving `isReliable` always true; a score on two components is now shown and marked as estimated on both phone and Watch
+    - the component tiles read their status from a quartile split of the point range, which has no neutral case — zero points, meaning "sits on your baseline", landed in the second quartile and was presented as "Below Average" with a warning triangle. Status now describes the component's effect on readiness, with a neutral case, and strength is measured against each component's own headroom
+    - the activity tile branched into `ActivityStatus`, which describes the size of the load rather than its effect, so three tiles spoke about effect and the fourth about load in one row
+    - the card gained an explanation sheet: what the score is built from, what 50 means, where the baseline comes from, and that the figures are indicative rather than a diagnosis. The level label moved under the chart so it reads together with the value
+    - colour for a score was derived by four copies of a quartile split, none of which knew about the five statuses the label used — a tile could show a yellow pill beside a mint word for the same number. Thresholds now live once, in `TrainingComponentScore.statusBands`
+    - activity load range made symmetric so a full set of components maps to `50 + sum of points`; it read 27 where the tiles summed to -25, because negative headroom was 55 against 50 positive
+    - a night with no sleep but heart rate throughout scores as zero sleep rather than as missing data, and a recording that stopped mid-night drops the component instead of reading as a short night — `NightMeasurementResolver` decides which of the three happened
+    - the explanation screen is the app's own card stack rather than a system `Form`, and its wash runs under the navigation bar; stopping it at the safe area left a black band no toolbar modifier could fix
+    - the widget asks for an hourly re-read and a background task wakes the app on its own schedule, so a stale score no longer waits for the app to be opened by hand
+
+### IOS-00188 The scan key moves to the server, and the first scan of the day is free
+    - branch: `dev/IOS-00188/IOS-00188` (from develop)
+    - every user had to paste their own Anthropic key before they could scan anything, which made the feature unreachable for anyone who is not a developer. The key now lives in Google Secret Manager and is mounted into a Cloud Function at deploy time; the phone sends the photo and an identity token and never sees a key, so the whole key-entry screen, its Keychain client and the Developer Settings row are gone
+    - the prompt, the output schema and the API call moved to `firebase/functions/` with them. Leaving the Swift copies behind would have meant two prompts drifting apart — which had already happened: `PLANS/scan-eval/prompt_final.txt` was three sections behind `ClaudePrompt.swift`, so the harness had been scoring a prompt nobody shipped. One copy now, in the function, and `apply_to_function.py` publishes to it
+    - a free account gets one board scan and three training-note cues per day, counted per account in `scanQuota/{uid}` against a day that the server resolves in Europe/Warsaw — a device clock set to another zone would otherwise hand out extra days. The allowance is reserved before the model is called and released when the call fails, so an outage on our side never costs the user their free scan
+    - a global daily ceiling fails the request before the API is reached, so a viral morning or a retry loop cannot empty the account overnight. Credit running out upstream (402) is logged for us and reads to the user as a temporary outage: the state of the account behind the app is not their problem
+    - the three parsing backends stayed as they were and travel as a mode on the request, so switching them in settings still compares the three prompts; `WorkoutParsingStrategyFactory` keeps its seam for an on-device backend
+    - training notes went the same way — warm-up and cool-down are built from workout and exercise names only, with the wording owned by the function, so a rebuilt request cannot turn the shared key into a general-purpose assistant
+
+### IOS-00189 Compare scan models on a real board
+    - branch: `dev/IOS-00189/IOS-00189` (from the IOS-00188 head, which develop has not taken yet)
+    - picking a model for each plan tier is a cost decision worth twenty times the scan price, and nothing in the repository could answer it: the fixtures in `PLANS/scan-eval/` cover prompts, not models, and a gym whiteboard in bad light is the case that decides it
+    - a scan may now name its model, and the function honours that only where `ALLOW_MODEL_OVERRIDE` is set — a file that exists for development alone, so production answers with the pinned model however the request was built
+    - the name is checked against an allowlist rather than passed through, because a caller that can name any string can name the most expensive model there is
+    - the debug build gets a picker beside the backend one, so the same board can be read by Haiku, Sonnet and Opus in a row and the cost of each compared from the function log
+    - nothing ships: the picker lives behind `#if DEBUG` and the override behind an environment flag, and a release build has neither
+
+### IOS-00190 A scan failure says whether trying again can help
+    - branch: `dev/IOS-00190/IOS-00190` (from develop)
+    - every failure of a scan ended in the same Retry button, including the ones where the request itself was wrong — a button that fails the same way on every tap. The function now maps a 4xx from the model to `upstream-rejected`, the phone decodes it as `invalidRequest`, and the catch-all failure is split into a rejected request, a refusal and an unexpected reply: the first two lead to manual entry, and Retry stays only where repeating can succeed
+    - the thinking setting is chosen per model rather than sent as one value: only Sonnet 5.5 accepts `between_tools`, Haiku takes `disabled` and Opus cannot turn it off
+    - warm-up and cool-down cues were two parallel requests, so a plan missing both cost two units of the daily allowance and could half-fail. `proposedNotes` asks for both in one reply, carried by `TrainingNotes`; the allowance is raised to 6 now that one tap costs one unit
+    - the preview sends no length, because nobody picked one there: the model chooses, held to 5-20 minutes for a warm-up and 3-15 for a cool-down. Notes are written with Haiku
+    - on failure the user reads the proxy's localized message instead of the developer text, with Polish copy for the four new messages
+    - the scan system prompt is no longer cached: writing it costs 25% more and nothing reads it below roughly 70 scans a day
+    - Generate on the workout preview uses `.glassProminent`, matching the invitation row's primary button — the plain glass pill looked disabled
+    - debug builds carry their own icon, the regular one under a white DEV ribbon (`AppIconDev`, source in `Design/AppIcon/AppIcon-dev-master.svg`), so a development install is told apart from a release one on the home screen; Release keeps `AppIcon`

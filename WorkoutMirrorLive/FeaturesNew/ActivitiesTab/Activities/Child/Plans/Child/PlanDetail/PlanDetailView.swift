@@ -53,6 +53,11 @@ struct PlanDetailView: View {
         ) { shareStore in
             SharePlanView(store: shareStore)
         }
+        .sheet(
+            item: $store.scope(state: \.destination?.configuration, action: \.destination.configuration)
+        ) { configurationStore in
+            ConfigurationView(store: configurationStore)
+        }
     }
 
     // MARK: - Workout Content
@@ -139,6 +144,8 @@ struct PlanDetailView: View {
         }
     }
 }
+
+// MARK: - Text
 
 // MARK: - Preview
 

@@ -63,9 +63,9 @@ extension OverlayView {
         OverlayView(
             icon: "lock.fill",
             iconColor: .yellow,
-            title: "Premium Feature",
+            title: String(localized: "Premium Feature", bundle: .main),
             buttonIcon: "crown.fill",
-            buttonText: "Unlock Pro",
+            buttonText: String(localized: "Unlock Pro", bundle: .main),
             buttonColor: .yellow,
             action: action
         )
@@ -75,9 +75,9 @@ extension OverlayView {
         OverlayView(
             icon: "lock.fill",
             iconColor: .orange,
-            title: "Elite Feature",
+            title: String(localized: "Elite Feature", bundle: .main),
             buttonIcon: "flame.fill",
-            buttonText: "Go Elite",
+            buttonText: String(localized: "Go Elite", bundle: .main),
             buttonColor: .orange,
             action: action
         )
@@ -87,9 +87,9 @@ extension OverlayView {
         OverlayView(
             icon: "heart.text.square.fill",
             iconColor: .red,
-            title: "Health Access Required",
+            title: String(localized: "Health Access Required", bundle: .main),
             buttonIcon: "heart.fill",
-            buttonText: "Grant Access",
+            buttonText: String(localized: "Grant Access", bundle: .main),
             buttonColor: .red,
             action: action
         )
@@ -99,9 +99,9 @@ extension OverlayView {
         OverlayView(
              icon: "exclamationmark.triangle.fill",
              iconColor: .red,
-             title: "Unable to load data",
+             title: String(localized: "Unable to load data", bundle: .main),
              buttonIcon: "arrow.clockwise",
-             buttonText: "Try Again",
+             buttonText: String(localized: "Try Again", bundle: .main),
              buttonColor: .red,
              action: action
          )
@@ -111,9 +111,9 @@ extension OverlayView {
         OverlayView(
             icon: "chart.bar.xaxis",
             iconColor: .gray,
-            title: "No Data Available",
+            title: String(localized: "No Data Available", bundle: .main),
             buttonIcon: "arrow.clockwise",
-            buttonText: "Refresh",
+            buttonText: String(localized: "Refresh", bundle: .main),
             buttonColor: .gray,
             action: action
         )

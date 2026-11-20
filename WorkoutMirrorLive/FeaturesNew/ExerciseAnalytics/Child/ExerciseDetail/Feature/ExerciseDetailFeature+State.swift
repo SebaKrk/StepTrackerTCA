@@ -37,6 +37,10 @@ extension ExerciseDetailFeature {
         // MARK: - Properties
 
         let exerciseType: ExerciseType
+
+        /// Implement this screen is scoped to; `nil` = the movement's default.
+        var equipment: Equipment?
+
         var logs: [ExerciseLog] = []
 
         /// Weekly volume points for the chart.
@@ -66,12 +70,24 @@ extension ExerciseDetailFeature {
 
         // MARK: - Computed — Header
 
-        var displayName: String { exerciseType.displayName }
+        var displayName: String { exerciseType.displayName(with: equipment) }
         var category: MovementCategory { exerciseType.category }
         var count: Int { logs.count }
 
         var pr: Double? {
             logs.compactMap(\.actualWeight).max()
+        }
+
+        /// Heaviest single ever recorded for this movement — the personal record.
+        var recordSingle: Double? {
+            logs.compactMap(\.heaviestSingle).max()
+        }
+
+        /// Logs holding that record. Derived from `logs` rather than stored, so editing a
+        /// weight or dropping a workout can never leave a record badge behind on a lighter lift.
+        var recordLogIds: Set<UUID> {
+            guard let recordSingle else { return [] }
+            return Set(logs.filter { $0.heaviestSingle == recordSingle }.map(\.id))
         }
 
         /// Whether this exercise uses weight (has any actualWeight recorded).

@@ -75,15 +75,7 @@ struct PREntryEditorFeature {
                 }
 
             case .saveFailed:
-                state.alert = AlertState {
-                    TextState("Couldn't Save Result")
-                } actions: {
-                    ButtonState(role: .cancel) {
-                        TextState("OK")
-                    }
-                } message: {
-                    TextState("Your result was not saved. Please try again.")
-                }
+                state.alert = .saveFailed
                 return .none
 
             case .alert:

@@ -32,6 +32,9 @@ extension ActivitiesFeature {
         
         /// State for the Plans tab.
         var plans: PlansFeature.State = PlansFeature.State()
+
+        /// State for the Team tab — private groups, invites and shared daily plans.
+        var team: TeamFeature.State = TeamFeature.State()
     }
     
 }

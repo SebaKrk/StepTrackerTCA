@@ -10,6 +10,7 @@ import Foundation
 import HealthHub
 import OSLog
 import SharedModels
+import SwiftUI
 
 @Reducer
 struct StatsFeature {
@@ -19,6 +20,7 @@ struct StatsFeature {
     @Dependency(\.authorizationManager) var authorizationManager
     @Dependency(\.dataAnalyzerClient) var dataAnalyzerClient 
     @Dependency(\.trainingReadinessBackgroundManager) var trainingReadinessBackgroundManager
+    @Dependency(\.trainingReadinessClient) var trainingReadinessClient
     
     // MARK: - Reducer
     
@@ -40,7 +42,37 @@ struct StatsFeature {
                     return .send(.initializeExerciseAnalytics)
                 }
                 return .none
-                
+
+            case .resetToRoot:
+                // One tap does the first of these that applies: close what is
+                // open, then scroll back, then return to the first segment.
+                // See `ActivitiesFeature.resetToRoot`.
+                if state.destination != nil {
+                    state.destination = nil
+                    return .none
+                }
+
+                switch state.context {
+                case .today where state.isTodayScrolled:
+                    state.scrollToTopToken += 1
+                    return .none
+                case .analytics where state.analytics?.isScrolled == true:
+                    return .send(.analytics(.scrollToTop))
+                case .exercises where state.exerciseAnalytics?.isScrolled == true:
+                    return .send(.exerciseAnalytics(.scrollToTop))
+                default:
+                    break
+                }
+
+                guard state.context != .today else { return .none }
+
+                return .send(.selectedPickerChange(.today), animation: .default)
+
+            case let .todayScrolledChanged(isScrolled):
+                guard state.isTodayScrolled != isScrolled else { return .none }
+                state.isTodayScrolled = isScrolled
+                return .none
+
             case let .changeSubscriptionTier(value):
                 state.$subscriptionTier.withLock { $0 = value }
                 return .none
@@ -143,7 +175,12 @@ struct StatsFeature {
                     .run { _ in try? await Task.sleep(for: .seconds(2)) }
                         .cancellable(id: StatsFeatureCancelID.refresh, cancelInFlight: true)
                 )
-                return .merge(effects)
+                // Dropped before the children ask, not after: they share one
+                // calculation, and the one from before the pull would answer both.
+                return .concatenate(
+                    .run { _ in await trainingReadinessClient.invalidate() },
+                    .merge(effects)
+                )
                 
             case .view(.personButtonTapped):
                 state.destination = .personSettings(PersonSettingsFeature.State())

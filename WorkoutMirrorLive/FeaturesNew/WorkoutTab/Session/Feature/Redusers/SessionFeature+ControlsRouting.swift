@@ -215,10 +215,12 @@ extension SessionFeature {
 
             case .connectionLostAlert(.presented(.endAnyway)):
                 // Escape hatch: the Watch is physically unavailable, so we close the
-                // iPhone side only. `endWorkout()` tears down the local mirrored
-                // session (R4: always end, never leave a zombie); the Watch keeps its
-                // workout and the user ends it there later — `.workoutSaved` arrives
-                // via the WC queue and the app-level listener links the plan then.
+                // iPhone side only — screen, streams and Live Activity. The mirrored
+                // HKWorkoutSession is deliberately left alone: ending it relays to the
+                // Watch's primary session, which would cut it off before it saves. The
+                // Watch keeps its workout and the user ends it there later —
+                // `.workoutSaved` arrives via the WC queue and the app-level listener
+                // links the plan then.
                 return .run { [sessionClient] send in
                     await WorkoutFileLogger.shared.log("[Connection] END ANYWAY — closing iPhone side with link lost")
                     await sessionClient.endWorkout()

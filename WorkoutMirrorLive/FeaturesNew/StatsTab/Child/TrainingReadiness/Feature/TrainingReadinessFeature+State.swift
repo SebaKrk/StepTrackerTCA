@@ -26,11 +26,37 @@ extension TrainingReadinessFeature {
         ///
         var requiredTier: SubscriptionTier = .pro
         
+        /// Presented explanation of how the score is produced
+        @Presents var destination: Destination.State?
+
         ////
         var contentState: ContentState = .noData
         
         /// Training readiness calculation result
         var readinessResult: TrainingReadinessResult?
+
+        /// Whether a score can exist yet today
+        var availability: ReadinessAvailability = .available
+
+        /// Whether the card should explain that the night is not over yet
+        var isAwaitingSleepData: Bool {
+            if case .awaitingSleepData = availability { return true }
+            return false
+        }
+
+        /// When a result is expected, for the waiting copy
+        var sleepDataExpectedBy: Date? {
+            guard case let .awaitingSleepData(expectedBy) = availability else { return nil }
+            return expectedBy
+        }
+
+        /// Whether the readiness level belongs on screen
+        ///
+        /// Without a score there is no level — `readinessLevel` would fall back
+        /// to `.fair` and state something the data does not support.
+        var isReadinessLevelVisible: Bool {
+            contentState.isReady && !isAwaitingSleepData
+        }
         
         /// Error message if calculation fails
         var errorMessage: String?
@@ -53,6 +79,20 @@ extension TrainingReadinessFeature {
         /// Whether result is reliable (enough data available)
         var isReliable: Bool {
             readinessResult?.isReliable ?? false
+        }
+
+        /// Whether there is a score, but on too few components to state plainly
+        var isResultProvisional: Bool {
+            readinessResult != nil && !isReliable
+        }
+
+        /// Colour shared by the score pill and the level label
+        ///
+        /// They used to be tinted independently, so a provisional result greyed
+        /// the label while the pill kept the level's colour — the card showed one
+        /// value in two different meanings.
+        var readinessTint: Color {
+            isResultProvisional ? Color.secondary : readinessLevel.color
         }
     }
     

@@ -37,7 +37,17 @@ public struct WorkoutActivityClient: Sendable {
     public var stop: @Sendable (
         _ activityId: String
     ) async throws -> Void
+
+    /// Ends the workout Live Activities started before `startedBefore`, without needing an id.
+    ///
+    /// An activity outlives the process that started it, while its id lives only in
+    /// memory — so after a relaunch `stop` can no longer reach it. The cutoff keeps the
+    /// sweep off anything this launch created: it runs detached and can land after the
+    /// user has already begun a new workout. Returns how many were ended, so a caller
+    /// can log the ordinary "none" case apart from a real find.
+    public var endOrphans: @Sendable (_ startedBefore: Date) async -> Int = { _ in 0 }
 }
+
 
 // MARK: - DependencyKey
 
@@ -51,7 +61,7 @@ extension WorkoutActivityClient: DependencyKey {
             
             let activity = try Activity.request(
                 attributes: attributes,
-                content: .init(state: initialState, staleDate: nil),
+                content: .init(state: initialState, staleDate: LiveActivityStaleness.date),
                 pushType: nil
             )
             
@@ -64,7 +74,7 @@ extension WorkoutActivityClient: DependencyKey {
             }
             
             await activity.update(
-                .init(state: newState, staleDate: nil)
+                .init(state: newState, staleDate: LiveActivityStaleness.date)
             )
         },
         stop: { activityId in
@@ -72,8 +82,16 @@ extension WorkoutActivityClient: DependencyKey {
             guard let activity = activities.first(where: { $0.id == activityId }) else {
                 throw LiveActivityError.activityNotFound
             }
-            
+
             await activity.end(nil, dismissalPolicy: .immediate)
+        },
+        endOrphans: { startedBefore in
+            let orphans = Activity<WorkoutSessionActivityAttributes>.activities
+                .filter { $0.attributes.startTime < startedBefore }
+            for activity in orphans {
+                await activity.end(nil, dismissalPolicy: .immediate)
+            }
+            return orphans.count
         }
     )
     
@@ -90,8 +108,14 @@ extension WorkoutActivityClient: DependencyKey {
         },
         stop: { activityId in
             print("🔴 [Workout Preview] Stopped: \(activityId)")
+        },
+        endOrphans: { _ in
+            print("🔴 [Workout Preview] Ended orphaned activities")
+            return 0
         }
     )
+
+    public static let testValue = Self()
 }
 
 // MARK: - DependencyValues Extension

@@ -31,6 +31,12 @@ public struct UserProfileRecord: Identifiable, CloudKitSyncable {
     /// User's nickname
     public var nickname: String
 
+    /// Account this profile belongs to, empty until the first sign-in
+    public var accountUid: String
+
+    /// When the welcome screen was first completed, nil before that
+    public var onboardedAt: Date?
+
     // MARK: - CloudKitSyncable
 
     /// Timestamp of record creation
@@ -50,6 +56,8 @@ public struct UserProfileRecord: Identifiable, CloudKitSyncable {
         name: String,
         surname: String,
         nickname: String,
+        accountUid: String = "",
+        onboardedAt: Date? = nil,
         createdAt: Date,
         updatedAt: Date,
         ckRecordData: Data? = nil
@@ -59,6 +67,8 @@ public struct UserProfileRecord: Identifiable, CloudKitSyncable {
         self.name = name
         self.surname = surname
         self.nickname = nickname
+        self.accountUid = accountUid
+        self.onboardedAt = onboardedAt
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.ckRecordData = ckRecordData
@@ -76,6 +86,8 @@ extension UserProfileRecord {
             name: profile.name,
             surname: profile.surname,
             nickname: profile.nickname,
+            accountUid: profile.accountUid,
+            onboardedAt: profile.onboardedAt,
             createdAt: createdAt,
             updatedAt: updatedAt
         )
@@ -87,7 +99,9 @@ extension UserProfileRecord {
             email: email,
             name: name,
             surname: surname,
-            nickname: nickname
+            nickname: nickname,
+            accountUid: accountUid,
+            onboardedAt: onboardedAt
         )
     }
 }

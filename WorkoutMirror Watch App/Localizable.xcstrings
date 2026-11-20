@@ -4,8 +4,28 @@
     "%lld" : {
       "shouldTranslate" : false
     },
+    "%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
     "%lld%%" : {
       "shouldTranslate" : false
+    },
+    "7-day average: %lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "7-day average: %1$lld %2$@"
+          }
+        }
+      }
     },
     "Avg. Heart Rate" : {
       "localizations" : {
@@ -18,10 +38,20 @@
       }
     },
     "Battery below 5%" : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bateria poniżej 5%"
+          }
+        }
+      }
     },
     "BPM" : {
       "shouldTranslate" : false
+    },
+    "Breakdown" : {
+
     },
     "Discard" : {
       "extractionState" : "stale",
@@ -66,12 +96,39 @@
       }
     },
     "End the workout to keep its data." : {
-
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ trening, aby zachować dane."
+          }
+        }
+      }
     },
     "End workout" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakończ trening"
+          }
+        }
+      }
+    },
+    "No Data" : {
 
     },
     "OK" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Open on iPhone" : {
 
     },
     "Pause" : {
@@ -80,6 +137,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pauza"
+          }
+        }
+      }
+    },
+    "estimated" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "szacunkowo"
           }
         }
       }
@@ -93,6 +160,9 @@
           }
         }
       }
+    },
+    "Range" : {
+
     },
     "Resume" : {
       "localizations" : {

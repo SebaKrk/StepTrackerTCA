@@ -53,6 +53,15 @@ struct PlansFeature {
                 state.destination = .importPlan(ImportPlanFeature.State())
                 return .none
 
+            case let .view(.scrolledChanged(isScrolled)):
+                guard state.isScrolled != isScrolled else { return .none }
+                state.isScrolled = isScrolled
+                return .none
+
+            case .scrollToTop:
+                state.scrollToTopToken += 1
+                return .none
+
                 // MARK: - Destination
 
             case .destination(.presented(.addPlan(.delegate(.saved(let session))))):
@@ -75,12 +84,13 @@ struct PlansFeature {
             case let .destination(.presented(.importPlan(.delegate(.imported(session))))):
                 return saveAndReload(session)
 
-            case .destination(.presented(.planDetail(.delegate(.startWorkout(let session))))):
+            case .destination(.presented(.planDetail(.delegate(.startWorkout(let session, let device))))):
                 state.destination = nil
                 let workout = WorkoutType(hkType: session.activity.hkType) ?? .cross
                 state.destination = .session(
                     SessionFeature.State(
                         selectedWorkout: workout,
+                        requestedDevice: device,
                         trainingSession: session,
                         countDown: CountDownFeature.State(workoutType: session.activity)
                     )

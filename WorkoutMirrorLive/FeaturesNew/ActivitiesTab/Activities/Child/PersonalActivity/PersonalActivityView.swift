@@ -32,10 +32,14 @@ struct PersonalActivityView: View {
             }
         }
         .animation(.default, value: store.viewState)
+        .searchToolbar(
+            title: navigationTitle,
+            phrase: $store.exerciseSearchText.sending(\.view.changeExerciseSearchText),
+            isSearching: $store.isSearching.sending(\.view.changeSearching),
+            prompt: searchPrompt
+        )
         .toolbar {
-            if !store.workouts.isEmpty {
-                toolbarButton
-            }
+            filterToolbarItem
         }
         .sheet(
             item: $store.scope(state: \.destination?.zoneInfo, action: \.destination.zoneInfo)
@@ -65,79 +69,110 @@ struct PersonalActivityView: View {
     // MARK: - Toolbar
     
     @ToolbarContentBuilder
-    private var toolbarButton: some ToolbarContent {
+    private var filterToolbarItem: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                Section("Sort by") {
-                    activitiesSortOption
-                }
-                Section("Date range") {
-                    activityDateRange
-                }
+                sortPicker
+                periodPicker
+                activityTypePicker
             } label: {
-                Image(systemName: "line.3.horizontal.decrease.circle")
-            }
-            .badge(store.workouts.count)
-        }
-    }
-    
-    private var activitiesSortOption: some View {
-        ForEach(ActivitiesSortOption.allCases) { item in
-            Button {
-                send(.changeSortOption(item))
-            } label: {
-                HStack {
-                    Text(item.title)
-                    if store.sortDescriptors == item {
-                        Image(systemName: "checkmark")
-                    }
-                }
+                Image(systemName: filterMenuIcon)
             }
         }
     }
-    
-    private var activityDateRange: some View {
-        ForEach(ActivityDateRange.allCases) { range in
-            Button {
-                send(.changeDays(range.rawValue))
-            } label: {
-                HStack {
-                    Text(range.title)
-                    if store.days == range.rawValue {
-                        Image(systemName: "checkmark")
-                    }
-                }
+
+    // MARK: - Filter Menu
+
+    private var sortPicker: some View {
+        Picker(selection: $store.sortDescriptors.sending(\.view.changeSortOption)) {
+            ForEach(ActivitiesSortOption.allCases) { option in
+                Text(option.title)
+                    .tag(option)
             }
+        } label: {
+            Label(sortTitle, systemImage: sortSymbol)
         }
+        .pickerStyle(.menu)
     }
-    
+
+    private var periodPicker: some View {
+        Picker(selection: $store.days.sending(\.view.changeDays)) {
+            ForEach(ActivityDateRange.allCases) { range in
+                Text(range.title)
+                    .tag(range.rawValue)
+            }
+        } label: {
+            Label(periodTitle, systemImage: periodSymbol)
+        }
+        .pickerStyle(.menu)
+    }
+
+    private var activityTypePicker: some View {
+        Picker(selection: $store.activityTypeFilter.sending(\.view.changeActivityTypeFilter)) {
+            Text(allActivityTypesTitle)
+                .tag(HKWorkoutActivityType?.none)
+            ForEach(store.availableActivityTypes, id: \.self) { type in
+                Label(activityTypeOptionTitle(type), systemImage: type.iconNameSimple)
+                    .tag(Optional(type))
+            }
+        } label: {
+            Label(activityTypeTitle, systemImage: activityTypeSymbol)
+        }
+        .pickerStyle(.menu)
+    }
+
+    private func activityTypeOptionTitle(_ type: HKWorkoutActivityType) -> String {
+        "\(type.name) (\(store.activityTypeCounts[type.name] ?? 0))"
+    }
+
+    private var filterMenuIcon: String {
+        store.hasActiveFilter
+            ?"line.3.horizontal.decrease.circle.fill"
+            : "line.3.horizontal.decrease.circle"
+    }
+
     // MARK: - List View
     
     @ViewBuilder
     private var workoutsListView: some View {
         if store.workouts.isEmpty {
             emptyWorkoutsView
+        } else if store.filteredWorkouts.isEmpty {
+            noMatchingWorkoutsView
         } else {
-            List {
-                ForEach(store.workouts, id: \.uuid) { workout in
-                    workoutCard(workout)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button {
-                                send(.deleteWorkoutSwiped(workout))
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+            ScrollViewReader { proxy in
+                List {
+                    ForEach(store.filteredWorkouts, id: \.uuid) { workout in
+                        workoutCard(workout)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button {
+                                    send(.deleteWorkoutSwiped(workout))
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .tint(.red)
                             }
-                            .tint(.red)
-                        }
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .refreshable {
-                send(.refresh)
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .refreshable {
+                    send(.refresh)
+                }
+                // The offset at rest is the negated top inset, so the sum is
+                // zero exactly when the list sits at its top.
+                .onScrollGeometryChange(for: Bool.self) { geometry in
+                    geometry.contentOffset.y + geometry.contentInsets.top > 1
+                } action: { _, isScrolled in
+                    send(.scrolledChanged(isScrolled))
+                }
+                .onChange(of: store.scrollToTopToken) {
+                    guard let first = store.filteredWorkouts.first else { return }
+                    withAnimation { proxy.scrollTo(first.uuid, anchor: .top) }
+                }
             }
         }
     }
@@ -148,6 +183,7 @@ struct PersonalActivityView: View {
         GroupBox {
             VStack(spacing: 12) {
                 workoutStats(workout)
+                exerciseNames(store.exerciseNamesByWorkout[workout.uuid])
                 Divider()
                 primaryZoneSection(workout)
             }
@@ -160,6 +196,22 @@ struct PersonalActivityView: View {
         .styledGroupBox()
         .padding(4)
     }
+
+    @ViewBuilder
+    private func exerciseNames(_ names: String?) -> some View {
+        if let names {
+            VStack(spacing: 12) {
+                Divider()
+                Text(names)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+    }
+
     
     private func workoutHeaderButton(_ workout: HKWorkout) -> some View {
         Button {
@@ -374,5 +426,43 @@ struct PersonalActivityView: View {
             Text("No workouts found for the selected period. Make sure you have granted HealthKit access and recorded some workouts.")
         }
     }
-    
+
+    private var noMatchingWorkoutsView: some View {
+        ContentUnavailableView.search(text: store.exerciseSearchText)
+    }
+
+    // MARK: - Text
+
+    private var navigationTitle: String {
+        String(localized: "Activity", bundle: .main)
+    }
+
+    private var searchPrompt: String {
+        String(localized: "Search exercises...", bundle: .main)
+    }
+
+    private var sortTitle: String {
+        String(localized: "Sort by", bundle: .main)
+    }
+
+    private var periodTitle: String {
+        String(localized: "Period", bundle: .main)
+    }
+
+    private var activityTypeTitle: String {
+        String(localized: "Activity type", bundle: .main)
+    }
+
+    private var allActivityTypesTitle: String {
+        String(localized: "All", bundle: .main)
+    }
+
+    // MARK: - Symbols
+
+    private var sortSymbol: String { "arrow.up.arrow.down" }
+
+    private var periodSymbol: String { "calendar" }
+
+    private var activityTypeSymbol: String { "figure.run" }
+
 }

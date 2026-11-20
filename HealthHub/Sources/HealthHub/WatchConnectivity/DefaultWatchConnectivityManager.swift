@@ -303,4 +303,23 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
             session.transferUserInfo(message)
         }
     }
+
+    // MARK: - Publishing Readiness
+
+    /// Publishes the latest training readiness snapshot to the paired Watch.
+    ///
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not active.
+    public func publishReadinessSnapshot(_ snapshot: ReadinessSnapshot) async throws {
+        guard let session, session.activationState == .activated else {
+            Logger.wc.error("publishReadinessSnapshot: session not activated")
+            throw WatchConnectivityError.sessionNotActivated
+        }
+        // An iPhone without a Watch is a normal setup, not a failure.
+        guard session.isPaired, session.isWatchAppInstalled else { return }
+
+        let data = try JSONEncoder().encode(snapshot)
+        // Replaces the whole context — see WatchContextKey.
+        try session.updateApplicationContext([WatchContextKey.readinessSnapshot: data])
+        Logger.wc.info("publishReadinessSnapshot → score \(snapshot.overallScore)")
+    }
 }

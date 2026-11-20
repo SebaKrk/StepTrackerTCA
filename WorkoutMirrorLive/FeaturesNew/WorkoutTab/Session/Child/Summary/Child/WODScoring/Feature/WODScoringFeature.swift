@@ -40,6 +40,16 @@ struct WODScoringFeature {
         case saved
     }
 
+    /// Which status control the card header carries. `nil` means none at all.
+    enum StatusKind: Equatable {
+
+        /// A frozen verdict once the card holds a result.
+        case pill(WodStatus)
+
+        /// A live choice between completed and not finished.
+        case segment(WodStatus)
+    }
+
     // MARK: - State
 
     @ObservableState
@@ -61,6 +71,115 @@ struct WODScoringFeature {
         /// Planned round count (Tabata rows, "· N rund" chip). `nil` when absent.
         var rounds: Int?
 
+        /// Rep ladder of the block ("10-9-8…1"); when present it derives the reps instead of the user.
+        var repScheme: [Int]?
+
+        /// The rounds tiles are capturing an attempt the cap cut short, not a plain score.
+        var capturesUnfinished: Bool {
+            wodType == .forTime && wodStatus == .notFinished
+        }
+
+        /// What this card asks for right now; a capped For Time turns into rounds and
+        /// reps the moment it is marked unfinished.
+        var scoreEntry: ScoreEntryKind {
+            capturesUnfinished ? .roundsAndReps : wodType.scoreEntryKind
+        }
+
+        /// The status control the header carries, per the entry matrix.
+        ///
+        /// Read-only cards freeze the verdict instead of offering the choice again,
+        /// and a card with nothing entered yet shows no verdict at all.
+        ///
+        /// The read-only branch below is unreachable today: `WorkoutResultsFeature.readOnly`
+        /// builds cards without a cap, so the `where` never holds. Keep it until that
+        /// factory passes the plan through; do not "maintain" it as live behaviour.
+        var statusKind: StatusKind? {
+            switch wodType {
+            case .forTime where capMinutes != nil:
+                if isReadOnly { return phase == .entered ? .pill(isDNF ? .notFinished : .completed) : nil }
+                return .segment(wodStatus)
+            case .forTime, .emom, .tabata, .mobility:
+                return phase == .entered ? .pill(.completed) : nil
+            case .strength, .olympicWeightlifting, .amrap, .intervals:
+                return nil
+            }
+        }
+
+        /// The ladder owns the reps, so the editor shows them instead of asking for them.
+        var ladderDrivesReps: Bool {
+            repScheme?.isEmpty == false && wodType == .forTime && wodStatus == .notFinished
+        }
+
+        /// Every round holds the same work, so the score tiles imply each movement's total.
+        ///
+        /// A ladder speaks first where it has something to say: its rounds shrink, and
+        /// the flat arithmetic here would read them all as the first rung.
+        var roundDrivesReps: Bool {
+            guard repScheme?.isEmpty != false else { return false }
+            switch wodType {
+            case .amrap: return true
+            case .forTime: return wodStatus == .notFinished
+            default: return false
+            }
+        }
+
+        /// One round's work per movement in board order; zero where the round does not speak for it.
+        var roundSizes: [Int] {
+            result.exercises.indices.map { index in
+                roundOwns(exerciseAt: index) ? (result.exercises[index].target?.count ?? 0) : 0
+            }
+        }
+
+        /// Where an unfinished attempt stopped: one past the last movement holding data.
+        ///
+        /// The card draws its time-limit separator here and mutes what follows, so the
+        /// rule belongs beside the result rather than in the view that renders it.
+        var dnfCutoffIndex: Int {
+            let lastWithData = result.exercises.lastIndex { exercise in
+                exercise.actualWeight != nil || exercise.actualReps != nil
+            }
+            return lastWithData.map { $0 + 1 } ?? result.exercises.count
+        }
+
+        /// Movements whose reps the score currently writes.
+        ///
+        /// A property, not a method: the view reaches state through the store's
+        /// key-path lookup, which cannot call one.
+        var derivedRepsIndices: Set<Int> {
+            Set(result.exercises.indices.filter { index in
+                (ladderDrivesReps && ladderOwns(exerciseAt: index)) || roundOwns(exerciseAt: index)
+            })
+        }
+
+        /// Whether this exercise follows the block's ladder rather than a scheme of its own.
+        ///
+        /// A movement the ladder speaks for carries no target: the results builder writes
+        /// its planned total as a bare number summed from the rungs. One that states a
+        /// target of its own means something else and keeps its unit suffix, which after
+        /// the save is all that marks calories as calories.
+        func ladderOwns(exerciseAt index: Int) -> Bool {
+            guard let repScheme, result.exercises.indices.contains(index) else { return false }
+            let exercise = result.exercises[index]
+            guard exercise.target == nil else { return false }
+            return Int(exercise.plannedReps ?? "") == repScheme.reduce(0, +)
+        }
+
+        /// Whether this movement's total follows the block's rounds rather than the athlete's typing.
+        ///
+        /// A movement with written sets carries a total of its own, and a `.rounds` or
+        /// `.laps` target counts the block itself rather than the work inside it.
+        func roundOwns(exerciseAt index: Int) -> Bool {
+            guard roundDrivesReps, result.exercises.indices.contains(index) else { return false }
+            let exercise = result.exercises[index]
+            guard exercise.sets?.isEmpty != false, let target = exercise.target else { return false }
+            switch target {
+            case .rounds, .laps:
+                return false
+            case .reps, .calories, .meters, .seconds, .minutes:
+                return target.count > 0
+            }
+        }
+
         /// ActivityDetails renders cards without editing affordances.
         var isReadOnly: Bool = false
 
@@ -73,6 +192,9 @@ struct WODScoringFeature {
         var dnfRounds: Int = 0
         var dnfExtraReps: Int = 0
         var noteState: NoteRowState = .empty
+
+        /// A read-only card keeps the note row only when there is a note to read.
+        var noteIsHidden: Bool { isReadOnly && noteState != .saved }
 
         var id: Int { wodIndex }
 
@@ -98,6 +220,7 @@ struct WODScoringFeature {
             wodType: ExerciseWorkoutType? = nil,
             capMinutes: Int? = nil,
             rounds: Int? = nil,
+            repScheme: [Int]? = nil,
             isReadOnly: Bool = false,
             wasScored: Bool = false
         ) {
@@ -106,6 +229,7 @@ struct WODScoringFeature {
             self.wodType = wodType ?? result.derivedWodType
             self.capMinutes = capMinutes
             self.rounds = rounds
+            self.repScheme = repScheme
             self.isReadOnly = isReadOnly
             // `.completed` is ambiguous — both "nothing entered yet" and a
             // confirmed EMOM/Tabata result. `wasScored` (card built from a saved
@@ -187,10 +311,13 @@ struct WODScoringFeature {
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
+            // A read-only card offers no controls, so nothing the view sends may change it.
+            // Scoped to `.view` on purpose: a later `.delegate` must not fall under it.
+            if case .view = action, state.isReadOnly { return .none }
+
             switch action {
 
             case .view(.startEditingTapped):
-                guard !state.isReadOnly else { return .none }
                 state.phase = .editing
                 switch state.result.scoreResult {
                 case let .forTime(time):
@@ -210,45 +337,39 @@ struct WODScoringFeature {
                 return .none
 
             case .view(.doneTapped):
-                switch (state.wodType, state.wodStatus) {
-                case (.strength, _), (.olympicWeightlifting, _):
+                switch state.scoreEntry {
+                case .sets:
                     let setWeights = state.result.exercises.flatMap { $0.sets ?? [] }.compactMap(\.weight)
                     let singleWeights = state.result.exercises.compactMap(\.actualWeight)
                     let maxWeight = (setWeights + singleWeights).max()
                     state.result.scoreResult = maxWeight.map { .forLoad(weight: $0) } ?? .completed
                     state.phase = maxWeight == nil ? .empty : .entered
 
-                case (.forTime, .completed):
+                case .time:
                     let seconds = state.draftTotalSeconds
                     state.result.scoreResult = seconds > 0 ? .forTime(time: TimeInterval(seconds)) : .completed
                     state.phase = seconds > 0 ? .entered : .empty
 
-                case (.forTime, .notFinished):
-                    state.result.scoreResult = .amrap(rounds: state.dnfRounds, extraReps: state.dnfExtraReps)
-                    state.phase = .entered
-
-                case (.amrap, _):
-                    let hasScore = state.dnfRounds > 0 || state.dnfExtraReps > 0
-                    state.result.scoreResult = hasScore
+                case .roundsAndReps:
+                    // A capped For Time keeps its DNF score even at zero — the status
+                    // segment has already said the athlete did not finish.
+                    let scored = state.dnfRounds > 0 || state.dnfExtraReps > 0 || state.capturesUnfinished
+                    state.result.scoreResult = scored
                         ? .amrap(rounds: state.dnfRounds, extraReps: state.dnfExtraReps)
                         : .completed
-                    state.phase = hasScore ? .entered : .empty
+                    state.phase = scored ? .entered : .empty
 
-                case (.tabata, _):
-                    // One total-reps field per exercise; the headline is their sum.
-                    // No reps entered → just confirmed.
+                case .totalPerMovement:
+                    // The headline is the sum of the per-movement fields — the team board
+                    // ranks both formats by total reps. Nothing entered → just confirmed.
                     let total = state.result.exercises.reduce(0) { sum, exercise in
                         sum + (Int((exercise.actualReps ?? "").prefix(while: \.isNumber)) ?? 0)
                     }
                     state.result.scoreResult = total > 0 ? .forReps(reps: total) : .completed
                     state.phase = .entered
 
-                case (.mobility, _):
-                    // No load and no time score — done means done.
-                    state.result.scoreResult = .completed
-                    state.phase = .entered
-
-                default: // emom — confirmation only
+                case .confirmation:
+                    // Mobility and intervals carry no load and no clock — done means done.
                     state.result.scoreResult = .completed
                     state.phase = .entered
                 }
@@ -258,9 +379,12 @@ struct WODScoringFeature {
                 state.wodStatus = status
                 // DNF needs the rounds picker right away — don't make the user
                 // hunt for the edit button after flipping the status.
-                if status == .notFinished, !state.isReadOnly, state.phase != .editing {
+                if status == .notFinished, state.phase != .editing {
                     state.phase = .editing
                 }
+                // Only the way back is synced: flipping TO not-finished must not
+                // stamp an untouched card with the steppers' zeroes.
+                if status == .completed { syncDerivedReps(&state) }
                 return .none
 
             case .view(.markNotFinishedFromHint):
@@ -269,10 +393,12 @@ struct WODScoringFeature {
 
             case let .view(.updateRounds(rounds)):
                 state.dnfRounds = max(0, rounds)
+                syncDerivedReps(&state)
                 return .none
 
             case let .view(.updateExtraReps(reps)):
                 state.dnfExtraReps = max(0, reps)
+                syncDerivedReps(&state)
                 return .none
 
             case let .view(.updateDraftMinutes(minutes)):
@@ -313,7 +439,6 @@ struct WODScoringFeature {
                 return .none
 
             case .view(.addNoteTapped):
-                guard !state.isReadOnly else { return .none }
                 state.noteState = .editing
                 return .none
 
@@ -327,10 +452,61 @@ struct WODScoringFeature {
                 return .none
 
             case .view(.savedNoteTapped):
-                guard !state.isReadOnly else { return .none }
                 state.noteState = .editing
                 return .none
             }
+        }
+    }
+
+    // MARK: - Derived reps
+
+    /// Writes the reps the entered score implies, so the athlete states it once
+    /// instead of restating it per movement.
+    ///
+    /// Called only where the athlete expressed a score — never on the flip to
+    /// not-finished, which would stamp an untouched card with the steppers' zeroes.
+    private func syncDerivedReps(_ state: inout State) {
+        syncLadderReps(&state)
+        syncRoundReps(&state)
+    }
+
+    /// A ladder's rounds shrink, so each movement's total is the sum of the rungs it reached.
+    private func syncLadderReps(_ state: inout State) {
+        guard state.wodType == .forTime,
+              let ladder = state.repScheme, !ladder.isEmpty
+        else { return }
+
+        for index in state.result.exercises.indices where state.ladderOwns(exerciseAt: index) {
+            let reps = state.wodStatus == .completed
+                ? ladder.reduce(0, +)
+                : LadderScore.reps(
+                    ladder: ladder,
+                    movementIndex: index,
+                    completedRounds: state.dnfRounds,
+                    extraReps: state.dnfExtraReps
+                )
+            state.result.exercises[index].actualReps = "\(reps)"
+        }
+    }
+
+    /// A flat block repeats one round, so each movement's total is its own share of
+    /// the rounds plus whatever of the partial round reached it.
+    ///
+    /// The unit travels with the number: after the save the suffix is the only thing
+    /// marking calories as calories.
+    private func syncRoundReps(_ state: inout State) {
+        guard state.roundDrivesReps else { return }
+        let sizes = state.roundSizes
+
+        for index in state.result.exercises.indices where state.roundOwns(exerciseAt: index) {
+            let total = RoundScore.reps(
+                roundSizes: sizes,
+                movementIndex: index,
+                completedRounds: state.dnfRounds,
+                extraReps: state.dnfExtraReps
+            )
+            state.result.exercises[index].actualReps = state.result.exercises[index].target
+                .map { $0.with(count: total).compactString }
         }
     }
 }

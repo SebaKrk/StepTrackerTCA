@@ -32,6 +32,9 @@ struct WorkoutSessionLiveActivity: Widget {
                     if context.state.isWatchConnectionLost {
                         connectionLostBadge
                             .padding(.trailing, 4)
+                    } else if showsStaleData(context) {
+                        staleDataBadge
+                            .padding(.trailing, 4)
                     } else {
                         zoneBadge(context)
                             .padding(.trailing, 4)
@@ -67,15 +70,43 @@ struct WorkoutSessionLiveActivity: Widget {
                 if context.state.isWatchConnectionLost {
                     Image(systemName: "applewatch.slash")
                         .foregroundColor(.orange)
+                } else if showsStaleData(context) {
+                    Image(systemName: "clock")
+                        .foregroundColor(.gray)
                 } else {
                     compactHeartRateBadge(context)
                 }
             } minimal: {
                 compactPercentageBadge(context)
             }
-            .keylineTint(context.state.isWatchConnectionLost ? .orange : context.state.heartRateZone.color)
+            .keylineTint(keylineColor(context))
         }
         .contentMarginsDisabled()
+    }
+
+    /// Updates stopped arriving past the activity's `staleDate`.
+    ///
+    /// Deliberately separate from `isWatchConnectionLost`: that one means a Watch is
+    /// gone and says so in orange. Staleness also covers a pause and an iPhone-only
+    /// workout, where a Watch icon would name a device the session never had — so it
+    /// stays neutral and claims only that the numbers are no longer fresh.
+    private func showsStaleData(_ context: ActivityViewContext<WorkoutSessionActivityAttributes>) -> Bool {
+        context.isStale && !context.state.isWatchConnectionLost
+    }
+
+    private func keylineColor(_ context: ActivityViewContext<WorkoutSessionActivityAttributes>) -> Color {
+        if context.state.isWatchConnectionLost { return .orange }
+        if showsStaleData(context) { return .gray }
+        return context.state.heartRateZone.color
+    }
+
+    private var staleDataBadge: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "clock")
+            Text(String(localized: "No data"))
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundColor(.gray)
     }
     
     // MARK: - Expanded Badges

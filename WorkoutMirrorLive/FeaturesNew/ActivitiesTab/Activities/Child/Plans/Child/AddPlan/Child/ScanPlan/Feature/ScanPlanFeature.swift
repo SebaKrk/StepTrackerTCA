@@ -13,9 +13,9 @@ import SharedModels
 
 /// Feature responsible for extracting a workout plan from a photo.
 ///
-/// Flow: Take/select photo → Load image data → Extract text (Vision OCR) →
-/// Edit extracted text → Parse (Claude API) → Preview. Both steps go through
-/// ``WorkoutExtractionClient``.
+/// Flow: Take/select photo → Load image data → Parse (backend from settings) → Preview.
+/// Text backends add Vision OCR in between, and `claudeText` also lets the user edit the
+/// text before parsing. Both steps go through ``WorkoutExtractionClient``.
 @Reducer
 struct ScanPlanFeature {
 
@@ -31,8 +31,8 @@ struct ScanPlanFeature {
 
     // MARK: - Dependency
 
-    @Dependency(\.apiKeyClient) var apiKeyClient
     @Dependency(\.date) var date
+    @Dependency(\.dismiss) var dismiss
     @Dependency(\.workoutExtractionClient) var extractionClient
 
     // MARK: - Body
@@ -65,7 +65,7 @@ struct ScanPlanFeature {
             case .view(.documentScanFailed):
                 state.isCameraPresented = false
                 state.failedStage = .photoLoad
-                state.viewState = .failed(String(localized: "Scanning failed. Try again."))
+                state.viewState = .failed(Self.cameraFailure)
                 return .none
 
             case .view(.editTextTapped):
@@ -81,45 +81,22 @@ struct ScanPlanFeature {
                 // network (iCloud Photo Library) and the idle screen would linger.
                 state.viewState = .loadingPhoto
                 return .run { send in
-                    if let data = try? await item.loadTransferable(type: Data.self) {
-                        await send(.internal(.imageLoaded(data)))
-                    } else {
-                        await send(.internal(.imageLoaded(nil)))
-                    }
+                    let data = try? await item.loadTransferable(type: Data.self)
+                    await send(.internal(.galleryPhotoLoaded(data)))
                 }
                 .cancellable(id: CancelID.photoLoad, cancelInFlight: true)
 
-            case .view(.apiKeySettingsTapped):
-                let hasKey = apiKeyClient.load() != nil
-                state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: hasKey)
-                return .none
-
             case .view(.continueButtonTapped):
                 guard !state.extractedText.isEmpty else { return .none }
-                guard apiKeyClient.load() != nil else {
-                    state.apiKeyEntry = APIKeyEntryFeature.State(hasExistingKey: false)
-                    return .none
-                }
-                state.viewState = .processingOCR
-                state.failedStage = nil
-                return .run { [text = state.extractedText] send in
-                    do {
-                        let workout = try await extractionClient.parseWorkout(text)
-                        await send(.internal(.parsingCompleted(workout)))
-                    } catch {
-                        await send(.internal(.extractionFailed(ClaudeAPIError.userMessage(for: error), .parsing)))
-                    }
-                }
-                .cancellable(id: CancelID.parse, cancelInFlight: true)
+                return startParsing(&state)
 
             case .view(.retryTapped):
                 // Retry re-runs only the failed stage — the picked photo and
                 // OCR text are already paid for; a transient network error
                 // during parsing must not cost the user that work.
                 switch state.failedStage {
-                case .parsing where !state.extractedText.isEmpty:
-                    state.failedStage = nil
-                    return .send(.view(.continueButtonTapped))
+                case .parsing where state.selectedImageData != nil || !state.extractedText.isEmpty:
+                    return startParsing(&state)
 
                 case .ocr:
                     guard let data = state.selectedImageData else {
@@ -135,47 +112,76 @@ struct ScanPlanFeature {
             case .view(.clearImageTapped):
                 return resetToIdle(&state)
 
+            case .view(.addManuallyTapped):
+                // Closing this screen lands on Add Plan, where the manual form lives.
+                return .run { _ in await dismiss() }
+
+            case let .view(.parsingBackendChanged(backend)):
+                state.$parsingBackend.withLock { $0 = backend }
+                return .none
+
+            case let .view(.scanModelChanged(model)):
+                state.$scanModel.withLock { $0 = model }
+                return .none
+
                 // MARK: - Internal Action
+
+            case let .internal(.galleryPhotoLoaded(data)):
+                guard let data else {
+                    state.failedStage = .photoLoad
+                    state.viewState = .failed(Self.photoLoadFailure)
+                    return .none
+                }
+                // The document camera crops on its own; a library photo gets the same step here.
+                state.photoCrop = PhotoCropFeature.State(imageData: data)
+                return .none
 
             case let .internal(.imageLoaded(data)):
                 guard let data else {
                     state.failedStage = .photoLoad
-                    state.viewState = .failed(String(localized: "Could not load the selected image."))
+                    state.viewState = .failed(Self.photoLoadFailure)
                     return .none
                 }
                 state.selectedImageData = data
-                state.viewState = .processingOCR
+                state.viewState = .analyzing
                 state.failedStage = nil
-                // Auto-start OCR after image loaded
+                // The photo backend reads the picture itself — no OCR, no text step.
+                guard state.parsingBackend.needsOCRText else { return startParsing(&state) }
                 return .run { send in
                     do {
                         let rawText = try await extractionClient.extractText(data)
                         await send(.internal(.textExtracted(rawText)))
                     } catch {
-                        await send(.internal(.extractionFailed(error.localizedDescription, .ocr)))
+                        await send(.internal(.extractionFailed(ScanProxyError.scanFailure(for: error), .ocr)))
                     }
                 }
                 .cancellable(id: CancelID.ocr, cancelInFlight: true)
 
             case let .internal(.textExtracted(rawText)):
                 state.extractedText = rawText
+                guard state.parsingBackend.showsTextStep else { return startParsing(&state) }
                 state.viewState = .textReady
                 return .none
 
-            case let .internal(.parsingCompleted(workout)):
-                state.extractedWorkout = workout
+            case let .internal(.parsingCompleted(rawBoard)):
+                let (board, fixes) = rawBoard.normalized()
+                state.extractedWorkout = board
+                let session = board.toTrainingSession(scanDate: date.now)
 
-                guard !workout.sections.isEmpty else {
+                if let hard = ScanReviewValidator.hardFindings(board: board, plan: session).first {
                     state.failedStage = .parsing
-                    state.viewState = .failed(String(localized: "No workout plan found in this text."))
+                    state.viewState = .failed(Self.reviewFailure(hard.message))
                     return .none
                 }
 
-                // Auto-navigate to preview after successful parsing
-                state.workoutPreview = WorkoutPreviewFeature.State(
-                    trainingSession: workout.toTrainingSession(scanDate: date.now)
+                // Preview opens right away; the review card and a disabled Save carry the doubts.
+                var preview = WorkoutPreviewFeature.State(trainingSession: session)
+                preview.scannedSession = session
+                preview.boardFindings = IdentifiedArray(
+                    uniqueElements: ScanReviewValidator.boardFindings(board: board, fixes: fixes, plan: session)
                 )
-
+                preview.planFindings = IdentifiedArray(uniqueElements: ScanReviewValidator.planFindings(session))
+                state.workoutPreview = preview
                 return .none
 
             case let .internal(.extractionFailed(error, stage)):
@@ -183,19 +189,15 @@ struct ScanPlanFeature {
                 state.viewState = .failed(error)
                 return .none
 
-                // MARK: - API Key Entry
+            case .photoCrop(.presented(.delegate(.cropped(let data)))):
+                state.photoCrop = nil
+                return .send(.internal(.imageLoaded(data)))
 
-            case .apiKeyEntry(.presented(.delegate(.keySaved))):
-                state.apiKeyEntry = nil
-                return .run { send in
-                    await send(.view(.continueButtonTapped))
-                }
+            case .photoCrop(.presented(.delegate(.cancelled))), .photoCrop(.dismiss):
+                state.photoCrop = nil
+                return resetToIdle(&state)
 
-            case .apiKeyEntry(.presented(.delegate(.keyDeleted))):
-                state.apiKeyEntry = nil
-                return .none
-
-            case .apiKeyEntry:
+            case .photoCrop:
                 return .none
 
                 // MARK: - Workout Preview
@@ -208,9 +210,13 @@ struct ScanPlanFeature {
                 return .send(.delegate(.saved(session)))
 
             case .workoutPreview(.dismiss):
-                // Back from preview keeps the OCR text — the user may only
-                // want to tweak it and re-parse, not redo the whole scan.
                 state.extractedWorkout = nil
+                // Back from preview keeps the OCR text — the user may only want
+                // to tweak it and re-parse. The photo backends have no transcript,
+                // so for them that screen would be an empty editor.
+                guard state.parsingBackend.showsTextStep, !state.extractedText.isEmpty else {
+                    return resetToIdle(&state)
+                }
                 state.viewState = .textReady
                 return .none
 
@@ -224,15 +230,63 @@ struct ScanPlanFeature {
         .ifLet(\.$workoutPreview, action: \.workoutPreview) {
             WorkoutPreviewFeature()
         }
-        .ifLet(\.$apiKeyEntry, action: \.apiKeyEntry) {
-            APIKeyEntryFeature()
+        .ifLet(\.$photoCrop, action: \.photoCrop) {
+            PhotoCropFeature()
         }
+    }
+
+    // MARK: - Failures
+
+    /// The document scanner itself failed — a different photo usually works.
+    nonisolated static let cameraFailure = ScanFailure(
+        title: String(localized: "Scanning failed"),
+        message: String(localized: "The scanner could not capture the page. Try again."),
+        canRetry: true
+    )
+
+    /// The picked image could not be read, often an iCloud photo that never downloaded.
+    nonisolated static let photoLoadFailure = ScanFailure(
+        title: String(localized: "Could not open the photo"),
+        message: String(localized: "Pick the photo again, or take a new one."),
+        canRetry: false
+    )
+
+    /// The board parsed, but the review found something that blocks a usable plan.
+    ///
+    /// The finding already reads as a full sentence, so it becomes the body.
+    nonisolated static func reviewFailure(_ message: String) -> ScanFailure {
+        ScanFailure(
+            title: String(localized: "The plan could not be read"),
+            message: message,
+            canRetry: true
+        )
     }
 
     // MARK: - Helpers
 
     /// Full reset to the initial screen, killing any in-flight effect so a
     /// late OCR/parse result cannot resurrect the state it belonged to.
+    /// Sends the photo and text to the chosen backend through the proxy; the daily
+    /// allowance is checked server-side, so every entry point behaves the same.
+    private func startParsing(_ state: inout State) -> Effect<Action> {
+        state.viewState = .analyzing
+        state.failedStage = nil
+        let input = WorkoutScanInput(
+            imageData: state.selectedImageData,
+            ocrText: state.extractedText,
+            model: state.scanModel.requestedModel
+        )
+        return .run { [backend = state.parsingBackend] send in
+            do {
+                let board = try await extractionClient.parseWorkout(input, backend)
+                await send(.internal(.parsingCompleted(board)))
+            } catch {
+                await send(.internal(.extractionFailed(ScanProxyError.scanFailure(for: error), .parsing)))
+            }
+        }
+        .cancellable(id: CancelID.parse, cancelInFlight: true)
+    }
+
     private func resetToIdle(_ state: inout State) -> Effect<Action> {
         // Also drop the picker item — with a stale value, re-picking the SAME
         // photo is a no-op (`onChange` never fires for an equal value).

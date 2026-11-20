@@ -47,6 +47,9 @@ public struct TrainingSessionRecord: Identifiable, CloudKitSyncable {
     /// JSON-encoded CoolDownSession — nil if session has no cool-down
     public var coolDownData: Data?
 
+    /// Team daily plan this copy was downloaded from (`{groupId}/{day}`) — nil for own plans
+    public var teamPlanId: String?
+
     // MARK: - CloudKitSyncable
 
     /// Timestamp of record creation
@@ -69,6 +72,7 @@ public struct TrainingSessionRecord: Identifiable, CloudKitSyncable {
         warmUpData: Data?,
         workoutsData: Data,
         coolDownData: Data?,
+        teamPlanId: String? = nil,
         createdAt: Date,
         updatedAt: Date,
         ckRecordData: Data? = nil
@@ -81,6 +85,7 @@ public struct TrainingSessionRecord: Identifiable, CloudKitSyncable {
         self.warmUpData = warmUpData
         self.workoutsData = workoutsData
         self.coolDownData = coolDownData
+        self.teamPlanId = teamPlanId
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.ckRecordData = ckRecordData
@@ -102,6 +107,7 @@ extension TrainingSessionRecord {
             warmUpData: try session.warmUp.map { try encoder.encode($0) },
             workoutsData: try encoder.encode(session.workouts),
             coolDownData: try session.coolDown.map { try encoder.encode($0) },
+            teamPlanId: session.teamPlanId,
             createdAt: createdAt,
             updatedAt: updatedAt
         )
@@ -123,7 +129,8 @@ extension TrainingSessionRecord {
             location: location,
             warmUp: try warmUpData.map { try decoder.decode(WarmUpSession.self, from: $0) },
             workouts: try decoder.decode([WorkoutSessionNew].self, from: workoutsData),
-            coolDown: try coolDownData.map { try decoder.decode(CoolDownSession.self, from: $0) }
+            coolDown: try coolDownData.map { try decoder.decode(CoolDownSession.self, from: $0) },
+            teamPlanId: teamPlanId
         )
     }
 }

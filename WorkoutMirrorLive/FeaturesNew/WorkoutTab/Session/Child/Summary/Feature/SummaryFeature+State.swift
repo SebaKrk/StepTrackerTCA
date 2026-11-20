@@ -31,6 +31,9 @@ extension SummaryFeature {
         /// editable; ActivityDetails embeds the same feature read-only.
         var results: WorkoutResultsFeature.State = .init()
 
+        /// "Send to group" row — only for a plan downloaded from a Team group.
+        var teamSubmit: TeamSubmitFeature.State?
+
         /// Counts how many times checkSummary has been attempted (for debug logging).
         var summaryRetryCount: Int = 0
 
@@ -140,6 +143,7 @@ extension SummaryFeature.State {
         var state = Self()
         state.summary = summary
         state.trainingSession = trainingSession
+        state.teamSubmit = TeamSubmitFeature.State(teamPlanId: trainingSession.teamPlanId)
         state.hrBuffer = hrBuffer
         state.hrMinuteRanges = HRMinuteRange.from(buffer: hrBuffer)
         state.phaseTimestamps = phaseTimestamps

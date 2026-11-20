@@ -175,6 +175,7 @@ extension WorkoutResultsFeature.State {
                     wodType: workout?.type,
                     capMinutes: workout?.timeCap,
                     rounds: workout?.rounds,
+                    repScheme: workout?.repScheme,
                     wasScored: wasScored
                 )
             }
@@ -195,50 +196,61 @@ extension WorkoutResultsFeature.State {
 
     /// Fresh, empty results mapped from the plan (moved from SummaryFeature.setTrainingSession).
     private static func freshResults(from workouts: [WorkoutSessionNew]) -> [WorkoutSessionResult] {
-        let isStrength = { (type: ExerciseWorkoutType) -> Bool in
-            type == .strength || type == .olympicWeightlifting
-        }
         return workouts.map { workout -> WorkoutSessionResult in
             let exercises = workout.exercises.map { exercise in
                 // Strength → structured plannedSets (reps×weight). Mobility → per-set
                 // rows too, but reps-only and never round-derived. Everything else
                 // (For Time / AMRAP / EMOM / Tabata) → one value field per exercise.
                 let sets: [SetEntry]? = {
-                    if isStrength(workout.type) {
-                        if let planned = exercise.plannedSets, !planned.isEmpty {
-                            return planned.map {
-                                SetEntry(reps: $0.reps, weight: $0.suggestedWeight)
-                            }
+                    guard workout.type.keepsSetRows else { return nil }
+
+                    if let planned = exercise.plannedSets, !planned.isEmpty {
+                        return planned.map {
+                            SetEntry(reps: $0.reps, weight: $0.suggestedWeight)
                         }
-                        guard let rounds = workout.rounds else { return nil }
-                        let reps: Int
-                        if case let .reps(r) = exercise.target { reps = r } else { reps = 0 }
-                        return (0..<rounds).map { _ in SetEntry(reps: reps) }
                     }
-
-                    if workout.type == .mobility,
-                       let planned = exercise.plannedSets, !planned.isEmpty {
-                        return planned.map { SetEntry(reps: $0.reps, weight: $0.suggestedWeight) }
-                    }
-
-                    return nil
+                    // Rounds become rows rather than a factor — the pattern that keeps
+                    // what is stored equal to what was done.
+                    guard let rounds = workout.rounds else { return nil }
+                    let reps: Int
+                    if case let .reps(r) = exercise.target { reps = r } else { reps = 0 }
+                    return (0..<rounds).map { _ in SetEntry(reps: reps) }
                 }()
 
                 let weight = exercise.weight.flatMap { config in
                     config.men.map(Double.init) ?? config.women.map(Double.init)
                 }
 
+                // What is stored is always the whole block's work, so a round-based
+                // target is multiplied out here instead of surviving as a factor.
+                // Tabata totals, ladders and set tables are already whole; an AMRAP's
+                // rounds are unknown until the athlete scores them, and the score
+                // writes the reps then.
+                let repeatsRounds = workout.type.multipliesTargetByRounds && exercise.plannedSets == nil
+                let repeats = (repeatsRounds ? (workout.rounds ?? 1) : 1) * (exercise.perSide ? 2 : 1)
+                let plannedTotal = exercise.target.map { $0.with(count: $0.count * repeats) }
+
+                // A WOD rep ladder has no single target — its total is the planned rep count.
+                let ladderTotal: String? = workout.type.isStrength
+                    ? nil
+                    : exercise.plannedSets.map { String($0.reduce(0) { $0 + $1.reps }) }
+                let repsLabel = plannedTotal?.compactString ?? ladderTotal
+
                 return ExerciseLogInput(
                     exerciseType: exercise.type,
+                    equipment: exercise.equipment,
+                    equipmentSelection: exercise.equipmentSelection,
                     unmatchedName: exercise.customName,
                     category: exercise.type.category,
                     target: exercise.target,
-                    plannedReps: exercise.target?.compactString,
+                    plannedReps: repsLabel,
                     plannedWeight: weight,
                     actualWeight: sets == nil ? weight : nil,
-                    // Tabata's total-reps field starts empty (the plan holds an
-                    // interval, not a rep total); other single-field types prefill.
-                    actualReps: (sets == nil && workout.type != .tabata) ? exercise.target?.compactString : nil,
+                    // A block scored by totals starts empty: its plan holds an interval,
+                    // not a rep count, so there is nothing truthful to prefill.
+                    actualReps: sets == nil && workout.type.scoreEntryKind != .totalPerMovement
+                        ? repsLabel
+                        : nil,
                     sets: sets
                 )
             }

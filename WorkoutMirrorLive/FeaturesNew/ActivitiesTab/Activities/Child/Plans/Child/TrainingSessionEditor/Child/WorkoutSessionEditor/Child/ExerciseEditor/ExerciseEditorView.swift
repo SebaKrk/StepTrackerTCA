@@ -70,6 +70,10 @@ struct ExerciseEditorView: View {
         GroupBox {
             VStack(spacing: 0) {
                 exerciseTypeRow
+                if store.draft.type.supportsEquipmentSelection {
+                    Divider().padding(.leading)
+                    equipmentSelectionRow
+                }
                 if store.draft.type == .unknown {
                     Divider().padding(.leading)
                     customNameRow
@@ -95,6 +99,68 @@ struct ExerciseEditorView: View {
                 }
             }
             .buttonStyle(.plain)
+        }
+    }
+
+    private var equipmentSelectionRow: some View {
+        editorRow {
+            Text("Equipment").foregroundStyle(.secondary)
+            Spacer()
+            Menu {
+                Button {
+                    send(.equipmentSelectionChanged(.automatic))
+                } label: {
+                    equipmentOption(automaticEquipmentTitle, selection: .automatic)
+                }
+                Button {
+                    send(.equipmentSelectionChanged(.none))
+                } label: {
+                    equipmentOption(String(localized: "None"), selection: .none)
+                }
+                ForEach(Equipment.allCases, id: \.self) { equipment in
+                    Button {
+                        send(.equipmentSelectionChanged(.equipment(equipment)))
+                    } label: {
+                        equipmentOption(equipment.displayName, selection: .equipment(equipment))
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(selectedEquipmentTitle)
+                        .foregroundStyle(.primary)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+    }
+
+    private var automaticEquipmentTitle: String {
+        if let equipment = store.automaticEquipment {
+            return String(localized: "Automatic · \(equipment.displayName)")
+        }
+        return String(localized: "Automatic")
+    }
+
+    private var selectedEquipmentTitle: String {
+        switch store.equipmentSelectionForPicker {
+        case .automatic: automaticEquipmentTitle
+        case .none: String(localized: "None")
+        case let .equipment(equipment): equipment.displayName
+        }
+    }
+
+    private func equipmentOption(
+        _ title: String,
+        selection: ExerciseEquipmentSelection
+    ) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            if selection == store.equipmentSelectionForPicker {
+                Image(systemName: "checkmark")
+            }
         }
     }
 

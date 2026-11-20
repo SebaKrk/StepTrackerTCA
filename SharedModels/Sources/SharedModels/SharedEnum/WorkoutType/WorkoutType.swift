@@ -11,6 +11,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
 
     case strength
     case functional
+    case endurance
     case cross
     case boxing
     case cycling
@@ -25,6 +26,8 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
             return String(localized: "Strength", bundle: .module)
         case .functional:
             return String(localized: "Functional", bundle: .module)
+        case .endurance:
+            return String(localized: "Endurance", bundle: .module)
         case .cross:
             return String(localized: "Cross", bundle: .module)
         case .boxing:
@@ -42,6 +45,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         switch self {
         case .strength:         return "figure.strengthtraining.traditional"
         case .functional:       return "figure.strengthtraining.functional"
+        case .endurance:        return "figure.highintensity.intervaltraining"
         case .cross:            return "figure.cross.training"
         case .boxing:           return "figure.boxing"
         case .cycling:          return "figure.outdoor.cycle"
@@ -54,6 +58,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         switch self {
         case .strength:      return "figure.strengthtraining.traditional.circle.fill"
         case .functional:    return "figure.strengthtraining.functional.circle.fill"
+        case .endurance:     return "figure.highintensity.intervaltraining.circle.fill"
         case .cross:         return "figure.cross.training.circle.fill"
         case .boxing:        return "figure.boxing.circle.fill"
         case .cycling:       return "figure.outdoor.cycle.circle.fill"
@@ -67,6 +72,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         switch self {
         case .strength:         return .traditionalStrengthTraining
         case .functional:       return .functionalStrengthTraining
+        case .endurance:        return .highIntensityIntervalTraining
         case .cross:            return .crossTraining
         case .boxing:           return .boxing
         case .cycling:          return .cycling
@@ -82,7 +88,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         switch self {
         case .cycling, .running:
             return true
-        case .strength, .functional, .cross, .boxing, .indoorRunning:
+        case .strength, .functional, .endurance, .cross, .boxing, .indoorRunning:
             return false
         }
     }
@@ -98,6 +104,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         switch hkType {
         case .traditionalStrengthTraining: self = .strength
         case .functionalStrengthTraining:  self = .functional
+        case .highIntensityIntervalTraining: self = .endurance
         case .crossTraining:               self = .cross
         case .boxing:                      self = .boxing
         case .cycling:                     self = .cycling
@@ -112,6 +119,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         switch self {
         case .strength:      return "strength"
         case .functional:    return "functional"
+        case .endurance:     return "endurance"
         case .cross:         return "cross"
         case .boxing:        return "boxing"
         case .cycling:       return "cycling"
@@ -126,6 +134,7 @@ public enum WorkoutType: CaseIterable, Codable, Hashable, Identifiable, Sendable
         switch storageKey {
         case "strength":      self = .strength
         case "functional":    self = .functional
+        case "endurance":     self = .endurance
         case "cross":         self = .cross
         case "boxing":        self = .boxing
         case "cycling":       self = .cycling

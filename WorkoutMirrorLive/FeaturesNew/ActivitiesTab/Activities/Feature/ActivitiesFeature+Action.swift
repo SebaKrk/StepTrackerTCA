@@ -15,9 +15,13 @@ extension ActivitiesFeature {
         
         // MARK: - Actions
         
-        /// Updates the selected tab context (activity/plans).
+        /// Updates the selected tab context (activity/plans/team).
         case selectedPickerChange(TrainingTabContext)
-        
+
+        /// Returns the tab to the state it opens in — sent when its tab bar item
+        /// is tapped while it is already the selected tab.
+        case resetToRoot
+
         // MARK: - Child Features
         
         /// Forwards actions to the Personal Activity feature.
@@ -25,6 +29,9 @@ extension ActivitiesFeature {
         
         /// Forwards actions to the Plans feature.
         case plans(PlansFeature.Action)
+
+        /// Forwards actions to the Team feature.
+        case team(TeamFeature.Action)
     }
     
 }

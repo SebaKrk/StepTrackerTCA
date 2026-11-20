@@ -23,19 +23,31 @@ extension ExerciseSession {
     fileprivate init(
         id: UUID,
         type: ExerciseType,
+        equipment: Equipment?,
+        equipmentSelection: ExerciseEquipmentSelection?,
         customName: String?,
         target: ExerciseTarget?,
         weight: WeightConfiguration?,
         info: String?,
-        plannedSets: [PlannedSet]?
+        plannedSets: [PlannedSet]?,
+        perSide: Bool,
+        isMaxEffort: Bool,
+        segment: MovementSegment?,
+        loadTiers: [LoadTier]?
     ) {
         self.id = id
         self.type = type
+        self.equipment = equipment
+        self.equipmentSelection = equipmentSelection
         self.customName = customName
         self.target = target
         self.weight = weight
         self.info = info
         self.plannedSets = plannedSets
+        self.perSide = perSide
+        self.isMaxEffort = isMaxEffort
+        self.segment = segment
+        self.loadTiers = loadTiers
     }
 
     /// Re-resolves an `.unknown` exercise against the current catalog.
@@ -43,16 +55,22 @@ extension ExerciseSession {
     /// OCR/AI name only while the type is `.unknown`.
     public func rematchedAgainstCatalog() -> ExerciseSession? {
         guard type == .unknown, let rawName = customName else { return nil }
-        let resolved = ExerciseType.matched(fromRawName: rawName)
-        guard resolved != .unknown else { return nil }
+        let resolved = ExerciseType.resolve(rawName: rawName)
+        guard resolved.type != .unknown else { return nil }
         return ExerciseSession(
             id: id,
-            type: resolved,
+            type: resolved.type,
+            equipment: resolved.equipment ?? equipment,
+            equipmentSelection: equipmentSelection,
             customName: nil,
             target: target,
             weight: weight,
             info: info,
-            plannedSets: plannedSets
+            plannedSets: plannedSets,
+            perSide: perSide,
+            isMaxEffort: isMaxEffort,
+            segment: segment,
+            loadTiers: loadTiers
         )
     }
 }
@@ -67,7 +85,10 @@ extension WorkoutSessionNew {
         timeCap: Int?,
         rounds: Int?,
         exercises: [ExerciseSession],
-        interval: IntervalPlan?
+        interval: IntervalPlan?,
+        notes: String?,
+        everySeconds: Int?,
+        repScheme: [Int]?
     ) {
         self.id = id
         self.name = name
@@ -76,6 +97,9 @@ extension WorkoutSessionNew {
         self.rounds = rounds
         self.exercises = exercises
         self.interval = interval
+        self.notes = notes
+        self.everySeconds = everySeconds
+        self.repScheme = repScheme
     }
 
     /// Returns a copy with all `.unknown` exercises re-resolved.
@@ -94,7 +118,10 @@ extension WorkoutSessionNew {
             timeCap: timeCap,
             rounds: rounds,
             exercises: rematchedExercises,
-            interval: interval
+            interval: interval,
+            notes: notes,
+            everySeconds: everySeconds,
+            repScheme: repScheme
         )
     }
 }
@@ -119,7 +146,8 @@ extension TrainingSession {
             location: location,
             warmUp: warmUp,
             workouts: rematchedWorkouts,
-            coolDown: coolDown
+            coolDown: coolDown,
+            teamPlanId: teamPlanId
         )
     }
 }
