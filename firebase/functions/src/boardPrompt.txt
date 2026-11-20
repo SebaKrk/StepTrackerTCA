@@ -9,6 +9,7 @@ READ THE BOARD, NOTHING ELSE
 - The workout is what a coach wrote for the class. Ignore attendance names, dates, doodles, the clock and anything that is not a block of training.
 - Keep the board's order of blocks. Never reorder into a "standard" structure.
 - Do not invent: no warm-up or cool-down unless written, no padding of minutes, no movements that are not on the board. When a value is unreadable, give your best reading and add the field name to that section's "uncertain".
+- notes hold only what no field carries. Never restate a ladder, a run before every station, a cap, a round count or a load that already sits in its field, and never explain the form.
 - Common OCR / handwriting misreads: "ToW" / "mw" = row, "bax" = box, "squaf" = squat, "Set-ups" = sit-ups, "Suutches" = snatches, "Dun" = run, "Wann-up" = Warm-up, "Qx / Ox / mo)" before loads = Rx / Rx+ / Pro.
 
 BLOCKS (sections)
@@ -38,6 +39,7 @@ TIME
 
 NUMBERS — where they go
 - A set scheme on a movement ("4x5", "5x5 @ 80 kg", "5-5-5-5-5", "10-10-8-8", "2x5 @ 50-60%, 2x4 @ 60-70%") → sets[], one entry per set, in order, with each set's load (percent range → its lower bound). "3x max" → three sets with maxEffort true and value 0. targetValue stays 0.
+- An open-ended ladder above the movements ("1-2-3-4-5-6-…", "2-4-6-…", "1-2-3 itd.", "+1 every round"; usual under an AMRAP): repScheme = the rungs as written, repSchemeContinues true, roundCount 0, every movement under it targetValue 0 and sets []. The ladder then stays out of notes altogether — the app counts the reps from it.
 - A rep ladder shared by the whole block ("21-15-9", "30-20-10-5") → the section's repScheme, roundCount 0, every movement under it has targetValue 0 and sets []. Never put the ladder in loads or notes.
 - "N rounds" / "4 rounds for time" → roundCount N. Buy-in before the rounds and cash-out after → movement segment buyIn / cashOut.
 - A run chained with a list of stations ("8 rounds for time: 1 km run + station", "8x: 1k bieg → stacja" above a numbered list; boards headed "fitness race", "Hyrox" or "sim" are usually this): the list is NOT repeated and the run is NOT a movement. Emit ONE forTime block, roundCount 1, runBeforeEachMeters = the run in metres (1 km → 1000), movements = the stations only, in board order. Activity functional. runBeforeEachMeters stays 0 for every other block, including a run that is simply one movement among others.
@@ -62,6 +64,7 @@ ACTIVITY (whole board)
 
 MOVEMENT NAMES (name) — English, lower case, catalog style: "kettlebell swing", "american swing", "handstand push-ups", "HSPU", "bar muscle-ups", "rowing", "running", "cycling", "snatch", "clean", "jerk", "deadlift", "back squat", "front squat", "air squat", "push-ups", "pull-ups", "sit-ups", "burpees", "box jumps", "wall balls", "toes to bar", "double unders". rawName keeps the board spelling.
 - Coach shorthand is expanded in name: "BBJ" = burpee broad jump, "BJ" = box jumps, "BJO" = box jump overs, "WB" = wall balls, "FC" = farmers carry, "SB" = sandbag, "Ski" = ski erg, "Sled P." = sled push, "DU" = double unders, "T2B" / "TTB" = toes to bar, "C2B" = chest to bar pull-ups, "HSPU" = handstand push-ups, "MU" = muscle-ups, "KB" = kettlebell, "DB" = dumbbell, "OH" = overhead, "DL" = deadlift, "PC" = power clean, "S2O" = shoulder to overhead.
+- One line of the board is ONE movement unless it joins two with "+", "&", "and" or "i": "burpee box jump" = burpee box jumps, never burpees and box jumps; "burpee pull-up" = burpee pull-ups; "burpee over bar" = bar-facing burpees.
 - name is the movement only: never the list marker ("4)"), never the distance, reps or load. An abbreviation you cannot expand stays alone as written ("XYZ"), with its numbers in targetValue and loads.
 
 WORKED EXAMPLE 1 — a strength day

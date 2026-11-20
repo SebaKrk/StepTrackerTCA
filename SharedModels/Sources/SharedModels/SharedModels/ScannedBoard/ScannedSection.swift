@@ -39,6 +39,9 @@ public struct ScannedSection: Codable, Sendable, Equatable {
     /// Ladder "21-15-9" → [21, 15, 9]; empty otherwise.
     public let repScheme: [Int]
 
+    /// The ladder goes on past its last written rung ("1-2-3-4-5-6-…").
+    public let repSchemeContinues: Bool
+
     /// Metres of a run done before every movement of the list; 0 when the block is not a fitness run.
     public let runBeforeEachMeters: Int
 
@@ -71,6 +74,7 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         restSec: Int = 0,
         roundCount: Int = 0,
         repScheme: [Int] = [],
+        repSchemeContinues: Bool = false,
         runBeforeEachMeters: Int = 0,
         restBetweenRoundsSec: Int = 0,
         writtenDurationMin: Double = 0,
@@ -89,6 +93,7 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         self.restSec = restSec
         self.roundCount = roundCount
         self.repScheme = repScheme
+        self.repSchemeContinues = repSchemeContinues
         self.runBeforeEachMeters = runBeforeEachMeters
         self.restBetweenRoundsSec = restBetweenRoundsSec
         self.writtenDurationMin = writtenDurationMin
@@ -98,7 +103,7 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         self.movements = movements
     }
 
-    // A proxy still on the earlier form sends no run field — read it as "not a fitness run".
+    // A proxy still on an earlier form sends neither field — read them as "not a fitness run" and "a closed ladder".
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.label = try container.decode(String.self, forKey: .label)
@@ -111,6 +116,7 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         self.restSec = try container.decode(Int.self, forKey: .restSec)
         self.roundCount = try container.decode(Int.self, forKey: .roundCount)
         self.repScheme = try container.decode([Int].self, forKey: .repScheme)
+        self.repSchemeContinues = try container.decodeIfPresent(Bool.self, forKey: .repSchemeContinues) ?? false
         self.runBeforeEachMeters = try container.decodeIfPresent(Int.self, forKey: .runBeforeEachMeters) ?? 0
         self.restBetweenRoundsSec = try container.decode(Int.self, forKey: .restBetweenRoundsSec)
         self.writtenDurationMin = try container.decode(Double.self, forKey: .writtenDurationMin)
