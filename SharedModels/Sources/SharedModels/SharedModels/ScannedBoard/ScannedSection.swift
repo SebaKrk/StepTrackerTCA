@@ -39,6 +39,9 @@ public struct ScannedSection: Codable, Sendable, Equatable {
     /// Ladder "21-15-9" → [21, 15, 9]; empty otherwise.
     public let repScheme: [Int]
 
+    /// Metres of a run done before every movement of the list; 0 when the block is not a fitness run.
+    public let runBeforeEachMeters: Int
+
     /// Rest between rounds in seconds; 0 when none.
     public let restBetweenRoundsSec: Int
 
@@ -68,6 +71,7 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         restSec: Int = 0,
         roundCount: Int = 0,
         repScheme: [Int] = [],
+        runBeforeEachMeters: Int = 0,
         restBetweenRoundsSec: Int = 0,
         writtenDurationMin: Double = 0,
         text: String = "",
@@ -85,11 +89,34 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         self.restSec = restSec
         self.roundCount = roundCount
         self.repScheme = repScheme
+        self.runBeforeEachMeters = runBeforeEachMeters
         self.restBetweenRoundsSec = restBetweenRoundsSec
         self.writtenDurationMin = writtenDurationMin
         self.text = text
         self.notes = notes
         self.uncertain = uncertain
         self.movements = movements
+    }
+
+    // A proxy still on the earlier form sends no run field — read it as "not a fitness run".
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.label = try container.decode(String.self, forKey: .label)
+        self.kind = try container.decode(ScannedSectionKind.self, forKey: .kind)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.format = try container.decode(ScannedSectionFormat.self, forKey: .format)
+        self.timeCapMin = try container.decode(Double.self, forKey: .timeCapMin)
+        self.everySec = try container.decode(Int.self, forKey: .everySec)
+        self.workSec = try container.decode(Int.self, forKey: .workSec)
+        self.restSec = try container.decode(Int.self, forKey: .restSec)
+        self.roundCount = try container.decode(Int.self, forKey: .roundCount)
+        self.repScheme = try container.decode([Int].self, forKey: .repScheme)
+        self.runBeforeEachMeters = try container.decodeIfPresent(Int.self, forKey: .runBeforeEachMeters) ?? 0
+        self.restBetweenRoundsSec = try container.decode(Int.self, forKey: .restBetweenRoundsSec)
+        self.writtenDurationMin = try container.decode(Double.self, forKey: .writtenDurationMin)
+        self.text = try container.decode(String.self, forKey: .text)
+        self.notes = try container.decode(String.self, forKey: .notes)
+        self.uncertain = try container.decode([String].self, forKey: .uncertain)
+        self.movements = try container.decode([ScannedMovement].self, forKey: .movements)
     }
 }
