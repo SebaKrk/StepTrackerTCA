@@ -177,6 +177,7 @@ extension WorkoutResultsFeature.State {
                     rounds: workout?.rounds,
                     repScheme: workout?.repScheme,
                     fitnessRun: workout?.fitnessRun,
+                    openLadder: workout?.openLadder,
                     wasScored: wasScored
                 )
             }

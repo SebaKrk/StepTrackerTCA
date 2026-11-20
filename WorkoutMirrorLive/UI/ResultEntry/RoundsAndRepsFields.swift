@@ -34,6 +34,9 @@ struct RoundsAndRepsFields: View {
     /// What the first stepper counts; a fitness run counts stations.
     var roundsLabel = String(localized: "Completed rounds", bundle: .main)
 
+    /// What the second stepper counts; an open ladder names the round in progress.
+    var extraRepsLabel = String(localized: "Reps in round", bundle: .main)
+
     /// The second stepper; a fitness run asks for the partial work on the station itself.
     var showsExtraReps = true
 
@@ -72,7 +75,7 @@ struct RoundsAndRepsFields: View {
 
     private var extraRepsStepper: some View {
         stepperTile(
-            label: String(localized: "Reps in round", bundle: .main),
+            label: extraRepsLabel,
             value: extraReps,
             onChange: onExtraReps
         )

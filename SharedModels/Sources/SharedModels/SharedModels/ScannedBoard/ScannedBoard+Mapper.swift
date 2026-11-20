@@ -54,7 +54,10 @@ extension ScannedSection {
     }
 
     fileprivate func toWorkoutSessionNew() -> WorkoutSessionNew {
-        let exercises = movements.map { $0.toExerciseSession(repScheme: repScheme) }
+        // An open ladder has no last rung to expand into sets; the score writes the reps instead.
+        let openLadder = repSchemeContinues ? OpenLadderPlan(writtenRungs: repScheme) : nil
+        let closedLadder = openLadder == nil ? repScheme : []
+        let exercises = movements.map { $0.toExerciseSession(repScheme: closedLadder) }
         let type = workoutType(firstExercise: exercises.first)
         let cap = timeCapMin > 0
             ? ScannedBoard.minutes(timeCapMin)
@@ -71,10 +74,11 @@ extension ScannedSection {
             interval: interval,
             notes: combinedNotes,
             everySeconds: type == .emom ? (everySec > 0 ? everySec : 60) : nil,
-            repScheme: repScheme.isEmpty ? nil : repScheme,
+            repScheme: closedLadder.isEmpty ? nil : closedLadder,
             fitnessRun: (runBeforeEachMeters > 0 && !exercises.isEmpty)
                 ? FitnessRunPlan(runMeters: runBeforeEachMeters)
-                : nil
+                : nil,
+            openLadder: openLadder
         )
     }
 

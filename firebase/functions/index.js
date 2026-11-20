@@ -8,7 +8,7 @@ const { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS } = require("./src/
 const boardPrompt = require("./src/boardPrompt");
 const notesPrompt = require("./src/notesPrompt");
 const { boardSchema } = require("./src/boardSchema");
-const { boardForForm } = require("./src/boardCompat");
+const { boardForForm, withLadderInItsField } = require("./src/boardCompat");
 const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
 
@@ -60,7 +60,7 @@ exports.scanBoard = onCall(options, async (request) => {
       schema: boardSchema,
     });
 
-    return { board: boardForForm(JSON.parse(text), formVersion), quota: taken };
+    return { board: boardForForm(withLadderInItsField(JSON.parse(text)), formVersion), quota: taken };
   } catch (error) {
     await quota.release(uid, "scan");
     throw asHttpsError(error);

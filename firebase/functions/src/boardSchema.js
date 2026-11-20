@@ -78,7 +78,7 @@ const movement = object(
 const section = object(
   [
     "label", "format", "timeCapMin", "everySec", "workSec", "restSec", "repScheme",
-    "runBeforeEachMeters", "text", "movements", "roundCount", "restBetweenRoundsSec", "writtenDurationMin", "kind", "name",
+    "repSchemeContinues", "runBeforeEachMeters", "text", "movements", "roundCount", "restBetweenRoundsSec", "writtenDurationMin", "kind", "name",
     "notes", "uncertain",
   ],
   {
@@ -92,6 +92,9 @@ const section = object(
     workSec: integer("Work seconds of tabata / intervals (tabata 20); 0 otherwise"),
     restSec: integer("Rest seconds of tabata / intervals (tabata 10); 0 otherwise"),
     repScheme: array(integer("Reps of one round"), "Rep ladder like 21-15-9; empty otherwise. Never a load, never a set scheme of one movement"),
+    repSchemeContinues: boolean(
+      "True when the ladder is written open-ended and goes on past its last rung: '1-2-3-4-5-6-…', '2-4-6 itd.', '+1 every round'. repScheme then holds the rungs written. False otherwise"
+    ),
     runBeforeEachMeters: integer(
       "Metres of a run done before EVERY movement of the list ('1 km run + station' above a list of stations → 1000); the run is then NOT among the movements. 0 otherwise"
     ),

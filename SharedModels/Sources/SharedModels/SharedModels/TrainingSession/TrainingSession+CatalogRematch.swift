@@ -89,7 +89,8 @@ extension WorkoutSessionNew {
         notes: String?,
         everySeconds: Int?,
         repScheme: [Int]?,
-        fitnessRun: FitnessRunPlan?
+        fitnessRun: FitnessRunPlan?,
+        openLadder: OpenLadderPlan?
     ) {
         self.id = id
         self.name = name
@@ -102,6 +103,7 @@ extension WorkoutSessionNew {
         self.everySeconds = everySeconds
         self.repScheme = repScheme
         self.fitnessRun = fitnessRun
+        self.openLadder = openLadder
     }
 
     /// Returns a copy with all `.unknown` exercises re-resolved.
@@ -124,7 +126,8 @@ extension WorkoutSessionNew {
             notes: notes,
             everySeconds: everySeconds,
             repScheme: repScheme,
-            fitnessRun: fitnessRun
+            fitnessRun: fitnessRun,
+            openLadder: openLadder
         )
     }
 }

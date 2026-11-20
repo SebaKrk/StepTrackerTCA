@@ -52,7 +52,8 @@ extension TrainingSession {
                     notes: workout.notes,
                     everySeconds: workout.everySeconds,
                     repScheme: workout.repScheme,
-                    fitnessRun: workout.fitnessRun
+                    fitnessRun: workout.fitnessRun,
+                    openLadder: workout.openLadder
                 )
             },
             coolDown: coolDown
