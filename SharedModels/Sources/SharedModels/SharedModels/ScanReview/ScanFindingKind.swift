@@ -22,7 +22,7 @@ public enum ScanFindingKind: Equatable, Sendable {
     /// An EMOM cap that is not a whole number of its cadence.
     case emomCapNotMultiple(everySeconds: Int)
 
-    /// A For Time block without a cap; DNF cannot be recorded without one.
+    /// A For Time block without a cap; it records a finish time only, never a DNF.
     case forTimeWithoutCap
 
     /// A load the reader almost certainly got wrong.
@@ -48,10 +48,10 @@ public enum ScanFindingKind: Equatable, Sendable {
         switch self {
         case .emptyPlan, .emptyBlock:
             return .hard
-        case .emomCapNotMultiple, .forTimeWithoutCap, .loadTooHeavy, .womenHeavierThanMen:
+        case .emomCapNotMultiple, .loadTooHeavy, .womenHeavierThanMen:
             return .needsFix
         // The catalog may simply lack the movement ("any machine"), so keeping the raw name is a valid answer.
-        case .defaultTimeCapApplied, .uncertainField, .unknownMovement:
+        case .defaultTimeCapApplied, .forTimeWithoutCap, .uncertainField, .unknownMovement:
             return .needsConfirmation
         case .ladderAndRoundsBothSet, .duplicateBlockName:
             return .info
