@@ -40,6 +40,16 @@ struct WODScoringFeature {
         case saved
     }
 
+    /// What one movement owes to an open ladder: the whole rounds, and the round in progress.
+    struct LadderShare: Equatable {
+
+        /// Reps from the rounds finished in full.
+        let whole: Int
+
+        /// Reps of the round in progress that reached this movement.
+        let partial: Int
+    }
+
     /// Which status control the card header carries. `nil` means none at all.
     enum StatusKind: Equatable {
 
@@ -76,6 +86,42 @@ struct WODScoringFeature {
 
         /// The run done before every station; nil for an ordinary block.
         var fitnessRun: FitnessRunPlan?
+
+        /// A ladder that keeps climbing past what the board wrote; nil for a block without one.
+        var openLadder: OpenLadderPlan?
+
+        /// Rows the open ladder speaks for: movements with no target or set scheme of their own.
+        var openLadderIndices: [Int] {
+            guard openLadder != nil else { return [] }
+            return result.exercises.indices.filter { index in
+                let exercise = result.exercises[index]
+                return exercise.target == nil && exercise.sets?.isEmpty != false
+            }
+        }
+
+        /// Most loose reps the round in progress holds before it is a whole round; nil without an open ladder.
+        var maxExtraReps: Int? {
+            guard let openLadder else { return nil }
+            return max(0, openLadder.rung(at: dnfRounds) * openLadderIndices.count - 1)
+        }
+
+        /// What each row owes to the whole rounds and to the round in progress, counted in board order.
+        var openLadderShares: [Int: LadderShare] {
+            guard let openLadder else { return [:] }
+            let rungs = openLadder.rungs(count: dnfRounds + 1)
+            let whole = rungs.prefix(dnfRounds).reduce(0, +)
+            var shares: [Int: LadderShare] = [:]
+            for (position, index) in openLadderIndices.enumerated() {
+                let total = LadderScore.reps(
+                    ladder: rungs,
+                    movementIndex: position,
+                    completedRounds: dnfRounds,
+                    extraReps: dnfExtraReps
+                )
+                shares[index] = LadderShare(whole: whole, partial: total - whole)
+            }
+            return shares
+        }
 
         /// The row whose fields are open in a fitness run card; every other row reads as text.
         var editedExerciseIndex: Int?
@@ -158,8 +204,9 @@ struct WODScoringFeature {
         /// A ladder speaks first where it has something to say: its rounds shrink, and
         /// the flat arithmetic here would read them all as the first rung.
         var roundDrivesReps: Bool {
-            // The stations of a fitness run are done once each, never multiplied by a round count.
-            guard fitnessRun == nil else { return false }
+            // The stations of a fitness run are done once each, never multiplied by a round count,
+            // and an open ladder changes its round every time.
+            guard fitnessRun == nil, openLadder == nil else { return false }
             guard repScheme?.isEmpty != false else { return false }
             switch wodType {
             case .amrap: return true
@@ -194,6 +241,7 @@ struct WODScoringFeature {
             Set(result.exercises.indices.filter { index in
                 (ladderDrivesReps && ladderOwns(exerciseAt: index)) || roundOwns(exerciseAt: index)
             })
+            .union(openLadderIndices)
         }
 
         /// Whether this exercise follows the block's ladder rather than a scheme of its own.
@@ -267,6 +315,7 @@ struct WODScoringFeature {
             rounds: Int? = nil,
             repScheme: [Int]? = nil,
             fitnessRun: FitnessRunPlan? = nil,
+            openLadder: OpenLadderPlan? = nil,
             isReadOnly: Bool = false,
             wasScored: Bool = false
         ) {
@@ -277,6 +326,7 @@ struct WODScoringFeature {
             self.rounds = rounds
             self.repScheme = repScheme
             self.fitnessRun = fitnessRun
+            self.openLadder = openLadder
             self.isReadOnly = isReadOnly
             // `.completed` is ambiguous — both "nothing entered yet" and a
             // confirmed EMOM/Tabata result. `wasScored` (card built from a saved
@@ -448,6 +498,10 @@ struct WODScoringFeature {
             case let .view(.updateRounds(rounds)):
                 guard state.fitnessRun != nil else {
                     state.dnfRounds = max(0, rounds)
+                    // A shorter round of an open ladder holds fewer loose reps than the one left.
+                    if let maxExtraReps = state.maxExtraReps {
+                        state.dnfExtraReps = min(state.dnfExtraReps, maxExtraReps)
+                    }
                     syncDerivedReps(&state)
                     return .none
                 }
@@ -462,7 +516,7 @@ struct WODScoringFeature {
                 return .none
 
             case let .view(.updateExtraReps(reps)):
-                state.dnfExtraReps = max(0, reps)
+                state.dnfExtraReps = min(max(0, reps), state.maxExtraReps ?? .max)
                 syncDerivedReps(&state)
                 return .none
 
@@ -538,6 +592,15 @@ struct WODScoringFeature {
         syncLadderReps(&state)
         syncRoundReps(&state)
         syncFitnessRunRows(&state)
+        syncOpenLadderReps(&state)
+    }
+
+    /// An open ladder is scored by the two counters alone: every movement did the whole
+    /// rounds in full, and the round in progress fills them in board order.
+    private func syncOpenLadderReps(_ state: inout State) {
+        for (index, share) in state.openLadderShares {
+            state.result.exercises[index].actualReps = "\(share.whole + share.partial)"
+        }
     }
 
     /// An untouched counter starts one station short of the end: counting from zero would

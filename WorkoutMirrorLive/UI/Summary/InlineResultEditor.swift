@@ -156,6 +156,9 @@ struct InlineResultEditor: View {
             roundsLabel: store.fitnessRun == nil
                 ? String(localized: "Completed rounds", bundle: .main)
                 : String(localized: "Completed stations", bundle: .main),
+            extraRepsLabel: store.openLadder == nil
+                ? String(localized: "Reps in round", bundle: .main)
+                : String(localized: "Reps in round \(store.dnfRounds + 1)", bundle: .main),
             showsExtraReps: store.fitnessRun == nil
         )
     }
@@ -414,6 +417,7 @@ struct InlineResultEditor: View {
             VStack(alignment: .leading, spacing: 1) {
                 exerciseName(exercise)
                 planLabel(exercise)
+                ladderShareLabel(index: index)
             }
             Spacer(minLength: 8)
             // Reps that follow from the score above are shown, not asked for.
@@ -531,6 +535,25 @@ struct InlineResultEditor: View {
         Label(title, systemImage: symbol)
             .font(.system(size: 11))
             .foregroundStyle(theme.inkTertiary)
+    }
+
+    /// Where an open ladder's number came from: "36 + 9 from round 9".
+    @ViewBuilder
+    private func ladderShareLabel(index: Int) -> some View {
+        if let share = store.openLadderShares[index] {
+            Text(
+                share.partial > 0
+                    ? String(
+                        localized: "\(share.whole) + \(share.partial) from round \(store.dnfRounds + 1)",
+                        bundle: .main
+                    )
+                    : String(localized: "\(share.whole) from whole rounds", bundle: .main)
+            )
+            .font(.system(size: 11))
+            .foregroundStyle(theme.inkTertiary)
+            .contentTransition(.numericText())
+            .animation(.default, value: share)
+        }
     }
 
     @ViewBuilder
