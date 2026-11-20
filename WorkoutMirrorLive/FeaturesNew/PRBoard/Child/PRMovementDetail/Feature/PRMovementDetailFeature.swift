@@ -51,6 +51,13 @@ struct PRMovementDetailFeature {
                 state.alert = .deleteFailed
                 return .none
 
+            case .view(.unlockTapped):
+                state.subscriptionOffer = SubscriptionOfferFeature.State()
+                return .none
+
+            case .subscriptionOffer:
+                return .none
+
             case .alert:
                 return .none
 
@@ -66,5 +73,8 @@ struct PRMovementDetailFeature {
         }
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$subscriptionOffer, action: \.subscriptionOffer) {
+            SubscriptionOfferFeature()
+        }
     }
 }

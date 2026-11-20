@@ -8,6 +8,7 @@ const { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS } = require("./src/
 const boardPrompt = require("./src/boardPrompt");
 const notesPrompt = require("./src/notesPrompt");
 const { boardSchema } = require("./src/boardSchema");
+const { boardForForm, withLadderInItsField } = require("./src/boardCompat");
 const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
 
@@ -36,7 +37,7 @@ const MAX_NAME_CHARS = 120;
 /** Reads a board photo into the `ScannedBoard` JSON the app already decodes. */
 exports.scanBoard = onCall(options, async (request) => {
   const uid = requireUid(request);
-  const { mode, image, ocrText, language, model } = parseScanInput(request.data ?? {});
+  const { mode, image, ocrText, language, model, formVersion } = parseScanInput(request.data ?? {});
 
   const taken = await quota.reserve(uid, "scan");
   try {
@@ -59,7 +60,7 @@ exports.scanBoard = onCall(options, async (request) => {
       schema: boardSchema,
     });
 
-    return { board: JSON.parse(text), quota: taken };
+    return { board: boardForForm(withLadderInItsField(JSON.parse(text)), formVersion), quota: taken };
   } catch (error) {
     await quota.release(uid, "scan");
     throw asHttpsError(error);
@@ -117,7 +118,10 @@ function parseScanInput(data) {
     if (image.length > MAX_IMAGE_BASE64) throw new HttpsError("invalid-argument", "image-too-large");
   }
 
-  return { mode, image, ocrText, language, model: scanModel(data.model) };
+  // A build that names no form predates the field, so it reads the first one.
+  const formVersion = Number.isInteger(data.formVersion) && data.formVersion > 0 ? data.formVersion : 1;
+
+  return { mode, image, ocrText, language, model: scanModel(data.model), formVersion };
 }
 
 /**

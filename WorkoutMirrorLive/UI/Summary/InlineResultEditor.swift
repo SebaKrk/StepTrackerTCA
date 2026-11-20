@@ -54,6 +54,53 @@ struct InlineResultEditor: View {
 
     @ViewBuilder
     private var exerciseFields: some View {
+        if let fitnessRun = store.fitnessRun {
+            fitnessRunFields(fitnessRun)
+        } else {
+            standardExerciseFields
+        }
+    }
+
+    private func fitnessRunFields(_ fitnessRun: FitnessRunPlan) -> some View {
+        // Read once: both are rebuilt on every access, and the rows below are a loop.
+        let changed = store.changedExerciseIndices
+        let runRowIndex = store.runRowIndex
+        let firstStation = (runRowIndex ?? -1) + 1
+        let isUnfinished = store.capturesUnfinished
+        let interrupted = store.interruptedExerciseIndex
+        return VStack(alignment: .leading, spacing: 0) {
+            if isUnfinished {
+                stationsDoneLabel(done: store.dnfRounds, of: store.stationCount)
+            } else {
+                asPlannedLabel(isAsPlanned: changed.isEmpty)
+            }
+            ForEach(Array(store.result.exercises.enumerated()), id: \.element.id) { index, exercise in
+                let stationNumber = index == runRowIndex ? nil : index - firstStation + 1
+                if let interrupted, index == interrupted {
+                    interruptedStationRow(exercise: exercise, stationNumber: stationNumber)
+                } else if let interrupted, index > interrupted {
+                    skippedStationRow(exercise: exercise, stationNumber: stationNumber)
+                } else {
+                    fitnessRunRow(
+                        index: index,
+                        exercise: exercise,
+                        stationNumber: stationNumber,
+                        value: index == runRowIndex
+                            ? runSummary(exercise, fitnessRun: fitnessRun)
+                            : enteredSummary(exercise),
+                        isChanged: !isUnfinished && changed.contains(index)
+                    )
+                }
+            }
+            tapToChangeHint
+        }
+        .animation(.default, value: store.editedExerciseIndex)
+        .animation(.default, value: changed)
+        .animation(.default, value: interrupted)
+    }
+
+    @ViewBuilder
+    private var standardExerciseFields: some View {
         // Read once: the set is rebuilt on every access, and the rows below are a loop.
         let derivedReps = store.derivedRepsIndices
         ForEach(Array(store.result.exercises.enumerated()), id: \.element.id) { index, exercise in
@@ -92,7 +139,7 @@ struct InlineResultEditor: View {
             TimePickerField(
                 minutes: store.draftMinutes,
                 seconds: store.draftSeconds,
-                maxMinutes: store.capMinutes ?? 99,
+                maxMinutes: store.maxDraftMinutes,
                 onMinutes: { send(.updateDraftMinutes($0)) },
                 onSeconds: { send(.updateDraftSeconds($0)) }
             )
@@ -105,12 +152,22 @@ struct InlineResultEditor: View {
             rounds: store.dnfRounds,
             extraReps: store.dnfExtraReps,
             onRounds: { send(.updateRounds($0)) },
-            onExtraReps: { send(.updateExtraReps($0)) }
+            onExtraReps: { send(.updateExtraReps($0)) },
+            roundsLabel: store.fitnessRun == nil
+                ? String(localized: "Completed rounds", bundle: .main)
+                : String(localized: "Completed stations", bundle: .main),
+            extraRepsLabel: store.openLadder == nil
+                ? String(localized: "Reps in round", bundle: .main)
+                : String(localized: "Reps in round \(store.dnfRounds + 1)", bundle: .main),
+            showsExtraReps: store.fitnessRun == nil
         )
     }
 
     private var roundsAndRepsTitle: String {
-        store.capturesUnfinished
+        if store.fitnessRun != nil {
+            return String(localized: "How many stations did you finish?", bundle: .main)
+        }
+        return store.capturesUnfinished
             ? String(localized: "How far did you get before the cap?", bundle: .main)
             : String(localized: "Score", bundle: .main)
     }
@@ -149,6 +206,192 @@ struct InlineResultEditor: View {
         .buttonStyle(.plain)
     }
 
+    // MARK: - Fitness run
+
+    private func fitnessRunRow(
+        index: Int,
+        exercise: ExerciseLogInput,
+        stationNumber: Int?,
+        value: String,
+        isChanged: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                send(.exerciseRowTapped(index))
+            } label: {
+                fitnessRunRowLabel(exercise: exercise, stationNumber: stationNumber, value: value, isChanged: isChanged)
+            }
+            .buttonStyle(.plain)
+            if store.editedExerciseIndex == index {
+                fitnessRunRowFields(index: index, exercise: exercise, isChanged: isChanged)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .padding(.vertical, 9)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(theme.stroke).frame(height: 1)
+        }
+    }
+
+    private func fitnessRunRowLabel(
+        exercise: ExerciseLogInput,
+        stationNumber: Int?,
+        value: String,
+        isChanged: Bool
+    ) -> some View {
+        HStack(spacing: 10) {
+            fitnessRunRowMarker(stationNumber)
+            Text(exercise.displayName)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(theme.ink)
+            Spacer(minLength: 8)
+            if isChanged {
+                changedTag
+            }
+            Text(value)
+                .font(.system(size: 13))
+                .monospacedDigit()
+                .foregroundStyle(theme.inkTertiary)
+        }
+        .contentShape(.rect)
+    }
+
+    @ViewBuilder
+    private func fitnessRunRowMarker(_ stationNumber: Int?) -> some View {
+        if let stationNumber {
+            Text("\(stationNumber)")
+                .font(.system(size: 12, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(theme.inkTertiary)
+                .frame(width: 18, alignment: .leading)
+        } else {
+            Color.clear.frame(width: 18, height: 1)
+        }
+    }
+
+    private func fitnessRunRowFields(index: Int, exercise: ExerciseLogInput, isChanged: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                actualValueField(index: index, exercise: exercise)
+                if takesWeight(exercise) {
+                    weightField(index: index, exercise: exercise)
+                }
+            }
+            if isChanged {
+                planLabel(exercise)
+            }
+        }
+        .padding(.leading, 28)
+    }
+
+    /// The station the athlete stopped on: the one row that asks how much of it was done.
+    private func interruptedStationRow(exercise: ExerciseLogInput, stationNumber: Int?) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                fitnessRunRowMarker(stationNumber)
+                Text(exercise.displayName)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(theme.ink)
+                Spacer(minLength: 8)
+                interruptedTag
+            }
+            HStack(spacing: 8) {
+                numericField(
+                    placeholder: "0",
+                    text: store.dnfExtraReps > 0 ? "\(store.dnfExtraReps)" : ""
+                ) { typed in
+                    send(.updateExtraReps(Int(typed) ?? 0))
+                }
+                Text(String(localized: "of \(plannedSummary(exercise))", bundle: .main))
+                    .font(.system(size: 12))
+                    .foregroundStyle(theme.inkTertiary)
+            }
+            .padding(.leading, 28)
+        }
+        .padding(.vertical, 9)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Color.orange.opacity(0.6)).frame(height: 1)
+        }
+    }
+
+    /// A station the athlete never reached.
+    private func skippedStationRow(exercise: ExerciseLogInput, stationNumber: Int?) -> some View {
+        HStack(spacing: 10) {
+            fitnessRunRowMarker(stationNumber)
+            Text(exercise.displayName)
+                .font(.system(size: 14, weight: .semibold))
+            Spacer(minLength: 8)
+            Text(verbatim: "—")
+                .font(.system(size: 13))
+        }
+        .foregroundStyle(theme.inkTertiary)
+        .opacity(0.6)
+        .padding(.vertical, 9)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(theme.stroke).frame(height: 1)
+        }
+    }
+
+    /// The run as the board counts it, "6 × 1000 m", while the distance is still whole runs.
+    private func runSummary(_ exercise: ExerciseLogInput, fitnessRun: FitnessRunPlan) -> String {
+        guard fitnessRun.runMeters > 0,
+              let meters = Int(EnteredValue.numericPrefix(exercise.actualReps)),
+              meters % fitnessRun.runMeters == 0
+        else { return enteredSummary(exercise) }
+        return "\(meters / fitnessRun.runMeters) × \(fitnessRun.runMeters) m"
+    }
+
+    /// The plan of a row in the board's own shorthand: "200m · 24 kg".
+    private func plannedSummary(_ exercise: ExerciseLogInput) -> String {
+        let weight = exercise.plannedWeight.map { "\($0.roundedWeightText) kg" }
+        return [exercise.plannedReps, weight].compactMap { $0 }.joined(separator: " · ")
+    }
+
+    private func stationsDoneLabel(done: Int, of total: Int) -> some View {
+        Text(String(localized: "\(done) of \(total) stations", bundle: .main))
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundStyle(.orange)
+            .padding(.bottom, 4)
+    }
+
+    private var interruptedTag: some View {
+        Text(String(localized: "interrupted", bundle: .main))
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(.orange)
+    }
+
+    /// What the row holds right now, in the board's own shorthand: "50m · 152 kg".
+    private func enteredSummary(_ exercise: ExerciseLogInput) -> String {
+        let weight = exercise.actualWeight.map { "\($0.roundedWeightText) kg" }
+        return [exercise.actualReps, weight].compactMap { $0 }.joined(separator: " · ")
+    }
+
+    private func asPlannedLabel(isAsPlanned: Bool) -> some View {
+        Label(
+            isAsPlanned
+                ? String(localized: "As planned", bundle: .main)
+                : String(localized: "Changed from the plan", bundle: .main),
+            systemImage: isAsPlanned ? "checkmark.circle.fill" : "pencil.circle.fill"
+        )
+        .font(.system(size: 12, weight: .semibold))
+        .foregroundStyle(isAsPlanned ? Color.green : Color.orange)
+        .padding(.bottom, 4)
+    }
+
+    private var changedTag: some View {
+        Text(String(localized: "changed", bundle: .main))
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(.orange)
+    }
+
+    private var tapToChangeHint: some View {
+        Text(String(localized: "Tap a row to change it", bundle: .main))
+            .font(.system(size: 11))
+            .foregroundStyle(theme.inkTertiary)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, 8)
+    }
+
     private func setBasedExercise(index: Int, exercise: ExerciseLogInput, sets: [SetEntry]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             exerciseName(exercise)
@@ -174,6 +417,7 @@ struct InlineResultEditor: View {
             VStack(alignment: .leading, spacing: 1) {
                 exerciseName(exercise)
                 planLabel(exercise)
+                ladderShareLabel(index: index)
             }
             Spacer(minLength: 8)
             // Reps that follow from the score above are shown, not asked for.
@@ -291,6 +535,25 @@ struct InlineResultEditor: View {
         Label(title, systemImage: symbol)
             .font(.system(size: 11))
             .foregroundStyle(theme.inkTertiary)
+    }
+
+    /// Where an open ladder's number came from: "36 + 9 from round 9".
+    @ViewBuilder
+    private func ladderShareLabel(index: Int) -> some View {
+        if let share = store.openLadderShares[index] {
+            Text(
+                share.partial > 0
+                    ? String(
+                        localized: "\(share.whole) + \(share.partial) from round \(store.dnfRounds + 1)",
+                        bundle: .main
+                    )
+                    : String(localized: "\(share.whole) from whole rounds", bundle: .main)
+            )
+            .font(.system(size: 11))
+            .foregroundStyle(theme.inkTertiary)
+            .contentTransition(.numericText())
+            .animation(.default, value: share)
+        }
     }
 
     @ViewBuilder

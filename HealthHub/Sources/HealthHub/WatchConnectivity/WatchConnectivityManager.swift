@@ -62,4 +62,10 @@ public protocol WatchConnectivityManager: Sendable {
     /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not ready.
     func publishReadinessSnapshot(_ snapshot: ReadinessSnapshot) async throws
 
+    /// Tells the paired Watch that readiness needs Pro.
+    ///
+    /// Replaces the whole application context, so the snapshot sent before it is gone.
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not ready.
+    func publishReadinessLocked() async throws
+
 }

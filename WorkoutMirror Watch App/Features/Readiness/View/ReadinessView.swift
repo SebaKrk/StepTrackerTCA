@@ -29,7 +29,9 @@ struct ReadinessView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                if let snapshot = store.snapshot {
+                if store.isLocked {
+                    lockedView
+                } else if let snapshot = store.snapshot {
                     scoreContent(for: snapshot)
                 } else {
                     noDataView
@@ -91,6 +93,29 @@ struct ReadinessView: View {
         Text(snapshot.calculatedAt.formatted(.relative(presentation: .named)))
             .font(.system(size: 9))
             .foregroundStyle(.tertiary)
+    }
+
+    private var lockedView: some View {
+        ZStack {
+            VStack(spacing: 4) {
+                readinessChart(score: 0, showScore: false)
+                Text(verbatim: "-")
+            }
+            .blur(radius: 6)
+
+            VStack(spacing: 4) {
+                Image(systemName: "lock.fill")
+                    .font(.largeTitle)
+                    .foregroundStyle(.yellow)
+
+                Text(String(localized: "Readiness in Pro"))
+                    .font(.caption.bold())
+
+                Text(String(localized: "Open on iPhone"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 
     private var noDataView: some View {

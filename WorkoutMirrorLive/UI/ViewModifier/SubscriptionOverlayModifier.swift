@@ -20,7 +20,7 @@ import SharedModels
 ///     .subscriptionOverlay(
 ///         contentState: .ready,
 ///         subscriptionTier: .basic,
-///         requiredTier: .pro,
+///         feature: .readiness,
 ///         onUnlockTapped: { /* Handle upgrade */ }
 ///     )
 /// ```
@@ -34,8 +34,8 @@ struct SubscriptionOverlayModifier: ViewModifier {
     /// The user's current subscription tier
     let subscriptionTier: SubscriptionTier
     
-    /// The minimum subscription tier required to access this content
-    let requiredTier: SubscriptionTier
+    /// The Pro feature this content belongs to
+    let feature: ProFeature
     
     /// Closure called when the user taps the unlock/upgrade button
     let onUnlockTapped: (() -> Void)?
@@ -58,14 +58,7 @@ struct SubscriptionOverlayModifier: ViewModifier {
             return false
         }
         
-        switch (subscriptionTier, requiredTier) {
-        case (.basic, .pro), (.basic, .elite):
-            return false
-        case (.pro, .elite):
-            return false
-        default:
-            return true
-        }
+        return subscriptionTier.opens(feature)
     }
     
     /// Determines whether the content should be blurred
@@ -107,22 +100,8 @@ struct SubscriptionOverlayModifier: ViewModifier {
         switch contentState {
         case .ready:
             if !hasAccess {
-                switch subscriptionTier {
-                case .basic:
-                    /// Basic users see "Unlock Pro" prompt
-                    OverlayView.lockedBasic {
-                        onUnlockTapped?()
-                    }
-                case .pro:
-                    /// Pro users see "Go Elite" prompt only if Elite is required
-                    if requiredTier == .elite {
-                        OverlayView.lockedPro {
-                            onUnlockTapped?()
-                        }
-                    }
-                case .elite:
-                    /// Elite users have access to everything
-                    EmptyView()
+                OverlayView.lockedBasic {
+                    onUnlockTapped?()
                 }
             }
             

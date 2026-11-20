@@ -23,9 +23,6 @@ extension TrainingReadinessFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .gray
         
-        ///
-        var requiredTier: SubscriptionTier = .pro
-        
         /// Presented explanation of how the score is produced
         @Presents var destination: Destination.State?
 

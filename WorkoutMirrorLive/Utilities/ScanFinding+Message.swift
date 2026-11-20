@@ -22,7 +22,7 @@ extension ScanFinding {
         case let .emomCapNotMultiple(everySeconds):
             return String(localized: "The cap is not a whole number of \(everySeconds) s intervals.")
         case .forTimeWithoutCap:
-            return String(localized: "For Time without a cap — a DNF cannot be recorded.")
+            return String(localized: "No time cap on the board. Tap OK to keep it without a limit — only the finish time is recorded.")
         case let .loadTooHeavy(kilograms):
             return String(localized: "\(kilograms) kg looks like a misread load.")
         case .womenHeavierThanMen:

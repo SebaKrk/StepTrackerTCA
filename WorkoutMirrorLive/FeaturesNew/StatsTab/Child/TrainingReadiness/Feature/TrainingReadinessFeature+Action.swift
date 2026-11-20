@@ -66,6 +66,9 @@ extension TrainingReadinessFeature {
 
             /// Action triggered when the explanation button is tapped
             case infoButtonTapped
+
+            /// Action triggered when the unlock button on the locked card is tapped
+            case unlockButtonTapped
         }
         
         // MARK: - Destination Action
@@ -80,6 +83,9 @@ extension TrainingReadinessFeature {
 
             ///
             case refreshRequested
+
+            /// Asks the parent to present the offer of Pro.
+            case unlockRequested
 
             /// Signals to parent that this feature has finished its refresh cycle
             /// (entered a terminal state — `.ready`, `.noData`, or `.unauthorized`).

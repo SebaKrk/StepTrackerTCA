@@ -1833,3 +1833,76 @@
     - the scan system prompt is no longer cached: writing it costs 25% more and nothing reads it below roughly 70 scans a day
     - Generate on the workout preview uses `.glassProminent`, matching the invitation row's primary button — the plain glass pill looked disabled
     - debug builds carry their own icon, the regular one under a white DEV ribbon (`AppIconDev`, source in `Design/AppIcon/AppIcon-dev-master.svg`), so a development install is told apart from a release one on the home screen; Release keeps `AppIcon`
+
+### IOS-00191 The app speaks German, French, Spanish and Italian
+    - branch: `dev/IOS-00191/IOS-00191` (from develop)
+    - the app shipped in English and Polish only, while most of its European audience reads neither: German is the most common mother tongue in the EU, France is the largest CrossFit market in Europe, and Spain and Italy pair many boxes with weaker English. The four languages are added to every String Catalog in use — the app, the shared models, the Watch app and GymRoom — one commit per language
+    - keys marked `shouldTranslate: false` and keys Xcode reports as stale are left alone; a stale key is no longer read by any code
+    - format specifiers are checked against the source for every entry before a catalog is written, so a translation can reorder words but never drop or retype a placeholder
+    - training shorthand stays as athletes write it on the board (AMRAP, EMOM, WOD, Rx, PR)
+    - warm-up and cool-down cues need no change: the server already writes in the language the app sends, and that language follows the app's own localization
+
+### IOS-00192 Basic and Pro: the offer after the free period, two trial strategies
+    - branch: `dev/IOS-00192/IOS-00192` (from develop)
+    - the app had three tiers switched by hand and no way to sell any of them. The plan is two tiers: everything is open for 14 days, then recording stays free and depth (older workouts and plans, statistics) needs Pro
+    - two trial strategies behind one switch, so a storefront can be moved from one to the other without touching a screen: the app counts the days and nobody enters a card, or the App Store runs an introductory offer
+    - purchases go through `SubscriptionClient`; today it answers from a mock, and the StoreKit implementation sits next to it for the day the products exist in App Store Connect
+    - the offer screen is its own feature, opened from the tier menu for now, so the lock on a fourth workout or a blurred chart can present the same screen later
+    - Elite is gone: two tiers are what the offer sells, and a card asking a fresh Pro buyer to "Go Elite" was the first thing they saw. Everything Elite opened now needs Pro, and a device that stored `elite` reads it as Pro
+    - Basic opens the three most recent workouts and plans; older ones stay in the list, blurred under a lock, below one pinned banner that counts them and opens the offer. A button on every card read as nagging, so the cards carry the lock alone
+    - everything that sells Pro is gold and never follows the readiness colour: a lock should look the same on a good day and a bad one
+    - a personal record stays free; the progress chart and the history older than the newest entry need Pro, and the newest entry stays open so a mistyped result can still be deleted
+    - the readiness trend popup uses the opaque container of the health metrics trend; on material the zone bands showed through the text
+    - what each tier opens is one table (`ProFeature`, `SubscriptionTier.opens`) in SharedModels; no screen keeps its own "needs Pro", and "the three most recent" is a number in that table
+    - the stored tier has one writer, `SubscriptionClient`; the offer screen and the developer menu ask it, and the app asks it on launch. Screens still read the stored tier, so they react at once
+    - every locked surface goes through `.proLocked` and `ProGold`; four hand-made locks and three copies of the gradient are gone
+    - the widget and the Watch showed readiness to everyone: they only display what the iPhone sends, and the iPhone sent it from two places without looking at the tier. `ReadinessBroadcaster` is now the only sender; under Basic it sends a lock that replaces the last score, and a tier change sends again
+
+### IOS-00193 The catalog knows the sled and the sandbag
+    - branch: `dev/IOS-00193/IOS-00193` (from develop)
+    - a run-and-stations race session scanned with three stations falling into "unknown": Sled Push, Sled Pull and Sandbag Lunges. The other five stations already resolved
+    - the sled is two movements of its own, each always loaded; the sandbag is an implement, so "Sandbag Lunges" is lunges done with a sandbag rather than a ninth kind of lunge
+    - "Sandbag Carry" was filed under Bear Hug Carry, which is a different carry; it is now its own movement and the alias is gone from the bear hug
+    - a hand-typed "1000m SkiErg" resolves through the distance suffix, like a run or a row
+    - catalog version 10, so the re-match job replays the unknowns already stored
+    - the board reader took "8 rounds for time: 1 km run + station" for strength and for eight rounds of everything; it now reads one For Time block with the run written before each station
+    - the scan form asks for what is on the board first and for the judgments last: a transcription, then format, times and movements, then rounds, kind and activity. The model fills the form top to bottom, so its conclusions now follow its evidence
+    - coach shorthand is expanded (BBJ, FC, SB, WB and friends), and a movement name never carries the list marker, the distance or the load
+    - a For Time without a cap blocked Save and sent the user to the editor; the app could always store one, so the review card now asks for an OK instead
+    - a long plan did not fit a QR code. Identifiers were over half of it and the receiver throws them away, so the QR code leaves them out and the reader mints new ones. Team plans keep the full envelope, which older builds still read
+
+### IOS-00194 Fitness Run: the run is written once, the stations are the list
+    - branch: `dev/IOS-00194/IOS-00194` (from develop)
+    - a run-and-stations race was a For Time block of 16 movements, the same run repeated before every station: a long plan, a wall of fields in the summary, a dense QR code
+    - the block stays For Time and gains an optional `fitnessRun` (the run done before every station), next to `interval`; blocks without it are untouched and stored plans keep working
+    - scan: the form has a run-before-each-station field and the reader lists the stations only. The app names the form it reads; a build that names none gets the run written out before every station by the proxy, so older builds lose nothing
+    - plan: one line for the run above numbered stations, and the totals under them
+    - summary: the run is one result row holding the whole distance, so it is stored once and counted. Rows read as text and only the tapped row shows its fields; the plan appears only where the result differs. The time wheels reach 240 minutes for these blocks
+    - editor: a "run before every station" switch with its distance, For Time only
+    - editor, every block type: a grip to drag a movement onto another row, and move up / move down in the row menu. The reducer already handled `exerciseMoved`; the view never sent it
+    - the block's text snapshot names the run, which is what the live session and the Watch show
+    - unfinished: a fitness run offers completed / not finished even without a cap. Not finished asks for the stations done with the same stepper every other block uses; the station the athlete stopped on is the one row that asks how much of it was done, the rows after it hold nothing, and the run row counts one run per station reached. Stored as rounds plus loose work, so the team board already ranks it below every finisher
+    - the counter starts one station short of the end: counting from zero emptied every row on the flip, typed values included
+    - not done: the time at which an unfinished run stopped, a per-run split time, a dedicated live-session screen that walks station by station, and a score line that says "stations" instead of "rds"
+
+### IOS-00195 A plan's QR code is a link: it opens the app, or the App Store (planned)
+    - branch: not created yet
+    - today the QR code holds the bare payload, so only our own scanner can read it; the phone's camera shows a string
+    - the code carries an address with the plan after it. With the app installed the camera opens it straight on the import; without it a small page sends the visitor to the App Store
+    - the plan rides in the fragment of the address, which is never sent to a server, so it stays between the two phones
+    - needs: a domain or Firebase Hosting, the landing page, the app-site association file, and the Associated Domains entitlement
+    - a new envelope version, since older builds cannot read an address; the address costs about 30 characters of the code
+    - someone who installs the app from the page scans the code again: the App Store hands nothing to a fresh install
+    - the same address would let a plan travel as a link in a message
+    - worth doing just before the App Store release: there is no download address before that
+
+### IOS-00196 An open ladder counts its own reps
+    - branch: `dev/IOS-00196/IOS-00196` (from develop)
+    - "AMRAP 15': 1-2-3-4-5-6-…" came out of the scan with the ladder in a note, so the summary showed an empty field per movement and left the athlete to add up every round by hand
+    - a block gains an optional `openLadder` (first rung and step), next to `fitnessRun`; a closed ladder like 21-15-9 stays where it was
+    - scan: the form has a `repSchemeContinues` flag, and the reader keeps the ladder out of the notes. A build below form 3 gets it back as a note, which is what it always received
+    - scan: one line of the board is one movement — "burpee box jump" was read as burpees and box jumps
+    - summary: the two counters of an AMRAP write every movement's reps, the whole rounds in full and the round in progress in board order. The loose-reps counter names its round and stops one short of a whole one; each row says where its number came from
+    - plan: the ladder is a quiet label beside the type and the cap, "AMRAP · 15 min · 1-2-3-4-5-6…", the way a closed ladder already reads; the fitness run moved to the same place and lost its blue bar
+    - the reader fills the ladder field on one scan and writes the ladder into the notes on the next, so the proxy enforces it: an open ladder found in the notes of a block without numbers becomes the ladder, and a note quoting it is dropped
+    - not done: the editor cannot set an open ladder by hand, and a ladder that starts descending and continues is read but untested

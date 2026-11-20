@@ -29,9 +29,9 @@ struct HealthMetricSummaryCardView: View {
             .subscriptionOverlay(
                  contentState: store.contentState,
                  subscriptionTier: store.subscriptionTier,
-                 requiredTier: store.requiredTier,
+                 feature: .healthCards,
                  onUnlockTapped: {
-                     // send(.unlockButtonTapped)
+                     send(.unlockButtonTapped)
                  },
                  onHealthAccessTapped: {
                      // send(.requestHealthAccessTapped)

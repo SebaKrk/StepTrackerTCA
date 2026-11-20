@@ -38,6 +38,9 @@ struct PlansFeature {
 
             case let .sessionsLoaded(sessions):
                 state.sessions = sessions
+                state.openSessionIDs = SubscriptionTier.basic.openIDs(
+                    mostRecentOf: sessions.map { (id: $0.id, date: $0.date) }
+                )
                 state.viewState = .success
                 return .none
 
@@ -46,7 +49,15 @@ struct PlansFeature {
                 return .none
 
             case let .view(.workoutTapped(session)):
+                guard !state.isLocked(session) else {
+                    state.destination = .subscriptionOffer(SubscriptionOfferFeature.State())
+                    return .none
+                }
                 state.destination = .planDetail(PlanDetailFeature.State(trainingSession: session))
+                return .none
+
+            case .view(.unlockOlderTapped):
+                state.destination = .subscriptionOffer(SubscriptionOfferFeature.State())
                 return .none
 
             case .view(.importPlanTapped):

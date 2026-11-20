@@ -64,7 +64,8 @@ public actor ScanProxyClient {
             image: imageData?.base64EncodedString(),
             ocrText: ocrText,
             language: language,
-            model: model
+            model: model,
+            formVersion: ScannedBoard.formVersion
         )
         let response: ScanResponse = try await call(Self.scanFunction, body: request)
         return response.board
@@ -243,6 +244,7 @@ public actor ScanProxyClient {
         let ocrText: String
         let language: String
         let model: String?
+        let formVersion: Int
     }
 
     /// Reply of a board scan.

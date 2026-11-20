@@ -81,6 +81,9 @@ struct HealthMetricSummaryCardFeature {
                 }
                 
                 // MARK: - View Action
+
+            case .view(.unlockButtonTapped):
+                return .send(.delegate(.unlockRequested))
                 
             case .view(.viewDidAppear):
                 guard state.components == nil else { return .none }

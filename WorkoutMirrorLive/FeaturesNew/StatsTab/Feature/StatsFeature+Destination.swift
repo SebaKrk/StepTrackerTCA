@@ -21,5 +21,8 @@ extension StatsFeature {
 
         ///
         case prBoard(PRBoardFeature)
+
+        /// The offer of Pro, as shown when the free period is over.
+        case subscriptionOffer(SubscriptionOfferFeature)
     }
 }

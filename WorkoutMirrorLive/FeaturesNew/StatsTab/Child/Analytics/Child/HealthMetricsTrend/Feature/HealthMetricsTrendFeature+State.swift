@@ -17,9 +17,6 @@ extension HealthMetricsTrendFeature {
         @Shared(.appStorage(.subscriptionTier))
         var subscriptionTier: SubscriptionTier = .basic
 
-        /// Minimum subscription tier required to access this feature.
-        let requiredTier: SubscriptionTier = .elite
-
         /// Current loading state of the chart.
         var viewState: ViewState = .loading
 
