@@ -143,8 +143,10 @@ struct WorkoutDetailContent: View {
                         Label(ladderDescription(ladder), systemImage: "arrow.clockwise")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                    } else if workout.fitnessRun != nil {
-                        fitnessRunBadge
+                    } else if let fitnessRun = workout.fitnessRun {
+                        fitnessRunLabel(fitnessRun)
+                    } else if let openLadder = workout.openLadder {
+                        openLadderLabel(openLadder)
                     } else if let rounds = workout.rounds {
                         Label("\(rounds) rounds", systemImage: "arrow.clockwise")
                             .font(.caption)
@@ -161,7 +163,6 @@ struct WorkoutDetailContent: View {
                 Divider()
 
                 if let fitnessRun = workout.fitnessRun {
-                    fitnessRunLine(fitnessRun)
                     ForEach(Array(workout.exercises.enumerated()), id: \.element.id) { index, exercise in
                         exerciseRow(exercise, type: workout.type, stationNumber: index + 1)
                     }
@@ -194,23 +195,20 @@ struct WorkoutDetailContent: View {
         .styledGroupBox()
     }
 
-    // MARK: - Fitness Run
+    // MARK: - Open Ladder
 
-    private var fitnessRunBadge: some View {
-        Text("Fitness Run")
+    private func openLadderLabel(_ openLadder: OpenLadderPlan) -> some View {
+        Text(verbatim: openLadder.summary)
             .font(.caption)
             .foregroundStyle(.secondary)
     }
 
-    private func fitnessRunLine(_ fitnessRun: FitnessRunPlan) -> some View {
-        Text("Run \(fitnessRun.runMeters) m before every station")
-            .font(.subheadline)
-            .fontWeight(.medium)
-            .foregroundStyle(.blue)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.blue.opacity(0.15), in: RoundedRectangle(cornerRadius: 10))
+    // MARK: - Fitness Run
+
+    private func fitnessRunLabel(_ fitnessRun: FitnessRunPlan) -> some View {
+        Text(verbatim: "Fitness Run · \(fitnessRun.runMeters) m")
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 
     private func fitnessRunTotals(_ fitnessRun: FitnessRunPlan, stationCount: Int) -> some View {
