@@ -31,7 +31,7 @@ struct HealthMetricSummaryCardView: View {
                  subscriptionTier: store.subscriptionTier,
                  feature: .healthCards,
                  onUnlockTapped: {
-                     // send(.unlockButtonTapped)
+                     send(.unlockButtonTapped)
                  },
                  onHealthAccessTapped: {
                      // send(.requestHealthAccessTapped)

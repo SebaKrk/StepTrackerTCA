@@ -87,6 +87,12 @@ struct HealthMetricsTrendFeature {
 
                 // MARK: - View
 
+            case .view(.unlockButtonTapped):
+                return .send(.delegate(.unlockRequested))
+
+            case .delegate:
+                return .none
+
             case .view(.viewDidAppear):
                 guard state.cachedData[state.selectedMetric] == nil else { return .none }
                 return .send(.internal(.fetchData))

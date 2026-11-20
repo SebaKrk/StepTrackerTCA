@@ -31,7 +31,7 @@ struct TrainingReadinessView: View {
              subscriptionTier: store.subscriptionTier,
              feature: .readiness,
              onUnlockTapped: {
-                 // send(.unlockButtonTapped)
+                 send(.unlockButtonTapped)
              },
              onHealthAccessTapped: {
                  // send(.requestHealthAccessTapped)

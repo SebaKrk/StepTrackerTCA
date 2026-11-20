@@ -175,6 +175,9 @@ struct TrainingReadinessFeature {
             case .view(.retryButtonTapped):
                 return .send(.delegate(.refreshRequested))
 
+            case .view(.unlockButtonTapped):
+                return .send(.delegate(.unlockRequested))
+
             case .view(.infoButtonTapped):
                 state.destination = .explanation(
                     ReadinessExplanationFeature.State(level: state.readinessLevel)
@@ -187,7 +190,8 @@ struct TrainingReadinessFeature {
                 return .none
                 
             case .delegate(.refreshRequested),
-                 .delegate(.refreshDidComplete):
+                 .delegate(.refreshDidComplete),
+                 .delegate(.unlockRequested):
                 return .none
             }
         }

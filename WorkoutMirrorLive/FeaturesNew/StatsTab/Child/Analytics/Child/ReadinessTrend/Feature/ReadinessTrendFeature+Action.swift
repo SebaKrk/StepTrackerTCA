@@ -40,6 +40,17 @@ extension ReadinessTrendFeature {
 
             /// Triggered when user taps a data point on the chart.
             case dataPointSelected(TrainingReadinessResult?)
+
+            /// Triggered when the unlock button on the locked chart is tapped.
+            case unlockButtonTapped
+        }
+
+        case delegate(Delegate)
+
+        enum Delegate {
+
+            /// Asks the parent to present the offer of Pro.
+            case unlockRequested
         }
     }
 }

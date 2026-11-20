@@ -216,6 +216,13 @@ struct StatsFeature {
                 
                 // MARK: - Child
                 
+            case .trainingReadiness(.delegate(.unlockRequested)),
+                 .summaryCard(.delegate(.unlockRequested)),
+                 .analytics(.readinessTrend(.delegate(.unlockRequested))),
+                 .analytics(.healthMetricsTrend(.delegate(.unlockRequested))):
+                state.destination = .subscriptionOffer(SubscriptionOfferFeature.State())
+                return .none
+
             case .trainingReadiness(.delegate(.refreshRequested)):
                 return .send(.view(.pullToRefresh))
 
