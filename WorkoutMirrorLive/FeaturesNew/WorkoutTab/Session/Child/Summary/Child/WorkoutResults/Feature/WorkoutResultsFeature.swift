@@ -176,6 +176,7 @@ extension WorkoutResultsFeature.State {
                     capMinutes: workout?.timeCap,
                     rounds: workout?.rounds,
                     repScheme: workout?.repScheme,
+                    fitnessRun: workout?.fitnessRun,
                     wasScored: wasScored
                 )
             }
@@ -192,6 +193,19 @@ extension WorkoutResultsFeature.State {
             }
         )
         return state
+    }
+
+    /// The whole run of a fitness run as one result row, so the distance is stored once and counted.
+    private static func fitnessRunRow(of workout: WorkoutSessionNew) -> ExerciseLogInput? {
+        guard let fitnessRun = workout.fitnessRun, !workout.exercises.isEmpty else { return nil }
+        let total = ExerciseTarget.meters(fitnessRun.totalRunMeters(stationCount: workout.exercises.count))
+        return ExerciseLogInput(
+            exerciseType: .running,
+            category: ExerciseType.running.category,
+            target: total,
+            plannedReps: total.compactString,
+            actualReps: total.compactString
+        )
     }
 
     /// Fresh, empty results mapped from the plan (moved from SummaryFeature.setTrainingSession).
@@ -257,7 +271,7 @@ extension WorkoutResultsFeature.State {
             return WorkoutSessionResult(
                 name: workout.name,
                 description: workout.snapshotDescription,
-                exercises: exercises
+                exercises: fitnessRunRow(of: workout).map { [$0] + exercises } ?? exercises
             )
         }
     }

@@ -31,6 +31,12 @@ struct RoundsAndRepsFields: View {
     /// Called with the new rep count.
     let onExtraReps: (Int) -> Void
 
+    /// What the first stepper counts; a fitness run counts stations.
+    var roundsLabel = String(localized: "Completed rounds", bundle: .main)
+
+    /// The second stepper; a fitness run asks for the partial work on the station itself.
+    var showsExtraReps = true
+
     @Environment(\.summaryPalette) private var theme
 
     // MARK: - Body
@@ -40,7 +46,9 @@ struct RoundsAndRepsFields: View {
             titleLabel
             HStack(spacing: 10) {
                 completedRoundsStepper
-                extraRepsStepper
+                if showsExtraReps {
+                    extraRepsStepper
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -56,7 +64,7 @@ struct RoundsAndRepsFields: View {
 
     private var completedRoundsStepper: some View {
         stepperTile(
-            label: String(localized: "Completed rounds", bundle: .main),
+            label: roundsLabel,
             value: rounds,
             onChange: onRounds
         )
