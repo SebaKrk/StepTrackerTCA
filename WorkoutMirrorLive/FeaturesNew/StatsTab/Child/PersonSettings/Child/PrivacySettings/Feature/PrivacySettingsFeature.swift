@@ -54,7 +54,7 @@ struct PrivacySettingsFeature {
 
             case let .cloudDataDeleted(.failure(error)):
                 state.isDeletingCloudData = false
-                state.alert = .cloudDataDeletionFailed(ScanProxyError.userMessage(for: error))
+                state.alert = .cloudDataDeletionFailed(Self.deletionFailureMessage(for: error))
                 return .none
 
                 // MARK: - Alert
@@ -86,5 +86,15 @@ struct PrivacySettingsFeature {
             Destination.body
         }
         .ifLet(\.$alert, action: \.alert)
+    }
+
+    // MARK: - Helpers
+
+    /// The shared proxy copy speaks of scans and photos; an erase needs sentences of its own.
+    private static func deletionFailureMessage(for error: any Error) -> String {
+        if case ScanProxyError.network = error {
+            return String(localized: "Make sure you have a stable internet connection and try again.")
+        }
+        return String(localized: "The server did not finish the erase. Nothing is assumed gone — try again in a moment.")
     }
 }
