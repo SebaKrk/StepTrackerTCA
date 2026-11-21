@@ -94,278 +94,6 @@
         }
       }
     },
-    "AI features" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "KI-Funktionen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Funciones de IA"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fonctions d’IA"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Funzioni di IA"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Funkcje AI"
-          }
-        }
-      }
-    },
-    "Allow" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erlauben"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Permitir"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autoriser"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Consenti"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zezwól"
-          }
-        }
-      }
-    },
-    "Not now" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nicht jetzt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ahora no"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pas maintenant"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non ora"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie teraz"
-          }
-        }
-      }
-    },
-    "Plan photos and exercise names go through our server to Anthropic, which reads boards and writes warm-ups. We keep no copy. Turn this off and we ask again before anything is sent." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fotos von Plänen und Übungsnamen gehen über unseren Server an Anthropic, das Tafeln liest und Warm-ups schreibt. Wir behalten keine Kopie. Schalte dies aus, und wir fragen erneut, bevor etwas gesendet wird."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las fotos de los planes y los nombres de los ejercicios pasan por nuestro servidor hasta Anthropic, que lee las pizarras y escribe los calentamientos. No guardamos ninguna copia. Desactívalo y volveremos a preguntar antes de enviar nada."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les photos des plans et les noms des exercices passent par notre serveur jusqu’à Anthropic, qui lit les tableaux et rédige les échauffements. Nous n’en gardons aucune copie. Désactivez cette option et nous redemanderons avant tout envoi."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le foto dei piani e i nomi degli esercizi passano dal nostro server ad Anthropic, che legge le lavagne e scrive i riscaldamenti. Non ne conserviamo alcuna copia. Disattiva questa opzione e chiederemo di nuovo prima di inviare qualcosa."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zdjęcia planów i nazwy ćwiczeń trafiają przez nasz serwer do Anthropic, który odczytuje tablice i pisze rozgrzewki. Nie zachowujemy kopii. Wyłącz, a zapytamy ponownie, zanim cokolwiek wyślemy."
-          }
-        }
-      }
-    },
-    "Send plans to Anthropic" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pläne an Anthropic senden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enviar planes a Anthropic"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envoyer les plans à Anthropic"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Invia i piani ad Anthropic"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wysyłaj plany do Anthropic"
-          }
-        }
-      }
-    },
-    "Send the plan to an AI service?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plan an einen KI-Dienst senden?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Enviar el plan a un servicio de IA?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envoyer le plan à un service d’IA ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inviare il piano a un servizio di IA?"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wysłać plan do usługi AI?"
-          }
-        }
-      }
-    },
-    "The names of the blocks and exercises go through our server to Anthropic, which writes the warm-up and cool-down. We keep no copy, and Anthropic gets no name or account with them." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Namen der Blöcke und Übungen gehen über unseren Server an Anthropic, das Warm-up und Cool-down schreibt. Wir behalten keine Kopie, und Anthropic erhält dazu weder Namen noch Konto."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los nombres de los bloques y ejercicios pasan por nuestro servidor hasta Anthropic, que escribe el calentamiento y la vuelta a la calma. No guardamos ninguna copia y Anthropic no recibe ningún nombre ni cuenta con ellos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les noms des blocs et des exercices passent par notre serveur jusqu’à Anthropic, qui rédige l’échauffement et le retour au calme. Nous n’en gardons aucune copie et Anthropic ne reçoit ni nom ni compte avec eux."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I nomi dei blocchi e degli esercizi passano dal nostro server ad Anthropic, che scrive il riscaldamento e il defaticamento. Non ne conserviamo alcuna copia e Anthropic non riceve né nome né account insieme a essi."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nazwy bloków i ćwiczeń trafiają przez nasz serwer do Anthropic, który pisze rozgrzewkę i schłodzenie. Nie zachowujemy kopii, a Anthropic nie dostaje z nimi imienia ani konta."
-          }
-        }
-      }
-    },
-    "The photo of your plan goes through our server to Anthropic, which reads it and returns the plan. We keep no copy, and Anthropic gets no name or account with it." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Foto deines Plans geht über unseren Server an Anthropic, das es liest und den Plan zurückgibt. Wir behalten keine Kopie, und Anthropic erhält dazu weder Namen noch Konto."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La foto de tu plan pasa por nuestro servidor hasta Anthropic, que la lee y devuelve el plan. No guardamos ninguna copia y Anthropic no recibe ningún nombre ni cuenta con ella."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La photo de votre plan passe par notre serveur jusqu’à Anthropic, qui la lit et renvoie le plan. Nous n’en gardons aucune copie et Anthropic ne reçoit ni nom ni compte avec elle."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La foto del tuo piano passa dal nostro server ad Anthropic, che la legge e restituisce il piano. Non ne conserviamo alcuna copia e Anthropic non riceve né nome né account insieme a essa."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zdjęcie Twojego planu trafia przez nasz serwer do Anthropic, który je odczytuje i odsyła plan. Nie zachowujemy kopii, a Anthropic nie dostaje z nim imienia ani konta."
-          }
-        }
-      }
-    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -1246,6 +974,17 @@
         }
       }
     },
+    "%lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
     "%lld + %lld from round %lld" : {
       "localizations" : {
         "de" : {
@@ -1285,17 +1024,6 @@
           }
         }
       }
-    },
-    "%lld / %lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld / %2$lld"
-          }
-        }
-      },
-      "shouldTranslate" : false
     },
     "%lld athletes" : {
       "extractionState" : "stale",
@@ -2949,6 +2677,40 @@
         }
       }
     },
+    "A diagnostics bundle you can send when something goes wrong." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Diagnosepaket, das du senden kannst, wenn etwas schiefgeht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un paquete de diagnóstico que puedes enviar cuando algo va mal."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ensemble de diagnostics que vous pouvez envoyer en cas de problème."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un pacchetto di diagnostica che puoi inviare quando qualcosa va storto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pakiet diagnostyczny, który możesz wysłać, gdy coś pójdzie nie tak."
+          }
+        }
+      }
+    },
     "A group plan lasts at least 60 minutes — everyone is measured over the same window." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4037,6 +3799,40 @@
         }
       }
     },
+    "AI features" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KI-Funktionen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funciones de IA"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fonctions d’IA"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funzioni di IA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funkcje AI"
+          }
+        }
+      }
+    },
     "AirPods" : {
       "shouldTranslate" : false
     },
@@ -4172,6 +3968,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wszystkie"
+          }
+        }
+      }
+    },
+    "Allow" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlauben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zezwól"
           }
         }
       }
@@ -4451,6 +4281,7 @@
       }
     },
     "API keys for plan scanning, and diagnostics you can send when something goes wrong." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -9756,6 +9587,7 @@
       }
     },
     "Developer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -9790,6 +9622,7 @@
       }
     },
     "Developer tools" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -20021,6 +19854,40 @@
         }
       }
     },
+    "Not now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht jetzt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non ora"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie teraz"
+          }
+        }
+      }
+    },
     "Note" : {
       "localizations" : {
         "de" : {
@@ -21420,6 +21287,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plan dnia"
+          }
+        }
+      }
+    },
+    "Plan photos and exercise names go through our server to Anthropic, which reads boards and writes warm-ups. We keep no copy. Turn this off and we ask again before anything is sent." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos von Plänen und Übungsnamen gehen über unseren Server an Anthropic, das Tafeln liest und Warm-ups schreibt. Wir behalten keine Kopie. Schalte dies aus, und wir fragen erneut, bevor etwas gesendet wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fotos de los planes y los nombres de los ejercicios pasan por nuestro servidor hasta Anthropic, que lee las pizarras y escribe los calentamientos. No guardamos ninguna copia. Desactívalo y volveremos a preguntar antes de enviar nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les photos des plans et les noms des exercices passent par notre serveur jusqu’à Anthropic, qui lit les tableaux et rédige les échauffements. Nous n’en gardons aucune copie. Désactivez cette option et nous redemanderons avant tout envoi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le foto dei piani e i nomi degli esercizi passano dal nostro server ad Anthropic, che legge le lavagne e scrive i riscaldamenti. Non ne conserviamo alcuna copia. Disattiva questa opzione e chiederemo di nuovo prima di inviare qualcosa."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zdjęcia planów i nazwy ćwiczeń trafiają przez nasz serwer do Anthropic, który odczytuje tablice i pisze rozgrzewki. Nie zachowujemy kopii. Wyłącz, a zapytamy ponownie, zanim cokolwiek wyślemy."
           }
         }
       }
@@ -26034,6 +25935,74 @@
         }
       }
     },
+    "Send plans to Anthropic" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pläne an Anthropic senden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar planes a Anthropic"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer les plans à Anthropic"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invia i piani ad Anthropic"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysyłaj plany do Anthropic"
+          }
+        }
+      }
+    },
+    "Send the plan to an AI service?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan an einen KI-Dienst senden?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Enviar el plan a un servicio de IA?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer le plan à un service d’IA ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inviare il piano a un servizio di IA?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysłać plan do usługi AI?"
+          }
+        }
+      }
+    },
     "Send to %@" : {
       "localizations" : {
         "de" : {
@@ -27980,6 +27949,40 @@
         }
       }
     },
+    "Support" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soporte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assistance"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supporto"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wsparcie"
+          }
+        }
+      }
+    },
     "Surname" : {
       "localizations" : {
         "de" : {
@@ -29067,6 +29070,40 @@
         }
       }
     },
+    "The names of the blocks and exercises go through our server to Anthropic, which writes the warm-up and cool-down. We keep no copy, and Anthropic gets no name or account with them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Namen der Blöcke und Übungen gehen über unseren Server an Anthropic, das Warm-up und Cool-down schreibt. Wir behalten keine Kopie, und Anthropic erhält dazu weder Namen noch Konto."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los nombres de los bloques y ejercicios pasan por nuestro servidor hasta Anthropic, que escribe el calentamiento y la vuelta a la calma. No guardamos ninguna copia y Anthropic no recibe ningún nombre ni cuenta con ellos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les noms des blocs et des exercices passent par notre serveur jusqu’à Anthropic, qui rédige l’échauffement et le retour au calme. Nous n’en gardons aucune copie et Anthropic ne reçoit ni nom ni compte avec eux."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I nomi dei blocchi e degli esercizi passano dal nostro server ad Anthropic, che scrive il riscaldamento e il defaticamento. Non ne conserviamo alcuna copia e Anthropic non riceve né nome né account insieme a essi."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwy bloków i ćwiczeń trafiają przez nasz serwer do Anthropic, który pisze rozgrzewkę i schłodzenie. Nie zachowujemy kopii, a Anthropic nie dostaje z nimi imienia ani konta."
+          }
+        }
+      }
+    },
     "the notes" : {
       "localizations" : {
         "de" : {
@@ -29142,6 +29179,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się zamienić zdjęcia w plan"
+          }
+        }
+      }
+    },
+    "The photo of your plan goes through our server to Anthropic, which reads it and returns the plan. We keep no copy, and Anthropic gets no name or account with it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Foto deines Plans geht über unseren Server an Anthropic, das es liest und den Plan zurückgibt. Wir behalten keine Kopie, und Anthropic erhält dazu weder Namen noch Konto."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La foto de tu plan pasa por nuestro servidor hasta Anthropic, que la lee y devuelve el plan. No guardamos ninguna copia y Anthropic no recibe ningún nombre ni cuenta con ella."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La photo de votre plan passe par notre serveur jusqu’à Anthropic, qui la lit et renvoie le plan. Nous n’en gardons aucune copie et Anthropic ne reçoit ni nom ni compte avec elle."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La foto del tuo piano passa dal nostro server ad Anthropic, che la legge e restituisce il piano. Non ne conserviamo alcuna copia e Anthropic non riceve né nome né account insieme a essa."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zdjęcie Twojego planu trafia przez nasz serwer do Anthropic, który je odczytuje i odsyła plan. Nie zachowujemy kopii, a Anthropic nie dostaje z nim imienia ani konta."
           }
         }
       }
