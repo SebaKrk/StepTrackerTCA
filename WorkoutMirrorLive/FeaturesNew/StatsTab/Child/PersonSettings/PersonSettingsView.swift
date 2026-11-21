@@ -32,9 +32,9 @@ struct PersonSettingsView: View {
                 .navigationTitle("Personal Settings")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(
-                    item: $store.scope(state: \.destination?.developerSettings, action: \.destination.developerSettings)
-                ) { developerStore in
-                    DeveloperSettingsView(store: developerStore)
+                    item: $store.scope(state: \.destination?.privacySettings, action: \.destination.privacySettings)
+                ) { privacyStore in
+                    PrivacySettingsView(store: privacyStore)
                 }
                 .sheet(
                     item: $store.scope(state: \.destination?.editProfile, action: \.destination.editProfile)
@@ -96,37 +96,18 @@ struct PersonSettingsView: View {
             }
 
             Section {
-                aiProcessingToggle
-            } header: {
-                Text(String(localized: "AI features"))
+                privacyRow
             } footer: {
-                Text(String(localized: "Plan photos and exercise names go through our server to Anthropic, which reads boards and writes warm-ups. We keep no copy. Turn this off and we ask again before anything is sent."))
-            }
-
-            Section {
-                developerRow
-            } header: {
-                Text(String(localized: "Support"))
-            } footer: {
-                Text(String(localized: "A diagnostics bundle you can send when something goes wrong."))
+                Text(String(localized: "AI, diagnostics and your data in the cloud."))
             }
         }
     }
 
-    private var aiProcessingToggle: some View {
-        Toggle(isOn: Binding(
-            get: { store.isAIProcessingAllowed },
-            set: { send(.aiProcessingToggled($0)) }
-        )) {
-            Text(String(localized: "Send plans to Anthropic"))
-        }
-    }
-
-    private var developerRow: some View {
+    private var privacyRow: some View {
         HStack {
-            Image(systemName: "wrench.and.screwdriver.fill")
+            Image(systemName: "lock.shield.fill")
                 .foregroundStyle(.secondary)
-            Text(String(localized: "Diagnostics"))
+            Text(String(localized: "Privacy & data"))
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.caption)
@@ -134,7 +115,7 @@ struct PersonSettingsView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            send(.developerTapped)
+            send(.privacyTapped)
         }
     }
     

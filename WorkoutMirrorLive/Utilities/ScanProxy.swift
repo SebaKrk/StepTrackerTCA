@@ -33,6 +33,11 @@ enum ScanProxy {
         )
     )
 
+    /// Erases the current account and everything the server holds under it.
+    nonisolated static func deleteAccountData() async throws {
+        try await shared.deleteAccountData()
+    }
+
     /// Identity token of the current account, creating one if onboarding never did.
     ///
     /// Onboarding writes `accountUid` and `AppTabNewFeature` backfills it at launch,

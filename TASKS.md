@@ -1986,3 +1986,28 @@
     - both settings sit in the build settings next to the other `INFOPLIST_KEY_` entries, in both configurations
     - not done: a copyright line, which needs the name that should stand behind the app
     - not done: the category in App Store Connect, which is chosen there and not read from this key
+
+### IOS-00202 App Review — a member can erase their cloud data, and privacy has one screen
+    - branch: `dev/IOS-00202/IOS-00202` (from develop)
+    - the app opens an anonymous account and keeps Team data under it, and nothing in the app could remove it
+    - a new callable, `deleteMyData`, erases everything under the caller's account and then the account; it runs with admin rights, because the rules let a member delete only their own documents and the scan allowance cannot be written from a phone
+    - per group: the member's results on every day, their membership and the invites they created go; the member count drops with them
+    - a group with nobody else in it is deleted whole; an owner with company hands the group to whoever has been a member longest
+    - a published plan stays with its group and loses the author's name and id, on the plan and on the group's last-plan line
+    - invites the account scanned without joining go too, then the scan allowance, then the account
+    - every step is safe to repeat, so a run that failed halfway is finished by asking again; the account goes last, because without it there is no asking again
+    - phone: `ScanProxyClient` gains the call, `TeamClient` gains `deleteMyData`, and after the server answers the phone signs out and blanks the account id stored in the profile
+    - settings: one row, "Privacy & data", opens a screen of its own that holds the AI consent, the diagnostics bundle and the erase; the main settings no longer carry three sections for them
+    - that screen is a child feature, `PrivacySettingsFeature`, so `PersonSettingsFeature` is back to the profile and the heart-rate settings
+    - the erase is a destructive button with a confirmation that says what goes and what stays, a spinner while the server works, and an alert for either outcome
+    - the three alerts live in the `PrivacySettingsFeature+AlertState` extension
+    - the AI switch reads "Board scan and warm-ups with AI" and its footer says what turning it off does; "Send plans to Anthropic" read like an order to send
+    - the AI switch has a tint: without one its on state was a white pill with no visible knob
+    - switching the AI consent off asks first, and says that scanning still works and only asks again; the switch stays on until the answer
+    - leaving a group now takes the member's results along; until now it removed the membership and left every result in the group under their name
+    - the unused `users/{uid}` rule is gone from `firestore.rules`: no code reads or writes that collection
+    - fifteen new strings in all six languages
+    - not done: `firebase deploy` of the function and the rules, on the development project and on the production one — without it the button answers with an error
+    - not done: a run on a device against the deployed function, as a sole member, as an owner with company, and as a plain member
+    - not done: removing a member as the owner still leaves that member's results in the group
+    - not done: the local Firestore cache still holds the old groups until the app restarts

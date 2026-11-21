@@ -30,6 +30,13 @@ nonisolated final class TeamService: @unchecked Sendable {
         return try await Auth.auth().signInAnonymously().user.uid
     }
 
+    // The server erases the data and the account; the phone only has to forget the session.
+    func deleteMyData() async throws {
+        guard Auth.auth().currentUser != nil else { return }
+        try await ScanProxy.deleteAccountData()
+        try Auth.auth().signOut()
+    }
+
     // MARK: - Groups
 
     // The listener fires on membership changes only, so counters written to the group document need a re-read.
@@ -151,6 +158,10 @@ nonisolated final class TeamService: @unchecked Sendable {
                 return
             }
         }
+        // Leaving takes the member's results along; they would otherwise stay in the group under their name.
+        let entries = try await group.collection("plans").getDocuments().documents
+            .map { $0.reference.collection("entries").document(uid) }
+        try await deleteInBatches(entries)
         let batch = db.batch()
         batch.deleteDocument(group.collection("members").document(uid))
         batch.updateData(update, forDocument: group)
