@@ -1950,3 +1950,17 @@
     - checked and left alone: the settings footer about personal data is true, height, weight and heart rate do stay on the device
     - not done: a run on a device in each language, to see the prompts and the consent as the system shows them
     - not done: the privacy policy that names Anthropic, and the privacy manifest
+
+### IOS-00199 App Review — each app declares what it collects and which system APIs it reads
+    - branch: `dev/IOS-00199/IOS-00199` (from develop)
+    - no target had a `PrivacyInfo.xcprivacy`, and an upload without one is rejected before a person looks at it
+    - iPhone, Watch, iPad and the widget each gain a manifest; none of them tracks, and none names a tracking domain
+    - iPhone, collected and linked to the account: the account id, the display name, fitness results, active energy when the member shares it, and published plans — all of it Team data in Firestore
+    - iPhone, collected and not linked: the plan photo that goes to the AI service
+    - UserDefaults is declared everywhere: the app's own settings (CA92.1), and the app group the iPhone and the widget share for readiness (1C8F.1)
+    - the Watch also declares file timestamps inside its own container (C617.1): the debug log files are aged by date
+    - the local packages need no manifest of their own, they are linked into the apps; Firebase, TCA, Sharing and GRDB ship theirs
+    - checked and left out: boot time, disk space and active keyboards are read nowhere; crash data is declared by Crashlytics itself
+    - checked in the project file: each manifest's folder belongs to one target and is excepted nowhere, so each app bundles its own
+    - not done: Xcode's privacy report from an archive, to see the four manifests merged with the libraries'
+    - not done: the App Store Connect privacy answers, which must say the same as these files
