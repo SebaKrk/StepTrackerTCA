@@ -72,7 +72,7 @@ struct WorkoutPlanScoreListView: View {
         .environment(\.editMode, $editMode)
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .toolbar { scoreListToolbar }
+        // Select and Compare (`scoreListToolbar`) return to the bar together with the comparison charts.
     }
 
     private func scoreListRow(_ score: WorkoutPlanScore) -> some View {

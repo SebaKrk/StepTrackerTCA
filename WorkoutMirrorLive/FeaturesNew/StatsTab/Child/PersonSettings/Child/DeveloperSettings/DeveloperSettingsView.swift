@@ -19,7 +19,7 @@ struct DeveloperSettingsView: View {
 
     var body: some View {
         rootView
-            .navigationTitle(Text(String(localized: "Developer")))
+            .navigationTitle(Text(String(localized: "Diagnostics")))
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: isSendingMail) {
                 diagnosticsMailComposer

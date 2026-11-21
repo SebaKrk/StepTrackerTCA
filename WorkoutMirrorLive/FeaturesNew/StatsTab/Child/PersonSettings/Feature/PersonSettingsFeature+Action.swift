@@ -56,8 +56,7 @@ extension PersonSettingsFeature {
             /// Action triggered when close button is tapped
             case xMarkButtonTapped
 
-            /// Action triggered when the Developer row is tapped — opens API key
-            /// management and diagnostics.
+            /// Action triggered when the Diagnostics row is tapped — opens the diagnostics bundle screen.
             case developerTapped
 
             /// Action triggered when edit profile row is tapped

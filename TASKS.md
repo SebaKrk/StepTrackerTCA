@@ -1964,3 +1964,15 @@
     - checked in the project file: each manifest's folder belongs to one target and is excepted nowhere, so each app bundles its own
     - not done: Xcode's privacy report from an archive, to see the four manifests merged with the libraries'
     - not done: the App Store Connect privacy answers, which must say the same as these files
+
+### IOS-00200 App Review — no screen promises what is not there
+    - branch: `dev/IOS-00200/IOS-00200` (from develop)
+    - a reviewer rejects a build that shows unfinished features, and three places did
+    - settings: the "Developer" section is "Support" now, its row is "Diagnostics", and the footer no longer speaks of API keys the app stopped holding
+    - the screen behind that row is titled "Diagnostics"; it only ever sent a diagnostics bundle, so nothing in it changed
+    - Team: the Private / Public filter left the toolbar, because Public led to a "Coming Soon" board; private groups are the whole screen
+    - plan history: Select and Compare left the toolbar, because Compare opened a "coming soon" board
+    - both hidden entries keep their code, one comment each says what brings them back
+    - two new strings, "Support" and the footer, in all six languages
+    - not done: the old strings "Developer", "Developer tools" and the API-keys footer still sit in the catalog as unused entries
+    - not done: a look at both screens on a device, to see the toolbars with one item fewer

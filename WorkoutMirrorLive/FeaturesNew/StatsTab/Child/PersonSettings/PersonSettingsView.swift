@@ -106,9 +106,9 @@ struct PersonSettingsView: View {
             Section {
                 developerRow
             } header: {
-                Text(String(localized: "Developer"))
+                Text(String(localized: "Support"))
             } footer: {
-                Text(String(localized: "API keys for plan scanning, and diagnostics you can send when something goes wrong."))
+                Text(String(localized: "A diagnostics bundle you can send when something goes wrong."))
             }
         }
     }
@@ -126,7 +126,7 @@ struct PersonSettingsView: View {
         HStack {
             Image(systemName: "wrench.and.screwdriver.fill")
                 .foregroundStyle(.secondary)
-            Text(String(localized: "Developer tools"))
+            Text(String(localized: "Diagnostics"))
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.caption)
