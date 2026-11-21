@@ -10,23 +10,25 @@ import Foundation
 import OSLog
 import SharedModels
 
-/// Peer role w Bluetooth Low Energy — używana przez iPhone (athlete dołączający do klasy).
+/// Peer role in Bluetooth Low Energy — used by the iPhone (the athlete joining a class).
 ///
 /// **Responsibilities**:
-/// - Scanuje broadcast iPada (`CBCentralManager.scanForPeripherals(withServices:)`)
-/// - Proximity gate przez RSSI (`> -75 dBm` ~10m)
+/// - Scans for the iPad's broadcast (`CBCentralManager.scanForPeripherals(withServices:)`)
+/// - Proximity gate on RSSI (`> -75 dBm` ~10m)
 /// - Connect + discover services + characteristics
-/// - Subscribe do HR Stream characteristic (presence signaling do peripheral)
-/// - **Reads Discovery Info characteristic** żeby pozyskać iPad displayName używany
-///   jako `nick` w `.connected` evencie (`deviceID` = `peripheral.identifier`, BLE-level)
-/// - Wysyła `HRSamplePayload` przez `writeValue(_, for:, type: .withoutResponse)`
-/// - Auto-reconnect z exponential backoff (1s → 2s → 4s → 8s → cap 30s)
+/// - Subscribes to the HR Stream characteristic (presence signaling to the peripheral)
+/// - **Reads the Discovery Info characteristic** to get the iPad's displayName, used
+///   as `nick` in the `.connected` event (`deviceID` = `peripheral.identifier`, BLE-level)
+/// - Sends `HRSamplePayload` through `writeValue(_, for:, type: .withoutResponse)`
+/// - Auto-reconnect with exponential backoff (1s → 2s → 4s → 8s → cap 30s)
 ///
-/// **`.connected` emit timing**: PO `didUpdateValueFor(discoveryInfo)` — żeby reducer
-/// dostał prawdziwy displayName, nie placeholder. Fallback do UUID gdy read fail
-/// lub discoveryInfo characteristic nie znaleziony (defensive — reducer wciąż dostaje event).
+/// **`.connected` emit timing**: AFTER `didUpdateValueFor(discoveryInfo)` — so the reducer
+/// gets the real displayName, not a placeholder. Falls back to the UUID when the read fails
+/// or the discoveryInfo characteristic is missing (defensive — the reducer still gets the event).
 ///
-/// **Lifecycle**: stworzona w `PeerMirrorService.startBrowsing`, dropped w `stopBrowsing`.
+/// **Lifecycle**: created in `PeerMirrorService.startBrowsing`, dropped in `stopBrowsing`.
+///
+/// Background mode: `bluetooth-central` — heart rate keeps reaching the coach's iPad with the screen off.
 public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
 
     // MARK: - Logger
@@ -36,23 +38,23 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
         category: "BLE-Peer"
     )
 
-    /// RSSI threshold dla proximity gate. -75 dBm ≈ 10m (typowy zasięg sali).
-    /// Słabszy signal = user nie w sali, ignorujemy advertisement.
+    /// RSSI threshold for the proximity gate. -75 dBm ≈ 10m (the usual reach of a gym room).
+    /// A weaker signal = the user is not in the room, so the advertisement is ignored.
     static let rssiThreshold: Int = -75
 
-    /// Max delay przed kolejnym reconnect attempt (po `lostPeripheralResetTimeoutSeconds`).
+    /// Max delay before the next reconnect attempt (after `lostPeripheralResetTimeoutSeconds`).
     static let maxReconnectDelaySeconds: TimeInterval = 30
 
-    /// Timeout dla `central.connect()` — Apple default to ~30s. My cancel'ujemy po 8s
-    /// żeby szybciej trigger'ować reconnect flow gdy peripheral zniknął mid-connect.
-    /// 8s daje ~4x buffer nad zdrowym BLE handshake (~2s), ale 3-4x szybsze niż Apple.
+    /// Timeout for `central.connect()` — Apple's default is ~30s. We cancel after 8s
+    /// to trigger the reconnect flow sooner when the peripheral vanished mid-connect.
+    /// 8s leaves a ~4x buffer over a healthy BLE handshake (~2s), yet is 3-4x faster than Apple.
     static let connectTimeoutSeconds: TimeInterval = 8
 
     // MARK: - BLE
 
     let centralManager: CBCentralManager
-    /// CBPeripheral — NSObject, nie jest Sendable. Apple CBCentralManager gwarantuje thread-safety
-    /// dla callbacks, więc `nonisolated(unsafe)` jest uzasadniony per Swift Concurrency Course.
+    /// CBPeripheral — an NSObject, not Sendable. Apple's CBCentralManager guarantees thread-safety
+    /// for callbacks, so `nonisolated(unsafe)` is justified per Swift Concurrency Course.
     nonisolated(unsafe) var hostPeripheral: CBPeripheral?
     nonisolated(unsafe) var hrCharacteristic: CBCharacteristic?
 
@@ -61,13 +63,13 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
     private var reconnectDelaySeconds: TimeInterval = 1
     private var shouldAutoReconnect = true
 
-    /// Identifier ostatnio połączonego hosta. Ustawiany w `didConnect`, używany
-    /// do pending-connect reconnectu (`retrievePeripherals`) zamiast skanu + RSSI
-    /// gate — wraca w zasięg → iOS dokańcza połączenie sam.
+    /// Identifier of the last connected host. Set in `didConnect`, used
+    /// for the pending-connect reconnect (`retrievePeripherals`) instead of a scan + RSSI
+    /// gate — back in range → iOS completes the connection by itself.
     nonisolated(unsafe) var knownHostID: UUID?
 
-    /// Active connect watchdog. Cancel'owany w `didConnect` / `didFailToConnect`.
-    /// Bez tego stale `connect()` może wisieć ~30s przed Apple `didFailToConnect`.
+    /// Active connect watchdog. Cancelled in `didConnect` / `didFailToConnect`.
+    /// Without it a stale `connect()` can hang ~30s before Apple's `didFailToConnect`.
     var connectTimeoutTask: Task<Void, Never>?
 
     // MARK: - Callbacks
@@ -115,7 +117,7 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
 
         do {
             let data = try JSONEncoder().encode(payload)
-            // writeWithoutResponse: idempotent stream, brak ACK overhead, zgubiony sample OK.
+            // writeWithoutResponse: idempotent stream, no ACK overhead, a lost sample is fine.
             peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
         } catch {
             Self.logger.error("Encode failed: \(error.localizedDescription, privacy: .public)")
@@ -188,10 +190,10 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
         fileLog("scan started")
     }
 
-    /// Pending connect do znanego hosta. iOS dokańcza połączenie gdy host wróci
-    /// w zasięg — bez skanu, RSSI gate'u i watchdoga (`connect()` do znanego
-    /// peripherala nie wygasa). Zwraca `false` gdy hosta nie znamy (pierwsze
-    /// uruchomienie) — wtedy caller skanuje.
+    /// Pending connect to the known host. iOS completes the connection once the host is back
+    /// in range — no scan, RSSI gate or watchdog (`connect()` to a known
+    /// peripheral does not expire). Returns `false` when the host is unknown (first
+    /// run) — the caller scans then.
     func connectKnownHostIfPossible() -> Bool {
         guard centralManager.state == .poweredOn,
               let knownHostID,
@@ -209,7 +211,7 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
             fileLog("reconnect SKIPPED (auto-reconnect off)")
             return
         }
-        // Znany host → pending connect od ręki, bez backoffu/skanu/gate.
+        // Known host → pending connect right away, no backoff/scan/gate.
         if connectKnownHostIfPossible() { return }
         let delay = reconnectDelaySeconds
         reconnectDelaySeconds = min(reconnectDelaySeconds * 2, Self.maxReconnectDelaySeconds)
@@ -224,9 +226,9 @@ public final class PeerMirrorBLEPeerSession: NSObject, @unchecked Sendable {
         reconnectDelaySeconds = 1
     }
 
-    /// Watchdog na `central.connect()` — Apple może wisieć ~30s przed `didFailToConnect`
-    /// gdy peripheral zniknął mid-connect. Po `Self.connectTimeoutSeconds` manualnie
-    /// `cancelPeripheralConnection` żeby triggrować nasz reconnect flow.
+    /// Watchdog on `central.connect()` — Apple can hang ~30s before `didFailToConnect`
+    /// when the peripheral vanished mid-connect. After `Self.connectTimeoutSeconds` it calls
+    /// `cancelPeripheralConnection` by hand to trigger our reconnect flow.
     func scheduleConnectTimeout(for peripheral: CBPeripheral) {
         let peripheralID = peripheral.identifier
         connectTimeoutTask?.cancel()

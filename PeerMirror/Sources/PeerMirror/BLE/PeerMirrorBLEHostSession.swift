@@ -33,6 +33,8 @@ import SharedModels
 /// **Lifecycle**: stworzona w `PeerMirrorService.startAdvertising`, dropped w `stopAdvertising`.
 /// Wszystkie references są `let` lub `private var` dotykane tylko z delegate callbacks
 /// na main queue (`CBPeripheralManager(queue: nil)`) → safe `@unchecked Sendable`.
+///
+/// Background mode: `bluetooth-peripheral` — the class stays on air and heart rate keeps arriving when the app is not in front.
 public final class PeerMirrorBLEHostSession: NSObject, @unchecked Sendable {
 
     // MARK: - Logger

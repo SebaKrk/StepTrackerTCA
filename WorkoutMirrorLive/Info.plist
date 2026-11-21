@@ -4,9 +4,11 @@
 <dict>
 	<key>UIBackgroundModes</key>
 	<array>
+		<!-- fetch: recalculates training readiness so the widget is not stale (ReadinessRefreshScheduler) -->
 		<string>fetch</string>
+		<!-- bluetooth-central: reads the heart-rate strap and writes heart rate to the coach's iPad with the screen off -->
 		<string>bluetooth-central</string>
-		<string>bluetooth-peripheral</string>
+		<!-- location: records the route of an outdoor workout with the screen off (WorkoutRouteRecorder) -->
 		<string>location</string>
 	</array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>

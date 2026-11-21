@@ -4,8 +4,8 @@
 <dict>
 	<key>UIBackgroundModes</key>
 	<array>
+		<!-- bluetooth-peripheral: keeps the class on air and heart rate arriving from the joined iPhones when the app is not in front -->
 		<string>bluetooth-peripheral</string>
-		<string>bluetooth-central</string>
 	</array>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Wyświetlamy metryki treningowe z Apple Watch i iPhone'a na ekranie grupy. Tętno oraz dane aktywności są przesyłane przez Bluetooth.</string>
