@@ -1976,3 +1976,13 @@
     - two new strings, "Support" and the footer, in all six languages
     - not done: the old strings "Developer", "Developer tools" and the API-keys footer still sit in the catalog as unused entries
     - not done: a look at both screens on a device, to see the toolbars with one item fewer
+
+### IOS-00201 App Review — the export-compliance answer and the category live in the project
+    - branch: `dev/IOS-00201/IOS-00201` (from develop)
+    - no target answered the encryption question, so App Store Connect would ask it by hand on every upload
+    - iPhone, Watch and iPad declare `ITSAppUsesNonExemptEncryption = NO`: the code holds no cryptography of its own, only HTTPS through the system and Firebase
+    - the widget needs no answer of its own, the question is read from the app that carries it
+    - iPhone and iPad name their category, Health & Fitness; the iPhone had the key with an empty value, the iPad had none
+    - both settings sit in the build settings next to the other `INFOPLIST_KEY_` entries, in both configurations
+    - not done: a copyright line, which needs the name that should stand behind the app
+    - not done: the category in App Store Connect, which is chosen there and not read from this key

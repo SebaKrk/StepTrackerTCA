@@ -954,7 +954,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Bluetooth connects your heart-rate strap and sends your heart rate to the coach's iPad in the room.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera scans the QR code on the coach's iPad (to join a class) and photographs your workout plan, which an AI service then reads.";
@@ -998,7 +999,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WorkoutMirrorLive/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Bluetooth connects your heart-rate strap and sends your heart rate to the coach's iPad in the room.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera scans the QR code on the coach's iPad (to join a class) and photographs your workout plan, which an AI service then reads.";
@@ -1044,6 +1046,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GymRoom/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
@@ -1088,6 +1092,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GymRoom/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
@@ -1327,6 +1333,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We read your heart rate on Apple Watch to show it during your workout.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We save your completed workouts (heart rate, calories, duration) to the Health app, so your history stays in one place.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -1364,6 +1371,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "WorkoutMirror-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "MyFitness Journal";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We read your heart rate on Apple Watch to show it during your workout.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We save your completed workouts (heart rate, calories, duration) to the Health app, so your history stays in one place.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
