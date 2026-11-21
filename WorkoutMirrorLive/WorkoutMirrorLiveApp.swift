@@ -13,30 +13,41 @@ import SwiftUI
 struct WorkoutMirrorLiveApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
+    /// Why the database could not open; `nil` when the app started normally.
+    private let databaseFailure: String?
+
     init() {
-        prepareDependencies {
+        // A failed migration must leave an app that can say so, not one that dies on every launch.
+        databaseFailure = prepareDependencies { dependencies -> String? in
             do {
-                try $0.bootstrapDatabase()
+                try dependencies.bootstrapDatabase()
+                return nil
             } catch {
-                fatalError("Database failed to initialize: \(error)")
+                return String(describing: error)
             }
         }
     }
-    
+
     var body: some Scene {
         WindowGroup {
-            AppTabNewView(
-                store: Store(initialState: AppTabNewFeature.State()) {
-                    AppTabNewFeature()
-                    ///._printChanges()
-                } withDependencies: {
+            if let databaseFailure {
+                DatabaseFailureView(
+                    message: String(localized: "Workouts in the Health app are safe. Close the app and open it again. If that does not help, contact us and include the code below."),
+                    details: databaseFailure
+                )
+            } else {
+                AppTabNewView(
+                    store: Store(initialState: AppTabNewFeature.State()) {
+                        AppTabNewFeature()
+                        ///._printChanges()
+                    } withDependencies: {
 #if targetEnvironment(simulator)
-                    $0.trainingReadinessClient = .mock
+                        $0.trainingReadinessClient = .mock
 #endif
-                }
-            )
-            
+                    }
+                )
+            }
         }
     }
 }

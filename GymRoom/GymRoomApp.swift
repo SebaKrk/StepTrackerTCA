@@ -15,28 +15,42 @@ struct GymRoomApp: App {
 
     /// Root store dla całej app — `GymRoomRootFeature` wraps NavigationSplitView z 2 tabs:
     /// Classes (main hub, child ClassesListFeature) + History (placeholder, subtask D).
-    let store: StoreOf<GymRoomRootFeature>
+    /// `nil` when the database could not open — the reducers need a live one, so no store is built.
+    let store: StoreOf<GymRoomRootFeature>?
+
+    /// Why the database could not open; `nil` when the app started normally.
+    private let databaseFailure: String?
 
     init() {
         // Bootstrap SQLiteData PRZED init store — `@Dependency(\.defaultDatabase)`
         // w children reducers (gymClassClient → database.read/write) wymaga aktywnej
         // bazy. Migration v7_gymRoom wykonuje się tu po raz pierwszy: tworzy 3 tabele
         // (gymClassRecords, classSessionRecords, athleteSessionRecords) + indexy.
-        prepareDependencies {
+        // A failed migration must leave an app that can say so, not one that dies on every launch.
+        let failure = prepareDependencies { dependencies -> String? in
             do {
-                try $0.bootstrapDatabase()
+                try dependencies.bootstrapDatabase()
+                return nil
             } catch {
-                fatalError("Database failed to initialize: \(error)")
+                return String(describing: error)
             }
         }
-        self.store = Store(initialState: GymRoomRootFeature.State()) {
-            GymRoomRootFeature()
-        }
+        databaseFailure = failure
+        store = failure == nil
+            ? Store(initialState: GymRoomRootFeature.State()) { GymRoomRootFeature() }
+            : nil
     }
 
     var body: some Scene {
         WindowGroup {
-            GymRoomRootView(store: store)
+            if let store {
+                GymRoomRootView(store: store)
+            } else {
+                DatabaseFailureView(
+                    message: String(localized: "Close the app and open it again. If that does not help, contact us and include the code below."),
+                    details: databaseFailure ?? ""
+                )
+            }
         }
     }
 }

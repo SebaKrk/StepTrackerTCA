@@ -2013,3 +2013,18 @@
     - not done: a run on a device against the deployed function, as a sole member, as an owner with company, and as a plain member
     - not done: removing a member as the owner still leaves that member's results in the group
     - not done: the local Firestore cache still holds the old groups until the app restarts
+
+### IOS-00203 Launch — a database that cannot open says so instead of killing the app
+    - branch: `dev/IOS-00203/IOS-00203` (from develop)
+    - the iPhone and the iPad both answered a failed database bootstrap with `fatalError`: twenty migrations run at launch, and one failing meant an app that died on every start, for a reviewer as much as for a member
+    - both apps keep the failure and show `DatabaseFailureView` in place of the whole app: what happened, that closing and reopening is the first thing to try, and the technical description in small print for whoever is asked for help
+    - the view is one file, a member of both targets, as the widget already borrows files from the iPhone folder; each app passes its own message
+    - the iPhone's message adds that workouts in the Health app are safe; the iPad has none to speak of
+    - the iPad builds its store only when the database opened, because its reducers reach for it at once
+    - the failure is a plain `let` on the `App`, read once at launch; no state is kept in a view
+    - no "reset my data" button and no "try again": the first erases everything on one tap, the second cannot work, a database registers once per launch
+    - the usage example on `bootstrapDatabase()` no longer teaches `fatalError`
+    - two new strings per app, in all six languages
+    - seen on the iPhone simulator with the bootstrap made to throw for one run: the screen shows, the app stays up, and the launch tasks behind it do not bring it down
+    - not done: the same look on the iPad, which shares the view but was only built
+    - not done: the Watch and the widget open no database, so they needed nothing
