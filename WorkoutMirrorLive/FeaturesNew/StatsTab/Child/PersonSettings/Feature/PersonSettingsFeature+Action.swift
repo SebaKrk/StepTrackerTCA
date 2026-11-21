@@ -70,6 +70,9 @@ extension PersonSettingsFeature {
             /// reference (descriptions + effort points scoring) as a sheet.
             case heartRateZonesTapped
 
+            /// Action triggered when the user switches sending plans to the AI service on or off.
+            case aiProcessingToggled(Bool)
+
         }
         
         // MARK: - Destination

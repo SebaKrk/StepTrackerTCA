@@ -51,6 +51,10 @@ struct WorkoutPreviewFeature {
         /// Warm-up and cool-down are being generated for the sections the board did not have.
         var isGeneratingNotes = false
 
+        /// Whether the user agreed to send plans to the AI service; asked once, revocable in settings.
+        @Shared(.appStorage(.aiProcessingConsent))
+        var isAIProcessingAllowed = false
+
         /// Everything the review card lists, board findings first.
         var findings: [ScanFinding] {
             Array(boardFindings) + Array(planFindings)
@@ -81,7 +85,7 @@ struct WorkoutPreviewFeature {
                 && (trainingSession.warmUp == nil || trainingSession.coolDown == nil)
         }
 
-        /// Generation failure.
+        /// Generation failure, or the consent asked before the first generation.
         @Presents var alert: AlertState<Action.Alert>?
 
         @Presents var destination: Destination.State?
@@ -143,8 +147,11 @@ struct WorkoutPreviewFeature {
 
         // MARK: - Alert Actions
 
-        /// The failure alert has no custom buttons.
-        enum Alert: Equatable {}
+        enum Alert: Equatable {
+
+            /// Called when the user agrees to send plans to the AI service.
+            case aiProcessingAllowed
+        }
 
         // MARK: - Delegate Actions
 
@@ -172,20 +179,17 @@ struct WorkoutPreviewFeature {
             // Only the missing sections are generated, with the editor's default length.
             case .view(.generateNotesTapped):
                 guard state.canGenerateNotes, !state.isGeneratingNotes else { return .none }
-                state.isGeneratingNotes = true
-                // No length is sent: nobody picked one here, so the model proposes it.
-                let context = TrainingNotesContext(
-                    workouts: state.trainingSession.workouts,
-                    durationMinutes: nil
-                )
-                let needsWarmUp = state.trainingSession.warmUp == nil
-                let needsCoolDown = state.trainingSession.coolDown == nil
-                return .run { [notesClient] send in
-                    await send(.notesGenerated(try await notesClient.generateMissing(context, needsWarmUp, needsCoolDown)))
-                } catch: { error, send in
-                    await send(.notesGenerationFailed(ScanProxyError.userMessage(for: error)))
+                guard state.isAIProcessingAllowed else {
+                    state.alert = .confirmAIProcessing
+                    return .none
                 }
-                .cancellable(id: WorkoutPreviewCancelID.notesGeneration, cancelInFlight: true)
+                return generateNotes(&state)
+
+            // MARK: - Alert
+
+            case .alert(.presented(.aiProcessingAllowed)):
+                state.$isAIProcessingAllowed.withLock { $0 = true }
+                return generateNotes(&state)
 
             // MARK: - Internal
 
@@ -249,6 +253,24 @@ struct WorkoutPreviewFeature {
     }
 
     // MARK: - Helpers
+
+    /// Asks the AI service for the sections the board lacked; callers check the consent first.
+    private func generateNotes(_ state: inout State) -> Effect<Action> {
+        state.isGeneratingNotes = true
+        // No length is sent: nobody picked one here, so the model proposes it.
+        let context = TrainingNotesContext(
+            workouts: state.trainingSession.workouts,
+            durationMinutes: nil
+        )
+        let needsWarmUp = state.trainingSession.warmUp == nil
+        let needsCoolDown = state.trainingSession.coolDown == nil
+        return .run { [notesClient] send in
+            await send(.notesGenerated(try await notesClient.generateMissing(context, needsWarmUp, needsCoolDown)))
+        } catch: { error, send in
+            await send(.notesGenerationFailed(ScanProxyError.userMessage(for: error)))
+        }
+        .cancellable(id: WorkoutPreviewCancelID.notesGeneration, cancelInFlight: true)
+    }
 
     /// Default length of a generated warm-up or cool-down, same as a section added in the editor.
     private static let generatedNotesMinutes = 10

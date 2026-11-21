@@ -1927,3 +1927,26 @@
     - every Swift file changed in comments only: no line of code moved
     - not done: a device check with the app in the background, with the strap and with the Watch as the source, on the iPhone and on the iPad
     - not done: the review notes for App Store Connect, the Polish comments of `PeerMirrorBLEHostSession`, and the deprecated `NSBluetoothPeripheralUsageDescription` key
+
+### IOS-00198 App Review — every prompt speaks the user's language, and AI asks before it sends
+    - branch: `dev/IOS-00198/IOS-00198` (from develop)
+    - the three apps ship in six languages, yet each permission prompt existed in one: Polish on the iPhone and the iPad, English and Polish mixed on the Watch
+    - each app gains an `InfoPlist.xcstrings` with every prompt in en, pl, de, es, fr and it: five prompts on the iPhone, three on the Watch, one on the iPad
+    - the base value of every prompt is English now, as the development language is; the Polish wording that shipped became the Polish translation
+    - the Watch no longer calls the app "Workout Mirror" in its two Health prompts
+    - the iPhone Bluetooth prompt names both uses, the heart-rate strap and the coach's iPad; it only named the iPad
+    - `NSBluetoothPeripheralUsageDescription` is gone from the iPhone: deprecated since iOS 13 and read by nothing
+    - Polish gained the strings it lacked: fifteen on the iPhone and five on the Watch
+    - checked and left alone: the widget reads the iPhone catalog, so its strings are already translated
+    - a plan photo and a plan's text reach Anthropic through our function, and nothing said so or asked: the app now asks once, before the first one leaves the phone
+    - the consent is one stored switch, `aiProcessingConsent`, read by the scan, by both "Generate" buttons and by the settings
+    - scan: `startParsing` is the single gate, so the camera, the library, Continue and Retry all pass it; declining with a photo in hand returns to the start, and "Add plan manually" stays
+    - warm-up and cool-down: the plan preview and the session editor ask the same question before generating, and the editor resumes the one that was tapped
+    - each alert lives in its feature's `+AlertState` extension, as every other alert in the app; `ScanPlanFeature` gained that file
+    - the alert names Anthropic, says what goes there, and says that we keep no copy and send no name or account
+    - settings: an "AI features" section with the switch that takes the consent back, and a footer saying what is sent
+    - the camera prompt says that an AI service reads the photographed plan
+    - the eight new strings are in all six languages
+    - checked and left alone: the settings footer about personal data is true, height, weight and heart rate do stay on the device
+    - not done: a run on a device in each language, to see the prompts and the consent as the system shows them
+    - not done: the privacy policy that names Anthropic, and the privacy manifest

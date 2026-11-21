@@ -112,6 +112,10 @@ struct PersonSettingsFeature {
                 state.destination = .hrFormulaSettings(HRFormulaSettingsFeature.State())
                 return .none
 
+            case let .view(.aiProcessingToggled(isAllowed)):
+                state.$isAIProcessingAllowed.withLock { $0 = isAllowed }
+                return .none
+
             case .view(.heartRateZonesTapped):
                 state.destination = .heartRateZoneInfo(HeartRateZoneInfoFeature.State())
                 return .none

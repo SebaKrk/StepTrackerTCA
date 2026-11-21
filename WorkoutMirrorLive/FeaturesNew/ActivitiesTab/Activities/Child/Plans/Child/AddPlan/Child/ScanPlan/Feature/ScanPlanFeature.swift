@@ -200,6 +200,20 @@ struct ScanPlanFeature {
             case .photoCrop:
                 return .none
 
+                // MARK: - Alert
+
+            case .alert(.presented(.aiProcessingAllowed)):
+                state.$isAIProcessingAllowed.withLock { $0 = true }
+                return startParsing(&state)
+
+            case .alert(.dismiss):
+                // Declined with the photo already in hand: nothing may sit on "analyzing".
+                guard !state.isAIProcessingAllowed, case .analyzing = state.viewState else { return .none }
+                return resetToIdle(&state)
+
+            case .alert:
+                return .none
+
                 // MARK: - Workout Preview
 
             case .workoutPreview(.presented(.view(.editButtonTapped))):
@@ -233,6 +247,7 @@ struct ScanPlanFeature {
         .ifLet(\.$photoCrop, action: \.photoCrop) {
             PhotoCropFeature()
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 
     // MARK: - Failures
@@ -269,6 +284,11 @@ struct ScanPlanFeature {
     /// Sends the photo and text to the chosen backend through the proxy; the daily
     /// allowance is checked server-side, so every entry point behaves the same.
     private func startParsing(_ state: inout State) -> Effect<Action> {
+        // The one gate every upload passes: camera, library, Continue and Retry.
+        guard state.isAIProcessingAllowed else {
+            state.alert = .confirmAIProcessing
+            return .none
+        }
         state.viewState = .analyzing
         state.failedStage = nil
         let input = WorkoutScanInput(

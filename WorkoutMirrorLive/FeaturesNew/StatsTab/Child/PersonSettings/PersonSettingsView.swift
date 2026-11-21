@@ -96,12 +96,29 @@ struct PersonSettingsView: View {
             }
 
             Section {
+                aiProcessingToggle
+            } header: {
+                Text(String(localized: "AI features"))
+            } footer: {
+                Text(String(localized: "Plan photos and exercise names go through our server to Anthropic, which reads boards and writes warm-ups. We keep no copy. Turn this off and we ask again before anything is sent."))
+            }
+
+            Section {
                 developerRow
             } header: {
                 Text(String(localized: "Developer"))
             } footer: {
                 Text(String(localized: "API keys for plan scanning, and diagnostics you can send when something goes wrong."))
             }
+        }
+    }
+
+    private var aiProcessingToggle: some View {
+        Toggle(isOn: Binding(
+            get: { store.isAIProcessingAllowed },
+            set: { send(.aiProcessingToggled($0)) }
+        )) {
+            Text(String(localized: "Send plans to Anthropic"))
         }
     }
 

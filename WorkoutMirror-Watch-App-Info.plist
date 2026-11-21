@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Podczas treningu na świeżym powietrzu Twoja lokalizacja służy do pomiaru prędkości i dystansu oraz do zapisania trasy widocznej w podsumowaniu.</string>
+	<string>During an outdoor workout your location is used to measure speed and distance and to record the route shown in the summary.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
