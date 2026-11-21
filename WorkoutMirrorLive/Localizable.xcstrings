@@ -128,6 +128,74 @@
         }
       }
     },
+    "Workouts in the Health app are safe. Close the app and open it again. If that does not help, contact us and include the code below." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainings in der Health-App sind sicher. Schließe die App und öffne sie erneut. Hilft das nicht, schreib uns und gib den Code unten an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los entrenamientos de la app Salud están a salvo. Cierra la app y vuelve a abrirla. Si no ayuda, escríbenos e incluye el código de abajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les entraînements de l’app Santé sont en sécurité. Fermez l’app et rouvrez-la. Si cela ne suffit pas, écrivez-nous en indiquant le code ci-dessous."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli allenamenti nell’app Salute sono al sicuro. Chiudi l’app e riaprila. Se non basta, scrivici indicando il codice qui sotto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treningi w aplikacji Zdrowie są bezpieczne. Zamknij aplikację i otwórz ją ponownie. Jeśli to nie pomoże, napisz do nas i podaj kod poniżej."
+          }
+        }
+      }
+    },
+    "Your data could not be opened" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Daten konnten nicht geöffnet werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron abrir tus datos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’ouvrir vos données"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire i tuoi dati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się otworzyć Twoich danych"
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "pl" : {

@@ -13,13 +13,14 @@ extension DependencyValues {
 
     /// Bootstraps the SQLite database and registers `defaultDatabase` dependency.
     ///
-    /// Call once in app entry point:
+    /// Call once in app entry point, and keep the failure to show instead of the app:
     /// ```swift
-    /// prepareDependencies {
+    /// databaseFailure = prepareDependencies { dependencies -> String? in
     ///     do {
-    ///         try $0.bootstrapDatabase()
+    ///         try dependencies.bootstrapDatabase()
+    ///         return nil
     ///     } catch {
-    ///         fatalError("Database failed to initialize: \(error)")
+    ///         return String(describing: error)
     ///     }
     /// }
     /// ```
