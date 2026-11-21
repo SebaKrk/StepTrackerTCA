@@ -30,10 +30,6 @@ extension PersonSettingsFeature {
         @Shared(.appStorage("hrFormula"))
         var hrFormula: HRFormulaType = .tanaka
 
-        /// Whether the user agreed to send plans to the AI service; the switch that takes it back.
-        @Shared(.appStorage(.aiProcessingConsent))
-        var isAIProcessingAllowed = false
-        
         // MARK: - Properties
 
         /// User profile loaded from local database (name, surname, nickname, email)
@@ -58,7 +54,7 @@ extension PersonSettingsFeature {
         var maxHR: Int?
 
         // MARK: - Destination
-        
+
         /// destination from PersonSettingsFeature
         @Presents var destination: Destination.State?
     }

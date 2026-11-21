@@ -72,10 +72,6 @@ service cloud.firestore {
         && existsAfter(/databases/$(database)/documents/groups/$(groupId)/members/$(me()));
     }
 
-    match /users/{uid} {
-      allow read, write: if signedIn() && uid == me();
-    }
-
     match /groups/{groupId} {
       allow read: if isMember(groupId);
       allow create: if signedIn()

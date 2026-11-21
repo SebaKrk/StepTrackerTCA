@@ -108,4 +108,4 @@ async function release(uid, feature, now = new Date()) {
   }
 }
 
-module.exports = { reserve, release };
+module.exports = { reserve, release, COLLECTION };

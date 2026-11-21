@@ -56,8 +56,8 @@ extension PersonSettingsFeature {
             /// Action triggered when close button is tapped
             case xMarkButtonTapped
 
-            /// Action triggered when the Diagnostics row is tapped — opens the diagnostics bundle screen.
-            case developerTapped
+            /// Action triggered when the Privacy & data row is tapped — opens the AI consent, diagnostics and cloud data.
+            case privacyTapped
 
             /// Action triggered when edit profile row is tapped
             case editProfileTapped
@@ -69,13 +69,10 @@ extension PersonSettingsFeature {
             /// reference (descriptions + effort points scoring) as a sheet.
             case heartRateZonesTapped
 
-            /// Action triggered when the user switches sending plans to the AI service on or off.
-            case aiProcessingToggled(Bool)
-
         }
-        
+
         // MARK: - Destination
-        
+
         /// Action to handle navigation destinations within this feature.
         case destination(PresentationAction<Destination.Action>)
     }

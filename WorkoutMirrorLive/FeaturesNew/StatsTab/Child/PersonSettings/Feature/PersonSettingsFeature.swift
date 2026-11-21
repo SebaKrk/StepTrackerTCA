@@ -98,8 +98,8 @@ struct PersonSettingsFeature {
             case .view(.xMarkButtonTapped):
                 return .run { _ in await self.dismiss() }
 
-            case .view(.developerTapped):
-                state.destination = .developerSettings(DeveloperSettingsFeature.State())
+            case .view(.privacyTapped):
+                state.destination = .privacySettings(PrivacySettingsFeature.State())
                 return .none
 
             case .view(.editProfileTapped):
@@ -110,10 +110,6 @@ struct PersonSettingsFeature {
 
             case .view(.hrFormulaTapped):
                 state.destination = .hrFormulaSettings(HRFormulaSettingsFeature.State())
-                return .none
-
-            case let .view(.aiProcessingToggled(isAllowed)):
-                state.$isAIProcessingAllowed.withLock { $0 = isAllowed }
                 return .none
 
             case .view(.heartRateZonesTapped):

@@ -13,8 +13,8 @@ extension PersonSettingsFeature {
     @Reducer
     enum Destination {
 
-        /// Navigation to developer tools — API key management and diagnostics
-        case developerSettings(DeveloperSettingsFeature)
+        /// Navigation to privacy and data — the AI consent, diagnostics and erasing the cloud data
+        case privacySettings(PrivacySettingsFeature)
 
         /// Modal for editing user profile (name, surname, nickname)
         case editProfile(PersonProfileEditFeature)
