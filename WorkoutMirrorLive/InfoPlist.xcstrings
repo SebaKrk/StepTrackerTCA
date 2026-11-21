@@ -1,9 +1,32 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "MyFitness Journal"
+          }
+        }
+      }
+    },
+    "CFBundleName" : {
+      "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "WorkoutMirrorLive"
+          }
+        }
+      }
+    },
     "NSBluetoothAlwaysUsageDescription" : {
       "comment" : "Bluetooth prompt: the heart-rate strap and the coach's iPad.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -45,7 +68,6 @@
     },
     "NSCameraUsageDescription" : {
       "comment" : "Camera prompt: the class QR code and the photo of a workout plan.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -87,7 +109,6 @@
     },
     "NSHealthShareUsageDescription" : {
       "comment" : "Health read prompt.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -129,7 +150,6 @@
     },
     "NSHealthUpdateUsageDescription" : {
       "comment" : "Health write prompt.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -171,7 +191,6 @@
     },
     "NSLocationWhenInUseUsageDescription" : {
       "comment" : "Location prompt: the route of an outdoor workout.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "de" : {
           "stringUnit" : {
