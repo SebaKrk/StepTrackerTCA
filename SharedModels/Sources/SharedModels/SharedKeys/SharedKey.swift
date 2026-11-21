@@ -29,4 +29,9 @@ extension String {
         AppStorageKeys.teamGroupOrder
     }
 
+    /// Consent to send plans to the AI service
+    public static var aiProcessingConsent: String {
+        AppStorageKeys.aiProcessingConsent
+    }
+
 }

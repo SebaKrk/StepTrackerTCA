@@ -85,6 +85,10 @@ extension TrainingSessionEditorFeature {
             case deleteConfirmed
             /// User dismissed the AI generation error alert.
             case generationErrorDismissed
+            /// User agreed to send plans to the AI service while asking for a warmup.
+            case warmUpGenerationAllowed
+            /// User agreed to send plans to the AI service while asking for a cooldown.
+            case coolDownGenerationAllowed
         }
 
         // MARK: - Delegate

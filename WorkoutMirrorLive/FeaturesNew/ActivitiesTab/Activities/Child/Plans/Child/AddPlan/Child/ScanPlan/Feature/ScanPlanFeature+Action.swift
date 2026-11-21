@@ -21,7 +21,14 @@ extension ScanPlanFeature {
         case `internal`(Internal)
         case workoutPreview(PresentationAction<WorkoutPreviewFeature.Action>)
         case photoCrop(PresentationAction<PhotoCropFeature.Action>)
+        case alert(PresentationAction<Alert>)
         case delegate(Delegate)
+
+        enum Alert {
+
+            /// Called when the user agrees to send plans to the AI service.
+            case aiProcessingAllowed
+        }
 
         enum Delegate {
             /// WorkoutPreview saved — passes session up so AddPlanFeature can persist.

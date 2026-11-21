@@ -36,4 +36,7 @@ public enum AppStorageKeys {
     /// Storage key for the user's manual order of Team groups, as `[String]` of group ids top to bottom.
     public static let teamGroupOrder = "teamGroupOrder"
 
+    /// Storage key for the user's consent to send plans to the AI service.
+    public static let aiProcessingConsent = "aiProcessingConsent"
+
 }

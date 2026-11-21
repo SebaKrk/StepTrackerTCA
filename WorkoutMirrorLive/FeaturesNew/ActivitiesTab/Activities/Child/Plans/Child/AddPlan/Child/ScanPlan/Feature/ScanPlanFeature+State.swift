@@ -55,7 +55,14 @@ extension ScanPlanFeature {
         @Shared(.appStorage("scanModelChoice"))
         var scanModel: ScanModelChoice = .serverDefault
 
+        /// Whether the user agreed to send plans to the AI service; asked once, revocable in settings.
+        @Shared(.appStorage(.aiProcessingConsent))
+        var isAIProcessingAllowed = false
+
         // MARK: - Destination
+
+        /// Consent asked before the first plan leaves the phone.
+        @Presents var alert: AlertState<Action.Alert>?
 
         /// Workout preview destination (navigation).
         @Presents var workoutPreview: WorkoutPreviewFeature.State?

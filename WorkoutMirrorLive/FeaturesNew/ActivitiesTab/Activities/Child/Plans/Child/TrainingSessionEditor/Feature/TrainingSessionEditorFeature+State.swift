@@ -49,6 +49,10 @@ extension TrainingSessionEditorFeature {
         /// True while the AI is generating cooldown notes.
         var isGeneratingCoolDownNotes: Bool = false
 
+        /// Whether the user agreed to send plans to the AI service; asked once, revocable in settings.
+        @Shared(.appStorage(.aiProcessingConsent))
+        var isAIProcessingAllowed = false
+
         // MARK: - Navigation
 
         /// Navigation destination — WOD editor pushed on top.

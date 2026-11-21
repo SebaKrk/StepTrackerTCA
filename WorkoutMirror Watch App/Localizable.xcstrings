@@ -48,6 +48,12 @@
             "state" : "translated",
             "value" : "Media 7 giorni: %1$lld %2$@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia z 7 dni: %1$lld %2$@"
+          }
         }
       }
     },
@@ -146,6 +152,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dettaglio"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Składowe"
           }
         }
       }
@@ -333,6 +345,12 @@
             "state" : "translated",
             "value" : "Nessun dato"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych"
+          }
         }
       }
     },
@@ -394,6 +412,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apri su iPhone"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz na iPhonie"
           }
         }
       }
@@ -524,6 +548,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Intervallo"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakres"
           }
         }
       }

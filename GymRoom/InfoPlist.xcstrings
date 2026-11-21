@@ -1,0 +1,48 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSBluetoothAlwaysUsageDescription" : {
+      "comment" : "Bluetooth prompt on the coach's iPad.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir zeigen Trainingswerte von Apple Watch und iPhone auf dem Gruppenbildschirm. Herzfrequenz und Aktivitätsdaten werden über Bluetooth übertragen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We show workout metrics from Apple Watch and iPhone on the group screen. Heart rate and activity data are sent over Bluetooth."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostramos las métricas de entrenamiento del Apple Watch y del iPhone en la pantalla del grupo. La frecuencia cardíaca y los datos de actividad se envían por Bluetooth."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous affichons les mesures d’entraînement de l’Apple Watch et de l’iPhone sur l’écran du groupe. La fréquence cardiaque et les données d’activité sont envoyées par Bluetooth."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostriamo le metriche di allenamento di Apple Watch e iPhone sullo schermo del gruppo. La frequenza cardiaca e i dati di attività vengono inviati tramite Bluetooth."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyświetlamy metryki treningowe z Apple Watch i iPhone'a na ekranie grupy. Tętno oraz dane aktywności są przesyłane przez Bluetooth."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
