@@ -12,7 +12,7 @@ import SharedModels
 
 extension DefaultCentralManager: CBCentralManagerDelegate {
    
-   /// Wywoływane gdy stan Bluetooth się zmieni
+   /// Called when the Bluetooth state changes.
    public func centralManagerDidUpdateState(_ central: CBCentralManager) {
        Task {
            await updateStatusFromCBState(central.state)
@@ -25,7 +25,7 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        }
    }
 
-   /// Wywoływane gdy znajdziemy nowe urządzenie podczas skanowania
+   /// Called when a scan finds a new device.
    public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
        Logger.bluetooth.debug("[Delegate] discovered: \(peripheral.name ?? "Unknown") RSSI=\(RSSI)")
        Task {
@@ -33,7 +33,7 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        }
    }
 
-   /// Wywoływane gdy udało się połączyć z urządzeniem
+   /// Called when a device connected.
    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
        let name = peripheral.name ?? "Unknown"
        Logger.bluetooth.info("[Delegate] connected: \(name)")
@@ -61,7 +61,7 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        }
    }
 
-   /// Wywoływane gdy nie udało się połączyć z urządzeniem
+   /// Called when a connection attempt failed.
    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
        let name = peripheral.name ?? "Unknown"
        let reason = (error as NSError?).map { "\($0.domain)#\($0.code): \($0.localizedDescription)" } ?? "no error info"
@@ -73,7 +73,7 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        }
    }
 
-   /// Wywoływane gdy urządzenie się rozłączyło
+   /// Called when a device disconnected.
    public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
        let name = peripheral.name ?? "Unknown"
        /// The CoreBluetooth error CODE names the cause:
@@ -110,10 +110,10 @@ extension DefaultCentralManager: CBCentralManagerDelegate {
        /// Live presence for the pre-workout device picker (the disconnected
        /// peripheral is already excluded from `retrieveConnectedPeripherals`).
        emitHRSensorPresence()
-       /// EXPERIMENT (IOS-00100-D): czujnik przytrzymany na czas treningu dostaje
-       /// natychmiastowy pending connect — bez timeoutu, ŻADNYCH watchdogów
-       /// (wzorzec known-host reconnect z GymRoom). System połączy od razu, gdy
-       /// pasek wróci w zasięg — bez czekania na wewnętrzny retry HealthKit.
+       /// A sensor held for the workout gets an immediate pending connect — no
+       /// timeout and no watchdogs (the known-host reconnect pattern from GymRoom).
+       /// The system connects as soon as the strap is back in range, without
+       /// waiting for HealthKit's internal retry.
        let isHeld = isHeldPeripheral(peripheral.identifier)
        if isHeld {
            central.connect(peripheral)

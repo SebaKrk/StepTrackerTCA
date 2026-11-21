@@ -14,14 +14,14 @@ extension DefaultCentralManager: CBPeripheralDelegate {
     
     // MARK: - CBPeripheralDelegate Methods
     
-    /// Wywoływana gdy urządzenie zakończy proces odkrywania serwisów
+    /// Called when the device finishes discovering its services.
     ///
-    /// Po połączeniu z urządzeniem, ta metoda otrzymuje listę dostępnych serwisów BLE.
-    /// Następnie rozpoczyna odkrywanie charakterystyk dla serwisu Heart Rate.
+    /// After connecting, this method receives the list of available BLE services.
+    /// It then starts discovering the characteristics of the Heart Rate service.
     ///
     /// - Parameters:
-    ///   - peripheral: Połączone urządzenie BLE
-    ///   - error: Błąd jeśli wystąpił podczas odkrywania serwisów
+    ///   - peripheral: The connected BLE device
+    ///   - error: The error, if service discovery failed
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         let name = peripheral.name ?? "Unknown"
         Logger.bluetooth.debug("[Delegate] services discovered: \(name)")
@@ -45,15 +45,15 @@ extension DefaultCentralManager: CBPeripheralDelegate {
         }
     }
     
-    /// Wywoływana gdy urządzenie zakończy proces odkrywania charakterystyk dla konkretnego serwisu
+    /// Called when the device finishes discovering the characteristics of one service.
     ///
-    /// Po znalezieniu serwisu Heart Rate, ta metoda otrzymuje listę jego charakterystyk.
-    /// Następnie subskrybuje notyfikacje dla charakterystyki Heart Rate Measurement.
+    /// Once the Heart Rate service is found, this method receives its characteristics.
+    /// It then subscribes to notifications of the Heart Rate Measurement characteristic.
     ///
     /// - Parameters:
-    ///   - peripheral: Połączone urządzenie BLE
-    ///   - service: Serwis dla którego odkryto charakterystyki
-    ///   - error: Błąd jeśli wystąpił podczas odkrywania charakterystyk
+    ///   - peripheral: The connected BLE device
+    ///   - service: The service whose characteristics were discovered
+    ///   - error: The error, if characteristic discovery failed
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         let name = peripheral.name ?? "Unknown"
         Logger.bluetooth.debug("[Delegate] characteristics discovered: \(service.uuid)")
@@ -77,16 +77,16 @@ extension DefaultCentralManager: CBPeripheralDelegate {
         }
     }
     
-    /// Wywoływana gdy zmieni się stan subskrypcji notyfikacji dla charakterystyki
+    /// Called when the notification state of a characteristic changes.
     ///
-    /// Potwierdza że aplikacja pomyślnie zasubskrybowała notyfikacje Heart Rate.
-    /// Po tym momencie urządzenie będzie wysyłać dane automatycznie, które HealthKit
-    /// będzie mógł odbierać i przetwarzać podczas sesji treningowej.
+    /// Confirms that the app subscribed to Heart Rate notifications.
+    /// From here on the device sends data by itself, which HealthKit
+    /// can receive and process during the workout session.
     ///
     /// - Parameters:
-    ///   - peripheral: Połączone urządzenie BLE
-    ///   - characteristic: Charakterystyka dla której zmienił się stan notyfikacji
-    ///   - error: Błąd jeśli wystąpił podczas zmiany stanu notyfikacji
+    ///   - peripheral: The connected BLE device
+    ///   - characteristic: The characteristic whose notification state changed
+    ///   - error: The error, if changing the notification state failed
     public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
         let name = peripheral.name ?? "Unknown"
         /// Session-file diagnostics: HR subscription success/failure — "connected

@@ -29,9 +29,9 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
             Self.logger.error("Bluetooth LE unsupported on this device")
 
         case .resetting:
-            // Transient state — system rebuilds BLE stack. Recovery jest implicit:
-            // po .resetting → .poweredOn Apple, `startScanning()` odpali się ponownie
-            // z gałęzi `.poweredOn`.
+            // Transient state — the system rebuilds the BLE stack. Recovery is implicit:
+            // after .resetting → .poweredOn, `startScanning()` fires again
+            // from the `.poweredOn` branch.
             Self.logger.warning("BLE stack resetting — central will re-scan after .poweredOn")
             fileLog("central state: resetting (BLE stack rebuild)")
 
@@ -51,7 +51,7 @@ extension PeerMirrorBLEPeerSession: CBCentralManagerDelegate {
     ) {
         let rssi = RSSI.intValue
         guard rssi >= Self.rssiThreshold else {
-            // Słaby signal — user prawdopodobnie nie w sali. Ignorujemy.
+            // Weak signal — the user is probably not in the room. Ignored.
             fileLog("discovered RSSI=\(rssi)dBm — REJECTED (gate \(Self.rssiThreshold))")
             return
         }

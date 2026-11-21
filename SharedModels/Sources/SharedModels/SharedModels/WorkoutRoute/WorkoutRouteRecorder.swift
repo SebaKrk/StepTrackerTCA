@@ -17,8 +17,9 @@ import OSLog
 ///
 /// One instance per workout, on whichever device owns the `HKWorkoutSession`
 /// (iPhone-standalone: `iPhoneWorkoutSession`; Watch-primary: the Watch session
-/// manager). Requires `NSLocationWhenInUseUsageDescription` and the `location`
-/// background mode in the host target.
+/// manager). Requires `NSLocationWhenInUseUsageDescription` in the host target.
+///
+/// Background mode: `location` — the route keeps recording with the screen off, on when-in-use permission.
 ///
 /// ## Threading
 ///

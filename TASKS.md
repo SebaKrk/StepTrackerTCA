@@ -1906,3 +1906,24 @@
     - plan: the ladder is a quiet label beside the type and the cap, "AMRAP · 15 min · 1-2-3-4-5-6…", the way a closed ladder already reads; the fitness run moved to the same place and lost its blue bar
     - the reader fills the ladder field on one scan and writes the ladder into the notes on the next, so the proxy enforces it: an open ladder found in the notes of a block without numbers becomes the ladder, and a note quoting it is dropped
     - not done: the editor cannot set an open ladder by hand, and a ladder that starts descending and continues is read but untested
+
+### IOS-00197 App Review — each app asks only for the background modes it uses
+    - branch: `dev/IOS-00197/IOS-00197` (from develop)
+    - a background mode nothing uses is a rejection under guideline 2.5.4, and each of the two apps declared one
+    - iPhone: `bluetooth-peripheral` is gone, left over from the join-flow prototype
+    - the iPhone is a central on every Bluetooth path: it scans for the iPad, connects, writes heart rate, and takes the class end and the recap as notifications
+    - the heart-rate strap is a central connection too, and the Watch arrives over HealthKit mirroring, not Bluetooth
+    - GymRoom: `bluetooth-central` is gone, because the iPad only advertises and never scans
+    - the only `CBPeripheralManager` lives in `PeerMirrorBLEHostSession`, which GymRoom alone starts
+    - the only two centrals are created by `startBrowsing` and by HealthHub, and GymRoom reaches neither
+    - kept on the iPhone: `fetch` (readiness refresh), `bluetooth-central` (strap and iPad), `location` (outdoor route)
+    - kept on the iPad: `bluetooth-peripheral` (the class and the heart rate coming in)
+    - each kept mode says what it is for in one formula, "Background mode: `name` — why", as a comment in both `Info.plist` files and on the type that uses it
+    - the types that carry the formula: `ReadinessRefreshScheduler`, `DefaultCentralManager`, `PeerMirrorBLEPeerSession`, `WorkoutRouteRecorder`, `PeerMirrorBLEHostSession`
+    - `DefaultCentralManager` had no type description and gained one
+    - comments in English: `DefaultCentralManager` and `PeerMirrorBLEPeerSession`, each with its two delegate extensions
+    - a stale comment corrected: subscribing to the heart-rate characteristic is not only a presence marker, it is also how the class end and the recap reach the iPhone
+    - ticket numbers left the comments of `DefaultCentralManager` and its delegate, and a commented-out `connectedPeripheral` property is deleted
+    - every Swift file changed in comments only: no line of code moved
+    - not done: a device check with the app in the background, with the strap and with the Watch as the source, on the iPhone and on the iPad
+    - not done: the review notes for App Store Connect, the Polish comments of `PeerMirrorBLEHostSession`, and the deprecated `NSBluetoothPeripheralUsageDescription` key

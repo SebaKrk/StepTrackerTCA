@@ -51,21 +51,21 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
         }
         hrCharacteristic = hr
 
-        // Subscribe (presence signaling do peripheral via `didSubscribeTo` callback).
-        // Peripheral nie wysyła żadnych notify update'ów — to tylko keep-alive marker.
+        // Subscribe: signals presence to the peripheral (its `didSubscribeTo` callback) and
+        // opens the channel for its two notifications — class ended and the recap.
         peripheral.setNotifyValue(true, for: hr)
         Self.logger.info("Subscribed to HR characteristic — reading discovery info for displayName")
 
-        // Read discoveryInfo żeby pozyskać iPad displayName używany jako nick.
-        // `.connected` emit JEST PRZENIESIONY do `didUpdateValueFor` — czeka na prawdziwy nick.
+        // Read discoveryInfo to get the iPad's displayName, used as the nick.
+        // The `.connected` emit IS MOVED to `didUpdateValueFor` — it waits for the real nick.
         if let discoveryInfo = service.characteristics?.first(
             where: { $0.uuid == BLEServiceConstants.discoveryInfoCharacteristicUUID }
         ) {
             peripheral.readValue(for: discoveryInfo)
         } else {
-            // Fallback: discoveryInfo nie znaleziony — emit żeby reducer nie zwisł w .searching.
-            // `deviceID` to BLE-level identifier iPada (nie stable per-install, ale peer ignoruje
-            // payload — używa tylko sygnału `.connected` żeby przejść do phase `.connected`).
+            // Fallback: discoveryInfo not found — emit so the reducer does not hang in .searching.
+            // `deviceID` is the iPad's BLE-level identifier (not stable per-install, but the peer ignores
+            // the payload — it only uses the `.connected` signal to move to the `.connected` phase).
             Self.logger.warning("Discovery info characteristic not found — emitting with empty nick")
             onPeerEvent(.connected(deviceID: peripheral.identifier, nick: ""))
         }
@@ -76,10 +76,10 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
         didUpdateValueFor characteristic: CBCharacteristic,
         error: Error?
     ) {
-        // HR characteristic notify — host→peer. Trzy typy rozróżniane prefiksem:
-        //  - 1 bajt 0xFF          → class ended sentinel
-        //  - prefiks 0xFE + JSON  → per-device recap (wynik zajęć)
-        //  - inaczej (JSON `{`…)  → n/d (peer nie odbiera HR-JSON, host go nie notify'uje)
+        // HR characteristic notify — host→peer. Three types told apart by prefix:
+        //  - 1 byte 0xFF          → class ended sentinel
+        //  - prefix 0xFE + JSON   → per-device recap (the class result)
+        //  - otherwise (JSON `{`…) → n/a (the peer takes no HR JSON, the host does not notify it)
         if characteristic.uuid == BLEServiceConstants.hrStreamCharacteristicUUID {
             guard let value = characteristic.value, let first = value.first else { return }
             if value.count == 1, first == 0xFF {
@@ -100,7 +100,7 @@ extension PeerMirrorBLEPeerSession: CBPeripheralDelegate {
             return
         }
 
-        // Discovery info read response — odpalany po `peripheral.readValue(for:)`.
+        // Discovery info read response — fired after `peripheral.readValue(for:)`.
         guard characteristic.uuid == BLEServiceConstants.discoveryInfoCharacteristicUUID else {
             return
         }
