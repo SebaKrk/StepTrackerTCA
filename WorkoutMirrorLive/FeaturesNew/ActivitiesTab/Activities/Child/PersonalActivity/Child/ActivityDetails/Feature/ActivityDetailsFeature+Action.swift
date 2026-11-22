@@ -19,20 +19,16 @@ extension ActivityDetailsFeature {
         
         /// Internal actions for state management and data loading.
         enum Internal {
-
-            /// Manual-entry: WorkoutSummary + hrBuffer załadowane z HealthKit dla wybranego template'a.
-            /// Następny krok: open SummaryFeature destination z manual init.
-            case manualSummaryLoaded(summary: WorkoutSummary, trainingSession: TrainingSession, hrBuffer: [(date: Date, bpm: Double)])
-
-            /// Manual-entry: ładowanie WorkoutSummary z HealthKit failed (brak HR samples, brak permission, etc.).
-            case manualSummaryLoadFailed
-
-            /// Edit-mode: WorkoutSummary + hrBuffer + istniejące resultInputs załadowane.
-            /// Następny krok: open SummaryFeature destination w edit mode (pre-filled wynikami).
-            case editScoreLoaded(summary: WorkoutSummary, trainingSession: TrainingSession, hrBuffer: [(date: Date, bpm: Double)], existingResults: [WorkoutSessionResult])
-
-            /// Edit-mode: ładowanie failed (TrainingSession nie istnieje, brak HR samples, etc.).
-            case editScoreLoadFailed
+            
+            /// The workout summary for the picked plan finished loading; success opens the results screen.
+            case summaryLoaded(Result<(summary: WorkoutSummary,
+                                       trainingSession: TrainingSession,
+                                       hrBuffer: [(date: Date, bpm: Double)],
+                                       existingResults: [WorkoutSessionResult]),
+                               any Error>)
+            
+            /// The linked plan is gone from the local database — the user picks a plan to re-link.
+            case linkedPlanMissing
         }
         
         case view(View)
@@ -46,11 +42,6 @@ extension ActivityDetailsFeature {
             /// Manual entry: user tap'nął "Dodaj plan" — opens TemplatePicker sheet.
             /// Dostępne tylko gdy `planScore.loadState == .notFound` (workout bez podpiętego planu).
             case linkTemplateTapped
-
-            /// Manual entry: user tap'nął "Edytuj wynik" — ładuje istniejący WorkoutPlanScore + summary
-            /// i pushuje SummaryFeature w edit mode z pre-filled resultInputs.
-            /// Dostępne tylko gdy `planScore.loadState == .loaded(score)` (workout ma już zapisany plan).
-            case editExistingScoreTapped
 
             /// Rounds card tapped — pushes the rounds analysis screen.
             case roundsCardTapped
