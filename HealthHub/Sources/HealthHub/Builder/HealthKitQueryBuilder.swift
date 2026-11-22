@@ -301,7 +301,7 @@ public final class HealthKitQueryBuilder {
     /// - Parameters:
     ///   - workout: The workout to fetch heart rate data for
     ///   - healthStore: The HKHealthStore instance
-    /// - Returns: Array of HKQuantitySample containing heart rate measurements
+    /// - Returns: One unsaved `HKQuantitySample` per reading, unpacked from HealthKit's series samples and sorted by time
     /// - Throws: HealthKit errors if data access fails
     public static func fetchHeartRateSamples(
         for workout: HKWorkout,
@@ -311,20 +311,26 @@ public final class HealthKitQueryBuilder {
         
         let predicate = HKQuery.predicateForSamples(
             withStart: workout.startDate,
-            end: workout.endDate,
-            options: .strictStartDate
+            end: workout.endDate
         )
         
-        let samplePredicate = HKSamplePredicate.quantitySample(
-            type: heartRateType,
-            predicate: predicate
+        let descriptor = HKQuantitySeriesSampleQueryDescriptor(
+            predicate: .quantitySample(type: heartRateType, predicate: predicate)
         )
+        let workoutInterval = DateInterval(start: workout.startDate, end: workout.endDate)
         
-        let descriptor = HKSampleQueryDescriptor(
-            predicates: [samplePredicate],
-            sortDescriptors: [SortDescriptor(\.startDate, order: .forward)]
-        )
+        var samples: [HKQuantitySample] = []
+        // A strap's readings arrive packed into a few series samples; the series query unpacks them.
+        for try await reading in descriptor.results(for: healthStore)
+        where workoutInterval.contains(reading.dateInterval.start) {
+            samples.append(HKQuantitySample(
+                type: heartRateType,
+                quantity: reading.quantity,
+                start: reading.dateInterval.start,
+                end: reading.dateInterval.end
+            ))
+        }
         
-        return try await descriptor.result(for: healthStore)
+        return samples.sorted { $0.startDate < $1.startDate }
     }
 }
