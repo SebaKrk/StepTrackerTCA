@@ -2028,3 +2028,20 @@
     - seen on the iPhone simulator with the bootstrap made to throw for one run: the screen shows, the app stays up, and the launch tasks behind it do not bring it down
     - not done: the same look on the iPad, which shares the view but was only built
     - not done: the Watch and the widget open no database, so they needed nothing
+
+### IOS-00204 Activity Details — a workout whose plan is gone can be re-linked
+    - branch: `dev/IOS-00204/IOS-00204` (from develop)
+    - a workout keeps the id of the plan it was done with; when that plan left the local database, "Fill in results" and "Edit results" did nothing and said nothing
+    - seen on a device: the linked plan was not among the thirty-two plans in the database
+    - one way a plan left: downloading a republished Team plan deleted the old copy and saved the new one under a fresh id; the new copy now keeps the id of the one it replaces, so workouts linked to it stay linked
+    - a workout that is already orphaned opens the plan picker instead of nothing, and the plan picked there is linked to it
+    - results that were already entered travel to the picked plan, so re-linking does not ask for them twice
+    - the four actions for a loaded and a failed summary are one, `summaryLoaded`, carrying a `Result`; the two flows differed only in whether results came along
+    - a failed load is reported with `reportIssue`; until now both failures were swallowed
+    - opening the results is a private method of the reducer, `openResultsEntry`; the view action it replaced was sent by no view
+    - `RecapMapLoad` left the middle of `State` for a file of its own, with a doc comment on every case
+    - not done: a build and a run on a device of any of this
+    - not done: entered results are paired with the picked plan's blocks by position only, so a plan with different blocks shows them under the wrong blocks, and on a Team plan sends them to the group board
+    - not done: the picker opens without saying why, and a failed load still shows the member nothing
+    - not done: removing a plan by hand in Plans still orphans the workouts linked to it
+    - not done: the download still deletes the old copy and saves the new one in two steps; a save that fails in between leaves no copy
