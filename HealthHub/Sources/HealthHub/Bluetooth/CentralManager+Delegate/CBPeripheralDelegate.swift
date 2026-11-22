@@ -31,17 +31,24 @@ extension DefaultCentralManager: CBPeripheralDelegate {
             Task {
                 await WorkoutFileLogger.shared.log("[BLE-HR] service discovery FAILED: \(name) — \(error.localizedDescription)")
             }
+            // A setup that ends without a HR subscription must still refresh the device lists.
+            emitHRSensorPresence()
             return
         }
 
         guard let services = peripheral.services else {
             Logger.bluetooth.error("[Delegate] no services found: \(name)")
+            emitHRSensorPresence()
             return
         }
 
         for service in services where service.uuid == Gatt.Service.heartRate {
             Logger.bluetooth.debug("[Delegate] HR service found — discovering characteristics")
             peripheral.discoverCharacteristics([Gatt.Characteristic.heartRateMeasurement], for: service)
+        }
+
+        if !services.contains(where: { $0.uuid == Gatt.Service.heartRate }) {
+            emitHRSensorPresence()
         }
     }
     
@@ -63,11 +70,13 @@ extension DefaultCentralManager: CBPeripheralDelegate {
             Task {
                 await WorkoutFileLogger.shared.log("[BLE-HR] characteristic discovery FAILED: \(name) — \(error.localizedDescription)")
             }
+            emitHRSensorPresence()
             return
         }
 
         guard let characteristics = service.characteristics else {
             Logger.bluetooth.error("[Delegate] no characteristics found: \(name)")
+            emitHRSensorPresence()
             return
         }
 
@@ -96,6 +105,7 @@ extension DefaultCentralManager: CBPeripheralDelegate {
             Task {
                 await WorkoutFileLogger.shared.log("[BLE-HR] subscribe FAILED: \(name) — \(error.localizedDescription)")
             }
+            emitHRSensorPresence()
         } else {
             Logger.bluetooth.info("[Delegate] HR notifications subscribed: \(name)")
             /// HR service is confirmed now (discovered + subscribed), so

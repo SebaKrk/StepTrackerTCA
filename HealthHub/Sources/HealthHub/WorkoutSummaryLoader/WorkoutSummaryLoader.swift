@@ -54,15 +54,10 @@ public enum WorkoutSummaryLoader {
         for hkWorkout: HKWorkout,
         healthStore: HKHealthStore
     ) async throws -> [(date: Date, bpm: Double)] {
-        let predicate = HKQuery.predicateForSamples(
-            withStart: hkWorkout.startDate,
-            end: hkWorkout.endDate
+        let samples = try await HealthKitQueryBuilder.fetchHeartRateSamples(
+            for: hkWorkout,
+            healthStore: healthStore
         )
-        let descriptor = HKSampleQueryDescriptor(
-            predicates: [.quantitySample(type: HKQuantityType(.heartRate), predicate: predicate)],
-            sortDescriptors: [SortDescriptor(\.startDate, order: .forward)]
-        )
-        let samples = try await descriptor.result(for: healthStore)
         let bpmUnit = HKUnit.count().unitDivided(by: .minute())
         return samples.map { sample in
             (date: sample.startDate, bpm: sample.quantity.doubleValue(for: bpmUnit))

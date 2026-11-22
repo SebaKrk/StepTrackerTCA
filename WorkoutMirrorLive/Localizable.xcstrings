@@ -27537,6 +27537,7 @@
       }
     },
     "START" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

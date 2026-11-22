@@ -2045,3 +2045,28 @@
     - not done: the picker opens without saying why, and a failed load still shows the member nothing
     - not done: removing a plan by hand in Plans still orphans the workouts linked to it
     - not done: the download still deletes the old copy and saves the new one in two steps; a save that fails in between leaves no copy
+
+### IOS-00205 Heart rate strap — the saved workout reads every reading, and the setup screens around it
+    - branch: `dev/IOS-00205/IOS-00205` (from develop)
+    - a strap workout showed three dots on the minute chart, a wrong time in zones and no hrTSS, while the summary shown right after the workout was fine
+    - seen on a device: HealthKit keeps a strap's readings packed into a few series samples (three samples holding 487 readings), and the plain sample query returned only each pack's average
+    - `HealthKitQueryBuilder.fetchHeartRateSamples` asks with the series query and returns one reading per sample, kept to the workout's interval and sorted; the first pack no longer falls out for starting two seconds before the workout
+    - `WorkoutSummaryLoader.heartRateSamples` reads through the same function, so the packs are opened in one place
+    - seen on a device after the change: seven bars for a six-minute workout, the peak on the chart equal to the peak on the tile, time in zones equal to the workout's length
+    - Watch workouts were not packed and read as before
+    - minute chart: the selected minute's label was a black box on the time labels; a material has nothing to blur inside a chart annotation, so it has a plain background now, sits at the top beside the rule and stays inside the plot
+    - workout setup, ready step: the white "START" on glass was invisible in light mode; the step shows the picked workout's icon tile, one line with the sensor and its state, and a prominent Start button
+    - `ConfigurationFeature.State.isSelectedDeviceReady` answers for the Watch and the strap, and says nothing for sources this screen cannot see
+    - Bluetooth devices: the close button carried glass twice, once from the toolbar and once from its own style
+    - Bluetooth devices: a row took a tap on its text only, so a tap beside the name did nothing and the scan kept spinning; the whole row takes it now
+    - the list reads "connected" and "connecting" from state, not from `CBPeripheral.state`, which the view cannot observe
+    - a connect that gets no answer in fifteen seconds is given up; CoreBluetooth never gives up by itself
+    - a sensor whose setup ends without a heart-rate subscription still refreshes the lists
+    - a scan that ends on its own clears the scanning indicator
+    - each change was read by a second reviewer before it was called done; the Bluetooth reducer went through three rounds
+    - not done: a build and a run of the last version of the ready step and of the Bluetooth list
+    - not done: the activity list now reads thousands of readings per strap workout for every workout of the last 28 days, and the details screen runs the query three times; the result wants a cache per workout
+    - not done: HR Recovery still reads with the plain query, so it can be wrong or empty for a strap workout
+    - not done: the strap dropped its link for two minutes mid-workout, and the same shows as "sensor stale" in GymRoom; the cause is not known
+    - not done: the Watch's state on the ready step is read once, when the setup opens
+    - not done: closing the Bluetooth sheet does not cancel a connect that is still pending

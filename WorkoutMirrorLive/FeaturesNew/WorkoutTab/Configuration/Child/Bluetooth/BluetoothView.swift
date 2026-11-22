@@ -43,7 +43,6 @@ struct BluetoothView: View {
             } label: {
                 xMarkImage
             }
-            .buttonStyle(.glass)
         }
     }
     
@@ -127,12 +126,13 @@ struct BluetoothView: View {
             }
             Spacer()
             
-            if device.state == .connecting || device.state == .disconnecting {
-                ProgressView().id(UUID())
+            if store.state.isConnecting(device) {
+                ProgressView().id(device.identifier)
             } else {
                 infoMenu(device)
             }
         }
+        .contentShape(Rectangle())
         .onTapGesture {
             send(.deviceTapped(device))
         }
@@ -141,9 +141,9 @@ struct BluetoothView: View {
     @ViewBuilder
     private func infoMenu(_ device: CBPeripheral) -> some View {
         Menu {
-            if device.state == .connected {
+            if store.state.isConnected(device) {
                 disconnectButton(device)
-            } else if device.state == .disconnected {
+            } else {
                 connectButton(device)
             }
         } label: {

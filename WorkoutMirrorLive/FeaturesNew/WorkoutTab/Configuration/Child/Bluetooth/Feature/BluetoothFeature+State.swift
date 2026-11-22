@@ -59,9 +59,18 @@ extension BluetoothFeature {
         /// które nie są już w connectedDevices
         var availableDevices: [CBPeripheral] {
             discoveredPeripherals.filter { device in
-                device.state == .disconnected &&
                 !connectedDevices.contains(where: { $0.identifier == device.identifier })
             }
+        }
+
+        /// Whether the system lists the device as connected — read from state, because the view cannot observe `CBPeripheral.state`.
+        func isConnected(_ device: CBPeripheral) -> Bool {
+            systemConnectedDevices.contains { $0.identifier == device.identifier }
+        }
+
+        /// Whether the user asked to connect the device and the system has not confirmed it yet.
+        func isConnecting(_ device: CBPeripheral) -> Bool {
+            selectedDevice?.identifier == device.identifier && !isConnected(device)
         }
     }
 }

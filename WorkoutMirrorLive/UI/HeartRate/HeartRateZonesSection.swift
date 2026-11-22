@@ -210,17 +210,16 @@ struct HRMinuteRangeChart: View {
     // MARK: - Selection (RuleMark + annotation)
 
     /// Vertical line on the selected minute with a BPM-range popover.
-    /// `overflowResolution(.fit(to: .chart))` keeps the annotation inside the
-    /// plot area (e.g. selection on the last minutes).
+    /// The popover sits beside the rule at the top of the plot: clear of the
+    /// time labels under the chart and of the bar it describes.
     @ChartContentBuilder
     private func ruleMark(at minute: Date, range: HRMinuteRange) -> some ChartContent {
         RuleMark(x: .value("Selected Minute", minute, unit: .minute))
             .foregroundStyle(Color.secondary.opacity(0.3))
-            .offset(y: -30)
             .annotation(
-                position: .bottomTrailing,
+                position: .topTrailing,
                 spacing: 4,
-                overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
+                overflowResolution: .init(x: .fit(to: .chart), y: .fit(to: .plot))
             ) {
                 hrAnnotation(range: range)
             }
@@ -241,9 +240,11 @@ struct HRMinuteRangeChart: View {
             }
         }
         .padding(8)
+        // A material has nothing to blur inside a chart annotation and renders as a black box.
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(.regularMaterial)
+                .fill(Color(uiColor: .secondarySystemBackground))
+                .shadow(color: .black.opacity(0.15), radius: 4, y: 1)
         )
     }
 
