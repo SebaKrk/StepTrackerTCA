@@ -61,13 +61,6 @@ extension ActivityDetailsFeature {
         /// Children report `delegate(.didFinishLoading)`; the parent checks them off here.
         var pendingRecapMapLoads: Set<RecapMapLoad> = []
 
-        enum RecapMapLoad: Hashable {
-            case location
-            case metrics
-            case recap
-            case zones
-        }
-
         // MARK: - Plan Score
 
         /// WOD results linked to this workout via a training plan.
