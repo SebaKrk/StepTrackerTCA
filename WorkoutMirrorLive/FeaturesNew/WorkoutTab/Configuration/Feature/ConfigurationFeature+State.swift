@@ -51,6 +51,19 @@ extension ConfigurationFeature {
             }
             return count
         }
+
+        /// Whether the picked device is ready to measure; `nil` when this screen cannot tell.
+        var isSelectedDeviceReady: Bool? {
+            switch selectedDevice {
+            case .watch:
+                // The status is checked once on appear; until it lands the screen cannot tell.
+                watchConnectivityStatus == .unknown ? nil : watchConnectivityStatus == .ready
+            case .hrBelt:
+                isHeartRateConnected
+            case .airPods, .iphone, .mirror, nil:
+                nil
+            }
+        }
         
         // MARK: - Destination
         
