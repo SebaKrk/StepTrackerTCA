@@ -307,6 +307,13 @@ struct HRMirrorView: View {
             .overlay(alignment: .top) {
                 effortPointsLabel
             }
+            .overlay(alignment: .topTrailing) {
+                if store.isPhoneUnreachable {
+                    phoneUnreachableMark
+                        .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                }
+            }
+            .animation(.easeInOut(duration: 0.25), value: store.isPhoneUnreachable)
             .overlay {
                 zoneBorderOverlay(cornerRadius: geometry.size.width * 0.24)
             }
@@ -356,14 +363,15 @@ struct HRMirrorView: View {
 
     private var heartRateView: some View {
         HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Image(systemName: "heart.fill")
+            Image(systemName: heartSymbol)
+                .contentTransition(.symbolEffect(.replace))
                 .font(.title3)
-                .foregroundStyle(.red)
-                .symbolEffect(.bounce, options: .repeat(.continuous))
+                .foregroundStyle(store.isHeartRateStale ? Color.gray : Color.red)
+                .symbolEffect(.bounce, options: .repeat(.continuous), isActive: !store.isHeartRateStale)
 
             Text("\(store.heartRate)")
                 .font(.system(size: 52, weight: .bold, design: .rounded))
-                .foregroundStyle(store.heartRateZone.color)
+                .foregroundStyle(store.isHeartRateStale ? Color.gray : store.heartRateZone.color)
                 .monospacedDigit()
 
             Text("BPM")
@@ -371,6 +379,23 @@ struct HRMirrorView: View {
                 .foregroundStyle(.secondary)
                 .padding(.bottom, 8)
         }
+        .animation(.easeInOut(duration: 0.25), value: store.isHeartRateStale)
+    }
+
+    /// Tells the wearer the iPhone is out of reach; the reading beside it stays live.
+    private var phoneUnreachableMark: some View {
+        Image(systemName: "iphone.slash")
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.orange)
+            .padding(.trailing, 24)
+            .padding(.top, 16)
+            .ignoresSafeArea()
+            .accessibilityLabel(Text(String(localized: "iPhone out of range")))
+    }
+
+    /// A slashed heart while the sensor is silent — the number beside it is the last known one.
+    private var heartSymbol: String {
+        store.isHeartRateStale ? "heart.slash" : "heart.fill"
     }
 
     private var zoneLabel: some View {

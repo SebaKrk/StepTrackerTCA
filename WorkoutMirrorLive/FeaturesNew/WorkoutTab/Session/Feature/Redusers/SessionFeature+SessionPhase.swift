@@ -42,15 +42,19 @@ extension SessionFeature {
                     // timer, AND tell Watch to start its synced 3-2-1 overlay.
                     state.countDown.phase = .countingDown
                     return .merge(
+                        .cancel(id: SessionWatchCancelID.mirroredSessionTimeout),
                         .send(.countDown(.startCountDown)),
                         .run { [sessionClient] _ in
-                            // HK mirroring channel — reliable even when WC `reachable=false`
-                            // (per CLAUDE.md R2). This branch is reached only when phase was
-                            // `.waitingForWatch`, which only happens in Watch-primary mode,
-                            // so the mirrored session always exists.
+                            // HK channel (CLAUDE.md R2); after a wait that gave up there is no session and this is skipped.
                             _ = await sessionClient.sendLifecycleEventToWatch(.countdownStart)
                         }
                     )
+                }
+
+                if value == .countdown && state.countDown.phase == .preparing {
+                    // iPhone-standalone: there is no Watch to wait for.
+                    state.countDown.phase = .countingDown
+                    return .send(.countDown(.startCountDown))
                 }
 
                 if value == .session {

@@ -47,6 +47,9 @@ extension SessionFeature {
         /// Cleared when the system reconnect delivers a fresh mirrored session.
         var isWatchConnectionLost: Bool = false
 
+        /// Clock ticks in a row the Watch did not take; a few of them mean it is out of reach.
+        var failedWatchTickCount: Int = 0
+
         /// Instruction alert shown when the user taps End while the link is down —
         /// per Apple docs the app should tell the user to end the workout on the
         /// Watch. Carries the `endAnyway` escape action for an unavailable Watch.

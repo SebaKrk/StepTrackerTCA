@@ -16,7 +16,9 @@ extension CountDownFeature {
     /// `cancellable(id:)`. Matches the convention used by other CancelID enums in
     /// the project (`LiveClassCancelID`, `JoinLiveClassCancelID`, `StatsFeatureCancelID`).
     nonisolated enum CancelID: Hashable, Sendable {
+        /// The 100 ms countdown timer; cancelled when the countdown ends.
         case timer
+
         /// Pulse animation timer (600 ms cadence) for the `.waitingForWatch` ring.
         case pulseTimer
     }

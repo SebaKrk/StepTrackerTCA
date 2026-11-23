@@ -43,6 +43,7 @@ struct CountDownFeature {
                             await send(.timerTick)
                         }
                     }
+                    .cancellable(id: CancelID.timer, cancelInFlight: true)
                 )
 
             case .timerTick:
@@ -66,7 +67,8 @@ struct CountDownFeature {
                 state.isActive = false
                 state.timeRemaining = 0
                 state.endDate = nil
-                return .none
+                // Left running, the timer would send ten ticks a second for the whole workout.
+                return .cancel(id: CancelID.timer)
 
             case .timerFinished:
                 state.timerFinished = true
@@ -81,11 +83,13 @@ struct CountDownFeature {
             // MARK: - View Actions
 
             case .onAppear:
-                // Dual-mode: only start the timer when we're already in `.countingDown`.
-                // In `.waitingForWatch` the view sits idle until SessionFeature flips phase
-                // and explicitly dispatches `.startCountDown` after mirroredSessionStartedStream fires.
-                // In `.waitingForWatch` instead run the pulse timer for subtle ring opacity animation.
-                guard state.phase == .countingDown else {
+                switch state.phase {
+                case .countingDown:
+                    // The session may have started the countdown before the view appeared.
+                    guard !state.isActive else { return .none }
+                    return .send(.startCountDown)
+                case .preparing, .waitingForWatch:
+                    // Idle until SessionFeature picks the phase; meanwhile the pulse drives the waiting ring.
                     return .run { [clock] send in
                         for await _ in clock.timer(interval: .milliseconds(600)) {
                             await send(.pulseToggled)
@@ -93,7 +97,6 @@ struct CountDownFeature {
                     }
                     .cancellable(id: CancelID.pulseTimer, cancelInFlight: true)
                 }
-                return .send(.startCountDown)
 
             case .pulseToggled:
                 state.pulse.toggle()

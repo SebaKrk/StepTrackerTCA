@@ -66,7 +66,7 @@ public enum EffortPointsScoring {
     /// so the leaderboard credits only effort spent in the class, not a head start
     /// from training before it began).
     ///
-    /// `current` comes from `EffortPointsAccumulator`, which only ever adds, so
+    /// `current` comes from `EffortPointsAccumulator`, which never decreases, so
     /// every zone delta is >= 0. Rounds once at the end, exactly like `points(from:)`.
     public static func points(
         from current: [HeartRateZone: TimeInterval],

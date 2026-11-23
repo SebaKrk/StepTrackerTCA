@@ -132,13 +132,50 @@ extension SessionFeature {
 
             case let .setWorkoutMode(mode):
                 state.workoutMode = mode
+                state.live.isWatchPrimary = mode == .watchPrimary
                 return .run { [sessionClient] _ in
                     await sessionClient.setWorkoutMode(mode)
                 }
 
+            case .mirroredSessionStarted:
+                guard state.workoutMode == .watchPrimary else { return .none }
+                switch state.sessionState {
+                case .waitingForWatch:
+                    return .send(.sessionViewStateChange(.countdown))
+                case .session:
+                    // Arrived after the wait gave up: the start events went nowhere, so the Watch has no max HR.
+                    let maxHR = state.live.maxHeartRate
+                    return .run { [sessionClient] _ in
+                        await WorkoutFileLogger.shared.log("[Connection] mirrored session arrived late — sending max HR to the Watch")
+                        _ = await sessionClient.sendLifecycleEventToWatch(.maxHRUpdated(maxHR))
+                    }
+                case .countdown, .summary, .finishedOnWatch:
+                    // During the countdown the start events are still ahead and will find the session.
+                    return .none
+                }
+
+            case .mirroredSessionWaitTimedOut:
+                // A late timer must not push a running or abandoned session back to the countdown.
+                guard state.sessionState == .waitingForWatch else { return .none }
+                let waitedSeconds = Self.mirroredSessionWaitSeconds
+                // The signal stays subscribed: a session arriving late is still attached and linked.
+                return .merge(
+                    .run { _ in
+                        await WorkoutFileLogger.shared.log("[Connection] mirrored session did not arrive in \(waitedSeconds) s — starting without the link")
+                    },
+                    .send(.sessionViewStateChange(.countdown))
+                )
+
             case .subscribeMirroredSessionStarted:
                 @Dependency(\.date.now) var now
-                return .run { [sessionClient, trainingSession = state.trainingSession, now] send in
+                let waitSeconds = Self.mirroredSessionWaitSeconds
+                return .merge(
+                    .run { [clock] send in
+                        try await clock.sleep(for: .seconds(waitSeconds))
+                        await send(.mirroredSessionWaitTimedOut)
+                    }
+                    .cancellable(id: SessionWatchCancelID.mirroredSessionTimeout, cancelInFlight: true),
+                    .run { [sessionClient, trainingSession = state.trainingSession, now] send in
                     // One-shot wait — exit loop after first emit. mirroredSessionStartedStream
                     // emits Void once per session when iPhone receives the mirrored HKWorkoutSession
                     // from Watch via workoutSessionMirroringStartHandler.
@@ -154,11 +191,13 @@ extension SessionFeature {
                             }
                             Logger.session.info("pendingPlanLink set — plan \(trainingSession.id) (mirrored session started)")
                         }
-                        await send(.sessionViewStateChange(.countdown))
+                        // The reducer decides by state; this effect cannot know whether the wait gave up.
+                        await send(.mirroredSessionStarted)
                         break
                     }
-                }
-                .cancellable(id: SessionWatchCancelID.mirroredSessionSignal)
+                    }
+                    .cancellable(id: SessionWatchCancelID.mirroredSessionSignal)
+                )
 
             case .makeCalculationForSession:
                 return .run { send in
@@ -198,4 +237,19 @@ extension SessionFeature {
             }
         }
     }
+}
+
+extension SessionFeature {
+
+    /// How long the iPhone waits for the Watch's mirrored session before starting without it.
+    nonisolated static let mirroredSessionWaitSeconds = 15
+
+    /// Failed clock ticks in a row after which the Watch counts as out of reach.
+    nonisolated static let unreachableWatchTickCount = 3
+
+    /// Seconds between probe ticks while the Watch counts as out of reach; longer than one send's timeout and retry.
+    nonisolated static let lostLinkProbeSeconds = 10
+
+    /// A Watch reading newer than this proves the link works; long enough to forgive one missed reading.
+    nonisolated static let liveReadingSeconds: TimeInterval = 11
 }

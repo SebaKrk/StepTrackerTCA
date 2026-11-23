@@ -44,10 +44,16 @@ extension LiveSessionFeature {
         /// Live effort points counter (Myzone-style) — credits time in HR zones
         /// as metrics arrive. HR-based by design: rest between sets still earns
         /// points for whatever zone the heart actually is in. Fresh per session
-        /// (State is recreated). This IS the source of truth: its value is frozen
-        /// into `PendingEffortScore` at session end and persisted as-is — not
-        /// recomputed from HealthKit.
+        /// (State is recreated). With a Watch leading, its totals are merged in, so
+        /// readings the iPhone never received still count. This IS the value that
+        /// gets saved: frozen into `PendingEffortScore` at session end and persisted
+        /// as-is — not recomputed from HealthKit.
         var effortPoints = EffortPointsAccumulator()
+
+        /// The part of `effortPoints` the iPhone counted itself, while the Watch sent no totals.
+        ///
+        /// The Watch counts nothing in that time, so the two never overlap and can be summed.
+        var locallyCountedEffort = EffortPointsAccumulator()
 
         /// `true` while the workout session is paused — effort points stand still.
         var isWorkoutPaused: Bool = false
@@ -120,11 +126,21 @@ extension LiveSessionFeature {
         /// `nil` until the first strap sample, and forever on the Watch path.
         var lastFreshSampleDate: Date? = nil
 
-        /// `true` while the BLE strap has not delivered a real sample for
-        /// >`LiveSessionFeature.sensorStaleThreshold` (IOS-00100-B) — drives the
-        /// "sensor out of range" banner and the greyed HR display. Never `true`
-        /// on the Watch path.
+        /// `true` while no real reading has arrived for longer than the source's threshold
+        /// (strap: `sensorStaleThreshold`, Watch: `watchStaleThreshold`) — drives the stale
+        /// banner and the greyed HR display.
         var isSensorStale: Bool = false
+
+        /// `true` when the Watch leads the workout; readings then carry no sample date of their own.
+        var isWatchPrimary: Bool = false
+
+        /// When the last reading from the Watch arrived; `nil` until the first one.
+        var lastWatchReadingDate: Date? = nil
+
+        /// Whether the shown heart rate is not a live reading — no readings, or no link to the Watch.
+        var showsStaleHeartRate: Bool {
+            isSensorStale || isWatchConnectionLost
+        }
 
         /// Last BLE-layer disconnect reason for the held strap, forwarded by
         /// `SessionFeature`. Colours the stale banner (out of range / battery /

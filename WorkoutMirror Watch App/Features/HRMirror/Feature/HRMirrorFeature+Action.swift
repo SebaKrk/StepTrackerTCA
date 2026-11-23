@@ -36,6 +36,9 @@ extension HRMirrorFeature {
         /// the reading to the paired iPhone via WatchConnectivity.
         case hrReceived(Double)
 
+        /// Whether the iPhone took the reading just sent — drives the "no iPhone" mark.
+        case heartRateSent(isDelivered: Bool)
+
         /// Fired every 0.1 s for smooth centisecond display between iPhone ticks.
         ///
         /// Increments `elapsedSeconds` by 0.1 only when not paused.

@@ -59,8 +59,7 @@ struct SessionView: View {
                         connectionLostBanner
                             .transition(.move(edge: .top).combined(with: .opacity))
                     } else if store.live.isSensorStale && store.sessionState == .session {
-                        // BLE strap out of range (IOS-00100-B) — standalone only,
-                        // never coincides with the Watch banner (other mode).
+                        // No fresh reading from the strap or the Watch; a lost Watch link has its own banner above.
                         sensorStaleBanner
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
@@ -93,11 +92,11 @@ struct SessionView: View {
 
     // MARK: - Sensor Stale Banner (IOS-00100-B)
 
-    /// Shown while the BLE heart-rate strap has not delivered a real sample for
-    /// longer than `sensorStaleThreshold`. The message is coloured by the last CB
-    /// disconnect reason (see `sensorStaleMessage`). The workout keeps running —
-    /// only HR-derived data (zones, effort points, session stats) pauses until
-    /// samples resume.
+    /// Shown while the heart-rate source — the BLE strap, or a Watch still in reach —
+    /// has delivered no real reading for longer than its threshold (see
+    /// `sensorStaleMessage` for the copy). The workout keeps running — only
+    /// HR-derived data (zones, effort points, session stats) pauses until
+    /// readings resume.
     private var sensorStaleBanner: some View {
         HStack(spacing: 8) {
             Image(systemName: "heart.slash")
@@ -114,11 +113,15 @@ struct SessionView: View {
         .padding(.top, 4)
     }
 
-    /// Stale-banner copy, coloured by the strap's last BLE disconnect reason
-    /// (forwarded from `SessionFeature`). `nil` = strap CB-connected but no fresh
-    /// reading → most likely poor skin contact.
+    /// Stale-banner copy. For the Watch it asks for a better fit; for the strap it is
+    /// coloured by the last BLE disconnect reason (forwarded from `SessionFeature`),
+    /// where `nil` = strap CB-connected but no fresh reading → most likely poor skin contact.
     private var sensorStaleMessage: String {
-        switch store.live.lastSensorDisconnectReason {
+        // The Watch is in reach here (a lost link shows its own banner), so the fit is what is left.
+        if store.live.isWatchPrimary {
+            return String(localized: "Adjust your Apple Watch")
+        }
+        return switch store.live.lastSensorDisconnectReason {
         case .outOfRange:
             String(localized: "HR sensor out of range — workout continues, measuring paused")
         case .deviceOff:
