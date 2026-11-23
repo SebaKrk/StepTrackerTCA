@@ -50,7 +50,8 @@ struct HRMirrorFeature {
                 // The date always advances (even for bpm=0 artifacts) so a sensor
                 // dropout is never retroactively credited to the next valid zone.
                 let sampleDate = Date()
-                if let previousSampleDate = state.lastEffortSampleDate {
+                // A paused workout earns nothing; every resume clears the date so the pause itself is never credited.
+                if let previousSampleDate = state.lastEffortSampleDate, !state.isPaused {
                     state.effortPoints.add(
                         bpm: Int(bpm),
                         duration: sampleDate.timeIntervalSince(previousSampleDate),
@@ -84,6 +85,7 @@ struct HRMirrorFeature {
             case .workoutResumed(let elapsed):
                 state.elapsedSeconds = elapsed
                 state.isPaused = false
+                state.lastEffortSampleDate = nil
                 return .merge(
                     .run { _ in await WorkoutFileLogger.shared.log("RESUMED") },
                     .run { [clock] send in
@@ -117,6 +119,7 @@ struct HRMirrorFeature {
                         return .none
                     }
                     state.isPaused = false
+                    state.lastEffortSampleDate = nil
                     return .merge(
                         .run { _ in await WorkoutFileLogger.shared.log("RESUMED (HealthKit)") },
                         .run { [clock] send in
@@ -144,6 +147,7 @@ struct HRMirrorFeature {
                 let isResuming = state.isPaused  // true means we're about to resume
                 state.isPaused.toggle()
                 if isResuming {
+                    state.lastEffortSampleDate = nil
                     return .merge(
                         .run { _ in await WorkoutFileLogger.shared.log("RESUMED (Watch tap)") },
                         .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in

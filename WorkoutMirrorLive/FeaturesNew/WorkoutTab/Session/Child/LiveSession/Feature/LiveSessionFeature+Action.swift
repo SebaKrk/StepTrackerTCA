@@ -93,8 +93,8 @@ extension LiveSessionFeature {
         /// otherwise an ad-hoc default for free `.boxing` workouts.
         case setupIntervalTimer(IntervalPlan?)
 
-        /// Forwards the session pause state to the interval timer.
-        case setIntervalTimerPaused(Bool)
+        /// Records the session pause state and forwards it to the interval timer.
+        case setWorkoutPaused(Bool)
 
         /// Toolbar menu: shows/hides the rounds tile (exclusive with the stopwatch).
         case toggleIntervalTimerVisibility
