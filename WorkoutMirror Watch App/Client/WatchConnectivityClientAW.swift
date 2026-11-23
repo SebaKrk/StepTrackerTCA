@@ -29,16 +29,15 @@ struct WatchConnectivityClientAW {
     /// A stream of incoming workout events from the paired iPhone.
     var incomingEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
 
-    /// Transfers the workout log file to the paired iPhone via `WCSession.transferFile()`.
-    /// The system queues the transfer and delivers it when the devices are in range.
+    /// Closes the finished workout's log file and queues it for the paired iPhone.
+    /// The system delivers it when the devices are in range.
     var transferLogFile: @Sendable () async -> Void
 
-    /// Transfers ALL `watch_log_*.txt` files from Documents to paired iPhone.
+    /// Transfers every finished log file that is not already on its way to the paired iPhone.
     ///
-    /// Used on Watch app launch to deliver historical logs from previous (possibly crashed)
-    /// sessions that never reached the normal `.stop` flow. Each file is sent via
-    /// `WCSession.transferFile()` — OS queues delivery for when iPhone is reachable.
-    /// Files remain on Watch (no cleanup) for redundancy.
+    /// Used on Watch app launch to deliver logs from previous (possibly crashed)
+    /// sessions that never reached the normal `.stop` flow. A file is deleted on the
+    /// Watch once the system confirms its delivery, so it is sent once.
     var transferAllLogFiles: @Sendable () async -> Void
 
     /// A stream of what the paired iPhone pushes about readiness: a score, or the lock.
@@ -68,53 +67,12 @@ private enum WatchConnectivityClientAWKey: DependencyKey {
         } incomingEventStream: {
             session.eventStream
         } transferLogFile: {
-            #if DEBUG
-            let url = await WorkoutFileLogger.shared.currentFileURL()
-            guard WCSession.default.activationState == .activated else {
-                Logger.wc.error("[WatchSession] transferLogFile — session not activated")
-                return
-            }
-            Logger.wc.info("[WatchSession] transferLogFile → \(url.lastPathComponent)")
-            WCSession.default.transferFile(url, metadata: ["type": "workoutLog", "startedAt": Date()])
-            #endif
+            guard WorkoutLogStore.isRecordingEnabled else { return }
+            // Sealed first: a file still being written must never be sent or deleted.
+            guard let url = await WorkoutFileLogger.shared.sealCurrentFile() else { return }
+            await session.transferLog(at: url)
         } transferAllLogFiles: {
-            #if DEBUG
-            guard WCSession.default.activationState == .activated else {
-                Logger.wc.error("[WatchSession] transferAllLogFiles — session not activated")
-                return
-            }
-            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            guard let files = try? FileManager.default.contentsOfDirectory(
-                at: docs,
-                includingPropertiesForKeys: [.contentModificationDateKey]
-            ) else {
-                Logger.wc.error("[WatchSession] transferAllLogFiles — failed to list Documents")
-                return
-            }
-            let logFiles = files.filter { $0.lastPathComponent.hasPrefix("watch_log_") }
-
-            // Cleanup BEFORE transfer — Apple cancels in-flight transfer if file is removed.
-            // Files older than 7 days were drained from the queue long ago; safe to delete.
-            let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
-            var deletedCount = 0
-            let filesToTransfer = logFiles.filter { url in
-                let values = try? url.resourceValues(forKeys: [.contentModificationDateKey])
-                if let mtime = values?.contentModificationDate, mtime < sevenDaysAgo {
-                    try? FileManager.default.removeItem(at: url)
-                    deletedCount += 1
-                    return false
-                }
-                return true
-            }
-            if deletedCount > 0 {
-                Logger.wc.info("[WatchSession] cleanup → deleted \(deletedCount) log files older than 7 days")
-            }
-
-            Logger.wc.info("[WatchSession] transferAllLogFiles → \(filesToTransfer.count) files")
-            for url in filesToTransfer {
-                WCSession.default.transferFile(url, metadata: ["type": "workoutLog", "startedAt": Date()])
-            }
-            #endif
+            await session.transferPendingLogs()
         } readinessDeliveryStream: {
             session.readinessStream
         } latestReadinessDelivery: {
@@ -209,8 +167,11 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
             }
         } else {
             Logger.wc.info("[WatchSession] activated — state=\(stateRaw)")
+            // The context is readable only now; it may hold a choice made while the Watch app was closed.
+            applyLogRecording(from: session.receivedApplicationContext)
             Task {
                 await WorkoutFileLogger.shared.log("[WC] activated — state=\(stateRaw)")
+                await transferPendingLogs()
             }
         }
     }
@@ -229,12 +190,75 @@ private final class WatchSession: NSObject, WCSessionDelegate, @unchecked Sendab
     }
 
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        applyLogRecording(from: applicationContext)
         guard let delivery = decodeDelivery(applicationContext) else { return }
         Logger.wc.info("[WatchSession] received readiness delivery")
         readinessContinuation?.yield(delivery)
     }
 
+    func session(_ session: WCSession, didFinish fileTransfer: WCSessionFileTransfer, error: Error?) {
+        guard fileTransfer.file.metadata?[Self.logTypeKey] as? String == Self.logType else { return }
+        let name = fileTransfer.file.fileURL.lastPathComponent
+        if let error {
+            Logger.wc.error("[WatchSession] log transfer failed — \(name): \(error.localizedDescription)")
+            return
+        }
+        // Delivered — the iPhone holds it now, so the Watch copy can go and is never sent twice.
+        try? FileManager.default.removeItem(at: fileTransfer.file.fileURL)
+        Logger.wc.info("[WatchSession] log delivered and removed — \(name)")
+    }
+
+    // MARK: - Log files
+
+    /// Queues one finished log file for the paired iPhone.
+    func transferLog(at url: URL) {
+        guard WCSession.default.activationState == .activated else {
+            Logger.wc.error("[WatchSession] transferLog — session not activated")
+            return
+        }
+        Logger.wc.info("[WatchSession] transferLog → \(url.lastPathComponent)")
+        WCSession.default.transferFile(url, metadata: [
+            Self.logTypeKey: Self.logType,
+            "startedAt": Date(),
+            "fileName": url.lastPathComponent
+        ])
+    }
+
+    /// Queues every finished log that is not already on its way; the file being written is left alone.
+    func transferPendingLogs() async {
+        guard WorkoutLogStore.isRecordingEnabled,
+              WCSession.default.activationState == .activated else { return }
+        // Listed by the logger in one step, so a workout file started meanwhile cannot be queued.
+        let finished = await WorkoutFileLogger.shared.finishedLogFiles(now: Date())
+        let queued = Set(WCSession.default.outstandingFileTransfers.map { $0.file.fileURL.lastPathComponent })
+        let pending = finished.filter { !queued.contains($0.lastPathComponent) }
+        Logger.wc.info("[WatchSession] transferPendingLogs → \(pending.count) files")
+        for file in pending {
+            transferLog(at: file)
+        }
+    }
+
+    /// Stores the iPhone's choice; switching off cancels queued logs and deletes the ones on the Watch.
+    private func applyLogRecording(from context: [String: Any]) {
+        guard let isEnabled = context[WatchContextKey.workoutLogRecording] as? Bool else { return }
+        UserDefaults.standard.set(isEnabled, forKey: AppStorageKeys.workoutLogRecording)
+        // Debug builds always record, so this never deletes a developer's logs.
+        guard !WorkoutLogStore.isRecordingEnabled else { return }
+        for transfer in WCSession.default.outstandingFileTransfers
+        where transfer.file.metadata?[Self.logTypeKey] as? String == Self.logType {
+            transfer.cancel()
+        }
+        // Through the logger, so a line in flight cannot bring a file back.
+        Task { await WorkoutFileLogger.shared.removeAll() }
+    }
+
     // MARK: - Private
+
+    /// Metadata key telling the iPhone what kind of file arrived.
+    private static let logTypeKey = "type"
+
+    /// Metadata value marking a workout log.
+    private static let logType = "workoutLog"
 
     private func decodeAndYield(_ dict: [String: Any]) {
         guard let data = dict[Self.messageKey] as? Data,

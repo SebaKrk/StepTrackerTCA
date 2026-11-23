@@ -214,8 +214,10 @@ NIE stored. `AsyncStream` ma jednego iteratora; TCA cancellation + stored stream
 **R8. Guard `nil` destination dla post-end events**
 `transferUserInfo` ma guaranteed delivery — eventy (`workoutTick`) przychodzą jeszcze po końcu workoutu. Reducer musi guardować destination.
 
-**R9. Cleanup outstanding WC transfers po activation (DEBUG-only)**
-Po `activationDidCompleteWith(.activated)` w `DefaultWatchConnectivityManager` cancel `outstandingFileTransfers` starsze niż **24h** lub bez metadata `startedAt`. Wrapper `#if DEBUG` w ciele metody — bo jedyne `transferFile` w aplikacji idą przez `WorkoutFileLogger`, który sam jest `#if DEBUG`. Jeśli kiedyś dodamy file transfers w release builds — usuń `#if DEBUG` z `cleanupOutstandingTransfers`. Powód R9: `WCFileStorage` akumuluje ghost entries po crashach mid-transfer — bez cleanup'u widać setki linii `enumerateFileTransferResultsWithBlock could not load file data` w terminalu i powolny startup WC. Threshold 24h chroni świeże legitne transfery, ale eliminuje zalegające zombie entries.
+**R9. Transfery plików przez WC — logi treningu wysyła tylko Watch**
+Logi treningu (`WorkoutFileLogger`) działają też w release, gdy użytkownik włączy przełącznik w Prywatność → Diagnostyka (`WorkoutLogStore.isRecordingEnabled`; w DEBUG zawsze). Jedyne `transferFile` w aplikacji robi Watch: zamyka plik (`sealCurrentFile()`), wysyła go z nazwą w metadata `fileName` i kasuje dopiero po `session(_:didFinish:error:)` bez błędu. Sweep przy activation pomija pliki z `outstandingFileTransfers` oraz plik aktualnie zapisywany. Operacje na zbiorze plików (prune, lista, kasowanie) idą ZAWSZE przez aktora `WorkoutFileLogger`, nigdy bezpośrednio przez `WorkoutLogStore` — tylko aktor zna plik w trakcie zapisu.
+
+iPhone sam plików nie wysyła, więc `cleanupOutstandingTransfers` w `DefaultWatchConnectivityManager` zostaje `#if DEBUG` (cancel `outstandingFileTransfers` starszych niż **24h** lub bez metadata `startedAt`). Jeśli kiedyś iPhone zacznie wysyłać pliki w release — usuń `#if DEBUG`. Powód cleanup'u: `WCFileStorage` akumuluje ghost entries po crashach mid-transfer — bez niego widać setki linii `enumerateFileTransferResultsWithBlock could not load file data` w terminalu i powolny startup WC. Threshold 24h chroni świeże legitne transfery, ale eliminuje zalegające zombie entries.
 
 ```swift
 for transfer in session.outstandingFileTransfers

@@ -514,7 +514,8 @@ private let previewWatchClient = WatchConnectivityClient(
     checkWatchStatus: { .unknown },
     stopWatchConnectivity: {},
     sendWorkoutEvent: { _ in },
-    incomingEventStream: { AsyncStream { $0.finish() } }
+    incomingEventStream: { AsyncStream { $0.finish() } },
+    publishWorkoutLogRecording: { _ in }
 )
 
 // PersonalDataClient defensively — `makeCalculationForSession` uses it, but in the preview

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import HealthHub
+import OSLog
 import SharedModels
 import Foundation
 
@@ -35,6 +36,9 @@ public struct WatchConnectivityClient: Sendable {
     /// Yields `WatchWorkoutEvent` values — primarily `.workoutSaved(uuid)` after Watch
     /// completes `finishWorkout()`. HR readings flow via HealthKit mirroring, NOT WC.
     public var incomingEventStream: @Sendable () -> AsyncStream<WatchWorkoutEvent>
+
+    /// Tells the paired Apple Watch whether workout logs are to be recorded.
+    public var publishWorkoutLogRecording: @Sendable (Bool) async -> Void
 }
 
 // MARK: - Dependency Registration
@@ -63,6 +67,14 @@ public enum WatchConnectivityClientKey: DependencyKey {
             },
             incomingEventStream: {
                 watchManager.incomingWorkoutEventStream
+            },
+            publishWorkoutLogRecording: { isEnabled in
+                do {
+                    try await watchManager.publishWorkoutLogRecording(isEnabled)
+                } catch {
+                    // Not fatal: the choice is published again on the next launch.
+                    Logger.wc.error("publishWorkoutLogRecording failed: \(error.localizedDescription)")
+                }
             }
         )
     }()

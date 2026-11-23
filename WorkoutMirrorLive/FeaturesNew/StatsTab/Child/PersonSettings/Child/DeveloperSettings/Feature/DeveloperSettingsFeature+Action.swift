@@ -28,6 +28,9 @@ extension DeveloperSettingsFeature {
             /// Action triggered when the "attach database" switch is flipped.
             case includeDatabaseToggled
 
+            /// Action triggered when the "record workout logs" switch is flipped.
+            case recordWorkoutLogsToggled
+
             /// Action triggered when the diagnostics row is tapped — builds the bundle.
             case sendDiagnosticsTapped
 

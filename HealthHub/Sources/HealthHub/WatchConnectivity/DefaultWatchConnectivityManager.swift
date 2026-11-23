@@ -41,6 +41,9 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
     /// Lock protecting `eventContinuations` across delegate callbacks and stream subscriptions.
     let continuationLock = NSLock()
 
+    /// Lock making each application-context update one read-change-write step.
+    let contextLock = NSLock()
+
     /// Multicast: each `incomingWorkoutEventStream` subscriber gets its own continuation.
     ///
     /// The previous implementation (single stored continuation, "latest subscriber wins")
@@ -220,14 +223,13 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         }
     }
 
-    // MARK: - Outstanding Transfers Cleanup (R9, DEBUG-only)
+    // MARK: - Outstanding Transfers Cleanup (R9)
 
     /// Cancels outstanding file transfers older than 24h after WCSession activation.
     ///
-    /// Implements R9 from `WorkoutMirrorLive/CLAUDE.md`. Currently `#if DEBUG` because
-    /// the only source of `transferFile` calls in this app is `WorkoutFileLogger`
-    /// (also `#if DEBUG`). If file transfers are ever added to release builds,
-    /// remove the `#if DEBUG` wrapper.
+    /// Implements R9 from `WorkoutMirrorLive/CLAUDE.md`. Still `#if DEBUG`: the iPhone
+    /// sends no files itself — workout logs travel from the Watch, which deletes each
+    /// one once the system confirms its delivery.
     ///
     /// `WCFileStorage` accumulates ghost entries after mid-transfer crashes. Without
     /// periodic cleanup, the system log fills with `enumerateFileTransferResultsWithBlock
@@ -318,8 +320,11 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         guard session.isPaired, session.isWatchAppInstalled else { return }
 
         let data = try JSONEncoder().encode(snapshot)
-        // Replaces the whole context — see WatchContextKey.
-        try session.updateApplicationContext([WatchContextKey.readinessSnapshot: data])
+        try updateContext(of: session) { context in
+            context[WatchContextKey.readinessSnapshot] = data
+            // The lock wins on the Watch, so a stale one would hide this score.
+            context[WatchContextKey.readinessLocked] = nil
+        }
         Logger.wc.info("publishReadinessSnapshot → score \(snapshot.overallScore)")
     }
 
@@ -333,8 +338,39 @@ public final class DefaultWatchConnectivityManager: NSObject, WatchConnectivityM
         }
         guard session.isPaired, session.isWatchAppInstalled else { return }
 
-        // Replaces the whole context — see WatchContextKey.
-        try session.updateApplicationContext([WatchContextKey.readinessLocked: true])
+        try updateContext(of: session) { context in
+            context[WatchContextKey.readinessLocked] = true
+            context[WatchContextKey.readinessSnapshot] = nil
+        }
         Logger.wc.info("publishReadinessLocked")
+    }
+
+    /// Tells the paired Watch whether workout logs are to be recorded.
+    ///
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not active.
+    public func publishWorkoutLogRecording(_ isEnabled: Bool) async throws {
+        guard let session, session.activationState == .activated else {
+            Logger.wc.error("publishWorkoutLogRecording: session not activated")
+            throw WatchConnectivityError.sessionNotActivated
+        }
+        guard session.isPaired, session.isWatchAppInstalled else { return }
+
+        try updateContext(of: session) { context in
+            context[WatchContextKey.workoutLogRecording] = isEnabled
+        }
+        Logger.wc.info("publishWorkoutLogRecording → \(isEnabled)")
+    }
+
+    /// Changes keys in the context already sent; a bare update would drop every other key.
+    private func updateContext(
+        of session: WCSession,
+        _ change: (inout [String: Any]) -> Void
+    ) throws {
+        // Two publishers can run at once; unguarded, the later write would drop the other's key.
+        try contextLock.withLock {
+            var context = session.applicationContext
+            change(&context)
+            try session.updateApplicationContext(context)
+        }
     }
 }

@@ -210,7 +210,7 @@ struct AppFeatureAW {
                             await send(.workoutConfigurationReceived(configuration))
                         }
                     },
-                    // One-shot: transfer ALL historical watch_log_*.txt files to iPhone.
+                    // One-shot: queue every finished log not already on its way to the iPhone.
                     // Picks up logs from sessions that never reached normal .stop flow (crashes, low battery).
                     .run { [watchClient = watchClient] _ in
                         await watchClient.transferAllLogFiles()
