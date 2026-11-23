@@ -2070,3 +2070,21 @@
     - not done: the strap dropped its link for two minutes mid-workout, and the same shows as "sensor stale" in GymRoom; the cause is not known
     - not done: the Watch's state on the ready step is read once, when the setup opens
     - not done: closing the Bluetooth sheet does not cancel a connect that is still pending
+
+### IOS-00206 Paused workout — effort points stand still and the GymRoom tile says why
+    - branch: `dev/IOS-00206/IOS-00206` (from develop)
+    - seen in a class: an athlete paused by accident and kept training; her tile looked live, her calories stood still and her points kept growing
+    - the calories stood still because HealthKit freezes active energy in a pause; the points grew because the counter looked at heart rate only and never asked about the pause
+    - the Watch and the iPhone credit no effort points while the workout is paused
+    - a resume does not credit the pause afterwards: the Watch clears its last sample date, the iPhone skips the credit of the first sample after the resume
+    - `setIntervalTimerPaused` is `setWorkoutPaused` now; it records the pause in `LiveSessionFeature.State` and still forwards it to the interval timer
+    - `HRSamplePayload` carries an optional `isPaused`; an older iPhone sends none and an older iPad ignores it
+    - the iPhone tells the class at once: a pause or a resume re-sends the last sample with the new flag, because a pause can stop the samples
+    - the registration payload carries the flag too, and a class joined in the middle of a pause starts with it
+    - the iPad keeps the last known flag when a payload brings none, so a short Bluetooth drop does not clear it
+    - the tile stays live and shows "Workout paused" in its header, between the avatar and the heart rate; the text shrinks before it can cover them
+    - the change was read by a second reviewer in two rounds; the first found the credit after a resume, the flag that might never arrive, the flag lost on reconnect and the badge covering the heart rate
+    - the badge is short in Spanish, French and Italian ("En pausa", "En pause", "In pausa"); the pause icon beside it carries the rest
+    - seen on devices with a Watch, an iPhone and the iPad: the heart rate stays live during a pause, the badge shows and goes with pause and resume, and the Polish text fits between the avatar and the heart rate
+    - one evening the iPhone got no mirrored session from the Watch in five starts, on this build and on the TestFlight one alike; the next morning both worked with the same code
+    - the Watch now writes to its log file whether opening the mirroring to the iPhone succeeded, and the error when it did not; until now that error reached the Watch console only

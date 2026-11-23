@@ -54,7 +54,7 @@ extension SessionFeature {
                 return .merge(
                     .run { _ in await WorkoutFileLogger.shared.log("PAUSED") },
                     .cancel(id: SessionWatchCancelID.watchTickTimer),
-                    .send(.live(.setIntervalTimerPaused(true))),
+                    .send(.live(.setWorkoutPaused(true))),
                     mode == .iPhoneStandalone ? .run { [watchClient = watchConnectivityClient] _ in
                         // iPhone-standalone: notify Watch via WatchConnectivity.
                         // Watch-primary: HealthKit mirroring propagates pause automatically.
@@ -68,7 +68,7 @@ extension SessionFeature {
                 let elapsed = state.controls.elapsedTime
                 return .merge(
                     .run { _ in await WorkoutFileLogger.shared.log("RESUMED") },
-                    .send(.live(.setIntervalTimerPaused(false))),
+                    .send(.live(.setWorkoutPaused(false))),
                     mode == .iPhoneStandalone ? .run { [elapsed, watchClient = watchConnectivityClient] _ in
                         await watchClient.sendWorkoutEvent(.workoutResumed(elapsedSeconds: elapsed))
                     } : .none,

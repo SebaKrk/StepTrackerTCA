@@ -106,13 +106,16 @@ struct LiveSessionFeature {
                     // Credit effort points for the stretch since the previous
                     // sample (fed with the same effective HR the UI shows).
                     // The accumulator itself skips implausible gaps (> 5 min).
-                    if let previousSampleDate = state.hrBuffer.last?.date {
+                    // A paused workout earns nothing, nor does the first sample after a resume: its gap spans the pause.
+                    if let previousSampleDate = state.hrBuffer.last?.date,
+                       !state.isWorkoutPaused, !state.skipsNextEffortCredit {
                         state.effortPoints.add(
                             bpm: Int(effectiveHR),
                             duration: sampleDate.timeIntervalSince(previousSampleDate),
                             maxHR: state.maxHeartRate
                         )
                     }
+                    state.skipsNextEffortCredit = false
                     state.hrBuffer.append(State.HRSample(date: sampleDate, bpm: effectiveHR))
                 }
                 // Keep the whole payload (incl. ride distance/speed fields for the
@@ -300,7 +303,11 @@ struct LiveSessionFeature {
                 // by setWorkoutType stays untouched.
                 return .none
 
-            case let .setIntervalTimerPaused(isPaused):
+            case let .setWorkoutPaused(isPaused):
+                if state.isWorkoutPaused, !isPaused {
+                    state.skipsNextEffortCredit = true
+                }
+                state.isWorkoutPaused = isPaused
                 guard state.intervalTimer != nil else { return .none }
                 return .send(.intervalTimer(isPaused ? .sessionPaused : .sessionResumed))
 

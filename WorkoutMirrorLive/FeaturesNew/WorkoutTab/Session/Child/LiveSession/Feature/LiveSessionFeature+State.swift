@@ -49,6 +49,12 @@ extension LiveSessionFeature {
         /// recomputed from HealthKit.
         var effortPoints = EffortPointsAccumulator()
 
+        /// `true` while the workout session is paused — effort points stand still.
+        var isWorkoutPaused: Bool = false
+
+        /// Set on resume: the next sample's gap to the previous one spans the pause and must not be credited.
+        var skipsNextEffortCredit: Bool = false
+
         /// Mirroring-link status forwarded by `SessionFeature` (IOS-00098-G). Included
         /// in every Live Activity `ContentState` so Dynamic Island / Lock Screen can
         /// flag stale metrics while the Watch link is down.

@@ -83,10 +83,17 @@ extension SessionFeature {
                 } ?? 0
                 let liveSensorStale = state.live.isSensorStale
                 let liveWatchLinkLost = state.live.isWatchConnectionLost
+                let liveWorkoutPaused = state.live.isWorkoutPaused
                 state.joinLiveClass?.currentEffortPoints = windowPoints
                 state.joinLiveClass?.isSensorStale = liveSensorStale
                 state.joinLiveClass?.watchLinkLost = liveWatchLinkLost
+                state.joinLiveClass?.isWorkoutPaused = liveWorkoutPaused
                 return .none
+
+            case let .live(.setWorkoutPaused(isPaused)):
+                // A pause can stop the metrics flow, so the class learns it from the action itself.
+                guard state.joinLiveClass != nil else { return .none }
+                return .send(.joinLiveClass(.workoutPauseChanged(isPaused)))
 
             case .live(_):
                 return .none

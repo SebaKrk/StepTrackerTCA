@@ -71,6 +71,9 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
     /// channel — HR can keep flowing over HK mirroring while this is `true`.
     public let watchLinkLost: Bool?
 
+    /// `true` while the peer's workout is paused; `nil` = no pause info (legacy peer build), the host keeps its last known flag.
+    public let isPaused: Bool?
+
     public init(
         deviceID: UUID,
         sessionToken: UUID,
@@ -83,7 +86,8 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         effortPoints: Int? = nil,
         isSensorStale: Bool? = nil,
         disconnectReason: SensorDisconnectReason? = nil,
-        watchLinkLost: Bool? = nil
+        watchLinkLost: Bool? = nil,
+        isPaused: Bool? = nil
     ) {
         self.deviceID = deviceID
         self.sessionToken = sessionToken
@@ -97,6 +101,7 @@ public struct HRSamplePayload: Codable, Sendable, Equatable {
         self.isSensorStale = isSensorStale
         self.disconnectReason = disconnectReason
         self.watchLinkLost = watchLinkLost
+        self.isPaused = isPaused
     }
 
     /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.
