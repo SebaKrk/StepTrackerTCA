@@ -50,6 +50,7 @@ extension SessionFeature {
                 if state.joinLiveClass == nil {
                     var newState = JoinLiveClassFeature.State()
                     newState.maxHeartRate = state.live.maxHeartRate
+                    newState.isWorkoutPaused = state.live.isWorkoutPaused
                     state.joinLiveClass = newState
                 }
                 state.isJoinLiveClassSheetPresented = true

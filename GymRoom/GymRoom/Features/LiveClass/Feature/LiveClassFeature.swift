@@ -364,6 +364,10 @@ struct LiveClassFeature {
                 // Sensor freshness (IOS-00100-C) — `nil` from a legacy peer build
                 // means "no staleness info", treated as fresh.
                 tile.isSensorStale = payload.isSensorStale ?? false
+                // `nil` = a payload without pause info — keep the last known flag.
+                if let isPaused = payload.isPaused {
+                    tile.isPaused = isPaused
+                }
                 // Watchdog input — any arriving payload proves the peer is alive,
                 // which also self-heals a watchdog-set stale flag (line above).
                 state.lastSampleAt[payload.deviceID] = date.now
