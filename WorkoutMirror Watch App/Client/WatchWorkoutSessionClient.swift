@@ -317,7 +317,9 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             do {
                 try await session?.startMirroringToCompanionDevice()
                 Logger.watchSession.info("mirroring started → iPhone should receive mirrored session")
+                await WorkoutFileLogger.shared.log("[Mirroring] startMirroringToCompanionDevice OK")
             } catch {
+                await WorkoutFileLogger.shared.log("[Mirroring] startMirroringToCompanionDevice FAILED: \(error)")
 #if targetEnvironment(simulator)
                 Logger.watchSession.debug("Simulator: mirroring not available (expected)")
 #else
