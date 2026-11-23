@@ -34,7 +34,7 @@ struct WatchWorkoutSessionClient: Sendable {
 
     /// Sends a `WorkoutMetrics` snapshot to the paired iPhone via HealthKit's native mirroring channel
     /// (`sendToRemoteWorkoutSession`). Only used in Watch-primary mode for HR transfer (R2).
-    var sendHRToRemote: @Sendable (Double, Date) async -> Void
+    var sendHRToRemote: @Sendable (Double, Date, [HeartRateZone: TimeInterval]?) async -> Bool
 
     /// Pauses or resumes the active `HKWorkoutSession` on Watch. HealthKit mirroring automatically
     /// propagates the state change to iPhone's mirrored session, triggering
@@ -98,8 +98,8 @@ private enum WatchWorkoutSessionClientKey: DependencyKey {
             endSession: {
                 await manager.end()
             },
-            sendHRToRemote: { bpm, date in
-                await manager.sendHRToRemote(bpm: bpm, date: date)
+            sendHRToRemote: { bpm, date, effortSecondsByZone in
+                await manager.sendHRToRemote(bpm: bpm, date: date, effortSecondsByZone: effortSecondsByZone)
             },
             togglePause: {
                 await manager.togglePause()
@@ -431,8 +431,16 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
     ///
     /// iPhone's `DefaultTrainingManager.processReceivedWatchData(_:)` decodes the payload
     /// and yields it into `workoutMetricsContinuation`, making it available via `metricsStream`.
-    func sendHRToRemote(bpm: Double, date: Date) async {
-        guard let session else { return }
+    func sendHRToRemote(
+        bpm: Double,
+        date: Date,
+        effortSecondsByZone: [HeartRateZone: TimeInterval]?
+    ) async -> Bool {
+        guard let session else {
+            // Traced, or a reading shown on the wrist but never sent would leave no reason behind.
+            await WorkoutFileLogger.shared.logHRTrace(stage: "send SKIPPED (no session)", bpm: bpm, at: Date())
+            return false
+        }
 
         let energy: Double = {
             guard let builder else { return 0 }
@@ -459,16 +467,27 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
             let elapsed = builder?.elapsedTime ?? 0
             metrics = rideLock.withLock { rideMetrics.apply(to: metrics, elapsedTime: elapsed, at: Date()) }
         }
+        // Set last, so nothing that rebuilds the payload above can drop it.
+        if let effortSecondsByZone {
+            metrics.effortSecondsByZone = Dictionary(
+                uniqueKeysWithValues: effortSecondsByZone.map { ($0.key.rawValue, $0.value) }
+            )
+        }
         guard let data = try? JSONEncoder().encode(metrics) else {
             Logger.watchSession.error("sendHRToRemote — failed to encode WorkoutMetrics")
-            return
+            await WorkoutFileLogger.shared.logHRTrace(stage: "send SKIPPED (encode)", bpm: bpm, at: Date())
+            return false
         }
         do {
             // Guarded variant (SharedModels) — hard timeout against Apple bug #769355
             // where the native async send never resumes.
             try await session.sendToRemoteWorkoutSession(data: data, timeout: 3)
+            await WorkoutFileLogger.shared.logHRTrace(stage: "sent", bpm: bpm, at: Date())
+            return true
         } catch {
             Logger.watchSession.error("sendToRemoteWorkoutSession failed: \(error.localizedDescription)")
+            await WorkoutFileLogger.shared.logHRTrace(stage: "send FAILED", bpm: bpm, at: Date())
+            return false
         }
     }
 
@@ -782,6 +801,8 @@ extension WatchWorkoutSessionManager: HKLiveWorkoutBuilderDelegate {
             case HKQuantityType(.heartRate):
                 let bpmUnit = HKUnit.count().unitDivided(by: .minute())
                 if let bpm = stats.mostRecentQuantity()?.doubleValue(for: bpmUnit) {
+                    let receivedAt = Date()
+                    Task { await WorkoutFileLogger.shared.logHRTrace(stage: "sensor", bpm: bpm, at: receivedAt) }
                     hrContinuation?.yield(bpm)
                 }
 

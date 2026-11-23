@@ -19,4 +19,7 @@ public enum WatchContextKey {
 
     /// Holds `true` when readiness needs Pro; sent instead of a snapshot.
     public static let readinessLocked = "readinessLocked"
+
+    /// Holds a `Bool`: whether the iPhone's user wants workout logs recorded.
+    public static let workoutLogRecording = "workoutLogRecording"
 }

@@ -2088,3 +2088,37 @@
     - seen on devices with a Watch, an iPhone and the iPad: the heart rate stays live during a pause, the badge shows and goes with pause and resume, and the Polish text fits between the avatar and the heart rate
     - one evening the iPhone got no mirrored session from the Watch in five starts, on this build and on the TestFlight one alike; the next morning both worked with the same code
     - the Watch now writes to its log file whether opening the mirroring to the iPhone succeeded, and the error when it did not; until now that error reached the Watch console only
+
+### IOS-00207 Workout logs in release, and a Watch workout that tells the truth when the link or the sensor drops
+    - branch: `dev/IOS-00207/IOS-00207` (from develop)
+    - one evening the iPhone got no mirrored session from the Watch in five starts; the only evidence was the log files of a debug build, and the TestFlight build of another user had none
+    - workout logs are no longer debug-only: a switch in Privacy → Diagnostics turns them on in release, off by default; debug builds always record and show the switch on and disabled
+    - logs live in `Application Support/WorkoutLogs`, out of Files.app and of iCloud backup; logs from earlier builds are removed from Documents
+    - `WorkoutLogStore` names, lists and prunes the files (seven days, ten workout files and three idle files per device); `WorkoutLogClient` is the TCA dependency over it
+    - every change to the set of files goes through the `WorkoutFileLogger` actor, which alone knows the file being written; the first review found a prune that could delete that file
+    - lines logged before a workout go to a small idle file, so app launches cannot push workout logs out of the limit
+    - the diagnostics archive carries a `logs/` folder while recording is on; the unzipped copy and older archives are removed
+    - switching recording off deletes the logs on the iPhone and on the Watch and cancels queued transfers
+    - the switch reaches the Watch in the application context, merged with the readiness keys instead of replacing them
+    - the Watch seals a workout's file before sending it, sends it once with its own name, and deletes it when the system confirms delivery
+    - file writes use the throwing `FileHandle` calls; the old ones raise on a full disk and would crash a release build
+    - debug builds trace every heart-rate reading at five stages, from the Watch's sensor to the iPhone's screen, with millisecond times; release keeps one line per thirty seconds, now with the number of readings
+    - the trace showed the Watch reports every five seconds and reaches its own screen in a millisecond, and that the iPhone processed every reading twice
+    - the iPhone's session screen had kept its own subscription to the metrics beside the one the session feeds it; the older one is gone
+    - the countdown started before the session knew whether a Watch leads, so the iPhone never really waited for the Watch; it starts undecided now and waits up to fifteen seconds for the mirrored session
+    - a mirrored session that arrives after that wait is still attached: the plan link is written and the Watch gets the max heart rate
+    - the countdown's 100 ms timer never stopped and sent ten empty actions a second for the whole workout; it ends with the countdown
+    - a workout ended on the Watch no longer reads as an outage in the log, and a tick queued at the end is not sent into a closed channel
+    - no reading from the Watch for fifteen seconds greys the heart rate on the iPhone with "Adjust your Apple Watch"; three clock ticks the Watch did not take raise the existing lost-connection banner within seconds, and one tick in ten keeps probing for its return
+    - the Watch greys its own heart when its sensor is silent, and shows a small mark when the iPhone is out of reach; its reading stays live then
+    - effort points with a Watch: the Watch sends its running time per zone with every reading and the iPhone merges it, so readings the iPhone never received still count; what the iPhone counted before the Watch had a max heart rate is added, not replaced
+    - with a strap the iPhone still counts by itself; a strap keeps nothing when nobody listens
+    - an unused twin of `processReceivedWatchData` left `HKWorkoutSessionDelegate`
+    - each part was read by a second reviewer before it was called done, most of them twice
+    - seen on devices: logs in the new folder, the Watch's file arriving once under its own name, pause and both ways of ending, the trace, the link dropping and returning after walking away
+    - not done: a build and a run of the stale heart rate, the lost-link detection by ticks and the merged effort points
+    - not done: GymRoom still logs in debug only and has no screen for the switch
+    - not done: a workout ended on the Watch while the iPhone is out of reach loses the points after the last payload that arrived
+    - not done: the Live Activity still shows the last heart rate as live when readings stop
+    - not done: `startWatchApp` that never answers leaves the waiting screen up; the fifteen seconds start only after it answers
+    - not done: the privacy manifest lists no collected data, while diagnostics can now carry heart rate

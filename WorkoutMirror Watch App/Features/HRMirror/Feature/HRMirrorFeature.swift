@@ -34,6 +34,7 @@ struct HRMirrorFeature {
     @Dependency(\.extendedRuntimeClient) var extendedRuntimeClient
     @Dependency(\.watchDeviceClient) var watchDeviceClient
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date.now) var now
 
     // MARK: - Body
 
@@ -49,7 +50,7 @@ struct HRMirrorFeature {
                 // Credit effort points for the stretch since the previous sample.
                 // The date always advances (even for bpm=0 artifacts) so a sensor
                 // dropout is never retroactively credited to the next valid zone.
-                let sampleDate = Date()
+                let sampleDate = now
                 // A paused workout earns nothing; every resume clears the date so the pause itself is never credited.
                 if let previousSampleDate = state.lastEffortSampleDate, !state.isPaused {
                     state.effortPoints.add(
@@ -59,16 +60,44 @@ struct HRMirrorFeature {
                     )
                 }
                 state.lastEffortSampleDate = sampleDate
+                if bpm > 0 {
+                    state.lastSensorReadingDate = sampleDate
+                    state.isHeartRateStale = false
+                }
                 let zone = state.heartRateZone
+                // Without a max heart rate nothing was counted here; the iPhone then counts by itself.
+                let effortSecondsByZone = state.maxHeartRate > 0 ? state.effortPoints.secondsByZone : nil
                 // Watch-primary: send HR via HealthKit's native mirroring channel
                 // (sendToRemoteWorkoutSession) instead of WatchConnectivity.
                 // iPhone receives it in DefaultTrainingManager.didReceiveDataFromRemoteWorkoutSession.
-                return .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, bpm, zone] _ in
-                    await watchWorkoutSessionClient.sendHRToRemote(bpm, Date())
-                    await WorkoutFileLogger.shared.logHRIfNeeded(bpm: bpm)
+                return .merge(
+                    // Apart from the send, so tracing never delays the reading it measures.
+                    .run { [bpm, sampleDate] _ in
+                        // The state above is what the screen renders, so this is the wrist's "shown" moment.
+                        await WorkoutFileLogger.shared.logHRTrace(stage: "ui", bpm: bpm, at: sampleDate)
+                    },
+                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, bpm, zone, effortSecondsByZone] send in
+                        let isDelivered = await watchWorkoutSessionClient.sendHRToRemote(bpm, Date(), effortSecondsByZone)
+                        await WorkoutFileLogger.shared.logHRIfNeeded(bpm: bpm)
+                        await send(.heartRateSent(isDelivered: isDelivered))
+                    }
+                )
+
+            case let .heartRateSent(isDelivered):
+                if isDelivered {
+                    if state.failedPhoneSendCount != 0 { state.failedPhoneSendCount = 0 }
+                } else {
+                    state.failedPhoneSendCount += 1
                 }
+                return .none
 
             case .subSecondTick:
+                // The sensor reports every 5 s; this tick is the only clock that notices it went silent.
+                if !state.isHeartRateStale,
+                   let lastReading = state.lastSensorReadingDate,
+                   now.timeIntervalSince(lastReading) > Self.heartRateStaleSeconds {
+                    state.isHeartRateStale = true
+                }
                 guard !state.isPaused else { return .none }
                 state.elapsedSeconds += 0.1
                 return .none
@@ -97,6 +126,8 @@ struct HRMirrorFeature {
                 )
 
             case .workoutTick(let elapsed):
+                // A tick that arrived proves the iPhone is in reach, even while the sensor is silent.
+                if state.failedPhoneSendCount != 0 { state.failedPhoneSendCount = 0 }
                 // iPhone is source of truth — reset to exact value each second.
                 state.elapsedSeconds = elapsed
                 return .none
@@ -383,13 +414,15 @@ struct HRMirrorFeature {
                         } else {
                             await WorkoutFileLogger.shared.log("NOTIFY — .workoutSaved skipped (no UUID after retry, save likely failed)")
                         }
-                        await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
-                        await watchClient.transferLogFile()
                         // Ensure "Saving…" overlay is visible for at least 1.5s
                         let elapsed = ContinuousClock.now - savingStart
                         if elapsed < .seconds(1.5) {
                             try? await clock.sleep(for: .seconds(1.5) - elapsed)
                         }
+                        // Before the summary action: a deferred next workout starts on it, and its file must not be sealed here.
+                        await WorkoutFileLogger.shared.log("SUMMARY (Watch) — shown (hasData=\(summary != nil))")
+                        await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
+                        await watchClient.transferLogFile()
                         // Watch is the primary session owner — it shows the immediate
                         // summary from finishWorkout(); dismissal happens on Done tap.
                         await send(.savedSummaryLoaded(summary))
@@ -399,9 +432,7 @@ struct HRMirrorFeature {
             case .savedSummaryLoaded(let summary):
                 state.isSaving = false
                 state.summaryPhase = .presented(summary)
-                return .run { _ in
-                    await WorkoutFileLogger.shared.log("SUMMARY (Watch) — shown (hasData=\(summary != nil))")
-                }
+                return .none
 
             case .view(.summaryDoneTapped):
                 return .send(.delegate(.didFinishSaving))
@@ -443,4 +474,10 @@ private nonisolated enum HRMirrorCancelID: Hashable, Sendable {
     /// Identifies the once-a-minute battery level poll.
     case batteryMonitor
 
+}
+
+extension HRMirrorFeature {
+
+    /// Seconds without a sensor reading after which the shown heart rate counts as not live.
+    nonisolated static let heartRateStaleSeconds: TimeInterval = 15
 }

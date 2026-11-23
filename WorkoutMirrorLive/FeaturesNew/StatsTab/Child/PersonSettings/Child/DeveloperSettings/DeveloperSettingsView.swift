@@ -33,8 +33,19 @@ struct DeveloperSettingsView: View {
 
     private var rootView: some View {
         List {
+            workoutLogsSection
             diagnosticsSection
             sendDiagnosticsSection
+        }
+    }
+
+    private var workoutLogsSection: some View {
+        Section {
+            recordWorkoutLogsToggle
+        } header: {
+            Text(String(localized: "Workout logs"))
+        } footer: {
+            Text(workoutLogsFooterText)
         }
     }
 
@@ -46,6 +57,7 @@ struct DeveloperSettingsView: View {
         } footer: {
             Text(diagnosticsFooterText)
                 .animation(.default, value: store.includesDatabaseInDiagnostics)
+                .animation(.default, value: store.attachesWorkoutLogs)
         }
     }
 
@@ -57,6 +69,15 @@ struct DeveloperSettingsView: View {
         } footer: {
             Text(String(localized: "Sent to \(DiagnosticsRecipient.address)."))
         }
+    }
+
+    private var recordWorkoutLogsToggle: some View {
+        Toggle(isOn: recordsWorkoutLogs) {
+            Text(String(localized: "Record workout logs"))
+        }
+        .tint(.green)
+        // Switching off sweeps the temporary folder, which would pull a bundle being built from under it.
+        .disabled(store.isWorkoutLogRecordingForced || store.isBuildingDiagnostics)
     }
 
     private var attachDatabaseToggle: some View {
@@ -108,6 +129,13 @@ struct DeveloperSettingsView: View {
 
     // MARK: - Bindings
 
+    private var recordsWorkoutLogs: Binding<Bool> {
+        Binding(
+            get: { store.attachesWorkoutLogs },
+            set: { _ in send(.recordWorkoutLogsToggled) }
+        )
+    }
+
     private var attachesDatabase: Binding<Bool> {
         Binding(
             get: { store.includesDatabaseInDiagnostics },
@@ -138,12 +166,21 @@ struct DeveloperSettingsView: View {
 
     // MARK: - Text
 
+    /// Says what is recorded, for how long, and that switching off deletes it.
+    private var workoutLogsFooterText: String {
+        String(localized: "Records workout and connection events on this iPhone and on Apple Watch, with heart rate every 30 seconds. Logs are kept for 7 days and leave the device only with diagnostics. Turning this off deletes them.")
+    }
+
     /// Says plainly what the next bundle will carry, because the two answers
     /// differ by a whole training history.
     private var diagnosticsFooterText: String {
-        store.includesDatabaseInDiagnostics
-            ? String(localized: "The bundle will carry your full training history and your profile.")
-            : String(localized: "The bundle describes the app only — versions, migrations and row counts. No training data leaves the device.")
+        if store.includesDatabaseInDiagnostics {
+            return String(localized: "The bundle will carry your full training history and your profile.")
+        }
+        if store.attachesWorkoutLogs {
+            return String(localized: "The bundle describes the app — versions, migrations and row counts — and carries your workout logs, heart rate included.")
+        }
+        return String(localized: "The bundle describes the app only — versions, migrations and row counts. No training data leaves the device.")
     }
 }
 

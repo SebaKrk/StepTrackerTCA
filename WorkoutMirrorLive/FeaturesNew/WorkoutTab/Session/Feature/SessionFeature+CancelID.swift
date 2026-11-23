@@ -47,6 +47,11 @@ nonisolated enum SessionWatchCancelID: Hashable, Sendable {
     /// `lifecycleReducer` via `subscribeMirroredSessionStarted`.
     case mirroredSessionSignal
 
+    /// Bounds the wait for the mirrored session; a Watch that never answers must not
+    /// leave the "Starting on Apple Watch" screen up forever. Started with
+    /// `mirroredSessionSignal`, cancelled when the countdown begins.
+    case mirroredSessionTimeout
+
     /// App Intent NotificationCenter observers (Pause/Resume/End from Live Activity).
     /// Active while sessionState == .session, cancelled on transition to .summary.
     /// Started by `sessionPhaseReducer`, cancelled there in summary branch.

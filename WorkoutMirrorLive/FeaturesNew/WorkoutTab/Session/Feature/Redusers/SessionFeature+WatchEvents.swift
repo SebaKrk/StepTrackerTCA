@@ -40,18 +40,32 @@ extension SessionFeature {
                       state.sessionState == .session
                         || state.sessionState == .countdown
                         || state.sessionState == .waitingForWatch else { return .none }
+                // With a healthy link this is only the faster of two messages about one end, not an outage.
+                let isLinkLost = state.isWatchConnectionLost
                 return .merge(
                     .run { _ in
-                        await WorkoutFileLogger.shared.log("[Connection] .workoutSaved while session active — Watch ended remotely, closing session (S4)")
+                        await WorkoutFileLogger.shared.log(
+                            isLinkLost
+                                ? "[Connection] .workoutSaved while session active — Watch ended remotely, closing session (S4)"
+                                : "WATCH-INITIATED END — .workoutSaved arrived before the mirrored .ended state"
+                        )
                     },
                     .send(.sessionViewStateChange(.finishedOnWatch))
                 )
+
+            case let .live(.workoutMetrics(data)):
+                // A reading that got through proves the link is back, whoever reported it lost.
+                guard state.isWatchConnectionLost,
+                      state.workoutMode == .watchPrimary,
+                      data.heartRate > 0 else { return .none }
+                return .send(.watchConnectionStatusChanged(.connected))
 
             case let .watchConnectionStatusChanged(status):
                 switch status {
                 case .lost:
                     guard state.sessionState == .session, !state.isWatchConnectionLost else { return .none }
                     state.isWatchConnectionLost = true
+                    state.failedWatchTickCount = 0
                     // Tick timer keeps RUNNING — the counter must not freeze (Watch treats
                     // iPhone ticks as its clock's source of truth; a frozen counter would
                     // rewind the Watch after reconnect). Sends are gated in `watchTickEffect`.
@@ -64,6 +78,7 @@ extension SessionFeature {
                 case .connected:
                     guard state.isWatchConnectionLost else { return .none }
                     state.isWatchConnectionLost = false
+                    state.failedWatchTickCount = 0
                     // Ticks resume flowing on the next timer beat — the counter kept
                     // counting through the outage, so the Watch clock stays consistent.
                     return .merge(

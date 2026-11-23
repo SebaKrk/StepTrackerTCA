@@ -68,4 +68,10 @@ public protocol WatchConnectivityManager: Sendable {
     /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not ready.
     func publishReadinessLocked() async throws
 
+    /// Tells the paired Watch whether workout logs are to be recorded.
+    ///
+    /// Rides in the application context, so a Watch app installed later still learns it.
+    /// - Throws: `WatchConnectivityError.sessionNotActivated` if the session is not ready.
+    func publishWorkoutLogRecording(_ isEnabled: Bool) async throws
+
 }

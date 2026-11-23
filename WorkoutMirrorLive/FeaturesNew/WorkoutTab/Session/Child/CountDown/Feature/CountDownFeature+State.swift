@@ -12,10 +12,15 @@ import SharedModels
 extension CountDownFeature {
 
     /// Visual + behavioral phase of the countdown view.
-    /// - `.waitingForWatch`: gray empty ring + activity icon + "Rozpoczynam na Apple Watch" text. No timer.
-    /// - `.countingDown`: existing 3-2-1 countdown with progress ring.
     enum CountDownPhase: Equatable, Sendable {
+
+        /// Nothing decided yet: gray empty ring, no timer. The session picks the next phase.
+        case preparing
+
+        /// Gray empty ring + activity icon + "Starting on Apple Watch" text. No timer.
         case waitingForWatch
+
+        /// The 3-2-1 countdown with the progress ring.
         case countingDown
     }
 
@@ -27,9 +32,9 @@ extension CountDownFeature {
         /// Nil for ad-hoc workouts started without a plan (header hidden).
         var workoutType: WorkoutActivityType?
 
-        /// Drives the dual-mode render. Default `.countingDown` keeps iPhone-standalone flow unchanged.
-        /// Watch-primary `viewDidAppear` switches this to `.waitingForWatch` before launching Watch.
-        var phase: CountDownPhase = .countingDown
+        /// Drives the render. Starts undecided: the view appears before the session knows
+        /// whether a Watch leads, and a countdown started that early would skip the wait for it.
+        var phase: CountDownPhase = .preparing
 
         /// Pulse animation phase for the `.waitingForWatch` ring opacity.
         /// Toggled by `pulseToggled` every 600ms while in the waiting phase.

@@ -39,4 +39,7 @@ public enum AppStorageKeys {
     /// Storage key for the user's consent to send plans to the AI service.
     public static let aiProcessingConsent = "aiProcessingConsent"
 
+    /// Storage key for the user's choice to record workout logs in release builds.
+    public static let workoutLogRecording = "workoutLogRecording"
+
 }

@@ -56,6 +56,25 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
     /// Average speed over the last completed kilometer, in meters per second.
     public var lastKilometerSpeed: Double?
 
+    // MARK: - Effort Points
+
+    /// Time per heart-rate zone counted on the Watch so far, keyed by the zone's raw value.
+    ///
+    /// A running total, so a reading lost on the way costs nothing: the next one carries it all.
+    /// `nil` from the iPhone's own session, an older Watch, or a Watch that has no max heart rate yet.
+    public var effortSecondsByZone: [String: TimeInterval]?
+
+    /// `effortSecondsByZone` with its keys read back as zones; unknown keys are dropped.
+    public var effortZoneTotals: [HeartRateZone: TimeInterval]? {
+        guard let effortSecondsByZone else { return nil }
+        var totals: [HeartRateZone: TimeInterval] = [:]
+        for (rawZone, seconds) in effortSecondsByZone {
+            guard let zone = HeartRateZone(rawValue: rawZone) else { continue }
+            totals[zone] = seconds
+        }
+        return totals
+    }
+
     // MARK: - Lifecycle
 
     public init(
@@ -68,7 +87,8 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
         averageSpeed: Double? = nil,
         maxSpeed: Double? = nil,
         recentAverageSpeed: Double? = nil,
-        lastKilometerSpeed: Double? = nil
+        lastKilometerSpeed: Double? = nil,
+        effortSecondsByZone: [String: TimeInterval]? = nil
     ) {
         self.averageHeartRate = averageHeartRate
         self.heartRate = heartRate
@@ -80,6 +100,7 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
         self.maxSpeed = maxSpeed
         self.recentAverageSpeed = recentAverageSpeed
         self.lastKilometerSpeed = lastKilometerSpeed
+        self.effortSecondsByZone = effortSecondsByZone
     }
 
 }

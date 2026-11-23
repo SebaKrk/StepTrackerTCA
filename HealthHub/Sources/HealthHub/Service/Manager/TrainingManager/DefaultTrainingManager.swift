@@ -16,6 +16,9 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
     
     // MARK: - Workout Session State
     var session: HKWorkoutSession?
+
+    /// `true` once a send with no mirrored session was written to the log; cleared when one attaches.
+    var didLogMissingMirroredSession = false
     
     public var sessionState: HKWorkoutSessionState = .notStarted
     
@@ -218,7 +221,16 @@ public final class DefaultTrainingManager: NSObject, TrainingManager, @unchecked
                 // This result decides the dismiss after End (delivery-aware, cluster D) —
                 // it must be in the file report, not in a print() visible only under Xcode.
                 Logger.trainingManager.error("sendData — no session attached (\(data.count) bytes dropped)")
-                await WorkoutFileLogger.shared.log("[Send] SKIPPED — no mirrored session attached")
+                // Once per missing session: the 1 Hz tick would otherwise write this line every second.
+                if !didLogMissingMirroredSession {
+                    didLogMissingMirroredSession = true
+                    await WorkoutFileLogger.shared.log("[Send] SKIPPED — no mirrored session attached (further skips not logged)")
+                }
+                return false
+            }
+            // An ended session mirrors nothing; a send racing the end would be logged as a dead link.
+            guard session.state != .ended else {
+                Logger.trainingManager.debug("sendData — session already ended (\(data.count) bytes dropped)")
                 return false
             }
             try await session.sendToRemoteWorkoutSession(data: data, timeout: 3)

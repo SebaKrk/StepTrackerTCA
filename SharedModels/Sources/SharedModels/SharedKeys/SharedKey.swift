@@ -34,4 +34,9 @@ extension String {
         AppStorageKeys.aiProcessingConsent
     }
 
+    /// Choice to record workout logs in release builds
+    public static var workoutLogRecording: String {
+        AppStorageKeys.workoutLogRecording
+    }
+
 }

@@ -35,9 +35,6 @@ extension LiveSessionFeature {
         /// Usually calculated at the beginning of the session using age and sex.
         case setupMaxHeartRate(Int)
         
-        /// Starts streaming workout metrics (heart rate, active energy, etc.) from the session client.
-        case startWorkoutMetricsStream
-        
         /// Calculates the current heart rate zone based on the latest heart rate and HR max.
         case calculateHeartRateZone(Int, Int)
         
@@ -56,10 +53,9 @@ extension LiveSessionFeature {
         /// the last known value.
         case resetHeartRate
 
-        /// 1 s heartbeat forwarded from `SessionFeature.watchTickEffect` (IOS-00100-B).
-        /// Evaluates BLE-sensor freshness: no real sample for longer than
-        /// `sensorStaleThreshold` flips `isSensorStale` (banner + greyed HR). No-op
-        /// on the Watch path (`lastFreshSampleDate` stays `nil` there).
+        /// 1 s heartbeat forwarded from `SessionFeature.watchTickEffect`.
+        /// Evaluates heart-rate freshness: no reading from the strap or the Watch for longer
+        /// than its threshold flips `isSensorStale` (banner + greyed HR).
         case sensorFreshnessTick
 
         /// Stores the session's workout type — drives the dedicated activity

@@ -32,6 +32,7 @@ extension DefaultTrainingManager {
                 // alongside any existing state and is the Watch-primary source of truth.
                 self.session = mirroredSession
                 self.session?.delegate = self
+                self.didLogMissingMirroredSession = false
 
                 self.sessionState = mirroredSession.state
                 self.workoutSessionIsRunning = mirroredSession.state == .running
@@ -86,6 +87,8 @@ extension DefaultTrainingManager {
     /// `workoutSessionStateStream`: finish previous continuation, create fresh stream.
     public var mirroredSessionStartedStream: AsyncStream<Void> {
         mirroredSessionStartedContinuation?.finish()
+        // A new start: a missing session must be logged again, even right after one that never came.
+        didLogMissingMirroredSession = false
         let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
         mirroredSessionStartedContinuation = continuation
         return stream
@@ -154,6 +157,8 @@ extension DefaultTrainingManager {
         // 2. Try custom WorkoutMetrics (JSON format)
         if let receivedMetrics = try? JSONDecoder().decode(WorkoutMetrics.self, from: data) {
             Logger.trainingManager.info("processReceivedWatchData → WorkoutMetrics: HR=\(receivedMetrics.heartRate, format: .fixed(precision: 0)) energy=\(receivedMetrics.activeEnergy, format: .fixed(precision: 1))")
+            let receivedAt = Date()
+            Task { await WorkoutFileLogger.shared.logHRTrace(stage: "rx", bpm: receivedMetrics.heartRate, at: receivedAt) }
             handleWorkoutMetricsUpdate(receivedMetrics)
             return
         }
