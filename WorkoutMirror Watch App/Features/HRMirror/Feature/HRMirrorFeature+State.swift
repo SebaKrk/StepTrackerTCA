@@ -120,6 +120,23 @@ extension HRMirrorFeature {
         /// the workout now (guaranteed save) instead of riding it out to a power death.
         var isLowBatteryWarningPresented: Bool = false
 
+        // MARK: - Pause Reminder
+
+        /// `true` when the workout is led from the Watch; `false` when the iPhone leads and the Watch accompanies it.
+        var leadsWorkout: Bool = true
+
+        /// Presents the "still training?" overlay: the workout is paused while the heart rate stays up.
+        var isPauseReminderPresented: Bool = false
+
+        /// `true` once the wearer answered OK — no more reminders until this pause ends.
+        var isPauseReminderMuted: Bool = false
+
+        /// Watches how the heart rate behaves after a pause, to tell a real one from an accident.
+        var pauseActivity = PauseActivityDetector()
+
+        /// When the question was last raised with a haptic; spaces the repeats.
+        var lastPauseReminderDate: Date?
+
         // MARK: - Workout Configuration
 
         /// Activity type of the current workout session.

@@ -2122,3 +2122,20 @@
     - not done: the Live Activity still shows the last heart rate as live when readings stop
     - not done: `startWatchApp` that never answers leaves the waiting screen up; the fifteen seconds start only after it answers
     - not done: the privacy manifest lists no collected data, while diagnostics can now carry heart rate
+
+### IOS-00208 Watch asks "Still training?" when a paused workout's heart rate says so
+    - branch: `dev/IOS-00208/IOS-00208` (from develop)
+    - seen in a class: an athlete paused by accident and kept training, and nothing on her wrist told her
+    - a timer alone cannot tell a rest from a mistake, so the Watch reads how the heart-rate zones behave after the pause
+    - a heart at rest keeps falling, zone after zone; one still working holds its zone or climbs
+    - `PauseActivityDetector` in SharedModels holds the whole rule as a value type with three answers: undecided, resting, still training
+    - a climb above the lowest zone counts after fifteen seconds; a zone that holds counts after sixty seconds in the three upper zones, 105 in fat burning and 120 in recovery
+    - falling and resting never ask; after a real rest only a climb of two zones asks, because one zone up is standing or walking
+    - no single reading decides: a fall, a climb and the first yardstick each need a second reading, and a gap of twenty seconds starts the clocks again
+    - the Watch shows the question with Resume and OK over the workout; OK silences it for that pause, and left alone it taps the wrist every two minutes
+    - no question without a max heart rate, and none when the iPhone leads the workout
+    - the question is withdrawn when the heart rate reaches rest, and when the workout resumes or ends
+    - the rule was read by a second reviewer in four rounds and replayed on fifteen scenarios, two of them real pauses; the rounds found a question after standing up for water and one raised by a single low reading
+    - not done: a build of the Watch app and a run on a wrist; only the SharedModels package was built, by the commit hook
+    - not done: the thresholds are estimates and have seen no real workout
+    - not done: a wrong reading at the very moment of the pause, and a short overshoot after stopping that crosses a zone for fifteen seconds, can still raise the question

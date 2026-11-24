@@ -55,6 +55,9 @@ struct HRMirrorView: View {
             } else if store.isLowBatteryWarningPresented {
                 lowBatteryOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+            } else if store.isPauseReminderPresented {
+                pauseReminderOverlay
+                    .transition(.opacity.animation(.easeInOut(duration: 0.3)))
             } else if store.isCountingDown {
                 countdownOverlay
                     .transition(.opacity.animation(.easeInOut(duration: 0.3)))
@@ -63,6 +66,7 @@ struct HRMirrorView: View {
         .animation(.easeInOut(duration: 0.4), value: store.isSaving)
         .animation(.easeInOut(duration: 0.4), value: store.summaryPhase)
         .animation(.easeInOut(duration: 0.3), value: store.isLowBatteryWarningPresented)
+        .animation(.easeInOut(duration: 0.3), value: store.isPauseReminderPresented)
         .animation(.easeInOut(duration: 0.3), value: store.isCountingDown)
     }
 
@@ -74,6 +78,19 @@ struct HRMirrorView: View {
             LowBatteryWarningView(
                 onEndWorkout: { send(.lowBatteryEndWorkoutTapped) },
                 onDismiss: { send(.lowBatteryDismissed) }
+            )
+        }
+    }
+
+    // MARK: - Pause Reminder Overlay
+
+    /// The pause question on a black backdrop, like the other full-screen overlays here.
+    private var pauseReminderOverlay: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            PauseReminderView(
+                onResume: { send(.pauseReminderResumeTapped) },
+                onDismiss: { send(.pauseReminderDismissed) }
             )
         }
     }
