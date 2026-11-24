@@ -110,5 +110,23 @@
    <ArchiveAction
       buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Add dSYMs for prebuilt frameworks"
+               scriptText = "# Prebuilt frameworks (Firestore and its gRPC stack) ship without dSYMs, and the upload warns about each one.&#10;FRAMEWORKS=&quot;${ARCHIVE_PRODUCTS_PATH}/Applications/${FULL_PRODUCT_NAME}/Frameworks&quot;&#10;for FRAMEWORK in &quot;${FRAMEWORKS}&quot;/*.framework; do&#10;  [ -d &quot;${FRAMEWORK}&quot; ] || continue&#10;  NAME=&quot;$(basename &quot;${FRAMEWORK}&quot; .framework)&quot;&#10;  DSYM=&quot;${ARCHIVE_DSYMS_PATH}/${NAME}.framework.dSYM&quot;&#10;  [ -e &quot;${DSYM}&quot; ] || xcrun dsymutil &quot;${FRAMEWORK}/${NAME}&quot; -o &quot;${DSYM}&quot; 2&gt;/dev/null&#10;done&#10;exit 0&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "9382096B2E39388600F49046"
+                     BuildableName = "WorkoutMirrorLive.app"
+                     BlueprintName = "WorkoutMirrorLive"
+                     ReferencedContainer = "container:MyFitnessJournal.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </ArchiveAction>
 </Scheme>
