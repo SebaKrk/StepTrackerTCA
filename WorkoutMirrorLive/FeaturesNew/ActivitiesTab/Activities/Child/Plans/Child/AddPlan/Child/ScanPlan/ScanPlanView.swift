@@ -56,6 +56,7 @@ struct ScanPlanView: View {
         )
         .navigationTitle("Scan Plan")
         .navigationBarTitleDisplayMode(.inline)
+        .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.photoCrop, action: \.photoCrop)) { cropStore in
             PhotoCropView(store: cropStore)
         }

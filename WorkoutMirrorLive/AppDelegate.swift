@@ -19,6 +19,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     @Dependency(\.trainingReadinessBackgroundManager) var backgroundManager
     @Dependency(\.watchConnectivityClient) var watchConnectivityClient
+    @Dependency(\.diagnosticsClient) var diagnosticsClient
     @Dependency(\.trainingManager) var trainingManager
     @Dependency(\.healthStore) var healthStore
     @Dependency(\.sessionClient) var sessionClient
@@ -48,6 +49,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         Task {
             await startBackgroundDelivery()
         }
+        // A shared archive is not deleted on dismiss; at launch nothing can still be reading it.
+        diagnosticsClient.discardBundles()
+
         Task {
             await activateWatchConnectivity()
         }
@@ -128,5 +132,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     private func activateWatchConnectivity() async {
         await watchConnectivityClient.initializeWatchConnectivity()
         Logger.wc.info("AppDelegate — WatchConnectivity activated on app launch")
+        // Repeated on every launch, so a Watch app installed after the choice still learns it.
+        await watchConnectivityClient.publishWorkoutLogRecording(WorkoutLogStore.isRecordingEnabled)
     }
 }

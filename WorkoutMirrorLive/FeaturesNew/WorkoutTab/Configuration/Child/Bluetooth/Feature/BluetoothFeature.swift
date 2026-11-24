@@ -19,7 +19,16 @@ struct BluetoothFeature {
    
    @Dependency(\.dismiss) var dismiss
    @Dependency(\.bluetoothClient) var client
-   
+   @Dependency(\.continuousClock) var clock
+
+   // MARK: - Cancellation
+
+   nonisolated enum CancelID: Hashable, Sendable {
+
+       /// The pending connect attempt and its timeout.
+       case connecting
+   }
+
    // MARK: - Reducer
    
    var body: some Reducer<State, Action> {
@@ -38,7 +47,25 @@ struct BluetoothFeature {
                
            case .systemConnectedDevicesChanged(let devices):
                state.systemConnectedDevices = devices
-               return .none
+               // The pending pick is settled once the system lists it or CoreBluetooth stopped connecting.
+               guard let selected = state.selectedDevice,
+                     state.isConnected(selected) || selected.state != .connecting
+               else { return .none }
+               state.selectedDevice = nil
+               return .cancel(id: CancelID.connecting)
+
+           case let .connectionAttemptTimedOut(id):
+               guard let selected = state.selectedDevice, selected.identifier == id else { return .none }
+               // Cleared here, not from the effect, so a newer pick made meanwhile is never wiped.
+               state.selectedDevice = nil
+               return .run { send in
+                   // The list may be stale, so ask the system before giving up on the device.
+                   let devices = await client.getConnectedPeripherals()
+                   if !devices.contains(where: { $0.identifier == id }) {
+                       await client.disconnect(selected)
+                   }
+                   await send(.systemConnectedDevicesChanged(devices))
+               }
                
            case .selectedDeviceChanged(let device):
                state.selectedDevice = device
@@ -51,8 +78,8 @@ struct BluetoothFeature {
                        await send(.systemConnectedDevicesChanged(systemDevices))
                    }
                }
-               .cancellable(id: "connectionMonitoring")
-               
+               .cancellable(id: "connectionMonitoring", cancelInFlight: true)
+
            case .startScanningForDevices:
                guard !state.isScanning else {
                    print("⚠️ Already scanning - ignoring request")
@@ -80,6 +107,8 @@ struct BluetoothFeature {
                        await send(.deviceDiscovered(device))
                    }
                    print("🔴 Scanning stream ENDED")
+                   // A scan that ends on its own (a connect stops it) must clear the indicator too.
+                   await send(.scanningStatusChanged(false))
                }
                .cancellable(id: "scanning")
                
@@ -138,13 +167,25 @@ struct BluetoothFeature {
                )
 
            case let .view(.deviceTapped(peripheral)):
+               // A device that is listed by the system and linked here has nothing left to connect.
+               guard !(state.isConnected(peripheral) && peripheral.state == .connected) else { return .none }
+               let abandoned = state.selectedDevice.flatMap { $0.identifier == peripheral.identifier ? nil : $0 }
+               // Cleared now, so the abandoned device's disconnect event finds nothing to settle.
+               state.selectedDevice = nil
                return .run { send in
+                   if let abandoned {
+                       await client.disconnect(abandoned)
+                   }
+                   try Task.checkCancellation()
                    try await client.connect(peripheral)
+                   // Set after the connect is issued, so the peripheral already reports `.connecting`.
                    await send(.selectedDeviceChanged(peripheral))
                    await send(.scanningStopped)
-                   // The system-connected list refreshes via `startConnectionMonitoring`
-                   // when CoreBluetooth reports the connect — no fixed delay needed.
+                   // CoreBluetooth never gives up on a connect by itself.
+                   try await clock.sleep(for: .seconds(15))
+                   await send(.connectionAttemptTimedOut(peripheral.identifier))
                }
+               .cancellable(id: CancelID.connecting, cancelInFlight: true)
 
            case let .view(.disconnectButtonTapped(peripheral)):
                return .run { send in

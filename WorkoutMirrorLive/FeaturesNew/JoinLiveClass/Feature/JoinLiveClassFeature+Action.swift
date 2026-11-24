@@ -54,6 +54,9 @@ extension JoinLiveClassFeature {
         /// `currentEffortPoints` synced by the parent from the LiveSession counter.
         case workoutMetricsReceived(WorkoutMetrics)
 
+        /// The workout was paused or resumed — re-sends the last sample so the host learns it at once.
+        case workoutPauseChanged(Bool)
+
         /// Host (iPad) przysłał wynik zajęć (per-device recap) przez BLE. Reducer
         /// przekazuje go do parenta (`delegate.recapReceived`), który parkuje pending
         /// class recap do konsumpcji przy zapisie treningu (IOS-00104-C).

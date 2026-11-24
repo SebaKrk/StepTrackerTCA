@@ -32,9 +32,9 @@ struct PersonSettingsView: View {
                 .navigationTitle("Personal Settings")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(
-                    item: $store.scope(state: \.destination?.developerSettings, action: \.destination.developerSettings)
-                ) { developerStore in
-                    DeveloperSettingsView(store: developerStore)
+                    item: $store.scope(state: \.destination?.privacySettings, action: \.destination.privacySettings)
+                ) { privacyStore in
+                    PrivacySettingsView(store: privacyStore)
                 }
                 .sheet(
                     item: $store.scope(state: \.destination?.editProfile, action: \.destination.editProfile)
@@ -96,20 +96,18 @@ struct PersonSettingsView: View {
             }
 
             Section {
-                developerRow
-            } header: {
-                Text(String(localized: "Developer"))
+                privacyRow
             } footer: {
-                Text(String(localized: "API keys for plan scanning, and diagnostics you can send when something goes wrong."))
+                Text(String(localized: "AI, diagnostics and your data in the cloud."))
             }
         }
     }
 
-    private var developerRow: some View {
+    private var privacyRow: some View {
         HStack {
-            Image(systemName: "wrench.and.screwdriver.fill")
+            Image(systemName: "lock.shield.fill")
                 .foregroundStyle(.secondary)
-            Text(String(localized: "Developer tools"))
+            Text(String(localized: "Privacy & data"))
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.caption)
@@ -117,7 +115,7 @@ struct PersonSettingsView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            send(.developerTapped)
+            send(.privacyTapped)
         }
     }
     

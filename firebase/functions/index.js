@@ -2,6 +2,7 @@
 
 const { initializeApp } = require("firebase-admin/app");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { logger } = require("firebase-functions");
 const { defineSecret } = require("firebase-functions/params");
 
 const { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS } = require("./src/anthropic");
@@ -11,6 +12,7 @@ const { boardSchema } = require("./src/boardSchema");
 const { boardForForm, withLadderInItsField } = require("./src/boardCompat");
 const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
+const { deleteAccountData } = require("./src/account");
 
 initializeApp();
 
@@ -24,6 +26,14 @@ const options = {
   timeoutSeconds: 120,
   memory: "512MiB",
   // The scan photo travels inline; a downscaled board sits far below this.
+  enforceAppCheck: false,
+};
+
+// No secret is mounted: erasing an account never reaches the model.
+const accountOptions = {
+  region: "europe-central2",
+  timeoutSeconds: 120,
+  memory: "256MiB",
   enforceAppCheck: false,
 };
 
@@ -89,6 +99,17 @@ exports.trainingNote = onCall(options, async (request) => {
     return { ...notes(kind, text, durationMinutes), quota: taken };
   } catch (error) {
     await quota.release(uid, "note");
+    throw asHttpsError(error);
+  }
+});
+
+/** Erases everything stored under the caller's account, then the account itself. */
+exports.deleteMyData = onCall(accountOptions, async (request) => {
+  const uid = requireUid(request);
+  try {
+    return await deleteAccountData(uid);
+  } catch (error) {
+    logger.error("account deletion failed", { message: error.message });
     throw asHttpsError(error);
   }
 });

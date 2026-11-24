@@ -105,6 +105,8 @@ struct AppFeatureAW {
                     maxHeartRate: maxHR,
                     activityType: activityType
                 )
+                // Started by the iPhone's own event, so the iPhone leads and a pause is resumed there.
+                state.hrMirror?.leadsWorkout = false
                 return .send(.hrMirror(.presented(.start)))
 
             // Live-workout events are forwarded only while the workout is actually
@@ -210,7 +212,7 @@ struct AppFeatureAW {
                             await send(.workoutConfigurationReceived(configuration))
                         }
                     },
-                    // One-shot: transfer ALL historical watch_log_*.txt files to iPhone.
+                    // One-shot: queue every finished log not already on its way to the iPhone.
                     // Picks up logs from sessions that never reached normal .stop flow (crashes, low battery).
                     .run { [watchClient = watchClient] _ in
                         await watchClient.transferAllLogFiles()

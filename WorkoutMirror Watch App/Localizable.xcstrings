@@ -48,6 +48,12 @@
             "state" : "translated",
             "value" : "Media 7 giorni: %1$lld %2$@"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia z 7 dni: %1$lld %2$@"
+          }
         }
       }
     },
@@ -146,6 +152,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dettaglio"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Składowe"
           }
         }
       }
@@ -308,6 +320,40 @@
         }
       }
     },
+    "iPhone out of range" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone außer Reichweite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone fuera de alcance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone hors de portée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone fuori portata"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone poza zasięgiem"
+          }
+        }
+      }
+    },
     "No Data" : {
       "localizations" : {
         "de" : {
@@ -332,6 +378,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nessun dato"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak danych"
           }
         }
       }
@@ -394,6 +446,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apri su iPhone"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz na iPhonie"
           }
         }
       }
@@ -525,6 +583,12 @@
             "state" : "translated",
             "value" : "Intervallo"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakres"
+          }
         }
       }
     },
@@ -641,6 +705,40 @@
         }
       }
     },
+    "Still training?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainierst du noch?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Sigues entrenando?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toujours à l’entraînement ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti stai ancora allenando?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dalej ćwiczysz?"
+          }
+        }
+      }
+    },
     "Stop" : {
       "localizations" : {
         "de" : {
@@ -671,6 +769,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stop"
+          }
+        }
+      }
+    },
+    "The workout is paused, but your heart rate says you are working." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Training ist pausiert, aber deine Herzfrequenz zeigt, dass du trainierst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El entrenamiento está en pausa, pero tu frecuencia cardiaca indica que sigues activo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’entraînement est en pause, mais votre fréquence cardiaque indique que vous êtes en effort."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’allenamento è in pausa, ma la frequenza cardiaca indica che ti stai allenando."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening jest wstrzymany, a tętno wskazuje, że ćwiczysz."
           }
         }
       }

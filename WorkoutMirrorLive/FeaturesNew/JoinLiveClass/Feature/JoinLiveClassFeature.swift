@@ -234,7 +234,8 @@ struct JoinLiveClassFeature {
                     nick: nick,
                     bpm: 0,
                     maxHR: maxHR,
-                    activeEnergy: 0
+                    activeEnergy: 0,
+                    isPaused: state.isWorkoutPaused
                 )
                 Logger.gymRoom.info("[Peer] sending initial registration — nick=\(nick), bpm=0")
                 return .merge(
@@ -268,6 +269,7 @@ struct JoinLiveClassFeature {
                 // broadcast after leave/disconnect, and never without a token.
                 guard state.phase == .connected,
                       let sessionToken = state.scannedQRPayload?.token else { return .none }
+                state.lastSentMetrics = metrics
                 let payload = HRSamplePayload(
                     deviceID: state.deviceID,
                     sessionToken: sessionToken,
@@ -278,12 +280,18 @@ struct JoinLiveClassFeature {
                     effortPoints: state.currentEffortPoints,
                     isSensorStale: state.isSensorStale,
                     disconnectReason: state.lastDisconnectReason,
-                    watchLinkLost: state.watchLinkLost
+                    watchLinkLost: state.watchLinkLost,
+                    isPaused: state.isWorkoutPaused
                 )
                 Logger.gymRoom.debug("[Peer] forwarding to iPad: \(Int(metrics.heartRate)) bpm, \(metrics.activeEnergy) kcal, \(payload.effortPoints ?? 0) pts")
                 return .run { [peerMirrorClient] _ in
                     await peerMirrorClient.send(payload)
                 }
+
+            case let .workoutPauseChanged(isPaused):
+                state.isWorkoutPaused = isPaused
+                guard let lastSentMetrics = state.lastSentMetrics else { return .none }
+                return .send(.workoutMetricsReceived(lastSentMetrics))
 
             case let .recapReceived(payload):
                 // Host przysłał wynik zajęć — oddaj parentowi (SessionFeature parkuje
@@ -293,6 +301,7 @@ struct JoinLiveClassFeature {
             case .peerDisconnected:
                 Logger.gymRoom.info("[Peer] disconnected — searching + start 5min reconnect timeout")
                 state.phase = .searching
+                state.lastSentMetrics = nil
                 return .merge(
                     .cancel(id: JoinLiveClassCancelID.hrStream),
                     startSearchTimeout

@@ -40,6 +40,15 @@ public struct EffortPointsAccumulator: Equatable, Sendable {
         secondsByZone[zone, default: 0] += duration
     }
 
+    /// Takes the longer time per zone from another counter of the same workout.
+    ///
+    /// Per zone and never down, so a counter that started late cannot pull the total back.
+    public mutating func merge(_ other: [HeartRateZone: TimeInterval]) {
+        for (zone, seconds) in other where seconds > secondsByZone[zone, default: 0] {
+            secondsByZone[zone] = seconds
+        }
+    }
+
     /// Clears the counter — call on per-workout reset (new session start).
     public mutating func reset() {
         secondsByZone = [:]

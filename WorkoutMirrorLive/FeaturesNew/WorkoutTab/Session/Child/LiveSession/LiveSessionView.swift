@@ -44,9 +44,9 @@ struct LiveSessionView: View {
         )
         .background(Color.black.ignoresSafeArea())
         .preferredColorScheme(.dark)
-        .modifier(StaleDesaturation(isStale: store.isSensorStale))
+        .modifier(StaleDesaturation(isStale: store.showsStaleHeartRate))
         .animation(.easeInOut, value: store.currentHeartRateZone)
-        .animation(.easeInOut(duration: 0.25), value: store.isSensorStale)
+        .animation(.easeInOut(duration: 0.25), value: store.showsStaleHeartRate)
         .onAppear { send(.viewDidAppear) }
         .onDisappear { send(.viewDidDisappear) }
     }
@@ -165,14 +165,15 @@ struct LiveSessionView: View {
     /// swap the pulsing heart for a slashed one.
     private var heartRateView: some View {
         HStack {
-            Image(systemName: store.isSensorStale ? "heart.slash" : "heart.fill")
-                .foregroundStyle(store.isSensorStale ? Color.gray : Color.red)
+            Image(systemName: store.showsStaleHeartRate ? "heart.slash" : "heart.fill")
+                .contentTransition(.symbolEffect(.replace))
+                .foregroundStyle(store.showsStaleHeartRate ? Color.gray : Color.red)
                 .font(.system(.title2, design: .rounded))
                 .symbolEffect(.pulse, options: .repeating, value: store.workoutMetrics.heartRate)
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(store.workoutMetrics.heartRate.formatted(.number.precision(.fractionLength(0))))
                     .font(.system(.title2, design: .rounded, weight: .semibold).monospacedDigit())
-                    .foregroundStyle(store.isSensorStale ? .secondary : .primary)
+                    .foregroundStyle(store.showsStaleHeartRate ? .secondary : .primary)
                     .contentTransition(.numericText(value: store.workoutMetrics.heartRate))
                     .animation(.snappy(duration: 0.3), value: store.workoutMetrics.heartRate)
                 Text("BPM")

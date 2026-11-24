@@ -56,9 +56,8 @@ extension PersonSettingsFeature {
             /// Action triggered when close button is tapped
             case xMarkButtonTapped
 
-            /// Action triggered when the Developer row is tapped — opens API key
-            /// management and diagnostics.
-            case developerTapped
+            /// Action triggered when the Privacy & data row is tapped — opens the AI consent, diagnostics and cloud data.
+            case privacyTapped
 
             /// Action triggered when edit profile row is tapped
             case editProfileTapped
@@ -71,9 +70,9 @@ extension PersonSettingsFeature {
             case heartRateZonesTapped
 
         }
-        
+
         // MARK: - Destination
-        
+
         /// Action to handle navigation destinations within this feature.
         case destination(PresentationAction<Destination.Action>)
     }

@@ -37,6 +37,9 @@ extension SessionFeature {
         /// Reads `state.controls.elapsedTime` and sends `.workoutTick` to Watch.
         case watchTickEffect
 
+        /// Whether the Watch took the last clock tick — the cheapest sign of it being in reach.
+        case watchTickDelivered(Bool)
+
         /// Received when the paired Apple Watch sends a `WatchWorkoutEvent` during an active session.
         case watchEventReceived(WatchWorkoutEvent)
 
@@ -73,6 +76,14 @@ extension SessionFeature {
         /// transitions `sessionState` from `.waitingForWatch` to `.countdown`.
         /// Internal action — dispatched from `viewDidAppear` after `startWatchWorkout` succeeds.
         case subscribeMirroredSessionStarted
+
+        /// The Watch's mirrored session reached the iPhone — on time, or after the wait gave up.
+        /// Internal action.
+        case mirroredSessionStarted
+
+        /// The mirrored session did not arrive in time — the workout starts without the
+        /// link instead of waiting forever. Internal action.
+        case mirroredSessionWaitTimedOut
 
         /// `PauseWorkoutIntent` from Live Activity / Lock Screen posted the
         /// `workoutPauseRequested` notification. Routes to the same flow as on-screen

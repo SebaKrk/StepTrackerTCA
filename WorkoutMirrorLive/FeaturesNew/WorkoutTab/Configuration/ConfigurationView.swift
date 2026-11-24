@@ -284,19 +284,100 @@ struct ConfigurationView: View {
     }
     
     private var readyView: some View {
-        startButton
+        VStack(spacing: 20) {
+            if let workout = store.selectedWorkout {
+                selectedWorkoutBadge(workout)
+            }
+            if let device = store.selectedDevice {
+                selectedDeviceStatus(device)
+            }
+            startButton
+        }
+        .padding(.horizontal, 16)
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
     }
-    
+
     private var startButton: some View {
         Button {
             send(.startButtonTapped)
         } label: {
-            Text("START")
-                .bold()
-                .tint(.white)
+            startButtonLabel
         }
-        .frame(width: 75, height: 75)
-        .glassEffect(.regular.interactive(true), in: .capsule)
+        .buttonStyle(.glassProminent)
+        .controlSize(.large)
+        .tint(.green)
     }
-    
+
+    // MARK: - Implementation
+
+    /// Same icon tile as the activity picker step, so the choice is recognised at a glance.
+    private func selectedWorkoutBadge(_ workout: WorkoutType) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: workout.iconName)
+                .frame(width: 55, height: 55)
+                .glassEffect(.regular, in: .capsule)
+            Text(workout.title)
+                .font(.footnote)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .foregroundStyle(.primary)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(workout.title)
+    }
+
+    /// Device name with its connection state on one line; only a problem gets a colour.
+    private func selectedDeviceStatus(_ device: DeviceOption) -> some View {
+        Text(selectedDeviceText(device))
+            .font(.subheadline)
+            .foregroundStyle(selectedDeviceTint)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .animation(.snappy, value: store.isSelectedDeviceReady)
+    }
+
+    private var startButtonLabel: some View {
+        Label(String(localized: "Start"), systemImage: "play.fill")
+            .font(.headline)
+            .padding(.horizontal, 12)
+    }
+
+    private func selectedDeviceText(_ device: DeviceOption) -> String {
+        guard let status = selectedDeviceStatusText else { return selectedDeviceName(device) }
+        return "\(selectedDeviceName(device)) · \(status)"
+    }
+
+    private func selectedDeviceName(_ device: DeviceOption) -> String {
+        switch device {
+        case .watch:
+            String(localized: "Apple Watch")
+        case .hrBelt:
+            String(localized: "HR belt")
+        case .airPods:
+            String(localized: "AirPods")
+        case .iphone, .mirror:
+            String(localized: "Other HR device")
+        }
+    }
+
+    private var selectedDeviceStatusText: String? {
+        switch store.isSelectedDeviceReady {
+        case true?:
+            String(localized: "connected")
+        case false?:
+            String(localized: "disconnected")
+        case nil:
+            nil
+        }
+    }
+
+    private var selectedDeviceTint: Color {
+        switch store.isSelectedDeviceReady {
+        case false?:
+            .orange
+        case true?, nil:
+            .secondary
+        }
+    }
+
 }

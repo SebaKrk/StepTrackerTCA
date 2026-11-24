@@ -44,15 +44,27 @@ extension HRMirrorFeature {
         var heartRateZone: HeartRateZone = .resting
 
         /// Live effort points counter (Myzone-style) — credits time in HR zones
-        /// as sensor samples arrive. DISPLAY-ONLY on the wrist: the persisted value
-        /// is frozen from the iPhone's LiveSession accumulator at session end, not
-        /// from here and not from HealthKit (small wrist-vs-phone drift is fine).
+        /// as sensor samples arrive. The Watch sees every reading, so its totals ride
+        /// in each payload and the iPhone merges them; the persisted value is still
+        /// frozen on the iPhone at session end, from that merged counter.
         /// Fresh per workout — `AppFeatureAW` creates a new `State` for every session.
         var effortPoints = EffortPointsAccumulator()
 
         /// Timestamp of the previous `hrReceived` sample — the credited duration
         /// for the current sample is the delta between the two.
         var lastEffortSampleDate: Date?
+
+        /// When the sensor last reported; unlike `lastEffortSampleDate` it survives a resume.
+        var lastSensorReadingDate: Date?
+
+        /// `true` while the sensor has been silent too long — the shown value is the last known one.
+        var isHeartRateStale: Bool = false
+
+        /// Readings in a row the iPhone did not take.
+        var failedPhoneSendCount: Int = 0
+
+        /// Whether the iPhone counts as out of reach; one lost reading alone is not enough.
+        var isPhoneUnreachable: Bool { failedPhoneSendCount >= 2 }
 
         // MARK: - Workout Clock
 
@@ -107,6 +119,23 @@ extension HRMirrorFeature {
         /// Presents the low-battery overlay when battery drops to ≤5% — offers ending
         /// the workout now (guaranteed save) instead of riding it out to a power death.
         var isLowBatteryWarningPresented: Bool = false
+
+        // MARK: - Pause Reminder
+
+        /// `true` when the workout is led from the Watch; `false` when the iPhone leads and the Watch accompanies it.
+        var leadsWorkout: Bool = true
+
+        /// Presents the "still training?" overlay: the workout is paused while the heart rate stays up.
+        var isPauseReminderPresented: Bool = false
+
+        /// `true` once the wearer answered OK — no more reminders until this pause ends.
+        var isPauseReminderMuted: Bool = false
+
+        /// Watches how the heart rate behaves after a pause, to tell a real one from an accident.
+        var pauseActivity = PauseActivityDetector()
+
+        /// When the question was last raised with a haptic; spaces the repeats.
+        var lastPauseReminderDate: Date?
 
         // MARK: - Workout Configuration
 

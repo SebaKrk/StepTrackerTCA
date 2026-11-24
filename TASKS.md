@@ -1906,3 +1906,236 @@
     - plan: the ladder is a quiet label beside the type and the cap, "AMRAP · 15 min · 1-2-3-4-5-6…", the way a closed ladder already reads; the fitness run moved to the same place and lost its blue bar
     - the reader fills the ladder field on one scan and writes the ladder into the notes on the next, so the proxy enforces it: an open ladder found in the notes of a block without numbers becomes the ladder, and a note quoting it is dropped
     - not done: the editor cannot set an open ladder by hand, and a ladder that starts descending and continues is read but untested
+
+### IOS-00197 App Review — each app asks only for the background modes it uses
+    - branch: `dev/IOS-00197/IOS-00197` (from develop)
+    - a background mode nothing uses is a rejection under guideline 2.5.4, and each of the two apps declared one
+    - iPhone: `bluetooth-peripheral` is gone, left over from the join-flow prototype
+    - the iPhone is a central on every Bluetooth path: it scans for the iPad, connects, writes heart rate, and takes the class end and the recap as notifications
+    - the heart-rate strap is a central connection too, and the Watch arrives over HealthKit mirroring, not Bluetooth
+    - GymRoom: `bluetooth-central` is gone, because the iPad only advertises and never scans
+    - the only `CBPeripheralManager` lives in `PeerMirrorBLEHostSession`, which GymRoom alone starts
+    - the only two centrals are created by `startBrowsing` and by HealthHub, and GymRoom reaches neither
+    - kept on the iPhone: `fetch` (readiness refresh), `bluetooth-central` (strap and iPad), `location` (outdoor route)
+    - kept on the iPad: `bluetooth-peripheral` (the class and the heart rate coming in)
+    - each kept mode says what it is for in one formula, "Background mode: `name` — why", as a comment in both `Info.plist` files and on the type that uses it
+    - the types that carry the formula: `ReadinessRefreshScheduler`, `DefaultCentralManager`, `PeerMirrorBLEPeerSession`, `WorkoutRouteRecorder`, `PeerMirrorBLEHostSession`
+    - `DefaultCentralManager` had no type description and gained one
+    - comments in English: `DefaultCentralManager` and `PeerMirrorBLEPeerSession`, each with its two delegate extensions
+    - a stale comment corrected: subscribing to the heart-rate characteristic is not only a presence marker, it is also how the class end and the recap reach the iPhone
+    - ticket numbers left the comments of `DefaultCentralManager` and its delegate, and a commented-out `connectedPeripheral` property is deleted
+    - every Swift file changed in comments only: no line of code moved
+    - not done: a device check with the app in the background, with the strap and with the Watch as the source, on the iPhone and on the iPad
+    - not done: the review notes for App Store Connect, the Polish comments of `PeerMirrorBLEHostSession`, and the deprecated `NSBluetoothPeripheralUsageDescription` key
+
+### IOS-00198 App Review — every prompt speaks the user's language, and AI asks before it sends
+    - branch: `dev/IOS-00198/IOS-00198` (from develop)
+    - the three apps ship in six languages, yet each permission prompt existed in one: Polish on the iPhone and the iPad, English and Polish mixed on the Watch
+    - each app gains an `InfoPlist.xcstrings` with every prompt in en, pl, de, es, fr and it: five prompts on the iPhone, three on the Watch, one on the iPad
+    - the base value of every prompt is English now, as the development language is; the Polish wording that shipped became the Polish translation
+    - the Watch no longer calls the app "Workout Mirror" in its two Health prompts
+    - the iPhone Bluetooth prompt names both uses, the heart-rate strap and the coach's iPad; it only named the iPad
+    - `NSBluetoothPeripheralUsageDescription` is gone from the iPhone: deprecated since iOS 13 and read by nothing
+    - Polish gained the strings it lacked: fifteen on the iPhone and five on the Watch
+    - checked and left alone: the widget reads the iPhone catalog, so its strings are already translated
+    - a plan photo and a plan's text reach Anthropic through our function, and nothing said so or asked: the app now asks once, before the first one leaves the phone
+    - the consent is one stored switch, `aiProcessingConsent`, read by the scan, by both "Generate" buttons and by the settings
+    - scan: `startParsing` is the single gate, so the camera, the library, Continue and Retry all pass it; declining with a photo in hand returns to the start, and "Add plan manually" stays
+    - warm-up and cool-down: the plan preview and the session editor ask the same question before generating, and the editor resumes the one that was tapped
+    - each alert lives in its feature's `+AlertState` extension, as every other alert in the app; `ScanPlanFeature` gained that file
+    - the alert names Anthropic, says what goes there, and says that we keep no copy and send no name or account
+    - settings: an "AI features" section with the switch that takes the consent back, and a footer saying what is sent
+    - the camera prompt says that an AI service reads the photographed plan
+    - the eight new strings are in all six languages
+    - checked and left alone: the settings footer about personal data is true, height, weight and heart rate do stay on the device
+    - not done: a run on a device in each language, to see the prompts and the consent as the system shows them
+    - not done: the privacy policy that names Anthropic, and the privacy manifest
+
+### IOS-00199 App Review — each app declares what it collects and which system APIs it reads
+    - branch: `dev/IOS-00199/IOS-00199` (from develop)
+    - no target had a `PrivacyInfo.xcprivacy`, and an upload without one is rejected before a person looks at it
+    - iPhone, Watch, iPad and the widget each gain a manifest; none of them tracks, and none names a tracking domain
+    - iPhone, collected and linked to the account: the account id, the display name, fitness results, active energy when the member shares it, and published plans — all of it Team data in Firestore
+    - iPhone, collected and not linked: the plan photo that goes to the AI service
+    - UserDefaults is declared everywhere: the app's own settings (CA92.1), and the app group the iPhone and the widget share for readiness (1C8F.1)
+    - the Watch also declares file timestamps inside its own container (C617.1): the debug log files are aged by date
+    - the local packages need no manifest of their own, they are linked into the apps; Firebase, TCA, Sharing and GRDB ship theirs
+    - checked and left out: boot time, disk space and active keyboards are read nowhere; crash data is declared by Crashlytics itself
+    - checked in the project file: each manifest's folder belongs to one target and is excepted nowhere, so each app bundles its own
+    - not done: Xcode's privacy report from an archive, to see the four manifests merged with the libraries'
+    - not done: the App Store Connect privacy answers, which must say the same as these files
+
+### IOS-00200 App Review — no screen promises what is not there
+    - branch: `dev/IOS-00200/IOS-00200` (from develop)
+    - a reviewer rejects a build that shows unfinished features, and three places did
+    - settings: the "Developer" section is "Support" now, its row is "Diagnostics", and the footer no longer speaks of API keys the app stopped holding
+    - the screen behind that row is titled "Diagnostics"; it only ever sent a diagnostics bundle, so nothing in it changed
+    - Team: the Private / Public filter left the toolbar, because Public led to a "Coming Soon" board; private groups are the whole screen
+    - plan history: Select and Compare left the toolbar, because Compare opened a "coming soon" board
+    - both hidden entries keep their code, one comment each says what brings them back
+    - two new strings, "Support" and the footer, in all six languages
+    - not done: the old strings "Developer", "Developer tools" and the API-keys footer still sit in the catalog as unused entries
+    - not done: a look at both screens on a device, to see the toolbars with one item fewer
+
+### IOS-00201 App Review — the export-compliance answer and the category live in the project
+    - branch: `dev/IOS-00201/IOS-00201` (from develop)
+    - no target answered the encryption question, so App Store Connect would ask it by hand on every upload
+    - iPhone, Watch and iPad declare `ITSAppUsesNonExemptEncryption = NO`: the code holds no cryptography of its own, only HTTPS through the system and Firebase
+    - the widget needs no answer of its own, the question is read from the app that carries it
+    - iPhone and iPad name their category, Health & Fitness; the iPhone had the key with an empty value, the iPad had none
+    - both settings sit in the build settings next to the other `INFOPLIST_KEY_` entries, in both configurations
+    - not done: a copyright line, which needs the name that should stand behind the app
+    - not done: the category in App Store Connect, which is chosen there and not read from this key
+
+### IOS-00202 App Review — a member can erase their cloud data, and privacy has one screen
+    - branch: `dev/IOS-00202/IOS-00202` (from develop)
+    - the app opens an anonymous account and keeps Team data under it, and nothing in the app could remove it
+    - a new callable, `deleteMyData`, erases everything under the caller's account and then the account; it runs with admin rights, because the rules let a member delete only their own documents and the scan allowance cannot be written from a phone
+    - per group: the member's results on every day, their membership and the invites they created go; the member count drops with them
+    - a group with nobody else in it is deleted whole; an owner with company hands the group to whoever has been a member longest
+    - a published plan stays with its group and loses the author's name and id, on the plan and on the group's last-plan line
+    - invites the account scanned without joining go too, then the scan allowance, then the account
+    - every step is safe to repeat, so a run that failed halfway is finished by asking again; the account goes last, because without it there is no asking again
+    - phone: `ScanProxyClient` gains the call, `TeamClient` gains `deleteMyData`, and after the server answers the phone signs out and blanks the account id stored in the profile
+    - settings: one row, "Privacy & data", opens a screen of its own that holds the AI consent, the diagnostics bundle and the erase; the main settings no longer carry three sections for them
+    - that screen is a child feature, `PrivacySettingsFeature`, so `PersonSettingsFeature` is back to the profile and the heart-rate settings
+    - the erase is a destructive button with a confirmation that says what goes and what stays, a spinner while the server works, and an alert for either outcome
+    - the three alerts live in the `PrivacySettingsFeature+AlertState` extension
+    - a failed erase speaks of the erase: the alert borrowed the scan's error copy and told the member their scan did not go through
+    - the AI switch reads "Board scan and warm-ups with AI" and its footer says what turning it off does; "Send plans to Anthropic" read like an order to send
+    - the AI switch has a tint: without one its on state was a white pill with no visible knob
+    - switching the AI consent off asks first, and says that scanning still works and only asks again; the switch stays on until the answer
+    - leaving a group now takes the member's results along; until now it removed the membership and left every result in the group under their name
+    - the unused `users/{uid}` rule is gone from `firestore.rules`: no code reads or writes that collection
+    - sixteen new strings in all six languages
+    - the function is deployed to the development project
+    - not done: `firebase deploy` of the function on the production project, and of the rules on both — in production the button answers with an error until then
+    - not done: a run on a device against the deployed function, as a sole member, as an owner with company, and as a plain member
+    - not done: removing a member as the owner still leaves that member's results in the group
+    - not done: the local Firestore cache still holds the old groups until the app restarts
+
+### IOS-00203 Launch — a database that cannot open says so instead of killing the app
+    - branch: `dev/IOS-00203/IOS-00203` (from develop)
+    - the iPhone and the iPad both answered a failed database bootstrap with `fatalError`: twenty migrations run at launch, and one failing meant an app that died on every start, for a reviewer as much as for a member
+    - both apps keep the failure and show `DatabaseFailureView` in place of the whole app: what happened, that closing and reopening is the first thing to try, and the technical description in small print for whoever is asked for help
+    - the view is one file, a member of both targets, as the widget already borrows files from the iPhone folder; each app passes its own message
+    - the iPhone's message adds that workouts in the Health app are safe; the iPad has none to speak of
+    - the iPad builds its store only when the database opened, because its reducers reach for it at once
+    - the failure is a plain `let` on the `App`, read once at launch; no state is kept in a view
+    - no "reset my data" button and no "try again": the first erases everything on one tap, the second cannot work, a database registers once per launch
+    - the usage example on `bootstrapDatabase()` no longer teaches `fatalError`
+    - two new strings per app, in all six languages
+    - seen on the iPhone simulator with the bootstrap made to throw for one run: the screen shows, the app stays up, and the launch tasks behind it do not bring it down
+    - not done: the same look on the iPad, which shares the view but was only built
+    - not done: the Watch and the widget open no database, so they needed nothing
+
+### IOS-00204 Activity Details — a workout whose plan is gone can be re-linked
+    - branch: `dev/IOS-00204/IOS-00204` (from develop)
+    - a workout keeps the id of the plan it was done with; when that plan left the local database, "Fill in results" and "Edit results" did nothing and said nothing
+    - seen on a device: the linked plan was not among the thirty-two plans in the database
+    - one way a plan left: downloading a republished Team plan deleted the old copy and saved the new one under a fresh id; the new copy now keeps the id of the one it replaces, so workouts linked to it stay linked
+    - a workout that is already orphaned opens the plan picker instead of nothing, and the plan picked there is linked to it
+    - results that were already entered travel to the picked plan, so re-linking does not ask for them twice
+    - the four actions for a loaded and a failed summary are one, `summaryLoaded`, carrying a `Result`; the two flows differed only in whether results came along
+    - a failed load is reported with `reportIssue`; until now both failures were swallowed
+    - opening the results is a private method of the reducer, `openResultsEntry`; the view action it replaced was sent by no view
+    - `RecapMapLoad` left the middle of `State` for a file of its own, with a doc comment on every case
+    - not done: a build and a run on a device of any of this
+    - not done: entered results are paired with the picked plan's blocks by position only, so a plan with different blocks shows them under the wrong blocks, and on a Team plan sends them to the group board
+    - not done: the picker opens without saying why, and a failed load still shows the member nothing
+    - not done: removing a plan by hand in Plans still orphans the workouts linked to it
+    - not done: the download still deletes the old copy and saves the new one in two steps; a save that fails in between leaves no copy
+
+### IOS-00205 Heart rate strap — the saved workout reads every reading, and the setup screens around it
+    - branch: `dev/IOS-00205/IOS-00205` (from develop)
+    - a strap workout showed three dots on the minute chart, a wrong time in zones and no hrTSS, while the summary shown right after the workout was fine
+    - seen on a device: HealthKit keeps a strap's readings packed into a few series samples (three samples holding 487 readings), and the plain sample query returned only each pack's average
+    - `HealthKitQueryBuilder.fetchHeartRateSamples` asks with the series query and returns one reading per sample, kept to the workout's interval and sorted; the first pack no longer falls out for starting two seconds before the workout
+    - `WorkoutSummaryLoader.heartRateSamples` reads through the same function, so the packs are opened in one place
+    - seen on a device after the change: seven bars for a six-minute workout, the peak on the chart equal to the peak on the tile, time in zones equal to the workout's length
+    - Watch workouts were not packed and read as before
+    - minute chart: the selected minute's label was a black box on the time labels; a material has nothing to blur inside a chart annotation, so it has a plain background now, sits at the top beside the rule and stays inside the plot
+    - workout setup, ready step: the white "START" on glass was invisible in light mode; the step shows the picked workout's icon tile, one line with the sensor and its state, and a prominent Start button
+    - `ConfigurationFeature.State.isSelectedDeviceReady` answers for the Watch and the strap, and says nothing for sources this screen cannot see
+    - Bluetooth devices: the close button carried glass twice, once from the toolbar and once from its own style
+    - Bluetooth devices: a row took a tap on its text only, so a tap beside the name did nothing and the scan kept spinning; the whole row takes it now
+    - the list reads "connected" and "connecting" from state, not from `CBPeripheral.state`, which the view cannot observe
+    - a connect that gets no answer in fifteen seconds is given up; CoreBluetooth never gives up by itself
+    - a sensor whose setup ends without a heart-rate subscription still refreshes the lists
+    - a scan that ends on its own clears the scanning indicator
+    - each change was read by a second reviewer before it was called done; the Bluetooth reducer went through three rounds
+    - not done: a build and a run of the last version of the ready step and of the Bluetooth list
+    - not done: the activity list now reads thousands of readings per strap workout for every workout of the last 28 days, and the details screen runs the query three times; the result wants a cache per workout
+    - not done: HR Recovery still reads with the plain query, so it can be wrong or empty for a strap workout
+    - not done: the strap dropped its link for two minutes mid-workout, and the same shows as "sensor stale" in GymRoom; the cause is not known
+    - not done: the Watch's state on the ready step is read once, when the setup opens
+    - not done: closing the Bluetooth sheet does not cancel a connect that is still pending
+
+### IOS-00206 Paused workout — effort points stand still and the GymRoom tile says why
+    - branch: `dev/IOS-00206/IOS-00206` (from develop)
+    - seen in a class: an athlete paused by accident and kept training; her tile looked live, her calories stood still and her points kept growing
+    - the calories stood still because HealthKit freezes active energy in a pause; the points grew because the counter looked at heart rate only and never asked about the pause
+    - the Watch and the iPhone credit no effort points while the workout is paused
+    - a resume does not credit the pause afterwards: the Watch clears its last sample date, the iPhone skips the credit of the first sample after the resume
+    - `setIntervalTimerPaused` is `setWorkoutPaused` now; it records the pause in `LiveSessionFeature.State` and still forwards it to the interval timer
+    - `HRSamplePayload` carries an optional `isPaused`; an older iPhone sends none and an older iPad ignores it
+    - the iPhone tells the class at once: a pause or a resume re-sends the last sample with the new flag, because a pause can stop the samples
+    - the registration payload carries the flag too, and a class joined in the middle of a pause starts with it
+    - the iPad keeps the last known flag when a payload brings none, so a short Bluetooth drop does not clear it
+    - the tile stays live and shows "Workout paused" in its header, between the avatar and the heart rate; the text shrinks before it can cover them
+    - the change was read by a second reviewer in two rounds; the first found the credit after a resume, the flag that might never arrive, the flag lost on reconnect and the badge covering the heart rate
+    - the badge is short in Spanish, French and Italian ("En pausa", "En pause", "In pausa"); the pause icon beside it carries the rest
+    - seen on devices with a Watch, an iPhone and the iPad: the heart rate stays live during a pause, the badge shows and goes with pause and resume, and the Polish text fits between the avatar and the heart rate
+    - one evening the iPhone got no mirrored session from the Watch in five starts, on this build and on the TestFlight one alike; the next morning both worked with the same code
+    - the Watch now writes to its log file whether opening the mirroring to the iPhone succeeded, and the error when it did not; until now that error reached the Watch console only
+
+### IOS-00207 Workout logs in release, and a Watch workout that tells the truth when the link or the sensor drops
+    - branch: `dev/IOS-00207/IOS-00207` (from develop)
+    - one evening the iPhone got no mirrored session from the Watch in five starts; the only evidence was the log files of a debug build, and the TestFlight build of another user had none
+    - workout logs are no longer debug-only: a switch in Privacy → Diagnostics turns them on in release, off by default; debug builds always record and show the switch on and disabled
+    - logs live in `Application Support/WorkoutLogs`, out of Files.app and of iCloud backup; logs from earlier builds are removed from Documents
+    - `WorkoutLogStore` names, lists and prunes the files (seven days, ten workout files and three idle files per device); `WorkoutLogClient` is the TCA dependency over it
+    - every change to the set of files goes through the `WorkoutFileLogger` actor, which alone knows the file being written; the first review found a prune that could delete that file
+    - lines logged before a workout go to a small idle file, so app launches cannot push workout logs out of the limit
+    - the diagnostics archive carries a `logs/` folder while recording is on; the unzipped copy and older archives are removed
+    - switching recording off deletes the logs on the iPhone and on the Watch and cancels queued transfers
+    - the switch reaches the Watch in the application context, merged with the readiness keys instead of replacing them
+    - the Watch seals a workout's file before sending it, sends it once with its own name, and deletes it when the system confirms delivery
+    - file writes use the throwing `FileHandle` calls; the old ones raise on a full disk and would crash a release build
+    - debug builds trace every heart-rate reading at five stages, from the Watch's sensor to the iPhone's screen, with millisecond times; release keeps one line per thirty seconds, now with the number of readings
+    - the trace showed the Watch reports every five seconds and reaches its own screen in a millisecond, and that the iPhone processed every reading twice
+    - the iPhone's session screen had kept its own subscription to the metrics beside the one the session feeds it; the older one is gone
+    - the countdown started before the session knew whether a Watch leads, so the iPhone never really waited for the Watch; it starts undecided now and waits up to fifteen seconds for the mirrored session
+    - a mirrored session that arrives after that wait is still attached: the plan link is written and the Watch gets the max heart rate
+    - the countdown's 100 ms timer never stopped and sent ten empty actions a second for the whole workout; it ends with the countdown
+    - a workout ended on the Watch no longer reads as an outage in the log, and a tick queued at the end is not sent into a closed channel
+    - no reading from the Watch for fifteen seconds greys the heart rate on the iPhone with "Adjust your Apple Watch"; three clock ticks the Watch did not take raise the existing lost-connection banner within seconds, and one tick in ten keeps probing for its return
+    - the Watch greys its own heart when its sensor is silent, and shows a small mark when the iPhone is out of reach; its reading stays live then
+    - effort points with a Watch: the Watch sends its running time per zone with every reading and the iPhone merges it, so readings the iPhone never received still count; what the iPhone counted before the Watch had a max heart rate is added, not replaced
+    - with a strap the iPhone still counts by itself; a strap keeps nothing when nobody listens
+    - an unused twin of `processReceivedWatchData` left `HKWorkoutSessionDelegate`
+    - each part was read by a second reviewer before it was called done, most of them twice
+    - seen on devices: logs in the new folder, the Watch's file arriving once under its own name, pause and both ways of ending, the trace, the link dropping and returning after walking away
+    - not done: a build and a run of the stale heart rate, the lost-link detection by ticks and the merged effort points
+    - not done: GymRoom still logs in debug only and has no screen for the switch
+    - not done: a workout ended on the Watch while the iPhone is out of reach loses the points after the last payload that arrived
+    - not done: the Live Activity still shows the last heart rate as live when readings stop
+    - not done: `startWatchApp` that never answers leaves the waiting screen up; the fifteen seconds start only after it answers
+    - not done: the privacy manifest lists no collected data, while diagnostics can now carry heart rate
+
+### IOS-00208 Watch asks "Still training?" when a paused workout's heart rate says so
+    - branch: `dev/IOS-00208/IOS-00208` (from develop)
+    - seen in a class: an athlete paused by accident and kept training, and nothing on her wrist told her
+    - a timer alone cannot tell a rest from a mistake, so the Watch reads how the heart-rate zones behave after the pause
+    - a heart at rest keeps falling, zone after zone; one still working holds its zone or climbs
+    - `PauseActivityDetector` in SharedModels holds the whole rule as a value type with three answers: undecided, resting, still training
+    - a climb above the lowest zone counts after fifteen seconds; a zone that holds counts after sixty seconds in the three upper zones, 105 in fat burning and 120 in recovery
+    - falling and resting never ask; after a real rest only a climb of two zones asks, because one zone up is standing or walking
+    - no single reading decides: a fall, a climb and the first yardstick each need a second reading, and a gap of twenty seconds starts the clocks again
+    - the Watch shows the question with Resume and OK over the workout; OK silences it for that pause, and left alone it taps the wrist every two minutes
+    - no question without a max heart rate, and none when the iPhone leads the workout
+    - the question is withdrawn when the heart rate reaches rest, and when the workout resumes or ends
+    - the rule was read by a second reviewer in four rounds and replayed on fifteen scenarios, two of them real pauses; the rounds found a question after standing up for water and one raised by a single low reading
+    - not done: a build of the Watch app and a run on a wrist; only the SharedModels package was built, by the commit hook
+    - not done: the thresholds are estimates and have seen no real workout
+    - not done: a wrong reading at the very moment of the pause, and a short overshoot after stopping that crosses a zone for fifteen seconds, can still raise the question

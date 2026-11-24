@@ -24,6 +24,9 @@ public actor ScanProxyClient {
     /// Callable that writes a warm-up or cool-down cue.
     private static let noteFunction = "trainingNote"
 
+    /// Callable that erases the caller's account and everything stored under it.
+    private static let deleteFunction = "deleteMyData"
+
     /// Wire value asking the proxy for both cues in one reply.
     private static let bothKinds = "both"
 
@@ -126,6 +129,13 @@ public actor ScanProxyClient {
             coolDown: response.coolDown,
             coolDownMinutes: response.coolDownMinutes
         )
+    }
+
+    // MARK: - Account
+
+    /// Erases everything the server holds under the caller's account, and the account itself.
+    public func deleteAccountData() async throws {
+        let _: DeleteResponse = try await call(Self.deleteFunction, body: DeleteRequest())
     }
 
     // MARK: - Private
@@ -267,4 +277,10 @@ public actor ScanProxyClient {
         let coolDown: String?
         let coolDownMinutes: Int?
     }
+
+    /// Payload of an account erase; the identity token alone says whose.
+    private struct DeleteRequest: Encodable {}
+
+    /// Reply of an account erase; the counts in it are for the server log, not the phone.
+    private struct DeleteResponse: Decodable {}
 }

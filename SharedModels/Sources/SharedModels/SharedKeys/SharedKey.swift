@@ -29,4 +29,14 @@ extension String {
         AppStorageKeys.teamGroupOrder
     }
 
+    /// Consent to send plans to the AI service
+    public static var aiProcessingConsent: String {
+        AppStorageKeys.aiProcessingConsent
+    }
+
+    /// Choice to record workout logs in release builds
+    public static var workoutLogRecording: String {
+        AppStorageKeys.workoutLogRecording
+    }
+
 }

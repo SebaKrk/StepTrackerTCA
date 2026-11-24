@@ -69,13 +69,20 @@ struct GroupFeature {
                     !state.isDownloadingDayPlan
                 else { return .none }
                 state.isDownloadingDayPlan = true
-                let copy = teamCopy(of: plan, groupId: state.group.id)
                 let teamPlanId = TrainingSession.teamPlanId(groupId: state.group.id, day: plan.id)
+                let freshId = uuid()
+                let now = date.now
                 return .run { [trainingSessionClient] send in
-                    // A republished plan replaces the copy instead of adding a second one under the same link.
-                    if let stale = try await trainingSessionClient.fetchByTeamPlanId(teamPlanId) {
+                    // A republished plan replaces the copy but keeps its id, so workouts linked to it stay linked.
+                    let stale = try await trainingSessionClient.fetchByTeamPlanId(teamPlanId)
+                    if let stale {
                         try await trainingSessionClient.delete(stale.id)
                     }
+                    let copy = plan.session.downloadedTeamCopy(
+                        id: stale?.id ?? freshId,
+                        date: now,
+                        teamPlanId: teamPlanId
+                    )
                     try await trainingSessionClient.save(copy)
                     await send(.dayPlanDownloadFinished(true))
                 } catch: { error, send in
@@ -276,15 +283,6 @@ struct GroupFeature {
         let day = TeamDay.id(for: target, calendar: calendar)
         guard day <= state.today else { return .none }
         return show(day: day, state: &state, reloadWeek: false)
-    }
-
-    /// The user's own copy of a group plan — what Plans stores and the Summary posts from.
-    private func teamCopy(of plan: TeamPlan, groupId: String) -> TrainingSession {
-        plan.session.downloadedTeamCopy(
-            id: uuid(),
-            date: date.now,
-            teamPlanId: TrainingSession.teamPlanId(groupId: groupId, day: plan.id)
-        )
     }
 
     // The session runs on the copy in Plans; the start button only shows once it exists.

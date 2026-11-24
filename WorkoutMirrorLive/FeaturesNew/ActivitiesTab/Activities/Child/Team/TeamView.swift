@@ -23,9 +23,7 @@ struct TeamView: View {
         segmentContent
             .tint(store.color)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    segmentFilterMenu
-                }
+                // The Private / Public filter returns to the bar together with public groups.
                 ToolbarItem(placement: .topBarTrailing) {
                     addMenu
                 }

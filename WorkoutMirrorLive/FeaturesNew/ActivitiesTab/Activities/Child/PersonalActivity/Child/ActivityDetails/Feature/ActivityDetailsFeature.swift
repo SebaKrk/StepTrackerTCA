@@ -34,29 +34,21 @@ struct ActivityDetailsFeature {
 
                 // MARK: - Manual entry
 
-            case let .internal(.manualSummaryLoaded(summary, trainingSession, hrBuffer)):
+            case let .internal(.summaryLoaded(.success(loaded))):
                 state.destination = .summary(.manualEntry(
-                    summary: summary,
-                    trainingSession: trainingSession,
-                    hrBuffer: hrBuffer
+                    summary: loaded.summary,
+                    trainingSession: loaded.trainingSession,
+                    hrBuffer: loaded.hrBuffer,
+                    existingResults: loaded.existingResults
                 ))
                 return .none
 
-            case .internal(.manualSummaryLoadFailed):
-                // TODO: alert userowi. Na razie silent fail — TemplatePicker już dismissed.
+            case let .internal(.summaryLoaded(.failure(error))):
+                reportIssue(error)
                 return .none
 
-            case let .internal(.editScoreLoaded(summary, trainingSession, hrBuffer, existingResults)):
-                state.destination = .summary(.manualEntry(
-                    summary: summary,
-                    trainingSession: trainingSession,
-                    hrBuffer: hrBuffer,
-                    existingResults: existingResults
-                ))
-                return .none
-
-            case .internal(.editScoreLoadFailed):
-                // TODO: alert userowi. Na razie silent fail.
+            case .internal(.linkedPlanMissing):
+                state.destination = .linkTemplate(TemplatePickerFeature.State())
                 return .none
 
                 // MARK: - View Actions
@@ -88,37 +80,6 @@ struct ActivityDetailsFeature {
                 ))
                 return .none
 
-            case .view(.editExistingScoreTapped):
-                // Wyciągamy score ze state'a planScore (już załadowany z DB). Bez score'a guard
-                // returnuje — button i tak jest schowany w UI gdy loadState != .loaded.
-                guard case let .loaded(score) = state.planScore.loadState else { return .none }
-                let workout = state.workout
-                let trainingSessionId = score.trainingSessionId
-                let existingResults = score.results
-                return .run { [healthStore, trainingSessionClient] send in
-                    do {
-                        // Najpierw fetch templates — guard'ujemy że template istnieje przed
-                        // expensive HK query. Edge case: user usunął template po treningu.
-                        let templates = try await trainingSessionClient.fetchAll()
-                        guard let trainingSession = templates.first(where: { $0.id == trainingSessionId }) else {
-                            await send(.internal(.editScoreLoadFailed))
-                            return
-                        }
-                        let (summary, hrBuffer) = try await WorkoutSummaryLoader.loadComplete(
-                            for: workout,
-                            healthStore: healthStore
-                        )
-                        await send(.internal(.editScoreLoaded(
-                            summary: summary,
-                            trainingSession: trainingSession,
-                            hrBuffer: hrBuffer,
-                            existingResults: existingResults
-                        )))
-                    } catch {
-                        await send(.internal(.editScoreLoadFailed))
-                    }
-                }
-
                 // MARK: - Destination
 
                 // Manual-entry: TemplatePicker emit'uje wybrany template → ładujemy WorkoutSummary
@@ -126,20 +87,21 @@ struct ActivityDetailsFeature {
                 // w manual-init mode (skip checkSummary, pre-filled state).
             case let .destination(.presented(.linkTemplate(.delegate(.didSelectTemplate(template))))):
                 let workout = state.workout
+                // Re-linking a workout whose plan is gone keeps the results already entered.
+                let enteredResults: [WorkoutSessionResult]
+                if case let .loaded(score) = state.planScore.loadState {
+                    enteredResults = score.results
+                } else {
+                    enteredResults = []
+                }
                 return .run { [healthStore] send in
-                    do {
-                        let (summary, hrBuffer) = try await WorkoutSummaryLoader.loadComplete(
-                            for: workout,
-                            healthStore: healthStore
-                        )
-                        await send(.internal(.manualSummaryLoaded(
-                            summary: summary,
-                            trainingSession: template,
-                            hrBuffer: hrBuffer
-                        )))
-                    } catch {
-                        await send(.internal(.manualSummaryLoadFailed))
-                    }
+                    let (summary, hrBuffer) = try await WorkoutSummaryLoader.loadComplete(
+                        for: workout,
+                        healthStore: healthStore
+                    )
+                    await send(.internal(.summaryLoaded(.success((summary, template, hrBuffer, enteredResults)))))
+                } catch: { error, send in
+                    await send(.internal(.summaryLoaded(.failure(error))))
                 }
 
             case .destination(.dismiss):
@@ -199,11 +161,8 @@ struct ActivityDetailsFeature {
 
                 // MARK: - Plan Score
 
-                // Pending-results container tapped in the child — reuse the existing
-                // edit flow (its `.loaded(score)` guard handles empty results too,
-                // opening manual entry with `existingResults: []`).
             case .planScore(.delegate(.fillResultsTapped)):
-                return .send(.view(.editExistingScoreTapped))
+                return openResultsEntry(state)
 
             case .planScore:
                 return .none
@@ -229,6 +188,28 @@ struct ActivityDetailsFeature {
 
         Scope(state: \.planScore, action: \.planScore) {
             ActivityPlanScoreFeature()
+        }
+    }
+
+    // MARK: - Results entry
+
+    /// Opens the results screen for the linked plan, or asks for a new plan when the linked one is gone.
+    private func openResultsEntry(_ state: State) -> Effect<Action> {
+        guard case let .loaded(score) = state.planScore.loadState else { return .none }
+        let workout = state.workout
+        return .run { [healthStore, trainingSessionClient] send in
+            let plans = try await trainingSessionClient.fetchAll()
+            guard let plan = plans.first(where: { $0.id == score.trainingSessionId }) else {
+                await send(.internal(.linkedPlanMissing))
+                return
+            }
+            let (summary, hrBuffer) = try await WorkoutSummaryLoader.loadComplete(
+                for: workout,
+                healthStore: healthStore
+            )
+            await send(.internal(.summaryLoaded(.success((summary, plan, hrBuffer, score.results)))))
+        } catch: { error, send in
+            await send(.internal(.summaryLoaded(.failure(error))))
         }
     }
 

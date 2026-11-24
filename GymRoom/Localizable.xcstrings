@@ -596,6 +596,40 @@
         }
       }
     },
+    "Close the app and open it again. If that does not help, contact us and include the code below." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließe die App und öffne sie erneut. Hilft das nicht, schreib uns und gib den Code unten an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cierra la app y vuelve a abrirla. Si no ayuda, escríbenos e incluye el código de abajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermez l’app et rouvrez-la. Si cela ne suffit pas, écrivez-nous en indiquant le code ci-dessous."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiudi l’app e riaprila. Se non basta, scrivici indicando il codice qui sotto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamknij aplikację i otwórz ją ponownie. Jeśli to nie pomoże, napisz do nas i podaj kod poniżej."
+          }
+        }
+      }
+    },
     "Combined" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3054,6 +3088,40 @@
         }
       }
     },
+    "Workout paused" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training pausiert"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En pausa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En pause"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In pausa"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trening wstrzymany"
+          }
+        }
+      }
+    },
     "Workout too short to analyze HR — 5 minutes minimum." : {
       "localizations" : {
         "de" : {
@@ -3129,6 +3197,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wczoraj"
+          }
+        }
+      }
+    },
+    "Your data could not be opened" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Daten konnten nicht geöffnet werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron abrir tus datos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’ouvrir vos données"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire i tuoi dati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się otworzyć Twoich danych"
           }
         }
       }

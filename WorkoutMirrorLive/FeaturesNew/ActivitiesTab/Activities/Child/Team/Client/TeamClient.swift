@@ -19,6 +19,9 @@ struct TeamClient: Sendable {
     /// Signs in anonymously when needed and returns the account id.
     var ensureSignedIn: @Sendable () async throws -> String
 
+    /// Erases the account and everything stored under it on the server, then forgets the session.
+    var deleteMyData: @Sendable () async throws -> Void
+
     // MARK: - Groups
 
     /// Emits the groups the current account belongs to, again after every membership change.
@@ -126,6 +129,7 @@ private enum TeamClientKey: DependencyKey {
         let service = TeamService()
         return TeamClient(
             ensureSignedIn: { try await service.ensureSignedIn() },
+            deleteMyData: { try await service.deleteMyData() },
             observeMyGroups: { service.observeMyGroups() },
             myGroups: { try await service.myGroups() },
             createGroup: { try await service.createGroup(name: $0, displayName: $1) },
@@ -159,6 +163,7 @@ private enum TeamClientKey: DependencyKey {
     static var testValue: TeamClient {
         TeamClient(
             ensureSignedIn: unimplemented("TeamClient.ensureSignedIn"),
+            deleteMyData: unimplemented("TeamClient.deleteMyData"),
             observeMyGroups: unimplemented("TeamClient.observeMyGroups", placeholder: .finished),
             myGroups: unimplemented("TeamClient.myGroups"),
             createGroup: unimplemented("TeamClient.createGroup"),
@@ -193,6 +198,7 @@ private enum TeamClientKey: DependencyKey {
     static var previewValue: TeamClient {
         TeamClient(
             ensureSignedIn: { "preview-uid" },
+            deleteMyData: { },
             observeMyGroups: { .finished },
             myGroups: { [] },
             createGroup: { name, _ in TeamGroup(id: "preview-group", name: name, ownerUid: "preview-uid", createdAt: .now) },

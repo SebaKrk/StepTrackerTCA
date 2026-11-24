@@ -67,6 +67,12 @@ extension JoinLiveClassFeature {
         /// iPhoneStandalone (no Watch link).
         var watchLinkLost: Bool = false
 
+        /// Mirror of `LiveSessionFeature.isWorkoutPaused`, synced by the parent; rides in every payload.
+        var isWorkoutPaused: Bool = false
+
+        /// Last metrics sample sent to the host — re-sent when the pause state changes between samples.
+        var lastSentMetrics: WorkoutMetrics?
+
         /// Zdekodowany QR payload po scan'ie. `nil` = jeszcze nie scanned.
         /// Ephemeral — NIE persistujemy. Reset na `.leaveTapped` wymusza ponowny scan
         /// przy następnym Join. `sessionToken` z payload'u wysyłany w `HRSamplePayload`.

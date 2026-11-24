@@ -64,17 +64,11 @@ struct TrainingSessionEditorFeature {
 
             case .view(.warmUpGenerateTapped):
                 guard !state.draft.workouts.isEmpty else { return .none }
-                state.isGeneratingWarmUpNotes = true
-                let context = TrainingNotesContext(
-                    workouts: state.draft.workouts,
-                    durationMinutes: state.draft.warmUp?.time,
-                )
-                return .run { [notesClient] send in
-                    await send(.`internal`(.warmUpGenerationResult(
-                        Result { try await notesClient.generateWarmUp(context) }
-                    )))
+                guard state.isAIProcessingAllowed else {
+                    state.alert = .confirmAIProcessing(allowed: .warmUpGenerationAllowed)
+                    return .none
                 }
-                .cancellable(id: TrainingSessionEditorCancelID.warmUpGeneration, cancelInFlight: true)
+                return generateWarmUp(&state)
 
             // MARK: - Cooldown
 
@@ -94,17 +88,11 @@ struct TrainingSessionEditorFeature {
 
             case .view(.coolDownGenerateTapped):
                 guard !state.draft.workouts.isEmpty else { return .none }
-                state.isGeneratingCoolDownNotes = true
-                let context = TrainingNotesContext(
-                    workouts: state.draft.workouts,
-                    durationMinutes: state.draft.coolDown?.time,
-                )
-                return .run { [notesClient] send in
-                    await send(.`internal`(.coolDownGenerationResult(
-                        Result { try await notesClient.generateCoolDown(context) }
-                    )))
+                guard state.isAIProcessingAllowed else {
+                    state.alert = .confirmAIProcessing(allowed: .coolDownGenerationAllowed)
+                    return .none
                 }
-                .cancellable(id: TrainingSessionEditorCancelID.coolDownGeneration, cancelInFlight: true)
+                return generateCoolDown(&state)
 
             // MARK: - Alert
 
@@ -117,6 +105,14 @@ struct TrainingSessionEditorFeature {
                 state.draft.coolDown = nil
                 state.isGeneratingCoolDownNotes = false
                 return .cancel(id: TrainingSessionEditorCancelID.coolDownGeneration)
+
+            case .alert(.presented(.warmUpGenerationAllowed)):
+                state.$isAIProcessingAllowed.withLock { $0 = true }
+                return generateWarmUp(&state)
+
+            case .alert(.presented(.coolDownGenerationAllowed)):
+                state.$isAIProcessingAllowed.withLock { $0 = true }
+                return generateCoolDown(&state)
 
             case .alert:
                 return .none
@@ -174,5 +170,37 @@ struct TrainingSessionEditorFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
+    }
+
+    // MARK: - Helpers
+
+    /// Asks the AI service for the warmup notes; callers check the consent first.
+    private func generateWarmUp(_ state: inout State) -> Effect<Action> {
+        state.isGeneratingWarmUpNotes = true
+        let context = TrainingNotesContext(
+            workouts: state.draft.workouts,
+            durationMinutes: state.draft.warmUp?.time,
+        )
+        return .run { [notesClient] send in
+            await send(.`internal`(.warmUpGenerationResult(
+                Result { try await notesClient.generateWarmUp(context) }
+            )))
+        }
+        .cancellable(id: TrainingSessionEditorCancelID.warmUpGeneration, cancelInFlight: true)
+    }
+
+    /// Asks the AI service for the cooldown notes; callers check the consent first.
+    private func generateCoolDown(_ state: inout State) -> Effect<Action> {
+        state.isGeneratingCoolDownNotes = true
+        let context = TrainingNotesContext(
+            workouts: state.draft.workouts,
+            durationMinutes: state.draft.coolDown?.time,
+        )
+        return .run { [notesClient] send in
+            await send(.`internal`(.coolDownGenerationResult(
+                Result { try await notesClient.generateCoolDown(context) }
+            )))
+        }
+        .cancellable(id: TrainingSessionEditorCancelID.coolDownGeneration, cancelInFlight: true)
     }
 }

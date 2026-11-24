@@ -34,6 +34,7 @@ struct HRMirrorFeature {
     @Dependency(\.extendedRuntimeClient) var extendedRuntimeClient
     @Dependency(\.watchDeviceClient) var watchDeviceClient
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.date.now) var now
 
     // MARK: - Body
 
@@ -49,8 +50,9 @@ struct HRMirrorFeature {
                 // Credit effort points for the stretch since the previous sample.
                 // The date always advances (even for bpm=0 artifacts) so a sensor
                 // dropout is never retroactively credited to the next valid zone.
-                let sampleDate = Date()
-                if let previousSampleDate = state.lastEffortSampleDate {
+                let sampleDate = now
+                // A paused workout earns nothing; every resume clears the date so the pause itself is never credited.
+                if let previousSampleDate = state.lastEffortSampleDate, !state.isPaused {
                     state.effortPoints.add(
                         bpm: Int(bpm),
                         duration: sampleDate.timeIntervalSince(previousSampleDate),
@@ -58,24 +60,71 @@ struct HRMirrorFeature {
                     )
                 }
                 state.lastEffortSampleDate = sampleDate
+                if bpm > 0 {
+                    state.lastSensorReadingDate = sampleDate
+                    state.isHeartRateStale = false
+                }
                 let zone = state.heartRateZone
+                // A zero is a sensor artifact, not a heart at rest; it must not answer the question.
+                let pauseReminder: Effect<Action> = bpm > 0 ? judgePause(&state, at: sampleDate) : .none
+                // Without a max heart rate nothing was counted here; the iPhone then counts by itself.
+                let effortSecondsByZone = state.maxHeartRate > 0 ? state.effortPoints.secondsByZone : nil
                 // Watch-primary: send HR via HealthKit's native mirroring channel
                 // (sendToRemoteWorkoutSession) instead of WatchConnectivity.
                 // iPhone receives it in DefaultTrainingManager.didReceiveDataFromRemoteWorkoutSession.
-                return .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, bpm, zone] _ in
-                    await watchWorkoutSessionClient.sendHRToRemote(bpm, Date())
-                    await WorkoutFileLogger.shared.logHRIfNeeded(bpm: bpm)
+                return .merge(
+                    pauseReminder,
+                    // Apart from the send, so tracing never delays the reading it measures.
+                    .run { [bpm, sampleDate] _ in
+                        // The state above is what the screen renders, so this is the wrist's "shown" moment.
+                        await WorkoutFileLogger.shared.logHRTrace(stage: "ui", bpm: bpm, at: sampleDate)
+                    },
+                    .run { [watchWorkoutSessionClient = watchWorkoutSessionClient, bpm, zone, effortSecondsByZone] send in
+                        let isDelivered = await watchWorkoutSessionClient.sendHRToRemote(bpm, Date(), effortSecondsByZone)
+                        await WorkoutFileLogger.shared.logHRIfNeeded(bpm: bpm)
+                        await send(.heartRateSent(isDelivered: isDelivered))
+                    }
+                )
+
+            case let .heartRateSent(isDelivered):
+                if isDelivered {
+                    if state.failedPhoneSendCount != 0 { state.failedPhoneSendCount = 0 }
+                } else {
+                    state.failedPhoneSendCount += 1
                 }
+                return .none
 
             case .subSecondTick:
+                // The sensor reports every 5 s; this tick is the only clock that notices it went silent.
+                if !state.isHeartRateStale,
+                   let lastReading = state.lastSensorReadingDate,
+                   now.timeIntervalSince(lastReading) > Self.heartRateStaleSeconds {
+                    state.isHeartRateStale = true
+                }
                 guard !state.isPaused else { return .none }
                 state.elapsedSeconds += 0.1
                 return .none
 
+            case .view(.pauseReminderResumeTapped):
+                state.isPauseReminderPresented = false
+                // Resumed elsewhere in the meantime: the same action would now pause it again.
+                guard state.isPaused else { return .none }
+                return .send(.view(.pauseResumeTapped))
+
+            case .view(.pauseReminderDismissed):
+                state.isPauseReminderPresented = false
+                state.isPauseReminderMuted = true
+                return .run { _ in
+                    await WorkoutFileLogger.shared.log("[Pause] reminder answered OK — muted for this pause")
+                }
+
             // MARK: - iPhone Events
 
             case .workoutPaused:
+                // An echo of a pause already known must not restart the wait or undo an OK.
+                let wasPaused = state.isPaused
                 state.isPaused = true
+                if !wasPaused { beginPauseWatch(&state) }
                 return .merge(
                     .cancel(id: HRMirrorCancelID.subSecondTimer),
                     .run { _ in await WorkoutFileLogger.shared.log("PAUSED") }
@@ -84,6 +133,8 @@ struct HRMirrorFeature {
             case .workoutResumed(let elapsed):
                 state.elapsedSeconds = elapsed
                 state.isPaused = false
+                state.lastEffortSampleDate = nil
+                endPauseWatch(&state)
                 return .merge(
                     .run { _ in await WorkoutFileLogger.shared.log("RESUMED") },
                     .run { [clock] send in
@@ -95,6 +146,8 @@ struct HRMirrorFeature {
                 )
 
             case .workoutTick(let elapsed):
+                // A tick that arrived proves the iPhone is in reach, even while the sensor is silent.
+                if state.failedPhoneSendCount != 0 { state.failedPhoneSendCount = 0 }
                 // iPhone is source of truth — reset to exact value each second.
                 state.elapsedSeconds = elapsed
                 return .none
@@ -106,7 +159,9 @@ struct HRMirrorFeature {
                 Logger.hrMirror.info("sessionStateChanged → \(sessionState.rawValue), isPaused was: \(isPausedSnapshot)")
                 switch sessionState {
                 case .paused:
+                    let wasPaused = state.isPaused
                     state.isPaused = true
+                    if !wasPaused { beginPauseWatch(&state) }
                     return .merge(
                         .cancel(id: HRMirrorCancelID.subSecondTimer),
                         .run { _ in await WorkoutFileLogger.shared.log("PAUSED (HealthKit)") }
@@ -117,6 +172,8 @@ struct HRMirrorFeature {
                         return .none
                     }
                     state.isPaused = false
+                    state.lastEffortSampleDate = nil
+                    endPauseWatch(&state)
                     return .merge(
                         .run { _ in await WorkoutFileLogger.shared.log("RESUMED (HealthKit)") },
                         .run { [clock] send in
@@ -144,6 +201,8 @@ struct HRMirrorFeature {
                 let isResuming = state.isPaused  // true means we're about to resume
                 state.isPaused.toggle()
                 if isResuming {
+                    state.lastEffortSampleDate = nil
+                    endPauseWatch(&state)
                     return .merge(
                         .run { _ in await WorkoutFileLogger.shared.log("RESUMED (Watch tap)") },
                         .run { [watchWorkoutSessionClient = watchWorkoutSessionClient] _ in
@@ -157,6 +216,7 @@ struct HRMirrorFeature {
                         .cancellable(id: HRMirrorCancelID.subSecondTimer, cancelInFlight: true)
                     )
                 } else {
+                    beginPauseWatch(&state)
                     return .merge(
                         .run { _ in await WorkoutFileLogger.shared.log("PAUSED (Watch tap)") },
                         .cancel(id: HRMirrorCancelID.subSecondTimer),
@@ -343,6 +403,7 @@ struct HRMirrorFeature {
                 }
                 state.isSaving = true
                 state.isLowBatteryWarningPresented = false
+                endPauseWatch(&state)
                 return .merge(
                     .cancel(id: HRMirrorCancelID.hrQuery),
                     .cancel(id: HRMirrorCancelID.subSecondTimer),
@@ -379,13 +440,15 @@ struct HRMirrorFeature {
                         } else {
                             await WorkoutFileLogger.shared.log("NOTIFY — .workoutSaved skipped (no UUID after retry, save likely failed)")
                         }
-                        await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
-                        await watchClient.transferLogFile()
                         // Ensure "Saving…" overlay is visible for at least 1.5s
                         let elapsed = ContinuousClock.now - savingStart
                         if elapsed < .seconds(1.5) {
                             try? await clock.sleep(for: .seconds(1.5) - elapsed)
                         }
+                        // Before the summary action: a deferred next workout starts on it, and its file must not be sealed here.
+                        await WorkoutFileLogger.shared.log("SUMMARY (Watch) — shown (hasData=\(summary != nil))")
+                        await WorkoutFileLogger.shared.log("DONE — transferring log to iPhone")
+                        await watchClient.transferLogFile()
                         // Watch is the primary session owner — it shows the immediate
                         // summary from finishWorkout(); dismissal happens on Done tap.
                         await send(.savedSummaryLoaded(summary))
@@ -395,9 +458,7 @@ struct HRMirrorFeature {
             case .savedSummaryLoaded(let summary):
                 state.isSaving = false
                 state.summaryPhase = .presented(summary)
-                return .run { _ in
-                    await WorkoutFileLogger.shared.log("SUMMARY (Watch) — shown (hasData=\(summary != nil))")
-                }
+                return .none
 
             case .view(.summaryDoneTapped):
                 return .send(.delegate(.didFinishSaving))
@@ -439,4 +500,60 @@ private nonisolated enum HRMirrorCancelID: Hashable, Sendable {
     /// Identifies the once-a-minute battery level poll.
     case batteryMonitor
 
+}
+
+extension HRMirrorFeature {
+
+    /// Seconds without a sensor reading after which the shown heart rate counts as not live.
+    nonisolated static let heartRateStaleSeconds: TimeInterval = 15
+
+    /// Seconds between two haptics while the question stays unanswered.
+    nonisolated static let pauseReminderRepeatSeconds: TimeInterval = 120
+
+    /// Starts watching a pause; called once per pause, by whichever way the pause is learned first.
+    private func beginPauseWatch(_ state: inout State) {
+        // Resume from the Watch works only when the Watch leads the workout; elsewhere the reminder would mislead.
+        guard state.leadsWorkout else { return }
+        state.isPauseReminderMuted = false
+        state.lastPauseReminderDate = nil
+        // The zone on screen is the yardstick only when a real, fresh reading stands behind it.
+        let isZoneReliable = state.heartRate > 0 && state.maxHeartRate > 0
+            && state.lastSensorReadingDate.map { now.timeIntervalSince($0) <= Self.heartRateStaleSeconds } == true
+        state.pauseActivity.begin(zone: isZoneReliable ? state.heartRateZone : nil, at: now)
+    }
+
+    /// Stops watching and takes the question down; every way out of a pause calls this.
+    private func endPauseWatch(_ state: inout State) {
+        state.isPauseReminderPresented = false
+        state.isPauseReminderMuted = false
+        state.lastPauseReminderDate = nil
+        state.pauseActivity.end()
+    }
+
+    /// Judges one reading taken in a pause and raises, repeats or withdraws the question.
+    private func judgePause(_ state: inout State, at date: Date) -> Effect<Action> {
+        // Without a max heart rate every reading reads as rest, which would be an answer nobody gave.
+        guard state.isPaused, !state.isPostWorkout, !state.isPauseReminderMuted,
+              state.maxHeartRate > 0 else { return .none }
+        switch state.pauseActivity.observe(zone: state.heartRateZone, at: date) {
+        case .undecided:
+            return .none
+        case .resting:
+            // No longer true, so a question left unanswered must not keep asking it.
+            if state.isPauseReminderPresented { state.isPauseReminderPresented = false }
+            return .none
+        case .stillTraining:
+            // The question comes back at once; only the haptic is spaced out.
+            if !state.isPauseReminderPresented { state.isPauseReminderPresented = true }
+            if let lastReminder = state.lastPauseReminderDate,
+               date.timeIntervalSince(lastReminder) < Self.pauseReminderRepeatSeconds {
+                return .none
+            }
+            state.lastPauseReminderDate = date
+            return .run { [watchDeviceClient = watchDeviceClient] _ in
+                await watchDeviceClient.playWarningHaptic()
+                await WorkoutFileLogger.shared.log("[Pause] heart rate says still training — reminder shown")
+            }
+        }
+    }
 }

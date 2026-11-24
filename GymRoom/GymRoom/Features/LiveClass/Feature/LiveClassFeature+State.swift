@@ -157,6 +157,9 @@ extension LiveClassFeature {
         /// healthy (unlike `.reconnecting`), payloads keep arriving as keepalive.
         var isSensorStale: Bool = false
 
+        /// `true` while the athlete's workout is paused — points and calories stand still, the tile says why.
+        var isPaused: Bool = false
+
         /// %HR obliczone z bpm / maxHR. Bezpieczne na maxHR = 0.
         var percentHR: Int {
             guard maxHR > 0 else { return 0 }

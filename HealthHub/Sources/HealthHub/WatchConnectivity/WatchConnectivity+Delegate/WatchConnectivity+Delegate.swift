@@ -98,15 +98,26 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
 
     // MARK: - File Transfer
 
-    /// Receives a file transferred from the Watch (e.g. workout log).
-    /// Saves it to the iPhone app's Documents directory with a timestamp in the filename.
+    /// Receives a workout log transferred from the Watch and keeps it beside the iPhone's own logs.
     public func session(_ session: WCSession, didReceive file: WCSessionFile) {
         guard let type = file.metadata?["type"] as? String, type == "workoutLog" else { return }
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let timestamp = Int(Date().timeIntervalSince1970)
-        let dest = docs.appendingPathComponent("watch_log_\(timestamp).txt")
+        // A log queued before recording was switched off must not come back.
+        guard WorkoutLogStore.isRecordingEnabled else { return }
+        let now = Date()
+        let dest = WorkoutLogStore.directory.appendingPathComponent(
+            Self.watchLogName(from: file.metadata, receivedAt: now)
+        )
+        // Copied aside first: the Watch may re-send a file, and a failed copy must not cost the older one.
+        let incoming = dest.appendingPathExtension("incoming")
+        // Whatever happens below, a half-copied file is not left in the folder.
+        defer { try? FileManager.default.removeItem(at: incoming) }
         do {
-            try FileManager.default.copyItem(at: file.fileURL, to: dest)
+            try? FileManager.default.removeItem(at: incoming)
+            try FileManager.default.copyItem(at: file.fileURL, to: incoming)
+            try? FileManager.default.removeItem(at: dest)
+            try FileManager.default.moveItem(at: incoming, to: dest)
+            // Through the logger, so the iPhone's own file in progress is never pruned.
+            Task { await WorkoutFileLogger.shared.prune(now: now) }
             Logger.wc.info("received Watch log → saved: \(dest.lastPathComponent)")
         } catch {
             Logger.wc.error("failed to save Watch log: \(error.localizedDescription)")
@@ -114,6 +125,16 @@ extension DefaultWatchConnectivityManager: WCSessionDelegate {
     }
 
     // MARK: - Private
+
+    /// The Watch's own file name when it sent one and it looks like a Watch log; an arrival-time name otherwise.
+    private static func watchLogName(from metadata: [String: Any]?, receivedAt date: Date) -> String {
+        let fallback = "watch_log_\(Int(date.timeIntervalSince1970)).txt"
+        guard let sent = metadata?["fileName"] as? String else { return fallback }
+        // Only the last path component is trusted — the name comes from another device.
+        let name = URL(fileURLWithPath: sent).lastPathComponent
+        let isWatchLog = name.hasPrefix("watch_") && name.contains("_log_") && name.hasSuffix(".txt")
+        return isWatchLog ? name : fallback
+    }
 
     /// Decodes a `WatchWorkoutEvent` from a message dictionary and yields it to the stream.
     private func decodeAndYield(_ dict: [String: Any]) {

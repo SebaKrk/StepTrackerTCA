@@ -21,9 +21,11 @@ struct LiveSessionFeature {
     /// fresh sample clears the flag).
     static let sensorStaleThreshold: TimeInterval = 35
 
+    /// The Watch reports every 5 s, so three missed readings mean the shown value is no longer live.
+    static let watchStaleThreshold: TimeInterval = 15
+
     // MARK: - Dependency
     
-    @Dependency(\.sessionClient) var client
     @Dependency(\.sessionCalculations) var calculation
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date.now) var now
@@ -96,6 +98,14 @@ struct LiveSessionFeature {
                     }
                 } else {
                     isFreshSample = true
+                    if state.isWatchPrimary, data.heartRate > 0 {
+                        // The Watch sends no sample date; the arrival time is its freshness.
+                        state.lastWatchReadingDate = now
+                        if state.isSensorStale {
+                            state.isSensorStale = false
+                            Task { await WorkoutFileLogger.shared.log("[Connection] Watch readings RESUMED") }
+                        }
+                    }
                 }
                 if effectiveHR > 0, isFreshSample {
                     // Real sensor dates (strap) keep the gap math honest: after an
@@ -106,13 +116,20 @@ struct LiveSessionFeature {
                     // Credit effort points for the stretch since the previous
                     // sample (fed with the same effective HR the UI shows).
                     // The accumulator itself skips implausible gaps (> 5 min).
-                    if let previousSampleDate = state.hrBuffer.last?.date {
-                        state.effortPoints.add(
-                            bpm: Int(effectiveHR),
-                            duration: sampleDate.timeIntervalSince(previousSampleDate),
-                            maxHR: state.maxHeartRate
+                    // A paused workout earns nothing, nor does the first sample after a resume: its gap spans the pause.
+                    if let watchTotals = data.effortZoneTotals {
+                        // The Watch counted every reading, also those that never reached the iPhone;
+                        // what the iPhone counted before the Watch could is added on top, not replaced.
+                        state.effortPoints.merge(
+                            watchTotals.merging(state.locallyCountedEffort.secondsByZone, uniquingKeysWith: +)
                         )
+                    } else if let previousSampleDate = state.hrBuffer.last?.date,
+                              !state.isWorkoutPaused, !state.skipsNextEffortCredit {
+                        let duration = sampleDate.timeIntervalSince(previousSampleDate)
+                        state.effortPoints.add(bpm: Int(effectiveHR), duration: duration, maxHR: state.maxHeartRate)
+                        state.locallyCountedEffort.add(bpm: Int(effectiveHR), duration: duration, maxHR: state.maxHeartRate)
                     }
+                    state.skipsNextEffortCredit = false
                     state.hrBuffer.append(State.HRSample(date: sampleDate, bpm: effectiveHR))
                 }
                 // Keep the whole payload (incl. ride distance/speed fields for the
@@ -121,7 +138,12 @@ struct LiveSessionFeature {
                 updatedMetrics.heartRate = effectiveHR
                 state.workoutMetrics = updatedMetrics
                 if effectiveHR > 0 {
-                    Task { await WorkoutFileLogger.shared.logHRIfNeeded(bpm: effectiveHR) }
+                    let shownAt = now
+                    Task {
+                        await WorkoutFileLogger.shared.logHRIfNeeded(bpm: effectiveHR)
+                        // The state above is what the screen renders, so this is the phone's "shown" moment.
+                        await WorkoutFileLogger.shared.logHRTrace(stage: "ui", bpm: effectiveHR, at: shownAt)
+                    }
                 }
                 // state.workoutMetrics updated above — the computed property assembles
                 // ContentState from a single source (no manual duplication of the field list).
@@ -167,16 +189,21 @@ struct LiveSessionFeature {
                 return .none
                 
             case .sensorFreshnessTick:
-                // Watch path never sets `lastFreshSampleDate` — the tick is a no-op
-                // there (two-paths invariant: hold-last-value stays untouched).
-                guard let lastFresh = state.lastFreshSampleDate else { return .none }
-                let isStale = now.timeIntervalSince(lastFresh) > Self.sensorStaleThreshold
+                // One clock, two sources: the strap's sample date, or the arrival time of a Watch reading.
+                let lastReading = state.isWatchPrimary ? state.lastWatchReadingDate : state.lastFreshSampleDate
+                let threshold = state.isWatchPrimary ? Self.watchStaleThreshold : Self.sensorStaleThreshold
+                guard let lastReading else { return .none }
+                let isStale = now.timeIntervalSince(lastReading) > threshold
                 guard state.isSensorStale != isStale else { return .none }
                 state.isSensorStale = isStale
+                if isStale, state.isWatchPrimary {
+                    // The first reading after the silence must not be paid for the whole gap.
+                    state.skipsNextEffortCredit = true
+                }
                 return .run { _ in
                     await WorkoutFileLogger.shared.log(
                         isStale
-                            ? "[Connection] sensor STALE — no real sample for >\(Int(Self.sensorStaleThreshold))s"
+                            ? "[Connection] sensor STALE — no real sample for >\(Int(threshold))s"
                             : "[Connection] sensor FRESH — samples resumed"
                     )
                 }
@@ -188,19 +215,12 @@ struct LiveSessionFeature {
                     .send(.calculateHeartRatePercentage(0, state.maxHeartRate))
                 )
 
-            case .startWorkoutMetricsStream:
-                return .run { send in
-                    for await metric in await client.workoutMetricsStream() {
-                        await send(.workoutMetrics(metric))
-                    }
-                }
-                
                 // MARK: - View Action
                 
             case .view(.viewDidAppear):
-                return .run { [idleTimer] send in
+                // Metrics come from SessionFeature's subscription; a second one here ran every reading twice.
+                return .run { [idleTimer] _ in
                     await idleTimer.setDisabled(true)
-                    await send(.startWorkoutMetricsStream)
                 }
 
             case .view(.viewDidDisappear):
@@ -300,7 +320,11 @@ struct LiveSessionFeature {
                 // by setWorkoutType stays untouched.
                 return .none
 
-            case let .setIntervalTimerPaused(isPaused):
+            case let .setWorkoutPaused(isPaused):
+                if state.isWorkoutPaused, !isPaused {
+                    state.skipsNextEffortCredit = true
+                }
+                state.isWorkoutPaused = isPaused
                 guard state.intervalTimer != nil else { return .none }
                 return .send(.intervalTimer(isPaused ? .sessionPaused : .sessionResumed))
 

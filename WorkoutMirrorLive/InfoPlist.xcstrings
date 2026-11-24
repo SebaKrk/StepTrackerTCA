@@ -1,0 +1,235 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "MyFitness Journal"
+          }
+        }
+      }
+    },
+    "CFBundleName" : {
+      "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "WorkoutMirrorLive"
+          }
+        }
+      }
+    },
+    "NSBluetoothAlwaysUsageDescription" : {
+      "comment" : "Bluetooth prompt: the heart-rate strap and the coach's iPad.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth verbindet deinen Herzfrequenzgurt und sendet deine Herzfrequenz an das iPad des Trainers im Raum."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth connects your heart-rate strap and sends your heart rate to the coach's iPad in the room."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth conecta tu banda de frecuencia cardíaca y envía tu frecuencia cardíaca al iPad del entrenador en la sala."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le Bluetooth connecte votre ceinture cardiofréquencemètre et envoie votre fréquence cardiaque à l’iPad du coach dans la salle."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Bluetooth collega la tua fascia cardio e invia la tua frequenza cardiaca all’iPad dell’allenatore in sala."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth łączy Twój pas tętna i przesyła Twoje tętno na iPada trenera w sali."
+          }
+        }
+      }
+    },
+    "NSCameraUsageDescription" : {
+      "comment" : "Camera prompt: the class QR code and the photo of a workout plan.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Kamera scannt den QR-Code auf dem iPad des Trainers (um einem Kurs beizutreten) und fotografiert deinen Trainingsplan, den anschließend ein KI-Dienst liest."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The camera scans the QR code on the coach's iPad (to join a class) and photographs your workout plan, which an AI service then reads."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cámara escanea el código QR del iPad del entrenador (para unirte a una clase) y fotografía tu plan de entrenamiento, que después lee un servicio de IA."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’appareil photo scanne le code QR sur l’iPad du coach (pour rejoindre un cours) et photographie votre plan d’entraînement, qui est ensuite lu par un service d’IA."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La fotocamera scansiona il codice QR sull’iPad dell’allenatore (per unirti a una lezione) e fotografa il tuo piano di allenamento, che viene poi letto da un servizio di IA."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aparat służy do skanowania kodu QR z iPada (dołączenie do zajęć) oraz do fotografowania planu treningowego, który następnie odczytuje usługa AI."
+          }
+        }
+      }
+    },
+    "NSHealthShareUsageDescription" : {
+      "comment" : "Health read prompt.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir lesen deine Herzfrequenz, Kalorien und Distanz aus der Health-App, um dir während des Trainings Live-Werte zu zeigen und deinen Verlauf zu berechnen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We read your heart rate, calories and distance from the Health app to show you live metrics during a workout and to build your history."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leemos tu frecuencia cardíaca, calorías y distancia de la app Salud para mostrarte métricas en directo durante el entrenamiento y calcular tu historial."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous lisons votre fréquence cardiaque, vos calories et votre distance dans l’app Santé pour afficher vos mesures en direct pendant l’entraînement et établir votre historique."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggiamo frequenza cardiaca, calorie e distanza dall’app Salute per mostrarti le metriche in tempo reale durante l’allenamento e calcolare il tuo storico."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czytamy Twoje tętno, kalorie i dystans z aplikacji Zdrowie, żeby pokazać Ci żywe metryki podczas treningu i policzyć Twoją historię."
+          }
+        }
+      }
+    },
+    "NSHealthUpdateUsageDescription" : {
+      "comment" : "Health write prompt.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir speichern deine abgeschlossenen Trainings (Herzfrequenz, Kalorien, Dauer, Distanz) in der Health-App, damit alles an einem Ort ist und dein Verlauf auf allen deinen Apple-Geräten verfügbar ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We save your completed workouts (heart rate, calories, duration, distance) to the Health app, so everything is in one place and your history is on all your Apple devices."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardamos tus entrenamientos completados (frecuencia cardíaca, calorías, duración, distancia) en la app Salud, para que todo esté en un solo lugar y tu historial esté en todos tus dispositivos Apple."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous enregistrons vos entraînements terminés (fréquence cardiaque, calories, durée, distance) dans l’app Santé, pour que tout soit au même endroit et que votre historique soit disponible sur tous vos appareils Apple."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salviamo gli allenamenti completati (frequenza cardiaca, calorie, durata, distanza) nell’app Salute, così tutto è in un unico posto e il tuo storico è su tutti i tuoi dispositivi Apple."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisujemy ukończone treningi (tętno, kalorie, czas trwania, dystans) do aplikacji Zdrowie, żebyś miał wszystko w jednym miejscu i historię na wszystkich Twoich urządzeniach Apple."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription" : {
+      "comment" : "Location prompt: the route of an outdoor workout.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei einem Training im Freien wird dein Standort verwendet, um Tempo und Distanz zu messen und die Route aufzuzeichnen, die in der Zusammenfassung angezeigt wird."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "During an outdoor workout your location is used to measure speed and distance and to record the route shown in the summary."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante un entrenamiento al aire libre, tu ubicación se usa para medir la velocidad y la distancia y para guardar la ruta que se muestra en el resumen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pendant un entraînement en extérieur, votre position sert à mesurer la vitesse et la distance et à enregistrer l’itinéraire affiché dans le résumé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durante un allenamento all’aperto la tua posizione viene usata per misurare velocità e distanza e per registrare il percorso mostrato nel riepilogo."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podczas treningu na świeżym powietrzu Twoja lokalizacja służy do pomiaru prędkości i dystansu oraz do zapisania trasy widocznej w podsumowaniu."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

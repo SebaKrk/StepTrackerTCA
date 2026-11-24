@@ -25,12 +25,13 @@ extension SessionFeature {
                 // Increment internal counter (Watch-primary: iPhone has no HealthKit builder).
                 // The updated value is also returned by `elapsedTimeAt` so ControlsView
                 // reads the correct elapsed time on the next TimelineView frame.
+                // A tick already queued when the workout ends would be sent into a closed channel.
+                guard state.sessionState == .session else { return .none }
                 let mode = state.workoutMode
                 let isLinkLost = state.isWatchConnectionLost
-                // Piggyback the 1 s beat for BLE-sensor freshness (IOS-00100-B) —
-                // the handler self-guards to the standalone/strap path.
+                // Piggyback the 1 s beat for heart-rate freshness, for the strap and the Watch alike.
                 let freshnessTick: Effect<Action> = .send(.live(.sensorFreshnessTick))
-                let tickSend: Effect<Action> = .run { [mode, isLinkLost, sessionClient, watchClient = watchConnectivityClient] _ in
+                let tickSend: Effect<Action> = .run { [mode, isLinkLost, sessionClient, watchClient = watchConnectivityClient] send in
                     let elapsed = sessionClient.incrementElapsed()
                     // Watch-primary: HK mirroring channel (per CLAUDE.md R2) — reliable
                     // when WC `reachable=false`. iPhone-standalone: WC path (no mirrored
@@ -39,22 +40,45 @@ extension SessionFeature {
                     // Link down (IOS-00098-G): keep INCREMENTING (the counter is the tick
                     // payload — freezing it would rewind the Watch clock after reconnect,
                     // because Watch treats iPhone ticks as the source of truth) but skip
-                    // the send — each attempt into a dead link costs a 3s timeout + retry.
+                    // most sends — each attempt into a dead link costs a 3s timeout + retry.
                     if mode == .watchPrimary {
-                        guard !isLinkLost else { return }
-                        _ = await sessionClient.sendLifecycleEventToWatch(.workoutTick(elapsedSeconds: elapsed))
+                        // While lost, one tick in ten still goes out: it is the only probe that sees the link return.
+                        guard !isLinkLost || Int(elapsed) % Self.lostLinkProbeSeconds == 0 else { return }
+                        let isDelivered = await sessionClient.sendLifecycleEventToWatch(.workoutTick(elapsedSeconds: elapsed))
+                        await send(.watchTickDelivered(isDelivered))
                     } else {
                         await watchClient.sendWorkoutEvent(.workoutTick(elapsedSeconds: elapsed))
                     }
                 }
                 return .merge(freshnessTick, tickSend)
 
+            case let .watchTickDelivered(isDelivered):
+                guard state.sessionState == .session, state.workoutMode == .watchPrimary else { return .none }
+                guard !isDelivered else {
+                    if state.failedWatchTickCount != 0 { state.failedWatchTickCount = 0 }
+                    // A tick that got through, a probe included, proves the Watch is in reach again.
+                    return state.isWatchConnectionLost ? .send(.watchConnectionStatusChanged(.connected)) : .none
+                }
+                // Already lost: failed probes and late results must not count towards the next loss.
+                guard !state.isWatchConnectionLost else { return .none }
+                state.failedWatchTickCount += 1
+                // The system can take half a minute to report a Watch out of reach; the ticks know in seconds.
+                guard state.failedWatchTickCount >= Self.unreachableWatchTickCount else { return .none }
+                // Readings still arriving mean the link works and only the tick's own send hangs.
+                if let lastReading = state.live.lastWatchReadingDate,
+                   now.timeIntervalSince(lastReading) <= Self.liveReadingSeconds {
+                    return .none
+                }
+                return .send(.watchConnectionStatusChanged(.lost))
+
             case .controls(.sessionStateUpdated(.paused)):
+                // No ticks go out in a pause, so a count left over would make one late failure look like three.
+                state.failedWatchTickCount = 0
                 let mode = state.workoutMode
                 return .merge(
                     .run { _ in await WorkoutFileLogger.shared.log("PAUSED") },
                     .cancel(id: SessionWatchCancelID.watchTickTimer),
-                    .send(.live(.setIntervalTimerPaused(true))),
+                    .send(.live(.setWorkoutPaused(true))),
                     mode == .iPhoneStandalone ? .run { [watchClient = watchConnectivityClient] _ in
                         // iPhone-standalone: notify Watch via WatchConnectivity.
                         // Watch-primary: HealthKit mirroring propagates pause automatically.
@@ -68,7 +92,7 @@ extension SessionFeature {
                 let elapsed = state.controls.elapsedTime
                 return .merge(
                     .run { _ in await WorkoutFileLogger.shared.log("RESUMED") },
-                    .send(.live(.setIntervalTimerPaused(false))),
+                    .send(.live(.setWorkoutPaused(false))),
                     mode == .iPhoneStandalone ? .run { [elapsed, watchClient = watchConnectivityClient] _ in
                         await watchClient.sendWorkoutEvent(.workoutResumed(elapsedSeconds: elapsed))
                     } : .none,

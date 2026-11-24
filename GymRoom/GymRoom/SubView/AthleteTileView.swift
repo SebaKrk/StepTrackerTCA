@@ -55,6 +55,7 @@ struct AthleteTileView: View {
         .animation(.easeInOut(duration: 0.4), value: athlete.zone)
         .animation(.easeInOut(duration: 0.25), value: athlete.state)
         .animation(.easeInOut(duration: 0.25), value: athlete.isSensorStale)
+        .animation(.easeInOut(duration: 0.25), value: athlete.isPaused)
     }
 
     /// Saturation per state — `.loading` lekko zdesaturowany (peer connected ale brak
@@ -113,7 +114,11 @@ struct AthleteTileView: View {
     private var header: some View {
         HStack(alignment: .center) {
             avatarBadge
-            Spacer()
+            Spacer(minLength: headerSpacerMinLength)
+            if showsPausedBadge {
+                pausedBadge
+                Spacer(minLength: headerSpacerMinLength)
+            }
             heartRateRow
         }
     }
@@ -271,6 +276,25 @@ struct AthleteTileView: View {
             .animation(.snappy(duration: 0.3), value: athlete.effortPoints)
     }
 
+    /// Tells the coach why points and calories stand still while the heart rate is live.
+    private var pausedBadge: some View {
+        Label(pausedBadgeText, systemImage: pauseSymbol)
+            .font(pausedBadgeFont)
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .padding(.horizontal, pausedBadgeHorizontalPadding)
+            .padding(.vertical, pausedBadgeVerticalPadding)
+            .background(.black.opacity(pausedBadgeBackgroundOpacity), in: .capsule)
+            .layoutPriority(1)
+            .transition(.opacity.combined(with: .scale(scale: 0.9)))
+    }
+
+    /// The badge belongs to a live tile only — loading and reconnecting have their own overlays.
+    private var showsPausedBadge: Bool {
+        athlete.isPaused && athlete.state == .live
+    }
+
     // MARK: - Private content (implementacja)
 
     /// Skala względem default — proporcjonalnie zmniejsza fonty i spacing przy małych tile.
@@ -291,6 +315,15 @@ struct AthleteTileView: View {
     private var kcalInnerSpacing: CGFloat { 5 * scale }
     private var avatarSize: CGFloat { 36 * scale }
     private var avatarBorderWidth: CGFloat { 1.5 }
+
+    /// Smallest gap kept between the header items.
+    private var headerSpacerMinLength: CGFloat { 6 * scale }
+
+    /// Side padding inside the paused badge.
+    private var pausedBadgeHorizontalPadding: CGFloat { 10 * scale }
+
+    /// Top and bottom padding inside the paused badge.
+    private var pausedBadgeVerticalPadding: CGFloat { 4 * scale }
 
     // MARK: - Fonts
 
@@ -334,6 +367,11 @@ struct AthleteTileView: View {
         .system(size: 15 * scale, weight: .semibold, design: .rounded).monospacedDigit()
     }
 
+    /// Font of the paused badge.
+    private var pausedBadgeFont: Font {
+        .system(size: 12 * scale, weight: .semibold)
+    }
+
     private var nameFont: Font {
         .system(size: 17 * scale, weight: .semibold)
     }
@@ -346,6 +384,9 @@ struct AthleteTileView: View {
 
     private var avatarBorderColor: Color { athlete.zone.color.opacity(0.5) }
     private var captionOpacity: Double { 0.7 }
+
+    /// Dark enough to keep the badge text readable on every zone colour.
+    private var pausedBadgeBackgroundOpacity: Double { 0.45 }
     private var zoneSecondaryOpacity: Double { 0.7 }
 
     // MARK: - Shapes / Gradients
@@ -371,6 +412,9 @@ struct AthleteTileView: View {
     private var heartSymbol: String { athlete.isSensorStale ? "heart.slash" : "heart.fill" }
     private var flameSymbol: String { "flame.fill" }
     private var boltSymbol: String { "bolt.fill" }
+
+    /// Icon of the paused badge.
+    private var pauseSymbol: String { "pause.fill" }
 
     // MARK: - Texts
 
@@ -398,6 +442,11 @@ struct AthleteTileView: View {
     /// "—" gdy peer nie raportuje punktów (stary build) — spójne z `bpmValueText`.
     private var pointsValueText: String {
         athlete.effortPoints.map { "\($0.formatted(.number)) " + String(localized: "pts", bundle: .main) } ?? "—"
+    }
+
+    /// Text of the paused badge.
+    private var pausedBadgeText: String {
+        String(localized: "Workout paused", bundle: .main)
     }
 
     private var bpmCaptionText: String {
@@ -462,6 +511,24 @@ private let allZonesPreviewAthletes: [LiveClassFeature.AthleteTile] = [
     )
     .padding(20)
     .frame(width: 420, height: 280)
+    .background(.black)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Workout paused") {
+    AthleteTileView(
+        athlete: LiveClassFeature.AthleteTile(
+            id: UUID(),
+            nick: "Anna",
+            bpm: 162,
+            maxHR: 185,
+            activeEnergy: 240,
+            effortPoints: 118,
+            isPaused: true
+        )
+    )
+    .padding(20)
+    .frame(width: 360, height: 253)
     .background(.black)
     .preferredColorScheme(.dark)
 }

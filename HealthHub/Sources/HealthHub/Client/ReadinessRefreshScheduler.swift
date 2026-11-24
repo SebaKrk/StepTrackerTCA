@@ -21,6 +21,8 @@ import Foundation
 ///
 /// Neither is a guarantee — `earliestBeginDate` is a request, not a deadline.
 /// The point is that both would have to fail at once.
+///
+/// Background mode: `fetch` — a `BGAppRefreshTask` recalculates the score so the widget is not stale.
 public struct ReadinessRefreshScheduler: Sendable {
 
     /// Identifier declared in `BGTaskSchedulerPermittedIdentifiers`.

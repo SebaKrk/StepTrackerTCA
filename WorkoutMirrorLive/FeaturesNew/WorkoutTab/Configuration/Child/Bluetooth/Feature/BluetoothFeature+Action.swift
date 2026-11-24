@@ -64,6 +64,9 @@ extension BluetoothFeature {
        /// fixed `Task.sleep` poll after a (dis)connect.
        case startConnectionMonitoring
 
+       /// The connect attempt to the device with this id got no answer in time.
+       case connectionAttemptTimedOut(UUID)
+
        
        // MARK: - View Actions
        case view(View)

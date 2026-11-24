@@ -94,6 +94,278 @@
         }
       }
     },
+    "Adjust your Apple Watch" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch richtig anlegen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusta tu Apple Watch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustez votre Apple Watch"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema l’Apple Watch"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Popraw zegarek"
+          }
+        }
+      }
+    },
+    "Record workout logs" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainingsprotokolle aufzeichnen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar registros de entrenamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer les journaux d’entraînement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra i log di allenamento"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisuj logi treningu"
+          }
+        }
+      }
+    },
+    "Records workout and connection events on this iPhone and on Apple Watch, with heart rate every 30 seconds. Logs are kept for 7 days and leave the device only with diagnostics. Turning this off deletes them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet Trainings- und Verbindungsereignisse auf diesem iPhone und der Apple Watch auf, mit der Herzfrequenz alle 30 Sekunden. Protokolle werden 7 Tage aufbewahrt und verlassen das Gerät nur mit der Diagnose. Beim Ausschalten werden sie gelöscht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda eventos de entrenamiento y de conexión en este iPhone y en el Apple Watch, con la frecuencia cardiaca cada 30 segundos. Los registros se conservan 7 días y solo salen del dispositivo con el diagnóstico. Al desactivarlo se eliminan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistre les événements d’entraînement et de connexion sur cet iPhone et sur l’Apple Watch, avec la fréquence cardiaque toutes les 30 secondes. Les journaux sont conservés 7 jours et ne quittent l’appareil qu’avec le diagnostic. Les désactiver les supprime."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra gli eventi di allenamento e di connessione su questo iPhone e su Apple Watch, con la frequenza cardiaca ogni 30 secondi. I log restano 7 giorni e lasciano il dispositivo solo con la diagnostica. Disattivando l’opzione vengono eliminati."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisuje zdarzenia treningu i połączeń na tym iPhonie i na Apple Watch, z tętnem co 30 sekund. Logi są trzymane 7 dni i opuszczają urządzenie tylko razem z diagnostyką. Wyłączenie je usuwa."
+          }
+        }
+      }
+    },
+    "The bundle describes the app — versions, migrations and row counts — and carries your workout logs, heart rate included." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Paket beschreibt die App – Versionen, Migrationen und Zeilenanzahlen – und enthält deine Trainingsprotokolle einschließlich Herzfrequenz."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El paquete describe la app (versiones, migraciones y número de filas) e incluye tus registros de entrenamiento, con la frecuencia cardiaca."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le paquet décrit l’app — versions, migrations et nombres de lignes — et contient vos journaux d’entraînement, fréquence cardiaque comprise."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il pacchetto descrive l’app — versioni, migrazioni e numero di righe — e contiene i tuoi log di allenamento, frequenza cardiaca inclusa."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paczka opisuje aplikację — wersje, migracje i liczby wierszy — oraz zawiera Twoje logi treningu, razem z tętnem."
+          }
+        }
+      }
+    },
+    "The server did not finish the erase. Nothing is assumed gone — try again in a moment." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Server hat das Löschen nicht abgeschlossen. Nichts gilt als gelöscht — versuche es gleich noch einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servidor no terminó el borrado. No damos nada por borrado: inténtalo de nuevo en un momento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le serveur n’a pas terminé la suppression. Rien n’est considéré comme supprimé — réessayez dans un instant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il server non ha completato l’eliminazione. Nulla è considerato eliminato: riprova tra un momento."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serwer nie dokończył usuwania. Nic nie uznajemy za skasowane — spróbuj ponownie za chwilę."
+          }
+        }
+      }
+    },
+    "Workout logs" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainingsprotokolle"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros de entrenamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journaux d’entraînement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registri di allenamento"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logi treningu"
+          }
+        }
+      }
+    },
+    "Workouts in the Health app are safe. Close the app and open it again. If that does not help, contact us and include the code below." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainings in der Health-App sind sicher. Schließe die App und öffne sie erneut. Hilft das nicht, schreib uns und gib den Code unten an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los entrenamientos de la app Salud están a salvo. Cierra la app y vuelve a abrirla. Si no ayuda, escríbenos e incluye el código de abajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les entraînements de l’app Santé sont en sécurité. Fermez l’app et rouvrez-la. Si cela ne suffit pas, écrivez-nous en indiquant le code ci-dessous."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli allenamenti nell’app Salute sono al sicuro. Chiudi l’app e riaprila. Se non basta, scrivici indicando il codice qui sotto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treningi w aplikacji Zdrowie są bezpieczne. Zamknij aplikację i otwórz ją ponownie. Jeśli to nie pomoże, napisz do nas i podaj kod poniżej."
+          }
+        }
+      }
+    },
+    "Your data could not be opened" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Daten konnten nicht geöffnet werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron abrir tus datos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’ouvrir vos données"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire i tuoi dati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się otworzyć Twoich danych"
+          }
+        }
+      }
+    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -327,6 +599,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "% peso corporeo"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "% masy ciała"
           }
         }
       }
@@ -968,6 +1246,17 @@
         }
       }
     },
+    "%lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
     "%lld + %lld from round %lld" : {
       "localizations" : {
         "de" : {
@@ -1007,17 +1296,6 @@
           }
         }
       }
-    },
-    "%lld / %lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld / %2$lld"
-          }
-        }
-      },
-      "shouldTranslate" : false
     },
     "%lld athletes" : {
       "extractionState" : "stale",
@@ -1747,6 +2025,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld pt/min"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pkt/min"
           }
         }
       }
@@ -2665,6 +2949,40 @@
         }
       }
     },
+    "A diagnostics bundle you can send when something goes wrong." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Diagnosepaket, das du senden kannst, wenn etwas schiefgeht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un paquete de diagnóstico que puedes enviar cuando algo va mal."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ensemble de diagnostics que vous pouvez envoyer en cas de problème."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un pacchetto di diagnostica che puoi inviare quando qualcosa va storto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pakiet diagnostyczny, który możesz wysłać, gdy coś pójdzie nie tak."
+          }
+        }
+      }
+    },
     "A group plan lasts at least 60 minutes — everyone is measured over the same window." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2996,6 +3314,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tipo di attività"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodzaj aktywności"
           }
         }
       }
@@ -3636,6 +3960,12 @@
             "state" : "translated",
             "value" : "Dopo il round"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po rundzie"
+          }
         }
       }
     },
@@ -3737,6 +4067,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trener AI (Przetłumaczone)"
+          }
+        }
+      }
+    },
+    "AI features" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KI-Funktionen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funciones de IA"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fonctions d’IA"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funzioni di IA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Funkcje AI"
+          }
+        }
+      }
+    },
+    "AI, diagnostics and your data in the cloud." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KI, Diagnose und deine Daten in der Cloud."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IA, diagnóstico y tus datos en la nube."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IA, diagnostics et vos données dans le cloud."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IA, diagnostica e i tuoi dati nel cloud."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI, diagnostyka i Twoje dane w chmurze."
           }
         }
       }
@@ -3871,6 +4269,46 @@
             "state" : "translated",
             "value" : "Tutti"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wszystkie"
+          }
+        }
+      }
+    },
+    "Allow" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlauben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zezwól"
+          }
         }
       }
     },
@@ -3909,6 +4347,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Altitudine"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysokość"
           }
         }
       }
@@ -4143,6 +4587,7 @@
       }
     },
     "API keys for plan scanning, and diagnostics you can send when something goes wrong." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5039,6 +5484,12 @@
             "state" : "translated",
             "value" : "Base"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baza"
+          }
         }
       }
     },
@@ -5365,6 +5816,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tablica"
+          }
+        }
+      }
+    },
+    "Board scan and warm-ups with AI" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tafel-Scan und Warm-ups mit KI"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escaneo y calentamientos con IA"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan et échauffements par IA"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scansione e riscaldamenti con IA"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skan i rozgrzewki przez AI"
           }
         }
       }
@@ -6659,6 +7144,40 @@
         }
       }
     },
+    "Cloud data deleted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud-Daten gelöscht"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datos de la nube borrados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Données du cloud supprimées"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dati cloud eliminati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane z chmury usunięte"
+          }
+        }
+      }
+    },
     "Coaching cues, scaling options..." : {
       "localizations" : {
         "de" : {
@@ -7471,6 +7990,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się usunąć planu"
+          }
+        }
+      }
+    },
+    "Couldn't delete your cloud data" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud-Daten konnten nicht gelöscht werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron borrar tus datos de la nube"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de supprimer vos données du cloud"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile eliminare i tuoi dati dal cloud"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się usunąć danych z chmury"
           }
         }
       }
@@ -9101,6 +9654,40 @@
         }
       }
     },
+    "Delete my cloud data" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meine Cloud-Daten löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar mis datos de la nube"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer mes données du cloud"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina i miei dati dal cloud"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń moje dane z chmury"
+          }
+        }
+      }
+    },
     "Delete Today's Plan" : {
       "localizations" : {
         "de" : {
@@ -9267,6 +9854,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Usuń trening?"
+          }
+        }
+      }
+    },
+    "Delete your cloud data?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Cloud-Daten löschen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Borrar tus datos de la nube?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer vos données du cloud ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare i tuoi dati dal cloud?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć Twoje dane z chmury?"
           }
         }
       }
@@ -9442,6 +10063,7 @@
       }
     },
     "Developer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -9476,6 +10098,7 @@
       }
     },
     "Developer tools" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -9997,6 +10620,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Calo"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spadek"
           }
         }
       }
@@ -11303,6 +11932,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sprzęt"
+          }
+        }
+      }
+    },
+    "Erases your results, group memberships and account from our server. Workouts in the Health app and plans on this iPhone stay." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löscht deine Ergebnisse, Gruppenmitgliedschaften und dein Konto von unserem Server. Trainings in der Health-App und Pläne auf diesem iPhone bleiben erhalten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borra tus resultados, tus grupos y tu cuenta de nuestro servidor. Los entrenamientos de la app Salud y los planes de este iPhone se conservan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efface vos résultats, vos appartenances aux groupes et votre compte de notre serveur. Les entraînements de l’app Santé et les plans de cet iPhone sont conservés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina i tuoi risultati, le iscrizioni ai gruppi e l’account dal nostro server. Gli allenamenti nell’app Salute e i piani su questo iPhone restano."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuwa Twoje wyniki, członkostwa w grupach i konto z naszego serwera. Treningi w aplikacji Zdrowie i plany na tym iPhonie zostają."
           }
         }
       }
@@ -14130,6 +14793,12 @@
             "state" : "translated",
             "value" : "FC"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tętno"
+          }
         }
       }
     },
@@ -14191,6 +14860,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "FC media"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Śr. tętno"
           }
         }
       }
@@ -19689,6 +20364,40 @@
         }
       }
     },
+    "Not now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht jetzt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non ora"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie teraz"
+          }
+        }
+      }
+    },
     "Note" : {
       "localizations" : {
         "de" : {
@@ -19753,6 +20462,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notatka:"
+          }
+        }
+      }
+    },
+    "Nothing of yours is left on our server. A new, empty account is created when the app next needs one." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf unserem Server ist nichts mehr von dir gespeichert. Ein neues, leeres Konto wird erstellt, sobald die App wieder eines braucht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En nuestro servidor no queda nada tuyo. Se creará una cuenta nueva y vacía cuando la app vuelva a necesitarla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il ne reste rien de vous sur notre serveur. Un nouveau compte vide sera créé lorsque l’app en aura de nouveau besoin."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sul nostro server non resta nulla di tuo. Un nuovo account vuoto verrà creato quando l’app ne avrà di nuovo bisogno."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na naszym serwerze nie zostało nic Twojego. Nowe, puste konto powstanie, gdy aplikacja będzie go znów potrzebować."
           }
         }
       }
@@ -21092,6 +21835,41 @@
         }
       }
     },
+    "Plan photos and exercise names go through our server to Anthropic, which reads boards and writes warm-ups. We keep no copy. Turn this off and we ask again before anything is sent." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos von Plänen und Übungsnamen gehen über unseren Server an Anthropic, das Tafeln liest und Warm-ups schreibt. Wir behalten keine Kopie. Schalte dies aus, und wir fragen erneut, bevor etwas gesendet wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fotos de los planes y los nombres de los ejercicios pasan por nuestro servidor hasta Anthropic, que lee las pizarras y escribe los calentamientos. No guardamos ninguna copia. Desactívalo y volveremos a preguntar antes de enviar nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les photos des plans et les noms des exercices passent par notre serveur jusqu’à Anthropic, qui lit les tableaux et rédige les échauffements. Nous n’en gardons aucune copie. Désactivez cette option et nous redemanderons avant tout envoi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le foto dei piani e i nomi degli esercizi passano dal nostro server ad Anthropic, che legge le lavagne e scrive i riscaldamenti. Non ne conserviamo alcuna copia. Disattiva questa opzione e chiederemo di nuovo prima di inviare qualcosa."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zdjęcia planów i nazwy ćwiczeń trafiają przez nasz serwer do Anthropic, który odczytuje tablice i pisze rozgrzewki. Nie zachowujemy kopii. Wyłącz, a zapytamy ponownie, zanim cokolwiek wyślemy."
+          }
+        }
+      }
+    },
     "Plan today" : {
       "localizations" : {
         "de" : {
@@ -21812,6 +22590,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strefa główna:"
+          }
+        }
+      }
+    },
+    "Privacy & data" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenschutz & Daten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacidad y datos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confidentialité et données"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy e dati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prywatność i dane"
           }
         }
       }
@@ -23584,6 +24396,12 @@
             "state" : "translated",
             "value" : "Fine round"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koniec rundy"
+          }
         }
       }
     },
@@ -23611,6 +24429,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inizio round"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start rundy"
           }
         }
       }
@@ -23979,6 +24803,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "round"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rund"
           }
         }
       }
@@ -24631,6 +25461,74 @@
         }
       }
     },
+    "Scanning a board and generating a warm-up send the plan to Anthropic. We keep no copy. When this is off, the app asks before anything is sent." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Scannen einer Tafel und das Erstellen eines Warm-ups senden den Plan an Anthropic. Wir behalten keine Kopie. Ist dies aus, fragt die App vor jedem Senden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear una pizarra y generar un calentamiento envían el plan a Anthropic. No guardamos ninguna copia. Si está desactivado, la app pregunta antes de enviar nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanner un tableau et générer un échauffement envoient le plan à Anthropic. Nous n’en gardons aucune copie. Si l’option est désactivée, l’app demande avant tout envoi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La scansione di una lavagna e la generazione di un riscaldamento inviano il piano ad Anthropic. Non ne conserviamo alcuna copia. Se è disattivato, l’app chiede prima di inviare qualcosa."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skan tablicy i generowanie rozgrzewki wysyłają plan do Anthropic. Nie zachowujemy kopii. Gdy wyłączone, aplikacja zapyta przed wysłaniem."
+          }
+        }
+      }
+    },
+    "Scanning a board and generating a warm-up will ask for your permission the next time you use them. Nothing is sent until then." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Scannen einer Tafel und das Erstellen eines Warm-ups fragen bei der nächsten Nutzung nach deiner Erlaubnis. Bis dahin wird nichts gesendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear una pizarra y generar un calentamiento te pedirán permiso la próxima vez que los uses. Hasta entonces no se envía nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanner un tableau et générer un échauffement vous demanderont votre autorisation à la prochaine utilisation. Rien n’est envoyé d’ici là."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La scansione di una lavagna e la generazione di un riscaldamento chiederanno il tuo permesso al prossimo utilizzo. Fino ad allora non viene inviato nulla."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skan tablicy i generowanie rozgrzewki zapytają Cię o zgodę przy następnym użyciu. Do tego czasu nic nie zostanie wysłane."
+          }
+        }
+      }
+    },
     "Scanning failed" : {
       "localizations" : {
         "de" : {
@@ -25096,6 +25994,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cerca"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szukaj"
           }
         }
       }
@@ -25674,6 +26578,75 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyślij diagnostykę"
+          }
+        }
+      }
+    },
+    "Send plans to Anthropic" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pläne an Anthropic senden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar planes a Anthropic"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer les plans à Anthropic"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invia i piani ad Anthropic"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysyłaj plany do Anthropic"
+          }
+        }
+      }
+    },
+    "Send the plan to an AI service?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan an einen KI-Dienst senden?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Enviar el plan a un servicio de IA?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer le plan à un service d’IA ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inviare il piano a un servizio di IA?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wysłać plan do usługi AI?"
           }
         }
       }
@@ -26734,6 +27707,7 @@
       }
     },
     "START" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -27620,6 +28594,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Podsumowanie"
+          }
+        }
+      }
+    },
+    "Support" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soporte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assistance"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supporto"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wsparcie"
           }
         }
       }
@@ -28711,6 +29719,40 @@
         }
       }
     },
+    "The names of the blocks and exercises go through our server to Anthropic, which writes the warm-up and cool-down. We keep no copy, and Anthropic gets no name or account with them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Namen der Blöcke und Übungen gehen über unseren Server an Anthropic, das Warm-up und Cool-down schreibt. Wir behalten keine Kopie, und Anthropic erhält dazu weder Namen noch Konto."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los nombres de los bloques y ejercicios pasan por nuestro servidor hasta Anthropic, que escribe el calentamiento y la vuelta a la calma. No guardamos ninguna copia y Anthropic no recibe ningún nombre ni cuenta con ellos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les noms des blocs et des exercices passent par notre serveur jusqu’à Anthropic, qui rédige l’échauffement et le retour au calme. Nous n’en gardons aucune copie et Anthropic ne reçoit ni nom ni compte avec eux."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I nomi dei blocchi e degli esercizi passano dal nostro server ad Anthropic, che scrive il riscaldamento e il defaticamento. Non ne conserviamo alcuna copia e Anthropic non riceve né nome né account insieme a essi."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwy bloków i ćwiczeń trafiają przez nasz serwer do Anthropic, który pisze rozgrzewkę i schłodzenie. Nie zachowujemy kopii, a Anthropic nie dostaje z nimi imienia ani konta."
+          }
+        }
+      }
+    },
     "the notes" : {
       "localizations" : {
         "de" : {
@@ -28786,6 +29828,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie udało się zamienić zdjęcia w plan"
+          }
+        }
+      }
+    },
+    "The photo of your plan goes through our server to Anthropic, which reads it and returns the plan. We keep no copy, and Anthropic gets no name or account with it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Foto deines Plans geht über unseren Server an Anthropic, das es liest und den Plan zurückgibt. Wir behalten keine Kopie, und Anthropic erhält dazu weder Namen noch Konto."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La foto de tu plan pasa por nuestro servidor hasta Anthropic, que la lee y devuelve el plan. No guardamos ninguna copia y Anthropic no recibe ningún nombre ni cuenta con ella."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La photo de votre plan passe par notre serveur jusqu’à Anthropic, qui la lit et renvoie le plan. Nous n’en gardons aucune copie et Anthropic ne reçoit ni nom ni compte avec elle."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La foto del tuo piano passa dal nostro server ad Anthropic, che la legge e restituisce il piano. Non ne conserviamo alcuna copia e Anthropic non riceve né nome né account insieme a essa."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zdjęcie Twojego planu trafia przez nasz serwer do Anthropic, który je odczytuje i odsyła plan. Nie zachowujemy kopii, a Anthropic nie dostaje z nim imienia ani konta."
           }
         }
       }
@@ -30480,6 +31556,12 @@
             "state" : "translated",
             "value" : "Trasferisci"
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przekaż"
+          }
         }
       }
     },
@@ -30671,6 +31753,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "tu coś będzie"
+          }
+        }
+      }
+    },
+    "Turn off" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausschalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattiva"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłącz"
+          }
+        }
+      }
+    },
+    "Turn off AI features?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KI-Funktionen ausschalten?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Desactivar las funciones de IA?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver les fonctions d’IA ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivare le funzioni di IA?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączyć funkcje AI?"
           }
         }
       }
@@ -33878,6 +35028,40 @@
         }
       }
     },
+    "Your data" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Daten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus datos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos données"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi dati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje dane"
+          }
+        }
+      }
+    },
     "Your full heart-rate curve over the whole block. Green bands are the rounds, the gaps between them are the rests." : {
       "localizations" : {
         "de" : {
@@ -34270,6 +35454,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wynik nie został zapisany. Spróbuj ponownie."
+          }
+        }
+      }
+    },
+    "Your results, group memberships and account are erased from our server. Workouts in the Health app and plans on this iPhone stay. This cannot be undone." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Ergebnisse, Gruppenmitgliedschaften und dein Konto werden von unserem Server gelöscht. Trainings in der Health-App und Pläne auf diesem iPhone bleiben erhalten. Das kann nicht rückgängig gemacht werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus resultados, tus grupos y tu cuenta se borran de nuestro servidor. Los entrenamientos de la app Salud y los planes de este iPhone se conservan. Esta acción no se puede deshacer."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos résultats, vos appartenances aux groupes et votre compte sont effacés de notre serveur. Les entraînements de l’app Santé et les plans de cet iPhone sont conservés. Cette action est irréversible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi risultati, le iscrizioni ai gruppi e l’account vengono eliminati dal nostro server. Gli allenamenti nell’app Salute e i piani su questo iPhone restano. L’operazione non può essere annullata."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje wyniki, członkostwa w grupach i konto zostaną usunięte z naszego serwera. Treningi w aplikacji Zdrowie i plany na tym iPhonie zostają. Tego nie da się cofnąć."
           }
         }
       }

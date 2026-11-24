@@ -29,7 +29,7 @@ extension PersonSettingsFeature {
         /// "Formuła maxHR". Zmiana w `HRFormulaSettingsView` propaguje się natychmiast.
         @Shared(.appStorage("hrFormula"))
         var hrFormula: HRFormulaType = .tanaka
-        
+
         // MARK: - Properties
 
         /// User profile loaded from local database (name, surname, nickname, email)
@@ -54,7 +54,7 @@ extension PersonSettingsFeature {
         var maxHR: Int?
 
         // MARK: - Destination
-        
+
         /// destination from PersonSettingsFeature
         @Presents var destination: Destination.State?
     }

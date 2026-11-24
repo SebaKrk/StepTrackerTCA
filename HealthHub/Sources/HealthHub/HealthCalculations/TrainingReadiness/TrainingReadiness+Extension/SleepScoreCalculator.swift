@@ -49,13 +49,9 @@ extension DefaultTrainingReadinessCalculator {
         case let .measured(hours):
             currentHours = hours
 
-        case .noSleep:
-            // A measurement of zero, not an absence of one.
-            currentHours = 0
-
-        case .notWorn, .truncated:
-            // Nothing to compare: either nothing was recorded, or what was
-            // recorded stopped before the night did.
+        case .noSleep, .notWorn, .truncated:
+            // No sleep in Health is not proof of no sleep: the Watch may not track it,
+            // or the night may not have synced. Better missing than a made-up zero.
             return nil
         }
 
