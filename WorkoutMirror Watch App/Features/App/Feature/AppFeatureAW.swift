@@ -105,6 +105,8 @@ struct AppFeatureAW {
                     maxHeartRate: maxHR,
                     activityType: activityType
                 )
+                // Started by the iPhone's own event, so the iPhone leads and a pause is resumed there.
+                state.hrMirror?.leadsWorkout = false
                 return .send(.hrMirror(.presented(.start)))
 
             // Live-workout events are forwarded only while the workout is actually

@@ -139,6 +139,12 @@ extension HRMirrorFeature {
             /// Called when the user taps OK on the low-battery warning.
             case lowBatteryDismissed
 
+            /// Called when the user taps Resume on the pause reminder.
+            case pauseReminderResumeTapped
+
+            /// Called when the user taps OK on the pause reminder — the pause is meant.
+            case pauseReminderDismissed
+
             /// Called when the user taps End workout on the low-battery warning.
             ///
             /// Ending now is the only guaranteed save once the battery is about to
