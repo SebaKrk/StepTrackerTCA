@@ -147,20 +147,39 @@ struct InlineResultEditor: View {
     }
 
     private var roundsAndRepsEntry: some View {
-        RoundsAndRepsFields(
+        // Read once: the counters size the round, and every lookup would size it again.
+        let counters = store.counters
+        return RoundsAndRepsFields(
             title: roundsAndRepsTitle,
-            rounds: store.dnfRounds,
-            extraReps: store.dnfExtraReps,
+            rounds: counters.rounds,
+            extraReps: counters.reps,
             onRounds: { send(.updateRounds($0)) },
             onExtraReps: { send(.updateExtraReps($0)) },
-            roundsLabel: store.fitnessRun == nil
-                ? String(localized: "Completed rounds", bundle: .main)
-                : String(localized: "Completed stations", bundle: .main),
-            extraRepsLabel: store.openLadder == nil
-                ? String(localized: "Reps in round", bundle: .main)
-                : String(localized: "Reps in round \(store.dnfRounds + 1)", bundle: .main),
-            showsExtraReps: store.fitnessRun == nil
+            roundsLabel: roundsLabel(for: counters),
+            extraRepsLabel: repsLabel(for: counters),
+            showsExtraReps: store.fitnessRun == nil,
+            roundsTotal: counters.roundsTotal,
+            extraRepsTotal: counters.repsTotal,
+            extraRepsBigStep: counters.repsBigStep
         )
+    }
+
+    private func roundsLabel(for counters: WODScoringFeature.Counters) -> String {
+        if store.fitnessRun != nil {
+            return String(localized: "Completed stations", bundle: .main)
+        }
+        return counters.movementName == nil
+            ? String(localized: "Completed rounds", bundle: .main)
+            : String(localized: "Completed movements", bundle: .main)
+    }
+
+    private func repsLabel(for counters: WODScoringFeature.Counters) -> String {
+        if let movementName = counters.movementName {
+            return movementName
+        }
+        return counters.namesRound
+            ? String(localized: "Reps in round \(counters.rounds + 1)", bundle: .main)
+            : String(localized: "Reps in round", bundle: .main)
     }
 
     private var roundsAndRepsTitle: String {

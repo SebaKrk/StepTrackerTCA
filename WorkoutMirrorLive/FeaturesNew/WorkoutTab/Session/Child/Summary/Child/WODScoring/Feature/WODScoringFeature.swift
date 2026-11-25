@@ -50,6 +50,31 @@ struct WODScoringFeature {
         let partial: Int
     }
 
+    /// What the two counters of an unfinished or AMRAP card show.
+    struct Counters: Equatable {
+
+        /// Movements finished, or whole rounds.
+        let rounds: Int
+
+        /// What `rounds` counts up to; nil where the plan sets no ceiling.
+        let roundsTotal: Int?
+
+        /// Reps of the movement in progress, or of the round.
+        let reps: Int
+
+        /// What `reps` counts up to; nil where the plan cannot say.
+        let repsTotal: Int?
+
+        /// A larger step for `reps`; nil where one rep at a time is enough.
+        let repsBigStep: Int?
+
+        /// The movement the cap caught the athlete on; nil unless the card counts by movement.
+        let movementName: String?
+
+        /// The reps counter names its round, because a ladder's rounds differ in size.
+        let namesRound: Bool
+    }
+
     /// Which status control the card header carries. `nil` means none at all.
     enum StatusKind: Equatable {
 
@@ -99,10 +124,99 @@ struct WODScoringFeature {
             }
         }
 
-        /// Most loose reps the round in progress holds before it is a whole round; nil without an open ladder.
+        /// Most loose reps the round in progress holds before it is a whole round; nil where the plan cannot say.
         var maxExtraReps: Int? {
-            guard let openLadder else { return nil }
-            return max(0, openLadder.rung(at: dnfRounds) * openLadderIndices.count - 1)
+            if let openLadder {
+                return max(0, openLadder.rung(at: dnfRounds) * openLadderIndices.count - 1)
+            }
+            if ladderDrivesReps, let repScheme, repScheme.indices.contains(dnfRounds) {
+                // A movement outside the ladder has reps the rung does not count, so no ceiling is known.
+                guard result.exercises.indices.allSatisfy({ ladderOwns(exerciseAt: $0) }) else { return nil }
+                return max(0, repScheme[dnfRounds] * result.exercises.count - 1)
+            }
+            return roundSize.map { max(0, $0 - 1) }
+        }
+
+        /// Reps one whole round holds; nil unless every movement states its share.
+        var roundSize: Int? {
+            Self.roundSize(of: roundSizes)
+        }
+
+        /// Most whole rounds an unfinished attempt holds; one more would be a finished workout.
+        var maxRounds: Int? {
+            guard capturesUnfinished, fitnessRun == nil, openLadder == nil else { return nil }
+            if let repScheme, !repScheme.isEmpty { return max(0, repScheme.count - 1) }
+            if let rounds, rounds > 1 { return rounds - 1 }
+            return nil
+        }
+
+        /// The work is done once, top to bottom, so the athlete says which movement the cap caught them on.
+        ///
+        /// Only another way to state `dnfExtraReps`: the movements finished and the reps of the next one
+        /// add up to the same loose reps, so the stored score does not change.
+        var countsByMovement: Bool {
+            countsByMovement(sizes: roundSizes)
+        }
+
+        /// Movements finished in full before the cap; the last one never counts, that would be a finished workout.
+        var completedMovements: Int {
+            completedMovements(sizes: roundSizes)
+        }
+
+        /// What the two counters show; the view reads it once, so the round is sized once per render.
+        var counters: Counters {
+            let sizes = roundSizes
+            guard countsByMovement(sizes: sizes) else {
+                // An open ladder keeps the plain counter it always had.
+                let repsTotal = openLadder == nil ? maxExtraReps.map { $0 + 1 } : nil
+                return Counters(
+                    rounds: dnfRounds,
+                    roundsTotal: maxRounds.map { $0 + 1 },
+                    reps: dnfExtraReps,
+                    repsTotal: repsTotal,
+                    repsBigStep: openLadder == nil ? Self.bigStep(countingTo: repsTotal) : nil,
+                    movementName: nil,
+                    namesRound: openLadder != nil || ladderDrivesReps
+                )
+            }
+            let completed = completedMovements(sizes: sizes)
+            return Counters(
+                rounds: completed,
+                roundsTotal: sizes.count,
+                reps: dnfExtraReps - sizes.prefix(completed).reduce(0, +),
+                repsTotal: sizes[completed],
+                repsBigStep: Self.bigStep(countingTo: sizes[completed]),
+                movementName: result.exercises[completed].displayName,
+                namesRound: false
+            )
+        }
+
+        private func countsByMovement(sizes: [Int]) -> Bool {
+            capturesUnfinished && (rounds ?? 1) <= 1 && dnfRounds == 0 && sizes.count > 1 && Self.roundSize(of: sizes) != nil
+        }
+
+        private func completedMovements(sizes: [Int]) -> Int {
+            var left = dnfExtraReps
+            var completed = 0
+            for size in sizes.dropLast() {
+                guard left >= size else { break }
+                left -= size
+                completed += 1
+            }
+            return completed
+        }
+
+        /// `roundSizes` holds a zero for every movement the round does not speak for, so one zero means no known size.
+        private static func roundSize(of sizes: [Int]) -> Int? {
+            guard !sizes.isEmpty, sizes.allSatisfy({ $0 > 0 }) else { return nil }
+            return sizes.reduce(0, +)
+        }
+
+        /// A count nobody can size may be long, so it gets the step too; a short one does not need it.
+        private static func bigStep(countingTo total: Int?) -> Int? {
+            guard let total else { return 10 }
+            if total >= 200 { return 50 }
+            return total >= 20 ? 10 : nil
         }
 
         /// What each row owes to the whole rounds and to the round in progress, counted in board order.
@@ -496,9 +610,19 @@ struct WODScoringFeature {
                 return .none
 
             case let .view(.updateRounds(rounds)):
+                if state.countsByMovement {
+                    let sizes = state.roundSizes
+                    let completed = min(max(0, rounds), max(0, sizes.count - 1))
+                    // A tap at either end changes nothing, and must not take the reps with it.
+                    guard completed != state.completedMovements else { return .none }
+                    // The reps belonged to the movement left behind, so the next one starts from none.
+                    state.dnfExtraReps = sizes.prefix(completed).reduce(0, +)
+                    syncDerivedReps(&state)
+                    return .none
+                }
                 guard state.fitnessRun != nil else {
-                    state.dnfRounds = max(0, rounds)
-                    // A shorter round of an open ladder holds fewer loose reps than the one left.
+                    state.dnfRounds = min(max(0, rounds), state.maxRounds ?? .max)
+                    // A shorter round of a ladder holds fewer loose reps than the one left.
                     if let maxExtraReps = state.maxExtraReps {
                         state.dnfExtraReps = min(state.dnfExtraReps, maxExtraReps)
                     }
@@ -516,6 +640,15 @@ struct WODScoringFeature {
                 return .none
 
             case let .view(.updateExtraReps(reps)):
+                if state.countsByMovement {
+                    let sizes = state.roundSizes
+                    let completed = state.completedMovements
+                    // A full movement is said on the other counter, so this one stops a rep short.
+                    let inMovement = min(max(0, reps), max(0, sizes[completed] - 1))
+                    state.dnfExtraReps = sizes.prefix(completed).reduce(0, +) + inMovement
+                    syncDerivedReps(&state)
+                    return .none
+                }
                 state.dnfExtraReps = min(max(0, reps), state.maxExtraReps ?? .max)
                 syncDerivedReps(&state)
                 return .none
