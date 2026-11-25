@@ -184,6 +184,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Daily totals of scans and training notes. Written by the functions, read from
+    // the console only: no screen shows them.
+    match /scanStats/{day} {
+      allow read, write: if false;
+    }
+
     // Collection-group reads for "my groups" and "my invitations": only your own documents.
     match /{path=**}/members/{uid} {
       allow read: if signedIn() && resource.data.uid == me();

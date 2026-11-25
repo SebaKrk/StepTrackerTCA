@@ -28,6 +28,9 @@ const GLOBAL_DAILY_CALLS = Number(process.env.GLOBAL_DAILY_CALLS) || 2000;
 const dayKey = (date) =>
   new Intl.DateTimeFormat("sv-SE", { timeZone: TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
 
+/** A new day's row with every counter written out; the merged write would keep yesterday's otherwise. */
+const freshDay = (day) => ({ day, ...Object.fromEntries(Object.keys(LIMITS).map((feature) => [feature, 0])) });
+
 /** Epoch millis of the next local midnight, walked hour by hour so DST needs no special case. */
 function nextResetAt(now) {
   const today = dayKey(now);
@@ -59,7 +62,7 @@ async function reserve(uid, feature, now = new Date()) {
   return db.runTransaction(async (transaction) => {
     const [userSnapshot, globalSnapshot] = await transaction.getAll(userRef, globalRef);
 
-    const user = userSnapshot.exists && userSnapshot.data().day === today ? userSnapshot.data() : { day: today };
+    const user = userSnapshot.exists && userSnapshot.data().day === today ? userSnapshot.data() : freshDay(today);
     const global = globalSnapshot.exists && globalSnapshot.data().day === today ? globalSnapshot.data() : { day: today, calls: 0 };
 
     if ((global.calls ?? 0) >= GLOBAL_DAILY_CALLS) {
@@ -108,4 +111,4 @@ async function release(uid, feature, now = new Date()) {
   }
 }
 
-module.exports = { reserve, release, COLLECTION };
+module.exports = { reserve, release, dayKey, COLLECTION };

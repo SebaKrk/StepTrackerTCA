@@ -40,6 +40,15 @@ struct RoundsAndRepsFields: View {
     /// The second stepper; a fitness run asks for the partial work on the station itself.
     var showsExtraReps = true
 
+    /// What the first stepper counts up to; nil where the plan sets no ceiling.
+    var roundsTotal: Int?
+
+    /// What the second stepper counts up to; nil where the plan sets no ceiling.
+    var extraRepsTotal: Int?
+
+    /// A larger step for the second stepper; nil where one rep at a time is enough.
+    var extraRepsBigStep: Int?
+
     @Environment(\.summaryPalette) private var theme
 
     // MARK: - Body
@@ -53,8 +62,12 @@ struct RoundsAndRepsFields: View {
                     extraRepsStepper
                 }
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .animation(.snappy, value: extraRepsBigStep)
+        .animation(.snappy, value: extraRepsLabel)
+        .animation(.snappy, value: extraRepsTotal)
     }
 
     // MARK: - Implementation
@@ -69,6 +82,8 @@ struct RoundsAndRepsFields: View {
         stepperTile(
             label: roundsLabel,
             value: rounds,
+            total: roundsTotal,
+            bigStep: nil,
             onChange: onRounds
         )
     }
@@ -77,6 +92,8 @@ struct RoundsAndRepsFields: View {
         stepperTile(
             label: extraRepsLabel,
             value: extraReps,
+            total: extraRepsTotal,
+            bigStep: extraRepsBigStep,
             onChange: onExtraReps
         )
     }
@@ -84,6 +101,8 @@ struct RoundsAndRepsFields: View {
     private func stepperTile(
         label: String,
         value: Int,
+        total: Int?,
+        bigStep: Int?,
         onChange: @escaping (Int) -> Void
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -91,26 +110,71 @@ struct RoundsAndRepsFields: View {
                 .font(.system(size: 10.5, weight: .semibold))
                 .tracking(0.6)
                 .textCase(.uppercase)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
                 .foregroundStyle(theme.inkTertiary)
+                .contentTransition(.opacity)
             HStack(spacing: 8) {
                 stepButton(systemName: "minus") { onChange(max(0, value - 1)) }
                 Spacer(minLength: 0)
-                Text("\(value)")
-                    .font(.system(size: 24, weight: .heavy))
-                    .monospacedDigit()
-                    .foregroundStyle(theme.ink)
+                valueLabel(value, of: total)
                 Spacer(minLength: 0)
                 stepButton(systemName: "plus") { onChange(value + 1) }
+            }
+            if let bigStep {
+                HStack(spacing: 8) {
+                    bigStepButton(title: "−\(bigStep)") { onChange(max(0, value - bigStep)) }
+                    bigStepButton(title: "+\(bigStep)") { onChange(value + bigStep) }
+                }
+                .transition(.opacity)
             }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(theme.cardInner, in: .rect(cornerRadius: SummaryTheme.innerRadius))
         .overlay(
             RoundedRectangle(cornerRadius: SummaryTheme.innerRadius)
                 .stroke(theme.stroke, lineWidth: 1)
         )
+    }
+
+    private func valueLabel(_ value: Int, of total: Int?) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(verbatim: "\(value)")
+                .font(.system(size: 24, weight: .heavy))
+                .monospacedDigit()
+                .foregroundStyle(theme.ink)
+                .contentTransition(.numericText(value: Double(value)))
+            if let total {
+                Text(verbatim: "/ \(total)")
+                    .font(.system(size: 12, weight: .semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(theme.inkTertiary)
+            }
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.6)
+        .animation(.snappy, value: value)
+    }
+
+    private func bigStepButton(title: String, action: @escaping () -> Void) -> some View {
+        Button {
+            action()
+        } label: {
+            Text(verbatim: title)
+                .font(.system(size: 12, weight: .bold))
+                .monospacedDigit()
+                .foregroundStyle(theme.inkSecondary)
+                .frame(maxWidth: .infinity, minHeight: 28)
+                .background(Color.white.opacity(0.05), in: .rect(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(theme.stroke, lineWidth: 1)
+                )
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 
     private func stepButton(systemName: String, action: @escaping () -> Void) -> some View {
