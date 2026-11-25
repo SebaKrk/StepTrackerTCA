@@ -111,4 +111,4 @@ async function release(uid, feature, now = new Date()) {
   }
 }
 
-module.exports = { reserve, release, COLLECTION };
+module.exports = { reserve, release, dayKey, COLLECTION };
