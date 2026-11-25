@@ -43,6 +43,8 @@ function thinkingFor(model) {
  *
  * `system` is sent as a single cached block: the scan prompt is identical on every
  * request, so the cache prefix is what keeps the input cost down.
+ *
+ * Returns the reply's text with the tokens it cost.
  */
 async function sendMessage({ apiKey, model, system, content, cacheSystem, effort, schema }) {
   const body = {
@@ -79,14 +81,15 @@ async function sendMessage({ apiKey, model, system, content, cacheSystem, effort
   }
 
   const payload = await response.json();
-  logUsage(model, payload);
+  const usage = usageOf(payload);
+  logUsage(model, payload, usage);
 
   if (payload.stop_reason === "max_tokens") throw new HttpsError("internal", "truncated");
   if (payload.stop_reason === "refusal") throw new HttpsError("internal", "refused");
 
   const text = (payload.content ?? []).find((block) => block.type === "text")?.text;
   if (!text) throw new HttpsError("internal", "empty-response");
-  return text;
+  return { text, usage };
 }
 
 /**
@@ -116,16 +119,19 @@ function mappedError(status, bodyText) {
   return new HttpsError("internal", "upstream-rejected");
 }
 
-function logUsage(model, payload) {
+/** The tokens one reply cost; cached input is reported apart from the rest. */
+function usageOf(payload) {
   const usage = payload.usage ?? {};
-  logger.info("anthropic call", {
-    model,
-    stopReason: payload.stop_reason ?? null,
+  return {
     inputTokens: usage.input_tokens ?? 0,
     outputTokens: usage.output_tokens ?? 0,
     cacheWriteTokens: usage.cache_creation_input_tokens ?? 0,
     cacheReadTokens: usage.cache_read_input_tokens ?? 0,
-  });
+  };
+}
+
+function logUsage(model, payload, usage) {
+  logger.info("anthropic call", { model, stopReason: payload.stop_reason ?? null, ...usage });
 }
 
 async function safeText(response) {

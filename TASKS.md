@@ -2139,3 +2139,20 @@
     - not done: a build of the Watch app and a run on a wrist; only the SharedModels package was built, by the commit hook
     - not done: the thresholds are estimates and have seen no real workout
     - not done: a wrong reading at the very moment of the pause, and a short overshoot after stopping that crosses a zone for fifteen seconds, can still raise the question
+
+### IOS-00209 The server counts scans and notes per day, and a new day resets both allowances
+    - branch: `dev/IOS-00209/IOS-00209` (from develop)
+    - asked after the 0.9.6 release: how many boards were scanned, and nothing kept the answer past midnight
+    - the model's console counts tokens, not calls, and mixes scans with training notes; `scanQuota` forgets every day
+    - `scanStats/{day}` is one sheet per day in Europe/Warsaw time, written by the functions only and closed to the app
+    - it holds successful scans and notes, the accounts that got an answer that day, tokens in and out for each feature, and calls turned away by the allowance
+    - a call is written down after the model answered, so a failed one never appears; a lost tally is logged and never fails the scan
+    - the sheet holds no account id; the account's own quota row remembers the day it was last counted
+    - one moment is taken when the allowance is reserved and used for the tally and the refund, so a call that crosses midnight stays on the day it was charged to
+    - fixed on the way: the quota row was merged, so on a new day only the counter used first was reset; two scans yesterday and a note first today refused every scan today
+    - a second reviewer replayed the two-day example on the real `reserve`, both orders and a refund after a failed first call
+    - not done: no deployment to the production project
+    - not done: the last two edits after the review (the refund's clock, the guard against an older call overwriting a newer day) were checked for syntax only
+    - not done: tokens in leave out cached input; right while caching is off
+    - not done: truncated and refused replies are billed by the model and not counted, so the sheet shows use, not spend
+    - not done: every call turned away costs one write, and App Check is off

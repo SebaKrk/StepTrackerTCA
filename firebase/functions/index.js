@@ -12,6 +12,7 @@ const { boardSchema } = require("./src/boardSchema");
 const { boardForForm, withLadderInItsField } = require("./src/boardCompat");
 const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
+const stats = require("./src/stats");
 const { deleteAccountData } = require("./src/account");
 
 initializeApp();
@@ -49,7 +50,8 @@ exports.scanBoard = onCall(options, async (request) => {
   const uid = requireUid(request);
   const { mode, image, ocrText, language, model, formVersion } = parseScanInput(request.data ?? {});
 
-  const taken = await quota.reserve(uid, "scan");
+  const now = new Date();
+  const taken = await reserve(uid, "scan", now);
   try {
     const content =
       mode === "text"
@@ -59,7 +61,7 @@ exports.scanBoard = onCall(options, async (request) => {
             { type: "text", text: boardPrompt.visionUserPrompt(mode === "visionWithHint" ? ocrText : null, language) },
           ];
 
-    const text = await sendMessage({
+    const { text, usage } = await sendMessage({
       apiKey: anthropicKey.value(),
       model,
       system: boardPrompt.systemPrompt,
@@ -70,9 +72,11 @@ exports.scanBoard = onCall(options, async (request) => {
       schema: boardSchema,
     });
 
-    return { board: boardForForm(withLadderInItsField(JSON.parse(text)), formVersion), quota: taken };
+    const board = boardForForm(withLadderInItsField(JSON.parse(text)), formVersion);
+    await stats.recordCall(uid, "scan", usage, now);
+    return { board, quota: taken };
   } catch (error) {
-    await quota.release(uid, "scan");
+    await quota.release(uid, "scan", now);
     throw asHttpsError(error);
   }
 });
@@ -82,9 +86,10 @@ exports.trainingNote = onCall(options, async (request) => {
   const uid = requireUid(request);
   const { kind, workouts, durationMinutes, language } = parseNoteInput(request.data ?? {});
 
-  const taken = await quota.reserve(uid, "note");
+  const now = new Date();
+  const taken = await reserve(uid, "note", now);
   try {
-    const text = await sendMessage({
+    const { text, usage } = await sendMessage({
       apiKey: anthropicKey.value(),
       model: NOTES_MODEL,
       system: notesPrompt.systemPrompt(kind, language),
@@ -96,9 +101,11 @@ exports.trainingNote = onCall(options, async (request) => {
       schema: durationMinutes === null ? notesSchema(kind) : null,
     });
 
-    return { ...notes(kind, text, durationMinutes), quota: taken };
+    const cues = notes(kind, text, durationMinutes);
+    await stats.recordCall(uid, "note", usage, now);
+    return { ...cues, quota: taken };
   } catch (error) {
-    await quota.release(uid, "note");
+    await quota.release(uid, "note", now);
     throw asHttpsError(error);
   }
 });
@@ -113,6 +120,18 @@ exports.deleteMyData = onCall(accountOptions, async (request) => {
     throw asHttpsError(error);
   }
 });
+
+// MARK: - Allowance
+
+/** Takes one unit of today's allowance; a call turned away by it is counted on the way out. */
+async function reserve(uid, feature, now) {
+  try {
+    return await quota.reserve(uid, feature, now);
+  } catch (error) {
+    if (error instanceof HttpsError && error.message === "daily-limit-reached") await stats.recordLimitHit(feature, now);
+    throw error;
+  }
+}
 
 // MARK: - Input
 
