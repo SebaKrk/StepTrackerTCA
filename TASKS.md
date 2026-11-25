@@ -2156,3 +2156,22 @@
     - not done: tokens in leave out cached input; right while caching is off
     - not done: truncated and refused replies are billed by the model and not counted, so the sheet shows use, not spend
     - not done: every call turned away costs one write, and App Check is off
+
+### IOS-00210 The summary counts an unfinished WOD the way it was done
+    - branch: `dev/IOS-00210/IOS-00210` (from develop)
+    - seen after a class: a For Time with no rounds, cut by the cap at rep 131, took 131 taps and a sum done in the head
+    - the two counters stepped by one, had no ceiling, and read every block as rounds plus reps
+    - a block done once, top to bottom, now asks for the movements finished and the reps of the one in progress
+    - that is only another way to say the same loose reps: the stored score stays zero rounds plus the total, so the team board and the database are untouched
+    - a block with planned rounds stops at one round short of the plan, a flat round at one rep short of its size, a 21-15-9 at one rep short of its rung
+    - the reps counter shows what it counts up to and offers a step of ten, or fifty from two hundred up; a count under twenty keeps the single step
+    - the reducer picks the layout from the plan's type, rounds, rep scheme and cap; the view sends the same two actions as before
+    - the open ladder and the fitness run look and count as they did
+    - two previews show all six kinds of block with the board written above each card
+    - a second reviewer read the change twice and found a tap at the end of the scale that wiped the reps, and a property cut by mistake; both fixed
+    - built for the simulator; no warnings in the changed files
+    - not done: the tests were not run, and nothing covers counting by movement, the ceilings or the 21-15-9
+    - not done: a result saved above the new ceilings shows as "55 / 50" and drops to the ceiling on the first tap
+    - not done: a card saved with rounds on a block without planned rounds opens the old way, and moves to counting by movement once its rounds reach zero
+    - not done: a movement in metres or calories gets the same steps as reps
+    - not done: no typing a number from the keyboard
