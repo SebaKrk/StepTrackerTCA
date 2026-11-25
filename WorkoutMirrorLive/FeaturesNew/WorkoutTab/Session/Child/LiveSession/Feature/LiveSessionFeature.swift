@@ -30,6 +30,7 @@ struct LiveSessionFeature {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.date.now) var now
     @Dependency(\.idleTimer) var idleTimer
+    @Dependency(\.powerMode) var powerMode
     
     // MARK: - Reducer
     
@@ -101,6 +102,9 @@ struct LiveSessionFeature {
                     if state.isWatchPrimary, data.heartRate > 0 {
                         // The Watch sends no sample date; the arrival time is its freshness.
                         state.lastWatchReadingDate = now
+                        if let isLowPowerModeEnabled = data.isLowPowerModeEnabled {
+                            state.isWatchLowPowerMode = isLowPowerModeEnabled
+                        }
                         if state.isSensorStale {
                             state.isSensorStale = false
                             Task { await WorkoutFileLogger.shared.log("[Connection] Watch readings RESUMED") }
@@ -199,11 +203,15 @@ struct LiveSessionFeature {
                 if isStale, state.isWatchPrimary {
                     // The first reading after the silence must not be paid for the whole gap.
                     state.skipsNextEffortCredit = true
+                    state.isPhoneLowPowerMode = powerMode.isLowPowerModeEnabled()
                 }
+                let powerNote = state.isWatchPrimary
+                    ? " (lowPower watch=\(state.isWatchLowPowerMode) phone=\(state.isPhoneLowPowerMode))"
+                    : ""
                 return .run { _ in
                     await WorkoutFileLogger.shared.log(
                         isStale
-                            ? "[Connection] sensor STALE — no real sample for >\(Int(threshold))s"
+                            ? "[Connection] sensor STALE — no real sample for >\(Int(threshold))s\(powerNote)"
                             : "[Connection] sensor FRESH — samples resumed"
                     )
                 }

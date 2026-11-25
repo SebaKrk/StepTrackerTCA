@@ -149,6 +149,12 @@ extension LiveSessionFeature {
         /// reading" = contact. Standalone only; stays nil on the Watch path.
         var lastSensorDisconnectReason: SensorDisconnectReason? = nil
 
+        /// Low Power Mode on the Watch, from its latest reading; `false` until a Watch reports it.
+        var isWatchLowPowerMode: Bool = false
+
+        /// Low Power Mode on this iPhone, read when the stale banner appears.
+        var isPhoneLowPowerMode: Bool = false
+
         // MARK: - Helpers
         
         /// Creates Timer Activity Content State from current state

@@ -2175,3 +2175,16 @@
     - not done: a card saved with rounds on a block without planned rounds opens the old way, and moves to counting by movement once its rounds reach zero
     - not done: a movement in metres or calories gets the same steps as reps
     - not done: no typing a number from the keyboard
+
+### IOS-00211 The stale heart-rate banner names Low Power Mode instead of the fit
+    - branch: `dev/IOS-00211/IOS-00211` (from develop)
+    - seen in an evening test: with the Watch or the iPhone in Low Power Mode the iPhone said "Adjust your Apple Watch", and the Watch was worn well
+    - the banner knew one cause only: no Watch reading for 15 s meant a loose fit
+    - Apple's docs say heart rate is still measured during a workout in Low Power Mode, so the banner says readings may be delayed, not that the mode stopped them
+    - every heart-rate payload from the Watch now carries whether the Watch is in Low Power Mode; an older Watch sends nothing and the iPhone keeps the old copy
+    - the iPhone reads its own mode at the moment the banner appears, through a new `PowerModeClient`
+    - order: Watch in Low Power Mode, then iPhone in Low Power Mode, then the fit as before
+    - the workout log's STALE line records both modes
+    - not done: a Watch that turns the mode on and goes silent at once is not known to be in it; a message sent on the power-state change would close that
+    - not done: Polish and English only; the other languages fall back to English
+    - not done: the strap path, the Watch's own grey heart and the Live Activity are unchanged

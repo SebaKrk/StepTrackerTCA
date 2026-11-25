@@ -75,6 +75,13 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
         return totals
     }
 
+    // MARK: - Power
+
+    /// Whether the sending Watch was in Low Power Mode at send time.
+    ///
+    /// `nil` from the iPhone's own session or an older Watch — optional keeps the payload backward-compatible.
+    public var isLowPowerModeEnabled: Bool?
+
     // MARK: - Lifecycle
 
     public init(
@@ -88,7 +95,8 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
         maxSpeed: Double? = nil,
         recentAverageSpeed: Double? = nil,
         lastKilometerSpeed: Double? = nil,
-        effortSecondsByZone: [String: TimeInterval]? = nil
+        effortSecondsByZone: [String: TimeInterval]? = nil,
+        isLowPowerModeEnabled: Bool? = nil
     ) {
         self.averageHeartRate = averageHeartRate
         self.heartRate = heartRate
@@ -101,6 +109,7 @@ public struct WorkoutMetrics: Equatable, Sendable, Codable {
         self.recentAverageSpeed = recentAverageSpeed
         self.lastKilometerSpeed = lastKilometerSpeed
         self.effortSecondsByZone = effortSecondsByZone
+        self.isLowPowerModeEnabled = isLowPowerModeEnabled
     }
 
 }
