@@ -82,11 +82,18 @@ struct PublishPlanFeature {
                         ))
                         return
                     }
-                    try await teamClient.publishPlan(groupId, plan)
                     // The author's own plan becomes the group copy, so the group never offers a second download.
+                    // Linked before publishing: the group screen reacts to the publish and must already find the copy.
                     try await trainingSessionClient.save(
                         session.linkedToTeamPlan(TrainingSession.teamPlanId(groupId: groupId, day: plan.id))
                     )
+                    do {
+                        try await teamClient.publishPlan(groupId, plan)
+                    } catch {
+                        // An unpublished plan must not stay linked, or a later group plan would replace it as a stale copy.
+                        try? await trainingSessionClient.save(session)
+                        throw error
+                    }
                     await send(.published(plan))
                 } catch: { error, send in
                     Logger.team.error("Publish failed: \(error.localizedDescription)")

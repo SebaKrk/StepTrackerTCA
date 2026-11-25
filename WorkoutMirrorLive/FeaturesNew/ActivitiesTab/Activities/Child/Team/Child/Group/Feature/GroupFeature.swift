@@ -164,12 +164,14 @@ struct GroupFeature {
                 state.isDownloadingDayPlan = false
                 if saved {
                     state.isDayPlanDownloaded = true
+                    state.dayPlanDownloadedAt = date.now
                 }
                 return .none
 
             case .destination(.presented(.planPreview(.delegate(.downloaded)))),
                  .destination(.presented(.publishPlan(.delegate(.published)))):
                 state.isDayPlanDownloaded = true
+                state.dayPlanDownloadedAt = date.now
                 return .none
 
             case let .destination(.presented(.manage(.delegate(.groupChanged(group))))):

@@ -2188,3 +2188,16 @@
     - not done: a Watch that turns the mode on and goes silent at once is not known to be in it; a message sent on the power-state change would close that
     - not done: Polish and English only; the other languages fall back to English
     - not done: the strap path, the Watch's own grey heart and the Live Activity are unchanged
+
+### IOS-00212 The author of a team plan no longer sees "Plan changed" right after publishing it
+    - branch: `dev/IOS-00212/IOS-00212` (from develop)
+    - seen on the group screen: the author published today's plan and got the orange "Plan changed" with the download arrow
+    - the badge compared the publish time with the date of the local copy; the author's copy is their own plan, dated when they created it, so it always looked older
+    - the badge is now never shown to the author: their plan is the source
+    - after a download the screen takes the new download time, so the badge goes at once instead of on the next visit
+    - publishing links the author's plan as the group copy before sending it, so the group screen never catches the plan without its copy and offers the download again
+    - a failed publish puts the author's plan back as it was, so a later group plan cannot replace it as a stale copy
+    - a second reviewer read the badge change and found the publish order fixed above; the reorder itself was not reviewed again
+    - not done: the publish time comes from the author's clock, so a clock ahead of the member's can still show the badge after a download; keeping the plan's publish time on the copy would close it
+    - not done: an author who republishes from a second device is not told the copy on the first one is behind
+    - not done: built and tried on a device
