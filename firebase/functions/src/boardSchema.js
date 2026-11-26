@@ -66,7 +66,7 @@ const movement = object(
     repRangeMax: integer("Upper bound of a rep range: '8-12' → targetValue 8, repRangeMax 12; 0 otherwise"),
     perSide: boolean("True for an equal pair without a unit on a unilateral movement: 8/8, 10 per side"),
     maxEffort: boolean("True for 'max reps' / 'max cal'; targetValue stays 0"),
-    sets: array(set, "Set scheme expanded one entry per set: 5x5 @ 80 kg → five entries; 10-10-8-8 → four. Empty for WOD movements"),
+    sets: array(set, "Set scheme expanded one entry per set: 5x5 @ 80 kg → five entries; 10-10-8-8 → four; '5 sets of 40 s' → five entries of 40 seconds. Empty for WOD movements"),
     loads: array(load, "Loads printed after the movement: 24/16 → one rx tier; Rx 24/16, Rx+ 28/20 → two tiers; a single load → tier single. Empty when the load sits in sets[]"),
     restAfterSetSec: integer("'rest 90 s between sets' → 90; 0 otherwise"),
     alternatives: array(string("Alternative movement"), "'row or run' → [\"running\"]; empty otherwise"),
@@ -85,7 +85,7 @@ const section = object(
     label: string("Marker as written: A), B1-B3, WOD 1; empty when none. A1/A2 share one block"),
     format: enumeration(
       ["none", "forTime", "amrap", "emom", "deathBy", "tabata", "intervals", "roundsUntimed", "maxEffort"],
-      "none for plain set work; roundsUntimed for '3 rounds not for time'; maxEffort for 'max reps in N min'; deathBy for an EMOM with reps growing until failure"
+      "none for plain or timed set work ('5 sets of: 40 s HSPU'); roundsUntimed for '3 rounds not for time'; maxEffort for 'max reps in N min'; deathBy for an EMOM with reps growing until failure"
     ),
     timeCapMin: number("Minutes next to the format keyword or TC of THIS block; 0 when none"),
     everySec: integer("EMOM cadence in seconds: 60, 120 for E2MOM, 0 otherwise"),
@@ -105,7 +105,7 @@ const section = object(
     writtenDurationMin: number("Minutes written next to the block that are not a cap ('| 12,5 min'); 0 otherwise"),
     kind: enumeration(
       ["warmup", "skill", "strength", "accessory", "conditioning", "mobility", "cooldown"],
-      "strength = loaded set work; conditioning = any block with a format keyword; mobility = stretches, holds, rehab"
+      "strength = loaded, gymnastics or timed set work; conditioning = any block with a format keyword; mobility = stretches, holds, rehab"
     ),
     name: string("What the athlete works on, never the format: Back Squat, WOD 1, Strength"),
     notes: string("Anything else written about the block; empty when nothing"),
