@@ -220,8 +220,11 @@ extension WorkoutResultsFeature.State {
                     guard workout.type.keepsSetRows else { return nil }
 
                     if let planned = exercise.plannedSets, !planned.isEmpty {
+                        // A timed set is a window to count reps in; mobility only confirms its holds.
+                        let prefillsTimedSets = workout.type == .mobility
                         return planned.map {
-                            SetEntry(reps: $0.reps, weight: $0.suggestedWeight)
+                            let isReps = ($0.unit ?? .reps) == .reps
+                            return SetEntry(reps: isReps || prefillsTimedSets ? $0.reps : 0, weight: $0.suggestedWeight)
                         }
                     }
                     // Rounds become rows rather than a factor — the pattern that keeps

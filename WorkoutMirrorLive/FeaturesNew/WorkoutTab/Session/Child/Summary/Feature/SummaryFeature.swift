@@ -293,8 +293,9 @@ struct SummaryFeature {
 
                             // For Strength (sets), derive actualReps from sets
                             let effectiveReps: String? = exercise.actualReps
-                                ?? exercise.sets.map { sets in
-                                    sets.map { "\($0.reps)" }.joined(separator: "-")
+                                ?? exercise.sets.flatMap { sets in
+                                    // Sets left blank say nothing, so they store no reps rather than zeros.
+                                    sets.contains { $0.reps > 0 } ? sets.map { "\($0.reps)" }.joined(separator: "-") : nil
                                 }
 
                             let volumeLoad = ExerciseLog.volumeLoad(
