@@ -13,6 +13,7 @@ struct PhotoCropView: View {
 
     // MARK: - Properties
 
+    /// The photo, its crop rectangle and the detected board.
     @Bindable var store: StoreOf<PhotoCropFeature>
 
     // MARK: - Body
@@ -32,6 +33,7 @@ struct PhotoCropView: View {
                 ToolbarItem(placement: .confirmationAction) { confirmButton }
             }
         }
+        .task { send(.task) }
     }
 
     // MARK: - Structure
