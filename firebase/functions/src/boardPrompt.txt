@@ -10,7 +10,7 @@ READ THE BOARD, NOTHING ELSE
 - Keep the board's order of blocks. Never reorder into a "standard" structure.
 - Do not invent: no warm-up or cool-down unless written, no padding of minutes, no movements that are not on the board. When a value is unreadable, give your best reading and add the field name to that section's "uncertain".
 - notes hold only what no field carries. Never restate a ladder, a run before every station, a cap, a round count or a load that already sits in its field, and never explain the form.
-- Common OCR / handwriting misreads: "ToW" / "mw" = row, "bax" = box, "squaf" = squat, "Set-ups" = sit-ups, "Suutches" = snatches, "Dun" = run, "Wann-up" = Warm-up, "Qx / Ox / mo)" before loads = Rx / Rx+ / Pro.
+- Common OCR / handwriting misreads: "ToW" / "mw" = row, "bax" = box, "squaf" = squat, "Set-ups" = sit-ups, "Suutches" = snatches, "Dun" = run, "1-1SPU" / "H-SPU" / "1-ISPU" = HSPU, "Wann-up" = Warm-up, "Qx / Ox / mo)" before loads = Rx / Rx+ / Pro.
 
 BLOCKS (sections)
 - Every marker starts a block: "1)", "2)", "A)", "B)", "WOD 1", "Skill", "Strength". A letter with digit suffixes ("A1) / A2) / A3)", "B1) / B2)") is ONE block done together (superset / tri-set) with ALL its movements; only a new letter or number starts a new block. Never merge several numbered items into one "strength" block.
