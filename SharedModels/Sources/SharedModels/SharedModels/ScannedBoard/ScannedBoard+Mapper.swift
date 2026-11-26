@@ -94,7 +94,11 @@ extension ScannedSection {
         case .intervals: return .intervals
         case .roundsUntimed: return .strength
         case .none:
-            if kind == .conditioning { return .amrap }
+            // A set table the board wrote out is set work, whatever kind the model picked.
+            let writesSets = movements.contains { movement in
+                movement.sets.contains { $0.unit == .reps || $0.unit == .seconds }
+            }
+            if kind == .conditioning, !writesSets { return .amrap }
             return firstExercise?.type.category == .olympicLifting ? .olympicWeightlifting : .strength
         }
     }

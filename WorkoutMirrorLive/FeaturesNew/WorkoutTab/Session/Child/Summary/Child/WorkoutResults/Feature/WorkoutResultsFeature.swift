@@ -251,7 +251,13 @@ extension WorkoutResultsFeature.State {
                 // A WOD rep ladder has no single target — its total is the planned rep count.
                 let ladderTotal: String? = workout.type.isStrength
                     ? nil
-                    : exercise.plannedSets.map { String($0.reduce(0) { $0 + $1.reps }) }
+                    : exercise.plannedSets.flatMap { sets in
+                        // Seconds, metres and max sets are not a rep count, so they never add up to a plan.
+                        let total = sets
+                            .filter { ($0.unit ?? .reps) == .reps && !$0.isMaxEffort }
+                            .reduce(0) { $0 + $1.reps }
+                        return total > 0 ? String(total) : nil
+                    }
                 let repsLabel = plannedTotal?.compactString ?? ladderTotal
 
                 return ExerciseLogInput(
