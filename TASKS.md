@@ -2219,3 +2219,17 @@
     - not done: a timed set still sits under a Reps header; a unit on `SetEntry` would show seconds or metres
     - not done: intervals with both the 40/20 clock and a row per set
     - not done: a set with a load and no reps can still suggest a record
+
+### IOS-00215 Our own one-tap camera for the board, with the crop already on it
+    - branch: `dev/IOS-00215/IOS-00215` (from develop)
+    - scanning took too long: Apple's document scanner asked for a shutter, corner fixes, Keep and Save
+    - our camera takes the board in one tap or a volume button, flash off, continuous focus, an upright photo near 12 MP
+    - the photo goes to the crop step that library photos already used; the sheet opens once the camera is gone
+    - Vision's document segmentation finds the board and the crop frame glides onto it; low confidence or a small find keeps the default frame, and a frame the user moved stays
+    - the crop screen draws a preview decoded once, and the crop is encoded near-lossless so the upload compresses only once
+    - research before the work: binarizing or heavy sharpening helps classic OCR but barely helps a vision model, and erases faint marker
+    - views list their properties environment, store, lets, each documented; the rule is in `WorkoutMirrorLive/CLAUDE.md`
+    - Apple's scanner is gone
+    - reviewers read each step; tried on a device, camera and crop work
+    - later, to check: light colour enhancement (background division, mild gamma) only together with a test on 10–20 board photos; it may wash out faint marker
+    - not done: a live board outline in the camera, a four-corner crop with perspective correction, several photos in one scan
