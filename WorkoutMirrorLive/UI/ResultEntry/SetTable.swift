@@ -106,7 +106,7 @@ struct SetTable: View {
     private func repsCell(index: Int, set: SetEntry, isTop: Bool) -> some View {
         if isEditing {
             numericField(
-                placeholder: String(localized: "Reps", bundle: .main),
+                placeholder: String(localized: "Reps field placeholder", bundle: .main),
                 text: "\(set.reps)",
                 keyboard: .numberPad,
                 alignment: .leading

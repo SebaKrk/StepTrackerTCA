@@ -23814,6 +23814,23 @@
         }
       }
     },
+    "Reps field placeholder" : {
+      "comment" : "Short hint inside a narrow set-table reps field; the column header already says Reps.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reps"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "powt."
+          }
+        }
+      }
+    },
     "Reps in round" : {
       "localizations" : {
         "de" : {
