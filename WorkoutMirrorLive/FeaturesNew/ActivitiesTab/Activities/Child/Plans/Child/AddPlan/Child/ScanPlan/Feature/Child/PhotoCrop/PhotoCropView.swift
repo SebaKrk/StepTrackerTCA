@@ -13,6 +13,7 @@ struct PhotoCropView: View {
 
     // MARK: - Properties
 
+    /// The photo, its crop rectangle and the detected board.
     @Bindable var store: StoreOf<PhotoCropFeature>
 
     // MARK: - Body
@@ -32,13 +33,14 @@ struct PhotoCropView: View {
                 ToolbarItem(placement: .confirmationAction) { confirmButton }
             }
         }
+        .task { send(.task) }
     }
 
     // MARK: - Structure
 
     private var cropCanvas: some View {
         GeometryReader { geometry in
-            if let image = UIImage(data: store.imageData) {
+            if let image = store.previewImage {
                 let frame = fittedFrame(for: image.size, in: geometry.size)
                 ZStack(alignment: .topLeading) {
                     Image(uiImage: image)

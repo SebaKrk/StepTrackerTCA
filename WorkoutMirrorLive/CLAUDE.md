@@ -22,6 +22,7 @@ Główny target iOS aplikacji **MyFitnessJournal** (repo: `StepTrackerTCA`). Ten
 - **Nawigacja:** `@Presents` + `enum Destination` w State. NIE używaj `StackState` / `Path`.
 - **Akcje z View:** `@ViewAction(for: FeatureName.self)` + `send(.viewAction)`. Brak bezpośredniego `store.send`.
 - **Brak `@State` w View** — cały stan w TCA Store. View ma tylko `@Bindable var store: StoreOf<...>`.
+- **Kolejność property w View** — w `// MARK: - Properties`: najpierw `@Environment`, potem `@Bindable var store`, na końcu zwykłe `let`; każde z `///` i pustą linią między nimi.
 - **State i `Equatable`** — pomiń `: Equatable` gdy stan zawiera typy nie-Equatable (np. `PhotosPickerItem`).
 - **PhotosPicker** — używaj modifiera `.photosPicker(isPresented:selection:)` + `onChange`. NIE używaj view'a `PhotosPicker` z `@State`.
 - **TCA 1.26 — wyłącznie nowoczesne API:** `@Reducer`, `@ObservableState`, `store.send`,

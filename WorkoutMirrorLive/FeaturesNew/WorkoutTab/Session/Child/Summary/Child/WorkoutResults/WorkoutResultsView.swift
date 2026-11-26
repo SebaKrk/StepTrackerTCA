@@ -18,9 +18,15 @@ struct WorkoutResultsView: View {
 
     // MARK: - Properties
 
-    @Bindable var store: StoreOf<WorkoutResultsFeature>
-    let accent: Color
+    /// Colors of the surrounding Summary section.
     @Environment(\.summaryPalette) private var theme
+
+    /// Result cards of the workout and the PR suggestions under them.
+    @Bindable var store: StoreOf<WorkoutResultsFeature>
+
+    /// Accent of the Summary screen, used for buttons and the top set.
+    let accent: Color
+
     // MARK: - Body
 
     var body: some View {

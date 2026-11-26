@@ -94,298 +94,6 @@
         }
       }
     },
-    "Adjust your Apple Watch" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple Watch richtig anlegen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajusta tu Apple Watch"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustez votre Apple Watch"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sistema l’Apple Watch"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Popraw zegarek"
-          }
-        }
-      }
-    },
-    "Apple Watch in Low Power Mode — heart rate readings may be delayed" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zegarek w trybie oszczędzania energii — odczyty tętna mogą się opóźniać"
-          }
-        }
-      }
-    },
-    "iPhone in Low Power Mode — heart rate readings may be delayed" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iPhone w trybie oszczędzania energii — odczyty tętna mogą się opóźniać"
-          }
-        }
-      }
-    },
-    "Record workout logs" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trainingsprotokolle aufzeichnen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guardar registros de entrenamiento"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistrer les journaux d’entraînement"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Registra i log di allenamento"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zapisuj logi treningu"
-          }
-        }
-      }
-    },
-    "Records workout and connection events on this iPhone and on Apple Watch, with heart rate every 30 seconds. Logs are kept for 7 days and leave the device only with diagnostics. Turning this off deletes them." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeichnet Trainings- und Verbindungsereignisse auf diesem iPhone und der Apple Watch auf, mit der Herzfrequenz alle 30 Sekunden. Protokolle werden 7 Tage aufbewahrt und verlassen das Gerät nur mit der Diagnose. Beim Ausschalten werden sie gelöscht."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guarda eventos de entrenamiento y de conexión en este iPhone y en el Apple Watch, con la frecuencia cardiaca cada 30 segundos. Los registros se conservan 7 días y solo salen del dispositivo con el diagnóstico. Al desactivarlo se eliminan."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistre les événements d’entraînement et de connexion sur cet iPhone et sur l’Apple Watch, avec la fréquence cardiaque toutes les 30 secondes. Les journaux sont conservés 7 jours et ne quittent l’appareil qu’avec le diagnostic. Les désactiver les supprime."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Registra gli eventi di allenamento e di connessione su questo iPhone e su Apple Watch, con la frequenza cardiaca ogni 30 secondi. I log restano 7 giorni e lasciano il dispositivo solo con la diagnostica. Disattivando l’opzione vengono eliminati."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zapisuje zdarzenia treningu i połączeń na tym iPhonie i na Apple Watch, z tętnem co 30 sekund. Logi są trzymane 7 dni i opuszczają urządzenie tylko razem z diagnostyką. Wyłączenie je usuwa."
-          }
-        }
-      }
-    },
-    "The bundle describes the app — versions, migrations and row counts — and carries your workout logs, heart rate included." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Paket beschreibt die App – Versionen, Migrationen und Zeilenanzahlen – und enthält deine Trainingsprotokolle einschließlich Herzfrequenz."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El paquete describe la app (versiones, migraciones y número de filas) e incluye tus registros de entrenamiento, con la frecuencia cardiaca."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le paquet décrit l’app — versions, migrations et nombres de lignes — et contient vos journaux d’entraînement, fréquence cardiaque comprise."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il pacchetto descrive l’app — versioni, migrazioni e numero di righe — e contiene i tuoi log di allenamento, frequenza cardiaca inclusa."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paczka opisuje aplikację — wersje, migracje i liczby wierszy — oraz zawiera Twoje logi treningu, razem z tętnem."
-          }
-        }
-      }
-    },
-    "The server did not finish the erase. Nothing is assumed gone — try again in a moment." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Server hat das Löschen nicht abgeschlossen. Nichts gilt als gelöscht — versuche es gleich noch einmal."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El servidor no terminó el borrado. No damos nada por borrado: inténtalo de nuevo en un momento."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le serveur n’a pas terminé la suppression. Rien n’est considéré comme supprimé — réessayez dans un instant."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il server non ha completato l’eliminazione. Nulla è considerato eliminato: riprova tra un momento."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Serwer nie dokończył usuwania. Nic nie uznajemy za skasowane — spróbuj ponownie za chwilę."
-          }
-        }
-      }
-    },
-    "Workout logs" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trainingsprotokolle"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Registros de entrenamiento"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Journaux d’entraînement"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Registri di allenamento"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logi treningu"
-          }
-        }
-      }
-    },
-    "Workouts in the Health app are safe. Close the app and open it again. If that does not help, contact us and include the code below." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trainings in der Health-App sind sicher. Schließe die App und öffne sie erneut. Hilft das nicht, schreib uns und gib den Code unten an."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los entrenamientos de la app Salud están a salvo. Cierra la app y vuelve a abrirla. Si no ayuda, escríbenos e incluye el código de abajo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les entraînements de l’app Santé sont en sécurité. Fermez l’app et rouvrez-la. Si cela ne suffit pas, écrivez-nous en indiquant le code ci-dessous."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli allenamenti nell’app Salute sono al sicuro. Chiudi l’app e riaprila. Se non basta, scrivici indicando il codice qui sotto."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Treningi w aplikacji Zdrowie są bezpieczne. Zamknij aplikację i otwórz ją ponownie. Jeśli to nie pomoże, napisz do nas i podaj kod poniżej."
-          }
-        }
-      }
-    },
-    "Your data could not be opened" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deine Daten konnten nicht geöffnet werden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudieron abrir tus datos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible d’ouvrir vos données"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile aprire i tuoi dati"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie udało się otworzyć Twoich danych"
-          }
-        }
-      }
-    },
     "–" : {
       "localizations" : {
         "pl" : {
@@ -3944,6 +3652,40 @@
         }
       }
     },
+    "Adjust your Apple Watch" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Watch richtig anlegen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusta tu Apple Watch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustez votre Apple Watch"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema l’Apple Watch"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Popraw zegarek"
+          }
+        }
+      }
+    },
     "Adjusted for women — the classic formula overestimated their max heart rate. From the St. James Women Take Heart Project (2010, 5,437 women). Gives lower, more realistic values for most women." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4705,6 +4447,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Watch"
+          }
+        }
+      }
+    },
+    "Apple Watch in Low Power Mode — heart rate readings may be delayed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zegarek w trybie oszczędzania energii — odczyty tętna mogą się opóźniać"
           }
         }
       }
@@ -12715,6 +12467,16 @@
         }
       }
     },
+    "Fill the frame with the board, no flash" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wypełnij kadr tablicą, bez lampy błyskowej"
+          }
+        }
+      }
+    },
     "Find a Club" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -15815,6 +15577,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zaproś do grupy"
+          }
+        }
+      }
+    },
+    "iPhone in Low Power Mode — heart rate readings may be delayed" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone w trybie oszczędzania energii — odczyty tętna mogą się opóźniać"
           }
         }
       }
@@ -23187,6 +22959,40 @@
         }
       }
     },
+    "Record workout logs" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainingsprotokolle aufzeichnen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar registros de entrenamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer les journaux d’entraînement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra i log di allenamento"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisuj logi treningu"
+          }
+        }
+      }
+    },
     "records" : {
       "localizations" : {
         "de" : {
@@ -23252,6 +23058,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rekordy"
+          }
+        }
+      }
+    },
+    "Records workout and connection events on this iPhone and on Apple Watch, with heart rate every 30 seconds. Logs are kept for 7 days and leave the device only with diagnostics. Turning this off deletes them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet Trainings- und Verbindungsereignisse auf diesem iPhone und der Apple Watch auf, mit der Herzfrequenz alle 30 Sekunden. Protokolle werden 7 Tage aufbewahrt und verlassen das Gerät nur mit der Diagnose. Beim Ausschalten werden sie gelöscht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda eventos de entrenamiento y de conexión en este iPhone y en el Apple Watch, con la frecuencia cardiaca cada 30 segundos. Los registros se conservan 7 días y solo salen del dispositivo con el diagnóstico. Al desactivarlo se eliminan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistre les événements d’entraînement et de connexion sur cet iPhone et sur l’Apple Watch, avec la fréquence cardiaque toutes les 30 secondes. Les journaux sont conservés 7 jours et ne quittent l’appareil qu’avec le diagnostic. Les désactiver les supprime."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra gli eventi di allenamento e di connessione su questo iPhone e su Apple Watch, con la frequenza cardiaca ogni 30 secondi. I log restano 7 giorni e lasciano il dispositivo solo con la diagnostica. Disattivando l’opzione vengono eliminati."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisuje zdarzenia treningu i połączeń na tym iPhonie i na Apple Watch, z tętnem co 30 sekund. Logi są trzymane 7 dni i opuszczają urządzenie tylko razem z diagnostyką. Wyłączenie je usuwa."
           }
         }
       }
@@ -29349,6 +29189,40 @@
         }
       }
     },
+    "The bundle describes the app — versions, migrations and row counts — and carries your workout logs, heart rate included." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Paket beschreibt die App – Versionen, Migrationen und Zeilenanzahlen – und enthält deine Trainingsprotokolle einschließlich Herzfrequenz."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El paquete describe la app (versiones, migraciones y número de filas) e incluye tus registros de entrenamiento, con la frecuencia cardiaca."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le paquet décrit l’app — versions, migrations et nombres de lignes — et contient vos journaux d’entraînement, fréquence cardiaque comprise."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il pacchetto descrive l’app — versioni, migrazioni e numero di righe — e contiene i tuoi log di allenamento, frequenza cardiaca inclusa."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paczka opisuje aplikację — wersje, migracje i liczby wierszy — oraz zawiera Twoje logi treningu, razem z tętnem."
+          }
+        }
+      }
+    },
     "The bundle describes the app only — versions, migrations and row counts. No training data leaves the device." : {
       "localizations" : {
         "de" : {
@@ -29413,6 +29287,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Paczka będzie zawierać całą Twoją historię treningową i profil."
+          }
+        }
+      }
+    },
+    "The camera could not start. Check camera access in Settings, or pick a photo." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aparat się nie uruchomił. Sprawdź dostęp do aparatu w Ustawieniach albo wybierz zdjęcie."
           }
         }
       }
@@ -30119,6 +30003,7 @@
       }
     },
     "The scanner could not capture the page. Try again." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -30182,6 +30067,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wynik nic nie wie o stresie, alkoholu, lekach ani podróży przez strefy czasowe — zna tylko ich ślady w sygnałach. Jeśli mówi, że jesteś gotowy, a czujesz się rozbity, zaufaj sobie."
+          }
+        }
+      }
+    },
+    "The server did not finish the erase. Nothing is assumed gone — try again in a moment." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Server hat das Löschen nicht abgeschlossen. Nichts gilt als gelöscht — versuche es gleich noch einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El servidor no terminó el borrado. No damos nada por borrado: inténtalo de nuevo en un momento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le serveur n’a pas terminé la suppression. Rien n’est considéré comme supprimé — réessayez dans un instant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il server non ha completato l’eliminazione. Nulla è considerato eliminato: riprova tra un momento."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serwer nie dokończył usuwania. Nic nie uznajemy za skasowane — spróbuj ponownie za chwilę."
           }
         }
       }
@@ -33945,6 +33864,40 @@
         }
       }
     },
+    "Workout logs" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainingsprotokolle"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros de entrenamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journaux d’entraînement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registri di allenamento"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logi treningu"
+          }
+        }
+      }
+    },
     "Workout Mirroring" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -34348,6 +34301,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Treningi"
+          }
+        }
+      }
+    },
+    "Workouts in the Health app are safe. Close the app and open it again. If that does not help, contact us and include the code below." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainings in der Health-App sind sicher. Schließe die App und öffne sie erneut. Hilft das nicht, schreib uns und gib den Code unten an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los entrenamientos de la app Salud están a salvo. Cierra la app y vuelve a abrirla. Si no ayuda, escríbenos e incluye el código de abajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les entraînements de l’app Santé sont en sécurité. Fermez l’app et rouvrez-la. Si cela ne suffit pas, écrivez-nous en indiquant le code ci-dessous."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli allenamenti nell’app Salute sono al sicuro. Chiudi l’app e riaprila. Se non basta, scrivici indicando il codice qui sotto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treningi w aplikacji Zdrowie są bezpieczne. Zamknij aplikację i otwórz ją ponownie. Jeśli to nie pomoże, napisz do nas i podaj kod poniżej."
           }
         }
       }
@@ -35129,6 +35116,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Twoje dane"
+          }
+        }
+      }
+    },
+    "Your data could not be opened" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Daten konnten nicht geöffnet werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron abrir tus datos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’ouvrir vos données"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile aprire i tuoi dati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się otworzyć Twoich danych"
           }
         }
       }
