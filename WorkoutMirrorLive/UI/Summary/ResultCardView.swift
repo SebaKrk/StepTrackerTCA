@@ -159,7 +159,7 @@ struct ResultCardView: View {
                     kind: String(localized: "Heaviest set", bundle: .main),
                     variant: .filled(
                         value: "\(top.weight.roundedWeightText) kg",
-                        detail: isMultiExerciseStrength ? "× \(top.reps) · \(top.exercise.displayName)" : "× \(top.reps)",
+                        detail: heaviestSetDetail(top),
                         isPR: top.exercise.isPR
                     )
                 )
@@ -378,6 +378,13 @@ struct ResultCardView: View {
         }
         guard let top = candidates.map(\.weight).max() else { return nil }
         return candidates.first { $0.weight == top }
+    }
+
+    /// "× reps" under the heaviest set; a set with no reps entered drops the count.
+    private func heaviestSetDetail(_ top: (weight: Double, reps: Int, exercise: ExerciseLogInput)) -> String? {
+        let reps = top.reps > 0 ? "× \(top.reps)" : nil
+        guard isMultiExerciseStrength else { return reps }
+        return [reps, top.exercise.displayName].compactMap { $0 }.joined(separator: " · ")
     }
 
     private func timeText(_ seconds: Int) -> String {

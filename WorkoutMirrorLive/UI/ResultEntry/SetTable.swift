@@ -113,7 +113,7 @@ struct SetTable: View {
             ) { onReps(index, $0) }
             .frame(maxWidth: .infinity, alignment: .leading)
         } else {
-            Text("\(set.reps)")
+            Text(set.reps > 0 ? "\(set.reps)" : "—")
                 .font(.system(size: 14, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(isTop ? accent : theme.ink)
