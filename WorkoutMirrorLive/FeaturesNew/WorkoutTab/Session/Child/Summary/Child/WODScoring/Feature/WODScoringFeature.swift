@@ -557,7 +557,9 @@ struct WODScoringFeature {
                     let singleWeights = state.result.exercises.compactMap(\.actualWeight)
                     let maxWeight = (setWeights + singleWeights).max()
                     state.result.scoreResult = maxWeight.map { .forLoad(weight: $0) } ?? .completed
-                    state.phase = maxWeight == nil ? .empty : .entered
+                    // Bodyweight sets carry reps only, and those reps are still a result to show.
+                    let hasReps = state.result.exercises.contains { ($0.sets ?? []).contains { $0.reps > 0 } }
+                    state.phase = maxWeight == nil && !hasReps ? .empty : .entered
 
                 case .time:
                     let seconds = state.draftTotalSeconds
