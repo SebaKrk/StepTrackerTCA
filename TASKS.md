@@ -2201,3 +2201,21 @@
     - not done: the publish time comes from the author's clock, so a clock ahead of the member's can still show the badge after a download; keeping the plan's publish time on the copy would close it
     - not done: an author who republishes from a second device is not told the copy on the first one is behind
     - not done: built and tried on a device
+
+### IOS-00213 A timed set in the summary opens empty, ready for the reps done in it
+    - branch: `dev/IOS-00213/IOS-00213` (from develop)
+    - seen after a class: "5 sets of: 40 s strict HSPU / 20 s rest / 40 s barbell row / 20 s rest" showed 40 in every Reps field of the summary
+    - the scan keeps that block as sets with a unit of seconds; the summary copied the 40 into reps and dropped the unit
+    - a set planned in seconds, metres or calories now starts empty, so the athlete types what they managed in the window (10, 9, 8, 7, 6)
+    - mobility keeps its planned values: it is scored by a tap on Done, and its holds are done as planned
+    - sets left blank store no reps instead of "0-0-0-0-0"
+    - a strength card with reps but no load now shows its table after Done instead of falling back to the empty card
+    - a blank reps cell reads "—" like a blank load, and the heaviest set drops a "× 0"
+    - the scan reads "1-1SPU" / "H-SPU" / "1-ISPU" as HSPU; the server needs a deploy for it
+    - a wider rule that turned such boards into intervals was tried and dropped: intervals are scored by a single tap and have no rows for the reps of each set
+    - two previews show the block open for entry and after Done
+    - three reviewers read the change; no faults left in it
+    - not done: built and tried on a device
+    - not done: a timed set still sits under a Reps header; a unit on `SetEntry` would show seconds or metres
+    - not done: intervals with both the 40/20 clock and a row per set
+    - not done: a set with a load and no reps can still suggest a record
