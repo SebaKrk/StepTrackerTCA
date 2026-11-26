@@ -176,3 +176,73 @@ struct WorkoutResultsView: View {
     }
     .background(SummaryTheme.background)
 }
+
+#Preview("Timed sets — open for entry") {
+    timedSetsPreview(state: timedSetsPreviewState(phase: .editing))
+}
+
+#Preview("Timed sets — entered") {
+    var state = timedSetsPreviewState(phase: .entered)
+    if let id = state.cards.ids.first {
+        state.cards[id: id]?.result.exercises[0].sets = [10, 9, 8, 7, 6].map { SetEntry(reps: $0) }
+        state.cards[id: id]?.result.exercises[1].sets = [12, 12, 11, 10, 10].map { SetEntry(reps: $0, weight: 40) }
+        state.cards[id: id]?.result.scoreResult = .forLoad(weight: 40)
+    }
+    return timedSetsPreview(state: state)
+}
+
+/// The board "5 sets of: 40 s strict HSPU / 20 s rest / 40 s barbell row / 20 s rest", then an AMRAP.
+private func timedSetsPreviewState(phase: WODScoringFeature.CardPhase) -> WorkoutResultsFeature.State {
+    let fortySeconds = Array(repeating: PlannedSet(reps: 40, unit: .seconds), count: 5)
+    let session = TrainingSession(
+        date: .now,
+        title: "5 sets + AMRAP 13 min",
+        activity: .crossTraining,
+        location: .indoor,
+        warmUp: nil,
+        workouts: [
+            WorkoutSessionNew(
+                name: "Strength",
+                type: .strength,
+                timeCap: nil,
+                rounds: nil,
+                exercises: [
+                    ExerciseSession(type: .handstandPushUps, target: nil, weight: nil, info: "strict", plannedSets: fortySeconds),
+                    ExerciseSession(type: .bentOverRow, target: nil, weight: nil, info: "wide grip", plannedSets: fortySeconds),
+                ]
+            ),
+            WorkoutSessionNew(
+                name: "WOD 1",
+                type: .amrap,
+                timeCap: 13,
+                rounds: nil,
+                exercises: [
+                    ExerciseSession(type: .dumbbellSnatch, target: .reps(12), weight: .init(men: 23, women: 15), info: nil),
+                    ExerciseSession(type: .toesToBar, target: .reps(10), weight: nil, info: nil),
+                    ExerciseSession(type: .boxStepOvers, target: .reps(12), weight: nil, info: nil),
+                ]
+            ),
+        ],
+        coolDown: nil
+    )
+    var state = WorkoutResultsFeature.State.editable(trainingSession: session)
+    if let id = state.cards.ids.first {
+        state.cards[id: id]?.phase = phase
+    }
+    return state
+}
+
+private func timedSetsPreview(state: WorkoutResultsFeature.State) -> some View {
+    ScrollView {
+        WorkoutResultsView(
+            store: Store(initialState: state) {
+                WorkoutResultsFeature()
+            } withDependencies: {
+                $0.prEntryClient.fetchAll = { [] }
+            },
+            accent: SummaryTheme.mint
+        )
+        .padding(16)
+    }
+    .background(SummaryTheme.background)
+}
