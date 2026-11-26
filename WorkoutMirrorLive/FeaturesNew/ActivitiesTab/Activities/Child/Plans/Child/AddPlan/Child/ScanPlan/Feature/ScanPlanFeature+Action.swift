@@ -44,13 +44,14 @@ extension ScanPlanFeature {
             /// Called when user taps "Take Photo" button.
             case takePhotoTapped
 
-            /// Called when the document camera finishes — JPEG data of the
-            /// scanned page, or `nil` when the user cancelled.
-            case documentScanned(Data?)
+            /// The camera closed — the full photo, or `nil` when the user cancelled.
+            case cameraPhotoTaken(Data?)
 
-            /// Called when the document camera failed (scanner error or
-            /// JPEG encoding failure) — distinct from a user cancel.
-            case documentScanFailed
+            /// The camera could not run (no camera, no permission) — distinct from a user cancel.
+            case cameraFailed
+
+            /// The camera finished sliding away, so another sheet may now open.
+            case cameraDismissed
 
             /// Called when user taps "Edit Text" on a parsing failure.
             case editTextTapped

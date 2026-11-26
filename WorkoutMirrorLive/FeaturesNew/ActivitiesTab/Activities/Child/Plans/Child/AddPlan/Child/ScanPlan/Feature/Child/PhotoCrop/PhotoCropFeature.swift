@@ -8,30 +8,47 @@
 import ComposableArchitecture
 import CoreGraphics
 import Foundation
+import SwiftUI
+import UIKit
 
-/// Crops a gallery photo to the board before it leaves the phone.
+/// Crops a photo to the board before it leaves the phone.
 ///
-/// The document camera already crops; this is the equivalent step for photos
-/// picked from the library, so attendance lists and faces stay out of the upload.
+/// Camera and library photos both pass here, so attendance lists and faces stay out of the upload.
 @Reducer
 struct PhotoCropFeature {
 
     /// Smallest crop side, in unit coordinates.
     static let minimumSide: CGFloat = 0.15
 
+    // MARK: - Dependency
+
+    @Dependency(\.boardDetection) var boardDetection
+
     // MARK: - State
 
     @ObservableState
     struct State {
 
-        /// Full photo as picked from the library.
+        /// Full photo from the camera or the library; the crop is cut from this.
         let imageData: Data
+
+        /// Small upright copy for the screen, decoded once — a 12 MP decode per drag would stutter.
+        let previewImage: UIImage?
 
         /// Crop rectangle in unit coordinates of the photo (0…1 on both axes).
         var crop = CGRect(x: 0.05, y: 0.05, width: 0.9, height: 0.9)
 
         /// True while the cropped JPEG is being produced.
         var isCropping = false
+
+        /// True once the user moved the crop; a late board detection must not undo their choice.
+        var isCropEdited = false
+
+        /// Decodes the screen copy once, when the crop sheet opens.
+        init(imageData: Data) {
+            self.imageData = imageData
+            self.previewImage = PhotoCropper.previewImage(from: imageData)
+        }
     }
 
     /// Handle the user is dragging.
@@ -61,6 +78,9 @@ struct PhotoCropFeature {
         @CasePathable
         enum View {
 
+            /// The crop screen appeared — looks for the board.
+            case task
+
             /// A corner handle was dragged to this point in unit coordinates.
             case cornerMoved(Corner, CGPoint)
 
@@ -75,6 +95,9 @@ struct PhotoCropFeature {
         }
 
         enum Internal {
+
+            /// The board's unit rectangle, or nil when none was found.
+            case boardDetected(CGRect?)
 
             /// Cropped JPEG, or nil when re-encoding failed.
             case cropped(Data?)
@@ -96,12 +119,26 @@ struct PhotoCropFeature {
         Reduce { state, action in
             switch action {
 
+            case .view(.task):
+                guard let image = state.previewImage?.cgImage else { return .none }
+                return .run { [boardDetection] send in
+                    let rect = await boardDetection.boardRect(image)
+                    await send(.internal(.boardDetected(rect)), animation: .default)
+                }
+
             case let .view(.cornerMoved(corner, point)):
+                state.isCropEdited = true
                 state.crop = Self.moved(state.crop, corner: corner, to: point)
                 return .none
 
             case .view(.useFullPhotoTapped):
+                state.isCropEdited = true
                 state.crop = CGRect(x: 0, y: 0, width: 1, height: 1)
+                return .none
+
+            case let .internal(.boardDetected(rect)):
+                guard let rect, !state.isCropEdited, !state.isCropping else { return .none }
+                state.crop = rect
                 return .none
 
             case .view(.confirmTapped):

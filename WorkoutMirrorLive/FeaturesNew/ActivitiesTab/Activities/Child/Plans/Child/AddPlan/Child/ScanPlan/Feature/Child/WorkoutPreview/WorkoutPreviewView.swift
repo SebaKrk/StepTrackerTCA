@@ -14,6 +14,7 @@ struct WorkoutPreviewView: View {
 
     // MARK: - Properties
 
+    /// The scanned plan as it will be saved, with its review findings.
     @Bindable var store: StoreOf<WorkoutPreviewFeature>
 
     // MARK: - Body

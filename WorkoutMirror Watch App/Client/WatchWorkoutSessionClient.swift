@@ -473,6 +473,7 @@ private final class WatchWorkoutSessionManager: NSObject, @unchecked Sendable {
                 uniqueKeysWithValues: effortSecondsByZone.map { ($0.key.rawValue, $0.value) }
             )
         }
+        metrics.isLowPowerModeEnabled = ProcessInfo.processInfo.isLowPowerModeEnabled
         guard let data = try? JSONEncoder().encode(metrics) else {
             Logger.watchSession.error("sendHRToRemote — failed to encode WorkoutMetrics")
             await WorkoutFileLogger.shared.logHRTrace(stage: "send SKIPPED (encode)", bpm: bpm, at: Date())

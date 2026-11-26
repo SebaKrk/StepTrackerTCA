@@ -2175,3 +2175,61 @@
     - not done: a card saved with rounds on a block without planned rounds opens the old way, and moves to counting by movement once its rounds reach zero
     - not done: a movement in metres or calories gets the same steps as reps
     - not done: no typing a number from the keyboard
+
+### IOS-00211 The stale heart-rate banner names Low Power Mode instead of the fit
+    - branch: `dev/IOS-00211/IOS-00211` (from develop)
+    - seen in an evening test: with the Watch or the iPhone in Low Power Mode the iPhone said "Adjust your Apple Watch", and the Watch was worn well
+    - the banner knew one cause only: no Watch reading for 15 s meant a loose fit
+    - Apple's docs say heart rate is still measured during a workout in Low Power Mode, so the banner says readings may be delayed, not that the mode stopped them
+    - every heart-rate payload from the Watch now carries whether the Watch is in Low Power Mode; an older Watch sends nothing and the iPhone keeps the old copy
+    - the iPhone reads its own mode at the moment the banner appears, through a new `PowerModeClient`
+    - order: Watch in Low Power Mode, then iPhone in Low Power Mode, then the fit as before
+    - the workout log's STALE line records both modes
+    - not done: a Watch that turns the mode on and goes silent at once is not known to be in it; a message sent on the power-state change would close that
+    - not done: Polish and English only; the other languages fall back to English
+    - not done: the strap path, the Watch's own grey heart and the Live Activity are unchanged
+
+### IOS-00212 The author of a team plan no longer sees "Plan changed" right after publishing it
+    - branch: `dev/IOS-00212/IOS-00212` (from develop)
+    - seen on the group screen: the author published today's plan and got the orange "Plan changed" with the download arrow
+    - the badge compared the publish time with the date of the local copy; the author's copy is their own plan, dated when they created it, so it always looked older
+    - the badge is now never shown to the author: their plan is the source
+    - after a download the screen takes the new download time, so the badge goes at once instead of on the next visit
+    - publishing links the author's plan as the group copy before sending it, so the group screen never catches the plan without its copy and offers the download again
+    - a failed publish puts the author's plan back as it was, so a later group plan cannot replace it as a stale copy
+    - a second reviewer read the badge change and found the publish order fixed above; the reorder itself was not reviewed again
+    - not done: the publish time comes from the author's clock, so a clock ahead of the member's can still show the badge after a download; keeping the plan's publish time on the copy would close it
+    - not done: an author who republishes from a second device is not told the copy on the first one is behind
+    - not done: built and tried on a device
+
+### IOS-00213 A timed set in the summary opens empty, ready for the reps done in it
+    - branch: `dev/IOS-00213/IOS-00213` (from develop)
+    - seen after a class: "5 sets of: 40 s strict HSPU / 20 s rest / 40 s barbell row / 20 s rest" showed 40 in every Reps field of the summary
+    - the scan keeps that block as sets with a unit of seconds; the summary copied the 40 into reps and dropped the unit
+    - a set planned in seconds, metres or calories now starts empty, so the athlete types what they managed in the window (10, 9, 8, 7, 6)
+    - mobility keeps its planned values: it is scored by a tap on Done, and its holds are done as planned
+    - sets left blank store no reps instead of "0-0-0-0-0"
+    - a strength card with reps but no load now shows its table after Done instead of falling back to the empty card
+    - a blank reps cell reads "—" like a blank load, and the heaviest set drops a "× 0"
+    - the scan reads "1-1SPU" / "H-SPU" / "1-ISPU" as HSPU; the server needs a deploy for it
+    - a wider rule that turned such boards into intervals was tried and dropped: intervals are scored by a single tap and have no rows for the reps of each set
+    - two previews show the block open for entry and after Done
+    - three reviewers read the change; no faults left in it
+    - not done: built and tried on a device
+    - not done: a timed set still sits under a Reps header; a unit on `SetEntry` would show seconds or metres
+    - not done: intervals with both the 40/20 clock and a row per set
+    - not done: a set with a load and no reps can still suggest a record
+
+### IOS-00215 Our own one-tap camera for the board, with the crop already on it
+    - branch: `dev/IOS-00215/IOS-00215` (from develop)
+    - scanning took too long: Apple's document scanner asked for a shutter, corner fixes, Keep and Save
+    - our camera takes the board in one tap or a volume button, flash off, continuous focus, an upright photo near 12 MP
+    - the photo goes to the crop step that library photos already used; the sheet opens once the camera is gone
+    - Vision's document segmentation finds the board and the crop frame glides onto it; low confidence or a small find keeps the default frame, and a frame the user moved stays
+    - the crop screen draws a preview decoded once, and the crop is encoded near-lossless so the upload compresses only once
+    - research before the work: binarizing or heavy sharpening helps classic OCR but barely helps a vision model, and erases faint marker
+    - views list their properties environment, store, lets, each documented; the rule is in `WorkoutMirrorLive/CLAUDE.md`
+    - Apple's scanner is gone
+    - reviewers read each step; tried on a device, camera and crop work
+    - later, to check: light colour enhancement (background division, mild gamma) only together with a test on 10–20 board photos; it may wash out faint marker
+    - not done: a live board outline in the camera, a four-corner crop with perspective correction, several photos in one scan

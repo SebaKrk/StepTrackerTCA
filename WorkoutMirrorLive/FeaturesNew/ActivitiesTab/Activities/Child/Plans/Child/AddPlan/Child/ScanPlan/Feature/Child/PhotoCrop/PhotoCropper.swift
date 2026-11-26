@@ -26,8 +26,21 @@ enum PhotoCropper {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         let renderer = UIGraphicsImageRenderer(size: cropRect.size, format: format)
-        return renderer.jpegData(withCompressionQuality: 0.8) { _ in
+        // Near-lossless: the upload downscales and compresses once more, and a second 0.8 pass blurs faint marker.
+        return renderer.jpegData(withCompressionQuality: 0.95) { _ in
             image.draw(at: CGPoint(x: -cropRect.minX, y: -cropRect.minY))
         }
+    }
+
+    /// Upright copy small enough for the crop screen; ImageIO skips decoding the full bitmap.
+    nonisolated static func previewImage(from data: Data, maxPixelSize: Int = 1600) -> UIImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+        ]
+        guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+        return UIImage(cgImage: thumbnail)
     }
 }

@@ -115,8 +115,14 @@ extension GroupFeature {
         }
 
         /// The author republished the plan after the user downloaded it, so the copy in Plans is behind.
+        ///
+        /// Never for the author: their copy is the source, and its date is when they created it, not a download time.
         var isDayPlanStale: Bool {
-            guard let plan = dayPlan, let downloadedAt = dayPlanDownloadedAt else { return false }
+            guard
+                let plan = dayPlan,
+                plan.authorUid != myUid,
+                let downloadedAt = dayPlanDownloadedAt
+            else { return false }
             return plan.publishedAt > downloadedAt
         }
 

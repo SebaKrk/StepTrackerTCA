@@ -113,13 +113,12 @@ struct SessionView: View {
         .padding(.top, 4)
     }
 
-    /// Stale-banner copy. For the Watch it asks for a better fit; for the strap it is
+    /// Stale-banner copy. For the Watch see `watchStaleMessage`; for the strap it is
     /// coloured by the last BLE disconnect reason (forwarded from `SessionFeature`),
     /// where `nil` = strap CB-connected but no fresh reading → most likely poor skin contact.
     private var sensorStaleMessage: String {
-        // The Watch is in reach here (a lost link shows its own banner), so the fit is what is left.
         if store.live.isWatchPrimary {
-            return String(localized: "Adjust your Apple Watch")
+            return watchStaleMessage
         }
         return switch store.live.lastSensorDisconnectReason {
         case .outOfRange:
@@ -131,6 +130,17 @@ struct SessionView: View {
         case nil:
             String(localized: "No heart rate reading — check the strap fit")
         }
+    }
+
+    /// The Watch is in reach here (a lost link shows its own banner): a known power cause first, the fit last.
+    private var watchStaleMessage: String {
+        if store.live.isWatchLowPowerMode {
+            return String(localized: "Apple Watch in Low Power Mode — heart rate readings may be delayed")
+        }
+        if store.live.isPhoneLowPowerMode {
+            return String(localized: "iPhone in Low Power Mode — heart rate readings may be delayed")
+        }
+        return String(localized: "Adjust your Apple Watch")
     }
 
 

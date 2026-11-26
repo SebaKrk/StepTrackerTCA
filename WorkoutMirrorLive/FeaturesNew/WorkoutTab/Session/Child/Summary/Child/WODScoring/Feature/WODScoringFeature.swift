@@ -240,6 +240,9 @@ struct WODScoringFeature {
         /// The row whose fields are open in a fitness run card; every other row reads as text.
         var editedExerciseIndex: Int?
 
+        /// Sets whose load was copied down from a set above, not typed; only these follow a later edit.
+        var copiedWeightSetIds: Set<UUID> = []
+
         /// Highest minute the time wheels offer; a fitness run outlasts the 99 minutes of an uncapped WOD.
         var maxDraftMinutes: Int {
             capMinutes ?? (fitnessRun == nil ? 99 : 240)
@@ -557,7 +560,9 @@ struct WODScoringFeature {
                     let singleWeights = state.result.exercises.compactMap(\.actualWeight)
                     let maxWeight = (setWeights + singleWeights).max()
                     state.result.scoreResult = maxWeight.map { .forLoad(weight: $0) } ?? .completed
-                    state.phase = maxWeight == nil ? .empty : .entered
+                    // Bodyweight sets carry reps only, and those reps are still a result to show.
+                    let hasReps = state.result.exercises.contains { ($0.sets ?? []).contains { $0.reps > 0 } }
+                    state.phase = maxWeight == nil && !hasReps ? .empty : .entered
 
                 case .time:
                     let seconds = state.draftTotalSeconds
@@ -675,7 +680,16 @@ struct WODScoringFeature {
                       var sets = state.result.exercises[exerciseIndex].sets,
                       sets.indices.contains(setIndex)
                 else { return .none }
-                sets[setIndex].weight = Double(text.replacingOccurrences(of: ",", with: "."))
+                let weight = Double(text.replacingOccurrences(of: ",", with: "."))
+                sets[setIndex].weight = weight
+                state.copiedWeightSetIds.remove(sets[setIndex].id)
+                // One load is typed once: it flows down until a set the athlete typed or the plan filled.
+                for later in sets.indices where later > setIndex {
+                    let id = sets[later].id
+                    guard sets[later].weight == nil || state.copiedWeightSetIds.contains(id) else { break }
+                    sets[later].weight = weight
+                    state.copiedWeightSetIds.insert(id)
+                }
                 state.result.exercises[exerciseIndex].sets = sets
                 return .none
 
