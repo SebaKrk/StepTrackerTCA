@@ -16,6 +16,7 @@ struct ScanPlanView: View {
 
     // MARK: - Properties
 
+    /// Scan flow: photo, crop, reading by the AI and the preview.
     @Bindable var store: StoreOf<ScanPlanFeature>
 
     /// Keyboard focus for the extracted-text editor (same pattern as SummaryView).

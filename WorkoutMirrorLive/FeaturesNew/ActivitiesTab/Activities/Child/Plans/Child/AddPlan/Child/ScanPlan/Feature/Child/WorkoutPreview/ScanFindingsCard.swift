@@ -11,7 +11,12 @@ import SwiftUI
 /// "To check" card above a scanned plan: one row per finding, "OK" where a doubt can be closed by looking at the board.
 struct ScanFindingsCard: View {
 
+    // MARK: - Properties
+
+    /// Doubts the review raised about the scan, one row each.
     let findings: [ScanFinding]
+
+    /// Closes one finding the user checked on the board.
     let onConfirm: (ScanFinding.ID) -> Void
 
     var body: some View {
