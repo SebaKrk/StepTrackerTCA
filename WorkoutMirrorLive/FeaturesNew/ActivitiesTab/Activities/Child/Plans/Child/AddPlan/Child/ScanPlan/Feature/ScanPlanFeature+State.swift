@@ -5,6 +5,7 @@
 //  Created by Sebastian Sciuba on 07/02/2026.
 //
 
+import AVFoundation
 import ComposableArchitecture
 import HealthHub
 import PhotosUI
@@ -28,8 +29,14 @@ extension ScanPlanFeature {
         /// Whether the photo picker is currently presented.
         var isPickerPresented = false
 
-        /// Whether the document camera scanner is currently presented.
+        /// Whether the board camera is currently presented.
         var isCameraPresented = false
+
+        /// Photo held while the camera slides away; the crop sheet opens only once it is gone.
+        var pendingCameraPhoto: Data?
+
+        /// Whether the phone has a back camera; the simulator has none, so the button hides there.
+        var isCameraAvailable = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) != nil
 
         /// The selected photo picker item.
         var selectedItem: PhotosPickerItem?

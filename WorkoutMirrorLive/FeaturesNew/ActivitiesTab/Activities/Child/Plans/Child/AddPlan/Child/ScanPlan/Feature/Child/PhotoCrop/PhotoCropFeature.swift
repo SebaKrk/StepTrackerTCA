@@ -8,11 +8,11 @@
 import ComposableArchitecture
 import CoreGraphics
 import Foundation
+import UIKit
 
-/// Crops a gallery photo to the board before it leaves the phone.
+/// Crops a photo to the board before it leaves the phone.
 ///
-/// The document camera already crops; this is the equivalent step for photos
-/// picked from the library, so attendance lists and faces stay out of the upload.
+/// Camera and library photos both pass here, so attendance lists and faces stay out of the upload.
 @Reducer
 struct PhotoCropFeature {
 
@@ -24,14 +24,23 @@ struct PhotoCropFeature {
     @ObservableState
     struct State {
 
-        /// Full photo as picked from the library.
+        /// Full photo from the camera or the library; the crop is cut from this.
         let imageData: Data
+
+        /// Small upright copy for the screen, decoded once — a 12 MP decode per drag would stutter.
+        let previewImage: UIImage?
 
         /// Crop rectangle in unit coordinates of the photo (0…1 on both axes).
         var crop = CGRect(x: 0.05, y: 0.05, width: 0.9, height: 0.9)
 
         /// True while the cropped JPEG is being produced.
         var isCropping = false
+
+        /// Decodes the screen copy once, when the crop sheet opens.
+        init(imageData: Data) {
+            self.imageData = imageData
+            self.previewImage = PhotoCropper.previewImage(from: imageData)
+        }
     }
 
     /// Handle the user is dragging.

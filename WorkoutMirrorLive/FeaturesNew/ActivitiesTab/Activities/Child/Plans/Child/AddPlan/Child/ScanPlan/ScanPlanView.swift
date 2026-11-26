@@ -10,7 +10,6 @@ import HealthHub
 import PhotosUI
 import SwiftUI
 import SharedModels
-import VisionKit
 
 @ViewAction(for: ScanPlanFeature.self)
 struct ScanPlanView: View {
@@ -62,15 +61,15 @@ struct ScanPlanView: View {
         }
         .photosPicker(isPresented: $store.isPickerPresented,
                       selection: $store.selectedItem)
-        .fullScreenCover(isPresented: $store.isCameraPresented) {
-            DocumentCameraView { result in
+        .fullScreenCover(isPresented: $store.isCameraPresented, onDismiss: { send(.cameraDismissed) }) {
+            BoardCameraView { result in
                 switch result {
-                case let .scanned(data):
-                    send(.documentScanned(data))
+                case let .captured(data):
+                    send(.cameraPhotoTaken(data))
                 case .cancelled:
-                    send(.documentScanned(nil))
+                    send(.cameraPhotoTaken(nil))
                 case .failed:
-                    send(.documentScanFailed)
+                    send(.cameraFailed)
                 }
             }
             .ignoresSafeArea()
@@ -145,7 +144,7 @@ struct ScanPlanView: View {
 
     private var actionButtonsSection: some View {
         VStack(spacing: 12) {
-            if VNDocumentCameraViewController.isSupported {
+            if store.isCameraAvailable {
                 takePhotoButton
             }
             selectPhotoButton

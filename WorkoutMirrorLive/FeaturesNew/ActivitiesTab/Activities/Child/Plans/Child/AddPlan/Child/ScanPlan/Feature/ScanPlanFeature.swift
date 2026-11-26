@@ -56,13 +56,20 @@ struct ScanPlanFeature {
                 state.isCameraPresented = true
                 return .none
 
-            case let .view(.documentScanned(data)):
+            case let .view(.cameraPhotoTaken(data)):
                 state.isCameraPresented = false
-                // User cancelled the scanner — stay where they were.
-                guard let data else { return .none }
-                return .send(.internal(.imageLoaded(data)))
+                // nil when the user closed the camera — then nothing opens afterwards.
+                state.pendingCameraPhoto = data
+                return .none
 
-            case .view(.documentScanFailed):
+            case .view(.cameraDismissed):
+                guard let data = state.pendingCameraPhoto else { return .none }
+                state.pendingCameraPhoto = nil
+                // A camera photo is uncropped, so it takes the same crop step as a library photo.
+                state.photoCrop = PhotoCropFeature.State(imageData: data)
+                return .none
+
+            case .view(.cameraFailed):
                 state.isCameraPresented = false
                 state.failedStage = .photoLoad
                 state.viewState = .failed(Self.cameraFailure)
@@ -132,7 +139,6 @@ struct ScanPlanFeature {
                     state.viewState = .failed(Self.photoLoadFailure)
                     return .none
                 }
-                // The document camera crops on its own; a library photo gets the same step here.
                 state.photoCrop = PhotoCropFeature.State(imageData: data)
                 return .none
 
@@ -252,10 +258,10 @@ struct ScanPlanFeature {
 
     // MARK: - Failures
 
-    /// The document scanner itself failed — a different photo usually works.
+    /// The camera could not run — most often camera access is off for the app.
     nonisolated static let cameraFailure = ScanFailure(
         title: String(localized: "Scanning failed"),
-        message: String(localized: "The scanner could not capture the page. Try again."),
+        message: String(localized: "The camera could not start. Check camera access in Settings, or pick a photo."),
         canRetry: true
     )
 
