@@ -134,14 +134,23 @@ extension WorkoutSessionNew {
 
 extension TrainingSession {
 
-    /// Returns a copy with all `.unknown` exercises across all WODs re-resolved.
-    /// Warm-up and cool-down carry no exercises, so only `workouts` is touched.
+    /// Returns a copy with all `.unknown` exercises across all WODs and the warm-up and cool-down blocks re-resolved.
     public func rematchedAgainstCatalog() -> TrainingSession? {
         var changed = false
         let rematchedWorkouts = workouts.map { workout -> WorkoutSessionNew in
             guard let rematched = workout.rematchedAgainstCatalog() else { return workout }
             changed = true
             return rematched
+        }
+        var warmUp = warmUp
+        if let rematched = warmUp?.block?.rematchedAgainstCatalog() {
+            warmUp?.block = rematched
+            changed = true
+        }
+        var coolDown = coolDown
+        if let rematched = coolDown?.block?.rematchedAgainstCatalog() {
+            coolDown?.block = rematched
+            changed = true
         }
         guard changed else { return nil }
         return TrainingSession(

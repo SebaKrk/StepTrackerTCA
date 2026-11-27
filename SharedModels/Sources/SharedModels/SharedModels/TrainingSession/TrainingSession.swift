@@ -119,10 +119,16 @@ public struct WarmUpSession: Equatable, Codable, Sendable {
     public var time: Int?
     public var description: String
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "") {
+    /// A block done as part of the warm-up (a Tabata, a timed run…); shown like a workout block, never scored.
+    ///
+    /// Optional, so plans saved before it decode unchanged; it never joins `workouts`, which is what stats read.
+    public var block: WorkoutSessionNew?
+
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "", block: WorkoutSessionNew? = nil) {
         self.goal = goal
         self.time = time
         self.description = description
+        self.block = block
     }
 }
 
@@ -132,10 +138,16 @@ public struct CoolDownSession: Equatable, Codable, Sendable {
     public var time: Int?
     public var description: String
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "") {
+    /// A block done as part of the cool-down (an abs Tabata…); shown like a workout block, never scored.
+    ///
+    /// Optional, so plans saved before it decode unchanged; it never joins `workouts`, which is what stats read.
+    public var block: WorkoutSessionNew?
+
+    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "", block: WorkoutSessionNew? = nil) {
         self.goal = goal
         self.time = time
         self.description = description
+        self.block = block
     }
 }
 
