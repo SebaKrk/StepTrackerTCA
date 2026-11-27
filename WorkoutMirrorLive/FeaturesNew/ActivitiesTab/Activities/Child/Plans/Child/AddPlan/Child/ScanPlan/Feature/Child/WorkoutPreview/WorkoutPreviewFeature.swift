@@ -36,6 +36,15 @@ struct WorkoutPreviewFeature {
         /// The plan exactly as the scan produced it; a block that differs from it was edited.
         var scannedSession: TrainingSession?
 
+        /// The board the plan was built from; the AI chat corrects this, not the plan.
+        var scannedBoard: ScannedBoard?
+
+        /// True once the user saved the editor; an AI correction would overwrite their changes.
+        var isEditedByHand = false
+
+        /// The consent alert was raised by the chat button, so agreeing opens the chat, not generation.
+        var opensChatAfterConsent = false
+
         /// Doubts, defaults and fixes from the board; close by "OK" or by editing their block.
         var boardFindings: IdentifiedArrayOf<ScanFinding> = []
 
@@ -77,6 +86,11 @@ struct WorkoutPreviewFeature {
         /// Movements with an open finding, for the icon next to their name.
         var flaggedExerciseIds: Set<UUID> {
             Set(findings.filter(\.isOpen).compactMap(\.exerciseId))
+        }
+
+        /// The AI chat is offered while the plan is still the scan's own.
+        var canCorrectWithAI: Bool {
+            scannedBoard != nil && !isEditedByHand && !isGeneratingNotes
         }
 
         /// The board had no warm-up, no cool-down, or neither — the offer to generate them shows.
@@ -143,6 +157,9 @@ struct WorkoutPreviewFeature {
 
             /// User looked at the board and closed a doubt.
             case confirmFindingTapped(ScanFinding.ID)
+
+            /// User wants to correct the plan by talking to the AI.
+            case correctWithAITapped
         }
 
         // MARK: - Alert Actions
@@ -189,7 +206,10 @@ struct WorkoutPreviewFeature {
 
             case .alert(.presented(.aiProcessingAllowed)):
                 state.$isAIProcessingAllowed.withLock { $0 = true }
-                return generateNotes(&state)
+                guard state.opensChatAfterConsent else { return generateNotes(&state) }
+                state.opensChatAfterConsent = false
+                openChat(&state)
+                return .none
 
             // MARK: - Internal
 
@@ -216,6 +236,29 @@ struct WorkoutPreviewFeature {
                 state.planFindings[id: id]?.isConfirmed = true
                 return .none
 
+            case .view(.correctWithAITapped):
+                guard state.canCorrectWithAI else { return .none }
+                // Consent can be withdrawn in settings after the scan, so the chat asks again like generation does.
+                guard state.isAIProcessingAllowed else {
+                    state.opensChatAfterConsent = true
+                    state.alert = .confirmAIProcessing
+                    return .none
+                }
+                openChat(&state)
+                return .none
+
+            case .alert(.dismiss):
+                state.opensChatAfterConsent = false
+                return .none
+
+            case .destination(.presented(.planChat(.delegate(.closed)))):
+                state.destination = nil
+                return .none
+
+            case let .destination(.presented(.planChat(.delegate(.applied(board))))):
+                applyCorrected(board, to: &state)
+                return .none
+
             case .view(.warmupToggleTapped):
                 state.isWarmupExpanded.toggle()
                 return .none
@@ -226,6 +269,7 @@ struct WorkoutPreviewFeature {
 
             case .destination(.presented(.editor(.delegate(.saved(let session))))):
                 state.trainingSession = session
+                state.isEditedByHand = true
                 // Rules re-run on the edited plan; a doubt about a block the user touched is settled.
                 let previous = state.planFindings
                 state.planFindings = IdentifiedArray(
@@ -253,6 +297,65 @@ struct WorkoutPreviewFeature {
     }
 
     // MARK: - Helpers
+
+    /// Presents the chat on the scanned board; only open doubts help the model understand the user.
+    private func openChat(_ state: inout State) {
+        guard let board = state.scannedBoard else { return }
+        let doubts = state.findings.filter(\.isOpen).map { "\($0.title): \($0.message)" }
+        state.destination = .planChat(PlanChatFeature.State(board: board, findings: doubts))
+    }
+
+    /// Rebuilds the plan from a board the AI corrected, through the same normalising, mapping and review as a scan.
+    ///
+    /// A board the review rejects outright stays out, and the chat says why instead of closing.
+    private func applyCorrected(_ board: ScannedBoard, to state: inout State) {
+        let (normalized, fixes) = board.normalized()
+        let session = normalized.toTrainingSession(scanDate: state.trainingSession.date)
+
+        if let hard = ScanReviewValidator.hardFindings(board: normalized, plan: session).first {
+            guard case var .planChat(chat) = state.destination else { return }
+            chat.proposal = nil
+            chat.failure = ScanFailure(
+                title: String(localized: "The corrected plan could not be used"),
+                message: hard.message,
+                canRetry: false
+            )
+            state.destination = .planChat(chat)
+            return
+        }
+
+        // Only sections generated on this screen carry over; a board section the AI removed stays removed.
+        let plan = Self.plan(
+            session,
+            warmUp: state.scannedSession?.warmUp == nil ? state.trainingSession.warmUp : nil,
+            coolDown: state.scannedSession?.coolDown == nil ? state.trainingSession.coolDown : nil
+        )
+        let previous = state.findings
+        state.trainingSession = plan
+        state.scannedSession = plan
+        state.scannedBoard = normalized
+        state.boardFindings = IdentifiedArray(
+            uniqueElements: ScanReviewValidator.boardFindings(board: normalized, fixes: fixes, plan: plan)
+                .map { Self.settledAfterChat($0, previous: previous) }
+        )
+        state.planFindings = IdentifiedArray(
+            uniqueElements: ScanReviewValidator.planFindings(plan)
+                .map { Self.settledAfterChat($0, previous: previous) }
+        )
+        state.destination = nil
+    }
+
+    /// A doubt after an applied correction: an unsure reading is settled, since the user went over the plan
+    /// with the AI; a confirmation the user already gave carries over; plan rules still stand.
+    private static func settledAfterChat(_ finding: ScanFinding, previous: [ScanFinding]) -> ScanFinding {
+        var finding = finding
+        if case .uncertainField = finding.kind {
+            finding.isConfirmed = true
+        } else if previous.contains(where: { $0.isSameIssue(as: finding) && $0.isConfirmed }) {
+            finding.isConfirmed = true
+        }
+        return finding
+    }
 
     /// Asks the AI service for the sections the board lacked; callers check the consent first.
     private func generateNotes(_ state: inout State) -> Effect<Action> {

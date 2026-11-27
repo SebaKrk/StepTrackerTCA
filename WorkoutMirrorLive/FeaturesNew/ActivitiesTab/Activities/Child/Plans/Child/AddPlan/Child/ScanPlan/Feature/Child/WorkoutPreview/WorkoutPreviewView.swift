@@ -22,9 +22,6 @@ struct WorkoutPreviewView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                if !store.findings.isEmpty {
-                    findingsCard
-                }
                 if store.canGenerateNotes {
                     generateNotesCard
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -42,8 +39,14 @@ struct WorkoutPreviewView: View {
                     blockFlagCounts: store.openFindingCountsByBlock,
                     flaggedExerciseIds: store.flaggedExerciseIds
                 )
+                // Read after the whole plan: the doubts make sense once the user has seen the blocks.
+                if hasOpenFindings {
+                    findingsCard
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                }
             }
             .padding()
+            .animation(.snappy, value: hasOpenFindings)
         }
         .background(
             LinearGradient(
@@ -54,6 +57,8 @@ struct WorkoutPreviewView: View {
             .ignoresSafeArea()
         )
         .animation(.snappy, value: store.canGenerateNotes)
+        // The id changes only when an AI correction rebuilds the plan, so editor saves do not re-animate.
+        .animation(.snappy, value: store.trainingSession.id)
         .navigationTitle(store.trainingSession.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
@@ -62,6 +67,11 @@ struct WorkoutPreviewView: View {
             item: $store.scope(state: \.destination?.editor, action: \.destination.editor)
         ) { editorStore in
             TrainingSessionEditorView(store: editorStore)
+        }
+        .sheet(
+            item: $store.scope(state: \.destination?.planChat, action: \.destination.planChat)
+        ) { chatStore in
+            PlanChatView(store: chatStore)
         }
     }
 
@@ -76,6 +86,12 @@ struct WorkoutPreviewView: View {
                 Text("Edit")
             }
             .disabled(store.isGeneratingNotes)
+        }
+
+        if store.scannedBoard != nil {
+            ToolbarItem(placement: .topBarTrailing) {
+                correctWithAIToolbarButton
+            }
         }
 
         ToolbarItem(placement: .topBarTrailing) {
@@ -127,9 +143,25 @@ struct WorkoutPreviewView: View {
     }
 
     private var findingsCard: some View {
-        ScanFindingsCard(findings: store.findings) { id in
-            send(.confirmFindingTapped(id))
+        ScanFindingsCard(
+            findings: store.findings,
+            onConfirm: { send(.confirmFindingTapped($0)) },
+            onCorrectWithAI: store.canCorrectWithAI ? { send(.correctWithAITapped) } : nil
+        )
+    }
+
+    /// The card shows while something is left to check; once all is settled the plan stands on its own.
+    private var hasOpenFindings: Bool {
+        store.findings.contains(where: \.isOpen)
+    }
+
+    private var correctWithAIToolbarButton: some View {
+        Button {
+            send(.correctWithAITapped)
+        } label: {
+            Label(String(localized: "Correct with AI"), systemImage: "sparkles")
         }
+        .disabled(!store.canCorrectWithAI)
     }
 
     // Disabled until every finding is closed, so a doubtful plan never reaches the database.
