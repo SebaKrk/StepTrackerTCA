@@ -92,6 +92,9 @@ struct WorkoutPreviewView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 correctWithAIToolbarButton
             }
+
+            // Its own glass circle, so the chat never reads as part of Save.
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
 
         ToolbarItem(placement: .topBarTrailing) {

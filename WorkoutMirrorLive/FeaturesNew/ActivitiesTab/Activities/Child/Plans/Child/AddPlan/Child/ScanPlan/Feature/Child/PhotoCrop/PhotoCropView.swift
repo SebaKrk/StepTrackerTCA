@@ -23,14 +23,14 @@ struct PhotoCropView: View {
             VStack(spacing: 16) {
                 cropCanvas
                 hint
-                useFullPhotoButton
+                confirmButton
             }
             .padding()
             .navigationTitle("Crop to the board")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { cancelButton }
-                ToolbarItem(placement: .confirmationAction) { confirmButton }
+                ToolbarItem(placement: .primaryAction) { resetCropButton }
             }
         }
         .task { send(.task) }
@@ -103,14 +103,13 @@ struct PhotoCropView: View {
             )
     }
 
-    private var useFullPhotoButton: some View {
+    private var resetCropButton: some View {
         Button {
-            send(.useFullPhotoTapped)
+            send(.useFullPhotoTapped, animation: .default)
         } label: {
-            Text("Use the whole photo")
+            Text("Reset the crop")
         }
-        .buttonStyle(.glass)
-        .controlSize(.large)
+        .disabled(store.isCropping)
     }
 
     private var cancelButton: some View {
@@ -127,11 +126,16 @@ struct PhotoCropView: View {
         } label: {
             if store.isCropping {
                 ProgressView()
+                    .frame(maxWidth: .infinity)
             } else {
                 Text("Use")
                     .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
             }
         }
+        // Plain glass: the app accent is white, so a prominent fill hides the label.
+        .buttonStyle(.glass)
+        .controlSize(.large)
         .disabled(store.isCropping)
     }
 
