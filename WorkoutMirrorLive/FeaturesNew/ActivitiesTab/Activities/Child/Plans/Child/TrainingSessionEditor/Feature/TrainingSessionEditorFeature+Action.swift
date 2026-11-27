@@ -45,6 +45,9 @@ extension TrainingSessionEditorFeature {
             /// User requested AI generation of warmup description.
             case warmUpGenerateTapped
 
+            /// User tapped the trash on the warm-up block.
+            case warmUpBlockRemoveTapped
+
             /// Toggles cooldown on (`CoolDownSession` with defaults) or off (`nil`).
             case coolDownToggled
 
@@ -53,6 +56,9 @@ extension TrainingSessionEditorFeature {
 
             /// User requested AI generation of cooldown description.
             case coolDownGenerateTapped
+
+            /// User tapped the trash on the cool-down block.
+            case coolDownBlockRemoveTapped
         }
 
         // MARK: - Internal
@@ -81,6 +87,10 @@ extension TrainingSessionEditorFeature {
             case warmUpRemoveConfirmed
             /// User confirmed removing cooldown (will delete notes).
             case coolDownRemoveConfirmed
+            /// User confirmed removing the warm-up block.
+            case warmUpBlockRemoveConfirmed
+            /// User confirmed removing the cool-down block.
+            case coolDownBlockRemoveConfirmed
             /// User confirmed deleting the entire training session.
             case deleteConfirmed
             /// User dismissed the AI generation error alert.

@@ -20,7 +20,7 @@ extension AlertState where Action == TrainingSessionEditorFeature.Action.Alert {
             TextState("Cancel")
         }
     } message: {
-        TextState("Your warmup notes will be lost.")
+        TextState("Your warm-up and everything in it will be lost.")
     }
 
     static let removeCoolDown = Self {
@@ -33,7 +33,33 @@ extension AlertState where Action == TrainingSessionEditorFeature.Action.Alert {
             TextState("Cancel")
         }
     } message: {
-        TextState("Your cooldown notes will be lost.")
+        TextState("Your cool-down and everything in it will be lost.")
+    }
+
+    static let removeWarmUpBlock = Self {
+        TextState("Remove the warm-up block?")
+    } actions: {
+        ButtonState(role: .destructive, action: .warmUpBlockRemoveConfirmed) {
+            TextState("Remove")
+        }
+        ButtonState(role: .cancel) {
+            TextState("Cancel")
+        }
+    } message: {
+        TextState("The block and its movements will be removed from the warm-up.")
+    }
+
+    static let removeCoolDownBlock = Self {
+        TextState("Remove the cool-down block?")
+    } actions: {
+        ButtonState(role: .destructive, action: .coolDownBlockRemoveConfirmed) {
+            TextState("Remove")
+        }
+        ButtonState(role: .cancel) {
+            TextState("Cancel")
+        }
+    } message: {
+        TextState("The block and its movements will be removed from the cool-down.")
     }
 
     static func confirmDelete(title: String) -> Self {
