@@ -23484,6 +23484,74 @@
         }
       }
     },
+    "Remove the cool-down block?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cool-down-Block entfernen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quitar el bloque de la vuelta a la calma?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le bloc de retour au calme ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovere il blocco del defaticamento?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć blok z cool-downu?"
+          }
+        }
+      }
+    },
+    "Remove the warm-up block?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warm-up-Block entfernen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quitar el bloque del calentamiento?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le bloc d'échauffement ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovere il blocco del riscaldamento?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunąć blok z rozgrzewki?"
+          }
+        }
+      }
+    },
     "Remove Warmup?" : {
       "localizations" : {
         "de" : {
@@ -23885,6 +23953,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyzeruj"
+          }
+        }
+      }
+    },
+    "Reset the crop" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurücksetzen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restablecer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resetuj"
           }
         }
       }
@@ -29260,6 +29362,74 @@
         }
       }
     },
+    "The block and its movements will be removed from the cool-down." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Block und seine Übungen werden aus dem Cool-down entfernt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bloque y sus ejercicios se quitarán de la vuelta a la calma."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le bloc et ses mouvements seront retirés du retour au calme."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il blocco e i suoi esercizi verranno rimossi dal defaticamento."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blok i jego ćwiczenia znikną z cool-downu."
+          }
+        }
+      }
+    },
+    "The block and its movements will be removed from the warm-up." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Block und seine Übungen werden aus dem Warm-up entfernt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bloque y sus ejercicios se quitarán del calentamiento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le bloc et ses mouvements seront retirés de l'échauffement."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il blocco e i suoi esercizi verranno rimossi dal riscaldamento."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blok i jego ćwiczenia znikną z rozgrzewki."
+          }
+        }
+      }
+    },
     "The bundle describes the app — versions, migrations and row counts — and carries your workout logs, heart rate included." : {
       "localizations" : {
         "de" : {
@@ -32460,40 +32630,6 @@
         }
       }
     },
-    "Use the whole photo" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ganzes Foto verwenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usar la foto completa"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utiliser toute la photo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa tutta la foto"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Użyj całego zdjęcia"
-          }
-        }
-      }
-    },
     "Usuwa z watcha" : {
       "localizations" : {
         "de" : {
@@ -35174,36 +35310,36 @@
         }
       }
     },
-    "Your cooldown notes will be lost." : {
+    "Your cool-down and everything in it will be lost." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deine Cool-down-Notizen gehen verloren."
+            "value" : "Dein Cool-down und alles darin gehen verloren."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se perderán tus notas de la vuelta a la calma."
+            "value" : "Se perderá la vuelta a la calma con todo su contenido."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vos notes de retour au calme seront perdues."
+            "value" : "Le retour au calme et tout son contenu seront perdus."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le note del defaticamento andranno perse."
+            "value" : "Il defaticamento e tutto il suo contenuto andranno persi."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notatki cooldownu zostaną utracone."
+            "value" : "Cool-down zniknie razem z całą zawartością."
           }
         }
       }
@@ -35808,36 +35944,36 @@
         }
       }
     },
-    "Your warmup notes will be lost." : {
+    "Your warm-up and everything in it will be lost." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deine Warm-up-Notizen gehen verloren."
+            "value" : "Dein Warm-up und alles darin gehen verloren."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se perderán tus notas del calentamiento."
+            "value" : "Se perderá el calentamiento con todo su contenido."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vos notes d'échauffement seront perdues."
+            "value" : "L'échauffement et tout son contenu seront perdus."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le note del riscaldamento andranno perse."
+            "value" : "Il riscaldamento e tutto il suo contenuto andranno persi."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notatki rozgrzewki zostaną utracone."
+            "value" : "Rozgrzewka zniknie razem z całą zawartością."
           }
         }
       }

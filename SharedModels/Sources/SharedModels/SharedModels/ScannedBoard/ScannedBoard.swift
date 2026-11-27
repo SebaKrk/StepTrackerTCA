@@ -45,7 +45,8 @@ public struct ScannedBoard: Codable, Sendable, Equatable {
     ///
     /// Form 2 added `runBeforeEachMeters`: a caller on form 1 gets the run written out before each station instead.
     /// Form 3 added `repSchemeContinues`: a caller below it gets an open ladder as a note.
-    public static let formVersion = 3
+    /// Form 4 added a format block to warm-up and cool-down: a caller below it gets that block written out in text.
+    public static let formVersion = 4
 
     /// Blocks that become workouts; warm-up / cool-down text is not a workout.
     public var workoutSections: [ScannedSection] {

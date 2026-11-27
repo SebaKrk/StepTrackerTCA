@@ -51,7 +51,9 @@ struct TrainingSessionEditorFeature {
             case .view(.warmUpToggled):
                 if state.draft.warmUp == nil {
                     state.draft.warmUp = WarmUpSession(goal: .timeLimit, time: 10)
-                } else if state.draft.warmUp?.description.isEmpty == false || state.isGeneratingWarmUpNotes {
+                } else if state.draft.warmUp?.description.isEmpty == false
+                            || state.draft.warmUp?.block != nil
+                            || state.isGeneratingWarmUpNotes {
                     state.alert = .removeWarmUp
                 } else {
                     state.draft.warmUp = nil
@@ -70,12 +72,18 @@ struct TrainingSessionEditorFeature {
                 }
                 return generateWarmUp(&state)
 
+            case .view(.warmUpBlockRemoveTapped):
+                state.alert = .removeWarmUpBlock
+                return .none
+
             // MARK: - Cooldown
 
             case .view(.coolDownToggled):
                 if state.draft.coolDown == nil {
                     state.draft.coolDown = CoolDownSession(goal: .timeLimit, time: 10)
-                } else if state.draft.coolDown?.description.isEmpty == false || state.isGeneratingCoolDownNotes {
+                } else if state.draft.coolDown?.description.isEmpty == false
+                            || state.draft.coolDown?.block != nil
+                            || state.isGeneratingCoolDownNotes {
                     state.alert = .removeCoolDown
                 } else {
                     state.draft.coolDown = nil
@@ -94,6 +102,10 @@ struct TrainingSessionEditorFeature {
                 }
                 return generateCoolDown(&state)
 
+            case .view(.coolDownBlockRemoveTapped):
+                state.alert = .removeCoolDownBlock
+                return .none
+
             // MARK: - Alert
 
             case .alert(.presented(.warmUpRemoveConfirmed)):
@@ -105,6 +117,14 @@ struct TrainingSessionEditorFeature {
                 state.draft.coolDown = nil
                 state.isGeneratingCoolDownNotes = false
                 return .cancel(id: TrainingSessionEditorCancelID.coolDownGeneration)
+
+            case .alert(.presented(.warmUpBlockRemoveConfirmed)):
+                state.draft.warmUp?.block = nil
+                return .none
+
+            case .alert(.presented(.coolDownBlockRemoveConfirmed)):
+                state.draft.coolDown?.block = nil
+                return .none
 
             case .alert(.presented(.warmUpGenerationAllowed)):
                 state.$isAIProcessingAllowed.withLock { $0 = true }

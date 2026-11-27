@@ -145,7 +145,12 @@ struct TrainingSessionEditorView: View {
                     warmupDurationRow(warmUp)
                     Divider().padding(.leading)
                     warmupNotesSection
+                    if let block = warmUp.block {
+                        Divider().padding(.leading)
+                        sideBlockRow(block) { send(.warmUpBlockRemoveTapped) }
+                    }
                 }
+                .animation(.default, value: warmUp.block)
             } else {
                 emptyRow("No warmup")
             }
@@ -290,9 +295,15 @@ struct TrainingSessionEditorView: View {
             if let coolDown = store.draft.coolDown {
                 VStack(spacing: 0) {
                     cooldownDurationRow(coolDown)
+                    // The cool-down block is done first, so it sits above the stretching.
+                    if let block = coolDown.block {
+                        Divider().padding(.leading)
+                        sideBlockRow(block) { send(.coolDownBlockRemoveTapped) }
+                    }
                     Divider().padding(.leading)
                     cooldownNotesSection
                 }
+                .animation(.default, value: coolDown.block)
             } else {
                 emptyRow("No cooldown")
             }
@@ -368,6 +379,39 @@ struct TrainingSessionEditorView: View {
                 .padding(.horizontal, 4)
                 .padding(.vertical, 10)
             }
+        }
+    }
+
+    // MARK: - Side Block Row
+
+    /// The warm-up or cool-down block: read-only, removable as a whole.
+    private func sideBlockRow(_ block: WorkoutSessionNew, onRemove: @escaping () -> Void) -> some View {
+        editorRow {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(block.name)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+                HStack(spacing: 6) {
+                    Text(block.type.displayName.uppercased())
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(block.type.color.opacity(0.8))
+                        .cornerRadius(4)
+                    Text("\(block.exercises.count) exercises")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            Button(role: .destructive, action: onRemove) {
+                Image(systemName: "trash")
+                    .foregroundStyle(.red.opacity(0.7))
+            }
+            .buttonStyle(.plain)
         }
     }
 
