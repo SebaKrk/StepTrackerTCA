@@ -183,6 +183,7 @@ struct ScanPlanFeature {
                 // Preview opens right away; the review card and a disabled Save carry the doubts.
                 var preview = WorkoutPreviewFeature.State(trainingSession: session)
                 preview.scannedSession = session
+                preview.scannedBoard = board
                 preview.boardFindings = IdentifiedArray(
                     uniqueElements: ScanReviewValidator.boardFindings(board: board, fixes: fixes, plan: session)
                 )

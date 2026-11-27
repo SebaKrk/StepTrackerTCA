@@ -24,6 +24,13 @@ struct WorkoutExtractionClient: Sendable {
         _ input: WorkoutScanInput,
         _ backend: WorkoutParsingBackend
     ) async throws -> ScannedBoard
+
+    /// Sends the plan chat so far; the reply carries a corrected board once the user confirmed.
+    var refinePlan: @Sendable (
+        _ board: ScannedBoard,
+        _ findings: [String],
+        _ messages: [PlanChatMessage]
+    ) async throws -> PlanRefinement
 }
 
 extension DependencyValues {
@@ -81,6 +88,14 @@ extension WorkoutExtractionClient: DependencyKey {
                 #else
                 return try await strategy.parseWorkout(input)
                 #endif
+            },
+            refinePlan: { board, findings, messages in
+                try await ScanProxy.shared.refinePlan(
+                    board: board,
+                    findings: findings,
+                    messages: messages,
+                    language: ScanLanguage.preferredName()
+                )
             }
         )
     }()
@@ -90,7 +105,8 @@ extension WorkoutExtractionClient: DependencyKey {
     nonisolated static var testValue: WorkoutExtractionClient {
         WorkoutExtractionClient(
             extractText: unimplemented("WorkoutExtractionClient.extractText"),
-            parseWorkout: unimplemented("WorkoutExtractionClient.parseWorkout")
+            parseWorkout: unimplemented("WorkoutExtractionClient.parseWorkout"),
+            refinePlan: unimplemented("WorkoutExtractionClient.refinePlan")
         )
     }
 
@@ -121,6 +137,13 @@ extension WorkoutExtractionClient: DependencyKey {
                             ]
                         ),
                     ]
+                )
+            },
+            refinePlan: { _, _, _ in
+                PlanRefinement(
+                    reply: "So WOD 2 is a descending ladder 15-12-9-6-3, for time — is that right?",
+                    board: nil,
+                    changes: []
                 )
             }
         )

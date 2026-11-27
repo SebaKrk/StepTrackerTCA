@@ -22,8 +22,8 @@ extension ExerciseLogInput {
         return effectiveEquipment?.displayName
     }
 
-    /// Symbol beside that caption: a body when the athlete chose no equipment.
+    /// Symbol beside that caption: a body when the athlete chose no equipment, else the implement's own.
     var equipmentSymbol: String {
-        equipmentSelection == .some(.none) ? "figure" : "dumbbell"
+        equipmentSelection == .some(.none) ? "figure" : (effectiveEquipment?.symbolName ?? "dumbbell")
     }
 }

@@ -101,8 +101,12 @@ struct ExerciseList: View {
     @ViewBuilder
     private func equipmentLine(_ row: Row) -> some View {
         if let equipment = row.equipment {
-            Label(equipment, systemImage: row.equipmentSymbol)
-                .font(.system(size: 11))
+            Label {
+                Text(equipment)
+            } icon: {
+                EquipmentSymbolImage(name: row.equipmentSymbol)
+            }
+            .font(.system(size: 11))
                 .foregroundStyle(theme.inkTertiary)
         }
     }

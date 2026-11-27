@@ -27,6 +27,9 @@ public actor ScanProxyClient {
     /// Callable that erases the caller's account and everything stored under it.
     private static let deleteFunction = "deleteMyData"
 
+    /// Callable that corrects a scanned board through a short chat.
+    private static let refineFunction = "refinePlan"
+
     /// Wire value asking the proxy for both cues in one reply.
     private static let bothKinds = "both"
 
@@ -72,6 +75,32 @@ public actor ScanProxyClient {
         )
         let response: ScanResponse = try await call(Self.scanFunction, body: request)
         return response.board
+    }
+
+    // MARK: - Plan Chat
+
+    /// Sends the plan chat so far and returns the model's reply, with a corrected board once confirmed.
+    ///
+    /// - Parameters:
+    ///   - board: The board as the app holds it, before this chat's correction.
+    ///   - findings: Doubts the scan review raised, as the user reads them.
+    ///   - messages: The whole chat, oldest first, ending with the user's latest message.
+    ///   - language: English name of the device language, for the reply and the change list.
+    public func refinePlan(
+        board: ScannedBoard,
+        findings: [String],
+        messages: [PlanChatMessage],
+        language: String
+    ) async throws -> PlanRefinement {
+        let request = RefineRequest(
+            board: board,
+            findings: findings,
+            messages: messages,
+            language: language,
+            formVersion: ScannedBoard.formVersion
+        )
+        let response: RefineResponse = try await call(Self.refineFunction, body: request)
+        return PlanRefinement(reply: response.reply, board: response.board, changes: response.changes)
     }
 
     // MARK: - Training Notes
@@ -200,6 +229,7 @@ public actor ScanProxyClient {
         case "UNAUTHENTICATED":
             return .notSignedIn
         case "RESOURCE_EXHAUSTED":
+            if failure.message == "conversation-limit-reached" { return .conversationLimitReached }
             guard failure.message == "daily-limit-reached" else { return .rateLimited }
             let millis = failure.details?.resetsAt
             return .dailyLimitReached(resetsAt: millis.map { Date(timeIntervalSince1970: $0 / 1000) })
@@ -276,6 +306,22 @@ public actor ScanProxyClient {
         let warmUpMinutes: Int?
         let coolDown: String?
         let coolDownMinutes: Int?
+    }
+
+    /// Payload of a plan chat turn.
+    private struct RefineRequest: Encodable {
+        let board: ScannedBoard
+        let findings: [String]
+        let messages: [PlanChatMessage]
+        let language: String
+        let formVersion: Int
+    }
+
+    /// Reply of a plan chat turn; the board is null while the model still asks.
+    private struct RefineResponse: Decodable {
+        let reply: String
+        let board: ScannedBoard?
+        let changes: [String]
     }
 
     /// Payload of an account erase; the identity token alone says whose.

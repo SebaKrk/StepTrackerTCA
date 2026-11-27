@@ -1,0 +1,59 @@
+//
+//  PlanChatFeature+Action.swift
+//  WorkoutMirrorLive
+//
+//  Created by Sebastian Ściuba on 27/11/2026.
+//
+
+import ComposableArchitecture
+import HealthHub
+import SharedModels
+
+extension PlanChatFeature {
+
+    @CasePathable
+    enum Action: ViewAction, BindableAction {
+
+        case binding(BindingAction<State>)
+        case view(View)
+        case `internal`(Internal)
+        case delegate(Delegate)
+
+        @CasePathable
+        enum View {
+
+            /// The user sent what they typed.
+            case sendTapped
+
+            /// The user accepted the corrected plan.
+            case applyTapped
+
+            /// The user closed the chat without applying anything.
+            case closeTapped
+
+            /// The message field got the keyboard.
+            case inputFocused
+
+            /// The user dragged the sheet to full or half height.
+            case detentChanged(isExpanded: Bool)
+        }
+
+        enum Internal {
+
+            /// The model answered the latest message.
+            case replied(PlanRefinement)
+
+            /// The latest message got no answer.
+            case failed(ScanFailure)
+        }
+
+        enum Delegate {
+
+            /// The corrected board the user applied; the parent rebuilds the plan from it.
+            case applied(ScannedBoard)
+
+            /// The chat closed with nothing applied.
+            case closed
+        }
+    }
+}

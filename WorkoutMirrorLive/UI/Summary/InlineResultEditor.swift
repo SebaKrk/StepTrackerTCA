@@ -551,8 +551,12 @@ struct InlineResultEditor: View {
     }
 
     private func equipmentLabel(_ title: String, symbol: String) -> some View {
-        Label(title, systemImage: symbol)
-            .font(.system(size: 11))
+        Label {
+            Text(title)
+        } icon: {
+            EquipmentSymbolImage(name: symbol)
+        }
+        .font(.system(size: 11))
             .foregroundStyle(theme.inkTertiary)
     }
 

@@ -8,12 +8,15 @@ const { defineSecret } = require("firebase-functions/params");
 const { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS } = require("./src/anthropic");
 const boardPrompt = require("./src/boardPrompt");
 const notesPrompt = require("./src/notesPrompt");
+const refinePrompt = require("./src/refinePrompt");
+const { refineSchema } = require("./src/refineSchema");
 const { boardSchema } = require("./src/boardSchema");
-const { boardForForm, withLadderInItsField } = require("./src/boardCompat");
+const { boardForForm, withLadderInItsField, withSideBlocksComplete } = require("./src/boardCompat");
 const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
 const stats = require("./src/stats");
 const { deleteAccountData } = require("./src/account");
+const { sideRequestsOf, withBuiltSides } = require("./src/sideBuilder");
 
 initializeApp();
 
@@ -44,6 +47,12 @@ const MAX_LANGUAGE_CHARS = 40;
 const MAX_WORKOUTS = 20;
 const MAX_EXERCISES = 60;
 const MAX_NAME_CHARS = 120;
+const MAX_BOARD_CHARS = 100_000;
+const MAX_MESSAGE_CHARS = 1_000;
+const MAX_REFINE_TURNS = 12;
+const MAX_REFINE_USER_MESSAGES = 6;
+const MAX_FINDINGS = 30;
+const MAX_FINDING_CHARS = 300;
 
 /** Reads a board photo into the `ScannedBoard` JSON the app already decodes. */
 exports.scanBoard = onCall(options, async (request) => {
@@ -72,7 +81,9 @@ exports.scanBoard = onCall(options, async (request) => {
       schema: boardSchema,
     });
 
-    const board = boardForForm(withLadderInItsField(JSON.parse(text)), formVersion);
+    const parsed = JSON.parse(text);
+    const board = boardForForm(withSideBlocksComplete(withLadderInItsField(parsed)), formVersion);
+    logScanTranscript(parsed);
     await stats.recordCall(uid, "scan", usage, now);
     return { board, quota: taken };
   } catch (error) {
@@ -109,6 +120,109 @@ exports.trainingNote = onCall(options, async (request) => {
     throw asHttpsError(error);
   }
 });
+
+/** Corrects a scanned board through a short chat; a board comes back only after the athlete confirmed. */
+exports.refinePlan = onCall(options, async (request) => {
+  const uid = requireUid(request);
+  const input = parseRefineInput(request.data ?? {});
+
+  const now = new Date();
+  const taken = await reserve(uid, "refine", now);
+  try {
+    const { text, usage } = await sendMessage({
+      apiKey: anthropicKey.value(),
+      model: SCAN_MODEL,
+      system: refinePrompt.systemPrompt,
+      content: [{ type: "text", text: refinePrompt.userPrompt(input) }],
+      // A chat sends its turns minutes apart, so the board rules are read back from the cache.
+      cacheSystem: true,
+      effort: "low",
+      schema: refineSchema,
+    });
+
+    const reply = JSON.parse(text);
+    let proposed = Array.isArray(reply.proposal) ? reply.proposal[0] : undefined;
+    let spent = usage;
+    let changes = Array.isArray(reply.changes) ? reply.changes.filter((change) => typeof change === "string") : [];
+    const requests = proposed ? sideRequestsOf(reply) : [];
+    if (requests.length > 0) {
+      const built = await withBuiltSides({
+        apiKey: anthropicKey.value(),
+        board: proposed,
+        requests,
+        language: input.language,
+        previousBoard: input.board,
+      });
+      // The chat restates the warm-up in its own changes against its rules; when it touched no
+      // workout block, its lines can only be about the sides, and the builder's lines say it right.
+      const ownChanges = workoutBlocksChanged(input.board, proposed) ? changes : [];
+      proposed = built.board;
+      changes = [...ownChanges, ...built.changes];
+      // One chat reply on the sheet, the builder's tokens included.
+      spent = built.usages.reduce(
+        (total, side) => ({ inputTokens: total.inputTokens + side.inputTokens, outputTokens: total.outputTokens + side.outputTokens }),
+        spent
+      );
+    }
+    const board = proposed ? boardForForm(withSideBlocksComplete(withLadderInItsField(proposed)), input.formVersion) : null;
+    logRefineTranscript(input, reply, proposed, requests);
+    await stats.recordCall(uid, "refine", spent, now);
+    return {
+      reply: asString(reply.reply, ""),
+      board,
+      changes: board ? changes : [],
+      quota: taken,
+    };
+  } catch (error) {
+    await quota.release(uid, "refine", now);
+    throw asHttpsError(error);
+  }
+});
+
+/** The value as JSON with object keys sorted, so two boards compare by content, not key order. */
+const canonical = (value) =>
+  Array.isArray(value)
+    ? `[${value.map(canonical).join(",")}]`
+    : value !== null && typeof value === "object"
+      ? `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`
+      : JSON.stringify(value);
+
+/** Whether any section other than a warm-up or cool-down differs between the two boards. */
+function workoutBlocksChanged(before, after) {
+  const workouts = (board) =>
+    canonical((Array.isArray(board?.sections) ? board.sections : []).filter((section) => section?.kind !== "warmup" && section?.kind !== "cooldown"));
+  return workouts(before) !== workouts(after);
+}
+
+/**
+ * Writes what the model read off the board and the board it built, so a wrong scan can be traced.
+ *
+ * Only where `LOG_SCAN_CONTENT` is set, which lives in the development environment file alone.
+ * The photo itself is never logged, nor any account id.
+ */
+function logScanTranscript(board) {
+  if (process.env.LOG_SCAN_CONTENT !== "true") return;
+  logger.info("scan transcript", { reading: board.reading, board });
+}
+
+/**
+ * Writes the whole chat turn to the log, so a wrong correction can be traced in development.
+ *
+ * Only where `LOG_REFINE_CONTENT` is set, which lives in the development environment file alone:
+ * production never logs what athletes write. No account id is logged.
+ */
+function logRefineTranscript(input, reply, proposed, sideRequests) {
+  if (process.env.LOG_REFINE_CONTENT !== "true") return;
+  logger.info("refine transcript", {
+    messages: input.messages,
+    findings: input.findings,
+    reply: reply.reply,
+    changes: reply.changes,
+    sideRequests,
+    boardBefore: input.board,
+    boardAfter: proposed ?? null,
+  });
+}
 
 /** Erases everything stored under the caller's account, then the account itself. */
 exports.deleteMyData = onCall(accountOptions, async (request) => {
@@ -231,6 +345,45 @@ function parseNoteInput(data) {
     workouts,
     durationMinutes,
     language: clamp(asString(data.language, "English"), MAX_LANGUAGE_CHARS),
+  };
+}
+
+function parseRefineInput(data) {
+  const board = data.board;
+  if (board === null || typeof board !== "object" || Array.isArray(board)) {
+    throw new HttpsError("invalid-argument", "missing-board");
+  }
+  if (JSON.stringify(board).length > MAX_BOARD_CHARS) throw new HttpsError("invalid-argument", "board-too-large");
+
+  const rawMessages = Array.isArray(data.messages) ? data.messages : [];
+  // Counted before any trimming, so a long chat cannot hide its early questions.
+  const userTurns = rawMessages.filter((message) => message?.role !== "assistant").length;
+  if (rawMessages.length > 2 * MAX_REFINE_TURNS || userTurns > MAX_REFINE_USER_MESSAGES) {
+    throw new HttpsError("resource-exhausted", "conversation-limit-reached");
+  }
+  const messages = rawMessages
+    .slice(-MAX_REFINE_TURNS)
+    .map((message) => ({
+      role: message?.role === "assistant" ? "assistant" : "user",
+      text: clamp(asString(message?.text, ""), MAX_MESSAGE_CHARS).trim(),
+    }))
+    .filter((message) => message.text.length > 0);
+  const lastMessage = messages[messages.length - 1];
+  if (!lastMessage || lastMessage.role !== "user") throw new HttpsError("invalid-argument", "missing-message");
+
+  const findings = (Array.isArray(data.findings) ? data.findings : [])
+    .slice(0, MAX_FINDINGS)
+    .map((finding) => clamp(asString(finding, ""), MAX_FINDING_CHARS).trim())
+    .filter((finding) => finding.length > 0);
+
+  const formVersion = Number.isInteger(data.formVersion) && data.formVersion > 0 ? data.formVersion : 1;
+
+  return {
+    board,
+    findings,
+    messages,
+    language: clamp(asString(data.language, "English"), MAX_LANGUAGE_CHARS),
+    formVersion,
   };
 }
 

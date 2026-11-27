@@ -52,6 +52,13 @@ extension ScanProxyError {
                 canRetry: true
             )
 
+        case .conversationLimitReached:
+            return ScanFailure(
+                title: String(localized: "Chat limit reached"),
+                message: String(localized: "This chat has used up its messages. Correct the rest of the plan in the editor."),
+                canRetry: false
+            )
+
         case .network:
             return ScanFailure(
                 title: String(localized: "No connection"),

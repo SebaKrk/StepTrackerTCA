@@ -98,6 +98,11 @@ struct WorkoutDetailContent: View {
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+
+                    if let block = warmUp.block {
+                        Divider()
+                        blockContent(block)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 4)
@@ -122,61 +127,7 @@ struct WorkoutDetailContent: View {
 
     private func wodCard(_ workout: WorkoutSessionNew) -> some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Text(workout.type.displayName.uppercased())
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(workout.type.color.opacity(0.8))
-                        .cornerRadius(6)
-
-                    if let timeCap = workout.timeCap {
-                        Text("\(timeCap) min")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    if let ladder = workout.repScheme, !ladder.isEmpty {
-                        Label(ladderDescription(ladder), systemImage: "arrow.clockwise")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else if let fitnessRun = workout.fitnessRun {
-                        fitnessRunLabel(fitnessRun)
-                    } else if let openLadder = workout.openLadder {
-                        openLadderLabel(openLadder)
-                    } else if let rounds = workout.rounds {
-                        Label("\(rounds) rounds", systemImage: "arrow.clockwise")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    if let everySeconds = workout.everySeconds {
-                        Label(cadenceDescription(everySeconds), systemImage: "timer")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Divider()
-
-                if let fitnessRun = workout.fitnessRun {
-                    ForEach(Array(workout.exercises.enumerated()), id: \.element.id) { index, exercise in
-                        exerciseRow(exercise, type: workout.type, stationNumber: index + 1)
-                    }
-                    fitnessRunTotals(fitnessRun, stationCount: workout.exercises.count)
-                } else {
-                    ForEach(workout.exercises) { exercise in
-                        exerciseRow(exercise, type: workout.type)
-                    }
-                }
-
-                if let notes = workout.notes, !notes.isEmpty {
-                    workoutNotes(notes)
-                }
-            }
+            blockContent(workout)
             .padding(4)
         } label: {
             VStack {
@@ -193,6 +144,67 @@ struct WorkoutDetailContent: View {
             }
         }
         .styledGroupBox()
+    }
+
+    // MARK: - Block Content
+
+    /// A block's format row, movements and notes; shared by workout cards and the warm-up and cool-down block.
+    private func blockContent(_ workout: WorkoutSessionNew) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Text(workout.type.displayName.uppercased())
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(workout.type.color.opacity(0.8))
+                    .cornerRadius(6)
+
+                if let timeCap = workout.timeCap {
+                    Text("\(timeCap) min")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let ladder = workout.repScheme, !ladder.isEmpty {
+                    Label(ladderDescription(ladder), systemImage: "arrow.clockwise")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if let fitnessRun = workout.fitnessRun {
+                    fitnessRunLabel(fitnessRun)
+                } else if let openLadder = workout.openLadder {
+                    openLadderLabel(openLadder)
+                } else if let rounds = workout.rounds {
+                    Label("\(rounds) rounds", systemImage: "arrow.clockwise")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if let everySeconds = workout.everySeconds {
+                    Label(cadenceDescription(everySeconds), systemImage: "timer")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Divider()
+
+            if let fitnessRun = workout.fitnessRun {
+                ForEach(Array(workout.exercises.enumerated()), id: \.element.id) { index, exercise in
+                    exerciseRow(exercise, type: workout.type, stationNumber: index + 1)
+                }
+                fitnessRunTotals(fitnessRun, stationCount: workout.exercises.count)
+            } else {
+                ForEach(workout.exercises) { exercise in
+                    exerciseRow(exercise, type: workout.type)
+                }
+            }
+
+            if let notes = workout.notes, !notes.isEmpty {
+                workoutNotes(notes)
+            }
+        }
     }
 
     // MARK: - Open Ladder
@@ -289,7 +301,11 @@ struct WorkoutDetailContent: View {
 
                 if exercise.type.supportsEquipmentSelection {
                     if let equipment = exercise.effectiveEquipment {
-                        Label(equipment.displayName, systemImage: "dumbbell")
+                        Label {
+                            Text(equipment.displayName)
+                        } icon: {
+                            EquipmentSymbolImage(name: equipment.symbolName)
+                        }
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else if exercise.equipmentSelection == .some(.none) {
@@ -380,7 +396,15 @@ struct WorkoutDetailContent: View {
         GroupBox {
             DisclosureGroup(isExpanded: isCooldownExpanded) {
                 VStack(alignment: .leading, spacing: 8) {
+                    // The cool-down block is done first, so it sits above the stretching.
+                    if let block = coolDown.block {
+                        blockContent(block)
+                    }
+
                     if !coolDown.description.isEmpty {
+                        if coolDown.block != nil {
+                            Divider()
+                        }
                         Text(coolDown.description)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)

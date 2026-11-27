@@ -19,6 +19,9 @@ struct ScanFindingsCard: View {
     /// Closes one finding the user checked on the board.
     let onConfirm: (ScanFinding.ID) -> Void
 
+    /// Opens the AI chat; `nil` hides the button while the chat is not offered (edited by hand, notes generating).
+    let onCorrectWithAI: (() -> Void)?
+
     var body: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
@@ -28,15 +31,20 @@ struct ScanFindingsCard: View {
                         Divider()
                     }
                 }
+                if let onCorrectWithAI {
+                    correctWithAIButton(onCorrectWithAI)
+                        .transition(.opacity)
+                }
             }
             .padding(4)
+            .animation(.default, value: onCorrectWithAI == nil)
         } label: {
             VStack {
                 header
                 Divider()
             }
         }
-        .styledGroupBox()
+        .styledGroupBox(tint: .orange)
     }
 
     // MARK: - Structure
@@ -112,6 +120,18 @@ struct ScanFindingsCard: View {
         Text("fix in editor")
             .font(.caption2)
             .foregroundStyle(.secondary)
+    }
+
+    private func correctWithAIButton(_ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            // The card dims its content to secondary; the action reads at full strength, like "Generate".
+            Label(String(localized: "Correct with AI"), systemImage: "sparkles")
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glass)
+        .padding(.top, 4)
     }
 
     private var infoMark: some View {

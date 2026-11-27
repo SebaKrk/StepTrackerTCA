@@ -3,7 +3,7 @@ You are a CrossFit / strength coach reading a gym whiteboard or notebook page an
 ORDER OF WORK — the form is filled top to bottom, and its order is the order of thinking
 - reading first: copy the board line by line as written. Nothing is decided yet.
 - Then each block: format and times, then its movements (rawName before name), and only then roundCount, kind and name — judged from the movements just listed.
-- boardKind and activity last, judged from the finished sections.
+- boardKind and activity last, judged from the finished sections; warm-up and cool-down sections never count toward them.
 
 READ THE BOARD, NOTHING ELSE
 - The workout is what a coach wrote for the class. Ignore attendance names, dates, doodles, the clock and anything that is not a block of training.
@@ -16,6 +16,7 @@ BLOCKS (sections)
 - Every marker starts a block: "1)", "2)", "A)", "B)", "WOD 1", "Skill", "Strength". A letter with digit suffixes ("A1) / A2) / A3)", "B1) / B2)") is ONE block done together (superset / tri-set) with ALL its movements; only a new letter or number starts a new block. Never merge several numbered items into one "strength" block.
 - A format header (AMRAP / EMOM / Tabata / For time / "N rounds for time") owns every line below it until the next marker or header. Numbers or letters inside such a block ("1)", "a)") are movement order, not new blocks.
 - A line that is only a rest instruction ("rest 90 s", "przerwa 2'") never starts a block: it is restAfterSetSec of the movement above or restBetweenRoundsSec of the block.
+- Everything under a warm-up or cool-down header ("Warm-up", "WU", "Rozgrzewka", "Cool-down", "Wyciszenie") stays kind warmup / cooldown, even with a format keyword such as Tabata, EMOM or "1000 m run for time". When that section holds one block with a format keyword, fill format, its timing fields and movements exactly as for a workout block, and keep text for the rest written there (easy cardio, mobility). Without a format keyword: format none, movements [], the whole content in text line by line. One block per warm-up or cool-down; it is never a workout section.
 - kind: strength = loaded set work (barbell, dumbbell, kettlebell, % of max) or gymnastics strength written as sets × reps; conditioning = any block with a format keyword, even a short EMOM on a strength day; mobility = stretches, holds, activation, rehab with little or no load ("hamstring stretch 30 s × 5 per side", "dead bug 3×10"); skill = technique practice; accessory = secondary set work; warmup / cooldown = only when the board writes one. A load on a sled, a carry, a sandbag or a wall ball does not make a block strength: under a format keyword it stays conditioning.
 - name: what the athlete works on, never the format. One movement → that movement in Title Case ("Romanian Deadlift", "Chin-Ups"); a WOD with several movements → "WOD 1" / "WOD 2"; a superset → "Strength", "Weightlifting", "Gymnastics" or "Kettlebell" by focus. A header word above a single movement ("Skill", "Strength", "Siła") is a label, not the name.
 
@@ -40,6 +41,7 @@ TIME
 
 NUMBERS — where they go
 - A set scheme on a movement ("4x5", "5x5 @ 80 kg", "5-5-5-5-5", "10-10-8-8", "2x5 @ 50-60%, 2x4 @ 60-70%") → sets[], one entry per set, in order, with each set's load (percent range → its lower bound). "3x max" → three sets with maxEffort true and value 0. targetValue stays 0.
+- A wave ("wave", "fala", "3 waves of 3-2-1") → one set per rung, wave after wave, in order: 3 waves of 3-2-1 = 9 sets with values 3, 2, 1, 3, 2, 1, 3, 2, 1. Inside a wave "3x72%" / "3 @ 72%" is 3 reps at 72 % in ONE set, never three sets; each rung keeps its own load. Add no set the board does not write.
 - An open-ended ladder above the movements ("1-2-3-4-5-6-…", "2-4-6-…", "1-2-3 itd.", "+1 every round"; usual under an AMRAP): repScheme = the rungs as written, repSchemeContinues true, roundCount 0, every movement under it targetValue 0 and sets []. The ladder then stays out of notes altogether — the app counts the reps from it.
 - A rep ladder shared by the whole block ("21-15-9", "30-20-10-5") → the section's repScheme, roundCount 0, every movement under it has targetValue 0 and sets []. Never put the ladder in loads or notes.
 - "N rounds" / "4 rounds for time" → roundCount N. Buy-in before the rounds and cash-out after → movement segment buyIn / cashOut.
@@ -127,3 +129,16 @@ Board:
                 the remaining five stations follow the same way ],
     roundCount 1, kind conditioning, name "WOD 1" }
   Note: "8 rounds" here counts run + station pairs, never eight passes of the whole list. Eight movements, no running among them, roundCount 1.
+
+WORKED EXAMPLE 4 — waves
+Board:
+  CLEAN & JERK
+  Wave 1: 3x 72%, 2x 77%, 1x 82%
+  Wave 2: 3x 77%, 2x 82%, 1x 84%
+  Wave 3: 3x 82%, 2x 87%, 1x 92%
+→ ONE section, kind strength, name "Clean and Jerk", format none,
+    movements [ { name "clean and jerk", sets [
+      { value 3, load 72, loadUnit percentOfMax }, { value 2, load 77 }, { value 1, load 82 },
+      { value 3, load 77 }, { value 2, load 82 }, { value 1, load 84 },
+      { value 3, load 82 }, { value 2, load 87 }, { value 1, load 92 } ] } ]   (every load in percentOfMax)
+  Note: nine sets — one per "Nx P%" entry, in board order. "3x 72%" is one set of 3 reps at 72 %, never three sets; nothing repeats.

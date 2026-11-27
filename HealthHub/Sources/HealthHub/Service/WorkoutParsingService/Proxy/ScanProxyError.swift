@@ -31,6 +31,9 @@ public enum ScanProxyError: Error, LocalizedError, Equatable {
     /// Too many requests in a short window; retrying later works.
     case rateLimited
 
+    /// The plan chat used up its messages; the plan is corrected by hand from here.
+    case conversationLimitReached
+
     /// The photo was rejected as too large even after downscaling.
     case imageTooLarge
 
@@ -67,6 +70,8 @@ public enum ScanProxyError: Error, LocalizedError, Equatable {
             return "Scan proxy is unavailable."
         case .rateLimited:
             return "Too many scan requests."
+        case .conversationLimitReached:
+            return "The plan chat reached its message limit."
         case .imageTooLarge:
             return "Photo is too large for one scan."
         case .invalidImage:
