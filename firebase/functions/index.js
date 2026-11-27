@@ -80,7 +80,9 @@ exports.scanBoard = onCall(options, async (request) => {
       schema: boardSchema,
     });
 
-    const board = boardForForm(withLadderInItsField(JSON.parse(text)), formVersion);
+    const parsed = JSON.parse(text);
+    const board = boardForForm(withLadderInItsField(parsed), formVersion);
+    logScanTranscript(parsed);
     await stats.recordCall(uid, "scan", usage, now);
     return { board, quota: taken };
   } catch (error) {
@@ -140,6 +142,7 @@ exports.refinePlan = onCall(options, async (request) => {
     const reply = JSON.parse(text);
     const proposed = Array.isArray(reply.proposal) ? reply.proposal[0] : undefined;
     const board = proposed ? boardForForm(withLadderInItsField(proposed), input.formVersion) : null;
+    logRefineTranscript(input, reply, proposed);
     await stats.recordCall(uid, "refine", usage, now);
     return {
       reply: asString(reply.reply, ""),
@@ -152,6 +155,35 @@ exports.refinePlan = onCall(options, async (request) => {
     throw asHttpsError(error);
   }
 });
+
+/**
+ * Writes what the model read off the board and the board it built, so a wrong scan can be traced.
+ *
+ * Only where `LOG_SCAN_CONTENT` is set, which lives in the development environment file alone.
+ * The photo itself is never logged, nor any account id.
+ */
+function logScanTranscript(board) {
+  if (process.env.LOG_SCAN_CONTENT !== "true") return;
+  logger.info("scan transcript", { reading: board.reading, board });
+}
+
+/**
+ * Writes the whole chat turn to the log, so a wrong correction can be traced in development.
+ *
+ * Only where `LOG_REFINE_CONTENT` is set, which lives in the development environment file alone:
+ * production never logs what athletes write. No account id is logged.
+ */
+function logRefineTranscript(input, reply, proposed) {
+  if (process.env.LOG_REFINE_CONTENT !== "true") return;
+  logger.info("refine transcript", {
+    messages: input.messages,
+    findings: input.findings,
+    reply: reply.reply,
+    changes: reply.changes,
+    boardBefore: input.board,
+    boardAfter: proposed ?? null,
+  });
+}
 
 /** Erases everything stored under the caller's account, then the account itself. */
 exports.deleteMyData = onCall(accountOptions, async (request) => {
