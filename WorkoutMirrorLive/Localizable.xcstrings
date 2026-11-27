@@ -3867,6 +3867,16 @@
         }
       }
     },
+    "AI is writing…" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI pisze…"
+          }
+        }
+      }
+    },
     "AI, diagnostics and your data in the cloud." : {
       "localizations" : {
         "de" : {
@@ -4457,6 +4467,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zegarek w trybie oszczędzania energii — odczyty tętna mogą się opóźniać"
+          }
+        }
+      }
+    },
+    "Apply" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastosuj"
           }
         }
       }
@@ -6555,6 +6575,16 @@
         }
       }
     },
+    "Changes" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmiany"
+          }
+        }
+      }
+    },
     "Changing the formula won't affect saved workouts — each workout keeps the formula from the moment it was saved." : {
       "localizations" : {
         "de" : {
@@ -6619,6 +6649,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tutaj pojawią się wykresy porównujące wybrane treningi."
+          }
+        }
+      }
+    },
+    "Chat limit reached" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit rozmowy wyczerpany"
           }
         }
       }
@@ -7559,6 +7599,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cooldown"
+          }
+        }
+      }
+    },
+    "Correct with AI" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Popraw z AI"
           }
         }
       }
@@ -14218,6 +14268,27 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hero WOD"
+          }
+        }
+      }
+    },
+    "Hi! What should I correct in this workout?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hej! Co mam poprawić w treningu?"
+          }
+        }
+      }
+    },
+    "Hi! What should I correct in this workout? For example: “WOD 2 is a descending ladder 15-12-9”." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hej! Co mam poprawić w treningu? Na przykład: „WOD 2 to drabinka w dół 15-12-9”."
           }
         }
       }
@@ -29369,6 +29440,16 @@
         }
       }
     },
+    "The corrected plan could not be used" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poprawionego planu nie da się użyć"
+          }
+        }
+      }
+    },
     "The entry was not deleted. Please try again." : {
       "localizations" : {
         "de" : {
@@ -30373,6 +30454,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ten blok nie ma żadnych ćwiczeń."
+          }
+        }
+      }
+    },
+    "This chat has used up its messages. Correct the rest of the plan in the editor." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta rozmowa wykorzystała wszystkie wiadomości. Resztę planu popraw w edytorze."
           }
         }
       }
@@ -33388,6 +33479,16 @@
         }
       }
     },
+    "What should change?" : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co poprawić?"
+          }
+        }
+      }
+    },
     "What the number means" : {
       "localizations" : {
         "de" : {
@@ -34373,6 +34474,17 @@
         }
       }
     },
+    "Write what to correct, e.g. “WOD 2 is a descending ladder 15-12-9”. I will ask before I change anything." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Napisz, co poprawić, np. „WOD 2 to drabinka w dół 15-12-9”. Zanim coś zmienię, dopytam."
+          }
+        }
+      }
+    },
     "Wybierz" : {
       "localizations" : {
         "de" : {
@@ -34890,6 +35002,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nie masz połączonych urządzeń."
+          }
+        }
+      }
+    },
+    "You have used today's AI corrections. Correct the plan in the editor or try tomorrow." : {
+      "localizations" : {
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dzisiejsze poprawki z AI są wykorzystane. Popraw plan w edytorze albo spróbuj jutro."
           }
         }
       }
