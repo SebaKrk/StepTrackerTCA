@@ -289,7 +289,11 @@ struct WorkoutDetailContent: View {
 
                 if exercise.type.supportsEquipmentSelection {
                     if let equipment = exercise.effectiveEquipment {
-                        Label(equipment.displayName, systemImage: "dumbbell")
+                        Label {
+                            Text(equipment.displayName)
+                        } icon: {
+                            EquipmentSymbolImage(name: equipment.symbolName)
+                        }
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else if exercise.equipmentSelection == .some(.none) {
