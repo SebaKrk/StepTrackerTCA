@@ -295,12 +295,13 @@ struct TrainingSessionEditorView: View {
             if let coolDown = store.draft.coolDown {
                 VStack(spacing: 0) {
                     cooldownDurationRow(coolDown)
-                    Divider().padding(.leading)
-                    cooldownNotesSection
+                    // The cool-down block is done first, so it sits above the stretching.
                     if let block = coolDown.block {
                         Divider().padding(.leading)
                         sideBlockRow(block) { send(.coolDownBlockRemoveTapped) }
                     }
+                    Divider().padding(.leading)
+                    cooldownNotesSection
                 }
                 .animation(.default, value: coolDown.block)
             } else {

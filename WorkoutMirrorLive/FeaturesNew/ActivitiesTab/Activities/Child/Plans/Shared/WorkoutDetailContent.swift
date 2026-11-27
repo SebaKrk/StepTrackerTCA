@@ -396,16 +396,19 @@ struct WorkoutDetailContent: View {
         GroupBox {
             DisclosureGroup(isExpanded: isCooldownExpanded) {
                 VStack(alignment: .leading, spacing: 8) {
+                    // The cool-down block is done first, so it sits above the stretching.
+                    if let block = coolDown.block {
+                        blockContent(block)
+                    }
+
                     if !coolDown.description.isEmpty {
+                        if coolDown.block != nil {
+                            Divider()
+                        }
                         Text(coolDown.description)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    if let block = coolDown.block {
-                        Divider()
-                        blockContent(block)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
