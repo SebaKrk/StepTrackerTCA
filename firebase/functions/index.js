@@ -11,7 +11,7 @@ const notesPrompt = require("./src/notesPrompt");
 const refinePrompt = require("./src/refinePrompt");
 const { refineSchema } = require("./src/refineSchema");
 const { boardSchema } = require("./src/boardSchema");
-const { boardForForm, withLadderInItsField } = require("./src/boardCompat");
+const { boardForForm, withLadderInItsField, withSideBlocksComplete } = require("./src/boardCompat");
 const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
 const stats = require("./src/stats");
@@ -81,7 +81,7 @@ exports.scanBoard = onCall(options, async (request) => {
     });
 
     const parsed = JSON.parse(text);
-    const board = boardForForm(withLadderInItsField(parsed), formVersion);
+    const board = boardForForm(withSideBlocksComplete(withLadderInItsField(parsed)), formVersion);
     logScanTranscript(parsed);
     await stats.recordCall(uid, "scan", usage, now);
     return { board, quota: taken };
@@ -141,7 +141,7 @@ exports.refinePlan = onCall(options, async (request) => {
 
     const reply = JSON.parse(text);
     const proposed = Array.isArray(reply.proposal) ? reply.proposal[0] : undefined;
-    const board = proposed ? boardForForm(withLadderInItsField(proposed), input.formVersion) : null;
+    const board = proposed ? boardForForm(withSideBlocksComplete(withLadderInItsField(proposed)), input.formVersion) : null;
     logRefineTranscript(input, reply, proposed);
     await stats.recordCall(uid, "refine", usage, now);
     return {

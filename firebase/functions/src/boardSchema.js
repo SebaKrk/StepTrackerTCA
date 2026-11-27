@@ -57,7 +57,7 @@ const movement = object(
     "alternatives",
   ],
   {
-    rawName: string("Exactly as written on the board"),
+    rawName: string("Exactly as written on the board; equal to name for a movement added in a plan correction"),
     name: string("Normalised English movement name: kettlebell swing, box jumps, running"),
     segment: enumeration(["buyIn", "round", "cashOut"], "round unless the board marks a buy-in or cash-out"),
     targetValue: number("Single target per round: 20 reps → 20, 400 m → 400; 0 when sets[] or the section repScheme carry the numbers"),
@@ -98,14 +98,14 @@ const section = object(
     runBeforeEachMeters: integer(
       "Metres of a run done before EVERY movement of the list ('1 km run + station' above a list of stations → 1000); the run is then NOT among the movements. 0 otherwise"
     ),
-    text: string("Warm-up / cool-down board text verbatim; empty for other kinds"),
-    movements: array(movement, "Movements of the block in board order; empty for warm-up / cool-down text"),
+    text: string("Warm-up / cool-down text: in a scan the board's words verbatim, minus a format block that went into format and movements; in a plan correction the routine you build; empty for other kinds"),
+    movements: array(movement, "Movements of the block in board order; for a warm-up / cool-down only the movements of its one format block, else empty"),
     roundCount: integer("How many times the whole list repeats ('4 rounds', tabata 8, '} 3x'); 0 when a repScheme is used"),
     restBetweenRoundsSec: integer("'rest 2 min between rounds' → 120; 0 otherwise"),
-    writtenDurationMin: number("Minutes written next to the block that are not a cap ('| 12,5 min'); 0 otherwise"),
+    writtenDurationMin: number("Minutes written next to the block that are not a cap ('| 12,5 min'); for a warm-up / cool-down built in a plan correction, your estimate; 0 otherwise"),
     kind: enumeration(
       ["warmup", "skill", "strength", "accessory", "conditioning", "mobility", "cooldown"],
-      "strength = loaded, gymnastics or timed set work; conditioning = any block with a format keyword; mobility = stretches, holds, rehab"
+      "strength = loaded, gymnastics or timed set work; conditioning = any block with a format keyword, except in a warm-up / cool-down section; mobility = stretches, holds, rehab"
     ),
     name: string("What the athlete works on, never the format: Back Squat, WOD 1, Strength"),
     notes: string("Anything else written about the block; empty when nothing"),
@@ -121,7 +121,7 @@ const boardSchema = object(
     ),
     title: string("Short workout title; the board's own heading when it has one"),
     classTimeCapMin: number("A lone TC written at the top of the board (class budget); 0 when none. Never a block cap"),
-    sections: array(section, "Every block in board order, warm-up and cool-down included only when written"),
+    sections: array(section, "Every block in board order, warm-up and cool-down included only when written or, in a plan correction, asked for"),
     boardKind: enumeration(
       ["strengthDay", "wodDay", "mixed", "notAWorkout"],
       "Decided from the sections above; notAWorkout when the photo shows no training plan"
