@@ -98,11 +98,11 @@ const section = object(
     runBeforeEachMeters: integer(
       "Metres of a run done before EVERY movement of the list ('1 km run + station' above a list of stations → 1000); the run is then NOT among the movements. 0 otherwise"
     ),
-    text: string("Warm-up / cool-down text: in a scan the board's words verbatim, minus a format block that went into format and movements; in a plan correction the routine you build; empty for other kinds"),
+    text: string("Warm-up / cool-down text: in a scan the board's words verbatim, minus a format block that went into format and movements; in a plan correction kept as received; empty for other kinds"),
     movements: array(movement, "Movements of the block in board order; for a warm-up / cool-down only the movements of its one format block, else empty"),
     roundCount: integer("How many times the whole list repeats ('4 rounds', tabata 8, '} 3x'); 0 when a repScheme is used"),
     restBetweenRoundsSec: integer("'rest 2 min between rounds' → 120; 0 otherwise"),
-    writtenDurationMin: number("Minutes written next to the block that are not a cap ('| 12,5 min'); for a warm-up / cool-down built in a plan correction, your estimate; 0 otherwise"),
+    writtenDurationMin: number("Minutes written next to the block that are not a cap ('| 12,5 min'); in a plan correction kept as received; 0 otherwise"),
     kind: enumeration(
       ["warmup", "skill", "strength", "accessory", "conditioning", "mobility", "cooldown"],
       "strength = loaded, gymnastics or timed set work; conditioning = any block with a format keyword, except in a warm-up / cool-down section; mobility = stretches, holds, rehab"
@@ -121,7 +121,7 @@ const boardSchema = object(
     ),
     title: string("Short workout title; the board's own heading when it has one"),
     classTimeCapMin: number("A lone TC written at the top of the board (class budget); 0 when none. Never a block cap"),
-    sections: array(section, "Every block in board order, warm-up and cool-down included only when written or, in a plan correction, asked for"),
+    sections: array(section, "Every block in board order, warm-up and cool-down included only when written; in a plan correction kept as received"),
     boardKind: enumeration(
       ["strengthDay", "wodDay", "mixed", "notAWorkout"],
       "Decided from the sections above; notAWorkout when the photo shows no training plan"

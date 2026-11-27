@@ -46,7 +46,7 @@ function thinkingFor(model) {
  *
  * Returns the reply's text with the tokens it cost.
  */
-async function sendMessage({ apiKey, model, system, content, cacheSystem, effort, schema }) {
+async function sendMessage({ apiKey, model, system, content, cacheSystem, effort, schema, timeoutMs }) {
   const body = {
     model,
     max_tokens: MAX_TOKENS,
@@ -70,6 +70,7 @@ async function sendMessage({ apiKey, model, system, content, cacheSystem, effort
         "anthropic-version": API_VERSION,
       },
       body: JSON.stringify(body),
+      signal: timeoutMs ? AbortSignal.timeout(timeoutMs) : undefined,
     });
   } catch (error) {
     logger.error("anthropic transport failure", { message: error.message });

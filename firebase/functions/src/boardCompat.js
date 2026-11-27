@@ -147,7 +147,7 @@ function boardForForm(board, formVersion) {
       let shaped = { ...section };
       if (formVersion < 4 && isSideSection(shaped) && shaped.format !== "none" && shaped.movements.length > 0) {
         const block = blockAsText(shaped);
-        shaped = { ...shaped, text: shaped.text ? `${shaped.text}\n${block}` : block, format: "none", movements: [] };
+        shaped = { ...shaped, text: !shaped.text ? block : shaped.kind === "cooldown" ? `${block}\n${shaped.text}` : `${shaped.text}\n${block}`, format: "none", movements: [] };
       }
       if (formVersion < 3) {
         if (shaped.repSchemeContinues) {

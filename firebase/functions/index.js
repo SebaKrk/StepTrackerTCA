@@ -16,6 +16,7 @@ const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
 const stats = require("./src/stats");
 const { deleteAccountData } = require("./src/account");
+const { sideRequestsOf, withBuiltSides } = require("./src/sideBuilder");
 
 initializeApp();
 
@@ -140,14 +141,36 @@ exports.refinePlan = onCall(options, async (request) => {
     });
 
     const reply = JSON.parse(text);
-    const proposed = Array.isArray(reply.proposal) ? reply.proposal[0] : undefined;
+    let proposed = Array.isArray(reply.proposal) ? reply.proposal[0] : undefined;
+    let spent = usage;
+    let changes = Array.isArray(reply.changes) ? reply.changes.filter((change) => typeof change === "string") : [];
+    const requests = proposed ? sideRequestsOf(reply) : [];
+    if (requests.length > 0) {
+      const built = await withBuiltSides({
+        apiKey: anthropicKey.value(),
+        board: proposed,
+        requests,
+        language: input.language,
+        previousBoard: input.board,
+      });
+      // The chat restates the warm-up in its own changes against its rules; when it touched no
+      // workout block, its lines can only be about the sides, and the builder's lines say it right.
+      const ownChanges = workoutBlocksChanged(input.board, proposed) ? changes : [];
+      proposed = built.board;
+      changes = [...ownChanges, ...built.changes];
+      // One chat reply on the sheet, the builder's tokens included.
+      spent = built.usages.reduce(
+        (total, side) => ({ inputTokens: total.inputTokens + side.inputTokens, outputTokens: total.outputTokens + side.outputTokens }),
+        spent
+      );
+    }
     const board = proposed ? boardForForm(withSideBlocksComplete(withLadderInItsField(proposed)), input.formVersion) : null;
-    logRefineTranscript(input, reply, proposed);
-    await stats.recordCall(uid, "refine", usage, now);
+    logRefineTranscript(input, reply, proposed, requests);
+    await stats.recordCall(uid, "refine", spent, now);
     return {
       reply: asString(reply.reply, ""),
       board,
-      changes: board && Array.isArray(reply.changes) ? reply.changes.filter((change) => typeof change === "string") : [],
+      changes: board ? changes : [],
       quota: taken,
     };
   } catch (error) {
@@ -155,6 +178,21 @@ exports.refinePlan = onCall(options, async (request) => {
     throw asHttpsError(error);
   }
 });
+
+/** The value as JSON with object keys sorted, so two boards compare by content, not key order. */
+const canonical = (value) =>
+  Array.isArray(value)
+    ? `[${value.map(canonical).join(",")}]`
+    : value !== null && typeof value === "object"
+      ? `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`
+      : JSON.stringify(value);
+
+/** Whether any section other than a warm-up or cool-down differs between the two boards. */
+function workoutBlocksChanged(before, after) {
+  const workouts = (board) =>
+    canonical((Array.isArray(board?.sections) ? board.sections : []).filter((section) => section?.kind !== "warmup" && section?.kind !== "cooldown"));
+  return workouts(before) !== workouts(after);
+}
 
 /**
  * Writes what the model read off the board and the board it built, so a wrong scan can be traced.
@@ -173,13 +211,14 @@ function logScanTranscript(board) {
  * Only where `LOG_REFINE_CONTENT` is set, which lives in the development environment file alone:
  * production never logs what athletes write. No account id is logged.
  */
-function logRefineTranscript(input, reply, proposed) {
+function logRefineTranscript(input, reply, proposed, sideRequests) {
   if (process.env.LOG_REFINE_CONTENT !== "true") return;
   logger.info("refine transcript", {
     messages: input.messages,
     findings: input.findings,
     reply: reply.reply,
     changes: reply.changes,
+    sideRequests,
     boardBefore: input.board,
     boardAfter: proposed ?? null,
   });
