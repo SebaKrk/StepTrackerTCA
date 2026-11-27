@@ -13,5 +13,8 @@ extension WorkoutPreviewFeature {
     enum Destination {
         /// Edit the parsed training session before saving.
         case editor(TrainingSessionEditorFeature)
+
+        /// Correct the scanned board by talking to the AI.
+        case planChat(PlanChatFeature)
     }
 }
