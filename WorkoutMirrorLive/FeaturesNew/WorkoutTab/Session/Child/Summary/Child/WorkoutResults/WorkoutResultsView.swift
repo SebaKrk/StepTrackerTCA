@@ -35,7 +35,9 @@ struct WorkoutResultsView: View {
             cards
             prSuggestionCards
         }
-        .task { await send(.task).finish() }
+        .task {
+            await send(.task).finish()
+        }
         .sheet(
             item: $store.scope(state: \.prEditor, action: \.prEditor)
         ) { editorStore in

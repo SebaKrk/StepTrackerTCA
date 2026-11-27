@@ -50,6 +50,7 @@ extension HeartRateZonesView {
         HRMinuteRangeChart(
             ranges: store.hrMinuteRanges,
             userMaxHeartRate: Int(store.maxHeartRate),
+            selectedPercentOfMax: store.selectedMinutePercentOfMax,
             selectedMinute: minuteSelectionBinding
         )
     }

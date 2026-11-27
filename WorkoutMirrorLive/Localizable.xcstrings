@@ -2074,6 +2074,47 @@
       },
       "shouldTranslate" : false
     },
+    "%@–%@%%" : {
+      "comment" : "Selected minute's heart rate range as a percent of the user's maximum heart rate, e.g. 74–79%.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@ %%"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@–%2$@%%"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@ %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@ %%"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@%%"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@%%"
+          }
+        }
+      }
+    },
     "%lld/%lld %@" : {
       "localizations" : {
         "en" : {

@@ -74,6 +74,12 @@ extension SummaryFeature {
         /// (`maxHeartRate` below). Fetched once via `maxHeartRateClient`.
         var userMaxHeartRate: Double?
 
+        /// Selected minute's HR range as % of the user's max HR; `nil` = no selection or max not loaded yet.
+        var selectedChartMinutePercentOfMax: ClosedRange<Int>? {
+            guard let selectedChartMinute else { return nil }
+            return hrMinuteRanges.range(at: selectedChartMinute)?.percentOfMax(userMaxHeartRate ?? 0)
+        }
+
         /// Dominant TRAINING zone by dwell time — resting is excluded so a
         /// mostly-idle session still accents by the hardest meaningful zone.
         /// `nil` when there is no zone data.

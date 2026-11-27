@@ -160,6 +160,10 @@ struct HRMinuteRangeChart: View {
     /// USER max heart rate (age/HealthKit based) — colors classify against it;
     /// the session peak would paint a calm workout red.
     let userMaxHeartRate: Int
+
+    /// Selected minute's HR range as % of max HR, computed by the Feature; `nil` hides it.
+    let selectedPercentOfMax: ClosedRange<Int>?
+
     @Binding var selectedMinute: Date?
 
     // MARK: - Body
@@ -231,14 +235,15 @@ struct HRMinuteRangeChart: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
             HStack(spacing: 4) {
-                Text("\(range.minHR)–\(range.maxHR)")
-                    .font(.subheadline.bold().monospacedDigit())
-                    .foregroundStyle(.primary)
-                Text("bpm")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                bpmRangeText(range)
+                bpmUnitLabel
+            }
+            if let selectedPercentOfMax {
+                percentOfMaxText(selectedPercentOfMax, range: range)
+                    .transition(.opacity)
             }
         }
+        .animation(.easeInOut, value: selectedPercentOfMax)
         .padding(8)
         // A material has nothing to blur inside a chart annotation and renders as a black box.
         .background(
@@ -246,6 +251,32 @@ struct HRMinuteRangeChart: View {
                 .fill(Color(uiColor: .secondarySystemBackground))
                 .shadow(color: .black.opacity(0.15), radius: 4, y: 1)
         )
+    }
+
+    private func bpmRangeText(_ range: HRMinuteRange) -> some View {
+        Text("\(range.minHR)–\(range.maxHR)")
+            .font(.subheadline.bold().monospacedDigit())
+            .foregroundStyle(.primary)
+            .contentTransition(.numericText())
+    }
+
+    private var bpmUnitLabel: some View {
+        Text("bpm")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    /// Each bound in its own zone color — mirrors the bar's bottom→top gradient.
+    private func percentOfMaxText(_ percent: ClosedRange<Int>, range: HRMinuteRange) -> some View {
+        Text("\(percentBound(percent.lowerBound, bpm: range.minHR))–\(percentBound(percent.upperBound, bpm: range.maxHR))%", bundle: .main)
+            .font(.caption.bold().monospacedDigit())
+            .foregroundStyle(.secondary)
+            .contentTransition(.numericText())
+    }
+
+    private func percentBound(_ percent: Int, bpm: Int) -> Text {
+        Text(percent.formatted(.number))
+            .foregroundStyle(zoneColor(for: bpm))
     }
 
     // MARK: - Selection helpers
@@ -319,6 +350,7 @@ struct HRMinuteRangeChart: View {
     return HRMinuteRangeChart(
         ranges: ranges,
         userMaxHeartRate: 190,
+        selectedPercentOfMax: nil,
         selectedMinute: .constant(nil)
     )
     .padding(16)

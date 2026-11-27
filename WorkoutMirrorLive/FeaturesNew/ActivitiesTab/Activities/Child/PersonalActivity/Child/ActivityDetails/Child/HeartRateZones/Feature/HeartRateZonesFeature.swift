@@ -76,6 +76,12 @@ struct HeartRateZonesFeature {
         var totalZoneDuration: TimeInterval {
             zoneDistribution?.values.reduce(0, +) ?? 0
         }
+
+        /// Selected minute's HR range as % of max HR; `nil` = no selection or unknown max.
+        var selectedMinutePercentOfMax: ClosedRange<Int>? {
+            guard let selectedMinute else { return nil }
+            return hrMinuteRanges.range(at: selectedMinute)?.percentOfMax(maxHeartRate)
+        }
     }
 
     // MARK: - Action

@@ -145,6 +145,7 @@ struct SummaryView: View {
                 HRMinuteRangeChart(
                     ranges: store.hrMinuteRanges,
                     userMaxHeartRate: Int(store.userMaxHeartRate ?? 0),
+                    selectedPercentOfMax: store.selectedChartMinutePercentOfMax,
                     selectedMinute: chartSelectionBinding
                 )
             }
