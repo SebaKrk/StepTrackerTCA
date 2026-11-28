@@ -22,7 +22,7 @@ extension PlanChatFeature {
         @CasePathable
         enum View {
 
-            /// The user sent what they typed.
+            /// The user sent what they typed or dictated.
             case sendTapped
 
             /// The user accepted the corrected plan.
@@ -36,6 +36,9 @@ extension PlanChatFeature {
 
             /// The user dragged the sheet to full or half height.
             case detentChanged(isExpanded: Bool)
+
+            /// The user tapped the microphone to dictate instead of typing.
+            case micTapped
         }
 
         enum Internal {
@@ -45,6 +48,18 @@ extension PlanChatFeature {
 
             /// The latest message got no answer.
             case failed(ScanFailure)
+
+            /// The dictation session reported progress.
+            case dictationEvent(DictationEvent)
+
+            /// The dictation session ended on its own.
+            case dictationFinished
+
+            /// The dictation session could not start or broke off.
+            case dictationFailed(ScanFailure)
+
+            /// The dictation ran for its maximum time or text length.
+            case dictationTimedOut
         }
 
         enum Delegate {
