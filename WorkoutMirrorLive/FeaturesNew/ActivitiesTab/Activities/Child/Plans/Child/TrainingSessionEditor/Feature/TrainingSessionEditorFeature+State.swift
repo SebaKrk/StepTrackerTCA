@@ -41,21 +41,17 @@ extension TrainingSessionEditorFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .gray
 
-        // MARK: - AI
+        // MARK: - Drag
 
-        /// True while the AI is generating warmup notes.
-        var isGeneratingWarmUpNotes: Bool = false
-        
-        /// True while the AI is generating cooldown notes.
-        var isGeneratingCoolDownNotes: Bool = false
+        /// Warm-up or cool-down part whose grip the user lifted; only its partner may light up as a drop target.
+        var draggedSidePart: SidePart?
 
-        /// Whether the user agreed to send plans to the AI service; asked once, revocable in settings.
-        @Shared(.appStorage(.aiProcessingConsent))
-        var isAIProcessingAllowed = false
+        /// Partner part the dragged grip is hovering over — highlighted, `nil` when none.
+        var sidePartDropTarget: SidePart?
 
         // MARK: - Navigation
 
-        /// Navigation destination — WOD editor pushed on top.
+        /// Navigation destination — WOD or side-block editor pushed on top.
         @Presents var destination: Destination.State?
 
         // MARK: - Alert
@@ -71,6 +67,36 @@ extension TrainingSessionEditorFeature {
 
         var navigationTitle: String {
             mode == .create ? "New Workout" : "Edit Workout"
+        }
+
+        /// Warm-up card, ready to render.
+        var warmUpSection: SideSection {
+            SideSection(
+                isOn: draft.warmUp != nil,
+                minutes: draft.warmUp?.time ?? 10,
+                notes: draft.warmUp?.description ?? "",
+                block: draft.warmUp?.block,
+                order: draft.warmUp?.resolvedOrder ?? .notesFirst,
+                blockPart: .warmUpBlock,
+                notesPart: .warmUpNotes,
+                liftedPart: draggedSidePart,
+                dropTarget: sidePartDropTarget
+            )
+        }
+
+        /// Cool-down card, ready to render.
+        var coolDownSection: SideSection {
+            SideSection(
+                isOn: draft.coolDown != nil,
+                minutes: draft.coolDown?.time ?? 10,
+                notes: draft.coolDown?.description ?? "",
+                block: draft.coolDown?.block,
+                order: draft.coolDown?.resolvedOrder ?? .blockFirst,
+                blockPart: .coolDownBlock,
+                notesPart: .coolDownNotes,
+                liftedPart: draggedSidePart,
+                dropTarget: sidePartDropTarget
+            )
         }
 
         // MARK: - Init

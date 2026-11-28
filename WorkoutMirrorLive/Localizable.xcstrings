@@ -791,6 +791,47 @@
         }
       }
     },
+    "%@–%@%%" : {
+      "comment" : "Selected minute's heart rate range as a percent of the user's maximum heart rate, e.g. 74–79%.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@ %%"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@–%2$@%%"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@ %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@ %%"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@%%"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@–%2$@%%"
+          }
+        }
+      }
+    },
     "%@, the longest-standing member, becomes the owner. You can come back only with a new invite." : {
       "localizations" : {
         "de" : {
@@ -2074,47 +2115,6 @@
       },
       "shouldTranslate" : false
     },
-    "%@–%@%%" : {
-      "comment" : "Selected minute's heart rate range as a percent of the user's maximum heart rate, e.g. 74–79%.",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@–%2$@ %%"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@–%2$@%%"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@–%2$@ %%"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@–%2$@ %%"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@–%2$@%%"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@–%2$@%%"
-          }
-        }
-      }
-    },
     "%lld/%lld %@" : {
       "localizations" : {
         "en" : {
@@ -3297,6 +3297,41 @@
         }
       }
     },
+    "Add activation" : {
+      "comment" : "Row in the plan editor's warm-up that opens the editor for an activation block, e.g. a Tabata.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivierung hinzufügen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir activación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter une activation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi attivazione"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj aktywację"
+          }
+        }
+      }
+    },
     "Add data" : {
       "localizations" : {
         "de" : {
@@ -3395,6 +3430,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "dodaj ćwiczenie"
+          }
+        }
+      }
+    },
+    "Add finisher" : {
+      "comment" : "Row in the plan editor's cool-down that opens the editor for a finisher block, e.g. an abs Tabata.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finisher hinzufügen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir finisher"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un finisher"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi finisher"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj finisher"
           }
         }
       }
@@ -3615,6 +3685,7 @@
       }
     },
     "Add workouts first to generate cooldown" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3649,6 +3720,7 @@
       }
     },
     "Add workouts first to generate warmup" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -7639,7 +7711,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cooldown"
+            "value" : "Schłodzenie"
           }
         }
       }
@@ -13034,6 +13106,7 @@
       }
     },
     "Generate with AI" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13068,6 +13141,7 @@
       }
     },
     "Generating cooldown..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13102,6 +13176,7 @@
       }
     },
     "Generating warmup..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13136,6 +13211,7 @@
       }
     },
     "Generation Failed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -18624,7 +18700,42 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na tablicy nie ma cool-downu"
+            "value" : "Na tablicy nie ma schłodzenia"
+          }
+        }
+      }
+    },
+    "No cooldown" : {
+      "comment" : "Plan editor placeholder when the cool-down is switched off.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Cool-down"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin vuelta a la calma"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas de retour au calme"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun defaticamento"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak schłodzenia"
           }
         }
       }
@@ -19867,7 +19978,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na tablicy nie ma rozgrzewki ani cool-downu"
+            "value" : "Na tablicy nie ma rozgrzewki ani schłodzenia"
           }
         }
       }
@@ -19879,6 +19990,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak danych o wadze"
+          }
+        }
+      }
+    },
+    "No warmup" : {
+      "comment" : "Plan editor placeholder when the warm-up is switched off.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Warm-up"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin calentamiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas d’échauffement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun riscaldamento"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak rozgrzewki"
           }
         }
       }
@@ -20094,6 +20240,41 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak Treningów"
+          }
+        }
+      }
+    },
+    "No workouts" : {
+      "comment" : "Plan editor placeholder before any workout is added.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Trainings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin entrenamientos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun entraînement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun allenamento"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak treningów"
           }
         }
       }
@@ -23520,7 +23701,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Usunąć cooldown?"
+            "value" : "Usunąć schłodzenie?"
           }
         }
       }
@@ -23554,7 +23735,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Usunąć blok z cool-downu?"
+            "value" : "Usunąć blok ze schłodzenia?"
           }
         }
       }
@@ -29432,7 +29613,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Blok i jego ćwiczenia znikną z cool-downu."
+            "value" : "Blok i jego ćwiczenia znikną ze schłodzenia."
           }
         }
       }
@@ -35380,7 +35561,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cool-down zniknie razem z całą zawartością."
+            "value" : "Schłodzenie zniknie razem z całą zawartością."
           }
         }
       }

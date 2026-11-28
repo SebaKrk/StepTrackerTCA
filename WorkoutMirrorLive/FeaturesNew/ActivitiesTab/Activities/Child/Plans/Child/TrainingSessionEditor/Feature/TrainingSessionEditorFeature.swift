@@ -6,7 +6,6 @@
 //
 
 import ComposableArchitecture
-import HealthHub
 import SharedModels
 import Foundation
 
@@ -16,7 +15,6 @@ struct TrainingSessionEditorFeature {
     // MARK: - Dependencies
 
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.trainingNotesGeneratorClient) var notesClient
 
     // MARK: - Body
 
@@ -52,8 +50,7 @@ struct TrainingSessionEditorFeature {
                 if state.draft.warmUp == nil {
                     state.draft.warmUp = WarmUpSession(goal: .timeLimit, time: 10)
                 } else if state.draft.warmUp?.description.isEmpty == false
-                            || state.draft.warmUp?.block != nil
-                            || state.isGeneratingWarmUpNotes {
+                            || state.draft.warmUp?.block != nil {
                     state.alert = .removeWarmUp
                 } else {
                     state.draft.warmUp = nil
@@ -64,16 +61,22 @@ struct TrainingSessionEditorFeature {
                 state.draft.warmUp?.time = time
                 return .none
 
-            case .view(.warmUpGenerateTapped):
-                guard !state.draft.workouts.isEmpty else { return .none }
-                guard state.isAIProcessingAllowed else {
-                    state.alert = .confirmAIProcessing(allowed: .warmUpGenerationAllowed)
-                    return .none
-                }
-                return generateWarmUp(&state)
+            case .view(.warmUpBlockEditTapped):
+                state.destination = .warmUpBlockEditor(
+                    WorkoutSessionEditorFeature.State(workout: state.draft.warmUp?.block)
+                )
+                return .none
 
             case .view(.warmUpBlockRemoveTapped):
                 state.alert = .removeWarmUpBlock
+                return .none
+
+            case .view(.warmUpPartsSwapped):
+                swapParts(warmUp: true, &state)
+                return .none
+
+            case let .view(.warmUpNotesChanged(notes)):
+                state.draft.warmUp?.description = notes
                 return .none
 
             // MARK: - Cooldown
@@ -82,8 +85,7 @@ struct TrainingSessionEditorFeature {
                 if state.draft.coolDown == nil {
                     state.draft.coolDown = CoolDownSession(goal: .timeLimit, time: 10)
                 } else if state.draft.coolDown?.description.isEmpty == false
-                            || state.draft.coolDown?.block != nil
-                            || state.isGeneratingCoolDownNotes {
+                            || state.draft.coolDown?.block != nil {
                     state.alert = .removeCoolDown
                 } else {
                     state.draft.coolDown = nil
@@ -94,69 +96,72 @@ struct TrainingSessionEditorFeature {
                 state.draft.coolDown?.time = time
                 return .none
 
-            case .view(.coolDownGenerateTapped):
-                guard !state.draft.workouts.isEmpty else { return .none }
-                guard state.isAIProcessingAllowed else {
-                    state.alert = .confirmAIProcessing(allowed: .coolDownGenerationAllowed)
-                    return .none
-                }
-                return generateCoolDown(&state)
+            case .view(.coolDownBlockEditTapped):
+                state.destination = .coolDownBlockEditor(
+                    WorkoutSessionEditorFeature.State(workout: state.draft.coolDown?.block)
+                )
+                return .none
 
             case .view(.coolDownBlockRemoveTapped):
                 state.alert = .removeCoolDownBlock
+                return .none
+
+            case .view(.coolDownPartsSwapped):
+                swapParts(warmUp: false, &state)
+                return .none
+
+            case let .view(.coolDownNotesChanged(notes)):
+                state.draft.coolDown?.description = notes
+                return .none
+
+            case let .view(.sidePartDropped(dropped, target)):
+                guard dropped.canSwap(with: target) else { return .none }
+                swapParts(warmUp: target.isWarmUp, &state)
+                return .none
+
+            case let .view(.sidePartLifted(part)):
+                // iOS 27 reports `.active` repeatedly during one drag — only the first lift may reset the target.
+                guard state.draggedSidePart != part else { return .none }
+                state.draggedSidePart = part
+                state.sidePartDropTarget = nil
+                return .none
+
+            case .view(.sidePartDragEnded):
+                state.draggedSidePart = nil
+                state.sidePartDropTarget = nil
+                return .none
+
+            case let .view(.sidePartTargeted(part, isTargeted)):
+                if isTargeted {
+                    // Only the lifted part's partner lights up — the source itself, the other section and foreign drags never do.
+                    guard state.draggedSidePart?.partner == part else { return .none }
+                    state.sidePartDropTarget = part
+                } else if state.sidePartDropTarget == part {
+                    state.sidePartDropTarget = nil
+                }
                 return .none
 
             // MARK: - Alert
 
             case .alert(.presented(.warmUpRemoveConfirmed)):
                 state.draft.warmUp = nil
-                state.isGeneratingWarmUpNotes = false
-                return .cancel(id: TrainingSessionEditorCancelID.warmUpGeneration)
+                return .none
 
             case .alert(.presented(.coolDownRemoveConfirmed)):
                 state.draft.coolDown = nil
-                state.isGeneratingCoolDownNotes = false
-                return .cancel(id: TrainingSessionEditorCancelID.coolDownGeneration)
+                return .none
 
             case .alert(.presented(.warmUpBlockRemoveConfirmed)):
                 state.draft.warmUp?.block = nil
+                state.draft.warmUp?.order = nil
                 return .none
 
             case .alert(.presented(.coolDownBlockRemoveConfirmed)):
                 state.draft.coolDown?.block = nil
+                state.draft.coolDown?.order = nil
                 return .none
-
-            case .alert(.presented(.warmUpGenerationAllowed)):
-                state.$isAIProcessingAllowed.withLock { $0 = true }
-                return generateWarmUp(&state)
-
-            case .alert(.presented(.coolDownGenerationAllowed)):
-                state.$isAIProcessingAllowed.withLock { $0 = true }
-                return generateCoolDown(&state)
 
             case .alert:
-                return .none
-
-            // MARK: - Internal (AI generation results)
-
-            case .`internal`(.warmUpGenerationResult(.success(let text))):
-                state.isGeneratingWarmUpNotes = false
-                state.draft.warmUp?.description = text
-                return .none
-
-            case .`internal`(.warmUpGenerationResult(.failure(let error))):
-                state.isGeneratingWarmUpNotes = false
-                state.alert = .generationFailed(ScanProxyError.userMessage(for: error))
-                return .none
-
-            case .`internal`(.coolDownGenerationResult(.success(let text))):
-                state.isGeneratingCoolDownNotes = false
-                state.draft.coolDown?.description = text
-                return .none
-
-            case .`internal`(.coolDownGenerationResult(.failure(let error))):
-                state.isGeneratingCoolDownNotes = false
-                state.alert = .generationFailed(ScanProxyError.userMessage(for: error))
                 return .none
 
             // MARK: - Workouts
@@ -181,6 +186,26 @@ struct TrainingSessionEditorFeature {
                 state.draft.workouts.removeAll { $0.id == id }
                 return .none
 
+            // MARK: - Side blocks
+
+            case .destination(.presented(.warmUpBlockEditor(.delegate(.saved(let block))))):
+                state.draft.warmUp?.block = block
+                return .none
+
+            case .destination(.presented(.warmUpBlockEditor(.delegate(.deleted)))):
+                state.draft.warmUp?.block = nil
+                state.draft.warmUp?.order = nil
+                return .none
+
+            case .destination(.presented(.coolDownBlockEditor(.delegate(.saved(let block))))):
+                state.draft.coolDown?.block = block
+                return .none
+
+            case .destination(.presented(.coolDownBlockEditor(.delegate(.deleted)))):
+                state.draft.coolDown?.block = nil
+                state.draft.coolDown?.order = nil
+                return .none
+
             case .destination:
                 return .none
 
@@ -194,33 +219,16 @@ struct TrainingSessionEditorFeature {
 
     // MARK: - Helpers
 
-    /// Asks the AI service for the warmup notes; callers check the consent first.
-    private func generateWarmUp(_ state: inout State) -> Effect<Action> {
-        state.isGeneratingWarmUpNotes = true
-        let context = TrainingNotesContext(
-            workouts: state.draft.workouts,
-            durationMinutes: state.draft.warmUp?.time,
-        )
-        return .run { [notesClient] send in
-            await send(.`internal`(.warmUpGenerationResult(
-                Result { try await notesClient.generateWarmUp(context) }
-            )))
+    /// Flips which part of the warm-up or cool-down comes first and ends any drag state.
+    private func swapParts(warmUp: Bool, _ state: inout State) {
+        if warmUp {
+            guard let current = state.draft.warmUp?.resolvedOrder else { return }
+            state.draft.warmUp?.order = current == .blockFirst ? .notesFirst : .blockFirst
+        } else {
+            guard let current = state.draft.coolDown?.resolvedOrder else { return }
+            state.draft.coolDown?.order = current == .blockFirst ? .notesFirst : .blockFirst
         }
-        .cancellable(id: TrainingSessionEditorCancelID.warmUpGeneration, cancelInFlight: true)
-    }
-
-    /// Asks the AI service for the cooldown notes; callers check the consent first.
-    private func generateCoolDown(_ state: inout State) -> Effect<Action> {
-        state.isGeneratingCoolDownNotes = true
-        let context = TrainingNotesContext(
-            workouts: state.draft.workouts,
-            durationMinutes: state.draft.coolDown?.time,
-        )
-        return .run { [notesClient] send in
-            await send(.`internal`(.coolDownGenerationResult(
-                Result { try await notesClient.generateCoolDown(context) }
-            )))
-        }
-        .cancellable(id: TrainingSessionEditorCancelID.coolDownGeneration, cancelInFlight: true)
+        state.draggedSidePart = nil
+        state.sidePartDropTarget = nil
     }
 }
