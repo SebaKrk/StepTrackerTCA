@@ -126,6 +126,49 @@ function withLadderInItsField(board) {
   };
 }
 
+/** An unequal pair closing a movement's raw name, the way a board prints its load: "Wall Balls 9/6", "@ 22,5/15 kg". */
+const TRAILING_PAIR = /[a-z].*?(\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)\s*(kg|lb)?\s*$/i;
+
+/** A men / women rep pair written before the name: "21/15 wall balls", "12/9 cal row". */
+const LEADING_PAIR = /^\s*\d+(?:[.,]\d+)?\s*\/\s*\d+/;
+
+/** Movements whose trailing pair is a height, calories or distance ("Box jumps 24/20", "Cal Row 15/12"), never a load. */
+const NOT_A_LOAD_MOVEMENT = /jump|box|step|\bcal|row|bike|ski|erg|run/i;
+
+const asNumber = (written) => Number(written.replace(",", "."));
+
+/**
+ * Keeps a printed load out of the rep fields, whatever the reader did with it.
+ *
+ * The reader mixes up "21/15 wall balls" (reps) with "Wall Balls 9/6" (a ball weight) and copies a load's
+ * women value into targetValueWomen. A pair after the name that sits in the rep fields moves to loads, and a
+ * women's rep count equal to the women's load is dropped as that copy.
+ */
+function withLoadsOutOfReps(board) {
+  return {
+    ...board,
+    sections: board.sections.map((section) => ({
+      ...section,
+      movements: (section.movements ?? []).map((movement) => {
+        const rawName = movement.rawName ?? "";
+        const loads = movement.loads ?? [];
+        if (loads.length > 0) {
+          const copied =
+            movement.targetValueWomen > 0 && !LEADING_PAIR.test(rawName) && loads.some((load) => load.women === movement.targetValueWomen);
+          return copied ? { ...movement, targetValueWomen: 0 } : movement;
+        }
+        const pair = TRAILING_PAIR.exec(rawName);
+        const countsReps = (movement.targetUnit ?? "reps") === "reps";
+        if (!pair || !countsReps || NOT_A_LOAD_MOVEMENT.test(`${rawName} ${movement.name ?? ""}`)) return movement;
+        const [men, women] = [asNumber(pair[1]), asNumber(pair[2])];
+        if (men === women || movement.targetValue !== men || movement.targetValueWomen !== women) return movement;
+        const unit = (pair[3] ?? "kg").toLowerCase();
+        return { ...movement, targetValue: 0, targetValueWomen: 0, loads: [{ tier: "rx", men, women, unit }] };
+      }),
+    })),
+  };
+}
+
 /** An open ladder as the note form 2 carried it: "Ladder 1-2-3-4-5-6-…". */
 const ladderNote = (rungs) => `Ladder ${rungs.join("-")}-…`;
 
@@ -168,4 +211,4 @@ function boardForForm(board, formVersion) {
   };
 }
 
-module.exports = { boardForForm, withLadderInItsField, withSideBlocksComplete, CURRENT_FORM };
+module.exports = { boardForForm, withLadderInItsField, withLoadsOutOfReps, withSideBlocksComplete, CURRENT_FORM };
