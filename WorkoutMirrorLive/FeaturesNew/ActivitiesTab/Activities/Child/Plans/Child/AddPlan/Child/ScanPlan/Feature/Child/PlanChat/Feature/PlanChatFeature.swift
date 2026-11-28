@@ -68,7 +68,14 @@ struct PlanChatFeature {
             case let .internal(.replied(refinement)):
                 state.isSending = false
                 state.messages.append(PlanChatMessage(role: .assistant, text: refinement.reply))
-                state.proposal = refinement.board == nil ? nil : refinement
+                // A reply that only asks keeps the last proposal: it is still what "Apply" would hand up.
+                if let board = refinement.board {
+                    state.latestBoard = board
+                    // The board carries every turn's edits, so the card lists them all.
+                    let earlier = state.proposal?.changes ?? []
+                    let added = refinement.changes.filter { !earlier.contains($0) }
+                    state.proposal = PlanRefinement(reply: refinement.reply, board: board, changes: earlier + added)
+                }
                 return .none
 
             case let .internal(.failed(failure)):
@@ -166,9 +173,7 @@ struct PlanChatFeature {
         state.inputText = ""
         state.isSending = true
         state.failure = nil
-        // A new message reopens the question, so an older proposal no longer stands.
-        state.proposal = nil
-        return .run { [board = state.board, findings = state.findings, messages = state.messages, extractionClient] send in
+        return .run { [board = state.workingBoard, findings = state.findings, messages = state.messages, extractionClient] send in
             do {
                 let refinement = try await extractionClient.refinePlan(board, findings, messages)
                 await send(.internal(.replied(refinement)))

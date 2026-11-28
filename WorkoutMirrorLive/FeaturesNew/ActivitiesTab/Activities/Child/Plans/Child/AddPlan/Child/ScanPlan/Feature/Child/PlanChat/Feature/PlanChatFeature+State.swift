@@ -34,7 +34,7 @@ extension PlanChatFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .gray
 
-        /// The board as scanned; every turn sends it unchanged, the correction comes back whole.
+        /// The board as scanned, before any correction.
         let board: ScannedBoard
 
         /// Doubts the scan review raised, as the user reads them.
@@ -52,8 +52,11 @@ extension PlanChatFeature {
         /// True while the model is answering.
         var isSending = false
 
-        /// The corrected board waiting for "Apply"; `nil` while the model still asks.
+        /// The latest corrected board, waiting for "Apply"; it stays while the chat goes on, `nil` until the first one.
         var proposal: PlanRefinement?
+
+        /// The newest board the chat proposed; outlives a proposal the plan review rejects, so the chat keeps its edits.
+        var latestBoard: ScannedBoard?
 
         /// Why the last turn failed; shown under the chat.
         var failure: ScanFailure?
@@ -68,6 +71,16 @@ extension PlanChatFeature {
         var sendsAfterDictation = false
 
         // MARK: - Derived
+
+        /// The board the next turn sends: the latest proposal once there is one, so the chat builds on its own changes.
+        var workingBoard: ScannedBoard {
+            latestBoard ?? board
+        }
+
+        /// The proposal card, hidden while a new message is on its way.
+        var visibleProposal: PlanRefinement? {
+            isSending ? nil : proposal
+        }
 
         /// Messages the user has sent in this chat.
         var userMessageCount: Int {

@@ -71,7 +71,7 @@ struct PlanChatView: View {
                     typingIndicator
                         .transition(.opacity)
                 }
-                if let proposal = store.proposal {
+                if let proposal = store.visibleProposal {
                     proposalCard(proposal)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -88,7 +88,7 @@ struct PlanChatView: View {
             .padding(16)
             .animation(.default, value: store.messages)
             .animation(.default, value: store.isSending)
-            .animation(.default, value: store.proposal)
+            .animation(.default, value: store.visibleProposal)
             .animation(.default, value: store.failure)
         }
         .defaultScrollAnchor(.bottom, for: .initialOffset)
