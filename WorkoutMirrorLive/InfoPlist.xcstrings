@@ -229,6 +229,47 @@
           }
         }
       }
+    },
+    "NSMicrophoneUsageDescription" : {
+      "comment" : "Microphone prompt: dictation in the AI chat.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit dem Mikrofon diktierst du Nachrichten an den KI-Chat. Die Sprache wird auf deinem iPhone erkannt und nie aufgenommen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The microphone lets you dictate messages to the AI chat. Speech is recognized on your iPhone and never recorded."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El micrófono te permite dictar mensajes al chat de IA. La voz se reconoce en tu iPhone y nunca se graba."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le micro vous permet de dicter des messages au chat IA. La parole est reconnue sur votre iPhone et n’est jamais enregistrée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il microfono ti permette di dettare messaggi alla chat IA. La voce viene riconosciuta sul tuo iPhone e non viene mai registrata."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon pozwala dyktować wiadomości do czatu AI. Mowa jest rozpoznawana na Twoim iPhonie i nigdy nie jest nagrywana."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
