@@ -19,6 +19,12 @@ extension PlanChatFeature {
     /// Longest message the server reads in full.
     static let maxMessageLength = 1_000
 
+    /// Dictation stops on its own after this long, so a forgotten microphone does not stay open.
+    static let maxDictationDuration: Duration = .seconds(60)
+
+    /// How long Send waits for the final dictated words before it lets go of the session.
+    static let dictationFinishGrace: Duration = .seconds(3)
+
     @ObservableState
     struct State: Equatable {
 
@@ -52,6 +58,15 @@ extension PlanChatFeature {
         /// Why the last turn failed; shown under the chat.
         var failure: ScanFailure?
 
+        /// Where dictation stands; anything but idle means the microphone owns the field's text.
+        var dictationPhase: DictationPhase = .idle
+
+        /// The field's text from before dictation; the transcript is appended to it.
+        var textBeforeDictation = ""
+
+        /// True once "Send" was tapped while dictating; the message goes out after the last words arrive.
+        var sendsAfterDictation = false
+
         // MARK: - Derived
 
         /// Messages the user has sent in this chat.
@@ -62,6 +77,16 @@ extension PlanChatFeature {
         /// True once the chat used up its messages.
         var isMessageLimitReached: Bool {
             userMessageCount >= PlanChatFeature.maxUserMessages
+        }
+
+        /// True while the microphone is preparing or listening.
+        var isDictating: Bool {
+            dictationPhase == .preparing || dictationPhase == .recording
+        }
+
+        /// True when the field is empty and idle, so the microphone takes the send button's place.
+        var canDictate: Bool {
+            dictationPhase == .idle && inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
 
         /// Whether the send button can fire.

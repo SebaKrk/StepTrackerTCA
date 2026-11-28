@@ -37,6 +37,10 @@ struct PlanChatView: View {
         .onChange(of: isInputFocused) { _, isFocused in
             if isFocused { send(.inputFocused) }
         }
+        // Dictating needs no keyboard; an open one goes away.
+        .onChange(of: store.isDictating) { _, isDictating in
+            if isDictating { isInputFocused = false }
+        }
     }
 
     // MARK: - Structure
@@ -95,17 +99,23 @@ struct PlanChatView: View {
 
     private var inputBar: some View {
         GlassEffectContainer {
-            HStack(alignment: .bottom, spacing: 10) {
-                messageField
-                sendButton
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            messageBar
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
         }
         // Only a used-up chat locks the field: disabling it while the model answers would drop the keyboard.
         .disabled(store.isMessageLimitReached)
         .opacity(store.isMessageLimitReached ? 0.4 : 1)
         .animation(.easeInOut(duration: 0.2), value: store.isMessageLimitReached)
+    }
+
+    private var messageBar: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            messageField
+            trailingButton
+        }
+        .animation(.easeInOut(duration: 0.2), value: store.canDictate)
+        .animation(.easeInOut(duration: 0.2), value: store.dictationPhase)
     }
 
     // MARK: - Implementation
@@ -198,13 +208,43 @@ struct PlanChatView: View {
     }
 
     private var messageField: some View {
-        TextField(placeholder, text: $store.inputText, axis: .vertical)
+        TextField(fieldPrompt, text: $store.inputText, axis: .vertical)
             .focused($isInputFocused)
             .lineLimit(1...4)
             .font(.body)
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 24, style: .continuous))
+    }
+
+    /// While dictating, the empty field says the phone is listening instead of asking to type.
+    private var fieldPrompt: String {
+        store.isDictating ? dictationStatusText : placeholder
+    }
+
+    // An empty field offers the microphone, a typed one the send button, as in Messages.
+    private var trailingButton: some View {
+        Group {
+            if store.canDictate {
+                micButton
+                    .transition(.scale.combined(with: .opacity))
+            } else {
+                sendButton
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+    }
+
+    private var micButton: some View {
+        Button {
+            send(.micTapped)
+        } label: {
+            Image(systemName: "mic.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .frame(height: 27)
+        }
+        .buttonStyle(.glass)
+        .accessibilityLabel(micLabel)
     }
 
     private var sendButton: some View {
@@ -263,6 +303,10 @@ struct PlanChatView: View {
     private var placeholder: String { String(localized: "What should change?") }
     private var sendLabel: String { String(localized: "Send") }
     private var closeTitle: String { String(localized: "Cancel") }
+    private var micLabel: String { String(localized: "Dictate") }
+    private var dictationStatusText: String {
+        store.dictationPhase == .preparing ? String(localized: "Preparing…") : String(localized: "Listening…")
+    }
 }
 
 // MARK: - Previews

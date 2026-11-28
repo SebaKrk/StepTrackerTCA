@@ -968,6 +968,7 @@
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Bluetooth connects your heart-rate strap and sends your heart rate to the coach's iPad in the room.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera scans the QR code on the coach's iPad (to join a class) and photographs your workout plan, which an AI service then reads.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We read your heart rate, calories and distance from the Health app to show you live metrics during a workout and to build your history.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The microphone lets you dictate messages to the AI chat. Speech is recognized on your iPhone and never recorded.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We save your completed workouts (heart rate, calories, duration, distance) to the Health app, so everything is in one place and your history is on all your Apple devices.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "During an outdoor workout your location is used to measure speed and distance and to record the route shown in the summary.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
@@ -1013,6 +1014,7 @@
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Bluetooth connects your heart-rate strap and sends your heart rate to the coach's iPad in the room.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "The camera scans the QR code on the coach's iPad (to join a class) and photographs your workout plan, which an AI service then reads.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "We read your heart rate, calories and distance from the Health app to show you live metrics during a workout and to build your history.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The microphone lets you dictate messages to the AI chat. Speech is recognized on your iPhone and never recorded.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "We save your completed workouts (heart rate, calories, duration, distance) to the Health app, so everything is in one place and your history is on all your Apple devices.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "During an outdoor workout your location is used to measure speed and distance and to record the route shown in the summary.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
