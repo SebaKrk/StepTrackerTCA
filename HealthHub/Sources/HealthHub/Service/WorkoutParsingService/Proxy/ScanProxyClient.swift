@@ -106,13 +106,25 @@ public actor ScanProxyClient {
     // MARK: - Training Notes
 
     /// Asks for the warm-up or cool-down cue of a planned session.
+    ///
+    /// `sideBlock` is the section's own activation or finisher block; the cue is written around it,
+    /// before or after depending on `sideBlockFirst`.
     public func trainingNote(
         kind: TrainingNoteKind,
         workouts: [TrainingNoteWorkout],
         durationMinutes: Int?,
+        sideBlock: TrainingNoteWorkout? = nil,
+        sideBlockFirst: Bool? = nil,
         language: String
     ) async throws -> String {
-        let notes = try await notes(kind: kind.rawValue, workouts: workouts, durationMinutes: durationMinutes, language: language)
+        let notes = try await notes(
+            kind: kind.rawValue,
+            workouts: workouts,
+            durationMinutes: durationMinutes,
+            sideBlock: sideBlock,
+            sideBlockFirst: sideBlockFirst,
+            language: language
+        )
         guard let text = kind == .warmUp ? notes.warmUp : notes.coolDown else {
             throw ScanProxyError.invalidResponse
         }
@@ -143,12 +155,16 @@ public actor ScanProxyClient {
         kind: String,
         workouts: [TrainingNoteWorkout],
         durationMinutes: Int?,
+        sideBlock: TrainingNoteWorkout? = nil,
+        sideBlockFirst: Bool? = nil,
         language: String
     ) async throws -> TrainingNotes {
         let request = NoteRequest(
             kind: kind,
             workouts: workouts,
             durationMinutes: durationMinutes,
+            sideBlock: sideBlock,
+            sideBlockFirst: sideBlockFirst,
             language: language
         )
         let response: NoteResponse = try await call(Self.noteFunction, body: request)
@@ -297,6 +313,10 @@ public actor ScanProxyClient {
         let kind: String
         let workouts: [TrainingNoteWorkout]
         let durationMinutes: Int?
+        /// The warm-up's or cool-down's own block; omitted from the JSON when `nil`, so older servers see the same request.
+        let sideBlock: TrainingNoteWorkout?
+        /// Whether that block is done before the cue.
+        let sideBlockFirst: Bool?
         let language: String
     }
 
