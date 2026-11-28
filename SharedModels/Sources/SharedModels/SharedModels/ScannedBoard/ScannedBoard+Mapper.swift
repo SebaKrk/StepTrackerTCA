@@ -15,10 +15,10 @@ extension ScannedBoard {
     /// the user adjusts it in the editor when the plan is for another day.
     public func toTrainingSession(scanDate: Date = Date()) -> TrainingSession {
         let warmUp = sections.first { $0.kind == .warmup }.map { section in
-            WarmUpSession(goal: .timeLimit, time: section.writtenMinutes, description: section.boardText, block: section.sideBlock)
+            WarmUpSession(goal: .timeLimit, time: section.writtenMinutes, description: section.boardText, block: section.sideBlock, order: section.sideOrder)
         }
         let coolDown = sections.first { $0.kind == .cooldown }.map { section in
-            CoolDownSession(goal: .timeLimit, time: section.writtenMinutes, description: section.boardText, block: section.sideBlock)
+            CoolDownSession(goal: .timeLimit, time: section.writtenMinutes, description: section.boardText, block: section.sideBlock, order: section.sideOrder)
         }
         var workouts = workoutSections.map { $0.toWorkoutSessionNew() }
         if classTimeCapMin > 0, let first = workouts.first {
@@ -51,6 +51,11 @@ extension ScannedSection {
 
     fileprivate var boardText: String {
         text.isEmpty ? name : text
+    }
+
+    /// The board's block-or-routine order; `nil` keeps the plan's default layout.
+    fileprivate var sideOrder: SideBlockOrder? {
+        sideBlockFirst.map { $0 ? .blockFirst : .notesFirst }
     }
 
     /// The warm-up or cool-down block, built like a workout block; nil unless the board names a format and movements.

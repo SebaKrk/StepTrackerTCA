@@ -52,7 +52,8 @@ extension ScannedBoard {
                 text: section.text,
                 notes: section.notes,
                 uncertain: section.uncertain,
-                movements: section.movements
+                movements: section.movements,
+                sideBlockFirst: section.sideBlockFirst
             )
         }
         let board = ScannedBoard(

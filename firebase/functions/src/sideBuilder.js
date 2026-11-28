@@ -63,6 +63,8 @@ function boardSection(kind, built) {
     name: kind === "warmup" ? "Warm-up" : "Cool-down",
     notes: "",
     uncertain: [],
+    // The plan places the block before or after the routine by this; it means nothing without a block.
+    ...(block ? { sideBlockFirst: built.blockFirst === true } : {}),
   };
 }
 

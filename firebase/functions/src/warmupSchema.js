@@ -26,9 +26,10 @@ const block = object(["format", "timeCapMin", "roundCount", "workSec", "restSec"
   movements: array(movement, "The block's movements, done in turn round by round"),
 });
 
-const warmupSchema = object(["lines", "block", "writtenDurationMin", "change"], {
+const warmupSchema = object(["lines", "block", "blockFirst", "writtenDurationMin", "change"], {
   lines: array(string("One exercise with its reps, time or distance"), "The routine, one exercise per line; never the block's movements"),
   block: array(block, "Empty, or the one block the athlete asked for"),
+  blockFirst: { type: "boolean", description: "True when the block is done before the routine lines; false when after, or when there is no block" },
   writtenDurationMin: integer("Minutes of the whole section, routine and block together"),
   change: string("One short line saying what you built, in the athlete's language"),
 });

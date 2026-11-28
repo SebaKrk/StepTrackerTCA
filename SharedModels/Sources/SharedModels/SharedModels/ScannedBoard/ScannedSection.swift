@@ -63,6 +63,9 @@ public struct ScannedSection: Codable, Sendable, Equatable {
     /// Movements in board order; empty for warm-up / cool-down text.
     public let movements: [ScannedMovement]
 
+    /// Warm-up / cool-down only: whether the block comes before the routine text; `nil` when the board said nothing.
+    public let sideBlockFirst: Bool?
+
     public init(
         label: String = "",
         kind: ScannedSectionKind,
@@ -81,7 +84,8 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         text: String = "",
         notes: String = "",
         uncertain: [String] = [],
-        movements: [ScannedMovement] = []
+        movements: [ScannedMovement] = [],
+        sideBlockFirst: Bool? = nil
     ) {
         self.label = label
         self.kind = kind
@@ -101,9 +105,10 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         self.notes = notes
         self.uncertain = uncertain
         self.movements = movements
+        self.sideBlockFirst = sideBlockFirst
     }
 
-    // A proxy still on an earlier form sends neither field — read them as "not a fitness run" and "a closed ladder".
+    // A proxy on an earlier form may omit the newer fields — read them as "a closed ladder", "not a fitness run" and "no order".
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.label = try container.decode(String.self, forKey: .label)
@@ -124,5 +129,6 @@ public struct ScannedSection: Codable, Sendable, Equatable {
         self.notes = try container.decode(String.self, forKey: .notes)
         self.uncertain = try container.decode([String].self, forKey: .uncertain)
         self.movements = try container.decode([ScannedMovement].self, forKey: .movements)
+        self.sideBlockFirst = try container.decodeIfPresent(Bool.self, forKey: .sideBlockFirst)
     }
 }
