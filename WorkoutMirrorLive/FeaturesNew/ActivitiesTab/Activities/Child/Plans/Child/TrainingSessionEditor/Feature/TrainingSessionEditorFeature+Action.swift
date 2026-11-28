@@ -42,11 +42,14 @@ extension TrainingSessionEditorFeature {
             /// Updates the warmup duration in minutes.
             case warmUpTimeChanged(Int)
 
-            /// User requested AI generation of warmup description.
-            case warmUpGenerateTapped
+            /// User tapped Add block or the existing warm-up block — opens the block editor.
+            case warmUpBlockEditTapped
 
             /// User tapped the trash on the warm-up block.
             case warmUpBlockRemoveTapped
+
+            /// User dragged the warm-up block onto its notes (or back) — the two swap places.
+            case warmUpPartsSwapped
 
             /// Toggles cooldown on (`CoolDownSession` with defaults) or off (`nil`).
             case coolDownToggled
@@ -54,11 +57,38 @@ extension TrainingSessionEditorFeature {
             /// Updates the cooldown duration in minutes.
             case coolDownTimeChanged(Int)
 
-            /// User requested AI generation of cooldown description.
-            case coolDownGenerateTapped
+            /// User tapped Add block or the existing cool-down block — opens the block editor.
+            case coolDownBlockEditTapped
 
             /// User tapped the trash on the cool-down block.
             case coolDownBlockRemoveTapped
+
+            /// User dragged the cool-down block onto its notes (or back) — the two swap places.
+            case coolDownPartsSwapped
+
+            /// User edited the warm-up notes.
+            case warmUpNotesChanged(String)
+
+            /// User asked the AI to write the warm-up notes.
+            case warmUpGenerateTapped
+
+            /// User asked the AI to write the cool-down notes.
+            case coolDownGenerateTapped
+
+            /// User edited the cool-down notes.
+            case coolDownNotesChanged(String)
+
+            /// A dragged part landed on another part; the reducer swaps them only if they are partners.
+            case sidePartDropped(SidePart, onto: SidePart)
+
+            /// User lifted the grip of a warm-up or cool-down part.
+            case sidePartLifted(SidePart)
+
+            /// The grip's drag ended, dropped or cancelled (reported on iOS 27 and later).
+            case sidePartDragEnded
+
+            /// A dragged grip entered (`true`) or left (`false`) a warm-up or cool-down part.
+            case sidePartTargeted(SidePart, isTargeted: Bool)
         }
 
         // MARK: - Internal
@@ -67,10 +97,11 @@ extension TrainingSessionEditorFeature {
 
         @CasePathable
         enum Internal {
-            /// AI returned a warm-up description.
+
+            /// AI returned the warm-up notes, or failed.
             case warmUpGenerationResult(Result<String, any Error>)
 
-            /// AI returned a cool-down description.
+            /// AI returned the cool-down notes, or failed.
             case coolDownGenerationResult(Result<String, any Error>)
         }
 
@@ -95,9 +126,9 @@ extension TrainingSessionEditorFeature {
             case deleteConfirmed
             /// User dismissed the AI generation error alert.
             case generationErrorDismissed
-            /// User agreed to send plans to the AI service while asking for a warmup.
+            /// User agreed to send the plan to the AI service while asking for warm-up notes.
             case warmUpGenerationAllowed
-            /// User agreed to send plans to the AI service while asking for a cooldown.
+            /// User agreed to send the plan to the AI service while asking for cool-down notes.
             case coolDownGenerationAllowed
         }
 

@@ -43,19 +43,27 @@ extension TrainingSessionEditorFeature {
 
         // MARK: - AI
 
-        /// True while the AI is generating warmup notes.
-        var isGeneratingWarmUpNotes: Bool = false
-        
-        /// True while the AI is generating cooldown notes.
-        var isGeneratingCoolDownNotes: Bool = false
+        /// True while the AI is writing the warm-up notes.
+        var isGeneratingWarmUpNotes = false
+
+        /// True while the AI is writing the cool-down notes.
+        var isGeneratingCoolDownNotes = false
 
         /// Whether the user agreed to send plans to the AI service; asked once, revocable in settings.
         @Shared(.appStorage(.aiProcessingConsent))
         var isAIProcessingAllowed = false
 
+        // MARK: - Drag
+
+        /// Warm-up or cool-down part whose grip the user lifted; only its partner may light up as a drop target.
+        var draggedSidePart: SidePart?
+
+        /// Partner part the dragged grip is hovering over — highlighted, `nil` when none.
+        var sidePartDropTarget: SidePart?
+
         // MARK: - Navigation
 
-        /// Navigation destination — WOD editor pushed on top.
+        /// Navigation destination — WOD or side-block editor pushed on top.
         @Presents var destination: Destination.State?
 
         // MARK: - Alert
@@ -71,6 +79,46 @@ extension TrainingSessionEditorFeature {
 
         var navigationTitle: String {
             mode == .create ? "New Workout" : "Edit Workout"
+        }
+
+        /// Warm-up card, ready to render.
+        var warmUpSection: SideSection {
+            SideSection(
+                isOn: draft.warmUp != nil,
+                minutes: draft.warmUp?.time ?? 10,
+                notes: draft.warmUp?.description ?? "",
+                block: draft.warmUp?.block,
+                order: draft.warmUp?.resolvedOrder ?? .notesFirst,
+                blockPart: .warmUpBlock,
+                notesPart: .warmUpNotes,
+                liftedPart: draggedSidePart,
+                dropTarget: sidePartDropTarget,
+                isGenerating: isGeneratingWarmUpNotes,
+                generation: generation(notes: draft.warmUp?.description ?? "", isGenerating: isGeneratingWarmUpNotes)
+            )
+        }
+
+        /// Cool-down card, ready to render.
+        var coolDownSection: SideSection {
+            SideSection(
+                isOn: draft.coolDown != nil,
+                minutes: draft.coolDown?.time ?? 10,
+                notes: draft.coolDown?.description ?? "",
+                block: draft.coolDown?.block,
+                order: draft.coolDown?.resolvedOrder ?? .blockFirst,
+                blockPart: .coolDownBlock,
+                notesPart: .coolDownNotes,
+                liftedPart: draggedSidePart,
+                dropTarget: sidePartDropTarget,
+                isGenerating: isGeneratingCoolDownNotes,
+                generation: generation(notes: draft.coolDown?.description ?? "", isGenerating: isGeneratingCoolDownNotes)
+            )
+        }
+
+        /// The AI only writes into empty notes, and needs workouts to write from.
+        private func generation(notes: String, isGenerating: Bool) -> SideNotesGeneration {
+            guard notes.isEmpty, !isGenerating else { return .hidden }
+            return draft.workouts.isEmpty ? .needsWorkouts : .available
         }
 
         // MARK: - Init

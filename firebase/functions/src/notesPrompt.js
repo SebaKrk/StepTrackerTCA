@@ -47,12 +47,20 @@ const chooseLength = (kind) => {
  * The client sends names only, never prose: the shape of the prompt stays here
  * so the request cannot be rewritten into something this key should not answer.
  */
-const userPrompt = (kind, workouts, durationMinutes) => {
+const userPrompt = (kind, workouts, durationMinutes, sideBlock = null, sideBlockFirst = false) => {
   const lines = ["Workout:"];
   for (const workout of workouts) {
-    lines.push(`- ${workout.name} (${workout.type})`);
-    for (const exercise of workout.exercises) {
-      lines.push(`  • ${exercise}`);
+    pushWorkout(lines, workout);
+  }
+  if (sideBlock && kind !== "both") {
+    const section = kind === "warmUp" ? "warm-up" : "cool-down";
+    const when = sideBlockFirst ? "before" : "after";
+    const rest = sideBlockFirst ? "after" : "before";
+    lines.push(`The ${section} already contains this block, done ${when} your cue:`);
+    pushWorkout(lines, sideBlock);
+    lines.push(`Your cue complements it: do not repeat its movements, and cover what comes ${rest} it.`);
+    if (typeof durationMinutes === "number") {
+      lines.push(`The duration below includes this block, so keep your part shorter.`);
     }
   }
   if (typeof durationMinutes === "number") {
@@ -68,6 +76,14 @@ const userPrompt = (kind, workouts, durationMinutes) => {
     lines.push(`\nWrite the ${verb} cue for this workout.`);
   }
   return lines.join("\n");
+};
+
+/** One workout as a name line followed by its exercises. */
+const pushWorkout = (lines, workout) => {
+  lines.push(`- ${workout.name} (${workout.type})`);
+  for (const exercise of workout.exercises) {
+    lines.push(`  • ${exercise}`);
+  }
 };
 
 module.exports = { systemPrompt, userPrompt };

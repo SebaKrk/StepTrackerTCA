@@ -91,19 +91,11 @@ struct WorkoutDetailContent: View {
     private func warmupCard(_ warmUp: WarmUpSession) -> some View {
         GroupBox {
             DisclosureGroup(isExpanded: isWarmupExpanded) {
-                VStack(alignment: .leading, spacing: 8) {
-                    if !warmUp.description.isEmpty {
-                        Text(warmUp.description)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    if let block = warmUp.block {
-                        Divider()
-                        blockContent(block)
-                    }
-                }
+                sideSectionContent(
+                    description: warmUp.description,
+                    block: warmUp.block,
+                    order: warmUp.resolvedOrder
+                )
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 4)
             } label: {
@@ -144,6 +136,44 @@ struct WorkoutDetailContent: View {
             }
         }
         .styledGroupBox()
+    }
+
+    // MARK: - Side Section Content
+
+    /// Warm-up or cool-down body: notes and block in the order the plan chose.
+    private func sideSectionContent(
+        description: String,
+        block: WorkoutSessionNew?,
+        order: SideBlockOrder
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if order == .blockFirst {
+                sideBlock(block)
+                if block != nil && !description.isEmpty { Divider() }
+                sideNotes(description)
+            } else {
+                sideNotes(description)
+                if block != nil && !description.isEmpty { Divider() }
+                sideBlock(block)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func sideNotes(_ description: String) -> some View {
+        if !description.isEmpty {
+            Text(description)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
+    private func sideBlock(_ block: WorkoutSessionNew?) -> some View {
+        if let block {
+            blockContent(block)
+        }
     }
 
     // MARK: - Block Content
@@ -395,22 +425,11 @@ struct WorkoutDetailContent: View {
     private func cooldownCard(_ coolDown: CoolDownSession) -> some View {
         GroupBox {
             DisclosureGroup(isExpanded: isCooldownExpanded) {
-                VStack(alignment: .leading, spacing: 8) {
-                    // The cool-down block is done first, so it sits above the stretching.
-                    if let block = coolDown.block {
-                        blockContent(block)
-                    }
-
-                    if !coolDown.description.isEmpty {
-                        if coolDown.block != nil {
-                            Divider()
-                        }
-                        Text(coolDown.description)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
+                sideSectionContent(
+                    description: coolDown.description,
+                    block: coolDown.block,
+                    order: coolDown.resolvedOrder
+                )
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 4)
             } label: {

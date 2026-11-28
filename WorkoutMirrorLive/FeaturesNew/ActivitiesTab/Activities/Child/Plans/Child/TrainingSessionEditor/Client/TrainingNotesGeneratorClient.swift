@@ -13,8 +13,18 @@ import SharedModels
 // MARK: - Context
 
 struct TrainingNotesContext: Sendable {
+
+    /// Workouts of the plan the cue is written for.
     let workouts: [WorkoutSessionNew]
+
+    /// Length of the warm-up or cool-down; `nil` lets the model choose.
     let durationMinutes: Int?
+
+    /// The section's own activation or finisher block; the cue is written around it.
+    var block: WorkoutSessionNew? = nil
+
+    /// Whether that block is done before the cue.
+    var blockFirst: Bool? = nil
 }
 
 // MARK: - Client
@@ -55,6 +65,8 @@ extension TrainingNotesGeneratorClient: DependencyKey {
             kind: kind,
             workouts: context.workouts.map(noteWorkout),
             durationMinutes: context.durationMinutes,
+            sideBlock: context.block.map(noteWorkout),
+            sideBlockFirst: context.block == nil ? nil : context.blockFirst,
             language: ScanLanguage.preferredName()
         )
     }

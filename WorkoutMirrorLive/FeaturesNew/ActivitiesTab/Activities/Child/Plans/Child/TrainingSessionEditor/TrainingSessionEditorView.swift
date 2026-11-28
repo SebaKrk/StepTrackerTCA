@@ -14,57 +14,54 @@ struct TrainingSessionEditorView: View {
 
     // MARK: - Properties
 
+    /// Editor store; every edit goes through it as a view action or a binding.
     @Bindable var store: StoreOf<TrainingSessionEditorFeature>
 
     // MARK: - Body
 
     var body: some View {
+        editorScreen
+            .navigationTitle(store.navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbarContent }
+            .alert($store.scope(state: \.alert, action: \.alert))
+            .safeAreaInset(edge: .bottom) {
+                bottomBar
+            }
+            .navigationDestination(item: workoutEditorStore) { store in
+                WorkoutSessionEditorView(store: store)
+            }
+            .navigationDestination(item: warmUpBlockEditorStore) { store in
+                WorkoutSessionEditorView(store: store)
+            }
+            .navigationDestination(item: coolDownBlockEditorStore) { store in
+                WorkoutSessionEditorView(store: store)
+            }
+    }
+
+    // MARK: - Structure
+
+    private var editorScreen: some View {
+        cards
+            .scrollDismissesKeyboard(.interactively)
+            .dismissesKeyboardOnBackgroundTap()
+            .modifier(dragHaptics)
+            .background(screenBackground)
+    }
+
+    private var cards: some View {
         ScrollView {
             VStack(spacing: 12) {
-                detailsGroupBox
-                warmupGroupBox
-                workoutsGroupBox
-                cooldownGroupBox
+                detailsCard
+                warmUpCard
+                workoutsCard
+                coolDownCard
             }
             .padding()
         }
-        .background(
-            LinearGradient(
-                colors: [store.color.opacity(0.2), .clear],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-        )
-        .navigationTitle(store.navigationTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar { toolbarContent }
-        .alert($store.scope(state: \.alert, action: \.alert))
-        .safeAreaInset(edge: .bottom) {
-            bottomBar
-        }
-        .navigationDestination(
-            item: $store.scope(state: \.destination?.workoutEditor, action: \.destination.workoutEditor)
-        ) { store in
-            WorkoutSessionEditorView(store: store)
-        }
     }
 
-    // MARK: - Toolbar
-
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button { send(.saveTapped) } label: {
-                Text("Save").fontWeight(.semibold)
-            }
-            .disabled(store.isSaveDisabled)
-        }
-    }
-
-    // MARK: - Details GroupBox
-
-    private var detailsGroupBox: some View {
+    private var detailsCard: some View {
         GroupBox {
             VStack(spacing: 0) {
                 titleRow
@@ -81,9 +78,69 @@ struct TrainingSessionEditorView: View {
         .styledGroupBox()
     }
 
+    private var warmUpCard: some View {
+        GroupBox {
+            if store.draft.warmUp != nil {
+                warmUpContent
+            } else {
+                emptyRow("No warmup")
+            }
+        } label: {
+            groupBoxHeader("Warmup", isOn: warmUpToggle)
+        }
+        .styledGroupBox()
+    }
+
+    private var workoutsCard: some View {
+        GroupBox {
+            if store.draft.workouts.isEmpty {
+                emptyRow("No workouts")
+            } else {
+                workoutList
+            }
+        } label: {
+            groupBoxHeader("Workouts")
+        }
+        .styledGroupBox()
+    }
+
+    private var coolDownCard: some View {
+        GroupBox {
+            if store.draft.coolDown != nil {
+                coolDownContent
+            } else {
+                emptyRow("No cooldown")
+            }
+        } label: {
+            groupBoxHeader("Cooldown", isOn: coolDownToggle)
+        }
+        .styledGroupBox()
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            saveButton
+        }
+    }
+
+    private var bottomBar: some View {
+        HStack {
+            if store.mode == .edit {
+                deleteButton
+            }
+            Spacer()
+            addWorkoutButton
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+
+    // MARK: - Details Rows
+
     private var titleRow: some View {
         editorRow {
-            Text("Title").foregroundStyle(.secondary)
+            rowLabel("Title")
             Spacer()
             TextField("Workout name", text: $store.draft.title)
                 .multilineTextAlignment(.trailing)
@@ -93,7 +150,7 @@ struct TrainingSessionEditorView: View {
 
     private var dateRow: some View {
         editorRow {
-            Text("Date").foregroundStyle(.secondary)
+            rowLabel("Date")
             Spacer()
             DatePicker("", selection: $store.draft.date, displayedComponents: .date)
                 .labelsHidden()
@@ -102,12 +159,9 @@ struct TrainingSessionEditorView: View {
 
     private var activityRow: some View {
         editorRow {
-            Text("Activity").foregroundStyle(.secondary)
+            rowLabel("Activity")
             Spacer()
-            Picker("", selection: Binding(
-                get: { store.draft.activity },
-                set: { store.send(.binding(.set(\.draft.activity, $0))) }
-            )) {
+            Picker("", selection: $store.draft.activity) {
                 ForEach(TrainingSessionEditorFeature.State.supportedActivities, id: \.self) { type in
                     Text(type.title).tag(type)
                 }
@@ -119,14 +173,11 @@ struct TrainingSessionEditorView: View {
 
     private var locationRow: some View {
         editorRow {
-            Text("Location").foregroundStyle(.secondary)
+            rowLabel("Location")
             Spacer()
-            Picker("", selection: Binding(
-                get: { store.draft.location },
-                set: { store.send(.binding(.set(\.draft.location, $0))) }
-            )) {
-                ForEach(WorkoutLocationType.allCases, id: \.self) { loc in
-                    Text(loc.title).tag(loc)
+            Picker("", selection: $store.draft.location) {
+                ForEach(WorkoutLocationType.allCases, id: \.self) { location in
+                    Text(location.title).tag(location)
                 }
             }
             .labelsHidden()
@@ -135,322 +186,254 @@ struct TrainingSessionEditorView: View {
         }
     }
 
+    // MARK: - Side Sections
 
-    // MARK: - Warmup GroupBox
+    private var warmUpContent: some View {
+        SideSectionView(
+            section: store.warmUpSection,
+            addBlockTitle: "Add activation",
+            notesPlaceholder: "e.g. 5 min light jog, dynamic stretching, mobility...",
+            needsWorkoutsHint: "Add workouts first to generate warmup",
+            generatingTitle: "Generating warmup...",
+            accent: store.color,
+            onMinutesChange: changeWarmUpMinutes,
+            onNotesChange: changeWarmUpNotes,
+            onGenerate: generateWarmUpNotes,
+            onEditBlock: editWarmUpBlock,
+            onRemoveBlock: removeWarmUpBlock,
+            onSwap: swapWarmUpParts,
+            onLift: liftSidePart,
+            onDragEnd: endSideDrag,
+            onTargeted: targetSidePart,
+            onDrop: dropSidePart
+        )
+    }
 
-    private var warmupGroupBox: some View {
-        GroupBox {
-            if let warmUp = store.draft.warmUp {
-                VStack(spacing: 0) {
-                    warmupDurationRow(warmUp)
-                    Divider().padding(.leading)
-                    warmupNotesSection
-                    if let block = warmUp.block {
-                        Divider().padding(.leading)
-                        sideBlockRow(block) { send(.warmUpBlockRemoveTapped) }
-                    }
-                }
-                .animation(.default, value: warmUp.block)
-            } else {
-                emptyRow("No warmup")
+    private var coolDownContent: some View {
+        SideSectionView(
+            section: store.coolDownSection,
+            addBlockTitle: "Add finisher",
+            notesPlaceholder: "e.g. 10 min walk, static stretching, foam rolling...",
+            needsWorkoutsHint: "Add workouts first to generate cooldown",
+            generatingTitle: "Generating cooldown...",
+            accent: store.color,
+            onMinutesChange: changeCoolDownMinutes,
+            onNotesChange: changeCoolDownNotes,
+            onGenerate: generateCoolDownNotes,
+            onEditBlock: editCoolDownBlock,
+            onRemoveBlock: removeCoolDownBlock,
+            onSwap: swapCoolDownParts,
+            onLift: liftSidePart,
+            onDragEnd: endSideDrag,
+            onTargeted: targetSidePart,
+            onDrop: dropSidePart
+        )
+    }
+
+    private var warmUpToggle: Binding<Bool> {
+        Binding(get: { store.draft.warmUp != nil }, set: { _ in toggleWarmUp() })
+    }
+
+    private var coolDownToggle: Binding<Bool> {
+        Binding(get: { store.draft.coolDown != nil }, set: { _ in toggleCoolDown() })
+    }
+
+    // MARK: - Side Section Events
+
+    private func toggleWarmUp() { send(.warmUpToggled) }
+    private func changeWarmUpMinutes(_ minutes: Int) { send(.warmUpTimeChanged(minutes)) }
+    private func changeWarmUpNotes(_ notes: String) { send(.warmUpNotesChanged(notes)) }
+    private func generateWarmUpNotes() { send(.warmUpGenerateTapped) }
+    private func editWarmUpBlock() { send(.warmUpBlockEditTapped) }
+    private func removeWarmUpBlock() { send(.warmUpBlockRemoveTapped) }
+    private func swapWarmUpParts() { send(.warmUpPartsSwapped) }
+
+    private func toggleCoolDown() { send(.coolDownToggled) }
+    private func changeCoolDownMinutes(_ minutes: Int) { send(.coolDownTimeChanged(minutes)) }
+    private func changeCoolDownNotes(_ notes: String) { send(.coolDownNotesChanged(notes)) }
+    private func generateCoolDownNotes() { send(.coolDownGenerateTapped) }
+    private func editCoolDownBlock() { send(.coolDownBlockEditTapped) }
+    private func removeCoolDownBlock() { send(.coolDownBlockRemoveTapped) }
+    private func swapCoolDownParts() { send(.coolDownPartsSwapped) }
+
+    /// iOS 27 clears the lift when the drag ends, so every lift changes state; iOS 26 plays its haptic imperatively instead.
+    private var liftHapticTrigger: SidePart? {
+        guard #available(iOS 27, *) else { return nil }
+        return store.draggedSidePart
+    }
+
+    private func liftSidePart(_ part: SidePart) {
+        send(.sidePartLifted(part))
+    }
+
+    private func endSideDrag() {
+        send(.sidePartDragEnded)
+    }
+
+    private func targetSidePart(_ part: SidePart, isTargeted: Bool) {
+        send(.sidePartTargeted(part, isTargeted: isTargeted))
+    }
+
+    /// SwiftUI needs the answer right away; the rule lives on `SidePart` and the reducer checks it again.
+    private func dropSidePart(_ dropped: SidePart, onto target: SidePart) -> Bool {
+        guard dropped.canSwap(with: target) else { return false }
+        send(.sidePartDropped(dropped, onto: target))
+        return true
+    }
+
+    // MARK: - Workouts
+
+    private var workoutList: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(store.draft.workouts.enumerated()), id: \.offset) { index, workout in
+                if index > 0 { Divider().padding(.leading) }
+                workoutButton(workout)
             }
+        }
+    }
+
+    private func workoutButton(_ workout: WorkoutSessionNew) -> some View {
+        Button {
+            send(.workoutTapped(workout))
         } label: {
-            groupBoxHeader("Warmup", isOn: Binding(
-                get: { store.draft.warmUp != nil },
-                set: { _ in send(.warmUpToggled) }
-            ))
-        }
-        .styledGroupBox()
-    }
-
-    private func warmupDurationRow(_ warmUp: WarmUpSession) -> some View {
-        editorRow {
-            Text("Duration").foregroundStyle(.secondary)
-            Spacer()
-            Stepper(
-                "\(warmUp.time ?? 10) min",
-                value: Binding(
-                    get: { warmUp.time ?? 10 },
-                    set: { send(.warmUpTimeChanged($0)) }
-                ),
-                in: 1...120,
-                step: 1
-            )
-            .fixedSize()
-        }
-    }
-
-    private var warmupNotesSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
             editorRow {
-                Text("Description").foregroundStyle(.secondary)
-                Spacer()
-                let warmUpDesc = store.draft.warmUp?.description ?? ""
-                if warmUpDesc.isEmpty {
-                    Menu {
-                        if store.draft.workouts.isEmpty {
-                            Text("Add workouts first to generate warmup")
-                        } else {
-                            Button {
-                                send(.warmUpGenerateTapped)
-                            } label: {
-                                Label("Generate with AI", systemImage: "apple.intelligence")
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "apple.intelligence")
-                            .foregroundStyle(.tint)
-                    }
-                }
+                workoutRow(workout)
             }
-            Divider().padding(.leading)
-            if store.isGeneratingWarmUpNotes {
-                HStack(spacing: 10) {
-                    ProgressView()
-                    Text("Generating warmup...")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-            } else {
-                TextField("e.g. 5 min light jog, dynamic stretching, mobility...", text: Binding(
-                    get: { store.draft.warmUp?.description ?? "" },
-                    set: { newDesc in
-                        if var warmUp = store.draft.warmUp {
-                            warmUp.description = newDesc
-                            store.send(.binding(.set(\.draft.warmUp, warmUp)))
-                        }
-                    }
-                ), axis: .vertical)
-                .padding(.horizontal, 4)
-                .padding(.vertical, 10)
-            }
+            .contentShape(Rectangle())
         }
-    }
-
-    // MARK: - Workouts GroupBox
-
-    private var workoutsGroupBox: some View {
-        GroupBox {
-            if store.draft.workouts.isEmpty {
-                emptyRow("No workouts")
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(store.draft.workouts.enumerated()), id: \.offset) { index, workout in
-                        if index > 0 { Divider().padding(.leading) }
-                        Button { send(.workoutTapped(workout)) } label: {
-                            editorRow {
-                                workoutRow(workout)
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-        } label: {
-            groupBoxHeader("Workouts")
-        }
-        .styledGroupBox()
+        .buttonStyle(.plain)
     }
 
     private func workoutRow(_ workout: WorkoutSessionNew) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(workout.name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.primary)
+                workoutName(workout.name)
                 HStack(spacing: 6) {
-                    Text(workout.type.displayName.uppercased())
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(workout.type.color.opacity(0.8))
-                        .cornerRadius(4)
-                    Text("\(workout.exercises.count) exercises")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    workoutTypeBadge(workout.type)
+                    workoutExerciseCount(workout.exercises.count)
                 }
             }
             Spacer()
             if let timeCap = workout.timeCap {
-                Text("\(timeCap) min")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                workoutTimeCap(timeCap)
             }
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            disclosureChevron
         }
     }
 
-    // MARK: - Cooldown GroupBox
+    // MARK: - Buttons
 
-    private var cooldownGroupBox: some View {
-        GroupBox {
-            if let coolDown = store.draft.coolDown {
-                VStack(spacing: 0) {
-                    cooldownDurationRow(coolDown)
-                    // The cool-down block is done first, so it sits above the stretching.
-                    if let block = coolDown.block {
-                        Divider().padding(.leading)
-                        sideBlockRow(block) { send(.coolDownBlockRemoveTapped) }
-                    }
-                    Divider().padding(.leading)
-                    cooldownNotesSection
-                }
-                .animation(.default, value: coolDown.block)
-            } else {
-                emptyRow("No cooldown")
-            }
+    private var saveButton: some View {
+        Button {
+            send(.saveTapped)
         } label: {
-            groupBoxHeader("Cooldown", isOn: Binding(
-                get: { store.draft.coolDown != nil },
-                set: { _ in send(.coolDownToggled) }
-            ))
+            Text("Save").fontWeight(.semibold)
         }
-        .styledGroupBox()
+        .disabled(store.isSaveDisabled)
     }
 
-    private func cooldownDurationRow(_ coolDown: CoolDownSession) -> some View {
-        editorRow {
-            Text("Duration").foregroundStyle(.secondary)
-            Spacer()
-            Stepper(
-                "\(coolDown.time ?? 10) min",
-                value: Binding(
-                    get: { coolDown.time ?? 10 },
-                    set: { send(.coolDownTimeChanged($0)) }
-                ),
-                in: 1...120,
-                step: 1
-            )
-            .fixedSize()
+    private var deleteButton: some View {
+        Button {
+            send(.deleteTapped)
+        } label: {
+            Image(systemName: "trash")
+                .font(.title3)
+                .foregroundStyle(.red.opacity(0.6))
+                .frame(width: 52, height: 52)
+                .glassEffect(.regular.interactive(), in: Circle())
         }
+        .buttonStyle(.plain)
     }
 
-    private var cooldownNotesSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            editorRow {
-                Text("Description").foregroundStyle(.secondary)
-                Spacer()
-                let coolDownDesc = store.draft.coolDown?.description ?? ""
-                if coolDownDesc.isEmpty {
-                    Menu {
-                        if store.draft.workouts.isEmpty {
-                            Text("Add workouts first to generate cooldown")
-                        } else {
-                            Button {
-                                send(.coolDownGenerateTapped)
-                            } label: {
-                                Label("Generate with AI", systemImage: "apple.intelligence")
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "apple.intelligence")
-                            .foregroundStyle(.tint)
-                    }
-                }
-            }
-            Divider().padding(.leading)
-            if store.isGeneratingCoolDownNotes {
-                HStack(spacing: 10) {
-                    ProgressView()
-                    Text("Generating cooldown...")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-            } else {
-                TextField("e.g. 10 min walk, static stretching, foam rolling...", text: Binding(
-                    get: { store.draft.coolDown?.description ?? "" },
-                    set: { newDesc in
-                        if var coolDown = store.draft.coolDown {
-                            coolDown.description = newDesc
-                            store.send(.binding(.set(\.draft.coolDown, coolDown)))
-                        }
-                    }
-                ), axis: .vertical)
-                .padding(.horizontal, 4)
-                .padding(.vertical, 10)
-            }
+    private var addWorkoutButton: some View {
+        Button {
+            send(.workoutAddTapped)
+        } label: {
+            Image(systemName: "plus")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .foregroundStyle(store.color)
+                .frame(width: 52, height: 52)
+                .glassEffect(.regular.interactive(), in: Circle())
         }
+        .buttonStyle(.plain)
     }
 
-    // MARK: - Side Block Row
+    // MARK: - Navigation
 
-    /// The warm-up or cool-down block: read-only, removable as a whole.
-    private func sideBlockRow(_ block: WorkoutSessionNew, onRemove: @escaping () -> Void) -> some View {
-        editorRow {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(block.name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.primary)
-                HStack(spacing: 6) {
-                    Text(block.type.displayName.uppercased())
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(block.type.color.opacity(0.8))
-                        .cornerRadius(4)
-                    Text("\(block.exercises.count) exercises")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            Spacer()
-            Button(role: .destructive, action: onRemove) {
-                Image(systemName: "trash")
-                    .foregroundStyle(.red.opacity(0.7))
-            }
-            .buttonStyle(.plain)
-        }
+    private var workoutEditorStore: Binding<StoreOf<WorkoutSessionEditorFeature>?> {
+        $store.scope(state: \.destination?.workoutEditor, action: \.destination.workoutEditor)
     }
 
-    // MARK: - Bottom Bar
-
-    private var bottomBar: some View {
-        HStack {
-            if store.mode == .edit {
-                Button {
-                    send(.deleteTapped)
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.title3)
-                        .foregroundStyle(.red.opacity(0.6))
-                        .frame(width: 52, height: 52)
-                        .glassEffect(.regular.interactive(), in: Circle())
-                }
-                .buttonStyle(.plain)
-            }
-            Spacer()
-            Button {
-                send(.workoutAddTapped)
-            } label: {
-                Image(systemName: "plus")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(store.color)
-                    .frame(width: 52, height: 52)
-                    .glassEffect(.regular.interactive(), in: Circle())
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+    private var warmUpBlockEditorStore: Binding<StoreOf<WorkoutSessionEditorFeature>?> {
+        $store.scope(state: \.destination?.warmUpBlockEditor, action: \.destination.warmUpBlockEditor)
     }
 
-    // MARK: - Helpers
+    private var coolDownBlockEditorStore: Binding<StoreOf<WorkoutSessionEditorFeature>?> {
+        $store.scope(state: \.destination?.coolDownBlockEditor, action: \.destination.coolDownBlockEditor)
+    }
 
-    private func groupBoxHeader(_ title: String) -> some View {
+    // MARK: - Implementation
+
+    private var dragHaptics: DragHapticsModifier {
+        DragHapticsModifier(
+            liftedPart: liftHapticTrigger,
+            dropTarget: store.sidePartDropTarget,
+            warmUpOrder: store.draft.warmUp?.order,
+            coolDownOrder: store.draft.coolDown?.order
+        )
+    }
+
+    private var screenBackground: some View {
+        LinearGradient(
+            colors: [store.color.opacity(0.2), .clear],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+
+    private func rowLabel(_ title: LocalizedStringKey) -> some View {
+        Text(title).foregroundStyle(.secondary)
+    }
+
+    private func workoutName(_ name: String) -> some View {
+        Text(name)
+            .font(.subheadline)
+            .fontWeight(.medium)
+            .foregroundStyle(.primary)
+    }
+
+    private func workoutTypeBadge(_ type: ExerciseWorkoutType) -> some View {
+        Text(type.displayName.uppercased())
+            .font(.caption2)
+            .fontWeight(.semibold)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(type.color.opacity(0.8))
+            .cornerRadius(4)
+    }
+
+    private func workoutExerciseCount(_ count: Int) -> some View {
+        Text("\(count) exercises")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private func workoutTimeCap(_ minutes: Int) -> some View {
+        Text("\(minutes) min")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private var disclosureChevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption)
+            .foregroundStyle(.tertiary)
+    }
+
+    private func groupBoxHeader(_ title: LocalizedStringKey) -> some View {
         VStack(spacing: 4) {
             Text(title)
                 .font(.headline)
@@ -460,7 +443,7 @@ struct TrainingSessionEditorView: View {
         }
     }
 
-    private func groupBoxHeader(_ title: String, isOn: Binding<Bool>) -> some View {
+    private func groupBoxHeader(_ title: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
         VStack(spacing: 4) {
             HStack {
                 Text(title)
@@ -475,16 +458,13 @@ struct TrainingSessionEditorView: View {
         }
     }
 
-    @ViewBuilder
-    private func editorRow<Content: View>(
-        @ViewBuilder content: () -> Content
-    ) -> some View {
+    private func editorRow<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         HStack { content() }
             .padding(.vertical, 10)
             .padding(.horizontal, 4)
     }
 
-    private func emptyRow(_ text: String) -> some View {
+    private func emptyRow(_ text: LocalizedStringKey) -> some View {
         Text(text)
             .font(.subheadline)
             .foregroundStyle(.secondary)

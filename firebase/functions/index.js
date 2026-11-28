@@ -95,7 +95,7 @@ exports.scanBoard = onCall(options, async (request) => {
 /** Writes the warm-up or cool-down cue for a planned session. */
 exports.trainingNote = onCall(options, async (request) => {
   const uid = requireUid(request);
-  const { kind, workouts, durationMinutes, language } = parseNoteInput(request.data ?? {});
+  const { kind, workouts, durationMinutes, sideBlock, sideBlockFirst, language } = parseNoteInput(request.data ?? {});
 
   const now = new Date();
   const taken = await reserve(uid, "note", now);
@@ -104,7 +104,7 @@ exports.trainingNote = onCall(options, async (request) => {
       apiKey: anthropicKey.value(),
       model: NOTES_MODEL,
       system: notesPrompt.systemPrompt(kind, language),
-      content: [{ type: "text", text: notesPrompt.userPrompt(kind, workouts, durationMinutes) }],
+      content: [{ type: "text", text: notesPrompt.userPrompt(kind, workouts, durationMinutes, sideBlock, sideBlockFirst) }],
       cacheSystem: false,
       effort: "medium",
       // No length from the caller means the model picks one, and a schema is the
@@ -327,13 +327,13 @@ function parseNoteInput(data) {
   const rawWorkouts = Array.isArray(data.workouts) ? data.workouts.slice(0, MAX_WORKOUTS) : [];
   if (rawWorkouts.length === 0) throw new HttpsError("invalid-argument", "missing-workouts");
 
-  const workouts = rawWorkouts.map((workout) => ({
-    name: clamp(asString(workout?.name, ""), MAX_NAME_CHARS),
-    type: clamp(asString(workout?.type, ""), MAX_NAME_CHARS),
-    exercises: (Array.isArray(workout?.exercises) ? workout.exercises : [])
-      .slice(0, MAX_EXERCISES)
-      .map((exercise) => clamp(asString(exercise, ""), MAX_NAME_CHARS)),
-  }));
+  const workouts = rawWorkouts.map(noteWorkout);
+
+  // The warm-up's or cool-down's own block (an activation, a finisher): only a single cue can sit around it.
+  const hasSideBlock =
+    kind !== "both" && data.sideBlock && typeof data.sideBlock === "object" && !Array.isArray(data.sideBlock);
+  const sideBlock = hasSideBlock ? noteWorkout(data.sideBlock) : null;
+  const sideBlockFirst = sideBlock !== null && data.sideBlockFirst === true;
 
   // Asked for both cues, the model decides each length: one number cannot serve two.
   const duration = Number(data.durationMinutes);
@@ -344,7 +344,20 @@ function parseNoteInput(data) {
     kind,
     workouts,
     durationMinutes,
+    sideBlock,
+    sideBlockFirst,
     language: clamp(asString(data.language, "English"), MAX_LANGUAGE_CHARS),
+  };
+}
+
+/** One workout reduced to clamped names — the only shape a note request may carry. */
+function noteWorkout(workout) {
+  return {
+    name: clamp(asString(workout?.name, ""), MAX_NAME_CHARS),
+    type: clamp(asString(workout?.type, ""), MAX_NAME_CHARS),
+    exercises: (Array.isArray(workout?.exercises) ? workout.exercises : [])
+      .slice(0, MAX_EXERCISES)
+      .map((exercise) => clamp(asString(exercise, ""), MAX_NAME_CHARS)),
   };
 }
 

@@ -13,5 +13,11 @@ extension TrainingSessionEditorFeature {
     enum Destination {
         /// Create or edit a single WOD within the training session.
         case workoutEditor(WorkoutSessionEditorFeature)
+
+        /// Create or edit the warm-up block (a Tabata, a timed run…).
+        case warmUpBlockEditor(WorkoutSessionEditorFeature)
+
+        /// Create or edit the cool-down block.
+        case coolDownBlockEditor(WorkoutSessionEditorFeature)
     }
 }
