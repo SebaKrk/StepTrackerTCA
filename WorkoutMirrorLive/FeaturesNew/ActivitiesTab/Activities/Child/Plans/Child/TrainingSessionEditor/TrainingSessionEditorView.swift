@@ -193,9 +193,12 @@ struct TrainingSessionEditorView: View {
             section: store.warmUpSection,
             addBlockTitle: "Add activation",
             notesPlaceholder: "e.g. 5 min light jog, dynamic stretching, mobility...",
+            needsWorkoutsHint: "Add workouts first to generate warmup",
+            generatingTitle: "Generating warmup...",
             accent: store.color,
             onMinutesChange: changeWarmUpMinutes,
             onNotesChange: changeWarmUpNotes,
+            onGenerate: generateWarmUpNotes,
             onEditBlock: editWarmUpBlock,
             onRemoveBlock: removeWarmUpBlock,
             onSwap: swapWarmUpParts,
@@ -211,9 +214,12 @@ struct TrainingSessionEditorView: View {
             section: store.coolDownSection,
             addBlockTitle: "Add finisher",
             notesPlaceholder: "e.g. 10 min walk, static stretching, foam rolling...",
+            needsWorkoutsHint: "Add workouts first to generate cooldown",
+            generatingTitle: "Generating cooldown...",
             accent: store.color,
             onMinutesChange: changeCoolDownMinutes,
             onNotesChange: changeCoolDownNotes,
+            onGenerate: generateCoolDownNotes,
             onEditBlock: editCoolDownBlock,
             onRemoveBlock: removeCoolDownBlock,
             onSwap: swapCoolDownParts,
@@ -237,6 +243,7 @@ struct TrainingSessionEditorView: View {
     private func toggleWarmUp() { send(.warmUpToggled) }
     private func changeWarmUpMinutes(_ minutes: Int) { send(.warmUpTimeChanged(minutes)) }
     private func changeWarmUpNotes(_ notes: String) { send(.warmUpNotesChanged(notes)) }
+    private func generateWarmUpNotes() { send(.warmUpGenerateTapped) }
     private func editWarmUpBlock() { send(.warmUpBlockEditTapped) }
     private func removeWarmUpBlock() { send(.warmUpBlockRemoveTapped) }
     private func swapWarmUpParts() { send(.warmUpPartsSwapped) }
@@ -244,6 +251,7 @@ struct TrainingSessionEditorView: View {
     private func toggleCoolDown() { send(.coolDownToggled) }
     private func changeCoolDownMinutes(_ minutes: Int) { send(.coolDownTimeChanged(minutes)) }
     private func changeCoolDownNotes(_ notes: String) { send(.coolDownNotesChanged(notes)) }
+    private func generateCoolDownNotes() { send(.coolDownGenerateTapped) }
     private func editCoolDownBlock() { send(.coolDownBlockEditTapped) }
     private func removeCoolDownBlock() { send(.coolDownBlockRemoveTapped) }
     private func swapCoolDownParts() { send(.coolDownPartsSwapped) }

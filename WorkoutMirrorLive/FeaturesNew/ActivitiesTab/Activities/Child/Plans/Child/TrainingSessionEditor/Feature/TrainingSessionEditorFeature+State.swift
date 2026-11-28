@@ -41,6 +41,18 @@ extension TrainingSessionEditorFeature {
         @Shared(.inMemory(.readinessLevelColor))
         var color: Color = .gray
 
+        // MARK: - AI
+
+        /// True while the AI is writing the warm-up notes.
+        var isGeneratingWarmUpNotes = false
+
+        /// True while the AI is writing the cool-down notes.
+        var isGeneratingCoolDownNotes = false
+
+        /// Whether the user agreed to send plans to the AI service; asked once, revocable in settings.
+        @Shared(.appStorage(.aiProcessingConsent))
+        var isAIProcessingAllowed = false
+
         // MARK: - Drag
 
         /// Warm-up or cool-down part whose grip the user lifted; only its partner may light up as a drop target.
@@ -80,7 +92,9 @@ extension TrainingSessionEditorFeature {
                 blockPart: .warmUpBlock,
                 notesPart: .warmUpNotes,
                 liftedPart: draggedSidePart,
-                dropTarget: sidePartDropTarget
+                dropTarget: sidePartDropTarget,
+                isGenerating: isGeneratingWarmUpNotes,
+                generation: generation(notes: draft.warmUp?.description ?? "", isGenerating: isGeneratingWarmUpNotes)
             )
         }
 
@@ -95,8 +109,16 @@ extension TrainingSessionEditorFeature {
                 blockPart: .coolDownBlock,
                 notesPart: .coolDownNotes,
                 liftedPart: draggedSidePart,
-                dropTarget: sidePartDropTarget
+                dropTarget: sidePartDropTarget,
+                isGenerating: isGeneratingCoolDownNotes,
+                generation: generation(notes: draft.coolDown?.description ?? "", isGenerating: isGeneratingCoolDownNotes)
             )
+        }
+
+        /// The AI only writes into empty notes, and needs workouts to write from.
+        private func generation(notes: String, isGenerating: Bool) -> SideNotesGeneration {
+            guard notes.isEmpty, !isGenerating else { return .hidden }
+            return draft.workouts.isEmpty ? .needsWorkouts : .available
         }
 
         // MARK: - Init

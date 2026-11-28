@@ -76,4 +76,32 @@ extension AlertState where Action == TrainingSessionEditorFeature.Action.Alert {
             TextState("\"\(title)\" and all its workouts will be permanently removed.")
         }
     }
+
+    static func generationFailed(_ message: String) -> Self {
+        Self {
+            TextState("Generation Failed")
+        } actions: {
+            ButtonState(action: .generationErrorDismissed) {
+                TextState("OK")
+            }
+        } message: {
+            TextState(message)
+        }
+    }
+
+    /// Consent gate before a plan's text leaves the phone; `allowed` resumes the generation that asked.
+    static func confirmAIProcessing(allowed: Action) -> Self {
+        Self {
+            TextState("Send the plan to an AI service?")
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState("Not now")
+            }
+            ButtonState(action: allowed) {
+                TextState("Allow")
+            }
+        } message: {
+            TextState("The names of the blocks and exercises go through our server to Anthropic, which writes the warm-up and cool-down. We keep no copy, and Anthropic gets no name or account with them.")
+        }
+    }
 }

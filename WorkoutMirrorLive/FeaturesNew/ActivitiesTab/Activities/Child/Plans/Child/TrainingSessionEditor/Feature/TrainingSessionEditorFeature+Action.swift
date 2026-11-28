@@ -69,6 +69,12 @@ extension TrainingSessionEditorFeature {
             /// User edited the warm-up notes.
             case warmUpNotesChanged(String)
 
+            /// User asked the AI to write the warm-up notes.
+            case warmUpGenerateTapped
+
+            /// User asked the AI to write the cool-down notes.
+            case coolDownGenerateTapped
+
             /// User edited the cool-down notes.
             case coolDownNotesChanged(String)
 
@@ -83,6 +89,20 @@ extension TrainingSessionEditorFeature {
 
             /// A dragged grip entered (`true`) or left (`false`) a warm-up or cool-down part.
             case sidePartTargeted(SidePart, isTargeted: Bool)
+        }
+
+        // MARK: - Internal
+
+        case `internal`(Internal)
+
+        @CasePathable
+        enum Internal {
+
+            /// AI returned the warm-up notes, or failed.
+            case warmUpGenerationResult(Result<String, any Error>)
+
+            /// AI returned the cool-down notes, or failed.
+            case coolDownGenerationResult(Result<String, any Error>)
         }
 
         // MARK: - Destination
@@ -104,6 +124,12 @@ extension TrainingSessionEditorFeature {
             case coolDownBlockRemoveConfirmed
             /// User confirmed deleting the entire training session.
             case deleteConfirmed
+            /// User dismissed the AI generation error alert.
+            case generationErrorDismissed
+            /// User agreed to send the plan to the AI service while asking for warm-up notes.
+            case warmUpGenerationAllowed
+            /// User agreed to send the plan to the AI service while asking for cool-down notes.
+            case coolDownGenerationAllowed
         }
 
         // MARK: - Delegate

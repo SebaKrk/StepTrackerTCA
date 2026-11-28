@@ -3685,7 +3685,6 @@
       }
     },
     "Add workouts first to generate cooldown" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3714,13 +3713,12 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Najpierw dodaj treningi, aby wygenerować cooldown"
+            "value" : "Najpierw dodaj treningi, aby wygenerować schłodzenie"
           }
         }
       }
     },
     "Add workouts first to generate warmup" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13106,7 +13104,6 @@
       }
     },
     "Generate with AI" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13141,7 +13138,6 @@
       }
     },
     "Generating cooldown..." : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13170,13 +13166,12 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Generowanie cooldownu..."
+            "value" : "Generowanie schłodzenia..."
           }
         }
       }
     },
     "Generating warmup..." : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13211,7 +13206,6 @@
       }
     },
     "Generation Failed" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

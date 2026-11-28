@@ -36,4 +36,10 @@ struct SideSection: Equatable {
 
     /// Part highlighted as the drop target, if any.
     let dropTarget: SidePart?
+
+    /// True while the AI writes the notes — a progress row replaces the field.
+    let isGenerating: Bool
+
+    /// What the notes header offers for AI-written notes.
+    let generation: SideNotesGeneration
 }

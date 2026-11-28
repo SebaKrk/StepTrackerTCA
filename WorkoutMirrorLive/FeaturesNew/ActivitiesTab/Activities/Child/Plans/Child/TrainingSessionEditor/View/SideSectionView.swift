@@ -24,6 +24,12 @@ struct SideSectionView: View {
     /// Placeholder of the notes field.
     let notesPlaceholder: LocalizedStringKey
 
+    /// Hint shown instead of the AI button while the plan has no workouts.
+    let needsWorkoutsHint: LocalizedStringKey
+
+    /// Label of the progress row while the AI writes the notes.
+    let generatingTitle: LocalizedStringKey
+
     /// Accent used for the drop highlight.
     let accent: Color
 
@@ -32,6 +38,9 @@ struct SideSectionView: View {
 
     /// Called with the edited notes.
     let onNotesChange: (String) -> Void
+
+    /// Asks the AI to write the notes.
+    let onGenerate: () -> Void
 
     /// Opens the block editor (add or edit).
     let onEditBlock: () -> Void
@@ -103,14 +112,37 @@ struct SideSectionView: View {
             row {
                 notesLabel
                 Spacer()
-                if section.block != nil {
+                generateControl
+                if section.block != nil && !section.isGenerating {
                     grip(section.notesPart)
                 }
             }
             Divider().padding(.leading)
-            notesField
+            if section.isGenerating {
+                generatingRow
+                    .transition(.opacity)
+            } else {
+                notesField
+                    .transition(.opacity)
+            }
         }
+        .animation(.default, value: section.isGenerating)
+        .animation(.default, value: section.generation)
         .modifier(dragTarget(section.notesPart))
+    }
+
+    @ViewBuilder
+    private var generateControl: some View {
+        switch section.generation {
+        case .available:
+            generateButton
+                .transition(.opacity)
+        case .needsWorkouts:
+            needsWorkoutsLabel
+                .transition(.opacity)
+        case .hidden:
+            EmptyView()
+        }
     }
 
     private func blockRow(_ block: WorkoutSessionNew) -> some View {
@@ -126,7 +158,10 @@ struct SideSectionView: View {
             }
             .buttonStyle(.plain)
             removeBlockButton
-            grip(section.blockPart)
+            // The cue being written knows the current order, so the parts stay put until it lands.
+            if !section.isGenerating {
+                grip(section.blockPart)
+            }
         }
     }
 
@@ -242,6 +277,35 @@ struct SideSectionView: View {
 
     private var notesLabel: some View {
         Text("Description").foregroundStyle(.secondary)
+    }
+
+    private var generateButton: some View {
+        Button {
+            onGenerate()
+        } label: {
+            Image(systemName: "apple.intelligence")
+                .foregroundStyle(.tint)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("Generate with AI"))
+    }
+
+    private var needsWorkoutsLabel: some View {
+        Text(needsWorkoutsHint)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.trailing)
+    }
+
+    private var generatingRow: some View {
+        HStack(spacing: 10) {
+            ProgressView()
+            Text(generatingTitle)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
     }
 
     private var notesField: some View {
