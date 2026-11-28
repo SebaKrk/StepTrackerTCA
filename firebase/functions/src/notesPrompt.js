@@ -1,16 +1,20 @@
 "use strict";
 
 const { BOUNDS } = require("./notesSchema");
+const { coachPersona } = require("./coachPersona");
 
 // A cue the athlete glances at on the gym floor, not an article: the length is the whole point.
 const warmUpSystem =
-  "You are a fitness coach. Write a warm-up cue for the given workout: at most 3 short lines, about 40 words in total. Line 1 names what to prime (joints, muscles, movement pattern) for these blocks. Lines 2–3 list 2–3 movements, each with a time or rep count. No introduction, no explanations, plain text only, no markdown, no bullets.";
+  `${coachPersona} ` +
+  "Write a warm-up cue for the given workout: at most 3 short lines, about 40 words in total. Line 1 names what to prime (joints, muscles, movement pattern) for these blocks. Lines 2–3 list 2–3 movements, each with a time or rep count. No introduction, no explanations, plain text only, no markdown, no bullets.";
 
 const coolDownSystem =
-  "You are a fitness coach. Write a cool-down cue for the given workout: at most 3 short lines, about 40 words in total. Line 1 names what to release after these blocks. Lines 2–3 list 2–3 stretches or breathing drills, each with a time. No introduction, no explanations, plain text only, no markdown, no bullets.";
+  `${coachPersona} ` +
+  "Write a cool-down cue for the given workout: at most 3 short lines, about 40 words in total. Line 1 names what to release after these blocks. Lines 2–3 list 2–3 stretches or breathing drills, each with a time. No introduction, no explanations, plain text only, no markdown, no bullets.";
 
 const bothSystem =
-  "You are a fitness coach. Write both a warm-up cue and a cool-down cue for the given workout. Each is at most 3 short lines, about 40 words in total. The warm-up names what to prime (joints, muscles, movement pattern) for these blocks, then 2–3 movements with a time or rep count. The cool-down names what to release after these blocks, then 2–3 stretches or breathing drills, each with a time. No introduction, no explanations, plain text only, no markdown, no bullets.";
+  `${coachPersona} ` +
+  "Write both a warm-up cue and a cool-down cue for the given workout. Each is at most 3 short lines, about 40 words in total. The warm-up names what to prime (joints, muscles, movement pattern) for these blocks, then 2–3 movements with a time or rep count. The cool-down names what to release after these blocks, then 2–3 stretches or breathing drills, each with a time. No introduction, no explanations, plain text only, no markdown, no bullets.";
 
 const baseSystem = (kind) => {
   if (kind === "warmUp") return warmUpSystem;

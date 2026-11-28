@@ -9,9 +9,10 @@ const { sendMessage, SCAN_MODEL, NOTES_MODEL, ALLOWED_MODELS } = require("./src/
 const boardPrompt = require("./src/boardPrompt");
 const notesPrompt = require("./src/notesPrompt");
 const refinePrompt = require("./src/refinePrompt");
+const { guardedProposal } = require("./src/refineGuard");
 const { refineSchema } = require("./src/refineSchema");
 const { boardSchema } = require("./src/boardSchema");
-const { boardForForm, withLadderInItsField, withSideBlocksComplete } = require("./src/boardCompat");
+const { boardForForm, withLadderInItsField, withLoadsOutOfReps, withSideBlocksComplete } = require("./src/boardCompat");
 const { notesSchema, BOUNDS } = require("./src/notesSchema");
 const quota = require("./src/quota");
 const stats = require("./src/stats");
@@ -82,7 +83,7 @@ exports.scanBoard = onCall(options, async (request) => {
     });
 
     const parsed = JSON.parse(text);
-    const board = boardForForm(withSideBlocksComplete(withLadderInItsField(parsed)), formVersion);
+    const board = boardForForm(withSideBlocksComplete(withLadderInItsField(withLoadsOutOfReps(parsed))), formVersion);
     logScanTranscript(parsed);
     await stats.recordCall(uid, "scan", usage, now);
     return { board, quota: taken };
@@ -144,7 +145,15 @@ exports.refinePlan = onCall(options, async (request) => {
     let proposed = Array.isArray(reply.proposal) ? reply.proposal[0] : undefined;
     let spent = usage;
     let changes = Array.isArray(reply.changes) ? reply.changes.filter((change) => typeof change === "string") : [];
-    const requests = proposed ? sideRequestsOf(reply) : [];
+    // Without a board, only the yes turn may start a build; a restatement can carry requests too early.
+    let requests = proposed || reply.confirmed === true ? sideRequestsOf(reply) : [];
+    // A warm-up or cool-down alone comes without a board: the chat copying it is where blocks got lost.
+    if (!proposed && requests.length > 0) proposed = input.board;
+    const proposedByChat = Boolean(proposed);
+    ({ proposed, requests } = guardedProposal({ before: input.board, proposed, requests, changes }));
+    if (!proposed) changes = [];
+    // The chat's own words may claim a change the guard found empty; the athlete gets a plain line instead.
+    const replyText = proposedByChat && !proposed ? nothingChangedReply(input.language) : asString(reply.reply, "");
     if (requests.length > 0) {
       const built = await withBuiltSides({
         apiKey: anthropicKey.value(),
@@ -168,7 +177,7 @@ exports.refinePlan = onCall(options, async (request) => {
     logRefineTranscript(input, reply, proposed, requests);
     await stats.recordCall(uid, "refine", spent, now);
     return {
-      reply: asString(reply.reply, ""),
+      reply: replyText,
       board,
       changes: board ? changes : [],
       quota: taken,
@@ -178,6 +187,18 @@ exports.refinePlan = onCall(options, async (request) => {
     throw asHttpsError(error);
   }
 });
+
+/** Said when a proposal changed nothing, in the app's languages; English for any other. */
+function nothingChangedReply(language) {
+  const lines = {
+    Polish: "Ta zmiana nic nie zmieniła w planie. Napisz dokładniej, co mam poprawić.",
+    German: "Diese Änderung hat am Plan nichts geändert. Schreib genauer, was ich korrigieren soll.",
+    Spanish: "Este cambio no modificó nada del plan. Dime con más detalle qué debo corregir.",
+    French: "Ce changement n’a rien modifié dans le plan. Dis-moi plus précisément ce que je dois corriger.",
+    Italian: "Questa modifica non ha cambiato nulla nel piano. Dimmi con più precisione cosa correggere.",
+  };
+  return lines[language] ?? "That change left the plan as it was. Tell me more precisely what to correct.";
+}
 
 /** The value as JSON with object keys sorted, so two boards compare by content, not key order. */
 const canonical = (value) =>

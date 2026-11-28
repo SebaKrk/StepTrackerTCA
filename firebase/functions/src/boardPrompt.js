@@ -2,10 +2,13 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const { coachPersona } = require("./coachPersona");
 
 // The system prompt is a plain text file so the eval harness can rewrite it
 // without touching code: PLANS/scan-eval/apply_to_function.py writes here.
-const systemPrompt = fs.readFileSync(path.join(__dirname, "boardPrompt.txt"), "utf8").trimEnd();
+/** The reading rules alone; the chat appends them to its own prompt, which already carries the persona. */
+const rules = fs.readFileSync(path.join(__dirname, "boardPrompt.txt"), "utf8").trimEnd();
+const systemPrompt = `${coachPersona}\n\n${rules}`;
 
 // In the per-request user prompt, not the cached system prompt, so the cache survives a language change.
 const languageRule = (language) =>
@@ -33,4 +36,4 @@ const visionUserPrompt = (ocrHint, language) => {
   return prompt;
 };
 
-module.exports = { systemPrompt, textUserPrompt, visionUserPrompt };
+module.exports = { rules, systemPrompt, textUserPrompt, visionUserPrompt };
