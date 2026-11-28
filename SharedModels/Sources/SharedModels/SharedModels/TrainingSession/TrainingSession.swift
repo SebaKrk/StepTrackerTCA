@@ -124,11 +124,24 @@ public struct WarmUpSession: Equatable, Codable, Sendable {
     /// Optional, so plans saved before it decode unchanged; it never joins `workouts`, which is what stats read.
     public var block: WorkoutSessionNew?
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "", block: WorkoutSessionNew? = nil) {
+    /// Chosen order of block and notes; `nil` in plans saved before it — `resolvedOrder` keeps their old layout.
+    public var order: SideBlockOrder?
+
+    /// Order to render: warm-ups historically showed the notes first.
+    public var resolvedOrder: SideBlockOrder { order ?? .notesFirst }
+
+    public init(
+        goal: SimpleWorkoutGoal,
+        time: Int?,
+        description: String = "",
+        block: WorkoutSessionNew? = nil,
+        order: SideBlockOrder? = nil
+    ) {
         self.goal = goal
         self.time = time
         self.description = description
         self.block = block
+        self.order = order
     }
 }
 
@@ -143,11 +156,24 @@ public struct CoolDownSession: Equatable, Codable, Sendable {
     /// Optional, so plans saved before it decode unchanged; it never joins `workouts`, which is what stats read.
     public var block: WorkoutSessionNew?
 
-    public init(goal: SimpleWorkoutGoal, time: Int?, description: String = "", block: WorkoutSessionNew? = nil) {
+    /// Chosen order of block and notes; `nil` in plans saved before it — `resolvedOrder` keeps their old layout.
+    public var order: SideBlockOrder?
+
+    /// Order to render: cool-downs historically showed the block first.
+    public var resolvedOrder: SideBlockOrder { order ?? .blockFirst }
+
+    public init(
+        goal: SimpleWorkoutGoal,
+        time: Int?,
+        description: String = "",
+        block: WorkoutSessionNew? = nil,
+        order: SideBlockOrder? = nil
+    ) {
         self.goal = goal
         self.time = time
         self.description = description
         self.block = block
+        self.order = order
     }
 }
 
